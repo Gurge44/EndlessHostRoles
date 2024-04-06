@@ -685,8 +685,14 @@ class ShapeshiftPatch
             isSSneeded = false;
         }
 
+        bool forceCancel = shapeshifter.GetCustomRole().ForceCancelShapeshift();
+
         if (shapeshifter.Is(CustomRoles.Camouflager) && !shapeshifting) Camouflager.Reset();
-        if (Changeling.ChangedRole.TryGetValue(shapeshifter.PlayerId, out var changed) && changed && shapeshifter.GetRoleTypes() != RoleTypes.Shapeshifter) isSSneeded = false;
+        if (Changeling.ChangedRole.TryGetValue(shapeshifter.PlayerId, out var changed) && changed && shapeshifter.GetRoleTypes() != RoleTypes.Shapeshifter)
+        {
+            forceCancel = true;
+            isSSneeded = false;
+        }
 
         // Forced rewriting in case the name cannot be corrected due to the timing of canceling the transformation being off.
         if (!shapeshifting && !shapeshifter.Is(CustomRoles.Glitch) && isSSneeded)
@@ -706,7 +712,7 @@ class ShapeshiftPatch
             NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter);
         }
 
-        return isSSneeded || !Options.DisableShapeshiftAnimations.GetBool() || !shapeshifting;
+        return isSSneeded || (!Options.DisableShapeshiftAnimations.GetBool() && !forceCancel) || !shapeshifting;
     }
 
     // Tasks that should run when someone performs a shapeshift (with the egg animation) should be here.
@@ -723,9 +729,14 @@ class ShapeshiftPatch
                 pc.Notify(shapeshifting ? GetString("ShiftguardNotifySS") : "ShiftguardNotifyUnshift");
             }
 
-            if (Main.PlayerStates[pc.PlayerId].Role is Adventurer { IsEnable: true } av)
+            switch (Main.PlayerStates[pc.PlayerId].Role)
             {
-                Adventurer.OnAnyoneShapeshiftLoop(av, __instance);
+                case Adventurer av:
+                    Adventurer.OnAnyoneShapeshiftLoop(av, __instance);
+                    break;
+                case Roles.Impostor.Sentry st:
+                    st.OnAnyoneShapeshiftLoop(__instance);
+                    break;
             }
         }
     }
@@ -1377,10 +1388,10 @@ class FixedUpdatePatch
                         }
 
                         break;
-                    case CustomRoles.Analyzer:
-                        if ((Main.PlayerStates[seer.PlayerId].Role as Analyzer).CurrentTarget.ID == target.PlayerId)
+                    case CustomRoles.Analyst:
+                        if ((Main.PlayerStates[seer.PlayerId].Role as Analyst).CurrentTarget.ID == target.PlayerId)
                         {
-                            Mark.Append($"<color={GetRoleColorCode(CustomRoles.Analyzer)}>○</color>");
+                            Mark.Append($"<color={GetRoleColorCode(CustomRoles.Analyst)}>○</color>");
                         }
 
                         break;
@@ -1493,9 +1504,12 @@ class FixedUpdatePatch
                 Suffix.Append(Deathpact.GetDeathpactPlayerArrow(seer, target));
                 Suffix.Append(Deathpact.GetDeathpactMark(seer, target));
 
-                if (self) Suffix.Append(AntiAdminer.GetSuffixText(seer));
-
-                if (seer.Is(CustomRoles.Asthmatic) && self) Suffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
+                if (self)
+                {
+                    Suffix.Append(AntiAdminer.GetSuffixText(seer));
+                    Suffix.Append(Roles.Impostor.Sentry.GetSuffix(seer));
+                    if (seer.Is(CustomRoles.Asthmatic)) Suffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
+                }
 
                 if (target.Is(CustomRoles.Librarian)) Suffix.Append(Librarian.GetNameTextForSuffix(target.PlayerId));
 
@@ -1690,7 +1704,8 @@ class EnterVentPatch
         }
 
         Drainer.OnAnyoneEnterVent(pc, __instance);
-        Analyzer.OnAnyoneEnterVent(pc);
+        Analyst.OnAnyoneEnterVent(pc);
+        Roles.Impostor.Sentry.OnAnyoneEnterVent(pc);
 
         switch (pc.GetCustomRole())
         {

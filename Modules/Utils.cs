@@ -586,7 +586,7 @@ public static class Utils
             case CustomRoles.Escort when !Options.UsePets.GetBool() || !Escort.UsePet.GetBool():
             case CustomRoles.DonutDelivery when !Options.UsePets.GetBool() || !DonutDelivery.UsePet.GetBool():
             case CustomRoles.Gaulois when !Options.UsePets.GetBool() || !Gaulois.UsePet.GetBool():
-            case CustomRoles.Analyzer when !Options.UsePets.GetBool() || !Analyzer.UsePet.GetBool():
+            case CustomRoles.Analyst when !Options.UsePets.GetBool() || !Analyst.UsePet.GetBool():
             case CustomRoles.Witness when !Options.UsePets.GetBool() || !Options.WitnessUsePet.GetBool():
             case CustomRoles.Pursuer:
             case CustomRoles.Spiritcaller:
@@ -1801,6 +1801,7 @@ public static class Utils
                     SelfSuffix.Append(Deathpact.GetDeathpactPlayerArrow(seer));
                     SelfSuffix.Append(Commander.GetSuffixText(seer, seer));
                     SelfSuffix.Append(AntiAdminer.GetSuffixText(seer));
+                    SelfSuffix.Append(Roles.Impostor.Sentry.GetSuffix(seer));
 
                     switch (seer.GetCustomRole())
                     {
@@ -2105,10 +2106,10 @@ public static class Utils
                                     }
 
                                     break;
-                                case CustomRoles.Analyzer:
-                                    if ((Main.PlayerStates[seer.PlayerId].Role as Analyzer).CurrentTarget.ID == target.PlayerId)
+                                case CustomRoles.Analyst:
+                                    if ((Main.PlayerStates[seer.PlayerId].Role as Analyst).CurrentTarget.ID == target.PlayerId)
                                     {
-                                        TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Analyzer)}>○</color>");
+                                        TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Analyst)}>○</color>");
                                     }
 
                                     break;
@@ -2391,6 +2392,7 @@ public static class Utils
             CustomRoles.Tornado => Tornado.TornadoCooldown.GetInt(),
             CustomRoles.Sentinel => Sentinel.PatrolCooldown.GetInt(),
             CustomRoles.Druid => Druid.VentCooldown.GetInt(),
+            CustomRoles.Sentry => Roles.Impostor.Sentry.ShowInfoCooldown.GetInt(),
             CustomRoles.Sniper => Options.DefaultShapeshiftCooldown.GetInt(),
             CustomRoles.Assassin => Assassin.AssassinateCooldownOpt.GetInt(),
             CustomRoles.Undertaker => Undertaker.UndertakerAssassinateCooldown.GetInt(),
@@ -2563,6 +2565,7 @@ public static class Utils
             Vulture.OnPlayerDead(target);
             Tracker.OnPlayerDeath(target);
             Adventurer.OnAnyoneDead(target);
+            Roles.Impostor.Sentry.OnAnyoneMurder(target);
 
             FixedUpdatePatch.LoversSuicide(target.PlayerId, onMeeting);
         }

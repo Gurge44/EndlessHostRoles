@@ -134,7 +134,7 @@
 - Tunneler (Crewmate)
 - Detour (Crewmate)
 - Gaulois (Crewmate)
-- Analyzer (Crewmate)
+- Analyst (Crewmate)
 - Electric (Crewmate)
 - Mole (Crewmate)
 - Tornado (Crewmate)

@@ -282,7 +282,7 @@ class GameEndChecker
                 continue;
             }
 
-            bool canWin = WinnerIds.Contains(pc.PlayerId) || WinnerRoles.Contains(pc.GetCustomRole());
+            bool canWin = WinnerIds.Contains(pc.PlayerId) || WinnerRoles.Contains(pc.GetCustomRole()) || (winner == CustomWinner.Bloodlust && pc.Is(CustomRoles.Bloodlust));
             bool isCrewmateWin = reason.Equals(GameOverReason.HumansByVote) || reason.Equals(GameOverReason.HumansByTask);
             SetGhostRole(ToGhostImpostor: canWin ^ isCrewmateWin); // XOR
 

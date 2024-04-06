@@ -322,6 +322,7 @@ public class Main : BasePlugin
                 { CustomRoles.Gaulois, "#42d1f5" },
                 { CustomRoles.Druid, "#ffb694" },
                 { CustomRoles.Autocrat, "#e2ed64" },
+                { CustomRoles.Sentry, "#db55f2" },
                 { CustomRoles.Perceiver, "#ebeb34" },
                 { CustomRoles.Convener, "#34eb7a" },
                 { CustomRoles.Mathematician, "#eb3474" },
@@ -335,7 +336,7 @@ public class Main : BasePlugin
                 { CustomRoles.NiceHacker, "#75fa4c" },
                 { CustomRoles.Aid, "#D7BDE2" },
                 { CustomRoles.DonutDelivery, "#a46efa" },
-                { CustomRoles.Analyzer, "#33ddff" },
+                { CustomRoles.Analyst, "#33ddff" },
                 { CustomRoles.Escort, "#ff94e6" },
                 { CustomRoles.Spy, "#34495E" },
                 { CustomRoles.Doormaster, "#7FB3D5" },
@@ -611,8 +612,8 @@ public class Main : BasePlugin
         {
             AllRoleClasses.AddRange(Assembly.GetAssembly(typeof(RoleBase))!
                 .GetTypes()
-                .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(RoleBase)))
-                .Select(type => (RoleBase)Activator.CreateInstance(type, null)));
+                .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(RoleBase)))
+                .Select(t => (RoleBase)Activator.CreateInstance(t, null)));
             AllRoleClasses.Sort();
         }
         catch (Exception e)
@@ -712,7 +713,9 @@ public enum CustomWinner
     Doomsayer = CustomRoles.Doomsayer,
     RuthlessRomantic = CustomRoles.RuthlessRomantic,
     Doppelganger = CustomRoles.Doppelganger,
-    Imitator = CustomRoles.Imitator
+    Imitator = CustomRoles.Imitator,
+
+    Bloodlust = CustomRoles.Bloodlust
 }
 
 public enum AdditionalWinners

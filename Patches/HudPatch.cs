@@ -203,7 +203,7 @@ class HudManagerPatch
                         case CustomRoles.Pelican:
                             __instance.KillButton?.OverrideText(GetString("PelicanButtonText"));
                             break;
-                        case CustomRoles.Analyzer:
+                        case CustomRoles.Analyst:
                             usedButton?.OverrideText(GetString("AnalyzerKillButtonText"));
                             break;
                         case CustomRoles.Pursuer:
@@ -569,8 +569,6 @@ class SetHudActivePatch
             case CustomRoles.SwordsMan:
             case CustomRoles.Deputy:
             case CustomRoles.Monarch:
-            //case CustomRoles.NWitch:
-            //case CustomRoles.Reverie:
             case CustomRoles.Pelican:
             case CustomRoles.FFF:
             case CustomRoles.Medic:

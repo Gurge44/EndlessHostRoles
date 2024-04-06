@@ -256,22 +256,23 @@ static class ExtendedPlayerControl
     public static float GetAbilityUseLimit(this PlayerControl pc) => Main.AbilityUseLimit.GetValueOrDefault(pc.PlayerId, float.NaN);
     public static float GetAbilityUseLimit(this byte playerId) => Main.AbilityUseLimit.GetValueOrDefault(playerId, float.NaN);
 
-    public static void RpcRemoveAbilityUse(this PlayerControl pc)
+    public static void RpcRemoveAbilityUse(this PlayerControl pc, bool log = true)
     {
         float current = pc.GetAbilityUseLimit();
         if (float.IsNaN(current) || current <= 0f) return;
-        pc.SetAbilityUseLimit(current - 1);
+        pc.SetAbilityUseLimit(current - 1, log: log);
     }
-    public static void RpcIncreaseAbilityUseLimitBy(this PlayerControl pc, float get)
+
+    public static void RpcIncreaseAbilityUseLimitBy(this PlayerControl pc, float get, bool log = true)
     {
         float current = pc.GetAbilityUseLimit();
         if (float.IsNaN(current)) return;
-        pc.SetAbilityUseLimit(current + get);
+        pc.SetAbilityUseLimit(current + get, log: log);
     }
 
-    public static void SetAbilityUseLimit(this PlayerControl pc, float limit, bool rpc = true) => pc.PlayerId.SetAbilityUseLimit(limit, rpc);
+    public static void SetAbilityUseLimit(this PlayerControl pc, float limit, bool rpc = true, bool log = true) => pc.PlayerId.SetAbilityUseLimit(limit, rpc, log);
 
-    public static void SetAbilityUseLimit(this byte playerId, float limit, bool rpc = true)
+    public static void SetAbilityUseLimit(this byte playerId, float limit, bool rpc = true, bool log = true)
     {
         if (float.IsNaN(limit) || limit is < 0f or > 100f || (Main.AbilityUseLimit.TryGetValue(playerId, out var beforeLimit) && Math.Abs(beforeLimit - limit) < 0.01f)) return;
 
@@ -287,7 +288,7 @@ static class ExtendedPlayerControl
 
         var pc = GetPlayerById(playerId);
         NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        Logger.Info($" {pc.GetNameWithRole()} => {Math.Round(limit, 1)}", "SetAbilityUseLimit");
+        if (log) Logger.Info($" {pc.GetNameWithRole()} => {Math.Round(limit, 1)}", "SetAbilityUseLimit");
     }
 
     public static void Suicide(this PlayerControl pc, PlayerState.DeathReason deathReason = PlayerState.DeathReason.Suicide, PlayerControl realKiller = null)

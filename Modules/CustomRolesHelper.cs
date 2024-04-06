@@ -99,6 +99,7 @@ internal static class CustomRolesHelper
             CustomRoles.Dictator => CustomRoles.Crewmate,
             CustomRoles.Inhibitor => CustomRoles.Impostor,
             CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
+            CustomRoles.Generator => CustomRoles.Shapeshifter,
             CustomRoles.Blackmailer => CustomRoles.Impostor,
             CustomRoles.Commander => CustomRoles.Shapeshifter,
             CustomRoles.Freezer => CustomRoles.Shapeshifter,
@@ -170,6 +171,7 @@ internal static class CustomRolesHelper
             CustomRoles.Altruist => CustomRoles.Crewmate,
             CustomRoles.Transmitter => CustomRoles.Crewmate,
             CustomRoles.Autocrat => CustomRoles.Crewmate,
+            CustomRoles.Sentry => CustomRoles.Crewmate,
             CustomRoles.Perceiver => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Convener => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Mathematician => CustomRoles.Crewmate,
@@ -183,7 +185,7 @@ internal static class CustomRolesHelper
             CustomRoles.Escort => UsePets && Escort.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
             CustomRoles.DonutDelivery => UsePets && DonutDelivery.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
             CustomRoles.Gaulois => UsePets && Gaulois.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
-            CustomRoles.Analyzer => UsePets && Analyzer.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
+            CustomRoles.Analyst => UsePets && Analyst.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
             CustomRoles.Escapee => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.NiceGuesser => CustomRoles.Crewmate,
             CustomRoles.EvilGuesser => CustomRoles.Impostor,
@@ -312,7 +314,7 @@ internal static class CustomRolesHelper
             CustomRoles.Escort => UsePets && Escort.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.DonutDelivery => UsePets && DonutDelivery.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Gaulois => UsePets && Gaulois.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
-            CustomRoles.Analyzer => UsePets && Analyzer.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
+            CustomRoles.Analyst => UsePets && Analyst.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Witness => UsePets && Options.WitnessUsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Pursuer => RoleTypes.Impostor,
             CustomRoles.Revolutionist => RoleTypes.Impostor,
@@ -533,6 +535,7 @@ internal static class CustomRolesHelper
         CustomRoles.Underdog or
         CustomRoles.Inhibitor or
         CustomRoles.Kidnapper or
+        CustomRoles.Generator or
         CustomRoles.Blackmailer or
         CustomRoles.Commander or
         CustomRoles.Freezer or
@@ -631,7 +634,7 @@ internal static class CustomRolesHelper
         CustomRoles.Escort or
         CustomRoles.DonutDelivery or
         CustomRoles.Gaulois or
-        CustomRoles.Analyzer or
+        CustomRoles.Analyst or
         CustomRoles.Witness or
         CustomRoles.Monarch or
         CustomRoles.Jailor or
@@ -654,7 +657,7 @@ internal static class CustomRolesHelper
         CustomRoles.Aid when Aid.UsePet.GetBool() => true,
         CustomRoles.Escort when Escort.UsePet.GetBool() => true,
         CustomRoles.DonutDelivery when DonutDelivery.UsePet.GetBool() => true,
-        CustomRoles.Analyzer when Analyzer.UsePet.GetBool() => true,
+        CustomRoles.Analyst when Analyst.UsePet.GetBool() => true,
         CustomRoles.Jailor when Jailor.UsePet.GetBool() => true,
         CustomRoles.Sheriff when Sheriff.UsePet.GetBool() => true,
         CustomRoles.SwordsMan when SwordsMan.UsePet.GetBool() => true,
@@ -678,7 +681,8 @@ internal static class CustomRolesHelper
         CustomRoles.Tunneler,
         CustomRoles.Tornado,
         CustomRoles.Swiftclaw,
-        CustomRoles.Adventurer
+        CustomRoles.Adventurer,
+        CustomRoles.Sentry
     ];
 
     public static bool OnlySpawnsWithPets(this CustomRoles role) => OnlySpawnsWithPetsRoleList.Contains(role);
@@ -736,6 +740,10 @@ internal static class CustomRolesHelper
         CustomRoles.Glitch or
         CustomRoles.Pickpocket or
         CustomRoles.TicketsStealer;
+
+    public static bool ForceCancelShapeshift(this CustomRoles role) => role is
+        CustomRoles.Hangman or
+        CustomRoles.Generator;
 
     public static bool CheckAddonConflictV2(CustomRoles addon, CustomRoles mainRole) => addon.IsAdditionRole() && mainRole is not CustomRoles.GuardianAngelEHR and not CustomRoles.God and not CustomRoles.GM && addon switch
     {
