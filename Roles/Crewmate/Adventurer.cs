@@ -2,6 +2,7 @@
 using System.Linq;
 using EHR.Patches;
 using UnityEngine;
+using static EHR.Roles.Crewmate.Adventurer;
 
 namespace EHR.Roles.Crewmate
 {
@@ -142,23 +143,45 @@ namespace EHR.Roles.Crewmate
                         ResourceCounts[resource] -= count;
                     }
 
-                    switch (weapon)
+                    break;
+            }
+
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        }
+
+        public override void OnPet(PlayerControl pc)
+        {
+            switch (InCraftingMode)
+            {
+                case true:
+                    SelectedWeaponToCraft = OrderedWeapons[(OrderedWeapons.IndexOf(SelectedWeaponToCraft) + 1) % OrderedWeapons.Count];
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                    break;
+                case false when ActiveWeapons.Count > 0:
+                    var target = ExternalRpcPetPatch.SelectKillButtonTarget(pc);
+                    switch (ActiveWeapons[0])
                     {
+                        case Weapon.Gun when target != null:
+                            pc.RpcCheckAndMurder(target);
+                            RemoveAndNotify();
+                            break;
+                        case Weapon.Shield when target != null:
+                            ShieldedPlayers.Add(target.PlayerId);
+                            RemoveAndNotify();
+                            break;
+                        case Weapon.Portal:
+                            var e = Main.AllAlivePlayerControls.Where(x => x.PlayerId != pc.PlayerId && !x.inVent && !x.inMovingPlat && !x.onLadder);
+                            var filtered = e as PlayerControl[] ?? e.ToArray();
+                            if (filtered.Length == 0) return;
+                            var other = filtered[IRandom.Instance.Next(filtered.Length)];
+                            var pos = other.Pos();
+                            other.TP(pc);
+                            pc.TP(pos);
+                            RemoveAndNotify();
+                            break;
                         case Weapon.Lantern:
                             Utils.MarkEveryoneDirtySettings();
                             _ = new LateTask(() => { ActiveWeapons.Remove(Weapon.Lantern); }, IncreasedVisionDuration.GetInt(), log: false);
-                            break;
-                        case Weapon.Portal:
-                            _ = new LateTask(() =>
-                            {
-                                var e = Main.AllAlivePlayerControls.Where(x => x.PlayerId != pc.PlayerId && !x.inVent && !x.inMovingPlat && !x.onLadder);
-                                var filtered = e as PlayerControl[] ?? e.ToArray();
-                                if (filtered.Length == 0) return;
-                                var target = filtered[IRandom.Instance.Next(filtered.Length)];
-                                target.TP(pc);
-                                pc.TP(target);
-                                ActiveWeapons.Remove(weapon);
-                            }, 1f, log: false);
                             break;
                         case Weapon.Wrench:
                             if (Utils.IsActive(SystemTypes.Electrical))
@@ -191,46 +214,22 @@ namespace EHR.Roles.Crewmate
                                 ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Comms, 17);
                             }
 
-                            ActiveWeapons.Remove(weapon);
+                            RemoveAndNotify();
                             break;
                         case Weapon.Prediction:
                             var closest = Main.AllAlivePlayerControls.Where(x => x.PlayerId != pc.PlayerId).MinBy(x => Vector2.Distance(pc.Pos(), x.Pos()));
                             RevealedPlayers.Add(closest.PlayerId);
-                            ActiveWeapons.Remove(weapon);
+                            RemoveAndNotify(notifyTarget: closest);
                             break;
                     }
 
                     break;
-            }
 
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        }
-
-        public override void OnPet(PlayerControl pc)
-        {
-            switch (InCraftingMode)
-            {
-                case true:
-                    SelectedWeaponToCraft = OrderedWeapons[(OrderedWeapons.IndexOf(SelectedWeaponToCraft) + 1) % OrderedWeapons.Count];
-                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                    break;
-                case false when ActiveWeapons.Count > 0:
-                    var target = ExternalRpcPetPatch.SelectKillButtonTarget(pc);
-                    switch (ActiveWeapons[0])
+                    void RemoveAndNotify(PlayerControl notifyTarget = null)
                     {
-                        case Weapon.Gun when target != null:
-                            pc.RpcCheckAndMurder(target);
-                            ActiveWeapons.RemoveAt(0);
-                            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                            break;
-                        case Weapon.Shield when target != null:
-                            ShieldedPlayers.Add(target.PlayerId);
-                            ActiveWeapons.RemoveAt(0);
-                            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                            break;
+                        ActiveWeapons.RemoveAt(0);
+                        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: notifyTarget ?? pc);
                     }
-
-                    break;
             }
         }
 

@@ -241,8 +241,8 @@ namespace EHR.Roles.Crewmate
                         if (showStageClue) GetStage2Clue(letter);
                         return GetStage1Clue(killer, letter);
                     case 3:
-                        if (showStageClue) GetStage3Clue(killerName, letter);
-                        if (rd.Next(0, 100) < EnigmaClueStage2Probability.GetInt()) GetStage2Clue(letter);
+                        if (showStageClue) return GetStage3Clue(killerName, letter);
+                        if (rd.Next(0, 100) < EnigmaClueStage2Probability.GetInt()) return GetStage2Clue(letter);
                         return GetStage1Clue(killer, letter);
                 }
 
@@ -304,22 +304,22 @@ namespace EHR.Roles.Crewmate
 
             private string GetStage1Clue(int length)
             {
-                int start = length - rd.Next(2, 3);
-                int end = length + rd.Next(2, 3);
+                int start = length - rd.Next(1, 3);
+                int end = length + rd.Next(1, 3);
 
                 start = start < 0 ? 0 : start;
-                end = end > 8 ? 8 : end;
+                end = end > 10 ? 10 : end;
 
                 return string.Format(GetString("EnigmaClueNameLength1"), start, end);
             }
 
             private string GetStage2Clue(int length)
             {
-                int start = length - rd.Next(1, 2);
-                int end = length + rd.Next(1, 2);
+                int start = length - rd.Next(0, 2);
+                int end = length + rd.Next(0, 2);
 
                 start = start < 0 ? 0 : start;
-                end = end > 8 ? 8 : end;
+                end = end > 10 ? 10 : end;
 
                 return string.Format(GetString("EnigmaClueNameLength1"), start, end);
             }

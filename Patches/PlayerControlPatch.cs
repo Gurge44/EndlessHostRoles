@@ -130,7 +130,7 @@ class CheckMurderPatch
     {
         if (!AmongUsClient.Instance.AmHost) return false;
 
-        var killer = __instance; // alternative variable
+        var killer = __instance;
 
         Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "CheckMurder");
 
@@ -185,21 +185,16 @@ class CheckMurderPatch
         {
             if (!Main.KilledDiseased.TryAdd(killer.PlayerId, 1))
             {
-                // Key already exists, update the value
                 Main.KilledDiseased[killer.PlayerId] += 1;
             }
-            // Key doesn't exist, add the key-value pair
         }
 
         if (target.Is(CustomRoles.Antidote))
         {
             if (!Main.KilledAntidote.TryAdd(killer.PlayerId, 1))
             {
-                // Key already exists, update the value
-                Main.KilledAntidote[killer.PlayerId] += 1; // Main.AllPlayerKillCooldown.TryGetValue(killer.PlayerId, out float kcd) ? (kcd - Options.AntidoteCDOpt.GetFloat() > 0 ? kcd - Options.AntidoteCDOpt.GetFloat() : 0f) : 0f;
+                Main.KilledAntidote[killer.PlayerId] += 1;
             }
-            // Key doesn't exist, add the key-value pair
-            // Main.AllPlayerKillCooldown.TryGetValue(killer.PlayerId, out float kcd) ? (kcd - Options.AntidoteCDOpt.GetFloat() > 0 ? kcd - Options.AntidoteCDOpt.GetFloat() : 0f) : 0f);
         }
 
         killer.ResetKillCooldown();
@@ -647,13 +642,19 @@ class CmdCheckShapeshiftPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Shapeshift))]
 class ShapeshiftPatch
 {
+    private static readonly List<byte> IgnoreSS = [];
+
     public static bool ProcessShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
         if (!Main.ProcessShapeshifts) return true;
-
-        Logger.Info($"{shapeshifter?.GetNameWithRole()} => {target?.GetNameWithRole()}", "Shapeshift");
-
         if (shapeshifter == null || target == null) return true;
+        if (IgnoreSS.Contains(shapeshifter.PlayerId))
+        {
+            IgnoreSS.Remove(shapeshifter.PlayerId);
+            return true;
+        }
+
+        Logger.Info($"{shapeshifter.GetNameWithRole()} => {target.GetNameWithRole()}", "Shapeshift");
 
         var shapeshifting = shapeshifter.PlayerId != target.PlayerId;
 
@@ -693,6 +694,7 @@ class ShapeshiftPatch
 
         bool shouldCancel = Options.DisableShapeshiftAnimations.GetBool();
         bool shouldAlwaysCancel = shouldCancel && Options.DisableAllShapeshiftAnimations.GetBool();
+        bool doSSwithoutAnim = isSSneeded && shouldAlwaysCancel;
 
         isSSneeded &= !shouldAlwaysCancel;
         forceCancel |= shouldAlwaysCancel;
@@ -713,6 +715,12 @@ class ShapeshiftPatch
             Main.CheckShapeshift[shapeshifter.PlayerId] = false;
             shapeshifter.RpcRejectShapeshift();
             NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter);
+        }
+
+        if (doSSwithoutAnim)
+        {
+            shapeshifter.RpcShapeshift(target, false);
+            IgnoreSS.Add(shapeshifter.PlayerId);
         }
 
         return isSSneeded || (!shouldCancel && !forceCancel) || (!shapeshifting && !shouldAlwaysCancel);

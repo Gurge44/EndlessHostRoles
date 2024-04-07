@@ -13,7 +13,7 @@ public class Romantic : RoleBase
     private const int Id = 9850;
 
     public static byte RomanticId = byte.MaxValue;
-    public static PlayerControl Romantic_;
+    public static PlayerControl RomanticPC;
     public static bool HasPickedPartner => PartnerId != byte.MaxValue;
     public static byte PartnerId = byte.MaxValue;
     public static PlayerControl Partner;
@@ -52,7 +52,7 @@ public class Romantic : RoleBase
     public override void Init()
     {
         RomanticId = byte.MaxValue;
-        Romantic_ = null;
+        RomanticPC = null;
         PartnerId = byte.MaxValue;
         Partner = null;
         IsPartnerProtected = false;
@@ -61,7 +61,7 @@ public class Romantic : RoleBase
     public override void Add(byte playerId)
     {
         RomanticId = playerId;
-        Romantic_ = Utils.GetPlayerById(playerId);
+        RomanticPC = Utils.GetPlayerById(playerId);
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -91,7 +91,7 @@ public class Romantic : RoleBase
         if (HasPickedPartner) Main.AllPlayerKillCooldown[RomanticId] = ProtectCooldown.GetFloat();
         else Main.AllPlayerKillCooldown[RomanticId] = BetCooldown.GetFloat();
 
-        if (Math.Abs(beforeCD - Main.AllPlayerKillCooldown[RomanticId]) > 0.5f) Romantic_?.SyncSettings();
+        if (Math.Abs(beforeCD - Main.AllPlayerKillCooldown[RomanticId]) > 0.5f) RomanticPC?.SyncSettings();
     }
 
     public static bool KnowRole(PlayerControl player, PlayerControl target)
@@ -111,24 +111,24 @@ public class Romantic : RoleBase
 
             SendRPC();
 
-            Romantic_.ResetKillCooldown();
-            Romantic_.SetKillCooldown();
-            Romantic_.RPCPlayCustomSound("Bet");
+            RomanticPC.ResetKillCooldown();
+            RomanticPC.SetKillCooldown();
+            RomanticPC.RPCPlayCustomSound("Bet");
 
-            Romantic_.Notify(GetString("RomanticBetPlayer"));
+            RomanticPC.Notify(GetString("RomanticBetPlayer"));
             if (BetTargetKnowRomantic.GetBool()) target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), GetString("RomanticBetOnYou")));
 
-            Logger.Info($"Partner picked： {Romantic_.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Romantic");
+            Logger.Info($"Partner picked： {RomanticPC.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Romantic");
         }
         else if (!IsPartnerProtected)
         {
             IsPartnerProtected = true;
 
-            Romantic_.ResetKillCooldown();
-            Romantic_.SetKillCooldown();
-            Romantic_.RPCPlayCustomSound("Shield");
+            RomanticPC.ResetKillCooldown();
+            RomanticPC.SetKillCooldown();
+            RomanticPC.RPCPlayCustomSound("Shield");
 
-            Romantic_.Notify(GetString("RomanticProtectPartner"));
+            RomanticPC.Notify(GetString("RomanticProtectPartner"));
             Partner.Notify(GetString("RomanticIsProtectingYou"));
 
             _ = new LateTask(() =>
@@ -139,10 +139,10 @@ public class Romantic : RoleBase
 
                 if (!GameStates.IsInTask) return;
 
-                Romantic_.Notify(GetString("ProtectingOver"));
+                RomanticPC.Notify(GetString("ProtectingOver"));
                 Partner.Notify(GetString("ProtectingOver"));
 
-                Romantic_.SetKillCooldown();
+                RomanticPC.SetKillCooldown();
             }, ProtectDuration.GetFloat());
         }
 
@@ -151,7 +151,7 @@ public class Romantic : RoleBase
 
     public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
     {
-        if (!lowLoad && (Partner.Data.Disconnected || !Partner.IsAlive()) && Romantic_.IsAlive() && Romantic_.Is(CustomRoles.Romantic))
+        if (!lowLoad && (Partner.Data.Disconnected || !Partner.IsAlive()) && RomanticPC.IsAlive() && RomanticPC.Is(CustomRoles.Romantic))
         {
             ChangeRole();
         }
@@ -183,53 +183,53 @@ public class Romantic : RoleBase
 
     public static void ChangeRole()
     {
-        if (Partner == null || Romantic_ == null) return;
+        if (Partner == null || RomanticPC == null || !RomanticPC.Is(CustomRoles.Romantic)) return;
 
         var partnerRole = Partner.GetCustomRole();
         var killer = Partner.GetRealKiller();
 
         if (killer?.PlayerId == RomanticId) // If the Romantic killed their Partner, they also die
         {
-            if (!Romantic_.IsAlive()) return;
+            if (!RomanticPC.IsAlive()) return;
             Logger.Info("Romantic killed their own Partner, Romantic suicides", "Romantic");
-            Romantic_.Suicide(PlayerState.DeathReason.FollowingSuicide, Partner);
+            RomanticPC.Suicide(PlayerState.DeathReason.FollowingSuicide, Partner);
             return;
         }
 
         if ((partnerRole.IsNonNK() && partnerRole is not CustomRoles.Romantic and not CustomRoles.VengefulRomantic and not CustomRoles.RuthlessRomantic) || killer == null || Main.PlayerStates[PartnerId].IsSuicide) // If Partner is NNK or died by themselves, Romantic becomes Ruthless Romantic
         {
-            Logger.Info($"NNK Romantic Partner Died ({partnerRole.IsNonNK()}) / Partner killer is null ({killer == null}) / Partner commited Suicide ({Main.PlayerStates[PartnerId].IsSuicide}) => Changing {Romantic_.GetNameWithRole().RemoveHtmlTags()} to Ruthless Romantic", "Romantic");
-            Romantic_.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
+            Logger.Info($"NNK Romantic Partner Died ({partnerRole.IsNonNK()}) / Partner killer is null ({killer == null}) / Partner commited Suicide ({Main.PlayerStates[PartnerId].IsSuicide}) => Changing {RomanticPC.GetNameWithRole().RemoveHtmlTags()} to Ruthless Romantic", "Romantic");
+            RomanticPC.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
         }
         else if (Partner.Is(Team.Impostor)) // If Partner is Imp, Romantic joins imp team as Refugee
         {
-            Logger.Info($"Impostor Romantic Partner Died => Changing {Romantic_.GetNameWithRole()} to Refugee", "Romantic");
-            Romantic_.RpcSetCustomRole(CustomRoles.Refugee);
+            Logger.Info($"Impostor Romantic Partner Died => Changing {RomanticPC.GetNameWithRole()} to Refugee", "Romantic");
+            RomanticPC.RpcSetCustomRole(CustomRoles.Refugee);
         }
         else if (Partner.HasKillButton() || partnerRole.IsNK() || partnerRole.IsTasklessCrewmate()) // If Partner has a kill button (NK or CK), Romantic becomes the role they were
         {
             try
             {
-                Romantic_.RpcSetCustomRole(partnerRole);
+                RomanticPC.RpcSetCustomRole(partnerRole);
                 Main.PlayerStates[RomanticId].RemoveSubRole(CustomRoles.NotAssigned);
-                Logger.Info($"Romantic Partner With Kill Button Died => Changing {Romantic_.GetNameWithRole()} to {Partner.GetAllRoleName().RemoveHtmlTags()}", "Romantic");
+                Logger.Info($"Romantic Partner With Kill Button Died => Changing {RomanticPC.GetNameWithRole()} to {Partner.GetAllRoleName().RemoveHtmlTags()}", "Romantic");
             }
             catch
             {
-                Logger.Error($"Romantic Partner With Kill Button Died => Changing {Romantic_.GetNameWithRole()} to {Partner.GetAllRoleName().RemoveHtmlTags()} : FAILED ----> changing to Ruthless Romantic instead", "Romantic");
-                Romantic_.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
+                Logger.Error($"Romantic Partner With Kill Button Died => Changing {RomanticPC.GetNameWithRole()} to {Partner.GetAllRoleName().RemoveHtmlTags()} : FAILED ----> changing to Ruthless Romantic instead", "Romantic");
+                RomanticPC.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
             }
         }
         else // In every other scenario, Romantic becomes Vengeful Romantic and must kill the killer of their Partner
         {
-            Logger.Info($"Non-Killing Crew Romantic Partner Died => Changing {Romantic_.GetNameWithRole()} to Vengeful Romantic", "Romantic");
+            Logger.Info($"Non-Killing Crew Romantic Partner Died => Changing {RomanticPC.GetNameWithRole()} to Vengeful Romantic", "Romantic");
 
-            Romantic_.RpcSetCustomRole(CustomRoles.VengefulRomantic);
+            RomanticPC.RpcSetCustomRole(CustomRoles.VengefulRomantic);
             VengefulRomantic.Target = killer.PlayerId;
             VengefulRomantic.SendRPC();
         }
 
-        Romantic_.SetKillCooldown();
+        RomanticPC.SetKillCooldown();
     }
 }
 

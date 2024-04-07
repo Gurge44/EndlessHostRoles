@@ -14,19 +14,19 @@ public class NormalGameOptionsSender : GameOptionsSender
         {
             try
             {
-                if (_logicOptions == null || !GameManager.Instance.LogicComponents.Contains(_logicOptions))
+                if (GameManager.Instance != null && GameManager.Instance.LogicComponents != null && (_logicOptions == null || !GameManager.Instance.LogicComponents.Contains(_logicOptions)))
                 {
-                    foreach (var glc in GameManager.Instance?.LogicComponents)
+                    foreach (var glc in GameManager.Instance.LogicComponents)
                         if (glc.TryCast<LogicOptions>(out var lo))
                             _logicOptions = lo;
                 }
 
-                return _logicOptions != null && _logicOptions.IsDirty;
+                return _logicOptions is { IsDirty: true };
             }
             catch (Exception ex)
             {
-                Logger.Fatal(ex.ToString(), "NormalGameOptionsSender.IsDirty.Get");
-                return _logicOptions != null && _logicOptions.IsDirty;
+                Logger.Error(ex.ToString(), "NormalGameOptionsSender.IsDirty.Get");
+                return _logicOptions is { IsDirty: true };
             }
         }
         protected set { _logicOptions?.ClearDirtyFlag(); }

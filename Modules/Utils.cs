@@ -1946,6 +1946,9 @@ public static class Utils
 
                 string SeerRealName = seer.GetRealName(isForMeeting);
 
+                if (Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFATeamMode.GetBool())
+                    SeerRealName = SeerRealName.ApplyNameColorData(seer, seer, isForMeeting);
+
                 if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato)
                 {
                     var team = CustomTeamManager.GetCustomTeam(seer.PlayerId);

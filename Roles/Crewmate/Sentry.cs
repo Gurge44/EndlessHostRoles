@@ -12,15 +12,15 @@ namespace EHR.Roles.Impostor
         public static OptionItem ShowInfoCooldown;
         private static OptionItem ShowInfoDuration;
         private static OptionItem PlayersKnowAboutCamera;
+        private static OptionItem CannotSeeInfoDuringComms;
         private static OptionItem AbilityUseLimit;
         public static OptionItem AbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
 
+        private PlayerControl SentryPC;
         private PlainShipRoom MonitoredRoom;
 
         private HashSet<byte> DeadBodiesInRoom;
-        private HashSet<byte> PlayersVentedInRoom;
-        private HashSet<byte> PlayersShiftedInRoom;
 
         public static void SetupCustomOption()
         {
@@ -34,21 +34,22 @@ namespace EHR.Roles.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
             PlayersKnowAboutCamera = BooleanOptionItem.Create(id + 4, "Sentry.PlayersKnowAboutCamera", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
-            AbilityUseLimit = IntegerOptionItem.Create(id + 5, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.CrewmateRoles)
+            CannotSeeInfoDuringComms = BooleanOptionItem.Create(id + 5, "Sentry.CannotSeeInfoDuringComms", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
-            AbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(id + 6, "AbilityUseGainWithEachTaskCompleted", new(0.1f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles)
+            AbilityUseLimit = IntegerOptionItem.Create(id + 6, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
-            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(id + 7, "AbilityChargesWhenFinishedTasks", new(0.1f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
+            AbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(id + 7, "AbilityUseGainWithEachTaskCompleted", new(0.1f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
+            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(id + 8, "AbilityChargesWhenFinishedTasks", new(0.1f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
         }
 
         public override void Add(byte playerId)
         {
             On = true;
+            SentryPC = Utils.GetPlayerById(playerId);
             MonitoredRoom = null;
             DeadBodiesInRoom = [];
-            PlayersVentedInRoom = [];
-            PlayersShiftedInRoom = [];
             playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
         }
 
@@ -59,27 +60,28 @@ namespace EHR.Roles.Impostor
 
         public override void OnPet(PlayerControl pc)
         {
-            if (MonitoredRoom == null || MonitoredRoom == default || MonitoredRoom == default(PlainShipRoom)) MonitoredRoom = pc.GetPlainShipRoom();
+            var room = pc.GetPlainShipRoom();
+            if (room == null) return;
+
+            if (MonitoredRoom == null || MonitoredRoom == default || MonitoredRoom == default(PlainShipRoom)) MonitoredRoom = room;
             else DisplayRoomInfo(pc);
         }
 
         void DisplayRoomInfo(PlayerControl pc)
         {
+            if (CannotSeeInfoDuringComms.GetBool() && Utils.IsActive(SystemTypes.Comms)) return;
+
             if (pc.GetAbilityUseLimit() < 1) return;
             pc.RpcRemoveAbilityUse();
 
             var players = Main.AllAlivePlayerControls.Where(IsInMonitoredRoom).Select(x => Utils.ColorString(Main.PlayerColors[x.PlayerId], x.GetRealName())).Join();
             var bodies = GetColoredNames(DeadBodiesInRoom);
-            var vented = GetColoredNames(PlayersVentedInRoom);
-            var shifted = GetColoredNames(PlayersShiftedInRoom);
 
             var noDataString = Translator.GetString("Sentry.Notify.Info.NoData");
             if (players.Length == 0) players = noDataString;
             if (bodies.Length == 0) bodies = noDataString;
-            if (vented.Length == 0) vented = noDataString;
-            if (shifted.Length == 0) shifted = noDataString;
 
-            pc.Notify(string.Format(Translator.GetString("Sentry.Notify.Info"), players, bodies, vented, shifted), ShowInfoDuration.GetInt());
+            pc.Notify(string.Format(Translator.GetString("Sentry.Notify.Info"), players, bodies), ShowInfoDuration.GetInt());
             return;
 
             static string GetColoredNames(IEnumerable<byte> ids) => ids.Where(x => Utils.GetPlayerById(x) != null).Select(x => Utils.ColorString(Main.PlayerColors[x], Utils.GetPlayerById(x).GetRealName())).Join();
@@ -87,9 +89,17 @@ namespace EHR.Roles.Impostor
 
         public bool IsInMonitoredRoom(PlayerControl pc) => MonitoredRoom != null && pc.GetPlainShipRoom() == MonitoredRoom;
 
-        public void OnAnyoneShapeshiftLoop(PlayerControl shapeshifter)
+        public void OnAnyoneShapeshiftLoop(PlayerControl shapeshifter, PlayerControl target)
         {
-            if (IsInMonitoredRoom(shapeshifter)) PlayersShiftedInRoom.Add(shapeshifter.PlayerId);
+            if (IsInMonitoredRoom(shapeshifter))
+            {
+                SentryPC.Notify(
+                    string.Format(
+                        Translator.GetString("Sentry.Notify.Shapeshifted"),
+                        Utils.ColorString(Main.PlayerColors[shapeshifter.PlayerId], shapeshifter.GetRealName()),
+                        Utils.ColorString(Main.PlayerColors[target.PlayerId], target.GetRealName())),
+                    ShowInfoDuration.GetFloat());
+            }
         }
 
         public static void OnAnyoneMurder(PlayerControl target)
@@ -109,7 +119,11 @@ namespace EHR.Roles.Impostor
             {
                 if (state.Role is Sentry st && st.IsInMonitoredRoom(pc))
                 {
-                    st.PlayersVentedInRoom.Add(pc.PlayerId);
+                    st.SentryPC.Notify(
+                        string.Format(
+                            Translator.GetString("Sentry.Notify.Vented"),
+                            Utils.ColorString(Main.PlayerColors[pc.PlayerId], pc.GetRealName())),
+                        ShowInfoDuration.GetFloat());
                 }
             }
         }

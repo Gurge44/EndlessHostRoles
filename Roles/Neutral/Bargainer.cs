@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using AmongUs.GameOptions;
+using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using AmongUs.GameOptions;
 using UnityEngine;
 using static EHR.Options;
 
