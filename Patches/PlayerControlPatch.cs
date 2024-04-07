@@ -746,7 +746,7 @@ class ShapeshiftPatch
                     Adventurer.OnAnyoneShapeshiftLoop(av, __instance);
                     break;
                 case Roles.Impostor.Sentry st:
-                    st.OnAnyoneShapeshiftLoop(__instance);
+                    st.OnAnyoneShapeshiftLoop(__instance, target);
                     break;
             }
         }
