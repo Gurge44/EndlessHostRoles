@@ -61,7 +61,7 @@ namespace EHR.Roles.Neutral
         {
             [Item.EnergyDrink] = Utils.ColorString(Color.magenta, "\u2668"),
             [Item.LensOfTruth] = "\u2600",
-            [Item.BandAid] = Utils.ColorString(Color.green, "\u2764")
+            [Item.BandAid] = Utils.ColorString(Color.green, "♥")
         };
 
         private static IEnumerable<Vector2> ShopLocations
@@ -99,7 +99,7 @@ namespace EHR.Roles.Neutral
 
         public static void SetupCustomOption()
         {
-            int id = 14880;
+            int id = 14870;
             const TabGroup tab = TabGroup.NeutralRoles;
 
             SetupRoleOptions(id++, tab, CustomRoles.Bargainer);
@@ -243,6 +243,13 @@ namespace EHR.Roles.Neutral
 
         public override bool OnSabotage(PlayerControl pc)
         {
+            if (InShop)
+            {
+                var list = OrderedItems.ToList();
+                SelectedItem = list[(list.IndexOf(SelectedItem) + 1) % list.Count];
+                return false;
+            }
+
             if (Gains.TryGetValue(MoneyGainingAction.Sabotage, out var gain))
             {
                 Money += gain;
@@ -319,17 +326,11 @@ namespace EHR.Roles.Neutral
 
             ActiveItems.RemoveAll(x => x.Item == Item.None);
 
-            foreach (var item in ActiveItems.Where(x => x.Duration != int.MaxValue && x.ActivateTimeStamp + x.Duration < Utils.TimeStamp))
+            foreach (var item in ActiveItems.Where(x => x.Duration != int.MaxValue && x.ActivateTimeStamp + x.Duration < Utils.TimeStamp).ToArray())
             {
                 ActiveItems.Remove(item);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: Utils.GetPlayerById(item.Target) ?? pc);
             }
-        }
-
-        public override void OnPet(PlayerControl pc)
-        {
-            var list = OrderedItems.ToList();
-            SelectedItem = list[(list.IndexOf(SelectedItem) + 1) % list.Count];
         }
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
@@ -371,17 +372,22 @@ namespace EHR.Roles.Neutral
 
             if (bg.InShop)
             {
-                result += string.Format(Translator.GetString("Bargainer.Suffix.InShop"), Translator.GetString($"Bargainer.{bg.SelectedItem}"));
+                result += string.Format(
+                    Translator.GetString("Bargainer.Suffix.InShop"),
+                    Translator.GetString($"Bargainer.{bg.SelectedItem}"),
+                    Utils.ColorString(bg.Money >= Costs[bg.SelectedItem] ? Color.white : Color.red, $"{Costs[bg.SelectedItem]}"));
                 result += "\n";
             }
 
+            if (seer.IsModClient()) result += "<size=150%>";
             result += string.Join(' ', bg.ActiveItems.Select(x =>
             {
-                var timeLeft = x.Duration - (Utils.TimeStamp - x.ActivateTimeStamp);
+                var timeLeft = x.Duration - (Utils.TimeStamp - x.ActivateTimeStamp) + 1;
                 var icon = Icons[x.Item];
                 if (x.Item == Item.LensOfTruth && x.Target != byte.MaxValue) icon = Utils.ColorString(Main.PlayerColors[x.Target], icon);
                 return seer.IsModClient() && timeLeft < 10 ? $"{icon} ({timeLeft}s)" : icon;
             }));
+            if (seer.IsModClient()) result += "</size>";
 
             return result;
         }

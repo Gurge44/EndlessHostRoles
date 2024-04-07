@@ -690,8 +690,7 @@ internal static class CustomRolesHelper
         CustomRoles.Swiftclaw,
         CustomRoles.Adventurer,
         CustomRoles.Sentry,
-        CustomRoles.Cherokious,
-        CustomRoles.Bargainer
+        CustomRoles.Cherokious
     ];
 
     public static bool OnlySpawnsWithPets(this CustomRoles role) => OnlySpawnsWithPetsRoleList.Contains(role);
