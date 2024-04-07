@@ -1,11 +1,11 @@
-﻿using AmongUs.GameOptions;
-using EHR.Modules;
-using Hazel;
-using InnerNet;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using AmongUs.GameOptions;
+using EHR.Modules;
+using Hazel;
+using InnerNet;
 using static EHR.Translator;
 
 namespace EHR;

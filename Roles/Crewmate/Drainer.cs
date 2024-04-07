@@ -1,7 +1,7 @@
-﻿using AmongUs.GameOptions;
-using HarmonyLib;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using HarmonyLib;
 using static EHR.Options;
 
 namespace EHR.Roles.Crewmate
@@ -21,16 +21,16 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Drainer);
-            VentCD = IntegerOptionItem.Create(Id + 10, "VentCooldown", new(1, 60, 1), 30, TabGroup.CrewmateRoles, false)
+            VentCD = IntegerOptionItem.Create(Id + 10, "VentCooldown", new(1, 60, 1), 30, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Drainer])
                 .SetValueFormat(OptionFormat.Seconds);
-            UseLimit = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(1, 20, 1), 1, TabGroup.CrewmateRoles, false)
+            UseLimit = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(1, 20, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Drainer])
                 .SetValueFormat(OptionFormat.Times);
-            DrainerAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.5f, TabGroup.CrewmateRoles, false)
+            DrainerAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Drainer])
                 .SetValueFormat(OptionFormat.Times);
-            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Drainer])
                 .SetValueFormat(OptionFormat.Times);
         }

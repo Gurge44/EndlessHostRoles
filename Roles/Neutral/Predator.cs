@@ -1,7 +1,7 @@
-﻿using AmongUs.GameOptions;
-using HarmonyLib;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using HarmonyLib;
 
 namespace EHR.Roles.Neutral
 {
@@ -23,16 +23,16 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Predator);
-            NumOfRolesToKill = IntegerOptionItem.Create(Id + 2, "NumOfRolesToKill", new(1, 10, 1), 3, TabGroup.NeutralRoles, false)
+            NumOfRolesToKill = IntegerOptionItem.Create(Id + 2, "NumOfRolesToKill", new(1, 10, 1), 3, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator]);
-            MaxImpRolePicks = IntegerOptionItem.Create(Id + 3, "MaxImpRolePicks", new(1, 10, 1), 1, TabGroup.NeutralRoles, false)
+            MaxImpRolePicks = IntegerOptionItem.Create(Id + 3, "MaxImpRolePicks", new(1, 10, 1), 1, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator]);
-            KillCooldown = FloatOptionItem.Create(Id + 4, "KillCooldown", new(0f, 180f, 2.5f), 15f, TabGroup.NeutralRoles, false)
+            KillCooldown = FloatOptionItem.Create(Id + 4, "KillCooldown", new(0f, 180f, 2.5f), 15f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator])
                 .SetValueFormat(OptionFormat.Seconds);
-            CanVent = BooleanOptionItem.Create(Id + 5, "CanVent", true, TabGroup.NeutralRoles, false)
+            CanVent = BooleanOptionItem.Create(Id + 5, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator]);
-            HasImpVision = BooleanOptionItem.Create(Id + 6, "ImpostorVision", false, TabGroup.NeutralRoles, false)
+            HasImpVision = BooleanOptionItem.Create(Id + 6, "ImpostorVision", false, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator]);
         }
 

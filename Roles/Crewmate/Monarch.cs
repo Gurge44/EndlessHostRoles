@@ -1,5 +1,5 @@
-﻿using AmongUs.GameOptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -17,9 +17,9 @@ public class Monarch : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Monarch);
-        KnightCooldown = FloatOptionItem.Create(Id + 10, "MonarchKnightCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Monarch])
+        KnightCooldown = FloatOptionItem.Create(Id + 10, "MonarchKnightCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Monarch])
             .SetValueFormat(OptionFormat.Seconds);
-        KnightMax = IntegerOptionItem.Create(Id + 12, "MonarchKnightMax", new(1, 15, 1), 2, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Monarch])
+        KnightMax = IntegerOptionItem.Create(Id + 12, "MonarchKnightMax", new(1, 15, 1), 2, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Monarch])
             .SetValueFormat(OptionFormat.Times);
         UsePet = CreatePetUseSetting(Id + 11, CustomRoles.Monarch);
     }

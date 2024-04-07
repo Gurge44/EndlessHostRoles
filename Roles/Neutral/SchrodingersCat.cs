@@ -11,7 +11,7 @@
         {
             const int id = 13840;
             Options.SetupRoleOptions(id, TabGroup.NeutralRoles, CustomRoles.SchrodingersCat);
-            WinsWithCrewIfNotAttacked = BooleanOptionItem.Create(id + 2, "SchrodingersCat.WinsWithCrewIfNotAttacked", true, TabGroup.NeutralRoles, false)
+            WinsWithCrewIfNotAttacked = BooleanOptionItem.Create(id + 2, "SchrodingersCat.WinsWithCrewIfNotAttacked", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SchrodingersCat]);
         }
 

@@ -1,9 +1,9 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using HarmonyLib;
 using Hazel;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Utils;
@@ -31,23 +31,23 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Bubble);
-            KillCooldown = FloatOptionItem.Create(Id + 2, "BubbleCD", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false)
+            KillCooldown = FloatOptionItem.Create(Id + 2, "BubbleCD", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bubble])
                 .SetValueFormat(OptionFormat.Seconds);
-            HasImpostorVision = BooleanOptionItem.Create(Id + 6, "ImpostorVision", true, TabGroup.NeutralRoles, false)
+            HasImpostorVision = BooleanOptionItem.Create(Id + 6, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bubble]);
-            NotifyDelay = IntegerOptionItem.Create(Id + 3, "BubbleTargetNotifyDelay", new(0, 60, 1), 3, TabGroup.NeutralRoles, false)
+            NotifyDelay = IntegerOptionItem.Create(Id + 3, "BubbleTargetNotifyDelay", new(0, 60, 1), 3, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bubble])
                 .SetValueFormat(OptionFormat.Seconds);
-            ExplodeDelay = IntegerOptionItem.Create(Id + 4, "BubbleExplosionDelay", new(0, 60, 1), 10, TabGroup.NeutralRoles, false)
+            ExplodeDelay = IntegerOptionItem.Create(Id + 4, "BubbleExplosionDelay", new(0, 60, 1), 10, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bubble])
                 .SetValueFormat(OptionFormat.Seconds);
-            BubbleDiesIfInRange = BooleanOptionItem.Create(Id + 5, "BubbleDiesIfInRange", true, TabGroup.NeutralRoles, false)
+            BubbleDiesIfInRange = BooleanOptionItem.Create(Id + 5, "BubbleDiesIfInRange", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bubble]);
-            ExplosionRadius = FloatOptionItem.Create(Id + 7, "BubbleExplosionRadius", new(0.1f, 5f, 0.1f), 3f, TabGroup.NeutralRoles, false)
+            ExplosionRadius = FloatOptionItem.Create(Id + 7, "BubbleExplosionRadius", new(0.1f, 5f, 0.1f), 3f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bubble])
                 .SetValueFormat(OptionFormat.Multiplier);
-            CanVent = BooleanOptionItem.Create(Id + 8, "CanVent", true, TabGroup.NeutralRoles, false)
+            CanVent = BooleanOptionItem.Create(Id + 8, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bubble]);
         }
 

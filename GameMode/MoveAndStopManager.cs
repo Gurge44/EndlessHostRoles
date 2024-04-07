@@ -1,8 +1,8 @@
-﻿using EHR.Roles.AddOns.Common;
-using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EHR.Roles.AddOns.Common;
+using HarmonyLib;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -64,7 +64,7 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
     {
         get
         {
-            string result = IsYellow || (Timer == TotalGreenTime && !IsRed && !IsYellow) || (Timer == TotalRedTime && IsRed) ? Utils.ColorString(Color.clear, "00") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $"0{Timer}" : Timer.ToString());
+            string result = IsYellow || (Timer == TotalGreenTime && !IsRed && !IsYellow) || (Timer == TotalRedTime && IsRed) ? Utils.ColorString(Color.clear, "00") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $" {Timer}" : Timer.ToString());
 
             if (Timer is <= 19 and >= 10 && !IsYellow) result = $" {result}";
             if (Timer % 10 == 1 && !IsYellow) result = result.Insert(result.Length - 9, " ");
@@ -217,7 +217,7 @@ internal class MoveAndStopManager
     private static int DefaultMaxValue => 30;
 
     private static OptionItem CreateSetting(int Id, string direction, bool red, bool min) =>
-        IntegerOptionItem.Create(Id, CounterSettingString(direction, red, min), CounterValueRule, min ? DefaultMinValue : DefaultMaxValue, TabGroup.GameSettings, false)
+        IntegerOptionItem.Create(Id, CounterSettingString(direction, red, min), CounterValueRule, min ? DefaultMinValue : DefaultMaxValue, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.MoveAndStop)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds)
@@ -230,7 +230,7 @@ internal class MoveAndStopManager
             .AddReplacement(new("Middle", Utils.ColorString(Color.white, "Middle")));
 
     private static OptionItem CreateExtraTimeSetting(int Id, string mapName, int defaultValue) =>
-        IntegerOptionItem.Create(Id, $"MoveAndStop_ExtraGreenTimeOn{mapName}", ExtraTimeValue, defaultValue, TabGroup.GameSettings, false)
+        IntegerOptionItem.Create(Id, $"MoveAndStop_ExtraGreenTimeOn{mapName}", ExtraTimeValue, defaultValue, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.MoveAndStop)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds)
@@ -238,7 +238,7 @@ internal class MoveAndStopManager
 
     public static void SetupCustomOption()
     {
-        MoveAndStop_GameTime = IntegerOptionItem.Create(68_213_001, "FFA_GameTime", new(30, 1200, 10), 900, TabGroup.GameSettings, false)
+        MoveAndStop_GameTime = IntegerOptionItem.Create(68_213_001, "FFA_GameTime", new(30, 1200, 10), 900, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.MoveAndStop)
             .SetColor(new Color32(0, 255, 255, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds)

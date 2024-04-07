@@ -1,5 +1,5 @@
-﻿using AmongUs.GameOptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using static EHR.Options;
 
 namespace EHR.Roles.Crewmate
@@ -14,14 +14,14 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             SetupSingleRoleOptions(5525, TabGroup.CrewmateRoles, CustomRoles.Ventguard);
-            VentguardAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(5527, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles, false)
+            VentguardAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(5527, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard])
                 .SetValueFormat(OptionFormat.Times);
-            VentguardAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(5530, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+            VentguardAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(5530, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard])
                 .SetValueFormat(OptionFormat.Times);
-            VentguardMaxGuards = IntegerOptionItem.Create(5528, "VentguardMaxGuards", new(1, 30, 1), 3, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard]);
-            VentguardBlockDoesNotAffectCrew = BooleanOptionItem.Create(5529, "VentguardBlockDoesNotAffectCrew", true, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard]);
+            VentguardMaxGuards = IntegerOptionItem.Create(5528, "VentguardMaxGuards", new(1, 30, 1), 3, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard]);
+            VentguardBlockDoesNotAffectCrew = BooleanOptionItem.Create(5529, "VentguardBlockDoesNotAffectCrew", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard]);
         }
 
         public override void Add(byte playerId)

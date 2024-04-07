@@ -1,8 +1,8 @@
-﻿using EHR.Modules;
+﻿using System.Collections.Generic;
+using System.Linq;
+using EHR.Modules;
 using EHR.Roles.Impostor;
 using Hazel;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using static EHR.Options;
 
@@ -36,11 +36,11 @@ public class Doppelganger : RoleBase
     public static void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Doppelganger);
-        MaxSteals = IntegerOptionItem.Create(Id + 10, "DoppelMaxSteals", new(1, 14, 1), 9, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
-        KillCooldown = FloatOptionItem.Create(Id + 11, "KillCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger])
+        MaxSteals = IntegerOptionItem.Create(Id + 10, "DoppelMaxSteals", new(1, 14, 1), 9, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
+        KillCooldown = FloatOptionItem.Create(Id + 11, "KillCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger])
             .SetValueFormat(OptionFormat.Seconds);
-        ResetMode = StringOptionItem.Create(Id + 12, "DGResetMode", ResetModes, 0, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
-        ResetTimer = FloatOptionItem.Create(Id + 13, "DGResetTimer", new(0f, 60f, 1f), 30f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger])
+        ResetMode = StringOptionItem.Create(Id + 12, "DGResetMode", ResetModes, 0, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
+        ResetTimer = FloatOptionItem.Create(Id + 13, "DGResetTimer", new(0f, 60f, 1f), 30f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger])
             .SetValueFormat(OptionFormat.Seconds);
     }
 

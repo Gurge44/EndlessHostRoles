@@ -1,4 +1,3 @@
-using EHR.Modules;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
+using EHR.Modules;
 using LogLevel = BepInEx.Logging.LogLevel;
 
 namespace EHR;

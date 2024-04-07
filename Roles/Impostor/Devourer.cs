@@ -1,7 +1,7 @@
-using AmongUs.GameOptions;
-using EHR.Roles.Neutral;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using EHR.Roles.Neutral;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -32,15 +32,15 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Devourer);
-            DefaultKillCooldown = FloatOptionItem.Create(Id + 10, "SansDefaultKillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Devourer])
+            DefaultKillCooldown = FloatOptionItem.Create(Id + 10, "SansDefaultKillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Devourer])
                 .SetValueFormat(OptionFormat.Seconds);
-            ReduceKillCooldown = FloatOptionItem.Create(Id + 11, "SansReduceKillCooldown", new(0f, 30f, 0.5f), 1.5f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Devourer])
+            ReduceKillCooldown = FloatOptionItem.Create(Id + 11, "SansReduceKillCooldown", new(0f, 30f, 0.5f), 1.5f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Devourer])
                 .SetValueFormat(OptionFormat.Seconds);
-            MinKillCooldown = FloatOptionItem.Create(Id + 12, "SansMinKillCooldown", new(0f, 30f, 0.5f), 21f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Devourer])
+            MinKillCooldown = FloatOptionItem.Create(Id + 12, "SansMinKillCooldown", new(0f, 30f, 0.5f), 21f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Devourer])
                 .SetValueFormat(OptionFormat.Seconds);
-            ShapeshiftCooldown = FloatOptionItem.Create(Id + 14, "DevourCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Devourer])
+            ShapeshiftCooldown = FloatOptionItem.Create(Id + 14, "DevourCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Devourer])
                 .SetValueFormat(OptionFormat.Seconds);
-            HideNameOfConsumedPlayer = BooleanOptionItem.Create(Id + 16, "DevourerHideNameConsumed", true, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Devourer]);
+            HideNameOfConsumedPlayer = BooleanOptionItem.Create(Id + 16, "DevourerHideNameConsumed", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Devourer]);
         }
 
         public override void Init()

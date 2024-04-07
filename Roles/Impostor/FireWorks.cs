@@ -1,9 +1,9 @@
+using System;
+using System.Collections.Generic;
 using EHR.Modules;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Neutral;
 using Hazel;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -39,12 +39,12 @@ public class FireWorks : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.FireWorks);
-        FireWorksCount = IntegerOptionItem.Create(Id + 10, "FireWorksMaxCount", new(1, 10, 1), 3, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks])
+        FireWorksCount = IntegerOptionItem.Create(Id + 10, "FireWorksMaxCount", new(1, 10, 1), 3, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks])
             .SetValueFormat(OptionFormat.Pieces);
-        FireWorksRadius = FloatOptionItem.Create(Id + 11, "FireWorksRadius", new(0.5f, 5f, 0.5f), 2f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks])
+        FireWorksRadius = FloatOptionItem.Create(Id + 11, "FireWorksRadius", new(0.5f, 5f, 0.5f), 2f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks])
             .SetValueFormat(OptionFormat.Multiplier);
-        CanKill = BooleanOptionItem.Create(Id + 12, "CanKill", false, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks]);
-        CanIgniteBeforePlacingAllFireworks = BooleanOptionItem.Create(Id + 13, "CanIgniteBeforePlacingAllFireworks", false, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks]);
+        CanKill = BooleanOptionItem.Create(Id + 12, "CanKill", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks]);
+        CanIgniteBeforePlacingAllFireworks = BooleanOptionItem.Create(Id + 13, "CanIgniteBeforePlacingAllFireworks", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks]);
     }
 
     public override void Init()

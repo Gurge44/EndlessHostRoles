@@ -1,5 +1,5 @@
-﻿using AmongUs.GameOptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using static EHR.Options;
 
 namespace EHR.Roles.Crewmate
@@ -19,13 +19,13 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Gaulois);
-            CD = FloatOptionItem.Create(Id + 5, "AbilityCooldown", new(0f, 60f, 2.5f), 30f, TabGroup.CrewmateRoles, false)
+            CD = FloatOptionItem.Create(Id + 5, "AbilityCooldown", new(0f, 60f, 2.5f), 30f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Gaulois])
                 .SetValueFormat(OptionFormat.Seconds);
-            AdditionalSpeed = FloatOptionItem.Create(Id + 6, "GauloisSpeedBoost", new(0f, 2f, 0.05f), 0.5f, TabGroup.CrewmateRoles, false)
+            AdditionalSpeed = FloatOptionItem.Create(Id + 6, "GauloisSpeedBoost", new(0f, 2f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Gaulois])
                 .SetValueFormat(OptionFormat.Multiplier);
-            UseLimitOpt = IntegerOptionItem.Create(Id + 7, "AbilityUseLimit", new(1, 14, 1), 3, TabGroup.CrewmateRoles, false)
+            UseLimitOpt = IntegerOptionItem.Create(Id + 7, "AbilityUseLimit", new(1, 14, 1), 3, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Gaulois])
                 .SetValueFormat(OptionFormat.Times);
             UsePet = CreatePetUseSetting(Id + 8, CustomRoles.Gaulois);

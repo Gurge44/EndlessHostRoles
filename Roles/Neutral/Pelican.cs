@@ -1,9 +1,9 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using System.Collections.Generic;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles.Crewmate;
 using Hazel;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace EHR.Roles.Neutral;
@@ -20,9 +20,9 @@ public class Pelican : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Pelican);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "PelicanKillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican])
+        KillCooldown = FloatOptionItem.Create(Id + 10, "PelicanKillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican])
             .SetValueFormat(OptionFormat.Seconds);
-        CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican]);
+        CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican]);
     }
 
     public override void Init()

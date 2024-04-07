@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using AmongUs.GameOptions;
 using EHR.Roles.AddOns.Crewmate;
 using EHR.Roles.AddOns.Impostor;
@@ -7,10 +11,6 @@ using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using static EHR.Translator;
 
 namespace EHR.Modules;

@@ -1,7 +1,7 @@
-﻿using EHR.Modules;
-using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
+using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -41,28 +41,28 @@ namespace EHR.Roles.AddOns.Crewmate
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(Id, CustomRoles.Stressed, canSetNum: true);
-            StressedExtraTimeAfterTaskComplete = IntegerOptionItem.Create(Id + 3, "StressedExtraTimeAfterTask", new(0, 60, 1), 30, TabGroup.Addons, false)
+            StressedExtraTimeAfterTaskComplete = IntegerOptionItem.Create(Id + 3, "StressedExtraTimeAfterTask", new(0, 60, 1), 30, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Stressed])
                 .SetValueFormat(OptionFormat.Seconds);
-            StressedExtraTimeAfterMeeting = IntegerOptionItem.Create(Id + 4, "DamoclesExtraTimeAfterMeeting", new(0, 60, 1), 15, TabGroup.Addons, false)
+            StressedExtraTimeAfterMeeting = IntegerOptionItem.Create(Id + 4, "DamoclesExtraTimeAfterMeeting", new(0, 60, 1), 15, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Stressed])
                 .SetValueFormat(OptionFormat.Seconds);
-            StressedExtraTimeAfterImpostorDeath = IntegerOptionItem.Create(Id + 5, "StressedExtraTimeAfterImpostorDeath", new(0, 60, 1), 10, TabGroup.Addons, false)
+            StressedExtraTimeAfterImpostorDeath = IntegerOptionItem.Create(Id + 5, "StressedExtraTimeAfterImpostorDeath", new(0, 60, 1), 10, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Stressed])
                 .SetValueFormat(OptionFormat.Seconds);
-            StressedExtraTimeAfterImpostorEjected = IntegerOptionItem.Create(Id + 6, "StressedExtraTimeAfterImpostorEjected", new(0, 60, 1), 25, TabGroup.Addons, false)
+            StressedExtraTimeAfterImpostorEjected = IntegerOptionItem.Create(Id + 6, "StressedExtraTimeAfterImpostorEjected", new(0, 60, 1), 25, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Stressed])
                 .SetValueFormat(OptionFormat.Seconds);
-            StressedExtraTimeAfterFixingSabotage = IntegerOptionItem.Create(Id + 7, "StressedExtraTimeAfterFixingSabotage", new(0, 60, 1), 20, TabGroup.Addons, false)
+            StressedExtraTimeAfterFixingSabotage = IntegerOptionItem.Create(Id + 7, "StressedExtraTimeAfterFixingSabotage", new(0, 60, 1), 20, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Stressed])
                 .SetValueFormat(OptionFormat.Seconds);
-            StressedExtraTimeAfterReporting = IntegerOptionItem.Create(Id + 8, "StressedExtraTimeAfterReporting", new(0, 60, 1), 10, TabGroup.Addons, false)
+            StressedExtraTimeAfterReporting = IntegerOptionItem.Create(Id + 8, "StressedExtraTimeAfterReporting", new(0, 60, 1), 10, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Stressed])
                 .SetValueFormat(OptionFormat.Seconds);
-            StressedTimePenaltyAfterCrewmateEjected = IntegerOptionItem.Create(Id + 9, "StressedTimePenaltyAfterCrewmateEjected", new(0, 60, 1), 15, TabGroup.Addons, false)
+            StressedTimePenaltyAfterCrewmateEjected = IntegerOptionItem.Create(Id + 9, "StressedTimePenaltyAfterCrewmateEjected", new(0, 60, 1), 15, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Stressed])
                 .SetValueFormat(OptionFormat.Seconds);
-            StressedStartingTime = IntegerOptionItem.Create(Id + 10, "DamoclesStartingTime", new(0, 60, 1), 30, TabGroup.Addons, false)
+            StressedStartingTime = IntegerOptionItem.Create(Id + 10, "DamoclesStartingTime", new(0, 60, 1), 30, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Stressed])
                 .SetValueFormat(OptionFormat.Seconds);
         }

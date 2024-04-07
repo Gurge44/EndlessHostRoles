@@ -11,13 +11,13 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             SetupRoleOptions(10900, TabGroup.NeutralRoles, CustomRoles.Jester);
-            JesterCanUseButton = BooleanOptionItem.Create(10910, "JesterCanUseButton", false, TabGroup.NeutralRoles, false)
+            JesterCanUseButton = BooleanOptionItem.Create(10910, "JesterCanUseButton", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Jester]);
-            JesterCanVent = BooleanOptionItem.Create(10911, "CanVent", false, TabGroup.NeutralRoles, false)
+            JesterCanVent = BooleanOptionItem.Create(10911, "CanVent", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Jester]);
-            JesterHasImpostorVision = BooleanOptionItem.Create(10913, "ImpostorVision", false, TabGroup.NeutralRoles, false)
+            JesterHasImpostorVision = BooleanOptionItem.Create(10913, "ImpostorVision", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Jester]);
-            SunnyboyChance = IntegerOptionItem.Create(10912, "SunnyboyChance", new(0, 100, 5), 0, TabGroup.NeutralRoles, false)
+            SunnyboyChance = IntegerOptionItem.Create(10912, "SunnyboyChance", new(0, 100, 5), 0, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Jester])
                 .SetValueFormat(OptionFormat.Percent);
         }

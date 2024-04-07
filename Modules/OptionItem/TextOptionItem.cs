@@ -6,8 +6,8 @@ public class TextOptionItem : OptionItem
     public IntegerValueRule Rule;
 
     // コンストラクタ
-    public TextOptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue)
-    : base(id, name, defaultValue, tab, isSingleValue)
+    public TextOptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue = false)
+        : base(id, name, defaultValue, tab, isSingleValue)
     {
         IsText = true;
         IsHeader = true;

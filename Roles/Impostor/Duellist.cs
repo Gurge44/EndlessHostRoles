@@ -1,7 +1,7 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Neutral;
-using System.Collections.Generic;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -18,7 +18,7 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Duellist);
-            SSCD = FloatOptionItem.Create(Id + 5, "ShapeshiftCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.ImpostorRoles, false)
+            SSCD = FloatOptionItem.Create(Id + 5, "ShapeshiftCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Duellist])
                 .SetValueFormat(OptionFormat.Seconds);
         }

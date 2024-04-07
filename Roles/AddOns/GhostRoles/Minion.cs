@@ -27,7 +27,7 @@ namespace EHR.Roles.AddOns.GhostRoles
         public void SetupCustomOption()
         {
             Options.SetupRoleOptions(649000, TabGroup.OtherRoles, CustomRoles.Minion);
-            BlindDuration = IntegerOptionItem.Create(649002, "MinionBlindDuration", new(1, 90, 1), 5, TabGroup.OtherRoles, false)
+            BlindDuration = IntegerOptionItem.Create(649002, "MinionBlindDuration", new(1, 90, 1), 5, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minion])
                 .SetValueFormat(OptionFormat.Seconds);
         }

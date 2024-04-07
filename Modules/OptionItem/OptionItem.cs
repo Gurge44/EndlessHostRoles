@@ -1,7 +1,7 @@
-using EHR.Modules;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
 using UnityEngine;
 
 namespace EHR;
@@ -166,7 +166,7 @@ public abstract class OptionItem
         return disableColor ? Translator.GetString(Name, ReplacementDictionary, console) : Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary));
     }
 
-    public virtual bool GetBool() => CurrentValue != 0 && (Parent == null || Parent.GetBool());
+    public virtual bool GetBool() => Name == "Bargainer.LensOfTruth.DurationSwitch" ? GetValue() == 3 : CurrentValue != 0 && (Parent == null || Parent.GetBool());
     public virtual int GetInt() => CurrentValue;
     public virtual float GetFloat() => CurrentValue;
 

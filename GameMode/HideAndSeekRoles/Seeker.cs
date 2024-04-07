@@ -19,19 +19,19 @@ namespace EHR.GameMode.HideAndSeekRoles
                 .SetHeader(true)
                 .SetColor(new(255, 25, 25, byte.MaxValue));
 
-            Vision = FloatOptionItem.Create(69_211_201, "SeekerVision", new(0.05f, 5f, 0.05f), 0.5f, TabGroup.ImpostorRoles, false)
+            Vision = FloatOptionItem.Create(69_211_201, "SeekerVision", new(0.05f, 5f, 0.05f), 0.5f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(255, 25, 25, byte.MaxValue));
-            Speed = FloatOptionItem.Create(69_211_202, "SeekerSpeed", new(0.05f, 5f, 0.05f), 1.5f, TabGroup.ImpostorRoles, false)
+            Speed = FloatOptionItem.Create(69_211_202, "SeekerSpeed", new(0.05f, 5f, 0.05f), 1.5f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(255, 25, 25, byte.MaxValue));
-            KillCooldown = FloatOptionItem.Create(69_211_203, "KillCooldown", new(0f, 90f, 1f), 10f, TabGroup.ImpostorRoles, false)
+            KillCooldown = FloatOptionItem.Create(69_211_203, "KillCooldown", new(0f, 90f, 1f), 10f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(255, 25, 25, byte.MaxValue));
-            CanVent = BooleanOptionItem.Create(69_211_204, "CanVent", false, TabGroup.ImpostorRoles, false)
+            CanVent = BooleanOptionItem.Create(69_211_204, "CanVent", false, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(new(255, 25, 25, byte.MaxValue));
         }

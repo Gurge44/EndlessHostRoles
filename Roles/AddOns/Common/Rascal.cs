@@ -9,7 +9,7 @@ namespace EHR.Roles.AddOns.Common
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(15600, CustomRoles.Rascal, canSetNum: true, tab: TabGroup.Addons);
-            RascalAppearAsMadmate = BooleanOptionItem.Create(15610, "RascalAppearAsMadmate", true, TabGroup.Addons, false)
+            RascalAppearAsMadmate = BooleanOptionItem.Create(15610, "RascalAppearAsMadmate", true, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Rascal]);
         }
     }

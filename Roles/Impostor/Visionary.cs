@@ -1,5 +1,5 @@
-﻿using AmongUs.GameOptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 
 namespace EHR.Roles.Impostor
 {
@@ -17,13 +17,13 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(16150, TabGroup.ImpostorRoles, CustomRoles.Visionary);
-            UseLimit = IntegerOptionItem.Create(16152, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles, false)
+            UseLimit = IntegerOptionItem.Create(16152, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Visionary])
                 .SetValueFormat(OptionFormat.Times);
-            VisionaryAbilityUseGainWithEachKill = FloatOptionItem.Create(16153, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 1f, TabGroup.ImpostorRoles, false)
+            VisionaryAbilityUseGainWithEachKill = FloatOptionItem.Create(16153, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 1f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Visionary])
                 .SetValueFormat(OptionFormat.Times);
-            ShapeshiftCooldown = FloatOptionItem.Create(16154, "ShapeshiftCooldown", new(1f, 60f, 1f), 15f, TabGroup.ImpostorRoles, false)
+            ShapeshiftCooldown = FloatOptionItem.Create(16154, "ShapeshiftCooldown", new(1f, 60f, 1f), 15f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Visionary])
                 .SetValueFormat(OptionFormat.Seconds);
         }

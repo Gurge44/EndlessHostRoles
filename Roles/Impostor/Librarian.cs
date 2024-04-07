@@ -1,7 +1,7 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using System.Collections.Generic;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
@@ -28,20 +28,20 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Librarian);
-            Radius = FloatOptionItem.Create(Id + 5, "LibrarianRadius", new(0.5f, 5f, 0.5f), 3f, TabGroup.ImpostorRoles, false)
+            Radius = FloatOptionItem.Create(Id + 5, "LibrarianRadius", new(0.5f, 5f, 0.5f), 3f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Librarian])
                 .SetValueFormat(OptionFormat.Multiplier);
-            ShowSSAnimation = BooleanOptionItem.Create(Id + 6, "LibrarianShowSSAnimation", false, TabGroup.ImpostorRoles, false)
+            ShowSSAnimation = BooleanOptionItem.Create(Id + 6, "LibrarianShowSSAnimation", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Librarian]);
-            SSCD = FloatOptionItem.Create(Id + 7, "ShapeshiftCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles, false)
+            SSCD = FloatOptionItem.Create(Id + 7, "ShapeshiftCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(ShowSSAnimation)
                 .SetValueFormat(OptionFormat.Seconds);
-            SSDur = FloatOptionItem.Create(Id + 8, "ShapeshiftDuration", new(2.5f, 60f, 2.5f), 10f, TabGroup.ImpostorRoles, false)
+            SSDur = FloatOptionItem.Create(Id + 8, "ShapeshiftDuration", new(2.5f, 60f, 2.5f), 10f, TabGroup.ImpostorRoles)
                 .SetParent(ShowSSAnimation)
                 .SetValueFormat(OptionFormat.Seconds);
-            CanKillWhileShifted = BooleanOptionItem.Create(Id + 9, "CanKillWhileShifted", false, TabGroup.ImpostorRoles, false)
+            CanKillWhileShifted = BooleanOptionItem.Create(Id + 9, "CanKillWhileShifted", false, TabGroup.ImpostorRoles)
                 .SetParent(ShowSSAnimation);
-            NameDuration = IntegerOptionItem.Create(Id + 10, "LibrarianNameNotifyDuration", new(1, 30, 1), 10, TabGroup.ImpostorRoles, false)
+            NameDuration = IntegerOptionItem.Create(Id + 10, "LibrarianNameNotifyDuration", new(1, 30, 1), 10, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Librarian])
                 .SetValueFormat(OptionFormat.Seconds);
         }

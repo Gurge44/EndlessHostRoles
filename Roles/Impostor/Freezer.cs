@@ -15,10 +15,10 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Freezer);
-            FreezeCooldown = FloatOptionItem.Create(Id + 2, "FreezeCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles, false)
+            FreezeCooldown = FloatOptionItem.Create(Id + 2, "FreezeCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Freezer])
                 .SetValueFormat(OptionFormat.Seconds);
-            FreezeDuration = FloatOptionItem.Create(Id + 3, "FreezeDuration", new(0f, 180f, 0.5f), 10f, TabGroup.ImpostorRoles, false)
+            FreezeDuration = FloatOptionItem.Create(Id + 3, "FreezeDuration", new(0f, 180f, 0.5f), 10f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Freezer])
                 .SetValueFormat(OptionFormat.Seconds);
         }

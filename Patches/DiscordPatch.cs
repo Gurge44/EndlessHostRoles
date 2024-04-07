@@ -1,7 +1,7 @@
+using System;
 using AmongUs.Data;
 using Discord;
 using HarmonyLib;
-using System;
 
 namespace EHR.Patches
 {

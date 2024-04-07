@@ -10,10 +10,10 @@ namespace EHR.Roles.Impostor
         {
             SetupRoleOptions(300, Tab, CustomRoles.ImpostorEHR);
             SetupRoleOptions(400, Tab, CustomRoles.ShapeshifterEHR);
-            ShapeshiftCD = FloatOptionItem.Create(402, "ShapeshiftCooldown", new(1f, 180f, 1f), 30f, Tab, false)
+            ShapeshiftCD = FloatOptionItem.Create(402, "ShapeshiftCooldown", new(1f, 180f, 1f), 30f, Tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ShapeshifterEHR])
                 .SetValueFormat(OptionFormat.Seconds);
-            ShapeshiftDur = FloatOptionItem.Create(403, "ShapeshiftDuration", new(1f, 60f, 1f), 10f, Tab, false)
+            ShapeshiftDur = FloatOptionItem.Create(403, "ShapeshiftDuration", new(1f, 60f, 1f), 10f, Tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ShapeshifterEHR])
                 .SetValueFormat(OptionFormat.Seconds);
         }

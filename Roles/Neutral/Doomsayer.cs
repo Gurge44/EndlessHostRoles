@@ -1,6 +1,6 @@
-﻿using EHR.Modules;
+﻿using System.Collections.Generic;
+using EHR.Modules;
 using Hazel;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace EHR.Roles.Neutral;
@@ -31,7 +31,7 @@ public class Doomsayer : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Doomsayer);
-        DoomsayerAmountOfGuessesToWin = IntegerOptionItem.Create(Id + 10, "DoomsayerAmountOfGuessesToWin", new(1, 10, 1), 3, TabGroup.NeutralRoles, false)
+        DoomsayerAmountOfGuessesToWin = IntegerOptionItem.Create(Id + 10, "DoomsayerAmountOfGuessesToWin", new(1, 10, 1), 3, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer])
             .SetValueFormat(OptionFormat.Times);
         DCanGuessImpostors = BooleanOptionItem.Create(Id + 12, "DCanGuessImpostors", true, TabGroup.NeutralRoles, true)
@@ -40,16 +40,16 @@ public class Doomsayer : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
         DCanGuessNeutrals = BooleanOptionItem.Create(Id + 14, "DCanGuessNeutrals", true, TabGroup.NeutralRoles, true)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
-        DCanGuessAdt = BooleanOptionItem.Create(Id + 15, "DCanGuessAdt", false, TabGroup.NeutralRoles, false)
+        DCanGuessAdt = BooleanOptionItem.Create(Id + 15, "DCanGuessAdt", false, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
 
         AdvancedSettings = BooleanOptionItem.Create(Id + 16, "DoomsayerAdvancedSettings", true, TabGroup.NeutralRoles, true)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
-        MaxNumberOfGuessesPerMeeting = IntegerOptionItem.Create(Id + 17, "DoomsayerMaxNumberOfGuessesPerMeeting", new(1, 10, 1), 2, TabGroup.NeutralRoles, false)
+        MaxNumberOfGuessesPerMeeting = IntegerOptionItem.Create(Id + 17, "DoomsayerMaxNumberOfGuessesPerMeeting", new(1, 10, 1), 2, TabGroup.NeutralRoles)
             .SetParent(AdvancedSettings);
         KillCorrectlyGuessedPlayers = BooleanOptionItem.Create(Id + 18, "DoomsayerKillCorrectlyGuessedPlayers", true, TabGroup.NeutralRoles, true)
             .SetParent(AdvancedSettings);
-        DoesNotSuicideWhenMisguessing = BooleanOptionItem.Create(Id + 19, "DoomsayerDoesNotSuicideWhenMisguessing", true, TabGroup.NeutralRoles, false)
+        DoesNotSuicideWhenMisguessing = BooleanOptionItem.Create(Id + 19, "DoomsayerDoesNotSuicideWhenMisguessing", true, TabGroup.NeutralRoles)
             .SetParent(AdvancedSettings);
         MisguessRolePrevGuessRoleUntilNextMeeting = BooleanOptionItem.Create(Id + 20, "DoomsayerMisguessRolePrevGuessRoleUntilNextMeeting", true, TabGroup.NeutralRoles, true)
             .SetParent(DoesNotSuicideWhenMisguessing);

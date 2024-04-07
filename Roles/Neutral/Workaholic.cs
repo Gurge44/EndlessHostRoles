@@ -1,7 +1,7 @@
-﻿using AmongUs.GameOptions;
-using EHR.Modules;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using EHR.Modules;
 using static EHR.Options;
 
 namespace EHR.Roles.Neutral
@@ -16,17 +16,17 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             SetupRoleOptions(11700, TabGroup.NeutralRoles, CustomRoles.Workaholic); //TOH_Y
-            WorkaholicCannotWinAtDeath = BooleanOptionItem.Create(11710, "WorkaholicCannotWinAtDeath", true, TabGroup.NeutralRoles, false)
+            WorkaholicCannotWinAtDeath = BooleanOptionItem.Create(11710, "WorkaholicCannotWinAtDeath", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic]);
-            WorkaholicVentCooldown = FloatOptionItem.Create(11711, "VentCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles, false)
+            WorkaholicVentCooldown = FloatOptionItem.Create(11711, "VentCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic])
                 .SetValueFormat(OptionFormat.Seconds);
-            WorkaholicVisibleToEveryone = BooleanOptionItem.Create(11712, "WorkaholicVisibleToEveryone", false, TabGroup.NeutralRoles, false)
+            WorkaholicVisibleToEveryone = BooleanOptionItem.Create(11712, "WorkaholicVisibleToEveryone", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic]);
-            WorkaholicGiveAdviceAlive = BooleanOptionItem.Create(11713, "WorkaholicGiveAdviceAlive", false, TabGroup.NeutralRoles, false)
+            WorkaholicGiveAdviceAlive = BooleanOptionItem.Create(11713, "WorkaholicGiveAdviceAlive", false, TabGroup.NeutralRoles)
                 .SetParent(WorkaholicVisibleToEveryone);
             WorkaholicTasks = OverrideTasksData.Create(11714, TabGroup.NeutralRoles, CustomRoles.Workaholic);
-            WorkaholicCanGuess = BooleanOptionItem.Create(11725, "CanGuess", true, TabGroup.NeutralRoles, false)
+            WorkaholicCanGuess = BooleanOptionItem.Create(11725, "CanGuess", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic]);
         }
 

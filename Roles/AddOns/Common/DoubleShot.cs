@@ -17,11 +17,11 @@ namespace EHR.Roles.AddOns.Common
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(13900, CustomRoles.DoubleShot, canSetNum: true, tab: TabGroup.Addons);
-            ImpCanBeDoubleShot = BooleanOptionItem.Create(13910, "ImpCanBeDoubleShot", true, TabGroup.Addons, false)
+            ImpCanBeDoubleShot = BooleanOptionItem.Create(13910, "ImpCanBeDoubleShot", true, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.DoubleShot]);
-            CrewCanBeDoubleShot = BooleanOptionItem.Create(13911, "CrewCanBeDoubleShot", true, TabGroup.Addons, false)
+            CrewCanBeDoubleShot = BooleanOptionItem.Create(13911, "CrewCanBeDoubleShot", true, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.DoubleShot]);
-            NeutralCanBeDoubleShot = BooleanOptionItem.Create(13912, "NeutralCanBeDoubleShot", true, TabGroup.Addons, false)
+            NeutralCanBeDoubleShot = BooleanOptionItem.Create(13912, "NeutralCanBeDoubleShot", true, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.DoubleShot]);
         }
     }

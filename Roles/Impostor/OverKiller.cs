@@ -1,9 +1,9 @@
-﻿using EHR.Roles.Crewmate;
+﻿using System.Collections.Generic;
+using System.Linq;
+using EHR.Roles.Crewmate;
 using EHR.Roles.Neutral;
 using Hazel;
 using InnerNet;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace EHR.Roles.Impostor

@@ -1,12 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using EHR.Modules;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
 using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 using static EHR.Translator;
 using Object = UnityEngine.Object;
@@ -797,6 +797,7 @@ class MeetingHudStartPatch
                 (pc.Is(CustomRoles.Marshall) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && pc.GetTaskState().IsTaskFinished) ||
                 (Main.PlayerStates[pc.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
                 CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId) && Options.CTAPlayersCanSeeEachOthersRoles.GetBool() ||
+                Bargainer.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Adventurer.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Totocalcio.KnowRole(PlayerControl.LocalPlayer, pc) ||
                 Romantic.KnowRole(PlayerControl.LocalPlayer, pc) ||

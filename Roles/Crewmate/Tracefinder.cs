@@ -1,8 +1,8 @@
+using System;
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using System;
-using System.Collections.Generic;
 using UnityEngine;
 using static EHR.Options;
 
@@ -22,16 +22,16 @@ public class Tracefinder : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Tracefinder);
-        VitalsCooldown = FloatOptionItem.Create(Id + 10, "VitalsCooldown", new(1f, 60f, 1f), 25f, TabGroup.CrewmateRoles, false)
+        VitalsCooldown = FloatOptionItem.Create(Id + 10, "VitalsCooldown", new(1f, 60f, 1f), 25f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Tracefinder])
             .SetValueFormat(OptionFormat.Seconds);
-        VitalsDuration = FloatOptionItem.Create(Id + 11, "VitalsDuration", new(1f, 30f, 1f), 1f, TabGroup.CrewmateRoles, false)
+        VitalsDuration = FloatOptionItem.Create(Id + 11, "VitalsDuration", new(1f, 30f, 1f), 1f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Tracefinder])
             .SetValueFormat(OptionFormat.Seconds);
-        ArrowDelayMin = FloatOptionItem.Create(Id + 12, "ArrowDelayMin", new(1f, 30f, 1f), 2f, TabGroup.CrewmateRoles, false)
+        ArrowDelayMin = FloatOptionItem.Create(Id + 12, "ArrowDelayMin", new(1f, 30f, 1f), 2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Tracefinder])
             .SetValueFormat(OptionFormat.Seconds);
-        ArrowDelayMax = FloatOptionItem.Create(Id + 13, "ArrowDelayMax", new(1f, 30f, 1f), 7f, TabGroup.CrewmateRoles, false)
+        ArrowDelayMax = FloatOptionItem.Create(Id + 13, "ArrowDelayMax", new(1f, 30f, 1f), 7f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Tracefinder])
             .SetValueFormat(OptionFormat.Seconds);
     }

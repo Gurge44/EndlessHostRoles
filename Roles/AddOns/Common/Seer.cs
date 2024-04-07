@@ -9,11 +9,11 @@ namespace EHR.Roles.AddOns.Common
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(14800, CustomRoles.Seer, canSetNum: true);
-            ImpCanBeSeer = BooleanOptionItem.Create(14810, "ImpCanBeSeer", true, TabGroup.Addons, false)
+            ImpCanBeSeer = BooleanOptionItem.Create(14810, "ImpCanBeSeer", true, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Seer]);
-            CrewCanBeSeer = BooleanOptionItem.Create(14811, "CrewCanBeSeer", true, TabGroup.Addons, false)
+            CrewCanBeSeer = BooleanOptionItem.Create(14811, "CrewCanBeSeer", true, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Seer]);
-            NeutralCanBeSeer = BooleanOptionItem.Create(14812, "NeutralCanBeSeer", true, TabGroup.Addons, false)
+            NeutralCanBeSeer = BooleanOptionItem.Create(14812, "NeutralCanBeSeer", true, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Seer]);
         }
     }

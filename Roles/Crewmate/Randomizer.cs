@@ -1,10 +1,10 @@
-﻿using EHR.Modules;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using EHR.Modules;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
 using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using static EHR.Roles.Crewmate.Randomizer;
 
@@ -473,16 +473,16 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Randomizer);
-            EffectFrequencyOpt = IntegerOptionItem.Create(Id + 2, "RandomizerEffectFrequency", new(1, 90, 1), 10, TabGroup.CrewmateRoles, false)
+            EffectFrequencyOpt = IntegerOptionItem.Create(Id + 2, "RandomizerEffectFrequency", new(1, 90, 1), 10, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Randomizer])
                 .SetValueFormat(OptionFormat.Seconds);
-            EffectDurMin = IntegerOptionItem.Create(Id + 3, "RandomizerEffectDurMin", new(1, 90, 1), 5, TabGroup.CrewmateRoles, false)
+            EffectDurMin = IntegerOptionItem.Create(Id + 3, "RandomizerEffectDurMin", new(1, 90, 1), 5, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Randomizer])
                 .SetValueFormat(OptionFormat.Seconds);
-            EffectDurMax = IntegerOptionItem.Create(Id + 4, "RandomizerEffectDurMax", new(1, 90, 1), 15, TabGroup.CrewmateRoles, false)
+            EffectDurMax = IntegerOptionItem.Create(Id + 4, "RandomizerEffectDurMax", new(1, 90, 1), 15, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Randomizer])
                 .SetValueFormat(OptionFormat.Seconds);
-            NotifyOpt = BooleanOptionItem.Create(Id + 5, "RandomizerNotifyOpt", true, TabGroup.CrewmateRoles, false)
+            NotifyOpt = BooleanOptionItem.Create(Id + 5, "RandomizerNotifyOpt", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Randomizer]);
         }
 

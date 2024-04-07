@@ -1,6 +1,6 @@
-﻿using EHR.Modules;
+﻿using System.Collections.Generic;
+using EHR.Modules;
 using Hazel;
-using System.Collections.Generic;
 using UnityEngine;
 using static EHR.Options;
 
@@ -19,7 +19,7 @@ public class Mortician : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mortician);
-        ShowArrows = BooleanOptionItem.Create(Id + 2, "ShowArrows", true, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Mortician]);
+        ShowArrows = BooleanOptionItem.Create(Id + 2, "ShowArrows", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Mortician]);
     }
 
     public override void Init()

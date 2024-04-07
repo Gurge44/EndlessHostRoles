@@ -1,8 +1,8 @@
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles.Crewmate;
 using Hazel;
-using System.Collections.Generic;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
@@ -34,13 +34,13 @@ public class WeaponMaster : RoleBase
     public static void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.WeaponMaster);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
+        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
             .SetValueFormat(OptionFormat.Seconds);
-        CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster]);
-        HasImpostorVision = BooleanOptionItem.Create(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster]);
-        Radius = FloatOptionItem.Create(Id + 12, "WMRadius", new(0f, 10f, 0.25f), 2f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
+        CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster]);
+        HasImpostorVision = BooleanOptionItem.Create(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster]);
+        Radius = FloatOptionItem.Create(Id + 12, "WMRadius", new(0f, 10f, 0.25f), 2f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
             .SetValueFormat(OptionFormat.Multiplier);
-        HighKCD = FloatOptionItem.Create(Id + 14, "GamblerHighKCD", new(0f, 180f, 2.5f), 35f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
+        HighKCD = FloatOptionItem.Create(Id + 14, "GamblerHighKCD", new(0f, 180f, 2.5f), 35f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
             .SetValueFormat(OptionFormat.Seconds);
     }
 

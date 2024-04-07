@@ -10,7 +10,7 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             Options.SetupSingleRoleOptions(4900, TabGroup.ImpostorRoles, CustomRoles.Parasite);
-            Options.ParasiteCD = FloatOptionItem.Create(4910, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles, false)
+            Options.ParasiteCD = FloatOptionItem.Create(4910, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Parasite])
                 .SetValueFormat(OptionFormat.Seconds);
         }

@@ -1,8 +1,8 @@
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles.Neutral;
 using Hazel;
-using System.Collections.Generic;
 using static EHR.Options;
 
 namespace EHR.Roles.Impostor
@@ -26,11 +26,11 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.EvilDiviner);
-            KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.EvilDiviner])
+            KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.EvilDiviner])
                 .SetValueFormat(OptionFormat.Seconds);
-            DivinationMaxCount = IntegerOptionItem.Create(Id + 11, "DivinationMaxCount", new(0, 15, 1), 1, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.EvilDiviner])
+            DivinationMaxCount = IntegerOptionItem.Create(Id + 11, "DivinationMaxCount", new(0, 15, 1), 1, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.EvilDiviner])
                 .SetValueFormat(OptionFormat.Times);
-            EDAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles, false)
+            EDAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.EvilDiviner])
                 .SetValueFormat(OptionFormat.Times);
         }

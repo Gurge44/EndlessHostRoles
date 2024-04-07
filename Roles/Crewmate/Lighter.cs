@@ -1,5 +1,5 @@
-﻿using AmongUs.GameOptions;
-using System.Text;
+﻿using System.Text;
+using AmongUs.GameOptions;
 using static EHR.Options;
 
 namespace EHR.Roles.Crewmate
@@ -15,25 +15,25 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             SetupSingleRoleOptions(6850, TabGroup.CrewmateRoles, CustomRoles.Lighter);
-            LighterSkillCooldown = FloatOptionItem.Create(6852, "LighterSkillCooldown", new(0f, 180f, 1f), 25f, TabGroup.CrewmateRoles, false)
+            LighterSkillCooldown = FloatOptionItem.Create(6852, "LighterSkillCooldown", new(0f, 180f, 1f), 25f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
                 .SetValueFormat(OptionFormat.Seconds);
-            LighterSkillDuration = FloatOptionItem.Create(6853, "LighterSkillDuration", new(0f, 180f, 1f), 10f, TabGroup.CrewmateRoles, false)
+            LighterSkillDuration = FloatOptionItem.Create(6853, "LighterSkillDuration", new(0f, 180f, 1f), 10f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
                 .SetValueFormat(OptionFormat.Seconds);
-            LighterVisionNormal = FloatOptionItem.Create(6854, "LighterVisionNormal", new(0f, 5f, 0.05f), 0.9f, TabGroup.CrewmateRoles, false)
+            LighterVisionNormal = FloatOptionItem.Create(6854, "LighterVisionNormal", new(0f, 5f, 0.05f), 0.9f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
                 .SetValueFormat(OptionFormat.Multiplier);
-            LighterVisionOnLightsOut = FloatOptionItem.Create(6855, "LighterVisionOnLightsOut", new(0f, 5f, 0.05f), 0.35f, TabGroup.CrewmateRoles, false)
+            LighterVisionOnLightsOut = FloatOptionItem.Create(6855, "LighterVisionOnLightsOut", new(0f, 5f, 0.05f), 0.35f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
                 .SetValueFormat(OptionFormat.Multiplier);
-            LighterSkillMaxOfUseage = IntegerOptionItem.Create(6856, "AbilityUseLimit", new(0, 180, 1), 2, TabGroup.CrewmateRoles, false)
+            LighterSkillMaxOfUseage = IntegerOptionItem.Create(6856, "AbilityUseLimit", new(0, 180, 1), 2, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
                 .SetValueFormat(OptionFormat.Times);
-            LighterAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(6857, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1.5f, TabGroup.CrewmateRoles, false)
+            LighterAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(6857, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1.5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
                 .SetValueFormat(OptionFormat.Times);
-            LighterAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(6858, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+            LighterAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(6858, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
                 .SetValueFormat(OptionFormat.Times);
         }

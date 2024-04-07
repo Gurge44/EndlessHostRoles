@@ -1,6 +1,6 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using EHR.Roles.Neutral;
-using System.Collections.Generic;
 using static EHR.Options;
 
 namespace EHR.Roles.Impostor
@@ -22,10 +22,10 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(2600, TabGroup.ImpostorRoles, CustomRoles.Cleaner);
-            CleanerKillCooldown = FloatOptionItem.Create(2610, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles, false)
+            CleanerKillCooldown = FloatOptionItem.Create(2610, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Cleaner])
                 .SetValueFormat(OptionFormat.Seconds);
-            KillCooldownAfterCleaning = FloatOptionItem.Create(2611, "KillCooldownAfterCleaning", new(0f, 180f, 2.5f), 60f, TabGroup.ImpostorRoles, false)
+            KillCooldownAfterCleaning = FloatOptionItem.Create(2611, "KillCooldownAfterCleaning", new(0f, 180f, 2.5f), 60f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Cleaner])
                 .SetValueFormat(OptionFormat.Seconds);
         }

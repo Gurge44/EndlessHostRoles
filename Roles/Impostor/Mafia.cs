@@ -1,10 +1,10 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using HarmonyLib;
 using Hazel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
@@ -22,15 +22,15 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(3100, TabGroup.ImpostorRoles, CustomRoles.Mafia);
-            MafiaCanKillNum = IntegerOptionItem.Create(3200, "MafiaCanKillNum", new(0, 15, 1), 1, TabGroup.ImpostorRoles, false)
+            MafiaCanKillNum = IntegerOptionItem.Create(3200, "MafiaCanKillNum", new(0, 15, 1), 1, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafia])
                 .SetValueFormat(OptionFormat.Players);
-            LegacyMafia = BooleanOptionItem.Create(3210, "LegacyMafia", false, TabGroup.ImpostorRoles, false)
+            LegacyMafia = BooleanOptionItem.Create(3210, "LegacyMafia", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafia]);
-            MafiaShapeshiftCD = FloatOptionItem.Create(3211, "ShapeshiftCooldown", new(1f, 180f, 1f), 15f, TabGroup.ImpostorRoles, false)
+            MafiaShapeshiftCD = FloatOptionItem.Create(3211, "ShapeshiftCooldown", new(1f, 180f, 1f), 15f, TabGroup.ImpostorRoles)
                 .SetParent(LegacyMafia)
                 .SetValueFormat(OptionFormat.Seconds);
-            MafiaShapeshiftDur = FloatOptionItem.Create(3212, "ShapeshiftDuration", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles, false)
+            MafiaShapeshiftDur = FloatOptionItem.Create(3212, "ShapeshiftDuration", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(LegacyMafia)
                 .SetValueFormat(OptionFormat.Seconds);
         }

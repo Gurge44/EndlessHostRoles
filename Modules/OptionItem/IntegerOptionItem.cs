@@ -6,7 +6,7 @@ public class IntegerOptionItem(int id, string name, int defaultValue, TabGroup t
     public IntegerValueRule Rule = rule;
 
     public static IntegerOptionItem Create(
-        int id, string name, IntegerValueRule rule, int defaultValue, TabGroup tab, bool isSingleValue
+        int id, string name, IntegerValueRule rule, int defaultValue, TabGroup tab, bool isSingleValue = false
     )
     {
         return new(

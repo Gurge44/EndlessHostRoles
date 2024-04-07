@@ -1,9 +1,9 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using HarmonyLib;
 using Hazel;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EHR.Roles.Crewmate;
 
@@ -52,27 +52,27 @@ public class Medic : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Medic);
-        WhoCanSeeProtect = StringOptionItem.Create(Id + 2, "MedicWhoCanSeeProtect", MedicWhoCanSeeProtectName, 0, TabGroup.CrewmateRoles, false)
+        WhoCanSeeProtect = StringOptionItem.Create(Id + 2, "MedicWhoCanSeeProtect", MedicWhoCanSeeProtectName, 0, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
-        KnowShieldBroken = StringOptionItem.Create(Id + 3, "MedicKnowShieldBroken", MedicWhoCanSeeProtectName, 1, TabGroup.CrewmateRoles, false)
+        KnowShieldBroken = StringOptionItem.Create(Id + 3, "MedicKnowShieldBroken", MedicWhoCanSeeProtectName, 1, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
-        ShieldDeactivatesWhenMedicDies = BooleanOptionItem.Create(Id + 4, "MedicShieldDeactivatesWhenMedicDies", true, TabGroup.CrewmateRoles, false)
+        ShieldDeactivatesWhenMedicDies = BooleanOptionItem.Create(Id + 4, "MedicShieldDeactivatesWhenMedicDies", true, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
-        ShieldDeactivationIsVisible = StringOptionItem.Create(Id + 5, "MedicShielDeactivationIsVisible", ShieldDeactivationIsVisibleOption, 0, TabGroup.CrewmateRoles, false)
+        ShieldDeactivationIsVisible = StringOptionItem.Create(Id + 5, "MedicShielDeactivationIsVisible", ShieldDeactivationIsVisibleOption, 0, TabGroup.CrewmateRoles)
             .SetParent(ShieldDeactivatesWhenMedicDies);
-        ShieldBreaksOnKillAttempt = BooleanOptionItem.Create(Id + 6, "MedicShieldBreaksOnKillAttempt", true, TabGroup.CrewmateRoles, false)
+        ShieldBreaksOnKillAttempt = BooleanOptionItem.Create(Id + 6, "MedicShieldBreaksOnKillAttempt", true, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
-        ShieldBreakIsVisible = StringOptionItem.Create(Id + 7, "MedicShieldBreakIsVisible", ShieldDeactivationIsVisibleOption, 0, TabGroup.CrewmateRoles, false)
+        ShieldBreakIsVisible = StringOptionItem.Create(Id + 7, "MedicShieldBreakIsVisible", ShieldDeactivationIsVisibleOption, 0, TabGroup.CrewmateRoles)
             .SetParent(ShieldBreaksOnKillAttempt);
-        ResetCooldown = FloatOptionItem.Create(Id + 8, "MedicResetCooldown", new(0f, 120f, 1f), 15f, TabGroup.CrewmateRoles, false)
+        ResetCooldown = FloatOptionItem.Create(Id + 8, "MedicResetCooldown", new(0f, 120f, 1f), 15f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic])
             .SetValueFormat(OptionFormat.Seconds);
-        GuesserIgnoreShield = BooleanOptionItem.Create(Id + 9, "MedicShieldedCanBeGuessed", true, TabGroup.CrewmateRoles, false)
+        GuesserIgnoreShield = BooleanOptionItem.Create(Id + 9, "MedicShieldedCanBeGuessed", true, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
-        AmountOfShields = IntegerOptionItem.Create(Id + 10, "MedicAmountOfShields", new(1, 14, 1), 1, TabGroup.CrewmateRoles, false)
+        AmountOfShields = IntegerOptionItem.Create(Id + 10, "MedicAmountOfShields", new(1, 14, 1), 1, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
         UsePet = Options.CreatePetUseSetting(Id + 11, CustomRoles.Medic);
-        CD = FloatOptionItem.Create(Id + 12, "AbilityCooldown", new(0f, 180f, 2.5f), 7.5f, TabGroup.CrewmateRoles, false)
+        CD = FloatOptionItem.Create(Id + 12, "AbilityCooldown", new(0f, 180f, 2.5f), 7.5f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic])
             .SetValueFormat(OptionFormat.Seconds);
     }

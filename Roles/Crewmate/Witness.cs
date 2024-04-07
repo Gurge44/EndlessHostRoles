@@ -1,5 +1,5 @@
-﻿using AmongUs.GameOptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using static EHR.Options;
 
 namespace EHR.Roles.Crewmate
@@ -14,10 +14,10 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             SetupSingleRoleOptions(8550, TabGroup.CrewmateRoles, CustomRoles.Witness);
-            WitnessCD = FloatOptionItem.Create(8552, "AbilityCD", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles, false)
+            WitnessCD = FloatOptionItem.Create(8552, "AbilityCD", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Witness])
                 .SetValueFormat(OptionFormat.Seconds);
-            WitnessTime = IntegerOptionItem.Create(8553, "WitnessTime", new(0, 90, 1), 10, TabGroup.CrewmateRoles, false)
+            WitnessTime = IntegerOptionItem.Create(8553, "WitnessTime", new(0, 90, 1), 10, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Witness])
                 .SetValueFormat(OptionFormat.Seconds);
             WitnessUsePet = CreatePetUseSetting(8554, CustomRoles.Witness);

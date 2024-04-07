@@ -1,5 +1,5 @@
-﻿using AmongUs.GameOptions;
-using System.Linq;
+﻿using System.Linq;
+using AmongUs.GameOptions;
 using UnityEngine;
 
 namespace EHR.Roles.Crewmate
@@ -16,17 +16,17 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Perceiver);
-            Radius = FloatOptionItem.Create(Id + 2, "PerceiverRadius", new(0.25f, 10f, 0.25f), 2.5f, TabGroup.CrewmateRoles, false)
+            Radius = FloatOptionItem.Create(Id + 2, "PerceiverRadius", new(0.25f, 10f, 0.25f), 2.5f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Perceiver])
                 .SetValueFormat(OptionFormat.Multiplier);
             CD = Options.CreateCDSetting(Id + 3, TabGroup.CrewmateRoles, CustomRoles.Perceiver);
-            Limit = IntegerOptionItem.Create(Id + 4, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.CrewmateRoles, false)
+            Limit = IntegerOptionItem.Create(Id + 4, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Perceiver])
                 .SetValueFormat(OptionFormat.Times);
-            PerceiverAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 5, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.4f, TabGroup.CrewmateRoles, false)
+            PerceiverAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 5, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.4f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Perceiver])
                 .SetValueFormat(OptionFormat.Times);
-            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 6, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 6, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Perceiver])
                 .SetValueFormat(OptionFormat.Times);
         }

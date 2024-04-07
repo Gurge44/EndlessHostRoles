@@ -18,19 +18,19 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Tiger);
-            Radius = FloatOptionItem.Create(Id + 2, "TigerRadius", new(0.5f, 10f, 0.5f), 3f, TabGroup.NeutralRoles, false)
+            Radius = FloatOptionItem.Create(Id + 2, "TigerRadius", new(0.5f, 10f, 0.5f), 3f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tiger])
                 .SetValueFormat(OptionFormat.Multiplier);
-            EnrageCooldown = FloatOptionItem.Create(Id + 3, "EnrageCooldown", new(0f, 60f, 2.5f), 30f, TabGroup.NeutralRoles, false)
+            EnrageCooldown = FloatOptionItem.Create(Id + 3, "EnrageCooldown", new(0f, 60f, 2.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tiger])
                 .SetValueFormat(OptionFormat.Seconds);
-            EnrageDuration = FloatOptionItem.Create(Id + 4, "EnrageDuration", new(1f, 30f, 1f), 10f, TabGroup.NeutralRoles, false)
+            EnrageDuration = FloatOptionItem.Create(Id + 4, "EnrageDuration", new(1f, 30f, 1f), 10f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tiger])
                 .SetValueFormat(OptionFormat.Seconds);
-            KillCooldown = FloatOptionItem.Create(Id + 5, "KillCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.NeutralRoles, false)
+            KillCooldown = FloatOptionItem.Create(Id + 5, "KillCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tiger])
                 .SetValueFormat(OptionFormat.Seconds);
-            CanVent = BooleanOptionItem.Create(Id + 6, "CanVent", true, TabGroup.NeutralRoles, false)
+            CanVent = BooleanOptionItem.Create(Id + 6, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tiger]);
         }
 

@@ -5,7 +5,7 @@ public class StringOptionItem(int id, string name, int defaultValue, TabGroup ta
     public IntegerValueRule Rule = (0, selections.Length - 1, 1);
     public string[] Selections = selections;
 
-    public static StringOptionItem Create(int id, string name, string[] selections, int defaultIndex, TabGroup tab, bool isSingleValue, bool noTranslation = false)
+    public static StringOptionItem Create(int id, string name, string[] selections, int defaultIndex, TabGroup tab, bool isSingleValue = false, bool noTranslation = false)
         => new(id, name, defaultIndex, tab, isSingleValue, selections, noTranslation);
 
     // Getter

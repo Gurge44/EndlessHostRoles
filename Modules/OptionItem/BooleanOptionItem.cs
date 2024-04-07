@@ -6,7 +6,7 @@ public class BooleanOptionItem(int id, string name, bool defaultValue, TabGroup 
     public const string TEXT_false = "ColoredOff";
 
     public static BooleanOptionItem Create(
-        int id, string name, bool defaultValue, TabGroup tab, bool isSingleValue
+        int id, string name, bool defaultValue, TabGroup tab, bool isSingleValue = false
     )
     {
         return new(

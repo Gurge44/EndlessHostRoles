@@ -1,9 +1,9 @@
-﻿using EHR.Modules;
+﻿using System.Collections.Generic;
+using EHR.Modules;
 using EHR.Patches;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Neutral;
 using Hazel;
-using System.Collections.Generic;
 using UnityEngine;
 using static EHR.Options;
 
@@ -24,11 +24,11 @@ public class BallLightning : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.BallLightning);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "BallLightningKillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning])
+        KillCooldown = FloatOptionItem.Create(Id + 10, "BallLightningKillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning])
             .SetValueFormat(OptionFormat.Seconds);
-        ConvertTime = FloatOptionItem.Create(Id + 12, "BallLightningConvertTime", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning])
+        ConvertTime = FloatOptionItem.Create(Id + 12, "BallLightningConvertTime", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning])
             .SetValueFormat(OptionFormat.Seconds);
-        KillerConvertGhost = BooleanOptionItem.Create(Id + 14, "BallLightningKillerConvertGhost", true, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning]);
+        KillerConvertGhost = BooleanOptionItem.Create(Id + 14, "BallLightningKillerConvertGhost", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning]);
     }
 
     public override void Init()

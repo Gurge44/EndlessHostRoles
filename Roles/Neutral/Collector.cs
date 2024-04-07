@@ -1,8 +1,8 @@
-﻿using EHR.Modules;
+﻿using System.Collections.Generic;
+using System.Linq;
+using EHR.Modules;
 using EHR.Patches;
 using Hazel;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EHR.Roles.Neutral;
 
@@ -17,7 +17,7 @@ public class Collector : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Collector);
-        CollectorCollectAmount = IntegerOptionItem.Create(Id + 13, "CollectorCollectAmount", new(1, 60, 1), 30, TabGroup.NeutralRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Collector])
+        CollectorCollectAmount = IntegerOptionItem.Create(Id + 13, "CollectorCollectAmount", new(1, 60, 1), 30, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Collector])
             .SetValueFormat(OptionFormat.Votes);
     }
 

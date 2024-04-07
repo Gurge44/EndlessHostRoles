@@ -1,5 +1,5 @@
-﻿using AmongUs.GameOptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using static EHR.Options;
 
 namespace EHR.Roles.Impostor;
@@ -23,10 +23,10 @@ public class Silencer : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Silencer);
-        SkillCooldown = FloatOptionItem.Create(Id + 5, "SilencerSkillCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles, false)
+        SkillCooldown = FloatOptionItem.Create(Id + 5, "SilencerSkillCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Silencer])
             .SetValueFormat(OptionFormat.Seconds);
-        SilenceMode = StringOptionItem.Create(Id + 4, "SilenceMode", SilenceModes, 1, TabGroup.ImpostorRoles, false)
+        SilenceMode = StringOptionItem.Create(Id + 4, "SilenceMode", SilenceModes, 1, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Silencer]);
     }
 

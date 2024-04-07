@@ -1,6 +1,6 @@
-﻿using AmongUs.GameOptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
+using AmongUs.GameOptions;
 using UnityEngine;
 using static EHR.Options;
 
@@ -17,19 +17,19 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             SetupRoleOptions(8950, TabGroup.CrewmateRoles, CustomRoles.TimeMaster);
-            TimeMasterSkillCooldown = FloatOptionItem.Create(8960, "TimeMasterSkillCooldown", new(0f, 180f, 1f), 20f, TabGroup.CrewmateRoles, false)
+            TimeMasterSkillCooldown = FloatOptionItem.Create(8960, "TimeMasterSkillCooldown", new(0f, 180f, 1f), 20f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
                 .SetValueFormat(OptionFormat.Seconds);
-            TimeMasterSkillDuration = FloatOptionItem.Create(8961, "TimeMasterSkillDuration", new(0f, 180f, 1f), 10f, TabGroup.CrewmateRoles, false)
+            TimeMasterSkillDuration = FloatOptionItem.Create(8961, "TimeMasterSkillDuration", new(0f, 180f, 1f), 10f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
                 .SetValueFormat(OptionFormat.Seconds);
-            TimeMasterMaxUses = IntegerOptionItem.Create(8962, "TimeMasterMaxUses", new(0, 180, 1), 1, TabGroup.CrewmateRoles, false)
+            TimeMasterMaxUses = IntegerOptionItem.Create(8962, "TimeMasterMaxUses", new(0, 180, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
                 .SetValueFormat(OptionFormat.Times);
-            TimeMasterAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(8963, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.4f, TabGroup.CrewmateRoles, false)
+            TimeMasterAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(8963, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.4f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
                 .SetValueFormat(OptionFormat.Times);
-            TimeMasterAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(8964, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+            TimeMasterAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(8964, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
                 .SetValueFormat(OptionFormat.Times);
         }

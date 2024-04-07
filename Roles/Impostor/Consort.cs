@@ -1,5 +1,5 @@
-﻿using EHR.Roles.Neutral;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using EHR.Roles.Neutral;
 using static EHR.Translator;
 
 namespace EHR.Roles.Impostor
@@ -15,10 +15,10 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Consort);
-            CD = FloatOptionItem.Create(Id + 10, "EscortCD", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles, false)
+            CD = FloatOptionItem.Create(Id + 10, "EscortCD", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Consort])
                 .SetValueFormat(OptionFormat.Seconds);
-            UseLimit = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(1, 20, 1), 3, TabGroup.ImpostorRoles, false)
+            UseLimit = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(1, 20, 1), 3, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Consort])
                 .SetValueFormat(OptionFormat.Times);
         }

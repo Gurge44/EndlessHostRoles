@@ -1,8 +1,8 @@
-﻿using EHR.Modules;
-using Hazel;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
+using Hazel;
 using static EHR.Translator;
 
 namespace EHR.Roles.Crewmate
@@ -23,10 +23,10 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Benefactor);
-            TaskMarkPerRoundOpt = IntegerOptionItem.Create(Id + 10, "TaskMarkPerRound", new(1, 14, 1), 3, TabGroup.CrewmateRoles, false)
+            TaskMarkPerRoundOpt = IntegerOptionItem.Create(Id + 10, "TaskMarkPerRound", new(1, 14, 1), 3, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Benefactor])
                 .SetValueFormat(OptionFormat.Votes);
-            ShieldDuration = IntegerOptionItem.Create(Id + 11, "AidDur", new(1, 30, 1), 10, TabGroup.CrewmateRoles, false)
+            ShieldDuration = IntegerOptionItem.Create(Id + 11, "AidDur", new(1, 30, 1), 10, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Benefactor])
                 .SetValueFormat(OptionFormat.Seconds);
             Options.OverrideTasksData.Create(Id + 12, TabGroup.CrewmateRoles, CustomRoles.Benefactor);

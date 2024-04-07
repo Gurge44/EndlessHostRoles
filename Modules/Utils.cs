@@ -1,3 +1,12 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -12,15 +21,6 @@ using HarmonyLib;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes;
 using InnerNet;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using UnityEngine;
 using static EHR.Translator;
 using Object = UnityEngine.Object;
@@ -518,6 +518,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.Bargainer:
             case CustomRoles.Tiger:
             case CustomRoles.SoulHunter:
             case CustomRoles.Enderman:
@@ -706,6 +707,7 @@ public static class Utils
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() ||
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosImp.GetBool() ||
                CustomTeamManager.AreInSameCustomTeam(__instance.PlayerId, PlayerControl.LocalPlayer.PlayerId) && Options.CTAPlayersCanSeeEachOthersRoles.GetBool() ||
+               Bargainer.KnowRole(PlayerControl.LocalPlayer, __instance) ||
                Adventurer.KnowRole(PlayerControl.LocalPlayer, __instance) ||
                Totocalcio.KnowRole(PlayerControl.LocalPlayer, __instance) ||
                Romantic.KnowRole(PlayerControl.LocalPlayer, __instance) ||
@@ -1812,6 +1814,7 @@ public static class Utils
                     SelfSuffix.Append(Commander.GetSuffixText(seer, seer));
                     SelfSuffix.Append(AntiAdminer.GetSuffixText(seer));
                     SelfSuffix.Append(Roles.Impostor.Sentry.GetSuffix(seer));
+                    SelfSuffix.Append(Bargainer.GetSuffix(seer));
 
                     switch (seer.GetCustomRole())
                     {
@@ -2150,6 +2153,7 @@ public static class Utils
                                 (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished) ||
                                 (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
                                 CustomTeamManager.AreInSameCustomTeam(seer.PlayerId, target.PlayerId) && Options.CTAPlayersCanSeeEachOthersRoles.GetBool() ||
+                                Bargainer.KnowRole(seer, target) ||
                                 Adventurer.KnowRole(seer, target) ||
                                 Totocalcio.KnowRole(seer, target) ||
                                 Romantic.KnowRole(seer, target) ||

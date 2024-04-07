@@ -1,10 +1,10 @@
+using System.Collections.Generic;
+using System.Text;
 using EHR.Modules;
 using EHR.Patches;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Neutral;
 using Hazel;
-using System.Collections.Generic;
-using System.Text;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -40,7 +40,7 @@ public class Witch : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Witch);
-        ModeSwitchAction = StringOptionItem.Create(Id + 10, "WitchModeSwitchAction", SwitchTriggerText, 2, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Witch]);
+        ModeSwitchAction = StringOptionItem.Create(Id + 10, "WitchModeSwitchAction", SwitchTriggerText, 2, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Witch]);
     }
 
     public override void Init()

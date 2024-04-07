@@ -43,15 +43,15 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Penguin);
-            OptionAbductTimerLimit = FloatOptionItem.Create(Id + 11, "PenguinAbductTimerLimit", new(1f, 20f, 1f), 10f, TabGroup.ImpostorRoles, false)
+            OptionAbductTimerLimit = FloatOptionItem.Create(Id + 11, "PenguinAbductTimerLimit", new(1f, 20f, 1f), 10f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Penguin])
                 .SetValueFormat(OptionFormat.Seconds);
-            OptionMeetingKill = BooleanOptionItem.Create(Id + 12, "PenguinMeetingKill", false, TabGroup.ImpostorRoles, false)
+            OptionMeetingKill = BooleanOptionItem.Create(Id + 12, "PenguinMeetingKill", false, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Penguin]);
-            OptionSpeedDuringDrag = FloatOptionItem.Create(Id + 13, "PenguinSpeedDuringDrag", new(0.1f, 3f, 0.1f), 1f, TabGroup.ImpostorRoles, false)
+            OptionSpeedDuringDrag = FloatOptionItem.Create(Id + 13, "PenguinSpeedDuringDrag", new(0.1f, 3f, 0.1f), 1f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Penguin])
                 .SetValueFormat(OptionFormat.Multiplier);
-            OptionVictimCanUseAbilities = BooleanOptionItem.Create(Id + 14, "PenguinVictimCanUseAbilities", false, TabGroup.ImpostorRoles, false)
+            OptionVictimCanUseAbilities = BooleanOptionItem.Create(Id + 14, "PenguinVictimCanUseAbilities", false, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Penguin]);
         }
 

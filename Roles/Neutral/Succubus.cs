@@ -1,6 +1,6 @@
-﻿using AmongUs.GameOptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -30,24 +30,24 @@ public class Succubus : RoleBase
     public static void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Succubus);
-        CharmCooldown = FloatOptionItem.Create(Id + 10, "SuccubusCharmCooldown", new(0f, 60f, 2.5f), 30f, TabGroup.NeutralRoles, false)
+        CharmCooldown = FloatOptionItem.Create(Id + 10, "SuccubusCharmCooldown", new(0f, 60f, 2.5f), 30f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus])
             .SetValueFormat(OptionFormat.Seconds);
-        CharmCooldownIncrese = FloatOptionItem.Create(Id + 11, "SuccubusCharmCooldownIncrese", new(0f, 180f, 2.5f), 10f, TabGroup.NeutralRoles, false)
+        CharmCooldownIncrese = FloatOptionItem.Create(Id + 11, "SuccubusCharmCooldownIncrese", new(0f, 180f, 2.5f), 10f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus])
             .SetValueFormat(OptionFormat.Seconds);
-        CharmMax = IntegerOptionItem.Create(Id + 12, "SuccubusCharmMax", new(1, 15, 1), 15, TabGroup.NeutralRoles, false)
+        CharmMax = IntegerOptionItem.Create(Id + 12, "SuccubusCharmMax", new(1, 15, 1), 15, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus])
             .SetValueFormat(OptionFormat.Times);
-        KnowTargetRole = BooleanOptionItem.Create(Id + 13, "SuccubusKnowTargetRole", true, TabGroup.NeutralRoles, false)
+        KnowTargetRole = BooleanOptionItem.Create(Id + 13, "SuccubusKnowTargetRole", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus]);
-        TargetKnowOtherTarget = BooleanOptionItem.Create(Id + 14, "SuccubusTargetKnowOtherTarget", true, TabGroup.NeutralRoles, false)
+        TargetKnowOtherTarget = BooleanOptionItem.Create(Id + 14, "SuccubusTargetKnowOtherTarget", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus]);
-        CharmedCountMode = StringOptionItem.Create(Id + 15, "CharmedCountMode", CharmedCountModeStrings, 0, TabGroup.NeutralRoles, false)
+        CharmedCountMode = StringOptionItem.Create(Id + 15, "CharmedCountMode", CharmedCountModeStrings, 0, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus]);
-        CanCharmNeutral = BooleanOptionItem.Create(Id + 16, "SuccubusCanCharmNeutral", false, TabGroup.NeutralRoles, false)
+        CanCharmNeutral = BooleanOptionItem.Create(Id + 16, "SuccubusCanCharmNeutral", false, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus]);
-        CharmedDiesOnSuccubusDeath = BooleanOptionItem.Create(Id + 17, "CharmedDiesOnSuccubusDeath", false, TabGroup.NeutralRoles, false)
+        CharmedDiesOnSuccubusDeath = BooleanOptionItem.Create(Id + 17, "CharmedDiesOnSuccubusDeath", false, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus]);
     }
 

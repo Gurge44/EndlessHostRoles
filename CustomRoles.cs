@@ -220,6 +220,7 @@ public enum CustomRoles
     Amnesiac,
     Arsonist,
     Bandit,
+    Bargainer,
     BloodKnight,
     Bubble,
     Cherokious,

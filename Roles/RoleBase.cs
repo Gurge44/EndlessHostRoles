@@ -1,8 +1,8 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using System.Text;
+using AmongUs.GameOptions;
 using EHR.Roles.AddOns.Crewmate;
 using EHR.Roles.AddOns.Impostor;
-using System;
-using System.Text;
 
 namespace EHR
 {

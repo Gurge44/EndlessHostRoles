@@ -1,3 +1,4 @@
+using System.Linq;
 using EHR.Modules;
 using EHR.Roles.AddOns.Common;
 using EHR.Roles.AddOns.GhostRoles;
@@ -5,7 +6,6 @@ using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
 using Hazel;
-using System.Linq;
 
 namespace EHR;
 

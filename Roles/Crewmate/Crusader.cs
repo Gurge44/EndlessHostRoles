@@ -1,5 +1,5 @@
-using AmongUs.GameOptions;
 using System.Collections.Generic;
+using AmongUs.GameOptions;
 
 namespace EHR.Roles.Crewmate;
 
@@ -19,9 +19,9 @@ public class Crusader : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Crusader);
-        SkillCooldown = FloatOptionItem.Create(Id + 10, "CrusaderSkillCooldown", new(2.5f, 60f, 2.5f), 20f, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Crusader])
+        SkillCooldown = FloatOptionItem.Create(Id + 10, "CrusaderSkillCooldown", new(2.5f, 60f, 2.5f), 20f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Crusader])
             .SetValueFormat(OptionFormat.Seconds);
-        SkillLimitOpt = IntegerOptionItem.Create(Id + 11, "CrusaderSkillLimit", new(1, 10, 1), 2, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Crusader])
+        SkillLimitOpt = IntegerOptionItem.Create(Id + 11, "CrusaderSkillLimit", new(1, 10, 1), 2, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Crusader])
             .SetValueFormat(OptionFormat.Times);
         UsePet = Options.CreatePetUseSetting(Id + 12, CustomRoles.Crusader);
     }

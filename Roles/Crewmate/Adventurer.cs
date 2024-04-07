@@ -1,6 +1,6 @@
-﻿using EHR.Patches;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using EHR.Patches;
 using UnityEngine;
 
 namespace EHR.Roles.Crewmate
@@ -59,13 +59,13 @@ namespace EHR.Roles.Crewmate
 
         private static List<Weapon> EnabledWeapons = [];
 
-        static OptionItem CreateWeaponEnabledSetting(int id, Weapon weapon) => BooleanOptionItem.Create(id, $"AdventurerWeaponEnabled.{weapon}", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adventurer]);
+        static OptionItem CreateWeaponEnabledSetting(int id, Weapon weapon) => BooleanOptionItem.Create(id, $"AdventurerWeaponEnabled.{weapon}", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adventurer]);
 
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(11330, TabGroup.CrewmateRoles, CustomRoles.Adventurer);
 
-            IncreasedVisionDuration = IntegerOptionItem.Create(11332, "AdventurerIncreasedVisionDuration", new(1, 60, 1), 30, TabGroup.CrewmateRoles, false)
+            IncreasedVisionDuration = IntegerOptionItem.Create(11332, "AdventurerIncreasedVisionDuration", new(1, 60, 1), 30, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adventurer])
                 .SetValueFormat(OptionFormat.Seconds);
 

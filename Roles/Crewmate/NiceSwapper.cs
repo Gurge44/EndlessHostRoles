@@ -1,9 +1,9 @@
-﻿using EHR.Modules;
-using HarmonyLib;
-using Hazel;
-using System;
+﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using EHR.Modules;
+using HarmonyLib;
+using Hazel;
 using UnityEngine;
 using static EHR.Translator;
 using Object = UnityEngine.Object;
@@ -27,17 +27,17 @@ public class NiceSwapper : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.NiceSwapper);
-        SwapMax = IntegerOptionItem.Create(Id + 3, "NiceSwapperMax", new(0, 20, 1), 1, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])
+        SwapMax = IntegerOptionItem.Create(Id + 3, "NiceSwapperMax", new(0, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])
             .SetValueFormat(OptionFormat.Times);
-        CanSwapSelf = BooleanOptionItem.Create(Id + 2, "CanSwapSelfVotes", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
-        CanStartMeeting = BooleanOptionItem.Create(Id + 4, "JesterCanUseButton", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
-        NiceSwapperAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 6, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.3f, TabGroup.CrewmateRoles, false)
+        CanSwapSelf = BooleanOptionItem.Create(Id + 2, "CanSwapSelfVotes", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
+        CanStartMeeting = BooleanOptionItem.Create(Id + 4, "JesterCanUseButton", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
+        NiceSwapperAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 6, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.3f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])
             .SetValueFormat(OptionFormat.Times);
-        AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 7, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+        AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 7, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])
             .SetValueFormat(OptionFormat.Times);
-        HideMsg = BooleanOptionItem.Create(Id + 5, "SwapperHideMsg", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
+        HideMsg = BooleanOptionItem.Create(Id + 5, "SwapperHideMsg", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
     }
 
     public override void Init()

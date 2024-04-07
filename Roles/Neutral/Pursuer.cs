@@ -1,5 +1,5 @@
-﻿using EHR.Modules;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using EHR.Modules;
 
 namespace EHR.Roles.Neutral;
 
@@ -16,9 +16,9 @@ public class Pursuer : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Pursuer);
-        PursuerSkillCooldown = FloatOptionItem.Create(Id + 10, "PursuerSkillCooldown", new(2.5f, 60f, 2.5f), 20f, TabGroup.NeutralRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pursuer])
+        PursuerSkillCooldown = FloatOptionItem.Create(Id + 10, "PursuerSkillCooldown", new(2.5f, 60f, 2.5f), 20f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pursuer])
             .SetValueFormat(OptionFormat.Seconds);
-        PursuerSkillLimitTimes = IntegerOptionItem.Create(Id + 11, "PursuerSkillLimitTimes", new(1, 99, 1), 2, TabGroup.NeutralRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pursuer])
+        PursuerSkillLimitTimes = IntegerOptionItem.Create(Id + 11, "PursuerSkillLimitTimes", new(1, 99, 1), 2, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pursuer])
             .SetValueFormat(OptionFormat.Times);
     }
 

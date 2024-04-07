@@ -1,5 +1,5 @@
-﻿using AmongUs.GameOptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using static EHR.Options;
 
 namespace EHR.Roles.Crewmate
@@ -71,19 +71,19 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             SetupRoleOptions(9500, TabGroup.CrewmateRoles, CustomRoles.Mayor);
-            MayorAdditionalVote = IntegerOptionItem.Create(9510, "MayorAdditionalVote", new(0, 90, 1), 3, TabGroup.CrewmateRoles, false)
+            MayorAdditionalVote = IntegerOptionItem.Create(9510, "MayorAdditionalVote", new(0, 90, 1), 3, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor])
                 .SetValueFormat(OptionFormat.Votes);
-            MayorHasPortableButton = BooleanOptionItem.Create(9511, "MayorHasPortableButton", false, TabGroup.CrewmateRoles, false)
+            MayorHasPortableButton = BooleanOptionItem.Create(9511, "MayorHasPortableButton", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
-            MayorNumOfUseButton = IntegerOptionItem.Create(9512, "MayorNumOfUseButton", new(1, 90, 1), 1, TabGroup.CrewmateRoles, false)
+            MayorNumOfUseButton = IntegerOptionItem.Create(9512, "MayorNumOfUseButton", new(1, 90, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(MayorHasPortableButton)
                 .SetValueFormat(OptionFormat.Times);
-            MayorHideVote = BooleanOptionItem.Create(9513, "MayorHideVote", false, TabGroup.CrewmateRoles, false)
+            MayorHideVote = BooleanOptionItem.Create(9513, "MayorHideVote", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
-            MayorRevealWhenDoneTasks = BooleanOptionItem.Create(9514, "MayorRevealWhenDoneTasks", false, TabGroup.CrewmateRoles, false)
+            MayorRevealWhenDoneTasks = BooleanOptionItem.Create(9514, "MayorRevealWhenDoneTasks", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
-            MayorSeesVoteColorsWhenDoneTasks = BooleanOptionItem.Create(9515, "MayorSeesVoteColorsWhenDoneTasks", false, TabGroup.CrewmateRoles, false)
+            MayorSeesVoteColorsWhenDoneTasks = BooleanOptionItem.Create(9515, "MayorSeesVoteColorsWhenDoneTasks", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
             MayorTasks = OverrideTasksData.Create(9516, TabGroup.CrewmateRoles, CustomRoles.Mayor);
         }

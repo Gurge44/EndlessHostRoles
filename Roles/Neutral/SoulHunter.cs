@@ -1,8 +1,8 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using System;
-using System.Linq;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -30,19 +30,19 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.SoulHunter);
-            CanVent = BooleanOptionItem.Create(Id + 3, "CanVent", true, TabGroup.NeutralRoles, false)
+            CanVent = BooleanOptionItem.Create(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SoulHunter]);
-            HasImpostorVision = BooleanOptionItem.Create(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles, false)
+            HasImpostorVision = BooleanOptionItem.Create(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SoulHunter]);
-            NumOfSoulsToWin = IntegerOptionItem.Create(Id + 5, "SoulHunterNumOfSoulsToWin", new(1, 14, 1), 3, TabGroup.NeutralRoles, false)
+            NumOfSoulsToWin = IntegerOptionItem.Create(Id + 5, "SoulHunterNumOfSoulsToWin", new(1, 14, 1), 3, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SoulHunter]);
-            WaitingTimeAfterMeeting = IntegerOptionItem.Create(Id + 6, "SoulHunterFreezeTimeAfterMeeting", new(0, 90, 1), 3, TabGroup.NeutralRoles, false)
+            WaitingTimeAfterMeeting = IntegerOptionItem.Create(Id + 6, "SoulHunterFreezeTimeAfterMeeting", new(0, 90, 1), 3, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SoulHunter])
                 .SetValueFormat(OptionFormat.Seconds);
-            TimeToKillTarget = IntegerOptionItem.Create(Id + 7, "SoulHunterTimeToKillTarget", new(1, 90, 1), 30, TabGroup.NeutralRoles, false)
+            TimeToKillTarget = IntegerOptionItem.Create(Id + 7, "SoulHunterTimeToKillTarget", new(1, 90, 1), 30, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SoulHunter])
                 .SetValueFormat(OptionFormat.Seconds);
-            GetSoulForSuicide = BooleanOptionItem.Create(Id + 8, "SoulHunterGetSoulForSuicide", true, TabGroup.NeutralRoles, false)
+            GetSoulForSuicide = BooleanOptionItem.Create(Id + 8, "SoulHunterGetSoulForSuicide", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SoulHunter]);
         }
 

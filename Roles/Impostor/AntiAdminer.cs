@@ -1,9 +1,9 @@
-﻿using AmongUs.GameOptions;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Neutral;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Neutral;
 using UnityEngine;
 
 namespace EHR.Roles.Impostor;
@@ -32,13 +32,13 @@ internal class AntiAdminer : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.AntiAdminer);
-        CanCheckCamera = BooleanOptionItem.Create(Id + 10, "CanCheckCamera", true, TabGroup.ImpostorRoles, false)
+        CanCheckCamera = BooleanOptionItem.Create(Id + 10, "CanCheckCamera", true, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.AntiAdminer]);
-        EnableExtraAbility = BooleanOptionItem.Create(Id + 11, "EnableExtraAbility", true, TabGroup.ImpostorRoles, false)
+        EnableExtraAbility = BooleanOptionItem.Create(Id + 11, "EnableExtraAbility", true, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.AntiAdminer]);
-        CanOnlyUseWhileAnyWatch = BooleanOptionItem.Create(Id + 12, "CanOnlyUseWhileAnyWatch", true, TabGroup.ImpostorRoles, false)
+        CanOnlyUseWhileAnyWatch = BooleanOptionItem.Create(Id + 12, "CanOnlyUseWhileAnyWatch", true, TabGroup.ImpostorRoles)
             .SetParent(EnableExtraAbility);
-        Delay = FloatOptionItem.Create(Id + 13, "AADelay", new(0f, 20f, 0.5f), 5f, TabGroup.ImpostorRoles, false)
+        Delay = FloatOptionItem.Create(Id + 13, "AADelay", new(0f, 20f, 0.5f), 5f, TabGroup.ImpostorRoles)
             .SetParent(EnableExtraAbility)
             .SetValueFormat(OptionFormat.Seconds);
     }

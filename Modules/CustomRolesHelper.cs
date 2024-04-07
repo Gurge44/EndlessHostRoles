@@ -1,11 +1,11 @@
-using AmongUs.GameOptions;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using AmongUs.GameOptions;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
 using UnityEngine;
 
 namespace EHR;
@@ -333,6 +333,7 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Bargainer => RoleTypes.Impostor,
             CustomRoles.Tiger => RoleTypes.Impostor,
             CustomRoles.SoulHunter => RoleTypes.Impostor,
             CustomRoles.Enderman => RoleTypes.Impostor,
@@ -433,6 +434,7 @@ internal static class CustomRolesHelper
         CustomRoles.Refugee or
         CustomRoles.Parasite or
         CustomRoles.NSerialKiller or
+        CustomRoles.Bargainer or
         CustomRoles.Tiger or
         CustomRoles.Enderman or
         CustomRoles.Mycologist or
@@ -688,7 +690,8 @@ internal static class CustomRolesHelper
         CustomRoles.Swiftclaw,
         CustomRoles.Adventurer,
         CustomRoles.Sentry,
-        CustomRoles.Cherokious
+        CustomRoles.Cherokious,
+        CustomRoles.Bargainer
     ];
 
     public static bool OnlySpawnsWithPets(this CustomRoles role) => OnlySpawnsWithPetsRoleList.Contains(role);
@@ -1156,6 +1159,7 @@ internal static class CustomRolesHelper
             CustomRoles.PlagueBearer => CountTypes.PlagueBearer,
             CustomRoles.Parasite => CountTypes.Impostor,
             CustomRoles.NSerialKiller => CountTypes.NSerialKiller,
+            CustomRoles.Bargainer => CountTypes.Bargainer,
             CustomRoles.Tiger => CountTypes.Tiger,
             CustomRoles.Enderman => CountTypes.Enderman,
             CustomRoles.Mycologist => CountTypes.Mycologist,
@@ -1305,6 +1309,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     NSerialKiller,
+    Bargainer,
     Tiger,
     Enderman,
     Mycologist,

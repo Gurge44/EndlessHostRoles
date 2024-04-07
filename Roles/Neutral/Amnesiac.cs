@@ -1,6 +1,6 @@
-using AmongUs.GameOptions;
 using System;
 using System.Collections.Generic;
+using AmongUs.GameOptions;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -34,17 +34,17 @@ public class Amnesiac : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Amnesiac);
-        RememberMode = StringOptionItem.Create(Id + 9, "RememberMode", RememberModes, 0, TabGroup.NeutralRoles, false)
+        RememberMode = StringOptionItem.Create(Id + 9, "RememberMode", RememberModes, 0, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
-        RememberCooldown = FloatOptionItem.Create(Id + 10, "RememberCooldown", new(0f, 180f, 2.5f), 5f, TabGroup.NeutralRoles, false)
+        RememberCooldown = FloatOptionItem.Create(Id + 10, "RememberCooldown", new(0f, 180f, 2.5f), 5f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac])
             .SetValueFormat(OptionFormat.Seconds);
-        RefugeeKillCD = FloatOptionItem.Create(Id + 11, "RefugeeKillCD", new(0f, 180f, 2.5f), 25f, TabGroup.NeutralRoles, false)
+        RefugeeKillCD = FloatOptionItem.Create(Id + 11, "RefugeeKillCD", new(0f, 180f, 2.5f), 25f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac])
             .SetValueFormat(OptionFormat.Seconds);
-        IncompatibleNeutralMode = StringOptionItem.Create(Id + 12, "IncompatibleNeutralMode", AmnesiacIncompatibleNeutralMode, 0, TabGroup.NeutralRoles, false)
+        IncompatibleNeutralMode = StringOptionItem.Create(Id + 12, "IncompatibleNeutralMode", AmnesiacIncompatibleNeutralMode, 0, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
-        CanVent = BooleanOptionItem.Create(Id + 13, "CanVent", false, TabGroup.NeutralRoles, false)
+        CanVent = BooleanOptionItem.Create(Id + 13, "CanVent", false, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
     }
 

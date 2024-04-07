@@ -1,8 +1,8 @@
+using System.Linq;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
-using System.Linq;
 
 namespace EHR;
 

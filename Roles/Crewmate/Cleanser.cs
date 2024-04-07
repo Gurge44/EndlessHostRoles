@@ -1,6 +1,6 @@
-﻿using EHR.Modules;
+﻿using System.Collections.Generic;
+using EHR.Modules;
 using Hazel;
-using System.Collections.Generic;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
@@ -25,9 +25,9 @@ public class Cleanser : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Cleanser);
-        CleanserUsesOpt = IntegerOptionItem.Create(Id + 10, "MaxCleanserUses", new(1, 14, 1), 3, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser])
+        CleanserUsesOpt = IntegerOptionItem.Create(Id + 10, "MaxCleanserUses", new(1, 14, 1), 3, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser])
             .SetValueFormat(OptionFormat.Times);
-        CleansedCanGetAddon = BooleanOptionItem.Create(Id + 11, "CleansedCanGetAddon", false, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser]);
+        CleansedCanGetAddon = BooleanOptionItem.Create(Id + 11, "CleansedCanGetAddon", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser]);
         CancelVote = CreateVoteCancellingUseSetting(Id + 12, CustomRoles.Cleanser, TabGroup.CrewmateRoles);
     }
 

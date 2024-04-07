@@ -1,10 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Text;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles.Neutral;
 using Hazel;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using static EHR.Options;
 
 namespace EHR.Roles.Impostor;
@@ -35,13 +35,13 @@ public class Wildling : RoleBase
     public static void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Wildling);
-        ProtectDurationOpt = FloatOptionItem.Create(Id + 14, "BKProtectDuration", new(1f, 30f, 1f), 15f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling])
+        ProtectDurationOpt = FloatOptionItem.Create(Id + 14, "BKProtectDuration", new(1f, 30f, 1f), 15f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling])
             .SetValueFormat(OptionFormat.Seconds);
-        CanVentOpt = BooleanOptionItem.Create(Id + 15, "CanVent", true, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling]);
-        CanShapeshiftOpt = BooleanOptionItem.Create(Id + 16, "CanShapeshift", false, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling]);
-        ShapeshiftCDOpt = FloatOptionItem.Create(Id + 17, "ShapeshiftCooldown", new(1f, 60f, 1f), 30f, TabGroup.ImpostorRoles, false).SetParent(CanShapeshiftOpt)
+        CanVentOpt = BooleanOptionItem.Create(Id + 15, "CanVent", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling]);
+        CanShapeshiftOpt = BooleanOptionItem.Create(Id + 16, "CanShapeshift", false, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling]);
+        ShapeshiftCDOpt = FloatOptionItem.Create(Id + 17, "ShapeshiftCooldown", new(1f, 60f, 1f), 30f, TabGroup.ImpostorRoles).SetParent(CanShapeshiftOpt)
             .SetValueFormat(OptionFormat.Seconds);
-        ShapeshiftDurOpt = FloatOptionItem.Create(Id + 18, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles, false).SetParent(CanShapeshiftOpt)
+        ShapeshiftDurOpt = FloatOptionItem.Create(Id + 18, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles).SetParent(CanShapeshiftOpt)
             .SetValueFormat(OptionFormat.Seconds);
     }
 

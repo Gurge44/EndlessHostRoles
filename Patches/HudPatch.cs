@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using EHR.Modules;
 using EHR.Roles.AddOns.Common;
 using EHR.Roles.Crewmate;
@@ -5,9 +8,6 @@ using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
 using HarmonyLib;
 using Il2CppSystem.Text;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
@@ -31,7 +31,7 @@ class HudManagerPatch
 
     private static TextMeshPro OverriddenRolesText;
 
-    private static long LastNullError = 0;
+    private static long LastNullError;
 
     //public static GameObject TempLowerInfoText;
     public static void Postfix(HudManager __instance)
@@ -386,6 +386,7 @@ class HudManagerPatch
                             CustomRoles.WeaponMaster => WeaponMaster.GetHudAndProgressText(player.PlayerId),
                             CustomRoles.Postman => Postman.GetHudText(player),
                             CustomRoles.SoulHunter => SoulHunter.HUDText(player.PlayerId),
+                            CustomRoles.Bargainer => Bargainer.GetSuffix(player),
                             CustomRoles.Chronomancer => Chronomancer.GetHudText(player.PlayerId),
                             CustomRoles.Mafioso => Mafioso.GetHUDText(player),
                             CustomRoles.Druid => Druid.GetHUDText(player),

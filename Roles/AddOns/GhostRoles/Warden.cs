@@ -27,10 +27,10 @@ namespace EHR.Roles.AddOns.GhostRoles
         public void SetupCustomOption()
         {
             Options.SetupRoleOptions(649200, TabGroup.OtherRoles, CustomRoles.Warden);
-            ExtraSpeedDuration = IntegerOptionItem.Create(649202, "ExpressSpeedDur", new(1, 90, 1), 5, TabGroup.OtherRoles, false)
+            ExtraSpeedDuration = IntegerOptionItem.Create(649202, "ExpressSpeedDur", new(1, 90, 1), 5, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Warden])
                 .SetValueFormat(OptionFormat.Seconds);
-            ExtraSpeed = FloatOptionItem.Create(649203, "ExpressSpeed", new(0.5f, 3f, 0.1f), 0.25f, TabGroup.OtherRoles, false)
+            ExtraSpeed = FloatOptionItem.Create(649203, "ExpressSpeed", new(0.5f, 3f, 0.1f), 0.25f, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Warden])
                 .SetValueFormat(OptionFormat.Multiplier);
         }

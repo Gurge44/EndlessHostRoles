@@ -13,13 +13,13 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Swiftclaw);
-            DashCD = FloatOptionItem.Create(Id + 2, "SwiftclawDashCD", new(0f, 180f, 2.5f), 15f, TabGroup.ImpostorRoles, false)
+            DashCD = FloatOptionItem.Create(Id + 2, "SwiftclawDashCD", new(0f, 180f, 2.5f), 15f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swiftclaw])
                 .SetValueFormat(OptionFormat.Seconds);
-            DashDuration = IntegerOptionItem.Create(Id + 3, "SwiftclawDashDur", new(0, 60, 1), 4, TabGroup.ImpostorRoles, false)
+            DashDuration = IntegerOptionItem.Create(Id + 3, "SwiftclawDashDur", new(0, 60, 1), 4, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swiftclaw])
                 .SetValueFormat(OptionFormat.Seconds);
-            DashSpeed = FloatOptionItem.Create(Id + 4, "SwiftclawDashSpeed", new(0.05f, 3f, 0.05f), 2f, TabGroup.ImpostorRoles, false)
+            DashSpeed = FloatOptionItem.Create(Id + 4, "SwiftclawDashSpeed", new(0.05f, 3f, 0.05f), 2f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swiftclaw])
                 .SetValueFormat(OptionFormat.Multiplier);
         }

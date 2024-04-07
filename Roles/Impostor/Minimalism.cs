@@ -13,10 +13,10 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(16300, TabGroup.ImpostorRoles, CustomRoles.Minimalism);
-            MNKillCooldown = FloatOptionItem.Create(16310, "KillCooldown", new(2.5f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles, false)
+            MNKillCooldown = FloatOptionItem.Create(16310, "KillCooldown", new(2.5f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minimalism])
                 .SetValueFormat(OptionFormat.Seconds);
-            BypassShields = BooleanOptionItem.Create(16311, "BypassShields", false, TabGroup.ImpostorRoles, false)
+            BypassShields = BooleanOptionItem.Create(16311, "BypassShields", false, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minimalism]);
         }
 

@@ -1,5 +1,5 @@
-﻿using AmongUs.GameOptions;
-using System;
+﻿using System;
+using AmongUs.GameOptions;
 
 namespace EHR.Roles.AddOns.GhostRoles
 {
@@ -39,7 +39,7 @@ namespace EHR.Roles.AddOns.GhostRoles
         public void SetupCustomOption()
         {
             Options.SetupRoleOptions(649100, TabGroup.OtherRoles, CustomRoles.Specter);
-            SnatchWin = BooleanOptionItem.Create(649102, "SnatchWin", false, TabGroup.OtherRoles, false)
+            SnatchWin = BooleanOptionItem.Create(649102, "SnatchWin", false, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Specter]);
             Tasks = Options.OverrideTasksData.Create(649103, TabGroup.OtherRoles, CustomRoles.Specter);
         }

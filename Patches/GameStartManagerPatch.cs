@@ -1,11 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using EHR.Roles.Neutral;
 using HarmonyLib;
 using InnerNet;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;

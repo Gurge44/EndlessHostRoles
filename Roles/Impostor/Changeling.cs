@@ -1,7 +1,7 @@
-﻿using EHR.Modules;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
 using static EHR.Options;
 
 namespace EHR.Roles.Impostor
@@ -32,9 +32,9 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Changeling);
-            CanPickPartnerRole = BooleanOptionItem.Create(Id + 10, "CanPickPartnerRole", true, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Changeling]);
-            CanKillBeforeRoleChange = BooleanOptionItem.Create(Id + 11, "CanKillBeforeRoleChange", true, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Changeling]);
-            AvailableRoles = StringOptionItem.Create(Id + 12, "AvailableRoles", AvailableRolesMode, 0, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Changeling]);
+            CanPickPartnerRole = BooleanOptionItem.Create(Id + 10, "CanPickPartnerRole", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Changeling]);
+            CanKillBeforeRoleChange = BooleanOptionItem.Create(Id + 11, "CanKillBeforeRoleChange", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Changeling]);
+            AvailableRoles = StringOptionItem.Create(Id + 12, "AvailableRoles", AvailableRolesMode, 0, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Changeling]);
         }
 
         public static List<CustomRoles> GetAvailableRoles(bool check = false)

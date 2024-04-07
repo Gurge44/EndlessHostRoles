@@ -1,3 +1,6 @@
+using System;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -5,9 +8,6 @@ using EHR.Roles.Crewmate;
 using EHR.Roles.Neutral;
 using HarmonyLib;
 using InnerNet;
-using System;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using static EHR.Translator;
 
 namespace EHR;

@@ -18,15 +18,15 @@ namespace EHR.GameMode.HideAndSeekRoles
                 .SetHeader(true)
                 .SetColor(new(52, 94, 235, byte.MaxValue));
 
-            Vision = FloatOptionItem.Create(69_211_101, "HiderVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles, false)
+            Vision = FloatOptionItem.Create(69_211_101, "HiderVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(52, 94, 235, byte.MaxValue));
-            Speed = FloatOptionItem.Create(69_211_102, "HiderSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles, false)
+            Speed = FloatOptionItem.Create(69_211_102, "HiderSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(52, 94, 235, byte.MaxValue));
-            TimeDecreaseOnTaskComplete = IntegerOptionItem.Create(69_211_103, "TimeDecreaseOnTaskComplete", new(0, 60, 1), 5, TabGroup.CrewmateRoles, false)
+            TimeDecreaseOnTaskComplete = IntegerOptionItem.Create(69_211_103, "TimeDecreaseOnTaskComplete", new(0, 60, 1), 5, TabGroup.CrewmateRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(52, 94, 235, byte.MaxValue));

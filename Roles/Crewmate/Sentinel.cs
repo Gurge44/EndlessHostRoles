@@ -1,6 +1,6 @@
-﻿using AmongUs.GameOptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
@@ -136,13 +136,13 @@ namespace EHR.Roles.Crewmate
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Sentinel);
             PatrolCooldown = CreateCDSetting(Id + 2, TabGroup.CrewmateRoles, CustomRoles.Sentinel);
-            PatrolDuration = IntegerOptionItem.Create(Id + 3, "SentinelPatrolDuration", new(1, 90, 1), 5, TabGroup.CrewmateRoles, false)
+            PatrolDuration = IntegerOptionItem.Create(Id + 3, "SentinelPatrolDuration", new(1, 90, 1), 5, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sentinel])
                 .SetValueFormat(OptionFormat.Seconds);
-            LoweredVision = FloatOptionItem.Create(Id + 4, "FFA_LowerVision", new(0.05f, 3f, 0.05f), 0.2f, TabGroup.CrewmateRoles, false)
+            LoweredVision = FloatOptionItem.Create(Id + 4, "FFA_LowerVision", new(0.05f, 3f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sentinel])
                 .SetValueFormat(OptionFormat.Multiplier);
-            PatrolRadius = FloatOptionItem.Create(Id + 5, "SentinelPatrolRadius", new(0.1f, 25f, 0.1f), 5f, TabGroup.CrewmateRoles, false)
+            PatrolRadius = FloatOptionItem.Create(Id + 5, "SentinelPatrolRadius", new(0.1f, 25f, 0.1f), 5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sentinel])
                 .SetValueFormat(OptionFormat.Multiplier);
         }

@@ -1,7 +1,7 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using System.Collections.Generic;
 using static EHR.Options;
 using static EHR.Utils;
 
@@ -22,11 +22,11 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Hitman);
-            KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Hitman])
+            KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hitman])
                 .SetValueFormat(OptionFormat.Seconds);
-            SuccessKCD = FloatOptionItem.Create(Id + 11, "HitmanLowKCD", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Hitman])
+            SuccessKCD = FloatOptionItem.Create(Id + 11, "HitmanLowKCD", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hitman])
                 .SetValueFormat(OptionFormat.Seconds);
-            ShapeshiftCooldown = FloatOptionItem.Create(Id + 12, "ShapeshiftCooldown", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Hitman])
+            ShapeshiftCooldown = FloatOptionItem.Create(Id + 12, "ShapeshiftCooldown", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hitman])
                 .SetValueFormat(OptionFormat.Seconds);
         }
 

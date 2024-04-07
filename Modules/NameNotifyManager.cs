@@ -1,6 +1,6 @@
-﻿using EHR.Modules;
+﻿using System.Collections.Generic;
+using EHR.Modules;
 using Hazel;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace EHR;

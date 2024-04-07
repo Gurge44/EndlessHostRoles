@@ -1,7 +1,7 @@
-﻿using EHR.Modules;
-using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
+using Hazel;
 
 namespace EHR.Roles.Crewmate
 {
@@ -63,7 +63,7 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Rabbit);
-            OptionTaskTrigger = IntegerOptionItem.Create(Id + 2, "RabbitMinTasks", new(0, 90, 1), 3, TabGroup.CrewmateRoles, false)
+            OptionTaskTrigger = IntegerOptionItem.Create(Id + 2, "RabbitMinTasks", new(0, 90, 1), 3, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Rabbit]);
             Options.OverrideTasksData.Create(Id + 3, TabGroup.CrewmateRoles, CustomRoles.Rabbit);
         }

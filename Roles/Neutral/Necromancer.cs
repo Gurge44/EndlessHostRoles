@@ -1,5 +1,5 @@
-﻿using AmongUs.GameOptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -28,15 +28,15 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Necromancer);
-            CD = FloatOptionItem.Create(Id + 2, "NecromancerCD", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles, false)
+            CD = FloatOptionItem.Create(Id + 2, "NecromancerCD", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer])
                 .SetValueFormat(OptionFormat.Seconds);
-            DKCD = FloatOptionItem.Create(Id + 10, "DKCD", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles, false)
+            DKCD = FloatOptionItem.Create(Id + 10, "DKCD", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer])
                 .SetValueFormat(OptionFormat.Seconds);
-            KnowTargetRole = BooleanOptionItem.Create(Id + 13, "NecromancerKnowTargetRole", true, TabGroup.NeutralRoles, false)
+            KnowTargetRole = BooleanOptionItem.Create(Id + 13, "NecromancerKnowTargetRole", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer]);
-            UndeadCountMode = StringOptionItem.Create(Id + 15, "UndeadCountMode", UndeadCountModeStrings, 0, TabGroup.NeutralRoles, false)
+            UndeadCountMode = StringOptionItem.Create(Id + 15, "UndeadCountMode", UndeadCountModeStrings, 0, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer]);
         }
 

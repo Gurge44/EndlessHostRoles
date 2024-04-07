@@ -1,8 +1,8 @@
-﻿using AmongUs.GameOptions;
-using EHR.Roles.Neutral;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AmongUs.GameOptions;
+using EHR.Roles.Neutral;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
@@ -24,11 +24,11 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Sapper);
-            ShapeshiftCooldown = FloatOptionItem.Create(Id + 11, "SapperCD", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
+            ShapeshiftCooldown = FloatOptionItem.Create(Id + 11, "SapperCD", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
                 .SetValueFormat(OptionFormat.Seconds);
-            Delay = IntegerOptionItem.Create(Id + 12, "SapperDelay", new(1, 15, 1), 5, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
+            Delay = IntegerOptionItem.Create(Id + 12, "SapperDelay", new(1, 15, 1), 5, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
                 .SetValueFormat(OptionFormat.Times);
-            Radius = FloatOptionItem.Create(Id + 13, "SapperRadius", new(0f, 10f, 0.25f), 3f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
+            Radius = FloatOptionItem.Create(Id + 13, "SapperRadius", new(0f, 10f, 0.25f), 3f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
                 .SetValueFormat(OptionFormat.Multiplier);
         }
 

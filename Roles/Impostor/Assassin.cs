@@ -1,9 +1,9 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Neutral;
 using Hazel;
-using System.Collections.Generic;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -28,13 +28,13 @@ internal class Assassin : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Assassin);
-        MarkCooldownOpt = FloatOptionItem.Create(Id + 10, "AssassinMarkCooldown", new(0f, 180f, 0.5f), 1f, TabGroup.ImpostorRoles, false)
+        MarkCooldownOpt = FloatOptionItem.Create(Id + 10, "AssassinMarkCooldown", new(0f, 180f, 0.5f), 1f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Assassin])
             .SetValueFormat(OptionFormat.Seconds);
-        AssassinateCooldownOpt = FloatOptionItem.Create(Id + 11, "AssassinAssassinateCooldown", new(0f, 180f, 0.5f), 18.5f, TabGroup.ImpostorRoles, false)
+        AssassinateCooldownOpt = FloatOptionItem.Create(Id + 11, "AssassinAssassinateCooldown", new(0f, 180f, 0.5f), 18.5f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Assassin])
             .SetValueFormat(OptionFormat.Seconds);
-        CanKillAfterAssassinateOpt = BooleanOptionItem.Create(Id + 12, "AssassinCanKillAfterAssassinate", true, TabGroup.ImpostorRoles, false)
+        CanKillAfterAssassinateOpt = BooleanOptionItem.Create(Id + 12, "AssassinCanKillAfterAssassinate", true, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Assassin]);
     }
 

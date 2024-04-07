@@ -1,6 +1,6 @@
-﻿using AmongUs.GameOptions;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
+using AmongUs.GameOptions;
 
 namespace EHR.Roles.Neutral
 {
@@ -46,21 +46,21 @@ namespace EHR.Roles.Neutral
             NeutralMaxOpt = CreateSetting(id + 5, false, "Neutral");
             CrewMinOpt = CreateSetting(id + 6, true, "Crew");
             CrewMaxOpt = CreateSetting(id + 7, false, "Crew");
-            CanVent = BooleanOptionItem.Create(id + 8, "CanVent", true, TabGroup.NeutralRoles, false)
+            CanVent = BooleanOptionItem.Create(id + 8, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);
-            CanVentAfterWinning = BooleanOptionItem.Create(id + 9, "EvenAfterWinning", false, TabGroup.NeutralRoles, false)
+            CanVentAfterWinning = BooleanOptionItem.Create(id + 9, "EvenAfterWinning", false, TabGroup.NeutralRoles)
                 .SetParent(CanVent);
-            HasImpVision = BooleanOptionItem.Create(id + 10, "ImpostorVision", true, TabGroup.NeutralRoles, false)
+            HasImpVision = BooleanOptionItem.Create(id + 10, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);
-            HasImpVisionAfterWinning = BooleanOptionItem.Create(id + 11, "EvenAfterWinning", false, TabGroup.NeutralRoles, false)
+            HasImpVisionAfterWinning = BooleanOptionItem.Create(id + 11, "EvenAfterWinning", false, TabGroup.NeutralRoles)
                 .SetParent(HasImpVision);
-            CanWinWhenKillingMore = BooleanOptionItem.Create(id + 12, "ImpartialCanWinWhenKillingMore", false, TabGroup.NeutralRoles, false)
+            CanWinWhenKillingMore = BooleanOptionItem.Create(id + 12, "ImpartialCanWinWhenKillingMore", false, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);
         }
 
         static OptionItem CreateSetting(int id, bool min, string roleType)
         {
-            var opt = IntegerOptionItem.Create(id, $"Impartial{roleType}{(min ? "min" : "max")}", new(0, 14, 1), 1, TabGroup.NeutralRoles, false)
+            var opt = IntegerOptionItem.Create(id, $"Impartial{roleType}{(min ? "min" : "max")}", new(0, 14, 1), 1, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);
             opt.ReplacementDictionary = ReplacementDictionary;
             return opt;

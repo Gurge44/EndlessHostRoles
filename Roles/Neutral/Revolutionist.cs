@@ -1,7 +1,7 @@
-﻿using AmongUs.GameOptions;
-using EHR.Modules;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using EHR.Modules;
 using UnityEngine;
 using static EHR.Options;
 
@@ -22,19 +22,19 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             SetupRoleOptions(18400, TabGroup.NeutralRoles, CustomRoles.Revolutionist);
-            RevolutionistDrawTime = FloatOptionItem.Create(18410, "RevolutionistDrawTime", new(0f, 90f, 1f), 3f, TabGroup.NeutralRoles, false)
+            RevolutionistDrawTime = FloatOptionItem.Create(18410, "RevolutionistDrawTime", new(0f, 90f, 1f), 3f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Revolutionist])
                 .SetValueFormat(OptionFormat.Seconds);
-            RevolutionistCooldown = FloatOptionItem.Create(18411, "RevolutionistCooldown", new(0f, 100f, 1f), 10f, TabGroup.NeutralRoles, false)
+            RevolutionistCooldown = FloatOptionItem.Create(18411, "RevolutionistCooldown", new(0f, 100f, 1f), 10f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Revolutionist])
                 .SetValueFormat(OptionFormat.Seconds);
-            RevolutionistDrawCount = IntegerOptionItem.Create(18412, "RevolutionistDrawCount", new(0, 14, 1), 6, TabGroup.NeutralRoles, false)
+            RevolutionistDrawCount = IntegerOptionItem.Create(18412, "RevolutionistDrawCount", new(0, 14, 1), 6, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Revolutionist])
                 .SetValueFormat(OptionFormat.Players);
-            RevolutionistKillProbability = IntegerOptionItem.Create(18413, "RevolutionistKillProbability", new(0, 100, 5), 15, TabGroup.NeutralRoles, false)
+            RevolutionistKillProbability = IntegerOptionItem.Create(18413, "RevolutionistKillProbability", new(0, 100, 5), 15, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Revolutionist])
                 .SetValueFormat(OptionFormat.Percent);
-            RevolutionistVentCountDown = FloatOptionItem.Create(18414, "RevolutionistVentCountDown", new(0f, 180f, 1f), 15f, TabGroup.NeutralRoles, false)
+            RevolutionistVentCountDown = FloatOptionItem.Create(18414, "RevolutionistVentCountDown", new(0f, 180f, 1f), 15f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Revolutionist])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -142,7 +142,7 @@ namespace EHR.Roles.Neutral
                 {
                     var rv_target = RevolutionistTimer[playerId].PLAYER;
                     var rv_time = RevolutionistTimer[playerId].TIMER;
-                    if (!ExtendedPlayerControl.IsAlive(rv_target))
+                    if (!rv_target.IsAlive())
                     {
                         RevolutionistTimer.Remove(playerId);
                     }
@@ -156,11 +156,11 @@ namespace EHR.Roles.Neutral
                         RPC.ResetCurrentDrawTarget(playerId);
                         if (IRandom.Instance.Next(1, 100) <= RevolutionistKillProbability.GetInt())
                         {
-                            ExtendedPlayerControl.SetRealKiller(rv_target, player);
+                            rv_target.SetRealKiller(player);
                             Main.PlayerStates[rv_target.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
                             player.Kill(rv_target);
                             Main.PlayerStates[rv_target.PlayerId].SetDead();
-                            Logger.Info($"Revolutionist: {player.GetNameWithRole().RemoveHtmlTags()} killed {ExtendedPlayerControl.GetNameWithRole(rv_target).RemoveHtmlTags()}", "Revolutionist");
+                            Logger.Info($"Revolutionist: {player.GetNameWithRole().RemoveHtmlTags()} killed {rv_target.GetNameWithRole().RemoveHtmlTags()}", "Revolutionist");
                         }
                     }
                     else

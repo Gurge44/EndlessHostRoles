@@ -1,6 +1,6 @@
-﻿using AmongUs.GameOptions;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using AmongUs.GameOptions;
 using UnityEngine;
 
 namespace EHR.Roles.Crewmate
@@ -26,21 +26,21 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Ignitor);
-            OptionTaskStartVision = FloatOptionItem.Create(Id + 2, "CandleLighterStartVision", new(0.5f, 5f, 0.1f), 0.8f, TabGroup.CrewmateRoles, false)
+            OptionTaskStartVision = FloatOptionItem.Create(Id + 2, "CandleLighterStartVision", new(0.5f, 5f, 0.1f), 0.8f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ignitor])
                 .SetValueFormat(OptionFormat.Multiplier);
-            OptionCountStartTime = IntegerOptionItem.Create(Id + 3, "CandleLighterCountStartTime", new(0, 50, 5), 0, TabGroup.CrewmateRoles, false)
+            OptionCountStartTime = IntegerOptionItem.Create(Id + 3, "CandleLighterCountStartTime", new(0, 50, 5), 0, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ignitor])
                 .SetValueFormat(OptionFormat.Seconds);
-            OptionTaskEndVisionTime = IntegerOptionItem.Create(Id + 4, "CandleLighterEndVisionTime", new(20, 200, 10), 50, TabGroup.CrewmateRoles, false)
+            OptionTaskEndVisionTime = IntegerOptionItem.Create(Id + 4, "CandleLighterEndVisionTime", new(20, 200, 10), 50, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ignitor])
                 .SetValueFormat(OptionFormat.Seconds);
-            OptionTaskEndVision = FloatOptionItem.Create(Id + 5, "CandleLighterEndVision", new(0f, 0.5f, 0.05f), 0.1f, TabGroup.CrewmateRoles, false)
+            OptionTaskEndVision = FloatOptionItem.Create(Id + 5, "CandleLighterEndVision", new(0f, 0.5f, 0.05f), 0.1f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ignitor])
                 .SetValueFormat(OptionFormat.Multiplier);
-            OptionTaskTimeMoveMeeting = BooleanOptionItem.Create(Id + 6, "CandleLighterTimeMoveMeeting", false, TabGroup.CrewmateRoles, false)
+            OptionTaskTimeMoveMeeting = BooleanOptionItem.Create(Id + 6, "CandleLighterTimeMoveMeeting", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ignitor]);
-            OptionTasksFinishedVision = FloatOptionItem.Create(Id + 7, "CandleLighterTasksFinishedVision", new(0.5f, 5f, 0.1f), 0.5f, TabGroup.CrewmateRoles, false)
+            OptionTasksFinishedVision = FloatOptionItem.Create(Id + 7, "CandleLighterTasksFinishedVision", new(0.5f, 5f, 0.1f), 0.5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ignitor])
                 .SetValueFormat(OptionFormat.Multiplier);
             OverrideTasksData.Create(Id + 8, TabGroup.CrewmateRoles, CustomRoles.Ignitor);

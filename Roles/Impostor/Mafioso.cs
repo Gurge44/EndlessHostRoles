@@ -1,8 +1,8 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using System.Collections.Generic;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using System;
-using System.Collections.Generic;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -50,16 +50,16 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Mafioso);
-            Delay = IntegerOptionItem.Create(Id + 10, "MafiosoDelay", new(1, 10, 1), 3, TabGroup.ImpostorRoles, false)
+            Delay = IntegerOptionItem.Create(Id + 10, "MafiosoDelay", new(1, 10, 1), 3, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso])
                 .SetValueFormat(OptionFormat.Seconds);
-            RewardForKilling = IntegerOptionItem.Create(Id + 11, "MafiosoRewardForKilling", new(0, 100, 5), 40, TabGroup.ImpostorRoles, false)
+            RewardForKilling = IntegerOptionItem.Create(Id + 11, "MafiosoRewardForKilling", new(0, 100, 5), 40, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
-            RewardForSabotaging = IntegerOptionItem.Create(Id + 12, "MafiosoRewardForSabotaging", new(0, 100, 5), 25, TabGroup.ImpostorRoles, false)
+            RewardForSabotaging = IntegerOptionItem.Create(Id + 12, "MafiosoRewardForSabotaging", new(0, 100, 5), 25, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
-            RewardForVenting = IntegerOptionItem.Create(Id + 13, "MafiosoRewardForVenting", new(0, 100, 5), 10, TabGroup.ImpostorRoles, false)
+            RewardForVenting = IntegerOptionItem.Create(Id + 13, "MafiosoRewardForVenting", new(0, 100, 5), 10, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
-            RewardForOtherPlayerEjected = IntegerOptionItem.Create(Id + 14, "MafiosoRewardForOtherPlayerEjected", new(0, 100, 5), 30, TabGroup.ImpostorRoles, false)
+            RewardForOtherPlayerEjected = IntegerOptionItem.Create(Id + 14, "MafiosoRewardForOtherPlayerEjected", new(0, 100, 5), 30, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
         }
 

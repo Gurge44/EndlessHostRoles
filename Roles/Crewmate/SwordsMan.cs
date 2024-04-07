@@ -1,7 +1,7 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace EHR.Roles.Crewmate;
@@ -17,7 +17,7 @@ public class SwordsMan : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.SwordsMan);
-        CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", false, TabGroup.CrewmateRoles, false)
+        CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", false, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SwordsMan]);
         UsePet = Options.CreatePetUseSetting(Id + 10, CustomRoles.SwordsMan);
     }

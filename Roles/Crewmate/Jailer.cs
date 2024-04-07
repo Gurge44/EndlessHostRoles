@@ -1,7 +1,7 @@
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using System.Collections.Generic;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -22,9 +22,9 @@ public class Jailor : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Jailor);
-        JailCooldown = FloatOptionItem.Create(Id + 10, "JailorJailCooldown", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jailor])
+        JailCooldown = FloatOptionItem.Create(Id + 10, "JailorJailCooldown", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jailor])
             .SetValueFormat(OptionFormat.Seconds);
-        notifyJailedOnMeeting = BooleanOptionItem.Create(Id + 18, "notifyJailedOnMeeting", true, TabGroup.CrewmateRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jailor]);
+        notifyJailedOnMeeting = BooleanOptionItem.Create(Id + 18, "notifyJailedOnMeeting", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jailor]);
         UsePet = CreatePetUseSetting(Id + 11, CustomRoles.Jailor);
     }
 

@@ -13,12 +13,12 @@ namespace EHR.GameMode.HideAndSeekRoles
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(69_211_401, TabGroup.NeutralRoles, CustomRoles.Troll, CustomGameMode.HideAndSeek, true);
-            Vision = FloatOptionItem.Create(69_211_403, "TrollVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.NeutralRoles, false)
+            Vision = FloatOptionItem.Create(69_211_403, "TrollVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.NeutralRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(255, 0, 255, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Troll]);
-            Speed = FloatOptionItem.Create(69_211_404, "TrollSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.NeutralRoles, false)
+            Speed = FloatOptionItem.Create(69_211_404, "TrollSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.NeutralRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(255, 0, 255, byte.MaxValue))

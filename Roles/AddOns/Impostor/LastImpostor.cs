@@ -12,7 +12,7 @@ public class LastImpostor : IAddon
     public void SetupCustomOption()
     {
         Options.SetupSingleRoleOptions(Id, TabGroup.Addons, CustomRoles.LastImpostor);
-        KillCooldown = FloatOptionItem.Create(Id + 15, "SansReduceKillCooldown", new(5f, 95f, 5f), 50f, TabGroup.Addons, false)
+        KillCooldown = FloatOptionItem.Create(Id + 15, "SansReduceKillCooldown", new(5f, 95f, 5f), 50f, TabGroup.Addons)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.LastImpostor])
             .SetValueFormat(OptionFormat.Percent);
     }

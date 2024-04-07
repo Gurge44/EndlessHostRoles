@@ -1,6 +1,6 @@
-﻿using EHR.Patches;
+﻿using System;
+using EHR.Patches;
 using Rewired.Utils;
-using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 

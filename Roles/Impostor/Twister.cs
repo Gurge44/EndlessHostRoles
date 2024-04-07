@@ -1,8 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles.Neutral;
-using System.Collections.Generic;
-using System.Linq;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -20,11 +20,11 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Twister);
-            ShapeshiftCooldown = FloatOptionItem.Create(Id + 10, "TwisterCooldown", new(1f, 60f, 1f), 30f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
+            ShapeshiftCooldown = FloatOptionItem.Create(Id + 10, "TwisterCooldown", new(1f, 60f, 1f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
                 .SetValueFormat(OptionFormat.Seconds);
-            TwisterLimitOpt = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
+            TwisterLimitOpt = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
                 .SetValueFormat(OptionFormat.Times);
-            TwisterAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.4f, TabGroup.ImpostorRoles, false)
+            TwisterAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.4f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
                 .SetValueFormat(OptionFormat.Times);
         }

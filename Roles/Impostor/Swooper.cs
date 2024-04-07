@@ -1,11 +1,11 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Neutral;
 using Hazel;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -37,14 +37,14 @@ public class Swooper : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Swooper);
-        SwooperCooldown = FloatOptionItem.Create(Id + 2, "SwooperCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
+        SwooperCooldown = FloatOptionItem.Create(Id + 2, "SwooperCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
             .SetValueFormat(OptionFormat.Seconds);
-        SwooperDuration = FloatOptionItem.Create(Id + 3, "SwooperDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
+        SwooperDuration = FloatOptionItem.Create(Id + 3, "SwooperDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
             .SetValueFormat(OptionFormat.Seconds);
-        SwooperVentNormallyOnCooldown = BooleanOptionItem.Create(Id + 4, "SwooperVentNormallyOnCooldown", true, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper]);
-        SwooperLimitOpt = IntegerOptionItem.Create(Id + 5, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
+        SwooperVentNormallyOnCooldown = BooleanOptionItem.Create(Id + 4, "SwooperVentNormallyOnCooldown", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper]);
+        SwooperLimitOpt = IntegerOptionItem.Create(Id + 5, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
             .SetValueFormat(OptionFormat.Times);
-        SwooperAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 6, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles, false)
+        SwooperAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 6, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
             .SetValueFormat(OptionFormat.Times);
     }

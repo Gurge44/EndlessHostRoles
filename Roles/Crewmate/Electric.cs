@@ -23,7 +23,7 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Electric);
-            FreezeDuration = FloatOptionItem.Create(Id + 2, "GamblerFreezeDur", new(0.5f, 90f, 0.5f), 3f, TabGroup.CrewmateRoles, false)
+            FreezeDuration = FloatOptionItem.Create(Id + 2, "GamblerFreezeDur", new(0.5f, 90f, 0.5f), 3f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Electric])
                 .SetValueFormat(OptionFormat.Seconds);
         }

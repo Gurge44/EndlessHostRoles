@@ -1,9 +1,9 @@
-﻿using AmongUs.GameOptions;
-using EHR.Modules;
-using Hazel;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AmongUs.GameOptions;
+using EHR.Modules;
+using Hazel;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
@@ -29,19 +29,19 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Druid);
-            VentCooldown = IntegerOptionItem.Create(Id + 10, "VentCooldown", new(0, 60, 1), 15, TabGroup.CrewmateRoles, false)
+            VentCooldown = IntegerOptionItem.Create(Id + 10, "VentCooldown", new(0, 60, 1), 15, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Seconds);
-            TriggerPlaceDelay = IntegerOptionItem.Create(Id + 11, "DruidTriggerPlaceDelayOpt", new(1, 20, 1), 7, TabGroup.CrewmateRoles, false)
+            TriggerPlaceDelay = IntegerOptionItem.Create(Id + 11, "DruidTriggerPlaceDelayOpt", new(1, 20, 1), 7, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Seconds);
-            UseLimitOpt = IntegerOptionItem.Create(Id + 12, "AbilityUseLimit", new(0, 20, 1), 3, TabGroup.CrewmateRoles, false)
+            UseLimitOpt = IntegerOptionItem.Create(Id + 12, "AbilityUseLimit", new(0, 20, 1), 3, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Times);
-            DruidAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles, false)
+            DruidAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Times);
-            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 14, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 14, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Times);
         }

@@ -8,7 +8,7 @@
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(5800, TabGroup.CrewmateRoles, CustomRoles.Luckey);
-            Options.LuckeyProbability = IntegerOptionItem.Create(5900, "LuckeyProbability", new(0, 100, 5), 50, TabGroup.CrewmateRoles, false)
+            Options.LuckeyProbability = IntegerOptionItem.Create(5900, "LuckeyProbability", new(0, 100, 5), 50, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Luckey])
                 .SetValueFormat(OptionFormat.Percent);
         }

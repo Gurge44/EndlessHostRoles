@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles.AddOns.Common;
@@ -8,9 +11,6 @@ using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using static EHR.Modules.CustomRoleSelector;
 using static EHR.Translator;
 

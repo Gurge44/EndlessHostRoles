@@ -15,10 +15,10 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(16500, TabGroup.ImpostorRoles, CustomRoles.BoobyTrap);
-            BTKillCooldown = FloatOptionItem.Create(16510, "KillCooldown", new(2.5f, 180f, 2.5f), 20f, TabGroup.ImpostorRoles, false)
+            BTKillCooldown = FloatOptionItem.Create(16510, "KillCooldown", new(2.5f, 180f, 2.5f), 20f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.BoobyTrap])
                 .SetValueFormat(OptionFormat.Seconds);
-            TrapOnlyWorksOnTheBodyBoobyTrap = BooleanOptionItem.Create(16511, "TrapOnlyWorksOnTheBodyBoobyTrap", true, TabGroup.ImpostorRoles, false)
+            TrapOnlyWorksOnTheBodyBoobyTrap = BooleanOptionItem.Create(16511, "TrapOnlyWorksOnTheBodyBoobyTrap", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.BoobyTrap]);
         }
 

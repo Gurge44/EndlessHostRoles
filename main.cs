@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Reflection;
 using AmongUs.GameOptions;
 using BepInEx;
 using BepInEx.Configuration;
@@ -7,11 +12,6 @@ using EHR;
 using EHR.Roles.Neutral;
 using HarmonyLib;
 using Il2CppInterop.Runtime.Injection;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Reflection;
 using UnityEngine;
 
 [assembly: AssemblyFileVersion(Main.PluginVersion)]
@@ -35,8 +35,8 @@ public class Main : BasePlugin
     public const string DebugKeySalt = "59687b";
     public static ConfigEntry<string> DebugKeyInput { get; private set; }
     public const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "3.1.4";
-    public const string PluginDisplayVersion = "3.1.4";
+    public const string PluginVersion = "3.2.0";
+    public const string PluginDisplayVersion = "3.2.0";
     public static readonly string SupportedAUVersion = "2024.3.5";
 
     public Harmony Harmony { get; } = new(PluginGuid);
@@ -424,6 +424,7 @@ public class Main : BasePlugin
                 { CustomRoles.HexMaster, "#ff00ff" },
                 { CustomRoles.Wraith, "#4B0082" },
                 { CustomRoles.NSerialKiller, "#233fcc" },
+                { CustomRoles.Bargainer, "#4f2f36" },
                 { CustomRoles.Tiger, "#fcba03" },
                 { CustomRoles.SoulHunter, "#3f2c61" },
                 { CustomRoles.Enderman, "#3c008a" },
@@ -681,6 +682,7 @@ public enum CustomWinner
     Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
     SerialKiller = CustomRoles.NSerialKiller,
+    Bargainer = CustomRoles.Bargainer,
     Tiger = CustomRoles.Tiger,
     Enderman = CustomRoles.Enderman,
     Mycologist = CustomRoles.Mycologist,

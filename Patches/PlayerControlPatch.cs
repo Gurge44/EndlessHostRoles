@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Patches;
@@ -11,11 +16,6 @@ using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
@@ -217,7 +217,7 @@ class CheckMurderPatch
                 return false;
             case CustomGameMode.FFA:
                 FFAManager.OnPlayerAttack(killer, target);
-                return true;
+                return false;
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
                 return false;

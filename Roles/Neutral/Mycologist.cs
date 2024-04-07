@@ -1,8 +1,8 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using System.Collections.Generic;
-using System.Linq;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -35,20 +35,20 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Mycologist);
-            KillCooldown = FloatOptionItem.Create(Id + 2, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false)
+            KillCooldown = FloatOptionItem.Create(Id + 2, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mycologist])
                 .SetValueFormat(OptionFormat.Seconds);
-            HasImpostorVision = BooleanOptionItem.Create(Id + 7, "ImpostorVision", true, TabGroup.NeutralRoles, false)
+            HasImpostorVision = BooleanOptionItem.Create(Id + 7, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mycologist]);
-            SpreadAction = StringOptionItem.Create(Id + 3, "MycologistAction", SpreadMode, 1, TabGroup.NeutralRoles, false)
+            SpreadAction = StringOptionItem.Create(Id + 3, "MycologistAction", SpreadMode, 1, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mycologist]);
-            CD = IntegerOptionItem.Create(Id + 4, "AbilityCooldown", new(1, 90, 1), 15, TabGroup.NeutralRoles, false)
+            CD = IntegerOptionItem.Create(Id + 4, "AbilityCooldown", new(1, 90, 1), 15, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mycologist])
                 .SetValueFormat(OptionFormat.Seconds);
-            InfectRadius = FloatOptionItem.Create(Id + 5, "InfectRadius", new(0.1f, 5f, 0.1f), 3f, TabGroup.NeutralRoles, false)
+            InfectRadius = FloatOptionItem.Create(Id + 5, "InfectRadius", new(0.1f, 5f, 0.1f), 3f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mycologist])
                 .SetValueFormat(OptionFormat.Multiplier);
-            InfectTime = IntegerOptionItem.Create(Id + 6, "InfectDelay", new(0, 60, 1), 5, TabGroup.NeutralRoles, false)
+            InfectTime = IntegerOptionItem.Create(Id + 6, "InfectDelay", new(0, 60, 1), 5, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mycologist])
                 .SetValueFormat(OptionFormat.Seconds);
         }

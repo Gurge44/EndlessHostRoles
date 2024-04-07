@@ -1,6 +1,6 @@
-﻿using AmongUs.GameOptions;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using AmongUs.GameOptions;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
@@ -33,29 +33,29 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Sprayer);
-            KillCooldown = FloatOptionItem.Create(Id + 2, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false)
+            KillCooldown = FloatOptionItem.Create(Id + 2, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Seconds);
-            HasImpostorVision = BooleanOptionItem.Create(Id + 3, "ImpostorVision", true, TabGroup.NeutralRoles, false)
+            HasImpostorVision = BooleanOptionItem.Create(Id + 3, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer]);
-            CanVent = BooleanOptionItem.Create(Id + 4, "CanVent", true, TabGroup.NeutralRoles, false)
+            CanVent = BooleanOptionItem.Create(Id + 4, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer]);
-            CD = IntegerOptionItem.Create(Id + 5, "AbilityCooldown", new(0, 90, 1), 15, TabGroup.NeutralRoles, false)
+            CD = IntegerOptionItem.Create(Id + 5, "AbilityCooldown", new(0, 90, 1), 15, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Seconds);
-            UseLimitOpt = IntegerOptionItem.Create(Id + 6, "AbilityUseLimit", new(1, 90, 1), 5, TabGroup.NeutralRoles, false)
+            UseLimitOpt = IntegerOptionItem.Create(Id + 6, "AbilityUseLimit", new(1, 90, 1), 5, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Times);
-            LoweredVision = FloatOptionItem.Create(Id + 7, "FFA_LowerVision", new(0.05f, 1.5f, 0.05f), 0.25f, TabGroup.NeutralRoles, false)
+            LoweredVision = FloatOptionItem.Create(Id + 7, "FFA_LowerVision", new(0.05f, 1.5f, 0.05f), 0.25f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Multiplier);
-            LoweredSpeed = FloatOptionItem.Create(Id + 8, "FFA_DecreasedSpeed", new(0.05f, 3f, 0.05f), 0.8f, TabGroup.NeutralRoles, false)
+            LoweredSpeed = FloatOptionItem.Create(Id + 8, "FFA_DecreasedSpeed", new(0.05f, 3f, 0.05f), 0.8f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Multiplier);
-            EffectDuration = IntegerOptionItem.Create(Id + 10, "NegativeEffectDuration", new(1, 90, 1), 10, TabGroup.NeutralRoles, false)
+            EffectDuration = IntegerOptionItem.Create(Id + 10, "NegativeEffectDuration", new(1, 90, 1), 10, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Seconds);
-            MaxTrappedTimes = IntegerOptionItem.Create(Id + 9, "SprayerMaxTrappedTimes", new(1, 90, 1), 3, TabGroup.NeutralRoles, false)
+            MaxTrappedTimes = IntegerOptionItem.Create(Id + 9, "SprayerMaxTrappedTimes", new(1, 90, 1), 3, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Times);
         }

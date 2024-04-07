@@ -1,8 +1,8 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Roles.Impostor;
 using HarmonyLib;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace EHR.Modules;
 

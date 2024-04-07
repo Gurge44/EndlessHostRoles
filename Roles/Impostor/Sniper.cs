@@ -1,10 +1,10 @@
+using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Neutral;
 using Hazel;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -39,13 +39,13 @@ public class Sniper : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Sniper);
-        SniperBulletCount = IntegerOptionItem.Create(Id + 10, "SniperBulletCount", new(1, 10, 1), 2, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper])
+        SniperBulletCount = IntegerOptionItem.Create(Id + 10, "SniperBulletCount", new(1, 10, 1), 2, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper])
             .SetValueFormat(OptionFormat.Pieces);
-        SniperPrecisionShooting = BooleanOptionItem.Create(Id + 11, "SniperPrecisionShooting", false, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
-        SniperAimAssist = BooleanOptionItem.Create(Id + 12, "SniperAimAssist", true, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
-        SniperAimAssistOnshot = BooleanOptionItem.Create(Id + 13, "SniperAimAssistOneshot", false, TabGroup.ImpostorRoles, false).SetParent(SniperAimAssist);
-        CanKillWithBullets = BooleanOptionItem.Create(Id + 14, "SniperCanKill", true, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
-        ShapeshiftDuration = FloatOptionItem.Create(Id + 15, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper])
+        SniperPrecisionShooting = BooleanOptionItem.Create(Id + 11, "SniperPrecisionShooting", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
+        SniperAimAssist = BooleanOptionItem.Create(Id + 12, "SniperAimAssist", true, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
+        SniperAimAssistOnshot = BooleanOptionItem.Create(Id + 13, "SniperAimAssistOneshot", false, TabGroup.ImpostorRoles).SetParent(SniperAimAssist);
+        CanKillWithBullets = BooleanOptionItem.Create(Id + 14, "SniperCanKill", true, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
+        ShapeshiftDuration = FloatOptionItem.Create(Id + 15, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper])
             .SetValueFormat(OptionFormat.Seconds);
     }
 

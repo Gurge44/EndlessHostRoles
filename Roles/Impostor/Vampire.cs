@@ -1,8 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
 using EHR.Modules;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Neutral;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -30,7 +30,7 @@ public class Vampire : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Vampire);
-        OptionKillDelay = FloatOptionItem.Create(Id + 10, "VampireKillDelay", new(1f, 30f, 1f), 3f, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Vampire])
+        OptionKillDelay = FloatOptionItem.Create(Id + 10, "VampireKillDelay", new(1f, 30f, 1f), 3f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Vampire])
             .SetValueFormat(OptionFormat.Seconds);
     }
 

@@ -1,8 +1,8 @@
-﻿using AmongUs.GameOptions;
+﻿using System.Collections.Generic;
+using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using static EHR.Options;
 
@@ -18,15 +18,15 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(4800, TabGroup.ImpostorRoles, CustomRoles.Crewpostor);
-            CrewpostorCanKillAllies = BooleanOptionItem.Create(4810, "CanKillAllies", true, TabGroup.ImpostorRoles, false)
+            CrewpostorCanKillAllies = BooleanOptionItem.Create(4810, "CanKillAllies", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
-            CrewpostorKnowsAllies = BooleanOptionItem.Create(4811, "CrewpostorKnowsAllies", true, TabGroup.ImpostorRoles, false)
+            CrewpostorKnowsAllies = BooleanOptionItem.Create(4811, "CrewpostorKnowsAllies", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
-            AlliesKnowCrewpostor = BooleanOptionItem.Create(4812, "AlliesKnowCrewpostor", true, TabGroup.ImpostorRoles, false)
+            AlliesKnowCrewpostor = BooleanOptionItem.Create(4812, "AlliesKnowCrewpostor", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
-            CrewpostorLungeKill = BooleanOptionItem.Create(4813, "CrewpostorLungeKill", true, TabGroup.ImpostorRoles, false)
+            CrewpostorLungeKill = BooleanOptionItem.Create(4813, "CrewpostorLungeKill", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
-            CrewpostorKillAfterTask = IntegerOptionItem.Create(4814, "CrewpostorKillAfterTask", new(1, 50, 1), 1, TabGroup.ImpostorRoles, false)
+            CrewpostorKillAfterTask = IntegerOptionItem.Create(4814, "CrewpostorKillAfterTask", new(1, 50, 1), 1, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
             CrewpostorTasks = OverrideTasksData.Create(4815, TabGroup.ImpostorRoles, CustomRoles.Crewpostor);
         }

@@ -1,5 +1,5 @@
-using Hazel;
 using System.Collections.Generic;
+using Hazel;
 
 namespace EHR;
 

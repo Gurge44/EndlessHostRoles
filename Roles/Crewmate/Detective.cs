@@ -9,7 +9,7 @@ namespace EHR.Roles.Crewmate
         public void SetupCustomOption()
         {
             Options.SetupRoleOptions(6600, TabGroup.CrewmateRoles, CustomRoles.Detective);
-            Options.DetectiveCanknowKiller = BooleanOptionItem.Create(6610, "DetectiveCanknowKiller", true, TabGroup.CrewmateRoles, false)
+            Options.DetectiveCanknowKiller = BooleanOptionItem.Create(6610, "DetectiveCanknowKiller", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Detective]);
         }
 

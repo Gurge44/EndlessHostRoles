@@ -1,5 +1,5 @@
-using AmongUs.GameOptions;
 using System.Collections.Generic;
+using AmongUs.GameOptions;
 
 namespace EHR.Roles.Crewmate
 {
@@ -17,13 +17,13 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Aid);
-            AidCD = FloatOptionItem.Create(Id + 10, "AidCD", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles, false)
+            AidCD = FloatOptionItem.Create(Id + 10, "AidCD", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Aid])
                 .SetValueFormat(OptionFormat.Seconds);
-            AidDur = FloatOptionItem.Create(Id + 11, "AidDur", new(0f, 60f, 1f), 10f, TabGroup.CrewmateRoles, false)
+            AidDur = FloatOptionItem.Create(Id + 11, "AidDur", new(0f, 60f, 1f), 10f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Aid])
                 .SetValueFormat(OptionFormat.Seconds);
-            UseLimitOpt = IntegerOptionItem.Create(Id + 12, "AbilityUseLimit", new(1, 20, 1), 5, TabGroup.CrewmateRoles, false)
+            UseLimitOpt = IntegerOptionItem.Create(Id + 12, "AbilityUseLimit", new(1, 20, 1), 5, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Aid])
                 .SetValueFormat(OptionFormat.Times);
             UsePet = Options.CreatePetUseSetting(Id + 13, CustomRoles.Aid);

@@ -1,15 +1,15 @@
-using Assets.CoreScripts;
-using EHR.Modules;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using HarmonyLib;
-using Hazel;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Assets.CoreScripts;
+using EHR.Modules;
+using EHR.Roles.Crewmate;
+using EHR.Roles.Impostor;
+using HarmonyLib;
+using Hazel;
 using UnityEngine;
 using static EHR.Translator;
 

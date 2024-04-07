@@ -1,7 +1,7 @@
-﻿using AmongUs.GameOptions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using UnityEngine;
 
 namespace EHR.Roles.Impostor
@@ -35,9 +35,9 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Commander);
-            CannotSpawnAsSoloImp = BooleanOptionItem.Create(Id + 2, "CannotSpawnAsSoloImp", true, TabGroup.ImpostorRoles, false)
+            CannotSpawnAsSoloImp = BooleanOptionItem.Create(Id + 2, "CannotSpawnAsSoloImp", true, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Commander]);
-            ShapeshiftCooldown = FloatOptionItem.Create(Id + 3, "ShapeshiftCooldown", new(0f, 60f, 1f), 1f, TabGroup.ImpostorRoles, false)
+            ShapeshiftCooldown = FloatOptionItem.Create(Id + 3, "ShapeshiftCooldown", new(0f, 60f, 1f), 1f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Commander]);
         }
 

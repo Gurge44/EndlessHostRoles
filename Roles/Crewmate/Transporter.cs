@@ -1,7 +1,7 @@
-﻿using EHR.Modules;
-using EHR.Roles.Neutral;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
+using EHR.Roles.Neutral;
 
 namespace EHR.Roles.Crewmate
 {
@@ -13,7 +13,7 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(6200, TabGroup.CrewmateRoles, CustomRoles.Transporter);
-            Options.TransporterTeleportMax = IntegerOptionItem.Create(6210, "TransporterTeleportMax", new(0, 90, 1), 5, TabGroup.CrewmateRoles, false)
+            Options.TransporterTeleportMax = IntegerOptionItem.Create(6210, "TransporterTeleportMax", new(0, 90, 1), 5, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Transporter])
                 .SetValueFormat(OptionFormat.Times);
             Options.TransporterTasks = Options.OverrideTasksData.Create(6211, TabGroup.CrewmateRoles, CustomRoles.Transporter);

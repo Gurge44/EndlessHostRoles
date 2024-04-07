@@ -1,11 +1,11 @@
-﻿using AmongUs.GameOptions;
-using EHR.GameMode.HideAndSeekRoles;
-using EHR.Modules;
-using HarmonyLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using AmongUs.GameOptions;
+using EHR.GameMode.HideAndSeekRoles;
+using EHR.Modules;
+using HarmonyLib;
 using UnityEngine;
 
 namespace EHR
@@ -22,7 +22,7 @@ namespace EHR
             const int id = 69_211_001;
             Color color = new(52, 94, 235, byte.MaxValue);
 
-            MaxGameLength = IntegerOptionItem.Create(id, "FFA_GameTime", new(0, 1200, 10), 600, TabGroup.GameSettings, false)
+            MaxGameLength = IntegerOptionItem.Create(id, "FFA_GameTime", new(0, 1200, 10), 600, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(color);

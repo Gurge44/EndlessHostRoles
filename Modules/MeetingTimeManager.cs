@@ -1,7 +1,7 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using AmongUs.GameOptions;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
-using System;
 
 namespace EHR.Modules;
 

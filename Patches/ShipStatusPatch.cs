@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using BepInEx;
 using EHR.Patches;
 using EHR.Roles.AddOns.Crewmate;
@@ -6,8 +8,6 @@ using EHR.Roles.Crewmate;
 using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace EHR;

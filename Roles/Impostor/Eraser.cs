@@ -1,5 +1,5 @@
-﻿using EHR.Roles.Crewmate;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using EHR.Roles.Crewmate;
 using static EHR.Translator;
 
 namespace EHR.Roles.Impostor;
@@ -33,11 +33,11 @@ internal class Eraser : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Eraser);
-        EraseMethod = StringOptionItem.Create(Id + 10, "EraseMethod", EraseMode, 0, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
-        WhenTargetIsNeutral = StringOptionItem.Create(Id + 11, "WhenTargetIsNeutral", WhenTargetIsNeutralAction, 0, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
-        EraseLimitOpt = IntegerOptionItem.Create(Id + 12, "EraseLimit", new(1, 15, 1), 1, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser])
+        EraseMethod = StringOptionItem.Create(Id + 10, "EraseMethod", EraseMode, 0, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
+        WhenTargetIsNeutral = StringOptionItem.Create(Id + 11, "WhenTargetIsNeutral", WhenTargetIsNeutralAction, 0, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
+        EraseLimitOpt = IntegerOptionItem.Create(Id + 12, "EraseLimit", new(1, 15, 1), 1, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser])
             .SetValueFormat(OptionFormat.Times);
-        HideVote = BooleanOptionItem.Create(Id + 13, "EraserHideVote", false, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
+        HideVote = BooleanOptionItem.Create(Id + 13, "EraserHideVote", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
         CancelVote = Options.CreateVoteCancellingUseSetting(Id + 14, CustomRoles.Eraser, TabGroup.ImpostorRoles);
     }
 

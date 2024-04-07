@@ -1,3 +1,4 @@
+using System.Linq;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using EHR.Roles.AddOns.Crewmate;
@@ -6,7 +7,6 @@ using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
 using HarmonyLib;
-using System.Linq;
 
 namespace EHR.Patches;
 

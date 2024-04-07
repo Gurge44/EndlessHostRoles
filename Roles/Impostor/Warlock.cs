@@ -1,10 +1,11 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Neutral;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using static EHR.Options;
 
@@ -34,19 +35,19 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(4600, TabGroup.ImpostorRoles, CustomRoles.Warlock);
-            WarlockCanKillAllies = BooleanOptionItem.Create(4610, "CanKillAllies", true, TabGroup.ImpostorRoles, false)
+            WarlockCanKillAllies = BooleanOptionItem.Create(4610, "CanKillAllies", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock]);
-            WarlockCanKillSelf = BooleanOptionItem.Create(4611, "CanKillSelf", false, TabGroup.ImpostorRoles, false)
+            WarlockCanKillSelf = BooleanOptionItem.Create(4611, "CanKillSelf", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock]);
-            KillCooldown = FloatOptionItem.Create(4613, "KillCooldown", new(0f, 180f, 1f), 30f, TabGroup.ImpostorRoles, false)
+            KillCooldown = FloatOptionItem.Create(4613, "KillCooldown", new(0f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
                 .SetValueFormat(OptionFormat.Seconds);
-            CurseCooldown = FloatOptionItem.Create(4614, "CurseCooldown", new(0f, 180f, 1f), 30f, TabGroup.ImpostorRoles, false)
+            CurseCooldown = FloatOptionItem.Create(4614, "CurseCooldown", new(0f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
                 .SetValueFormat(OptionFormat.Seconds);
-            FreezeAfterCurseKill = BooleanOptionItem.Create(4615, "FreezeAfterCurseKill", true, TabGroup.ImpostorRoles, false)
+            FreezeAfterCurseKill = BooleanOptionItem.Create(4615, "FreezeAfterCurseKill", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock]);
-            FreezeDurationAfterCurseKill = FloatOptionItem.Create(4616, "FreezeDuration", new(0f, 60f, 1f), 4f, TabGroup.ImpostorRoles, false)
+            FreezeDurationAfterCurseKill = FloatOptionItem.Create(4616, "FreezeDuration", new(0f, 60f, 1f), 4f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -283,7 +284,7 @@ namespace EHR.Roles.Impostor
             if (seer.IsModClient() && !hud) return string.Empty;
             if (Main.PlayerStates[seer.PlayerId].Role is not Warlock { IsEnable: true } wl) return string.Empty;
 
-            var sb = new System.Text.StringBuilder();
+            var sb = new StringBuilder();
             if (wl.KCD > 0f) sb.Append($"<#ffa500>{Translator.GetString("KillCooldown")}:</color> <#ffffff>{(int)Math.Round(wl.KCD)}s</color>");
             if (wl.CurseCD > 0f) sb.Append($"{(sb.Length > 0 ? "\n" : string.Empty)}<#00ffa5>{Translator.GetString("CurseCooldown")}:</color> <#ffffff>{(int)Math.Round(wl.CurseCD)}s</color>");
             return hud ? sb.ToString() : $"<size=1.7>{sb}</size>";

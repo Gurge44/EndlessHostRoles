@@ -6,7 +6,7 @@ public class FloatOptionItem(int id, string name, float defaultValue, TabGroup t
     public FloatValueRule Rule = rule;
 
     public static FloatOptionItem Create(
-        int id, string name, FloatValueRule rule, float defaultValue, TabGroup tab, bool isSingleValue
+        int id, string name, FloatValueRule rule, float defaultValue, TabGroup tab, bool isSingleValue = false
     )
     {
         return new(

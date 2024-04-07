@@ -1,7 +1,7 @@
-using AmongUs.GameOptions;
-using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using HarmonyLib;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -39,30 +39,30 @@ public class Jackal : RoleBase
     public static void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Jackal);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal])
+        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal])
             .SetValueFormat(OptionFormat.Seconds);
-        CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
-        CanSabotage = BooleanOptionItem.Create(Id + 12, "CanSabotage", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
-        CanWinBySabotageWhenNoImpAlive = BooleanOptionItem.Create(Id + 14, "JackalCanWinBySabotageWhenNoImpAlive", true, TabGroup.NeutralRoles, false).SetParent(CanSabotage);
-        HasImpostorVision = BooleanOptionItem.Create(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
-        ResetKillCooldownWhenSbGetKilled = BooleanOptionItem.Create(Id + 16, "ResetKillCooldownWhenPlayerGetKilled", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
-        ResetKillCooldownOn = FloatOptionItem.Create(Id + 28, "ResetKillCooldownOn", new(0f, 180f, 2.5f), 15f, TabGroup.NeutralRoles, false)
+        CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
+        CanSabotage = BooleanOptionItem.Create(Id + 12, "CanSabotage", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
+        CanWinBySabotageWhenNoImpAlive = BooleanOptionItem.Create(Id + 14, "JackalCanWinBySabotageWhenNoImpAlive", true, TabGroup.NeutralRoles).SetParent(CanSabotage);
+        HasImpostorVision = BooleanOptionItem.Create(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
+        ResetKillCooldownWhenSbGetKilled = BooleanOptionItem.Create(Id + 16, "ResetKillCooldownWhenPlayerGetKilled", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
+        ResetKillCooldownOn = FloatOptionItem.Create(Id + 28, "ResetKillCooldownOn", new(0f, 180f, 2.5f), 15f, TabGroup.NeutralRoles)
             .SetParent(ResetKillCooldownWhenSbGetKilled)
             .SetValueFormat(OptionFormat.Seconds);
-        JackalCanKillSidekick = BooleanOptionItem.Create(Id + 15, "JackalCanKillSidekick", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
-        CanRecruitSidekick = BooleanOptionItem.Create(Id + 17, "JackalCanRecruitSidekick", false, TabGroup.NeutralRoles, false).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
-        SidekickAssignMode = StringOptionItem.Create(Id + 29, "SidekickAssignMode", SidekickAssignModeStrings, 0, TabGroup.NeutralRoles, false).SetParent(CanRecruitSidekick);
-        SidekickRecruitLimitOpt = IntegerOptionItem.Create(Id + 18, "JackalSidekickRecruitLimit", new(0, 15, 1), 0, TabGroup.NeutralRoles, false).SetParent(CanRecruitSidekick)
+        JackalCanKillSidekick = BooleanOptionItem.Create(Id + 15, "JackalCanKillSidekick", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
+        CanRecruitSidekick = BooleanOptionItem.Create(Id + 17, "JackalCanRecruitSidekick", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
+        SidekickAssignMode = StringOptionItem.Create(Id + 29, "SidekickAssignMode", SidekickAssignModeStrings, 0, TabGroup.NeutralRoles).SetParent(CanRecruitSidekick);
+        SidekickRecruitLimitOpt = IntegerOptionItem.Create(Id + 18, "JackalSidekickRecruitLimit", new(0, 15, 1), 0, TabGroup.NeutralRoles).SetParent(CanRecruitSidekick)
             .SetValueFormat(OptionFormat.Times);
-        KillCooldownSK = FloatOptionItem.Create(Id + 20, "KillCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.NeutralRoles, false).SetParent(CanRecruitSidekick)
+        KillCooldownSK = FloatOptionItem.Create(Id + 20, "KillCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.NeutralRoles).SetParent(CanRecruitSidekick)
             .SetValueFormat(OptionFormat.Seconds);
-        CanVentSK = BooleanOptionItem.Create(Id + 21, "CanVent", true, TabGroup.NeutralRoles, false).SetParent(CanRecruitSidekick);
-        CanSabotageSK = BooleanOptionItem.Create(Id + 22, "CanSabotage", true, TabGroup.NeutralRoles, false).SetParent(CanRecruitSidekick);
-        SidekickCanKillJackal = BooleanOptionItem.Create(Id + 23, "SidekickCanKillJackal", false, TabGroup.NeutralRoles, false).SetParent(CanRecruitSidekick);
+        CanVentSK = BooleanOptionItem.Create(Id + 21, "CanVent", true, TabGroup.NeutralRoles).SetParent(CanRecruitSidekick);
+        CanSabotageSK = BooleanOptionItem.Create(Id + 22, "CanSabotage", true, TabGroup.NeutralRoles).SetParent(CanRecruitSidekick);
+        SidekickCanKillJackal = BooleanOptionItem.Create(Id + 23, "SidekickCanKillJackal", false, TabGroup.NeutralRoles).SetParent(CanRecruitSidekick);
         //  SidekickKnowOtherSidekick = BooleanOptionItem.Create(6050585, "SidekickKnowOtherSidekick", false, TabGroup.NeutralRoles, false).SetParent(CanRecruitSidekick);
         //  SidekickKnowOtherSidekickRole = BooleanOptionItem.Create(6050590, "SidekickKnowOtherSidekickRole", false, TabGroup.NeutralRoles, false).SetParent(SidekickKnowOtherSidekick);
-        SidekickCanKillSidekick = BooleanOptionItem.Create(Id + 24, "SidekickCanKillSidekick", false, TabGroup.NeutralRoles, false).SetParent(CanRecruitSidekick);
-        SidekickCountMode = StringOptionItem.Create(Id + 25, "SidekickCountMode", Options.SidekickCountMode, 0, TabGroup.NeutralRoles, false).SetParent(CanRecruitSidekick);
+        SidekickCanKillSidekick = BooleanOptionItem.Create(Id + 24, "SidekickCanKillSidekick", false, TabGroup.NeutralRoles).SetParent(CanRecruitSidekick);
+        SidekickCountMode = StringOptionItem.Create(Id + 25, "SidekickCountMode", Options.SidekickCountMode, 0, TabGroup.NeutralRoles).SetParent(CanRecruitSidekick);
         //   SidekickCanWinWithOriginalTeam = BooleanOptionItem.Create(6050795, "SidekickCanWinWithOriginalTeam", false, TabGroup.NeutralRoles, false).SetParent(CanRecruitSidekick);
     }
 

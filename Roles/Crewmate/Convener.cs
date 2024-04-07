@@ -14,13 +14,13 @@ namespace EHR.Roles.Crewmate
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Convener);
             CD = Options.CreateCDSetting(Id + 2, TabGroup.CrewmateRoles, CustomRoles.Convener);
-            Limit = IntegerOptionItem.Create(Id + 3, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.CrewmateRoles, false)
+            Limit = IntegerOptionItem.Create(Id + 3, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Convener])
                 .SetValueFormat(OptionFormat.Times);
-            ConvenerAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 4, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.4f, TabGroup.CrewmateRoles, false)
+            ConvenerAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 4, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.4f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Convener])
                 .SetValueFormat(OptionFormat.Times);
-            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 5, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles, false)
+            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 5, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Convener])
                 .SetValueFormat(OptionFormat.Times);
         }
