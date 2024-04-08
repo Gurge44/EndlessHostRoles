@@ -2631,6 +2631,7 @@
   "Sentry.Notify.Info.NoData": "<#ff0000>none</color>",
   "Sentry.Notify.Shapeshifted": "{0} shapeshifted into {1} in your monitored room",
   "Sentry.Notify.Vented": "{0} vented in your monitored room",
+  "Sentry.Notify.InvalidRoom": "You are not in a room",
   "Bargainer": "Bargainer",
   "BargainerInfo": "Gain Money & Buy Power-Ups",
   "BargainerInfoLong": "(Neutrals):\\nAs the Bargainer, you can gain money by killing, sabotaging and surviving meetings. You can use this money to buy some items from the shop. All devices on this map represent a shop you can use by going near it. You can buy the following items:<size=80%>\\n- Energy Drink (lowers your kill cooldown for that round)\\n- Lens Of Truth (reveals a random player's role for some time)\\n- Band Aid (gives you a shield for some time)</size>\\nWhen you step away from a shop, the selected item will be purchased if you have enough money for it. You can choose to not buy anything. While in the shop, sabotage to cycle between the available items.",
