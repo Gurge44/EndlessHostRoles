@@ -198,11 +198,11 @@
 ## Credit to these mods and their developers for the code and help:
 ### :star: [TOHER/TOHRE/TOHEN](https://github.com/0xDrMoe/TownofHost-Enhanced) :
 > 
-> - Our repo is forked from TOHEN
+> - Our repo is forked from TOHRE
 > 
 ### :star: [TOHE/TONX](https://github.com/KARPED1EM/TownOfHostEdited) :
 > 
-> - Our repo is a continuation of EHR
+> - Our repo is a continuation of TOHE
 > - TONX reference: Modify character limit for chat messages
 > 
 ### :star: [TOH](https://github.com/tukasa0001/TownOfHost) :
