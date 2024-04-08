@@ -966,18 +966,12 @@ internal class ChatCommands
         string[] args = text.Split(' ');
         string subArgs;
 
-        if (GuessManager.GuesserMsg(player, text))
+        if (GuessManager.GuesserMsg(player, text) ||
+            Judge.TrialMsg(player, text) ||
+            NiceSwapper.SwapMsg(player, text) ||
+            ParityCop.ParityCheckMsg(player, text) ||
+            Councillor.MurderMsg(player, text))
         {
-            if (Judge.TrialMsg(player, text) ||
-                NiceSwapper.SwapMsg(player, text) ||
-                ParityCop.ParityCheckMsg(player, text) ||
-                Councillor.MurderMsg(player, text))
-            {
-                canceled = true;
-                LastSentCommand[player.PlayerId] = now;
-                return;
-            }
-
             canceled = true;
             LastSentCommand[player.PlayerId] = now;
             return;
