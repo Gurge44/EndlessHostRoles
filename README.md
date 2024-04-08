@@ -263,10 +263,21 @@
 >
 
 ### Endless Host Roles (EHR), with Endless Possibilities, brought to you by the Endless Network.
-- Contributors:
-- Gurge44 (main)
+##### Developers:
+- Gurge44
+##### Contributors:
 - Dx
 - PH_Gaming
+##### Special Thanks:
+- Seleneous
+- thewhiskas27
+- HyperAtill
+##### Translators:
+- Dx (PT-BR)
+- PH_Gaming (PT-BR)
+- Tomix (PT-BR)
+- aviiiv (PT-BR)
+- HyperAtill (RU)
 
 
 # License for the Custom Team Assinger application

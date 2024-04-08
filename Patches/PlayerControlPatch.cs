@@ -642,17 +642,10 @@ class CmdCheckShapeshiftPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Shapeshift))]
 class ShapeshiftPatch
 {
-    private static readonly List<byte> IgnoreSS = [];
-
     public static bool ProcessShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
         if (!Main.ProcessShapeshifts) return true;
         if (shapeshifter == null || target == null) return true;
-        if (IgnoreSS.Contains(shapeshifter.PlayerId))
-        {
-            IgnoreSS.Remove(shapeshifter.PlayerId);
-            return true;
-        }
 
         Logger.Info($"{shapeshifter.GetNameWithRole()} => {target.GetNameWithRole()}", "Shapeshift");
 
@@ -720,7 +713,7 @@ class ShapeshiftPatch
         if (doSSwithoutAnim)
         {
             shapeshifter.RpcShapeshift(target, false);
-            IgnoreSS.Add(shapeshifter.PlayerId);
+            return false;
         }
 
         return isSSneeded || (!shouldCancel && !forceCancel) || (!shapeshifting && !shouldAlwaysCancel);

@@ -61,7 +61,12 @@ namespace EHR.Roles.Impostor
         public override void OnPet(PlayerControl pc)
         {
             var room = pc.GetPlainShipRoom();
-            if (room == null) return;
+            if (room == default(PlainShipRoom))
+            {
+                pc.AddAbilityCD(1);
+                pc.Notify(Translator.GetString("Sentry.Notify.InvalidRoom"));
+                return;
+            }
 
             if (MonitoredRoom == null || MonitoredRoom == default || MonitoredRoom == default(PlainShipRoom)) MonitoredRoom = room;
             else DisplayRoomInfo(pc);
@@ -74,7 +79,7 @@ namespace EHR.Roles.Impostor
             if (pc.GetAbilityUseLimit() < 1) return;
             pc.RpcRemoveAbilityUse();
 
-            var players = Main.AllAlivePlayerControls.Where(IsInMonitoredRoom).Select(x => Utils.ColorString(Main.PlayerColors[x.PlayerId], x.GetRealName())).Join();
+            var players = Main.AllAlivePlayerControls.Where(IsInMonitoredRoom).Select(x => Utils.GetPlayerById(x.shapeshiftTargetPlayerId) ?? x).Select(x => Utils.ColorString(Main.PlayerColors[x.PlayerId], x.GetRealName())).Join();
             var bodies = GetColoredNames(DeadBodiesInRoom);
 
             var noDataString = Translator.GetString("Sentry.Notify.Info.NoData");
@@ -91,14 +96,24 @@ namespace EHR.Roles.Impostor
 
         public void OnAnyoneShapeshiftLoop(PlayerControl shapeshifter, PlayerControl target)
         {
-            if (IsInMonitoredRoom(shapeshifter))
+            if (IsInMonitoredRoom(shapeshifter) && NameNotifyManager.Notice.TryGetValue(SentryPC.PlayerId, out var notify))
             {
-                SentryPC.Notify(
-                    string.Format(
-                        Translator.GetString("Sentry.Notify.Shapeshifted"),
-                        Utils.ColorString(Main.PlayerColors[shapeshifter.PlayerId], shapeshifter.GetRealName()),
-                        Utils.ColorString(Main.PlayerColors[target.PlayerId], target.GetRealName())),
-                    ShowInfoDuration.GetFloat());
+                var ssTarget = Utils.GetPlayerById(shapeshifter.shapeshiftTargetPlayerId);
+                var text = "\n" + string.Format(
+                    Translator.GetString("Sentry.Notify.Shapeshifted"),
+                    ssTarget == null
+                        ? Utils.ColorString(Main.PlayerColors[shapeshifter.PlayerId], shapeshifter.GetRealName())
+                        : Utils.ColorString(Main.PlayerColors[ssTarget.PlayerId], ssTarget.GetRealName()),
+                    Utils.ColorString(Main.PlayerColors[target.PlayerId], target.GetRealName()));
+
+                notify.TEXT += text;
+                Utils.NotifyRoles(SpecifySeer: SentryPC, SpecifyTarget: SentryPC);
+
+                _ = new LateTask(() =>
+                {
+                    if (NameNotifyManager.Notice.TryGetValue(SentryPC.PlayerId, out var laterNotify))
+                        laterNotify.TEXT = laterNotify.TEXT.Replace(text, string.Empty);
+                }, 3f, log: false);
             }
         }
 
@@ -117,22 +132,29 @@ namespace EHR.Roles.Impostor
         {
             foreach (var state in Main.PlayerStates.Values)
             {
-                if (state.Role is Sentry st && st.IsInMonitoredRoom(pc))
+                if (state.Role is Sentry st && st.IsInMonitoredRoom(pc) && NameNotifyManager.Notice.TryGetValue(st.SentryPC.PlayerId, out var notify))
                 {
-                    st.SentryPC.Notify(
-                        string.Format(
-                            Translator.GetString("Sentry.Notify.Vented"),
-                            Utils.ColorString(Main.PlayerColors[pc.PlayerId], pc.GetRealName())),
-                        ShowInfoDuration.GetFloat());
+                    var text = "\n" + string.Format(
+                        Translator.GetString("Sentry.Notify.Vented"),
+                        Utils.ColorString(Main.PlayerColors[pc.PlayerId], pc.GetRealName()));
+
+                    notify.TEXT += text;
+                    Utils.NotifyRoles(SpecifySeer: st.SentryPC, SpecifyTarget: st.SentryPC);
+
+                    _ = new LateTask(() =>
+                    {
+                        if (NameNotifyManager.Notice.TryGetValue(st.SentryPC.PlayerId, out var laterNotify))
+                            laterNotify.TEXT = laterNotify.TEXT.Replace(text, string.Empty);
+                    }, 3f, log: false);
                 }
             }
         }
 
         public static string GetSuffix(PlayerControl seer)
         {
-            if (!PlayersKnowAboutCamera.GetBool()) return string.Empty;
-
             if (Main.PlayerStates[seer.PlayerId].Role is Sentry s && s.MonitoredRoom != null) return string.Format(Translator.GetString("Sentry.Suffix.Self"), Translator.GetString($"{s.MonitoredRoom.RoomId}"));
+
+            if (!PlayersKnowAboutCamera.GetBool()) return string.Empty;
 
             foreach (var state in Main.PlayerStates.Values)
             {
