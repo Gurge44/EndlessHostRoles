@@ -2130,6 +2130,13 @@ public static class Utils
                                     }
 
                                     break;
+                                case CustomRoles.Samurai: // Same as Analyst
+                                    if ((Main.PlayerStates[seer.PlayerId].Role as Samurai).Target.Id == target.PlayerId)
+                                    {
+                                        TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Samurai)}>○</color>");
+                                    }
+
+                                    break;
                                 case CustomRoles.Puppeteer when Puppeteer.PuppeteerList.ContainsValue(seer.PlayerId) && Puppeteer.PuppeteerList.ContainsKey(target.PlayerId):
                                     TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Impostor)}>◆</color>");
                                     break;

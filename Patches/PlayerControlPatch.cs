@@ -1408,6 +1408,13 @@ class FixedUpdatePatch
                         }
 
                         break;
+                    case CustomRoles.Samurai:
+                        if ((Main.PlayerStates[seer.PlayerId].Role as Samurai).Target.Id == target.PlayerId)
+                        {
+                            Mark.Append($"<color={GetRoleColorCode(CustomRoles.Samurai)}>○</color>");
+                        }
+
+                        break;
                     case CustomRoles.Puppeteer:
                         if (Puppeteer.PuppeteerList.ContainsValue(seer.PlayerId) && Puppeteer.PuppeteerList.ContainsKey(target.PlayerId))
                         {

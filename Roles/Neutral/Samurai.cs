@@ -16,7 +16,7 @@ namespace EHR.Roles.Neutral
         private static OptionItem SuccessKCD;
         private static OptionItem KillDelay;
 
-        private (byte Id, long TimeStamp) Target;
+        public (byte Id, long TimeStamp) Target;
         private Dictionary<byte, long> Delays;
 
         public static void SetupCustomOption()
@@ -30,6 +30,15 @@ namespace EHR.Roles.Neutral
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai]);
             HasImpostorVision = BooleanOptionItem.Create(id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai]);
+            NearbyDuration = FloatOptionItem.Create(id + 5, "Samurai.NearbyDuration", new(0f, 30f, 0.5f), 3f, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai])
+                .SetValueFormat(OptionFormat.Seconds);
+            SuccessKCD = FloatOptionItem.Create(id + 6, "Samurai.SuccessKCD", new(0f, 180f, 0.5f), 17.5f, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai])
+                .SetValueFormat(OptionFormat.Seconds);
+            KillDelay = FloatOptionItem.Create(id + 7, "Samurai.KillDelay", new(0f, 60f, 0.5f), 5f, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai])
+                .SetValueFormat(OptionFormat.Seconds);
         }
 
         public override void Init()
@@ -64,7 +73,7 @@ namespace EHR.Roles.Neutral
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (Target.Id == byte.MaxValue || !GameStates.IsInTask || !pc.IsAlive()) return;
+            if (!GameStates.IsInTask) return;
 
             long now = Utils.TimeStamp;
 
@@ -75,16 +84,20 @@ namespace EHR.Roles.Neutral
 
                 if (kvp.Value + KillDelay.GetInt() <= now)
                 {
-                    player.Suicide(realKiller: pc);
+                    if (pc.RpcCheckAndMurder(player, check: true))
+                        player.Suicide(realKiller: pc);
                 }
             }
+
+            if (Target.Id == byte.MaxValue || !pc.IsAlive()) return;
 
             var target = Utils.GetPlayerById(Target.Id);
             if (target == null) return;
 
-            if (Vector2.Distance(target.Pos(), pc.Pos()) > 1.5f)
+            if (Vector2.Distance(target.Pos(), pc.Pos()) > (NormalGameOptionsV07.KillDistances[Mathf.Clamp(pc.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f))
             {
                 Target = (byte.MaxValue, 0);
+                pc.RpcCheckAndMurder(target);
                 return;
             }
 
@@ -92,6 +105,7 @@ namespace EHR.Roles.Neutral
             {
                 Delays[Target.Id] = now;
                 Target = (byte.MaxValue, 0);
+                pc.SetKillCooldown(SuccessKCD.GetFloat());
             }
         }
     }
