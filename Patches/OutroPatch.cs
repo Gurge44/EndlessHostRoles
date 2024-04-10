@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using EHR.Modules;
+using EHR.Roles.AddOns.GhostRoles;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Neutral;
 using HarmonyLib;
@@ -110,6 +111,7 @@ class EndGamePatch
         }
 
         Main.LoversPlayers.Clear();
+        Bloodmoon.OnMeetingStart();
 
         foreach (var state in Main.PlayerStates.Values)
         {

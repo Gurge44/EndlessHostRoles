@@ -69,7 +69,7 @@ namespace EHR.Modules
             return GhostRoles.FirstOrDefault(x => AssignedGhostRoles.All(r => r.Value.Role != x) && (CreateGhostRoleInstance(x)?.Team & pc.GetTeam()) != 0);
         }
 
-        public static IGhostRole CreateGhostRoleInstance(CustomRoles ghostRole)
+        public static IGhostRole CreateGhostRoleInstance(CustomRoles ghostRole, bool check = false)
         {
             try
             {
@@ -79,12 +79,12 @@ namespace EHR.Modules
             }
             catch (InvalidOperationException)
             {
-                Logger.Error($"Ghost role {ghostRole} not found", "CreateGhostRoleInstance");
+                if (!check) Logger.Error($"Ghost role {ghostRole} not found", "CreateGhostRoleInstance");
                 return null;
             }
             catch (Exception e)
             {
-                Utils.ThrowException(e);
+                if (!check) Utils.ThrowException(e);
                 return null;
             }
         }

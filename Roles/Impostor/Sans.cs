@@ -9,7 +9,7 @@ namespace EHR.Roles.Impostor;
 public class Sans : RoleBase
 {
     private const int Id = 600;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     private static OptionItem DefaultKillCooldown;
     private static OptionItem ReduceKillCooldown;
@@ -43,14 +43,12 @@ public class Sans : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
-        NowCooldown = DefaultKillCooldown.GetFloat();
+        PlayerIdList = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
-        NowCooldown = DefaultKillCooldown.GetFloat();
+        PlayerIdList.Add(playerId);
 
         UsedRole = Main.PlayerStates[playerId].MainRole;
 
@@ -82,12 +80,14 @@ public class Sans : RoleBase
                 break;
         }
 
+        NowCooldown = DefaultKCD;
+
         if (!AmongUsClient.Instance.AmHost || UsedRole == CustomRoles.Sans) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = NowCooldown;
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

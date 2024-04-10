@@ -5,6 +5,7 @@ namespace EHR.Roles.AddOns.GhostRoles
     internal class Minion : IGhostRole, ISettingHolder
     {
         public Team Team => Team.Impostor;
+        public int Cooldown => 30;
 
         public static HashSet<byte> BlindPlayers = [];
 

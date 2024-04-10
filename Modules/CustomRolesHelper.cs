@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
@@ -466,12 +467,7 @@ internal static class CustomRolesHelper
 
     public static bool IsSnitchTarget(this CustomRoles role) => role.IsNK() || role.Is(Team.Impostor);
 
-    public static bool IsGhostRole(this CustomRoles role) => role is
-        CustomRoles.Warden or
-        CustomRoles.Minion or
-        CustomRoles.Specter or
-        CustomRoles.Haunter or
-        CustomRoles.EvilSpirit;
+    public static bool IsGhostRole(this CustomRoles role) => role == CustomRoles.EvilSpirit || GhostRolesManager.CreateGhostRoleInstance(role, check: true) != null;
 
     public static bool IsNE(this CustomRoles role) => role is
         CustomRoles.Jester or
