@@ -911,6 +911,12 @@ class ReportDeadBodyPatch
             {
                 Mayor.MayorUsedButtonCount[player.PlayerId] += 1;
             }
+
+            if (QuizMaster.On)
+            {
+                QuizMaster.Data.LastPlayerPressedButtonName = player.GetRealName();
+                QuizMaster.Data.NumEmergencyMeetings++;
+            }
         }
         else
         {
@@ -929,7 +935,17 @@ class ReportDeadBodyPatch
             }
 
             if (Virus.InfectedBodies.Contains(target.PlayerId)) Virus.OnKilledBodyReport(player);
+
+            if (QuizMaster.On)
+            {
+                QuizMaster.Data.LastReporterName = player.GetRealName();
+                QuizMaster.Data.LastReportedPlayerColor = (Main.PlayerColors[target.PlayerId], target.GetPlayerColorString());
+                if (MeetingStates.FirstMeeting) QuizMaster.Data.FirstReportedBodyPlayerName = target.Object.GetRealName();
+            }
         }
+
+        if (QuizMaster.On && MeetingStates.FirstMeeting)
+            QuizMaster.Data.NumPlayersDeadFirstRound = Main.AllPlayerControls.Count(x => x.Data.IsDead && !x.Is(CustomRoles.GM));
 
         Enigma.OnReportDeadBody(player, target);
         Mediumshiper.OnReportDeadBody(target);
@@ -1128,6 +1144,11 @@ class FixedUpdatePatch
                     PlagueBearer.PestilenceList.Add(playerId);
                 player.ResetKillCooldown();
                 PlagueBearer.playerIdList.Remove(playerId);
+            }
+
+            if (QuizMaster.On && GameStates.IsInTask && !lowLoad)
+            {
+                QuizMaster.Data.LastSabotage = QuizMaster.AllSabotages.FirstOrDefault(IsActive);
             }
 
             if (GameStates.IsInTask && player != null && player.IsAlive() && !Pelican.IsEaten(player.PlayerId))

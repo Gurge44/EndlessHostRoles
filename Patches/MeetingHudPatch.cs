@@ -331,6 +331,8 @@ class CheckForEndVotingPatch
             if (Main.LastVotedPlayerInfo != null)
                 ConfirmEjections(Main.LastVotedPlayerInfo, braked);
 
+            if (QuizMaster.On) QuizMaster.Data.NumPlayersVotedLastMeeting = __instance.playerStates.Count(x => x.DidVote);
+
             return false;
         }
         catch (Exception ex)

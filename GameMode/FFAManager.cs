@@ -104,7 +104,7 @@ internal static class FFAManager
             .SetGameMode(CustomGameMode.FFA)
             .SetHeader(true)
             .SetColor(new Color32(0, 255, 165, byte.MaxValue));
-        FFATeamNumber = IntegerOptionItem.Create(67_223_016, "FFA_TeamNumber", new(2, 7, 1), 2, TabGroup.GameSettings)
+        FFATeamNumber = IntegerOptionItem.Create(67_223_016, "FFA_TeamNumber", new(2, 8, 1), 2, TabGroup.GameSettings)
             .SetParent(FFATeamMode)
             .SetGameMode(CustomGameMode.FFA)
             .SetColor(new Color32(0, 255, 165, byte.MaxValue));
@@ -136,7 +136,7 @@ internal static class FFAManager
         {
             var teamNum = FFATeamNumber.GetInt();
             var playerNum = allPlayers.Length;
-            int memberNum = (teamNum > 5 && playerNum == 15) || playerNum % teamNum == 0 ? playerNum / teamNum : playerNum / teamNum + 1;
+            int memberNum = (teamNum > 5 && playerNum >= 15) || playerNum % teamNum == 0 ? playerNum / teamNum : playerNum / teamNum + 1;
             var teamMembers = allPlayers.Select(x => x.PlayerId).Shuffle(IRandom.Instance).Chunk(memberNum).ToList();
 
             for (int i = 0; i < teamMembers.Count; i++)

@@ -137,7 +137,6 @@ public static class Utils
 
     public static bool IsActive(SystemTypes type)
     {
-        //Logger.Info($"SystemTypes:{type}", "IsActive");
         int mapId = Main.NormalOptions.MapId;
         switch (type)
         {
@@ -518,6 +517,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.QuizMaster:
             case CustomRoles.Bargainer:
             case CustomRoles.Tiger:
             case CustomRoles.SoulHunter:
@@ -2584,6 +2584,8 @@ public static class Utils
             Tracker.OnPlayerDeath(target);
             Adventurer.OnAnyoneDead(target);
             Roles.Impostor.Sentry.OnAnyoneMurder(target);
+
+            if (QuizMaster.On) QuizMaster.Data.NumPlayersDeadThisRound++;
 
             FixedUpdatePatch.LoversSuicide(target.PlayerId, onMeeting);
         }

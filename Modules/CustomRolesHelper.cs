@@ -333,6 +333,7 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.QuizMaster => RoleTypes.Impostor,
             CustomRoles.Bargainer => RoleTypes.Impostor,
             CustomRoles.Tiger => RoleTypes.Impostor,
             CustomRoles.SoulHunter => RoleTypes.Impostor,
@@ -434,6 +435,7 @@ internal static class CustomRolesHelper
         CustomRoles.Refugee or
         CustomRoles.Parasite or
         CustomRoles.NSerialKiller or
+        CustomRoles.QuizMaster or
         CustomRoles.Bargainer or
         CustomRoles.Tiger or
         CustomRoles.Enderman or
@@ -1158,6 +1160,7 @@ internal static class CustomRolesHelper
             CustomRoles.PlagueBearer => CountTypes.PlagueBearer,
             CustomRoles.Parasite => CountTypes.Impostor,
             CustomRoles.NSerialKiller => CountTypes.NSerialKiller,
+            CustomRoles.QuizMaster => CountTypes.QuizMaster,
             CustomRoles.Bargainer => CountTypes.Bargainer,
             CustomRoles.Tiger => CountTypes.Tiger,
             CustomRoles.Enderman => CountTypes.Enderman,
@@ -1308,6 +1311,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     NSerialKiller,
+    QuizMaster,
     Bargainer,
     Tiger,
     Enderman,
