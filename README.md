@@ -29,12 +29,12 @@
 
 ## Visit our website for more information: [EHR](https://sites.google.com/view/ehr-au)
 ## Main Features
-- Note: The goal with this branch is to improve the existing stuff over adding new roles. If some of the stuff you see below are in TOHRE, they were originally coded by me.
-### New gamemode
+- Note: The goal with this branch is to improve the existing stuff over adding new roles. If some of the stuff you see below are in other mods, they were originally coded by me.
+### Most Popular Game Mode
 - A brand new official gamemode, Basic FFA (Free For All)
 - This mode makes everyone a killer and the last player alive wins
 - Features: Random events, ranks and scoring, random ability gain for every kill, game timer, scoreboard (task list), unique end screen, fully customizable
-### Overall improvements
+### Overall improvements compared to other mods
 - Role spawn chances are in percentages
 - Gain more ability uses for completing tasks as crewmate roles
 - Gain more ability uses for getting kills as impostor roles
@@ -103,91 +103,7 @@
 - Provocateur: No longer suicides after selecting a target
 - Pursuer: Target doesn't die when trying to use their kill button, they'll just have their kill cooldown reset
 
-### Now, some new roles as well
-- Lighter (Crewmate)
-- Demolitionist (Crewmate)
-- Ventguard (Crewmate)
-- Express (Crewmate)
-- Witness (Crewmate)
-- Alchemist (Crewmate)
-- Task Manager (Crewmate)
-- Speedrunner (Crewmate)
-- Ignitor (Crewmate)
-- Security Guard (Crewmate)
-- Aid (Crewmate)
-- Spy (Crewmate)
-- Tether (Crewmate)
-- Ricochet (Crewmate)
-- Door Master (Crewmate)
-- Hacker (Crewmate)
-- Guess Manager (Crewmate)
-- Altruist (Crewmate)
-- Transmitter (Crewmate)
-- Autocrat (Crewmate)
-- Benefactor (Crewmate)
-- Nightmare (Crewmate)
-- Camera Man (Crewmate)
-- Escort (Crewmate)
-- Donut Delivery (Crewmate)
-- Drainer (Crewmate)
-- Insight (Crewmate)
-- Tunneler (Crewmate)
-- Detour (Crewmate)
-- Gaulois (Crewmate)
-- Analyst (Crewmate)
-- Electric (Crewmate)
-- Mole (Crewmate)
-- Tornado (Crewmate)
-- Sentinel (Crewmate)
-- Rabbit (Crewmate)
-- Perceiver (Crewmate)
-- Convener (Crewmate)
-- Mathematician (Crewmate)
-- Romantic (Neutral)
-- Werewolf (Neutral)
-- Imitator (Neutral)
-- Head Hunter (Neutral)
-- Vengeance (Neutral)
-- Eclipse (Neutral)
-- Pyromaniac (Neutral)
-- Weapon Master (Neutral)
-- Postman (Neutral)
-- Reckless (Neutral)
-- Magician (Neutral)
-- Enderman (Neutral)
-- Mycologist (Neutral)
-- Bubble (Neutral)
-- Hookshot (Neutral)
-- Sprayer (Neutral)
-- Soul Hunter (Neutral)
-- Necromancer / Deathknight (Neutral)
-- Undertaker (Impostor)
-- Gambler (Impostor)
-- Mastermind (Impostor)
-- Rift Maker (Impostor)
-- Hitman (Impostor)
-- Sapper (Impostor)
-- Nullifier (Impostor)
-- Chronomancer (Impostor)
-- Librarian (Impostor)
-- Yin Yanger (Impostor)
-- Cantankerous (Impostor)
-- Duellist (Impostor)
-- Kamikaze (Impostor)
-- Swapster (Impostor)
-- Swiftclaw (Impostor)
-- Damocles (Impostor-only Add-on)
-- Deadly Quota (Impostor-only Add-on)
-- Nimble (Add-on)
-- Physicist (Add-on)
-- Stressed (Add-on)
-- Giant (Add-on)
-- Magnet (Add-on)
-- Sleuth (Add-on)
-- Asthmatic (Add-on)
-- Disco (Add-on)
-- Truant (Add-on)
-- Busy (Add-on)
+### To see the full list of unique roles and their descriptions, visit our website: [EHR](https://sites.google.com/view/ehr-au)
 
 ## Note:
 - You can use parts of the code in here, but if you do, you'll have to credit me (Gurge44) or the mod by mentioning its name (EHR) and providing a link to this github page. (Or leaving the in-game credits as they are is also fine!)
@@ -198,7 +114,7 @@
 ## Credit to these mods and their developers for the code and help:
 ### :star: [TOHER/TOHRE/TOHEN](https://github.com/0xDrMoe/TownofHost-Enhanced) :
 > 
-> - Our repo is forked from TOHRE
+> - Our repo is forked from TOHRE (from a long time ago)
 > 
 ### :star: [TOHE/TONX](https://github.com/KARPED1EM/TownOfHostEdited) :
 > 
@@ -280,10 +196,13 @@
 - HyperAtill (RU)
 
 
-# License for the Custom Team Assinger application
+# License for the Custom Team Assigner application
 
 Copyright (c) 2024, Gurge44
+
 All rights reserved.
+
+
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -298,6 +217,8 @@ modification, are permitted provided that the following conditions are met:
 4. Neither the name of the Endless Network nor the
    names of its contributors may be used to endorse or promote products
    derived from this software without specific prior written permission.
+
+
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDER ''AS IS'' AND ANY
 EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED

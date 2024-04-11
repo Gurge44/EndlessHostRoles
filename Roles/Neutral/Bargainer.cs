@@ -357,6 +357,8 @@ namespace EHR.Roles.Neutral
             }
 
             foreach (var index in indexesToRemove) ActiveItems.RemoveAt(index);
+
+            Utils.GetPlayerById(BargainerId).ResetKillCooldown();
         }
 
         public static bool KnowRole(PlayerControl seer, PlayerControl target)

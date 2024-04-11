@@ -921,6 +921,9 @@ class MeetingHudStartPatch
 
             switch (seerRole)
             {
+                case CustomRoles.PlagueBearer when PlagueBearer.IsPlagued(seer.PlayerId, target.PlayerId):
+                    sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.PlagueBearer)}>●</color>");
+                    break;
                 case CustomRoles.Arsonist:
                     if (seer.IsDousedPlayer(target))
                         sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Arsonist), "▲"));

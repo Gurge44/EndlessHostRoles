@@ -195,23 +195,26 @@ class OnPlayerLeftPatch
                 else if (GameStates.IsLobby)
                     msg = GetString("Message.HostLeftGameInLobby");
 
-                player.SetName(title);
+                player?.SetName(title);
                 DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
-                player.SetName(name);
+                player?.SetName(name);
 
-                var writer = CustomRpcSender.Create("MessagesToSend");
-                writer.StartMessage(clientId);
-                writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
-                    .Write(title)
-                    .EndRpc();
-                writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
-                    .Write(msg)
-                    .EndRpc();
-                writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
-                    .Write(player.Data.PlayerName)
-                    .EndRpc();
-                writer.EndMessage();
-                writer.SendMessage();
+                if (player != null && player.Data != null)
+                {
+                    var writer = CustomRpcSender.Create("MessagesToSend");
+                    writer.StartMessage(clientId);
+                    writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+                        .Write(title)
+                        .EndRpc();
+                    writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+                        .Write(msg)
+                        .EndRpc();
+                    writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+                        .Write(player.Data.PlayerName)
+                        .EndRpc();
+                    writer.EndMessage();
+                    writer.SendMessage();
+                }
             }
 
             // Additional description of the reason for disconnection
@@ -243,7 +246,7 @@ class OnPlayerLeftPatch
 
             Utils.CountAlivePlayers(true);
 
-            data.Character.Data.Disconnected = true;
+            if (data != null && data.Character != null) data.Character.Data.Disconnected = true;
         }
         catch (NullReferenceException)
         {
@@ -251,6 +254,10 @@ class OnPlayerLeftPatch
         catch (Exception ex)
         {
             Logger.Error(ex.ToString(), "OnPlayerLeftPatch.Postfix");
+        }
+        finally
+        {
+            Utils.NotifyRoles(NoCache: true);
         }
     }
 }

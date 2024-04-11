@@ -94,7 +94,7 @@ README file in the root directory of this source tree.
 
     <Grid>
         <Grid.Background>
-            <ImageBrush ImageSource="bg.jpg"/>
+            <ImageBrush ImageSource="bg.png"/>
         </Grid.Background>
         
         <Grid.RowDefinitions>

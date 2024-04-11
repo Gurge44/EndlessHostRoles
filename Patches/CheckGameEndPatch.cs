@@ -227,7 +227,7 @@ class GameEndChecker
                     WinnerIds.RemoveWhere(x => CustomTeamManager.GetCustomTeam(x) != null);
                 }
 
-                if (WinnerTeam == CustomWinner.Lovers || WinnerIds.Any(x => Main.PlayerStates[x].SubRoles.Contains(CustomRoles.Lovers)))
+                if ((WinnerTeam == CustomWinner.Lovers || WinnerIds.Any(x => Main.PlayerStates[x].SubRoles.Contains(CustomRoles.Lovers))) && Main.LoversPlayers.All(x => x.IsAlive()))
                 {
                     if (WinnerTeam != CustomWinner.Lovers) AdditionalWinnerTeams.Add(AdditionalWinners.Lovers);
                     Main.AllPlayerControls

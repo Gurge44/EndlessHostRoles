@@ -5,6 +5,7 @@ namespace EHR.Roles.AddOns.GhostRoles
     internal class Warden : IGhostRole, ISettingHolder
     {
         public Team Team => Team.Crewmate;
+        public int Cooldown => 30;
 
         private static OptionItem ExtraSpeed;
         private static OptionItem ExtraSpeedDuration;

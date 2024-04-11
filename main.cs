@@ -424,6 +424,7 @@ public class Main : BasePlugin
                 { CustomRoles.HexMaster, "#ff00ff" },
                 { CustomRoles.Wraith, "#4B0082" },
                 { CustomRoles.NSerialKiller, "#233fcc" },
+                { CustomRoles.Samurai, "#73495c" },
                 { CustomRoles.QuizMaster, "#CF2472" },
                 { CustomRoles.Bargainer, "#4f2f36" },
                 { CustomRoles.Tiger, "#fcba03" },
@@ -475,6 +476,7 @@ public class Main : BasePlugin
                 { CustomRoles.Minion, "#ff1919" },
                 { CustomRoles.Specter, "#b446e3" },
                 { CustomRoles.Haunter, "#d1b1de" },
+                { CustomRoles.Bloodmoon, "#ff1313" },
                 // GM
                 { CustomRoles.GM, "#ff5b70" },
                 // Add-ons
@@ -683,6 +685,7 @@ public enum CustomWinner
     Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
     SerialKiller = CustomRoles.NSerialKiller,
+    Samurai = CustomRoles.Samurai,
     QuizMaster = CustomRoles.QuizMaster,
     Bargainer = CustomRoles.Bargainer,
     Tiger = CustomRoles.Tiger,

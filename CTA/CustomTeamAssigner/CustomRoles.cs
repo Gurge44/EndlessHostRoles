@@ -272,6 +272,7 @@ public enum CustomRoles
     Ritualist,
     Romantic,
     RuthlessRomantic,
+    Samurai,
     SchrodingersCat,
     NSerialKiller, // Serial Killer
     Sidekick,

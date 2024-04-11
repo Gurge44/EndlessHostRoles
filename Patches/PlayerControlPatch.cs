@@ -590,11 +590,6 @@ class MurderPlayerPatch
             }
         }
 
-        foreach (var pc in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Mediumshiper)))
-        {
-            pc.Notify(ColorString(GetRoleColor(CustomRoles.Mediumshiper), GetString("MediumshiperKnowPlayerDead")));
-        }
-
         AfterPlayerDeathTasks(target);
 
         Main.PlayerStates[target.PlayerId].SetDead();
@@ -952,6 +947,8 @@ class ReportDeadBodyPatch
         Mortician.OnReportDeadBody(player, target);
         Spiritualist.OnReportDeadBody(target);
 
+        Bloodmoon.OnMeetingStart();
+
         Main.LastVotedPlayerInfo = null;
         Witness.AllKillers.Clear();
         Arsonist.ArsonistTimer.Clear();
@@ -1176,9 +1173,14 @@ class FixedUpdatePatch
 
             if (GhostRolesManager.AssignedGhostRoles.TryGetValue(player.PlayerId, out var ghostRole))
             {
-                if (ghostRole is { Role: CustomRoles.Haunter, Instance: Haunter haunter })
+                switch (ghostRole.Instance)
                 {
-                    haunter.Update(player);
+                    case Haunter haunter:
+                        haunter.Update(player);
+                        break;
+                    case Bloodmoon when !lowLoad:
+                        Bloodmoon.Update(player);
+                        break;
                 }
             }
             else if (!lowLoad && !Main.HasJustStarted && GameStates.IsInTask && GhostRolesManager.ShouldHaveGhostRole(player))
@@ -1429,6 +1431,13 @@ class FixedUpdatePatch
                         }
 
                         break;
+                    case CustomRoles.Samurai:
+                        if ((Main.PlayerStates[seer.PlayerId].Role as Samurai).Target.Id == target.PlayerId)
+                        {
+                            Mark.Append($"<color={GetRoleColorCode(CustomRoles.Samurai)}>○</color>");
+                        }
+
+                        break;
                     case CustomRoles.Puppeteer:
                         if (Puppeteer.PuppeteerList.ContainsValue(seer.PlayerId) && Puppeteer.PuppeteerList.ContainsKey(target.PlayerId))
                         {
@@ -1542,6 +1551,7 @@ class FixedUpdatePatch
                 {
                     Suffix.Append(AntiAdminer.GetSuffixText(seer));
                     Suffix.Append(Roles.Impostor.Sentry.GetSuffix(seer));
+                    Suffix.Append(Bloodmoon.GetSuffix(seer));
                     if (seer.Is(CustomRoles.Asthmatic)) Suffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
                 }
 

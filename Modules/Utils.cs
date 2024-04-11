@@ -13,6 +13,7 @@ using EHR.Modules;
 using EHR.Patches;
 using EHR.Roles.AddOns.Common;
 using EHR.Roles.AddOns.Crewmate;
+using EHR.Roles.AddOns.GhostRoles;
 using EHR.Roles.AddOns.Impostor;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
@@ -517,6 +518,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.Samurai:
             case CustomRoles.QuizMaster:
             case CustomRoles.Bargainer:
             case CustomRoles.Tiger:
@@ -1628,13 +1630,14 @@ public static class Utils
 
             DevUser devUser = player.FriendCode.GetDevUser();
             bool isMod = ChatCommands.IsPlayerModerator(player.FriendCode);
-            if (devUser.HasTag() || isMod)
+            bool hasTag = devUser.HasTag();
+            if (hasTag || isMod)
             {
-                string tag = devUser.GetTag();
+                string tag = hasTag ? devUser.GetTag() : string.Empty;
                 if (tag == "null") tag = string.Empty;
                 if (player.AmOwner || player.IsModClient())
-                    name = tag + (isMod ? ("<size=1.4>" + GetString("ModeratorTag") + "\r\n</size>") : string.Empty) + name;
-                else name = tag.Replace("\r\n", " - ") + (isMod ? ("<size=1.4>" + GetString("ModeratorTag") + " - </size>") : string.Empty) + name;
+                    name = (hasTag ? tag : string.Empty) + (isMod ? ("<size=1.4>" + GetString("ModeratorTag") + "\r\n</size>") : string.Empty) + name;
+                else name = (hasTag ? tag.Replace("\r\n", " - ") : string.Empty) + (isMod ? ("<size=1.4>" + GetString("ModeratorTag") + " - </size>") : string.Empty) + name;
             }
 
             if (player.AmOwner)
@@ -1670,11 +1673,12 @@ public static class Utils
             {
                 if (!room.roomArea) continue;
                 if (!pc.Collider.IsTouching(room.roomArea)) continue;
-                if (!playerRooms.TryAdd(room.name, 1)) playerRooms[room.name]++;
+                var roomName = GetString($"{room.RoomId}");
+                if (!playerRooms.TryAdd(roomName, 1)) playerRooms[roomName]++;
             }
         }
 
-        return playerRooms.Count > 0 ? playerRooms : null;
+        return playerRooms;
     }
 
     public static float GetSettingNameAndValueForRole(CustomRoles role, string settingName)
@@ -1815,6 +1819,7 @@ public static class Utils
                     SelfSuffix.Append(AntiAdminer.GetSuffixText(seer));
                     SelfSuffix.Append(Roles.Impostor.Sentry.GetSuffix(seer));
                     SelfSuffix.Append(Bargainer.GetSuffix(seer));
+                    SelfSuffix.Append(Bloodmoon.GetSuffix(seer));
 
                     switch (seer.GetCustomRole())
                     {
@@ -2126,6 +2131,13 @@ public static class Utils
                                     if ((Main.PlayerStates[seer.PlayerId].Role as Analyst).CurrentTarget.ID == target.PlayerId)
                                     {
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Analyst)}>○</color>");
+                                    }
+
+                                    break;
+                                case CustomRoles.Samurai: // Same as Analyst
+                                    if ((Main.PlayerStates[seer.PlayerId].Role as Samurai).Target.Id == target.PlayerId)
+                                    {
+                                        TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Samurai)}>○</color>");
                                     }
 
                                     break;

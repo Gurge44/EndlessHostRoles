@@ -9,11 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="bg.jpg" />
+    <None Remove="bg.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="bg.jpg">
+    <Resource Include="bg.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>

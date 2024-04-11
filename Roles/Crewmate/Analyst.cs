@@ -130,7 +130,7 @@ namespace EHR.Roles.Crewmate
                 return;
             }
 
-            if (CurrentTarget.TIME + Duration.GetInt() < Utils.TimeStamp)
+            if (CurrentTarget.TIME + Duration.GetInt() <= Utils.TimeStamp)
             {
                 CurrentTarget.ID = byte.MaxValue;
                 pc.RpcRemoveAbilityUse();

@@ -7,6 +7,7 @@ namespace EHR.Roles.AddOns.GhostRoles
     internal class Specter : IGhostRole, ISettingHolder
     {
         public Team Team => Team.Neutral;
+        public int Cooldown => 900;
 
         private static OptionItem SnatchWin;
         private static Options.OverrideTasksData Tasks;
