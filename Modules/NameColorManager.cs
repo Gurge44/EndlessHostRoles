@@ -149,6 +149,7 @@ public static class NameColorManager
             CustomRoles.Hookshot when (Main.PlayerStates[seer.PlayerId].Role as Hookshot)?.MarkedPlayerId == target.PlayerId => Main.RoleColors[CustomRoles.Hookshot],
             CustomRoles.SoulHunter when SoulHunter.IsSoulHunterTarget(target.PlayerId) => Main.RoleColors[CustomRoles.SoulHunter],
             CustomRoles.Kamikaze when ((Kamikaze)Main.PlayerStates[seer.PlayerId].Role).MarkedPlayers.Contains(target.PlayerId) => Main.RoleColors[CustomRoles.Electric],
+            CustomRoles.QuizMaster when ((QuizMaster)Main.PlayerStates[seer.PlayerId].Role).Target == target.PlayerId => "000000",
             _ => color,
         };
 

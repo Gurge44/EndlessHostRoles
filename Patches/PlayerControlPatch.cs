@@ -915,7 +915,7 @@ class ReportDeadBodyPatch
         }
         else
         {
-            var tpc = GetPlayerById(target.PlayerId);
+            var tpc = target.Object;
             if (tpc != null && !tpc.IsAlive())
             {
                 if (player.Is(CustomRoles.Detective) && player.PlayerId != target.PlayerId)
@@ -934,13 +934,16 @@ class ReportDeadBodyPatch
             if (QuizMaster.On)
             {
                 QuizMaster.Data.LastReporterName = player.GetRealName();
-                QuizMaster.Data.LastReportedPlayerColor = (Main.PlayerColors[target.PlayerId], target.GetPlayerColorString());
+                QuizMaster.Data.LastReportedPlayer = (Main.PlayerColors[target.PlayerId], target.GetPlayerColorString(), target.Object);
                 if (MeetingStates.FirstMeeting) QuizMaster.Data.FirstReportedBodyPlayerName = target.Object.GetRealName();
             }
         }
 
-        if (QuizMaster.On && MeetingStates.FirstMeeting)
-            QuizMaster.Data.NumPlayersDeadFirstRound = Main.AllPlayerControls.Count(x => x.Data.IsDead && !x.Is(CustomRoles.GM));
+        if (QuizMaster.On)
+        {
+            if (MeetingStates.FirstMeeting) QuizMaster.Data.NumPlayersDeadFirstRound = Main.AllPlayerControls.Count(x => x.Data.IsDead && !x.Is(CustomRoles.GM));
+            QuizMaster.Data.NumMeetings++;
+        }
 
         Enigma.OnReportDeadBody(player, target);
         Mediumshiper.OnReportDeadBody(target);
@@ -1143,7 +1146,7 @@ class FixedUpdatePatch
                 PlagueBearer.playerIdList.Remove(playerId);
             }
 
-            if (QuizMaster.On && GameStates.IsInTask && !lowLoad)
+            if (QuizMaster.On && GameStates.IsInTask && !lowLoad && QuizMaster.AllSabotages.Any(IsActive))
             {
                 QuizMaster.Data.LastSabotage = QuizMaster.AllSabotages.FirstOrDefault(IsActive);
             }

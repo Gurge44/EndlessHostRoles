@@ -1,8 +1,11 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using AmongUs.GameOptions;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static EHR.Options;
+
+// ReSharper disable PossibleMultipleEnumeration
 
 namespace EHR.Roles.Neutral
 {
@@ -317,7 +320,11 @@ namespace EHR.Roles.Neutral
                 }
                 case false when InShop:
                 {
-                    OrderedItems = Costs.OrderByDescending(x => x.Value <= Money).Select(x => x.Key).Append(Item.None);
+                    Func<KeyValuePair<Item, int>, bool> canBuy = x => x.Value <= Money;
+                    var orderedItems = Costs.OrderByDescending(canBuy);
+                    var unAffordableItems = orderedItems.SkipWhile(canBuy).Select(x => x.Key).Prepend(Item.None);
+                    var affordableItems = orderedItems.TakeWhile(canBuy).Select(x => x.Key);
+                    OrderedItems = affordableItems.Concat(unAffordableItems);
                     SelectedItem = OrderedItems.FirstOrDefault();
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                     break;
