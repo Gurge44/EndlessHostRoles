@@ -219,7 +219,7 @@ namespace EHR.Roles.Neutral
 
             var randomRole = EnumHelper.GetAllValues<CustomRoles>().Where(x => x.IsEnable()).Shuffle(random).First();
 
-            string title = Translator.GetString($"QuizMaster.Question.{index}");
+            string title = Translator.GetString($"QuizMaster.Question.{(abc ? "ABC." : string.Empty)}{index}");
             (IEnumerable<string> WrongAnswers, string CorrectAnswer) answers = index switch
             {
                 1 when abc => (EnumHelper.GetAllValues<Team>().Skip(1).Where(x => x != Data.LastReportedPlayer.Player.GetTeam()).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{Data.LastReportedPlayer.Player.GetTeam()}")),
@@ -319,5 +319,7 @@ namespace EHR.Roles.Neutral
             CurrentQuestion = default;
             Target = byte.MaxValue;
         }
+
+        // Fix: Messages sometimes don't get sent
     }
 }
