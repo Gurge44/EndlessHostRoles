@@ -382,7 +382,7 @@ internal static class CustomRolesHelper
 
     public static bool IsAdditionRole(this CustomRoles role) => role > CustomRoles.NotAssigned;
 
-    public static bool IsNonNK(this CustomRoles role) => role is
+    public static bool IsNonNK(this CustomRoles role, bool check = false) => (!check && role == CustomRoles.Arsonist && !Options.ArsonistCanIgniteAnytime.GetBool()) || role is
         CustomRoles.Jester or
         CustomRoles.Postman or
         CustomRoles.SchrodingersCat or
@@ -413,7 +413,7 @@ internal static class CustomRolesHelper
         CustomRoles.Doomsayer or
         CustomRoles.Deathknight;
 
-    public static bool IsNK(this CustomRoles role) => role is
+    public static bool IsNK(this CustomRoles role, bool check = false) => (role == CustomRoles.Arsonist && (check || Options.ArsonistCanIgniteAnytime.GetBool())) || role is
         CustomRoles.Jackal or
         CustomRoles.Glitch or
         CustomRoles.Sidekick or
@@ -456,7 +456,6 @@ internal static class CustomRolesHelper
         CustomRoles.Imitator or
         CustomRoles.Werewolf or
         CustomRoles.Ritualist or
-        CustomRoles.Arsonist or
         CustomRoles.Pickpocket or
         CustomRoles.PlagueDoctor or
         CustomRoles.Traitor or
@@ -603,7 +602,7 @@ internal static class CustomRolesHelper
         CustomRoles.Twister or
         CustomRoles.Lurker;
 
-    public static bool IsNeutral(this CustomRoles role) => role.IsNK() || role.IsNonNK();
+    public static bool IsNeutral(this CustomRoles role, bool check = false) => role.IsNK(check: check) || role.IsNonNK(check: check);
 
     public static bool IsAbleToBeSidekicked(this CustomRoles role) => role.GetDYRole() == RoleTypes.Impostor && !role.IsImpostor() && !role.IsRecruitingRole() && role is not
         CustomRoles.Deathknight and not
@@ -1202,7 +1201,7 @@ internal static class CustomRolesHelper
     {
         if (role.IsImpostor()) return RoleOptionType.Impostor;
         if (role.IsCrewmate()) return role.GetDYRole(load: true) == RoleTypes.Impostor ? RoleOptionType.Crewmate_ImpostorBased : RoleOptionType.Crewmate_Normal;
-        if (role.IsNeutral()) return role.IsNK() ? RoleOptionType.Neutral_Killing : RoleOptionType.Neutral_NonKilling;
+        if (role.IsNeutral(check: true)) return role.IsNK(check: true) ? RoleOptionType.Neutral_Killing : RoleOptionType.Neutral_NonKilling;
         return RoleOptionType.Crewmate_Normal;
     }
 
@@ -1240,7 +1239,7 @@ internal static class CustomRolesHelper
     {
         if (role.IsImpostor()) return SimpleRoleOptionType.Impostor;
         if (role.IsCrewmate()) return SimpleRoleOptionType.Crewmate;
-        if (role.IsNeutral()) return role.IsNK() ? SimpleRoleOptionType.NK : SimpleRoleOptionType.NNK;
+        if (role.IsNeutral(check: true)) return role.IsNK(check: true) ? SimpleRoleOptionType.NK : SimpleRoleOptionType.NNK;
         return SimpleRoleOptionType.Crewmate;
     }
 

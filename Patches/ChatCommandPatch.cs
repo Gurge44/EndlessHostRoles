@@ -8,6 +8,7 @@ using Assets.CoreScripts;
 using EHR.Modules;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
 using UnityEngine;
@@ -1156,6 +1157,18 @@ internal class ChatCommands
             case "/answer":
                 if (args.Length < 2) break;
                 Mathematician.Reply(player, args[1]);
+                break;
+            case "/qa":
+                if (args.Length < 2 || !QuizMaster.On || !player.IsAlive()) break;
+                var qm = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
+                if (qm.Target != player.PlayerId) break;
+                qm.Answer(args[1].ToUpper());
+                break;
+            case "/qs":
+                if (args.Length < 2 || !QuizMaster.On || !player.IsAlive()) break;
+                var qm2 = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
+                if (qm2.Target != player.PlayerId || !QuizMaster.MessagesToSend.TryGetValue(player.PlayerId, out var msg)) break;
+                Utils.SendMessage(msg, player.PlayerId, GetString("QuizMaster.QuestionSample.Title"));
                 break;
             case "/ban":
             case "/kick":
