@@ -266,6 +266,8 @@ namespace EHR.Roles.Neutral
             var sample = string.Format(Translator.GetString("QuizMaster.QuestionSample"), msgTitle, answers);
 
             MessagesToSend[Target] = sample;
+
+            Logger.Info($"Question for {Utils.GetPlayerById(Target)?.GetNameWithRole()}: {msgTitle} - Choices: {string.Join('/', CurrentQuestion.Answers)} - Correct Answer: {CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]}", "QuizMaster");
         }
 
         public void Answer(string answer)
@@ -282,10 +284,15 @@ namespace EHR.Roles.Neutral
                     _ => -1
                 };
 
+                var name = Utils.GetPlayerById(Target)?.GetNameWithRole();
+                if (index != -1) Logger.Info($"Player {name} answered {CurrentQuestion.Answers[index]}", "QuizMaster");
+
                 if (CurrentQuestion.CorrectAnswerIndex == index)
                 {
                     Utils.SendMessage(Translator.GetString("QuizMaster.AnswerCorrect"), Target, Translator.GetString("QuizMaster.Title"));
                     Utils.SendMessage(string.Format(Translator.GetString("QuizMaster.AnswerCorrect.Self"), CurrentQuestion.Answers[CurrentQuestion.CorrectAnswerIndex]), QuizMasterId, Translator.GetString("QuizMaster.Title"));
+
+                    Logger.Info($"Player {name} answered correctly", "QuizMaster");
                 }
                 else if (index != -1)
                 {
@@ -295,6 +302,8 @@ namespace EHR.Roles.Neutral
                     Main.PlayerStates[Target].deathReason = PlayerState.DeathReason.WrongAnswer;
                     Main.PlayerStates[Target].SetDead();
                     Utils.GetPlayerById(Target).RpcExileV2();
+
+                    Logger.Info($"Player {name} was killed for answering incorrectly", "QuizMaster");
                 }
             }
             catch (IndexOutOfRangeException)
