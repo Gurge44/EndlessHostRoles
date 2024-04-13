@@ -847,13 +847,13 @@ class MeetingHudStartPatch
             Logger.Info("The ship has " + (Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + " buttons left", "SyncButtonMode");
         }
 
-        if (AntiBlackout.OverrideExiledPlayer)
+        if (AntiBlackout.OverrideExiledPlayer && MeetingStates.FirstMeeting)
         {
             _ = new LateTask(() => { Utils.SendMessage(GetString("Warning.OverrideExiledPlayer"), 255, Utils.ColorString(Color.red, GetString("DefaultSystemMessageTitle"))); }, 5f, "Warning OverrideExiledPlayer");
         }
 
-        if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true);
         TemplateManager.SendTemplate("OnMeeting", noErr: true);
+        if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true);
 
         if (AmongUsClient.Instance.AmHost)
             NotifyRoleSkillOnMeetingStart();
