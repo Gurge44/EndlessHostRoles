@@ -491,12 +491,17 @@ class CheckForEndVotingPatch
         _ = new LateTask(() =>
         {
             Main.DoBlockNameChange = true;
-            if (GameStates.IsInGame) player?.RpcSetName(name);
+            if (GameStates.IsInGame && player != null && !player.Data.Disconnected)
+            {
+                GameData.Instance.UpdateName(player.PlayerId, name);
+                player.RpcSetName(name);
+            }
         }, 2.5f, "Change Exiled Player Name");
         _ = new LateTask(() =>
         {
             if (GameStates.IsInGame && player != null && !player.Data.Disconnected)
             {
+                GameData.Instance.UpdateName(player.PlayerId, realName);
                 player.RpcSetName(realName);
                 Main.DoBlockNameChange = false;
             }

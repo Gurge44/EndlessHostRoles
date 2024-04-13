@@ -226,7 +226,7 @@ class ExileControllerWrapUpPatch
         SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
         Logger.Info("Start task phase", "Phase");
 
-        if (Options.EnableKillerLeftCommand.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard)
+        if (Options.EnableKillerLeftCommand.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard && Options.ShowImpRemainOnEject.GetBool())
         {
             _ = new LateTask(() =>
             {
