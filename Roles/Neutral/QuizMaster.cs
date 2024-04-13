@@ -23,7 +23,7 @@ namespace EHR.Roles.Neutral
         private static OptionItem EnableCustomQuestionsOpt;
         private static OptionItem CustomQuestionChance;
 
-        static bool EnableCustomQuestions;
+        private static bool EnableCustomQuestions;
         private static Question[] CustomQuestions = [];
 
         public byte QuizMasterId;
@@ -99,6 +99,7 @@ namespace EHR.Roles.Neutral
                 }
             }, 10f, log: false);
 
+            CustomQuestions = [];
             EnableCustomQuestions = EnableCustomQuestionsOpt.GetBool() && File.Exists("./EHR_DATA/QuizMasterQuestions.txt");
 
             if (EnableCustomQuestions)
@@ -283,13 +284,7 @@ namespace EHR.Roles.Neutral
 
             try
             {
-                index = answer[0] switch
-                {
-                    'A' => 0,
-                    'B' => 1,
-                    'C' => 2,
-                    _ => -1
-                };
+                index = answer[0] - 'A';
 
                 var name = Utils.GetPlayerById(Target)?.GetNameWithRole();
                 if (index != -1) Logger.Info($"Player {name} answered {CurrentQuestion.Answers[index]}", "QuizMaster");
@@ -326,7 +321,5 @@ namespace EHR.Roles.Neutral
             CurrentQuestion = default;
             Target = byte.MaxValue;
         }
-
-        // Fix: Messages sometimes don't get sent
     }
 }
