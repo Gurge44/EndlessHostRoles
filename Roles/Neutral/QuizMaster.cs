@@ -36,7 +36,7 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.QuizMaster);
-            MarkCooldown = FloatOptionItem.Create(Id + 2, "QuizMaster.MarkCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles)
+            MarkCooldown = FloatOptionItem.Create(Id + 2, "QuizMaster.MarkCooldown", new(0f, 180f, 1f), 1f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster])
                 .SetValueFormat(OptionFormat.Seconds);
             CanVent = BooleanOptionItem.Create(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
@@ -234,12 +234,12 @@ namespace EHR.Roles.Neutral
                 5 => (GetTwoRandomNames(Data.LastReporterName), Data.LastReporterName),
                 6 when abc => (EnumHelper.GetAllValues<CustomRoleTypes>().Where(x => x != randomRole.GetCustomRoleTypes()).Shuffle(random).Take(2).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetCustomRoleTypes()}")),
                 6 => (GetTwoRandomNumbers(Data.NumPlayersVotedLastMeeting, 0, 15), Data.NumPlayersVotedLastMeeting.ToString()),
-                7 => (GetTwoRandomNumbers(Data.NumMeetings, Math.Max(Data.NumMeetings - 2, 0), Data.NumMeetings + 2), Data.NumMeetings.ToString()),
+                7 => (GetTwoRandomNumbers(Data.NumMeetings, Math.Max(Data.NumMeetings - 3, 0), Data.NumMeetings + 3), Data.NumMeetings.ToString()),
                 8 => (GetTwoRandomNames(Data.FirstReportedBodyPlayerName), Data.FirstReportedBodyPlayerName),
-                9 => (GetTwoRandomNumbers(Data.NumEmergencyMeetings, Math.Max(Data.NumEmergencyMeetings - 2, 0), Data.NumEmergencyMeetings + 2), Data.NumEmergencyMeetings.ToString()),
-                10 => (GetTwoRandomNumbers(Data.NumPlayersDeadThisRound, Math.Max(Data.NumPlayersDeadThisRound - 2, 0), Data.NumPlayersDeadThisRound + 2), Data.NumPlayersDeadThisRound.ToString()),
-                11 => (GetTwoRandomNumbers(Data.NumPlayersDeadFirstRound, Math.Max(Data.NumPlayersDeadFirstRound - 2, 0), Data.NumPlayersDeadFirstRound + 2), Data.NumPlayersDeadFirstRound.ToString()),
-                12 => (GetTwoRandomNumbers(Data.NumSabotages, Math.Max(Data.NumSabotages - 2, 0), Data.NumSabotages + 2), Data.NumSabotages.ToString()),
+                9 => (GetTwoRandomNumbers(Data.NumEmergencyMeetings, Math.Max(Data.NumEmergencyMeetings - 3, 0), Data.NumEmergencyMeetings + 3), Data.NumEmergencyMeetings.ToString()),
+                10 => (GetTwoRandomNumbers(Data.NumPlayersDeadThisRound, Math.Max(Data.NumPlayersDeadThisRound - 3, 0), Data.NumPlayersDeadThisRound + 3), Data.NumPlayersDeadThisRound.ToString()),
+                11 => (GetTwoRandomNumbers(Data.NumPlayersDeadFirstRound, Math.Max(Data.NumPlayersDeadFirstRound - 3, 0), Data.NumPlayersDeadFirstRound + 3), Data.NumPlayersDeadFirstRound.ToString()),
+                12 => (GetTwoRandomNumbers(Data.NumSabotages, Math.Max(Data.NumSabotages - 3, 0), Data.NumSabotages + 3), Data.NumSabotages.ToString()),
                 13 => (GetTwoRandomNumbers(GameData.Instance.CompletedTasks, 0, GameData.Instance.TotalTasks), GameData.Instance.CompletedTasks.ToString()),
                 14 => (EnumHelper.GetAllValues<RoleTypes>().Where(x => x != randomRole.GetRoleTypes()).Shuffle(random).Take(2).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetRoleTypes()}")),
 
@@ -310,7 +310,5 @@ namespace EHR.Roles.Neutral
             CurrentQuestion = default;
             Target = byte.MaxValue;
         }
-
-        // Left to do: Send message on meeting start, kill target if wrong answer, let target answer from chat commands patch, let user add custom questions
     }
 }

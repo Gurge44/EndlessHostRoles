@@ -976,6 +976,7 @@ public static class Options
     static Options()
     {
         ResetRoleCounts();
+        CustomRolesHelper.CanCheck = true;
     }
 
     public static void ResetRoleCounts()

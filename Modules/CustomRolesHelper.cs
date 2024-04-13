@@ -382,7 +382,9 @@ internal static class CustomRolesHelper
 
     public static bool IsAdditionRole(this CustomRoles role) => role > CustomRoles.NotAssigned;
 
-    public static bool IsNonNK(this CustomRoles role, bool check = false) => (!check && role == CustomRoles.Arsonist && !Options.ArsonistCanIgniteAnytime.GetBool()) || role is
+    public static bool CanCheck = false;
+
+    public static bool IsNonNK(this CustomRoles role, bool check = false) => (!check && role == CustomRoles.Arsonist && CanCheck && Options.IsLoaded && Options.ArsonistCanIgniteAnytime != null && !Options.ArsonistCanIgniteAnytime.GetBool()) || role is
         CustomRoles.Jester or
         CustomRoles.Postman or
         CustomRoles.SchrodingersCat or
@@ -413,7 +415,7 @@ internal static class CustomRolesHelper
         CustomRoles.Doomsayer or
         CustomRoles.Deathknight;
 
-    public static bool IsNK(this CustomRoles role, bool check = false) => (role == CustomRoles.Arsonist && (check || Options.ArsonistCanIgniteAnytime.GetBool())) || role is
+    public static bool IsNK(this CustomRoles role, bool check = false) => (role == CustomRoles.Arsonist && (check || !CanCheck || !Options.IsLoaded || Options.ArsonistCanIgniteAnytime == null || Options.ArsonistCanIgniteAnytime.GetBool())) || role is
         CustomRoles.Jackal or
         CustomRoles.Glitch or
         CustomRoles.Sidekick or

@@ -434,6 +434,20 @@ internal class ChatCommands
                     Mathematician.Reply(PlayerControl.LocalPlayer, args[1]);
                     break;
 
+                case "/qa":
+                    if (args.Length < 2 || !QuizMaster.On || !PlayerControl.LocalPlayer.IsAlive()) break;
+                    var qm = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
+                    if (qm.Target != localPlayerId) break;
+                    qm.Answer(args[1].ToUpper());
+                    break;
+
+                case "/qs":
+                    if (args.Length < 2 || !QuizMaster.On || !PlayerControl.LocalPlayer.IsAlive()) break;
+                    var qm2 = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
+                    if (qm2.Target != localPlayerId || !QuizMaster.MessagesToSend.TryGetValue(localPlayerId, out var msg)) break;
+                    Utils.SendMessage(msg, localPlayerId, GetString("QuizMaster.QuestionSample.Title"));
+                    break;
+
                 case "/ban":
                 case "/kick":
                     canceled = true;

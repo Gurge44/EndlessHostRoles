@@ -6,7 +6,7 @@ using Hazel;
 
 namespace EHR;
 
-//参考
+//Based on:
 //https://github.com/Koke1024/Town-Of-Moss/blob/main/TownOfMoss/Patches/MeltDownBoost.cs
 
 [HarmonyPatch(typeof(ReactorSystemType), nameof(ReactorSystemType.Deteriorate))]
@@ -172,9 +172,12 @@ public static class MushroomMixupSabotageSystemPatch
                 }
             }, 1.2f, "Reset Ability Cooldown Arter Mushroom Mixup");
 
-            foreach (var pc in Main.AllAlivePlayerControls.Where(pc => !pc.Is(CustomRoleTypes.Impostor) && Main.ResetCamPlayerList.Contains(pc.PlayerId)).ToArray())
+            foreach (var pc in Main.AllAlivePlayerControls)
             {
-                Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
+                if (!pc.Is(CustomRoleTypes.Impostor) && Main.ResetCamPlayerList.Contains(pc.PlayerId))
+                {
+                    Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
+                }
             }
         }
     }
@@ -197,7 +200,7 @@ public static class ElectricTaskInitializePatch
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare) || pc.Is(CustomRoles.Torch))
+                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare) || pc.Is(CustomRoles.Torch) || Beacon.IsAffectedPlayer(pc.PlayerId))
                 {
                     Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
                 }
@@ -225,7 +228,7 @@ public static class ElectricTaskCompletePatch
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare) || pc.Is(CustomRoles.Torch))
+                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare) || pc.Is(CustomRoles.Torch) || Beacon.IsAffectedPlayer(pc.PlayerId))
                 {
                     Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
                 }
