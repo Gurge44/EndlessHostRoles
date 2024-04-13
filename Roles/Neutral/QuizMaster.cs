@@ -219,7 +219,14 @@ namespace EHR.Roles.Neutral
 
             var randomRole = EnumHelper.GetAllValues<CustomRoles>().Where(x => x.IsEnable()).Shuffle(random).First();
 
-            string title = Translator.GetString($"QuizMaster.Question.{(abc ? "ABC." : string.Empty)}{index}");
+            string title = index switch
+            {
+                14 => string.Format(Translator.GetString("QuizMaster.Question.14"), randomRole.ToColoredString()),
+                5 or 6 when abc => string.Format(Translator.GetString($"QuizMaster.Question.ABC.{index}"), randomRole.ToColoredString()),
+                _ when abc => Translator.GetString($"QuizMaster.Question.ABC.{index}"),
+                _ => Translator.GetString($"QuizMaster.Question.{index}")
+            };
+
             (IEnumerable<string> WrongAnswers, string CorrectAnswer) answers = index switch
             {
                 1 when abc => (EnumHelper.GetAllValues<Team>().Skip(1).Where(x => x != Data.LastReportedPlayer.Player.GetTeam()).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{Data.LastReportedPlayer.Player.GetTeam()}")),

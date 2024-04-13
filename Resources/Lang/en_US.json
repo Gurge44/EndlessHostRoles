@@ -2664,7 +2664,7 @@
   "QuizMaster.Question.11": "How many players died in the first round?",
   "QuizMaster.Question.12": "How many sabotages were called so far?",
   "QuizMaster.Question.13": "How many tasks are currently completed?",
-  "QuizMaster.Question.14": "What base does (ROLE) have?",
+  "QuizMaster.Question.14": "What base does {0} have?",
   "QuizMaster.Question.ABC.1": "What faction killed the last victim that got reported?",
   "QuizMaster.Question.ABC.2": "How did the last victim that got reported die?",
   "QuizMaster.Question.ABC.3": "Which Among Us mod has the most amount of roles?",
