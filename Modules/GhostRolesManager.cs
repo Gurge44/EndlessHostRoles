@@ -53,7 +53,7 @@ namespace EHR.Modules
             try
             {
                 if (AssignedGhostRoles.Count >= GhostRoles.Count) return false;
-                if (pc.IsAlive() || pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame) return false;
+                if (pc.IsAlive() || pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame || pc.Is(CustomRoles.EvilSpirit)) return false;
                 var suitableRole = GetSuitableGhostRole(pc);
                 return suitableRole.IsGhostRole() && !AssignedGhostRoles.Any(x => x.Key == pc.PlayerId || x.Value.Role == suitableRole);
             }

@@ -61,14 +61,16 @@ namespace EHR.Roles.Impostor
         public override void OnPet(PlayerControl pc)
         {
             var room = pc.GetPlainShipRoom();
-            if (room == default(PlainShipRoom))
+            bool hasntChosenRoom = MonitoredRoom == null || MonitoredRoom == default || MonitoredRoom == default(PlainShipRoom);
+
+            if (room == default(PlainShipRoom) && hasntChosenRoom)
             {
                 pc.AddAbilityCD(1);
                 pc.Notify(Translator.GetString("Sentry.Notify.InvalidRoom"));
                 return;
             }
 
-            if (MonitoredRoom == null || MonitoredRoom == default || MonitoredRoom == default(PlainShipRoom)) MonitoredRoom = room;
+            if (hasntChosenRoom) MonitoredRoom = room;
             else DisplayRoomInfo(pc);
         }
 
@@ -106,13 +108,15 @@ namespace EHR.Roles.Impostor
                         : Utils.ColorString(Main.PlayerColors[ssTarget.PlayerId], ssTarget.GetRealName()),
                     Utils.ColorString(Main.PlayerColors[target.PlayerId], target.GetRealName()));
 
-                notify.TEXT += text;
-                Utils.NotifyRoles(SpecifySeer: SentryPC, SpecifyTarget: SentryPC);
+                SentryPC.Notify($"{notify.TEXT}{text}", ShowInfoDuration.GetInt() - (Utils.TimeStamp - notify.TIMESTAMP));
 
                 _ = new LateTask(() =>
                 {
                     if (NameNotifyManager.Notice.TryGetValue(SentryPC.PlayerId, out var laterNotify))
+                    {
                         laterNotify.TEXT = laterNotify.TEXT.Replace(text, string.Empty);
+                        SentryPC.Notify(laterNotify.TEXT, ShowInfoDuration.GetInt() - (Utils.TimeStamp - laterNotify.TIMESTAMP));
+                    }
                 }, 3f, log: false);
             }
         }

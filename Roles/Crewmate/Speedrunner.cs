@@ -31,6 +31,8 @@ namespace EHR.Roles.Crewmate
 
         public override void OnTaskComplete(PlayerControl player, int CompletedTasksCount, int AllTasksCount)
         {
+            if (!player.IsAlive()) return;
+
             var completedTasks = CompletedTasksCount + 1;
             int remainingTasks = AllTasksCount - completedTasks;
             if (completedTasks >= AllTasksCount)

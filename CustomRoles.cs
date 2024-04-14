@@ -223,6 +223,7 @@ public enum CustomRoles
     Bargainer,
     BloodKnight,
     Bubble,
+    Chemist,
     Cherokious,
     Collector,
     Deathknight,

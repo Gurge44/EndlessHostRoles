@@ -121,7 +121,7 @@ class CheckForEndVotingPatch
                 }
             }
 
-            if (!shouldSkip && !__instance.playerStates.All(ps => Main.PlayerStates[ps.TargetPlayerId].IsDead || ps.DidVote || Utils.GetPlayerById(ps.TargetPlayerId).Data.Disconnected))
+            if (!shouldSkip && !__instance.playerStates.All(ps => ps == null || !Main.PlayerStates.TryGetValue(ps.TargetPlayerId, out var st) || st.IsDead || ps.DidVote || Utils.GetPlayerById(ps.TargetPlayerId) == null || Utils.GetPlayerById(ps.TargetPlayerId).Data == null || Utils.GetPlayerById(ps.TargetPlayerId).Data.Disconnected))
             {
                 return false;
             }

@@ -178,7 +178,7 @@ class HudManagerPatch
                             __instance.AbilityButton?.OverrideText((Main.PlayerStates[player.PlayerId].Role as FireWorks).nowFireWorksCount == 0 ? GetString("FireWorksExplosionButtonText") : GetString("FireWorksInstallAtionButtonText"));
                             break;
                         case CustomRoles.Swiftclaw:
-                            __instance.KillButton?.OverrideText(GetString("SwiftclawKillButtonText"));
+                            __instance.PetButton?.OverrideText(GetString("SwiftclawKillButtonText"));
                             break;
                         case CustomRoles.Pestilence:
                             __instance.KillButton?.OverrideText(GetString("KillButtonText"));

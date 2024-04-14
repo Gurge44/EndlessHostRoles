@@ -68,7 +68,7 @@ namespace EHR.Roles.Impostor
             SpeedDuringDrag = OptionSpeedDuringDrag.GetFloat();
             VictimCanUseAbilities = OptionVictimCanUseAbilities.GetBool();
 
-            DefaultSpeed = Main.AllPlayerSpeed[playerId];
+            _ = new LateTask(() => { DefaultSpeed = Main.AllPlayerSpeed[playerId]; }, 9f, log: false);
 
             PenguinId = playerId;
             Penguin_ = Utils.GetPlayerById(playerId);
@@ -108,11 +108,11 @@ namespace EHR.Roles.Impostor
         void AddVictim(PlayerControl target)
         {
             if (!IsEnable) return;
-            //Prevent using of moving platform??
             AbductVictim = target;
             AbductTimer = AbductTimerLimit;
             Main.AllPlayerSpeed[PenguinId] = SpeedDuringDrag;
             Penguin_.MarkDirtySettings();
+            LogSpeed();
             Utils.NotifyRoles(SpecifySeer: Penguin_, SpecifyTarget: Penguin_);
             SendRPC();
         }
@@ -124,9 +124,12 @@ namespace EHR.Roles.Impostor
             AbductTimer = 255f;
             Main.AllPlayerSpeed[PenguinId] = DefaultSpeed;
             Penguin_.MarkDirtySettings();
+            LogSpeed();
             Utils.NotifyRoles(SpecifySeer: Penguin_, SpecifyTarget: Penguin_);
             SendRPC();
         }
+
+        void LogSpeed() => Logger.Info($"Penguin Speed: {Main.AllPlayerSpeed[PenguinId]}", "Penguin");
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
@@ -168,6 +171,7 @@ namespace EHR.Roles.Impostor
             if (AbductVictim != null && AbductTimer <= 0f)
             {
                 Penguin_.Kill(AbductVictim);
+                RemoveVictim();
             }
 
             if (MeetingKill)

@@ -334,6 +334,7 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Chemist => RoleTypes.Impostor,
             CustomRoles.Samurai => RoleTypes.Impostor,
             CustomRoles.QuizMaster => RoleTypes.Impostor,
             CustomRoles.Bargainer => RoleTypes.Impostor,
@@ -437,6 +438,7 @@ internal static class CustomRolesHelper
         CustomRoles.Refugee or
         CustomRoles.Parasite or
         CustomRoles.NSerialKiller or
+        CustomRoles.Chemist or
         CustomRoles.QuizMaster or
         CustomRoles.Samurai or
         CustomRoles.Bargainer or
@@ -1158,6 +1160,7 @@ internal static class CustomRolesHelper
             CustomRoles.PlagueBearer => CountTypes.PlagueBearer,
             CustomRoles.Parasite => CountTypes.Impostor,
             CustomRoles.NSerialKiller => CountTypes.NSerialKiller,
+            CustomRoles.Chemist => CountTypes.Chemist,
             CustomRoles.Samurai => CountTypes.Samurai,
             CustomRoles.QuizMaster => CountTypes.QuizMaster,
             CustomRoles.Bargainer => CountTypes.Bargainer,
@@ -1192,7 +1195,7 @@ internal static class CustomRolesHelper
             CustomRoles.Spiritcaller => CountTypes.Spiritcaller,
             CustomRoles.Cherokious => CountTypes.Cherokious,
             CustomRoles.DarkHide => DarkHide.SnatchesWin.GetBool() ? CountTypes.Crew : CountTypes.DarkHide,
-            CustomRoles.Arsonist => !Options.ArsonistCanIgniteAnytime.GetBool() ? CountTypes.Crew : CountTypes.Arsonist,
+            CustomRoles.Arsonist => !Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Crew : CountTypes.Arsonist,
             CustomRoles.SchrodingersCat => SchrodingersCat.WinsWithCrewIfNotAttacked.GetBool() ? CountTypes.Crew : CountTypes.OutOfGame,
 
             _ => role.Is(Team.Impostor) ? CountTypes.Impostor : CountTypes.Crew
@@ -1310,6 +1313,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     NSerialKiller,
+    Chemist,
     QuizMaster,
     Samurai,
     Bargainer,
