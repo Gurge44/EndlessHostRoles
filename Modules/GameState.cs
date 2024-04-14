@@ -250,8 +250,9 @@ public class PlayerState(byte playerId)
         YinYanged,
         Kamikazed,
         RNG,
+        WrongAnswer,
 
-        etc = -1,
+        etc = -1
     }
 
     public byte GetRealKiller() => IsDead && RealKiller.TIMESTAMP != DateTime.MinValue ? RealKiller.ID : byte.MaxValue;

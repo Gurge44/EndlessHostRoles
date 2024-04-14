@@ -92,9 +92,7 @@ public class WeaponMaster : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
-        if (Mode == 2) opt.SetInt(Int32OptionNames.KillDistance, 2);
-        else opt.SetInt(Int32OptionNames.KillDistance, 0);
-
+        opt.SetInt(Int32OptionNames.KillDistance, Mode == 2 ? 2 : 0);
         opt.SetVision(HasImpostorVision.GetBool());
     }
 
@@ -184,10 +182,10 @@ public class WeaponMaster : RoleBase
         {
             shieldUsed = true;
             SendRPC();
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)

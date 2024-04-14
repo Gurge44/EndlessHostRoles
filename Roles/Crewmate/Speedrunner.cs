@@ -40,14 +40,22 @@ namespace EHR.Roles.Crewmate
                 Logger.Info("Speedrunner finished tasks", "Speedrunner");
                 player.RPCPlayCustomSound("Congrats");
                 GameData.Instance.CompletedTasks = GameData.Instance.TotalTasks;
+                Logger.Info($"TotalTaskCounts = {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}", "TaskState.Update");
+                _ = new LateTask(() =>
+                {
+                    if (!GameStates.IsEnded) CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Crewmate);
+                }, 1f, log: false);
             }
             else if (completedTasks >= SpeedrunnerNotifyAtXTasksLeft.GetInt() && SpeedrunnerNotifyKillers.GetBool())
             {
                 string speedrunnerName = player.GetRealName().RemoveHtmlTags();
                 string notifyString = Translator.GetString("SpeedrunnerHasXTasksLeft");
-                foreach (var pc in Main.AllAlivePlayerControls.Where(pc => !pc.Is(Team.Crewmate)).ToArray())
+                foreach (var pc in Main.AllAlivePlayerControls)
                 {
-                    pc.Notify(string.Format(notifyString, speedrunnerName, remainingTasks));
+                    if (!pc.Is(Team.Crewmate))
+                    {
+                        pc.Notify(string.Format(notifyString, speedrunnerName, remainingTasks));
+                    }
                 }
             }
         }

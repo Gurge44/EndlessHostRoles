@@ -491,12 +491,17 @@ class CheckForEndVotingPatch
         _ = new LateTask(() =>
         {
             Main.DoBlockNameChange = true;
-            if (GameStates.IsInGame) player?.RpcSetName(name);
+            if (GameStates.IsInGame && player != null && !player.Data.Disconnected)
+            {
+                GameData.Instance.UpdateName(player.PlayerId, name);
+                player.RpcSetName(name);
+            }
         }, 2.5f, "Change Exiled Player Name");
         _ = new LateTask(() =>
         {
             if (GameStates.IsInGame && player != null && !player.Data.Disconnected)
             {
+                GameData.Instance.UpdateName(player.PlayerId, realName);
                 player.RpcSetName(realName);
                 Main.DoBlockNameChange = false;
             }
@@ -847,13 +852,13 @@ class MeetingHudStartPatch
             Logger.Info("The ship has " + (Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + " buttons left", "SyncButtonMode");
         }
 
-        if (AntiBlackout.OverrideExiledPlayer)
+        if (AntiBlackout.OverrideExiledPlayer && MeetingStates.FirstMeeting)
         {
             _ = new LateTask(() => { Utils.SendMessage(GetString("Warning.OverrideExiledPlayer"), 255, Utils.ColorString(Color.red, GetString("DefaultSystemMessageTitle"))); }, 5f, "Warning OverrideExiledPlayer");
         }
 
-        if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true);
         TemplateManager.SendTemplate("OnMeeting", noErr: true);
+        if (MeetingStates.FirstMeeting) TemplateManager.SendTemplate("OnFirstMeeting", noErr: true);
 
         if (AmongUsClient.Instance.AmHost)
             NotifyRoleSkillOnMeetingStart();
