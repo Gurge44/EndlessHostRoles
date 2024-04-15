@@ -53,7 +53,6 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
     }
 
     private static int TotalYellowTime => 3;
-    private static Color Orange => new(255, 165, 0, 255);
 
     public int Timer
     {
@@ -75,7 +74,7 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
 
     public string ColoredArrow
     {
-        get => Utils.ColorString(IsRed ? Timer <= 2 ? Orange : Color.red : IsYellow ? Color.yellow : Color.green, Symbol.ToString());
+        get => Utils.ColorString(IsRed ? Timer <= 2 ? Palette.Orange : Color.red : IsYellow ? Color.yellow : Color.green, Symbol.ToString());
     }
 
     public void Update()

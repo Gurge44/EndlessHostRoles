@@ -1,9 +1,11 @@
 ﻿using AmongUs.GameOptions;
+using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 using static EHR.Options;
 
 namespace EHR.Roles.Neutral
@@ -21,34 +23,55 @@ namespace EHR.Roles.Neutral
         private static OptionItem CoalGainedPerTask;
         private static OptionItem IronOreGainedPerTask;
 
+        private static Dictionary<Item, OptionItem> FinalProductUsageAmounts = [];
+
         private static OverrideTasksData Tasks;
 
         public static void SetupCustomOption()
         {
-            const int id = 17670;
-            SetupRoleOptions(id, TabGroup.NeutralRoles, CustomRoles.Chemist);
-            KillCooldown = FloatOptionItem.Create(id + 2, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles)
+            int id = 17670;
+            const TabGroup tab = TabGroup.NeutralRoles;
+
+            SetupRoleOptions(id++, tab, CustomRoles.Chemist);
+
+            KillCooldown = FloatOptionItem.Create(++id, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Seconds);
-            CanVent = BooleanOptionItem.Create(id + 3, "CanVent", true, TabGroup.NeutralRoles)
+            CanVent = BooleanOptionItem.Create(++id, "CanVent", true, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist]);
-            HasImpostorVision = BooleanOptionItem.Create(id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
+            HasImpostorVision = BooleanOptionItem.Create(++id, "ImpostorVision", true, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist]);
 
-            AirGainedPerSecond = IntegerOptionItem.Create(id + 5, "Chemist.AirGainedPerSecond", new(5, 100, 5), 10, TabGroup.NeutralRoles)
+            AirGainedPerSecond = IntegerOptionItem.Create(++id, "Chemist.AirGainedPerSecond", new(5, 100, 5), 10, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Times);
-            WaterGainedPerSecond = IntegerOptionItem.Create(id + 6, "Chemist.WaterGainedPerSecond", new(5, 100, 5), 10, TabGroup.NeutralRoles)
+            WaterGainedPerSecond = IntegerOptionItem.Create(++id, "Chemist.WaterGainedPerSecond", new(5, 100, 5), 10, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Times);
-            CoalGainedPerTask = IntegerOptionItem.Create(id + 7, "Chemist.CoalGainedPerTask", new(1, 10, 1), 2, TabGroup.NeutralRoles)
+            CoalGainedPerTask = IntegerOptionItem.Create(++id, "Chemist.CoalGainedPerTask", new(1, 10, 1), 2, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Times);
-            IronOreGainedPerTask = IntegerOptionItem.Create(id + 8, "Chemist.IronOreGainedPerTask", new(1, 50, 1), 8, TabGroup.NeutralRoles)
+            IronOreGainedPerTask = IntegerOptionItem.Create(++id, "Chemist.IronOreGainedPerTask", new(1, 50, 1), 8, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Times);
 
-            Tasks = OverrideTasksData.Create(id + 9, TabGroup.NeutralRoles, CustomRoles.Chemist);
+            FinalProductUsageAmounts = EnumHelper.GetAllValues<Item>()
+                .Where(x => GetItemType(x) == ItemType.FinalProduct)
+                .ToDictionary(x => x, x => IntegerOptionItem.Create(++id, $"Chemist.Item.{x}.Usage", new(1, 100, 1), GetDefaultValue(x), tab)
+                    .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
+                    .SetValueFormat(OptionFormat.Times));
+
+            Tasks = OverrideTasksData.Create(++id, tab, CustomRoles.Chemist);
+            return;
+
+            static int GetDefaultValue(Item item) => item switch
+            {
+                Item.Explosive => 1,
+                Item.Grenade => 1,
+                Item.SulfuricAcid => 30,
+                Item.MethylamineGas => 100,
+                _ => 0
+            };
         }
 
         public override void Init()
@@ -71,6 +94,7 @@ namespace EHR.Roles.Neutral
             ItemCounts = [];
             CurrentFactory = Factory.None;
             SelectedProcess = string.Empty;
+            SortedAvailableProcesses = [];
 
             foreach (var item in EnumHelper.GetAllValues<Item>())
             {
@@ -117,6 +141,13 @@ namespace EHR.Roles.Neutral
             SynthesisGas,
             ThermalWater,
             Water
+        }
+
+        enum ItemType
+        {
+            BasicResource,
+            IntermediateProduct,
+            FinalProduct
         }
 
         enum Factory
@@ -193,20 +224,73 @@ namespace EHR.Roles.Neutral
             [Factory.AssemblingMachine] =
             {
                 ["Grenade"] = ([(5, Item.IronPlate), (10, Item.Coal)], [(1, Item.Grenade)])
+            },
+            [Factory.None] = []
+        };
+
+        static ItemType GetItemType(Item item) => item switch
+        {
+            Item.Air or Item.Coal or Item.IronOre or Item.Water => ItemType.BasicResource,
+            Item.Explosive or Item.Grenade or Item.SulfuricAcid or Item.MethylamineGas => ItemType.FinalProduct,
+            _ => ItemType.IntermediateProduct
+        };
+
+        static string GetChemicalForm(Item item) => item switch
+        {
+            Item.AmmoniaGas => "NH<sub>3</sub>",
+            Item.CarbonDioxide => "CO<sub>2</sub>",
+            Item.CarbonMonoxide => "CO",
+            Item.HydrogenGas => "H<sub>2</sub>",
+            Item.HydrogenSulfideGas => "H<sub>2</sub>S",
+            Item.MethanolGas => "CH<sub>3</sub>OH",
+            Item.MethylamineGas => "CH<sub>3</sub>NH<sub>2</sub>",
+            Item.NitrogenGas => "N<sub>2</sub>",
+            Item.OxygenGas => "O<sub>2</sub>",
+            Item.PurifiedWater => "H<sub>2</sub>O",
+            Item.Sulfur => "S",
+            Item.SulfurDioxideGas => "SO<sub>2</sub>",
+            Item.SulfuricAcid => "H<sub>2</sub>SO<sub>4</sub>",
+            Item.SynthesisGas => "H<sub>2</sub>+CO",
+
+            _ => Translator.GetString($"Chemist.Item.{item}") switch
+            {
+                { } str when str.Count(char.IsUpper) == 1 => str,
+                { } str => string.Join(string.Empty, str.Where(char.IsUpper))
             }
         };
 
-        static bool IsBasicResource(Item item) => item is
-            Item.Air or
-            Item.Coal or
-            Item.IronOre or
-            Item.Water;
+        static Color GetItemColor(Item item) => item switch
+        {
+            Item.Air => Palette.White_75Alpha,
+            Item.AmmoniaGas => Color.blue,
+            Item.BaseMineralOil => Color.green,
+            Item.CarbonDioxide => Palette.Brown,
+            Item.CarbonMonoxide => Palette.Purple,
+            Item.Coal => Color.black,
+            Item.Explosive => Color.red,
+            Item.Grenade => Color.red,
+            Item.HydrogenGas => Color.white,
+            Item.HydrogenSulfideGas => Color.yellow,
+            Item.IronIngot => Color.gray,
+            Item.IronOre => Color.gray,
+            Item.IronPlate => Color.gray,
+            Item.MethanolGas => Palette.Brown,
+            Item.MethylamineGas => Color.blue,
+            Item.MoltenIron => Color.gray,
+            Item.Naphtha => Palette.ImpostorRed,
+            Item.NitrogenGas => Color.blue,
+            Item.OxygenGas => Color.red,
+            Item.PurifiedWater => Color.cyan,
+            Item.Steam => Palette.HalfWhite,
+            Item.Sulfur => Color.yellow,
+            Item.SulfurDioxideGas => Color.yellow,
+            Item.SulfuricAcid => Color.yellow,
+            Item.SynthesisGas => Color.magenta,
+            Item.ThermalWater => Palette.Orange,
+            Item.Water => Palette.LightBlue,
 
-        static bool IsFinalProduct(Item item) => item is
-            Item.Explosive or
-            Item.Grenade or
-            Item.SulfuricAcid or
-            Item.MethylamineGas;
+            _ => Color.white
+        };
 
         private static Dictionary<PlainShipRoom, Factory> FactoryLocations = [];
 
@@ -214,18 +298,117 @@ namespace EHR.Roles.Neutral
         private Dictionary<Item, int> ItemCounts;
         private Factory CurrentFactory;
         private string SelectedProcess;
+        private List<string> SortedAvailableProcesses;
+
+        private Dictionary<byte, HashSet<byte>> AcidPlayers;
+
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        {
+            return base.OnCheckMurder(killer, target);
+        }
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || !pc.IsAlive() || LastUpdate == Utils.TimeStamp) return;
+            if (!GameStates.IsInTask || !pc.IsAlive() || LastUpdate >= Utils.TimeStamp) return;
             LastUpdate = Utils.TimeStamp;
 
             ItemCounts[Item.Air] += AirGainedPerSecond.GetInt();
             ItemCounts[Item.Water] += WaterGainedPerSecond.GetInt();
 
-            CurrentFactory = FactoryLocations.GetValueOrDefault(pc.GetPlainShipRoom());
+            var beforeFactory = CurrentFactory;
+            var room = pc.GetPlainShipRoom();
+
+            CurrentFactory = FactoryLocations.GetValueOrDefault(room);
+
+            if (CurrentFactory != beforeFactory)
+            {
+                SortedAvailableProcesses = Processes[CurrentFactory]
+                    .OrderByDescending(x => x.Value.Ingredients.TrueForAll(y => ItemCounts[y.Item] >= y.Count))
+                    .Select(x => x.Key)
+                    .ToList();
+
+                SelectedProcess = SortedAvailableProcesses.FirstOrDefault() ?? string.Empty;
+            }
 
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        }
+
+        public override bool OnSabotage(PlayerControl pc)
+        {
+            if (SortedAvailableProcesses.Count == 0) return false;
+
+            var index = SortedAvailableProcesses.IndexOf(SelectedProcess);
+            SelectedProcess = SortedAvailableProcesses[(index + 1) % SortedAvailableProcesses.Count];
+
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+
+            return false;
+        }
+
+        public override void OnPet(PlayerControl pc)
+        {
+            if (SelectedProcess == string.Empty) return;
+
+            (List<(int Count, Item Item)> Ingredients, List<(int Count, Item Item)> Results) = Processes[CurrentFactory][SelectedProcess];
+
+            if (!Ingredients.TrueForAll(x => ItemCounts[x.Item] >= x.Count)) return;
+
+            Ingredients.ForEach(x => ItemCounts[x.Item] -= x.Count);
+            Results.ForEach(x => ItemCounts[x.Item] += x.Count);
+
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        }
+
+        public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
+        {
+            if (!pc.IsAlive()) return;
+
+            ItemCounts[Item.Coal] += CoalGainedPerTask.GetInt();
+            ItemCounts[Item.IronOre] += IronOreGainedPerTask.GetInt();
+
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        }
+
+        public static string GetSuffix(PlayerControl seer, PlayerControl target)
+        {
+            if (Main.PlayerStates[seer.PlayerId].Role is not Chemist cm) return string.Empty;
+
+            if (seer.PlayerId == target.PlayerId)
+            {
+                var sb = new StringBuilder().Append("<size=80%>");
+
+                var grouped = cm.ItemCounts
+                    .Where(x => x.Value > 0)
+                    .GroupBy(x => GetItemType(x.Key))
+                    .OrderBy(x => (int)x.Key)
+                    .ToDictionary(x => x.Key, x => x.ToDictionary(y => y.Key, y => y.Value));
+
+                foreach ((ItemType type, Dictionary<Item, int> items) in grouped)
+                {
+                    sb.Append($"{type.ToString()[0]}: ");
+
+                    foreach ((Item item, int count) in items)
+                    {
+                        sb.Append(Utils.ColorString(GetItemColor(item), $"{count} {GetChemicalForm(item)}"));
+                    }
+
+                    sb.AppendLine();
+                }
+
+                if (cm.SelectedProcess == string.Empty) return sb.ToString().TrimEnd();
+
+                (List<(int Count, Item Item)> Ingredients, List<(int Count, Item Item)> Results) = Processes[cm.CurrentFactory][cm.SelectedProcess];
+
+                sb.Append(string.Join(", ", Ingredients.Select(x => $"{x.Count} {GetChemicalForm(x.Item)}")));
+                sb.Append('\u2192');
+                sb.Append(string.Join(", ", Results.Select(x => $"{x.Count} {GetChemicalForm(x.Item)}")));
+
+                return sb.ToString();
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
     }
 }
