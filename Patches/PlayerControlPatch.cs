@@ -1719,6 +1719,9 @@ class ExitVentPatch
     {
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "ExitVent");
 
+        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            _ = new LateTask(() => { HudManager.Instance.SetHudActive(pc, pc.Data.Role, true); }, 0.6f, log: false);
+
         if (!AmongUsClient.Instance.AmHost) return;
 
         Drainer.OnAnyoneExitVent(pc);

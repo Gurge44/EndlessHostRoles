@@ -1,10 +1,8 @@
 ﻿using AmongUs.GameOptions;
 using HarmonyLib;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using static EHR.Options;
 
@@ -13,9 +11,9 @@ namespace EHR.Roles.Neutral
     internal class Chemist : RoleBase
     {
         public static bool On;
+        public static List<Chemist> Instances = [];
 
         private static OptionItem KillCooldown;
-        private static OptionItem CanVent;
         private static OptionItem HasImpostorVision;
 
         private static OptionItem AirGainedPerSecond;
@@ -24,6 +22,18 @@ namespace EHR.Roles.Neutral
         private static OptionItem IronOreGainedPerTask;
 
         private static Dictionary<Item, OptionItem> FinalProductUsageAmounts = [];
+
+        private static OptionItem AcidPlayersDie;
+        private static OptionItem AcidPlayersDieAfterTime;
+        private static OptionItem BlindDuration;
+        private static OptionItem GrenadeExplodeDelay;
+        private static OptionItem GrenadeExplodeRadius;
+
+        enum AcidPlayersDieOptions
+        {
+            AfterMeeting,
+            AfterTime
+        }
 
         private static OverrideTasksData Tasks;
 
@@ -37,8 +47,6 @@ namespace EHR.Roles.Neutral
             KillCooldown = FloatOptionItem.Create(++id, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Seconds);
-            CanVent = BooleanOptionItem.Create(++id, "CanVent", true, tab)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist]);
             HasImpostorVision = BooleanOptionItem.Create(++id, "ImpostorVision", true, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist]);
 
@@ -61,6 +69,21 @@ namespace EHR.Roles.Neutral
                     .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                     .SetValueFormat(OptionFormat.Times));
 
+            AcidPlayersDie = StringOptionItem.Create(++id, "Chemist.AcidPlayersDie", EnumHelper.GetAllNames<AcidPlayersDieOptions>(), 0, tab)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist]);
+            AcidPlayersDieAfterTime = IntegerOptionItem.Create(++id, "Chemist.AcidPlayersDieAfterTime", new(1, 60, 1), 15, tab)
+                .SetParent(AcidPlayersDie)
+                .SetValueFormat(OptionFormat.Seconds);
+            BlindDuration = IntegerOptionItem.Create(++id, "Chemist.BlindDuration", new(1, 60, 1), 10, tab)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
+                .SetValueFormat(OptionFormat.Seconds);
+            GrenadeExplodeDelay = IntegerOptionItem.Create(++id, "Chemist.GrenadeExplodeDelay", new(1, 60, 1), 5, tab)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
+                .SetValueFormat(OptionFormat.Seconds);
+            GrenadeExplodeRadius = FloatOptionItem.Create(++id, "Chemist.GrenadeExplodeRadius", new(0.25f, 10f, 0.25f), 4f, tab)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
+                .SetValueFormat(OptionFormat.Multiplier);
+
             Tasks = OverrideTasksData.Create(++id, tab, CustomRoles.Chemist);
             return;
 
@@ -77,6 +100,7 @@ namespace EHR.Roles.Neutral
         public override void Init()
         {
             On = false;
+            Instances = [];
 
             FactoryLocations = [];
             _ = new LateTask(() =>
@@ -90,11 +114,19 @@ namespace EHR.Roles.Neutral
         public override void Add(byte playerId)
         {
             On = true;
+            Instances.Add(this);
+
+            ChemistPC = Utils.GetPlayerById(playerId);
             LastUpdate = Utils.TimeStamp + 8;
             ItemCounts = [];
             CurrentFactory = Factory.None;
             SelectedProcess = string.Empty;
             SortedAvailableProcesses = [];
+
+            AcidPlayers = [];
+            IsBlinding = false;
+            BombedBodies = [];
+            Grenades = [];
 
             foreach (var item in EnumHelper.GetAllValues<Item>())
             {
@@ -109,7 +141,7 @@ namespace EHR.Roles.Neutral
         public override bool IsEnable => On;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+        public override bool CanUseImpostorVentButton(PlayerControl pc) => pc.IsAlive();
         public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive();
 
         enum Item
@@ -294,17 +326,138 @@ namespace EHR.Roles.Neutral
 
         private static Dictionary<PlainShipRoom, Factory> FactoryLocations = [];
 
+        public PlayerControl ChemistPC;
         private long LastUpdate;
         private Dictionary<Item, int> ItemCounts;
         private Factory CurrentFactory;
         private string SelectedProcess;
         private List<string> SortedAvailableProcesses;
 
-        private Dictionary<byte, HashSet<byte>> AcidPlayers;
+        private Dictionary<byte, (HashSet<byte> OtherAcidPlayers, long TimeStamp)> AcidPlayers;
+        public bool IsBlinding;
+        private HashSet<byte> BombedBodies;
+        private Dictionary<byte, long> Grenades;
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            return base.OnCheckMurder(killer, target);
+            if (!base.OnCheckMurder(killer, target)) return false;
+
+            int need = FinalProductUsageAmounts[Item.SulfuricAcid].GetInt();
+            if (ItemCounts[Item.SulfuricAcid] >= need && !AcidPlayers.ContainsKey(target.PlayerId) && !AcidPlayers.Any(x => x.Value.OtherAcidPlayers.Contains(target.PlayerId)))
+            {
+                AcidPlayers[target.PlayerId] = ([], Utils.TimeStamp);
+                ItemCounts[Item.SulfuricAcid] -= need;
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                return false;
+            }
+
+            int need2 = FinalProductUsageAmounts[Item.Grenade].GetInt();
+            if (ItemCounts[Item.Grenade] >= need2)
+            {
+                ItemCounts[Item.Grenade] -= need2;
+                Grenades[target.PlayerId] = Utils.TimeStamp;
+                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                return false;
+            }
+
+            return true;
+        }
+
+        public override void OnMurder(PlayerControl killer, PlayerControl target)
+        {
+            int need = FinalProductUsageAmounts[Item.Explosive].GetInt();
+            if (ItemCounts[Item.Explosive] >= need)
+            {
+                ItemCounts[Item.Explosive] -= need;
+                BombedBodies.Add(target.PlayerId);
+            }
+        }
+
+        public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
+        {
+            if (!GameStates.IsInTask || !pc.IsAlive()) return;
+
+            var pos = pc.Pos();
+
+            if (AcidPlayers.TryGetValue(pc.PlayerId, out var acidPlayers))
+            {
+                Main.AllAlivePlayerControls
+                    .ExceptBy(acidPlayers.OtherAcidPlayers, x => x.PlayerId)
+                    .Where(x => x.PlayerId != pc.PlayerId && Vector2.Distance(x.Pos(), pos) < 1.5f)
+                    .Do(x => acidPlayers.OtherAcidPlayers.Add(x.PlayerId));
+            }
+
+            if (Grenades.TryGetValue(pc.PlayerId, out long ts) && ts + GrenadeExplodeDelay.GetInt() <= Utils.TimeStamp)
+            {
+                Grenades.Remove(pc.PlayerId);
+
+                float radius = GrenadeExplodeRadius.GetFloat();
+                Main.AllAlivePlayerControls
+                    .Where(x => Vector2.Distance(x.Pos(), pos) < radius && ChemistPC.RpcCheckAndMurder(x, check: true))
+                    .Do(x => x.Suicide(realKiller: ChemistPC));
+            }
+        }
+
+        public override void OnEnterVent(PlayerControl pc, Vent vent)
+        {
+            if (IsBlinding) return;
+
+            int need = FinalProductUsageAmounts[Item.MethylamineGas].GetInt();
+            if (ItemCounts[Item.MethylamineGas] >= need)
+            {
+                ItemCounts[Item.MethylamineGas] -= need;
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+
+                IsBlinding = true;
+                Utils.MarkEveryoneDirtySettings();
+                _ = new LateTask(() =>
+                {
+                    if (IsBlinding)
+                    {
+                        IsBlinding = false;
+                        Utils.MarkEveryoneDirtySettings();
+                    }
+                }, BlindDuration.GetInt(), log: false);
+            }
+        }
+
+        public override bool CheckReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target, PlayerControl killer)
+        {
+            if (BombedBodies.Contains(target.PlayerId) && ChemistPC.RpcCheckAndMurder(reporter, check: true))
+            {
+                reporter.Suicide(realKiller: ChemistPC);
+                return false;
+            }
+
+            return true;
+        }
+
+        public override void OnReportDeadBody()
+        {
+            CheckAndKillAcidPlayers(force: true);
+            IsBlinding = false;
+            BombedBodies.Clear();
+        }
+
+        void CheckAndKillAcidPlayers(bool force = false)
+        {
+            foreach (var kvp in AcidPlayers)
+            {
+                if (force || kvp.Value.TimeStamp + AcidPlayersDieAfterTime.GetInt() <= Utils.TimeStamp)
+                {
+                    var srcPlayer = Utils.GetPlayerById(kvp.Key);
+                    if (srcPlayer != null && srcPlayer.IsAlive() && ChemistPC.RpcCheckAndMurder(srcPlayer, check: true))
+                        srcPlayer.Suicide(realKiller: ChemistPC);
+
+                    foreach (var id in kvp.Value.OtherAcidPlayers)
+                    {
+                        var player = Utils.GetPlayerById(id);
+                        if (player == null || !player.IsAlive() || !ChemistPC.RpcCheckAndMurder(player, check: true)) continue;
+
+                        player.Suicide(realKiller: ChemistPC);
+                    }
+                }
+            }
         }
 
         public override void OnFixedUpdate(PlayerControl pc)
@@ -328,6 +481,11 @@ namespace EHR.Roles.Neutral
                     .ToList();
 
                 SelectedProcess = SortedAvailableProcesses.FirstOrDefault() ?? string.Empty;
+            }
+
+            if ((AcidPlayersDieOptions)AcidPlayersDie.GetValue() == AcidPlayersDieOptions.AfterTime)
+            {
+                CheckAndKillAcidPlayers();
             }
 
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -385,13 +543,16 @@ namespace EHR.Roles.Neutral
 
                 foreach ((ItemType type, Dictionary<Item, int> items) in grouped)
                 {
+                    if (items.Count == 0) continue;
+
                     sb.Append($"{type.ToString()[0]}: ");
 
                     foreach ((Item item, int count) in items)
                     {
-                        sb.Append(Utils.ColorString(GetItemColor(item), $"{count} {GetChemicalForm(item)}"));
+                        sb.Append(Utils.ColorString(GetItemColor(item), $"{count} {GetChemicalForm(item)}, "));
                     }
 
+                    sb.Length -= 2;
                     sb.AppendLine();
                 }
 
@@ -403,12 +564,22 @@ namespace EHR.Roles.Neutral
                 sb.Append('\u2192');
                 sb.Append(string.Join(", ", Results.Select(x => $"{x.Count} {GetChemicalForm(x.Item)}")));
 
-                return sb.ToString();
+                return sb.Append("</size>").ToString();
             }
-            else
+            else if ((AcidPlayersDieOptions)AcidPlayersDie.GetValue() == AcidPlayersDieOptions.AfterTime)
             {
-                return string.Empty;
+                int time = AcidPlayersDieAfterTime.GetInt();
+                long now = Utils.TimeStamp;
+                foreach (var kvp in cm.AcidPlayers)
+                {
+                    if (kvp.Key == target.PlayerId || kvp.Value.OtherAcidPlayers.Contains(target.PlayerId))
+                    {
+                        return Utils.ColorString(Color.yellow, $"\u26a0 {time - (now - kvp.Value.TimeStamp):N0}");
+                    }
+                }
             }
+
+            return string.Empty;
         }
     }
 }

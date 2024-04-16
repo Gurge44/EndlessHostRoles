@@ -1595,6 +1595,12 @@ public static class Utils
         if (title == "") title = "<color=#aaaaff>" + GetString("DefaultSystemMessageTitle") + "</color>";
         text = text.Replace("color=", string.Empty);
 
+        if (text.Length > 1200 && !sendTo.IsPlayerModClient())
+        {
+            text.Chunk(1200).Do(x => SendMessage(new(x), sendTo, title));
+            return;
+        }
+
         Main.MessagesToSend.Add((text.RemoveHtmlTagsTemplate(), sendTo, title));
     }
 
