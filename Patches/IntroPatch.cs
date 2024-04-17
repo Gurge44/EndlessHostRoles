@@ -137,6 +137,7 @@ class CoBeginPatch
 
         logger.Info("-------------Other Information-------------");
         logger.Info($"Number of players: {Main.AllPlayerControls.Length}");
+        logger.Info($"Map: {Main.CurrentMap}");
         Main.AllPlayerControls.Do(x => Main.PlayerStates[x.PlayerId].InitTask(x));
         GameData.Instance.RecomputeTaskCounts();
         TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;

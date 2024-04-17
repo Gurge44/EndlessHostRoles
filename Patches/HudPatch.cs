@@ -398,7 +398,7 @@ class HudManagerPatch
                             CustomRoles.PlagueDoctor => PlagueDoctor.GetLowerTextOthers(player, isForHud: true),
                             CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),
                             CustomRoles.Hookshot => Hookshot.SuffixText(player.PlayerId),
-                            CustomRoles.Chemist => Chemist.GetSuffix(player, player),
+                            CustomRoles.Chemist => Chemist.GetSuffix(player, player, hud: true),
                             CustomRoles.Tornado => Tornado.GetSuffixText(isHUD: true),
                             _ => player.Is(CustomRoles.Asthmatic) ? Asthmatic.GetSuffixText(player.PlayerId) : string.Empty,
                         },

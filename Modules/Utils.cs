@@ -1827,6 +1827,7 @@ public static class Utils
                     SelfSuffix.Append(Roles.Impostor.Sentry.GetSuffix(seer));
                     SelfSuffix.Append(Bargainer.GetSuffix(seer));
                     SelfSuffix.Append(Bloodmoon.GetSuffix(seer));
+                    SelfSuffix.Append(Chemist.GetSuffix(seer, seer));
 
                     switch (seer.GetCustomRole())
                     {
@@ -2341,6 +2342,7 @@ public static class Utils
                             TargetSuffix.Append(Stealth.GetSuffix(seer, target));
                             TargetSuffix.Append(Bubble.GetEncasedPlayerSuffix(seer, target));
                             TargetSuffix.Append(Commander.GetSuffixText(seer, target));
+                            TargetSuffix.Append(Chemist.GetSuffix(seer, target));
 
                             if (target.Is(CustomRoles.Librarian)) TargetSuffix.Append(Librarian.GetNameTextForSuffix(target.PlayerId));
 
@@ -2442,6 +2444,7 @@ public static class Utils
             CustomRoles.Twister => Twister.ShapeshiftCooldown.GetInt(),
             CustomRoles.Warlock => Warlock.IsCursed ? -1 : (int)Options.DefaultKillCooldown,
             CustomRoles.Swiftclaw => Swiftclaw.DashCD.GetInt() + (includeDuration ? Swiftclaw.DashDuration.GetInt() : 0),
+            CustomRoles.Parasite => (int)Parasite.SSCD + (includeDuration ? (int)Parasite.SSDur : 0),
             CustomRoles.Tiger => Tiger.EnrageCooldown.GetInt() + (includeDuration ? Tiger.EnrageDuration.GetInt() : 0),
             CustomRoles.Cherokious => Cherokious.KillCooldown.GetInt(),
             _ => -1,

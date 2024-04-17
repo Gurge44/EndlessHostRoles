@@ -557,8 +557,6 @@ public static class Options
     public static OptionItem DecontaminationTimeOnMiraHQ;
     public static OptionItem DecontaminationTimeOnPolus;
 
-    public static OptionItem ParasiteCD;
-
     public static OptionItem ShapeshiftCD;
     public static OptionItem ShapeshiftDur;
 

@@ -1,4 +1,7 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
+using System.Linq;
+using UnityEngine;
 
 namespace EHR.Roles.Impostor
 {
@@ -7,10 +10,25 @@ namespace EHR.Roles.Impostor
         public static bool On;
         public override bool IsEnable => On;
 
+        public static OptionItem ParasiteCD;
+        public static OptionItem ShapeshiftCooldown;
+        public static OptionItem ShapeshiftDuration;
+
+        public static float SSCD;
+        public static float SSDur;
+
+        private float Duration;
+
         public static void SetupCustomOption()
         {
             Options.SetupSingleRoleOptions(4900, TabGroup.ImpostorRoles, CustomRoles.Parasite);
-            Options.ParasiteCD = FloatOptionItem.Create(4910, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+            ParasiteCD = FloatOptionItem.Create(4910, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Parasite])
+                .SetValueFormat(OptionFormat.Seconds);
+            ShapeshiftCooldown = FloatOptionItem.Create(4911, "ShapeshiftCooldown", new(0f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Parasite])
+                .SetValueFormat(OptionFormat.Seconds);
+            ShapeshiftDuration = FloatOptionItem.Create(4912, "ShapeshiftDuration", new(0f, 180f, 1f), 15f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Parasite])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -18,21 +36,47 @@ namespace EHR.Roles.Impostor
         public override void Add(byte playerId)
         {
             On = true;
+            Duration = float.NaN;
         }
 
         public override void Init()
         {
             On = false;
+            SSCD = ShapeshiftCooldown.GetFloat();
+            SSDur = ShapeshiftDuration.GetFloat();
         }
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = Options.ParasiteCD.GetFloat();
+            Main.AllPlayerKillCooldown[id] = ParasiteCD.GetFloat();
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             opt.SetVision(true);
+        }
+
+        public override void OnPet(PlayerControl pc)
+        {
+            PlayerControl target = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Impostor)).Shuffle(IRandom.Instance).FirstOrDefault();
+            if (target != null)
+            {
+                Duration = SSDur;
+                pc.RpcShapeshift(target, !Options.DisableAllShapeshiftAnimations.GetBool());
+            }
+        }
+
+        public override void OnFixedUpdate(PlayerControl pc)
+        {
+            if (Duration > 0)
+            {
+                Duration -= Time.fixedDeltaTime;
+            }
+
+            if (!float.IsNaN(Duration) && Duration <= 0)
+            {
+                pc.RpcShapeshift(pc, !Options.DisableAllShapeshiftAnimations.GetBool());
+            }
         }
     }
 }

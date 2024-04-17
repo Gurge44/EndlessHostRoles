@@ -1487,6 +1487,9 @@ class FixedUpdatePatch
                     case CustomRoles.Snitch:
                         Suffix.Append(Snitch.GetSnitchArrow(seer, target));
                         break;
+                    case CustomRoles.Chemist:
+                        Suffix.Append(Chemist.GetSuffix(seer, target));
+                        break;
                     case CustomRoles.VengefulRomantic when self:
                         Suffix.Append(VengefulRomantic.GetTargetText(seer.PlayerId));
                         break;
@@ -1499,13 +1502,13 @@ class FixedUpdatePatch
                     case CustomRoles.Hitman when self:
                         Suffix.Append(Hitman.GetTargetText(seer.PlayerId));
                         break;
-                    case CustomRoles.Penguin when target.PlayerId == seer.PlayerId:
+                    case CustomRoles.Penguin when self:
                         Suffix.Append(Penguin.GetSuffix(seer));
                         break;
-                    case CustomRoles.Changeling when target.PlayerId == seer.PlayerId:
+                    case CustomRoles.Changeling when self:
                         Suffix.Append(Changeling.GetSuffix(seer));
                         break;
-                    case CustomRoles.Tiger when target.PlayerId == seer.PlayerId:
+                    case CustomRoles.Tiger when self:
                         Suffix.Append(Tiger.GetSuffix(seer));
                         break;
                     case CustomRoles.Predator when self:

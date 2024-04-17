@@ -1,4 +1,5 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using AmongUs.GameOptions;
 using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,8 +19,8 @@ namespace EHR.Roles.Neutral
 
         private static OptionItem AirGainedPerSecond;
         private static OptionItem WaterGainedPerSecond;
-        private static OptionItem CoalGainedPerTask;
-        private static OptionItem IronOreGainedPerTask;
+        private static OptionItem CoalGainedPerVent;
+        private static OptionItem IronOreGainedPerVent;
 
         private static Dictionary<Item, OptionItem> FinalProductUsageAmounts = [];
 
@@ -56,10 +57,10 @@ namespace EHR.Roles.Neutral
             WaterGainedPerSecond = IntegerOptionItem.Create(++id, "Chemist.WaterGainedPerSecond", new(5, 100, 5), 10, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Times);
-            CoalGainedPerTask = IntegerOptionItem.Create(++id, "Chemist.CoalGainedPerTask", new(1, 10, 1), 2, tab)
+            CoalGainedPerVent = IntegerOptionItem.Create(++id, "Chemist.CoalGainedPerVent", new(1, 10, 1), 1, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Times);
-            IronOreGainedPerTask = IntegerOptionItem.Create(++id, "Chemist.IronOreGainedPerTask", new(1, 50, 1), 8, tab)
+            IronOreGainedPerVent = IntegerOptionItem.Create(++id, "Chemist.IronOreGainedPerVent", new(1, 50, 1), 4, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Times);
 
@@ -106,7 +107,9 @@ namespace EHR.Roles.Neutral
             _ = new LateTask(() =>
             {
                 FactoryLocations = ShipStatus.Instance.AllRooms
-                    .Zip(EnumHelper.GetAllValues<Factory>())
+                    .Select(x => Translator.GetString($"{x.RoomId}"))
+                    .Distinct()
+                    .Zip(EnumHelper.GetAllValues<Factory>()[1..])
                     .ToDictionary(x => x.First, x => x.Second);
             }, 10f, log: false);
         }
@@ -132,6 +135,8 @@ namespace EHR.Roles.Neutral
             {
                 ItemCounts[item] = 0;
             }
+
+            ItemCounts[Item.SulfuricAcid] = 30;
 
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -200,7 +205,8 @@ namespace EHR.Roles.Neutral
 
         private static readonly Dictionary<Factory, Dictionary<string, (List<(int Count, Item Item)> Ingredients, List<(int Count, Item Item)> Results)>> Processes = new()
         {
-            [Factory.ChemicalPlant] =
+            [Factory.None] = [],
+            [Factory.ChemicalPlant] = new()
             {
                 ["Synthesis Sulfur"] = ([(60, Item.HydrogenSulfideGas), (40, Item.OxygenGas)], [(3, Item.Sulfur)]),
                 ["Synthesis Of Naphtha"] = ([(150, Item.SynthesisGas), (50, Item.CarbonMonoxide)], [(100, Item.Naphtha)]),
@@ -214,50 +220,49 @@ namespace EHR.Roles.Neutral
                 ["Synthesis Methanol"] = ([(100, Item.CarbonDioxide), (100, Item.HydrogenGas)], [(100, Item.MethanolGas)]),
                 ["Air Separation"] = ([(100, Item.Air)], [(50, Item.OxygenGas), (50, Item.NitrogenGas)])
             },
-            [Factory.AdvancedChemicalPlant] =
+            [Factory.AdvancedChemicalPlant] = new()
             {
                 ["Cracking of Naphtha to Mineral Oil"] = ([(60, Item.Naphtha), (20, Item.ThermalWater), (20, Item.CarbonMonoxide)], [(100, Item.BaseMineralOil)]),
                 ["Coal Cracking Fischer Tropsch Process"] = ([(5, Item.Coal), (50, Item.Steam), (50, Item.OxygenGas)], [(100, Item.SynthesisGas), (20, Item.CarbonDioxide), (30, Item.HydrogenSulfideGas)]),
                 ["Explosives"] = ([(1, Item.Sulfur), (1, Item.Coal), (10, Item.Water)], [(2, Item.Explosive)])
             },
-            [Factory.SteamCracker] =
+            [Factory.SteamCracker] = new()
             {
                 ["Steam Cracking Mineral Oil to Synthesis Gas"] = ([(100, Item.BaseMineralOil), (100, Item.Steam)], [(200, Item.SynthesisGas)])
             },
-            [Factory.BlastFurnace] =
+            [Factory.BlastFurnace] = new()
             {
                 ["Iron Ore Smelting"] = ([(24, Item.IronOre)], [(24, Item.IronIngot)])
             },
-            [Factory.InductionFurnace] =
+            [Factory.InductionFurnace] = new()
             {
                 ["Iron Melting"] = ([(12, Item.IronIngot)], [(120, Item.MoltenIron)])
             },
-            [Factory.CastingMachine] =
+            [Factory.CastingMachine] = new()
             {
                 ["Iron Plate Casting"] = ([(40, Item.MoltenIron)], [(4, Item.IronPlate)])
             },
-            [Factory.Electrolyzer] =
+            [Factory.Electrolyzer] = new()
             {
                 ["Purified Water Electrolysis"] = ([(100, Item.PurifiedWater)], [(40, Item.OxygenGas), (60, Item.HydrogenGas)])
             },
-            [Factory.CoolingTower] =
+            [Factory.CoolingTower] = new()
             {
                 ["Steam Cooling"] = ([(100, Item.Steam)], [(100, Item.PurifiedWater)])
             },
-            [Factory.WaterTreatmentPlant] =
+            [Factory.WaterTreatmentPlant] = new()
             {
                 ["Water Purification"] = ([(150, Item.Water)], [(100, Item.PurifiedWater)]),
                 ["Water Boiling"] = ([(100, Item.Water), (1, Item.Coal)], [(60, Item.Steam)])
             },
-            [Factory.Liquifier] =
+            [Factory.Liquifier] = new()
             {
                 ["Coal Liquefaction"] = ([(1, Item.Coal)], [(50, Item.CarbonDioxide)])
             },
-            [Factory.AssemblingMachine] =
+            [Factory.AssemblingMachine] = new()
             {
                 ["Grenade"] = ([(5, Item.IronPlate), (10, Item.Coal)], [(1, Item.Grenade)])
-            },
-            [Factory.None] = []
+            }
         };
 
         static ItemType GetItemType(Item item) => item switch
@@ -293,7 +298,7 @@ namespace EHR.Roles.Neutral
 
         static Color GetItemColor(Item item) => item switch
         {
-            Item.Air => Palette.White_75Alpha,
+            Item.Air => Palette.HalfWhite,
             Item.AmmoniaGas => Color.blue,
             Item.BaseMineralOil => Color.green,
             Item.CarbonDioxide => Palette.Brown,
@@ -313,7 +318,7 @@ namespace EHR.Roles.Neutral
             Item.NitrogenGas => Color.blue,
             Item.OxygenGas => Color.red,
             Item.PurifiedWater => Color.cyan,
-            Item.Steam => Palette.HalfWhite,
+            Item.Steam => Palette.White_75Alpha,
             Item.Sulfur => Color.yellow,
             Item.SulfurDioxideGas => Color.yellow,
             Item.SulfuricAcid => Color.yellow,
@@ -324,7 +329,7 @@ namespace EHR.Roles.Neutral
             _ => Color.white
         };
 
-        private static Dictionary<PlainShipRoom, Factory> FactoryLocations = [];
+        private static Dictionary<string, Factory> FactoryLocations = [];
 
         public PlayerControl ChemistPC;
         private long LastUpdate;
@@ -383,7 +388,7 @@ namespace EHR.Roles.Neutral
             {
                 Main.AllAlivePlayerControls
                     .ExceptBy(acidPlayers.OtherAcidPlayers, x => x.PlayerId)
-                    .Where(x => x.PlayerId != pc.PlayerId && Vector2.Distance(x.Pos(), pos) < 1.5f)
+                    .Where(x => x.PlayerId != pc.PlayerId && x.PlayerId != ChemistPC.PlayerId && Vector2.Distance(x.Pos(), pos) < 1.5f)
                     .Do(x => acidPlayers.OtherAcidPlayers.Add(x.PlayerId));
             }
 
@@ -393,7 +398,7 @@ namespace EHR.Roles.Neutral
 
                 float radius = GrenadeExplodeRadius.GetFloat();
                 Main.AllAlivePlayerControls
-                    .Where(x => Vector2.Distance(x.Pos(), pos) < radius && ChemistPC.RpcCheckAndMurder(x, check: true))
+                    .Where(x => x.PlayerId != ChemistPC.PlayerId && Vector2.Distance(x.Pos(), pos) < radius && ChemistPC.RpcCheckAndMurder(x, check: true))
                     .Do(x => x.Suicide(realKiller: ChemistPC));
             }
         }
@@ -419,6 +424,14 @@ namespace EHR.Roles.Neutral
                     }
                 }, BlindDuration.GetInt(), log: false);
             }
+        }
+
+        public override void OnExitVent(PlayerControl pc, Vent vent)
+        {
+            ItemCounts[Item.Coal] += CoalGainedPerVent.GetInt();
+            ItemCounts[Item.IronOre] += IronOreGainedPerVent.GetInt();
+
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
         public override bool CheckReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target, PlayerControl killer)
@@ -465,13 +478,13 @@ namespace EHR.Roles.Neutral
             if (!GameStates.IsInTask || !pc.IsAlive() || LastUpdate >= Utils.TimeStamp) return;
             LastUpdate = Utils.TimeStamp;
 
-            ItemCounts[Item.Air] += AirGainedPerSecond.GetInt();
-            ItemCounts[Item.Water] += WaterGainedPerSecond.GetInt();
+            if (ItemCounts[Item.Air] < 900) ItemCounts[Item.Air] += AirGainedPerSecond.GetInt();
+            if (ItemCounts[Item.Water] < 900) ItemCounts[Item.Water] += WaterGainedPerSecond.GetInt();
 
             var beforeFactory = CurrentFactory;
             var room = pc.GetPlainShipRoom();
 
-            CurrentFactory = FactoryLocations.GetValueOrDefault(room);
+            CurrentFactory = FactoryLocations.GetValueOrDefault(Translator.GetString($"{room.RoomId}"));
 
             if (CurrentFactory != beforeFactory)
             {
@@ -517,24 +530,17 @@ namespace EHR.Roles.Neutral
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
-        public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
-        {
-            if (!pc.IsAlive()) return;
-
-            ItemCounts[Item.Coal] += CoalGainedPerTask.GetInt();
-            ItemCounts[Item.IronOre] += IronOreGainedPerTask.GetInt();
-
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-        }
-
-        public static string GetSuffix(PlayerControl seer, PlayerControl target)
+        public static string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false)
         {
             if (Main.PlayerStates[seer.PlayerId].Role is not Chemist cm) return string.Empty;
 
-            if (seer.PlayerId == target.PlayerId)
-            {
-                var sb = new StringBuilder().Append("<size=80%>");
+            bool self = seer.PlayerId == target.PlayerId;
+            if (self && seer.IsModClient() && !hud) return string.Empty;
 
+            var sb = new StringBuilder().Append("<size=80%>");
+
+            if (self)
+            {
                 var grouped = cm.ItemCounts
                     .Where(x => x.Value > 0)
                     .GroupBy(x => GetItemType(x.Key))
@@ -549,7 +555,7 @@ namespace EHR.Roles.Neutral
 
                     foreach ((Item item, int count) in items)
                     {
-                        sb.Append(Utils.ColorString(GetItemColor(item), $"{count} {GetChemicalForm(item)}, "));
+                        sb.Append(Utils.ColorString(GetItemColor(item), $"{Utils.ColorString(FinalProductUsageAmounts.TryGetValue(item, out var opt) && opt.GetInt() <= count ? Color.green : Color.white, $"{count}")} {GetChemicalForm(item)}") + ", ");
                     }
 
                     sb.Length -= 2;
@@ -560,13 +566,13 @@ namespace EHR.Roles.Neutral
 
                 (List<(int Count, Item Item)> Ingredients, List<(int Count, Item Item)> Results) = Processes[cm.CurrentFactory][cm.SelectedProcess];
 
-                sb.Append(string.Join(", ", Ingredients.Select(x => $"{x.Count} {GetChemicalForm(x.Item)}")));
-                sb.Append('\u2192');
-                sb.Append(string.Join(", ", Results.Select(x => $"{x.Count} {GetChemicalForm(x.Item)}")));
-
-                return sb.Append("</size>").ToString();
+                Func<(int Count, Item Item), string> selector = x => $"{x.Count} {Utils.ColorString(GetItemColor(x.Item), $"{GetChemicalForm(x.Item)}")}";
+                sb.Append(string.Join(", ", Ingredients.Select(selector)));
+                sb.Append(Ingredients.Count + Results.Count > 2 ? "\n\u2192  " : " → ");
+                sb.Append(string.Join(", ", Results.Select(selector)));
             }
-            else if ((AcidPlayersDieOptions)AcidPlayersDie.GetValue() == AcidPlayersDieOptions.AfterTime)
+
+            if ((AcidPlayersDieOptions)AcidPlayersDie.GetValue() == AcidPlayersDieOptions.AfterTime)
             {
                 int time = AcidPlayersDieAfterTime.GetInt();
                 long now = Utils.TimeStamp;
@@ -574,12 +580,13 @@ namespace EHR.Roles.Neutral
                 {
                     if (kvp.Key == target.PlayerId || kvp.Value.OtherAcidPlayers.Contains(target.PlayerId))
                     {
-                        return Utils.ColorString(Color.yellow, $"\u26a0 {time - (now - kvp.Value.TimeStamp):N0}");
+                        sb.Append(Utils.ColorString(Color.yellow, $"\u26a0 {time - (now - kvp.Value.TimeStamp):N0}"));
+                        break;
                     }
                 }
             }
 
-            return string.Empty;
+            return sb.Append("</size>").ToString();
         }
     }
 }
