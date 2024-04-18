@@ -4,20 +4,11 @@ namespace EHR.Roles.AddOns.GhostRoles
 {
     internal class Bloodmoon : IGhostRole, ISettingHolder
     {
-        public Team Team => Team.Impostor | Team.Neutral;
-        public int Cooldown => Duration.GetInt() + 30;
-
         private static OptionItem Duration;
 
         private static readonly Dictionary<byte, long> ScheduledDeaths = [];
-
-        public void SetupCustomOption()
-        {
-            Options.SetupRoleOptions(649400, TabGroup.OtherRoles, CustomRoles.Bloodmoon);
-            Duration = IntegerOptionItem.Create(649402, "Bloodmoon.Duration", new(0, 60, 1), 15, TabGroup.OtherRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon])
-                .SetValueFormat(OptionFormat.Seconds);
-        }
+        public Team Team => Team.Impostor | Team.Neutral;
+        public int Cooldown => Duration.GetInt() + 30;
 
         public void OnAssign(PlayerControl pc)
         {
@@ -27,6 +18,14 @@ namespace EHR.Roles.AddOns.GhostRoles
         {
             if (!pc.RpcCheckAndMurder(target, check: true)) return;
             ScheduledDeaths.TryAdd(target.PlayerId, Utils.TimeStamp);
+        }
+
+        public void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(649400, TabGroup.OtherRoles, CustomRoles.Bloodmoon, zeroOne: true);
+            Duration = IntegerOptionItem.Create(649402, "Bloodmoon.Duration", new(0, 60, 1), 15, TabGroup.OtherRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon])
+                .SetValueFormat(OptionFormat.Seconds);
         }
 
         public static void Update(PlayerControl pc)

@@ -6,7 +6,7 @@
 
         public void SetupCustomOption()
         {
-            Options.SetupAdtRoleOptions(14550, CustomRoles.Haste, canSetNum: true);
+            Options.SetupAdtRoleOptions(14550, CustomRoles.Haste, canSetNum: true, teamSpawnOptions: true);
         }
     }
 }

@@ -8,18 +8,20 @@ public class Maverick : RoleBase
 {
     private const int Id = 10000;
 
-    public byte MaverickId = byte.MaxValue;
-    public int NumOfKills;
-
     private static OptionItem KillCooldown;
     public static OptionItem CanVent;
     private static OptionItem HasImpostorVision;
     public static OptionItem MinKillsToWin;
 
+    public byte MaverickId = byte.MaxValue;
+    public int NumOfKills;
+
+    public override bool IsEnable => MaverickId != byte.MaxValue;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Maverick);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 35f, TabGroup.NeutralRoles)
+        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 35f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Maverick])
             .SetValueFormat(OptionFormat.Seconds);
         CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles)
@@ -46,7 +48,6 @@ public class Maverick : RoleBase
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public override bool IsEnable => MaverickId != byte.MaxValue;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();

@@ -27,28 +27,8 @@ public enum CustomGameMode
 public static class Options
 {
     static Task taskOptionsLoad;
+
     public static Dictionary<TabGroup, OptionItem[]> GroupedOptions = [];
-
-    [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.Initialize)), HarmonyPostfix]
-    public static void OptionsLoadStart()
-    {
-        Logger.Info("Options.Load Start", "Options");
-        Main.LoadRoleClasses();
-        taskOptionsLoad = Task.Run(Load);
-        taskOptionsLoad.ContinueWith(_ =>
-        {
-            Logger.Info("Options.Load End", "Load Options");
-            GroupOptions();
-        });
-    }
-
-    public static void GroupOptions()
-    {
-        GroupedOptions = OptionItem.AllOptions
-            .GroupBy(x => x.Tab)
-            .OrderBy(x => (int)x.Key)
-            .ToDictionary(x => x.Key, x => x.ToArray());
-    }
     //[HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix]
     //public static void WaitOptionsLoad()
     //{
@@ -67,17 +47,6 @@ public static class Options
     //];
 
     public static OptionItem GameMode;
-
-    public static CustomGameMode CurrentGameMode
-        => GameMode.GetInt() switch
-        {
-            1 => CustomGameMode.SoloKombat,
-            2 => CustomGameMode.FFA,
-            3 => CustomGameMode.MoveAndStop,
-            4 => CustomGameMode.HotPotato,
-            5 => CustomGameMode.HideAndSeek,
-            _ => CustomGameMode.Standard
-        };
 
     public static readonly string[] GameModes =
     [
@@ -222,7 +191,6 @@ public static class Options
     public static OptionItem DisableVanillaRoles;
     public static OptionItem SabotageCooldownControl;
     public static OptionItem SabotageCooldown;
-    public static OptionItem SunnyboyChance;
     public static OptionItem CEMode;
     public static OptionItem ShowImpRemainOnEject;
     public static OptionItem ShowNKRemainOnEject;
@@ -315,8 +283,6 @@ public static class Options
     public static OptionItem ArsonistCanIgniteAnytime;
     public static OptionItem ArsonistMinPlayersToIgnite;
     public static OptionItem ArsonistMaxPlayersToIgnite;
-    public static OptionItem JesterCanUseButton;
-    public static OptionItem JesterCanVent;
     public static OptionItem LegacyMafia;
     public static OptionItem NotifyGodAlive;
     public static OptionItem MarioVentNumWin;
@@ -801,9 +767,6 @@ public static class Options
         "SidekickCountMode.Original",
     ];
 
-    public static VoteMode GetWhenSkipVote() => (VoteMode)WhenSkipVote.GetValue();
-    public static VoteMode GetWhenNonVote() => (VoteMode)WhenNonVote.GetValue();
-
     // ボタン回数
     public static OptionItem SyncButtonMode;
     public static OptionItem SyncedButtonCount;
@@ -900,7 +863,6 @@ public static class Options
     public static OptionItem AddBracketsToAddons;
     public static OptionItem NoLimitAddonsNumMax;
     public static OptionItem BewilderVision;
-    public static OptionItem JesterHasImpostorVision;
     public static OptionItem SunglassesVision;
     public static OptionItem ImpCanBeAvanger;
     public static OptionItem MadmateSpawnMode;
@@ -963,19 +925,58 @@ public static class Options
         "FormatNameModes.Snacks",
     ];
 
-    public static SuffixModes GetSuffixMode() => (SuffixModes)SuffixMode.GetValue();
-
     public static bool IsLoaded;
 
     public static int LoadingPercentage;
     public static string MainLoadingText = string.Empty;
     public static string RoleLoadingText = string.Empty;
 
+    public static Dictionary<CustomRoles, (OptionItem Imp, OptionItem Neutral, OptionItem Crew)> AddonCanBeSettings = [];
+
+    public static HashSet<CustomRoles> SingleRoles = [];
+
     static Options()
     {
         ResetRoleCounts();
         CustomRolesHelper.CanCheck = true;
     }
+
+    public static CustomGameMode CurrentGameMode
+        => GameMode.GetInt() switch
+        {
+            1 => CustomGameMode.SoloKombat,
+            2 => CustomGameMode.FFA,
+            3 => CustomGameMode.MoveAndStop,
+            4 => CustomGameMode.HotPotato,
+            5 => CustomGameMode.HideAndSeek,
+            _ => CustomGameMode.Standard
+        };
+
+    [HarmonyPatch(typeof(TranslationController), nameof(TranslationController.Initialize)), HarmonyPostfix]
+    public static void OptionsLoadStart()
+    {
+        Logger.Info("Options.Load Start", "Options");
+        Main.LoadRoleClasses();
+        taskOptionsLoad = Task.Run(Load);
+        taskOptionsLoad.ContinueWith(_ =>
+        {
+            Logger.Info("Options.Load End", "Load Options");
+            GroupOptions();
+        });
+    }
+
+    public static void GroupOptions()
+    {
+        GroupedOptions = OptionItem.AllOptions
+            .GroupBy(x => x.Tab)
+            .OrderBy(x => (int)x.Key)
+            .ToDictionary(x => x.Key, x => x.ToArray());
+    }
+
+    public static VoteMode GetWhenSkipVote() => (VoteMode)WhenSkipVote.GetValue();
+    public static VoteMode GetWhenNonVote() => (VoteMode)WhenNonVote.GetValue();
+
+    public static SuffixModes GetSuffixMode() => (SuffixModes)SuffixMode.GetValue();
 
     public static void ResetRoleCounts()
     {
@@ -2246,7 +2247,7 @@ public static class Options
         CustomRoleCounts.Add(role, countOption);
     }
 
-    public static void SetupAdtRoleOptions(int id, CustomRoles role, CustomGameMode customGameMode = CustomGameMode.Standard, bool canSetNum = false, TabGroup tab = TabGroup.Addons, bool canSetChance = true)
+    public static void SetupAdtRoleOptions(int id, CustomRoles role, CustomGameMode customGameMode = CustomGameMode.Standard, bool canSetNum = false, TabGroup tab = TabGroup.Addons, bool canSetChance = true, bool teamSpawnOptions = false)
     {
         var spawnOption = StringOptionItem.Create(id, role.ToString(), RatesZeroOne, 0, tab).SetColor(Utils.GetRoleColor(role))
             .SetHeader(true)
@@ -2264,12 +2265,30 @@ public static class Options
             .SetHidden(!canSetChance)
             .SetGameMode(customGameMode) as IntegerOptionItem;
 
+        if (teamSpawnOptions)
+        {
+            var impOption = BooleanOptionItem.Create(id + 3, "ImpCanBeRole", true, tab)
+                .SetParent(spawnOption)
+                .SetGameMode(customGameMode)
+                .AddReplacement(("{role}", role.ToColoredString()));
+
+            var neutralOption = BooleanOptionItem.Create(id + 4, "NeutralCanBeRole", true, tab)
+                .SetParent(spawnOption)
+                .SetGameMode(customGameMode)
+                .AddReplacement(("{role}", role.ToColoredString()));
+
+            var crewOption = BooleanOptionItem.Create(id + 5, "CrewCanBeRole", true, tab)
+                .SetParent(spawnOption)
+                .SetGameMode(customGameMode)
+                .AddReplacement(("{role}", role.ToColoredString()));
+
+            AddonCanBeSettings.Add(role, (impOption, neutralOption, crewOption));
+        }
+
         CustomAdtRoleSpawnRate.Add(role, spawnRateOption);
         CustomRoleSpawnChances.Add(role, spawnOption);
         CustomRoleCounts.Add(role, countOption);
     }
-
-    public static HashSet<CustomRoles> SingleRoles = [];
 
     public static void SetupSingleRoleOptions(int id, TabGroup tab, CustomRoles role, int count = 1, CustomGameMode customGameMode = CustomGameMode.Standard, bool zeroOne = false, bool hideMaxSetting = true)
     {
@@ -2305,10 +2324,8 @@ public static class Options
     public class OverrideTasksData
     {
         public static Dictionary<CustomRoles, OverrideTasksData> AllData = [];
-        public CustomRoles Role { get; private set; }
-        public int IdStart { get; private set; }
-        public OptionItem DoOverride;
         public OptionItem AssignCommonTasks;
+        public OptionItem DoOverride;
         public OptionItem NumLongTasks;
         public OptionItem NumShortTasks;
 
@@ -2337,6 +2354,9 @@ public static class Options
             if (!AllData.ContainsKey(role)) AllData.Add(role, this);
             else Logger.Warn("OverrideTasksData created for duplicate CustomRoles", "OverrideTasksData");
         }
+
+        public CustomRoles Role { get; private set; }
+        public int IdStart { get; private set; }
 
         public static OverrideTasksData Create(int idStart, TabGroup tab, CustomRoles role) => new(idStart, tab, role);
     }

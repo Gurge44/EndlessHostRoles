@@ -17,10 +17,14 @@ public class Pelican : RoleBase
     public static OptionItem KillCooldown;
     public static OptionItem CanVent;
 
+    private int Count;
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Pelican);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "PelicanKillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican])
+        KillCooldown = FloatOptionItem.Create(Id + 10, "PelicanKillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican])
             .SetValueFormat(OptionFormat.Seconds);
         CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican]);
     }
@@ -40,7 +44,6 @@ public class Pelican : RoleBase
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
     public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
 
@@ -198,8 +201,6 @@ public class Pelican : RoleBase
         eatenList.Remove(pc);
         SyncEatenList( /*pc*/);
     }
-
-    private int Count;
 
     public override void OnFixedUpdate(PlayerControl pc)
     {

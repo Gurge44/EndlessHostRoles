@@ -9,16 +9,16 @@ namespace EHR.Roles.Neutral
     internal class Workaholic : RoleBase
     {
         public static bool On;
-        public override bool IsEnable => On;
 
         public static List<byte> WorkaholicAlive = [];
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
             SetupRoleOptions(11700, TabGroup.NeutralRoles, CustomRoles.Workaholic); //TOH_Y
             WorkaholicCannotWinAtDeath = BooleanOptionItem.Create(11710, "WorkaholicCannotWinAtDeath", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic]);
-            WorkaholicVentCooldown = FloatOptionItem.Create(11711, "VentCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles)
+            WorkaholicVentCooldown = FloatOptionItem.Create(11711, "VentCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic])
                 .SetValueFormat(OptionFormat.Seconds);
             WorkaholicVisibleToEveryone = BooleanOptionItem.Create(11712, "WorkaholicVisibleToEveryone", false, TabGroup.NeutralRoles)

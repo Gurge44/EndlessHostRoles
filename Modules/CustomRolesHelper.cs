@@ -31,6 +31,19 @@ namespace EHR;
 
 internal static class CustomRolesHelper
 {
+    public static bool CanCheck = false;
+
+    public static readonly List<CustomRoles> OnlySpawnsWithPetsRoleList =
+    [
+        CustomRoles.Tunneler,
+        CustomRoles.Tornado,
+        CustomRoles.Swiftclaw,
+        CustomRoles.Adventurer,
+        CustomRoles.Sentry,
+        CustomRoles.Cherokious,
+        CustomRoles.Chemist
+    ];
+
     public static RoleBase GetRoleClass(this CustomRoles role)
     {
         var roleClass = role switch
@@ -66,7 +79,7 @@ internal static class CustomRolesHelper
         return role switch
         {
             CustomRoles.Sniper => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
-            CustomRoles.Jester => Options.JesterCanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
+            CustomRoles.Jester => Jester.JesterCanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Mayor => Mayor.MayorHasPortableButton.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Monitor => Monitor.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Vulture => Vulture.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
@@ -383,8 +396,6 @@ internal static class CustomRolesHelper
 
     public static bool IsAdditionRole(this CustomRoles role) => role > CustomRoles.NotAssigned;
 
-    public static bool CanCheck = false;
-
     public static bool IsNonNK(this CustomRoles role, bool check = false) => (!check && role == CustomRoles.Arsonist && CanCheck && Options.IsLoaded && Options.ArsonistCanIgniteAnytime != null && !Options.ArsonistCanIgniteAnytime.GetBool()) || role is
         CustomRoles.Jester or
         CustomRoles.Postman or
@@ -686,17 +697,6 @@ internal static class CustomRolesHelper
         _ => false,
     };
 
-    public static readonly List<CustomRoles> OnlySpawnsWithPetsRoleList =
-    [
-        CustomRoles.Tunneler,
-        CustomRoles.Tornado,
-        CustomRoles.Swiftclaw,
-        CustomRoles.Adventurer,
-        CustomRoles.Sentry,
-        CustomRoles.Cherokious,
-        CustomRoles.Chemist
-    ];
-
     public static bool OnlySpawnsWithPets(this CustomRoles role) => OnlySpawnsWithPetsRoleList.Contains(role);
 
     public static bool NeedUpdateOnLights(this CustomRoles role) => (!role.UsesPetInsteadOfKill()) && (role.GetDYRole() != RoleTypes.GuardianAngel || role is
@@ -757,7 +757,7 @@ internal static class CustomRolesHelper
         CustomRoles.Hangman or
         CustomRoles.Generator;
 
-    public static bool CheckAddonConflictV2(CustomRoles addon, CustomRoles mainRole) => addon.IsAdditionRole() && mainRole is not CustomRoles.GuardianAngelEHR and not CustomRoles.God and not CustomRoles.GM && addon switch
+    public static bool CheckAddonConflictV2(CustomRoles addon, CustomRoles mainRole) => addon.IsAdditionRole() && mainRole is not CustomRoles.GuardianAngelEHR and not CustomRoles.God and not CustomRoles.GM && (!Options.AddonCanBeSettings.TryGetValue(addon, out var o) || ((o.Imp.GetBool() || !mainRole.IsImpostor()) && (o.Neutral.GetBool() || !mainRole.IsNeutral()) && (o.Crew.GetBool() || (!mainRole.IsImpostor() && !mainRole.IsNeutral())))) && addon switch
     {
         CustomRoles.Autopsy when mainRole is CustomRoles.Doctor or CustomRoles.Tracefinder or CustomRoles.Scientist or CustomRoles.ScientistEHR or CustomRoles.Sunnyboy => false,
         CustomRoles.Necroview when mainRole is CustomRoles.Doctor => false,
@@ -883,7 +883,7 @@ internal static class CustomRolesHelper
         _ => true
     };
 
-    public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc) => role.IsAdditionRole() && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.Egoist) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && role switch
+    public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc) => role.IsAdditionRole() && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.Egoist) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out var o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && role switch
     {
         CustomRoles.Sidekick when pc.Is(CustomRoles.Madmate) => false,
         CustomRoles.Madmate when pc.Is(CustomRoles.Sidekick) => false,

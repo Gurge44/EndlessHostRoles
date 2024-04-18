@@ -25,10 +25,12 @@ namespace EHR.Roles.Neutral
 
         private static long ProtectTimeStamp;
 
+        public override bool IsEnable => playerIdList.Count > 0;
+
         public static void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Spiritcaller);
-            KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
+            KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 60f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
                 .SetValueFormat(OptionFormat.Seconds);
             CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller]);
             ImpostorVision = BooleanOptionItem.Create(Id + 12, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller]);
@@ -64,7 +66,6 @@ namespace EHR.Roles.Neutral
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public override bool IsEnable => playerIdList.Count > 0;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)

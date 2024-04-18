@@ -15,15 +15,17 @@ namespace EHR.Roles.Neutral
         private static OptionItem NearbyDuration;
         private static OptionItem SuccessKCD;
         private static OptionItem KillDelay;
+        private Dictionary<byte, long> Delays;
 
         public (byte Id, long TimeStamp) Target;
-        private Dictionary<byte, long> Delays;
+
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
             const int id = 16880;
             SetupRoleOptions(id, TabGroup.NeutralRoles, CustomRoles.Samurai);
-            KillCooldown = FloatOptionItem.Create(id + 2, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles)
+            KillCooldown = FloatOptionItem.Create(id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai])
                 .SetValueFormat(OptionFormat.Seconds);
             CanVent = BooleanOptionItem.Create(id + 3, "CanVent", true, TabGroup.NeutralRoles)
@@ -57,7 +59,6 @@ namespace EHR.Roles.Neutral
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public override bool IsEnable => On;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();

@@ -1,7 +1,7 @@
 ﻿using System;
-using AmongUs.GameOptions;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using UnityEngine;
 using static EHR.Options;
 
@@ -11,6 +11,14 @@ namespace EHR.Roles.Neutral
 {
     internal class Bargainer : RoleBase
     {
+        public enum Item
+        {
+            None,
+            EnergyDrink,
+            LensOfTruth,
+            BandAid
+        }
+
         public static bool On;
 
         private static OptionItem KillCooldown;
@@ -25,13 +33,23 @@ namespace EHR.Roles.Neutral
         private static OptionItem AlignmentVisible;
         private static OptionItem AlignmentVisibleDuration;
 
-        enum AlignmentVisibleOptions
+        private static Dictionary<MoneyGainingAction, int> Gains = [];
+        private static Dictionary<Item, int> Costs = [];
+
+        private static readonly Dictionary<Item, string> Icons = new()
         {
-            Forever,
-            UntilNextMeeting,
-            UntilNextReveal,
-            ForSpecifiedTime
-        }
+            [Item.EnergyDrink] = Utils.ColorString(Color.magenta, "\u2668"),
+            [Item.LensOfTruth] = "\u2600",
+            [Item.BandAid] = Utils.ColorString(Color.green, "♥")
+        };
+
+        public List<(Item Item, long ActivateTimeStamp, int Duration, byte Target)> ActiveItems = [];
+
+        private byte BargainerId;
+        private bool InShop;
+        private int Money;
+        private IEnumerable<Item> OrderedItems;
+        private Item SelectedItem;
 
         private static int AlignmentVisibleValue => (AlignmentVisibleOptions)AlignmentVisible.GetValue() switch
         {
@@ -43,28 +61,12 @@ namespace EHR.Roles.Neutral
             _ => 0
         };
 
-        enum ShieldDurationOptions
-        {
-            UntilNextMeeting,
-            ForSpecifiedTime
-        }
-
         private static int ShieldDurationValue => (ShieldDurationOptions)ShieldDuration.GetValue() switch
         {
             ShieldDurationOptions.UntilNextMeeting => int.MaxValue,
             ShieldDurationOptions.ForSpecifiedTime => ShieldTime.GetInt(),
 
             _ => 0
-        };
-
-        private static Dictionary<MoneyGainingAction, int> Gains = [];
-        private static Dictionary<Item, int> Costs = [];
-
-        private static readonly Dictionary<Item, string> Icons = new()
-        {
-            [Item.EnergyDrink] = Utils.ColorString(Color.magenta, "\u2668"),
-            [Item.LensOfTruth] = "\u2600",
-            [Item.BandAid] = Utils.ColorString(Color.green, "♥")
         };
 
         private static IEnumerable<Vector2> ShopLocations
@@ -77,28 +79,7 @@ namespace EHR.Roles.Neutral
             }
         }
 
-        enum MoneyGainingAction
-        {
-            Kill,
-            Sabotage,
-            SurviveMeeting
-        }
-
-        public enum Item
-        {
-            None,
-            EnergyDrink,
-            LensOfTruth,
-            BandAid
-        }
-
-        private byte BargainerId;
-        private int Money;
-        private bool InShop;
-        private Item SelectedItem;
-        private IEnumerable<Item> OrderedItems;
-
-        public List<(Item Item, long ActivateTimeStamp, int Duration, byte Target)> ActiveItems = [];
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
@@ -107,7 +88,7 @@ namespace EHR.Roles.Neutral
 
             SetupRoleOptions(id++, tab, CustomRoles.Bargainer);
 
-            KillCooldown = FloatOptionItem.Create(++id, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, tab)
+            KillCooldown = FloatOptionItem.Create(++id, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer])
                 .SetValueFormat(OptionFormat.Seconds);
             CanVent = BooleanOptionItem.Create(++id, "CanVent", true, tab)
@@ -227,7 +208,6 @@ namespace EHR.Roles.Neutral
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public override bool IsEnable => On;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = ActiveItems.Any(x => x.Item == Item.EnergyDrink) ? ReducedKillCooldown.GetFloat() : KillCooldown.GetFloat();
         public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
@@ -399,6 +379,27 @@ namespace EHR.Roles.Neutral
             if (seer.IsModClient()) result += "</size>";
 
             return result;
+        }
+
+        enum AlignmentVisibleOptions
+        {
+            Forever,
+            UntilNextMeeting,
+            UntilNextReveal,
+            ForSpecifiedTime
+        }
+
+        enum ShieldDurationOptions
+        {
+            UntilNextMeeting,
+            ForSpecifiedTime
+        }
+
+        enum MoneyGainingAction
+        {
+            Kill,
+            Sabotage,
+            SurviveMeeting
         }
     }
 }

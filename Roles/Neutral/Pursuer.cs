@@ -7,16 +7,19 @@ public class Pursuer : RoleBase
 {
     private const int Id = 10200;
     private static List<byte> playerIdList = [];
-
-    private List<byte> clientList = [];
     private static List<byte> notActiveList = [];
 
     public static OptionItem PursuerSkillCooldown;
     public static OptionItem PursuerSkillLimitTimes;
+
+    private List<byte> clientList = [];
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Pursuer);
-        PursuerSkillCooldown = FloatOptionItem.Create(Id + 10, "PursuerSkillCooldown", new(2.5f, 60f, 2.5f), 20f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pursuer])
+        PursuerSkillCooldown = FloatOptionItem.Create(Id + 10, "PursuerSkillCooldown", new(0.5f, 60f, 0.5f), 20f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pursuer])
             .SetValueFormat(OptionFormat.Seconds);
         PursuerSkillLimitTimes = IntegerOptionItem.Create(Id + 11, "PursuerSkillLimitTimes", new(1, 99, 1), 2, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pursuer])
             .SetValueFormat(OptionFormat.Times);
@@ -39,8 +42,6 @@ public class Pursuer : RoleBase
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     public override bool CanUseKillButton(PlayerControl pc)
         => !Main.PlayerStates[pc.PlayerId].IsDead
@@ -67,6 +68,7 @@ public class Pursuer : RoleBase
         pc.RPCPlayCustomSound("Bet");
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
     }
+
     public static bool OnClientMurder(PlayerControl pc)
     {
         foreach (var id in playerIdList)

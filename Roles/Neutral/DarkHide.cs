@@ -21,10 +21,12 @@ public class DarkHide : RoleBase
     public float CurrentKillCooldown = Options.DefaultKillCooldown;
     public bool IsWinKill;
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         Options.SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.DarkHide);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.DarkHide])
+        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.DarkHide])
             .SetValueFormat(OptionFormat.Seconds);
         CanVent = BooleanOptionItem.Create(Id + 14, "CanVent", true, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.DarkHide]);
         HasImpostorVision = BooleanOptionItem.Create(Id + 11, "ImpostorVision", false, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.DarkHide]);
@@ -51,8 +53,6 @@ public class DarkHide : RoleBase
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void ReceiveRPC(MessageReader msg)
     {

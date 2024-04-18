@@ -6,7 +6,7 @@
 
         public void SetupCustomOption()
         {
-            Options.SetupAdtRoleOptions(15170, CustomRoles.Clumsy, canSetNum: true);
+            Options.SetupAdtRoleOptions(15170, CustomRoles.Clumsy, canSetNum: true, teamSpawnOptions: true);
         }
 
         public static void OnFixedUpdate(PlayerControl pc)

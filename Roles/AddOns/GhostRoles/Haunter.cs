@@ -8,20 +8,15 @@ namespace EHR.Roles.AddOns.GhostRoles
 {
     internal class Haunter : IGhostRole, ISettingHolder
     {
-        public Team Team => Team.Crewmate | Team.Neutral;
-        public int Cooldown => 900;
+        public static HashSet<byte> AllHauntedPlayers = [];
 
         public byte HauntedPlayer = byte.MaxValue;
         public HashSet<byte> WarnedImps = [];
-        public static HashSet<byte> AllHauntedPlayers = [];
+        public Team Team => Team.Crewmate | Team.Neutral;
+        public int Cooldown => 900;
 
         public void OnProtect(PlayerControl pc, PlayerControl target)
         {
-        }
-
-        public void SetupCustomOption()
-        {
-            Options.SetupRoleOptions(649300, TabGroup.OtherRoles, CustomRoles.Haunter);
         }
 
         public void OnAssign(PlayerControl pc)
@@ -41,6 +36,11 @@ namespace EHR.Roles.AddOns.GhostRoles
                 pc.RpcResetAbilityCooldown();
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }, 1f, "Haunter Assign");
+        }
+
+        public void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(649300, TabGroup.OtherRoles, CustomRoles.Haunter, zeroOne: true);
         }
 
         public void OnOneTaskLeft(PlayerControl pc)

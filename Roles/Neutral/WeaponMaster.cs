@@ -24,6 +24,8 @@ public class WeaponMaster : RoleBase
     private bool shieldUsed;
     private byte WMId;
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     /*
      * 0 = Kill (Sword) ~ Normal Kill
      * 1 = EHRN Werewolf Kill / Higher KCD (Axe)
@@ -34,7 +36,7 @@ public class WeaponMaster : RoleBase
     public static void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.WeaponMaster);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
+        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
             .SetValueFormat(OptionFormat.Seconds);
         CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster]);
         HasImpostorVision = BooleanOptionItem.Create(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster]);
@@ -64,8 +66,6 @@ public class WeaponMaster : RoleBase
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     void SendRPC()
     {

@@ -44,8 +44,25 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 public static class Utils
 {
     private static readonly DateTime TimeStampStartTime = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-    public static long GetTimeStamp(DateTime? dateTime = null) => (long)((dateTime ?? DateTime.Now).ToUniversalTime() - TimeStampStartTime).TotalSeconds;
+
+    private static readonly StringBuilder SelfSuffix = new();
+    private static readonly StringBuilder SelfMark = new(20);
+    private static readonly StringBuilder TargetSuffix = new();
+    private static readonly StringBuilder TargetMark = new(20);
+
+    public static Dictionary<string, Sprite> CachedSprites = [];
     public static long TimeStamp => (long)(DateTime.Now.ToUniversalTime() - TimeStampStartTime).TotalSeconds;
+
+    public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModClient() && x.PlayerId != 0);
+
+    public static int TotalTaskCount => Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
+
+    public static string EmptyMessage => "<size=0>.</size>";
+
+    public static int AllPlayersCount => Main.PlayerStates.Values.Count(state => state.countTypes != CountTypes.OutOfGame);
+    public static int AllAlivePlayersCount => Main.AllAlivePlayerControls.Count(pc => !pc.Is(CountTypes.OutOfGame));
+    public static bool IsAllAlive => Main.PlayerStates.Values.All(state => state.countTypes == CountTypes.OutOfGame || !state.IsDead);
+    public static long GetTimeStamp(DateTime? dateTime = null) => (long)((dateTime ?? DateTime.Now).ToUniversalTime() - TimeStampStartTime).TotalSeconds;
 
     public static void ErrorEnd(string text)
     {
@@ -205,8 +222,6 @@ public static class Utils
                 return false;
         }
     }
-
-    public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModClient() && x.PlayerId != 0);
 
     public static void SetVision(this IGameOptions opt, bool HasImpVision)
     {
@@ -651,8 +666,6 @@ public static class Utils
 
         return hasTasks;
     }
-
-    public static int TotalTaskCount => Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
 
     public static bool CanBeMadmate(this PlayerControl pc)
     {
@@ -1235,8 +1248,6 @@ public static class Utils
         SendMessage("\n", PlayerId, result);
     }
 
-    public static string EmptyMessage => "<size=0>.</size>";
-
     public static string GetSubRolesText(byte id, bool disableColor = false, bool intro = false, bool summary = false)
     {
         var SubRoles = Main.PlayerStates[id].SubRoles;
@@ -1570,7 +1581,7 @@ public static class Utils
     {
         if (!AmongUsClient.Instance.AmHost) return;
         var taskState = GetPlayerById(Terrorist.PlayerId).GetTaskState();
-        if (taskState.IsTaskFinished && (!Main.PlayerStates[Terrorist.PlayerId].IsSuicide || Options.CanTerroristSuicideWin.GetBool())) //タスクが完了で（自殺じゃない OR 自殺勝ちが許可）されていれば
+        if (taskState.IsTaskFinished && (!Main.PlayerStates[Terrorist.PlayerId].IsSuicide || Options.CanTerroristSuicideWin.GetBool()))
         {
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
@@ -1746,11 +1757,6 @@ public static class Utils
     }
 
     public static GameData.PlayerInfo GetPlayerInfoById(int PlayerId) => GameData.Instance.AllPlayers.ToArray().FirstOrDefault(info => info.PlayerId == PlayerId);
-
-    private static readonly StringBuilder SelfSuffix = new();
-    private static readonly StringBuilder SelfMark = new(20);
-    private static readonly StringBuilder TargetSuffix = new();
-    private static readonly StringBuilder TargetMark = new(20);
 
     public static async void NotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
     {
@@ -2849,8 +2855,6 @@ public static class Utils
         })));
     }
 
-    public static Dictionary<string, Sprite> CachedSprites = [];
-
     public static Sprite LoadSprite(string path, float pixelsPerUnit = 1f)
     {
         try
@@ -2955,9 +2959,6 @@ public static class Utils
         return casted != null;
     }
 
-    public static int AllPlayersCount => Main.PlayerStates.Values.Count(state => state.countTypes != CountTypes.OutOfGame);
-    public static int AllAlivePlayersCount => Main.AllAlivePlayerControls.Count(pc => !pc.Is(CountTypes.OutOfGame));
-    public static bool IsAllAlive => Main.PlayerStates.Values.All(state => state.countTypes == CountTypes.OutOfGame || !state.IsDead);
     public static int PlayersCount(CountTypes countTypes) => Main.PlayerStates.Values.Count(state => state.countTypes == countTypes);
     public static int AlivePlayersCount(CountTypes countTypes) => Main.AllAlivePlayerControls.Count(pc => pc.Is(countTypes));
     public static bool IsPlayerModClient(this byte id) => Main.PlayerVersion.ContainsKey(id);

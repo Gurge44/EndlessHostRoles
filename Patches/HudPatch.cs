@@ -30,6 +30,7 @@ class HudManagerPatch
     public static TextMeshPro LowerInfoText;
 
     private static TextMeshPro OverriddenRolesText;
+    private static TextMeshPro TaskCountText;
 
     private static long LastNullError;
 
@@ -159,6 +160,9 @@ class HudManagerPatch
 
             if (SetHudActivePatch.IsActive)
             {
+                if (TaskCountText == null) TaskCountText = __instance.transform.FindChild("TaskDisplay/ProgressTracker").GetComponent<TextMeshPro>();
+                if (TaskCountText != null) TaskCountText.text += $" ({GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks})";
+
                 if (player.IsAlive() || Options.CurrentGameMode != CustomGameMode.Standard)
                 {
                     bool usesPetInsteadOfKill = player.GetCustomRole().UsesPetInsteadOfKill();
@@ -859,3 +863,5 @@ class RepairSender
         return SystemType + "(" + ((SystemTypes)SystemType) + ")\r\n" + amount;
     }
 }
+
+// The following code comes from Crowded https://github.com/CrowdedMods/CrowdedMod/blob/master/src/CrowdedMod/Patches/CreateGameOptionsPatches.cs

@@ -36,10 +36,12 @@ public class Jackal : RoleBase
 
     public static bool On;
 
+    public override bool IsEnable => PlayerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Jackal);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal])
+        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal])
             .SetValueFormat(OptionFormat.Seconds);
         CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
         CanSabotage = BooleanOptionItem.Create(Id + 12, "CanSabotage", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
@@ -82,8 +84,6 @@ public class Jackal : RoleBase
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-
-    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public static bool CanRecruit(byte id) => id.GetAbilityUseLimit() > 0;

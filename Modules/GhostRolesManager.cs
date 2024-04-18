@@ -11,7 +11,7 @@ namespace EHR.Modules
     internal static class GhostRolesManager
     {
         public static Dictionary<byte, (CustomRoles Role, IGhostRole Instance)> AssignedGhostRoles = [];
-        public static List<CustomRoles> GhostRoles = [];
+        private static List<CustomRoles> GhostRoles = [];
 
         public static void Initialize()
         {
@@ -64,7 +64,7 @@ namespace EHR.Modules
             }
         }
 
-        public static CustomRoles GetSuitableGhostRole(PlayerControl pc)
+        private static CustomRoles GetSuitableGhostRole(PlayerControl pc)
         {
             return GhostRoles.FirstOrDefault(x => AssignedGhostRoles.All(r => r.Value.Role != x) && (CreateGhostRoleInstance(x)?.Team & pc.GetTeam()) != 0);
         }

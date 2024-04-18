@@ -44,10 +44,12 @@ public class Magician : RoleBase
     private static float originalSpeed;
     private static long lastTP = TimeStamp;
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Magician);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
+        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
             .SetValueFormat(OptionFormat.Seconds);
 
         SlownessValue = FloatOptionItem.Create(Id + 11, "MagicianSlownessValue", new(0f, 1f, 0.05f), 1f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
@@ -103,7 +105,6 @@ public class Magician : RoleBase
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();

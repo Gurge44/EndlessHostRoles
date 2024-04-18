@@ -5,17 +5,19 @@ namespace EHR.Roles.Neutral;
 
 public class NSerialKiller : RoleBase
 {
-    public static bool On;
     private const int Id = 12800;
+    public static bool On;
 
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
     private static OptionItem HasImpostorVision;
 
+    public override bool IsEnable => On;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.NSerialKiller);
-        KillCooldown = FloatOptionItem.Create(Id + 2, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.NSerialKiller])
+        KillCooldown = FloatOptionItem.Create(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.NSerialKiller])
             .SetValueFormat(OptionFormat.Seconds);
         CanVent = BooleanOptionItem.Create(Id + 3, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.NSerialKiller]);
         HasImpostorVision = BooleanOptionItem.Create(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.NSerialKiller]);
@@ -35,7 +37,6 @@ public class NSerialKiller : RoleBase
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public override bool IsEnable => On;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();

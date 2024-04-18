@@ -11,14 +11,16 @@ public class SerialKiller : RoleBase
     private static OptionItem KillCooldown;
     public static OptionItem TimeLimit;
     public static OptionItem WaitFor1Kill;
+    public float SuicideTimer;
 
     private int Timer;
-    public float SuicideTimer;
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
         Options.SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.SerialKiller);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SerialKiller])
+        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SerialKiller])
             .SetValueFormat(OptionFormat.Seconds);
         TimeLimit = FloatOptionItem.Create(Id + 11, "SerialKillerLimit", new(5f, 180f, 5f), 80f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SerialKiller])
             .SetValueFormat(OptionFormat.Seconds);
@@ -39,7 +41,6 @@ public class SerialKiller : RoleBase
         SuicideTimer = TimeLimit.GetFloat();
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
 
     public static bool HasKilled(PlayerControl pc) => pc != null && pc.Is(CustomRoles.SerialKiller) && pc.IsAlive() && (Main.PlayerStates[pc.PlayerId].GetKillCount(true) > 0 || !WaitFor1Kill.GetBool());

@@ -1,9 +1,9 @@
 ﻿using System;
-using AmongUs.GameOptions;
-using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AmongUs.GameOptions;
+using HarmonyLib;
 using UnityEngine;
 using static EHR.Options;
 
@@ -30,13 +30,85 @@ namespace EHR.Roles.Neutral
         private static OptionItem GrenadeExplodeDelay;
         private static OptionItem GrenadeExplodeRadius;
 
-        enum AcidPlayersDieOptions
-        {
-            AfterMeeting,
-            AfterTime
-        }
-
         private static OverrideTasksData Tasks;
+
+        private static readonly Dictionary<Factory, Dictionary<string, (List<(int Count, Item Item)> Ingredients, List<(int Count, Item Item)> Results)>> Processes = new()
+        {
+            [Factory.None] = [],
+            [Factory.ChemicalPlant] = new()
+            {
+                ["Synthesis Sulfur"] = ([(60, Item.HydrogenSulfideGas), (40, Item.OxygenGas)], [(3, Item.Sulfur)]),
+                ["Synthesis Of Naphtha"] = ([(150, Item.SynthesisGas), (50, Item.CarbonMonoxide)], [(100, Item.Naphtha)]),
+                ["Reversed Water Gas Shift"] = ([(50, Item.HydrogenGas), (50, Item.CarbonDioxide)], [(50, Item.PurifiedWater), (50, Item.CarbonMonoxide)]),
+                ["Synthesis Sulfur Dioxide"] = ([(1, Item.Sulfur), (60, Item.OxygenGas)], [(60, Item.SulfurDioxideGas)]),
+                ["Synthesis Sulfuric Acid"] = ([(90, Item.SulfurDioxideGas), (40, Item.PurifiedWater)], [(60, Item.SulfuricAcid)]),
+                ["Synthesis to Methanol"] = ([(100, Item.SynthesisGas), (40, Item.CarbonDioxide)], [(20, Item.PurifiedWater), (80, Item.MethanolGas)]),
+                ["Synthesis Gas Separation"] = ([(100, Item.SynthesisGas)], [(40, Item.CarbonMonoxide), (60, Item.HydrogenGas)]),
+                ["Synthesis Gas Reforming"] = ([(60, Item.CarbonMonoxide), (90, Item.HydrogenGas)], [(100, Item.SynthesisGas)]),
+                ["Methylamine Gas"] = ([(50, Item.MethanolGas), (250, Item.AmmoniaGas)], [(200, Item.MethylamineGas), (50, Item.PurifiedWater)]),
+                ["Synthesis Methanol"] = ([(100, Item.CarbonDioxide), (100, Item.HydrogenGas)], [(100, Item.MethanolGas)]),
+                ["Air Separation"] = ([(100, Item.Air)], [(50, Item.OxygenGas), (50, Item.NitrogenGas)])
+            },
+            [Factory.AdvancedChemicalPlant] = new()
+            {
+                ["Cracking of Naphtha to Mineral Oil"] = ([(60, Item.Naphtha), (20, Item.ThermalWater), (20, Item.CarbonMonoxide)], [(100, Item.BaseMineralOil)]),
+                ["Coal Cracking Fischer Tropsch Process"] = ([(5, Item.Coal), (50, Item.Steam), (50, Item.OxygenGas)], [(100, Item.SynthesisGas), (20, Item.CarbonDioxide), (30, Item.HydrogenSulfideGas)]),
+                ["Explosives"] = ([(1, Item.Sulfur), (1, Item.Coal), (10, Item.Water)], [(2, Item.Explosive)])
+            },
+            [Factory.SteamCracker] = new()
+            {
+                ["Steam Cracking Mineral Oil to Synthesis Gas"] = ([(100, Item.BaseMineralOil), (100, Item.Steam)], [(200, Item.SynthesisGas)])
+            },
+            [Factory.BlastFurnace] = new()
+            {
+                ["Iron Ore Smelting"] = ([(24, Item.IronOre)], [(24, Item.IronIngot)])
+            },
+            [Factory.InductionFurnace] = new()
+            {
+                ["Iron Melting"] = ([(12, Item.IronIngot)], [(120, Item.MoltenIron)])
+            },
+            [Factory.CastingMachine] = new()
+            {
+                ["Iron Plate Casting"] = ([(40, Item.MoltenIron)], [(4, Item.IronPlate)])
+            },
+            [Factory.Electrolyzer] = new()
+            {
+                ["Purified Water Electrolysis"] = ([(100, Item.PurifiedWater)], [(40, Item.OxygenGas), (60, Item.HydrogenGas)])
+            },
+            [Factory.CoolingTower] = new()
+            {
+                ["Steam Cooling"] = ([(100, Item.Steam)], [(100, Item.PurifiedWater)])
+            },
+            [Factory.WaterTreatmentPlant] = new()
+            {
+                ["Water Purification"] = ([(150, Item.Water)], [(100, Item.PurifiedWater)]),
+                ["Water Boiling"] = ([(100, Item.Water), (1, Item.Coal)], [(60, Item.Steam)])
+            },
+            [Factory.Liquifier] = new()
+            {
+                ["Coal Liquefaction"] = ([(1, Item.Coal)], [(50, Item.CarbonDioxide)])
+            },
+            [Factory.AssemblingMachine] = new()
+            {
+                ["Grenade"] = ([(5, Item.IronPlate), (10, Item.Coal)], [(1, Item.Grenade)])
+            }
+        };
+
+        private static Dictionary<string, Factory> FactoryLocations = [];
+
+        private Dictionary<byte, (HashSet<byte> OtherAcidPlayers, long TimeStamp)> AcidPlayers;
+        private HashSet<byte> BombedBodies;
+
+        public PlayerControl ChemistPC;
+        private Factory CurrentFactory;
+        private Dictionary<byte, long> Grenades;
+        public bool IsBlinding;
+        private Dictionary<Item, int> ItemCounts;
+        private long LastUpdate;
+        private string SelectedProcess;
+        private List<string> SortedAvailableProcesses;
+
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
@@ -45,7 +117,7 @@ namespace EHR.Roles.Neutral
 
             SetupRoleOptions(id++, tab, CustomRoles.Chemist);
 
-            KillCooldown = FloatOptionItem.Create(++id, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, tab)
+            KillCooldown = FloatOptionItem.Create(++id, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Seconds);
             HasImpostorVision = BooleanOptionItem.Create(++id, "ImpostorVision", true, tab)
@@ -143,127 +215,10 @@ namespace EHR.Roles.Neutral
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public override bool IsEnable => On;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => pc.IsAlive();
         public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive();
-
-        enum Item
-        {
-            Air,
-            AmmoniaGas,
-            BaseMineralOil,
-            CarbonDioxide,
-            CarbonMonoxide,
-            Coal,
-            Explosive,
-            Grenade,
-            HydrogenGas,
-            HydrogenSulfideGas,
-            IronIngot,
-            IronOre,
-            IronPlate,
-            MethanolGas,
-            MethylamineGas,
-            MoltenIron,
-            Naphtha,
-            NitrogenGas,
-            OxygenGas,
-            PurifiedWater,
-            Steam,
-            Sulfur,
-            SulfurDioxideGas,
-            SulfuricAcid,
-            SynthesisGas,
-            ThermalWater,
-            Water
-        }
-
-        enum ItemType
-        {
-            BasicResource,
-            IntermediateProduct,
-            FinalProduct
-        }
-
-        enum Factory
-        {
-            None,
-            ChemicalPlant, // up to 2 ingredients
-            AdvancedChemicalPlant, // 3 or more ingredients
-            SteamCracker,
-            BlastFurnace,
-            InductionFurnace,
-            CastingMachine,
-            Electrolyzer,
-            CoolingTower,
-            WaterTreatmentPlant,
-            Liquifier,
-            AssemblingMachine
-        }
-
-        private static readonly Dictionary<Factory, Dictionary<string, (List<(int Count, Item Item)> Ingredients, List<(int Count, Item Item)> Results)>> Processes = new()
-        {
-            [Factory.None] = [],
-            [Factory.ChemicalPlant] = new()
-            {
-                ["Synthesis Sulfur"] = ([(60, Item.HydrogenSulfideGas), (40, Item.OxygenGas)], [(3, Item.Sulfur)]),
-                ["Synthesis Of Naphtha"] = ([(150, Item.SynthesisGas), (50, Item.CarbonMonoxide)], [(100, Item.Naphtha)]),
-                ["Reversed Water Gas Shift"] = ([(50, Item.HydrogenGas), (50, Item.CarbonDioxide)], [(50, Item.PurifiedWater), (50, Item.CarbonMonoxide)]),
-                ["Synthesis Sulfur Dioxide"] = ([(1, Item.Sulfur), (60, Item.OxygenGas)], [(60, Item.SulfurDioxideGas)]),
-                ["Synthesis Sulfuric Acid"] = ([(90, Item.SulfurDioxideGas), (40, Item.PurifiedWater)], [(60, Item.SulfuricAcid)]),
-                ["Synthesis to Methanol"] = ([(100, Item.SynthesisGas), (40, Item.CarbonDioxide)], [(20, Item.PurifiedWater), (80, Item.MethanolGas)]),
-                ["Synthesis Gas Separation"] = ([(100, Item.SynthesisGas)], [(40, Item.CarbonMonoxide), (60, Item.HydrogenGas)]),
-                ["Synthesis Gas Reforming"] = ([(60, Item.CarbonMonoxide), (90, Item.HydrogenGas)], [(100, Item.SynthesisGas)]),
-                ["Methylamine Gas"] = ([(50, Item.MethanolGas), (250, Item.AmmoniaGas)], [(200, Item.MethylamineGas), (50, Item.PurifiedWater)]),
-                ["Synthesis Methanol"] = ([(100, Item.CarbonDioxide), (100, Item.HydrogenGas)], [(100, Item.MethanolGas)]),
-                ["Air Separation"] = ([(100, Item.Air)], [(50, Item.OxygenGas), (50, Item.NitrogenGas)])
-            },
-            [Factory.AdvancedChemicalPlant] = new()
-            {
-                ["Cracking of Naphtha to Mineral Oil"] = ([(60, Item.Naphtha), (20, Item.ThermalWater), (20, Item.CarbonMonoxide)], [(100, Item.BaseMineralOil)]),
-                ["Coal Cracking Fischer Tropsch Process"] = ([(5, Item.Coal), (50, Item.Steam), (50, Item.OxygenGas)], [(100, Item.SynthesisGas), (20, Item.CarbonDioxide), (30, Item.HydrogenSulfideGas)]),
-                ["Explosives"] = ([(1, Item.Sulfur), (1, Item.Coal), (10, Item.Water)], [(2, Item.Explosive)])
-            },
-            [Factory.SteamCracker] = new()
-            {
-                ["Steam Cracking Mineral Oil to Synthesis Gas"] = ([(100, Item.BaseMineralOil), (100, Item.Steam)], [(200, Item.SynthesisGas)])
-            },
-            [Factory.BlastFurnace] = new()
-            {
-                ["Iron Ore Smelting"] = ([(24, Item.IronOre)], [(24, Item.IronIngot)])
-            },
-            [Factory.InductionFurnace] = new()
-            {
-                ["Iron Melting"] = ([(12, Item.IronIngot)], [(120, Item.MoltenIron)])
-            },
-            [Factory.CastingMachine] = new()
-            {
-                ["Iron Plate Casting"] = ([(40, Item.MoltenIron)], [(4, Item.IronPlate)])
-            },
-            [Factory.Electrolyzer] = new()
-            {
-                ["Purified Water Electrolysis"] = ([(100, Item.PurifiedWater)], [(40, Item.OxygenGas), (60, Item.HydrogenGas)])
-            },
-            [Factory.CoolingTower] = new()
-            {
-                ["Steam Cooling"] = ([(100, Item.Steam)], [(100, Item.PurifiedWater)])
-            },
-            [Factory.WaterTreatmentPlant] = new()
-            {
-                ["Water Purification"] = ([(150, Item.Water)], [(100, Item.PurifiedWater)]),
-                ["Water Boiling"] = ([(100, Item.Water), (1, Item.Coal)], [(60, Item.Steam)])
-            },
-            [Factory.Liquifier] = new()
-            {
-                ["Coal Liquefaction"] = ([(1, Item.Coal)], [(50, Item.CarbonDioxide)])
-            },
-            [Factory.AssemblingMachine] = new()
-            {
-                ["Grenade"] = ([(5, Item.IronPlate), (10, Item.Coal)], [(1, Item.Grenade)])
-            }
-        };
 
         static ItemType GetItemType(Item item) => item switch
         {
@@ -328,20 +283,6 @@ namespace EHR.Roles.Neutral
 
             _ => Color.white
         };
-
-        private static Dictionary<string, Factory> FactoryLocations = [];
-
-        public PlayerControl ChemistPC;
-        private long LastUpdate;
-        private Dictionary<Item, int> ItemCounts;
-        private Factory CurrentFactory;
-        private string SelectedProcess;
-        private List<string> SortedAvailableProcesses;
-
-        private Dictionary<byte, (HashSet<byte> OtherAcidPlayers, long TimeStamp)> AcidPlayers;
-        public bool IsBlinding;
-        private HashSet<byte> BombedBodies;
-        private Dictionary<byte, long> Grenades;
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
@@ -587,6 +528,66 @@ namespace EHR.Roles.Neutral
             }
 
             return sb.Append("</size>").ToString();
+        }
+
+        enum AcidPlayersDieOptions
+        {
+            AfterMeeting,
+            AfterTime
+        }
+
+        enum Item
+        {
+            Air,
+            AmmoniaGas,
+            BaseMineralOil,
+            CarbonDioxide,
+            CarbonMonoxide,
+            Coal,
+            Explosive,
+            Grenade,
+            HydrogenGas,
+            HydrogenSulfideGas,
+            IronIngot,
+            IronOre,
+            IronPlate,
+            MethanolGas,
+            MethylamineGas,
+            MoltenIron,
+            Naphtha,
+            NitrogenGas,
+            OxygenGas,
+            PurifiedWater,
+            Steam,
+            Sulfur,
+            SulfurDioxideGas,
+            SulfuricAcid,
+            SynthesisGas,
+            ThermalWater,
+            Water
+        }
+
+        enum ItemType
+        {
+            BasicResource,
+            IntermediateProduct,
+            FinalProduct
+        }
+
+        enum Factory
+        {
+            None,
+            ChemicalPlant, // up to 2 ingredients
+            AdvancedChemicalPlant, // 3 or more ingredients
+            SteamCracker,
+            BlastFurnace,
+            InductionFurnace,
+            CastingMachine,
+            Electrolyzer,
+            CoolingTower,
+            WaterTreatmentPlant,
+            Liquifier,
+            AssemblingMachine
         }
     }
 }

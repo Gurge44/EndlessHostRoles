@@ -794,7 +794,7 @@ class ReportDeadBodyPatch
 
             if (target == null)
             {
-                if (__instance.Is(CustomRoles.Jester) && !Options.JesterCanUseButton.GetBool()) return false;
+                if (__instance.Is(CustomRoles.Jester) && !Jester.JesterCanUseButton.GetBool()) return false;
                 if (__instance.Is(CustomRoles.NiceSwapper) && !NiceSwapper.CanStartMeeting.GetBool()) return false;
                 if (SoulHunter.IsSoulHunterTarget(__instance.PlayerId))
                 {

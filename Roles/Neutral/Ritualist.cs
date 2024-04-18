@@ -14,7 +14,7 @@ namespace EHR.Roles.Neutral
         public void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Ritualist);
-            KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Ritualist])
+            KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Ritualist])
                 .SetValueFormat(OptionFormat.Seconds);
             RitualMaxCount = IntegerOptionItem.Create(Id + 11, "RitualMaxCount", new(0, 15, 1), 1, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Ritualist])
                 .SetValueFormat(OptionFormat.Times);

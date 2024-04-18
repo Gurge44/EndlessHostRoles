@@ -6,13 +6,12 @@ namespace EHR.Roles.AddOns.GhostRoles
     // TOU-R Phantom
     internal class Specter : IGhostRole, ISettingHolder
     {
-        public Team Team => Team.Neutral;
-        public int Cooldown => 900;
-
         private static OptionItem SnatchWin;
         private static Options.OverrideTasksData Tasks;
 
         public bool IsWon;
+        public Team Team => Team.Neutral;
+        public int Cooldown => 900;
 
         public void OnAssign(PlayerControl pc)
         {
@@ -28,7 +27,7 @@ namespace EHR.Roles.AddOns.GhostRoles
 
                 GameData.Instance.RpcSetTasks(pc.PlayerId, Array.Empty<byte>());
                 pc.SyncSettings();
-                _ = new LateTask(pc.RpcResetAbilityCooldown, 1f, log: false);
+                pc.RpcResetAbilityCooldown();
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }, 1f, "Specter Assign");
         }
@@ -39,7 +38,7 @@ namespace EHR.Roles.AddOns.GhostRoles
 
         public void SetupCustomOption()
         {
-            Options.SetupRoleOptions(649100, TabGroup.OtherRoles, CustomRoles.Specter);
+            Options.SetupRoleOptions(649100, TabGroup.OtherRoles, CustomRoles.Specter, zeroOne: true);
             SnatchWin = BooleanOptionItem.Create(649102, "SnatchWin", false, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Specter]);
             Tasks = Options.OverrideTasksData.Create(649103, TabGroup.OtherRoles, CustomRoles.Specter);
