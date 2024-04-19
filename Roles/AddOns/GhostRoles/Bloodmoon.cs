@@ -4,14 +4,18 @@ namespace EHR.Roles.AddOns.GhostRoles
 {
     internal class Bloodmoon : IGhostRole, ISettingHolder
     {
+        private static OptionItem CD;
         private static OptionItem Duration;
+        private static OptionItem Speed;
 
         private static readonly Dictionary<byte, long> ScheduledDeaths = [];
         public Team Team => Team.Impostor | Team.Neutral;
-        public int Cooldown => Duration.GetInt() + 30;
+        public int Cooldown => Duration.GetInt() + CD.GetInt();
 
         public void OnAssign(PlayerControl pc)
         {
+            Main.AllPlayerSpeed[pc.PlayerId] = Speed.GetFloat();
+            pc.MarkDirtySettings();
         }
 
         public void OnProtect(PlayerControl pc, PlayerControl target)
@@ -23,9 +27,15 @@ namespace EHR.Roles.AddOns.GhostRoles
         public void SetupCustomOption()
         {
             Options.SetupRoleOptions(649400, TabGroup.OtherRoles, CustomRoles.Bloodmoon, zeroOne: true);
-            Duration = IntegerOptionItem.Create(649402, "Bloodmoon.Duration", new(0, 60, 1), 15, TabGroup.OtherRoles)
+            CD = IntegerOptionItem.Create(649402, "AbilityCooldown", new(0, 60, 1), 30, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon])
                 .SetValueFormat(OptionFormat.Seconds);
+            Duration = IntegerOptionItem.Create(649403, "Bloodmoon.Duration", new(0, 60, 1), 15, TabGroup.OtherRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon])
+                .SetValueFormat(OptionFormat.Seconds);
+            Speed = FloatOptionItem.Create(649404, "Bloodmoon.Speed", new(0.05f, 5f, 0.05f), 1f, TabGroup.OtherRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon])
+                .SetValueFormat(OptionFormat.Multiplier);
         }
 
         public static void Update(PlayerControl pc)

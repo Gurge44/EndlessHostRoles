@@ -20,8 +20,8 @@ public class Totocalcio : RoleBase
     private static OptionItem MaxBetCooldown;
     private static OptionItem KnowTargetRole;
     private static OptionItem BetTargetKnowTotocalcio;
-    public byte BetPlayer;
 
+    public byte BetPlayer;
     private int BetTimes;
 
     public override bool IsEnable => playerIdList.Count > 0;

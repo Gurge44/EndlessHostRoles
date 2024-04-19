@@ -7,7 +7,6 @@ namespace EHR.Roles.AddOns.GhostRoles
     internal class Specter : IGhostRole, ISettingHolder
     {
         private static OptionItem SnatchWin;
-        private static Options.OverrideTasksData Tasks;
 
         public bool IsWon;
         public Team Team => Team.Neutral;
@@ -41,7 +40,7 @@ namespace EHR.Roles.AddOns.GhostRoles
             Options.SetupRoleOptions(649100, TabGroup.OtherRoles, CustomRoles.Specter, zeroOne: true);
             SnatchWin = BooleanOptionItem.Create(649102, "SnatchWin", false, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Specter]);
-            Tasks = Options.OverrideTasksData.Create(649103, TabGroup.OtherRoles, CustomRoles.Specter);
+            Options.OverrideTasksData.Create(649103, TabGroup.OtherRoles, CustomRoles.Specter);
         }
 
         public void OnFinishedTasks(PlayerControl pc)

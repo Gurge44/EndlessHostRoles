@@ -15,21 +15,64 @@ namespace EHR;
 
 public class PlayerState(byte playerId)
 {
+    public enum DeathReason
+    {
+        Kill,
+        Vote,
+        Suicide,
+        Spell,
+        Curse,
+        FollowingSuicide,
+        Bite,
+        Poison,
+        Bombed,
+        Misfire,
+        Torched,
+        Sniped,
+        Revenge,
+        Execution,
+        Disconnected,
+        Fall,
+
+        // EHR
+        Gambled,
+        Eaten,
+        Sacrifice,
+        Quantization,
+        Overtired,
+        Ashamed,
+        PissedOff,
+        Dismembered,
+        LossOfHead,
+        Trialed,
+        Infected,
+        Demolished,
+        YinYanged,
+        Kamikazed,
+        RNG,
+        WrongAnswer,
+
+        etc = -1
+    }
+
     readonly byte PlayerId = playerId;
-    public RoleBase Role = new VanillaRole();
-    public CustomRoles MainRole = CustomRoles.NotAssigned;
-    public List<CustomRoles> SubRoles = [];
     public CountTypes countTypes = CountTypes.OutOfGame;
+    public PlainShipRoom LastRoom;
+    public CustomRoles MainRole = CustomRoles.NotAssigned;
+    public (DateTime TIMESTAMP, byte ID) RealKiller = (DateTime.MinValue, byte.MaxValue);
+    public RoleBase Role = new VanillaRole();
+    public List<CustomRoles> SubRoles = [];
+    public Dictionary<byte, string> TargetColorData = [];
+    public TaskState taskState = new();
     public bool IsDead { get; set; }
 #pragma warning disable IDE1006 // Naming Styles
     // ReSharper disable once InconsistentNaming
     public DeathReason deathReason { get; set; } = DeathReason.etc;
 #pragma warning restore IDE1006 // Naming Styles
-    public TaskState taskState = new();
     public bool IsBlackOut { get; set; }
-    public (DateTime TIMESTAMP, byte ID) RealKiller = (DateTime.MinValue, byte.MaxValue);
-    public PlainShipRoom LastRoom;
-    public Dictionary<byte, string> TargetColorData = [];
+
+    public bool IsSuicide => deathReason == DeathReason.Suicide;
+    public TaskState TaskState => taskState;
 
     public CustomRoles GetCustomRole()
     {
@@ -210,50 +253,8 @@ public class PlayerState(byte playerId)
         }
     }
 
-    public bool IsSuicide => deathReason == DeathReason.Suicide;
-    public TaskState TaskState => taskState;
     public void InitTask(PlayerControl player) => taskState.Init(player);
     public void UpdateTask(PlayerControl player) => taskState.Update(player);
-
-    public enum DeathReason
-    {
-        Kill,
-        Vote,
-        Suicide,
-        Spell,
-        Curse,
-        FollowingSuicide,
-        Bite,
-        Poison,
-        Bombed,
-        Misfire,
-        Torched,
-        Sniped,
-        Revenge,
-        Execution,
-        Disconnected,
-        Fall,
-
-        // EHR
-        Gambled,
-        Eaten,
-        Sacrifice,
-        Quantization,
-        Overtired,
-        Ashamed,
-        PissedOff,
-        Dismembered,
-        LossOfHead,
-        Trialed,
-        Infected,
-        Demolished,
-        YinYanged,
-        Kamikazed,
-        RNG,
-        WrongAnswer,
-
-        etc = -1
-    }
 
     public byte GetRealKiller() => IsDead && RealKiller.TIMESTAMP != DateTime.MinValue ? RealKiller.ID : byte.MaxValue;
     public int GetKillCount(bool ExcludeSelfKill = false) => Main.PlayerStates.Values.Where(state => !(ExcludeSelfKill && state.PlayerId == PlayerId) && state.GetRealKiller() == PlayerId).ToArray().Length;
@@ -343,7 +344,7 @@ public class TaskState
                 if (ghostRole is { Role: CustomRoles.Haunter, Instance: Haunter haunter })
                 {
                     if (CompletedTasksCount + 1 >= AllTasksCount) haunter.OnFinishedTasks(player);
-                    if (CompletedTasksCount == AllTasksCount) haunter.OnOneTaskLeft(player);
+                    else if (CompletedTasksCount + 1 >= Haunter.TasksBeforeBeingKnown.GetInt()) haunter.OnOneTaskLeft(player);
                 }
             }
 
@@ -368,9 +369,18 @@ public class TaskState
 
 public class PlayerVersion(Version ver, string tag_str, string forkId)
 {
-    public readonly Version version = ver;
-    public readonly string tag = tag_str;
     public readonly string forkId = forkId;
+    public readonly string tag = tag_str;
+    public readonly Version version = ver;
+
+    public PlayerVersion(string ver, string tag_str, string forkId) : this(Version.Parse(ver), tag_str, forkId)
+    {
+    }
+
+    public bool IsEqual(PlayerVersion pv)
+    {
+        return pv.version == version && pv.tag == tag;
+    }
 #pragma warning disable CA1041 // Provide ObsoleteAttribute message
     [Obsolete]
     public PlayerVersion(string ver, string tag_str) : this(Version.Parse(ver), tag_str, string.Empty)
@@ -382,14 +392,6 @@ public class PlayerVersion(Version ver, string tag_str, string forkId)
     {
     }
 #pragma warning restore CA1041 // Provide ObsoleteAttribute message
-    public PlayerVersion(string ver, string tag_str, string forkId) : this(Version.Parse(ver), tag_str, forkId)
-    {
-    }
-
-    public bool IsEqual(PlayerVersion pv)
-    {
-        return pv.version == version && pv.tag == tag;
-    }
 }
 
 public static class GameStates
@@ -419,11 +421,11 @@ public static class GameStates
 public static class MeetingStates
 {
     public static DeadBody[] DeadBodies;
+
+    public static bool MeetingCalled;
+    public static bool FirstMeeting = true;
     public static bool IsEmergencyMeeting => ReportTarget == null;
     public static bool IsExistDeadBody => DeadBodies.Length > 0;
 
     public static GameData.PlayerInfo ReportTarget { get; set; }
-
-    public static bool MeetingCalled;
-    public static bool FirstMeeting = true;
 }

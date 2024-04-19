@@ -1,5 +1,7 @@
 using AmongUs.GameOptions;
+using EHR.Modules;
 using EHR.Roles.AddOns.Crewmate;
+using EHR.Roles.AddOns.GhostRoles;
 using EHR.Roles.Impostor;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
@@ -127,7 +129,7 @@ class RpcSetTasksPatch
 
         var pc = Utils.GetPlayerById(playerId);
         if (pc == null) return;
-        CustomRoles role = pc.Is(CustomRoles.Specter) ? CustomRoles.Specter : pc.GetCustomRole();
+        CustomRoles role = GhostRolesManager.AssignedGhostRoles.TryGetValue(pc.PlayerId, out var gr) && gr.Instance is Specter or Haunter ? gr.Role : pc.GetCustomRole();
 
         // Default number of tasks
         bool hasCommonTasks = true;
@@ -141,7 +143,7 @@ class RpcSetTasksPatch
             NumLongTasks = data.NumLongTasks.GetInt(); // Number of long tasks to allocate
             NumShortTasks = data.NumShortTasks.GetInt(); // Number of short tasks to allocate
             // Longs and shorts are constantly reallocated.
-            if (role == CustomRoles.Specter) Main.PlayerStates[pc.PlayerId].TaskState.AllTasksCount = NumLongTasks + NumShortTasks;
+            if (role is CustomRoles.Specter or CustomRoles.Haunter) Main.PlayerStates[pc.PlayerId].TaskState.AllTasksCount = NumLongTasks + NumShortTasks;
         }
 
         if (pc.Is(CustomRoles.Busy))

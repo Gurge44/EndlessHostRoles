@@ -7,8 +7,10 @@ namespace EHR.Roles.AddOns.GhostRoles
         public static HashSet<byte> BlindPlayers = [];
 
         private static OptionItem BlindDuration;
+        private static OptionItem CD;
+
         public Team Team => Team.Impostor;
-        public int Cooldown => 30;
+        public int Cooldown => CD.GetInt();
 
         public void OnProtect(PlayerControl pc, PlayerControl target)
         {
@@ -32,6 +34,9 @@ namespace EHR.Roles.AddOns.GhostRoles
         {
             Options.SetupRoleOptions(649000, TabGroup.OtherRoles, CustomRoles.Minion, zeroOne: true);
             BlindDuration = IntegerOptionItem.Create(649002, "MinionBlindDuration", new(1, 90, 1), 5, TabGroup.OtherRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minion])
+                .SetValueFormat(OptionFormat.Seconds);
+            CD = IntegerOptionItem.Create(649003, "AbilityCooldown", new(0, 60, 1), 30, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minion])
                 .SetValueFormat(OptionFormat.Seconds);
         }

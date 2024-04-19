@@ -10,8 +10,12 @@ namespace EHR.Roles.AddOns.GhostRoles
     {
         public static HashSet<byte> AllHauntedPlayers = [];
 
-        public byte HauntedPlayer = byte.MaxValue;
-        public HashSet<byte> WarnedImps = [];
+        public static OptionItem TasksBeforeBeingKnown;
+        private static OptionItem RevealNeutralKillers;
+        private static OptionItem RevealMadmates;
+        private static OptionItem NumberOfReveals;
+
+        private List<byte> WarnedImps = [];
         public Team Team => Team.Crewmate | Team.Neutral;
         public int Cooldown => 900;
 
@@ -21,7 +25,6 @@ namespace EHR.Roles.AddOns.GhostRoles
 
         public void OnAssign(PlayerControl pc)
         {
-            HauntedPlayer = byte.MaxValue;
             _ = new LateTask(() =>
             {
                 var taskState = pc.GetTaskState();
@@ -41,12 +44,32 @@ namespace EHR.Roles.AddOns.GhostRoles
         public void SetupCustomOption()
         {
             Options.SetupRoleOptions(649300, TabGroup.OtherRoles, CustomRoles.Haunter, zeroOne: true);
+            TasksBeforeBeingKnown = IntegerOptionItem.Create(649302, "Haunter.TasksBeforeBeingKnown", new(1, 10, 1), 1, TabGroup.OtherRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
+            RevealNeutralKillers = BooleanOptionItem.Create(649303, "Haunter.RevealNeutralKillers", true, TabGroup.OtherRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
+            RevealMadmates = BooleanOptionItem.Create(649304, "Haunter.RevealMadmates", true, TabGroup.OtherRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
+            NumberOfReveals = IntegerOptionItem.Create(649305, "Haunter.NumberOfReveals", new(1, 10, 1), 1, TabGroup.OtherRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
+            Options.OverrideTasksData.Create(649306, TabGroup.Addons, CustomRoles.Haunter);
         }
 
         public void OnOneTaskLeft(PlayerControl pc)
         {
+            if (WarnedImps.Count > 0) return;
+
             WarnedImps = [];
-            foreach (var imp in Main.AllAlivePlayerControls.Where(x => x.Is(Team.Impostor)))
+            var filtered = Main.AllAlivePlayerControls.Where(x =>
+            {
+                return x.GetTeam() switch
+                {
+                    Team.Impostor when x.GetCustomRole().IsMadmate() || x.Is(CustomRoles.Madmate) => RevealMadmates.GetBool(),
+                    Team.Neutral when x.IsNeutralKiller() => RevealNeutralKillers.GetBool(),
+                    _ => false
+                };
+            });
+            foreach (var imp in filtered)
             {
                 TargetArrow.Add(imp.PlayerId, pc.PlayerId);
                 imp.Notify(Translator.GetString("Haunter1TaskLeft"), 300f);
@@ -58,22 +81,23 @@ namespace EHR.Roles.AddOns.GhostRoles
         {
             if (WarnedImps.Count == 0) return;
 
-            var index = IRandom.Instance.Next(WarnedImps.Count);
-            var target = WarnedImps.ElementAt(index);
-            HauntedPlayer = target;
-            AllHauntedPlayers.Add(HauntedPlayer);
-
-            var targetPc = Utils.GetPlayerById(target);
-            targetPc?.Notify(Translator.GetString("HaunterRevealedYou"), 7f);
-
-            foreach (var imp in WarnedImps)
+            List<byte> targets = [];
+            int numOfReveals = NumberOfReveals.GetInt();
+            for (int i = 0; i < numOfReveals; i++)
             {
-                TargetArrow.Remove(imp, pc.PlayerId);
-                if (imp == target) continue;
-                Utils.GetPlayerById(imp)?.Notify(Translator.GetString("HaunterFinishedTasks"), 7f);
+                var index = IRandom.Instance.Next(WarnedImps.Count);
+                var target = WarnedImps[index];
+                targets.Add(target);
+                WarnedImps.Remove(target);
+                TargetArrow.Remove(target, pc.PlayerId);
             }
 
-            Utils.NotifyRoles(SpecifyTarget: targetPc);
+            AllHauntedPlayers.UnionWith(targets);
+
+            targets.ForEach(x => Utils.GetPlayerById(x)?.Notify(Translator.GetString("HaunterRevealedYou"), 7f));
+            WarnedImps.ForEach(x => Utils.GetPlayerById(x)?.Notify(Translator.GetString("HaunterFinishedTasks"), 7f));
+
+            Utils.NotifyRoles(ForceLoop: true);
         }
 
         public void Update(PlayerControl pc)

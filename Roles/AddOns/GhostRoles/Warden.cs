@@ -6,8 +6,10 @@ namespace EHR.Roles.AddOns.GhostRoles
     {
         private static OptionItem ExtraSpeed;
         private static OptionItem ExtraSpeedDuration;
+        private static OptionItem CD;
+
         public Team Team => Team.Crewmate;
-        public int Cooldown => 30;
+        public int Cooldown => CD.GetInt();
 
         public void OnProtect(PlayerControl pc, PlayerControl target)
         {
@@ -36,6 +38,9 @@ namespace EHR.Roles.AddOns.GhostRoles
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Warden])
                 .SetValueFormat(OptionFormat.Seconds);
             ExtraSpeed = FloatOptionItem.Create(649203, "WardenAdditionalSpeed", new(0.5f, 3f, 0.1f), 0.25f, TabGroup.OtherRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Warden])
+                .SetValueFormat(OptionFormat.Multiplier);
+            CD = IntegerOptionItem.Create(649204, "AbilityCooldown", new(0, 60, 1), 30, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Warden])
                 .SetValueFormat(OptionFormat.Multiplier);
         }
