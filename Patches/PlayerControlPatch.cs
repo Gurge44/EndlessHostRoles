@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Neutral;
 using EHR.Patches;
 using EHR.Roles.AddOns.Common;
 using EHR.Roles.AddOns.Crewmate;
@@ -116,7 +117,8 @@ class CheckMurderPatch
 
     public static void Update()
     {
-        for (byte i = 0; i < 15; i++)
+        int n = Main.AllPlayerControls.Length;
+        for (byte i = 0; i < n; i++)
         {
             if (TimeSinceLastKill.ContainsKey(i))
             {
@@ -518,6 +520,7 @@ class MurderPlayerPatch
             Main.FirstDied = target.PlayerId;
 
         Postman.CheckAndResetTargets(target, isDeath: true);
+        Simon.RemoveTarget(killer, Simon.Instruction.Kill);
 
         if (target.Is(CustomRoles.Trapper) && killer != target)
             killer.TrapperKilled(target);
@@ -1172,6 +1175,7 @@ class FixedUpdatePatch
                 if (subRoles.Contains(CustomRoles.Asthmatic)) Asthmatic.OnFixedUpdate();
                 if (subRoles.Contains(CustomRoles.Disco)) Disco.OnFixedUpdate(player);
                 if (subRoles.Contains(CustomRoles.Clumsy)) Clumsy.OnFixedUpdate(player);
+                if (subRoles.Contains(CustomRoles.Sonar)) Sonar.OnFixedUpdate(player);
             }
 
             if (GhostRolesManager.AssignedGhostRoles.TryGetValue(player.PlayerId, out var ghostRole))
@@ -1552,6 +1556,7 @@ class FixedUpdatePatch
                 Suffix.Append(Commander.GetSuffixText(seer, target));
                 Suffix.Append(Deathpact.GetDeathpactPlayerArrow(seer, target));
                 Suffix.Append(Deathpact.GetDeathpactMark(seer, target));
+                Suffix.Append(Simon.GetSuffix(seer, target));
 
                 if (self)
                 {

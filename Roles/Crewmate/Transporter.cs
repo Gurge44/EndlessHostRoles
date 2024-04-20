@@ -16,7 +16,7 @@ namespace EHR.Roles.Crewmate
             Options.TransporterTeleportMax = IntegerOptionItem.Create(6210, "TransporterTeleportMax", new(0, 90, 1), 5, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Transporter])
                 .SetValueFormat(OptionFormat.Times);
-            Options.TransporterTasks = Options.OverrideTasksData.Create(6211, TabGroup.CrewmateRoles, CustomRoles.Transporter);
+            Options.OverrideTasksData.Create(6211, TabGroup.CrewmateRoles, CustomRoles.Transporter);
         }
 
         public override void Add(byte playerId)

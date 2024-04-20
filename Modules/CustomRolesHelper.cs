@@ -11,24 +11,6 @@ using UnityEngine;
 
 namespace EHR;
 
-/*
- * Roles that use the same code as another role:
- *
- * Nuker = Bomber
- * Undertaker = Assassin
- * Chameleon = Swooper
- * BloodKnight = Wildling
- * HexMaster = Witch
- * Imitator = Greedier
- * Jinx = CursedWolf
- * Juggernaut = Sans
- * Medusa = Cleaner
- * Poisoner = Vampire
- * Reckless = Sans
- * Ritualist = EvilDiviner
- * Wraith = Swooper
- */
-
 internal static class CustomRolesHelper
 {
     public static bool CanCheck = false;
@@ -62,6 +44,7 @@ internal static class CustomRolesHelper
             CustomRoles.Reckless => new Sans(),
             CustomRoles.Ritualist => new EvilDiviner(),
             CustomRoles.Wraith => new Swooper(),
+            CustomRoles.Goose => new Penguin(),
 
             // Else, the role class is the role name - if the class doesn't exist, it defaults to VanillaRole
             _ => Main.AllRoleClasses.FirstOrDefault(x => x.GetType().Name.Equals(role.ToString(), StringComparison.OrdinalIgnoreCase)) ?? new VanillaRole()
@@ -331,6 +314,7 @@ internal static class CustomRolesHelper
             CustomRoles.Gaulois => UsePets && Gaulois.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Analyst => UsePets && Analyst.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Witness => UsePets && Options.WitnessUsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
+            CustomRoles.Goose => RoleTypes.Impostor,
             CustomRoles.Pursuer => RoleTypes.Impostor,
             CustomRoles.Revolutionist => RoleTypes.Impostor,
             CustomRoles.FFF => RoleTypes.Impostor,
@@ -347,6 +331,7 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Simon => RoleTypes.Impostor,
             CustomRoles.Chemist => RoleTypes.Impostor,
             CustomRoles.Samurai => RoleTypes.Impostor,
             CustomRoles.QuizMaster => RoleTypes.Impostor,
@@ -449,6 +434,7 @@ internal static class CustomRolesHelper
         CustomRoles.Jinx or
         CustomRoles.Poisoner or
         CustomRoles.Refugee or
+        CustomRoles.Simon or
         CustomRoles.Parasite or
         CustomRoles.NSerialKiller or
         CustomRoles.Chemist or
@@ -824,9 +810,6 @@ internal static class CustomRolesHelper
         CustomRoles.Rascal when mainRole is CustomRoles.SuperStar or CustomRoles.Madmate => false,
         CustomRoles.Madmate when mainRole is CustomRoles.SuperStar => false,
         CustomRoles.Gravestone when mainRole is CustomRoles.SuperStar => false,
-        CustomRoles.Sidekick when mainRole.IsNeutral() && !Options.NeutralCanBeSidekick.GetBool() => false,
-        CustomRoles.Sidekick when mainRole.IsCrewmate() && !Options.CrewmateCanBeSidekick.GetBool() => false,
-        CustomRoles.Sidekick when mainRole.IsImpostor() && !Options.ImpostorCanBeSidekick.GetBool() => false,
         CustomRoles.Sidekick when mainRole is CustomRoles.Jackal => false,
         CustomRoles.Lucky when mainRole is CustomRoles.Guardian => false,
         CustomRoles.Bait when mainRole is CustomRoles.Trapper => false,
@@ -854,7 +837,6 @@ internal static class CustomRolesHelper
         CustomRoles.Unreportable when (mainRole.IsCrewmate() && !Options.CrewCanBeUnreportable.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeUnreportable.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeUnreportable.GetBool()) => false,
         CustomRoles.Lucky when (mainRole.IsCrewmate() && !Options.CrewCanBeLucky.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeLucky.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeLucky.GetBool()) => false,
         CustomRoles.Unlucky when (mainRole.IsCrewmate() && !Options.CrewCanBeUnlucky.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeUnlucky.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeUnlucky.GetBool()) => false,
-        CustomRoles.Rogue when (mainRole.IsCrewmate() && !Options.CrewCanBeRogue.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeRogue.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeRogue.GetBool()) => false,
         CustomRoles.Gravestone when (mainRole.IsCrewmate() && !Options.CrewCanBeGravestone.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeGravestone.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeGravestone.GetBool()) => false,
         CustomRoles.Flashman or CustomRoles.Giant when mainRole is CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon or CustomRoles.Alchemist => false,
         CustomRoles.Bait when mainRole is CustomRoles.Unreportable => false,
@@ -955,9 +937,6 @@ internal static class CustomRolesHelper
         CustomRoles.Rascal when pc.Is(CustomRoles.SuperStar) || pc.Is(CustomRoles.Madmate) => false,
         CustomRoles.Madmate when pc.Is(CustomRoles.SuperStar) => false,
         CustomRoles.Gravestone when pc.Is(CustomRoles.SuperStar) => false,
-        CustomRoles.Sidekick when pc.GetCustomRole().IsNeutral() && !Options.NeutralCanBeSidekick.GetBool() => false,
-        CustomRoles.Sidekick when pc.IsCrewmate() && !Options.CrewmateCanBeSidekick.GetBool() => false,
-        CustomRoles.Sidekick when pc.GetCustomRole().IsImpostor() && !Options.ImpostorCanBeSidekick.GetBool() => false,
         CustomRoles.Sidekick when pc.Is(CustomRoles.Jackal) => false,
         CustomRoles.Lucky when pc.Is(CustomRoles.Guardian) => false,
         CustomRoles.Bait when pc.Is(CustomRoles.GuardianAngelEHR) => false,
@@ -990,7 +969,6 @@ internal static class CustomRolesHelper
         CustomRoles.Unreportable when (pc.IsCrewmate() && !Options.CrewCanBeUnreportable.GetBool()) || (pc.GetCustomRole().IsNeutral() && !Options.NeutralCanBeUnreportable.GetBool()) || (pc.GetCustomRole().IsImpostor() && !Options.ImpCanBeUnreportable.GetBool()) => false,
         CustomRoles.Lucky when (pc.IsCrewmate() && !Options.CrewCanBeLucky.GetBool()) || (pc.GetCustomRole().IsNeutral() && !Options.NeutralCanBeLucky.GetBool()) || (pc.GetCustomRole().IsImpostor() && !Options.ImpCanBeLucky.GetBool()) => false,
         CustomRoles.Unlucky when (pc.IsCrewmate() && !Options.CrewCanBeUnlucky.GetBool()) || (pc.GetCustomRole().IsNeutral() && !Options.NeutralCanBeUnlucky.GetBool()) || (pc.GetCustomRole().IsImpostor() && !Options.ImpCanBeUnlucky.GetBool()) => false,
-        CustomRoles.Rogue when (pc.IsCrewmate() && !Options.CrewCanBeRogue.GetBool()) || (pc.GetCustomRole().IsNeutral() && !Options.NeutralCanBeRogue.GetBool()) || (pc.GetCustomRole().IsImpostor() && !Options.ImpCanBeRogue.GetBool()) => false,
         CustomRoles.Gravestone when (pc.IsCrewmate() && !Options.CrewCanBeGravestone.GetBool()) || (pc.GetCustomRole().IsNeutral() && !Options.NeutralCanBeGravestone.GetBool()) || (pc.GetCustomRole().IsImpostor() && !Options.ImpCanBeGravestone.GetBool()) => false,
         CustomRoles.Flashman or CustomRoles.Giant when pc.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon or CustomRoles.Alchemist => false,
         CustomRoles.Bait when pc.Is(CustomRoles.Unreportable) => false,
@@ -1072,7 +1050,7 @@ internal static class CustomRolesHelper
         ((role is CustomRoles.Mayor) && Mayor.MayorRevealWhenDoneTasks.GetBool() && target.AllTasksCompleted()) ||
         ((role is CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool()) ||
         ((role is CustomRoles.Marshall) && target.AllTasksCompleted()) ||
-        ((role is CustomRoles.Workaholic) && Options.WorkaholicVisibleToEveryone.GetBool()) ||
+        ((role is CustomRoles.Workaholic) && Workaholic.WorkaholicVisibleToEveryone.GetBool()) ||
         ((role is CustomRoles.Doctor) && Options.DoctorVisibleToEveryone.GetBool()) ||
         ((role is CustomRoles.Bait) && Options.BaitNotification.GetBool() && ParityCop.ParityCheckBaitCountType.GetBool());
 
@@ -1160,6 +1138,7 @@ internal static class CustomRolesHelper
             CustomRoles.Wraith => CountTypes.Wraith,
             CustomRoles.Pestilence => CountTypes.Pestilence,
             CustomRoles.PlagueBearer => CountTypes.PlagueBearer,
+            CustomRoles.Simon => CountTypes.Simon,
             CustomRoles.Parasite => CountTypes.Impostor,
             CustomRoles.NSerialKiller => CountTypes.NSerialKiller,
             CustomRoles.Chemist => CountTypes.Chemist,
@@ -1315,6 +1294,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     NSerialKiller,
+    Simon,
     Chemist,
     QuizMaster,
     Samurai,

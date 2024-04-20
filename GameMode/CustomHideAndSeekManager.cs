@@ -16,6 +16,10 @@ namespace EHR
         private static long LastUpdate;
 
         private static OptionItem MaxGameLength;
+        private static OptionItem MinNeutrals;
+        private static OptionItem MaxNeutrals;
+
+        public static Dictionary<CustomRoles, int> HideAndSeekRoles = [];
 
         public static void SetupCustomOption()
         {
@@ -26,12 +30,27 @@ namespace EHR
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(color);
+
+            MinNeutrals = IntegerOptionItem.Create(id + 1, "HNS.MinNeutrals", new(0, 13, 1), 1, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.HideAndSeek)
+                .SetColor(color);
+            MaxNeutrals = IntegerOptionItem.Create(id + 2, "HNS.MaxNeutrals", new(0, 13, 1), 3, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.HideAndSeek)
+                .SetColor(color);
         }
 
         public static void Init()
         {
             TimeLeft = MaxGameLength.GetInt() + 8;
             LastUpdate = Utils.TimeStamp;
+
+            HideAndSeekRoles = Assembly
+                .GetExecutingAssembly()
+                .GetTypes()
+                .Where(t => (typeof(IHideAndSeekRole)).IsAssignableFrom(t) && !t.IsInterface)
+                .Select(x => ((CustomRoles)Enum.Parse(typeof(CustomRoles), ignoreCase: true, value: x.Name)))
+                .Where(role => role.GetMode() != 0)
+                .ToDictionary(x => x, x => x.GetCount());
         }
 
         public static void AssignRoles(ref Dictionary<PlayerControl, CustomRoles> result)
@@ -40,14 +59,6 @@ namespace EHR
             allPlayers = allPlayers.Shuffle(IRandom.Instance).ToList();
 
             int seekerNum = Math.Min(Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors), 1);
-
-            Dictionary<CustomRoles, int> roles = Assembly
-                .GetExecutingAssembly()
-                .GetTypes()
-                .Where(t => (typeof(IHideAndSeekRole)).IsAssignableFrom(t) && !t.IsInterface)
-                .Select(x => ((CustomRoles)Enum.Parse(typeof(CustomRoles), ignoreCase: true, value: x.Name)))
-                .Where(role => role.GetMode() != 0)
-                .ToDictionary(x => x, x => x.GetCount());
 
             foreach (var item in Main.SetRoles)
             {
@@ -58,7 +69,7 @@ namespace EHR
                 allPlayers.Remove(pc);
 
                 if (item.Value == CustomRoles.Seeker) seekerNum--;
-                else if (roles.ContainsKey(item.Value)) roles[item.Value]--;
+                else if (HideAndSeekRoles.ContainsKey(item.Value)) HideAndSeekRoles[item.Value]--;
 
                 Logger.Warn($"Pre-Set Role Assigned: {pc.GetRealName()} => {item.Value}", "CustomRoleSelector");
             }
@@ -76,7 +87,7 @@ namespace EHR
             if (allPlayers.Count == 0) return;
 
             bool stop = false;
-            foreach (var role in roles)
+            foreach (var role in HideAndSeekRoles)
             {
                 for (int i = 0; i < role.Value; i++)
                 {
@@ -90,7 +101,7 @@ namespace EHR
                         break;
                     }
 
-                    if (IRandom.Instance.Next(2) == 0) break;
+                    if (IRandom.Instance.Next(100) >= role.Key.GetMode()) break;
                 }
 
                 if (stop) break;
@@ -135,17 +146,17 @@ namespace EHR
 
         public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool isHUD = false)
         {
-            if (seer.PlayerId == target.PlayerId)
+            if (seer.PlayerId != target.PlayerId) return string.Empty;
+
+            if (!isHUD && seer.IsModClient()) return string.Empty;
+            if (TimeLeft <= 60)
             {
-                if (!isHUD && seer.IsModClient()) return string.Empty;
-                if (isHUD || TimeLeft <= 60)
-                {
-                    return $"<color={Main.RoleColors[CustomRoles.Hider]}>{Translator.GetString("TimeLeft")}:</color> {TimeLeft}s";
-                }
+                return $"<color={Main.RoleColors[CustomRoles.Hider]}>{Translator.GetString("TimeLeft")}:</color> {TimeLeft}s";
             }
 
             var remainingMinutes = TimeLeft / 60;
-            return $"{string.Format(Translator.GetString("MinutesLeft"), $"{remainingMinutes}-{remainingMinutes + 1}")}";
+            var remainingSeconds = TimeLeft % 60;
+            return isHUD ? $"{remainingMinutes}:{remainingSeconds}" : $"{string.Format(Translator.GetString("MinutesLeft"), $"{remainingMinutes}-{remainingMinutes + 1}")}";
         }
 
         public static string GetRoleInfoText(PlayerControl seer)

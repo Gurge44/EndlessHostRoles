@@ -29,22 +29,6 @@ public static class Options
     static Task taskOptionsLoad;
 
     public static Dictionary<TabGroup, OptionItem[]> GroupedOptions = [];
-    //[HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix]
-    //public static void WaitOptionsLoad()
-    //{
-    //    return;
-    //    //taskOptionsLoad.Wait();
-    //    //Logger.Info("Options.Load End", "Options");
-    //}
-
-    //private static readonly string[] presets =
-    //[
-    //    Main.Preset1.Value,
-    //    Main.Preset2.Value,
-    //    Main.Preset3.Value,
-    //    Main.Preset4.Value,
-    //    Main.Preset5.Value
-    //];
 
     public static OptionItem GameMode;
 
@@ -95,13 +79,6 @@ public static class Options
         "Rate60", "Rate70", "Rate80", "Rate90", */
         "RoleRate",
     ];
-
-    //public static readonly string[] ratesToggle =
-    //[
-    //    "RoleOff",
-    //    "RoleRate",
-    //    "RoleOn"
-    //];
 
     public static readonly string[] CheatResponsesName =
     [
@@ -181,10 +158,7 @@ public static class Options
 
     public static OptionItem SeeEjectedRolesInMeeting;
 
-    //public static OptionItem ShareLobby;
-    //public static OptionItem ShareLobbyMinPlayer;
     public static OptionItem DisableShieldAnimations;
-    public static OptionItem DisableCrackedGlass;
     public static OptionItem DisableShapeshiftAnimations;
     public static OptionItem DisableAllShapeshiftAnimations;
     public static OptionItem DisableKillAnimationOnGuess;
@@ -224,17 +198,14 @@ public static class Options
 
     public static OptionItem MadmateHasImpostorVision;
 
-    //public static OptionItem MadmateCanFixSabotage;
     public static OptionItem ImpCanKillMadmate;
     public static OptionItem MadmateCanKillImp;
     public static OptionItem JackalCanKillSidekick;
     public static OptionItem SidekickCanKillJackal;
-    public static OptionItem SidekickKnowOtherSidekick;
     public static OptionItem SidekickCanKillSidekick;
 
     public static OptionItem EGCanGuessImp;
     public static OptionItem EGCanGuessAdt;
-    public static OptionItem EGCanGuessTaskDoneSnitch;
     public static OptionItem EGCanGuessTime;
     public static OptionItem EGTryHideMsg;
     public static OptionItem ScavengerKillCooldown;
@@ -264,17 +235,11 @@ public static class Options
     public static OptionItem VindicatorHideVote;
     public static OptionItem OppoImmuneToAttacksWhenTasksDone;
     public static OptionItem DoctorTaskCompletedBatteryCharge;
-    public static OptionItem SpeedBoosterUpSpeed;
-    public static OptionItem SpeedBoosterTimes;
     public static OptionItem TrapperBlockMoveTime;
     public static OptionItem DetectiveCanknowKiller;
     public static OptionItem TransporterTeleportMax;
     public static OptionItem CanTerroristSuicideWin;
     public static OptionItem InnocentCanWinByImp;
-    public static OptionItem WorkaholicVentCooldown;
-    public static OptionItem WorkaholicCannotWinAtDeath;
-    public static OptionItem WorkaholicVisibleToEveryone;
-    public static OptionItem WorkaholicGiveAdviceAlive;
     public static OptionItem BaitNotification;
     public static OptionItem DoctorVisibleToEveryone;
     public static OptionItem ArsonistDouseTime;
@@ -323,8 +288,6 @@ public static class Options
     public static OptionItem NukerChance;
     public static OptionItem NukeRadius;
     public static OptionItem NukeCooldown;
-    public static OptionItem SpeedrunnerNotifyKillers;
-    public static OptionItem SpeedrunnerNotifyAtXTasksLeft;
     public static OptionItem ReportBaitAtAllCost;
 
     public static OptionItem SkeldChance;
@@ -366,9 +329,7 @@ public static class Options
     public static OptionItem SecurityGuardSkillDuration;
     public static OptionItem SecurityGuardSkillMaxOfUseage;
     public static OptionItem SecurityGuardAbilityUseGainWithEachTaskCompleted;
-    public static OptionItem EscapeeSSDuration;
     public static OptionItem EscapeeSSCD;
-    public static OptionItem MinerSSDuration;
     public static OptionItem MinerSSCD;
     public static OptionItem RevolutionistDrawTime;
     public static OptionItem RevolutionistCooldown;
@@ -413,9 +374,6 @@ public static class Options
     public static OptionItem ImpCanBeTiebreaker;
     public static OptionItem CrewCanBeTiebreaker;
     public static OptionItem NeutralCanBeTiebreaker;
-    public static OptionItem CrewmateCanBeSidekick;
-    public static OptionItem NeutralCanBeSidekick;
-    public static OptionItem ImpostorCanBeSidekick;
     public static OptionItem ImpCanBeOnbound;
     public static OptionItem CrewCanBeOnbound;
     public static OptionItem NeutralCanBeOnbound;
@@ -447,14 +405,6 @@ public static class Options
     // RASCAL //
     public static OptionItem RascalAppearAsMadmate;
 
-
-    // ROGUE
-    public static OptionItem ImpCanBeRogue;
-    public static OptionItem CrewCanBeRogue;
-    public static OptionItem NeutralCanBeRogue;
-    public static OptionItem RogueKnowEachOther;
-    public static OptionItem RogueKnowEachOtherRoles;
-
     // Gravestone
     public static OptionItem ImpCanBeGravestone;
     public static OptionItem CrewCanBeGravestone;
@@ -478,7 +428,6 @@ public static class Options
 
     public static OptionItem PhantomSnatchesWin;
 
-    // public static OptionItem LawyerVision;
     public static OptionItem ImpCanBeDiseased;
     public static OptionItem CrewCanBeDiseased;
     public static OptionItem NeutralCanBeDiseased;
@@ -529,15 +478,12 @@ public static class Options
     public static OptionItem MafiaShapeshiftCD;
     public static OptionItem MafiaShapeshiftDur;
 
-    public static OverrideTasksData InsightTasks;
-
     public static OptionItem ScientistDur;
     public static OptionItem ScientistCD;
 
     public static OptionItem GCanGuessImp;
     public static OptionItem GCanGuessCrew;
     public static OptionItem GCanGuessAdt;
-    public static OptionItem GCanGuessTaskDoneSnitch;
     public static OptionItem GTryHideMsg;
 
     // Masochist
@@ -742,10 +688,6 @@ public static class Options
         "TieMode.Random"
     ];
 
-    /* public static readonly string[] addonGuessModeCrew =
-     {
-         "GuesserMode.All", "GuesserMode.Harmful", "GuesserMode.Random"
-     }; */
     public static readonly string[] MadmateSpawnModeStrings =
     [
         "MadmateSpawnMode.Assign",
@@ -767,36 +709,20 @@ public static class Options
         "SidekickCountMode.Original",
     ];
 
-    // ボタン回数
     public static OptionItem SyncButtonMode;
     public static OptionItem SyncedButtonCount;
     public static int UsedButtonCount;
 
-    // 全員生存時の会議時間
     public static OptionItem AllAliveMeeting;
     public static OptionItem AllAliveMeetingTime;
 
-    // 追加の緊急ボタンクールダウン
     public static OptionItem AdditionalEmergencyCooldown;
     public static OptionItem AdditionalEmergencyCooldownThreshold;
     public static OptionItem AdditionalEmergencyCooldownTime;
 
-    //転落死
     public static OptionItem LadderDeath;
     public static OptionItem LadderDeathChance;
 
-    // タスク上書き
-    public static OverrideTasksData TerroristTasks;
-    public static OverrideTasksData TransporterTasks;
-    public static OverrideTasksData WorkaholicTasks;
-    public static OverrideTasksData SpeedrunnerTasks;
-    public static OverrideTasksData CrewpostorTasks;
-    public static OverrideTasksData PhantomTasks;
-    public static OverrideTasksData GuardianTasks;
-    public static OverrideTasksData OpportunistTasks;
-    public static OverrideTasksData MayorTasks;
-
-    // その他
     public static OptionItem FixFirstKillCooldown;
     public static OptionItem StartingKillCooldown;
     public static OptionItem ShieldPersonDiedFirst;
@@ -805,16 +731,13 @@ public static class Options
 
     public static OptionItem GhostCanSeeDeathReason;
 
-    //public static OptionItem GhostIgnoreTasks;
     public static OptionItem KPDCamouflageMode;
 
     // Guess Restrictions //
     public static OptionItem TerroristCanGuess;
-    public static OptionItem WorkaholicCanGuess;
     public static OptionItem PhantomCanGuess;
     public static OptionItem GodCanGuess;
 
-    // プリセット対象外
     public static OptionItem AllowConsole;
     public static OptionItem NoGameEnd;
     public static OptionItem DontUpdateDeadPlayers;
@@ -858,7 +781,7 @@ public static class Options
     public static OptionItem PlayerCanSetName;
     public static OptionItem PlayerCanTPInAndOut;
 
-    //Add-Ons
+    // Add-Ons
     public static OptionItem NameDisplayAddons;
     public static OptionItem AddBracketsToAddons;
     public static OptionItem NoLimitAddonsNumMax;
@@ -875,7 +798,6 @@ public static class Options
 
     public static OptionItem MarshallCanBeMadmate;
 
-    //public static OptionItem RetributionistCanBeMadmate;
     public static OptionItem FarseerCanBeMadmate;
     public static OptionItem MadSnitchTasks;
     public static OptionItem FlashmanSpeed;
@@ -1614,10 +1536,6 @@ public static class Options
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
         DisableKillAnimationOnGuess = BooleanOptionItem.Create(22602, "DisableKillAnimationOnGuess", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
-            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
-        DisableCrackedGlass = BooleanOptionItem.Create(22603, "DisableCrackedGlass", false, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
-            .SetHidden(true)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
         DisableShapeshiftAnimations = BooleanOptionItem.Create(22604, "DisableShapeshiftAnimations", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)

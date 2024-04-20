@@ -101,7 +101,7 @@ namespace EHR.Roles.Impostor
                     PuppeteerDelayList[target.PlayerId] = Utils.TimeStamp;
                     PuppeteerDelay[target.PlayerId] = IRandom.Instance.Next(PuppeteerMinDelay.GetInt(), PuppeteerMaxDelay.GetInt());
                     killer.SetKillCooldown(time: PuppeteerCD.GetFloat());
-                    if (usesLeft <= 1)
+                    if (usesLeft <= 1 && PuppeteerDiesAfterMaxPuppets.GetBool())
                     {
                         _ = new LateTask(() => { killer.Suicide(); }, 1.5f, "Puppeteer Max Uses Reached => Suicide");
                     }

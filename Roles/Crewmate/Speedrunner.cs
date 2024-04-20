@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using AmongUs.GameOptions;
 using EHR.Modules;
 using static EHR.Options;
 
@@ -7,6 +7,10 @@ namespace EHR.Roles.Crewmate
     internal class Speedrunner : RoleBase
     {
         public static bool On;
+
+        public static OptionItem SpeedrunnerNotifyKillers;
+        public static OptionItem SpeedrunnerNotifyAtXTasksLeft;
+        public static OptionItem SpeedrunnerSpeed;
         public override bool IsEnable => On;
 
         public override void Add(byte playerId)
@@ -26,7 +30,15 @@ namespace EHR.Roles.Crewmate
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Speedrunner]);
             SpeedrunnerNotifyAtXTasksLeft = IntegerOptionItem.Create(9179, "SpeedrunnerNotifyAtXTasksLeft", new(0, 90, 1), 3, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Speedrunner]);
-            SpeedrunnerTasks = OverrideTasksData.Create(9180, TabGroup.CrewmateRoles, CustomRoles.Speedrunner);
+            SpeedrunnerSpeed = FloatOptionItem.Create(9177, "SpeedrunnerSpeed", new(0.1f, 3f, 0.1f), 1.5f, TabGroup.CrewmateRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Speedrunner])
+                .SetValueFormat(OptionFormat.Multiplier);
+            OverrideTasksData.Create(9180, TabGroup.CrewmateRoles, CustomRoles.Speedrunner);
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            Main.AllPlayerSpeed[playerId] = SpeedrunnerSpeed.GetFloat();
         }
 
         public override void OnTaskComplete(PlayerControl player, int CompletedTasksCount, int AllTasksCount)

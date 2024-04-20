@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Neutral;
 using EHR.Patches;
 using EHR.Roles.AddOns.Common;
 using EHR.Roles.AddOns.Crewmate;
@@ -533,6 +534,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.Simon:
             case CustomRoles.Chemist:
             case CustomRoles.Samurai:
             case CustomRoles.QuizMaster:
@@ -707,7 +709,7 @@ public static class Utils
             case CustomRoles.Sidekick when PlayerControl.LocalPlayer.Is(CustomRoles.Jackal):
             case CustomRoles.Sidekick when PlayerControl.LocalPlayer.Is(CustomRoles.Sidekick):
             case CustomRoles.Sidekick when PlayerControl.LocalPlayer.Is(CustomRoles.Recruit):
-            case CustomRoles.Workaholic when Options.WorkaholicVisibleToEveryone.GetBool():
+            case CustomRoles.Workaholic when Workaholic.WorkaholicVisibleToEveryone.GetBool():
             case CustomRoles.Doctor when !__instance.HasEvilAddon() && Options.DoctorVisibleToEveryone.GetBool():
             case CustomRoles.Mayor when Mayor.MayorRevealWhenDoneTasks.GetBool() && __instance.GetTaskState().IsTaskFinished:
             case CustomRoles.Marshall when PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && __instance.GetTaskState().IsTaskFinished:
@@ -715,7 +717,6 @@ public static class Utils
         }
 
         return __instance.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool() ||
-               __instance.Is(CustomRoles.Rogue) && PlayerControl.LocalPlayer.Is(CustomRoles.Rogue) && Options.RogueKnowEachOther.GetBool() && Options.RogueKnowEachOtherRoles.GetBool() ||
                __instance.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead ||
                __instance.Is(CustomRoles.Lovers) && PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) && Options.LoverKnowRoles.GetBool() ||
                __instance.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool() ||
@@ -891,12 +892,7 @@ public static class Utils
     /// <param name="radius">The radius</param>
     /// <param name="from">The location which the radius is counted from</param>
     /// <returns>A list containing all PlayerControls within the specified range from the specified location</returns>
-    public static PlayerControl[] GetPlayersInRadius(float radius, Vector2 from)
-    {
-        var list = (from tg in Main.AllAlivePlayerControls let dis = Vector2.Distance(@from, tg.Pos()) where !Pelican.IsEaten(tg.PlayerId) && !Medic.ProtectList.Contains(tg.PlayerId) && !tg.inVent where !(dis > radius) select tg).ToList();
-
-        return [.. list];
-    }
+    public static IEnumerable<PlayerControl> GetPlayersInRadius(float radius, Vector2 from) => from tg in Main.AllAlivePlayerControls let dis = Vector2.Distance(@from, tg.Pos()) where !Pelican.IsEaten(tg.PlayerId) && !tg.inVent where dis <= radius select tg;
 
     public static void ShowActiveSettings(byte PlayerId = byte.MaxValue)
     {
@@ -1826,6 +1822,7 @@ public static class Utils
                     }
 
                     if (seer.Is(CustomRoles.Asthmatic)) SelfSuffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
+                    if (seer.Is(CustomRoles.Sonar)) SelfSuffix.Append(Sonar.GetSuffix(seer, isForMeeting));
 
                     SelfSuffix.Append(Deathpact.GetDeathpactPlayerArrow(seer));
                     SelfSuffix.Append(Commander.GetSuffixText(seer, seer));
@@ -1834,6 +1831,7 @@ public static class Utils
                     SelfSuffix.Append(Bargainer.GetSuffix(seer));
                     SelfSuffix.Append(Bloodmoon.GetSuffix(seer));
                     SelfSuffix.Append(Chemist.GetSuffix(seer, seer));
+                    SelfSuffix.Append(Simon.GetSuffix(seer, seer));
 
                     switch (seer.GetCustomRole())
                     {
@@ -2174,9 +2172,8 @@ public static class Utils
                                 (seer.Is(CustomRoles.Crewpostor) && target.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool()) ||
                                 (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool()) ||
                                 (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool()) ||
-                                (seer.Is(CustomRoles.Rogue) && target.Is(CustomRoles.Rogue) && Options.RogueKnowEachOther.GetBool() && Options.RogueKnowEachOtherRoles.GetBool()) ||
                                 ((seer.Is(CustomRoles.Sidekick) || seer.Is(CustomRoles.Recruit) || seer.Is(CustomRoles.Jackal)) && (target.Is(CustomRoles.Sidekick) || target.Is(CustomRoles.Recruit) || target.Is(CustomRoles.Jackal))) ||
-                                (target.Is(CustomRoles.Workaholic) && Options.WorkaholicVisibleToEveryone.GetBool()) ||
+                                (target.Is(CustomRoles.Workaholic) && Workaholic.WorkaholicVisibleToEveryone.GetBool()) ||
                                 (target.Is(CustomRoles.Doctor) && !target.HasEvilAddon() && Options.DoctorVisibleToEveryone.GetBool()) ||
                                 (target.Is(CustomRoles.Mayor) && Mayor.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished) ||
                                 (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished) ||
@@ -2349,6 +2346,7 @@ public static class Utils
                             TargetSuffix.Append(Bubble.GetEncasedPlayerSuffix(seer, target));
                             TargetSuffix.Append(Commander.GetSuffixText(seer, target));
                             TargetSuffix.Append(Chemist.GetSuffix(seer, target));
+                            TargetSuffix.Append(Simon.GetSuffix(seer, target));
 
                             if (target.Is(CustomRoles.Librarian)) TargetSuffix.Append(Librarian.GetNameTextForSuffix(target.PlayerId));
 

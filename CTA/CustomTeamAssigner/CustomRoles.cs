@@ -150,6 +150,7 @@ public enum CustomRoles
     Farseer,
     Divinator, // Fortune Teller
     Gaulois,
+    Goose,
     Grenadier,
     GuessManagerRole,
     Guardian,
@@ -380,6 +381,7 @@ public enum CustomRoles
     DualPersonality, // Schizophrenic
     Seer,
     Sleuth,
+    Sonar,
     Stained,
     Taskcounter,
     TicketsStealer, // Stealer

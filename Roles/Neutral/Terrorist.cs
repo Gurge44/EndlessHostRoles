@@ -11,7 +11,7 @@ namespace EHR.Roles.Neutral
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Terrorist]);
             TerroristCanGuess = BooleanOptionItem.Create(11511, "CanGuess", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Terrorist]);
-            TerroristTasks = OverrideTasksData.Create(11512, TabGroup.NeutralRoles, CustomRoles.Terrorist);
+            OverrideTasksData.Create(11512, TabGroup.NeutralRoles, CustomRoles.Terrorist);
         }
     }
 }

@@ -42,7 +42,7 @@ internal static class CustomRoleSelector
     public static List<CustomRoles> AddonRolesList = [];
     public static IReadOnlyList<CustomRoles> AllRoles => [.. RoleResult.Values];
 
-    public static void GetNeutralCounts(int NKmaxOpt, int NKminOpt, int NNKmaxOpt, int NNKminOpt, ref int ResultNKnum, ref int ResultNNKnum)
+    private static void GetNeutralCounts(int NKmaxOpt, int NKminOpt, int NNKmaxOpt, int NNKminOpt, ref int ResultNKnum, ref int ResultNNKnum)
     {
         var rd = IRandom.Instance;
 
@@ -109,7 +109,7 @@ internal static class CustomRoleSelector
         foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
         {
             int chance = role.GetMode();
-            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || (role != CustomRoles.Randomizer && role.IsCrewmate() && Options.AprilFoolsMode.GetBool())) continue;
+            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || (role != CustomRoles.Randomizer && role.IsCrewmate() && Options.AprilFoolsMode.GetBool()) || (Options.CurrentGameMode == CustomGameMode.HideAndSeek && CustomHideAndSeekManager.HideAndSeekRoles.ContainsKey(role))) continue;
             switch (role)
             {
                 case CustomRoles.Commander when optImpNum <= 1 && Commander.CannotSpawnAsSoloImp.GetBool():

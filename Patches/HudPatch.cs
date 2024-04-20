@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
+using EHR.Neutral;
 using EHR.Roles.AddOns.Common;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
@@ -402,6 +403,7 @@ class HudManagerPatch
                             CustomRoles.PlagueDoctor => PlagueDoctor.GetLowerTextOthers(player, isForHud: true),
                             CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),
                             CustomRoles.Hookshot => Hookshot.SuffixText(player.PlayerId),
+                            CustomRoles.Simon => Simon.GetSuffix(player, player, hud: true),
                             CustomRoles.Chemist => Chemist.GetSuffix(player, player, hud: true),
                             CustomRoles.Tornado => Tornado.GetSuffixText(isHUD: true),
                             _ => player.Is(CustomRoles.Asthmatic) ? Asthmatic.GetSuffixText(player.PlayerId) : string.Empty,

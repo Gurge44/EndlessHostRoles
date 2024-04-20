@@ -4,6 +4,7 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using static EHR.Options;
 
+// From: TOH_Y
 namespace EHR.Roles.Neutral
 {
     internal class Workaholic : RoleBase
@@ -11,11 +12,18 @@ namespace EHR.Roles.Neutral
         public static bool On;
 
         public static List<byte> WorkaholicAlive = [];
+
+        public static OptionItem WorkaholicVentCooldown;
+        public static OptionItem WorkaholicCannotWinAtDeath;
+        public static OptionItem WorkaholicVisibleToEveryone;
+        public static OptionItem WorkaholicGiveAdviceAlive;
+        public static OptionItem WorkaholicCanGuess;
+        public static OptionItem WorkaholicSpeed;
         public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
-            SetupRoleOptions(11700, TabGroup.NeutralRoles, CustomRoles.Workaholic); //TOH_Y
+            SetupRoleOptions(11700, TabGroup.NeutralRoles, CustomRoles.Workaholic);
             WorkaholicCannotWinAtDeath = BooleanOptionItem.Create(11710, "WorkaholicCannotWinAtDeath", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic]);
             WorkaholicVentCooldown = FloatOptionItem.Create(11711, "VentCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
@@ -25,9 +33,12 @@ namespace EHR.Roles.Neutral
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic]);
             WorkaholicGiveAdviceAlive = BooleanOptionItem.Create(11713, "WorkaholicGiveAdviceAlive", false, TabGroup.NeutralRoles)
                 .SetParent(WorkaholicVisibleToEveryone);
-            WorkaholicTasks = OverrideTasksData.Create(11714, TabGroup.NeutralRoles, CustomRoles.Workaholic);
+            OverrideTasksData.Create(11714, TabGroup.NeutralRoles, CustomRoles.Workaholic);
             WorkaholicCanGuess = BooleanOptionItem.Create(11725, "CanGuess", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic]);
+            WorkaholicSpeed = FloatOptionItem.Create(11726, "WorkaholicSpeed", new(0.1f, 3f, 0.1f), 1.5f, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic])
+                .SetValueFormat(OptionFormat.Multiplier);
         }
 
         public override void Add(byte playerId)
@@ -44,6 +55,7 @@ namespace EHR.Roles.Neutral
         {
             AURoleOptions.EngineerCooldown = WorkaholicVentCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 0f;
+            Main.AllPlayerSpeed[playerId] = WorkaholicSpeed.GetFloat();
         }
 
         public override void OnTaskComplete(PlayerControl player, int CompletedTasksCount, int AllTasksCount)

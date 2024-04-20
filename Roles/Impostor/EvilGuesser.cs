@@ -15,8 +15,6 @@ namespace EHR.Roles.Impostor
                 .SetParent(CustomRoleSpawnChances[CustomRoles.EvilGuesser]);
             EGCanGuessAdt = BooleanOptionItem.Create(1207, "EGCanGuessAdt", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.EvilGuesser]);
-            EGCanGuessTaskDoneSnitch = BooleanOptionItem.Create(1208, "EGCanGuessTaskDoneSnitch", true, TabGroup.ImpostorRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.EvilGuesser]);
             EGTryHideMsg = BooleanOptionItem.Create(1209, "GuesserTryHideMsg", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.EvilGuesser])
                 .SetColor(Color.green);

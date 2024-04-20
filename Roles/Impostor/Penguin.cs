@@ -1,4 +1,5 @@
-﻿using EHR.Modules;
+﻿using EHR.Crewmate;
+using EHR.Modules;
 using Hazel;
 using UnityEngine;
 using static EHR.Translator;
@@ -9,24 +10,27 @@ namespace EHR.Roles.Impostor
     {
         private const int Id = 641800;
 
-        private byte PenguinId = byte.MaxValue;
-        private PlayerControl Penguin_;
-
         private static OptionItem OptionAbductTimerLimit;
         private static OptionItem OptionMeetingKill;
         private static OptionItem OptionSpeedDuringDrag;
         private static OptionItem OptionVictimCanUseAbilities;
-
-        private PlayerControl AbductVictim;
         private float AbductTimer;
         private float AbductTimerLimit;
-        private bool stopCount;
+
+        private PlayerControl AbductVictim;
+        private float DefaultSpeed;
+
+        private bool IsGoose;
+        private long LastNotify;
         private bool MeetingKill;
+        private PlayerControl Penguin_;
+
+        private byte PenguinId = byte.MaxValue;
         private float SpeedDuringDrag;
+        private bool stopCount;
         private bool VictimCanUseAbilities;
 
-        private float DefaultSpeed;
-        private long LastNotify;
+        public override bool IsEnable => PenguinId != byte.MaxValue;
 
         // Measures to prevent the opponent who is about to be killed during abduction from using their abilities
         public static bool IsVictim(PlayerControl pc)
@@ -63,10 +67,22 @@ namespace EHR.Roles.Impostor
 
         public override void Add(byte playerId)
         {
-            AbductTimerLimit = OptionAbductTimerLimit.GetFloat();
-            MeetingKill = OptionMeetingKill.GetBool();
-            SpeedDuringDrag = OptionSpeedDuringDrag.GetFloat();
-            VictimCanUseAbilities = OptionVictimCanUseAbilities.GetBool();
+            IsGoose = Main.PlayerStates[playerId].MainRole == CustomRoles.Goose;
+
+            if (!IsGoose)
+            {
+                AbductTimerLimit = OptionAbductTimerLimit.GetFloat();
+                MeetingKill = OptionMeetingKill.GetBool();
+                SpeedDuringDrag = OptionSpeedDuringDrag.GetFloat();
+                VictimCanUseAbilities = OptionVictimCanUseAbilities.GetBool();
+            }
+            else
+            {
+                AbductTimerLimit = Goose.OptionAbductTimerLimit.GetFloat();
+                MeetingKill = Goose.OptionMeetingKill.GetBool();
+                SpeedDuringDrag = Goose.OptionSpeedDuringDrag.GetFloat();
+                VictimCanUseAbilities = Goose.OptionVictimCanUseAbilities.GetBool();
+            }
 
             _ = new LateTask(() => { DefaultSpeed = Main.AllPlayerSpeed[playerId]; }, 9f, log: false);
 
@@ -78,7 +94,6 @@ namespace EHR.Roles.Impostor
             LastNotify = 0;
         }
 
-        public override bool IsEnable => PenguinId != byte.MaxValue;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
         public override bool CanUseImpostorVentButton(PlayerControl pc) => AbductVictim == null;
 
@@ -135,14 +150,18 @@ namespace EHR.Roles.Impostor
         {
             if (!IsEnable) return true;
 
-            bool doKill = true;
+            bool doKill = !IsGoose;
             if (AbductVictim != null)
             {
                 if (target.PlayerId != AbductVictim.PlayerId)
                 {
                     // During an abduction, only the abductee can be killed.
-                    Penguin_.Kill(AbductVictim);
-                    Penguin_.ResetKillCooldown();
+                    if (!IsGoose)
+                    {
+                        Penguin_.Kill(AbductVictim);
+                        Penguin_.ResetKillCooldown();
+                    }
+
                     doKill = false;
                 }
 
@@ -170,7 +189,7 @@ namespace EHR.Roles.Impostor
             // If you meet a meeting with time running out, kill it even if you're on a ladder.
             if (AbductVictim != null && AbductTimer <= 0f)
             {
-                Penguin_.Kill(AbductVictim);
+                if (!IsGoose) Penguin_.Kill(AbductVictim);
                 RemoveVictim();
             }
 
@@ -178,7 +197,7 @@ namespace EHR.Roles.Impostor
             {
                 if (!AmongUsClient.Instance.AmHost) return;
                 if (AbductVictim == null) return;
-                Penguin_.Kill(AbductVictim);
+                if (!IsGoose) Penguin_.Kill(AbductVictim);
                 RemoveVictim();
             }
         }
@@ -249,6 +268,7 @@ namespace EHR.Roles.Impostor
                         {
                             var sId = abductVictim.NetTransform.lastSequenceId + 5;
                             abductVictim.NetTransform.SnapTo(Penguin_.transform.position, (ushort)sId);
+                            if (IsGoose) return;
                             Penguin_.Kill(abductVictim);
 
                             var sender = CustomRpcSender.Create("PenguinMurder");

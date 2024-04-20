@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Neutral;
 using EHR.Roles.AddOns.Crewmate;
 using EHR.Roles.AddOns.GhostRoles;
 using EHR.Roles.Crewmate;
@@ -347,6 +348,8 @@ public class TaskState
                     else if (CompletedTasksCount + 1 >= Haunter.TasksBeforeBeingKnown.GetInt()) haunter.OnOneTaskLeft(player);
                 }
             }
+
+            Simon.RemoveTarget(player, Simon.Instruction.Task);
 
             // Update the player's task count for Task Managers
             foreach (var pc in Main.AllAlivePlayerControls)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Roles.AddOns.Common;
 using EHR.Roles.Crewmate;
@@ -18,6 +19,17 @@ namespace EHR;
 
 public static class GuessManager
 {
+    public const int MaxOneScreenRole = 40;
+    public static int Page;
+    public static PassiveButton ExitButton;
+    public static GameObject guesserUI;
+    private static Dictionary<CustomRoleTypes, List<Transform>> RoleButtons;
+    private static Dictionary<CustomRoleTypes, SpriteRenderer> RoleSelectButtons;
+    private static List<SpriteRenderer> PageButtons;
+    public static CustomRoleTypes currentTeamType;
+
+    public static TextMeshPro textTemplate;
+
     public static string GetFormatString()
     {
         string text = GetString("PlayerIdList");
@@ -190,7 +202,7 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("GuessDisabled"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessDisabled"));
                             return true;
-                        case CustomRoles.Workaholic when !Options.WorkaholicCanGuess.GetBool():
+                        case CustomRoles.Workaholic when !Workaholic.WorkaholicCanGuess.GetBool():
                             if (!isUI) Utils.SendMessage(GetString("GuessDisabled"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessDisabled"));
                             return true;
@@ -250,7 +262,7 @@ public static class GuessManager
 
                     switch (target.GetCustomRole())
                     {
-                        case CustomRoles.Workaholic when Options.WorkaholicVisibleToEveryone.GetBool():
+                        case CustomRoles.Workaholic when Workaholic.WorkaholicVisibleToEveryone.GetBool():
                             if (!isUI) Utils.SendMessage(GetString("GuessWorkaholic"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessWorkaholic"));
                             return true;
@@ -291,6 +303,7 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("GuessSuperStar"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessSuperStar"));
                             return true;
+                        case CustomRoles.Goose when !Goose.CanBeGuessed.GetBool():
                         case CustomRoles.Disco:
                         case CustomRoles.Glow:
                         case CustomRoles.LastImpostor:
@@ -711,92 +724,6 @@ public static class GuessManager
         return true;
     }
 
-    /*
-        public static void TryHideMsg()
-        {
-            ChatUpdatePatch.DoBlockChat = true;
-            List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x is not CustomRoles.NotAssigned and not CustomRoles.KB_Normal).ToList();
-            var rd = IRandom.Instance;
-            string msg = Utils.EmptyMessage();
-            string[] command = ["bet", "bt", "guess", "gs", "shoot", "st", "赌", "猜", "审判", "tl", "判", "审"];
-            var x = Main.AllAlivePlayerControls;
-            var totalAlive = Main.AllAlivePlayerControls.Length;
-            for (int i = 0; i < 20; i++)
-            {
-                //msg = "/";
-                //if (rd.Next(1, 100) < 20)
-                //{
-                //    msg += "id";
-                //}
-                //else
-                //{
-                //    msg += command[rd.Next(0, command.Length - 1)];
-                //    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
-                //    msg += rd.Next(0, 15).ToString();
-                //    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
-                //    CustomRoles role = roles[rd.Next(0, roles.Count)];
-                //    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
-                //    msg += Utils.GetRoleName(role);
-                //}
-                var player = x[rd.Next(0, totalAlive)];
-                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
-                var writer = CustomRpcSender.Create("MessagesToSend");
-                writer.StartMessage();
-                writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
-                    .Write(msg)
-                    .EndRpc();
-                writer.EndMessage();
-                writer.SendMessage();
-            }
-
-            ChatUpdatePatch.DoBlockChat = false;
-        }
-    */
-
-    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
-    class StartMeetingPatch
-    {
-        public static void Postfix(MeetingHud __instance)
-        {
-            var lp = PlayerControl.LocalPlayer;
-            bool alive = lp.IsAlive();
-            if (Options.GuesserMode.GetBool())
-            {
-                CustomRoles role = lp.GetCustomRole();
-                if (alive && role.IsImpostor() && Options.ImpostorsCanGuess.GetBool())
-                    CreateGuesserButton(__instance);
-                else if (role is CustomRoles.EvilGuesser && !Options.ImpostorsCanGuess.GetBool())
-                    CreateGuesserButton(__instance);
-
-                if (alive && lp.IsCrewmate() && Options.CrewmatesCanGuess.GetBool())
-                    CreateGuesserButton(__instance);
-                else if (role is CustomRoles.NiceGuesser && !Options.CrewmatesCanGuess.GetBool())
-                    CreateGuesserButton(__instance);
-
-                if (alive && lp.IsNeutralKiller() && Options.NeutralKillersCanGuess.GetBool())
-                    CreateGuesserButton(__instance);
-                if (alive && role.IsNonNK() && Options.PassiveNeutralsCanGuess.GetBool())
-                    CreateGuesserButton(__instance);
-                else if (role is CustomRoles.Doomsayer && !Options.PassiveNeutralsCanGuess.GetBool() && !Doomsayer.CantGuess)
-                    CreateGuesserButton(__instance);
-            }
-            else
-            {
-                if (alive && lp.Is(CustomRoles.EvilGuesser))
-                    CreateGuesserButton(__instance);
-
-                if (alive && lp.Is(CustomRoles.NiceGuesser))
-                    CreateGuesserButton(__instance);
-
-                if (alive && lp.Is(CustomRoles.Doomsayer) && !Doomsayer.CantGuess)
-                    CreateGuesserButton(__instance);
-
-                if (alive && lp.Is(CustomRoles.Guesser))
-                    CreateGuesserButton(__instance);
-            }
-        }
-    }
-
     public static void CreateGuesserButton(MeetingHud __instance)
     {
         foreach (var pva in __instance.playerStates)
@@ -815,15 +742,6 @@ public static class GuessManager
             button.OnClick.AddListener((Action)(() => GuesserOnClick(pva1.TargetPlayerId, __instance)));
         }
     }
-
-    public const int MaxOneScreenRole = 40;
-    public static int Page;
-    public static PassiveButton ExitButton;
-    public static GameObject guesserUI;
-    private static Dictionary<CustomRoleTypes, List<Transform>> RoleButtons;
-    private static Dictionary<CustomRoleTypes, SpriteRenderer> RoleSelectButtons;
-    private static List<SpriteRenderer> PageButtons;
-    public static CustomRoleTypes currentTeamType;
 
     static void GuesserSelectRole(CustomRoleTypes Role, bool SetPage = true)
     {
@@ -858,8 +776,6 @@ public static class GuessManager
             RoleButton.Value.color = new(0, 0, 0, RoleButton.Key == Role ? 1 : 0.25f);
         }
     }
-
-    public static TextMeshPro textTemplate;
 
     static void GuesserOnClick(byte playerId, MeetingHud __instance)
     {
@@ -1141,15 +1057,6 @@ public static class GuessManager
         PlayerControl.LocalPlayer.RPCPlayCustomSound("Gunload");
     }
 
-    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.OnDestroy))]
-    class MeetingHudOnDestroyGuesserUIClose
-    {
-        public static void Postfix()
-        {
-            Object.Destroy(textTemplate.gameObject);
-        }
-    }
-
     // Modded non-host client guess role/add-on
     private static void SendRPC(int playerId, CustomRoles role)
     {
@@ -1172,5 +1079,100 @@ public static class GuessManager
         Logger.Msg($"{GetString(role.ToString())}", "Role String");
 
         GuesserMsg(pc, $"/bt {PlayerId} {GetString(role.ToString())}", true);
+    }
+
+    /*
+        public static void TryHideMsg()
+        {
+            ChatUpdatePatch.DoBlockChat = true;
+            List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x is not CustomRoles.NotAssigned and not CustomRoles.KB_Normal).ToList();
+            var rd = IRandom.Instance;
+            string msg = Utils.EmptyMessage();
+            string[] command = ["bet", "bt", "guess", "gs", "shoot", "st", "赌", "猜", "审判", "tl", "判", "审"];
+            var x = Main.AllAlivePlayerControls;
+            var totalAlive = Main.AllAlivePlayerControls.Length;
+            for (int i = 0; i < 20; i++)
+            {
+                //msg = "/";
+                //if (rd.Next(1, 100) < 20)
+                //{
+                //    msg += "id";
+                //}
+                //else
+                //{
+                //    msg += command[rd.Next(0, command.Length - 1)];
+                //    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
+                //    msg += rd.Next(0, 15).ToString();
+                //    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
+                //    CustomRoles role = roles[rd.Next(0, roles.Count)];
+                //    msg += rd.Next(1, 100) < 50 ? string.Empty : " ";
+                //    msg += Utils.GetRoleName(role);
+                //}
+                var player = x[rd.Next(0, totalAlive)];
+                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
+                var writer = CustomRpcSender.Create("MessagesToSend");
+                writer.StartMessage();
+                writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+                    .Write(msg)
+                    .EndRpc();
+                writer.EndMessage();
+                writer.SendMessage();
+            }
+
+            ChatUpdatePatch.DoBlockChat = false;
+        }
+    */
+
+    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    class StartMeetingPatch
+    {
+        public static void Postfix(MeetingHud __instance)
+        {
+            var lp = PlayerControl.LocalPlayer;
+            bool alive = lp.IsAlive();
+            if (Options.GuesserMode.GetBool())
+            {
+                CustomRoles role = lp.GetCustomRole();
+                if (alive && role.IsImpostor() && Options.ImpostorsCanGuess.GetBool())
+                    CreateGuesserButton(__instance);
+                else if (role is CustomRoles.EvilGuesser && !Options.ImpostorsCanGuess.GetBool())
+                    CreateGuesserButton(__instance);
+
+                if (alive && lp.IsCrewmate() && Options.CrewmatesCanGuess.GetBool())
+                    CreateGuesserButton(__instance);
+                else if (role is CustomRoles.NiceGuesser && !Options.CrewmatesCanGuess.GetBool())
+                    CreateGuesserButton(__instance);
+
+                if (alive && lp.IsNeutralKiller() && Options.NeutralKillersCanGuess.GetBool())
+                    CreateGuesserButton(__instance);
+                if (alive && role.IsNonNK() && Options.PassiveNeutralsCanGuess.GetBool())
+                    CreateGuesserButton(__instance);
+                else if (role is CustomRoles.Doomsayer && !Options.PassiveNeutralsCanGuess.GetBool() && !Doomsayer.CantGuess)
+                    CreateGuesserButton(__instance);
+            }
+            else
+            {
+                if (alive && lp.Is(CustomRoles.EvilGuesser))
+                    CreateGuesserButton(__instance);
+
+                if (alive && lp.Is(CustomRoles.NiceGuesser))
+                    CreateGuesserButton(__instance);
+
+                if (alive && lp.Is(CustomRoles.Doomsayer) && !Doomsayer.CantGuess)
+                    CreateGuesserButton(__instance);
+
+                if (alive && lp.Is(CustomRoles.Guesser))
+                    CreateGuesserButton(__instance);
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.OnDestroy))]
+    class MeetingHudOnDestroyGuesserUIClose
+    {
+        public static void Postfix()
+        {
+            Object.Destroy(textTemplate.gameObject);
+        }
     }
 }
