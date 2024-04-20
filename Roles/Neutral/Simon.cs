@@ -90,6 +90,8 @@ namespace EHR.Neutral
 
                 pc.Notify(Translator.GetString(GetNotify(kvp.Value.Instruction, kvp.Value.DoAction, false)), 300f);
             }
+
+            Utils.NotifyRoles(SpecifySeer: physics.myPlayer, SpecifyTarget: physics.myPlayer);
         }
 
         static string GetNotify(Instruction instruction, bool doAction, bool forSimon)
