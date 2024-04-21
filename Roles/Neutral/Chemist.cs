@@ -377,9 +377,13 @@ namespace EHR.Roles.Neutral
 
         public override bool CheckReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target, PlayerControl killer)
         {
-            if (BombedBodies.Contains(target.PlayerId) && ChemistPC.RpcCheckAndMurder(reporter, check: true))
+            if (BombedBodies.Contains(target.PlayerId))
             {
-                reporter.Suicide(realKiller: ChemistPC);
+                if (ChemistPC.RpcCheckAndMurder(reporter, check: true))
+                {
+                    reporter.Suicide(realKiller: ChemistPC);
+                }
+
                 return false;
             }
 

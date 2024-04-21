@@ -718,7 +718,7 @@ class ShapeshiftPatch
     }
 
     // Tasks that should run when someone performs a shapeshift (with the egg animation) should be here.
-    public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
+    public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
         if (!Main.ProcessShapeshifts || !GameStates.IsInTask || __instance == null || target == null) return;
 

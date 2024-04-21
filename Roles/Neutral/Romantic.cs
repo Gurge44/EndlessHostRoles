@@ -158,7 +158,7 @@ public class Romantic : RoleBase
 
     public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
     {
-        if (!lowLoad && (Partner.Data.Disconnected || !Partner.IsAlive()) && RomanticPC.IsAlive() && RomanticPC.Is(CustomRoles.Romantic))
+        if (!lowLoad && (Partner == null || Partner.Data == null || Partner.Data.Disconnected || !Partner.IsAlive()) && RomanticPC.IsAlive() && RomanticPC.Is(CustomRoles.Romantic))
         {
             ChangeRole();
         }
@@ -188,7 +188,7 @@ public class Romantic : RoleBase
     public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
     public override bool CanUseKillButton(PlayerControl pc) => pc.IsAlive();
 
-    public static void ChangeRole()
+    private static void ChangeRole()
     {
         if (Partner == null || RomanticPC == null || !RomanticPC.Is(CustomRoles.Romantic)) return;
 

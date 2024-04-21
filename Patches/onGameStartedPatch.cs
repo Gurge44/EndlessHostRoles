@@ -494,12 +494,15 @@ internal class SelectRolesPatch
             }
 
             if (!overrideLovers && CustomRoles.Lovers.IsEnable() && (CustomRoles.FFF.IsEnable() ? -1 : rd.Next(1, 100)) <= Options.LoverSpawnChances.GetInt()) AssignLoversRolesFromList();
-            foreach (CustomRoles role in AddonRolesList)
-            {
-                if (rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(role, out var sc) ? sc.GetFloat() : 0))
-                    if (role.IsEnable())
-                        AssignSubRoles(role);
-            }
+
+            var aapc = Main.AllAlivePlayerControls;
+            AddonRolesList
+                .Where(x => x.IsEnable())
+                .SelectMany(x => Enumerable.Repeat(x, Math.Clamp(x.GetCount(), 0, aapc.Length)))
+                .Shuffle(rd)
+                .Chunk(aapc.Length)
+                .Do(c => c.Zip(aapc).Do(x => AssignSubRoles(x.First, x.Second)));
+
 
             foreach (var state in Main.PlayerStates.Values)
             {
@@ -742,21 +745,17 @@ internal class SelectRolesPatch
             Main.LoversPlayers.Add(player);
             allPlayers.Remove(player);
             Main.PlayerStates[player.PlayerId].SetSubRole(role);
-            Logger.Info("Add-on assigned: " + player.Data?.PlayerName + " = " + player.GetCustomRole() + " + " + role, "AssignLovers");
+            Logger.Info("Add-on assigned: " + player.Data?.PlayerName + " = " + player.GetCustomRole() + " + " + role, "Assign Lovers");
         }
 
         RPC.SyncLoversPlayers();
     }
 
-    private static void AssignSubRoles(CustomRoles role, int RawCount = -1)
+    private static void AssignSubRoles(CustomRoles role, PlayerControl player)
     {
-        var allPlayers = Main.AllAlivePlayerControls.Where(x => CustomRolesHelper.CheckAddonConflict(role, x)).ToArray();
-        var count = Math.Clamp(RawCount, 0, allPlayers.Length);
-        if (RawCount == -1) count = Math.Clamp(role.GetCount(), 0, allPlayers.Length);
-        if (count <= 0) return;
-        for (var i = 0; i < count; i++)
+        if (!CustomRolesHelper.CheckAddonConflict(role, player)) return;
+        if (IRandom.Instance.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(role, out var sc) ? sc.GetFloat() : 0))
         {
-            var player = allPlayers[IRandom.Instance.Next(0, allPlayers.Length)];
             Main.PlayerStates[player.PlayerId].SetSubRole(role);
             Logger.Info($"Assigned add-on: {player.Data?.PlayerName} = {player.GetCustomRole()} + {role}", $"Assign {role}");
         }

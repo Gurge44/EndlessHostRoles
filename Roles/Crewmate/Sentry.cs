@@ -7,7 +7,6 @@ namespace EHR.Roles.Impostor
     internal class Sentry : RoleBase
     {
         public static bool On;
-        public override bool IsEnable => On;
 
         public static OptionItem ShowInfoCooldown;
         private static OptionItem ShowInfoDuration;
@@ -17,10 +16,13 @@ namespace EHR.Roles.Impostor
         public static OptionItem AbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
 
-        private PlayerControl SentryPC;
-        private PlainShipRoom MonitoredRoom;
+        private readonly HashSet<byte> LastNotified = [];
 
         private HashSet<byte> DeadBodiesInRoom;
+        private PlainShipRoom MonitoredRoom;
+
+        private PlayerControl SentryPC;
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
@@ -65,7 +67,7 @@ namespace EHR.Roles.Impostor
 
             if (room == default(PlainShipRoom) && hasntChosenRoom)
             {
-                pc.AddAbilityCD(1);
+                pc.AddAbilityCD(3);
                 pc.Notify(Translator.GetString("Sentry.Notify.InvalidRoom"));
                 return;
             }
@@ -100,13 +102,13 @@ namespace EHR.Roles.Impostor
         {
             if (IsInMonitoredRoom(shapeshifter) && NameNotifyManager.Notice.TryGetValue(SentryPC.PlayerId, out var notify))
             {
-                var ssTarget = Utils.GetPlayerById(shapeshifter.shapeshiftTargetPlayerId);
+                bool shapeshifting = shapeshifter.PlayerId != target.PlayerId;
+                var ssTarget = shapeshifting ? target : shapeshifter;
+                var ss = shapeshifting ? shapeshifter : Utils.GetPlayerById(shapeshifter.shapeshiftTargetPlayerId);
                 var text = "\n" + string.Format(
                     Translator.GetString("Sentry.Notify.Shapeshifted"),
-                    ssTarget == null
-                        ? Utils.ColorString(Main.PlayerColors[shapeshifter.PlayerId], shapeshifter.GetRealName())
-                        : Utils.ColorString(Main.PlayerColors[ssTarget.PlayerId], ssTarget.GetRealName()),
-                    Utils.ColorString(Main.PlayerColors[target.PlayerId], target.GetRealName()));
+                    Utils.ColorString(Main.PlayerColors[ss.PlayerId], ss.GetRealName()),
+                    Utils.ColorString(Main.PlayerColors[ssTarget.PlayerId], ssTarget.GetRealName()));
 
                 SentryPC.Notify($"{notify.TEXT}{text}", ShowInfoDuration.GetInt() - (Utils.TimeStamp - notify.TIMESTAMP));
 
@@ -142,13 +144,15 @@ namespace EHR.Roles.Impostor
                         Translator.GetString("Sentry.Notify.Vented"),
                         Utils.ColorString(Main.PlayerColors[pc.PlayerId], pc.GetRealName()));
 
-                    notify.TEXT += text;
-                    Utils.NotifyRoles(SpecifySeer: st.SentryPC, SpecifyTarget: st.SentryPC);
+                    st.SentryPC.Notify($"{notify.TEXT}{text}", ShowInfoDuration.GetInt() - (Utils.TimeStamp - notify.TIMESTAMP));
 
                     _ = new LateTask(() =>
                     {
                         if (NameNotifyManager.Notice.TryGetValue(st.SentryPC.PlayerId, out var laterNotify))
+                        {
                             laterNotify.TEXT = laterNotify.TEXT.Replace(text, string.Empty);
+                            st.SentryPC.Notify(laterNotify.TEXT, ShowInfoDuration.GetInt() - (Utils.TimeStamp - laterNotify.TIMESTAMP));
+                        }
                     }, 3f, log: false);
                 }
             }
@@ -170,8 +174,6 @@ namespace EHR.Roles.Impostor
 
             return string.Empty;
         }
-
-        private readonly HashSet<byte> LastNotified = [];
 
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
         {

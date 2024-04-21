@@ -1,5 +1,4 @@
-﻿
-namespace EHR;
+﻿namespace EHR;
 
 public enum CustomRoles
 {
@@ -279,6 +278,7 @@ public enum CustomRoles
     SchrodingersCat,
     NSerialKiller, // Serial Killer
     Sidekick,
+    Simon,
     SoulHunter,
     Spiritcaller,
     Sprayer,
@@ -325,6 +325,7 @@ public enum CustomRoles
     // Sub-role after 500
     NotAssigned = 500,
     Antidote,
+    AntiTP,
     Asthmatic,
     Autopsy,
     Avanger,

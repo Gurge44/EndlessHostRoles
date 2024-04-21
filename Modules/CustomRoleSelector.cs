@@ -40,7 +40,6 @@ internal static class CustomRoleSelector
     public static int AddShapeshifterNum;
 
     public static List<CustomRoles> AddonRolesList = [];
-    public static IReadOnlyList<CustomRoles> AllRoles => [.. RoleResult.Values];
 
     private static void GetNeutralCounts(int NKmaxOpt, int NKminOpt, int NNKmaxOpt, int NNKminOpt, ref int ResultNKnum, ref int ResultNNKnum)
     {
@@ -592,7 +591,7 @@ internal static class CustomRoleSelector
         AddEngineerNum = 0;
         AddScientistNum = 0;
         AddShapeshifterNum = 0;
-        foreach (var role in AllRoles)
+        foreach (var role in RoleResult.Values)
         {
             switch (role.GetVNRole())
             {

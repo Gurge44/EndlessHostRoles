@@ -75,7 +75,7 @@ namespace EHR.Roles.Crewmate
                 .Select(x => (IAddon)Activator.CreateInstance(x))
                 .Where(x => x != null)
                 .GroupBy(x => x.Type)
-                .ToDictionary(x => x.Key, x => x.Select(y => Enum.Parse<CustomRoles>(y.GetType().Name)).ToList());
+                .ToDictionary(x => x.Key, x => x.Select(y => Enum.Parse<CustomRoles>(y.GetType().Name, true)).ToList());
 
             if (!OptionCanSellHarmful.GetBool()) GroupedAddons.Remove(AddonTypes.Harmful);
             if (!OptionCanSellHelpful.GetBool()) GroupedAddons.Remove(AddonTypes.Helpful);
