@@ -16,6 +16,8 @@ namespace EHR.Patches;
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CheckForEndVoting))]
 class CheckForEndVotingPatch
 {
+    public static string EjectionText = string.Empty;
+    
     public static bool Prefix(MeetingHud __instance)
     {
         if (!AmongUsClient.Instance.AmHost) return true;
@@ -128,6 +130,7 @@ class CheckForEndVotingPatch
 
             GameData.PlayerInfo exiledPlayer = PlayerControl.LocalPlayer.Data;
             bool tie = false;
+            EjectionText = string.Empty;
 
             foreach (var ps in __instance.playerStates)
             {
@@ -399,14 +402,14 @@ class CheckForEndVotingPatch
                 {
                     name += " (";
                     var team = CustomTeamManager.GetCustomTeam(player.PlayerId);
-                    if (team != null)
-                        name += Utils.ColorString(team.RoleRevealScreenBackgroundColor == "*" || !ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out var color) ? Color.yellow : color, team.RoleRevealScreenTitle == "*" ? team.TeamName : team.RoleRevealScreenTitle);
-                    else if (player.GetCustomRole().IsImpostor() || player.Is(CustomRoles.Madmate))
-                        name += Utils.ColorString(new(255, 25, 25, byte.MaxValue), GetString("TeamImpostor"));
-                    else if (player.GetCustomRole().IsNeutral() || player.Is(CustomRoles.Charmed))
-                        name += Utils.ColorString(new(255, 171, 27, byte.MaxValue), GetString("TeamNeutral"));
-                    else if (player.IsCrewmate())
-                        name += Utils.ColorString(new(140, 255, 255, byte.MaxValue), GetString("TeamCrewmate"));
+                    if (team != null) name += Utils.ColorString(team.RoleRevealScreenBackgroundColor == "*" || !ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out var color) ? Color.yellow : color, team.RoleRevealScreenTitle == "*" ? team.TeamName : team.RoleRevealScreenTitle);
+                    else name += player.GetTeam() switch
+                    {
+                        Team.Impostor => Utils.ColorString(new(255, 25, 25, byte.MaxValue), GetString("TeamImpostor")),
+                        Team.Neutral => Utils.ColorString(new(255, 171, 27, byte.MaxValue), GetString("TeamNeutral")),
+                        Team.Crewmate => Utils.ColorString(new(140, 255, 255, byte.MaxValue), GetString("TeamCrewmate")),
+                        _ => "----"
+                    };
                     name += ")";
                 }
 
@@ -505,6 +508,8 @@ class CheckForEndVotingPatch
                 player.RpcSetName(realName);
                 Main.DoBlockNameChange = false;
             }
+
+            EjectionText = name.Split('\n')[0];
         }, 11.5f, "Change Exiled Player Name Back");
     }
 

@@ -30,8 +30,6 @@ namespace EHR.Roles.Neutral
         private static OptionItem GrenadeExplodeDelay;
         private static OptionItem GrenadeExplodeRadius;
 
-        private static OverrideTasksData Tasks;
-
         private static readonly Dictionary<Factory, Dictionary<string, (List<(int Count, Item Item)> Ingredients, List<(int Count, Item Item)> Results)>> Processes = new()
         {
             [Factory.None] = [],
@@ -157,7 +155,7 @@ namespace EHR.Roles.Neutral
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Multiplier);
 
-            Tasks = OverrideTasksData.Create(++id, tab, CustomRoles.Chemist);
+            OverrideTasksData.Create(++id, tab, CustomRoles.Chemist);
             return;
 
             static int GetDefaultValue(Item item) => item switch
@@ -203,12 +201,7 @@ namespace EHR.Roles.Neutral
             BombedBodies = [];
             Grenades = [];
 
-            foreach (var item in EnumHelper.GetAllValues<Item>())
-            {
-                ItemCounts[item] = 0;
-            }
-
-            ItemCounts[Item.SulfuricAcid] = 30;
+            ItemCounts = EnumHelper.GetAllValues<Item>().ToDictionary(x => x, _ => 0);
 
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -289,24 +282,27 @@ namespace EHR.Roles.Neutral
             if (!base.OnCheckMurder(killer, target)) return false;
 
             int need = FinalProductUsageAmounts[Item.SulfuricAcid].GetInt();
-            if (ItemCounts[Item.SulfuricAcid] >= need && !AcidPlayers.ContainsKey(target.PlayerId) && !AcidPlayers.Any(x => x.Value.OtherAcidPlayers.Contains(target.PlayerId)))
-            {
-                AcidPlayers[target.PlayerId] = ([], Utils.TimeStamp);
-                ItemCounts[Item.SulfuricAcid] -= need;
-                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-                return false;
-            }
-
             int need2 = FinalProductUsageAmounts[Item.Grenade].GetInt();
-            if (ItemCounts[Item.Grenade] >= need2)
+            bool canUseAcid = ItemCounts[Item.SulfuricAcid] >= need && !AcidPlayers.ContainsKey(target.PlayerId) && !AcidPlayers.Any(x => x.Value.OtherAcidPlayers.Contains(target.PlayerId));
+            bool canUseGrenade = ItemCounts[Item.Grenade] >= need2;
+            
+            if (!canUseAcid && !canUseGrenade) return true;
+            
+            return killer.CheckDoubleTrigger(target, () =>
             {
-                ItemCounts[Item.Grenade] -= need2;
-                Grenades[target.PlayerId] = Utils.TimeStamp;
-                Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-                return false;
-            }
-
-            return true;
+                if (canUseAcid)
+                {
+                    AcidPlayers[target.PlayerId] = ([], Utils.TimeStamp);
+                    ItemCounts[Item.SulfuricAcid] -= need;
+                    Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                }
+                else if (canUseGrenade)
+                {
+                    ItemCounts[Item.Grenade] -= need2;
+                    Grenades[target.PlayerId] = Utils.TimeStamp;
+                    Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                }
+            });
         }
 
         public override void OnMurder(PlayerControl killer, PlayerControl target)

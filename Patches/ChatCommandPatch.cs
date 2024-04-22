@@ -715,7 +715,6 @@ internal class ChatCommands
         if (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) && PlayerControl.LocalPlayer.IsAlive())
         {
             ChatManager.SendPreviousMessagesToAll();
-            ChatManager.cancel = false;
             goto Canceled;
         }
 
@@ -1061,10 +1060,9 @@ internal class ChatCommands
                         _ = sb.Append("\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
                     }
 
-                    ChatManager.DontBlock = true;
                     Utils.SendMessage("\n", player.PlayerId, settings.ToString());
                     Utils.SendMessage(sb.ToString(), player.PlayerId, string.Empty);
-                    _ = new LateTask(() => ChatManager.DontBlock = false, 0.5f, log: false);
+                    _ = new LateTask(() => { }, 0.5f, log: false);
                 }
                 else
                     Utils.SendMessage(GetString("Message.CanNotUseInLobby"), player.PlayerId);
@@ -1321,7 +1319,6 @@ internal class ChatCommands
         if (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive() && player.PlayerId != 0)
         {
             ChatManager.SendPreviousMessagesToAll();
-            ChatManager.cancel = false;
             canceled = true;
             LastSentCommand[player.PlayerId] = now;
             return;
@@ -1367,36 +1364,22 @@ internal class ChatUpdatePatch
         }
 
         var writer = CustomRpcSender.Create("MessagesToSend");
-        _ = writer.StartMessage(clientId);
-        _ = writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+        writer.StartMessage(clientId);
+        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
             .Write(title)
             .EndRpc();
-        _ = writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+        writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
             .Write(msg)
             .EndRpc();
-        _ = writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
             .Write(player.Data.PlayerName)
             .EndRpc();
-        _ = writer.EndMessage();
+        writer.EndMessage();
         writer.SendMessage();
 
         __instance.timeSinceLastMessage = 0f;
     }
 }
-
-//[HarmonyPatch(typeof(ChatController), nameof(ChatController.AddChat))]
-//internal class AddChatPatch
-//{
-//    public static void Postfix(string chatText)
-//    {
-//        switch (chatText)
-//        {
-//            default:
-//                break;
-//        }
-//        if (!AmongUsClient.Instance.AmHost) return;
-//    }
-//}
 
 [HarmonyPatch(typeof(FreeChatInputField), nameof(FreeChatInputField.UpdateCharCount))]
 internal class UpdateCharCountPatch

@@ -43,8 +43,8 @@ namespace EHR.Roles.Neutral
         ];
 
         public static ((Color32 Color, string String, PlayerControl Player) LastReportedPlayer, string LastPlayerPressedButtonName, SystemTypes LastSabotage, string LastReporterName, int NumPlayersVotedLastMeeting, string FirstReportedBodyPlayerName, int NumEmergencyMeetings, int NumPlayersDeadThisRound, int NumPlayersDeadFirstRound, int NumSabotages, int NumMeetings) Data = ((new(), string.Empty, null), string.Empty, default, string.Empty, 0, string.Empty, 0, 0, 0, 0, 0);
+        
         private Question CurrentQuestion;
-
         public byte QuizMasterId;
         public byte Target;
 
