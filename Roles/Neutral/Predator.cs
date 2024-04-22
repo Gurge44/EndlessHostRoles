@@ -7,18 +7,17 @@ namespace EHR.Roles.Neutral
 {
     internal class Predator : RoleBase
     {
-        public static bool On;
-        public override bool IsEnable => On;
-
         private const int Id = 643540;
+        public static bool On;
         private static OptionItem NumOfRolesToKill;
         private static OptionItem MaxImpRolePicks;
         private static OptionItem KillCooldown;
         private static OptionItem CanVent;
         private static OptionItem HasImpVision;
+        public bool IsWon;
 
         private List<CustomRoles> RolesToKill = [];
-        public bool IsWon;
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
@@ -27,7 +26,7 @@ namespace EHR.Roles.Neutral
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator]);
             MaxImpRolePicks = IntegerOptionItem.Create(Id + 3, "MaxImpRolePicks", new(1, 10, 1), 1, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator]);
-            KillCooldown = FloatOptionItem.Create(Id + 4, "KillCooldown", new(0f, 180f, 2.5f), 15f, TabGroup.NeutralRoles)
+            KillCooldown = FloatOptionItem.Create(Id + 4, "KillCooldown", new(0f, 180f, 0.5f), 15f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator])
                 .SetValueFormat(OptionFormat.Seconds);
             CanVent = BooleanOptionItem.Create(Id + 5, "CanVent", true, TabGroup.NeutralRoles)

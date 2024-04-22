@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
+using EHR.Neutral;
 using EHR.Roles.AddOns.Common;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
@@ -30,6 +31,7 @@ class HudManagerPatch
     public static TextMeshPro LowerInfoText;
 
     private static TextMeshPro OverriddenRolesText;
+    private static TextMeshPro TaskCountText;
 
     private static long LastNullError;
 
@@ -159,6 +161,9 @@ class HudManagerPatch
 
             if (SetHudActivePatch.IsActive)
             {
+                if (TaskCountText == null) TaskCountText = __instance.transform.FindChild("TaskDisplay/ProgressTracker").GetComponent<TextMeshPro>();
+                if (TaskCountText != null) TaskCountText.text += $" ({GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks})";
+
                 if (player.IsAlive() || Options.CurrentGameMode != CustomGameMode.Standard)
                 {
                     bool usesPetInsteadOfKill = player.GetCustomRole().UsesPetInsteadOfKill();
@@ -178,7 +183,7 @@ class HudManagerPatch
                             __instance.AbilityButton?.OverrideText((Main.PlayerStates[player.PlayerId].Role as FireWorks).nowFireWorksCount == 0 ? GetString("FireWorksExplosionButtonText") : GetString("FireWorksInstallAtionButtonText"));
                             break;
                         case CustomRoles.Swiftclaw:
-                            __instance.KillButton?.OverrideText(GetString("SwiftclawKillButtonText"));
+                            __instance.PetButton?.OverrideText(GetString("SwiftclawKillButtonText"));
                             break;
                         case CustomRoles.Pestilence:
                             __instance.KillButton?.OverrideText(GetString("KillButtonText"));
@@ -398,6 +403,8 @@ class HudManagerPatch
                             CustomRoles.PlagueDoctor => PlagueDoctor.GetLowerTextOthers(player, isForHud: true),
                             CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),
                             CustomRoles.Hookshot => Hookshot.SuffixText(player.PlayerId),
+                            CustomRoles.Simon => Simon.GetSuffix(player, player, hud: true),
+                            CustomRoles.Chemist => Chemist.GetSuffix(player, player, hud: true),
                             CustomRoles.Tornado => Tornado.GetSuffixText(isHUD: true),
                             _ => player.Is(CustomRoles.Asthmatic) ? Asthmatic.GetSuffixText(player.PlayerId) : string.Empty,
                         },
@@ -858,3 +865,5 @@ class RepairSender
         return SystemType + "(" + ((SystemTypes)SystemType) + ")\r\n" + amount;
     }
 }
+
+// The following code comes from Crowded https://github.com/CrowdedMods/CrowdedMod/blob/master/src/CrowdedMod/Patches/CreateGameOptionsPatches.cs

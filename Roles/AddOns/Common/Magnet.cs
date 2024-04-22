@@ -6,7 +6,7 @@
 
         public void SetupCustomOption()
         {
-            Options.SetupAdtRoleOptions(14697, CustomRoles.Magnet, canSetNum: true);
+            Options.SetupAdtRoleOptions(19694, CustomRoles.Magnet, canSetNum: true, teamSpawnOptions: true);
         }
     }
 }

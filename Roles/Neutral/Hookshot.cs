@@ -8,22 +8,23 @@ namespace EHR.Roles.Neutral
 {
     internal class Hookshot : RoleBase
     {
-        private static int Id => 643230;
-
-        private PlayerControl Hookshot_ => GetPlayerById(HookshotId);
-        private byte HookshotId = byte.MaxValue;
-
         private static OptionItem KillCooldown;
         private static OptionItem HasImpostorVision;
         public static OptionItem CanVent;
+        private byte HookshotId = byte.MaxValue;
+        public byte MarkedPlayerId = byte.MaxValue;
 
         private bool ToTargetTP = true;
-        public byte MarkedPlayerId = byte.MaxValue;
+        private static int Id => 643230;
+
+        private PlayerControl Hookshot_ => GetPlayerById(HookshotId);
+
+        public override bool IsEnable => HookshotId != byte.MaxValue;
 
         public static void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Hookshot);
-            KillCooldown = FloatOptionItem.Create(Id + 2, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles)
+            KillCooldown = FloatOptionItem.Create(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Hookshot])
                 .SetValueFormat(OptionFormat.Seconds);
             HasImpostorVision = BooleanOptionItem.Create(Id + 3, "ImpostorVision", true, TabGroup.NeutralRoles)
@@ -49,7 +50,6 @@ namespace EHR.Roles.Neutral
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public override bool IsEnable => HookshotId != byte.MaxValue;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
         public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive();
@@ -64,6 +64,7 @@ namespace EHR.Roles.Neutral
             writer.Write(MarkedPlayerId);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
+
         public static void ReceiveRPC(MessageReader reader)
         {
             var playerId = reader.ReadByte();

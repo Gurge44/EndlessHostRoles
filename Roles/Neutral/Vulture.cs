@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -14,9 +15,6 @@ public class Vulture : RoleBase
     private static List<byte> playerIdList = [];
 
     public static List<byte> UnreportablePlayers = [];
-    public static Dictionary<byte, int> BodyReportCount = [];
-    public static Dictionary<byte, int> AbilityLeftInRound = [];
-    public static Dictionary<byte, long> LastReport = [];
 
     public static OptionItem ArrowsPointingToDeadBody;
     public static OptionItem NumberOfReportsToWin;
@@ -24,34 +22,59 @@ public class Vulture : RoleBase
     public static OptionItem VultureReportCD;
     public static OptionItem MaxEaten;
     public static OptionItem HasImpVision;
+    public static OptionItem ChangeRoleWhenCantWin;
+    public static OptionItem ChangeRole;
+
+    private static readonly CustomRoles[] ChangeRoles =
+    [
+        CustomRoles.Amnesiac,
+        CustomRoles.Pursuer,
+        CustomRoles.Maverick,
+        CustomRoles.Totocalcio,
+        CustomRoles.Opportunist,
+        CustomRoles.Crewmate,
+        CustomRoles.Jester
+    ];
+
+    private int BodyReportCount;
+    private long LastReport;
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Vulture);
-        ArrowsPointingToDeadBody = BooleanOptionItem.Create(Id + 10, "VultureArrowsPointingToDeadBody", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
-        NumberOfReportsToWin = IntegerOptionItem.Create(Id + 11, "VultureNumberOfReportsToWin", new(1, 10, 1), 4, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
-        CanVent = BooleanOptionItem.Create(Id + 12, "CanVent", true, TabGroup.NeutralRoles, true).SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
-        VultureReportCD = FloatOptionItem.Create(Id + 13, "VultureReportCooldown", new(0f, 180f, 2.5f), 15f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Vulture])
+        ArrowsPointingToDeadBody = BooleanOptionItem.Create(Id + 10, "VultureArrowsPointingToDeadBody", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
+        NumberOfReportsToWin = IntegerOptionItem.Create(Id + 11, "VultureNumberOfReportsToWin", new(1, 10, 1), 4, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
+        CanVent = BooleanOptionItem.Create(Id + 12, "CanVent", true, TabGroup.NeutralRoles, true)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
+        VultureReportCD = FloatOptionItem.Create(Id + 13, "VultureReportCooldown", new(0f, 180f, 2.5f), 15f, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Vulture])
             .SetValueFormat(OptionFormat.Seconds);
-        MaxEaten = IntegerOptionItem.Create(Id + 14, "VultureMaxEatenInOneRound", new(1, 10, 1), 2, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
-        HasImpVision = BooleanOptionItem.Create(Id + 15, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
+        MaxEaten = IntegerOptionItem.Create(Id + 14, "VultureMaxEatenInOneRound", new(1, 10, 1), 2, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
+        HasImpVision = BooleanOptionItem.Create(Id + 15, "ImpostorVision", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
+        ChangeRoleWhenCantWin = BooleanOptionItem.Create(Id + 16, "VultureChangeRoleWhenCantWin", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
+        ChangeRole = StringOptionItem.Create(Id + 17, "VultureChangeRole", ChangeRoles.Select(x => x.ToColoredString()).ToArray(), 0, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
     }
 
     public override void Init()
     {
         playerIdList = [];
         UnreportablePlayers = [];
-        BodyReportCount = [];
-        AbilityLeftInRound = [];
-        LastReport = [];
     }
 
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        BodyReportCount[playerId] = 0;
-        AbilityLeftInRound[playerId] = MaxEaten.GetInt();
-        LastReport[playerId] = Utils.TimeStamp;
+        BodyReportCount = 0;
+        playerId.SetAbilityUseLimit(MaxEaten.GetInt());
+        LastReport = Utils.TimeStamp;
         _ = new LateTask(() =>
         {
             if (GameStates.IsInTask)
@@ -60,8 +83,6 @@ public class Vulture : RoleBase
             }
         }, VultureReportCD.GetFloat() + 8f, "Vulture CD");
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
@@ -114,8 +135,8 @@ public class Vulture : RoleBase
             if (player == null) continue;
             if (player.IsAlive())
             {
-                AbilityLeftInRound[apc] = MaxEaten.GetInt();
-                LastReport[apc] = Utils.TimeStamp;
+                apc.SetAbilityUseLimit(MaxEaten.GetInt());
+                LastReport = Utils.TimeStamp;
                 _ = new LateTask(() =>
                 {
                     if (GameStates.IsInTask)
@@ -145,11 +166,11 @@ public class Vulture : RoleBase
 
     public override bool CheckReportDeadBody(PlayerControl pc, GameData.PlayerInfo target, PlayerControl killer)
     {
-        if (AbilityLeftInRound[pc.PlayerId] <= 0) return true;
-        if (Utils.TimeStamp - LastReport[pc.PlayerId] < VultureReportCD.GetFloat()) return true;
+        if (pc.GetAbilityUseLimit() <= 0) return true;
+        if (Utils.TimeStamp - LastReport < VultureReportCD.GetFloat()) return true;
 
-        BodyReportCount[pc.PlayerId]++;
-        AbilityLeftInRound[pc.PlayerId]--;
+        BodyReportCount++;
+        pc.RpcRemoveAbilityUse();
         Logger.Msg($"target.object {target.Object}, is null? {target.Object == null}", "VultureNull");
         if (target.Object != null)
         {
@@ -177,11 +198,18 @@ public class Vulture : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         var playerId = pc.PlayerId;
-        if (BodyReportCount[playerId] >= NumberOfReportsToWin.GetInt() && GameStates.IsInTask)
+        if (BodyReportCount >= NumberOfReportsToWin.GetInt() && GameStates.IsInTask)
         {
-            BodyReportCount[playerId] = NumberOfReportsToWin.GetInt();
+            BodyReportCount = NumberOfReportsToWin.GetInt();
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Vulture);
             CustomWinnerHolder.WinnerIds.Add(playerId);
+            return;
+        }
+
+        if (ChangeRoleWhenCantWin.GetBool() && Main.AllAlivePlayerControls.Length <= (NumberOfReportsToWin.GetInt() - BodyReportCount))
+        {
+            var role = ChangeRoles[ChangeRole.GetValue()];
+            pc.RpcSetCustomRole(role);
         }
     }
 }

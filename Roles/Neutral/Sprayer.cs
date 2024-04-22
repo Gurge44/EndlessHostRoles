@@ -10,9 +10,6 @@ namespace EHR.Roles.Neutral
 {
     internal class Sprayer : RoleBase
     {
-        private static int Id => 643240;
-
-        private static PlayerControl Sprayer_ => GetPlayerById(SprayerId);
         private static byte SprayerId = byte.MaxValue;
 
         private static OptionItem KillCooldown;
@@ -29,11 +26,16 @@ namespace EHR.Roles.Neutral
         private static readonly Dictionary<byte, int> TrappedCount = [];
         public static readonly List<byte> LowerVisionList = [];
         private static readonly Dictionary<byte, long> LastUpdate = [];
+        private static int Id => 643240;
+
+        private static PlayerControl Sprayer_ => GetPlayerById(SprayerId);
+
+        public override bool IsEnable => SprayerId != byte.MaxValue;
 
         public static void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Sprayer);
-            KillCooldown = FloatOptionItem.Create(Id + 2, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles)
+            KillCooldown = FloatOptionItem.Create(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Seconds);
             HasImpostorVision = BooleanOptionItem.Create(Id + 3, "ImpostorVision", true, TabGroup.NeutralRoles)
@@ -81,7 +83,6 @@ namespace EHR.Roles.Neutral
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public override bool IsEnable => SprayerId != byte.MaxValue;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();

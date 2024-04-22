@@ -1,5 +1,4 @@
-﻿
-namespace EHR;
+﻿namespace EHR;
 
 public enum CustomRoles
 {
@@ -150,6 +149,7 @@ public enum CustomRoles
     Farseer,
     Divinator, // Fortune Teller
     Gaulois,
+    Goose,
     Grenadier,
     GuessManagerRole,
     Guardian,
@@ -223,6 +223,7 @@ public enum CustomRoles
     Bargainer,
     BloodKnight,
     Bubble,
+    Chemist,
     Cherokious,
     Collector,
     Deathknight,
@@ -277,6 +278,7 @@ public enum CustomRoles
     SchrodingersCat,
     NSerialKiller, // Serial Killer
     Sidekick,
+    Simon,
     SoulHunter,
     Spiritcaller,
     Sprayer,
@@ -323,6 +325,7 @@ public enum CustomRoles
     // Sub-role after 500
     NotAssigned = 500,
     Antidote,
+    AntiTP,
     Asthmatic,
     Autopsy,
     Avanger,
@@ -379,6 +382,7 @@ public enum CustomRoles
     DualPersonality, // Schizophrenic
     Seer,
     Sleuth,
+    Sonar,
     Stained,
     Taskcounter,
     TicketsStealer, // Stealer

@@ -25,21 +25,23 @@ namespace EHR;
 [BepInProcess("Among Us.exe")]
 public class Main : BasePlugin
 {
+    public const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
+    public const string DebugKeySalt = "59687b";
+    public const string PluginGuid = "com.gurge44.endlesshostroles";
+    public const string PluginVersion = "3.3.0";
+    public const string PluginDisplayVersion = "3.3.0";
+    public const string NeutralColor = "#ffab1b";
+    public const string ImpostorColor = "#ff1919";
+    public const string CrewmateColor = "#8cffff";
+
+    public const float MinSpeed = 0.0001f;
+
     // == プログラム設定 / Program Config ==
     public static readonly string ModName = "EHR";
     public static readonly string ModColor = "#00ffff";
     public static readonly bool AllowPublicRoom = true;
     public static readonly string ForkId = "EHR";
-    public static HashAuth DebugKeyAuth { get; private set; }
-    public const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
-    public const string DebugKeySalt = "59687b";
-    public static ConfigEntry<string> DebugKeyInput { get; private set; }
-    public const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "3.3.0";
-    public const string PluginDisplayVersion = "3.3.0";
     public static readonly string SupportedAUVersion = "2024.3.5";
-
-    public Harmony Harmony { get; } = new(PluginGuid);
     public static Version Version = Version.Parse(PluginVersion);
     public static ManualLogSource Logger;
     public static bool HasArgumentException;
@@ -47,45 +49,7 @@ public class Main : BasePlugin
     public static bool ExceptionMessageIsShown;
     public static string CredentialsText;
 
-    public static NormalGameOptionsV07 NormalOptions => GameOptionsManager.Instance.currentNormalGameOptions;
-
-    //Client Options
-    public static ConfigEntry<string> HideName { get; private set; }
-    public static ConfigEntry<string> HideColor { get; private set; }
-    public static ConfigEntry<int> MessageWait { get; private set; }
-    public static ConfigEntry<bool> GM { get; private set; }
-    public static ConfigEntry<bool> UnlockFps { get; private set; }
-    public static ConfigEntry<bool> AutoStart { get; private set; }
-    public static ConfigEntry<bool> ForceOwnLanguage { get; private set; }
-    public static ConfigEntry<bool> ForceOwnLanguageRoleName { get; private set; }
-    public static ConfigEntry<bool> EnableCustomButton { get; private set; }
-    public static ConfigEntry<bool> EnableCustomSoundEffect { get; private set; }
-    public static ConfigEntry<bool> SwitchVanilla { get; private set; }
-    public static ConfigEntry<bool> VersionCheat { get; private set; }
-    public static ConfigEntry<bool> GodMode { get; private set; }
-    public static ConfigEntry<bool> DarkTheme { get; private set; }
-    public static ConfigEntry<bool> HorseMode { get; private set; }
-    public static ConfigEntry<bool> LongMode { get; private set; }
-
     public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
-
-    //Preset Name Options
-    public static ConfigEntry<string> Preset1 { get; private set; }
-    public static ConfigEntry<string> Preset2 { get; private set; }
-    public static ConfigEntry<string> Preset3 { get; private set; }
-    public static ConfigEntry<string> Preset4 { get; private set; }
-
-    public static ConfigEntry<string> Preset5 { get; private set; }
-
-    //Other Configs
-    public static ConfigEntry<string> WebhookUrl { get; private set; }
-    public static ConfigEntry<string> BetaBuildUrl { get; private set; }
-    public static ConfigEntry<float> LastKillCooldown { get; private set; }
-    public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
-    public const string NeutralColor = "#ffab1b";
-    public const string ImpostorColor = "#ff1919";
-    public const string CrewmateColor = "#8cffff";
-    public static bool IsFixedCooldown => CustomRoles.Vampire.IsEnable() || CustomRoles.Poisoner.IsEnable();
     public static bool ChangedRole = false;
     public static OptionBackupData RealOptionsData;
     public static Dictionary<byte, float> KillTimers = [];
@@ -126,7 +90,6 @@ public class Main : BasePlugin
     public static Dictionary<int, int> SayStartTimes = [];
     public static Dictionary<int, int> SayBanwordsTimes = [];
     public static Dictionary<byte, float> AllPlayerSpeed = [];
-    public const float MinSpeed = 0.0001f;
     public static Dictionary<byte, int> GuesserGuessed = [];
     public static bool HasJustStarted;
     public static int AliveImpostorCount;
@@ -151,6 +114,58 @@ public class Main : BasePlugin
     public static List<byte> BrakarVoteFor = [];
     public static Dictionary<byte, string> SleuthMsgs = [];
     public static int MadmateNum;
+
+    public static Main Instance;
+
+
+    public static string OverrideWelcomeMsg = string.Empty;
+    public static int HostClientId;
+
+    public static Dictionary<byte, List<int>> GuessNumber = [];
+
+    public static List<string> NameSnacksCn = ["冰激凌", "奶茶", "巧克力", "蛋糕", "甜甜圈", "可乐", "柠檬水", "冰糖葫芦", "果冻", "糖果", "牛奶", "抹茶", "烧仙草", "菠萝包", "布丁", "椰子冻", "曲奇", "红豆土司", "三彩团子", "艾草团子", "泡芙", "可丽饼", "桃酥", "麻薯", "鸡蛋仔", "马卡龙", "雪梅娘", "炒酸奶", "蛋挞", "松饼", "西米露", "奶冻", "奶酥", "可颂", "奶糖"];
+
+    // ReSharper disable once StringLiteralTypo
+    public static List<string> NameSnacksEn = ["Ice cream", "Milk tea", "Chocolate", "Cake", "Donut", "Coke", "Lemonade", "Candied haws", "Jelly", "Candy", "Milk", "Matcha", "Burning Grass Jelly", "Pineapple Bun", "Pudding", "Coconut Jelly", "Cookies", "Red Bean Toast", "Three Color Dumplings", "Wormwood Dumplings", "Puffs", "Can be Crepe", "Peach Crisp", "Mochi", "Egg Waffle", "Macaron", "Snow Plum Niang", "Fried Yogurt", "Egg Tart", "Muffin", "Sago Dew", "panna cotta", "soufflé", "croissant", "toffee"];
+    public static HashAuth DebugKeyAuth { get; private set; }
+    public static ConfigEntry<string> DebugKeyInput { get; private set; }
+
+    public Harmony Harmony { get; } = new(PluginGuid);
+
+    public static NormalGameOptionsV07 NormalOptions => GameOptionsManager.Instance.currentNormalGameOptions;
+
+    // Client Options
+    public static ConfigEntry<string> HideName { get; private set; }
+    public static ConfigEntry<string> HideColor { get; private set; }
+    public static ConfigEntry<int> MessageWait { get; private set; }
+    public static ConfigEntry<bool> GM { get; private set; }
+    public static ConfigEntry<bool> UnlockFps { get; private set; }
+    public static ConfigEntry<bool> AutoStart { get; private set; }
+    public static ConfigEntry<bool> ForceOwnLanguage { get; private set; }
+    public static ConfigEntry<bool> ForceOwnLanguageRoleName { get; private set; }
+    public static ConfigEntry<bool> EnableCustomButton { get; private set; }
+    public static ConfigEntry<bool> EnableCustomSoundEffect { get; private set; }
+    public static ConfigEntry<bool> SwitchVanilla { get; private set; }
+    public static ConfigEntry<bool> VersionCheat { get; private set; }
+    public static ConfigEntry<bool> GodMode { get; private set; }
+    public static ConfigEntry<bool> DarkTheme { get; private set; }
+    public static ConfigEntry<bool> HorseMode { get; private set; }
+    public static ConfigEntry<bool> LongMode { get; private set; }
+
+    //Preset Name Options
+    public static ConfigEntry<string> Preset1 { get; private set; }
+    public static ConfigEntry<string> Preset2 { get; private set; }
+    public static ConfigEntry<string> Preset3 { get; private set; }
+    public static ConfigEntry<string> Preset4 { get; private set; }
+
+    public static ConfigEntry<string> Preset5 { get; private set; }
+
+    //Other Configs
+    public static ConfigEntry<string> WebhookUrl { get; private set; }
+    public static ConfigEntry<string> BetaBuildUrl { get; private set; }
+    public static ConfigEntry<float> LastKillCooldown { get; private set; }
+    public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
+    public static bool IsFixedCooldown => CustomRoles.Vampire.IsEnable() || CustomRoles.Poisoner.IsEnable();
 
 
     public static PlayerControl[] AllPlayerControls
@@ -182,19 +197,6 @@ public class Main : BasePlugin
             return [.. result];
         }
     }
-
-    public static Main Instance;
-
-
-    public static string OverrideWelcomeMsg = string.Empty;
-    public static int HostClientId;
-
-    public static Dictionary<byte, List<int>> GuessNumber = [];
-
-    public static List<string> NameSnacksCn = ["冰激凌", "奶茶", "巧克力", "蛋糕", "甜甜圈", "可乐", "柠檬水", "冰糖葫芦", "果冻", "糖果", "牛奶", "抹茶", "烧仙草", "菠萝包", "布丁", "椰子冻", "曲奇", "红豆土司", "三彩团子", "艾草团子", "泡芙", "可丽饼", "桃酥", "麻薯", "鸡蛋仔", "马卡龙", "雪梅娘", "炒酸奶", "蛋挞", "松饼", "西米露", "奶冻", "奶酥", "可颂", "奶糖"];
-
-    // ReSharper disable once StringLiteralTypo
-    public static List<string> NameSnacksEn = ["Ice cream", "Milk tea", "Chocolate", "Cake", "Donut", "Coke", "Lemonade", "Candied haws", "Jelly", "Candy", "Milk", "Matcha", "Burning Grass Jelly", "Pineapple Bun", "Pudding", "Coconut Jelly", "Cookies", "Red Bean Toast", "Three Color Dumplings", "Wormwood Dumplings", "Puffs", "Can be Crepe", "Peach Crisp", "Mochi", "Egg Waffle", "Macaron", "Snow Plum Niang", "Fried Yogurt", "Egg Tart", "Muffin", "Sago Dew", "panna cotta", "soufflé", "croissant", "toffee"];
 
     // ReSharper disable once InconsistentNaming
     public static string Get_TName_Snacks => TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese ? NameSnacksCn[IRandom.Instance.Next(0, NameSnacksCn.Count)] : NameSnacksEn[IRandom.Instance.Next(0, NameSnacksEn.Count)];
@@ -322,6 +324,7 @@ public class Main : BasePlugin
                 { CustomRoles.Gaulois, "#42d1f5" },
                 { CustomRoles.Druid, "#ffb694" },
                 { CustomRoles.Autocrat, "#e2ed64" },
+                { CustomRoles.Goose, "#f9ffb8" },
                 { CustomRoles.Sentry, "#db55f2" },
                 { CustomRoles.Perceiver, "#ebeb34" },
                 { CustomRoles.Convener, "#34eb7a" },
@@ -424,6 +427,8 @@ public class Main : BasePlugin
                 { CustomRoles.HexMaster, "#ff00ff" },
                 { CustomRoles.Wraith, "#4B0082" },
                 { CustomRoles.NSerialKiller, "#233fcc" },
+                { CustomRoles.Simon, "#c4b8ff" },
+                { CustomRoles.Chemist, "#4287f5" },
                 { CustomRoles.Samurai, "#73495c" },
                 { CustomRoles.QuizMaster, "#CF2472" },
                 { CustomRoles.Bargainer, "#4f2f36" },
@@ -488,6 +493,7 @@ public class Main : BasePlugin
                 { CustomRoles.Madmate, "#ff1919" },
                 { CustomRoles.Watcher, "#800080" },
                 { CustomRoles.Sleuth, "#30221c" },
+                { CustomRoles.AntiTP, "#fcba03" },
                 { CustomRoles.Taskcounter, "#ff1919" },
                 { CustomRoles.Stained, "#e6bf91" },
                 { CustomRoles.Clumsy, "#b8b8b8" },
@@ -497,6 +503,7 @@ public class Main : BasePlugin
                 { CustomRoles.Busy, "#32a852" },
                 { CustomRoles.Truant, "#eb3467" },
                 { CustomRoles.Disco, "#eb34e8" },
+                { CustomRoles.Sonar, "#b8fffe" },
                 { CustomRoles.Asthmatic, "#8feb34" },
                 { CustomRoles.Giant, "#32a852" },
                 { CustomRoles.Nimble, "#feffc7" },
@@ -685,6 +692,8 @@ public enum CustomWinner
     Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
     SerialKiller = CustomRoles.NSerialKiller,
+    Simon = CustomRoles.Simon,
+    Chemist = CustomRoles.Chemist,
     Samurai = CustomRoles.Samurai,
     QuizMaster = CustomRoles.QuizMaster,
     Bargainer = CustomRoles.Bargainer,

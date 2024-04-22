@@ -2,6 +2,7 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 
 namespace EHR.Modules;
@@ -33,44 +34,14 @@ public static class ShuffleListExtension
 internal static class CustomRoleSelector
 {
     public static Dictionary<PlayerControl, CustomRoles> RoleResult;
-    public static IReadOnlyList<CustomRoles> AllRoles => [.. RoleResult.Values];
 
-    enum RoleAssignType
-    {
-        Impostor,
-        NeutralKilling,
-        NonKillingNeutral,
-        Crewmate
-    }
+    public static int AddScientistNum;
+    public static int AddEngineerNum;
+    public static int AddShapeshifterNum;
 
-    public class RoleAssignInfo(CustomRoles role, int spawnChance, int maxCount, int assignedCount = 0)
-    {
-        public CustomRoles Role
-        {
-            get => role;
-            set => role = value;
-        }
+    public static List<CustomRoles> AddonRolesList = [];
 
-        public int SpawnChance
-        {
-            get => spawnChance;
-            set => spawnChance = value;
-        }
-
-        public int MaxCount
-        {
-            get => maxCount;
-            set => maxCount = value;
-        }
-
-        public int AssignedCount
-        {
-            get => assignedCount;
-            set => assignedCount = value;
-        }
-    }
-
-    public static void GetNeutralCounts(int NKmaxOpt, int NKminOpt, int NNKmaxOpt, int NNKminOpt, ref int ResultNKnum, ref int ResultNNKnum)
+    private static void GetNeutralCounts(int NKmaxOpt, int NKminOpt, int NNKmaxOpt, int NNKminOpt, ref int ResultNKnum, ref int ResultNNKnum)
     {
         var rd = IRandom.Instance;
 
@@ -137,7 +108,7 @@ internal static class CustomRoleSelector
         foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
         {
             int chance = role.GetMode();
-            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || (role != CustomRoles.Randomizer && role.IsCrewmate() && Options.AprilFoolsMode.GetBool())) continue;
+            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || (role != CustomRoles.Randomizer && role.IsCrewmate() && Options.AprilFoolsMode.GetBool()) || (Options.CurrentGameMode == CustomGameMode.HideAndSeek && CustomHideAndSeekManager.HideAndSeekRoles.ContainsKey(role))) continue;
             switch (role)
             {
                 case CustomRoles.Commander when optImpNum <= 1 && Commander.CannotSpawnAsSoloImp.GetBool():
@@ -576,7 +547,7 @@ internal static class CustomRoleSelector
         if (NKs.Length > 0) Logger.Info(string.Join(", ", NKs.Select(x => $"{x.Role} - {x.AssignedCount}/{x.MaxCount} ({x.SpawnChance}%)")), "NKRoleResult");
         if (Crews.Length > 0) Logger.Info(string.Join(", ", Crews.Select(x => $"{x.Role} - {x.AssignedCount}/{x.MaxCount} ({x.SpawnChance}%)")), "CrewRoleResult");
 
-        if (rd.Next(0, 100) < Options.SunnyboyChance.GetInt() && FinalRolesList.Remove(CustomRoles.Jester)) FinalRolesList.Add(CustomRoles.Sunnyboy);
+        if (rd.Next(0, 100) < Jester.SunnyboyChance.GetInt() && FinalRolesList.Remove(CustomRoles.Jester)) FinalRolesList.Add(CustomRoles.Sunnyboy);
         if (rd.Next(0, 100) < Sans.BardChance.GetInt() && FinalRolesList.Remove(CustomRoles.Sans)) FinalRolesList.Add(CustomRoles.Bard);
         if (rd.Next(0, 100) < Options.NukerChance.GetInt() && FinalRolesList.Remove(CustomRoles.Bomber)) FinalRolesList.Add(CustomRoles.Nuker);
 
@@ -614,17 +585,13 @@ internal static class CustomRoleSelector
         RoleAssignInfo GetAssignInfo(CustomRoles role) => Roles.Values.FirstOrDefault(x => x.Any(y => y.Role == role))?.FirstOrDefault(x => x.Role == role);
     }
 
-    public static int AddScientistNum;
-    public static int AddEngineerNum;
-    public static int AddShapeshifterNum;
-
     public static void CalculateVanillaRoleCount()
     {
         // Calculate the number of base roles
         AddEngineerNum = 0;
         AddScientistNum = 0;
         AddShapeshifterNum = 0;
-        foreach (var role in AllRoles)
+        foreach (var role in RoleResult.Values)
         {
             switch (role.GetVNRole())
             {
@@ -640,8 +607,6 @@ internal static class CustomRoleSelector
             }
         }
     }
-
-    public static List<CustomRoles> AddonRolesList = [];
 
     public static void SelectAddonRoles()
     {
@@ -663,6 +628,41 @@ internal static class CustomRoleSelector
             }
 
             AddonRolesList.Add(role);
+        }
+    }
+
+    enum RoleAssignType
+    {
+        Impostor,
+        NeutralKilling,
+        NonKillingNeutral,
+        Crewmate
+    }
+
+    public class RoleAssignInfo(CustomRoles role, int spawnChance, int maxCount, int assignedCount = 0)
+    {
+        public CustomRoles Role
+        {
+            get => role;
+            set => role = value;
+        }
+
+        public int SpawnChance
+        {
+            get => spawnChance;
+            set => spawnChance = value;
+        }
+
+        public int MaxCount
+        {
+            get => maxCount;
+            set => maxCount = value;
+        }
+
+        public int AssignedCount
+        {
+            get => assignedCount;
+            set => assignedCount = value;
         }
     }
 }

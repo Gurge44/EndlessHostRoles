@@ -7,7 +7,6 @@ namespace EHR.Roles.Neutral
 {
     internal class Necromancer : RoleBase
     {
-        private static int Id => 643450;
         public static byte NecromancerId = byte.MaxValue;
         public static PlayerControl Necromancer_;
 
@@ -24,11 +23,14 @@ namespace EHR.Roles.Neutral
         ];
 
         public static readonly List<byte> PartiallyRecruitedIds = [];
+        private static int Id => 643450;
+
+        public override bool IsEnable => NecromancerId != byte.MaxValue;
 
         public static void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Necromancer);
-            CD = FloatOptionItem.Create(Id + 2, "NecromancerCD", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles)
+            CD = FloatOptionItem.Create(Id + 2, "NecromancerCD", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer])
                 .SetValueFormat(OptionFormat.Seconds);
             DKCD = FloatOptionItem.Create(Id + 10, "DKCD", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles)
@@ -60,8 +62,6 @@ namespace EHR.Roles.Neutral
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
-
-        public override bool IsEnable => NecromancerId != byte.MaxValue;
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CD.GetFloat();
 
@@ -141,6 +141,8 @@ namespace EHR.Roles.Neutral
         public static byte DeathknightId = byte.MaxValue;
         public static PlayerControl Deathknight_;
 
+        public override bool IsEnable => DeathknightId != byte.MaxValue;
+
         public override void Init()
         {
             DeathknightId = byte.MaxValue;
@@ -156,8 +158,6 @@ namespace EHR.Roles.Neutral
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
-
-        public override bool IsEnable => DeathknightId != byte.MaxValue;
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Necromancer.DKCD.GetFloat();
 

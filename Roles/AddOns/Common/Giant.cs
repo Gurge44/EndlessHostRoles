@@ -6,8 +6,8 @@
 
         public void SetupCustomOption()
         {
-            Options.SetupAdtRoleOptions(18750, CustomRoles.Giant, canSetNum: true, tab: TabGroup.Addons);
-            Options.GiantSpeed = FloatOptionItem.Create(18753, "GiantSpeed", new(0.25f, 3f, 0.25f), 0.75f, TabGroup.Addons)
+            Options.SetupAdtRoleOptions(18750, CustomRoles.Giant, canSetNum: true, tab: TabGroup.Addons, teamSpawnOptions: true);
+            Options.GiantSpeed = FloatOptionItem.Create(18756, "GiantSpeed", new(0.25f, 3f, 0.05f), 0.75f, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Giant])
                 .SetValueFormat(OptionFormat.Multiplier);
         }

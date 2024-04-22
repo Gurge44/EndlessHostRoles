@@ -120,6 +120,9 @@ class ExileControllerWrapUpPatch
                 case CustomRoles.Devourer:
                     Devourer.OnDevourerDied(exiled.PlayerId);
                     break;
+                case CustomRoles.Medic:
+                    Medic.IsDead(exiled.Object);
+                    break;
             }
 
             if (Executioner.CheckExileTarget(exiled, DecidedWinner)) DecidedWinner = true;

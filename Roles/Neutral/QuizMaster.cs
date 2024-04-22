@@ -1,10 +1,10 @@
-﻿using AmongUs.GameOptions;
-using EHR.Modules;
-using EHR.Patches;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using AmongUs.GameOptions;
+using EHR.Modules;
+using EHR.Patches;
 using UnityEngine;
 using static EHR.Options;
 
@@ -12,8 +12,8 @@ namespace EHR.Roles.Neutral
 {
     internal class QuizMaster : RoleBase
     {
-        public static bool On;
         private const int Id = 10890;
+        public static bool On;
 
         private static OptionItem MarkCooldown;
         private static OptionItem CanVent;
@@ -26,41 +26,8 @@ namespace EHR.Roles.Neutral
         private static bool EnableCustomQuestions;
         private static Question[] CustomQuestions = [];
 
-        public byte QuizMasterId;
-        public byte Target;
-        private Question CurrentQuestion;
-
         public static Dictionary<byte, string> MessagesToSend = [];
         public static List<QuizMaster> QuizMasters = [];
-
-        public static void SetupCustomOption()
-        {
-            SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.QuizMaster);
-            MarkCooldown = FloatOptionItem.Create(Id + 2, "QuizMaster.MarkCooldown", new(0f, 180f, 1f), 1f, TabGroup.NeutralRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster])
-                .SetValueFormat(OptionFormat.Seconds);
-            CanVent = BooleanOptionItem.Create(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster]);
-            HasImpostorVision = BooleanOptionItem.Create(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster]);
-            CanKillWithDoubleClick = BooleanOptionItem.Create(Id + 5, "CanKillWithDoubleClick", true, TabGroup.NeutralRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster]);
-            KillCooldown = FloatOptionItem.Create(Id + 6, "KillCooldown", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles)
-                .SetParent(CanKillWithDoubleClick)
-                .SetValueFormat(OptionFormat.Seconds);
-            EnableCustomQuestionsOpt = BooleanOptionItem.Create(Id + 7, "QuizMaster.EnableCustomQuestions", true, TabGroup.NeutralRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster]);
-            CustomQuestionChance = FloatOptionItem.Create(Id + 8, "QuizMaster.CustomQuestionChance", new(0f, 100f, 5f), 50f, TabGroup.NeutralRoles)
-                .SetParent(EnableCustomQuestionsOpt)
-                .SetValueFormat(OptionFormat.Percent);
-        }
-
-        class Question(string questionText, string[] answers, int correctAnswerIndex)
-        {
-            public readonly string QuestionText = questionText;
-            public readonly string[] Answers = answers;
-            public readonly int CorrectAnswerIndex = correctAnswerIndex;
-        }
 
         private static List<(Color32 Color, string String)> AllColors = [];
 
@@ -76,6 +43,34 @@ namespace EHR.Roles.Neutral
         ];
 
         public static ((Color32 Color, string String, PlayerControl Player) LastReportedPlayer, string LastPlayerPressedButtonName, SystemTypes LastSabotage, string LastReporterName, int NumPlayersVotedLastMeeting, string FirstReportedBodyPlayerName, int NumEmergencyMeetings, int NumPlayersDeadThisRound, int NumPlayersDeadFirstRound, int NumSabotages, int NumMeetings) Data = ((new(), string.Empty, null), string.Empty, default, string.Empty, 0, string.Empty, 0, 0, 0, 0, 0);
+        private Question CurrentQuestion;
+
+        public byte QuizMasterId;
+        public byte Target;
+
+        public override bool IsEnable => On;
+
+        public static void SetupCustomOption()
+        {
+            SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.QuizMaster);
+            MarkCooldown = FloatOptionItem.Create(Id + 2, "QuizMaster.MarkCooldown", new(0f, 180f, 1f), 1f, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster])
+                .SetValueFormat(OptionFormat.Seconds);
+            CanVent = BooleanOptionItem.Create(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster]);
+            HasImpostorVision = BooleanOptionItem.Create(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster]);
+            CanKillWithDoubleClick = BooleanOptionItem.Create(Id + 5, "CanKillWithDoubleClick", true, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster]);
+            KillCooldown = FloatOptionItem.Create(Id + 6, "KillCooldown", new(0f, 60f, 0.5f), 22.5f, TabGroup.NeutralRoles)
+                .SetParent(CanKillWithDoubleClick)
+                .SetValueFormat(OptionFormat.Seconds);
+            EnableCustomQuestionsOpt = BooleanOptionItem.Create(Id + 7, "QuizMaster.EnableCustomQuestions", true, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster]);
+            CustomQuestionChance = FloatOptionItem.Create(Id + 8, "QuizMaster.CustomQuestionChance", new(0f, 100f, 5f), 50f, TabGroup.NeutralRoles)
+                .SetParent(EnableCustomQuestionsOpt)
+                .SetValueFormat(OptionFormat.Percent);
+        }
 
         public override void Init()
         {
@@ -136,7 +131,6 @@ namespace EHR.Roles.Neutral
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public override bool IsEnable => On;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanKillWithDoubleClick.GetBool() ? KillCooldown.GetFloat() : MarkCooldown.GetFloat();
         public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
@@ -237,7 +231,7 @@ namespace EHR.Roles.Neutral
                 3 when abc => (new[] { "Town Of Us", "Town Of Host Enhanced" }, "Endless Host Roles"),
                 3 => (AllSabotages[..1].Select(x => Translator.GetString($"{x}")), Translator.GetString($"{Data.LastSabotage}")),
                 4 when abc => (new[] { "tukasa0001", "0xDrMoe" }, "Gurge44"),
-                4 => (CustomRoleSelector.AllRoles.Shuffle(random).Take(2).Select(x => x.ToColoredString()), Main.LastVotedPlayerInfo!.Object.GetCustomRole().ToColoredString()),
+                4 => (CustomRoleSelector.RoleResult.Values.Shuffle(random).Take(2).Select(x => x.ToColoredString()), Main.LastVotedPlayerInfo!.Object.GetCustomRole().ToColoredString()),
                 5 when abc => (EnumHelper.GetAllValues<Team>().Skip(1).Where(x => x != randomRole.GetTeam()).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetTeam()}")),
                 5 => (GetTwoRandomNames(Data.LastReporterName), Data.LastReporterName),
                 6 when abc => (EnumHelper.GetAllValues<CustomRoleTypes>().Where(x => x != randomRole.GetCustomRoleTypes()).Shuffle(random).Take(2).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetCustomRoleTypes()}")),
@@ -320,6 +314,13 @@ namespace EHR.Roles.Neutral
 
             CurrentQuestion = default;
             Target = byte.MaxValue;
+        }
+
+        class Question(string questionText, string[] answers, int correctAnswerIndex)
+        {
+            public readonly string[] Answers = answers;
+            public readonly int CorrectAnswerIndex = correctAnswerIndex;
+            public readonly string QuestionText = questionText;
         }
     }
 }

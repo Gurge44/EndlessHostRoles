@@ -13,7 +13,7 @@ namespace EHR.Roles.Neutral
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Phantom]);
             PhantomCanGuess = BooleanOptionItem.Create(11412, "CanGuess", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Phantom]);
-            PhantomTasks = OverrideTasksData.Create(11413, TabGroup.NeutralRoles, CustomRoles.Phantom);
+            OverrideTasksData.Create(11413, TabGroup.NeutralRoles, CustomRoles.Phantom);
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Neutral;
 using EHR.Patches;
 using EHR.Roles.AddOns.Common;
 using EHR.Roles.AddOns.Crewmate;
@@ -116,7 +117,8 @@ class CheckMurderPatch
 
     public static void Update()
     {
-        for (byte i = 0; i < 15; i++)
+        int n = Main.AllPlayerControls.Length;
+        for (byte i = 0; i < n; i++)
         {
             if (TimeSinceLastKill.ContainsKey(i))
             {
@@ -518,6 +520,7 @@ class MurderPlayerPatch
             Main.FirstDied = target.PlayerId;
 
         Postman.CheckAndResetTargets(target, isDeath: true);
+        Simon.RemoveTarget(killer, Simon.Instruction.Kill);
 
         if (target.Is(CustomRoles.Trapper) && killer != target)
             killer.TrapperKilled(target);
@@ -715,7 +718,7 @@ class ShapeshiftPatch
     }
 
     // Tasks that should run when someone performs a shapeshift (with the egg animation) should be here.
-    public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
+    public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
         if (!Main.ProcessShapeshifts || !GameStates.IsInTask || __instance == null || target == null) return;
 
@@ -794,7 +797,7 @@ class ReportDeadBodyPatch
 
             if (target == null)
             {
-                if (__instance.Is(CustomRoles.Jester) && !Options.JesterCanUseButton.GetBool()) return false;
+                if (__instance.Is(CustomRoles.Jester) && !Jester.JesterCanUseButton.GetBool()) return false;
                 if (__instance.Is(CustomRoles.NiceSwapper) && !NiceSwapper.CanStartMeeting.GetBool()) return false;
                 if (SoulHunter.IsSoulHunterTarget(__instance.PlayerId))
                 {
@@ -1172,6 +1175,7 @@ class FixedUpdatePatch
                 if (subRoles.Contains(CustomRoles.Asthmatic)) Asthmatic.OnFixedUpdate();
                 if (subRoles.Contains(CustomRoles.Disco)) Disco.OnFixedUpdate(player);
                 if (subRoles.Contains(CustomRoles.Clumsy)) Clumsy.OnFixedUpdate(player);
+                if (subRoles.Contains(CustomRoles.Sonar)) Sonar.OnFixedUpdate(player);
             }
 
             if (GhostRolesManager.AssignedGhostRoles.TryGetValue(player.PlayerId, out var ghostRole))
@@ -1487,6 +1491,9 @@ class FixedUpdatePatch
                     case CustomRoles.Snitch:
                         Suffix.Append(Snitch.GetSnitchArrow(seer, target));
                         break;
+                    case CustomRoles.Chemist:
+                        Suffix.Append(Chemist.GetSuffix(seer, target));
+                        break;
                     case CustomRoles.VengefulRomantic when self:
                         Suffix.Append(VengefulRomantic.GetTargetText(seer.PlayerId));
                         break;
@@ -1499,13 +1506,13 @@ class FixedUpdatePatch
                     case CustomRoles.Hitman when self:
                         Suffix.Append(Hitman.GetTargetText(seer.PlayerId));
                         break;
-                    case CustomRoles.Penguin when target.PlayerId == seer.PlayerId:
+                    case CustomRoles.Penguin when self:
                         Suffix.Append(Penguin.GetSuffix(seer));
                         break;
-                    case CustomRoles.Changeling when target.PlayerId == seer.PlayerId:
+                    case CustomRoles.Changeling when self:
                         Suffix.Append(Changeling.GetSuffix(seer));
                         break;
-                    case CustomRoles.Tiger when target.PlayerId == seer.PlayerId:
+                    case CustomRoles.Tiger when self:
                         Suffix.Append(Tiger.GetSuffix(seer));
                         break;
                     case CustomRoles.Predator when self:
@@ -1549,6 +1556,7 @@ class FixedUpdatePatch
                 Suffix.Append(Commander.GetSuffixText(seer, target));
                 Suffix.Append(Deathpact.GetDeathpactPlayerArrow(seer, target));
                 Suffix.Append(Deathpact.GetDeathpactMark(seer, target));
+                Suffix.Append(Simon.GetSuffix(seer, target));
 
                 if (self)
                 {
@@ -1718,6 +1726,9 @@ class ExitVentPatch
     public static void Postfix(Vent __instance, [HarmonyArgument(0)] PlayerControl pc)
     {
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "ExitVent");
+
+        if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            _ = new LateTask(() => { HudManager.Instance.SetHudActive(pc, pc.Data.Role, true); }, 0.6f, log: false);
 
         if (!AmongUsClient.Instance.AmHost) return;
 
