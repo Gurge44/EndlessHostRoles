@@ -190,18 +190,20 @@ class ExileControllerWrapUpPatch
 
     static void WrapUpFinalizer(GameData.PlayerInfo exiled)
     {
-        //WrapUpPostfixで例外が発生しても、この部分だけは確実に実行されます。
+        // Even if an exception occurs in WrapUpPostfix, this part will be executed reliably.
+        bool overrideExiledPlayer = false;
         if (AmongUsClient.Instance.AmHost)
         {
             _ = new LateTask(() =>
             {
                 exiled = AntiBlackout_LastExiled;
                 AntiBlackout.SendGameData();
-                if (AntiBlackout.OverrideExiledPlayer && // 追放対象が上書きされる状態 (上書きされない状態なら実行不要)
-                    exiled != null && //exiledがnullでない
-                    exiled.Object != null) //exiled.Objectがnullでない
+                if (AntiBlackout.OverrideExiledPlayer && // State where the exile target is overwritten (no need to execute if it is not overwritten)
+                    exiled != null &&
+                    exiled.Object != null)
                 {
                     exiled.Object.RpcExileV2();
+                    overrideExiledPlayer = true;
                 }
             }, 0.8f, "Restore IsDead Task");
             _ = new LateTask(() =>
@@ -242,6 +244,11 @@ class ExileControllerWrapUpPatch
                     if (NameNotifyManager.Notice.TryGetValue(pc.PlayerId, out var notify))
                     {
                         finalText = $"\n{notify.TEXT}\n{finalText}";
+                    }
+
+                    if (overrideExiledPlayer && CheckForEndVotingPatch.EjectionText != string.Empty)
+                    {
+                        finalText = $"\n{CheckForEndVotingPatch.EjectionText}\n{finalText}";
                     }
 
                     pc.Notify(finalText, r.Next(7, 13));

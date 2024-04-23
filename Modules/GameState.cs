@@ -132,7 +132,12 @@ public class PlayerState(byte playerId)
         if (role == CustomRoles.Cleansed)
             AllReplace = true;
         if (AllReplace)
-            SubRoles.Do(item => SubRoles.Remove(item));
+        {
+            foreach (var item in SubRoles.ToArray())
+            {
+                SubRoles.Remove(item);
+            }
+        }
 
         if (!SubRoles.Contains(role))
             SubRoles.Add(role);

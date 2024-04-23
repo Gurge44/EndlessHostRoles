@@ -75,7 +75,6 @@ class ChatControllerUpdatePatch
 
 public static class ChatManager
 {
-    public static bool cancel;
     private static readonly List<string> ChatHistory = [];
     private const int MaxHistorySize = 20;
 
@@ -84,7 +83,7 @@ public static class ChatManager
         ChatHistory.Clear();
     }
 
-    public static bool CheckCommand(ref string msg, string command, bool exact = true)
+    private static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
         foreach (string str in comList)
@@ -106,7 +105,7 @@ public static class ChatManager
         return false;
     }
 
-    public static bool CheckName(ref string msg, string command, bool exact = true)
+    private static bool CheckName(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
         foreach (string com in comList)
@@ -141,7 +140,6 @@ public static class ChatManager
 
         if (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive())
         {
-            cancel = true;
             return;
         }
 
@@ -157,17 +155,23 @@ public static class ChatManager
         {
             case 1 when player.IsAlive(): // Guessing Command & Such
                 Logger.Info("Special Command", "ChatManager");
-                cancel = true;
+                _ = new LateTask(() =>
+                {
+                    if (!ChatCommands.LastSentCommand.ContainsKey(player.PlayerId))
+                    {
+                        GuessManager.GuesserMsg(player, message);
+                        Logger.Info("Delayed Guess", "ChatManager");
+                    }
+                    else Logger.Info("Delayed Guess was not necessary", "ChatManager");
+                }, 0.3f, "Trying Delayed Guess");
                 break;
             case 2: // /up
                 Logger.Info($"Command: {message}", "ChatManager");
-                cancel = false;
                 break;
             case 3: // In Lobby & Evertything Else
                 string chatEntry = $"{player.PlayerId}: {message}";
                 ChatHistory.Add(chatEntry);
                 if (ChatHistory.Count > MaxHistorySize) ChatHistory.RemoveAt(0);
-                cancel = false;
                 break;
             case 4: // /r, /n, /m
                 Logger.Info($"Command: {message}", "ChatManager");
@@ -180,8 +184,6 @@ public static class ChatManager
             FFAManager.UpdateLastChatMessage(player.GetRealName(), message);
         }
     }
-
-    public static bool DontBlock;
 
     public static void SendPreviousMessagesToAll(bool realMessagesOnly = false)
     {
