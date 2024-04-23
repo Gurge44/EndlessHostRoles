@@ -65,6 +65,7 @@ namespace EHR.Roles.AddOns.GhostRoles
                 return x.GetTeam() switch
                 {
                     Team.Impostor when x.GetCustomRole().IsMadmate() || x.Is(CustomRoles.Madmate) => RevealMadmates.GetBool(),
+                    Team.Impostor => true,
                     Team.Neutral when x.IsNeutralKiller() => RevealNeutralKillers.GetBool(),
                     _ => false
                 };
