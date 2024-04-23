@@ -108,7 +108,7 @@ namespace EHR.Roles.Impostor
                 var text = "\n" + string.Format(
                     Translator.GetString("Sentry.Notify.Shapeshifted"),
                     Utils.ColorString(Main.PlayerColors[ss.PlayerId], ss.GetRealName()),
-                    Utils.ColorString(Main.PlayerColors[ssTarget.PlayerId], ssTarget.GetRealName()));
+                    Utils.ColorString(Main.PlayerColors[ssTarget.PlayerId], Main.AllPlayerNames[ssTarget.PlayerId]));
 
                 SentryPC.Notify($"{notify.TEXT}{text}", ShowInfoDuration.GetInt() - (Utils.TimeStamp - notify.TIMESTAMP));
 

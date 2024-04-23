@@ -48,6 +48,7 @@ namespace EHR.Roles.Impostor
                     if (Vector2.Distance(killer.Pos(), target.Pos()) > 2f) return;
                     target.TP(Pelican.GetBlackRoomPS());
                     target.Suicide(PlayerState.DeathReason.Kill, killer);
+                    if (target.Is(CustomRoles.Pelican)) Pelican.OnPelicanDied(target.PlayerId);
                     killer.SetKillCooldown();
                     RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
                     target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Scavenger), Translator.GetString("KilledByScavenger")));

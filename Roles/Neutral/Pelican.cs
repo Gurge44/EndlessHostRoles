@@ -182,13 +182,12 @@ public class Pelican : RoleBase
 
     public static void OnPelicanDied(byte pc)
     {
-        if (!eatenList.ContainsKey(pc)) return;
-        foreach (byte tar in eatenList[pc])
+        if (!eatenList.TryGetValue(pc, out List<byte> value)) return;
+        foreach (byte tar in value)
         {
             var target = Utils.GetPlayerById(tar);
             var player = Utils.GetPlayerById(pc);
-            if (player == null || target == null)
-                continue;
+            if (player == null || target == null) continue;
             target.TP(player);
             Main.AllPlayerSpeed[tar] = Main.AllPlayerSpeed[tar] - 0.5f + OriginalSpeed[tar];
             ReportDeadBodyPatch.CanReport[tar] = true;

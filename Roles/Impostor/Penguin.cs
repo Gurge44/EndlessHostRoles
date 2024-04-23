@@ -96,6 +96,7 @@ namespace EHR.Roles.Impostor
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
         public override bool CanUseImpostorVentButton(PlayerControl pc) => AbductVictim == null;
+        public override bool CanUseKillButton(PlayerControl pc) => pc.IsAlive();
 
         void SendRPC()
         {

@@ -390,48 +390,6 @@ namespace EHR.Roles.Crewmate
 
     internal class Randomizer : RoleBase
     {
-        private static int Id => 643490;
-        private static List<byte> PlayerIdList = [];
-
-        private static OptionItem EffectFrequencyOpt;
-        private static OptionItem EffectDurMin;
-        private static OptionItem EffectDurMax;
-        private static OptionItem NotifyOpt;
-
-        private static int EffectFrequency;
-        public static int MinimumEffectDuration;
-        public static int MaximumEffectDuration;
-        private static bool Notify;
-
-        public static Dictionary<byte, Dictionary<Effect, (long StartTimeStamp, int Duration)>> CurrentEffects = [];
-        public static Dictionary<byte, float> AllPlayerDefaultSpeed = [];
-
-        public static Dictionary<Vector2, Vector2> Rifts = [];
-        public static Dictionary<Vector2, (long PlaceTimeStamp, int ExplosionDelay)> Bombs = [];
-
-        public static float TimeSinceLastMeeting;
-        private static Dictionary<byte, long> LastEffectPick = [];
-        private static Dictionary<byte, long> LastTP = [];
-        private static long LastDeathEffect;
-
-        private static string RNGString => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Randomizer), Translator.GetString("RNGHasSpoken"));
-
-        public static void NotifyAboutRNG(PlayerControl pc)
-        {
-            if (!Notify) return;
-            pc.Notify(text: RNGString, time: IRandom.Instance.Next(2, 7), log: false);
-        }
-
-        public static bool Exists;
-
-        public static float RandomFloat => IRandom.Instance.Next(0, 5) + (IRandom.Instance.Next(0, 10) / 10f);
-
-        public override bool IsEnable => Exists;
-
-        public static bool IsShielded(PlayerControl pc) => CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && (effects.ContainsKey(Effect.ShieldRandomPlayer) || effects.ContainsKey(Effect.ShieldAll));
-        public static bool HasSuperVision(PlayerControl pc) => CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && (effects.ContainsKey(Effect.SuperVisionForRandomPlayer) || effects.ContainsKey(Effect.SuperVisionForAll));
-        public static bool IsBlind(PlayerControl pc) => CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && (effects.ContainsKey(Effect.BlindnessForRandomPlayer) || effects.ContainsKey(Effect.BlindnessForAll));
-
         public enum Effect
         {
             ShieldRandomPlayer,
@@ -469,6 +427,48 @@ namespace EHR.Roles.Crewmate
             DevourRandomPlayer,
             Duel
         }
+
+        private static List<byte> PlayerIdList = [];
+
+        private static OptionItem EffectFrequencyOpt;
+        private static OptionItem EffectDurMin;
+        private static OptionItem EffectDurMax;
+        private static OptionItem NotifyOpt;
+
+        private static int EffectFrequency;
+        public static int MinimumEffectDuration;
+        public static int MaximumEffectDuration;
+        private static bool Notify;
+
+        public static Dictionary<byte, Dictionary<Effect, (long StartTimeStamp, int Duration)>> CurrentEffects = [];
+        public static Dictionary<byte, float> AllPlayerDefaultSpeed = [];
+
+        public static Dictionary<Vector2, Vector2> Rifts = [];
+        public static Dictionary<Vector2, (long PlaceTimeStamp, int ExplosionDelay)> Bombs = [];
+
+        public static float TimeSinceLastMeeting;
+        private static Dictionary<byte, long> LastEffectPick = [];
+        private static Dictionary<byte, long> LastTP = [];
+        private static long LastDeathEffect;
+
+        public static bool Exists;
+        private static int Id => 643490;
+
+        private static string RNGString => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Randomizer), Translator.GetString("RNGHasSpoken"));
+
+        public static float RandomFloat => IRandom.Instance.Next(0, 5) + (IRandom.Instance.Next(0, 10) / 10f);
+
+        public override bool IsEnable => Exists;
+
+        public static void NotifyAboutRNG(PlayerControl pc)
+        {
+            if (!Notify) return;
+            pc.Notify(text: RNGString, time: IRandom.Instance.Next(2, 7), log: false);
+        }
+
+        public static bool IsShielded(PlayerControl pc) => CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && (effects.ContainsKey(Effect.ShieldRandomPlayer) || effects.ContainsKey(Effect.ShieldAll));
+        public static bool HasSuperVision(PlayerControl pc) => CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && (effects.ContainsKey(Effect.SuperVisionForRandomPlayer) || effects.ContainsKey(Effect.SuperVisionForAll));
+        public static bool IsBlind(PlayerControl pc) => CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && (effects.ContainsKey(Effect.BlindnessForRandomPlayer) || effects.ContainsKey(Effect.BlindnessForAll));
 
         public static void SetupCustomOption()
         {
@@ -514,7 +514,7 @@ namespace EHR.Roles.Crewmate
         {
             Exists = true;
             PlayerIdList.Add(playerId);
-            AllPlayerDefaultSpeed = Main.AllPlayerSpeed;
+            AllPlayerDefaultSpeed = Main.AllPlayerSpeed.ToDictionary(x => x.Key, x => x.Value);
         }
 
         public static PlayerControl PickRandomPlayer()

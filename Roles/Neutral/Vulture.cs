@@ -59,7 +59,7 @@ public class Vulture : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
         ChangeRoleWhenCantWin = BooleanOptionItem.Create(Id + 16, "VultureChangeRoleWhenCantWin", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
-        ChangeRole = StringOptionItem.Create(Id + 17, "VultureChangeRole", ChangeRoles.Select(x => x.ToColoredString()).ToArray(), 0, TabGroup.NeutralRoles)
+        ChangeRole = StringOptionItem.Create(Id + 17, "VultureChangeRole", ChangeRoles.Select(x => x.ToColoredString()).ToArray(), 0, TabGroup.NeutralRoles, noTranslation: true)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Vulture]);
     }
 

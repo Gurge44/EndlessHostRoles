@@ -73,8 +73,8 @@ public class Pursuer : RoleBase
     {
         foreach (var id in playerIdList)
         {
-            if (!Main.PlayerStates.ContainsKey(id)) continue;
-            if (Main.PlayerStates[id].Role is not Pursuer { IsEnable: true } ps) continue;
+            if (!Main.PlayerStates.TryGetValue(id, out PlayerState state)) continue;
+            if (state.Role is not Pursuer { IsEnable: true } ps) continue;
             if (!ps.clientList.Contains(pc.PlayerId) || notActiveList.Contains(pc.PlayerId)) continue;
 
             // Get rid of this nonsense of killing the player for no reason

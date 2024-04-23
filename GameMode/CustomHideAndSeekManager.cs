@@ -86,22 +86,28 @@ namespace EHR
 
             if (allPlayers.Count == 0) return;
 
+            int neutralNum = IRandom.Instance.Next(MinNeutrals.GetInt(), MaxNeutrals.GetInt() + 1);
+            int assignedCount = 0;
             bool stop = false;
             foreach (var role in HideAndSeekRoles)
             {
+                int mode = role.Key.GetMode();
+                if (IRandom.Instance.Next(100) >= mode) continue;
+
                 for (int i = 0; i < role.Value; i++)
                 {
                     var pc = allPlayers[0];
                     result[pc] = role.Key;
                     allPlayers.Remove(pc);
+                    assignedCount++;
 
-                    if (allPlayers.Count == 0)
+                    if (allPlayers.Count == 0 || assignedCount >= neutralNum)
                     {
                         stop = true;
                         break;
                     }
 
-                    if (IRandom.Instance.Next(100) >= role.Key.GetMode()) break;
+                    if (IRandom.Instance.Next(100) >= mode) break;
                 }
 
                 if (stop) break;
