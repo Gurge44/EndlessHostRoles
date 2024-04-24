@@ -19,10 +19,10 @@ namespace EHR.Roles.AddOns.Common
         {
             const int id = 19392;
             Options.SetupAdtRoleOptions(id, CustomRoles.Dynamo, canSetNum: true, teamSpawnOptions: true);
-            IncreaseSpeedBy = FloatOptionItem.Create(id + 6, "Dynamo.IncreaseSpeedBy", new(0.1f, 1f, 0.1f), 0.1f, TabGroup.CrewmateRoles)
+            IncreaseSpeedBy = FloatOptionItem.Create(id + 6, "Dynamo.IncreaseSpeedBy", new(0.1f, 1f, 0.1f), 0.1f, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dynamo])
                 .SetValueFormat(OptionFormat.Percent);
-            IncreaseSpeedFrequency = FloatOptionItem.Create(id + 7, "Dynamo.IncreaseSpeedFrequency", new(0.5f, 30f, 0.5f), 5f, TabGroup.CrewmateRoles)
+            IncreaseSpeedFrequency = FloatOptionItem.Create(id + 7, "Dynamo.IncreaseSpeedFrequency", new(0.5f, 30f, 0.5f), 5f, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dynamo])
                 .SetValueFormat(OptionFormat.Seconds);
         }

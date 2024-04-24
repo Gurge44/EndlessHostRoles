@@ -5,10 +5,13 @@ namespace EHR.GameMode.HideAndSeekRoles
     internal class Fox : RoleBase, IHideAndSeekRole
     {
         public static bool On;
-        public override bool IsEnable => On;
 
         public static OptionItem Vision;
         public static OptionItem Speed;
+        public override bool IsEnable => On;
+        public Team Team => Team.Neutral;
+        public int Chance => CustomRoles.Fox.GetMode();
+        public int Count => CustomRoles.Fox.GetCount();
 
         public static void SetupCustomOption()
         {

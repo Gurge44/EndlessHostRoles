@@ -5,10 +5,13 @@ namespace EHR.GameMode.HideAndSeekRoles
     internal class Troll : RoleBase, IHideAndSeekRole
     {
         public static bool On;
-        public override bool IsEnable => On;
 
         public static OptionItem Vision;
         public static OptionItem Speed;
+        public override bool IsEnable => On;
+        public Team Team => Team.Neutral;
+        public int Chance => CustomRoles.Troll.GetMode();
+        public int Count => CustomRoles.Troll.GetCount();
 
         public static void SetupCustomOption()
         {

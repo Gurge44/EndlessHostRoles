@@ -21,7 +21,7 @@ namespace EHR.Roles.Impostor
 
         public static void SetupCustomOption()
         {
-            const int id = 11332;
+            const int id = 12332;
             Options.SetupRoleOptions(id, TabGroup.ImpostorRoles, CustomRoles.Overheat);
             OverheatChanceIncrease = FloatOptionItem.Create(id + 2, "Overheat.ChanceIncrease", new(1f, 10f, 1f), 1f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
