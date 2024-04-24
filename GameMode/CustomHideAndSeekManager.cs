@@ -232,7 +232,7 @@ namespace EHR
         public static string GetTaskBarText()
         {
             var text = Main.PlayerStates.Aggregate("<size=80%>", (current, state) => $"{current}{GetStateText(state)}\n");
-            return $"{text}</size>";
+            return $"{text}</size>\r\n\r\n<#00ffa5>Tasks:</color> {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}";
 
             static string GetStateText(KeyValuePair<byte, PlayerState> state)
             {
@@ -243,7 +243,7 @@ namespace EHR
                 string taskCount = Utils.GetTaskCount(state.Key, false);
                 string stateText;
                 if (isSeeker) stateText = $"({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Seeker), Translator.GetString("Seeker"))})";
-                else stateText = alive ? $"{taskCount}" : "<#ff1313>DEAD</color>";
+                else stateText = alive ? string.Empty : "<#ff1313>DEAD</color>";
                 stateText = $"{name} {stateText}";
                 return stateText;
             }

@@ -882,12 +882,12 @@ public static class Options
         taskOptionsLoad = Task.Run(Load);
         taskOptionsLoad.ContinueWith(_ =>
         {
-            Logger.Info("Options.Load End", "Load Options");
+            Logger.Info("Options.Load End", "Options");
             GroupOptions();
         });
     }
 
-    public static void GroupOptions()
+    private static void GroupOptions()
     {
         GroupedOptions = OptionItem.AllOptions
             .GroupBy(x => x.Tab)
