@@ -15,7 +15,7 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public static void SetupCustomOption()
         {
-            Options.SetupRoleOptions(69_211_301, TabGroup.NeutralRoles, CustomRoles.Fox, CustomGameMode.HideAndSeek, true);
+            Options.SetupRoleOptions(69_211_301, TabGroup.NeutralRoles, CustomRoles.Fox, CustomGameMode.HideAndSeek);
             Vision = FloatOptionItem.Create(69_211_303, "FoxVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.NeutralRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)

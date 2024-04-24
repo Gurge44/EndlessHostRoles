@@ -50,19 +50,17 @@ namespace EHR
                 .Where(t => (typeof(IHideAndSeekRole)).IsAssignableFrom(t) && !t.IsInterface)
                 .ToArray();
 
-            var roleInterfaces = types
-                .Select(x => (IHideAndSeekRole)Activator.CreateInstance(x))
-                .ToArray();
-
             var roleEnums = types
                 .Select(x => ((CustomRoles)Enum.Parse(typeof(CustomRoles), ignoreCase: true, value: x.Name)))
                 .Where(role => role.GetMode() != 0)
                 .ToArray();
 
-            HideAndSeekRoles = roleInterfaces
+            HideAndSeekRoles = types
+                .Select(x => (IHideAndSeekRole)Activator.CreateInstance(x))
+                .Where(x => x != null)
                 .Join(roleEnums, x => x.GetType().Name, x => x.ToString(), (Role, Count) => (Count, (Role, Role.Count)))
                 .Where(x => x.Item2.Count > 0)
-                .OrderBy(x => x.Item1 is CustomRoles.Seeker or CustomRoles.Hider)
+                .OrderBy(x => x.Item1 is CustomRoles.Seeker or CustomRoles.Hider ? 100 : IRandom.Instance.Next(100))
                 .GroupBy(x => x.Item2.Role.Team)
                 .ToDictionary(x => x.Key, x => x.ToDictionary(y => y.Item1, y => y.Item2.Count));
         }
@@ -172,8 +170,9 @@ namespace EHR
             }
 
             var remainingMinutes = TimeLeft / 60;
-            var remainingSeconds = TimeLeft % 60;
-            return isHUD ? $"{remainingMinutes}:{remainingSeconds}" : $"{string.Format(Translator.GetString("MinutesLeft"), $"{remainingMinutes}-{remainingMinutes + 1}")}";
+            var remainingSeconds = $"{(TimeLeft % 60) + 1}";
+            if (remainingSeconds.Length == 1) remainingSeconds = $"0{remainingSeconds}";
+            return isHUD ? $"{remainingMinutes}:{remainingSeconds}" : $"{string.Format(Translator.GetString("MinutesLeft"), $"{remainingMinutes}-{remainingMinutes}")}";
         }
 
         public static string GetRoleInfoText(PlayerControl seer)
