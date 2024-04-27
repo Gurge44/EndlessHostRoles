@@ -69,6 +69,7 @@ public enum CustomRoles
     Assassin, // Ninja
     Nuker,
     Nullifier,
+    Overheat,
     Parasite,
     Penguin,
     Puppeteer,
@@ -344,6 +345,7 @@ public enum CustomRoles
     DeadlyQuota,
     Disco,
     Diseased,
+    Dynamo,
     Unreportable, // Disregarded
     DoubleShot,
     Egoist,

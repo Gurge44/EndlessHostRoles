@@ -544,6 +544,7 @@ internal class SelectRolesPatch
             Stressed.Add();
             Asthmatic.Add();
             Circumvent.Add();
+            Dynamo.Add();
 
             _ = new LateTask(CustomTeamManager.InitializeCustomTeamPlayers, 7f, log: false);
 

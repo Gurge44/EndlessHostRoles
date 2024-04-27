@@ -1862,6 +1862,9 @@ public static class Utils
                         case CustomRoles.Penguin:
                             SelfSuffix.Append(Penguin.GetSuffix(seer));
                             break;
+                        case CustomRoles.Overheat:
+                            SelfSuffix.Append(Overheat.GetSuffix(seer));
+                            break;
                         case CustomRoles.BountyHunter:
                             SelfSuffix.Append(BountyHunter.GetTargetText(seer, false));
                             SelfSuffix.Append(BountyHunter.GetTargetArrow(seer));
@@ -2537,7 +2540,7 @@ public static class Utils
             switch (target.GetCustomRole())
             {
                 case CustomRoles.Terrorist:
-                    Logger.Info(target?.Data?.PlayerName + "はTerroristだった", "MurderPlayer");
+                    Logger.Info(target?.Data?.PlayerName + "Terrorist died", "MurderPlayer");
                     CheckTerroristWin(target?.Data);
                     break;
                 case CustomRoles.Executioner:

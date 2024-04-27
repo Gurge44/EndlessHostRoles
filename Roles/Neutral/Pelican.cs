@@ -182,20 +182,19 @@ public class Pelican : RoleBase
 
     public static void OnPelicanDied(byte pc)
     {
-        if (!eatenList.ContainsKey(pc)) return;
-        foreach (byte tar in eatenList[pc])
+        if (!eatenList.TryGetValue(pc, out List<byte> value)) return;
+        foreach (byte tar in value)
         {
             var target = Utils.GetPlayerById(tar);
             var player = Utils.GetPlayerById(pc);
-            if (player == null || target == null)
-                continue;
+            if (player == null || target == null) continue;
             target.TP(player);
             Main.AllPlayerSpeed[tar] = Main.AllPlayerSpeed[tar] - 0.5f + OriginalSpeed[tar];
             ReportDeadBodyPatch.CanReport[tar] = true;
             target.MarkDirtySettings();
             RPC.PlaySoundRPC(tar, Sounds.TaskComplete);
             Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: player);
-            Logger.Info($"{Utils.GetPlayerById(pc).GetRealName()} 吐出了 {target.GetRealName()}", "Pelican");
+            Logger.Info($"{Utils.GetPlayerById(pc).GetRealName()} died, {target.GetRealName()} is back in-game", "Pelican");
         }
 
         eatenList.Remove(pc);
@@ -218,9 +217,10 @@ public class Pelican : RoleBase
         if (!IsEnable) return;
         Count--;
         if (Count > 0) return;
-        Count = 10;
+        Count = 20;
 
-        foreach (byte tar in eatenList[pc.PlayerId])
+        if (!eatenList.TryGetValue(pc.PlayerId, out List<byte> list)) return;
+        foreach (byte tar in list)
         {
             var target = Utils.GetPlayerById(tar);
             if (target == null) continue;
@@ -237,7 +237,6 @@ public class Pelican : RoleBase
         if (CanEat(killer, target.PlayerId))
         {
             EatPlayer(killer, target);
-            //killer.RpcGuardAndKill(killer);
             killer.SetKillCooldown();
             killer.RPCPlayCustomSound("Eat");
             target.RPCPlayCustomSound("Eat");

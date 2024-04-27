@@ -38,6 +38,8 @@ public class Sheriff : RoleBase
         "SheriffCanKillSeparately"
     ];
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Sheriff);
@@ -101,7 +103,6 @@ public class Sheriff : RoleBase
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(Utils.GetPlayerById(id)) ? KillCooldown.GetFloat() : 15f;
     public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
 
@@ -141,7 +142,7 @@ public class Sheriff : RoleBase
         var cRole = player.GetCustomRole();
         var subRole = player.GetCustomSubRoles();
         bool CanKill = false;
-        foreach (CustomRoles SubRoleTarget in subRole.ToArray())
+        foreach (CustomRoles SubRoleTarget in subRole)
         {
             CanKill = SubRoleTarget switch
             {

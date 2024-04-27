@@ -19,7 +19,7 @@ namespace EHR
         private static OptionItem MinNeutrals;
         private static OptionItem MaxNeutrals;
 
-        public static Dictionary<CustomRoles, int> HideAndSeekRoles = [];
+        public static Dictionary<Team, Dictionary<CustomRoles, int>> HideAndSeekRoles = [];
 
         public static void SetupCustomOption()
         {
@@ -44,13 +44,25 @@ namespace EHR
             TimeLeft = MaxGameLength.GetInt() + 8;
             LastUpdate = Utils.TimeStamp;
 
-            HideAndSeekRoles = Assembly
+            Type[] types = Assembly
                 .GetExecutingAssembly()
                 .GetTypes()
                 .Where(t => (typeof(IHideAndSeekRole)).IsAssignableFrom(t) && !t.IsInterface)
+                .ToArray();
+
+            var roleEnums = types
                 .Select(x => ((CustomRoles)Enum.Parse(typeof(CustomRoles), ignoreCase: true, value: x.Name)))
                 .Where(role => role.GetMode() != 0)
-                .ToDictionary(x => x, x => x.GetCount());
+                .ToArray();
+
+            HideAndSeekRoles = types
+                .Select(x => (IHideAndSeekRole)Activator.CreateInstance(x))
+                .Where(x => x != null)
+                .Join(roleEnums, x => x.GetType().Name, x => x.ToString(), (Role, Count) => (Count, (Role, Role.Count)))
+                .Where(x => x.Item2.Count > 0)
+                .OrderBy(x => x.Item1 is CustomRoles.Seeker or CustomRoles.Hider ? 100 : IRandom.Instance.Next(100))
+                .GroupBy(x => x.Item2.Role.Team)
+                .ToDictionary(x => x.Key, x => x.ToDictionary(y => y.Item1, y => y.Item2.Count));
         }
 
         public static void AssignRoles(ref Dictionary<PlayerControl, CustomRoles> result)
@@ -58,7 +70,12 @@ namespace EHR
             List<PlayerControl> allPlayers = [.. Main.AllAlivePlayerControls];
             allPlayers = allPlayers.Shuffle(IRandom.Instance).ToList();
 
-            int seekerNum = Math.Min(Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors), 1);
+            Dictionary<Team, int> memberNum = new()
+            {
+                [Team.Neutral] = IRandom.Instance.Next(MinNeutrals.GetInt(), MaxNeutrals.GetInt() + 1),
+                [Team.Impostor] = Math.Min(Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors), 1),
+                [Team.Crewmate] = allPlayers.Count
+            };
 
             foreach (var item in Main.SetRoles)
             {
@@ -68,55 +85,53 @@ namespace EHR
                 result[pc] = item.Value;
                 allPlayers.Remove(pc);
 
-                if (item.Value == CustomRoles.Seeker) seekerNum--;
-                else if (HideAndSeekRoles.ContainsKey(item.Value)) HideAndSeekRoles[item.Value]--;
+                var role = HideAndSeekRoles.FirstOrDefault(x => x.Value.ContainsKey(item.Value));
+                role.Value[item.Value]--;
+                memberNum[role.Key]--;
 
                 Logger.Warn($"Pre-Set Role Assigned: {pc.GetRealName()} => {item.Value}", "CustomRoleSelector");
             }
 
-            while (seekerNum > 0 && allPlayers.Count > 0)
+            var playerTeams = EnumHelper.GetAllValues<Team>()[1..]
+                .SelectMany(x => Enumerable.Repeat(x, memberNum[x]))
+                .Zip(allPlayers)
+                .GroupBy(x => x.First, x => x.Second)
+                .ToDictionary(x => x.Key, x => x.ToArray());
+
+            foreach ((Team team, Dictionary<CustomRoles, int> roleCounts) in HideAndSeekRoles)
             {
-                var pc = allPlayers[0];
-                result[pc] = CustomRoles.Seeker;
-                allPlayers.Remove(pc);
-                seekerNum--;
-            }
+                if (playerTeams[team].Length == 0 || memberNum[team] <= 0) continue;
 
-            Logger.Info($"Seekers: {result.Where(x => x.Value == CustomRoles.Seeker).Join(x => x.Key.GetRealName())}", "HideAndSeekRoleSelector");
-
-            if (allPlayers.Count == 0) return;
-
-            bool stop = false;
-            foreach (var role in HideAndSeekRoles)
-            {
-                for (int i = 0; i < role.Value; i++)
+                foreach ((CustomRoles role, int count) in roleCounts)
                 {
-                    var pc = allPlayers[0];
-                    result[pc] = role.Key;
-                    allPlayers.Remove(pc);
-
-                    if (allPlayers.Count == 0)
+                    for (int i = 0; i < count; i++)
                     {
-                        stop = true;
-                        break;
+                        if (IRandom.Instance.Next(100) >= role.GetMode()) continue;
+
+                        try
+                        {
+                            PlayerControl pc = playerTeams[team][0];
+                            if (pc == null) continue;
+
+                            result[pc] = role;
+                            allPlayers.Remove(pc);
+                            playerTeams[team] = playerTeams[team][1..];
+                            memberNum[team]--;
+
+                            if (memberNum[team] <= 0) break;
+                        }
+                        catch (Exception e)
+                        {
+                            if (e is IndexOutOfRangeException) break;
+                            Utils.ThrowException(e);
+                        }
                     }
 
-                    if (IRandom.Instance.Next(100) >= role.Key.GetMode()) break;
+                    if (playerTeams[team].Length == 0 || memberNum[team] <= 0) break;
                 }
-
-                if (stop) break;
             }
 
-            Logger.Info($"Roles: {result.Where(x => x.Value != CustomRoles.Seeker).Join(x => $"{x.Key.GetRealName()} => {x.Value}")}", "HideAndSeekRoleSelector");
-
-            if (stop) return;
-
-            foreach (var pc in allPlayers)
-            {
-                result[pc] = CustomRoles.Hider;
-            }
-
-            Logger.Info($"Hiders: {result.Where(x => x.Value == CustomRoles.Hider).Join(x => x.Key.GetRealName())}", "HideAndSeekRoleSelector");
+            Logger.Info($"Roles: {result.Join(x => $"{x.Key.GetRealName()} => {x.Value}")}", "HideAndSeekRoleSelector");
         }
 
         public static void ApplyGameOptions(IGameOptions opt, PlayerControl pc)
@@ -155,8 +170,9 @@ namespace EHR
             }
 
             var remainingMinutes = TimeLeft / 60;
-            var remainingSeconds = TimeLeft % 60;
-            return isHUD ? $"{remainingMinutes}:{remainingSeconds}" : $"{string.Format(Translator.GetString("MinutesLeft"), $"{remainingMinutes}-{remainingMinutes + 1}")}";
+            var remainingSeconds = $"{(TimeLeft % 60) + 1}";
+            if (remainingSeconds.Length == 1) remainingSeconds = $"0{remainingSeconds}";
+            return isHUD ? $"{remainingMinutes}:{remainingSeconds}" : $"{string.Format(Translator.GetString("MinutesLeft"), $"{remainingMinutes}-{remainingMinutes}")}";
         }
 
         public static string GetRoleInfoText(PlayerControl seer)
@@ -216,7 +232,7 @@ namespace EHR
         public static string GetTaskBarText()
         {
             var text = Main.PlayerStates.Aggregate("<size=80%>", (current, state) => $"{current}{GetStateText(state)}\n");
-            return $"{text}</size>";
+            return $"{text}</size>\r\n\r\n<#00ffa5>Tasks:</color> {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}";
 
             static string GetStateText(KeyValuePair<byte, PlayerState> state)
             {
@@ -227,7 +243,7 @@ namespace EHR
                 string taskCount = Utils.GetTaskCount(state.Key, false);
                 string stateText;
                 if (isSeeker) stateText = $"({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Seeker), Translator.GetString("Seeker"))})";
-                else stateText = alive ? $"{taskCount}" : "<#ff1313>DEAD</color>";
+                else stateText = alive ? string.Empty : "<#ff1313>DEAD</color>";
                 stateText = $"{name} {stateText}";
                 return stateText;
             }

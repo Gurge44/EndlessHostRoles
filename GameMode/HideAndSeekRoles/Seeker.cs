@@ -1,16 +1,20 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using AmongUs.GameOptions;
 
 namespace EHR.GameMode.HideAndSeekRoles
 {
     internal class Seeker : RoleBase, IHideAndSeekRole
     {
         public static bool On;
-        public override bool IsEnable => On;
 
         public static OptionItem Vision;
         public static OptionItem Speed;
         public static OptionItem KillCooldown;
         public static OptionItem CanVent;
+        public override bool IsEnable => On;
+        public Team Team => Team.Impostor;
+        public int Chance => 100;
+        public int Count => Math.Min(Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors), 1);
 
         public static void SetupCustomOption()
         {

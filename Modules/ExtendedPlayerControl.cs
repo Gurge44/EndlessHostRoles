@@ -998,14 +998,6 @@ static class ExtendedPlayerControl
     public static bool Is(this PlayerControl target, CustomRoles role) =>
         role > CustomRoles.NotAssigned ? target.GetCustomSubRoles().Contains(role) : target.GetCustomRole() == role;
 
-    /// <summary>
-    /// Determines whether the player has the specified role class. Doesn't work with subroles.
-    /// </summary>
-    /// <param name="target">The player to check</param>
-    /// <param name="role">The type of role class</param>
-    /// <returns>True, if the player has the specified role class, otherwise, false. This method returns false if the player to check doesn't have a PlayerState assigned.</returns>
-    public static bool Is(this PlayerControl target, RoleBase role) => Main.PlayerStates.TryGetValue(target.PlayerId, out var state) && state.Role.GetType() == role.GetType();
-
     public static bool Is(this PlayerControl target, CustomRoleTypes type) => target.GetCustomRoleTypes() == type;
     public static bool Is(this PlayerControl target, RoleTypes type) => (target.Is(CustomRoles.Bloodlust) && type == RoleTypes.Impostor) || target.GetCustomRole().GetRoleTypes() == type;
     public static bool Is(this PlayerControl target, CountTypes type) => target.GetCountTypes() == type;

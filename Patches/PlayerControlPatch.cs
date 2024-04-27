@@ -1167,15 +1167,19 @@ class FixedUpdatePatch
                 Asthmatic.OnCheckPlayerPosition(player);
             }
 
-            if (!lowLoad && Main.PlayerStates.TryGetValue(playerId, out var playerState) && GameStates.IsInTask && player.IsAlive())
+            if (Main.PlayerStates.TryGetValue(playerId, out var playerState) && GameStates.IsInTask && player.IsAlive())
             {
                 var subRoles = playerState.SubRoles;
-                if (subRoles.Contains(CustomRoles.Damocles)) Damocles.Update(player);
-                if (subRoles.Contains(CustomRoles.Stressed)) Stressed.Update(player);
-                if (subRoles.Contains(CustomRoles.Asthmatic)) Asthmatic.OnFixedUpdate();
-                if (subRoles.Contains(CustomRoles.Disco)) Disco.OnFixedUpdate(player);
-                if (subRoles.Contains(CustomRoles.Clumsy)) Clumsy.OnFixedUpdate(player);
-                if (subRoles.Contains(CustomRoles.Sonar)) Sonar.OnFixedUpdate(player);
+                if (subRoles.Contains(CustomRoles.Dynamo)) Dynamo.OnFixedUpdate(player);
+                if (!lowLoad)
+                {
+                    if (subRoles.Contains(CustomRoles.Damocles)) Damocles.Update(player);
+                    if (subRoles.Contains(CustomRoles.Stressed)) Stressed.Update(player);
+                    if (subRoles.Contains(CustomRoles.Asthmatic)) Asthmatic.OnFixedUpdate();
+                    if (subRoles.Contains(CustomRoles.Disco)) Disco.OnFixedUpdate(player);
+                    if (subRoles.Contains(CustomRoles.Clumsy)) Clumsy.OnFixedUpdate(player);
+                    if (subRoles.Contains(CustomRoles.Sonar)) Sonar.OnFixedUpdate(player);
+                }
             }
 
             if (GhostRolesManager.AssignedGhostRoles.TryGetValue(player.PlayerId, out var ghostRole))

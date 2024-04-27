@@ -325,5 +325,12 @@ public static class HudSpritePatch
         __instance.SabotageButton.graphic.sprite = newSabotageButton;
         __instance.PetButton.graphic.sprite = newPetButton;
         __instance.ReportButton.graphic.sprite = newReportButton;
+
+        __instance.KillButton.graphic.SetCooldownNormalizedUvs();
+        __instance.AbilityButton.graphic.SetCooldownNormalizedUvs();
+        __instance.ImpostorVentButton.graphic.SetCooldownNormalizedUvs();
+        __instance.SabotageButton.graphic.SetCooldownNormalizedUvs();
+        __instance.PetButton.graphic.SetCooldownNormalizedUvs();
+        __instance.ReportButton.graphic.SetCooldownNormalizedUvs();
     }
 }

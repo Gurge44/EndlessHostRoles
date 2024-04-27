@@ -96,6 +96,7 @@ namespace EHR.Roles.Impostor
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
         public override bool CanUseImpostorVentButton(PlayerControl pc) => AbductVictim == null;
+        public override bool CanUseKillButton(PlayerControl pc) => pc.IsAlive();
 
         void SendRPC()
         {
@@ -132,16 +133,28 @@ namespace EHR.Roles.Impostor
             SendRPC();
         }
 
-        void RemoveVictim()
+        void RemoveVictim(bool allowDelay = true)
         {
             if (!IsEnable) return;
-            AbductVictim = null;
+            if (!allowDelay)
+            {
+                AbductVictim = null;
+                SendRPC();
+            }
+            else
+            {
+                _ = new LateTask(() =>
+                {
+                    AbductVictim = null;
+                    SendRPC();
+                }, 1f, log: false);
+            }
+
             AbductTimer = 255f;
             Main.AllPlayerSpeed[PenguinId] = DefaultSpeed;
             Penguin_.MarkDirtySettings();
             LogSpeed();
             Utils.NotifyRoles(SpecifySeer: Penguin_, SpecifyTarget: Penguin_);
-            SendRPC();
         }
 
         void LogSpeed() => Logger.Info($"Penguin Speed: {Main.AllPlayerSpeed[PenguinId]}", "Penguin");
@@ -190,7 +203,7 @@ namespace EHR.Roles.Impostor
             if (AbductVictim != null && AbductTimer <= 0f)
             {
                 if (!IsGoose) Penguin_.Kill(AbductVictim);
-                RemoveVictim();
+                RemoveVictim(allowDelay: false);
             }
 
             if (MeetingKill)

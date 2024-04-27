@@ -5,11 +5,14 @@ namespace EHR.GameMode.HideAndSeekRoles
     internal class Hider : RoleBase, IHideAndSeekRole
     {
         public static bool On;
-        public override bool IsEnable => On;
 
         public static OptionItem Vision;
         public static OptionItem Speed;
         public static OptionItem TimeDecreaseOnTaskComplete;
+        public override bool IsEnable => On;
+        public Team Team => Team.Crewmate;
+        public int Chance => 100;
+        public int Count => Main.AllPlayerControls.Length;
 
         public static void SetupCustomOption()
         {
