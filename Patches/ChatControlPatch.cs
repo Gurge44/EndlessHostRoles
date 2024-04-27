@@ -73,10 +73,20 @@ class ChatControllerUpdatePatch
     }
 }
 
+[HarmonyPatch(typeof(UrlFinder), nameof(UrlFinder.TryFindUrl))]
+class UrlFinderPatch
+{
+    public static bool Prefix(ref bool __result)
+    {
+        __result = false;
+        return false;
+    }
+}
+
 public static class ChatManager
 {
-    private static readonly List<string> ChatHistory = [];
     private const int MaxHistorySize = 20;
+    private static readonly List<string> ChatHistory = [];
 
     public static void ResetHistory()
     {
