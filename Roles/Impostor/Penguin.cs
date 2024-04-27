@@ -157,7 +157,7 @@ namespace EHR.Roles.Impostor
             Utils.NotifyRoles(SpecifySeer: Penguin_, SpecifyTarget: Penguin_);
         }
 
-        void LogSpeed() => Logger.Info($"Penguin Speed: {Main.AllPlayerSpeed[PenguinId]}", "Penguin");
+        void LogSpeed() => Logger.Info($" Speed: {Main.AllPlayerSpeed[PenguinId]}", IsGoose ? "Goose" : "Penguin");
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
@@ -192,7 +192,7 @@ namespace EHR.Roles.Impostor
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            hud.KillButton?.OverrideText(AbductVictim != null ? GetString("KillButtonText") : GetString("PenguinKillButtonText"));
+            hud.KillButton?.OverrideText(AbductVictim != null && !IsGoose ? GetString("KillButtonText") : GetString("PenguinKillButtonText"));
         }
 
         public override void OnReportDeadBody()
@@ -271,17 +271,22 @@ namespace EHR.Roles.Impostor
                 if (AbductTimer <= 0f && !Penguin_.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                 {
                     // Set IsDead to true first (prevents ladder chase)
-                    AbductVictim.Data.IsDead = true;
-                    GameData.Instance.SetDirty();
+                    if (!IsGoose)
+                    {
+                        AbductVictim.Data.IsDead = true;
+                        GameData.Instance.SetDirty();
+                    }
+
                     // If the penguin himself is on a ladder, kill him after getting off the ladder.
                     if (!AbductVictim.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                     {
                         var abductVictim = AbductVictim;
                         _ = new LateTask(() =>
                         {
+                            if (IsGoose) return;
+
                             var sId = abductVictim.NetTransform.lastSequenceId + 5;
                             abductVictim.NetTransform.SnapTo(Penguin_.transform.position, (ushort)sId);
-                            if (IsGoose) return;
                             Penguin_.Kill(abductVictim);
 
                             var sender = CustomRpcSender.Create("PenguinMurder");
@@ -300,6 +305,7 @@ namespace EHR.Roles.Impostor
                             }
                             sender.SendMessage();
                         }, 0.3f, "PenguinMurder");
+
                         RemoveVictim();
                     }
                 }

@@ -86,7 +86,7 @@ namespace EHR.Neutral
             foreach (var kvp in MarkedPlayers)
             {
                 var pc = Utils.GetPlayerById(kvp.Key);
-                if (pc == null || pc.IsAlive()) continue;
+                if (pc == null || !pc.IsAlive()) continue;
 
                 pc.Notify(Translator.GetString(GetNotify(kvp.Value.Instruction, kvp.Value.DoAction, false)), 300f);
             }
@@ -124,7 +124,7 @@ namespace EHR.Neutral
                 Executed = false;
                 foreach (var kvp in MarkedPlayers)
                 {
-                    if (!kvp.Value.DoAction) continue;
+                    if (!kvp.Value.DoAction || kvp.Value.Instruction == Instruction.None) continue;
                     var pc = Utils.GetPlayerById(kvp.Key);
                     if (pc == null || !pc.IsAlive()) continue;
                     pc.Suicide();
@@ -140,7 +140,7 @@ namespace EHR.Neutral
             bool self = seer.PlayerId == target.PlayerId;
             if (seer.IsModClient() && !hud && self) return string.Empty;
 
-            if (self) return Translator.GetString(simon.DoMode ? "SimonDoMode" : "SimonDontDoMode");
+            if (self) return Translator.GetString(simon.DoMode ? "SimonDoMode" : "SimonDontMode");
             else if (simon.MarkedPlayers.TryGetValue(target.PlayerId, out var value)) return Translator.GetString(GetNotify(value.Instruction, value.DoAction, true));
 
             return string.Empty;
@@ -150,6 +150,7 @@ namespace EHR.Neutral
         {
             foreach (var simon in Instances)
             {
+                if (!simon.Executed) continue;
                 if (simon.MarkedPlayers.TryGetValue(pc.PlayerId, out var value))
                 {
                     if (value.Instruction != instruction) continue;

@@ -26,10 +26,10 @@ namespace EHR.Roles.Crewmate
             VeteranSkillMaxOfUseage = IntegerOptionItem.Create(id + 4, "VeteranSkillMaxOfUseage", new(0, 180, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
                 .SetValueFormat(OptionFormat.Times);
-            VeteranAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(id + 5, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.3f, TabGroup.CrewmateRoles)
+            VeteranAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(id + 5, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.3f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
                 .SetValueFormat(OptionFormat.Times);
-            VeteranAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(id + 6, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
+            VeteranAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(id + 6, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
                 .SetValueFormat(OptionFormat.Times);
         }

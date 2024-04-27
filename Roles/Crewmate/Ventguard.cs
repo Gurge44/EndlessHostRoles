@@ -7,17 +7,17 @@ namespace EHR.Roles.Crewmate
     internal class Ventguard : RoleBase
     {
         public static bool On;
-        public override bool IsEnable => On;
 
         public static List<int> BlockedVents = [];
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
             SetupSingleRoleOptions(5525, TabGroup.CrewmateRoles, CustomRoles.Ventguard);
-            VentguardAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(5527, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles)
+            VentguardAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(5527, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard])
                 .SetValueFormat(OptionFormat.Times);
-            VentguardAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(5530, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
+            VentguardAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(5530, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard])
                 .SetValueFormat(OptionFormat.Times);
             VentguardMaxGuards = IntegerOptionItem.Create(5528, "VentguardMaxGuards", new(1, 30, 1), 3, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard]);

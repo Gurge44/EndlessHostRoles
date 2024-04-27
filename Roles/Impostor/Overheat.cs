@@ -80,7 +80,7 @@ namespace EHR.Roles.Impostor
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || !pc.IsAlive()) return;
+            if (!GameStates.IsInTask || !pc.IsAlive() || ExileController.Instance != null) return;
 
             ChanceIncreaseTimer += Time.fixedDeltaTime;
             RollChanceTimer += Time.fixedDeltaTime;
@@ -89,13 +89,15 @@ namespace EHR.Roles.Impostor
             {
                 ChanceIncreaseTimer = 0f;
                 Temperature += OverheatChanceIncrease.GetInt();
+                pc.ResetKillCooldown();
+                pc.MarkDirtySettings();
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }
 
             if (RollChanceTimer >= OverheatRollChanceFrequency.GetFloat())
             {
                 RollChanceTimer = 0f;
-                if (IRandom.Instance.Next(100) < Temperature - StartingTemperature)
+                if (IRandom.Instance.Next(100) < (Temperature - StartingTemperature))
                 {
                     pc.Suicide();
                 }

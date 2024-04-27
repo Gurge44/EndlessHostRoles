@@ -17,7 +17,7 @@ namespace EHR.Patches;
 class CheckForEndVotingPatch
 {
     public static string EjectionText = string.Empty;
-    
+
     public static bool Prefix(MeetingHud __instance)
     {
         if (!AmongUsClient.Instance.AmHost) return true;
@@ -403,13 +403,14 @@ class CheckForEndVotingPatch
                     name += " (";
                     var team = CustomTeamManager.GetCustomTeam(player.PlayerId);
                     if (team != null) name += Utils.ColorString(team.RoleRevealScreenBackgroundColor == "*" || !ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out var color) ? Color.yellow : color, team.RoleRevealScreenTitle == "*" ? team.TeamName : team.RoleRevealScreenTitle);
-                    else name += player.GetTeam() switch
-                    {
-                        Team.Impostor => Utils.ColorString(new(255, 25, 25, byte.MaxValue), GetString("TeamImpostor")),
-                        Team.Neutral => Utils.ColorString(new(255, 171, 27, byte.MaxValue), GetString("TeamNeutral")),
-                        Team.Crewmate => Utils.ColorString(new(140, 255, 255, byte.MaxValue), GetString("TeamCrewmate")),
-                        _ => "----"
-                    };
+                    else
+                        name += player.GetTeam() switch
+                        {
+                            Team.Impostor => Utils.ColorString(new(255, 25, 25, byte.MaxValue), GetString("TeamImpostor")),
+                            Team.Neutral => Utils.ColorString(new(255, 171, 27, byte.MaxValue), GetString("TeamNeutral")),
+                            Team.Crewmate => Utils.ColorString(new(140, 255, 255, byte.MaxValue), GetString("TeamCrewmate")),
+                            _ => "----"
+                        };
                     name += ")";
                 }
 
@@ -490,6 +491,7 @@ class CheckForEndVotingPatch
 
 
         name = name.Replace("color=", string.Empty) + "<size=0>";
+        EjectionText = name.Split('\n')[0];
 
         _ = new LateTask(() =>
         {
@@ -508,8 +510,6 @@ class CheckForEndVotingPatch
                 player.RpcSetName(realName);
                 Main.DoBlockNameChange = false;
             }
-
-            EjectionText = name.Split('\n')[0];
         }, 11.5f, "Change Exiled Player Name Back");
     }
 
@@ -526,7 +526,7 @@ class CheckForEndVotingPatch
         CheckForDeathOnExile(deathReason, [.. AddedIdList]);
     }
 
-    public static void CheckForDeathOnExile(PlayerState.DeathReason deathReason, params byte[] playerIds)
+    private static void CheckForDeathOnExile(PlayerState.DeathReason deathReason, params byte[] playerIds)
     {
         Witch.OnCheckForEndVoting(deathReason, playerIds);
         Virus.OnCheckForEndVoting(deathReason, playerIds);
@@ -635,7 +635,7 @@ static class ExtendedMeetingHud
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
 class MeetingHudStartPatch
 {
-    public static void NotifyRoleSkillOnMeetingStart()
+    private static void NotifyRoleSkillOnMeetingStart()
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
@@ -785,8 +785,7 @@ class MeetingHudStartPatch
             var pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (pc == null) continue;
             var RoleTextData = Utils.GetRoleText(PlayerControl.LocalPlayer.PlayerId, pc.PlayerId);
-            var roleTextMeeting = Object.Instantiate(pva.NameText);
-            roleTextMeeting.transform.SetParent(pva.NameText.transform);
+            var roleTextMeeting = Object.Instantiate(pva.NameText, pva.NameText.transform, true);
             roleTextMeeting.transform.localPosition = new(0f, -0.18f, 0f);
             roleTextMeeting.fontSize = 1.4f;
             roleTextMeeting.text = RoleTextData.Item1;

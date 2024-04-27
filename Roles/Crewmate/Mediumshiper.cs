@@ -16,16 +16,18 @@ public class Mediumshiper : RoleBase
 
     public static Dictionary<byte, byte> ContactPlayer = [];
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mediumshiper);
         ContactLimitOpt = IntegerOptionItem.Create(Id + 10, "MediumshiperContactLimit", new(0, 15, 1), 1, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Mediumshiper])
             .SetValueFormat(OptionFormat.Times);
         OnlyReceiveMsgFromCrew = BooleanOptionItem.Create(Id + 11, "MediumshiperOnlyReceiveMsgFromCrew", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Mediumshiper]);
-        MediumAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles)
+        MediumAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Mediumshiper])
             .SetValueFormat(OptionFormat.Times);
-        AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
+        AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Mediumshiper])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -42,8 +44,6 @@ public class Mediumshiper : RoleBase
         playerId.SetAbilityUseLimit(ContactLimitOpt.GetInt());
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
-
     public static void OnReportDeadBody(GameData.PlayerInfo target)
     {
         ContactPlayer = [];
@@ -56,6 +56,7 @@ public class Mediumshiper : RoleBase
             Logger.Info($"Medium Connection：{pc.GetNameWithRole().RemoveHtmlTags()} => {target.PlayerName}", "Mediumshiper");
         }
     }
+
     public static bool MsMsg(PlayerControl pc, string msg)
     {
         if (!AmongUsClient.Instance.AmHost) return false;
@@ -82,6 +83,7 @@ public class Mediumshiper : RoleBase
 
         return true;
     }
+
     public static bool CheckCommond(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
@@ -98,6 +100,7 @@ public class Mediumshiper : RoleBase
                 return true;
             }
         }
+
         return false;
     }
 }

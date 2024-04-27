@@ -20,6 +20,10 @@ namespace EHR;
 [HarmonyPatch(typeof(ChatController), nameof(ChatController.SendChat))]
 internal class ChatCommands
 {
+    public static List<string> ChatHistory = [];
+
+    public static Dictionary<byte, long> LastSentCommand = [];
+
     // Function to check if a player is a moderator
     public static bool IsPlayerModerator(string friendCode)
     {
@@ -28,9 +32,6 @@ internal class ChatCommands
         var friendCodes = File.ReadAllLines(friendCodesFilePath);
         return friendCodes.Any(code => code.Contains(friendCode, StringComparison.OrdinalIgnoreCase));
     }
-
-    public static List<string> ChatHistory = [];
-    public static Dictionary<byte, long> LastSentCommand = [];
 
     public static bool Prefix(ChatController __instance)
     {
@@ -442,7 +443,7 @@ internal class ChatCommands
                     break;
 
                 case "/qs":
-                    if (args.Length < 2 || !QuizMaster.On || !PlayerControl.LocalPlayer.IsAlive()) break;
+                    if (!QuizMaster.On || !PlayerControl.LocalPlayer.IsAlive()) break;
                     var qm2 = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
                     if (qm2.Target != localPlayerId || !QuizMaster.MessagesToSend.TryGetValue(localPlayerId, out var msg)) break;
                     Utils.SendMessage(msg, localPlayerId, GetString("QuizMaster.QuestionSample.Title"));
@@ -1178,7 +1179,7 @@ internal class ChatCommands
                 qm.Answer(args[1].ToUpper());
                 break;
             case "/qs":
-                if (args.Length < 2 || !QuizMaster.On || !player.IsAlive()) break;
+                if (!QuizMaster.On || !player.IsAlive()) break;
                 var qm2 = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
                 if (qm2.Target != player.PlayerId || !QuizMaster.MessagesToSend.TryGetValue(player.PlayerId, out var msg)) break;
                 Utils.SendMessage(msg, player.PlayerId, GetString("QuizMaster.QuestionSample.Title"));

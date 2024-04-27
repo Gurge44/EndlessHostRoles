@@ -108,7 +108,7 @@ internal static class CustomRoleSelector
         foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
         {
             int chance = role.GetMode();
-            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || (role != CustomRoles.Randomizer && role.IsCrewmate() && Options.AprilFoolsMode.GetBool()) || (Options.CurrentGameMode == CustomGameMode.HideAndSeek && CustomHideAndSeekManager.HideAndSeekRoles.Any(x => x.Value.ContainsKey(role)))) continue;
+            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || (role != CustomRoles.Randomizer && role.IsCrewmate() && Options.AprilFoolsMode.GetBool()) || CustomHideAndSeekManager.HideAndSeekRoles.Any(x => x.Value.ContainsKey(role))) continue;
             switch (role)
             {
                 case CustomRoles.Commander when optImpNum <= 1 && Commander.CannotSpawnAsSoloImp.GetBool():

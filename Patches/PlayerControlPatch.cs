@@ -564,33 +564,30 @@ class MurderPlayerPatch
             }
         }
 
-        if (target.Is(CustomRoles.Bait))
+        if (target.Is(CustomRoles.Bait) && !killer.Is(CustomRoles.Minimalism) && (killer.PlayerId != target.PlayerId || (target.GetRealKiller()?.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith) || !killer.Is(CustomRoles.Oblivious) || !Options.ObliviousBaitImmune.GetBool()))
         {
-            if (killer.PlayerId != target.PlayerId || (target.GetRealKiller()?.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith) || !killer.Is(CustomRoles.Oblivious) || !Options.ObliviousBaitImmune.GetBool())
+            killer.RPCPlayCustomSound("Congrats");
+            target.RPCPlayCustomSound("Congrats");
+            float delay;
+            if (Options.BaitDelayMax.GetFloat() < Options.BaitDelayMin.GetFloat()) delay = 0f;
+            else delay = IRandom.Instance.Next((int)Options.BaitDelayMin.GetFloat(), (int)Options.BaitDelayMax.GetFloat() + 1);
+            delay = Math.Max(delay, 0.15f);
+            if (delay > 0.15f && Options.BaitDelayNotify.GetBool()) killer.Notify(ColorString(GetRoleColor(CustomRoles.Bait), string.Format(GetString("KillBaitNotify"), (int)delay)), delay);
+            Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} 击杀诱饵 => {target.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
+            _ = new LateTask(() =>
             {
-                killer.RPCPlayCustomSound("Congrats");
-                target.RPCPlayCustomSound("Congrats");
-                float delay;
-                if (Options.BaitDelayMax.GetFloat() < Options.BaitDelayMin.GetFloat()) delay = 0f;
-                else delay = IRandom.Instance.Next((int)Options.BaitDelayMin.GetFloat(), (int)Options.BaitDelayMax.GetFloat() + 1);
-                delay = Math.Max(delay, 0.15f);
-                if (delay > 0.15f && Options.BaitDelayNotify.GetBool()) killer.Notify(ColorString(GetRoleColor(CustomRoles.Bait), string.Format(GetString("KillBaitNotify"), (int)delay)), delay);
-                Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} 击杀诱饵 => {target.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
-                _ = new LateTask(() =>
+                if (GameStates.IsInTask)
                 {
-                    if (GameStates.IsInTask)
+                    if (!Options.ReportBaitAtAllCost.GetBool())
                     {
-                        if (!Options.ReportBaitAtAllCost.GetBool())
-                        {
-                            killer.CmdReportDeadBody(target.Data);
-                        }
-                        else
-                        {
-                            killer.NoCheckStartMeeting(target.Data, force: true);
-                        }
+                        killer.CmdReportDeadBody(target.Data);
                     }
-                }, delay, "Bait Self Report");
-            }
+                    else
+                    {
+                        killer.NoCheckStartMeeting(target.Data, force: true);
+                    }
+                }
+            }, delay, "Bait Self Report");
         }
 
         AfterPlayerDeathTasks(target);

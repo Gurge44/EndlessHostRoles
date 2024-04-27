@@ -9,10 +9,10 @@ namespace EHR.Roles.Crewmate
     internal class TimeMaster : RoleBase
     {
         public static bool On;
-        public override bool IsEnable => On;
         public static Dictionary<byte, Vector2> TimeMasterBackTrack = [];
         public static Dictionary<byte, int> TimeMasterNum = [];
         public static Dictionary<byte, long> TimeMasterInProtect = [];
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
@@ -26,10 +26,10 @@ namespace EHR.Roles.Crewmate
             TimeMasterMaxUses = IntegerOptionItem.Create(8962, "TimeMasterMaxUses", new(0, 180, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
                 .SetValueFormat(OptionFormat.Times);
-            TimeMasterAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(8963, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.4f, TabGroup.CrewmateRoles)
+            TimeMasterAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(8963, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.4f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
                 .SetValueFormat(OptionFormat.Times);
-            TimeMasterAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(8964, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
+            TimeMasterAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(8964, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
                 .SetValueFormat(OptionFormat.Times);
         }

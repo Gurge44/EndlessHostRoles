@@ -24,6 +24,8 @@ public class NiceSwapper : RoleBase
     private static (byte, byte) SwapTargets = (byte.MaxValue, byte.MaxValue);
     private static byte NiceSwapperId = byte.MaxValue;
 
+    public override bool IsEnable => NiceSwapperId != byte.MaxValue;
+
     public static void SetupCustomOption()
     {
         Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.NiceSwapper);
@@ -31,10 +33,10 @@ public class NiceSwapper : RoleBase
             .SetValueFormat(OptionFormat.Times);
         CanSwapSelf = BooleanOptionItem.Create(Id + 2, "CanSwapSelfVotes", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
         CanStartMeeting = BooleanOptionItem.Create(Id + 4, "JesterCanUseButton", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
-        NiceSwapperAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 6, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.3f, TabGroup.CrewmateRoles)
+        NiceSwapperAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 6, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.3f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])
             .SetValueFormat(OptionFormat.Times);
-        AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 7, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
+        AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 7, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])
             .SetValueFormat(OptionFormat.Times);
         HideMsg = BooleanOptionItem.Create(Id + 5, "SwapperHideMsg", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
@@ -51,8 +53,6 @@ public class NiceSwapper : RoleBase
         NiceSwapperId = playerId;
         playerId.SetAbilityUseLimit(SwapMax.GetInt());
     }
-
-    public override bool IsEnable => NiceSwapperId != byte.MaxValue;
 
     public static bool SwapMsg(PlayerControl pc, string msg, bool isUI = false)
     {
@@ -228,7 +228,7 @@ public class NiceSwapper : RoleBase
         return true;
     }
 
-    public static bool CheckCommand(ref string msg, string command, bool exact = true)
+    private static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
         foreach (string str in comList)
@@ -285,20 +285,9 @@ public class NiceSwapper : RoleBase
         }
     }
 
-    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
-    class StartMeetingPatch
+    private static void CreateSwapperButton(MeetingHud __instance)
     {
-        // ReSharper disable once UnusedMember.Local
-        public static void Postfix(MeetingHud __instance)
-        {
-            if (PlayerControl.LocalPlayer.GetCustomRole() == CustomRoles.NiceSwapper && PlayerControl.LocalPlayer.IsAlive())
-                CreateSwapperButton(__instance);
-        }
-    }
-
-    public static void CreateSwapperButton(MeetingHud __instance)
-    {
-        foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
+        foreach (PlayerVoteArea pva in __instance.playerStates)
         {
             var pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (pc == null || !pc.IsAlive()) continue;
@@ -315,6 +304,17 @@ public class NiceSwapper : RoleBase
             PassiveButton button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
             button.OnClick.AddListener((Action)(() => SwapperOnClick(pva.TargetPlayerId, __instance)));
+        }
+    }
+
+    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    class StartMeetingPatch
+    {
+        // ReSharper disable once UnusedMember.Local
+        public static void Postfix(MeetingHud __instance)
+        {
+            if (PlayerControl.LocalPlayer.GetCustomRole() == CustomRoles.NiceSwapper && PlayerControl.LocalPlayer.IsAlive())
+                CreateSwapperButton(__instance);
         }
     }
 }

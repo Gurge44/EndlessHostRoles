@@ -131,7 +131,15 @@ namespace EHR
                 }
             }
 
-            Logger.Info($"Roles: {result.Join(x => $"{x.Key.GetRealName()} => {x.Value}")}", "HideAndSeekRoleSelector");
+            foreach (PlayerControl pc in allPlayers.Except(result.Keys).ToArray())
+            {
+                result[pc] = CustomRoles.Hider;
+                memberNum[Team.Crewmate]--;
+                allPlayers.Remove(pc);
+            }
+
+            if (allPlayers.Count > 0) Logger.Error($"Some players were not assigned a role: {allPlayers.Join(x => x.GetRealName())}", "CustomRoleSelector");
+            Logger.Msg($"Roles: {result.Join(x => $"{x.Key.GetRealName()} => {x.Value}")}", "HideAndSeekRoleSelector");
         }
 
         public static void ApplyGameOptions(IGameOptions opt, PlayerControl pc)

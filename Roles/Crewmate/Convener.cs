@@ -4,11 +4,14 @@ namespace EHR.Roles.Crewmate
 {
     internal class Convener : RoleBase
     {
-        private static int Id => 643350;
         public static OptionItem CD;
         public static OptionItem Limit;
         public static OptionItem ConvenerAbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
+
+        public static bool On;
+        private static int Id => 643350;
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
@@ -17,16 +20,13 @@ namespace EHR.Roles.Crewmate
             Limit = IntegerOptionItem.Create(Id + 3, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Convener])
                 .SetValueFormat(OptionFormat.Times);
-            ConvenerAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 4, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.4f, TabGroup.CrewmateRoles)
+            ConvenerAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 4, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.4f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Convener])
                 .SetValueFormat(OptionFormat.Times);
-            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 5, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
+            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 5, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Convener])
                 .SetValueFormat(OptionFormat.Times);
         }
-
-        public static bool On;
-        public override bool IsEnable => On;
 
         public override void Add(byte playerId)
         {

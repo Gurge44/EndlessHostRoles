@@ -26,6 +26,8 @@ namespace EHR.Roles.Crewmate
         private static Dictionary<byte, Dictionary<Vector2, string>> Triggers = [];
         private static long lastUpdate;
 
+        public override bool IsEnable => playerIdList.Count > 0;
+
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Druid);
@@ -38,10 +40,10 @@ namespace EHR.Roles.Crewmate
             UseLimitOpt = IntegerOptionItem.Create(Id + 12, "AbilityUseLimit", new(0, 20, 1), 3, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Times);
-            DruidAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles)
+            DruidAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Times);
-            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 14, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
+            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 14, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Times);
         }
@@ -60,8 +62,6 @@ namespace EHR.Roles.Crewmate
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             lastUpdate = TimeStamp;
         }
-
-        public override bool IsEnable => playerIdList.Count > 0;
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
