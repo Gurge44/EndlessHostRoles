@@ -866,17 +866,17 @@ class ReportDeadBodyPatch
 
             if (Options.SyncButtonMode.GetBool() && target == null)
             {
-                Logger.Info("最大:" + Options.SyncedButtonCount.GetInt() + ", 現在:" + Options.UsedButtonCount, "ReportDeadBody");
+                Logger.Info("Max buttons:" + Options.SyncedButtonCount.GetInt() + ", used:" + Options.UsedButtonCount, "ReportDeadBody");
                 if (Options.SyncedButtonCount.GetFloat() <= Options.UsedButtonCount)
                 {
-                    Logger.Info("使用可能ボタン回数が最大数を超えているため、ボタンはキャンセルされました。", "ReportDeadBody");
+                    Logger.Info("The ship has no more emergency meetings left", "ReportDeadBody");
                     return false;
                 }
 
                 Options.UsedButtonCount++;
                 if (Math.Abs(Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) < 0.5f)
                 {
-                    Logger.Info("使用可能ボタン回数が最大数に達しました。", "ReportDeadBody");
+                    Logger.Info("This was the last allowed emergency meeting", "ReportDeadBody");
                 }
             }
 
@@ -1038,7 +1038,7 @@ class FixedUpdatePatch
             {
                 var info = ReportDeadBodyPatch.WaitReport[id][0];
                 ReportDeadBodyPatch.WaitReport[id].Clear();
-                Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}:通報可能になったため通報処理を行います", "ReportDeadbody");
+                Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}: Now that it is possible to report, we will process the report.", "ReportDeadbody");
                 __instance.ReportDeadBody(info);
             }
         }
