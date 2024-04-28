@@ -39,7 +39,8 @@ public static class Camouflage
     static GameData.PlayerOutfit CamouflageOutfit = new GameData.PlayerOutfit().Set("", 15, "", "", "", "", ""); // Default
 
     public static bool IsCamouflage;
-    public static Dictionary<byte, GameData.PlayerOutfit> PlayerSkins = [];
+    public static bool BlockCamouflage;
+    public static readonly Dictionary<byte, GameData.PlayerOutfit> PlayerSkins = [];
 
     public static List<byte> ResetSkinAfterDeathPlayers = [];
 
@@ -49,53 +50,19 @@ public static class Camouflage
         PlayerSkins.Clear();
         ResetSkinAfterDeathPlayers = [];
 
-        switch (Options.KPDCamouflageMode.GetValue())
+        CamouflageOutfit = Options.KPDCamouflageMode.GetValue() switch
         {
-            case 0: // Default
-                CamouflageOutfit = new GameData.PlayerOutfit()
-                    .Set("", 15, "", "", "", "", "");
-                break;
-
-            case 1: // Host's outfit
-                CamouflageOutfit = new GameData.PlayerOutfit()
-                    .Set("", DataManager.Player.Customization.Color, DataManager.Player.Customization.Hat, DataManager.Player.Customization.Skin, DataManager.Player.Customization.Visor, DataManager.Player.Customization.Pet, "");
-                break;
-
-            case 2: // Karpe
-                CamouflageOutfit = new GameData.PlayerOutfit()
-                    .Set("", 13, "hat_pk05_Plant", "", "visor_BubbleBumVisor", "", "");
-                break;
-
-            case 3: // Lauryn
-                CamouflageOutfit = new GameData.PlayerOutfit()
-                    .Set("", 13, "hat_rabbitEars", "skin_Bananaskin", "visor_BubbleBumVisor", "pet_Pusheen", "");
-                break;
-
-            case 4: // Moe
-                CamouflageOutfit = new GameData.PlayerOutfit()
-                    .Set("", 0, "hat_mira_headset_yellow", "skin_SuitB", "visor_lollipopCrew", "pet_EmptyPet", "");
-                break;
-
-            case 5: // Pyro
-                CamouflageOutfit = new GameData.PlayerOutfit()
-                    .Set("", 17, "hat_pkHW01_Witch", "skin_greedygrampaskin", "visor_Plsno", "pet_Pusheen", "");
-                break;
-
-            case 6: // ryuk
-                CamouflageOutfit = new GameData.PlayerOutfit()
-                    .Set("", 7, "hat_crownDouble", "skin_D2Saint14", "visor_anime", "pet_Bush", "");
-                break;
-
-            case 7: // Gurge44
-                CamouflageOutfit = new GameData.PlayerOutfit()
-                    .Set("", 7, "hat_pk04_Snowman", "", "", "", "");
-                break;
-
-            case 8: // TommyXL
-                CamouflageOutfit = new GameData.PlayerOutfit()
-                    .Set("", 17, "hat_baseball_Black", "skin_Scientist-Darkskin", "visor_pusheenSmileVisor", "pet_Pip", "");
-                break;
-        }
+            0 => new GameData.PlayerOutfit().Set("", 15, "", "", "", "", ""), // Default
+            1 => new GameData.PlayerOutfit().Set("", DataManager.Player.Customization.Color, DataManager.Player.Customization.Hat, DataManager.Player.Customization.Skin, DataManager.Player.Customization.Visor, DataManager.Player.Customization.Pet, ""), // Host
+            2 => new GameData.PlayerOutfit().Set("", 13, "hat_pk05_Plant", "", "visor_BubbleBumVisor", "", ""), // Karpe
+            3 => new GameData.PlayerOutfit().Set("", 13, "hat_rabbitEars", "skin_Bananaskin", "visor_BubbleBumVisor", "pet_Pusheen", ""), // Lauryn
+            4 => new GameData.PlayerOutfit().Set("", 0, "hat_mira_headset_yellow", "skin_SuitB", "visor_lollipopCrew", "pet_EmptyPet", ""), // Moe
+            5 => new GameData.PlayerOutfit().Set("", 17, "hat_pkHW01_Witch", "skin_greedygrampaskin", "visor_Plsno", "pet_Pusheen", ""), // Pyro
+            6 => new GameData.PlayerOutfit().Set("", 7, "hat_crownDouble", "skin_D2Saint14", "visor_anime", "pet_Bush", ""), // ryuk
+            7 => new GameData.PlayerOutfit().Set("", 7, "hat_pk04_Snowman", "", "", "", ""), // Gurge44
+            8 => new GameData.PlayerOutfit().Set("", 17, "hat_baseball_Black", "skin_Scientist-Darkskin", "visor_pusheenSmileVisor", "pet_Pip", ""), // TommyXL
+            _ => CamouflageOutfit
+        };
 
         if (Options.UsePets.GetBool() && CamouflageOutfit.PetId == "")
         {
@@ -108,7 +75,7 @@ public static class Camouflage
 
     public static void CheckCamouflage()
     {
-        if (!(AmongUsClient.Instance.AmHost && (Options.CommsCamouflage.GetBool() || Camouflager.On))) return;
+        if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On)) return;
 
         var oldIsCamouflage = IsCamouflage;
 
@@ -132,25 +99,18 @@ public static class Camouflage
 
     public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false, bool GameEnd = false)
     {
-        if (!(AmongUsClient.Instance.AmHost && (Options.CommsCamouflage.GetBool() || Camouflager.On))) return;
-        if (target == null) return;
+        if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On) || target == null || (BlockCamouflage && !ForceRevert && !RevertToDefault && !GameEnd)) return;
 
         var id = target.PlayerId;
 
-        if (IsCamouflage && Main.PlayerStates[id].IsDead)
-        {
-            return;
-        }
+        if (IsCamouflage && Main.PlayerStates[id].IsDead) return;
 
         var newOutfit = CamouflageOutfit;
 
         if (!IsCamouflage || ForceRevert)
         {
-            //コミュサボ解除または強制解除
-
             if (id.IsPlayerShifted() && !RevertToDefault)
             {
-                //シェイプシフターなら今の姿のidに変更
                 id = Main.ShapeshiftTarget[id];
             }
 

@@ -20,6 +20,7 @@ namespace EHR;
 [HarmonyPatch(typeof(LogicGameFlowNormal), nameof(LogicGameFlowNormal.CheckEndCriteria))]
 class GameEndChecker
 {
+    private const float EndGameDelay = 0.2f;
     private static GameEndPredicate predicate;
 
     public static bool Prefix()
@@ -49,7 +50,7 @@ class GameEndChecker
             NameNotifyManager.Reset();
             NotifyRoles(ForceLoop: true);
 
-            Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, ForceRevert: true, RevertToDefault: true));
+            Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, ForceRevert: true, RevertToDefault: true, GameEnd: true));
 
             if (reason == GameOverReason.ImpostorBySabotage && (CustomRoles.Jackal.RoleExist() || CustomRoles.Sidekick.RoleExist()) && Jackal.CanWinBySabotageWhenNoImpAlive.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.GetCustomRole().IsImpostorTeam()))
             {
@@ -245,7 +246,7 @@ class GameEndChecker
                 }
                 else if (Options.NeutralRoleWinTogether.GetBool())
                 {
-                    foreach (var id in WinnerIds)
+                    foreach (var id in WinnerIds.ToArray())
                     {
                         var pc = GetPlayerById(id);
                         if (pc == null || !pc.GetCustomRole().IsNeutral()) continue;
@@ -258,6 +259,7 @@ class GameEndChecker
                 }
             }
 
+            Camouflage.BlockCamouflage = true;
             ShipStatus.Instance.enabled = false;
             StartEndGame(reason);
             predicate = null;
@@ -337,8 +339,6 @@ class GameEndChecker
         // Start End Game
         GameManager.Instance.RpcEndGame(reason, false);
     }
-
-    private const float EndGameDelay = 0.2f;
 
     public static void SetPredicateToNormal() => predicate = new NormalGameEndPredicate();
     public static void SetPredicateToSoloKombat() => predicate = new SoloKombatGameEndPredicate();

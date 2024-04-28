@@ -140,5 +140,22 @@ namespace EHR.Roles.Crewmate
                 }
             }
         }
+
+        public override void AfterMeetingTasks()
+        {
+            foreach (var kvp in TrackerTarget)
+            {
+                LocateArrow.RemoveAllTarget(kvp.Key);
+                foreach (var id in kvp.Value.ToArray())
+                {
+                    var pc = Utils.GetPlayerById(id);
+                    if (pc == null || !pc.IsAlive())
+                    {
+                        kvp.Value.Remove(id);
+                        TargetArrow.Remove(kvp.Key, id);
+                    }
+                }
+            }
+        }
     }
 }

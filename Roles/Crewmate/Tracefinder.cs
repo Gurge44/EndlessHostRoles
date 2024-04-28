@@ -19,6 +19,8 @@ public class Tracefinder : RoleBase
 
     public static bool On;
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Tracefinder);
@@ -47,8 +49,6 @@ public class Tracefinder : RoleBase
         playerIdList.Add(playerId);
         On = true;
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     private static void SendRPC(byte playerId, bool add, Vector3 loc = new())
     {
@@ -82,9 +82,9 @@ public class Tracefinder : RoleBase
             LocateArrow.RemoveAllTarget(playerId);
     }
 
-    public override void OnReportDeadBody( /*PlayerControl pc, GameData.PlayerInfo target*/)
+    public override void OnReportDeadBody()
     {
-        foreach (byte apc in playerIdList.ToArray())
+        foreach (byte apc in playerIdList)
         {
             LocateArrow.RemoveAllTarget(apc);
             SendRPC(apc, false);
@@ -94,19 +94,6 @@ public class Tracefinder : RoleBase
     public static void OnPlayerDead(PlayerControl target)
     {
         if (!On || !GameStates.IsInTask || target == null) return;
-
-        var pos = target.Pos();
-        float minDis = float.MaxValue;
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-        {
-            if (pc.PlayerId == target.PlayerId) continue;
-            var dis = Vector2.Distance(pc.Pos(), pos);
-            if (dis < minDis && dis < 1.5f)
-            {
-                minDis = dis;
-                pc.GetRealName();
-            }
-        }
 
         float delay;
         if (ArrowDelayMax.GetFloat() < ArrowDelayMin.GetFloat()) delay = 0f;
@@ -120,8 +107,7 @@ public class Tracefinder : RoleBase
                 foreach (byte id in playerIdList)
                 {
                     PlayerControl pc = Utils.GetPlayerById(id);
-                    if (pc == null || !pc.IsAlive())
-                        continue;
+                    if (pc == null || !pc.IsAlive()) continue;
                     LocateArrow.Add(id, target.transform.position);
                     SendRPC(id, true, target.transform.position);
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);

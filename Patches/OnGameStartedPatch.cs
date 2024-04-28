@@ -129,6 +129,7 @@ internal class ChangeRoleSettings
 
             RPC.SyncAllPlayerNames();
 
+            Camouflage.BlockCamouflage = false;
             Camouflage.Init();
             var invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).Select(p => $"{p.name}").ToArray();
             if (invalidColor.Length > 0)

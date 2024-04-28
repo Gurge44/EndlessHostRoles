@@ -19,16 +19,13 @@ class EndGamePatch
 {
     public static Dictionary<byte, string> SummaryText = [];
     public static string KillLog = string.Empty;
-    public static GameOverReason LastGameOverReason = GameOverReason.ImpostorByKill;
 
-    public static void Postfix( /*AmongUsClient __instance,*/ [HarmonyArgument(0)] ref EndGameResult endGameResult)
+    public static void Postfix()
     {
         GameStates.InGame = false;
 
         Logger.Info("-----------Game over-----------", "Phase");
         if (!GameStates.IsModHost) return;
-
-        LastGameOverReason = endGameResult.GameOverReason;
 
         Main.SetRoles = [];
         Main.SetAddOns = [];

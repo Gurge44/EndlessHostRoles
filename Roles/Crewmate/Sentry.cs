@@ -96,7 +96,7 @@ namespace EHR.Roles.Impostor
             static string GetColoredNames(IEnumerable<byte> ids) => ids.Where(x => Utils.GetPlayerById(x) != null).Select(x => Utils.ColorString(Main.PlayerColors[x], Utils.GetPlayerById(x).GetRealName())).Join();
         }
 
-        public bool IsInMonitoredRoom(PlayerControl pc) => MonitoredRoom != null && pc.GetPlainShipRoom() == MonitoredRoom;
+        bool IsInMonitoredRoom(PlayerControl pc) => MonitoredRoom != null && SentryPC.IsAlive() && pc.GetPlainShipRoom() == MonitoredRoom;
 
         public void OnAnyoneShapeshiftLoop(PlayerControl shapeshifter, PlayerControl target)
         {

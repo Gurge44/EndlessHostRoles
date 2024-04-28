@@ -118,7 +118,7 @@ public static class NameColorManager
         // Check if the seer can see the target's role color
         color = seerRole switch
         {
-            CustomRoles.Executioner when Executioner.Target[seer.PlayerId] == target.PlayerId => "000000",
+            CustomRoles.Executioner when Executioner.Target.TryGetValue(seer.PlayerId, out var exeTarget) && exeTarget == target.PlayerId => "000000",
             CustomRoles.Gangster when target.Is(CustomRoles.Madmate) => Main.RoleColors[CustomRoles.Madmate],
             CustomRoles.Crewpostor when target.Is(CustomRoleTypes.Impostor) && Options.CrewpostorKnowsAllies.GetBool() => Main.ImpostorColor,
             CustomRoles.Succubus when target.Is(CustomRoles.Charmed) => Main.RoleColors[CustomRoles.Charmed],
