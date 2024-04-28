@@ -50,7 +50,7 @@ namespace EHR
                 .Where(t => (typeof(IHideAndSeekRole)).IsAssignableFrom(t) && !t.IsInterface)
                 .ToArray();
 
-            var roleEnums = types
+            CustomRoles[] roleEnums = types
                 .Select(x => ((CustomRoles)Enum.Parse(typeof(CustomRoles), ignoreCase: true, value: x.Name)))
                 .Where(role => role.GetMode() != 0)
                 .ToArray();
@@ -59,7 +59,7 @@ namespace EHR
                 .Select(x => (IHideAndSeekRole)Activator.CreateInstance(x))
                 .Where(x => x != null)
                 .Join(roleEnums, x => x.GetType().Name, x => x.ToString(), (Role, Count) => (Count, (Role, Role.Count)))
-                .Where(x => x.Item2.Count > 0)
+                .Where(x => x.Item2.Count > 0 && x.Item2.Role.Chance > IRandom.Instance.Next(100))
                 .OrderBy(x => x.Item1 is CustomRoles.Seeker or CustomRoles.Hider ? 100 : IRandom.Instance.Next(100))
                 .GroupBy(x => x.Item2.Role.Team)
                 .ToDictionary(x => x.Key, x => x.ToDictionary(y => y.Item1, y => y.Item2.Count));
@@ -248,11 +248,10 @@ namespace EHR
                 name = Utils.ColorString(Main.PlayerColors.GetValueOrDefault(state.Key, Color.white), name);
                 bool isSeeker = state.Value.MainRole == CustomRoles.Seeker;
                 bool alive = !state.Value.IsDead;
-                string taskCount = Utils.GetTaskCount(state.Key, false);
                 string stateText;
                 if (isSeeker) stateText = $"({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Seeker), Translator.GetString("Seeker"))})";
-                else stateText = alive ? string.Empty : "<#ff1313>DEAD</color>";
-                stateText = $"{name} {stateText}";
+                else stateText = alive ? string.Empty : " <#ff1313>DEAD</color>";
+                stateText = $"{name}{stateText}";
                 return stateText;
             }
         }
