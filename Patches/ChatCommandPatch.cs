@@ -1063,7 +1063,6 @@ internal class ChatCommands
 
                     Utils.SendMessage("\n", player.PlayerId, settings.ToString());
                     Utils.SendMessage(sb.ToString(), player.PlayerId, string.Empty);
-                    _ = new LateTask(() => { }, 0.5f, log: false);
                 }
                 else
                     Utils.SendMessage(GetString("Message.CanNotUseInLobby"), player.PlayerId);

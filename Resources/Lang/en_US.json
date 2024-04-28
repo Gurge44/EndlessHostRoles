@@ -2307,6 +2307,7 @@
   "InfectiousKillButtonText": "Infect",
   "MonarchKillButtonText": "Knight",
   "FarseerKillButtonText": "Reveal",
+  "SentryPetButtonText": "Monitor",
   "DisabledBySettings": "Disabled by Settings",
   "Disabled": "Disabled",
   "FailToTrack": "Failed To Track",

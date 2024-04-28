@@ -2307,6 +2307,7 @@
   "InfectiousKillButtonText": "Заразить",
   "MonarchKillButtonText": "Посвятить",
   "FarseerKillButtonText": "Раскрыть",
+  "SentryPetButtonText": "контролировать",
   "DisabledBySettings": "Выключено настройками",
   "Disabled": "Выключено",
   "FailToTrack": "Не удалось отследить",

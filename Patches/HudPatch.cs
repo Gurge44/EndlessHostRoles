@@ -179,6 +179,9 @@ class HudManagerPatch
 
                     switch (player.GetCustomRole())
                     {
+                        case CustomRoles.Sentry:
+                            __instance.PetButton?.OverrideText(GetString("SentryPetButtonText"));
+                            break;
                         case CustomRoles.FireWorks:
                             __instance.AbilityButton?.OverrideText((Main.PlayerStates[player.PlayerId].Role as FireWorks).nowFireWorksCount == 0 ? GetString("FireWorksExplosionButtonText") : GetString("FireWorksInstallAtionButtonText"));
                             break;
