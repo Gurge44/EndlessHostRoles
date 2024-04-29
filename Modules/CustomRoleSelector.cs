@@ -77,7 +77,7 @@ internal static class CustomRoleSelector
                 AssignRoleToEveryone(CustomRoles.Potato);
                 return;
             case CustomGameMode.HideAndSeek:
-                CustomHideAndSeekManager.AssignRoles(ref RoleResult);
+                RoleResult = CustomHideAndSeekManager.PlayerRoles.ToDictionary(x => Utils.GetPlayerById(x.Key), x => x.Value.Role);
                 return;
         }
 

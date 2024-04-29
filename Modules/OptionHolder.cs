@@ -1561,10 +1561,8 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
         DisableSabotage = BooleanOptionItem.Create(22800, "DisableSabotage", false, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
         DisableCloseDoor = BooleanOptionItem.Create(22810, "DisableCloseDoor", false, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
             .SetParent(DisableSabotage)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 

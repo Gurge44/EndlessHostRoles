@@ -60,8 +60,6 @@ public static class MessageReaderUpdateSystemPatch
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(byte))]
 class RepairSystemPatch
 {
-    public static bool IsComms;
-
     public static bool Prefix(ShipStatus __instance,
         [HarmonyArgument(0)] SystemTypes systemType,
         [HarmonyArgument(1)] PlayerControl player,
@@ -72,8 +70,6 @@ class RepairSystemPatch
             Logger.SendInGame("SystemType: " + systemType + ", PlayerName: " + player.GetNameWithRole().RemoveHtmlTags() + ", amount: " + amount);
 
         if (!AmongUsClient.Instance.AmHost) return true; // Execute the following only on the host
-
-        IsComms = PlayerControl.LocalPlayer.myTasks.ToArray().Any(x => x.TaskType == TaskTypes.FixComms);
 
         if ((Options.CurrentGameMode != CustomGameMode.Standard) && systemType == SystemTypes.Sabotage) return false;
 

@@ -3459,6 +3459,7 @@
   "HideAndSeek_MaxGameTime": "Maximum Game Length",
   "HNS.MinNeutrals": "<#00ffff>Minimum</color> Number of <#ffab1b>Neutrals</color>",
   "HNS.MaxNeutrals": "<#0000ff>Maximum</color> Number of <#ffab1b>Neutrals</color>",
+  "HNS.DangerMeter": "Show (Custom) Danger Meter",
   "SubText.HideAndSeek": "Hide And Seek",
   "TimeLeft": "Time Left",
   "MinutesLeft": "{0} <color=#00ffa5>Minutes Left</color>",

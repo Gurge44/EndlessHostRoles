@@ -53,6 +53,8 @@ internal static class FFAManager
     public static OptionItem FFATeamMode;
     public static OptionItem FFATeamNumber;
 
+    public static Dictionary<byte, (string TEXT, long TIMESTAMP)> NameNotify = [];
+
     public static void SetupCustomOption()
     {
         FFAGameTime = IntegerOptionItem.Create(67_223_001, "FFA_GameTime", new(30, 600, 10), 300, TabGroup.GameSettings)
@@ -183,8 +185,6 @@ internal static class FFAManager
         if (!string.IsNullOrEmpty(name))
             NameNotify.Add(PlayerControl.LocalPlayer.PlayerId, (name, 0));
     }
-
-    public static Dictionary<byte, (string TEXT, long TIMESTAMP)> NameNotify = [];
 
     public static void GetNameNotify(PlayerControl player, ref string name)
     {
@@ -501,7 +501,7 @@ internal static class FFAManager
                         sync = true;
                     }
 
-                    if (FFALowerVisionList.TryGetValue(pc.PlayerId, out var lvtime) && lvtime + FFAModifiedSpeedDuration.GetInt() < now)
+                    if (FFALowerVisionList.TryGetValue(pc.PlayerId, out var lvtime) && lvtime + FFAModifiedVisionDuration.GetInt() < now)
                     {
                         Logger.Info(pc.GetRealName() + "'s lower vision effect expired", "FFA");
                         FFALowerVisionList.Remove(pc.PlayerId);

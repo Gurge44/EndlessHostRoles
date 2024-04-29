@@ -11,10 +11,14 @@ namespace EHR.GameMode.HideAndSeekRoles
         public static OptionItem Speed;
         public static OptionItem KillCooldown;
         public static OptionItem CanVent;
+        public static OptionItem BlindTime;
+
         public override bool IsEnable => On;
         public Team Team => Team.Impostor;
         public int Chance => 100;
         public int Count => Math.Min(Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors), 1);
+        public float RoleSpeed => Speed.GetFloat();
+        public float RoleVision => Vision.GetFloat();
 
         public static void SetupCustomOption()
         {
@@ -37,6 +41,10 @@ namespace EHR.GameMode.HideAndSeekRoles
                 .SetColor(new(255, 25, 25, byte.MaxValue));
             CanVent = BooleanOptionItem.Create(69_211_204, "CanVent", false, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
+                .SetColor(new(255, 25, 25, byte.MaxValue));
+            BlindTime = FloatOptionItem.Create(69_211_206, "BlindTime", new(0f, 60f, 1f), 10f, TabGroup.ImpostorRoles)
+                .SetGameMode(CustomGameMode.HideAndSeek)
+                .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(255, 25, 25, byte.MaxValue));
         }
 
@@ -63,14 +71,6 @@ namespace EHR.GameMode.HideAndSeekRoles
         public override void SetKillCooldown(byte id)
         {
             Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        }
-
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
-        {
-            Main.AllPlayerSpeed[playerId] = Speed.GetFloat();
-            opt.SetFloat(FloatOptionNames.CrewLightMod, Vision.GetFloat());
-            opt.SetFloat(FloatOptionNames.ImpostorLightMod, Vision.GetFloat());
-            opt.SetFloat(FloatOptionNames.PlayerSpeedMod, Speed.GetFloat());
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using AmongUs.GameOptions;
-
-namespace EHR.GameMode.HideAndSeekRoles
+﻿namespace EHR.GameMode.HideAndSeekRoles
 {
     internal class Troll : RoleBase, IHideAndSeekRole
     {
@@ -8,10 +6,13 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public static OptionItem Vision;
         public static OptionItem Speed;
+
         public override bool IsEnable => On;
         public Team Team => Team.Neutral;
         public int Chance => CustomRoles.Troll.GetMode();
         public int Count => CustomRoles.Troll.GetCount();
+        public float RoleSpeed => Speed.GetFloat();
+        public float RoleVision => Vision.GetFloat();
 
         public static void SetupCustomOption()
         {
@@ -36,14 +37,6 @@ namespace EHR.GameMode.HideAndSeekRoles
         public override void Init()
         {
             On = false;
-        }
-
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
-        {
-            Main.AllPlayerSpeed[playerId] = Speed.GetFloat();
-            opt.SetFloat(FloatOptionNames.CrewLightMod, Vision.GetFloat());
-            opt.SetFloat(FloatOptionNames.ImpostorLightMod, Vision.GetFloat());
-            opt.SetFloat(FloatOptionNames.PlayerSpeedMod, Speed.GetFloat());
         }
     }
 }
