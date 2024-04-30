@@ -16,12 +16,14 @@ public class Gamer : RoleBase
     private static Dictionary<byte, int> GamerHealth = [];
 
     private static OptionItem KillCooldown;
-    public static OptionItem CanVent;
+    private static OptionItem CanVent;
     private static OptionItem HasImpostorVision;
     private static OptionItem HealthMax;
     private static OptionItem Damage;
     private static OptionItem SelfHealthMax;
     private static OptionItem SelfDamage;
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
@@ -50,10 +52,10 @@ public class Gamer : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        GamerHealth.TryAdd(playerId, SelfHealthMax.GetInt());
+        GamerHealth[playerId] = SelfHealthMax.GetInt();
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            PlayerHealth.TryAdd(pc.PlayerId, HealthMax.GetInt());
+            PlayerHealth[pc.PlayerId] = HealthMax.GetInt();
         }
 
         if (!AmongUsClient.Instance.AmHost) return;
@@ -61,7 +63,6 @@ public class Gamer : RoleBase
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();

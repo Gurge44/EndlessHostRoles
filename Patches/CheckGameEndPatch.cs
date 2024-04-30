@@ -21,17 +21,17 @@ namespace EHR;
 class GameEndChecker
 {
     private const float EndGameDelay = 0.2f;
-    private static GameEndPredicate predicate;
+    private static GameEndPredicate Predicate;
 
     public static bool Prefix()
     {
         if (!AmongUsClient.Instance.AmHost) return true;
 
-        if (predicate == null) return false;
+        if (Predicate == null) return false;
 
         if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return false;
 
-        predicate.CheckForEndGame(out GameOverReason reason);
+        Predicate.CheckForEndGame(out GameOverReason reason);
 
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
@@ -39,7 +39,7 @@ class GameEndChecker
             {
                 ShipStatus.Instance.enabled = false;
                 StartEndGame(reason);
-                predicate = null;
+                Predicate = null;
             }
 
             return false;
@@ -63,39 +63,39 @@ class GameEndChecker
             switch (WinnerTeam)
             {
                 case CustomWinner.Crewmate:
-                    Main.AllPlayerControls
-                        .Where(pc => pc.Is(CustomRoleTypes.Crewmate) && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.Rogue) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Recruit) && !pc.Is(CustomRoles.Contagious) && !pc.HasGhostRole())
-                        .Do(pc => WinnerIds.Add(pc.PlayerId));
+                    WinnerIds.UnionWith(Main.AllPlayerControls
+                        .Where(pc => pc.Is(CustomRoleTypes.Crewmate) && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.Rogue) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Recruit) && !pc.Is(CustomRoles.Contagious) && !pc.Is(CustomRoles.EvilSpirit))
+                        .Select(pc => pc.PlayerId));
                     break;
                 case CustomWinner.Impostor:
-                    Main.AllPlayerControls
-                        .Where(pc => ((pc.Is(CustomRoleTypes.Impostor) && (!pc.Is(CustomRoles.DeadlyQuota) || Main.PlayerStates.Count(x => x.Value.GetRealKiller() == pc.PlayerId) >= Options.DQNumOfKillsNeeded.GetInt())) || pc.Is(CustomRoles.Madmate) || pc.Is(CustomRoles.Crewpostor) || pc.Is(CustomRoles.Refugee)) && !pc.Is(CustomRoles.Rogue) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Recruit) && !pc.Is(CustomRoles.Contagious) && !pc.HasGhostRole())
-                        .Do(pc => WinnerIds.Add(pc.PlayerId));
+                    WinnerIds.UnionWith(Main.AllPlayerControls
+                        .Where(pc => ((pc.Is(CustomRoleTypes.Impostor) && (!pc.Is(CustomRoles.DeadlyQuota) || Main.PlayerStates.Count(x => x.Value.GetRealKiller() == pc.PlayerId) >= Options.DQNumOfKillsNeeded.GetInt())) || pc.Is(CustomRoles.Madmate) || pc.Is(CustomRoles.Crewpostor) || pc.Is(CustomRoles.Refugee)) && !pc.Is(CustomRoles.Rogue) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Recruit) && !pc.Is(CustomRoles.Contagious) && !pc.Is(CustomRoles.EvilSpirit))
+                        .Select(pc => pc.PlayerId));
                     break;
                 case CustomWinner.Succubus:
-                    Main.AllPlayerControls
+                    WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => pc.Is(CustomRoles.Succubus) || (pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Rogue)))
-                        .Do(pc => WinnerIds.Add(pc.PlayerId));
+                        .Select(pc => pc.PlayerId));
                     break;
                 case CustomWinner.Necromancer:
-                    Main.AllPlayerControls
+                    WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => pc.Is(CustomRoles.Necromancer) || pc.Is(CustomRoles.Deathknight) || pc.Is(CustomRoles.Undead) && !pc.Is(CustomRoles.Rogue))
-                        .Do(pc => WinnerIds.Add(pc.PlayerId));
+                        .Select(pc => pc.PlayerId));
                     break;
                 case CustomWinner.Virus:
-                    Main.AllPlayerControls
+                    WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => pc.Is(CustomRoles.Virus) || (pc.Is(CustomRoles.Contagious) && !pc.Is(CustomRoles.Rogue)))
-                        .Do(pc => WinnerIds.Add(pc.PlayerId));
+                        .Select(pc => pc.PlayerId));
                     break;
                 case CustomWinner.Jackal:
-                    Main.AllPlayerControls
+                    WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => (pc.Is(CustomRoles.Jackal) || pc.Is(CustomRoles.Sidekick) || pc.Is(CustomRoles.Recruit)) && !pc.Is(CustomRoles.Rogue))
-                        .Do(pc => WinnerIds.Add(pc.PlayerId));
+                        .Select(pc => pc.PlayerId));
                     break;
                 case CustomWinner.Spiritcaller:
-                    Main.AllPlayerControls
+                    WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => pc.Is(CustomRoles.Spiritcaller) || pc.Is(CustomRoles.EvilSpirit))
-                        .Do(pc => WinnerIds.Add(pc.PlayerId));
+                        .Select(pc => pc.PlayerId));
                     break;
                 case CustomWinner.RuthlessRomantic:
                     WinnerIds.Add(Romantic.PartnerId);
@@ -262,7 +262,7 @@ class GameEndChecker
             Camouflage.BlockCamouflage = true;
             ShipStatus.Instance.enabled = false;
             StartEndGame(reason);
-            predicate = null;
+            Predicate = null;
         }
 
         return false;
@@ -340,12 +340,12 @@ class GameEndChecker
         GameManager.Instance.RpcEndGame(reason, false);
     }
 
-    public static void SetPredicateToNormal() => predicate = new NormalGameEndPredicate();
-    public static void SetPredicateToSoloKombat() => predicate = new SoloKombatGameEndPredicate();
-    public static void SetPredicateToFFA() => predicate = new FFAGameEndPredicate();
-    public static void SetPredicateToMoveAndStop() => predicate = new MoveAndStopGameEndPredicate();
-    public static void SetPredicateToHotPotato() => predicate = new HotPotatoGameEndPredicate();
-    public static void SetPredicateToHideAndSeek() => predicate = new HideAndSeekGameEndPredicate();
+    public static void SetPredicateToNormal() => Predicate = new NormalGameEndPredicate();
+    public static void SetPredicateToSoloKombat() => Predicate = new SoloKombatGameEndPredicate();
+    public static void SetPredicateToFFA() => Predicate = new FFAGameEndPredicate();
+    public static void SetPredicateToMoveAndStop() => Predicate = new MoveAndStopGameEndPredicate();
+    public static void SetPredicateToHotPotato() => Predicate = new HotPotatoGameEndPredicate();
+    public static void SetPredicateToHideAndSeek() => Predicate = new HideAndSeekGameEndPredicate();
 
     class NormalGameEndPredicate : GameEndPredicate
     {

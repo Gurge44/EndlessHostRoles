@@ -14,25 +14,32 @@ namespace EHR.Roles.Impostor;
 public class Swooper : RoleBase
 {
     private const int Id = 4200;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     public static OptionItem SwooperCooldown;
     private static OptionItem SwooperDuration;
     private static OptionItem SwooperVentNormallyOnCooldown;
     private static OptionItem SwooperLimitOpt;
     public static OptionItem SwooperAbilityUseGainWithEachKill;
+    private int CD;
 
     private float Cooldown;
     private float Duration;
-    private bool VentNormallyOnCooldown;
-
-    private CustomRoles UsedRole;
 
     private long InvisTime;
-    public long lastTime;
-    private int ventedId;
-    private int CD;
+
+    private long lastFixedTime;
+    private long lastTime;
     private byte SwooperId;
+
+    private CustomRoles UsedRole;
+    private int ventedId;
+    private bool VentNormallyOnCooldown;
+
+    public override bool IsEnable => PlayerIdList.Count > 0;
+
+    bool CanGoInvis => GameStates.IsInTask && InvisTime == -10 && lastTime == -10;
+    bool IsInvis => InvisTime != -10;
 
     public static void SetupCustomOption()
     {
@@ -51,7 +58,7 @@ public class Swooper : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         InvisTime = -10;
         lastTime = -10;
         ventedId = -10;
@@ -61,7 +68,7 @@ public class Swooper : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         SwooperId = playerId;
 
         InvisTime = -10;
@@ -113,8 +120,6 @@ public class Swooper : RoleBase
         }
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
-
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
         return pc.Data.RoleType != RoleTypes.Engineer;
@@ -135,11 +140,6 @@ public class Swooper : RoleBase
         InvisTime = long.Parse(reader.ReadString());
         lastTime = long.Parse(reader.ReadString());
     }
-
-    bool CanGoInvis => GameStates.IsInTask && InvisTime == -10 && lastTime == -10;
-    bool IsInvis => InvisTime != -10;
-
-    private long lastFixedTime;
 
     public override void AfterMeetingTasks()
     {
@@ -205,7 +205,9 @@ public class Swooper : RoleBase
         var pc = __instance.myPlayer;
         _ = new LateTask(() =>
         {
-            if (CanGoInvis && pc.GetAbilityUseLimit() >= 1)
+            float limit = pc.GetAbilityUseLimit();
+            bool naN = float.IsNaN(limit);
+            if (CanGoInvis && (naN || limit >= 1))
             {
                 ventedId = ventId;
 
@@ -214,17 +216,14 @@ public class Swooper : RoleBase
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
 
                 InvisTime = Utils.TimeStamp;
-                pc.RpcRemoveAbilityUse();
+                if (!naN) pc.RpcRemoveAbilityUse();
                 SendRPC();
                 pc.Notify(GetString("SwooperInvisState"), Duration);
             }
-            else
+            else if (!VentNormallyOnCooldown)
             {
-                if (!VentNormallyOnCooldown)
-                {
-                    __instance.RpcBootFromVent(ventId);
-                    pc.Notify(GetString("SwooperInvisInCooldown"));
-                }
+                __instance.RpcBootFromVent(ventId);
+                pc.Notify(GetString("SwooperInvisInCooldown"));
             }
         }, 0.5f, "Swooper Vent");
     }
