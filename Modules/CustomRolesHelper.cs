@@ -279,20 +279,28 @@ internal static class CustomRolesHelper
         bool UsePets = !load && Options.UsePets.GetBool();
         return role switch
         {
-            //SoloKombat
+            // SoloKombat
             CustomRoles.KB_Normal => RoleTypes.Impostor,
-            //FFA
+            // FFA
             CustomRoles.Killer => RoleTypes.Impostor,
-            //Move And Stop
+            // Move And Stop
             CustomRoles.Tasker => RoleTypes.Crewmate,
-            //Hot Potato
+            // Hot Potato
             CustomRoles.Potato => RoleTypes.Crewmate,
-            //Hide And Seek
+            // Hide And Seek
             CustomRoles.Hider => RoleTypes.Crewmate,
             CustomRoles.Seeker => RoleTypes.Impostor,
             CustomRoles.Fox => RoleTypes.Crewmate,
             CustomRoles.Troll => RoleTypes.Crewmate,
-            //Standard
+            CustomRoles.Jumper => RoleTypes.Engineer,
+            CustomRoles.Detector => RoleTypes.Crewmate,
+            CustomRoles.Jet => RoleTypes.Crewmate,
+            CustomRoles.Dasher => RoleTypes.Impostor,
+            CustomRoles.Locator => RoleTypes.Impostor,
+            CustomRoles.Venter => RoleTypes.Impostor,
+            CustomRoles.Agent => RoleTypes.Impostor,
+            CustomRoles.Taskinator => RoleTypes.Crewmate,
+            // Standard
             CustomRoles.Executioner => Executioner.CRoleChangeRoles[Executioner.ChangeRolesAfterTargetKilled.GetValue()].GetDYRole(),
             CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Crusader => UsePets && Crusader.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,

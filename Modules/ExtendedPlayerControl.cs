@@ -625,19 +625,27 @@ static class ExtendedPlayerControl
 
         return pc.GetCustomRole() switch
         {
-            //SoloKombat
+            // SoloKombat
             CustomRoles.KB_Normal => pc.SoloAlive(),
-            //FFA
+            // FFA
             CustomRoles.Killer => pc.IsAlive(),
-            //Move And Stop
+            // Move And Stop
             CustomRoles.Tasker => false,
-            //Hot Potato
+            // Hot Potato
             CustomRoles.Potato => false,
-            //Hide And Seek
+            // Hide And Seek
             CustomRoles.Seeker => true,
             CustomRoles.Hider => false,
             CustomRoles.Troll => false,
             CustomRoles.Fox => false,
+            CustomRoles.Jumper => false,
+            CustomRoles.Detector => false,
+            CustomRoles.Jet => false,
+            CustomRoles.Dasher => true,
+            CustomRoles.Locator => true,
+            CustomRoles.Venter => true,
+            CustomRoles.Agent => true,
+            CustomRoles.Taskinator => false,
 
             _ => Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseKillButton(pc)
         };

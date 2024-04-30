@@ -9,7 +9,6 @@ using EHR.Roles.AddOns.GhostRoles;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
-using HarmonyLib;
 using InnerNet;
 
 namespace EHR;
@@ -125,19 +124,15 @@ public class PlayerState(byte playerId)
                 RemoveDisableDevicesPatch.UpdateDisableDevices();
             }
         }
+
+        CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
     }
 
     public void SetSubRole(CustomRoles role, bool AllReplace = false)
     {
         if (role == CustomRoles.Cleansed)
             AllReplace = true;
-        if (AllReplace)
-        {
-            foreach (var item in SubRoles.ToArray())
-            {
-                SubRoles.Remove(item);
-            }
-        }
+        if (AllReplace) SubRoles.Clear();
 
         if (!SubRoles.Contains(role))
             SubRoles.Add(role);

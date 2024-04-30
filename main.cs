@@ -554,24 +554,30 @@ public class Main : BasePlugin
                 { CustomRoles.Glow, "#E2F147" },
                 { CustomRoles.Diseased, "#AAAAAA" },
                 { CustomRoles.Antidote, "#FF9876" },
-
                 { CustomRoles.Swift, "#ff1919" },
                 { CustomRoles.Mare, "#ff1919" },
 
-
-                //SoloKombat
+                // SoloKombat
                 { CustomRoles.KB_Normal, "#f55252" },
-                //FFA
+                // FFA
                 { CustomRoles.Killer, "#00ffff" },
-                //Move And Stop
+                // Move And Stop
                 { CustomRoles.Tasker, "#00ffa5" },
-                //Hot Potato
+                // Hot Potato
                 { CustomRoles.Potato, "#e8cd46" },
-                //Hide And Seek
+                // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },
                 { CustomRoles.Fox, "#00ff00" },
-                { CustomRoles.Troll, "#ff00ff" }
+                { CustomRoles.Troll, "#ff00ff" },
+                { CustomRoles.Jumper, "#ddf542" },
+                { CustomRoles.Detector, "#42ddf5" },
+                { CustomRoles.Jet, "#42f54b" },
+                { CustomRoles.Dasher, "#f542b0" },
+                { CustomRoles.Locator, "#f59e42" },
+                { CustomRoles.Venter, "#694141" },
+                { CustomRoles.Agent, "#ff8f8f" },
+                { CustomRoles.Taskinator, "#561dd1" }
             };
             Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleColors.TryAdd(x, "#ff1919"));
         }

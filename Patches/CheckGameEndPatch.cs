@@ -96,6 +96,7 @@ class GameEndChecker
                     WinnerIds.UnionWith(Main.AllPlayerControls
                         .Where(pc => pc.Is(CustomRoles.Spiritcaller) || pc.Is(CustomRoles.EvilSpirit))
                         .Select(pc => pc.PlayerId));
+                    WinnerRoles.Add(CustomRoles.Spiritcaller);
                     break;
                 case CustomWinner.RuthlessRomantic:
                     WinnerIds.Add(Romantic.PartnerId);
@@ -271,7 +272,7 @@ class GameEndChecker
         return false;
     }
 
-    public static void StartEndGame(GameOverReason reason)
+    private static void StartEndGame(GameOverReason reason)
     {
         AmongUsClient.Instance.StartCoroutine(CoEndGame(AmongUsClient.Instance, reason).WrapToIl2Cpp());
     }

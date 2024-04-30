@@ -315,6 +315,14 @@ public enum CustomRoles
     Seeker,
     Fox,
     Troll,
+    Jumper,
+    Detector,
+    Jet,
+    Dasher,
+    Locator,
+    Venter,
+    Agent,
+    Taskinator,
 
     // GM
     GM,

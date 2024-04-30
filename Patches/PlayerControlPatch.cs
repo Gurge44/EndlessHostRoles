@@ -1668,30 +1668,13 @@ class FixedUpdatePatch
 
     public static void LoversSuicide(byte deathId = 0x7f, bool isExiled = false)
     {
-        if (Main.LoversPlayers.Count == 0) return;
-        if (Options.LoverSuicide.GetBool() && !Main.IsLoversDead)
-        {
-            foreach (PlayerControl loversPlayer in Main.LoversPlayers)
-            {
-                if (!loversPlayer.Data.IsDead && loversPlayer.PlayerId != deathId) continue;
-                Main.IsLoversDead = true;
-                foreach (var partnerPlayer in Main.LoversPlayers)
-                {
-                    if (loversPlayer.PlayerId == partnerPlayer.PlayerId) continue;
-                    if (partnerPlayer.PlayerId != deathId && !partnerPlayer.Data.IsDead)
-                    {
-                        if (partnerPlayer.Is(CustomRoles.Lovers))
-                        {
-                            Main.PlayerStates[partnerPlayer.PlayerId].deathReason = PlayerState.DeathReason.FollowingSuicide;
-                            if (isExiled)
-                                CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.FollowingSuicide, partnerPlayer.PlayerId);
-                            else
-                                partnerPlayer.Suicide(PlayerState.DeathReason.FollowingSuicide);
-                        }
-                    }
-                }
-            }
-        }
+        if (!Options.LoverSuicide.GetBool() || Main.IsLoversDead || !Main.LoversPlayers.Any(player => player.Data.IsDead && player.PlayerId == deathId)) return;
+
+        Main.IsLoversDead = true;
+        var partnerPlayer = Main.LoversPlayers.First(player => player.PlayerId != deathId && !player.Data.IsDead);
+
+        if (isExiled) CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.FollowingSuicide, partnerPlayer.PlayerId);
+        else partnerPlayer.Suicide(PlayerState.DeathReason.FollowingSuicide);
     }
 }
 
@@ -1700,8 +1683,7 @@ class PlayerStartPatch
 {
     public static void Postfix(PlayerControl __instance)
     {
-        var roleText = Object.Instantiate(__instance.cosmetics.nameText);
-        roleText.transform.SetParent(__instance.cosmetics.nameText.transform);
+        var roleText = Object.Instantiate(__instance.cosmetics.nameText, __instance.cosmetics.nameText.transform, true);
         roleText.transform.localPosition = new(0f, 0.2f, 0f);
         roleText.fontSize -= 1.2f;
         roleText.text = "RoleText";

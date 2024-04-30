@@ -1609,6 +1609,8 @@ public static class Utils
             return;
         }
 
+        if (text.Length < 300) Logger.Info($" Message: {text} - To: {(sendTo == byte.MaxValue ? "Everyone" : $"{Utils.GetPlayerById(sendTo).GetRealName()}")} - Title: {title}", "SendMessage");
+
         Main.MessagesToSend.Add((text.RemoveHtmlTagsTemplate(), sendTo, title));
     }
 

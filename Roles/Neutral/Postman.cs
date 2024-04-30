@@ -63,11 +63,14 @@ public class Postman : RoleBase
     {
         foreach (var id in playerIdList)
         {
+            var pc = Utils.GetPlayerById(id);
+            if (pc == null || !pc.IsAlive()) continue;
+
             if (Main.PlayerStates[id].Role is Postman { IsEnable: true } pm && pm.Target == deadPc.PlayerId)
             {
                 if (isDeath && DieWhenTargetDies.GetBool())
                 {
-                    Utils.GetPlayerById(id).Suicide();
+                    pc.Suicide();
                 }
                 else
                 {
