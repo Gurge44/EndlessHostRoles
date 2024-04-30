@@ -42,7 +42,7 @@ namespace EHR.Roles.AddOns.GhostRoles
                 .SetValueFormat(OptionFormat.Multiplier);
             CD = IntegerOptionItem.Create(649204, "AbilityCooldown", new(0, 60, 1), 30, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Warden])
-                .SetValueFormat(OptionFormat.Multiplier);
+                .SetValueFormat(OptionFormat.Seconds);
         }
     }
 }

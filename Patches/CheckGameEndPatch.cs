@@ -151,11 +151,11 @@ class GameEndChecker
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.FFF);
                             break;
-                        case CustomRoles.Totocalcio when Main.PlayerStates[pc.PlayerId].Role is Totocalcio tc && tc.BetPlayer != byte.MaxValue && (WinnerIds.Contains(tc.BetPlayer) || (Main.PlayerStates.TryGetValue(tc.BetPlayer, out var ps) && WinnerRoles.Contains(ps.MainRole))):
+                        case CustomRoles.Totocalcio when Main.PlayerStates[pc.PlayerId].Role is Totocalcio tc && tc.BetPlayer != byte.MaxValue && (WinnerIds.Contains(tc.BetPlayer) || (Main.PlayerStates.TryGetValue(tc.BetPlayer, out var ps) && (WinnerRoles.Contains(ps.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps.SubRoles.Contains(CustomRoles.Bloodlust))))):
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.Totocalcio);
                             break;
-                        case CustomRoles.Romantic when WinnerIds.Contains(Romantic.PartnerId) || (Main.PlayerStates.TryGetValue(Romantic.PartnerId, out var ps) && WinnerRoles.Contains(ps.MainRole)):
+                        case CustomRoles.Romantic when WinnerIds.Contains(Romantic.PartnerId) || (Main.PlayerStates.TryGetValue(Romantic.PartnerId, out var ps) && (WinnerRoles.Contains(ps.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps.SubRoles.Contains(CustomRoles.Bloodlust)))):
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.Romantic);
                             break;
@@ -164,7 +164,7 @@ class GameEndChecker
                             WinnerIds.Add(Romantic.PartnerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.VengefulRomantic);
                             break;
-                        case CustomRoles.Lawyer when Lawyer.Target.TryGetValue(pc.PlayerId, out var lawyertarget) && (WinnerIds.Contains(lawyertarget) || (Main.PlayerStates.TryGetValue(lawyertarget, out var ps) && WinnerRoles.Contains(ps.MainRole))):
+                        case CustomRoles.Lawyer when Lawyer.Target.TryGetValue(pc.PlayerId, out var lawyertarget) && (WinnerIds.Contains(lawyertarget) || (Main.PlayerStates.TryGetValue(lawyertarget, out var ps) && (WinnerRoles.Contains(ps.MainRole) || (WinnerTeam == CustomWinner.Bloodlust && ps.SubRoles.Contains(CustomRoles.Bloodlust))))):
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.Lawyer);
                             break;
@@ -184,9 +184,12 @@ class GameEndChecker
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.SoulHunter);
                             break;
-                        case CustomRoles.SchrodingersCat when SchrodingersCat.WinsWithCrewIfNotAttacked.GetBool():
+                        case CustomRoles.SchrodingersCat when WinnerTeam == CustomWinner.Crewmate && SchrodingersCat.WinsWithCrewIfNotAttacked.GetBool():
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.SchrodingersCat);
+                            break;
+                        case CustomRoles.SchrodingersCat:
+                            WinnerIds.Remove(pc.PlayerId);
                             break;
                     }
                 }

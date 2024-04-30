@@ -113,11 +113,11 @@ class CmdCheckMurderPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckMurder))] // Vanilla
 class CheckMurderPatch
 {
-    public static Dictionary<byte, float> TimeSinceLastKill = [];
+    public static readonly Dictionary<byte, float> TimeSinceLastKill = [];
 
     public static void Update()
     {
-        int n = Main.AllPlayerControls.Length;
+        int n = Math.Max(Main.AllPlayerControls.Length, 15);
         for (byte i = 0; i < n; i++)
         {
             if (TimeSinceLastKill.ContainsKey(i))
@@ -178,7 +178,7 @@ class CheckMurderPatch
         // ↓ If not allowed
         if (TimeSinceLastKill.TryGetValue(killer.PlayerId, out var time) && time < minTime)
         {
-            Logger.Info("Last kill was too shortly before, canceled", "CheckMurder");
+            Logger.Info($"Last kill was too shortly before, canceled - time: {time}, minTime: {minTime}", "CheckMurder");
             return false;
         }
 
