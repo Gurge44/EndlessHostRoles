@@ -14,7 +14,7 @@ namespace EHR
     {
         public static int TimeLeft;
         private static long LastUpdate;
-        private static bool IsBlindTime;
+        public static bool IsBlindTime;
 
         private static OptionItem MaxGameLength;
         private static OptionItem MinNeutrals;
@@ -67,11 +67,11 @@ namespace EHR
             HideAndSeekRoles = types
                 .Select(x => (IHideAndSeekRole)Activator.CreateInstance(x))
                 .Where(x => x != null)
-                .Join(roleEnums, x => x.GetType().Name.ToLower(), x => x.ToString().ToLower(), (Role, Count) => (Count, (Role, Role.Count)))
-                .Where(x => x.Item2.Count > 0 && x.Item2.Role.Chance > IRandom.Instance.Next(100))
-                .OrderBy(x => x.Item1 is CustomRoles.Seeker or CustomRoles.Hider ? 100 : IRandom.Instance.Next(100))
-                .GroupBy(x => x.Item2.Role.Team)
-                .ToDictionary(x => x.Key, x => x.ToDictionary(y => y.Item1, y => y.Item2.Count));
+                .Join(roleEnums, x => x.GetType().Name.ToLower(), x => x.ToString().ToLower(), (Interface, Enum) => (Enum, Interface))
+                .Where(x => (!x.Enum.OnlySpawnsWithPets() || Options.UsePets.GetBool()) && x.Interface.Count > 0 && x.Interface.Chance > IRandom.Instance.Next(100))
+                .OrderBy(x => x.Enum is CustomRoles.Seeker or CustomRoles.Hider ? 100 : IRandom.Instance.Next(100))
+                .GroupBy(x => x.Interface.Team)
+                .ToDictionary(x => x.Key, x => x.ToDictionary(y => y.Enum, y => y.Interface.Count));
 
             PlayerRoles = [];
             ClosestImpostor = [];
@@ -84,8 +84,7 @@ namespace EHR
                 Main.AllAlivePlayerControls
                     .Join(PlayerRoles, x => x.PlayerId, x => x.Key, (pc, role) => (pc, role.Value.Interface))
                     .Where(x => x.Interface.Team == Team.Impostor)
-                    .Select(x => x.pc)
-                    .Do(x => x.MarkDirtySettings());
+                    .Do(x => x.pc.MarkDirtySettings());
             }, Seeker.BlindTime.GetFloat() + 8f, "Blind Time Expire");
 
             AssignRoles();

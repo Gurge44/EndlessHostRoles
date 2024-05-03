@@ -23,7 +23,11 @@ internal static class CustomRolesHelper
         CustomRoles.Adventurer,
         CustomRoles.Sentry,
         CustomRoles.Cherokious,
-        CustomRoles.Chemist
+        CustomRoles.Chemist,
+
+        // HnS
+        CustomRoles.Jet,
+        CustomRoles.Dasher
     ];
 
     public static RoleBase GetRoleClass(this CustomRoles role)

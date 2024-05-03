@@ -766,7 +766,7 @@ public static class Utils
 
     public static string GetProgressText(byte playerId, bool comms = false)
     {
-        if (!Main.PlayerVersion.ContainsKey(0)) return string.Empty; //ホストがMODを入れていなければ未記入を返す
+        if (!Main.PlayerVersion.ContainsKey(0)) return string.Empty;
         if (Options.CurrentGameMode == CustomGameMode.MoveAndStop) return GetTaskCount(playerId, comms, moveAndStop: true);
         var ProgressText = new StringBuilder();
         PlayerControl pc = GetPlayerById(playerId);

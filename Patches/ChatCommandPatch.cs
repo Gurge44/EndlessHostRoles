@@ -266,6 +266,28 @@ internal class ChatCommands
                     Utils.SendMessage(Utils.GetRemainingKillers(), localPlayerId);
                     break;
 
+                case "/addmod":
+                    canceled = true;
+                    if (args.Length < 2 || !byte.TryParse(args[1], out var newModId)) break;
+                    var newModPc = Utils.GetPlayerById(newModId);
+                    if (newModPc == null) break;
+                    var fc = newModPc.FriendCode;
+                    if (IsPlayerModerator(fc)) Utils.SendMessage(GetString("PlayerAlreadyMod"), localPlayerId);
+                    File.AppendAllText("./EHR_DATA/Moderators.txt", $"\n{fc}");
+                    Utils.SendMessage(GetString("PlayerAddedToModList"), localPlayerId);
+                    break;
+
+                case "/removemod":
+                    canceled = true;
+                    if (args.Length < 2 || !byte.TryParse(args[1], out var remModId)) break;
+                    var remModPc = Utils.GetPlayerById(remModId);
+                    if (remModPc == null) break;
+                    var remFc = remModPc.FriendCode;
+                    if (!IsPlayerModerator(remFc)) Utils.SendMessage(GetString("PlayerNotMod"), localPlayerId);
+                    File.WriteAllLines("./EHR_DATA/Moderators.txt", File.ReadAllLines("./EHR_DATA/Moderators.txt").Where(x => !x.Contains(remFc)));
+                    Utils.SendMessage(GetString("PlayerRemovedFromModList"), localPlayerId);
+                    break;
+
                 case "/combo": // Format: /combo [add/ban/remove/allow] [main role] [addon]
                     canceled = true;
                     if (args.Length < 4)

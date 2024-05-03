@@ -1631,7 +1631,6 @@ public static class Options
 
 
         UsePets = BooleanOptionItem.Create(23850, "UsePets", false, TabGroup.TaskSettings)
-            .SetGameMode(CustomGameMode.Standard)
             .SetHeader(true)
             .SetColor(new Color32(60, 0, 255, byte.MaxValue));
         PetToAssignToEveryone = StringOptionItem.Create(23854, "PetToAssign", PetToAssign, 24, TabGroup.TaskSettings)
