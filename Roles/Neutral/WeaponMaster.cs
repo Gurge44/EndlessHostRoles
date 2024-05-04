@@ -201,7 +201,12 @@ public class WeaponMaster : RoleBase
         return !playerId.IsPlayerModClient() ? GetHudAndProgressText(playerId) : string.Empty;
     }
 
-    public static string GetHudAndProgressText(byte id)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+    {
+        return isHUD ? GetHudAndProgressText(seer.PlayerId) : string.Empty;
+    }
+
+    static string GetHudAndProgressText(byte id)
     {
         return Main.PlayerStates[id].Role is not WeaponMaster { IsEnable: true } wm ? string.Empty : string.Format(GetString("WMMode"), ModeToText(wm.Mode));
     }

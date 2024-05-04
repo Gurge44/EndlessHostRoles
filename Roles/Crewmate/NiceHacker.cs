@@ -182,9 +182,9 @@ namespace EHR.Roles.Crewmate
             _ = new LateTask(() => { MapCountdown(pc, map, opts, seconds - 1); }, 1f, "NiceHackerAbilityCountdown");
         }
 
-        public static string GetHudText(PlayerControl pc)
+        public override string GetSuffix(PlayerControl pc, PlayerControl _, bool hud = false, bool m = false)
         {
-            if (pc == null) return string.Empty;
+            if (!hud || pc == null) return string.Empty;
             return !pc.Is(CustomRoles.NiceHacker) ? string.Empty : $"<color=#00ffa5>{GetString("NiceHackerAbilitySecondsLeft")}:</color> <b>{(int)UseLimitSeconds[pc.PlayerId]}</b>s";
         }
 

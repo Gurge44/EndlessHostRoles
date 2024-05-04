@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using AmongUs.GameOptions;
 using EHR.Modules;
 
 namespace EHR.GameMode.HideAndSeekRoles
@@ -17,7 +16,7 @@ namespace EHR.GameMode.HideAndSeekRoles
         private LocateStatus Status;
 
         public override bool IsEnable => On;
-        public Team Team => Team.Crewmate;
+        public Team Team => Team.Impostor;
         public int Chance => CustomRoles.Locator.GetMode();
         public int Count => CustomRoles.Locator.GetCount();
         public float RoleSpeed => Speed.GetFloat();
@@ -25,28 +24,28 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public static void SetupCustomOption()
         {
-            Options.SetupRoleOptions(69_211_301, TabGroup.CrewmateRoles, CustomRoles.Locator, CustomGameMode.HideAndSeek);
-            Vision = FloatOptionItem.Create(69_211_303, "LocatorVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
+            Options.SetupRoleOptions(69_211_901, TabGroup.ImpostorRoles, CustomRoles.Locator, CustomGameMode.HideAndSeek);
+            Vision = FloatOptionItem.Create(69_211_903, "LocatorVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(245, 158, 66, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Locator]);
-            Speed = FloatOptionItem.Create(69_213_304, "LocatorSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
+            Speed = FloatOptionItem.Create(69_213_904, "LocatorSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(245, 158, 66, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Locator]);
-            ArrowFrequency = IntegerOptionItem.Create(69_213_305, "LocatorFrequency", new(0, 60, 1), 20, TabGroup.CrewmateRoles)
+            ArrowFrequency = IntegerOptionItem.Create(69_213_905, "LocatorFrequency", new(0, 60, 1), 20, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(245, 158, 66, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Locator]);
-            ArrowDuration = FloatOptionItem.Create(69_213_306, "LocatorDuration", new(1f, 30f, 1f), 5f, TabGroup.CrewmateRoles)
+            ArrowDuration = FloatOptionItem.Create(69_213_906, "LocatorDuration", new(1f, 30f, 1f), 5f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(245, 158, 66, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Locator]);
-            HidersKnowTheyAreLocated = BooleanOptionItem.Create(69_213_307, "LocatorTargetKnows", true, TabGroup.CrewmateRoles)
+            HidersKnowTheyAreLocated = BooleanOptionItem.Create(69_213_907, "LocatorTargetKnows", true, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(new(245, 158, 66, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Locator]);
@@ -63,12 +62,6 @@ namespace EHR.GameMode.HideAndSeekRoles
             On = false;
         }
 
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
-        {
-            opt.SetFloat(FloatOptionNames.CrewLightMod, Vision.GetFloat());
-            opt.SetFloat(FloatOptionNames.ImpostorLightMod, Vision.GetFloat());
-        }
-
         public override void OnFixedUpdate(PlayerControl pc)
         {
             if (!pc.IsAlive()) return;
@@ -77,7 +70,7 @@ namespace EHR.GameMode.HideAndSeekRoles
             {
                 if (Status.LastArrowEndTime + ArrowFrequency.GetInt() < Utils.TimeStamp)
                 {
-                    var target = CustomHideAndSeekManager.PlayerRoles.Where(x => x.Value.Interface.Team == Team.Crewmate).Select(x => Utils.GetPlayerById(x.Key)).Shuffle(IRandom.Instance).FirstOrDefault();
+                    var target = CustomHideAndSeekManager.PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Shuffle(IRandom.Instance).FirstOrDefault();
                     if (target != null)
                     {
                         Status.TargetId = target.PlayerId;

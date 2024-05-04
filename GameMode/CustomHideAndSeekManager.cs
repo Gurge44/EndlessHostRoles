@@ -68,13 +68,15 @@ namespace EHR
                 .Select(x => (IHideAndSeekRole)Activator.CreateInstance(x))
                 .Where(x => x != null)
                 .Join(roleEnums, x => x.GetType().Name.ToLower(), x => x.ToString().ToLower(), (Interface, Enum) => (Enum, Interface))
-                .Where(x => (!x.Enum.OnlySpawnsWithPets() || Options.UsePets.GetBool()) && x.Interface.Count > 0 && x.Interface.Chance > IRandom.Instance.Next(100))
+                .Where(x => (!x.Enum.OnlySpawnsWithPets() || Options.UsePets.GetBool()) && (x.Enum != CustomRoles.Agent || Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors) >= 2) && x.Interface.Count > 0 && x.Interface.Chance > IRandom.Instance.Next(100))
                 .OrderBy(x => x.Enum is CustomRoles.Seeker or CustomRoles.Hider ? 100 : IRandom.Instance.Next(100))
                 .GroupBy(x => x.Interface.Team)
                 .ToDictionary(x => x.Key, x => x.ToDictionary(y => y.Enum, y => y.Interface.Count));
 
             PlayerRoles = [];
             ClosestImpostor = [];
+
+            if (Options.CurrentGameMode != CustomGameMode.HideAndSeek) return;
 
             IsBlindTime = true;
             _ = new LateTask(() =>
@@ -211,7 +213,10 @@ namespace EHR
 
         public static bool KnowTargetRoleColor(PlayerControl seer, PlayerControl target, ref string color)
         {
-            if (PlayerRoles[target.PlayerId].Interface.Team == Team.Impostor)
+            var targetRole = PlayerRoles[target.PlayerId];
+            var seerRole = PlayerRoles[seer.PlayerId];
+
+            if (targetRole.Interface.Team == Team.Impostor && (targetRole.Role != CustomRoles.Agent || seerRole.Interface.Team == Team.Impostor))
             {
                 color = Main.RoleColors[CustomRoles.Seeker];
                 return true;
@@ -228,9 +233,7 @@ namespace EHR
 
         public static bool IsRoleTextEnabled(PlayerControl seer, PlayerControl target)
         {
-            var seerRole = PlayerRoles.GetValueOrDefault(seer.PlayerId);
-            var targetRole = PlayerRoles.GetValueOrDefault(target.PlayerId);
-            return targetRole.Interface.Team == Team.Impostor;
+            return false;
         }
 
         public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool isHUD = false)
@@ -293,20 +296,20 @@ namespace EHR
             }
 
             // If time is up or all hiders have finished their tasks, the game is over and hiders win
-            if (TimeLeft <= 0 || alivePlayers.Select(x => x.GetTaskState()).All(x => x.IsTaskFinished))
+            if (TimeLeft <= 0 || alivePlayers.Where(x => PlayerRoles[x.PlayerId].Interface.Team == Team.Crewmate).Select(x => x.GetTaskState()).All(x => x.IsTaskFinished))
             {
                 reason = GameOverReason.HumansByTask;
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Hider);
-                CustomWinnerHolder.WinnerIds.UnionWith(Main.PlayerStates.Where(x => x.Value.MainRole == CustomRoles.Hider).Select(x => x.Key));
+                CustomWinnerHolder.WinnerIds.UnionWith(PlayerRoles.Where(x => x.Value.Interface.Team == Team.Crewmate).Select(x => x.Key));
                 AddFoxesToWinners();
                 return true;
             }
 
             // If there are no hiders left, the game is over and only seekers win
-            if (alivePlayers.All(x => x.GetCustomRole() != CustomRoles.Hider))
+            if (alivePlayers.All(x => PlayerRoles[x.PlayerId].Interface.Team != Team.Crewmate))
             {
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Seeker);
-                CustomWinnerHolder.WinnerIds.UnionWith(Main.PlayerStates.Where(x => x.Value.MainRole == CustomRoles.Seeker).Select(x => x.Key));
+                CustomWinnerHolder.WinnerIds.UnionWith(PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).Select(x => x.Key));
                 AddFoxesToWinners();
                 return true;
             }
@@ -314,7 +317,7 @@ namespace EHR
             return false;
         }
 
-        static void AddFoxesToWinners()
+        public static void AddFoxesToWinners()
         {
             var foxes = Main.PlayerStates.Where(x => x.Value.MainRole == CustomRoles.Fox).Select(x => x.Key).ToList();
             foxes.RemoveAll(x =>
@@ -336,7 +339,7 @@ namespace EHR
             {
                 string name = Main.AllPlayerNames.GetValueOrDefault(state.Key, $"ID {state.Key}");
                 name = Utils.ColorString(Main.PlayerColors.GetValueOrDefault(state.Key, Color.white), name);
-                bool isSeeker = state.Value.MainRole == CustomRoles.Seeker;
+                bool isSeeker = PlayerRoles[state.Key].Interface.Team == Team.Impostor;
                 bool alive = !state.Value.IsDead;
                 string stateText;
                 if (isSeeker) stateText = $" ({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Seeker), Translator.GetString("Seeker"))})";

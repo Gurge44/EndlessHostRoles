@@ -40,9 +40,9 @@ namespace EHR.Roles.Impostor
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
             AbilityUseLimit = IntegerOptionItem.Create(id + 6, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
-            AbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(id + 7, "AbilityUseGainWithEachTaskCompleted", new(0.1f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles)
+            AbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(id + 7, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
-            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(id + 8, "AbilityChargesWhenFinishedTasks", new(0.1f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
+            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(id + 8, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
         }
 
@@ -158,9 +158,10 @@ namespace EHR.Roles.Impostor
             }
         }
 
-        public static string GetSuffix(PlayerControl seer)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool h = false, bool m = false)
         {
-            if (Main.PlayerStates[seer.PlayerId].Role is Sentry s && s.MonitoredRoom != null) return string.Format(Translator.GetString("Sentry.Suffix.Self"), Translator.GetString($"{s.MonitoredRoom.RoomId}"));
+            if (Main.PlayerStates[seer.PlayerId].Role is Sentry s && s.MonitoredRoom != null && seer.PlayerId == target.PlayerId)
+                return string.Format(Translator.GetString("Sentry.Suffix.Self"), Translator.GetString($"{s.MonitoredRoom.RoomId}"));
 
             if (!PlayersKnowAboutCamera.GetBool()) return string.Empty;
 

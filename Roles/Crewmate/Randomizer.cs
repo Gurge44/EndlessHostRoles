@@ -662,7 +662,7 @@ namespace EHR.Roles.Crewmate
             }
         }
 
-        public static string GetSuffixText(PlayerControl pc, PlayerControl target)
+        public override string GetSuffix(PlayerControl pc, PlayerControl target, bool h = false, bool m = false)
         {
             if (pc == null || pc.PlayerId != target.PlayerId || Bombs.Count == 0) return string.Empty;
             var bomb = Bombs.FirstOrDefault(x => Vector2.Distance(x.Key, pc.Pos()) <= 5f);

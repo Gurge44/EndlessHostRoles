@@ -160,7 +160,7 @@ namespace EHR.Roles.Neutral
             SendRPC(clear: true);
         }
 
-        public static string GetEncasedPlayerSuffix(PlayerControl seer, PlayerControl target)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
         {
             if (target == null || !EncasedPlayers.TryGetValue(target.PlayerId, out var ts) || ((ts + NotifyDelay.GetInt() >= TimeStamp) && !seer.Is(CustomRoles.Bubble))) return string.Empty;
             return ColorString(GetRoleColor(CustomRoles.Bubble), $"⚠ {ExplodeDelay.GetInt() - (TimeStamp - ts) + 1}");

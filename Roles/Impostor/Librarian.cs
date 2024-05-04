@@ -14,8 +14,6 @@ namespace EHR.Roles.Impostor
         private const int Id = 643150;
         private static List<byte> playerIdList = [];
 
-        private (bool SILENCING, long LAST_CHANGE) IsInSilencingMode = (false, 0);
-
         private static List<byte> sssh = [];
 
         private static OptionItem Radius;
@@ -24,6 +22,10 @@ namespace EHR.Roles.Impostor
         private static OptionItem SSCD;
         private static OptionItem SSDur;
         private static OptionItem CanKillWhileShifted;
+
+        private (bool SILENCING, long LAST_CHANGE) IsInSilencingMode = (false, 0);
+
+        public override bool IsEnable => playerIdList.Count > 0;
 
         public static void SetupCustomOption()
         {
@@ -58,8 +60,6 @@ namespace EHR.Roles.Impostor
             playerIdList.Add(playerId);
             IsInSilencingMode = (false, TimeStamp);
         }
-
-        public override bool IsEnable => playerIdList.Count > 0;
 
         public override bool CanUseKillButton(PlayerControl pc) => !pc.IsShifted() || CanKillWhileShifted.GetBool();
 
@@ -151,7 +151,15 @@ namespace EHR.Roles.Impostor
             sssh.Clear();
         }
 
-        public static string GetNameTextForSuffix(byte playerId)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        {
+            string result = string.Empty;
+            if (target.Is(CustomRoles.Librarian)) result += GetNameTextForSuffix(target.PlayerId);
+            if (isHUD || (seer.PlayerId == target.PlayerId && !seer.IsModClient())) result += GetSelfSuffixAndHudText(target.PlayerId);
+            return result;
+        }
+
+        static string GetNameTextForSuffix(byte playerId)
         {
             if (Main.PlayerStates[playerId].Role is not Librarian lr) return string.Empty;
 
@@ -160,7 +168,7 @@ namespace EHR.Roles.Impostor
                 : string.Empty;
         }
 
-        public static string GetSelfSuffixAndHudText(byte playerId)
+        static string GetSelfSuffixAndHudText(byte playerId)
         {
             if (Main.PlayerStates[playerId].Role is not Librarian lr) return string.Empty;
             if (!lr.IsEnable || !GameStates.IsInTask) return string.Empty;

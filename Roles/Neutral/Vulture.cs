@@ -188,7 +188,7 @@ public class Vulture : RoleBase
         return false;
     }
 
-    public static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
     {
         if (!seer.Is(CustomRoles.Vulture)) return string.Empty;
         if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;

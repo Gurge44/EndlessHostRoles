@@ -141,6 +141,6 @@ namespace EHR.Roles.Crewmate
             return sb.ToString();
         }
 
-        public static string TargetText(byte id) => Main.PlayerStates[id].Role is Tether th && th.Target != byte.MaxValue ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(th.Target).GetRealName()}</color>" : string.Empty;
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false) => Main.PlayerStates[seer.PlayerId].Role is Tether th && th.Target != byte.MaxValue && seer.PlayerId == target.PlayerId ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(th.Target).GetRealName()}</color>" : string.Empty;
     }
 }

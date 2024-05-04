@@ -1364,6 +1364,8 @@ class FixedUpdatePatch
                         Mark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★"));
                 }
 
+                Main.PlayerStates.Values.Do(x => Suffix.Append(x.Role.GetSuffix(seer, target, isMeeting: GameStates.IsMeeting)));
+
                 switch (target.GetCustomRole())
                 {
                     case CustomRoles.Snitch when seer.GetCustomRole().IsImpostor() && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished:
@@ -1377,10 +1379,6 @@ class FixedUpdatePatch
                         break;
                     case CustomRoles.PlagueDoctor:
                         Mark.Append(PlagueDoctor.GetMarkOthers(seer, target));
-                        Suffix.Append(PlagueDoctor.GetLowerTextOthers(seer, target));
-                        break;
-                    case CustomRoles.EvilTracker:
-                        Suffix.Append(EvilTracker.GetTargetArrow(seer, target));
                         break;
                 }
 
@@ -1458,7 +1456,6 @@ class FixedUpdatePatch
                         break;
                     case CustomRoles.Tracker:
                         Mark.Append(Tracker.GetTargetMark(seer, target));
-                        Suffix.Append(Tracker.GetTrackerArrow(seer, target));
                         break;
                     case CustomRoles.AntiAdminer when GameStates.IsInTask:
                         (Main.PlayerStates[seer.PlayerId].Role as AntiAdminer).OnFixedUpdate(seer);
@@ -1477,51 +1474,6 @@ class FixedUpdatePatch
                     case CustomRoles.Gamer:
                         Mark.Append(Gamer.TargetMark(seer, target));
                         break;
-                    case CustomRoles.BountyHunter:
-                        Suffix.Append(BountyHunter.GetTargetArrow(seer, target));
-                        break;
-                    case CustomRoles.Mortician:
-                        Suffix.Append(Mortician.GetTargetArrow(seer, target));
-                        break;
-                    case CustomRoles.Bloodhound:
-                        Suffix.Append(Bloodhound.GetTargetArrow(seer, target));
-                        break;
-                    case CustomRoles.Stealth:
-                        Suffix.Append(Stealth.GetSuffix(seer, target));
-                        break;
-                    case CustomRoles.Snitch:
-                        Suffix.Append(Snitch.GetSnitchArrow(seer, target));
-                        break;
-                    case CustomRoles.Chemist:
-                        Suffix.Append(Chemist.GetSuffix(seer, target));
-                        break;
-                    case CustomRoles.VengefulRomantic when self:
-                        Suffix.Append(VengefulRomantic.GetTargetText(seer.PlayerId));
-                        break;
-                    case CustomRoles.Romantic when self:
-                        Suffix.Append(Romantic.GetTargetText(seer.PlayerId));
-                        break;
-                    case CustomRoles.Ricochet when self:
-                        Suffix.Append(Ricochet.TargetText(seer.PlayerId));
-                        break;
-                    case CustomRoles.Hitman when self:
-                        Suffix.Append(Hitman.GetTargetText(seer.PlayerId));
-                        break;
-                    case CustomRoles.Penguin when self:
-                        Suffix.Append(Penguin.GetSuffix(seer));
-                        break;
-                    case CustomRoles.Changeling when self:
-                        Suffix.Append(Changeling.GetSuffix(seer));
-                        break;
-                    case CustomRoles.Tiger when self:
-                        Suffix.Append(Tiger.GetSuffix(seer));
-                        break;
-                    case CustomRoles.Predator when self:
-                        Suffix.Append(Predator.GetSuffixAndHudText(seer));
-                        break;
-                    case CustomRoles.Warlock when self:
-                        Suffix.Append(Warlock.GetSuffixAndHudText(seer));
-                        break;
                 }
 
                 Mark.Append(Totocalcio.TargetMark(seer, target));
@@ -1536,6 +1488,7 @@ class FixedUpdatePatch
                 Mark.Append(Medic.GetMark(seer, target));
                 Mark.Append(Snitch.GetWarningArrow(seer, target));
                 Mark.Append(Snitch.GetWarningMark(seer, target));
+                Mark.Append(Deathpact.GetDeathpactMark(seer, target));
 
                 if (Main.LoversPlayers.Any(x => x.PlayerId == target.PlayerId))
                 {
@@ -1552,24 +1505,11 @@ class FixedUpdatePatch
                     }
                 }
 
-                Suffix.Append(Bubble.GetEncasedPlayerSuffix(seer, target));
-                Suffix.Append(Randomizer.GetSuffixText(seer, target));
-                Suffix.Append(Commander.GetSuffixText(seer, target));
-                Suffix.Append(Deathpact.GetDeathpactPlayerArrow(seer, target));
-                Suffix.Append(Deathpact.GetDeathpactMark(seer, target));
-                Suffix.Append(Simon.GetSuffix(seer, target));
-
                 if (self)
                 {
-                    Suffix.Append(AntiAdminer.GetSuffixText(seer));
-                    Suffix.Append(Roles.Impostor.Sentry.GetSuffix(seer));
                     Suffix.Append(Bloodmoon.GetSuffix(seer));
                     if (seer.Is(CustomRoles.Asthmatic)) Suffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
                 }
-
-                if (target.Is(CustomRoles.Librarian)) Suffix.Append(Librarian.GetNameTextForSuffix(target.PlayerId));
-
-                Suffix.Append(Spiritualist.GetSpiritualistArrow(seer, target));
 
                 switch (Options.CurrentGameMode)
                 {
@@ -1586,11 +1526,6 @@ class FixedUpdatePatch
                         Suffix.Append(CustomHideAndSeekManager.GetSuffixText(seer, target));
                         break;
                 }
-
-                if (Vulture.ArrowsPointingToDeadBody.GetBool())
-                    Suffix.Append(Vulture.GetTargetArrow(seer, target));
-
-                Suffix.Append(Tracefinder.GetTargetArrow(seer, target));
 
                 if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
                     Suffix.Append(SoloKombatManager.GetDisplayHealth(target));
@@ -1617,7 +1552,8 @@ class FixedUpdatePatch
 
                     if (NameNotifyManager.Notice.TryGetValue(seer.PlayerId, out var notify) && notify.TEXT.Contains('\n'))
                     {
-                        for (int i = 0; i < notify.TEXT.Count(x => x == '\n'); i++)
+                        int count = notify.TEXT.Count(x => x == '\n');
+                        for (int i = 0; i < count; i++)
                         {
                             offset += 0.1f;
                         }

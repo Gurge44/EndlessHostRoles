@@ -134,7 +134,7 @@ namespace EHR.Neutral
             MarkedPlayers.Clear();
         }
 
-        public static string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
         {
             if (Main.PlayerStates[seer.PlayerId].Role is not Simon simon) return string.Empty;
             bool self = seer.PlayerId == target.PlayerId;

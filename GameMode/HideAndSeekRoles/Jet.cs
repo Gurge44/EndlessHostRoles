@@ -24,33 +24,33 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public static void SetupCustomOption()
         {
-            Options.SetupRoleOptions(69_211_301, TabGroup.CrewmateRoles, CustomRoles.Jet, CustomGameMode.HideAndSeek);
-            Vision = FloatOptionItem.Create(69_211_303, "JetVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
+            Options.SetupRoleOptions(69_211_701, TabGroup.CrewmateRoles, CustomRoles.Jet, CustomGameMode.HideAndSeek);
+            Vision = FloatOptionItem.Create(69_211_703, "JetVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(66, 245, 75, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jet]);
-            Speed = FloatOptionItem.Create(69_213_304, "JetSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
+            Speed = FloatOptionItem.Create(69_213_704, "JetSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(66, 245, 75, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jet]);
-            DashCooldown = FloatOptionItem.Create(69_213_305, "JetCooldown", new(0f, 60f, 0.5f), 20f, TabGroup.CrewmateRoles)
+            DashCooldown = FloatOptionItem.Create(69_213_705, "JetCooldown", new(0f, 60f, 0.5f), 20f, TabGroup.CrewmateRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(66, 245, 75, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jet]);
-            DashDuration = FloatOptionItem.Create(69_213_306, "JetDuration", new(1f, 30f, 1f), 5f, TabGroup.CrewmateRoles)
+            DashDuration = FloatOptionItem.Create(69_213_706, "JetDuration", new(1f, 30f, 1f), 5f, TabGroup.CrewmateRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(66, 245, 75, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jet]);
-            DashSpeed = FloatOptionItem.Create(69_213_307, "JetSpeedIncreased", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
+            DashSpeed = FloatOptionItem.Create(69_213_707, "JetSpeedIncreased", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(66, 245, 75, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jet]);
-            UseLimit = IntegerOptionItem.Create(69_213_308, "AbilityUseLimit", new(0, 60, 1), 3, TabGroup.CrewmateRoles)
+            UseLimit = IntegerOptionItem.Create(69_213_708, "AbilityUseLimit", new(0, 60, 1), 3, TabGroup.CrewmateRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(new(66, 245, 75, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jet]);
@@ -74,9 +74,7 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            Main.AllPlayerSpeed[playerId] = DashStatus.IsDashing ? DashSpeed.GetFloat() : Speed.GetFloat();
-            opt.SetFloat(FloatOptionNames.CrewLightMod, Vision.GetFloat());
-            opt.SetFloat(FloatOptionNames.ImpostorLightMod, Vision.GetFloat());
+            Main.AllPlayerSpeed[playerId] = DashStatus.IsDashing ? DashSpeed.GetFloat() : RoleSpeed;
         }
 
         public override void OnPet(PlayerControl pc)

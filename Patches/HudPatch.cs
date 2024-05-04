@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
-using EHR.Neutral;
 using EHR.Roles.AddOns.Common;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
@@ -370,6 +369,8 @@ class HudManagerPatch
                         LowerInfoText.fontSize = LowerInfoText.fontSizeMax = LowerInfoText.fontSizeMin = 2f;
                     }
 
+                    var state = Main.PlayerStates[player.PlayerId];
+
                     LowerInfoText.text = Options.CurrentGameMode switch
                     {
                         CustomGameMode.SoloKombat => SoloKombatManager.GetHudText(),
@@ -377,40 +378,10 @@ class HudManagerPatch
                         CustomGameMode.MoveAndStop when player.PlayerId == 0 => MoveAndStopManager.HUDText,
                         CustomGameMode.HotPotato when player.PlayerId == 0 => HotPotatoManager.GetSuffixText(player.PlayerId),
                         CustomGameMode.HideAndSeek when player.PlayerId == 0 => CustomHideAndSeekManager.GetSuffixText(player, player, isHUD: true),
-                        CustomGameMode.Standard => player.GetCustomRole() switch
+                        CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + state.SubRoles switch
                         {
-                            CustomRoles.BountyHunter => BountyHunter.GetTargetText(player, true),
-                            CustomRoles.Witch or CustomRoles.HexMaster => Witch.GetSpellModeText(player, true),
-                            CustomRoles.FireWorks => FireWorks.GetStateText(player),
-                            CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon => Swooper.GetHudText(player),
-                            CustomRoles.HeadHunter => HeadHunter.GetHudText(player),
-                            CustomRoles.Alchemist => Alchemist.GetHudText(player),
-                            CustomRoles.Adventurer => Adventurer.GetSuffixAndHUDText(player, hud: true),
-                            CustomRoles.Werewolf => Werewolf.GetHudText(player),
-                            CustomRoles.Glitch => Glitch.GetHudText(player),
-                            CustomRoles.NiceHacker => NiceHacker.GetHudText(player),
-                            CustomRoles.Wildling or CustomRoles.BloodKnight => Wildling.GetHudText(player),
-                            CustomRoles.YinYanger => YinYanger.ModeText(player),
-                            CustomRoles.WeaponMaster => WeaponMaster.GetHudAndProgressText(player.PlayerId),
-                            CustomRoles.Postman => Postman.GetHudText(player),
-                            CustomRoles.SoulHunter => SoulHunter.HUDText(player.PlayerId),
-                            CustomRoles.Bargainer => Bargainer.GetSuffix(player),
-                            CustomRoles.Chronomancer => Chronomancer.GetHudText(player.PlayerId),
-                            CustomRoles.Mafioso => Mafioso.GetHUDText(player),
-                            CustomRoles.Druid => Druid.GetHUDText(player),
-                            CustomRoles.Rabbit => Rabbit.GetSuffix(player),
-                            CustomRoles.Warlock => Warlock.GetSuffixAndHudText(player, hud: true),
-                            CustomRoles.Commander => Commander.GetSuffixText(player, player, hud: true),
-                            CustomRoles.Librarian => Librarian.GetSelfSuffixAndHudText(player.PlayerId),
-                            CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),
-                            CustomRoles.Overheat => Overheat.GetSuffix(player),
-                            CustomRoles.Predator => Predator.GetSuffixAndHudText(player, hud: true),
-                            CustomRoles.PlagueDoctor => PlagueDoctor.GetLowerTextOthers(player, isForHud: true),
-                            CustomRoles.Hookshot => Hookshot.SuffixText(player.PlayerId),
-                            CustomRoles.Simon => Simon.GetSuffix(player, player, hud: true),
-                            CustomRoles.Chemist => Chemist.GetSuffix(player, player, hud: true),
-                            CustomRoles.Tornado => Tornado.GetSuffixText(isHUD: true),
-                            _ => player.Is(CustomRoles.Asthmatic) ? Asthmatic.GetSuffixText(player.PlayerId) : string.Empty,
+                            { } s when s.Contains(CustomRoles.Asthmatic) => Asthmatic.GetSuffixText(player.PlayerId),
+                            _ => string.Empty
                         },
                         _ => string.Empty,
                     };

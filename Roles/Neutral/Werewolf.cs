@@ -157,9 +157,9 @@ public class Werewolf : RoleBase
         }, 0.5f, "Werewolf Vent");
     }
 
-    public static string GetHudText(PlayerControl pc)
+    public override string GetSuffix(PlayerControl pc, PlayerControl _, bool hud = false, bool m = false)
     {
-        if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || Main.PlayerStates[pc.PlayerId].Role is not Werewolf { IsEnable: true } ww) return string.Empty;
+        if (!hud || pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || Main.PlayerStates[pc.PlayerId].Role is not Werewolf { IsEnable: true } ww) return string.Empty;
         var str = new StringBuilder();
         if (ww.IsRampaging)
         {

@@ -52,7 +52,7 @@ namespace EHR.Roles.AddOns.GhostRoles
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
             NumberOfReveals = IntegerOptionItem.Create(649305, "Haunter.NumberOfReveals", new(1, 10, 1), 1, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
-            Options.OverrideTasksData.Create(649306, TabGroup.Addons, CustomRoles.Haunter);
+            Options.OverrideTasksData.Create(649306, TabGroup.OtherRoles, CustomRoles.Haunter);
         }
 
         public void OnOneTaskLeft(PlayerControl pc)

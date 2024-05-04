@@ -115,8 +115,9 @@ namespace EHR.Roles.Neutral
             }
         }
 
-        public static string GetSuffix(PlayerControl seer)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
         {
+            if (seer.PlayerId != target.PlayerId) return string.Empty;
             if (Main.PlayerStates[seer.PlayerId].Role is not Tiger { IsEnable: true } tg) return string.Empty;
             if (float.IsNaN(tg.EnrageTimer)) return string.Empty;
             return tg.EnrageTimer > 5 ? "\u25a9" : $"\u25a9 ({(int)(tg.EnrageTimer + 1)}s)";

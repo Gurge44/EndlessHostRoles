@@ -11,7 +11,7 @@ namespace EHR.GameMode.HideAndSeekRoles
         public static OptionItem Speed;
 
         public override bool IsEnable => On;
-        public Team Team => Team.Crewmate;
+        public Team Team => Team.Impostor;
         public int Chance => CustomRoles.Venter.GetMode();
         public int Count => CustomRoles.Venter.GetCount();
         public float RoleSpeed => Speed.GetFloat();
@@ -19,18 +19,18 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public static void SetupCustomOption()
         {
-            Options.SetupRoleOptions(69_211_301, TabGroup.CrewmateRoles, CustomRoles.Venter, CustomGameMode.HideAndSeek);
-            Vision = FloatOptionItem.Create(69_211_303, "VenterVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
+            Options.SetupRoleOptions(69_211_1001, TabGroup.ImpostorRoles, CustomRoles.Venter, CustomGameMode.HideAndSeek);
+            Vision = FloatOptionItem.Create(69_211_1003, "VenterVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(105, 65, 65, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Venter]);
-            Speed = FloatOptionItem.Create(69_213_304, "VenterSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
+            Speed = FloatOptionItem.Create(69_213_1004, "VenterSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(105, 65, 65, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Venter]);
-            UseLimit = IntegerOptionItem.Create(69_213_307, "AbilityUseLimit", new(0, 60, 1), 3, TabGroup.CrewmateRoles)
+            UseLimit = IntegerOptionItem.Create(69_213_1007, "AbilityUseLimit", new(0, 60, 1), 3, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(new(105, 65, 65, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Venter]);
@@ -51,6 +51,11 @@ namespace EHR.GameMode.HideAndSeekRoles
         {
             opt.SetFloat(FloatOptionNames.CrewLightMod, Vision.GetFloat());
             opt.SetFloat(FloatOptionNames.ImpostorLightMod, Vision.GetFloat());
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return pc.IsAlive();
         }
 
         public override void OnCoEnterVent(PlayerPhysics physics, int ventId)

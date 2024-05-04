@@ -131,9 +131,10 @@ namespace EHR.Roles.Impostor
             CoolDown(pc);
         }
 
-        public static string GetSuffix(PlayerControl seer)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
         {
             if (Main.PlayerStates[seer.PlayerId].Role is not Overheat oh) return string.Empty;
+            if (seer.PlayerId != target.PlayerId) return string.Empty;
 
             var color = GetTemperatureColor(oh.Temperature);
             var str = Translator.GetString("Overheat.Suffix");

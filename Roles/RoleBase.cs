@@ -8,6 +8,8 @@ namespace EHR
 {
     public abstract class RoleBase : IComparable<RoleBase>
     {
+        public abstract bool IsEnable { get; }
+
         public int CompareTo(RoleBase other)
         {
             var thisName = GetType().Name;
@@ -30,8 +32,6 @@ namespace EHR
         // This is a base class for all roles. It contains some common methods and properties that are used by all roles.
         public abstract void Init();
         public abstract void Add(byte playerId);
-
-        public abstract bool IsEnable { get; }
 
         // Some virtual methods that trigger actions, like venting, petting, CheckMurder, etc. These are not abstract because they have a default implementation. These should also have the same name as the methods in the derived classes.
         public virtual void SetKillCooldown(byte id)
@@ -156,6 +156,11 @@ namespace EHR
         public virtual void SetButtonTexts(HudManager hud, byte id)
         {
             hud.KillButton?.OverrideText(Translator.GetString("KillButtonText"));
+        }
+
+        public virtual string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        {
+            return string.Empty;
         }
     }
 }

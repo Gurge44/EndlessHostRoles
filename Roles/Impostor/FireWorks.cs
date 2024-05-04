@@ -29,12 +29,14 @@ public class FireWorks : RoleBase
     public static OptionItem CanIgniteBeforePlacingAllFireworks;
 
     public static bool On;
-
-    public int nowFireWorksCount;
-    private List<Vector3> fireWorksPosition = [];
-    private FireWorksState state;
     private static int fireWorksCount = 1;
     private static float fireWorksRadius = 1;
+    private List<Vector3> fireWorksPosition = [];
+
+    public int nowFireWorksCount;
+    private FireWorksState state;
+
+    public override bool IsEnable => On;
 
     public static void SetupCustomOption()
     {
@@ -64,8 +66,6 @@ public class FireWorks : RoleBase
         fireWorksPosition = [];
         state = FireWorksState.Initial;
     }
-
-    public override bool IsEnable => On;
 
     void SendRPC(byte playerId)
     {
@@ -164,18 +164,18 @@ public class FireWorks : RoleBase
         return false;
     }
 
-    public static string GetStateText(PlayerControl pc /*, bool isLocal = true*/)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
     {
         string retText = string.Empty;
-        if (pc == null || pc.Data.IsDead) return retText;
+        if (seer == null || seer.Data.IsDead || seer.PlayerId != target.PlayerId) return retText;
 
-        if (Main.PlayerStates[pc.PlayerId].Role is not FireWorks fw) return retText;
+        if (Main.PlayerStates[seer.PlayerId].Role is not FireWorks fw) return retText;
 
         if (fw.state == FireWorksState.WaitTime && Main.AliveImpostorCount <= 1)
         {
             fw.state = FireWorksState.ReadyFire;
-            fw.SendRPC(pc.PlayerId);
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            fw.SendRPC(seer.PlayerId);
+            Utils.NotifyRoles(SpecifySeer: seer, SpecifyTarget: seer);
         }
 
         switch (fw.state)

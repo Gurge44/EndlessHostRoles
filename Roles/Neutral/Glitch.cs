@@ -26,18 +26,20 @@ public class Glitch : RoleBase
     private static OptionItem HasImpostorVision;
 
     private byte GlitchId;
-    private long LastUpdate;
 
     public int HackCDTimer;
+
+    private bool IsShifted;
     public int KCDTimer;
-    public int MimicCDTimer;
-    public int MimicDurTimer;
 
     public long LastHack;
     public long LastKill;
     public long LastMimic;
+    private long LastUpdate;
+    public int MimicCDTimer;
+    public int MimicDurTimer;
 
-    private bool IsShifted;
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
@@ -94,7 +96,6 @@ public class Glitch : RoleBase
         hud.SabotageButton.ToggleVisible(true);
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
     public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive();
 
@@ -304,9 +305,9 @@ public class Glitch : RoleBase
         if (player.IsNonHostModClient()) SendRPCSyncTimers();
     }
 
-    public static string GetHudText(PlayerControl player)
+    public override string GetSuffix(PlayerControl player, PlayerControl _, bool hud = false, bool m = false)
     {
-        if (player == null || !player.IsAlive()) return string.Empty;
+        if (!hud || player == null || !player.IsAlive()) return string.Empty;
         if (Main.PlayerStates[player.PlayerId].Role is not Glitch gc) return string.Empty;
 
         var sb = new StringBuilder();

@@ -143,15 +143,16 @@ public class Postman : RoleBase
         pc.Notify(sb.ToString());
     }
 
-    public static string GetHudText(PlayerControl pc)
+    static string GetHudText(PlayerControl pc)
     {
         if (Main.PlayerStates[pc.PlayerId].Role is not Postman { IsEnable: true } pm) return string.Empty;
         return !pm.IsFinished ? string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(pm.Target).GetRealName()) : GetString("PostmanDone");
     }
 
-    public static string TargetText(byte id)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
     {
-        if (Main.PlayerStates[id].Role is not Postman { IsEnable: true } pm) return string.Empty;
+        if (hud) return GetHudText(seer);
+        if (seer.IsModClient() || Main.PlayerStates[seer.PlayerId].Role is not Postman { IsEnable: true } pm) return string.Empty;
         return !pm.IsFinished ? string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(pm.Target).GetRealName()) : "<color=#00ff00>✓</color>";
     }
 }

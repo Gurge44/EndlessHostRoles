@@ -103,6 +103,6 @@ namespace EHR.Roles.Crewmate
             SendRPCSyncTarget(ProtectAgainst);
         }
 
-        public static string TargetText(byte id) => Main.PlayerStates[id].Role is Ricochet rc && rc.ProtectAgainst != byte.MaxValue ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(rc.ProtectAgainst).GetRealName()}</color>" : string.Empty;
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false) => Main.PlayerStates[seer.PlayerId].Role is Ricochet rc && rc.ProtectAgainst != byte.MaxValue && seer.PlayerId == target.PlayerId ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(rc.ProtectAgainst).GetRealName()}</color>" : string.Empty;
     }
 }

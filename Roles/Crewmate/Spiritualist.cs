@@ -14,10 +14,29 @@ namespace EHR.Roles.Crewmate
         public static OptionItem ShowGhostArrowEverySeconds;
         public static OptionItem ShowGhostArrowForSeconds;
 
-        private long ShowGhostArrowUntil;
+        public static byte SpiritualistTarget;
         private long LastGhostArrowShowTime;
 
-        public static byte SpiritualistTarget;
+        private long ShowGhostArrowUntil;
+
+        public override bool IsEnable => playerIdList.Count > 0;
+
+        bool ShowArrow
+        {
+            get
+            {
+                long timestamp = Utils.TimeStamp;
+
+                if (LastGhostArrowShowTime == 0 || LastGhostArrowShowTime + (long)ShowGhostArrowEverySeconds.GetFloat() <= timestamp)
+                {
+                    LastGhostArrowShowTime = timestamp;
+                    ShowGhostArrowUntil = timestamp + (long)ShowGhostArrowForSeconds.GetFloat();
+                    return true;
+                }
+
+                return ShowGhostArrowUntil >= timestamp;
+            }
+        }
 
         public static void SetupCustomOption()
         {
@@ -42,25 +61,6 @@ namespace EHR.Roles.Crewmate
             SpiritualistTarget = byte.MaxValue;
             LastGhostArrowShowTime = 0;
             ShowGhostArrowUntil = 0;
-        }
-
-        public override bool IsEnable => playerIdList.Count > 0;
-
-        bool ShowArrow
-        {
-            get
-            {
-                long timestamp = Utils.TimeStamp;
-
-                if (LastGhostArrowShowTime == 0 || LastGhostArrowShowTime + (long)ShowGhostArrowEverySeconds.GetFloat() <= timestamp)
-                {
-                    LastGhostArrowShowTime = timestamp;
-                    ShowGhostArrowUntil = timestamp + (long)ShowGhostArrowForSeconds.GetFloat();
-                    return true;
-                }
-
-                return ShowGhostArrowUntil >= timestamp;
-            }
         }
 
         public static void OnReportDeadBody(GameData.PlayerInfo target)
@@ -115,7 +115,7 @@ namespace EHR.Roles.Crewmate
             }
         }
 
-        public static string GetSpiritualistArrow(PlayerControl seer, PlayerControl target = null)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
         {
             if (Main.PlayerStates[seer.PlayerId].Role is not Spiritualist { IsEnable: true } st || !seer.IsAlive()) return string.Empty;
             if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;

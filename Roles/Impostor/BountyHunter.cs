@@ -21,11 +21,13 @@ public class BountyHunter : RoleBase
     private static float SuccessKillCooldown;
     private static float FailureKillCooldown;
     private static bool ShowTargetArrow;
+    private byte BountyId;
+    public float ChangeTimer;
+    public byte Target;
 
     private int Timer;
-    public byte Target;
-    public float ChangeTimer;
-    private byte BountyId;
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
@@ -67,8 +69,6 @@ public class BountyHunter : RoleBase
         if (AmongUsClient.Instance.AmHost)
             ResetTarget(Utils.GetPlayerById(playerId));
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     void SendRPC()
     {
@@ -199,16 +199,21 @@ public class BountyHunter : RoleBase
         }
     }
 
-    public static string GetTargetText(PlayerControl bounty, bool hud)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
     {
-        if (GameStates.IsMeeting) return string.Empty;
+        return GetTargetText(seer, target, isHUD) + GetTargetArrow(seer, target);
+    }
+
+    static string GetTargetText(PlayerControl bounty, PlayerControl tar, bool hud)
+    {
+        if (GameStates.IsMeeting || (bounty.PlayerId != tar.PlayerId)) return string.Empty;
         if (Main.PlayerStates[bounty.PlayerId].Role is not BountyHunter bh) return string.Empty;
 
         var targetId = bh.GetTarget(bounty);
         return targetId != 0xff ? $"<color=#00ffa5>{(hud ? GetString("BountyCurrentTarget") : GetString("Target"))}:</color> <b>{Main.AllPlayerNames[targetId].RemoveHtmlTags().Replace("\r\n", string.Empty)}</b>" : string.Empty;
     }
 
-    public static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
+    static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
     {
         if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
         if (!ShowTargetArrow || GameStates.IsMeeting) return string.Empty;

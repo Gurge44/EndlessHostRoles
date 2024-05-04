@@ -16,6 +16,8 @@ public class Mortician : RoleBase
     private static Dictionary<byte, string> lastPlayerName = [];
     public static Dictionary<byte, string> msgToSend = [];
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mortician);
@@ -33,8 +35,6 @@ public class Mortician : RoleBase
     {
         playerIdList.Add(playerId);
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     private static void SendRPC(byte playerId, bool add, Vector3 loc = new())
     {
@@ -101,7 +101,7 @@ public class Mortician : RoleBase
         msgToSend.Add(pc.PlayerId, name == "" ? string.Format(Translator.GetString("MorticianGetNoInfo"), target.PlayerName) : string.Format(Translator.GetString("MorticianGetInfo"), target.PlayerName, name));
     }
 
-    public static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
     {
         if (ShowArrows.GetBool())
         {

@@ -155,7 +155,6 @@ namespace EHR.Roles.Neutral
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Multiplier);
 
-            OverrideTasksData.Create(++id, tab, CustomRoles.Chemist);
             return;
 
             static int GetDefaultValue(Item item) => item switch
@@ -285,9 +284,9 @@ namespace EHR.Roles.Neutral
             int need2 = FinalProductUsageAmounts[Item.Grenade].GetInt();
             bool canUseAcid = ItemCounts[Item.SulfuricAcid] >= need && !AcidPlayers.ContainsKey(target.PlayerId) && !AcidPlayers.Any(x => x.Value.OtherAcidPlayers.Contains(target.PlayerId));
             bool canUseGrenade = ItemCounts[Item.Grenade] >= need2;
-            
+
             if (!canUseAcid && !canUseGrenade) return true;
-            
+
             return killer.CheckDoubleTrigger(target, () =>
             {
                 if (canUseAcid)
@@ -471,8 +470,9 @@ namespace EHR.Roles.Neutral
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
-        public static string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
         {
+            if (seer.PlayerId != target.PlayerId) return string.Empty;
             if (Main.PlayerStates[seer.PlayerId].Role is not Chemist cm) return string.Empty;
 
             bool self = seer.PlayerId == target.PlayerId;

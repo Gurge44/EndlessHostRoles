@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using AmongUs.GameOptions;
 
 namespace EHR.GameMode.HideAndSeekRoles
 {
@@ -22,18 +21,18 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public static void SetupCustomOption()
         {
-            Options.SetupRoleOptions(69_211_301, TabGroup.CrewmateRoles, CustomRoles.Detector, CustomGameMode.HideAndSeek);
-            Vision = FloatOptionItem.Create(69_211_303, "DetectorVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
+            Options.SetupRoleOptions(69_211_601, TabGroup.CrewmateRoles, CustomRoles.Detector, CustomGameMode.HideAndSeek);
+            Vision = FloatOptionItem.Create(69_211_603, "DetectorVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(66, 221, 245, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Detector]);
-            Speed = FloatOptionItem.Create(69_213_304, "DetectorSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
+            Speed = FloatOptionItem.Create(69_213_604, "DetectorSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(66, 221, 245, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Detector]);
-            InfoFrequency = IntegerOptionItem.Create(69_213_305, "DetectorFrequency", new(0, 60, 1), 20, TabGroup.CrewmateRoles)
+            InfoFrequency = IntegerOptionItem.Create(69_213_605, "DetectorFrequency", new(0, 60, 1), 20, TabGroup.CrewmateRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(66, 221, 245, byte.MaxValue))
@@ -49,13 +48,6 @@ namespace EHR.GameMode.HideAndSeekRoles
         public override void Init()
         {
             On = false;
-        }
-
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
-        {
-            Main.AllPlayerSpeed[playerId] = Speed.GetFloat();
-            opt.SetFloat(FloatOptionNames.CrewLightMod, Vision.GetFloat());
-            opt.SetFloat(FloatOptionNames.ImpostorLightMod, Vision.GetFloat());
         }
 
         public override void OnFixedUpdate(PlayerControl pc)

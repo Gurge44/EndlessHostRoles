@@ -353,8 +353,9 @@ namespace EHR.Roles.Neutral
             return Main.PlayerStates[seer.PlayerId].Role is Bargainer bg && bg.ActiveItems.Any(x => x.Target == target.PlayerId);
         }
 
-        public static string GetSuffix(PlayerControl seer)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
         {
+            if (seer.PlayerId != target.PlayerId) return string.Empty;
             if (Main.PlayerStates[seer.PlayerId].Role is not Bargainer bg) return string.Empty;
 
             string result = string.Empty;

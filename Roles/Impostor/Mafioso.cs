@@ -35,17 +35,19 @@ namespace EHR.Roles.Impostor
         private static OptionItem RewardForSabotaging;
         private static OptionItem RewardForVenting;
         private static OptionItem RewardForOtherPlayerEjected;
+        private long lastUpdate;
+
+        private byte MafiosoId;
+
+        private int Pistol1CD;
+        private int Pistol2CD;
 
         private List<int> PreviouslyUsedVents = [];
 
         private int Tier;
         private int XP;
 
-        private int Pistol1CD;
-        private int Pistol2CD;
-        private long lastUpdate;
-
-        private byte MafiosoId;
+        public override bool IsEnable => playerIdList.Count > 0;
 
         public static void SetupCustomOption()
         {
@@ -222,8 +224,6 @@ namespace EHR.Roles.Impostor
             return true;
         }
 
-        public override bool IsEnable => playerIdList.Count > 0;
-
         public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
@@ -239,9 +239,9 @@ namespace EHR.Roles.Impostor
 
         public override string GetProgressText(byte id, bool comms) => string.Format(GetString("MafiosoProgressText"), Tier, XP);
 
-        public static string GetHUDText(PlayerControl pc)
+        public override string GetSuffix(PlayerControl pc, PlayerControl _, bool hud = false, bool m = false)
         {
-            if (Main.PlayerStates[pc.PlayerId].Role is not Mafioso mo || !mo.IsEnable) return string.Empty;
+            if (!hud || Main.PlayerStates[pc.PlayerId].Role is not Mafioso { IsEnable: true } mo) return string.Empty;
 
             if (mo.Tier >= 3)
             {

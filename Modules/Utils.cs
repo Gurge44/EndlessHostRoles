@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Neutral;
 using EHR.Patches;
 using EHR.Roles.AddOns.Common;
 using EHR.Roles.AddOns.Crewmate;
@@ -1814,102 +1813,25 @@ public static class Utils
 
                 if (Options.CurrentGameMode != CustomGameMode.Standard) goto GameMode;
 
-                SelfSuffix.Append(Adventurer.GetSuffixAndHUDText(seer, isForMeeting: isForMeeting));
+                Main.PlayerStates.Values.Do(x => SelfSuffix.Append(x.Role.GetSuffix(seer, seer, isMeeting: isForMeeting)));
 
                 if (!isForMeeting)
                 {
                     if (Options.UsePets.GetBool() && Main.AbilityCD.TryGetValue(seer.PlayerId, out var time) && !seer.IsModClient())
                     {
                         var remainingCD = time.TOTALCD - (TimeStamp - time.START_TIMESTAMP) + 1;
-                        SelfSuffix.Append(string.Format(GetString("CDPT"), remainingCD > 60 ? "> 60s" : remainingCD));
+                        SelfSuffix.Append(string.Format(GetString("CDPT"), remainingCD > 60 ? "> 60" : remainingCD));
                     }
 
                     if (seer.Is(CustomRoles.Asthmatic)) SelfSuffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
                     if (seer.Is(CustomRoles.Sonar)) SelfSuffix.Append(Sonar.GetSuffix(seer, isForMeeting));
 
-                    SelfSuffix.Append(Deathpact.GetDeathpactPlayerArrow(seer));
-                    SelfSuffix.Append(Commander.GetSuffixText(seer, seer));
-                    SelfSuffix.Append(AntiAdminer.GetSuffixText(seer));
-                    SelfSuffix.Append(Roles.Impostor.Sentry.GetSuffix(seer));
-                    SelfSuffix.Append(Bargainer.GetSuffix(seer));
                     SelfSuffix.Append(Bloodmoon.GetSuffix(seer));
-                    SelfSuffix.Append(Chemist.GetSuffix(seer, seer));
-                    SelfSuffix.Append(Simon.GetSuffix(seer, seer));
 
                     switch (seer.GetCustomRole())
                     {
-                        case CustomRoles.Tether when !seer.IsModClient():
-                            if (SelfSuffix.Length > 0 && Tether.TargetText(seer.PlayerId) != string.Empty) SelfSuffix.Append(", ");
-                            SelfSuffix.Append(Tether.TargetText(seer.PlayerId));
-                            break;
-                        case CustomRoles.Druid when !seer.IsModClient():
-                            if (SelfSuffix.Length > 0 && Druid.GetSuffixText(seer.PlayerId) != string.Empty) SelfSuffix.Append(", ");
-                            SelfSuffix.Append(Druid.GetSuffixText(seer.PlayerId));
-                            break;
-
-                        // ---------------------------------------------------------------------------------------
-
                         case CustomRoles.SuperStar when Options.EveryOneKnowSuperStar.GetBool():
                             SelfMark.Append(ColorString(GetRoleColor(CustomRoles.SuperStar), "★"));
-                            break;
-                        case CustomRoles.Changeling:
-                            SelfMark.Append(Changeling.GetSuffix(seer));
-                            break;
-                        case CustomRoles.Tiger:
-                            SelfSuffix.Append(Tiger.GetSuffix(seer));
-                            break;
-                        case CustomRoles.Rabbit:
-                            SelfSuffix.Append(Rabbit.GetSuffix(seer));
-                            break;
-                        case CustomRoles.Penguin:
-                            SelfSuffix.Append(Penguin.GetSuffix(seer));
-                            break;
-                        case CustomRoles.Overheat:
-                            SelfSuffix.Append(Overheat.GetSuffix(seer));
-                            break;
-                        case CustomRoles.BountyHunter:
-                            SelfSuffix.Append(BountyHunter.GetTargetText(seer, false));
-                            SelfSuffix.Append(BountyHunter.GetTargetArrow(seer));
-                            break;
-                        case CustomRoles.Hookshot:
-                            SelfSuffix.Append(Hookshot.SuffixText(seer.PlayerId));
-                            break;
-                        case CustomRoles.Ricochet:
-                            SelfSuffix.Append(Ricochet.TargetText(seer.PlayerId));
-                            break;
-                        case CustomRoles.Hitman:
-                            SelfSuffix.Append(Hitman.GetTargetText(seer.PlayerId));
-                            break;
-                        case CustomRoles.Romantic:
-                            SelfSuffix.Append(Romantic.GetTargetText(seer.PlayerId));
-                            break;
-                        case CustomRoles.VengefulRomantic:
-                            SelfSuffix.Append(VengefulRomantic.GetTargetText(seer.PlayerId));
-                            break;
-                        case CustomRoles.Postman when !seer.IsModClient():
-                            SelfSuffix.Append(Postman.TargetText(seer.PlayerId));
-                            break;
-                        case CustomRoles.Tornado when !seer.IsModClient():
-                            SelfSuffix.Append(Tornado.GetSuffixText());
-                            break;
-                        case CustomRoles.Mortician:
-                            SelfSuffix.Append(Mortician.GetTargetArrow(seer));
-                            break;
-                        case CustomRoles.Tracefinder:
-                            SelfSuffix.Append(Tracefinder.GetTargetArrow(seer));
-                            break;
-                        case CustomRoles.Vulture when Vulture.ArrowsPointingToDeadBody.GetBool():
-                            SelfSuffix.Append(Vulture.GetTargetArrow(seer));
-                            break;
-                        case CustomRoles.YinYanger when !seer.IsModClient():
-                            SelfSuffix.Append(YinYanger.ModeText(seer));
-                            break;
-                        case CustomRoles.FireWorks:
-                            SelfSuffix.Append(FireWorks.GetStateText(seer));
-                            break;
-                        case CustomRoles.HexMaster:
-                        case CustomRoles.Witch:
-                            SelfSuffix.Append(Witch.GetSpellModeText(seer, false, isForMeeting));
                             break;
                         case CustomRoles.Monitor:
                         case CustomRoles.AntiAdminer:
@@ -1917,27 +1839,6 @@ public static class Utils
                             if (AntiAdminer.IsVitalWatch) SelfSuffix.Append(GetString("AntiAdminerVI"));
                             if (AntiAdminer.IsDoorLogWatch) SelfSuffix.Append(GetString("AntiAdminerDL"));
                             if (AntiAdminer.IsCameraWatch) SelfSuffix.Append(GetString("AntiAdminerCA"));
-                            break;
-                        case CustomRoles.Bloodhound:
-                            SelfSuffix.Append(Bloodhound.GetTargetArrow(seer));
-                            break;
-                        case CustomRoles.Tracker:
-                            SelfSuffix.Append(Tracker.GetTrackerArrow(seer));
-                            break;
-                        case CustomRoles.Spiritualist:
-                            SelfSuffix.Append(Spiritualist.GetSpiritualistArrow(seer));
-                            break;
-                        case CustomRoles.Snitch:
-                            SelfSuffix.Append(Snitch.GetSnitchArrow(seer));
-                            break;
-                        case CustomRoles.EvilTracker:
-                            SelfSuffix.Append(EvilTracker.GetTargetArrow(seer, seer));
-                            break;
-                        case CustomRoles.Predator:
-                            SelfSuffix.Append(Predator.GetSuffixAndHudText(seer));
-                            break;
-                        case CustomRoles.Warlock:
-                            SelfSuffix.Append(Warlock.GetSuffixAndHudText(seer));
                             break;
                     }
                 }
@@ -1996,25 +1897,16 @@ public static class Utils
                     }
                     else
                     {
-                        if (seer.GetCustomRole().IsMadmate() || seer.Is(CustomRoles.Madmate))
-                        {
-                            SeerRealName = $"<color=#ff1919>{GetString("YouAreMadmate")}</color>\n<size=90%>{seer.GetRoleInfo()}</size>";
-                        }
-
-                        else if (seer.IsCrewmate())
-                        {
-                            SeerRealName = $"<color=#8cffff>{GetString("YouAreCrewmate")}</color>\n<size=90%>{seer.GetRoleInfo()}</size>";
-                        }
-
-                        else if (seer.GetCustomRole().IsImpostor())
-                        {
-                            SeerRealName = $"<color=#ff1919></color>\n<size=90%>{seer.GetRoleInfo()}</size>";
-                        }
-
-                        else if (seer.GetCustomRole().IsNeutral())
-                        {
-                            SeerRealName = $"<color=#ffab1b>{GetString("YouAreNeutral")}</color>\n<size=90%>{seer.GetRoleInfo()}</size>";
-                        }
+                        SeerRealName = !Options.ChangeNameToRoleInfo.GetBool()
+                            ? SeerRealName
+                            : seer.GetTeam() switch
+                            {
+                                Team.Impostor when seer.GetCustomRole().IsMadmate() || seer.Is(CustomRoles.Madmate) => $"<color=#ff1919>{GetString("YouAreMadmate")}</color>\n<size=90%>{seer.GetRoleInfo()}</size>",
+                                Team.Impostor => $"\n<size=90%>{seer.GetRoleInfo()}</size>",
+                                Team.Crewmate => $"<color=#8cffff>{GetString("YouAreCrewmate")}</color>\n<size=90%>{seer.GetRoleInfo()}</size>",
+                                Team.Neutral => $"<color=#ffab1b>{GetString("YouAreNeutral")}</color>\n<size=90%>{seer.GetRoleInfo()}</size>",
+                                _ => SeerRealName
+                            };
                     }
                 }
 
@@ -2032,12 +1924,9 @@ public static class Utils
                     _ => SelfName
                 };
 
-                if (Pelican.IsEaten(seer.PlayerId))
-                    SelfName = $"{ColorString(GetRoleColor(CustomRoles.Pelican), GetString("EatenByPelican"))}";
-                if (Deathpact.IsInActiveDeathpact(seer))
-                    SelfName = Deathpact.GetDeathpactString(seer);
-                if (NameNotifyManager.GetNameNotify(seer, out var name))
-                    SelfName = name;
+                if (Pelican.IsEaten(seer.PlayerId)) SelfName = $"{ColorString(GetRoleColor(CustomRoles.Pelican), GetString("EatenByPelican"))}";
+                if (Deathpact.IsInActiveDeathpact(seer)) SelfName = Deathpact.GetDeathpactString(seer);
+                if (NameNotifyManager.GetNameNotify(seer, out var name)) SelfName = name;
 
                 // Devourer
                 if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.playerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)) && !CamouflageIsForMeeting)
@@ -2347,14 +2236,7 @@ public static class Utils
                                     break;
                             }
 
-                            TargetSuffix.Append(PlagueDoctor.GetLowerTextOthers(seer, target));
-                            TargetSuffix.Append(Stealth.GetSuffix(seer, target));
-                            TargetSuffix.Append(Bubble.GetEncasedPlayerSuffix(seer, target));
-                            TargetSuffix.Append(Commander.GetSuffixText(seer, target));
-                            TargetSuffix.Append(Chemist.GetSuffix(seer, target));
-                            TargetSuffix.Append(Simon.GetSuffix(seer, target));
-
-                            if (target.Is(CustomRoles.Librarian)) TargetSuffix.Append(Librarian.GetNameTextForSuffix(target.PlayerId));
+                            Main.PlayerStates.Values.Do(x => TargetSuffix.Append(x.Role.GetSuffix(seer, target, isMeeting: isForMeeting)));
 
                             string TargetDeathReason = string.Empty;
                             if (seer.KnowDeathReason(target))

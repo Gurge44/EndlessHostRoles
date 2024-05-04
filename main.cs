@@ -670,7 +670,7 @@ public enum CustomWinner
     Hider = CustomRoles.Hider,
     Seeker = CustomRoles.Seeker,
     Troll = CustomRoles.Troll,
-    Specter = CustomRoles.Specter,
+    Taskinator = CustomRoles.Taskinator,
 
     // Standard
     Impostor = CustomRoles.Impostor,
@@ -740,6 +740,7 @@ public enum CustomWinner
     Doppelganger = CustomRoles.Doppelganger,
     Imitator = CustomRoles.Imitator,
     Cherokious = CustomRoles.Cherokious,
+    Specter = CustomRoles.Specter,
 
     Bloodlust = CustomRoles.Bloodlust
 }
@@ -750,9 +751,9 @@ public enum AdditionalWinners
 
     // Hide And Seek
     Fox = CustomRoles.Fox,
-    Specter = CustomRoles.Specter,
 
     // -------------
+    Specter = CustomRoles.Specter,
     Lovers = CustomRoles.Lovers,
     Executioner = CustomRoles.Executioner,
     Opportunist = CustomRoles.Opportunist,

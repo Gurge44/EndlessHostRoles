@@ -8,29 +8,18 @@ namespace EHR.Roles.Impostor
 {
     internal class Commander : RoleBase
     {
+        private const int Id = 643560;
         public static List<Commander> PlayerList = [];
         public static bool On;
-        public override bool IsEnable => On;
-
-        private const int Id = 643560;
         public static OptionItem CannotSpawnAsSoloImp;
         private static OptionItem ShapeshiftCooldown;
-
-        enum Mode
-        {
-            Whistle,
-            Mark,
-            KillAnyone,
-            DontKillMark,
-            DontSabotage,
-            UseAbility
-        }
+        private byte CommanderId;
+        private Mode CurrentMode;
+        public HashSet<byte> DontKillMarks = [];
 
         public bool IsWhistling;
         public byte MarkedPlayer;
-        public HashSet<byte> DontKillMarks = [];
-        private Mode CurrentMode;
-        private byte CommanderId;
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
@@ -201,7 +190,7 @@ namespace EHR.Roles.Impostor
             DontKillMarks = [];
         }
 
-        public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool hud = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
         {
             if (seer == null || !seer.Is(Team.Impostor)) return string.Empty;
 
@@ -233,6 +222,16 @@ namespace EHR.Roles.Impostor
             }
 
             return string.Empty;
+        }
+
+        enum Mode
+        {
+            Whistle,
+            Mark,
+            KillAnyone,
+            DontKillMark,
+            DontSabotage,
+            UseAbility
         }
     }
 }

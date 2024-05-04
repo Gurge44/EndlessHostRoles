@@ -180,7 +180,7 @@ public class Romantic : RoleBase
             : string.Empty;
     }
 
-    public static string GetTargetText(byte playerId) => playerId != RomanticId
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false) => seer.PlayerId != RomanticId
         ? string.Empty
         : Utils.ColorString(!HasPickedPartner ? Color.white : Utils.GetRoleColor(CustomRoles.Romantic), $"{(!HasPickedPartner ? "PICK PARTNER" : "♥")}");
 
@@ -297,10 +297,10 @@ public class VengefulRomantic : RoleBase
         return false;
     }
 
-    public static string GetTargetText(byte playerId)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
     {
-        var player = Utils.GetPlayerById(playerId);
-        return player == null ? string.Empty : Utils.ColorString(HasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"{(HasKilledKiller ? "✓" : "☹️")}");
+        if (seer.PlayerId != target.PlayerId) return string.Empty;
+        return seer == null ? string.Empty : Utils.ColorString(HasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"{(HasKilledKiller ? "✓" : "☹️")}");
     }
 
     public static void SendRPC()

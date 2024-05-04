@@ -424,9 +424,10 @@ internal class ChatCommands
                     break;
 
                 case "/death":
+                case "/d":
                     if (!GameStates.IsInGame) break;
                     var killer = PlayerControl.LocalPlayer.GetRealKiller();
-                    Utils.SendMessage("\n", localPlayerId, string.Format(GetString("DeathCommand"), killer.GetRealName(), GetString(killer.GetCustomRole().ToString())));
+                    Utils.SendMessage("\n", localPlayerId, string.Format(GetString("DeathCommand"), Utils.ColorString(Main.PlayerColors.TryGetValue(killer.PlayerId, out var kColor) ? kColor : Color.white, killer.GetRealName()), killer.GetCustomRole().ToColoredString()));
                     break;
 
                 case "/say":
@@ -1104,10 +1105,11 @@ internal class ChatCommands
                 break;
 
             case "/death":
+            case "/d":
                 if (!GameStates.IsInGame || player.IsAlive()) break;
                 var killer = player.GetRealKiller();
                 if (killer == null) break;
-                Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathCommand"), Utils.ColorString(Main.PlayerColors.TryGetValue(killer.PlayerId, out var pcColor) ? pcColor : Color.white, killer.GetRealName()), $"<{Main.RoleColors[killer.GetCustomRole()]}>{GetString(killer.GetCustomRole().ToString())}</color>"));
+                Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathCommand"), Utils.ColorString(Main.PlayerColors.TryGetValue(killer.PlayerId, out var pcColor) ? pcColor : Color.white, killer.GetRealName()), killer.GetCustomRole().ToColoredString()));
                 break;
 
             case "/colour":
@@ -1265,6 +1267,11 @@ internal class ChatCommands
                 {
                     Utils.SendMessage(GetString("Message.CanNotUseInLobby"), player.PlayerId);
                     break;
+                }
+
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                {
+                    pc.RpcSetNameEx(pc.GetRealName(isMeeting: true));
                 }
 
                 ChatUpdatePatch.DoBlockChat = false;

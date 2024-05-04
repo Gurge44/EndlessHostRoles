@@ -2,25 +2,11 @@
 using System.Linq;
 using EHR.Patches;
 using UnityEngine;
-using static EHR.Roles.Crewmate.Adventurer;
 
 namespace EHR.Roles.Crewmate
 {
     internal class Adventurer : RoleBase
     {
-        public static bool On;
-        public override bool IsEnable => On;
-
-        enum Resource
-        {
-            TaskCompletion,
-            Random,
-            DeadBody,
-            ShapeshiftSkin,
-            LightsFix,
-            Grouping
-        }
-
         public enum Weapon
         {
             Gun,
@@ -32,6 +18,8 @@ namespace EHR.Roles.Crewmate
             Prediction,
             RNG
         }
+
+        public static bool On;
 
         private static readonly Dictionary<Resource, (char Icon, Color Color)> ResourceDisplayData = new()
         {
@@ -60,6 +48,22 @@ namespace EHR.Roles.Crewmate
 
         private static List<Weapon> EnabledWeapons = [];
 
+        private readonly Dictionary<Resource, int> ResourceCounts = [];
+        public List<Weapon> ActiveWeapons;
+
+        private PlayerControl AdventurerPC;
+        public bool InCraftingMode;
+        private long LastGroupingResourceTimeStamp;
+
+        private long LastRandomResourceTimeStamp;
+
+        public List<Weapon> OrderedWeapons;
+        private Dictionary<Resource, Vector2> ResourceLocations;
+        public HashSet<byte> RevealedPlayers;
+        private Weapon SelectedWeaponToCraft;
+        public HashSet<byte> ShieldedPlayers;
+        public override bool IsEnable => On;
+
         static OptionItem CreateWeaponEnabledSetting(int id, Weapon weapon) => BooleanOptionItem.Create(id, $"AdventurerWeaponEnabled.{weapon}", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adventurer]);
 
         public static void SetupCustomOption()
@@ -75,21 +79,6 @@ namespace EHR.Roles.Crewmate
                 WeaponEnabledSettings[weapon] = CreateWeaponEnabledSetting(11333 + (int)weapon, weapon);
             }
         }
-
-        private PlayerControl AdventurerPC;
-
-        private readonly Dictionary<Resource, int> ResourceCounts = [];
-        public bool InCraftingMode;
-        private Weapon SelectedWeaponToCraft;
-
-        public List<Weapon> OrderedWeapons;
-        public List<Weapon> ActiveWeapons;
-        public HashSet<byte> ShieldedPlayers;
-        public HashSet<byte> RevealedPlayers;
-
-        private long LastRandomResourceTimeStamp;
-        private long LastGroupingResourceTimeStamp;
-        private Dictionary<Resource, Vector2> ResourceLocations;
 
         public override void Add(byte playerId)
         {
@@ -333,10 +322,11 @@ namespace EHR.Roles.Crewmate
             return Main.PlayerStates[seer.PlayerId].Role is Adventurer { IsEnable: true } av && av.RevealedPlayers.Contains(target.PlayerId);
         }
 
-        public static string GetSuffixAndHUDText(PlayerControl pc, bool hud = false, bool isForMeeting = false)
+        public override string GetSuffix(PlayerControl pc, PlayerControl tar, bool hud = false, bool isForMeeting = false)
         {
             if (pc.IsModClient() && !hud) return string.Empty;
             if (Main.PlayerStates[pc.PlayerId].Role is not Adventurer { IsEnable: true } av) return string.Empty;
+            if (pc.PlayerId != tar.PlayerId) return string.Empty;
 
             IEnumerable<string> resources =
                 from resource in EnumHelper.GetAllValues<Resource>()
@@ -360,6 +350,16 @@ namespace EHR.Roles.Crewmate
             finalText += "</size>";
 
             return finalText;
+        }
+
+        enum Resource
+        {
+            TaskCompletion,
+            Random,
+            DeadBody,
+            ShapeshiftSkin,
+            LightsFix,
+            Grouping
         }
     }
 }

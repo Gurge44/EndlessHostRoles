@@ -333,9 +333,9 @@ namespace EHR.Roles.Impostor
             }
         }
 
-        public static string GetSuffix(PlayerControl seer)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
         {
-            if (seer == null) return string.Empty;
+            if (seer == null || seer.PlayerId != target.PlayerId) return string.Empty;
             if (Main.PlayerStates.TryGetValue(seer.PlayerId, out var state) && state.Role is Penguin pg && pg.AbductVictim != null)
             {
                 return $"\u21b9 {(int)(pg.AbductTimer + 1f)}s";

@@ -115,12 +115,13 @@ namespace EHR.Roles.Neutral
             return false;
         }
 
-        public static string GetSuffixAndHudText(PlayerControl seer, bool hud = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
         {
+            if (seer.PlayerId != target.PlayerId) return string.Empty;
             if (seer.IsModClient() && !hud) return string.Empty;
             if (Main.PlayerStates[seer.PlayerId].Role is not Predator { IsEnable: true } pt) return string.Empty;
             if (pt.IsWon) return !hud ? "<#00ff00>\u2713</color>" : Translator.GetString("PredatorDone");
-            var text = pt.RolesToKill.Join(x => Utils.ColorString(Utils.GetRoleColor(x), Translator.GetString($"{x}")));
+            var text = pt.RolesToKill.Join(x => x.ToColoredString());
             return hud ? text : $"<size=1.7>{text}</size>";
         }
     }

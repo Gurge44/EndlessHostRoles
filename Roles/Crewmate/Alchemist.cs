@@ -16,15 +16,6 @@ namespace EHR.Roles.Crewmate
         private const int Id = 5250;
         private static List<byte> playerIdList = [];
 
-        public bool IsProtected;
-        private int ventedId = -10;
-        public byte PotionID = 10;
-        public string PlayerName = string.Empty;
-        private long InvisTime = -10;
-        public bool VisionPotionActive;
-        public bool FixNextSabo;
-        private byte AlchemistId;
-
         public static OptionItem VentCooldown;
         public static OptionItem ShieldDuration;
         public static OptionItem Speed;
@@ -33,6 +24,20 @@ namespace EHR.Roles.Crewmate
         public static OptionItem SpeedDuration;
         public static OptionItem VisionDuration;
         public static OptionItem InvisDuration;
+        private byte AlchemistId;
+        public bool FixNextSabo;
+        private long InvisTime = -10;
+
+        public bool IsProtected;
+
+        private long lastFixedTime;
+        public string PlayerName = string.Empty;
+        public byte PotionID = 10;
+        private int ventedId = -10;
+        public bool VisionPotionActive;
+
+        public override bool IsEnable => playerIdList.Count > 0;
+        bool IsInvis => InvisTime != -10;
 
         public static void SetupCustomOption()
         {
@@ -79,8 +84,6 @@ namespace EHR.Roles.Crewmate
             FixNextSabo = false;
             VisionPotionActive = false;
         }
-
-        public override bool IsEnable => playerIdList.Count > 0;
 
         void SendRPCData()
         {
@@ -221,9 +224,6 @@ namespace EHR.Roles.Crewmate
             am.PotionID = 10;
         }
 
-        private long lastFixedTime;
-        bool IsInvis => InvisTime != -10;
-
         void SendRPC()
         {
             if (!IsEnable || !Utils.DoRPC) return;
@@ -297,9 +297,9 @@ namespace EHR.Roles.Crewmate
             }
         }
 
-        public static string GetHudText(PlayerControl pc)
+        public override string GetSuffix(PlayerControl pc, PlayerControl tar, bool hud = false, bool m = false)
         {
-            if (pc == null || !GameStates.IsInTask || Main.PlayerStates[pc.PlayerId].Role is not Alchemist { IsEnable: true } am) return string.Empty;
+            if (!hud || pc == null || pc.PlayerId != tar.PlayerId || !GameStates.IsInTask || Main.PlayerStates[pc.PlayerId].Role is not Alchemist { IsEnable: true } am) return string.Empty;
             var str = new StringBuilder();
             if (am.IsInvis)
             {

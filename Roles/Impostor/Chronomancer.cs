@@ -13,11 +13,12 @@ namespace EHR.Roles.Impostor
         private static OptionItem KCD;
         private static OptionItem ChargeInterval;
         private static OptionItem ChargeLossInterval;
+        private int ChargePercent;
+        private byte ChronomancerId;
 
         private bool IsRampaging;
-        private int ChargePercent;
         private long LastUpdate;
-        private byte ChronomancerId;
+        public override bool IsEnable => playerIdList.Count > 0;
 
         public static void SetupCustomOption()
         {
@@ -70,7 +71,6 @@ namespace EHR.Roles.Impostor
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = IsRampaging ? 0.01f : KCD.GetFloat();
-        public override bool IsEnable => playerIdList.Count > 0;
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
@@ -131,9 +131,9 @@ namespace EHR.Roles.Impostor
             }
         }
 
-        public static string GetHudText(byte id)
+        public override string GetSuffix(PlayerControl pc, PlayerControl _, bool hud = false, bool m = false)
         {
-            if (Main.PlayerStates[id].Role is not Chronomancer cm) return string.Empty;
+            if (!hud || Main.PlayerStates[pc.PlayerId].Role is not Chronomancer cm) return string.Empty;
             return cm.ChargePercent > 0 ? string.Format(Translator.GetString("ChronomancerPercent"), cm.ChargePercent) : string.Empty;
         }
 
