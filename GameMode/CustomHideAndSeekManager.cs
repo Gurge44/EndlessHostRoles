@@ -228,7 +228,7 @@ namespace EHR
         public static bool HasTasks(GameData.PlayerInfo playerInfo)
         {
             var role = PlayerRoles[playerInfo.PlayerId];
-            return role.Interface.Team == Team.Crewmate;
+            return role.Interface.Team == Team.Crewmate || role.Role == CustomRoles.Taskinator;
         }
 
         public static bool IsRoleTextEnabled(PlayerControl seer, PlayerControl target)
