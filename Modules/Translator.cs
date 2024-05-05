@@ -15,8 +15,8 @@ namespace EHR;
 
 public static class Translator
 {
-    public static Dictionary<string, Dictionary<int, string>> translateMaps;
     public const string LANGUAGE_FOLDER_NAME = "Language";
+    public static Dictionary<string, Dictionary<int, string>> translateMaps;
 
     public static void Init()
     {
@@ -86,7 +86,7 @@ public static class Translator
 
         // Creating a translation template
         CreateTemplateFile();
-        foreach (var lang in EnumHelper.GetAllValues<SupportedLangs>())
+        foreach (var lang in Enum.GetValues<SupportedLangs>())
         {
             if (File.Exists(@$"./{LANGUAGE_FOLDER_NAME}/{lang}.dat"))
             {
@@ -149,7 +149,7 @@ public static class Translator
 
             if (!translateMaps.ContainsKey(str)) //translateMapsにない場合、StringNamesにあれば取得する
             {
-                var stringNames = EnumHelper.GetAllValues<StringNames>().Where(x => x.ToString() == str).ToArray();
+                var stringNames = Enum.GetValues<StringNames>().Where(x => x.ToString() == str).ToArray();
                 if (stringNames.Length > 0)
                     res = GetString(stringNames.FirstOrDefault());
             }

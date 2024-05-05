@@ -6,7 +6,7 @@ namespace EHR.Roles.Neutral;
 
 public class Pyromaniac : RoleBase
 {
-    private const int Id = 128020;
+    private const int Id = 648000;
     public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;

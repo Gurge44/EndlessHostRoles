@@ -43,7 +43,7 @@ namespace EHR.Roles.Neutral
         ];
 
         public static ((Color32 Color, string String, PlayerControl Player) LastReportedPlayer, string LastPlayerPressedButtonName, SystemTypes LastSabotage, string LastReporterName, int NumPlayersVotedLastMeeting, string FirstReportedBodyPlayerName, int NumEmergencyMeetings, int NumPlayersDeadThisRound, int NumPlayersDeadFirstRound, int NumSabotages, int NumMeetings) Data = ((new(), string.Empty, null), string.Empty, default, string.Empty, 0, string.Empty, 0, 0, 0, 0, 0);
-        
+
         private Question CurrentQuestion;
         public byte QuizMasterId;
         public byte Target;
@@ -212,7 +212,7 @@ namespace EHR.Roles.Neutral
             List<int> indexes = abc ? allowedABCIndexes : allowedIndexes;
             int index = indexes[random.Next(indexes.Count)];
 
-            var randomRole = EnumHelper.GetAllValues<CustomRoles>().Where(x => x.IsEnable()).Shuffle(random).First();
+            var randomRole = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable()).Shuffle(random).First();
 
             string title = index switch
             {
@@ -224,7 +224,7 @@ namespace EHR.Roles.Neutral
 
             (IEnumerable<string> WrongAnswers, string CorrectAnswer) answers = index switch
             {
-                1 when abc => (EnumHelper.GetAllValues<Team>().Skip(1).Where(x => x != Data.LastReportedPlayer.Player.GetTeam()).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{Data.LastReportedPlayer.Player.GetTeam()}")),
+                1 when abc => (Enum.GetValues<Team>().Skip(1).Where(x => x != Data.LastReportedPlayer.Player.GetTeam()).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{Data.LastReportedPlayer.Player.GetTeam()}")),
                 1 => (AllColors.Shuffle(random).Take(2).Select(x => x.String), Data.LastReportedPlayer.String),
                 2 when abc => ((new[] { PlayerState.DeathReason.Suicide, PlayerState.DeathReason.Kill, PlayerState.DeathReason.etc }).Select(x => Translator.GetString($"DeathReason.{x}")), Translator.GetString($"DeathReason.{Main.PlayerStates[Data.LastReportedPlayer.Player!.PlayerId].deathReason}")),
                 2 => (GetTwoRandomNames(Data.LastPlayerPressedButtonName), Data.LastPlayerPressedButtonName),
@@ -232,9 +232,9 @@ namespace EHR.Roles.Neutral
                 3 => (AllSabotages[..1].Select(x => Translator.GetString($"{x}")), Translator.GetString($"{Data.LastSabotage}")),
                 4 when abc => (new[] { "tukasa0001", "0xDrMoe" }, "Gurge44"),
                 4 => (CustomRoleSelector.RoleResult.Values.Shuffle(random).Take(2).Select(x => x.ToColoredString()), Main.LastVotedPlayerInfo!.Object.GetCustomRole().ToColoredString()),
-                5 when abc => (EnumHelper.GetAllValues<Team>().Skip(1).Where(x => x != randomRole.GetTeam()).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetTeam()}")),
+                5 when abc => (Enum.GetValues<Team>().Skip(1).Where(x => x != randomRole.GetTeam()).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetTeam()}")),
                 5 => (GetTwoRandomNames(Data.LastReporterName), Data.LastReporterName),
-                6 when abc => (EnumHelper.GetAllValues<CustomRoleTypes>().Where(x => x != randomRole.GetCustomRoleTypes()).Shuffle(random).Take(2).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetCustomRoleTypes()}")),
+                6 when abc => (Enum.GetValues<CustomRoleTypes>().Where(x => x != randomRole.GetCustomRoleTypes()).Shuffle(random).Take(2).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetCustomRoleTypes()}")),
                 6 => (GetTwoRandomNumbers(Data.NumPlayersVotedLastMeeting, 0, 15), Data.NumPlayersVotedLastMeeting.ToString()),
                 7 => (GetTwoRandomNumbers(Data.NumMeetings, Math.Max(Data.NumMeetings - 3, 0), Data.NumMeetings + 3), Data.NumMeetings.ToString()),
                 8 => (GetTwoRandomNames(Data.FirstReportedBodyPlayerName), Data.FirstReportedBodyPlayerName),
@@ -243,7 +243,7 @@ namespace EHR.Roles.Neutral
                 11 => (GetTwoRandomNumbers(Data.NumPlayersDeadFirstRound, Math.Max(Data.NumPlayersDeadFirstRound - 3, 0), Data.NumPlayersDeadFirstRound + 3), Data.NumPlayersDeadFirstRound.ToString()),
                 12 => (GetTwoRandomNumbers(Data.NumSabotages, Math.Max(Data.NumSabotages - 3, 0), Data.NumSabotages + 3), Data.NumSabotages.ToString()),
                 13 => (GetTwoRandomNumbers(GameData.Instance.CompletedTasks, 0, GameData.Instance.TotalTasks), GameData.Instance.CompletedTasks.ToString()),
-                14 => (EnumHelper.GetAllValues<RoleTypes>().Where(x => x != randomRole.GetRoleTypes()).Shuffle(random).Take(2).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetRoleTypes()}")),
+                14 => (Enum.GetValues<RoleTypes>().Where(x => x != randomRole.GetRoleTypes()).Shuffle(random).Take(2).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetRoleTypes()}")),
 
                 _ => ([], string.Empty)
             };

@@ -959,7 +959,7 @@ public static class GuessManager
                 CreatePage(true, __instance, container);
             }
 
-            var sortedRoles = EnumHelper.GetAllValues<CustomRoles>().OrderBy(x => GetString($"{x}")).ToArray();
+            var sortedRoles = Enum.GetValues<CustomRoles>().OrderBy(x => GetString($"{x}")).ToArray();
             foreach (var role in sortedRoles)
             {
                 if (role is CustomRoles.GM

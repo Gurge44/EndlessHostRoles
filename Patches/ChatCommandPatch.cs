@@ -902,7 +902,7 @@ internal class ChatCommands
         }
         else name = name.Trim().ToLower();
 
-        foreach (var rl in EnumHelper.GetAllValues<CustomRoles>())
+        foreach (var rl in Enum.GetValues<CustomRoles>())
         {
             if (rl.IsVanilla()) continue;
             var roleName = GetString(rl.ToString()).ToLower().Trim().Replace(" ", string.Empty);
@@ -939,7 +939,7 @@ internal class ChatCommands
 
         role = FixRoleNameInput(role).ToLower().Trim().Replace(" ", string.Empty);
 
-        foreach (var rl in EnumHelper.GetAllValues<CustomRoles>())
+        foreach (var rl in Enum.GetValues<CustomRoles>())
         {
             if (rl.IsVanilla()) continue;
             var roleName = GetString(rl.ToString());

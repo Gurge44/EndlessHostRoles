@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
@@ -44,7 +45,7 @@ namespace EHR.Roles.Neutral
             {
                 RolesToKill = [];
 
-                var allRoles = EnumHelper.GetAllValues<CustomRoles>().ToList();
+                var allRoles = Enum.GetValues<CustomRoles>().ToList();
                 allRoles.RemoveAll(x => x == CustomRoles.Predator || x >= CustomRoles.NotAssigned || !x.RoleExist(countDead: true));
 
                 var r = IRandom.Instance;

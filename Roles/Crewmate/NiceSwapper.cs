@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Text.RegularExpressions;
 using EHR.Modules;
 using HarmonyLib;
 using Hazel;
@@ -60,7 +59,7 @@ public class NiceSwapper : RoleBase
 
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || pc == null || pc.GetCustomRole() != CustomRoles.NiceSwapper) return false;
 
-        Logger.Info($"{pc.GetNameWithRole()} : {msg} (UI: {isUI})", "NiceSwapper");
+        Logger.Info($"{pc.GetNameWithRole()} : {msg} (UI: {isUI})", "Swapper");
 
         int operate;
         msg = msg.ToLower().TrimStart().TrimEnd();
@@ -92,9 +91,9 @@ public class NiceSwapper : RoleBase
                 if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
                 else if (pc.AmOwner && !isUI) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
-                if (!MsgToPlayerAndRole(msg, out byte targetId, out string error))
+                if (!byte.TryParse(msg.Replace(" ", string.Empty), out byte targetId))
                 {
-                    Utils.SendMessage(error, pc.PlayerId);
+                    Utils.SendMessage(GetString("SwapHelp"), pc.PlayerId);
                     return true;
                 }
 
@@ -105,21 +104,20 @@ public class NiceSwapper : RoleBase
 
                 bool Vote1Empty = (SwapTargets.Item1 == byte.MaxValue) && targetIsntSelected; // Whether the first swapping slot is suitable to swap this target
                 bool Vote2Available = (SwapTargets.Item1 != byte.MaxValue) && (SwapTargets.Item2 == byte.MaxValue) && targetIsntSelected; // Whether the second swapping slot is suitable to swap this target
+                bool selfCheck = CanSwapSelf.GetBool() || target.PlayerId != pc.PlayerId;
 
-                if (Vote1Empty && (CanSwapSelf.GetBool() || target.PlayerId != pc.PlayerId)) // Take first slot
+                if (Vote1Empty && selfCheck) // Take first slot
                 {
                     SwapTargets.Item1 = target.PlayerId;
 
-                    if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
                     if (!isUI) Utils.SendMessage(GetString("Swap1"), pc.PlayerId);
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} chose to swap {target.GetNameWithRole()} (first target)", "Swapper");
                 }
 
-                else if (Vote2Available && (CanSwapSelf.GetBool() || target.PlayerId != pc.PlayerId)) // Take second slot
+                else if (Vote2Available && selfCheck) // Take second slot
                 {
                     SwapTargets.Item2 = target.PlayerId;
 
-                    if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
                     if (!isUI) Utils.SendMessage(GetString("Swap2"), pc.PlayerId);
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} chose to swap {target.GetNameWithRole()} (second target)", "Swapper");
                 }
@@ -128,7 +126,6 @@ public class NiceSwapper : RoleBase
                 {
                     SwapTargets.Item1 = byte.MaxValue;
 
-                    if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
                     if (!isUI) Utils.SendMessage(GetString("CancelSwap1"), pc.PlayerId);
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} canceled swapping on {target.GetNameWithRole()} (first target)", "Swapper");
                 }
@@ -137,14 +134,12 @@ public class NiceSwapper : RoleBase
                 {
                     SwapTargets.Item2 = byte.MaxValue;
 
-                    if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
                     if (!isUI) Utils.SendMessage(GetString("CancelSwap2"), pc.PlayerId);
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} canceled swapping on {target.GetNameWithRole()} (second target)", "Swapper");
                 }
 
-                else if (pc.PlayerId == target.PlayerId && !CanSwapSelf.GetBool()) // When the Swapper tries to swap themselves, but they aren't allowed to
+                else if (!selfCheck) // When the Swapper tries to swap themselves, but they aren't allowed to
                 {
-                    if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
                     if (!isUI) Utils.SendMessage(GetString("CantSwapSelf"), pc.PlayerId);
                     else pc.ShowPopUp(GetString("CantSwapSelf"));
                 }
@@ -194,40 +189,6 @@ public class NiceSwapper : RoleBase
         if (Target1 == null || Target2 == null) return;
 
         Utils.SendMessage(string.Format(GetString("SwapVote"), Target1.GetRealName(), Target2.GetRealName()), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceSwapper), GetString("SwapTitle")));
-    }
-
-    private static bool MsgToPlayerAndRole(string msg, out byte id, out string error)
-    {
-        if (msg.StartsWith("/")) msg = msg.Replace("/", string.Empty);
-
-        Regex r = new("\\d+");
-        MatchCollection mc = r.Matches(msg);
-        string result = string.Empty;
-        for (int i = 0; i < mc.Count; i++)
-        {
-            result += mc[i];
-        }
-
-        if (int.TryParse(result, out int num))
-        {
-            id = Convert.ToByte(num);
-        }
-        else
-        {
-            id = byte.MaxValue;
-            error = GetString("SwapHelp");
-            return false;
-        }
-
-        PlayerControl target = Utils.GetPlayerById(id);
-        if (target == null || target.Data.IsDead)
-        {
-            error = GetString("SwapNull");
-            return false;
-        }
-
-        error = string.Empty;
-        return true;
     }
 
     private static bool CheckCommand(ref string msg, string command, bool exact = true)

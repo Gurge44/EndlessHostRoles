@@ -42,7 +42,7 @@ namespace EHR.Roles.Impostor
 
         public static List<CustomRoles> GetAvailableRoles(bool check = false)
         {
-            CustomRoles[] allRoles = EnumHelper.GetAllValues<CustomRoles>();
+            CustomRoles[] allRoles = Enum.GetValues<CustomRoles>();
 
             IEnumerable<CustomRoles> result = AvailableRoles.GetValue() switch
             {

@@ -7,7 +7,7 @@ namespace EHR.Roles.Neutral;
 
 public class Eclipse : RoleBase
 {
-    private const int Id = 128000;
+    private const int Id = 648200;
     public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;

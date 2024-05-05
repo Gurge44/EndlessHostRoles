@@ -26,6 +26,8 @@ namespace EHR
         public static Dictionary<byte, byte> ClosestImpostor = [];
         public static Dictionary<byte, int> Danger = [];
 
+        public static List<CustomRoles> AllHnSRoles = [];
+
         public static void SetupCustomOption()
         {
             const int id = 69_211_001;
@@ -53,21 +55,14 @@ namespace EHR
             TimeLeft = MaxGameLength.GetInt() + 8;
             LastUpdate = Utils.TimeStamp;
 
-            Type[] types = Assembly
-                .GetExecutingAssembly()
-                .GetTypes()
-                .Where(t => (typeof(IHideAndSeekRole)).IsAssignableFrom(t) && !t.IsInterface)
-                .ToArray();
+            Type[] types = GetAllHnsRoleTypes();
 
-            CustomRoles[] roleEnums = types
-                .Select(x => ((CustomRoles)Enum.Parse(typeof(CustomRoles), ignoreCase: true, value: x.Name)))
-                .Where(role => role is CustomRoles.Seeker or CustomRoles.Hider || role.GetMode() != 0)
-                .ToArray();
+            AllHnSRoles = GetAllHnsRoles(types);
 
             HideAndSeekRoles = types
                 .Select(x => (IHideAndSeekRole)Activator.CreateInstance(x))
                 .Where(x => x != null)
-                .Join(roleEnums, x => x.GetType().Name.ToLower(), x => x.ToString().ToLower(), (Interface, Enum) => (Enum, Interface))
+                .Join(AllHnSRoles, x => x.GetType().Name.ToLower(), x => x.ToString().ToLower(), (Interface, Enum) => (Enum, Interface))
                 .Where(x => (!x.Enum.OnlySpawnsWithPets() || Options.UsePets.GetBool()) && (x.Enum != CustomRoles.Agent || Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors) >= 2) && x.Interface.Count > 0 && x.Interface.Chance > IRandom.Instance.Next(100))
                 .OrderBy(x => x.Enum is CustomRoles.Seeker or CustomRoles.Hider ? 100 : IRandom.Instance.Next(100))
                 .GroupBy(x => x.Interface.Team)
@@ -90,6 +85,23 @@ namespace EHR
             }, Seeker.BlindTime.GetFloat() + 8f, "Blind Time Expire");
 
             AssignRoles();
+        }
+
+        public static List<CustomRoles> GetAllHnsRoles(IEnumerable<Type> types)
+        {
+            return types
+                .Select(x => ((CustomRoles)Enum.Parse(typeof(CustomRoles), ignoreCase: true, value: x.Name)))
+                .Where(role => role is CustomRoles.Seeker or CustomRoles.Hider || role.GetMode() != 0)
+                .ToList();
+        }
+
+        public static Type[] GetAllHnsRoleTypes()
+        {
+            return Assembly
+                .GetExecutingAssembly()
+                .GetTypes()
+                .Where(t => (typeof(IHideAndSeekRole)).IsAssignableFrom(t) && !t.IsInterface)
+                .ToArray();
         }
 
         private static void AssignRoles()
@@ -120,7 +132,7 @@ namespace EHR
                 Logger.Warn($"Pre-Set Role Assigned: {pc.GetRealName()} => {item.Value}", "CustomRoleSelector");
             }
 
-            var playerTeams = EnumHelper.GetAllValues<Team>()[1..]
+            var playerTeams = Enum.GetValues<Team>()[1..]
                 .SelectMany(x => Enumerable.Repeat(x, memberNum[x]))
                 .Shuffle(IRandom.Instance)
                 .Zip(allPlayers)

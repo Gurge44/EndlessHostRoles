@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -379,7 +380,7 @@ class GameEndChecker
 
             Dictionary<(CustomRoles? ROLE, CustomWinner WINNER), int> roleCounts = [];
 
-            foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
+            foreach (var role in Enum.GetValues<CustomRoles>())
             {
                 if ((!role.IsNK() && role != CustomRoles.Bloodlust) || role.IsMadmate() || role is CustomRoles.Sidekick) continue;
 

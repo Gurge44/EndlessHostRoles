@@ -12,7 +12,7 @@ namespace EHR.Roles.Crewmate
     public class Bloodhound : RoleBase
     {
         private const int Id = 6400;
-        private static List<byte> playerIdList = [];
+        private static List<byte> PlayerIdList = [];
 
         public static List<byte> UnreportablePlayers = [];
 
@@ -22,9 +22,10 @@ namespace EHR.Roles.Crewmate
         public static OptionItem NotifyKiller;
         public static OptionItem BloodhoundAbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
-        public List<byte> BloodhoundTargets = [];
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        private List<byte> BloodhoundTargets = [];
+
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public static void SetupCustomOption()
         {
@@ -44,50 +45,50 @@ namespace EHR.Roles.Crewmate
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             UnreportablePlayers = [];
             BloodhoundTargets = [];
         }
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             BloodhoundTargets = [];
-        }
-
-        static void SendRPC(byte playerId, bool add, Vector3 loc = new())
-        {
-            if (!Utils.DoRPC) return;
-            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBloodhoundArrow, SendOption.Reliable);
-            writer.Write(playerId);
-            writer.Write(add);
-            if (add)
-            {
-                writer.Write(loc.x);
-                writer.Write(loc.y);
-                writer.Write(loc.z);
-            }
-
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
         public static void ReceiveRPC(MessageReader reader)
         {
             byte playerId = reader.ReadByte();
-            if (Main.PlayerStates[playerId].Role is not Bloodhound) return;
+            if (Main.PlayerStates[playerId].Role is not Bloodhound bh) return;
 
-            bool add = reader.ReadBoolean();
-            if (add) LocateArrow.Add(playerId, new(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()));
-            else LocateArrow.RemoveAllTarget(playerId);
+            switch (reader.ReadPackedInt32())
+            {
+                case 1:
+                    TargetArrow.RemoveAllTarget(playerId);
+                    LocateArrow.RemoveAllTarget(playerId);
+                    bh.BloodhoundTargets.Clear();
+                    break;
+                case 2:
+                    LocateArrow.Add(playerId, NetHelpers.ReadVector2(reader));
+                    break;
+                case 3:
+                    LocateArrow.Remove(playerId, NetHelpers.ReadVector2(reader));
+                    break;
+                case 4:
+                    bh.BloodhoundTargets.Add(reader.ReadByte());
+                    TargetArrow.Add(playerId, bh.BloodhoundTargets.Last());
+                    break;
+            }
         }
 
         public override void OnReportDeadBody()
         {
-            foreach (byte apc in playerIdList)
+            foreach (byte id in PlayerIdList)
             {
-                LocateArrow.RemoveAllTarget(apc);
-                SendRPC(apc, false);
+                TargetArrow.RemoveAllTarget(id);
+                LocateArrow.RemoveAllTarget(id);
+                Utils.SendRPC(CustomRPC.SetBloodhoundArrow, id, 1);
             }
 
             BloodhoundTargets.Clear();
@@ -97,13 +98,14 @@ namespace EHR.Roles.Crewmate
         {
             if (!ArrowsPointingToDeadBody.GetBool()) return;
 
-            foreach (byte pc in playerIdList)
+            foreach (byte id in PlayerIdList)
             {
-                var player = Utils.GetPlayerById(pc);
-                if (player == null || !player.IsAlive())
-                    continue;
-                LocateArrow.Add(pc, target.transform.position);
-                SendRPC(pc, true, target.transform.position);
+                var player = Utils.GetPlayerById(id);
+                if (player == null || !player.IsAlive()) continue;
+
+                var pos = target.Pos();
+                LocateArrow.Add(id, pos);
+                Utils.SendRPC(CustomRPC.SetBloodhoundArrow, id, 2, pos);
             }
         }
 
@@ -116,13 +118,15 @@ namespace EHR.Roles.Crewmate
                     return false;
                 }
 
-                LocateArrow.Remove(pc.PlayerId, target.Object.transform.position);
-                SendRPC(pc.PlayerId, false);
+                var pos = target.Object.Pos();
+                LocateArrow.Remove(pc.PlayerId, pos);
+                Utils.SendRPC(CustomRPC.SetBloodhoundArrow, pc.PlayerId, 3, pos);
 
                 if (pc.GetAbilityUseLimit() >= 1)
                 {
                     BloodhoundTargets.Add(killer.PlayerId);
                     TargetArrow.Add(pc.PlayerId, killer.PlayerId);
+                    Utils.SendRPC(CustomRPC.SetBloodhoundArrow, pc.PlayerId, 4, killer.PlayerId);
 
                     pc.Notify(GetString("BloodhoundTrackRecorded"));
                     pc.RpcRemoveAbilityUse();

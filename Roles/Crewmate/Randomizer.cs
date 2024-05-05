@@ -247,7 +247,7 @@ namespace EHR.Roles.Crewmate
                         break;
                     case Effect.AddonAssign:
                     {
-                        var addons = EnumHelper.GetAllValues<CustomRoles>().Where(x => x.IsAdditionRole() && x != CustomRoles.NotAssigned).ToArray();
+                        var addons = Enum.GetValues<CustomRoles>().Where(x => x.IsAdditionRole() && x != CustomRoles.NotAssigned).ToArray();
                         var pc = PickRandomPlayer();
                         var addon = addons[IRandom.Instance.Next(0, addons.Length)];
                         if (Main.PlayerStates[pc.PlayerId].SubRoles.Contains(addon)) break;
@@ -539,7 +539,7 @@ namespace EHR.Roles.Crewmate
 
             LastEffectPick[id] = now;
 
-            var allEffects = EnumHelper.GetAllValues<Effect>();
+            var allEffects = Enum.GetValues<Effect>();
             var effect = allEffects[IRandom.Instance.Next(0, allEffects.Length)];
 
             if (effect == Effect.GhostPlayer)

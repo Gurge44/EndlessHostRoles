@@ -98,7 +98,7 @@ namespace EHR.Roles.Neutral
             StartingMoney = IntegerOptionItem.Create(++id, "Bargainer.StartingMoney", new(0, 100, 5), 0, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer]);
 
-            foreach (var action in EnumHelper.GetAllValues<MoneyGainingAction>())
+            foreach (var action in Enum.GetValues<MoneyGainingAction>())
             {
                 var boolOpt = BooleanOptionItem.Create(++id, $"Bargainer.{action}.Enabled", true, tab)
                     .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer]);
@@ -118,7 +118,7 @@ namespace EHR.Roles.Neutral
                 };
             }
 
-            foreach (var item in EnumHelper.GetAllValues<Item>())
+            foreach (var item in Enum.GetValues<Item>())
             {
                 if (item == Item.None) continue;
 
@@ -145,7 +145,7 @@ namespace EHR.Roles.Neutral
                     switch (item)
                     {
                         case Item.BandAid:
-                            ShieldDuration = StringOptionItem.Create(++id, $"Bargainer.{item}.DurationSwitch", EnumHelper.GetAllNames<ShieldDurationOptions>(), 0, tab)
+                            ShieldDuration = StringOptionItem.Create(++id, $"Bargainer.{item}.DurationSwitch", Enum.GetNames<ShieldDurationOptions>(), 0, tab)
                                 .SetParent(boolOpt);
                             ShieldTime = IntegerOptionItem.Create(++id, $"Bargainer.{item}.Duration", new(0, 60, 1), 20, tab)
                                 .SetParent(ShieldDuration)
@@ -157,7 +157,7 @@ namespace EHR.Roles.Neutral
                                 .SetValueFormat(OptionFormat.Seconds);
                             break;
                         case Item.LensOfTruth:
-                            AlignmentVisible = StringOptionItem.Create(++id, $"Bargainer.{item}.DurationSwitch", EnumHelper.GetAllNames<AlignmentVisibleOptions>(), (int)AlignmentVisibleOptions.UntilNextReveal, tab)
+                            AlignmentVisible = StringOptionItem.Create(++id, $"Bargainer.{item}.DurationSwitch", Enum.GetNames<AlignmentVisibleOptions>(), (int)AlignmentVisibleOptions.UntilNextReveal, tab)
                                 .SetParent(boolOpt);
                             AlignmentVisibleDuration = IntegerOptionItem.Create(++id, $"Bargainer.{item}.Duration", new(1, 30, 1), 10, tab)
                                 .SetParent(AlignmentVisible)

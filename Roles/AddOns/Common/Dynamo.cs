@@ -9,6 +9,7 @@ namespace EHR.Roles.AddOns.Common
     {
         private static OptionItem IncreaseSpeedBy;
         private static OptionItem IncreaseSpeedFrequency;
+        private static OptionItem MaxSpeed;
 
         private static readonly Dictionary<byte, Vector2> LastPosition = [];
         private static readonly Dictionary<byte, float> StartingSpeed = [];
@@ -25,6 +26,9 @@ namespace EHR.Roles.AddOns.Common
             IncreaseSpeedFrequency = FloatOptionItem.Create(id + 7, "Dynamo.IncreaseSpeedFrequency", new(0.5f, 30f, 0.5f), 5f, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dynamo])
                 .SetValueFormat(OptionFormat.Seconds);
+            MaxSpeed = FloatOptionItem.Create(id + 8, "Dynamo.MaxSpeed", new(0.1f, 3f, 0.1f), 3f, TabGroup.Addons)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dynamo])
+                .SetValueFormat(OptionFormat.Multiplier);
         }
 
         public static void Add()
@@ -64,6 +68,8 @@ namespace EHR.Roles.AddOns.Common
             SpeedIncreaseTimer[pc.PlayerId] = 0f;
 
             Main.AllPlayerSpeed[pc.PlayerId] += IncreaseSpeedBy.GetFloat();
+            float maxSpeed = MaxSpeed.GetFloat();
+            if (Main.AllPlayerSpeed[pc.PlayerId] > maxSpeed) Main.AllPlayerSpeed[pc.PlayerId] = maxSpeed;
             pc.MarkDirtySettings();
         }
     }

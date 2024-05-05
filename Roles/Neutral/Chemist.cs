@@ -134,13 +134,13 @@ namespace EHR.Roles.Neutral
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Times);
 
-            FinalProductUsageAmounts = EnumHelper.GetAllValues<Item>()
+            FinalProductUsageAmounts = Enum.GetValues<Item>()
                 .Where(x => GetItemType(x) == ItemType.FinalProduct)
                 .ToDictionary(x => x, x => IntegerOptionItem.Create(++id, $"Chemist.Item.{x}.Usage", new(1, 100, 1), GetDefaultValue(x), tab)
                     .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                     .SetValueFormat(OptionFormat.Times));
 
-            AcidPlayersDie = StringOptionItem.Create(++id, "Chemist.AcidPlayersDie", EnumHelper.GetAllNames<AcidPlayersDieOptions>(), 0, tab)
+            AcidPlayersDie = StringOptionItem.Create(++id, "Chemist.AcidPlayersDie", Enum.GetNames<AcidPlayersDieOptions>(), 0, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist]);
             AcidPlayersDieAfterTime = IntegerOptionItem.Create(++id, "Chemist.AcidPlayersDieAfterTime", new(1, 60, 1), 15, tab)
                 .SetParent(AcidPlayersDie)
@@ -178,7 +178,7 @@ namespace EHR.Roles.Neutral
                 FactoryLocations = ShipStatus.Instance.AllRooms
                     .Select(x => Translator.GetString($"{x.RoomId}"))
                     .Distinct()
-                    .Zip(EnumHelper.GetAllValues<Factory>()[1..])
+                    .Zip(Enum.GetValues<Factory>()[1..])
                     .ToDictionary(x => x.First, x => x.Second);
             }, 10f, log: false);
         }
@@ -200,7 +200,7 @@ namespace EHR.Roles.Neutral
             BombedBodies = [];
             Grenades = [];
 
-            ItemCounts = EnumHelper.GetAllValues<Item>().ToDictionary(x => x, _ => 0);
+            ItemCounts = Enum.GetValues<Item>().ToDictionary(x => x, _ => 0);
 
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))

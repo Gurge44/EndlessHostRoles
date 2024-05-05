@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using EHR.Patches;
 using UnityEngine;
@@ -74,7 +75,7 @@ namespace EHR.Roles.Crewmate
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adventurer])
                 .SetValueFormat(OptionFormat.Seconds);
 
-            foreach (var weapon in EnumHelper.GetAllValues<Weapon>())
+            foreach (var weapon in Enum.GetValues<Weapon>())
             {
                 WeaponEnabledSettings[weapon] = CreateWeaponEnabledSetting(11333 + (int)weapon, weapon);
             }
@@ -97,7 +98,7 @@ namespace EHR.Roles.Crewmate
             LastGroupingResourceTimeStamp = Utils.TimeStamp + 20;
             ResourceLocations = [];
 
-            foreach (var resource in EnumHelper.GetAllValues<Resource>())
+            foreach (var resource in Enum.GetValues<Resource>())
             {
                 ResourceCounts[resource] = 0;
             }
@@ -329,7 +330,7 @@ namespace EHR.Roles.Crewmate
             if (pc.PlayerId != tar.PlayerId) return string.Empty;
 
             IEnumerable<string> resources =
-                from resource in EnumHelper.GetAllValues<Resource>()
+                from resource in Enum.GetValues<Resource>()
                 let displayData = ResourceDisplayData[resource]
                 select $"{Utils.ColorString(displayData.Color, $"{displayData.Icon}")}{av.ResourceCounts[resource]}";
 

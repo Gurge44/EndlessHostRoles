@@ -10,7 +10,7 @@ namespace EHR.Roles.Neutral;
 
 public class Doppelganger : RoleBase
 {
-    private const int Id = 194200;
+    private const int Id = 648100;
     public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;

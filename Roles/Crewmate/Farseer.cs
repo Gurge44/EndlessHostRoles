@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -13,21 +14,23 @@ namespace EHR.Roles.Crewmate
 {
     public class Farseer : RoleBase
     {
-        public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> FarseerTimer = [];
-        public static Dictionary<(byte, byte), bool> IsRevealed = [];
-
         private const int Id = 9700;
 
         private const string FontSize = "1.6";
+        public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> FarseerTimer = [];
+        public static Dictionary<(byte, byte), bool> IsRevealed = [];
 
         public static OptionItem FarseerCooldown;
         public static OptionItem FarseerRevealTime;
         public static OptionItem Vision;
         public static OptionItem UsePet;
 
-        private static CustomRoles[] RandomRolesForTrickster => EnumHelper.GetAllValues<CustomRoles>().Where(x => x.IsCrewmate()).ToArray();
+        public static readonly Dictionary<int, string> RandomRole = [];
 
-        public static Dictionary<int, string> RandomRole = [];
+        public static bool On;
+
+        private static CustomRoles[] RandomRolesForTrickster => Enum.GetValues<CustomRoles>().Where(x => x.IsCrewmate()).ToArray();
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
@@ -64,9 +67,6 @@ namespace EHR.Roles.Crewmate
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
-
-        public static bool On;
-        public override bool IsEnable => On;
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {

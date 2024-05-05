@@ -893,6 +893,8 @@ public static class Options
             .GroupBy(x => x.Tab)
             .OrderBy(x => (int)x.Key)
             .ToDictionary(x => x.Key, x => x.ToArray());
+
+        CustomHideAndSeekManager.AllHnSRoles = CustomHideAndSeekManager.GetAllHnsRoles(CustomHideAndSeekManager.GetAllHnsRoleTypes());
     }
 
     public static VoteMode GetWhenSkipVote() => (VoteMode)WhenSkipVote.GetValue();
@@ -905,7 +907,7 @@ public static class Options
         roleCounts = [];
         roleSpawnChances = [];
 
-        foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
+        foreach (var role in Enum.GetValues<CustomRoles>())
         {
             roleCounts.Add(role, 0);
             roleSpawnChances.Add(role, 0);
@@ -1411,7 +1413,7 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
         // Reset Doors Mode
-        DoorsResetMode = StringOptionItem.Create(22122, "DoorsResetMode", EnumHelper.GetAllNames<DoorsReset.ResetMode>(), 2, TabGroup.GameSettings)
+        DoorsResetMode = StringOptionItem.Create(22122, "DoorsResetMode", Enum.GetNames<DoorsReset.ResetMode>(), 2, TabGroup.GameSettings)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue))
             .SetGameMode(CustomGameMode.Standard)
             .SetParent(ResetDoorsEveryTurns);

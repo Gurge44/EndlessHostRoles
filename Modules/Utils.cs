@@ -469,16 +469,7 @@ public static class Utils
                     w.Write(b);
                     break;
                 case Vector2 v:
-                    w.Write(v.x);
-                    w.Write(v.y);
-                    break;
-                case Vector3 v2:
-                    w.Write(v2.x);
-                    w.Write(v2.y);
-                    w.Write(v2.z);
-                    break;
-                case byte[] b:
-                    w.WriteBytesAndSize(b);
+                    NetHelpers.WriteVector2(v, w);
                     break;
             }
         }
@@ -1078,7 +1069,7 @@ public static class Utils
         var crewsb = new StringBuilder();
         var addonsb = new StringBuilder();
 
-        foreach (var role in EnumHelper.GetAllValues<CustomRoles>())
+        foreach (var role in Enum.GetValues<CustomRoles>().Except(CustomHideAndSeekManager.AllHnSRoles))
         {
             string mode;
             try
@@ -1123,7 +1114,6 @@ public static class Utils
 
             switch (opt.Value.Name)
             {
-                case "Maximum":
                 case "DisableSkeldDevices" when Main.CurrentMap is not MapNames.Skeld and not MapNames.Dleks:
                 case "DisableMiraHQDevices" when Main.CurrentMap != MapNames.Mira:
                 case "DisablePolusDevices" when Main.CurrentMap != MapNames.Polus:
@@ -1629,13 +1619,28 @@ public static class Utils
         if (title == "") title = "<color=#aaaaff>" + GetString("DefaultSystemMessageTitle") + "</color>";
         text = text.Replace("color=", string.Empty);
 
-        if (text.Length > 1200 && !sendTo.IsPlayerModClient())
+        if (text.Length >= 1200)
         {
-            text.Chunk(1200).Do(x => SendMessage(new(x), sendTo, title));
+            var lines = text.Split('\n');
+            var shortenedText = string.Empty;
+            foreach (string line in lines)
+            {
+                if (shortenedText.Length + line.Length < 1200)
+                {
+                    shortenedText += line + "\n";
+                    continue;
+                }
+
+                if (shortenedText.Length >= 1200) shortenedText.Chunk(1200).Do(x => SendMessage(new(x), sendTo, title));
+                else SendMessage(shortenedText, sendTo, title);
+                shortenedText = line + "\n";
+            }
+
+            if (shortenedText.Length > 0) SendMessage(shortenedText, sendTo, title);
             return;
         }
 
-        if (text.Length < 300) Logger.Info($" Message: {text} - To: {(sendTo == byte.MaxValue ? "Everyone" : $"{Utils.GetPlayerById(sendTo).GetRealName()}")} - Title: {title}", "SendMessage");
+        if (text.RemoveHtmlTags().Length < 300) Logger.Info($" Message: {text.RemoveHtmlTags()} - To: {(sendTo == byte.MaxValue ? "Everyone" : $"{GetPlayerById(sendTo).GetRealName()}")} - Title: {title}", "SendMessage");
 
         Main.MessagesToSend.Add((text.RemoveHtmlTagsTemplate(), sendTo, title));
     }
