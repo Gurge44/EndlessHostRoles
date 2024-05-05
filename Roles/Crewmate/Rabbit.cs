@@ -85,7 +85,7 @@ namespace EHR.Roles.Crewmate
 
             void SendRPC()
             {
-                var writer = Utils.CreateCustomRoleRPC(CustomRPC.SyncRabbit);
+                var writer = Utils.CreateRPC(CustomRPC.SyncRabbit);
                 writer.Write(Player.PlayerId);
                 writer.Write(HasArrow);
                 Utils.EndRPC(writer);

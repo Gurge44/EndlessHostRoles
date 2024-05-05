@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using EHR.Roles.Crewmate;
 using static EHR.Translator;
 
 namespace EHR.Roles.Impostor;
@@ -30,6 +29,8 @@ internal class Eraser : RoleBase
     private static List<byte> didVote = [];
     private static List<byte> PlayerToErase = [];
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Eraser);
@@ -52,11 +53,8 @@ internal class Eraser : RoleBase
         playerId.SetAbilityUseLimit(EraseLimitOpt.GetInt());
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
-
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (Medic.ProtectList.Contains(target.PlayerId)) return false;
         if (killer.GetAbilityUseLimit() < 1) return true;
         if (target.PlayerId == killer.PlayerId) return true;
         if (target.GetCustomRole().IsNeutral() && EraseMethod.GetInt() == 0)
@@ -69,7 +67,6 @@ internal class Eraser : RoleBase
 
         if (EraseMethod.GetInt() == 0)
         {
-            if (killer.GetAbilityUseLimit() < 1) return true;
             return killer.CheckDoubleTrigger(target, () =>
             {
                 killer.RpcRemoveAbilityUse();
@@ -80,7 +77,7 @@ internal class Eraser : RoleBase
             });
         }
 
-        return false;
+        return true;
     }
 
     public static bool OnVote(PlayerControl player, PlayerControl target)
@@ -123,13 +120,13 @@ internal class Eraser : RoleBase
 
     public override void AfterMeetingTasks()
     {
-        foreach (byte pc in PlayerToErase.ToArray())
+        foreach (byte pc in PlayerToErase)
         {
             var player = Utils.GetPlayerById(pc);
             if (player == null) continue;
             player.RpcSetCustomRole(player.GetCustomRole().GetErasedRole());
             player.Notify(GetString("LostRoleByEraser"));
-            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} 被擦除了", "Eraser");
+            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} lost their role", "Eraser");
             player.MarkDirtySettings();
         }
 

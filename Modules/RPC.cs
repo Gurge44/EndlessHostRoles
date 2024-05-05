@@ -50,8 +50,9 @@ public enum CustomRPC
     ShowPopUp,
     KillFlash,
     SyncAbilityUseLimit,
+    RemoveSubRole,
 
-    //Roles
+    // Roles
     SetDrawPlayer,
     SyncHeadHunter,
     SyncRabbit,
@@ -123,6 +124,7 @@ public enum CustomRPC
     SetTrackerTarget,
     RpcPassBomb,
     SetAlchemistTimer,
+    SyncPostman,
 
     //SoloKombat
     SyncKBPlayer,
@@ -335,13 +337,26 @@ internal class RPCHandlerPatch
                 var pc = Utils.GetPlayerById(reader.ReadByte());
                 pc.SetAbilityUseLimit(reader.ReadSingle(), rpc: false);
                 break;
+            case CustomRPC.RemoveSubRole:
+                Main.PlayerStates[reader.ReadByte()].RemoveSubRole((CustomRoles)reader.ReadPackedInt32());
+                break;
+            case CustomRPC.SyncPostman:
+            {
+                byte id = reader.ReadByte();
+                byte target = reader.ReadByte();
+                bool isFinished = reader.ReadBoolean();
+                if (Main.PlayerStates[id].Role is not Postman pm) break;
+                pm.Target = target;
+                pm.IsFinished = isFinished;
+                break;
+            }
             case CustomRPC.SetBountyTarget:
             {
                 byte bountyId = reader.ReadByte();
                 byte targetId = reader.ReadByte();
                 (Main.PlayerStates[bountyId].Role as BountyHunter)?.ReceiveRPC(bountyId, targetId);
-            }
                 break;
+            }
             case CustomRPC.SetKillOrSpell:
                 Witch.ReceiveRPC(reader, false);
                 break;

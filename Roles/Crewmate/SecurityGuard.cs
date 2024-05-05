@@ -73,6 +73,11 @@ namespace EHR.Roles.Crewmate
             Guard(pc);
         }
 
+        public override void OnEnterVent(PlayerControl pc, Vent vent)
+        {
+            Guard(pc);
+        }
+
         static void Guard(PlayerControl pc)
         {
             if (BlockSabo.ContainsKey(pc.PlayerId)) return;

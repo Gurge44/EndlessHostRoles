@@ -20,38 +20,6 @@ class ExileControllerWrapUpPatch
         set => antiBlackout_LastExiled = value;
     }
 
-    [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]
-    class BaseExileControllerPatch
-    {
-        public static void Postfix(ExileController __instance)
-        {
-            try
-            {
-                WrapUpPostfix(__instance.exiled);
-            }
-            finally
-            {
-                WrapUpFinalizer(__instance.exiled);
-            }
-        }
-    }
-
-    [HarmonyPatch(typeof(AirshipExileController), nameof(AirshipExileController.WrapUpAndSpawn))]
-    class AirshipExileControllerPatch
-    {
-        public static void Postfix(AirshipExileController __instance)
-        {
-            try
-            {
-                WrapUpPostfix(__instance.exiled);
-            }
-            finally
-            {
-                WrapUpFinalizer(__instance.exiled);
-            }
-        }
-    }
-
     static void WrapUpPostfix(GameData.PlayerInfo exiled)
     {
         if (AntiBlackout.OverrideExiledPlayer)
@@ -125,7 +93,7 @@ class ExileControllerWrapUpPatch
                     break;
             }
 
-            if (Executioner.CheckExileTarget(exiled, DecidedWinner)) DecidedWinner = true;
+            if (Executioner.CheckExileTarget(exiled)) DecidedWinner = true;
             if (Lawyer.CheckExileTarget(exiled /*, DecidedWinner*/)) DecidedWinner = false;
 
             if (CustomWinnerHolder.WinnerTeam != CustomWinner.Terrorist) Main.PlayerStates[exiled.PlayerId].SetDead();
@@ -257,6 +225,38 @@ class ExileControllerWrapUpPatch
         }
 
         _ = new LateTask(() => { ChatManager.SendPreviousMessagesToAll(); }, 3f, log: false);
+    }
+
+    [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]
+    class BaseExileControllerPatch
+    {
+        public static void Postfix(ExileController __instance)
+        {
+            try
+            {
+                WrapUpPostfix(__instance.exiled);
+            }
+            finally
+            {
+                WrapUpFinalizer(__instance.exiled);
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(AirshipExileController), nameof(AirshipExileController.WrapUpAndSpawn))]
+    class AirshipExileControllerPatch
+    {
+        public static void Postfix(AirshipExileController __instance)
+        {
+            try
+            {
+                WrapUpPostfix(__instance.exiled);
+            }
+            finally
+            {
+                WrapUpFinalizer(__instance.exiled);
+            }
+        }
     }
 }
 

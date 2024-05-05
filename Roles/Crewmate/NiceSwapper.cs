@@ -60,6 +60,8 @@ public class NiceSwapper : RoleBase
 
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || pc == null || pc.GetCustomRole() != CustomRoles.NiceSwapper) return false;
 
+        Logger.Info($"{pc.GetNameWithRole()} : {msg} (UI: {isUI})", "NiceSwapper");
+
         int operate;
         msg = msg.ToLower().TrimStart().TrimEnd();
         if (CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id")) operate = 1;
@@ -261,7 +263,7 @@ public class NiceSwapper : RoleBase
     public static void ReceiveRPC(MessageReader reader, PlayerControl pc)
     {
         byte PlayerId = reader.ReadByte();
-        SwapMsg(pc, $"/sw {PlayerId}");
+        SwapMsg(pc, $"/sw {PlayerId}", true);
     }
 
     private static void SwapperOnClick(byte playerId, MeetingHud __instance)

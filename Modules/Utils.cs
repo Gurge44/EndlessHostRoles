@@ -443,26 +443,53 @@ public static class Utils
         return deathReason;
     }
 
-    public static MessageWriter CreateCustomRoleRPC(CustomRPC rpc) => AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)rpc, SendOption.Reliable);
+    public static MessageWriter CreateRPC(CustomRPC rpc) => AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)rpc, SendOption.Reliable);
     public static void EndRPC(MessageWriter writer) => AmongUsClient.Instance.FinishRpcImmediately(writer);
+
+    public static void SendRPC(CustomRPC rpc, params object[] data)
+    {
+        var w = CreateRPC(rpc);
+        foreach (var o in data)
+        {
+            switch (o)
+            {
+                case byte b:
+                    w.Write(b);
+                    break;
+                case int i:
+                    w.WritePacked(i);
+                    break;
+                case float f:
+                    w.Write(f);
+                    break;
+                case string s:
+                    w.Write(s);
+                    break;
+                case bool b:
+                    w.Write(b);
+                    break;
+                case Vector2 v:
+                    w.Write(v.x);
+                    w.Write(v.y);
+                    break;
+                case Vector3 v2:
+                    w.Write(v2.x);
+                    w.Write(v2.y);
+                    w.Write(v2.z);
+                    break;
+                case byte[] b:
+                    w.WriteBytesAndSize(b);
+                    break;
+            }
+        }
+
+        EndRPC(w);
+    }
 
     public static void IncreaseAbilityUseLimitOnKill(PlayerControl killer)
     {
         if (Main.PlayerStates[killer.PlayerId].Role is Mafioso { IsEnable: true } mo) mo.OnMurder(killer, null);
-        var add = killer.GetCustomRole() switch
-        {
-            CustomRoles.Hacker => Hacker.HackerAbilityUseGainWithEachKill.GetFloat(),
-            CustomRoles.Camouflager => Camouflager.CamoAbilityUseGainWithEachKill.GetFloat(),
-            CustomRoles.Councillor => Councillor.CouncillorAbilityUseGainWithEachKill.GetFloat(),
-            CustomRoles.Dazzler => Dazzler.DazzlerAbilityUseGainWithEachKill.GetFloat(),
-            CustomRoles.Disperser => Disperser.DisperserAbilityUseGainWithEachKill.GetFloat(),
-            CustomRoles.EvilDiviner => EvilDiviner.EDAbilityUseGainWithEachKill.GetFloat(),
-            CustomRoles.Swooper => Swooper.SwooperAbilityUseGainWithEachKill.GetFloat(),
-            CustomRoles.Hangman => Hangman.HangmanAbilityUseGainWithEachKill.GetFloat(),
-            CustomRoles.Twister => Twister.TwisterAbilityUseGainWithEachKill.GetFloat(),
-            CustomRoles.Kamikaze => Kamikaze.KamikazeAbilityUseGainWithEachKill.GetFloat(),
-            _ => float.MaxValue,
-        };
+        var add = GetSettingNameAndValueForRole(killer.GetCustomRole(), "AbilityUseGainWithEachKill");
         killer.RpcIncreaseAbilityUseLimitBy(add);
     }
 

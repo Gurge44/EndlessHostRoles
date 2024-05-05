@@ -430,7 +430,7 @@ class CheckForEndVotingPatch
             DecidedWinner = true;
         }
 
-        if (Executioner.CheckExileTarget(exiledPlayer, DecidedWinner, true))
+        if (Executioner.CheckExileTarget(exiledPlayer, true))
         {
             name = string.Format(GetString("ExiledExeTarget"), realName, coloredRole);
             DecidedWinner = true;

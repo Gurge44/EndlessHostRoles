@@ -243,6 +243,8 @@ public class PlayerState(byte playerId)
     {
         if (SubRoles.Contains(role))
             SubRoles.Remove(role);
+
+        Utils.SendRPC(CustomRPC.RemoveSubRole, PlayerId, (int)role);
     }
 
     public void SetDead()

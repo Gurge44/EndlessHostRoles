@@ -83,7 +83,7 @@ namespace EHR.Roles.Neutral
 
         void SendRPC()
         {
-            var writer = CreateCustomRoleRPC(CustomRPC.SyncSoulHunter);
+            var writer = CreateRPC(CustomRPC.SyncSoulHunter);
             writer.Write(SoulHunterId);
             writer.Write(Souls);
             writer.Write(CurrentTarget.ID);

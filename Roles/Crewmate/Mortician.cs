@@ -79,7 +79,7 @@ public class Mortician : RoleBase
         }
 
         lastPlayerName.TryAdd(target.PlayerId, minName);
-        foreach (byte pc in playerIdList.ToArray())
+        foreach (byte pc in playerIdList)
         {
             var player = Utils.GetPlayerById(pc);
             if (player == null || !player.IsAlive()) continue;

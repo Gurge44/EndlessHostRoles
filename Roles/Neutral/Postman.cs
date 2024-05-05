@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -15,8 +16,9 @@ public class Postman : RoleBase
     public static OptionItem CanVent;
     private static OptionItem HasImpostorVision;
     private static OptionItem DieWhenTargetDies;
-
     public bool IsFinished;
+
+    private byte PostmanId;
     public byte Target;
     private List<byte> wereTargets = [];
 
@@ -43,6 +45,7 @@ public class Postman : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        PostmanId = playerId;
         _ = new LateTask(SetNewTarget, 8f, "Set Postman First Target");
 
         Target = byte.MaxValue;
@@ -98,12 +101,16 @@ public class Postman : RoleBase
         {
             IsFinished = true;
             Target = byte.MaxValue;
+            SendRPC();
             return;
         }
 
         Target = tempTarget;
         wereTargets.Add(Target);
+        SendRPC();
     }
+
+    void SendRPC() => Utils.SendRPC(CustomRPC.SyncPostman, PostmanId, Target, IsFinished);
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {

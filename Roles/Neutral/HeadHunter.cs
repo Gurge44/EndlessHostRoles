@@ -70,7 +70,7 @@ public class HeadHunter : RoleBase
 
     void SendRPC()
     {
-        var writer = Utils.CreateCustomRoleRPC(CustomRPC.SyncHeadHunter);
+        var writer = Utils.CreateRPC(CustomRPC.SyncHeadHunter);
         writer.Write(HeadHunterId);
         writer.Write(Targets.Count);
         foreach (var target in Targets.ToArray()) writer.Write(target);
