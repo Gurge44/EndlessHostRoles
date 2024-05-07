@@ -101,7 +101,7 @@ public class Romantic : RoleBase
         if (Math.Abs(beforeCD - Main.AllPlayerKillCooldown[RomanticId]) > 0.5f) RomanticPC?.SyncSettings();
     }
 
-    public static bool KnowRole(PlayerControl player, PlayerControl target)
+    public override bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (!KnowTargetRole.GetBool()) return false;
         return (player.Is(CustomRoles.Romantic) && PartnerId == target.PlayerId) || (BetTargetKnowRomantic.GetBool() && target.Is(CustomRoles.Romantic) && player.PlayerId == PartnerId);
@@ -180,7 +180,7 @@ public class Romantic : RoleBase
             : string.Empty;
     }
 
-    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false) => seer.PlayerId != RomanticId
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false) => seer.PlayerId != RomanticId || seer.PlayerId != target.PlayerId
         ? string.Empty
         : Utils.ColorString(!HasPickedPartner ? Color.white : Utils.GetRoleColor(CustomRoles.Romantic), $"{(!HasPickedPartner ? "PICK PARTNER" : "♥")}");
 

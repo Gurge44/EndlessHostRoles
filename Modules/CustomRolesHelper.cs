@@ -250,12 +250,15 @@ internal static class CustomRolesHelper
             CustomRoles.Guardian => CustomRoles.Crewmate,
             CustomRoles.Enigma => CustomRoles.Crewmate,
             CustomRoles.Addict => CustomRoles.Engineer,
-            CustomRoles.Alchemist => CustomRoles.Engineer, // Needs to vent to use invisibility potion
+            CustomRoles.Alchemist => CustomRoles.Engineer, // Needs to vent to use the invisibility potion
             CustomRoles.Chameleon => CustomRoles.Engineer,
             CustomRoles.Lurker => CustomRoles.Impostor,
             CustomRoles.Doomsayer => CustomRoles.Crewmate,
             CustomRoles.Godfather => CustomRoles.Impostor,
             CustomRoles.Silencer => Silencer.SilenceMode.GetValue() == 1 ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
+
+            // Hide And Seek
+            CustomRoles.Jumper => CustomRoles.Engineer,
 
             _ => role.IsImpostor() ? CustomRoles.Impostor : CustomRoles.Crewmate,
         };
@@ -296,7 +299,6 @@ internal static class CustomRolesHelper
             CustomRoles.Seeker => RoleTypes.Impostor,
             CustomRoles.Fox => RoleTypes.Crewmate,
             CustomRoles.Troll => RoleTypes.Crewmate,
-            CustomRoles.Jumper => RoleTypes.Engineer,
             CustomRoles.Detector => RoleTypes.Crewmate,
             CustomRoles.Jet => RoleTypes.Crewmate,
             CustomRoles.Dasher => RoleTypes.Impostor,

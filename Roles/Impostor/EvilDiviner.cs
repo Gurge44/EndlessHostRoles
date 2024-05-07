@@ -16,12 +16,14 @@ namespace EHR.Roles.Impostor
         private static OptionItem DivinationMaxCount;
         public static OptionItem EDAbilityUseGainWithEachKill;
 
-        public List<byte> DivinationTarget = [];
-        private bool IsRitualist;
-
         private bool CanVent;
+
+        public List<byte> DivinationTarget = [];
         private bool HasImpVision;
+        private bool IsRitualist;
         private float KCD;
+
+        public override bool IsEnable => playerIdList.Count > 0;
 
         public static void SetupCustomOption()
         {
@@ -92,8 +94,6 @@ namespace EHR.Roles.Impostor
             DivinationTarget.Add(targetId);
         }
 
-        public override bool IsEnable => playerIdList.Count > 0;
-
         public override void SetKillCooldown(byte id)
         {
             Main.AllPlayerKillCooldown[id] = KCD;
@@ -120,7 +120,7 @@ namespace EHR.Roles.Impostor
             }
         }
 
-        public static bool IsShowTargetRole(PlayerControl seer, PlayerControl target)
+        public override bool KnowRole(PlayerControl seer, PlayerControl target)
         {
             return Main.PlayerStates[seer.PlayerId].Role is EvilDiviner ed && ed.DivinationTarget.Contains(target.PlayerId);
         }

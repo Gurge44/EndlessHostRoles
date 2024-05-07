@@ -318,7 +318,7 @@ namespace EHR.Roles.Crewmate
             return !any;
         }
 
-        public static bool KnowRole(PlayerControl seer, PlayerControl target)
+        public override bool KnowRole(PlayerControl seer, PlayerControl target)
         {
             return Main.PlayerStates[seer.PlayerId].Role is Adventurer { IsEnable: true } av && av.RevealedPlayers.Contains(target.PlayerId);
         }

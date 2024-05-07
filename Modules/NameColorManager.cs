@@ -214,7 +214,7 @@ public static class NameColorManager
                || (target.Is(CustomRoles.Gravestone) && Main.PlayerStates[target.Data.PlayerId].IsDead)
                || (target.Is(CustomRoles.Mayor) && Mayor.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished)
                || (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished)
-               || EvilDiviner.IsShowTargetRole(seer, target);
+               || Main.PlayerStates.Values.Any(x => x.Role.KnowRole(seer, target));
     }
 
     public static bool TryGetData(PlayerControl seer, PlayerControl target, out string colorCode)

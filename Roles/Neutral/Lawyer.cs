@@ -49,6 +49,8 @@ public class Lawyer : RoleBase
         CustomRoles.Doctor,
     ];
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Lawyer);
@@ -96,8 +98,6 @@ public class Lawyer : RoleBase
             Logger.Error(ex.ToString(), "Lawyer.Add");
         }
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SendRPC(byte lawyerId, byte targetId = 0x73, string Progress = "")
     {
@@ -148,7 +148,7 @@ public class Lawyer : RoleBase
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: lawyer);
     }
 
-    public static bool KnowRole(PlayerControl player, PlayerControl target)
+    public override bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (!KnowTargetRole.GetBool()) return false;
         return player.Is(CustomRoles.Lawyer) && Target.TryGetValue(player.PlayerId, out var tar) && tar == target.PlayerId;

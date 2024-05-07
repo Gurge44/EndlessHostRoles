@@ -348,7 +348,7 @@ namespace EHR.Roles.Neutral
             Utils.GetPlayerById(BargainerId).ResetKillCooldown();
         }
 
-        public static bool KnowRole(PlayerControl seer, PlayerControl target)
+        public override bool KnowRole(PlayerControl seer, PlayerControl target)
         {
             return Main.PlayerStates[seer.PlayerId].Role is Bargainer bg && bg.ActiveItems.Any(x => x.Target == target.PlayerId);
         }

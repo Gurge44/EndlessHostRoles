@@ -179,17 +179,12 @@ class CheckForEndVotingPatch
                     }
                 }
 
-                //隐藏占卜师的票
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Divinator) && Divinator.HideVote.GetBool()) continue;
-                //隐藏抹除者的票
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Eraser) && Eraser.HideVote.GetBool()) continue;
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.NiceEraser) && NiceEraser.HideVote.GetBool()) continue;
-
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Tracker) && Tracker.HideVote.GetBool()) continue;
-
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Oracle) && Oracle.HideVote.GetBool()) continue;
 
-                //主动叛变模式下自票无效
                 if (ps.TargetPlayerId == ps.VotedFor && Options.MadmateSpawnMode.GetInt() == 2) continue;
 
                 statesList.Add(new()
@@ -198,7 +193,7 @@ class CheckForEndVotingPatch
                     VotedForId = ps.VotedFor
                 });
 
-                if (CheckRole(ps.TargetPlayerId, CustomRoles.Mayor) && !Mayor.MayorHideVote.GetBool()) //Mayorの投票数
+                if (CheckRole(ps.TargetPlayerId, CustomRoles.Mayor) && !Mayor.MayorHideVote.GetBool())
                 {
                     for (var i2 = 0; i2 < Mayor.MayorAdditionalVote.GetFloat(); i2++)
                     {
@@ -210,7 +205,7 @@ class CheckForEndVotingPatch
                     }
                 }
 
-                if (CheckRole(ps.TargetPlayerId, CustomRoles.Vindicator) && !Options.VindicatorHideVote.GetBool()) //Vindicator
+                if (CheckRole(ps.TargetPlayerId, CustomRoles.Vindicator) && !Options.VindicatorHideVote.GetBool())
                 {
                     for (var i2 = 0; i2 < Options.VindicatorAdditionalVote.GetFloat(); i2++)
                     {
@@ -812,17 +807,7 @@ class MeetingHudStartPatch
                 (pc.Is(CustomRoles.Marshall) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && pc.GetTaskState().IsTaskFinished) ||
                 (Main.PlayerStates[pc.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
                 CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId) && Options.CTAPlayersCanSeeEachOthersRoles.GetBool() ||
-                Bargainer.KnowRole(PlayerControl.LocalPlayer, pc) ||
-                Adventurer.KnowRole(PlayerControl.LocalPlayer, pc) ||
-                Totocalcio.KnowRole(PlayerControl.LocalPlayer, pc) ||
-                Romantic.KnowRole(PlayerControl.LocalPlayer, pc) ||
-                EvilDiviner.IsShowTargetRole(PlayerControl.LocalPlayer, pc) ||
-                Lawyer.KnowRole(PlayerControl.LocalPlayer, pc) ||
-                Executioner.KnowRole(PlayerControl.LocalPlayer, pc) ||
-                Succubus.KnowRole(PlayerControl.LocalPlayer, pc) ||
-                Necromancer.KnowRole(PlayerControl.LocalPlayer, pc) ||
-                Amnesiac.KnowRole(PlayerControl.LocalPlayer, pc) ||
-                Virus.KnowRole(PlayerControl.LocalPlayer, pc) ||
+                Main.PlayerStates.Values.Any(x => x.Role.KnowRole(PlayerControl.LocalPlayer, pc)) ||
                 Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == pc.PlayerId) ||
                 PlayerControl.LocalPlayer.IsRevealedPlayer(pc) ||
                 PlayerControl.LocalPlayer.Is(CustomRoles.God) ||

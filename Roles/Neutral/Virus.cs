@@ -152,7 +152,7 @@ namespace EHR.Roles.Neutral
             InfectedPlayer.Clear();
         }
 
-        public static bool KnowRole(PlayerControl player, PlayerControl target)
+        public override bool KnowRole(PlayerControl player, PlayerControl target)
         {
             if (player.Is(CustomRoles.Contagious) && target.Is(CustomRoles.Virus)) return true;
             if (KnowTargetRole.GetBool() && player.Is(CustomRoles.Virus) && target.Is(CustomRoles.Contagious)) return true;

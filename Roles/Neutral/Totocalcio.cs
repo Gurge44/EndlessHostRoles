@@ -97,7 +97,7 @@ public class Totocalcio : RoleBase
         Main.AllPlayerKillCooldown[id] = cd;
     }
 
-    public static bool KnowRole(PlayerControl player, PlayerControl target)
+    public override bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (!KnowTargetRole.GetBool()) return false;
         return Main.PlayerStates[player.PlayerId].Role is Totocalcio { IsEnable: true } tc && tc.BetPlayer == target.PlayerId;

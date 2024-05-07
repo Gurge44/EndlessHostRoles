@@ -1006,6 +1006,8 @@ class ReportDeadBodyPatch
         NotifyRoles(isForMeeting: true, NoCache: true, CamouflageIsForMeeting: true, GuesserIsForMeeting: true);
 
         _ = new LateTask(SyncAllSettings, 3f, "SyncAllSettings on meeting start");
+
+        _ = new LateTask(() => Main.ProcessShapeshifts = false, 5f, log: false);
     }
 }
 
@@ -1621,7 +1623,7 @@ class PlayerStartPatch
     {
         var roleText = Object.Instantiate(__instance.cosmetics.nameText, __instance.cosmetics.nameText.transform, true);
         roleText.transform.localPosition = new(0f, 0.2f, 0f);
-        roleText.fontSize -= 1.2f;
+        roleText.fontSize -= 0.2f;
         roleText.text = "RoleText";
         roleText.gameObject.name = "RoleText";
         roleText.enabled = false;

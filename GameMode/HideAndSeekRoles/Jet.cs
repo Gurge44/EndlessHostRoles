@@ -79,12 +79,13 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public override void OnPet(PlayerControl pc)
         {
-            if (pc.HasAbilityCD() || DashStatus.IsDashing) return;
+            if (pc.HasAbilityCD() || DashStatus.IsDashing || pc.GetAbilityUseLimit() < 1f) return;
 
             DashStatus.IsDashing = true;
             DashStatus.DashEndTime = Utils.TimeStamp + DashStatus.Duration;
             pc.AddAbilityCD(DashStatus.Cooldown + DashStatus.Duration);
             pc.MarkDirtySettings();
+            pc.RpcRemoveAbilityUse();
         }
 
         public override void OnFixedUpdate(PlayerControl pc)

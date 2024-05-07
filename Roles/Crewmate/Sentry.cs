@@ -160,7 +160,9 @@ namespace EHR.Roles.Impostor
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool h = false, bool m = false)
         {
-            if (Main.PlayerStates[seer.PlayerId].Role is Sentry s && s.MonitoredRoom != null && seer.PlayerId == target.PlayerId)
+            if (seer.PlayerId != target.PlayerId) return string.Empty;
+
+            if (Main.PlayerStates[seer.PlayerId].Role is Sentry s && s.MonitoredRoom != null)
                 return string.Format(Translator.GetString("Sentry.Suffix.Self"), Translator.GetString($"{s.MonitoredRoom.RoomId}"));
 
             if (!PlayersKnowAboutCamera.GetBool()) return string.Empty;
@@ -194,6 +196,11 @@ namespace EHR.Roles.Impostor
                     LastNotified.Remove(pc.PlayerId);
                     break;
             }
+        }
+
+        public override void AfterMeetingTasks()
+        {
+            DeadBodiesInRoom.Clear();
         }
     }
 }

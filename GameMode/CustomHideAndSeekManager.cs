@@ -20,6 +20,7 @@ namespace EHR
         private static OptionItem MinNeutrals;
         private static OptionItem MaxNeutrals;
         private static OptionItem DangerMeter;
+        private static OptionItem PlayersSeeRoles;
 
         public static Dictionary<Team, Dictionary<CustomRoles, int>> HideAndSeekRoles = [];
         public static Dictionary<byte, (IHideAndSeekRole Interface, CustomRoles Role)> PlayerRoles = [];
@@ -46,6 +47,10 @@ namespace EHR
                 .SetColor(color);
 
             DangerMeter = BooleanOptionItem.Create(id + 3, "HNS.DangerMeter", true, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.HideAndSeek)
+                .SetColor(color);
+
+            PlayersSeeRoles = BooleanOptionItem.Create(id + 4, "HNS.PlayersSeeRoles", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(color);
         }
@@ -139,18 +144,6 @@ namespace EHR
                 .GroupBy(x => x.First, x => x.Second)
                 .ToDictionary(x => x.Key, x => x.ToArray());
 
-            // Log all members of playerTeams
-            foreach ((Team team, PlayerControl[] pcs) in playerTeams)
-            {
-                Logger.Warn($"Team: {team}", "debug");
-                foreach (PlayerControl pc in pcs)
-                {
-                    Logger.Warn($"Player: {pc.GetRealName()}", "debug");
-                }
-            }
-
-            Logger.Info("---------------------------------------", "debug");
-
             foreach ((Team team, Dictionary<CustomRoles, int> roleCounts) in HideAndSeekRoles)
             {
                 try
@@ -161,8 +154,6 @@ namespace EHR
                 {
                     continue;
                 }
-
-                Logger.Warn($"Team: {team}", "debug");
 
                 foreach ((CustomRoles role, int count) in roleCounts)
                 {
@@ -178,8 +169,6 @@ namespace EHR
                             playerTeams[team] = playerTeams[team][1..];
                             memberNum[team]--;
 
-                            Logger.Warn($"{role} => {pc.GetRealName()}", "debug");
-
                             if (memberNum[team] <= 0) break;
                         }
                         catch (Exception e)
@@ -188,8 +177,6 @@ namespace EHR
                             Utils.ThrowException(e);
                         }
                     }
-
-                    Logger.Warn($"Role: {role}, {count}", "debug");
 
                     if (playerTeams[team].Length == 0 || memberNum[team] <= 0) break;
                 }
@@ -217,18 +204,21 @@ namespace EHR
         public static void ApplyGameOptions(IGameOptions opt, PlayerControl pc)
         {
             var role = PlayerRoles.GetValueOrDefault(pc.PlayerId);
-            Main.AllPlayerSpeed[pc.PlayerId] = role.Interface.Team == Team.Impostor && IsBlindTime ? Main.MinSpeed : role.Interface.RoleSpeed;
-            opt.SetFloat(FloatOptionNames.CrewLightMod, role.Interface.RoleVision);
-            opt.SetFloat(FloatOptionNames.ImpostorLightMod, role.Interface.RoleVision);
+            bool isBlind = role.Interface.Team == Team.Impostor && IsBlindTime;
+            Main.AllPlayerSpeed[pc.PlayerId] = isBlind ? Main.MinSpeed : role.Interface.RoleSpeed;
+            opt.SetFloat(FloatOptionNames.CrewLightMod, isBlind ? 0f : role.Interface.RoleVision);
+            opt.SetFloat(FloatOptionNames.ImpostorLightMod, isBlind ? 0f : role.Interface.RoleVision);
             opt.SetFloat(FloatOptionNames.PlayerSpeedMod, Main.AllPlayerSpeed[pc.PlayerId]);
         }
 
         public static bool KnowTargetRoleColor(PlayerControl seer, PlayerControl target, ref string color)
         {
+            if (seer.PlayerId == target.PlayerId) return true;
+
             var targetRole = PlayerRoles[target.PlayerId];
             var seerRole = PlayerRoles[seer.PlayerId];
 
-            if (targetRole.Interface.Team == Team.Impostor && (targetRole.Role != CustomRoles.Agent || seerRole.Interface.Team == Team.Impostor))
+            if (targetRole.Interface.Team == Team.Impostor && (PlayersSeeRoles.GetBool() || targetRole.Role != CustomRoles.Agent || seerRole.Interface.Team == Team.Impostor))
             {
                 color = Main.RoleColors[CustomRoles.Seeker];
                 return true;
@@ -245,7 +235,7 @@ namespace EHR
 
         public static bool IsRoleTextEnabled(PlayerControl seer, PlayerControl target)
         {
-            return false;
+            return seer.PlayerId == target.PlayerId;
         }
 
         public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool isHUD = false)
@@ -263,18 +253,18 @@ namespace EHR
             var remainingMinutes = TimeLeft / 60;
             var remainingSeconds = $"{(TimeLeft % 60) + 1}";
             if (remainingSeconds.Length == 1) remainingSeconds = $"0{remainingSeconds}";
-            return dangerMeter + "\n" + (isHUD ? $"{remainingMinutes}:{remainingSeconds}" : $"{string.Format(Translator.GetString("MinutesLeft"), $"{remainingMinutes}-{remainingMinutes}")}");
+            return dangerMeter + "\n" + (isHUD ? $"{remainingMinutes}:{remainingSeconds}" : $"{string.Format(Translator.GetString("MinutesLeft"), $"{remainingMinutes}-{remainingMinutes + 1}")}");
         }
 
         private static string GetDangerMeter(PlayerControl seer)
         {
             return Danger.TryGetValue(seer.PlayerId, out int danger)
                 ? danger <= 5
-                    ? $"\n<size=80%><color={GetColorFromDanger()}>{new('\u25a0', 5 - danger)}{new('\u25a1', danger)}</size></color>"
-                    : $"\n<size=80%><color=#ffffff>{new('\u25a1', 5)}</size></color>"
+                    ? $"\n<color={GetColorFromDanger()}>{new('\u25a0', 5 - danger)}{new('\u25a1', danger)}</color>"
+                    : $"\n<color=#ffffff>{new('\u25a1', 5)}</color>"
                 : string.Empty;
 
-            string GetColorFromDanger() // 1: Highest, 5: Lowest
+            string GetColorFromDanger() // 0: Highest, 4: Lowest
             {
                 return danger switch
                 {
@@ -307,21 +297,21 @@ namespace EHR
                 return true;
             }
 
-            // If time is up or all hiders have finished their tasks, the game is over and hiders win
-            if (TimeLeft <= 0 || alivePlayers.Where(x => PlayerRoles[x.PlayerId].Interface.Team == Team.Crewmate).Select(x => x.GetTaskState()).All(x => x.IsTaskFinished))
-            {
-                reason = GameOverReason.HumansByTask;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Hider);
-                CustomWinnerHolder.WinnerIds.UnionWith(PlayerRoles.Where(x => x.Value.Interface.Team == Team.Crewmate).Select(x => x.Key));
-                AddFoxesToWinners();
-                return true;
-            }
-
-            // If there are no hiders left, the game is over and only seekers win
+            // If there are no crew roles left, the game is over and only impostors win
             if (alivePlayers.All(x => PlayerRoles[x.PlayerId].Interface.Team != Team.Crewmate))
             {
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Seeker);
                 CustomWinnerHolder.WinnerIds.UnionWith(PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).Select(x => x.Key));
+                AddFoxesToWinners();
+                return true;
+            }
+
+            // If time is up or all crewmates have finished their tasks, the game is over and crewmates win
+            if (TimeLeft <= 0 || (alivePlayers.Any(x => PlayerRoles[x.PlayerId].Interface.Team == Team.Crewmate) && alivePlayers.Where(x => PlayerRoles[x.PlayerId].Interface.Team == Team.Crewmate).All(x => x.GetTaskState().IsTaskFinished)))
+            {
+                reason = GameOverReason.HumansByTask;
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Hider);
+                CustomWinnerHolder.WinnerIds.UnionWith(PlayerRoles.Where(x => x.Value.Interface.Team == Team.Crewmate).Select(x => x.Key));
                 AddFoxesToWinners();
                 return true;
             }
@@ -363,7 +353,7 @@ namespace EHR
 
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null || !killer.Is(CustomRoles.Seeker) || target.Is(CustomRoles.Seeker)) return;
+            if (killer == null || target == null || PlayerRoles[killer.PlayerId].Interface.Team != Team.Impostor || PlayerRoles[target.PlayerId].Interface.Team == Team.Impostor) return;
 
             killer.Kill(target);
 

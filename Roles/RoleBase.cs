@@ -162,5 +162,10 @@ namespace EHR
         {
             return string.Empty;
         }
+
+        public virtual bool KnowRole(PlayerControl seer, PlayerControl target)
+        {
+            return false;
+        }
     }
 }

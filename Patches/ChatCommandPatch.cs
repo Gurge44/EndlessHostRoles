@@ -277,7 +277,7 @@ internal class ChatCommands
                     Utils.SendMessage(GetString("PlayerAddedToModList"), localPlayerId);
                     break;
 
-                case "/removemod":
+                case "/deletemod":
                     canceled = true;
                     if (args.Length < 2 || !byte.TryParse(args[1], out var remModId)) break;
                     var remModPc = Utils.GetPlayerById(remModId);
