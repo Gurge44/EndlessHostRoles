@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using EHR.Modules;
 using Hazel;
 using UnityEngine;
 
@@ -88,7 +87,6 @@ namespace EHR.Roles.Crewmate
             {
                 TargetArrow.RemoveAllTarget(id);
                 LocateArrow.RemoveAllTarget(id);
-                Utils.SendRPC(CustomRPC.SetBloodhoundArrow, id, 1);
             }
 
             BloodhoundTargets.Clear();
@@ -105,7 +103,6 @@ namespace EHR.Roles.Crewmate
 
                 var pos = target.Pos();
                 LocateArrow.Add(id, pos);
-                Utils.SendRPC(CustomRPC.SetBloodhoundArrow, id, 2, pos);
             }
         }
 
@@ -120,13 +117,11 @@ namespace EHR.Roles.Crewmate
 
                 var pos = target.Object.Pos();
                 LocateArrow.Remove(pc.PlayerId, pos);
-                Utils.SendRPC(CustomRPC.SetBloodhoundArrow, pc.PlayerId, 3, pos);
 
                 if (pc.GetAbilityUseLimit() >= 1)
                 {
                     BloodhoundTargets.Add(killer.PlayerId);
                     TargetArrow.Add(pc.PlayerId, killer.PlayerId);
-                    Utils.SendRPC(CustomRPC.SetBloodhoundArrow, pc.PlayerId, 4, killer.PlayerId);
 
                     pc.Notify(GetString("BloodhoundTrackRecorded"));
                     pc.RpcRemoveAbilityUse();

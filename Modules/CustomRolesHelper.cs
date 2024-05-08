@@ -82,7 +82,7 @@ internal static class CustomRolesHelper
             CustomRoles.Lawyer => CustomRoles.Crewmate,
             CustomRoles.NiceSwapper => CustomRoles.Crewmate,
             CustomRoles.Ignitor => CustomRoles.Crewmate,
-            CustomRoles.Jailor => CustomRoles.Impostor,
+            CustomRoles.Jailor => UsePets && Jailor.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
             CustomRoles.Vampire => CustomRoles.Impostor,
             CustomRoles.BountyHunter => CustomRoles.Impostor,
             CustomRoles.Trickster => CustomRoles.Impostor,
@@ -258,9 +258,20 @@ internal static class CustomRolesHelper
             CustomRoles.Silencer => Silencer.SilenceMode.GetValue() == 1 ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
 
             // Hide And Seek
+            CustomRoles.Hider => CustomRoles.Crewmate,
+            CustomRoles.Seeker => CustomRoles.Impostor,
+            CustomRoles.Fox => CustomRoles.Crewmate,
+            CustomRoles.Troll => CustomRoles.Crewmate,
             CustomRoles.Jumper => CustomRoles.Engineer,
+            CustomRoles.Detector => CustomRoles.Crewmate,
+            CustomRoles.Jet => CustomRoles.Crewmate,
+            CustomRoles.Dasher => CustomRoles.Impostor,
+            CustomRoles.Locator => CustomRoles.Impostor,
+            CustomRoles.Venter => CustomRoles.Impostor,
+            CustomRoles.Agent => CustomRoles.Impostor,
+            CustomRoles.Taskinator => CustomRoles.Crewmate,
 
-            _ => role.IsImpostor() ? CustomRoles.Impostor : CustomRoles.Crewmate,
+            _ => role.IsImpostor() ? CustomRoles.Impostor : CustomRoles.Crewmate
         };
     }
 
@@ -294,18 +305,6 @@ internal static class CustomRolesHelper
             CustomRoles.Tasker => RoleTypes.Crewmate,
             // Hot Potato
             CustomRoles.Potato => RoleTypes.Crewmate,
-            // Hide And Seek
-            CustomRoles.Hider => RoleTypes.Crewmate,
-            CustomRoles.Seeker => RoleTypes.Impostor,
-            CustomRoles.Fox => RoleTypes.Crewmate,
-            CustomRoles.Troll => RoleTypes.Crewmate,
-            CustomRoles.Detector => RoleTypes.Crewmate,
-            CustomRoles.Jet => RoleTypes.Crewmate,
-            CustomRoles.Dasher => RoleTypes.Impostor,
-            CustomRoles.Locator => RoleTypes.Impostor,
-            CustomRoles.Venter => RoleTypes.Impostor,
-            CustomRoles.Agent => RoleTypes.Impostor,
-            CustomRoles.Taskinator => RoleTypes.Crewmate,
             // Standard
             CustomRoles.Executioner => Executioner.CRoleChangeRoles[Executioner.ChangeRolesAfterTargetKilled.GetValue()].GetDYRole(),
             CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,

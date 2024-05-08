@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Patches;
 using EHR.Roles.AddOns.Common;
 using EHR.Roles.AddOns.Crewmate;
 using EHR.Roles.AddOns.Impostor;
@@ -50,6 +51,37 @@ internal class ChangeRoleSettings
             Main.AllPlayerKillCooldown = [];
             Main.AllPlayerSpeed = [];
             Main.KillTimers = [];
+            Main.SleuthMsgs = [];
+            Main.CyberStarDead = [];
+            Main.KilledDiseased = [];
+            Main.KilledAntidote = [];
+            Main.BaitAlive = [];
+            Main.DontCancelVoteList = [];
+            Main.LastEnteredVent = [];
+            Main.LastEnteredVentLocation = [];
+            Main.AfterMeetingDeathPlayers = [];
+            Main.ResetCamPlayerList = [];
+            Main.ClientIdList = [];
+            Main.CheckShapeshift = [];
+            Main.ShapeshiftTarget = [];
+            Main.ShieldPlayer = Options.ShieldPersonDiedFirst.GetBool() ? Main.FirstDied : byte.MaxValue;
+            Main.FirstDied = byte.MaxValue;
+            Main.MadmateNum = 0;
+
+            Mayor.MayorUsedButtonCount = [];
+            Paranoia.ParaUsedButtonCount = [];
+            Mario.MarioVentCount = [];
+            Cleaner.CleanerBodies = [];
+            Virus.InfectedBodies = [];
+            Workaholic.WorkaholicAlive = [];
+            Virus.VirusNotify = [];
+            Veteran.VeteranInProtect = [];
+            Witness.AllKillers = [];
+            Grenadier.GrenadierBlinding = [];
+            SecurityGuard.BlockSabo = [];
+            Ventguard.BlockedVents = [];
+            Grenadier.MadGrenadierBlinding = [];
+            OverKiller.OverDeadPlayerList = [];
             Warlock.WarlockTimer = [];
             Arsonist.IsDoused = [];
             Revolutionist.IsDraw = [];
@@ -67,45 +99,13 @@ internal class ChangeRoleSettings
             Warlock.IsCurseAndKill = [];
             Warlock.IsCursed = false;
             Detective.DetectiveNotify = [];
-            Main.SleuthMsgs = [];
-            Crusader.ForCrusade = [];
-            Main.CyberStarDead = [];
-            Main.KilledDiseased = [];
-            Main.KilledAntidote = [];
-            Workaholic.WorkaholicAlive = [];
-            Main.BaitAlive = [];
-            Cleaner.CleanerBodies = [];
-            Virus.InfectedBodies = [];
-            Virus.VirusNotify = [];
-            Main.DontCancelVoteList = [];
-
-            Main.LastEnteredVent = [];
-            Main.LastEnteredVentLocation = [];
-
-            Main.AfterMeetingDeathPlayers = [];
-            Main.ResetCamPlayerList = [];
-            Main.ClientIdList = [];
-
-            Main.CheckShapeshift = [];
-            Main.ShapeshiftTarget = [];
-            Mayor.MayorUsedButtonCount = [];
-            Paranoia.ParaUsedButtonCount = [];
-            Mario.MarioVentCount = [];
-            Veteran.VeteranInProtect = [];
-            Witness.AllKillers = [];
-            Grenadier.GrenadierBlinding = [];
-            SecurityGuard.BlockSabo = [];
-            Ventguard.BlockedVents = [];
-            Grenadier.MadGrenadierBlinding = [];
-            OverKiller.OverDeadPlayerList = [];
             Provocateur.Provoked = [];
-            Main.ShieldPlayer = Options.ShieldPersonDiedFirst.GetBool() ? Main.FirstDied : byte.MaxValue;
-            Main.FirstDied = byte.MaxValue;
-            Main.MadmateNum = 0;
+            Crusader.ForCrusade = [];
             Godfather.GodfatherTarget = byte.MaxValue;
             ChatManager.ResetHistory();
 
             ReportDeadBodyPatch.CanReport = [];
+            SabotageMapPatch.TimerTexts = [];
 
             Options.UsedButtonCount = 0;
 
@@ -213,6 +213,7 @@ internal class ChangeRoleSettings
             DoorsReset.Initialize();
             GhostRolesManager.Initialize();
             CustomTeamManager.LoadCustomTeams();
+            RoleBlockManager.Reset();
 
             IRandom.SetInstanceById(Options.RoleAssigningAlgorithm.GetValue());
 

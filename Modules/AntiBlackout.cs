@@ -9,6 +9,9 @@ namespace EHR;
 
 public static class AntiBlackout
 {
+    private static Dictionary<byte, (bool isDead, bool Disconnected)> IsDeadCache = [];
+    private static readonly LogHandler Logger = EHR.Logger.Handler("AntiBlackout");
+
     ///<summary>
     ///Whether to override the ejection process
     ///</summary>
@@ -44,9 +47,7 @@ public static class AntiBlackout
         }
     }
 
-    public static bool IsCached { get; private set; }
-    private static Dictionary<byte, (bool isDead, bool Disconnected)> isDeadCache = [];
-    private static readonly LogHandler Logger = EHR.Logger.Handler("AntiBlackout");
+    private static bool IsCached { get; set; }
 
     public static void SetIsDead(bool doSend = true, [CallerMemberName] string callerMethodName = "")
     {
@@ -57,11 +58,11 @@ public static class AntiBlackout
             return;
         }
 
-        isDeadCache.Clear();
+        IsDeadCache.Clear();
         foreach (var info in GameData.Instance.AllPlayers)
         {
             if (info == null) continue;
-            isDeadCache[info.PlayerId] = (info.IsDead, info.Disconnected);
+            IsDeadCache[info.PlayerId] = (info.IsDead, info.Disconnected);
             info.IsDead = false;
             info.Disconnected = false;
         }
@@ -76,14 +77,14 @@ public static class AntiBlackout
         foreach (var info in GameData.Instance.AllPlayers)
         {
             if (info == null) continue;
-            if (isDeadCache.TryGetValue(info.PlayerId, out var val))
+            if (IsDeadCache.TryGetValue(info.PlayerId, out var val))
             {
                 info.IsDead = val.isDead;
                 info.Disconnected = val.Disconnected;
             }
         }
 
-        isDeadCache.Clear();
+        IsDeadCache.Clear();
         IsCached = false;
         if (doSend) SendGameData();
     }
@@ -113,7 +114,7 @@ public static class AntiBlackout
     {
         // Execution conditions: client is host, IsDead is overwritten, player is disconnected
         if (!AmongUsClient.Instance.AmHost || !IsCached || !player.Disconnected) return;
-        isDeadCache[player.PlayerId] = (true, true);
+        IsDeadCache[player.PlayerId] = (true, true);
         player.IsDead = player.Disconnected = false;
         SendGameData();
     }
@@ -149,8 +150,8 @@ public static class AntiBlackout
     public static void Reset()
     {
         Logger.Info("==Reset==");
-        isDeadCache ??= [];
-        isDeadCache.Clear();
+        IsDeadCache ??= [];
+        IsDeadCache.Clear();
         IsCached = false;
     }
 }

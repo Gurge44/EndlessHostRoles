@@ -88,8 +88,6 @@ namespace EHR
                     .Where(x => x.Interface.Team == Team.Impostor)
                     .Do(x => x.pc.MarkDirtySettings());
             }, Seeker.BlindTime.GetFloat() + 8f, "Blind Time Expire");
-
-            AssignRoles();
         }
 
         public static List<CustomRoles> GetAllHnsRoles(IEnumerable<Type> types)
@@ -109,7 +107,7 @@ namespace EHR
                 .ToArray();
         }
 
-        private static void AssignRoles()
+        public static void AssignRoles()
         {
             Dictionary<PlayerControl, CustomRoles> result = [];
             List<PlayerControl> allPlayers = [.. Main.AllAlivePlayerControls];
@@ -199,6 +197,8 @@ namespace EHR
                 .Where(x => x != null)
                 .ToDictionary(x => x.GetType().Name, x => x);
             PlayerRoles = result.ToDictionary(x => x.Key.PlayerId, x => (roleInterfaces[x.Value.ToString()], x.Value));
+
+            result.IntersectBy(Main.PlayerStates.Keys, x => x.Key.PlayerId).Do(x => x.Key.RpcSetCustomRole(x.Value));
         }
 
         public static void ApplyGameOptions(IGameOptions opt, PlayerControl pc)
@@ -343,11 +343,18 @@ namespace EHR
                 name = Utils.ColorString(Main.PlayerColors.GetValueOrDefault(state.Key, Color.white), name);
                 bool isSeeker = PlayerRoles[state.Key].Interface.Team == Team.Impostor;
                 bool alive = !state.Value.IsDead;
-                string stateText;
-                if (isSeeker) stateText = $" ({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Seeker), Translator.GetString("Seeker"))})";
-                else stateText = alive ? string.Empty : " <#ff1313>DEAD</color>";
+
+                TaskState ts = state.Value.TaskState;
+                string stateText = string.Empty;
+                if (PlayersSeeRoles.GetBool()) stateText = $" ({GetRole()}){GetTaskCount()}";
+                else if (isSeeker) stateText = $" ({CustomRoles.Seeker.ToString()})";
+                if (!alive) stateText += $"  <color=#ff0000>{Translator.GetString("Dead")}</color>";
+
                 stateText = $"{name}{stateText}";
                 return stateText;
+
+                CustomRoles GetRole() => state.Value.MainRole == CustomRoles.Agent ? CustomRoles.Hider : state.Value.MainRole;
+                string GetTaskCount() => CustomRoles.Agent.IsEnable() || !ts.hasTasks ? string.Empty : $" ({ts.CompletedTasksCount}/{ts.AllTasksCount})";
             }
         }
 
@@ -375,7 +382,7 @@ namespace EHR
         {
             public static void Postfix(PlayerControl __instance)
             {
-                if (!AmongUsClient.Instance.AmHost || Options.CurrentGameMode != CustomGameMode.HideAndSeek) return;
+                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.HideAndSeek) return;
 
                 long now = Utils.TimeStamp;
                 if (LastUpdate == now) return;

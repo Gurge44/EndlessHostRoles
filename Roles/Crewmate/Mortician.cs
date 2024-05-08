@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using EHR.Modules;
-using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
@@ -36,32 +34,6 @@ public class Mortician : RoleBase
         playerIdList.Add(playerId);
     }
 
-    private static void SendRPC(byte playerId, bool add, Vector3 loc = new())
-    {
-        if (!Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMorticianArrow, SendOption.Reliable);
-        writer.Write(playerId);
-        writer.Write(add);
-        if (add)
-        {
-            writer.Write(loc.x);
-            writer.Write(loc.y);
-            writer.Write(loc.z);
-        }
-
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
-    public static void ReceiveRPC(MessageReader reader)
-    {
-        byte playerId = reader.ReadByte();
-        bool add = reader.ReadBoolean();
-        if (add)
-            LocateArrow.Add(playerId, new(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()));
-        else
-            LocateArrow.RemoveAllTarget(playerId);
-    }
-
     public static void OnPlayerDead(PlayerControl target)
     {
         var pos = target.Pos();
@@ -84,7 +56,6 @@ public class Mortician : RoleBase
             var player = Utils.GetPlayerById(pc);
             if (player == null || !player.IsAlive()) continue;
             LocateArrow.Add(pc, target.transform.position);
-            SendRPC(pc, true, target.transform.position);
         }
     }
 
@@ -93,7 +64,6 @@ public class Mortician : RoleBase
         foreach (byte apc in playerIdList)
         {
             LocateArrow.RemoveAllTarget(apc);
-            SendRPC(apc, false);
         }
 
         if (!pc.Is(CustomRoles.Mortician) || target == null || pc.PlayerId == target.PlayerId) return;

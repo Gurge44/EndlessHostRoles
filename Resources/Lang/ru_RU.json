@@ -2308,7 +2308,7 @@
   "MonarchKillButtonText": "Посвятить",
   "FarseerKillButtonText": "Раскрыть",
   "SentryPetButtonText": "Сенсор",
-  "PoisonerKillButtonText": "Отравить"
+  "PoisonerKillButtonText": "Отравить",
   "DisabledBySettings": "Выключено настройками",
   "Disabled": "Выключено",
   "FailToTrack": "Не удалось отследить",

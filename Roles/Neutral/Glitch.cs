@@ -14,8 +14,6 @@ public class Glitch : RoleBase
     private const int Id = 18125;
     public static List<byte> playerIdList = [];
 
-    public static Dictionary<byte, long> hackedIdList = [];
-
     public static OptionItem KillCooldown;
     public static OptionItem HackCooldown;
     public static OptionItem HackDuration;
@@ -62,7 +60,6 @@ public class Glitch : RoleBase
     public override void Init()
     {
         playerIdList = [];
-        hackedIdList = [];
         GlitchId = byte.MaxValue;
     }
 
@@ -168,7 +165,7 @@ public class Glitch : RoleBase
                 {
                     Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                     HackCDTimer = HackCooldown.GetInt();
-                    hackedIdList.TryAdd(target.PlayerId, Utils.TimeStamp);
+                    target.BlockRole(HackDuration.GetFloat());
                     LastHack = Utils.TimeStamp;
                     SendRPCSyncTimers();
                 }
@@ -195,22 +192,7 @@ public class Glitch : RoleBase
         if (MimicCDTimer is > 180 or < 0) MimicCDTimer = 0;
         if (MimicDurTimer is > 180 or < 0) MimicDurTimer = 0;
 
-        bool change = false;
-        foreach (var pc in hackedIdList)
-        {
-            if (pc.Value + HackDuration.GetInt() < now)
-            {
-                hackedIdList.Remove(pc.Key);
-                change = true;
-            }
-        }
-
         if (player == null) return;
-
-        if (change)
-        {
-            Utils.NotifyRoles(SpecifySeer: player);
-        }
 
         if (!player.IsAlive())
         {

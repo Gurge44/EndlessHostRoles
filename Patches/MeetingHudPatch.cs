@@ -880,20 +880,28 @@ class MeetingHudStartPatch
             var seerRole = seer.GetCustomRole();
 
             // Guesser Mode //
-            if (Options.GuesserMode.GetBool())
+            if (((Options.GuesserMode.GetBool() && !seer.Data.IsDead && !target.Data.IsDead &&
+                  ((Options.CrewmatesCanGuess.GetBool() && seer.IsCrewmate() && !seer.Is(CustomRoles.Judge) && !seer.Is(CustomRoles.NiceSwapper) && !seer.Is(CustomRoles.Lookout) && !seer.Is(CustomRoles.ParityCop)) ||
+                   (Options.ImpostorsCanGuess.GetBool() && seerRole.IsImpostor() && !seer.Is(CustomRoles.Councillor)) ||
+                   (Options.NeutralKillersCanGuess.GetBool() && seer.IsNeutralKiller()) ||
+                   (Options.PassiveNeutralsCanGuess.GetBool() && seerRole.IsNonNK() && !seer.Is(CustomRoles.Doomsayer)))) ||
+
+                 // Other Roles and Add-ons that can see player IDs //
+                 (seer.Data.IsDead && !target.Data.IsDead && seerRole is CustomRoles.Mafia) ||
+                 (!seer.Data.IsDead && !target.Data.IsDead &&
+                  (seer.Is(CustomRoles.Guesser) ||
+                   seerRole is
+                       CustomRoles.Judge or
+                       CustomRoles.NiceSwapper or
+                       CustomRoles.Lookout or
+                       CustomRoles.ParityCop or
+                       CustomRoles.Councillor or
+                       CustomRoles.Doomsayer or
+                       CustomRoles.EvilGuesser or
+                       CustomRoles.NiceGuesser
+                  ))))
             {
-                if (Options.CrewmatesCanGuess.GetBool() && seer.IsCrewmate() && !seer.Is(CustomRoles.Judge) && !seer.Is(CustomRoles.NiceSwapper) && !seer.Is(CustomRoles.Lookout) && !seer.Is(CustomRoles.ParityCop))
-                    if (!seer.Data.IsDead && !target.Data.IsDead)
-                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(seerRole), target.PlayerId.ToString()) + " " + pva.NameText.text;
-                if (Options.ImpostorsCanGuess.GetBool() && seerRole.IsImpostor() && !seer.Is(CustomRoles.Councillor))
-                    if (!seer.Data.IsDead && !target.Data.IsDead)
-                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(seerRole), target.PlayerId.ToString()) + " " + pva.NameText.text;
-                if (Options.NeutralKillersCanGuess.GetBool() && seer.IsNeutralKiller())
-                    if (!seer.Data.IsDead && !target.Data.IsDead)
-                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(seerRole), target.PlayerId.ToString()) + " " + pva.NameText.text;
-                if (Options.PassiveNeutralsCanGuess.GetBool() && seerRole.IsNonNK() && !seer.Is(CustomRoles.Doomsayer))
-                    if (!seer.Data.IsDead && !target.Data.IsDead)
-                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(seerRole), target.PlayerId.ToString()) + " " + pva.NameText.text;
+                pva.NameText.text = $"{Utils.ColorString(Utils.GetRoleColor(seerRole), target.PlayerId.ToString())} {pva.NameText.text}";
             }
 
             if (seer.KnowDeathReason(target))
@@ -940,46 +948,6 @@ class MeetingHudStartPatch
                     if (Psychic.IsRedForPsy(target, seer) && !seer.Data.IsDead)
                         pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), pva.NameText.text);
                     break;
-                case CustomRoles.Mafia:
-                    if (seer.Data.IsDead && !target.Data.IsDead)
-                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mafia), target.PlayerId.ToString()) + " " + pva.NameText.text;
-                    break;
-                case CustomRoles.NiceGuesser:
-                case CustomRoles.EvilGuesser:
-                    if (!seer.Data.IsDead && !target.Data.IsDead)
-                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(seer.Is(CustomRoles.NiceGuesser) ? CustomRoles.NiceGuesser : CustomRoles.EvilGuesser), target.PlayerId.ToString()) + " " + pva.NameText.text;
-                    break;
-                case CustomRoles.Guesser:
-                    if (!seer.Data.IsDead && !target.Data.IsDead)
-                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), target.PlayerId.ToString()) + " " + pva.NameText.text;
-                    break;
-                case CustomRoles.Judge:
-                    if (!seer.Data.IsDead && !target.Data.IsDead)
-                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Judge), target.PlayerId.ToString()) + " " + pva.NameText.text;
-                    break;
-                case CustomRoles.NiceSwapper:
-                    if (!seer.Data.IsDead && !target.Data.IsDead)
-                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceSwapper), target.PlayerId.ToString()) + " " + pva.NameText.text;
-                    break;
-                case CustomRoles.Lookout:
-                    if (!seer.Data.IsDead && !target.Data.IsDead)
-                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lookout), target.PlayerId.ToString()) + " " + pva.NameText.text;
-                    break;
-                case CustomRoles.Doomsayer:
-                    if (!seer.Data.IsDead && !target.Data.IsDead)
-                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doomsayer), target.PlayerId.ToString()) + " " + pva.NameText.text;
-                    break;
-                case CustomRoles.ParityCop:
-                    if (!seer.Data.IsDead && !target.Data.IsDead)
-                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), target.PlayerId.ToString()) + " " + pva.NameText.text;
-                    break;
-
-                case CustomRoles.Councillor:
-                    if (!seer.Data.IsDead && !target.Data.IsDead)
-                        pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Councillor), target.PlayerId.ToString()) + " " + pva.NameText.text;
-
-                    break;
-
                 case CustomRoles.Gamer:
                     sb.Append(Gamer.TargetMark(seer, target));
                     sb.Append(Snitch.GetWarningMark(seer, target));
@@ -992,31 +960,9 @@ class MeetingHudStartPatch
             if (Silencer.ForSilencer.Contains(target.PlayerId))
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Silencer), "╳"));
 
-            List<CustomRoles> list = seer.GetCustomSubRoles();
-            foreach (var SeerSubRole in list)
+            if (target.GetCustomSubRoles().Contains(CustomRoles.Lovers) && (seer.Is(CustomRoles.Lovers) || seer.Data.IsDead))
             {
-                switch (SeerSubRole)
-                {
-                    case CustomRoles.Guesser:
-                        if (!seer.Data.IsDead && !target.Data.IsDead)
-                            pva.NameText.text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Guesser), target.PlayerId.ToString()) + " " + pva.NameText.text;
-                        break;
-                }
-            }
-
-            List<CustomRoles> list1 = target.GetCustomSubRoles();
-            foreach (var subRole in list1)
-            {
-                switch (subRole)
-                {
-                    case CustomRoles.Lovers:
-                        if (seer.Is(CustomRoles.Lovers) || seer.Data.IsDead)
-                        {
-                            sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), "♥"));
-                        }
-
-                        break;
-                }
+                sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), "♥"));
             }
 
             sb.Append(Witch.GetSpelledMark(target.PlayerId, true));

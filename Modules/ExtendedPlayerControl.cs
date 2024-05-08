@@ -606,6 +606,10 @@ static class ExtendedPlayerControl
         }
     }
 
+    public static bool IsRoleBlocked(this PlayerControl pc) => RoleBlockManager.RoleBlockedPlayers.ContainsKey(pc.PlayerId);
+    public static bool IsPlayerRoleBlocked(this byte id) => RoleBlockManager.RoleBlockedPlayers.ContainsKey(id);
+    public static void BlockRole(this PlayerControl pc, float duration) => RoleBlockManager.AddRoleBlock(pc, duration);
+
     public static bool HasKillButton(this PlayerControl pc)
     {
         CustomRoles role = pc.GetCustomRole();

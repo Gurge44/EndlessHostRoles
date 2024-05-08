@@ -75,15 +75,14 @@ class HudManagerPatch
             {
                 if (OverriddenRolesText == null)
                 {
-                    OverriddenRolesText = Object.Instantiate(__instance.KillButton.cooldownTimerText);
+                    OverriddenRolesText = Object.Instantiate(__instance.KillButton.cooldownTimerText, __instance.transform, true);
                     OverriddenRolesText.alignment = TextAlignmentOptions.Right;
                     OverriddenRolesText.verticalAlignment = VerticalAlignmentOptions.Top;
-                    OverriddenRolesText.transform.parent = __instance.transform;
                     OverriddenRolesText.transform.localPosition = new(4.9f, 0.8f, 0);
                     OverriddenRolesText.overflowMode = TextOverflowModes.Overflow;
                     OverriddenRolesText.enableWordWrapping = false;
                     OverriddenRolesText.color = Color.white;
-                    OverriddenRolesText.fontSize = OverriddenRolesText.fontSizeMax = OverriddenRolesText.fontSizeMin = 2f;
+                    OverriddenRolesText.fontSize = OverriddenRolesText.fontSizeMax = OverriddenRolesText.fontSizeMin = 2.5f;
                 }
 
                 if (Main.SetRoles.Count > 0 || Main.SetAddOns.Count > 0)
@@ -120,24 +119,17 @@ class HudManagerPatch
                         }
                     }
 
-                    bool stop = false;
-                    foreach (var roles in Main.SetRoles)
+                    foreach (var role in Main.SetRoles)
                     {
-                        if (!Main.SetAddOns.ContainsKey(roles.Key)) continue;
-                        foreach (var addons in Main.SetAddOns)
-                        {
-                            if (!Main.SetRoles.ContainsKey(addons.Key)) continue;
-                            foreach (var addon in addons.Value)
-                            {
-                                if (!CustomRolesHelper.CheckAddonConflictV2(addon, roles.Value))
-                                {
-                                    resultText[roles.Key] += " <#ff0000>(!)</color>";
-                                    stop = true;
-                                    break;
-                                }
-                            }
+                        if (!Main.SetAddOns.TryGetValue(role.Key, out var addons)) continue;
 
-                            if (stop) break;
+                        foreach (var addon in addons)
+                        {
+                            if (!CustomRolesHelper.CheckAddonConflictV2(addon, role.Value))
+                            {
+                                resultText[role.Key] += " <#ff0000>(!)</color>";
+                                break;
+                            }
                         }
                     }
 
@@ -359,14 +351,13 @@ class HudManagerPatch
 
                     if (LowerInfoText == null)
                     {
-                        LowerInfoText = Object.Instantiate(__instance.KillButton.cooldownTimerText);
+                        LowerInfoText = Object.Instantiate(__instance.KillButton.cooldownTimerText, __instance.transform, true);
                         LowerInfoText.alignment = TextAlignmentOptions.Center;
-                        LowerInfoText.transform.parent = __instance.transform;
                         LowerInfoText.transform.localPosition = new(0, -2f, 0);
                         LowerInfoText.overflowMode = TextOverflowModes.Overflow;
                         LowerInfoText.enableWordWrapping = false;
                         LowerInfoText.color = Color.white;
-                        LowerInfoText.fontSize = LowerInfoText.fontSizeMax = LowerInfoText.fontSizeMin = 2f;
+                        LowerInfoText.fontSize = LowerInfoText.fontSizeMax = LowerInfoText.fontSizeMin = 2.7f;
                     }
 
                     var state = Main.PlayerStates[player.PlayerId];
@@ -476,6 +467,8 @@ class HudManagerPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ToggleHighlight))]
 class ToggleHighlightPatch
 {
+    private static readonly int OutlineColor = Shader.PropertyToID("_OutlineColor");
+
     public static void Postfix(PlayerControl __instance /*[HarmonyArgument(0)] bool active,*/ /*[HarmonyArgument(1)] RoleTeamTypes team*/)
     {
         if (!GameStates.IsInTask) return;
@@ -483,7 +476,7 @@ class ToggleHighlightPatch
 
         if (player.CanUseKillButton())
         {
-            __instance.cosmetics.currentBodySprite.BodySprite.material.SetColor("_OutlineColor", Utils.GetRoleColor(player.GetCustomRole()));
+            __instance.cosmetics.currentBodySprite.BodySprite.material.SetColor(OutlineColor, Utils.GetRoleColor(player.GetCustomRole()));
         }
     }
 }
@@ -491,11 +484,14 @@ class ToggleHighlightPatch
 [HarmonyPatch(typeof(Vent), nameof(Vent.SetOutline))]
 class SetVentOutlinePatch
 {
+    private static readonly int OutlineColor = Shader.PropertyToID("_OutlineColor");
+    private static readonly int AddColor = Shader.PropertyToID("_AddColor");
+
     public static void Postfix(Vent __instance, [HarmonyArgument(1)] ref bool mainTarget)
     {
         Color color = PlayerControl.LocalPlayer.GetRoleColor();
-        __instance.myRend.material.SetColor("_OutlineColor", color);
-        __instance.myRend.material.SetColor("_AddColor", mainTarget ? color : Color.clear);
+        __instance.myRend.material.SetColor(OutlineColor, color);
+        __instance.myRend.material.SetColor(AddColor, mainTarget ? color : Color.clear);
     }
 }
 
@@ -623,7 +619,46 @@ class MapBehaviourShowPatch
                 opts.Mode = MapOptions.Modes.Normal;
         }
 
+        if (Main.GodMode.Value) opts.ShowLivePlayerPosition = true;
+
         return true;
+    }
+}
+
+[HarmonyPatch(typeof(InfectedOverlay), nameof(InfectedOverlay.Update))]
+class SabotageMapPatch
+{
+    public static Dictionary<SystemTypes, TextMeshPro> TimerTexts = [];
+
+    public static void Postfix(InfectedOverlay __instance)
+    {
+        float perc = __instance.sabSystem.PercentCool;
+        int total = __instance.sabSystem.initialCooldown ? 10 : 30;
+        if (SabotageSystemTypeRepairDamagePatch.IsCooldownModificationEnabled) total = (int)SabotageSystemTypeRepairDamagePatch.ModifiedCooldownSec;
+        int remaining = Math.Clamp(total - (int)Math.Ceiling((1f - perc) * total) + 1, 0, total);
+
+        foreach (var mr in __instance.rooms)
+        {
+            if (mr.special == null || mr.special.transform == null) continue;
+            var room = mr.room;
+            if (!TimerTexts.ContainsKey(room))
+            {
+                TimerTexts[room] = Object.Instantiate(HudManager.Instance.KillButton.cooldownTimerText, mr.special.transform, true);
+                TimerTexts[room].alignment = TextAlignmentOptions.Center;
+                TimerTexts[room].transform.localPosition = mr.special.transform.localPosition;
+                TimerTexts[room].transform.localPosition = new(0, -0.4f, 0f);
+                TimerTexts[room].overflowMode = TextOverflowModes.Overflow;
+                TimerTexts[room].enableWordWrapping = false;
+                TimerTexts[room].color = Color.white;
+                TimerTexts[room].fontSize = TimerTexts[room].fontSizeMax = TimerTexts[room].fontSizeMin = 2.5f;
+                TimerTexts[room].sortingOrder = 100;
+            }
+
+            bool isActive = Utils.IsActive(room);
+            bool isOtherActive = TimerTexts.Keys.Any(Utils.IsActive);
+            TimerTexts[room].text = $"<b><#ff{(isActive || isOtherActive ? "00" : "ff")}00>{(isActive ? remaining : GetString(isOtherActive ? "SabotageDisabledIndicator" : "SabotageActiveIndicator"))}</color></b>";
+            TimerTexts[room].enabled = remaining > 0 || isActive;
+        }
     }
 }
 

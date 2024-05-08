@@ -78,6 +78,7 @@ internal static class CustomRoleSelector
                 AssignRoleToEveryone(CustomRoles.Potato);
                 return;
             case CustomGameMode.HideAndSeek:
+                CustomHideAndSeekManager.AssignRoles();
                 RoleResult = CustomHideAndSeekManager.PlayerRoles.ToDictionary(x => Utils.GetPlayerById(x.Key), x => x.Value.Role);
                 return;
         }
@@ -611,7 +612,7 @@ internal static class CustomRoleSelector
 
     public static void SelectAddonRoles()
     {
-        if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop) return;
+        if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HideAndSeek) return;
 
         foreach (var id in Main.SetAddOns.Keys.Where(id => Utils.GetPlayerById(id) == null).ToArray()) Main.SetAddOns.Remove(id);
 
@@ -640,25 +641,13 @@ internal static class CustomRoleSelector
         Crewmate
     }
 
-    public class RoleAssignInfo(CustomRoles role, int spawnChance, int maxCount, int assignedCount = 0)
+    private class RoleAssignInfo(CustomRoles role, int spawnChance, int maxCount, int assignedCount = 0)
     {
-        public CustomRoles Role
-        {
-            get => role;
-            set => role = value;
-        }
+        public CustomRoles Role => role;
 
-        public int SpawnChance
-        {
-            get => spawnChance;
-            set => spawnChance = value;
-        }
+        public int SpawnChance => spawnChance;
 
-        public int MaxCount
-        {
-            get => maxCount;
-            set => maxCount = value;
-        }
+        public int MaxCount => maxCount;
 
         public int AssignedCount
         {

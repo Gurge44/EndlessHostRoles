@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using BepInEx;
+using EHR.Modules;
 using EHR.Patches;
 using EHR.Roles.AddOns.Crewmate;
 using EHR.Roles.AddOns.Impostor;
@@ -34,15 +35,19 @@ class ShipFixedUpdatePatch
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(MessageReader))]
 public static class MessageReaderUpdateSystemPatch
 {
-    public static void Prefix(ShipStatus __instance, [HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] MessageReader reader)
+    public static bool Prefix(ShipStatus __instance, [HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] MessageReader reader)
     {
         try
         {
-            RepairSystemPatch.Prefix(__instance, systemType, player, MessageReader.Get(reader).ReadByte());
+            byte amount = MessageReader.Get(reader).ReadByte();
+            if (EAC.RpcUpdateSystemCheck(player, systemType, amount)) return false;
+            RepairSystemPatch.Prefix(__instance, systemType, player, amount);
         }
         catch
         {
         }
+
+        return true;
     }
 
     public static void Postfix( /*ShipStatus __instance,*/ [HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] MessageReader reader)
@@ -115,14 +120,13 @@ class RepairSystemPatch
             case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
                 if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
                 if (SecurityGuard.BlockSabo.Count > 0) return false;
-                if (Glitch.hackedIdList.ContainsKey(player.PlayerId))
+                if (player.IsRoleBlocked())
                 {
-                    player.Notify(string.Format(Translator.GetString("HackedByGlitch"), "Sabotage"));
+                    player.Notify(BlockedAction.Sabotage.GetBlockNotify());
                     return false;
                 }
 
                 if (player.Is(CustomRoleTypes.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
-                if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool()) && !player.Is(CustomRoles.Minimalism) && !player.Is(CustomRoles.Mafioso)) return true;
                 return player.GetCustomRole() switch
                 {
                     CustomRoles.Jackal when Jackal.CanSabotage.GetBool() => true,

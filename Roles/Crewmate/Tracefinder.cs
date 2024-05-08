@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
-using EHR.Modules;
-using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
@@ -50,36 +48,10 @@ public class Tracefinder : RoleBase
         On = true;
     }
 
-    private static void SendRPC(byte playerId, bool add, Vector3 loc = new())
-    {
-        if (!Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTracefinderArrow, SendOption.Reliable);
-        writer.Write(playerId);
-        writer.Write(add);
-        if (add)
-        {
-            writer.Write(loc.x);
-            writer.Write(loc.y);
-            writer.Write(loc.z);
-        }
-
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         AURoleOptions.ScientistCooldown = VitalsCooldown.GetFloat();
         AURoleOptions.ScientistBatteryCharge = VitalsDuration.GetFloat();
-    }
-
-    public static void ReceiveRPC(MessageReader reader)
-    {
-        byte playerId = reader.ReadByte();
-        bool add = reader.ReadBoolean();
-        if (add)
-            LocateArrow.Add(playerId, new(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()));
-        else
-            LocateArrow.RemoveAllTarget(playerId);
     }
 
     public override void OnReportDeadBody()
@@ -87,7 +59,6 @@ public class Tracefinder : RoleBase
         foreach (byte apc in playerIdList)
         {
             LocateArrow.RemoveAllTarget(apc);
-            SendRPC(apc, false);
         }
     }
 
@@ -109,7 +80,6 @@ public class Tracefinder : RoleBase
                     PlayerControl pc = Utils.GetPlayerById(id);
                     if (pc == null || !pc.IsAlive()) continue;
                     LocateArrow.Add(id, target.transform.position);
-                    SendRPC(id, true, target.transform.position);
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 }
             }

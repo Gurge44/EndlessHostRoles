@@ -448,6 +448,8 @@ public static class Utils
 
     public static void SendRPC(CustomRPC rpc, params object[] data)
     {
+        if (!AmongUsClient.Instance.AmHost) return;
+
         var w = CreateRPC(rpc);
         foreach (var o in data)
         {
@@ -471,10 +473,23 @@ public static class Utils
                 case Vector2 v:
                     NetHelpers.WriteVector2(v, w);
                     break;
+                case Vector3 v:
+                    w.Write(v.x);
+                    w.Write(v.y);
+                    w.Write(v.z);
+                    break;
             }
         }
 
         EndRPC(w);
+    }
+
+    public static Vector3 ReadVector3(MessageReader reader)
+    {
+        float x = reader.ReadSingle();
+        float y = reader.ReadSingle();
+        float z = reader.ReadSingle();
+        return new(x, y, z);
     }
 
     public static void IncreaseAbilityUseLimitOnKill(PlayerControl killer)
@@ -2422,6 +2437,7 @@ public static class Utils
         Main.DontCancelVoteList.Clear();
 
         DoorsReset.ResetDoors();
+        RoleBlockManager.Reset();
 
         if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.Is(CustomRoles.GM))
         {

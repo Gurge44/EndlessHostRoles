@@ -1,6 +1,6 @@
 ﻿namespace EHR.Roles.AddOns.Common
 {
-    internal class Flash : IAddon
+    internal class Flashman : IAddon
     {
         public AddonTypes Type => AddonTypes.Helpful;
 

@@ -238,9 +238,9 @@ class CheckMurderPatch
         if (Pelican.IsEaten(target.PlayerId))
             return false;
 
-        if (Glitch.hackedIdList.ContainsKey(killer.PlayerId))
+        if (killer.IsRoleBlocked())
         {
-            killer.Notify(string.Format(GetString("HackedByGlitch"), "Kill"));
+            killer.Notify(BlockedAction.Kill.GetBlockNotify());
             return false;
         }
 
@@ -341,9 +341,9 @@ class CheckMurderPatch
             return false;
         }
 
-        if (Glitch.hackedIdList.ContainsKey(killer.PlayerId))
+        if (killer.IsRoleBlocked())
         {
-            killer.Notify(string.Format(GetString("HackedByGlitch"), "Kill"));
+            killer.Notify(BlockedAction.Kill.GetBlockNotify());
             return false;
         }
 
@@ -1030,9 +1030,9 @@ class FixedUpdatePatch
         byte id = __instance.PlayerId;
         if (AmongUsClient.Instance.AmHost && GameStates.IsInTask && ReportDeadBodyPatch.CanReport[id] && ReportDeadBodyPatch.WaitReport[id].Count > 0)
         {
-            if (Glitch.hackedIdList.ContainsKey(id))
+            if (id.IsPlayerRoleBlocked())
             {
-                __instance.Notify(string.Format(GetString("HackedByGlitch"), "Report"));
+                __instance.Notify(BlockedAction.Report.GetBlockNotify());
                 Logger.Info("Dead Body Report Blocked (player is hacked by Glitch)", "FixedUpdate.ReportDeadBody");
                 ReportDeadBodyPatch.WaitReport[id].Clear();
             }
@@ -1222,6 +1222,8 @@ class FixedUpdatePatch
             }
 
             if (!lowLoad) Randomizer.OnFixedUpdateForPlayers(player);
+
+            RoleBlockManager.OnFixedUpdate(player);
         }
 
         if (!lowLoad)
@@ -1294,7 +1296,7 @@ class FixedUpdatePatch
                 RoleText.text = RoleTextData.Item1;
                 RoleText.color = RoleTextData.Item2;
 
-                if (Options.CurrentGameMode != CustomGameMode.Standard) RoleText.text = string.Empty;
+                if (Options.CurrentGameMode is not CustomGameMode.Standard and not CustomGameMode.HideAndSeek) RoleText.text = string.Empty;
 
                 RoleText.enabled = IsRoleTextEnabled(__instance);
 
@@ -1623,7 +1625,7 @@ class PlayerStartPatch
     {
         var roleText = Object.Instantiate(__instance.cosmetics.nameText, __instance.cosmetics.nameText.transform, true);
         roleText.transform.localPosition = new(0f, 0.2f, 0f);
-        roleText.fontSize -= 0.2f;
+        roleText.fontSize -= 0.9f;
         roleText.text = "RoleText";
         roleText.gameObject.name = "RoleText";
         roleText.enabled = false;
@@ -1756,14 +1758,14 @@ class CoEnterVentPatch
                 return true;
             case CustomGameMode.HideAndSeek:
                 CustomHideAndSeekManager.OnCoEnterVent(__instance, id);
-                return true;
+                break;
         }
 
-        if (Glitch.hackedIdList.ContainsKey(__instance.myPlayer.PlayerId))
+        if (__instance.myPlayer.IsRoleBlocked())
         {
             _ = new LateTask(() =>
             {
-                __instance.myPlayer?.Notify(string.Format(GetString("HackedByGlitch"), "Vent"));
+                __instance.myPlayer?.Notify(BlockedAction.Vent.GetBlockNotify());
                 __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
             }, 0.5f);
             return true;

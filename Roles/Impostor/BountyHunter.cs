@@ -82,7 +82,6 @@ public class BountyHunter : RoleBase
     public void ReceiveRPC(byte bountyId, byte targetId)
     {
         Target = targetId;
-        if (ShowTargetArrow) TargetArrow.Add(bountyId, targetId);
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

@@ -271,7 +271,7 @@ namespace EHR.Roles.Crewmate
                     {
                         var pc = PickRandomPlayer();
                         AddEffectForPlayer(pc, effect);
-                        Glitch.hackedIdList.TryAdd(pc.PlayerId, Utils.TimeStamp);
+                        pc.BlockRole(IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration));
                         NotifyAboutRNG(pc);
                     }
                         break;
@@ -281,7 +281,7 @@ namespace EHR.Roles.Crewmate
                         foreach (var pc in Main.AllAlivePlayerControls)
                         {
                             AddEffectForPlayer(pc, effect);
-                            Glitch.hackedIdList.TryAdd(pc.PlayerId, now);
+                            pc.BlockRole(IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration));
                             NotifyAboutRNG(pc);
                         }
                     }

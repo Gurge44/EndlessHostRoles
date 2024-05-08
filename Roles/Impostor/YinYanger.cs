@@ -136,6 +136,7 @@ namespace EHR.Roles.Impostor
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
         {
+            if (seer.IsModClient() && !hud) return string.Empty;
             if (Main.PlayerStates[seer.PlayerId].Role is YinYanger { IsEnable: true } yy && seer.PlayerId == target.PlayerId)
             {
                 return yy.YinYangedPlayers.Count == 2 ? $"<color=#00ffa5>{Translator.GetString("Mode")}:</color> {Translator.GetString("YinYangModeNormal")}" : $"<color=#00ffa5>{Translator.GetString("Mode")}:</color> {Translator.GetString("YinYangMode")} ({yy.YinYangedPlayers.Count}/2)";

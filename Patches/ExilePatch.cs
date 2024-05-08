@@ -159,7 +159,6 @@ class ExileControllerWrapUpPatch
     static void WrapUpFinalizer(GameData.PlayerInfo exiled)
     {
         // Even if an exception occurs in WrapUpPostfix, this part will be executed reliably.
-        bool overrideExiledPlayer = false;
         if (AmongUsClient.Instance.AmHost)
         {
             _ = new LateTask(() =>
@@ -171,7 +170,6 @@ class ExileControllerWrapUpPatch
                     exiled.Object != null)
                 {
                     exiled.Object.RpcExileV2();
-                    overrideExiledPlayer = true;
                 }
             }, 0.8f, "Restore IsDead Task");
             _ = new LateTask(() =>
@@ -199,11 +197,14 @@ class ExileControllerWrapUpPatch
         SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
         Logger.Info("Start task phase", "Phase");
 
-        if (Options.EnableKillerLeftCommand.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard && Options.ShowImpRemainOnEject.GetBool())
+        bool showRemainingKillers = Options.EnableKillerLeftCommand.GetBool() && Options.ShowImpRemainOnEject.GetBool();
+        bool appendEjectionNotify = CheckForEndVotingPatch.EjectionText != string.Empty;
+        Logger.Warn($"Ejection Text: {CheckForEndVotingPatch.EjectionText}", "debug");
+        if ((showRemainingKillers || appendEjectionNotify) && Options.CurrentGameMode == CustomGameMode.Standard)
         {
             _ = new LateTask(() =>
             {
-                var text = Utils.GetRemainingKillers(notify: true);
+                var text = showRemainingKillers ? Utils.GetRemainingKillers(notify: true) : string.Empty;
                 text = $"<#ffffff>{text}</color>";
                 var r = IRandom.Instance;
                 foreach (var pc in Main.AllAlivePlayerControls)
@@ -214,10 +215,12 @@ class ExileControllerWrapUpPatch
                         finalText = $"\n{notify.TEXT}\n{finalText}";
                     }
 
-                    if (overrideExiledPlayer && CheckForEndVotingPatch.EjectionText != string.Empty)
+                    if (appendEjectionNotify)
                     {
-                        finalText = $"\n{CheckForEndVotingPatch.EjectionText}\n{finalText}";
+                        finalText = $"\n<#ffffff>{CheckForEndVotingPatch.EjectionText}</color>\n{finalText}";
                     }
+
+                    if (!showRemainingKillers) finalText = finalText.TrimStart();
 
                     pc.Notify(finalText, r.Next(7, 13));
                 }

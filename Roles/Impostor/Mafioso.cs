@@ -237,7 +237,7 @@ namespace EHR.Roles.Impostor
             SendRPCSyncPistolCD();
         }
 
-        public override string GetProgressText(byte id, bool comms) => string.Format(GetString("MafiosoProgressText"), Tier, XP);
+        public override string GetProgressText(byte id, bool comms) => id.IsPlayerModClient() ? string.Empty : string.Format(GetString("MafiosoProgressText"), Tier, XP);
 
         public override string GetSuffix(PlayerControl pc, PlayerControl _, bool hud = false, bool m = false)
         {

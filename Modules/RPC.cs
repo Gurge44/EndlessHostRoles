@@ -51,6 +51,7 @@ public enum CustomRPC
     KillFlash,
     SyncAbilityUseLimit,
     RemoveSubRole,
+    Arrow,
 
     // Roles
     SetDrawPlayer,
@@ -97,8 +98,6 @@ public enum CustomRPC
     SetMarkedPlayer,
     SetMedicalerProtectList,
     SyncPsychicRedList,
-    SetMorticianArrow,
-    SetTracefinderArrow,
     SetCleanserCleanLimit,
     SetJailorTarget,
     SetDoppelgangerStealLimit,
@@ -118,8 +117,6 @@ public enum CustomRPC
     SyncVengefulRomanticTarget,
     SetRevealedPlayer,
     SetCurrentRevealTarget,
-    SetBloodhoundArrow,
-    SetVultureArrow,
     SetDoomsayerProgress,
     SetTrackerTarget,
     RpcPassBomb,
@@ -339,6 +336,10 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.RemoveSubRole:
                 Main.PlayerStates[reader.ReadByte()].RemoveSubRole((CustomRoles)reader.ReadPackedInt32());
+                break;
+            case CustomRPC.Arrow:
+                if (reader.ReadBoolean()) TargetArrow.ReceiveRPC(reader);
+                else LocateArrow.ReceiveRPC(reader);
                 break;
             case CustomRPC.SyncPostman:
             {
@@ -613,12 +614,6 @@ internal class RPCHandlerPatch
                 (Main.PlayerStates[id].Role as Mafioso)?.ReceiveRPCSyncPistolCD(reader);
             }
                 break;
-            case CustomRPC.SetMorticianArrow:
-                Mortician.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SetTracefinderArrow:
-                Tracefinder.ReceiveRPC(reader);
-                break;
             case CustomRPC.SyncNameNotify:
                 NameNotifyManager.ReceiveRPC(reader);
                 break;
@@ -634,9 +629,6 @@ internal class RPCHandlerPatch
             case CustomRPC.MafiaRevenge:
                 Mafia.ReceiveRPC(reader, __instance);
                 break;
-            //case CustomRPC.RetributionistRevenge:
-            //    RetributionistRevengeManager.ReceiveRPC(reader, __instance);
-            //    break;
             case CustomRPC.SetSwooperTimer:
             {
                 byte id = reader.ReadByte();
@@ -687,15 +679,6 @@ internal class RPCHandlerPatch
                 Utils.FlashColor(new(1f, 0f, 0f, 0.3f));
                 if (Constants.ShouldPlaySfx()) RPC.PlaySound(PlayerControl.LocalPlayer.PlayerId, Sounds.KillSound);
                 break;
-            case CustomRPC.SetBloodhoundArrow:
-                Bloodhound.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SetVultureArrow:
-                Vulture.ReceiveRPC(reader);
-                break;
-            //case CustomRPC.DoPoison:
-            //    Baker.ReceiveRPC(reader);
-            //    break;
             case CustomRPC.SetCleanserCleanLimit:
                 Cleanser.ReceiveRPC(reader);
                 break;
