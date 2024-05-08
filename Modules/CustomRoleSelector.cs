@@ -143,7 +143,7 @@ internal static class CustomRoleSelector
             else Roles[RoleAssignType.Crewmate].Add(info);
         }
 
-        if (Roles[RoleAssignType.Impostor].Count == 0 && !Main.SetRoles.Values.Any(x => x.IsImpostor()))
+        if (Roles[RoleAssignType.Impostor].Count == 0 && Roles[RoleAssignType.NeutralKilling].Count == 0 && !Main.SetRoles.Values.Any(x => x.IsImpostor() || x.IsNK()))
         {
             Roles[RoleAssignType.Impostor].Add(new(CustomRoles.ImpostorEHR, 100, optImpNum));
             Logger.Warn("Adding Vanilla Impostor", "CustomRoleSelector");

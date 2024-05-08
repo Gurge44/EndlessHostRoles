@@ -656,8 +656,9 @@ class SabotageMapPatch
 
             bool isActive = Utils.IsActive(room);
             bool isOtherActive = TimerTexts.Keys.Any(Utils.IsActive);
-            TimerTexts[room].text = $"<b><#ff{(isActive || isOtherActive ? "00" : "ff")}00>{(isActive ? remaining : GetString(isOtherActive ? "SabotageDisabledIndicator" : "SabotageActiveIndicator"))}</color></b>";
-            TimerTexts[room].enabled = remaining > 0 || isActive;
+            bool doorBlock = __instance.DoorsPreventingSabotage;
+            TimerTexts[room].text = $"<b><#ff{(isActive || isOtherActive || doorBlock ? "00" : "ff")}00>{(!isActive && !isOtherActive && !doorBlock ? remaining : GetString(isActive && !doorBlock ? "SabotageActiveIndicator" : "SabotageDisabledIndicator"))}</color></b>";
+            TimerTexts[room].enabled = remaining > 0 || isActive || isOtherActive || doorBlock;
         }
     }
 }
