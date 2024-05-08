@@ -795,7 +795,7 @@ class TaskPanelBehaviourPatch
                     foreach (var id in list3.Where(x => SummaryText3.ContainsKey(x.Item2)).ToArray())
                     {
                         bool alive = Utils.GetPlayerById(id.Item2).IsAlive();
-                        AllText += $"{(!alive ? "<#777777>" : string.Empty)}<size=1.6>\r\n{(alive ? SummaryText3[id.Item2] : SummaryText3[id.Item2].RemoveHtmlTags())}{(!alive ? "  <#ff0000>DEAD</color>" : string.Empty)}</size>";
+                        AllText += $"{(!alive ? "<#777777>" : string.Empty)}<size=1.6>\r\n{(alive ? SummaryText3[id.Item2] : SummaryText3[id.Item2].RemoveHtmlTags())}{(!alive ? $"  <#ff0000>{GetString("Dead")}</color>" : string.Empty)}</size>";
                     }
 
                     break;
@@ -803,7 +803,7 @@ class TaskPanelBehaviourPatch
                 case CustomGameMode.HotPotato:
 
                     List<string> SummaryText4 = [];
-                    SummaryText4.AddRange(from id in Main.PlayerStates.Keys let pc = Utils.GetPlayerById(id) let name = pc.GetRealName().RemoveHtmlTags().Replace("\r\n", string.Empty) let alive = pc.IsAlive() select $"{(!alive ? "<size=70%><#777777>" : "<size=80%>")}{HotPotatoManager.GetIndicator(id)}{Utils.ColorString(Main.PlayerColors[id], name)}{(!alive ? "</color>  <#ff0000>DEAD</color></size>" : "</size>")}");
+                    SummaryText4.AddRange(from id in Main.PlayerStates.Keys let pc = Utils.GetPlayerById(id) let name = pc.GetRealName().RemoveHtmlTags().Replace("\r\n", string.Empty) let alive = pc.IsAlive() select $"{(!alive ? "<size=70%><#777777>" : "<size=80%>")}{HotPotatoManager.GetIndicator(id)}{Utils.ColorString(Main.PlayerColors[id], name)}{(!alive ? $"</color>  <#ff0000>{GetString("Dead")}</color></size>" : "</size>")}");
 
                     AllText += $"\r\n\r\n{string.Join('\n', SummaryText4)}";
 

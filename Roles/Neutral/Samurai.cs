@@ -17,6 +17,7 @@ namespace EHR.Roles.Neutral
         private static OptionItem KillDelay;
         private Dictionary<byte, long> Delays;
 
+        private PlayerControl SamuraiPC;
         public (byte Id, long TimeStamp) Target;
 
         public override bool IsEnable => On;
@@ -51,6 +52,7 @@ namespace EHR.Roles.Neutral
         public override void Add(byte playerId)
         {
             On = true;
+            SamuraiPC = Utils.GetPlayerById(playerId);
             Target = (byte.MaxValue, 0);
             Delays = [];
 
@@ -74,7 +76,7 @@ namespace EHR.Roles.Neutral
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask) return;
+            if (!GameStates.IsInTask || ExileController.Instance != null) return;
 
             long now = Utils.TimeStamp;
 
@@ -108,6 +110,20 @@ namespace EHR.Roles.Neutral
                 Target = (byte.MaxValue, 0);
                 pc.SetKillCooldown(SuccessKCD.GetFloat());
             }
+        }
+
+        public override void OnReportDeadBody()
+        {
+            foreach (var id in Delays.Keys)
+            {
+                var player = Utils.GetPlayerById(id);
+                if (player == null || !player.IsAlive()) continue;
+
+                if (SamuraiPC.RpcCheckAndMurder(player, check: true))
+                    player.Suicide(realKiller: SamuraiPC);
+            }
+
+            Delays.Clear();
         }
     }
 }
