@@ -1,6 +1,4 @@
-﻿using AmongUs.GameOptions;
-
-namespace EHR.GameMode.HideAndSeekRoles
+﻿namespace EHR.GameMode.HideAndSeekRoles
 {
     public class Venter : RoleBase, IHideAndSeekRole
     {
@@ -45,12 +43,6 @@ namespace EHR.GameMode.HideAndSeekRoles
         public override void Init()
         {
             On = false;
-        }
-
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
-        {
-            opt.SetFloat(FloatOptionNames.CrewLightMod, Vision.GetFloat());
-            opt.SetFloat(FloatOptionNames.ImpostorLightMod, Vision.GetFloat());
         }
 
         public override bool CanUseImpostorVentButton(PlayerControl pc)

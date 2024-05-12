@@ -313,7 +313,7 @@ namespace EHR.Roles.Impostor
                 else if (!AbductVictim.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                 {
                     var position = Penguin_.transform.position;
-                    if (Penguin_.PlayerId != 0)
+                    if (!Penguin_.IsHost())
                     {
                         Utils.TP(AbductVictim.NetTransform, position, log: false);
                     }

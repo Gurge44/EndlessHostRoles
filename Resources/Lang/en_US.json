@@ -3470,6 +3470,7 @@
   "HNS.MaxNeutrals": "<#0000ff>Maximum</color> Number of <#ffab1b>Neutrals</color>",
   "HNS.DangerMeter": "Show (Custom) Danger Meter",
   "HNS.PlayersSeeRoles": "Players See Each Others' Roles",
+  "HNS.TaskCount": "Tasks:",
   "SubText.HideAndSeek": "Hide And Seek",
   "TimeLeft": "Time Left",
   "MinutesLeft": "{0} <color=#00ffa5>Minutes Left</color>",

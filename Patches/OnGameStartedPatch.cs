@@ -204,7 +204,7 @@ internal class ChangeRoleSettings
             FFAManager.Init();
             MoveAndStopManager.Init();
             HotPotatoManager.Init();
-            CustomHideAndSeekManager.Init();
+            HnSManager.Init();
 
             CustomWinnerHolder.Reset();
             AntiBlackout.Reset();

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -307,106 +306,12 @@ internal static class EAC
                     break;
             }
         }
-        catch (InvalidDataException)
+        catch
         {
-        }
-        catch (NullReferenceException)
-        {
-        }
-        catch /*(Exception e)*/
-        {
-            //Logger.Exception(e, "EAC");
-            //throw e;
         }
 
         WarnHost(-1);
         return false;
-    }
-
-    public static bool RpcUpdateSystemCheck(PlayerControl player, SystemTypes systemType, byte amount)
-    {
-        // UpdateSystem RPC cannot be received by PlayerControl.HandleRpc
-        if (!AmongUsClient.Instance.AmHost) return false;
-        var Mapid = Main.NormalOptions.MapId;
-        switch (systemType)
-        {
-            case SystemTypes.Sabotage: // Normal sabotage using buttons
-                if (!player.HasKillButton() && !player.CanUseSabotage())
-                {
-                    WarnHost();
-                    Report(player, "Bad Sabotage A : Non Imp");
-                    HandleCheat(player, "Bad Sabotage A : Non Imp");
-                    Logger.Fatal($"Player【{player.GetClientId()}:{player.GetRealName()}】Bad Sabotage A, rejected", "EAC");
-                    return true;
-                }
-
-                break;
-            case SystemTypes.LifeSupp:
-                if (Mapid is not 0 and not 1 and not 3) goto YesCheat;
-                if (amount is not 64 and not 65) goto YesCheat;
-                break;
-            case SystemTypes.Comms:
-                switch (amount)
-                {
-                    case 0:
-                    {
-                        if (Mapid is 1 or 5) goto YesCheat;
-                        break;
-                    }
-                    case 64 or 65 or 32 or 33 or 16 or 17:
-                    {
-                        if (Mapid is not (1 or 5)) goto YesCheat;
-                        break;
-                    }
-                    default:
-                        goto YesCheat;
-                }
-
-                break;
-            case SystemTypes.Electrical:
-                if (Mapid == 5) goto YesCheat;
-                if (amount >= 5) // 0 - 4 normal lights. Other sabotage should never be sent by client
-                {
-                    goto YesCheat;
-                }
-
-                break;
-            case SystemTypes.Laboratory:
-                if (Mapid != 2) goto YesCheat;
-                if (amount is not (64 or 65 or 32 or 33)) goto YesCheat;
-                break;
-            case SystemTypes.Reactor:
-                if (Mapid is 2 or 4) goto YesCheat;
-                if (amount is not (64 or 65 or 32 or 33)) goto YesCheat;
-                // Airship uses heli sabotage / Other maps use 64,65 | 32,33
-                break;
-            case SystemTypes.HeliSabotage:
-                if (Mapid != 4) goto YesCheat;
-                if (amount is not (64 or 65 or 16 or 17 or 32 or 33)) goto YesCheat;
-                break;
-            case SystemTypes.MushroomMixupSabotage:
-                goto YesCheat;
-        }
-
-        // There may be cases where a player is fixing reactor and a meeting starts, triggering EAC check in a meeting
-        if ((GameStates.IsMeeting && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance != null)
-        {
-            WarnHost();
-            Report(player, "Bad Sabotage D : In Meeting");
-            Logger.Fatal($"Player【{player.GetClientId()}:{player.GetRealName()}】Bad Sabotage D, rejected", "EAC");
-            return true;
-        }
-
-        return false;
-
-        YesCheat:
-        {
-            WarnHost();
-            Report(player, "Bad Sabotage C : Hack send RPC");
-            HandleCheat(player, "Bad Sabotage C");
-            Logger.Fatal($"Player【{player.GetClientId()}:{player.GetRealName()}】Bad Sabotage C, rejected", "EAC");
-            return true;
-        }
     }
 
     private static void Report(PlayerControl pc, string reason)

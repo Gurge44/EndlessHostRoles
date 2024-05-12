@@ -39,9 +39,7 @@ public static class MessageReaderUpdateSystemPatch
     {
         try
         {
-            byte amount = MessageReader.Get(reader).ReadByte();
-            if (EAC.RpcUpdateSystemCheck(player, systemType, amount)) return false;
-            RepairSystemPatch.Prefix(__instance, systemType, player, amount);
+            RepairSystemPatch.Prefix(__instance, systemType, player, MessageReader.Get(reader).ReadByte());
         }
         catch
         {

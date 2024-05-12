@@ -894,7 +894,7 @@ public static class Options
             .OrderBy(x => (int)x.Key)
             .ToDictionary(x => x.Key, x => x.ToArray());
 
-        CustomHideAndSeekManager.AllHnSRoles = CustomHideAndSeekManager.GetAllHnsRoles(CustomHideAndSeekManager.GetAllHnsRoleTypes());
+        HnSManager.AllHnSRoles = HnSManager.GetAllHnsRoles(HnSManager.GetAllHnsRoleTypes());
     }
 
     public static VoteMode GetWhenSkipVote() => (VoteMode)WhenSkipVote.GetValue();
@@ -1289,7 +1289,7 @@ public static class Options
         //Hot Potato
         HotPotatoManager.SetupCustomOption();
         //Hide And Seek
-        CustomHideAndSeekManager.SetupCustomOption();
+        HnSManager.SetupCustomOption();
 
 
         LoadingPercentage = 65;

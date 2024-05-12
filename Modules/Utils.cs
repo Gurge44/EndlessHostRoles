@@ -53,7 +53,7 @@ public static class Utils
     public static Dictionary<string, Sprite> CachedSprites = [];
     public static long TimeStamp => (long)(DateTime.Now.ToUniversalTime() - TimeStampStartTime).TotalSeconds;
 
-    public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModClient() && x.PlayerId != 0);
+    public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModClient() && !x.IsHost());
 
     public static int TotalTaskCount => Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
 
@@ -374,7 +374,7 @@ public static class Utils
 
         var self = seerId == targetId || Main.PlayerStates[seerId].IsDead;
 
-        bool isHnsAgentOverride = Options.CurrentGameMode == CustomGameMode.HideAndSeek && targetMainRole == CustomRoles.Agent && CustomHideAndSeekManager.PlayerRoles[seerId].Interface.Team != Team.Impostor;
+        bool isHnsAgentOverride = Options.CurrentGameMode == CustomGameMode.HideAndSeek && targetMainRole == CustomRoles.Agent && HnSManager.PlayerRoles[seerId].Interface.Team != Team.Impostor;
         string RoleText = GetRoleName(isHnsAgentOverride ? CustomRoles.Hider : targetMainRole);
         Color RoleColor = GetRoleColor(targetMainRole);
 
@@ -470,6 +470,9 @@ public static class Utils
                 case bool b:
                     w.Write(b);
                     break;
+                case long l:
+                    w.Write(l.ToString());
+                    break;
                 case Vector2 v:
                     NetHelpers.WriteVector2(v, w);
                     break;
@@ -477,6 +480,9 @@ public static class Utils
                     w.Write(v.x);
                     w.Write(v.y);
                     w.Write(v.z);
+                    break;
+                case not null when Enum.IsDefined(o.GetType(), o):
+                    w.WritePacked(Convert.ToInt32(o));
                     break;
             }
         }
@@ -552,7 +558,7 @@ public static class Utils
             case CustomGameMode.FFA: return false;
             case CustomGameMode.MoveAndStop: return true;
             case CustomGameMode.HotPotato: return false;
-            case CustomGameMode.HideAndSeek: return CustomHideAndSeekManager.HasTasks(p);
+            case CustomGameMode.HideAndSeek: return HnSManager.HasTasks(p);
         }
 
         var role = States.MainRole;
@@ -728,7 +734,7 @@ public static class Utils
 
     public static bool IsRoleTextEnabled(PlayerControl __instance)
     {
-        if (__instance.AmOwner || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato || (Options.CurrentGameMode == CustomGameMode.HideAndSeek && CustomHideAndSeekManager.IsRoleTextEnabled(PlayerControl.LocalPlayer, __instance)) || Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool() || PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) return true;
+        if (__instance.AmOwner || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato || (Options.CurrentGameMode == CustomGameMode.HideAndSeek && HnSManager.IsRoleTextEnabled(PlayerControl.LocalPlayer, __instance)) || Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool() || PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) return true;
 
         switch (__instance.GetCustomRole())
         {
@@ -895,7 +901,7 @@ public static class Utils
             SendMessage(GetRoleName(CustomRoles.GM) + GetString("GMInfoLong"), PlayerId);
         }
 
-        foreach (var role in Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(role => role.IsEnable() && !role.IsVanilla()))
+        foreach (var role in Enum.GetValues<CustomRoles>().Where(role => role.IsEnable() && !role.IsVanilla()))
         {
             SendMessage(GetRoleName(role) + GetRoleMode(role) + GetString(Enum.GetName(typeof(CustomRoles), role) + "InfoLong"), PlayerId);
         }
@@ -991,15 +997,18 @@ public static class Utils
             sb.Clear().Append(text.RemoveHtmlTags());
         }
 
-        foreach (var opt in OptionItem.AllOptions.Where(x => x.GetBool() && x.Parent == null && x.Id is >= 80000 and < 640000 && !x.IsHiddenOn(Options.CurrentGameMode)))
+        foreach (var opt in OptionItem.AllOptions)
         {
-            if (opt.Name is "KillFlashDuration" or "RoleAssigningAlgorithm")
-                sb.Append($"\n【{opt.GetName(true)}: {opt.GetString()}】\n");
-            else
-                sb.Append($"\n【{opt.GetName(true)}】\n");
-            ShowChildrenSettings(opt, ref sb);
-            var text = sb.ToString();
-            sb.Clear().Append(text.RemoveHtmlTags());
+            if (opt.GetBool() && opt.Parent == null && opt.Id is >= 80000 and < 640000 && !opt.IsHiddenOn(Options.CurrentGameMode))
+            {
+                if (opt.Name is "KillFlashDuration" or "RoleAssigningAlgorithm")
+                    sb.Append($"\n【{opt.GetName(true)}: {opt.GetString()}】\n");
+                else
+                    sb.Append($"\n【{opt.GetName(true)}】\n");
+                ShowChildrenSettings(opt, ref sb);
+                var text = sb.ToString();
+                sb.Clear().Append(text.RemoveHtmlTags());
+            }
         }
 
         SendMessage(sb.ToString(), PlayerId);
@@ -1071,7 +1080,7 @@ public static class Utils
         var crewsb = new StringBuilder();
         var addonsb = new StringBuilder();
 
-        foreach (var role in Options.CurrentGameMode == CustomGameMode.HideAndSeek ? CustomHideAndSeekManager.AllHnSRoles : Enum.GetValues<CustomRoles>().Except(CustomHideAndSeekManager.AllHnSRoles))
+        foreach (var role in Options.CurrentGameMode == CustomGameMode.HideAndSeek ? HnSManager.AllHnSRoles : Enum.GetValues<CustomRoles>().Except(HnSManager.AllHnSRoles))
         {
             string mode;
             try
@@ -1898,7 +1907,7 @@ public static class Utils
                         SelfSuffix.Append(HotPotatoManager.GetSuffixText(seer.PlayerId));
                         break;
                     case CustomGameMode.HideAndSeek:
-                        SelfSuffix.Append(CustomHideAndSeekManager.GetSuffixText(seer, seer));
+                        SelfSuffix.Append(HnSManager.GetSuffixText(seer, seer));
                         break;
                 }
 
@@ -1927,7 +1936,7 @@ public static class Utils
                     }
                     else if (Options.CurrentGameMode == CustomGameMode.HideAndSeek)
                     {
-                        SeerRealName = CustomHideAndSeekManager.GetRoleInfoText(seer);
+                        SeerRealName = HnSManager.GetRoleInfoText(seer);
                     }
                     else
                     {
@@ -2110,7 +2119,7 @@ public static class Utils
                                 Main.PlayerStates.Values.Any(x => x.Role.KnowRole(seer, target)) ||
                                 Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == target.PlayerId) ||
                                 Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato ||
-                                (Options.CurrentGameMode == CustomGameMode.HideAndSeek && CustomHideAndSeekManager.IsRoleTextEnabled(seer, target)) ||
+                                (Options.CurrentGameMode == CustomGameMode.HideAndSeek && HnSManager.IsRoleTextEnabled(seer, target)) ||
                                 (seer.IsRevealedPlayer(target) && !target.Is(CustomRoles.Trickster)) ||
                                 seer.Is(CustomRoles.God) ||
                                 target.Is(CustomRoles.GM)
@@ -2255,7 +2264,7 @@ public static class Utils
                                     TargetSuffix.Append(SoloKombatManager.GetDisplayHealth(target));
                                     break;
                                 case CustomGameMode.HideAndSeek:
-                                    TargetSuffix.Append(CustomHideAndSeekManager.GetSuffixText(seer, target));
+                                    TargetSuffix.Append(HnSManager.GetSuffixText(seer, target));
                                     break;
                             }
 

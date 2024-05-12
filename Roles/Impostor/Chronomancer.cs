@@ -125,7 +125,7 @@ namespace EHR.Roles.Impostor
                 pc.Notify(string.Format(Translator.GetString("ChronomancerPercent"), ChargePercent), 300f);
             }
 
-            if (beforeCharge != ChargePercent && pc.IsModClient() && pc.PlayerId != 0)
+            if (beforeCharge != ChargePercent && pc.IsModClient() && !pc.IsHost())
             {
                 SendRPC();
             }

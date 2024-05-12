@@ -675,7 +675,7 @@ class GameEndChecker
 
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
-            return CustomHideAndSeekManager.CheckForGameEnd(out reason);
+            return HnSManager.CheckForGameEnd(out reason);
         }
     }
 

@@ -219,7 +219,7 @@ class CheckMurderPatch
             case CustomGameMode.HotPotato:
                 return false;
             case CustomGameMode.HideAndSeek:
-                CustomHideAndSeekManager.OnCheckMurder(killer, target);
+                HnSManager.OnCheckMurder(killer, target);
                 return false;
         }
 
@@ -1527,7 +1527,7 @@ class FixedUpdatePatch
                         Suffix.Append(HotPotatoManager.GetSuffixText(seer.PlayerId));
                         break;
                     case CustomGameMode.HideAndSeek:
-                        Suffix.Append(CustomHideAndSeekManager.GetSuffixText(seer, target));
+                        Suffix.Append(HnSManager.GetSuffixText(seer, target));
                         break;
                 }
 
@@ -1757,7 +1757,7 @@ class CoEnterVentPatch
                 _ = new LateTask(() => { __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id); }, 0.5f);
                 return true;
             case CustomGameMode.HideAndSeek:
-                CustomHideAndSeekManager.OnCoEnterVent(__instance, id);
+                HnSManager.OnCoEnterVent(__instance, id);
                 break;
         }
 

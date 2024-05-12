@@ -26,10 +26,9 @@ namespace EHR.Roles.Impostor
         ];
 
         private static List<CustomRoles> Roles = [];
-
         public static bool On;
 
-        private CustomRoles CurrentRole;
+        public CustomRoles CurrentRole;
         public override bool IsEnable => On;
 
         public static void SetupCustomOption()
@@ -73,6 +72,7 @@ namespace EHR.Roles.Impostor
             try
             {
                 CurrentRole = Roles.First();
+                Utils.SendRPC(CustomRPC.SyncChangeling, playerId, (int)CurrentRole);
             }
             catch (InvalidOperationException)
             {
@@ -92,6 +92,7 @@ namespace EHR.Roles.Impostor
         {
             var currentIndex = Roles.IndexOf(CurrentRole);
             CurrentRole = currentIndex == Roles.Count - 1 ? Roles.First() : Roles[currentIndex + 1];
+            Utils.SendRPC(CustomRPC.SyncChangeling, pc.PlayerId, (int)CurrentRole);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 

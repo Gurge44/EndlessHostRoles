@@ -403,7 +403,7 @@ public static class GameStates
 {
     public static bool InGame;
     public static bool AlreadyDied;
-    public static bool IsModHost => PlayerControl.AllPlayerControls.ToArray().Any(x => x.PlayerId == 0 && x.IsModClient());
+    public static bool IsModHost => PlayerControl.AllPlayerControls.ToArray().Any(x => x.IsHost() && x.IsModClient());
     public static bool IsLobby => AmongUsClient.Instance.GameState == InnerNetClient.GameStates.Joined;
     public static bool IsInGame => InGame;
     public static bool IsEnded => AmongUsClient.Instance.GameState == InnerNetClient.GameStates.Ended;

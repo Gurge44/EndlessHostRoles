@@ -122,6 +122,12 @@ public enum CustomRPC
     RpcPassBomb,
     SetAlchemistTimer,
     SyncPostman,
+    SyncRandomizer,
+    SyncChangeling,
+    SyncCommander,
+    SyncTiger,
+    SyncPredator,
+    SyncImpartial,
 
     //SoloKombat
     SyncKBPlayer,
@@ -192,9 +198,7 @@ internal class RPCHandlerPatch
                 return false;
         }
 
-        if (__instance != null && __instance.PlayerId != 0
-                               && Enum.IsDefined(typeof(CustomRPC), (int)callId)
-                               && !TrustedRpc(callId)) //ホストではなく、CustomRPCで、VersionCheckではない
+        if (__instance != null && !__instance.IsHost() && Enum.IsDefined(typeof(CustomRPC), (int)callId) && !TrustedRpc(callId))
         {
             Logger.Warn($"{__instance.Data?.PlayerName}:{callId}({RPC.GetRpcName(callId)}) canceled because it was sent by someone other than the host.", "CustomRPC");
             if (!AmongUsClient.Instance.AmHost) return false;
@@ -248,7 +252,7 @@ internal class RPCHandlerPatch
                     string forkId = reader.ReadString();
                     Main.PlayerVersion[__instance.PlayerId] = new(version, tag, forkId);
 
-                    if (Main.VersionCheat.Value && __instance.PlayerId == 0) RPC.RpcVersionCheck();
+                    if (Main.VersionCheat.Value && __instance.IsHost()) RPC.RpcVersionCheck();
 
                     if (Main.VersionCheat.Value && AmongUsClient.Instance.AmHost)
                         Main.PlayerVersion[__instance.PlayerId] = Main.PlayerVersion[0];
@@ -351,6 +355,26 @@ internal class RPCHandlerPatch
                 pm.IsFinished = isFinished;
                 break;
             }
+            case CustomRPC.SyncRandomizer:
+                (Main.PlayerStates[reader.ReadByte()].Role as Randomizer)?.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncChangeling:
+                if (Main.PlayerStates[reader.ReadByte()].Role is not Changeling changeling) break;
+                changeling.CurrentRole = (CustomRoles)reader.ReadPackedInt32();
+                break;
+            case CustomRPC.SyncCommander:
+                (Main.PlayerStates[reader.ReadByte()].Role as Commander)?.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncTiger:
+                if (Main.PlayerStates[reader.ReadByte()].Role is not Tiger tiger) break;
+                tiger.EnrageTimer = reader.ReadSingle();
+                break;
+            case CustomRPC.SyncPredator:
+                (Main.PlayerStates[reader.ReadByte()].Role as Predator)?.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncImpartial:
+                (Main.PlayerStates[reader.ReadByte()].Role as Impartial)?.ReceiveRPC(reader);
+                break;
             case CustomRPC.SetBountyTarget:
             {
                 byte bountyId = reader.ReadByte();

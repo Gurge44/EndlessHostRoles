@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
+using Hazel;
 using UnityEngine;
 
 namespace EHR.Roles.Impostor
@@ -13,10 +15,10 @@ namespace EHR.Roles.Impostor
         public static bool On;
         public static OptionItem CannotSpawnAsSoloImp;
         private static OptionItem ShapeshiftCooldown;
+
         private byte CommanderId;
         private Mode CurrentMode;
         public HashSet<byte> DontKillMarks = [];
-
         public bool IsWhistling;
         public byte MarkedPlayer;
         public override bool IsEnable => On;
@@ -53,6 +55,26 @@ namespace EHR.Roles.Impostor
             AURoleOptions.ShapeshifterDuration = 1f;
         }
 
+        void SendRPC() => Utils.SendRPC(CustomRPC.SyncCommander, CommanderId, 1, (int)CurrentMode, IsWhistling, MarkedPlayer);
+
+        public void ReceiveRPC(MessageReader reader)
+        {
+            switch (reader.ReadPackedInt32())
+            {
+                case 1:
+                    CurrentMode = (Mode)reader.ReadPackedInt32();
+                    IsWhistling = reader.ReadBoolean();
+                    MarkedPlayer = reader.ReadByte();
+                    break;
+                case 2:
+                    DontKillMarks.Add(reader.ReadByte());
+                    break;
+                case 3:
+                    DontKillMarks = [];
+                    break;
+            }
+        }
+
         public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
         {
             if (!Options.UsePets.GetBool()) CycleMode(physics.myPlayer);
@@ -66,6 +88,7 @@ namespace EHR.Roles.Impostor
         void CycleMode(PlayerControl pc)
         {
             CurrentMode = (Mode)(((int)CurrentMode + 1) % Enum.GetValues(typeof(Mode)).Length);
+            SendRPC();
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
@@ -140,6 +163,7 @@ namespace EHR.Roles.Impostor
                 AddArrowAndNotify(pc);
             }
 
+            SendRPC();
             return;
 
             void AddArrowAndNotify(PlayerControl pc)
@@ -158,7 +182,7 @@ namespace EHR.Roles.Impostor
             }
 
             MarkedPlayer = target.PlayerId;
-
+            SendRPC();
             Utils.NotifyRoles(SpecifyTarget: target);
         }
 
@@ -167,6 +191,7 @@ namespace EHR.Roles.Impostor
             if (target == null) return;
 
             DontKillMarks.Add(target.PlayerId);
+            Utils.SendRPC(CustomRPC.SyncCommander, CommanderId, 2, target.PlayerId);
             Utils.NotifyRoles(SpecifyTarget: target);
         }
 
@@ -180,7 +205,11 @@ namespace EHR.Roles.Impostor
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }
 
-            if (Main.AllPlayerControls.Where(x => x.Is(Team.Impostor)).All(x => TargetArrow.GetArrows(x, CommanderId) == string.Empty)) IsWhistling = false;
+            if (Main.AllPlayerControls.Where(x => x.Is(Team.Impostor)).All(x => TargetArrow.GetArrows(x, CommanderId) == string.Empty))
+            {
+                IsWhistling = false;
+                SendRPC();
+            }
         }
 
         public override void OnReportDeadBody()
@@ -188,6 +217,8 @@ namespace EHR.Roles.Impostor
             IsWhistling = false;
             MarkedPlayer = byte.MaxValue;
             DontKillMarks = [];
+            SendRPC();
+            Utils.SendRPC(CustomRPC.SyncCommander, CommanderId, 3);
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)

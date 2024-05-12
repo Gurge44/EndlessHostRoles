@@ -172,14 +172,14 @@ public class NiceSwapper : RoleBase
         playerStates.DoIf(x => x.VotedFor == SwapTargets.Item1, x =>
         {
             x.UnsetVote();
-            if (x.TargetPlayerId == 0) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, SwapTargets.Item2);
+            if (x.TargetPlayerId.IsHost()) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, SwapTargets.Item2);
             else MeetingHud.Instance.CastVote(x.TargetPlayerId, SwapTargets.Item2);
             x.VotedFor = SwapTargets.Item2;
         });
         playerStates.DoIf(votedFor2.Contains, x =>
         {
             x.UnsetVote();
-            if (x.TargetPlayerId == 0) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, SwapTargets.Item1);
+            if (x.TargetPlayerId.IsHost()) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, SwapTargets.Item1);
             else MeetingHud.Instance.CastVote(x.TargetPlayerId, SwapTargets.Item1);
             x.VotedFor = SwapTargets.Item1;
         });

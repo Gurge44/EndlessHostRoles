@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using AmongUs.GameOptions;
+using EHR.Modules;
+using Hazel;
 
 namespace EHR.Roles.Neutral
 {
     internal class Impartial : RoleBase
     {
         public static bool On;
-        public override bool IsEnable => On;
 
         private static readonly Dictionary<string, string> ReplacementDictionary = new() { { "Minimum", "<color=#00ffff>Minimum</color>" }, { "Maximum", "<color=#00a5ff>Maximum</color>" } };
 
@@ -22,10 +23,11 @@ namespace EHR.Roles.Neutral
         private static OptionItem HasImpVision;
         private static OptionItem HasImpVisionAfterWinning;
         private static OptionItem CanWinWhenKillingMore;
+        private (int Killed, int Limit) CrewKillCount = (0, 0);
 
         private (int Killed, int Limit) ImpKillCount = (0, 0);
         private (int Killed, int Limit) NeutralKillCount = (0, 0);
-        private (int Killed, int Limit) CrewKillCount = (0, 0);
+        public override bool IsEnable => On;
 
         public bool IsWon
         {
@@ -73,6 +75,8 @@ namespace EHR.Roles.Neutral
             ImpKillCount = (0, r.Next(ImpMinOpt.GetInt(), ImpMaxOpt.GetInt() + 1));
             NeutralKillCount = (0, r.Next(NeutralMinOpt.GetInt(), NeutralMaxOpt.GetInt() + 1));
             CrewKillCount = (0, r.Next(CrewMinOpt.GetInt(), CrewMaxOpt.GetInt() + 1));
+
+            _ = new LateTask(() => { Utils.SendRPC(CustomRPC.SyncImpartial, playerId, 1, ImpKillCount.Killed, ImpKillCount.Limit, NeutralKillCount.Killed, NeutralKillCount.Limit, CrewKillCount.Killed, CrewKillCount.Limit); }, 5f, log: false);
         }
 
         public override void Init()
@@ -95,18 +99,42 @@ namespace EHR.Roles.Neutral
             opt.SetVision(HasImpVision.GetBool() && (!IsWon || HasImpVisionAfterWinning.GetBool()));
         }
 
+        public void ReceiveRPC(MessageReader reader)
+        {
+            switch (reader.ReadPackedInt32())
+            {
+                case 1:
+                    ImpKillCount = (reader.ReadInt32(), reader.ReadInt32());
+                    NeutralKillCount = (reader.ReadInt32(), reader.ReadInt32());
+                    CrewKillCount = (reader.ReadInt32(), reader.ReadInt32());
+                    break;
+                case 2:
+                    ImpKillCount.Killed++;
+                    break;
+                case 3:
+                    NeutralKillCount.Killed++;
+                    break;
+                case 4:
+                    CrewKillCount.Killed++;
+                    break;
+            }
+        }
+
         public override void OnMurder(PlayerControl killer, PlayerControl target)
         {
             switch (target.GetTeam())
             {
                 case Team.Impostor:
                     ImpKillCount.Killed++;
+                    Utils.SendRPC(CustomRPC.SyncImpartial, killer.PlayerId, 2);
                     break;
                 case Team.Neutral:
                     NeutralKillCount.Killed++;
+                    Utils.SendRPC(CustomRPC.SyncImpartial, killer.PlayerId, 3);
                     break;
                 case Team.Crewmate:
                     CrewKillCount.Killed++;
+                    Utils.SendRPC(CustomRPC.SyncImpartial, killer.PlayerId, 4);
                     break;
             }
         }

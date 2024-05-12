@@ -52,7 +52,7 @@ public static class NameColorManager
                 else color = "#ffffff";
                 return true;
             case CustomGameMode.HideAndSeek:
-                return CustomHideAndSeekManager.KnowTargetRoleColor(seer, target, ref color);
+                return HnSManager.KnowTargetRoleColor(seer, target, ref color);
         }
 
         // Global (low priority)

@@ -655,7 +655,7 @@ class IntroCutsceneDestroyPatch
                         {
                             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                             {
-                                if (pc.PlayerId == 0) continue; // Skip the host
+                                if (pc.IsHost()) continue; // Skip the host
                                 try
                                 {
                                     pc.RpcShapeshift(pc, false);

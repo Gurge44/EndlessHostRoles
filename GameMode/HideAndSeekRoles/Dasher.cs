@@ -74,7 +74,7 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            Main.AllPlayerSpeed[playerId] = DashStatus.IsDashing ? DashSpeed.GetFloat() : CustomHideAndSeekManager.IsBlindTime ? Main.MinSpeed : RoleSpeed;
+            Main.AllPlayerSpeed[playerId] = DashStatus.IsDashing ? DashSpeed.GetFloat() : HnSManager.IsBlindTime ? Main.MinSpeed : RoleSpeed;
         }
 
         public override void OnFixedUpdate(PlayerControl pc)

@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using HarmonyLib;
+using Hazel;
 
 namespace EHR.Roles.Neutral
 {
@@ -72,7 +74,37 @@ namespace EHR.Roles.Neutral
                 }
 
                 Logger.Info($"Predator Roles: {RolesToKill.Join()}", "Predator");
+
+                var w = Utils.CreateRPC(CustomRPC.SyncPredator);
+                w.WritePacked(1);
+                w.WritePacked(RolesToKill.Count);
+                foreach (var role in RolesToKill)
+                {
+                    w.WritePacked((int)role);
+                }
+
+                Utils.EndRPC(w);
+                Utils.SendRPC(CustomRPC.SyncPredator, playerId, 2, IsWon);
             }, 3f, "Select Predator Roles");
+        }
+
+        public void ReceiveRPC(MessageReader reader)
+        {
+            switch (reader.ReadPackedInt32())
+            {
+                case 1:
+                    RolesToKill = [];
+                    var count = reader.ReadPackedInt32();
+                    for (int i = 0; i < count; i++)
+                    {
+                        RolesToKill.Add((CustomRoles)reader.ReadPackedInt32());
+                    }
+
+                    break;
+                case 2:
+                    IsWon = reader.ReadBoolean();
+                    break;
+            }
         }
 
         public override void Init()

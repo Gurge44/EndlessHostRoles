@@ -30,7 +30,6 @@ class HudManagerPatch
     public static TextMeshPro LowerInfoText;
 
     private static TextMeshPro OverriddenRolesText;
-    private static TextMeshPro TaskCountText;
 
     private static long LastNullError;
 
@@ -152,9 +151,6 @@ class HudManagerPatch
 
             if (SetHudActivePatch.IsActive)
             {
-                if (TaskCountText == null) TaskCountText = __instance.transform.FindChild("TaskDisplay/ProgressTracker").GetComponent<TextMeshPro>();
-                if (TaskCountText != null) TaskCountText.text += $" ({GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks})";
-
                 if (player.IsAlive() || Options.CurrentGameMode != CustomGameMode.Standard)
                 {
                     bool usesPetInsteadOfKill = player.GetCustomRole().UsesPetInsteadOfKill();
@@ -365,10 +361,10 @@ class HudManagerPatch
                     LowerInfoText.text = Options.CurrentGameMode switch
                     {
                         CustomGameMode.SoloKombat => SoloKombatManager.GetHudText(),
-                        CustomGameMode.FFA when player.PlayerId == 0 => FFAManager.GetHudText(),
-                        CustomGameMode.MoveAndStop when player.PlayerId == 0 => MoveAndStopManager.HUDText,
-                        CustomGameMode.HotPotato when player.PlayerId == 0 => HotPotatoManager.GetSuffixText(player.PlayerId),
-                        CustomGameMode.HideAndSeek when player.PlayerId == 0 => CustomHideAndSeekManager.GetSuffixText(player, player, isHUD: true),
+                        CustomGameMode.FFA when player.IsHost() => FFAManager.GetHudText(),
+                        CustomGameMode.MoveAndStop when player.IsHost() => MoveAndStopManager.HUDText,
+                        CustomGameMode.HotPotato when player.IsHost() => HotPotatoManager.GetSuffixText(player.PlayerId),
+                        CustomGameMode.HideAndSeek when player.IsHost() => HnSManager.GetSuffixText(player, player, isHUD: true),
                         CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + state.SubRoles switch
                         {
                             { } s when s.Contains(CustomRoles.Asthmatic) => Asthmatic.GetSuffixText(player.PlayerId),
@@ -811,7 +807,7 @@ class TaskPanelBehaviourPatch
 
                 case CustomGameMode.HideAndSeek:
 
-                    AllText += $"\r\n\r\n{CustomHideAndSeekManager.GetTaskBarText()}";
+                    AllText += $"\r\n\r\n{HnSManager.GetTaskBarText()}";
 
                     break;
             }

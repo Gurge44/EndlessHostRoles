@@ -496,7 +496,7 @@ internal class ChatCommands
                         break;
                     }
 
-                    if (kickPlayerId == 0)
+                    if (kickPlayerId.IsHost())
                     {
                         Utils.SendMessage(GetString("KickCommandKickHost"), localPlayerId);
                         break;
@@ -922,7 +922,7 @@ internal class ChatCommands
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
             Utils.SendMessage(GetString($"ModeDescribe.{Options.CurrentGameMode}"), playerId);
-            return;
+            if (Options.CurrentGameMode != CustomGameMode.HideAndSeek) return;
         }
 
         role = role.Trim().ToLower();
@@ -999,7 +999,7 @@ internal class ChatCommands
             return;
         }
 
-        if (player.PlayerId != 0) ChatManager.SendMessage(player, text);
+        if (!player.IsHost()) ChatManager.SendMessage(player, text);
         if (text.StartsWith("\n")) text = text[1..];
 
         string[] args = text.Split(' ');
@@ -1230,7 +1230,7 @@ internal class ChatCommands
                     break;
                 }
 
-                if (kickPlayerId == 0)
+                if (kickPlayerId.IsHost())
                 {
                     Utils.SendMessage(GetString("KickCommandKickHost"), player.PlayerId);
                     break;
@@ -1345,7 +1345,7 @@ internal class ChatCommands
                 break;
         }
 
-        if (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive() && player.PlayerId != 0)
+        if (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive() && !player.IsHost())
         {
             ChatManager.SendPreviousMessagesToAll();
             canceled = true;

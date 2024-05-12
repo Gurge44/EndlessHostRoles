@@ -5,6 +5,7 @@ using EHR.Modules;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
 using HarmonyLib;
+using Hazel;
 using UnityEngine;
 using static EHR.Roles.Crewmate.Randomizer;
 
@@ -219,6 +220,7 @@ namespace EHR.Roles.Crewmate
                         break;
                     case Effect.TimeBomb:
                         Bombs.TryAdd(PickRandomPlayer().Pos(), (Utils.TimeStamp, IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration)));
+                        Utils.SendRPC(CustomRPC.SyncRandomizer, randomizer.PlayerId, 1, Bombs.Last().Key, Bombs.Last().Value.PlaceTimeStamp, Bombs.Last().Value.ExplosionDelay);
                         break;
                     case Effect.Tornado:
                         Tornado.SpawnTornado(PickRandomPlayer());
@@ -618,6 +620,7 @@ namespace EHR.Roles.Crewmate
             LastDeathEffect = Utils.TimeStamp;
             Rifts.Clear();
             Bombs.Clear();
+            Utils.SendRPC(CustomRPC.SyncRandomizer, PlayerIdList.First(), 3);
             foreach (var pc in Main.AllPlayerControls)
             {
                 RevertSpeedChangesForPlayer(pc, false);
@@ -652,6 +655,7 @@ namespace EHR.Roles.Crewmate
                         }
 
                         Bombs.Remove(bomb.Key);
+                        Utils.SendRPC(CustomRPC.SyncRandomizer, randomizer.PlayerId, 2, bomb.Key);
                     }
                 }
             }
@@ -659,6 +663,22 @@ namespace EHR.Roles.Crewmate
             {
                 Logger.CurrentMethod();
                 Logger.Exception(ex, "Randomizer");
+            }
+        }
+
+        public void ReceiveRPC(MessageReader reader)
+        {
+            switch (reader.ReadPackedInt32())
+            {
+                case 1:
+                    Bombs.TryAdd(NetHelpers.ReadVector2(reader), (long.Parse(reader.ReadString()), reader.ReadPackedInt32()));
+                    break;
+                case 2:
+                    Bombs.Remove(NetHelpers.ReadVector2(reader));
+                    break;
+                case 3:
+                    Bombs.Clear();
+                    break;
             }
         }
 

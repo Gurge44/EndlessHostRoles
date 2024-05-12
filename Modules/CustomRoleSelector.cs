@@ -78,8 +78,8 @@ internal static class CustomRoleSelector
                 AssignRoleToEveryone(CustomRoles.Potato);
                 return;
             case CustomGameMode.HideAndSeek:
-                CustomHideAndSeekManager.AssignRoles();
-                RoleResult = CustomHideAndSeekManager.PlayerRoles.ToDictionary(x => Utils.GetPlayerById(x.Key), x => x.Value.Role);
+                HnSManager.AssignRoles();
+                RoleResult = HnSManager.PlayerRoles.ToDictionary(x => Utils.GetPlayerById(x.Key), x => x.Value.Role);
                 return;
         }
 
@@ -110,7 +110,7 @@ internal static class CustomRoleSelector
         foreach (var role in Enum.GetValues<CustomRoles>())
         {
             int chance = role.GetMode();
-            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || (role != CustomRoles.Randomizer && role.IsCrewmate() && Options.AprilFoolsMode.GetBool()) || CustomHideAndSeekManager.AllHnSRoles.Contains(role)) continue;
+            if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || (role != CustomRoles.Randomizer && role.IsCrewmate() && Options.AprilFoolsMode.GetBool()) || HnSManager.AllHnSRoles.Contains(role)) continue;
             switch (role)
             {
                 case CustomRoles.Commander when optImpNum <= 1 && Commander.CannotSpawnAsSoloImp.GetBool():
@@ -579,7 +579,7 @@ internal static class CustomRoleSelector
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (Main.GM.Value && pc.PlayerId == 0) continue;
+                if (Main.GM.Value && pc.IsHost()) continue;
                 RoleResult[pc] = role;
             }
         }

@@ -14,6 +14,13 @@ namespace EHR.Modules;
 
 public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 {
+    public PlayerControl player = player;
+
+    public override IGameOptions BasedGameOptions =>
+        Main.RealOptionsData.Restore(new NormalGameOptionsV07(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
+
+    public override bool IsDirty { get; protected set; }
+
     public static void SetDirty(byte playerId)
     {
         foreach (GameOptionsSender allSender in AllSenders)
@@ -71,13 +78,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
             }
         }
     }
-
-    public override IGameOptions BasedGameOptions =>
-        Main.RealOptionsData.Restore(new NormalGameOptionsV07(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
-
-    public override bool IsDirty { get; protected set; }
-
-    public PlayerControl player = player;
 
     public void SetDirty() => IsDirty = true;
 
@@ -164,7 +164,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     opt.SetFloat(FloatOptionNames.ImpostorLightMod, 1.25f);
                     break;
                 case CustomGameMode.HideAndSeek:
-                    CustomHideAndSeekManager.ApplyGameOptions(opt, player);
+                    HnSManager.ApplyGameOptions(opt, player);
                     break;
             }
 
@@ -270,7 +270,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0);
             }
 
-            var array = Main.PlayerStates[player.PlayerId].SubRoles.ToArray();
+            var array = Main.PlayerStates[player.PlayerId].SubRoles;
             foreach (CustomRoles subRole in array)
             {
                 if (subRole.IsGhostRole() && subRole != CustomRoles.EvilSpirit)

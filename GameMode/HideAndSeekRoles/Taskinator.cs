@@ -51,7 +51,7 @@
             {
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Taskinator);
                 CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
-                CustomHideAndSeekManager.AddFoxesToWinners();
+                HnSManager.AddFoxesToWinners();
             }
         }
     }

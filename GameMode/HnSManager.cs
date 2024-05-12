@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace EHR
 {
-    internal static class CustomHideAndSeekManager
+    internal static class HnSManager
     {
         public static int TimeLeft;
         private static long LastUpdate;
@@ -28,6 +28,8 @@ namespace EHR
         public static Dictionary<byte, int> Danger = [];
 
         public static List<CustomRoles> AllHnSRoles = [];
+
+        public static int SeekerNum => Math.Max(Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors), 1);
 
         public static void SetupCustomOption()
         {
@@ -68,7 +70,7 @@ namespace EHR
                 .Select(x => (IHideAndSeekRole)Activator.CreateInstance(x))
                 .Where(x => x != null)
                 .Join(AllHnSRoles, x => x.GetType().Name.ToLower(), x => x.ToString().ToLower(), (Interface, Enum) => (Enum, Interface))
-                .Where(x => (!x.Enum.OnlySpawnsWithPets() || Options.UsePets.GetBool()) && (x.Enum != CustomRoles.Agent || Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors) >= 2) && x.Interface.Count > 0 && x.Interface.Chance > IRandom.Instance.Next(100))
+                .Where(x => (!x.Enum.OnlySpawnsWithPets() || Options.UsePets.GetBool()) && (x.Enum != CustomRoles.Agent || SeekerNum >= 2) && x.Interface.Count > 0 && x.Interface.Chance > IRandom.Instance.Next(100))
                 .OrderBy(x => x.Enum is CustomRoles.Seeker or CustomRoles.Hider ? 100 : IRandom.Instance.Next(100))
                 .GroupBy(x => x.Interface.Team)
                 .ToDictionary(x => x.Key, x => x.ToDictionary(y => y.Enum, y => y.Interface.Count));
@@ -79,6 +81,7 @@ namespace EHR
             if (Options.CurrentGameMode != CustomGameMode.HideAndSeek) return;
 
             IsBlindTime = true;
+            Utils.MarkEveryoneDirtySettingsV4();
             _ = new LateTask(() =>
             {
                 IsBlindTime = false;
@@ -116,9 +119,11 @@ namespace EHR
             Dictionary<Team, int> memberNum = new()
             {
                 [Team.Neutral] = IRandom.Instance.Next(MinNeutrals.GetInt(), MaxNeutrals.GetInt() + 1),
-                [Team.Impostor] = Math.Min(Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors), 1)
+                [Team.Impostor] = SeekerNum
             };
             memberNum[Team.Crewmate] = allPlayers.Count - memberNum.Values.Sum();
+
+            Logger.Warn($"Number of impostors: {memberNum[Team.Impostor]}", "debug");
 
             foreach (var item in Main.SetRoles)
             {
@@ -213,7 +218,7 @@ namespace EHR
 
         public static bool KnowTargetRoleColor(PlayerControl seer, PlayerControl target, ref string color)
         {
-            if (seer.PlayerId == target.PlayerId) return true;
+            if (seer.PlayerId == target.PlayerId || PlayersSeeRoles.GetBool()) return true;
 
             var targetRole = PlayerRoles[target.PlayerId];
             var seerRole = PlayerRoles[seer.PlayerId];
@@ -235,7 +240,7 @@ namespace EHR
 
         public static bool IsRoleTextEnabled(PlayerControl seer, PlayerControl target)
         {
-            return seer.PlayerId == target.PlayerId;
+            return seer.PlayerId == target.PlayerId || PlayersSeeRoles.GetBool();
         }
 
         public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool isHUD = false)
@@ -306,8 +311,8 @@ namespace EHR
                 return true;
             }
 
-            // If time is up or all crewmates have finished their tasks, the game is over and crewmates win
-            if (TimeLeft <= 0 || (alivePlayers.Any(x => PlayerRoles[x.PlayerId].Interface.Team == Team.Crewmate) && alivePlayers.Where(x => PlayerRoles[x.PlayerId].Interface.Team == Team.Crewmate).All(x => x.GetTaskState().IsTaskFinished)))
+            // If time is up, the game is over and crewmates win
+            if (TimeLeft <= 0)
             {
                 reason = GameOverReason.HumansByTask;
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Hider);
@@ -334,8 +339,8 @@ namespace EHR
 
         public static string GetTaskBarText()
         {
-            var text = Main.PlayerStates.Aggregate("<size=80%>", (current, state) => $"{current}{GetStateText(state)}\n");
-            return $"{text}</size>\r\n\r\n<#00ffa5>Tasks:</color> {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}";
+            var text = Main.PlayerStates.IntersectBy(PlayerRoles.Keys, x => x.Key).Aggregate("<size=80%>", (current, state) => $"{current}{GetStateText(state)}\n");
+            return $"{text}</size>\r\n\r\n<#00ffa5>{Translator.GetString("HNS.TaskCount")}</color> {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}";
 
             static string GetStateText(KeyValuePair<byte, PlayerState> state)
             {
@@ -346,7 +351,7 @@ namespace EHR
 
                 TaskState ts = state.Value.TaskState;
                 string stateText = string.Empty;
-                if (PlayersSeeRoles.GetBool()) stateText = $" ({GetRole()}){GetTaskCount()}";
+                if (PlayersSeeRoles.GetBool()) stateText = $" ({GetRole().ToColoredString()}){GetTaskCount()}";
                 else if (isSeeker) stateText = $" ({CustomRoles.Seeker.ToString()})";
                 if (!alive) stateText += $"  <color=#ff0000>{Translator.GetString("Dead")}</color>";
 

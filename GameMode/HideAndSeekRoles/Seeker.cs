@@ -1,7 +1,4 @@
-﻿using System;
-using AmongUs.GameOptions;
-
-namespace EHR.GameMode.HideAndSeekRoles
+﻿namespace EHR.GameMode.HideAndSeekRoles
 {
     internal class Seeker : RoleBase, IHideAndSeekRole
     {
@@ -9,14 +6,13 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public static OptionItem Vision;
         public static OptionItem Speed;
-        public static OptionItem KillCooldown;
         public static OptionItem CanVent;
         public static OptionItem BlindTime;
 
         public override bool IsEnable => On;
         public Team Team => Team.Impostor;
         public int Chance => 100;
-        public int Count => Math.Min(Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors), 1);
+        public int Count => HnSManager.SeekerNum;
         public float RoleSpeed => Speed.GetFloat();
         public float RoleVision => Vision.GetFloat();
 
@@ -34,10 +30,6 @@ namespace EHR.GameMode.HideAndSeekRoles
             Speed = FloatOptionItem.Create(69_211_202, "SeekerSpeed", new(0.05f, 5f, 0.05f), 1.5f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
-                .SetColor(new(255, 25, 25, byte.MaxValue));
-            KillCooldown = FloatOptionItem.Create(69_211_203, "KillCooldown", new(0f, 90f, 1f), 10f, TabGroup.ImpostorRoles)
-                .SetGameMode(CustomGameMode.HideAndSeek)
-                .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(255, 25, 25, byte.MaxValue));
             CanVent = BooleanOptionItem.Create(69_211_204, "CanVent", false, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
@@ -66,11 +58,6 @@ namespace EHR.GameMode.HideAndSeekRoles
         public override bool CanUseImpostorVentButton(PlayerControl pc)
         {
             return CanVent.GetBool();
-        }
-
-        public override void SetKillCooldown(byte id)
-        {
-            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         }
     }
 }

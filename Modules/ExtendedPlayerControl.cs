@@ -241,7 +241,7 @@ static class ExtendedPlayerControl
         }
 
         // Other Clients
-        if (killer.PlayerId != 0)
+        if (!killer.IsHost())
         {
             var writer = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable);
             writer.WriteNetObject(target);
@@ -292,7 +292,7 @@ static class ExtendedPlayerControl
 
         Main.AbilityUseLimit[playerId] = limit;
 
-        if (AmongUsClient.Instance.AmHost && playerId.IsPlayerModClient() && playerId != 0 && rpc)
+        if (AmongUsClient.Instance.AmHost && playerId.IsPlayerModClient() && !playerId.IsHost() && rpc)
         {
             var writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAbilityUseLimit, SendOption.Reliable);
             writer.Write(playerId);
@@ -495,7 +495,7 @@ static class ExtendedPlayerControl
         return GameOptionsData.FromBytes(optByte);
     }*/
 
-    public static bool IsNonHostModClient(this PlayerControl pc) => pc.IsModClient() && pc.PlayerId != 0;
+    public static bool IsNonHostModClient(this PlayerControl pc) => pc.IsModClient() && !pc.IsHost();
 
     public static string GetDisplayRoleName(this PlayerControl player, bool pure = false)
     {
@@ -609,6 +609,9 @@ static class ExtendedPlayerControl
     public static bool IsRoleBlocked(this PlayerControl pc) => RoleBlockManager.RoleBlockedPlayers.ContainsKey(pc.PlayerId);
     public static bool IsPlayerRoleBlocked(this byte id) => RoleBlockManager.RoleBlockedPlayers.ContainsKey(id);
     public static void BlockRole(this PlayerControl pc, float duration) => RoleBlockManager.AddRoleBlock(pc, duration);
+
+    public static bool IsHost(this InnerNetObject ino) => ino.OwnerId == AmongUsClient.Instance.HostId;
+    public static bool IsHost(this byte id) => GetPlayerById(id)?.OwnerId == AmongUsClient.Instance.HostId;
 
     public static bool HasKillButton(this PlayerControl pc)
     {

@@ -32,6 +32,9 @@ class ChatControllerUpdatePatch
             __instance.freeChatField.textArea.compoText.Color(Color.white);
             __instance.freeChatField.textArea.outputText.color = Color.white;
 
+            __instance.quickChatField.background.color = new Color32(40, 40, 40, byte.MaxValue);
+            __instance.quickChatField.text.color = Color.white;
+
             if (quickChatIcon == null) quickChatIcon = GameObject.Find("QuickChatIcon")?.transform.GetComponent<SpriteRenderer>();
             else quickChatIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkQuickChat.png", 100f);
 

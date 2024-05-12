@@ -55,7 +55,7 @@ namespace EHR.GameMode.HideAndSeekRoles
             long now = Utils.TimeStamp;
             if (LastInfoTime + InfoFrequency.GetInt() <= now)
             {
-                var imps = CustomHideAndSeekManager.PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Where(x => x != null && x.GetPlainShipRoom() != null).ToArray();
+                var imps = HnSManager.PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Where(x => x != null && x.GetPlainShipRoom() != null).ToArray();
                 if (imps.Length > 0)
                 {
                     var imp = imps[IRandom.Instance.Next(imps.Length)];

@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using EHR.Modules;
 using UnityEngine;
 
 namespace EHR.Roles.Neutral
@@ -15,7 +16,9 @@ namespace EHR.Roles.Neutral
 
         public static bool On;
 
-        private float EnrageTimer;
+        private int Count;
+
+        public float EnrageTimer;
         public override bool IsEnable => On;
 
         public static void SetupCustomOption()
@@ -89,6 +92,12 @@ namespace EHR.Roles.Neutral
             if (float.IsNaN(EnrageTimer)) return;
 
             EnrageTimer -= Time.fixedDeltaTime;
+
+            Count++;
+            if (Count < 10) return;
+            Count = 0;
+
+            Utils.SendRPC(CustomRPC.SyncTiger, pc.PlayerId, EnrageTimer);
 
             switch (EnrageTimer)
             {
