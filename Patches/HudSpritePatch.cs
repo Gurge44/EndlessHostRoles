@@ -58,6 +58,9 @@ public static class HudSpritePatch
 
         switch (player.GetCustomRole())
         {
+            case CustomRoles.Vulture:
+                newReportButton = CustomButton.Get("Eat");
+                break;
             case CustomRoles.Sentry:
                 newPetButton = CustomButton.Get("Sentry");
                 break;
