@@ -2520,6 +2520,9 @@ public static class Utils
                 case CustomRoles.Markseeker:
                     Markseeker.OnDeath(target);
                     break;
+                case CustomRoles.Medic:
+                    Medic.IsDead(target);
+                    break;
             }
 
             if (target == null) return;

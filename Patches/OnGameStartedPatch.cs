@@ -123,6 +123,8 @@ internal class ChangeRoleSettings
 
             Main.LastNotifyNames = [];
 
+            CheckForEndVotingPatch.EjectionText = string.Empty;
+
             Arsonist.CurrentDousingTarget = byte.MaxValue;
             Revolutionist.CurrentDrawTarget = byte.MaxValue;
             Main.PlayerColors = [];

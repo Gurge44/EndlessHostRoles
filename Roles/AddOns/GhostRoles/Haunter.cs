@@ -16,6 +16,8 @@ namespace EHR.Roles.AddOns.GhostRoles
         private static OptionItem NumberOfReveals;
 
         private List<byte> WarnedImps = [];
+
+        private long WarnTimeStamp = 0;
         public Team Team => Team.Crewmate | Team.Neutral;
         public int Cooldown => 900;
 
@@ -76,6 +78,8 @@ namespace EHR.Roles.AddOns.GhostRoles
                 imp.Notify(Translator.GetString("Haunter1TaskLeft"), 300f);
                 WarnedImps.Add(imp.PlayerId);
             }
+
+            WarnTimeStamp = Utils.TimeStamp;
         }
 
         public void OnFinishedTasks(PlayerControl pc)
@@ -103,7 +107,7 @@ namespace EHR.Roles.AddOns.GhostRoles
 
         public void Update(PlayerControl pc)
         {
-            if (WarnedImps.Count == 0) return;
+            if (WarnedImps.Count == 0 || WarnTimeStamp == Utils.TimeStamp) return;
 
             if (WarnedImps.Any(imp => TargetArrow.GetArrows(Utils.GetPlayerById(imp), pc.PlayerId) == "・"))
             {

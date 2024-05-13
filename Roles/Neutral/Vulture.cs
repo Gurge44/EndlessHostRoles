@@ -122,7 +122,7 @@ public class Vulture : RoleBase
 
     public static void OnPlayerDead(PlayerControl target)
     {
-        if (!ArrowsPointingToDeadBody.GetBool()) return;
+        if (!ArrowsPointingToDeadBody.GetBool() || target.Data.Disconnected) return;
 
         foreach (byte pc in playerIdList)
         {

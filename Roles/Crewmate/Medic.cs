@@ -42,12 +42,7 @@ public class Medic : RoleBase
         "DeactivationIsVisibleOFF",
     ];
 
-    enum Visible
-    {
-        Immediately,
-        AfterMeeting,
-        OFF,
-    }
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
@@ -94,8 +89,6 @@ public class Medic : RoleBase
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     private static void SendRPCForProtectList()
     {
@@ -247,8 +240,6 @@ public class Medic : RoleBase
         if (!target.Is(CustomRoles.Medic)) return;
         if (!ShieldDeactivatesWhenMedicDies.GetBool()) return;
 
-        if (playerIdList.Any(x => Utils.GetPlayerById(x).IsAlive())) return; // If not all Medic-s are dead, return
-
         Utils.NotifyRoles(SpecifySeer: target);
 
         ProtectList.Clear();
@@ -292,5 +283,12 @@ public class Medic : RoleBase
         }
 
         return string.Empty;
+    }
+
+    enum Visible
+    {
+        Immediately,
+        AfterMeeting,
+        OFF,
     }
 }

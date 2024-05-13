@@ -64,7 +64,7 @@ public class Tracefinder : RoleBase
 
     public static void OnPlayerDead(PlayerControl target)
     {
-        if (!On || !GameStates.IsInTask || target == null) return;
+        if (!On || !GameStates.IsInTask || target == null || target.Data.Disconnected) return;
 
         float delay;
         if (ArrowDelayMax.GetFloat() < ArrowDelayMin.GetFloat()) delay = 0f;

@@ -1828,22 +1828,8 @@ class CoEnterVentPatch
         {
             try
             {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.BootFromVent, SendOption.Reliable);
-                writer.WritePacked(127);
-                AmongUsClient.Instance.FinishRpcImmediately(writer);
-                _ = new LateTask(() =>
-                {
-                    try
-                    {
-                        int clientId = __instance.myPlayer.GetClientId();
-                        MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.BootFromVent, SendOption.Reliable, clientId);
-                        writer2.Write(id);
-                        AmongUsClient.Instance.FinishRpcImmediately(writer2);
-                    }
-                    catch
-                    {
-                    }
-                }, 0.5f, "Fix DesyncImpostor Stuck");
+                __instance.RpcBootFromVent(id);
+                return false;
             }
             catch
             {

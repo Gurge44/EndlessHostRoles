@@ -362,6 +362,8 @@ class CheckForEndVotingPatch
         int impnum = 0;
         int neutralnum = 0;
 
+        var DecidedWinner = false;
+
         if (CustomRoles.Bard.RoleExist())
         {
             Bard.OnMeetingHudDestroy(ref name);
@@ -416,8 +418,6 @@ class CheckForEndVotingPatch
         {
             name += $" ({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Brakar), GetString("Brakar"))})";
         }
-
-        var DecidedWinner = false;
 
         if (crole == CustomRoles.Jester)
         {
@@ -486,7 +486,7 @@ class CheckForEndVotingPatch
 
 
         name = name.Replace("color=", string.Empty) + "<size=0>";
-        EjectionText = name.Split('\n')[0];
+        EjectionText = name.Split('\n')[DecidedWinner ? 1 : 0];
 
         _ = new LateTask(() =>
         {
@@ -743,6 +743,11 @@ class MeetingHudStartPatch
             MimicMsg = GetString("MimicDeadMsg") + "\n" + MimicMsg;
             foreach (var ipc in Main.AllPlayerControls.Where(x => x.GetCustomRole().IsImpostorTeam()).ToArray())
                 AddMsg(MimicMsg, ipc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mimic), GetString("MimicMsgTitle")));
+        }
+
+        if (msgToSend.Count > 0)
+        {
+            _ = new LateTask(() => { msgToSend.Do(x => Utils.SendMessage(x.MESSAGE, x.TARGET_ID, x.TITLE)); }, 6f, "Meeting Start Notify");
         }
 
         Main.CyberStarDead.Clear();
