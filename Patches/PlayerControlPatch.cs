@@ -223,6 +223,8 @@ class CheckMurderPatch
                 return false;
         }
 
+        Simon.RemoveTarget(killer, Simon.Instruction.Kill);
+
         if (Mastermind.ManipulatedPlayers.ContainsKey(killer.PlayerId))
         {
             return Mastermind.ForceKillForManipulatedPlayer(killer, target);
@@ -520,7 +522,6 @@ class MurderPlayerPatch
             Main.FirstDied = target.PlayerId;
 
         Postman.CheckAndResetTargets(target, isDeath: true);
-        Simon.RemoveTarget(killer, Simon.Instruction.Kill);
 
         if (target.Is(CustomRoles.Trapper) && killer != target)
             killer.TrapperKilled(target);

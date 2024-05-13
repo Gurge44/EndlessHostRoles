@@ -448,7 +448,7 @@ public static class Utils
 
     public static void SendRPC(CustomRPC rpc, params object[] data)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!DoRPC) return;
 
         var w = CreateRPC(rpc);
         foreach (var o in data)
@@ -481,8 +481,17 @@ public static class Utils
                     w.Write(v.y);
                     w.Write(v.z);
                     break;
-                case not null when Enum.IsDefined(o.GetType(), o):
-                    w.WritePacked(Convert.ToInt32(o));
+                default:
+                    try
+                    {
+                        if (o != null && Enum.TryParse(o.GetType(), o.ToString(), out var e) && e != null)
+                            w.WritePacked((int)e);
+                    }
+                    catch (InvalidCastException e)
+                    {
+                        ThrowException(e);
+                    }
+
                     break;
             }
         }

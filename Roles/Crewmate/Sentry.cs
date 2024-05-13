@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
 using HarmonyLib;
 
 namespace EHR.Roles.Impostor
@@ -19,7 +20,7 @@ namespace EHR.Roles.Impostor
         private readonly HashSet<byte> LastNotified = [];
 
         private HashSet<byte> DeadBodiesInRoom;
-        private PlainShipRoom MonitoredRoom;
+        public PlainShipRoom MonitoredRoom;
 
         private PlayerControl SentryPC;
         public override bool IsEnable => On;
@@ -72,7 +73,11 @@ namespace EHR.Roles.Impostor
                 return;
             }
 
-            if (hasntChosenRoom) MonitoredRoom = room;
+            if (hasntChosenRoom)
+            {
+                MonitoredRoom = room;
+                Utils.SendRPC(CustomRPC.SyncSentry, pc.PlayerId);
+            }
             else DisplayRoomInfo(pc);
         }
 

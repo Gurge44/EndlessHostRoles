@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using HarmonyLib;
+using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
@@ -292,12 +294,15 @@ namespace EHR.Roles.Neutral
                 if (canUseAcid)
                 {
                     AcidPlayers[target.PlayerId] = ([], Utils.TimeStamp);
+                    Utils.SendRPC(CustomRPC.SyncChemist, killer.PlayerId, 4, target.PlayerId);
                     ItemCounts[Item.SulfuricAcid] -= need;
+                    Utils.SendRPC(CustomRPC.SyncChemist, killer.PlayerId, 1, (int)Item.SulfuricAcid, -need);
                     Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 }
                 else if (canUseGrenade)
                 {
                     ItemCounts[Item.Grenade] -= need2;
+                    Utils.SendRPC(CustomRPC.SyncChemist, killer.PlayerId, 1, (int)Item.Grenade, -need2);
                     Grenades[target.PlayerId] = Utils.TimeStamp;
                     Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 }
@@ -310,6 +315,7 @@ namespace EHR.Roles.Neutral
             if (ItemCounts[Item.Explosive] >= need)
             {
                 ItemCounts[Item.Explosive] -= need;
+                Utils.SendRPC(CustomRPC.SyncChemist, killer.PlayerId, 1, (int)Item.Explosive, -need);
                 BombedBodies.Add(target.PlayerId);
             }
         }
@@ -347,6 +353,7 @@ namespace EHR.Roles.Neutral
             if (ItemCounts[Item.MethylamineGas] >= need)
             {
                 ItemCounts[Item.MethylamineGas] -= need;
+                Utils.SendRPC(CustomRPC.SyncChemist, pc.PlayerId, 1, (int)Item.MethylamineGas, -need);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
                 IsBlinding = true;
@@ -367,6 +374,8 @@ namespace EHR.Roles.Neutral
             ItemCounts[Item.Coal] += CoalGainedPerVent.GetInt();
             ItemCounts[Item.IronOre] += IronOreGainedPerVent.GetInt();
 
+            Utils.SendRPC(CustomRPC.SyncChemist, pc.PlayerId, 1, (int)Item.Coal, CoalGainedPerVent.GetInt());
+            Utils.SendRPC(CustomRPC.SyncChemist, pc.PlayerId, 1, (int)Item.IronOre, IronOreGainedPerVent.GetInt());
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
@@ -418,13 +427,23 @@ namespace EHR.Roles.Neutral
             if (!GameStates.IsInTask || !pc.IsAlive() || LastUpdate >= Utils.TimeStamp) return;
             LastUpdate = Utils.TimeStamp;
 
-            if (ItemCounts[Item.Air] < 900) ItemCounts[Item.Air] += AirGainedPerSecond.GetInt();
-            if (ItemCounts[Item.Water] < 900) ItemCounts[Item.Water] += WaterGainedPerSecond.GetInt();
+            if (ItemCounts[Item.Air] < 900)
+            {
+                ItemCounts[Item.Air] += AirGainedPerSecond.GetInt();
+                Utils.SendRPC(CustomRPC.SyncChemist, pc.PlayerId, 1, (int)Item.Air, AirGainedPerSecond.GetInt());
+            }
+
+            if (ItemCounts[Item.Water] < 900)
+            {
+                ItemCounts[Item.Water] += WaterGainedPerSecond.GetInt();
+                Utils.SendRPC(CustomRPC.SyncChemist, pc.PlayerId, 1, (int)Item.Water, WaterGainedPerSecond.GetInt());
+            }
 
             var beforeFactory = CurrentFactory;
             var room = pc.GetPlainShipRoom();
 
             CurrentFactory = FactoryLocations.GetValueOrDefault(Translator.GetString($"{room.RoomId}"));
+            Utils.SendRPC(CustomRPC.SyncChemist, pc.PlayerId, 3, (int)CurrentFactory);
 
             if (CurrentFactory != beforeFactory)
             {
@@ -434,6 +453,7 @@ namespace EHR.Roles.Neutral
                     .ToList();
 
                 SelectedProcess = SortedAvailableProcesses.FirstOrDefault() ?? string.Empty;
+                Utils.SendRPC(CustomRPC.SyncChemist, pc.PlayerId, 2, SelectedProcess);
             }
 
             if ((AcidPlayersDieOptions)AcidPlayersDie.GetValue() == AcidPlayersDieOptions.AfterTime)
@@ -450,6 +470,7 @@ namespace EHR.Roles.Neutral
 
             var index = SortedAvailableProcesses.IndexOf(SelectedProcess);
             SelectedProcess = SortedAvailableProcesses[(index + 1) % SortedAvailableProcesses.Count];
+            Utils.SendRPC(CustomRPC.SyncChemist, pc.PlayerId, 2, SelectedProcess);
 
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
@@ -464,10 +485,39 @@ namespace EHR.Roles.Neutral
 
             if (!Ingredients.TrueForAll(x => ItemCounts[x.Item] >= x.Count)) return;
 
-            Ingredients.ForEach(x => ItemCounts[x.Item] -= x.Count);
-            Results.ForEach(x => ItemCounts[x.Item] += x.Count);
+            Ingredients.ForEach(x =>
+            {
+                ItemCounts[x.Item] -= x.Count;
+                Utils.SendRPC(CustomRPC.SyncChemist, pc.PlayerId, 1, (int)x.Item, -x.Count);
+            });
+            Results.ForEach(x =>
+            {
+                ItemCounts[x.Item] += x.Count;
+                Utils.SendRPC(CustomRPC.SyncChemist, pc.PlayerId, 1, (int)x.Item, x.Count);
+            });
 
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+        }
+
+        public void ReceiveRPC(MessageReader reader)
+        {
+            switch (reader.ReadPackedInt32())
+            {
+                case 1:
+                    Item item = (Item)reader.ReadPackedInt32();
+                    ItemCounts.TryAdd(item, 0);
+                    ItemCounts[item] += reader.ReadPackedInt32();
+                    break;
+                case 2:
+                    SelectedProcess = reader.ReadString();
+                    break;
+                case 3:
+                    CurrentFactory = (Factory)reader.ReadPackedInt32();
+                    break;
+                case 4:
+                    AcidPlayers[reader.ReadByte()] = ([], Utils.TimeStamp);
+                    break;
+            }
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)

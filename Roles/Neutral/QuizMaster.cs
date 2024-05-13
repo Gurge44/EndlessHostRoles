@@ -207,8 +207,7 @@ namespace EHR.Roles.Neutral
                 return CustomQuestions[random.Next(CustomQuestions.Length)];
             }
 
-            int whichList = random.Next(4);
-            bool abc = whichList == 0;
+            bool abc = random.Next(4) == 0;
             List<int> indexes = abc ? allowedABCIndexes : allowedIndexes;
             int index = indexes[random.Next(indexes.Count)];
 
@@ -228,9 +227,9 @@ namespace EHR.Roles.Neutral
                 1 => (AllColors.Shuffle(random).Take(2).Select(x => x.String), Data.LastReportedPlayer.String),
                 2 when abc => ((new[] { PlayerState.DeathReason.Suicide, PlayerState.DeathReason.Kill, PlayerState.DeathReason.etc }).Select(x => Translator.GetString($"DeathReason.{x}")), Translator.GetString($"DeathReason.{Main.PlayerStates[Data.LastReportedPlayer.Player!.PlayerId].deathReason}")),
                 2 => (GetTwoRandomNames(Data.LastPlayerPressedButtonName), Data.LastPlayerPressedButtonName),
-                3 when abc => (new[] { "Town Of Us", "Town Of Host Enhanced" }, "Endless Host Roles"),
+                3 when abc => (["Town Of Us", "Town Of Host Enhanced"], "Endless Host Roles"),
                 3 => (AllSabotages[..1].Select(x => Translator.GetString($"{x}")), Translator.GetString($"{Data.LastSabotage}")),
-                4 when abc => (new[] { "tukasa0001", "0xDrMoe" }, "Gurge44"),
+                4 when abc => (["tukasa0001", "0xDrMoe"], "Gurge44"),
                 4 => (CustomRoleSelector.RoleResult.Values.Shuffle(random).Take(2).Select(x => x.ToColoredString()), Main.LastVotedPlayerInfo!.Object.GetCustomRole().ToColoredString()),
                 5 when abc => (Enum.GetValues<Team>().Skip(1).Where(x => x != randomRole.GetTeam()).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetTeam()}")),
                 5 => (GetTwoRandomNames(Data.LastReporterName), Data.LastReporterName),

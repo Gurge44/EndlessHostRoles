@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AmongUs.GameOptions;
+using EHR.Neutral;
 using EHR.Roles.AddOns.Crewmate;
 using EHR.Roles.AddOns.Impostor;
 using EHR.Roles.Crewmate;
@@ -128,8 +129,14 @@ public enum CustomRPC
     SyncTiger,
     SyncPredator,
     SyncImpartial,
+    SyncAdventurer,
+    SyncSentry,
+    SyncBargainer,
+    SyncOverheat,
+    SyncChemist,
+    SyncSimon,
 
-    //SoloKombat
+    // Other Game Modes
     SyncKBPlayer,
     SyncKBBackCountdown,
     SyncKBNameNotify,
@@ -142,15 +149,13 @@ public enum Sounds
     KillSound,
     TaskComplete,
     TaskUpdateSound,
-    ImpTransform,
-
-    Test,
+    ImpTransform
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.HandleRpc))]
 internal class RPCHandlerPatch
 {
-    public static Dictionary<byte, int> ReportDeadBodyRPCs = [];
+    public static readonly Dictionary<byte, int> ReportDeadBodyRPCs = [];
 
     public static bool TrustedRpc(byte id)
         => (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.RetributionistRevenge;
@@ -375,6 +380,25 @@ internal class RPCHandlerPatch
             case CustomRPC.SyncImpartial:
                 (Main.PlayerStates[reader.ReadByte()].Role as Impartial)?.ReceiveRPC(reader);
                 break;
+            case CustomRPC.SyncAdventurer:
+                (Main.PlayerStates[reader.ReadByte()].Role as Adventurer)?.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncSentry:
+            {
+                byte id = reader.ReadByte();
+                if (Main.PlayerStates[id].Role is not Roles.Impostor.Sentry sentry) break;
+                sentry.MonitoredRoom = Utils.GetPlayerById(id).GetPlainShipRoom();
+                break;
+            }
+            case CustomRPC.SyncOverheat:
+                ((Overheat)Main.PlayerStates[reader.ReadByte()].Role).Temperature = reader.ReadPackedInt32();
+                break;
+            case CustomRPC.SyncChemist:
+                (Main.PlayerStates[reader.ReadByte()].Role as Chemist)?.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncSimon:
+                (Main.PlayerStates[reader.ReadByte()].Role as Simon)?.ReceiveRPC(reader);
+                break;
             case CustomRPC.SetBountyTarget:
             {
                 byte bountyId = reader.ReadByte();
@@ -382,6 +406,9 @@ internal class RPCHandlerPatch
                 (Main.PlayerStates[bountyId].Role as BountyHunter)?.ReceiveRPC(bountyId, targetId);
                 break;
             }
+            case CustomRPC.SyncBargainer:
+                Bargainer.ReceiveRPC(reader);
+                break;
             case CustomRPC.SetKillOrSpell:
                 Witch.ReceiveRPC(reader, false);
                 break;
@@ -535,8 +562,17 @@ internal class RPCHandlerPatch
             case CustomRPC.PenguinSync:
             {
                 byte id = reader.ReadByte();
-                byte victim = reader.ReadByte();
-                (Main.PlayerStates[id].Role as Penguin)?.ReceiveRPC(victim);
+                int operate = reader.ReadInt32();
+                if (operate == 1)
+                {
+                    byte victim = reader.ReadByte();
+                    (Main.PlayerStates[id].Role as Penguin)?.ReceiveRPC(victim);
+                }
+                else
+                {
+                    float timer = reader.ReadSingle();
+                    (Main.PlayerStates[id].Role as Penguin)?.ReceiveRPC(timer);
+                }
             }
                 break;
             case CustomRPC.SetRealKiller:

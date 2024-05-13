@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using EHR.Modules;
 using UnityEngine;
 
 namespace EHR.Roles.Impostor
@@ -16,7 +17,8 @@ namespace EHR.Roles.Impostor
         private float ChanceIncreaseTimer;
         private float RollChanceTimer;
 
-        private int Temperature;
+        public int Temperature;
+
         public override bool IsEnable => On;
 
         public static void SetupCustomOption()
@@ -56,6 +58,7 @@ namespace EHR.Roles.Impostor
             Temperature = StartingTemperature;
             ChanceIncreaseTimer = -8f;
             RollChanceTimer = -8f;
+            SendRPC(playerId);
         }
 
         public override void Init()
@@ -70,6 +73,8 @@ namespace EHR.Roles.Impostor
             AURoleOptions.ShapeshifterCooldown = 1f;
             AURoleOptions.ShapeshifterDuration = 1f;
         }
+
+        void SendRPC(byte id) => Utils.SendRPC(CustomRPC.SyncOverheat, id, Temperature);
 
         public override void SetKillCooldown(byte id)
         {
@@ -89,6 +94,7 @@ namespace EHR.Roles.Impostor
             {
                 ChanceIncreaseTimer = 0f;
                 Temperature += OverheatChanceIncrease.GetInt();
+                SendRPC(pc.PlayerId);
                 pc.ResetKillCooldown();
                 pc.MarkDirtySettings();
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -107,6 +113,7 @@ namespace EHR.Roles.Impostor
         void CoolDown(PlayerControl pc)
         {
             Temperature = StartingTemperature;
+            SendRPC(pc.PlayerId);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
             float speed = Main.AllPlayerSpeed[pc.PlayerId];

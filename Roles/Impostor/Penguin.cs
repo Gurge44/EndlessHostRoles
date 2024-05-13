@@ -18,6 +18,8 @@ namespace EHR.Roles.Impostor
         private float AbductTimerLimit;
 
         private PlayerControl AbductVictim;
+
+        int Count = 0;
         private float DefaultSpeed;
 
         private bool IsGoose;
@@ -103,6 +105,7 @@ namespace EHR.Roles.Impostor
             if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PenguinSync, SendOption.Reliable);
             writer.Write(PenguinId);
+            writer.Write(1);
             writer.Write(AbductVictim?.PlayerId ?? 255);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
@@ -119,6 +122,11 @@ namespace EHR.Roles.Impostor
                 AbductVictim = Utils.GetPlayerById(victim);
                 AbductTimer = AbductTimerLimit;
             }
+        }
+
+        public void ReceiveRPC(float timer)
+        {
+            AbductTimer = timer;
         }
 
         void AddVictim(PlayerControl target)
@@ -252,7 +260,16 @@ namespace EHR.Roles.Impostor
             if (!GameStates.IsInTask) return;
 
             if (!stopCount)
+            {
                 AbductTimer -= Time.fixedDeltaTime;
+
+                Count++;
+                if (Count >= 10)
+                {
+                    Count = 0;
+                    Utils.SendRPC(CustomRPC.PenguinSync, PenguinId, 2, AbductTimer);
+                }
+            }
 
             if (AbductVictim != null)
             {

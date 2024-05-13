@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
 using EHR.Patches;
+using Hazel;
 using UnityEngine;
 
 namespace EHR.Roles.Crewmate
@@ -117,12 +119,14 @@ namespace EHR.Roles.Crewmate
         public override void OnExitVent(PlayerControl pc, Vent vent)
         {
             InCraftingMode = !InCraftingMode;
+            Utils.SendRPC(CustomRPC.SyncAdventurer, pc.PlayerId, 1, InCraftingMode);
 
             switch (InCraftingMode)
             {
                 case true:
                     OrderedWeapons = [.. EnabledWeapons.OrderBy(x => !Ingredients[x].All(r => r.Count <= ResourceCounts[r.Resource]))];
                     SelectedWeaponToCraft = OrderedWeapons.FirstOrDefault();
+                    Utils.SendRPC(CustomRPC.SyncAdventurer, pc.PlayerId, 4, (int)SelectedWeaponToCraft);
                     break;
                 case false when Ingredients[SelectedWeaponToCraft].All(x => x.Count <= ResourceCounts[x.Resource]):
                     var weapon = SelectedWeaponToCraft == Weapon.RNG ? EnabledWeapons[IRandom.Instance.Next(EnabledWeapons.Count)] : SelectedWeaponToCraft;
@@ -131,6 +135,7 @@ namespace EHR.Roles.Crewmate
                     foreach ((Resource resource, int count) in Ingredients[weapon])
                     {
                         ResourceCounts[resource] -= count;
+                        Utils.SendRPC(CustomRPC.SyncAdventurer, pc.PlayerId, 2, (int)resource, count);
                     }
 
                     break;
@@ -145,6 +150,7 @@ namespace EHR.Roles.Crewmate
             {
                 case true:
                     SelectedWeaponToCraft = OrderedWeapons[(OrderedWeapons.IndexOf(SelectedWeaponToCraft) + 1) % OrderedWeapons.Count];
+                    Utils.SendRPC(CustomRPC.SyncAdventurer, pc.PlayerId, 4, (int)SelectedWeaponToCraft);
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                     break;
                 case false when ActiveWeapons.Count > 0:
@@ -226,6 +232,7 @@ namespace EHR.Roles.Crewmate
         public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
             ResourceCounts[Resource.TaskCompletion]++;
+            Utils.SendRPC(CustomRPC.SyncAdventurer, pc.PlayerId, 3, (int)Resource.TaskCompletion);
         }
 
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
@@ -266,6 +273,7 @@ namespace EHR.Roles.Crewmate
                 if (Vector2.Distance(pc.Pos(), location) < 2f)
                 {
                     ResourceCounts[resource]++;
+                    Utils.SendRPC(CustomRPC.SyncAdventurer, pc.PlayerId, 3, (int)resource);
                     ResourceLocations.Remove(resource);
                     LocateArrow.Remove(pc.PlayerId, location);
 
@@ -284,6 +292,7 @@ namespace EHR.Roles.Crewmate
         public void OnLightsFix()
         {
             ResourceCounts[Resource.LightsFix]++;
+            Utils.SendRPC(CustomRPC.SyncAdventurer, AdventurerPC.PlayerId, 3, (int)Resource.LightsFix);
         }
 
         public static void OnAnyoneShapeshiftLoop(Adventurer av, PlayerControl shapeshifter)
@@ -321,6 +330,25 @@ namespace EHR.Roles.Crewmate
         public override bool KnowRole(PlayerControl seer, PlayerControl target)
         {
             return Main.PlayerStates[seer.PlayerId].Role is Adventurer { IsEnable: true } av && av.RevealedPlayers.Contains(target.PlayerId);
+        }
+
+        public void ReceiveRPC(MessageReader reader)
+        {
+            switch (reader.ReadPackedInt32())
+            {
+                case 1:
+                    InCraftingMode = reader.ReadBoolean();
+                    break;
+                case 2:
+                    ResourceCounts[(Resource)reader.ReadPackedInt32()] -= reader.ReadInt32();
+                    break;
+                case 3:
+                    ResourceCounts[(Resource)reader.ReadPackedInt32()]++;
+                    break;
+                case 4:
+                    SelectedWeaponToCraft = (Weapon)reader.ReadPackedInt32();
+                    break;
+            }
         }
 
         public override string GetSuffix(PlayerControl pc, PlayerControl tar, bool hud = false, bool isForMeeting = false)

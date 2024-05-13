@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
+using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
@@ -22,10 +24,11 @@ namespace EHR.Neutral
         private static OptionItem KillCooldown;
         private static OptionItem CanVent;
         private static OptionItem HasImpostorVision;
+
         private bool DoMode;
         private bool Executed;
-
         private Dictionary<byte, (bool DoAction, Instruction Instruction)> MarkedPlayers;
+        private byte SimonId;
 
         public override bool IsEnable => On;
 
@@ -54,6 +57,8 @@ namespace EHR.Neutral
             MarkedPlayers = [];
             DoMode = true;
             Executed = false;
+            SimonId = playerId;
+            Utils.SendRPC(CustomRPC.SyncSimon, playerId, 1, DoMode);
 
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -72,6 +77,7 @@ namespace EHR.Neutral
             return killer.CheckDoubleTrigger(target, () =>
             {
                 MarkedPlayers[target.PlayerId] = (DoMode, Main.PlayerStates[target.PlayerId].Role.CanUseKillButton(target) ? Instruction.Kill : target.GetTaskState().hasTasks ? Instruction.Task : Instruction.None);
+                Utils.SendRPC(CustomRPC.SyncSimon, killer.PlayerId, 3, target.PlayerId, DoMode, (int)MarkedPlayers[target.PlayerId].Instruction);
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             });
         }
@@ -80,7 +86,9 @@ namespace EHR.Neutral
         {
             if (Executed || MarkedPlayers.Count == 0) return;
 
+            int size = MarkedPlayers.Count;
             MarkedPlayers.Where(x => x.Value.Instruction == Instruction.None).ToList().ForEach(x => MarkedPlayers.Remove(x.Key));
+            if (size != MarkedPlayers.Count) Utils.SendRPC(CustomRPC.SyncSimon, physics.myPlayer.PlayerId, 2);
 
             Executed = true;
             foreach (var kvp in MarkedPlayers)
@@ -108,6 +116,7 @@ namespace EHR.Neutral
         public override void OnPet(PlayerControl pc)
         {
             DoMode = !DoMode;
+            Utils.SendRPC(CustomRPC.SyncSimon, pc.PlayerId, 1, DoMode);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
@@ -132,6 +141,29 @@ namespace EHR.Neutral
             }
 
             MarkedPlayers.Clear();
+            Utils.SendRPC(CustomRPC.SyncSimon, SimonId, 5);
+        }
+
+        public void ReceiveRPC(MessageReader reader)
+        {
+            switch (reader.ReadPackedInt32())
+            {
+                case 1:
+                    DoMode = reader.ReadBoolean();
+                    break;
+                case 2:
+                    MarkedPlayers.Where(x => x.Value.Instruction == Instruction.None).ToList().ForEach(x => MarkedPlayers.Remove(x.Key));
+                    break;
+                case 3:
+                    MarkedPlayers[reader.ReadByte()] = (reader.ReadBoolean(), (Instruction)reader.ReadPackedInt32());
+                    break;
+                case 4:
+                    MarkedPlayers.Remove(reader.ReadByte());
+                    break;
+                case 5:
+                    MarkedPlayers.Clear();
+                    break;
+            }
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
@@ -157,6 +189,7 @@ namespace EHR.Neutral
                     if (value.DoAction) pc.Notify(Utils.ColorString(Color.green, "\u2713"));
                     else pc.Suicide();
                     simon.MarkedPlayers.Remove(pc.PlayerId);
+                    Utils.SendRPC(CustomRPC.SyncSimon, simon.SimonId, 4, pc.PlayerId);
                 }
             }
         }

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
+using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
@@ -230,6 +232,7 @@ namespace EHR.Roles.Neutral
             {
                 var list = OrderedItems.ToList();
                 SelectedItem = list[(list.IndexOf(SelectedItem) + 1) % list.Count];
+                Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 2, (int)SelectedItem);
                 return false;
             }
 
@@ -255,14 +258,23 @@ namespace EHR.Roles.Neutral
         {
             if (!GameStates.IsInTask || !pc.IsAlive())
             {
-                InShop = false;
-                ActiveItems.Clear();
-                Money = 0;
+                if (InShop || ActiveItems.Count > 0 || Money != 0)
+                {
+                    Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 1, false);
+                    Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 5);
+
+                    InShop = false;
+                    ActiveItems.Clear();
+                    Money = 0;
+                    Update();
+                }
+
                 return;
             }
 
             var wasInShop = InShop;
             InShop = ShopLocations.Any(x => Vector2.Distance(pc.Pos(), x) < DisableDevice.UsableDistance());
+            Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 1, InShop);
 
             switch (wasInShop)
             {
@@ -270,6 +282,7 @@ namespace EHR.Roles.Neutral
                 {
                     (int duration, byte target) = GetData(SelectedItem);
                     ActiveItems.Add((SelectedItem, Utils.TimeStamp, duration, target));
+                    Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 3, (int)SelectedItem, Utils.TimeStamp, duration, target);
                     Money -= cost;
                     Update();
 
@@ -306,16 +319,21 @@ namespace EHR.Roles.Neutral
                     var affordableItems = orderedItems.TakeWhile(canBuy).Select(x => x.Key);
                     OrderedItems = affordableItems.Concat(unAffordableItems);
                     SelectedItem = OrderedItems.FirstOrDefault();
+                    Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 2, (int)SelectedItem);
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                     break;
                 }
             }
 
-            ActiveItems.RemoveAll(x => x.Item == Item.None);
+            var rc = ActiveItems.RemoveAll(x => x.Item == Item.None);
+            if (rc > 0) Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 6);
 
-            foreach (var item in ActiveItems.Where(x => x.Duration != int.MaxValue && x.ActivateTimeStamp + x.Duration < Utils.TimeStamp).ToArray())
+            var array = ActiveItems.Where(x => x.Duration != int.MaxValue && x.ActivateTimeStamp + x.Duration < Utils.TimeStamp).ToArray();
+            for (int i = 0; i < array.Length; i++)
             {
+                var item = array[i];
                 ActiveItems.Remove(item);
+                Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 4, i);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: Utils.GetPlayerById(item.Target) ?? pc);
             }
         }
@@ -343,7 +361,11 @@ namespace EHR.Roles.Neutral
                 }
             }
 
-            foreach (var index in indexesToRemove) ActiveItems.RemoveAt(index);
+            foreach (var index in indexesToRemove)
+            {
+                ActiveItems.RemoveAt(index);
+                Utils.SendRPC(CustomRPC.SyncBargainer, BargainerId, 4, index);
+            }
 
             Utils.GetPlayerById(BargainerId).ResetKillCooldown();
         }
@@ -351,6 +373,34 @@ namespace EHR.Roles.Neutral
         public override bool KnowRole(PlayerControl seer, PlayerControl target)
         {
             return Main.PlayerStates[seer.PlayerId].Role is Bargainer bg && bg.ActiveItems.Any(x => x.Target == target.PlayerId);
+        }
+
+        public static void ReceiveRPC(MessageReader reader)
+        {
+            byte playerId = reader.ReadByte();
+            if (Main.PlayerStates[playerId].Role is not Bargainer bg) return;
+
+            switch (reader.ReadPackedInt32())
+            {
+                case 1:
+                    bg.InShop = reader.ReadBoolean();
+                    break;
+                case 2:
+                    bg.SelectedItem = (Item)reader.ReadPackedInt32();
+                    break;
+                case 3:
+                    bg.ActiveItems.Add(((Item)reader.ReadPackedInt32(), long.Parse(reader.ReadString()), reader.ReadPackedInt32(), reader.ReadByte()));
+                    break;
+                case 4:
+                    bg.ActiveItems.RemoveAt(reader.ReadPackedInt32());
+                    break;
+                case 5:
+                    bg.ActiveItems.Clear();
+                    break;
+                case 6:
+                    bg.ActiveItems.RemoveAll(x => x.Item == Item.None);
+                    break;
+            }
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
