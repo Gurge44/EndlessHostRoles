@@ -58,6 +58,9 @@ public static class HudSpritePatch
 
         switch (player.GetCustomRole())
         {
+            case CustomRoles.Changeling:
+                newAbilityButton = CustomButton.Get("GlitchMimic");
+                break;
             case CustomRoles.Vulture:
                 newReportButton = CustomButton.Get("Eat");
                 break;

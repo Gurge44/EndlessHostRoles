@@ -140,7 +140,6 @@ public class Vulture : RoleBase
 
         BodyReportCount++;
         pc.RpcRemoveAbilityUse();
-        Logger.Msg($"target.object {target.Object}, is null? {target.Object == null}", "VultureNull");
         if (target.Object != null)
         {
             foreach (byte apc in playerIdList)
@@ -149,7 +148,7 @@ public class Vulture : RoleBase
             }
         }
 
-        pc.Notify(GetString("VultureBodyReported"));
+        pc.Notify(GetString("VultureReportBody"));
         UnreportablePlayers.Remove(target.PlayerId);
         UnreportablePlayers.Add(target.PlayerId);
 

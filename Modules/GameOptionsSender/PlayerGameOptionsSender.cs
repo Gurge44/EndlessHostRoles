@@ -88,7 +88,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
             var opt = BuildGameOptions();
             if (GameManager.Instance?.LogicComponents != null)
             {
-                foreach (var com in GameManager.Instance.LogicComponents)
+                foreach (var com in GameManager.Instance.LogicComponents.GetFastEnumerator())
                 {
                     if (com.TryCast<LogicOptions>(out var lo))
                         lo.SetGameOptions(opt);
@@ -100,16 +100,19 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
         else base.SendGameOptions();
     }
 
-    public override void SendOptionsArray(Il2CppStructArray<byte> optionArray)
+    protected override void SendOptionsArray(Il2CppStructArray<byte> optionArray)
     {
         try
         {
-            for (byte i = 0; i < GameManager.Instance?.LogicComponents?.Count; i++)
+            byte i = 0;
+            foreach (var logicComponent in GameManager.Instance.LogicComponents.GetFastEnumerator())
             {
-                if (GameManager.Instance.LogicComponents[(Index)i].TryCast<LogicOptions>(out _))
+                if (logicComponent.TryCast<LogicOptions>(out _))
                 {
                     SendOptionsArray(optionArray, i, player.GetClientId());
                 }
+
+                i++;
             }
         }
         catch (Exception ex)

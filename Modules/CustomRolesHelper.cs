@@ -345,6 +345,7 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Patroller => RoleTypes.Impostor,
             CustomRoles.Simon => RoleTypes.Impostor,
             CustomRoles.Chemist => RoleTypes.Impostor,
             CustomRoles.Samurai => RoleTypes.Impostor,
@@ -449,6 +450,7 @@ internal static class CustomRolesHelper
         CustomRoles.Poisoner or
         CustomRoles.Refugee or
         CustomRoles.Simon or
+        CustomRoles.Patroller or
         CustomRoles.Parasite or
         CustomRoles.NSerialKiller or
         CustomRoles.Chemist or
@@ -1133,69 +1135,24 @@ internal static class CustomRolesHelper
 
     public static bool IsEnable(this CustomRoles role) => role.GetCount() > 0;
 
-    public static CountTypes GetCountTypes(this CustomRoles role)
-        => role switch
-        {
-            CustomRoles.GM => CountTypes.OutOfGame,
-            CustomRoles.Bloodlust => CountTypes.Bloodlust,
-            CustomRoles.Jackal => CountTypes.Jackal,
-            CustomRoles.Sidekick => CountTypes.Jackal,
-            CustomRoles.Poisoner => CountTypes.Poisoner,
-            CustomRoles.Doppelganger => CountTypes.Doppelganger,
-            CustomRoles.Pelican => CountTypes.Pelican,
-            CustomRoles.Gamer => CountTypes.Gamer,
-            CustomRoles.BloodKnight => CountTypes.BloodKnight,
-            CustomRoles.Bandit => CountTypes.Bandit,
-            CustomRoles.Succubus => CountTypes.Succubus,
-            CustomRoles.Necromancer => CountTypes.Necromancer,
-            CustomRoles.Deathknight => CountTypes.Necromancer,
-            CustomRoles.HexMaster => CountTypes.HexMaster,
-            CustomRoles.Wraith => CountTypes.Wraith,
-            CustomRoles.Pestilence => CountTypes.Pestilence,
-            CustomRoles.PlagueBearer => CountTypes.PlagueBearer,
-            CustomRoles.Simon => CountTypes.Simon,
-            CustomRoles.Parasite => CountTypes.Impostor,
-            CustomRoles.NSerialKiller => CountTypes.NSerialKiller,
-            CustomRoles.Chemist => CountTypes.Chemist,
-            CustomRoles.Samurai => CountTypes.Samurai,
-            CustomRoles.QuizMaster => CountTypes.QuizMaster,
-            CustomRoles.Bargainer => CountTypes.Bargainer,
-            CustomRoles.Tiger => CountTypes.Tiger,
-            CustomRoles.Enderman => CountTypes.Enderman,
-            CustomRoles.Mycologist => CountTypes.Mycologist,
-            CustomRoles.Bubble => CountTypes.Bubble,
-            CustomRoles.Hookshot => CountTypes.Hookshot,
-            CustomRoles.Sprayer => CountTypes.Sprayer,
-            CustomRoles.PlagueDoctor => CountTypes.PlagueDoctor,
-            CustomRoles.Magician => CountTypes.Magician,
-            CustomRoles.WeaponMaster => CountTypes.WeaponMaster,
-            CustomRoles.Reckless => CountTypes.Reckless,
-            CustomRoles.Eclipse => CountTypes.Eclipse,
-            CustomRoles.Pyromaniac => CountTypes.Pyromaniac,
-            CustomRoles.Vengeance => CountTypes.Vengeance,
-            CustomRoles.HeadHunter => CountTypes.HeadHunter,
-            CustomRoles.Imitator => CountTypes.Imitator,
-            CustomRoles.Werewolf => CountTypes.Werewolf,
-            CustomRoles.Juggernaut => CountTypes.Juggernaut,
-            CustomRoles.Jinx => CountTypes.Jinx,
-            CustomRoles.Agitater => CountTypes.Agitater,
-            CustomRoles.Crewpostor => CountTypes.Impostor,
-            CustomRoles.Virus => CountTypes.Virus,
-            CustomRoles.Ritualist => CountTypes.Ritualist,
-            CustomRoles.Pickpocket => CountTypes.Pickpocket,
-            CustomRoles.Traitor => CountTypes.Traitor,
-            CustomRoles.RuthlessRomantic => CountTypes.RuthlessRomantic,
-            CustomRoles.Medusa => CountTypes.Medusa,
-            CustomRoles.Refugee => CountTypes.Impostor,
-            CustomRoles.Glitch => CountTypes.Glitch,
-            CustomRoles.Spiritcaller => CountTypes.Spiritcaller,
-            CustomRoles.Cherokious => CountTypes.Cherokious,
-            CustomRoles.DarkHide => DarkHide.SnatchesWin.GetBool() ? CountTypes.Crew : CountTypes.DarkHide,
-            CustomRoles.Arsonist => !Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Crew : CountTypes.Arsonist,
-            CustomRoles.SchrodingersCat => SchrodingersCat.WinsWithCrewIfNotAttacked.GetBool() ? CountTypes.Crew : CountTypes.OutOfGame,
+    public static CountTypes GetCountTypes(this CustomRoles role) => role switch
+    {
+        CustomRoles.GM => CountTypes.OutOfGame,
+        CustomRoles.Sidekick => CountTypes.Jackal,
+        CustomRoles.Deathknight => CountTypes.Necromancer,
+        CustomRoles.Parasite => CountTypes.Impostor,
+        CustomRoles.Crewpostor => CountTypes.Impostor,
+        CustomRoles.Refugee => CountTypes.Impostor,
+        CustomRoles.DarkHide => DarkHide.SnatchesWin.GetBool() ? CountTypes.Crew : CountTypes.DarkHide,
+        CustomRoles.Arsonist => !Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Crew : CountTypes.Arsonist,
+        CustomRoles.SchrodingersCat => SchrodingersCat.WinsWithCrewIfNotAttacked.GetBool() ? CountTypes.Crew : CountTypes.OutOfGame,
 
-            _ => role.Is(Team.Impostor) ? CountTypes.Impostor : CountTypes.Crew
-        };
+        _ => Enum.TryParse(role.ToString(), true, out CountTypes type)
+            ? type
+            : role.Is(Team.Impostor)
+                ? CountTypes.Impostor
+                : CountTypes.Crew
+    };
 
     public static RoleOptionType GetRoleOptionType(this CustomRoles role)
     {
@@ -1291,6 +1248,7 @@ public enum CustomRoleTypes
     Addon
 }
 
+[SuppressMessage("ReSharper", "UnusedMember.Global")]
 public enum CountTypes
 {
     OutOfGame,
@@ -1309,6 +1267,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     NSerialKiller,
+    Patroller,
     Simon,
     Chemist,
     QuizMaster,

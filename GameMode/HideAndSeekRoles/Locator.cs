@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using EHR.Modules;
 
 namespace EHR.GameMode.HideAndSeekRoles
 {
@@ -87,6 +86,12 @@ namespace EHR.GameMode.HideAndSeekRoles
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 Status.TargetId = byte.MaxValue;
             }
+        }
+
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        {
+            if (seer.PlayerId != target.PlayerId || isHUD || !seer.Is(CustomRoles.Locator)) return string.Empty;
+            return Status.TargetId == byte.MaxValue ? string.Empty : TargetArrow.GetArrows(seer, Status.TargetId);
         }
 
         class LocateStatus

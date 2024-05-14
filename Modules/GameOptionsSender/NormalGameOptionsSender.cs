@@ -5,8 +5,8 @@ namespace EHR.Modules;
 
 public class NormalGameOptionsSender : GameOptionsSender
 {
-    public override IGameOptions BasedGameOptions =>
-        GameOptionsManager.Instance.CurrentGameOptions;
+    private LogicOptions _logicOptions;
+    public override IGameOptions BasedGameOptions => GameOptionsManager.Instance.CurrentGameOptions;
 
     public override bool IsDirty
     {
@@ -16,7 +16,7 @@ public class NormalGameOptionsSender : GameOptionsSender
             {
                 if (GameManager.Instance != null && GameManager.Instance.LogicComponents != null && (_logicOptions == null || !GameManager.Instance.LogicComponents.Contains(_logicOptions)))
                 {
-                    foreach (var glc in GameManager.Instance.LogicComponents)
+                    foreach (var glc in GameManager.Instance.LogicComponents.GetFastEnumerator())
                         if (glc.TryCast<LogicOptions>(out var lo))
                             _logicOptions = lo;
                 }
@@ -31,8 +31,6 @@ public class NormalGameOptionsSender : GameOptionsSender
         }
         protected set { _logicOptions?.ClearDirtyFlag(); }
     }
-
-    private LogicOptions _logicOptions;
 
     public override IGameOptions BuildGameOptions()
         => BasedGameOptions;

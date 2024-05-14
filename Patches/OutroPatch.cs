@@ -85,7 +85,6 @@ class EndGamePatch
 
         Main.WinnerNameList = [];
         Main.WinnerList = [];
-        Main.WinnerRolesList = [];
         foreach (PlayerControl pc in winner)
         {
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw && pc.Is(CustomRoles.GM)) continue;
@@ -93,7 +92,6 @@ class EndGamePatch
             TempData.winners.Add(new(pc.Data));
             Main.WinnerList.Add(pc.PlayerId);
             Main.WinnerNameList.Add(pc.GetRealName());
-            Main.WinnerRolesList.Add(pc.GetCustomRole());
         }
 
         Arsonist.IsDoused = [];

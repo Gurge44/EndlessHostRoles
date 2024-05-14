@@ -582,6 +582,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.Patroller:
             case CustomRoles.Simon:
             case CustomRoles.Chemist:
             case CustomRoles.Samurai:
