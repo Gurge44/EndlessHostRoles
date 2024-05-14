@@ -3835,7 +3835,7 @@
   "PickpocketGetVote": "Você tem {0} votos",
   "VultureArrowsPointingToDeadBody": "Setas apontando para os corpos",
   "VultureNumberOfReportsToWin": "Corpos necessários para ganhar",
-  "VultureReportBody": "Corpo comido!",
+  "VultureBodyReported": "Corpo comido!",
   "VultureEatButtonText": "Consumir",
   "VultureReportCooldown": "Recarga para comer",
   "VultureMaxEatenInOneRound": "Máximo de corpos comidos por rodada",
