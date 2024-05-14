@@ -1,6 +1,7 @@
 using System.Linq;
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using EHR.Roles.AddOns.Crewmate;
 using EHR.Roles.AddOns.Impostor;
 using EHR.Roles.Crewmate;
@@ -145,6 +146,8 @@ class ExileControllerWrapUpPatch
                 pc.RpcSetCustomRole(CustomRoles.Refugee);
                 pc.SetKillCooldown();
                 Logger.Warn($"{pc.GetRealName()} is now a Refugee since all Impostors are dead", "Add Refugee");
+
+                pc.ChangeBasisToImpostor();
             }
             else Logger.Msg("No Player to change to Refugee.", "Add Refugee");
         }

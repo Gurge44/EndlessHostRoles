@@ -173,7 +173,7 @@ public class Main : BasePlugin
         {
             List<PlayerControl> result = [];
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var pc in PlayerControl.AllPlayerControls.GetFastEnumerator())
+            foreach (var pc in PlayerControl.AllPlayerControls)
             {
                 if (pc == null) continue;
                 result.Add(pc);
@@ -189,7 +189,7 @@ public class Main : BasePlugin
         {
             List<PlayerControl> result = [];
             // ReSharper disable once LoopCanBeConvertedToQuery
-            foreach (var pc in PlayerControl.AllPlayerControls.GetFastEnumerator())
+            foreach (var pc in PlayerControl.AllPlayerControls)
             {
                 if (pc == null || !pc.IsAlive() || pc.Data.Disconnected || Pelican.IsEaten(pc.PlayerId)) continue;
                 result.Add(pc);

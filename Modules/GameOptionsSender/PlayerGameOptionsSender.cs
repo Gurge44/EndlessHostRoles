@@ -88,7 +88,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
             var opt = BuildGameOptions();
             if (GameManager.Instance?.LogicComponents != null)
             {
-                foreach (var com in GameManager.Instance.LogicComponents.GetFastEnumerator())
+                foreach (var com in GameManager.Instance.LogicComponents)
                 {
                     if (com.TryCast<LogicOptions>(out var lo))
                         lo.SetGameOptions(opt);
@@ -105,7 +105,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
         try
         {
             byte i = 0;
-            foreach (var logicComponent in GameManager.Instance.LogicComponents.GetFastEnumerator())
+            foreach (var logicComponent in GameManager.Instance.LogicComponents)
             {
                 if (logicComponent.TryCast<LogicOptions>(out _))
                 {

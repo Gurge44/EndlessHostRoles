@@ -13,7 +13,10 @@ namespace EHR.Neutral
         private static OptionItem KillCooldown;
         private static OptionItem DecreasedKillCooldown;
         private static OptionItem IncreasedSpeed;
+
+        private int Count;
         private PlainShipRoom LastRoom;
+        private byte PatrollerId;
 
         private Dictionary<Boost, PlainShipRoom> RoomBoosts = [];
 
@@ -41,6 +44,7 @@ namespace EHR.Neutral
         public override void Add(byte playerId)
         {
             On = true;
+            PatrollerId = playerId;
 
             LastRoom = null;
             RoomBoosts = ShipStatus.Instance.AllRooms
@@ -48,13 +52,15 @@ namespace EHR.Neutral
                 .Zip(Enum.GetValues<Boost>())
                 .ToDictionary(x => x.Second, x => x.First);
 
+            playerId.SetAbilityUseLimit(1);
+
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).GetPlainShipRoom() == RoomBoosts[Boost.Cooldown] ? DecreasedKillCooldown.GetFloat() : KillCooldown.GetFloat();
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => pc.GetPlainShipRoom() == RoomBoosts[Boost.Vent];
+        public override bool CanUseImpostorVentButton(PlayerControl pc) => pc.inVent || pc.GetAbilityUseLimit() > 0 || pc.GetPlainShipRoom() == RoomBoosts[Boost.Vent];
         public override bool CanUseSabotage(PlayerControl pc) => pc.GetPlainShipRoom() == RoomBoosts[Boost.Sabotage];
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
@@ -69,13 +75,33 @@ namespace EHR.Neutral
         public override void OnFixedUpdate(PlayerControl pc)
         {
             if (!pc.IsAlive() || !GameStates.IsInTask) return;
+            Count++;
+            if (Count < 20) return;
+            Count = 0;
 
             var room = pc.GetPlainShipRoom();
-            if (room == LastRoom) return;
+            if (LastRoom != null && room == LastRoom) return;
             LastRoom = room;
 
-            pc.Notify(string.Format(Translator.GetString("PatrollerNotify"), Translator.GetString(room.RoomId.ToString()), Translator.GetString($"PatrollerBoost.{RoomBoosts.GetKeyByValue(room)}")));
-            pc.SyncSettings();
+            var roomName = Translator.GetString(room.RoomId.ToString());
+            pc.Notify(RoomBoosts.Any(x => x.Value == room)
+                ? string.Format(Translator.GetString("PatrollerNotify"), roomName, Translator.GetString($"PatrollerBoost.{RoomBoosts.First(x => x.Value == room).Key}"))
+                : string.Format(Translator.GetString("PatrollerNotifyNoBoost"), roomName), 300f);
+            pc.MarkDirtySettings();
+
+            if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+                HudManager.Instance.SetHudActive(pc, pc.Data.Role, true);
+        }
+
+        public override void OnEnterVent(PlayerControl pc, Vent vent)
+        {
+            if (pc.GetPlainShipRoom() == RoomBoosts[Boost.Vent]) return;
+            pc.RpcRemoveAbilityUse();
+        }
+
+        public override void AfterMeetingTasks()
+        {
+            PatrollerId.SetAbilityUseLimit(1);
         }
 
         public override void OnPet(PlayerControl pc)

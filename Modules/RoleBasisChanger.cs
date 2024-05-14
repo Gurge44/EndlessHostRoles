@@ -66,6 +66,18 @@ namespace EHR.Modules
             _ = new LateTask(() => { IsChangeInProgress = false; }, 5f, log: false);
         }
 
+        public static void ChangeBasisToImpostor(this PlayerControl pc)
+        {
+            pc.Data.IsDead = true;
+            GameData.Instance.SetDirty();
+            pc.RpcSetRole(RoleTypes.ImpostorGhost);
+            pc.SyncSettings();
+            pc.Data.IsDead = false;
+            GameData.Instance.SetDirty();
+            pc.MarkDirtySettings();
+            pc.KillFlash();
+        }
+
         [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.Spawn))]
         public static class Client_SpawnDisable
         {

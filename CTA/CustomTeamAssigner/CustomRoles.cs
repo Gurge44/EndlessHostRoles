@@ -257,6 +257,7 @@ public enum CustomRoles
     Mycologist,
     Necromancer,
     Opportunist,
+    Patroller,
     Pelican,
     Pestilence,
     Phantom,
