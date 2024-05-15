@@ -148,7 +148,7 @@ public class Vulture : RoleBase
             }
         }
 
-        pc.Notify(GetString("VultureReportBody"));
+        pc.Notify(GetString("VultureBodyReported"));
         UnreportablePlayers.Remove(target.PlayerId);
         UnreportablePlayers.Add(target.PlayerId);
 

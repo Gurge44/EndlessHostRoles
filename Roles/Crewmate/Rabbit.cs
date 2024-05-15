@@ -65,7 +65,7 @@ namespace EHR.Roles.Crewmate
                 if (!Player.IsAlive() || (MyTaskState.CompletedTasksCount < TaskTrigger && !MyTaskState.IsTaskFinished)) return;
 
                 var Impostors = Main.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor)).ToArray();
-                var target = Impostors[IRandom.Instance.Next(Impostors.Length)];
+                var target = Impostors.RandomElement();
 
                 var pos = target.Pos();
                 LocateArrow.Add(Player.PlayerId, pos);

@@ -345,6 +345,7 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Rogue => RoleTypes.Impostor,
             CustomRoles.Patroller => RoleTypes.Impostor,
             CustomRoles.Simon => RoleTypes.Impostor,
             CustomRoles.Chemist => RoleTypes.Impostor,
@@ -451,6 +452,7 @@ internal static class CustomRolesHelper
         CustomRoles.Refugee or
         CustomRoles.Simon or
         CustomRoles.Patroller or
+        CustomRoles.Rogue or
         CustomRoles.Parasite or
         CustomRoles.NSerialKiller or
         CustomRoles.Chemist or
@@ -632,7 +634,6 @@ internal static class CustomRolesHelper
         CustomRoles.Charmed or
         CustomRoles.Recruit or
         CustomRoles.Contagious or
-        CustomRoles.Rogue or
         CustomRoles.Rascal;
 
     public static bool IsRecruitingRole(this CustomRoles role) => role is
@@ -640,7 +641,6 @@ internal static class CustomRolesHelper
         CustomRoles.Succubus or
         CustomRoles.Necromancer or
         CustomRoles.Virus or
-        CustomRoles.Rogue or
         CustomRoles.Spiritcaller;
 
     public static bool IsMadmate(this CustomRoles role) => role is
@@ -759,128 +759,6 @@ internal static class CustomRolesHelper
     public static bool ForceCancelShapeshift(this CustomRoles role) => role is
         CustomRoles.Hangman or
         CustomRoles.Generator;
-
-    public static bool CheckAddonConflictV2(CustomRoles addon, CustomRoles mainRole) => addon.IsAdditionRole() && mainRole is not CustomRoles.GuardianAngelEHR and not CustomRoles.God and not CustomRoles.GM && (!Options.AddonCanBeSettings.TryGetValue(addon, out var o) || ((o.Imp.GetBool() || !mainRole.IsImpostor()) && (o.Neutral.GetBool() || !mainRole.IsNeutral()) && (o.Crew.GetBool() || (!mainRole.IsImpostor() && !mainRole.IsNeutral())))) && addon switch
-    {
-        CustomRoles.Autopsy when mainRole is CustomRoles.Doctor or CustomRoles.Tracefinder or CustomRoles.Scientist or CustomRoles.ScientistEHR or CustomRoles.Sunnyboy => false,
-        CustomRoles.Necroview when mainRole is CustomRoles.Doctor => false,
-        CustomRoles.Lazy when mainRole is CustomRoles.Speedrunner => false,
-        CustomRoles.Mischievous when mainRole.Is(Team.Impostor) || mainRole.GetDYRole() != RoleTypes.Impostor || !mainRole.IsNK() => false,
-        CustomRoles.Loyal when mainRole.IsCrewmate() && !Options.CrewCanBeLoyal.GetBool() => false,
-        CustomRoles.DualPersonality when mainRole.IsCrewmate() && !Options.CrewCanBeDualPersonality.GetBool() => false,
-        CustomRoles.Lazy when mainRole is CustomRoles.Needy or CustomRoles.Snitch or CustomRoles.Marshall or CustomRoles.Transporter or CustomRoles.Guardian => false,
-        CustomRoles.Brakar when mainRole is CustomRoles.Dictator => false,
-        CustomRoles.Stressed when !mainRole.IsCrewmate() || mainRole.IsTasklessCrewmate() => false,
-        CustomRoles.Avanger when mainRole.IsImpostor() && !Options.ImpCanBeAvanger.GetBool() => false,
-        CustomRoles.Lazy when mainRole.IsNeutral() || mainRole.IsImpostor() || (mainRole.IsTasklessCrewmate() && !Options.TasklessCrewCanBeLazy.GetBool()) || (mainRole.IsTaskBasedCrewmate() && !Options.TaskBasedCrewCanBeLazy.GetBool()) => false,
-        CustomRoles.TicketsStealer or CustomRoles.Swift or CustomRoles.DeadlyQuota or CustomRoles.Damocles or CustomRoles.Mare when mainRole is CustomRoles.Bomber or CustomRoles.Nuker or CustomRoles.BoobyTrap or CustomRoles.Capitalism => false,
-        CustomRoles.TicketsStealer or CustomRoles.Mimic or CustomRoles.Swift or CustomRoles.DeadlyQuota or CustomRoles.Circumvent or CustomRoles.Damocles or CustomRoles.Taskcounter or CustomRoles.Mare when !mainRole.IsImpostor() => false,
-        CustomRoles.Torch when !mainRole.IsCrewmate() || mainRole is CustomRoles.Bewilder or CustomRoles.Sunglasses or CustomRoles.GuardianAngelEHR => false,
-        CustomRoles.Bewilder when mainRole is CustomRoles.Torch or CustomRoles.GuardianAngelEHR or CustomRoles.Sunglasses => false,
-        CustomRoles.Sunglasses when mainRole is CustomRoles.Torch or CustomRoles.GuardianAngelEHR or CustomRoles.Bewilder => false,
-        CustomRoles.Guesser when (mainRole.IsCrewmate() && (!Options.CrewCanBeGuesser.GetBool() || mainRole is CustomRoles.NiceGuesser)) || (mainRole.IsNeutral() && !Options.NeutralCanBeGuesser.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeGuesser.GetBool()) || mainRole is CustomRoles.EvilGuesser or CustomRoles.GuardianAngelEHR => false,
-        CustomRoles.Madmate when mainRole is CustomRoles.Egoist or CustomRoles.Rascal => false,
-        CustomRoles.Oblivious when mainRole is CustomRoles.Detective or CustomRoles.Cleaner or CustomRoles.Medusa or CustomRoles.Mortician or CustomRoles.Mediumshiper or CustomRoles.GuardianAngelEHR => false,
-        CustomRoles.Youtuber when !mainRole.IsCrewmate() || mainRole is CustomRoles.Madmate or CustomRoles.Sheriff or CustomRoles.GuardianAngelEHR => false,
-        CustomRoles.Egoist when !mainRole.IsImpostor() => false,
-        CustomRoles.Damocles when mainRole is CustomRoles.Bomber or CustomRoles.Nuker or CustomRoles.SerialKiller or CustomRoles.Cantankerous or CustomRoles.Sapper => false,
-        CustomRoles.Necroview when mainRole is CustomRoles.Visionary => false,
-        CustomRoles.Flashman when mainRole is CustomRoles.Swiftclaw => false,
-        CustomRoles.Mimic when mainRole is CustomRoles.Mafia => false,
-        CustomRoles.Rascal when !mainRole.IsCrewmate() => false,
-        CustomRoles.Needy when mainRole.IsAdditionRole() => false,
-        CustomRoles.Bloodlust when !mainRole.IsCrewmate() || mainRole.IsTaskBasedCrewmate() => false,
-        CustomRoles.TicketsStealer when mainRole is CustomRoles.Vindicator => false,
-        CustomRoles.Mare when mainRole is CustomRoles.Underdog => false,
-        CustomRoles.Mare when mainRole is CustomRoles.Inhibitor => false,
-        CustomRoles.Mare when mainRole is CustomRoles.Saboteur => false,
-        CustomRoles.Mare when mainRole is CustomRoles.Swift => false,
-        CustomRoles.Mare when mainRole is CustomRoles.Mafia => false,
-        CustomRoles.Mare when mainRole is CustomRoles.Sniper => false,
-        CustomRoles.Mare when mainRole is CustomRoles.FireWorks => false,
-        CustomRoles.Mare when mainRole is CustomRoles.Swooper => false,
-        CustomRoles.Mare when mainRole is CustomRoles.Vampire => false,
-        CustomRoles.Torch when mainRole is CustomRoles.Lighter => false,
-        CustomRoles.Torch when mainRole is CustomRoles.Ignitor => false,
-        CustomRoles.Bewilder when mainRole is CustomRoles.Lighter => false,
-        CustomRoles.Bewilder when mainRole is CustomRoles.Ignitor => false,
-        CustomRoles.Sunglasses when mainRole is CustomRoles.Lighter => false,
-        CustomRoles.Sunglasses when mainRole is CustomRoles.Ignitor => false,
-        CustomRoles.Bait when mainRole is CustomRoles.Demolitionist => false,
-        CustomRoles.Trapper when mainRole is CustomRoles.Demolitionist => false,
-        CustomRoles.Lovers when mainRole is CustomRoles.Romantic => false,
-        CustomRoles.Mare when mainRole is CustomRoles.LastImpostor => false,
-        CustomRoles.Swift when mainRole is CustomRoles.Mare => false,
-        CustomRoles.DualPersonality when (!mainRole.IsImpostor() && !mainRole.IsCrewmate()) || mainRole is CustomRoles.Madmate => false,
-        CustomRoles.DualPersonality when mainRole.IsImpostor() && !Options.ImpCanBeDualPersonality.GetBool() => false,
-        CustomRoles.Loyal when (!mainRole.IsImpostor() && !mainRole.IsCrewmate()) || mainRole is CustomRoles.Madmate => false,
-        CustomRoles.Loyal when mainRole.IsImpostor() && !Options.ImpCanBeLoyal.GetBool() => false,
-        CustomRoles.Seer when (mainRole.IsCrewmate() && (!Options.CrewCanBeSeer.GetBool() || mainRole is CustomRoles.Mortician)) || (mainRole.IsNeutral() && !Options.NeutralCanBeSeer.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeSeer.GetBool()) => false,
-        CustomRoles.Bait when (mainRole.IsCrewmate() && !Options.CrewCanBeBait.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeBait.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeBait.GetBool()) => false,
-        CustomRoles.Bewilder when (mainRole.IsCrewmate() && !Options.CrewCanBeBewilder.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeBewilder.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeBewilder.GetBool()) => false,
-        CustomRoles.Sunglasses when (mainRole.IsCrewmate() && !Options.CrewCanBeSunglasses.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeSunglasses.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeSunglasses.GetBool()) => false,
-        CustomRoles.Autopsy when (mainRole.IsCrewmate() && !Options.CrewCanBeAutopsy.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeAutopsy.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeAutopsy.GetBool()) => false,
-        CustomRoles.Glow when (mainRole.IsCrewmate() && !Options.CrewCanBeGlow.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeGlow.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeGlow.GetBool()) => false,
-        CustomRoles.Trapper when (mainRole.IsCrewmate() && !Options.CrewCanBeTrapper.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeTrapper.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeTrapper.GetBool()) => false,
-        CustomRoles.Sidekick when mainRole is CustomRoles.Madmate => false,
-        CustomRoles.Onbound when mainRole is CustomRoles.SuperStar => false,
-        CustomRoles.Rascal when mainRole is CustomRoles.SuperStar or CustomRoles.Madmate => false,
-        CustomRoles.Madmate when mainRole is CustomRoles.SuperStar => false,
-        CustomRoles.Gravestone when mainRole is CustomRoles.SuperStar => false,
-        CustomRoles.Sidekick when mainRole is CustomRoles.Jackal => false,
-        CustomRoles.Lucky when mainRole is CustomRoles.Guardian => false,
-        CustomRoles.Bait when mainRole is CustomRoles.Trapper => false,
-        CustomRoles.Trapper when mainRole is CustomRoles.Bait => false,
-        CustomRoles.DualPersonality when mainRole is CustomRoles.Dictator => false,
-        CustomRoles.Swift when mainRole is CustomRoles.Swooper => false,
-        CustomRoles.Swift when mainRole is CustomRoles.Vampire => false,
-        CustomRoles.Swift when mainRole is CustomRoles.Scavenger => false,
-        CustomRoles.Swift when mainRole is CustomRoles.Puppeteer => false,
-        CustomRoles.Swift when mainRole is CustomRoles.Warlock => false,
-        CustomRoles.Swift when mainRole is CustomRoles.EvilDiviner => false,
-        CustomRoles.Swift when mainRole is CustomRoles.Witch => false,
-        CustomRoles.Swift when mainRole is CustomRoles.Mafia => false,
-        CustomRoles.Reach when mainRole is CustomRoles.Mafioso => false,
-        CustomRoles.Watcher when (mainRole.IsCrewmate() && !Options.CrewCanBeWatcher.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeWatcher.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeWatcher.GetBool()) => false,
-        CustomRoles.Diseased when (mainRole.IsCrewmate() && !Options.CrewCanBeDiseased.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeDiseased.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeDiseased.GetBool()) => false,
-        CustomRoles.Antidote when (mainRole.IsCrewmate() && !Options.CrewCanBeAntidote.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeAntidote.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeAntidote.GetBool()) => false,
-        CustomRoles.Diseased when mainRole is CustomRoles.Antidote => false,
-        CustomRoles.Antidote when mainRole is CustomRoles.Diseased => false,
-        CustomRoles.Necroview when (mainRole.IsCrewmate() && !Options.CrewCanBeNecroview.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeNecroview.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeNecroview.GetBool()) => false,
-        CustomRoles.Oblivious when (mainRole.IsCrewmate() && !Options.CrewCanBeOblivious.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeOblivious.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeOblivious.GetBool()) => false,
-        CustomRoles.Brakar when (mainRole.IsCrewmate() && !Options.CrewCanBeTiebreaker.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeTiebreaker.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeTiebreaker.GetBool()) => false,
-        CustomRoles.Guesser when (mainRole.IsCrewmate() && !Options.CrewCanBeGuesser.GetBool() && mainRole is CustomRoles.NiceGuesser) || (mainRole.IsNeutral() && !Options.NeutralCanBeGuesser.GetBool()) => false,
-        CustomRoles.Onbound when (mainRole.IsCrewmate() && !Options.CrewCanBeOnbound.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeOnbound.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeOnbound.GetBool()) => false,
-        CustomRoles.Unreportable when (mainRole.IsCrewmate() && !Options.CrewCanBeUnreportable.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeUnreportable.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeUnreportable.GetBool()) => false,
-        CustomRoles.Lucky when (mainRole.IsCrewmate() && !Options.CrewCanBeLucky.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeLucky.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeLucky.GetBool()) => false,
-        CustomRoles.Unlucky when (mainRole.IsCrewmate() && !Options.CrewCanBeUnlucky.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeUnlucky.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeUnlucky.GetBool()) => false,
-        CustomRoles.Gravestone when (mainRole.IsCrewmate() && !Options.CrewCanBeGravestone.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeGravestone.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeGravestone.GetBool()) => false,
-        CustomRoles.Flashman or CustomRoles.Giant when mainRole is CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon or CustomRoles.Alchemist => false,
-        CustomRoles.Bait when mainRole is CustomRoles.Unreportable => false,
-        CustomRoles.Truant when mainRole is CustomRoles.SoulHunter => false,
-        CustomRoles.Nimble when !mainRole.IsCrewmate() => false,
-        CustomRoles.Physicist when !mainRole.IsCrewmate() => false,
-        CustomRoles.Unreportable when mainRole is CustomRoles.Bait => false,
-        CustomRoles.Oblivious when mainRole is CustomRoles.Bloodhound => false,
-        CustomRoles.Oblivious when mainRole is CustomRoles.Vulture => false,
-        CustomRoles.Vulture when mainRole is CustomRoles.Oblivious => false,
-        CustomRoles.Guesser when mainRole is CustomRoles.CopyCat or CustomRoles.Doomsayer => false,
-        CustomRoles.CopyCat when mainRole is CustomRoles.Guesser => false,
-        CustomRoles.DoubleShot when mainRole is CustomRoles.CopyCat => false,
-        CustomRoles.CopyCat when mainRole is CustomRoles.DoubleShot => false,
-        CustomRoles.Lucky when mainRole is CustomRoles.Luckey => false,
-        CustomRoles.Unlucky when mainRole is CustomRoles.Luckey => false,
-        CustomRoles.Unlucky when mainRole is CustomRoles.Lucky => false,
-        CustomRoles.Lucky when mainRole is CustomRoles.Unlucky => false,
-        CustomRoles.Fool when (mainRole.IsCrewmate() && !Options.CrewCanBeFool.GetBool()) || (mainRole.IsNeutral() && !Options.NeutralCanBeFool.GetBool()) || (mainRole.IsImpostor() && !Options.ImpCanBeFool.GetBool()) || mainRole is CustomRoles.SabotageMaster or CustomRoles.GuardianAngelEHR => false,
-        CustomRoles.Bloodhound when mainRole is CustomRoles.Oblivious => false,
-        CustomRoles.DoubleShot when (mainRole.GetCustomRoleTypes() is CustomRoleTypes.Impostor && !Options.ImpCanBeDoubleShot.GetBool()) || (mainRole.GetCustomRoleTypes() is CustomRoleTypes.Crewmate && !Options.CrewCanBeDoubleShot.GetBool()) || (mainRole.GetCustomRoleTypes() is CustomRoleTypes.Neutral && !Options.NeutralCanBeDoubleShot.GetBool()) => false,
-        CustomRoles.DoubleShot when mainRole is not CustomRoles.EvilGuesser && mainRole is not CustomRoles.NiceGuesser && !Options.GuesserMode.GetBool() => false,
-        CustomRoles.DoubleShot when Options.ImpCanBeDoubleShot.GetBool() && mainRole is not CustomRoles.Guesser && mainRole is not CustomRoles.EvilGuesser && mainRole.GetCustomRoleTypes() is CustomRoleTypes.Impostor && !Options.ImpostorsCanGuess.GetBool() => false,
-        CustomRoles.DoubleShot when Options.CrewCanBeDoubleShot.GetBool() && mainRole is not CustomRoles.Guesser && mainRole is not CustomRoles.NiceGuesser && mainRole.GetCustomRoleTypes() is CustomRoleTypes.Crewmate && !Options.CrewmatesCanGuess.GetBool() => false,
-        CustomRoles.DoubleShot when Options.NeutralCanBeDoubleShot.GetBool() && mainRole is not CustomRoles.Guesser && ((mainRole.IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool()) || (mainRole.IsNK() && !Options.NeutralKillersCanGuess.GetBool())) => false,
-        _ => true
-    };
 
     public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc) => role.IsAdditionRole() && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.Egoist) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out var o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && role switch
     {
@@ -1267,6 +1145,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     NSerialKiller,
+    Rogue,
     Patroller,
     Simon,
     Chemist,
@@ -1292,7 +1171,6 @@ public enum CountTypes
     Juggernaut,
     Agitater,
     Virus,
-    Rogue,
     DarkHide,
     Jinx,
     Ritualist,

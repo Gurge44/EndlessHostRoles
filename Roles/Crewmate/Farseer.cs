@@ -146,8 +146,7 @@ namespace EHR.Roles.Crewmate
 
         public static string GetRandomCrewRoleString()
         {
-            var rd = IRandom.Instance;
-            var randomRole = RandomRolesForTrickster[rd.Next(0, RandomRolesForTrickster.Length)];
+            var randomRole = RandomRolesForTrickster.RandomElement();
 
             return $"<size={FontSize}>{ColorString(GetRoleColor(randomRole), GetString(randomRole.ToString()))}</size>";
         }
@@ -160,8 +159,7 @@ namespace EHR.Roles.Crewmate
                 return "\r\n";
             }
 
-            var rd = IRandom.Instance;
-            var randomPlayer = playersWithTasks[rd.Next(0, playersWithTasks.Length)];
+            var randomPlayer = playersWithTasks.RandomElement();
             var taskState = randomPlayer.Value.TaskState;
 
             var taskCompleteColor = Color.green;

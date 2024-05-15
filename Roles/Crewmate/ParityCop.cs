@@ -296,41 +296,7 @@ public class ParityCop : RoleBase
 
         return false;
     }
-    //public static void TryHideMsgForCompare()
-    //{
-    //    ChatUpdatePatch.DoBlockChat = true;
-    //    List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x is not CustomRoles.NotAssigned and not CustomRoles.KB_Normal).ToList();
-    //    var rd = IRandom.Instance;
-    //    string msg;
-    //    string[] command = new string[] { "cp", "cmp", "compare", "比较" };
-    //    for (int i = 0; i < 20; i++)
-    //    {
-    //        msg = "/";
-    //        if (rd.Next(1, 100) < 20)
-    //        {
-    //            msg += "id";
-    //        }
-    //        else
-    //        {
-    //            msg += command[rd.Next(0, command.Length - 1)];
-    //            msg += " ";
-    //            msg += rd.Next(0, 15).ToString();
-    //            msg += " ";
-    //            msg += rd.Next(0, 15).ToString();
 
-    //        }
-    //        var player = Main.AllAlivePlayerControls[rd.Next(0, Main.AllAlivePlayerControls.Count())];
-    //        DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
-    //        var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
-    //        writer.StartMessage(-1);
-    //        writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
-    //            .Write(msg)
-    //            .EndRpc();
-    //        writer.EndMessage();
-    //        writer.SendMessage();
-    //    }
-    //    ChatUpdatePatch.DoBlockChat = false;
-    //}
     private static void ParityCopOnClick(byte playerId /*, MeetingHud __instance*/)
     {
         Logger.Msg($"Click: ID {playerId}", "Inspector UI");

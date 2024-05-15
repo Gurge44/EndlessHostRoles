@@ -861,7 +861,7 @@ public static class GuessManager
                 TeambuttonParent.SetParent(container);
                 Transform Teambutton = Object.Instantiate(buttonTemplate, TeambuttonParent);
                 Teambutton.FindChild("ControllerHighlight").gameObject.SetActive(false);
-                Transform TeambuttonMask = Object.Instantiate(maskTemplate, TeambuttonParent);
+                Object.Instantiate(maskTemplate, TeambuttonParent);
                 TextMeshPro Teamlabel = Object.Instantiate(textTemplate, Teambutton);
                 Teambutton.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlateWithKPD");
                 RoleSelectButtons.Add((CustomRoleTypes)index, Teambutton.GetComponent<SpriteRenderer>());
@@ -922,12 +922,12 @@ public static class GuessManager
             {
                 var buttonTemplate = __instance.playerStates[0].transform.FindChild("votePlayerBase");
                 var maskTemplate = __instance.playerStates[0].transform.FindChild("MaskArea");
-                var smallButtonTemplate = __instance.playerStates[0].Buttons.transform.Find("CancelButton");
+                __instance.playerStates[0].Buttons.transform.Find("CancelButton");
                 Transform PagebuttonParent = new GameObject().transform;
                 PagebuttonParent.SetParent(container);
                 Transform Pagebutton = Object.Instantiate(buttonTemplate, PagebuttonParent);
                 Pagebutton.FindChild("ControllerHighlight").gameObject.SetActive(false);
-                Transform PagebuttonMask = Object.Instantiate(maskTemplate, PagebuttonParent);
+                Object.Instantiate(maskTemplate, PagebuttonParent);
                 TextMeshPro Pagelabel = Object.Instantiate(textTemplate, Pagebutton);
                 Pagebutton.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlateWithKPD");
                 PagebuttonParent.localPosition = IsNext ? new(3.535f, -2.2f, -200) : new(-3.475f, -2.2f, -200);
@@ -967,7 +967,6 @@ public static class GuessManager
                     or CustomRoles.Engineer
                     or CustomRoles.Crewmate
                     or CustomRoles.Oblivious
-                    or CustomRoles.Rogue
                     or CustomRoles.Scientist
                     or CustomRoles.Impostor
                     or CustomRoles.Shapeshifter
@@ -996,7 +995,7 @@ public static class GuessManager
                 buttonParent.SetParent(container);
                 Transform button = Object.Instantiate(buttonTemplate, buttonParent);
                 button.FindChild("ControllerHighlight").gameObject.SetActive(false);
-                Transform buttonMask = Object.Instantiate(maskTemplate, buttonParent);
+                Object.Instantiate(maskTemplate, buttonParent);
                 TextMeshPro label = Object.Instantiate(textTemplate, button);
                 button.GetComponent<SpriteRenderer>().sprite = CustomButton.Get("GuessPlate");
                 if (!RoleButtons.ContainsKey(role.GetCustomRoleTypes()))

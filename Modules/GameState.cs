@@ -153,7 +153,6 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Charmed);
                 SubRoles.Remove(CustomRoles.Recruit);
                 SubRoles.Remove(CustomRoles.Contagious);
-                SubRoles.Remove(CustomRoles.Rogue);
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Undead);
@@ -169,7 +168,6 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Madmate);
                 SubRoles.Remove(CustomRoles.Recruit);
                 SubRoles.Remove(CustomRoles.Contagious);
-                SubRoles.Remove(CustomRoles.Rogue);
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Undead);
@@ -185,7 +183,6 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Madmate);
                 SubRoles.Remove(CustomRoles.Recruit);
                 SubRoles.Remove(CustomRoles.Contagious);
-                SubRoles.Remove(CustomRoles.Rogue);
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Charmed);
@@ -204,7 +201,6 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Madmate);
                 SubRoles.Remove(CustomRoles.Charmed);
                 SubRoles.Remove(CustomRoles.Contagious);
-                SubRoles.Remove(CustomRoles.Rogue);
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Loyal);
@@ -220,18 +216,7 @@ public class PlayerState(byte playerId)
                 };
                 SubRoles.Remove(CustomRoles.Madmate);
                 SubRoles.Remove(CustomRoles.Recruit);
-                SubRoles.Remove(CustomRoles.Rogue);
                 SubRoles.Remove(CustomRoles.Charmed);
-                SubRoles.Remove(CustomRoles.Rascal);
-                SubRoles.Remove(CustomRoles.Loyal);
-                SubRoles.Remove(CustomRoles.Undead);
-                break;
-            case CustomRoles.Rogue:
-                countTypes = CountTypes.Rogue;
-                SubRoles.Remove(CustomRoles.Madmate);
-                SubRoles.Remove(CustomRoles.Recruit);
-                SubRoles.Remove(CustomRoles.Charmed);
-                SubRoles.Remove(CustomRoles.Contagious);
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Undead);

@@ -71,7 +71,7 @@ public static class Translator
             }
 
             // Convert the resulting translation map to JSON
-            string mergedJson = JsonSerializer.Serialize(translateMaps, new JsonSerializerOptions
+            JsonSerializer.Serialize(translateMaps, new JsonSerializerOptions
             {
                 WriteIndented = true
             });

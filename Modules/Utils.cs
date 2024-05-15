@@ -134,7 +134,7 @@ public static class Utils
     public static bool TPtoRndVent(CustomNetworkTransform nt, bool log = true)
     {
         var vents = Object.FindObjectsOfType<Vent>();
-        var vent = vents[IRandom.Instance.Next(0, vents.Count)];
+        var vent = vents.RandomElement();
 
         Logger.Info($"{nt.myPlayer.GetNameWithRole().RemoveHtmlTags()} => {vent.transform.position} (vent)", "TP");
 
@@ -524,7 +524,7 @@ public static class Utils
             StackFrame firstFrame = stFrames.FirstOrDefault();
 
             var sb = new StringBuilder();
-            sb.Append($"Exception: {ex.Message} ----");
+            sb.Append($" Exception: {ex.Message} ----");
 
             bool skip = true;
             foreach (StackFrame sf in stFrames)
@@ -540,10 +540,10 @@ public static class Utils
                 string callerMethodName = callerMethod?.Name;
                 string callerClassName = callerMethod?.DeclaringType?.FullName;
 
-                sb.Append($",      at {callerClassName}.{callerMethodName}");
+                sb.Append($"\n      at {callerClassName}.{callerMethodName}");
             }
 
-            Logger.Error(sb.ToString(), firstFrame?.GetMethod()?.ToString());
+            Logger.Error(sb.ToString(), firstFrame?.GetMethod()?.ToString(), multiLine: true);
         }
         catch
         {
@@ -582,6 +582,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.Rogue:
             case CustomRoles.Patroller:
             case CustomRoles.Simon:
             case CustomRoles.Chemist:

@@ -552,8 +552,7 @@ class CheckForEndVotingPatch
         TargetList.AddRange(Main.AllAlivePlayerControls.Where(candidate => candidate != exiledplayer && !Main.AfterMeetingDeathPlayers.ContainsKey(candidate.PlayerId)));
 
         if (TargetList.Count == 0) return null;
-        var rand = IRandom.Instance;
-        var target = TargetList[rand.Next(TargetList.Count)];
+        var target = TargetList.RandomElement();
         return target;
     }
 }

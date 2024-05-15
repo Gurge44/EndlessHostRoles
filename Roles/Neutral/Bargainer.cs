@@ -305,7 +305,7 @@ namespace EHR.Roles.Neutral
                     static (int Duration, byte Target) GetData(Item item) => item switch
                     {
                         Item.EnergyDrink => (int.MaxValue, byte.MaxValue),
-                        Item.LensOfTruth => (AlignmentVisibleValue, Main.AllAlivePlayerControls[IRandom.Instance.Next(Main.AllAlivePlayerControls.Length)].PlayerId),
+                        Item.LensOfTruth => (AlignmentVisibleValue, Main.AllAlivePlayerControls.RandomElement().PlayerId),
                         Item.BandAid => (ShieldDurationValue, byte.MaxValue),
 
                         _ => (0, byte.MaxValue)

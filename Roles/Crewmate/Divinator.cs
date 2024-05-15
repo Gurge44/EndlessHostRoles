@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EHR.Modules;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -55,10 +54,9 @@ public class Divinator : RoleBase
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(CheckLimitOpt.GetInt());
 
-        var r = IRandom.Instance;
         CustomRoles[][] chunked = Enum.GetValues<CustomRoles>()
             .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.KB_Normal and not CustomRoles.Potato and not CustomRoles.Hider and not CustomRoles.Seeker and not CustomRoles.Fox and not CustomRoles.Troll and not CustomRoles.Jumper and not CustomRoles.Detector and not CustomRoles.Jet and not CustomRoles.Dasher and not CustomRoles.Locator and not CustomRoles.Venter and not CustomRoles.Agent and not CustomRoles.Taskinator and not CustomRoles.GM and not CustomRoles.Convict)
-            .Shuffle(r)
+            .Shuffle()
             .Chunk(RolesPerCategory)
             .ToArray();
 

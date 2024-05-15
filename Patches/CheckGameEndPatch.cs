@@ -65,32 +65,32 @@ class GameEndChecker
             {
                 case CustomWinner.Crewmate:
                     WinnerIds.UnionWith(Main.AllPlayerControls
-                        .Where(pc => pc.Is(CustomRoleTypes.Crewmate) && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.Rogue) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Recruit) && !pc.Is(CustomRoles.Contagious) && !pc.Is(CustomRoles.EvilSpirit))
+                        .Where(pc => pc.Is(CustomRoleTypes.Crewmate) && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Recruit) && !pc.Is(CustomRoles.Contagious) && !pc.Is(CustomRoles.EvilSpirit))
                         .Select(pc => pc.PlayerId));
                     break;
                 case CustomWinner.Impostor:
                     WinnerIds.UnionWith(Main.AllPlayerControls
-                        .Where(pc => ((pc.Is(CustomRoleTypes.Impostor) && (!pc.Is(CustomRoles.DeadlyQuota) || Main.PlayerStates.Count(x => x.Value.GetRealKiller() == pc.PlayerId) >= Options.DQNumOfKillsNeeded.GetInt())) || pc.Is(CustomRoles.Madmate) || pc.Is(CustomRoles.Crewpostor) || pc.Is(CustomRoles.Refugee)) && !pc.Is(CustomRoles.Rogue) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Recruit) && !pc.Is(CustomRoles.Contagious) && !pc.Is(CustomRoles.EvilSpirit))
+                        .Where(pc => ((pc.Is(CustomRoleTypes.Impostor) && (!pc.Is(CustomRoles.DeadlyQuota) || Main.PlayerStates.Count(x => x.Value.GetRealKiller() == pc.PlayerId) >= Options.DQNumOfKillsNeeded.GetInt())) || pc.Is(CustomRoles.Madmate) || pc.Is(CustomRoles.Crewpostor) || pc.Is(CustomRoles.Refugee)) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Recruit) && !pc.Is(CustomRoles.Contagious) && !pc.Is(CustomRoles.EvilSpirit))
                         .Select(pc => pc.PlayerId));
                     break;
                 case CustomWinner.Succubus:
                     WinnerIds.UnionWith(Main.AllPlayerControls
-                        .Where(pc => pc.Is(CustomRoles.Succubus) || (pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Rogue)))
+                        .Where(pc => pc.Is(CustomRoles.Succubus) || (pc.Is(CustomRoles.Charmed)))
                         .Select(pc => pc.PlayerId));
                     break;
                 case CustomWinner.Necromancer:
                     WinnerIds.UnionWith(Main.AllPlayerControls
-                        .Where(pc => pc.Is(CustomRoles.Necromancer) || pc.Is(CustomRoles.Deathknight) || pc.Is(CustomRoles.Undead) && !pc.Is(CustomRoles.Rogue))
+                        .Where(pc => pc.Is(CustomRoles.Necromancer) || pc.Is(CustomRoles.Deathknight) || pc.Is(CustomRoles.Undead))
                         .Select(pc => pc.PlayerId));
                     break;
                 case CustomWinner.Virus:
                     WinnerIds.UnionWith(Main.AllPlayerControls
-                        .Where(pc => pc.Is(CustomRoles.Virus) || (pc.Is(CustomRoles.Contagious) && !pc.Is(CustomRoles.Rogue)))
+                        .Where(pc => pc.Is(CustomRoles.Virus) || (pc.Is(CustomRoles.Contagious)))
                         .Select(pc => pc.PlayerId));
                     break;
                 case CustomWinner.Jackal:
                     WinnerIds.UnionWith(Main.AllPlayerControls
-                        .Where(pc => (pc.Is(CustomRoles.Jackal) || pc.Is(CustomRoles.Sidekick) || pc.Is(CustomRoles.Recruit)) && !pc.Is(CustomRoles.Rogue))
+                        .Where(pc => (pc.Is(CustomRoles.Jackal) || pc.Is(CustomRoles.Sidekick) || pc.Is(CustomRoles.Recruit)))
                         .Select(pc => pc.PlayerId));
                     break;
                 case CustomWinner.Spiritcaller:

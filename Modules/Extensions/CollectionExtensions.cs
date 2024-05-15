@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 
 // ReSharper disable InconsistentNaming
 
@@ -47,16 +45,16 @@ namespace EHR
         /// </summary>
         /// <typeparam name="T">The type of the collection</typeparam>
         /// <param name="collection">The collection to be shuffled</param>
-        /// <param name="random">An instance of a randomizer algorithm</param>
-        /// <returns>The shuffled collection</returns>
-        public static IEnumerable<T> Shuffle<T>(this IEnumerable<T> collection, IRandom random)
+        /// <returns>The shuffled collection as a List</returns>
+        public static List<T> Shuffle<T>(this IEnumerable<T> collection)
         {
             var list = collection.ToList();
             int n = list.Count;
+            var r = IRandom.Instance;
             while (n > 1)
             {
                 n--;
-                int k = random.Next(n + 1);
+                int k = r.Next(n + 1);
                 (list[n], list[k]) = (list[k], list[n]);
             }
 
@@ -64,6 +62,7 @@ namespace EHR
         }
     }
 
+    /*
     // Credit: https://github.com/dabao40/TheOtherRolesGMIA/blob/main/TheOtherRoles/Utilities/EnumerationHelpers.cs
 
     public static class EnumerationHelpers
@@ -154,4 +153,6 @@ namespace EHR
         private static readonly int _offset;
         // ReSharper restore StaticMemberInGenericType
     }
+
+    */
 }

@@ -16,6 +16,8 @@ public class Hacker : RoleBase
 
     private static List<byte> DeadBodyList = [];
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Hacker);
@@ -40,7 +42,6 @@ public class Hacker : RoleBase
         playerId.SetAbilityUseLimit(HackLimitOpt.GetInt());
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
@@ -83,7 +84,7 @@ public class Hacker : RoleBase
 
         // 未找到骇客击杀的尸体，寻找其他尸体
         if (targetId == byte.MaxValue && DeadBodyList.Count > 0)
-            targetId = DeadBodyList[IRandom.Instance.Next(0, DeadBodyList.Count)];
+            targetId = DeadBodyList.RandomElement();
 
         _ = targetId == byte.MaxValue ? new(() => ssTarget.NoCheckStartMeeting(ssTarget.Data), 0.15f, "Hacker Hacking Report Self") : new LateTask(() => ssTarget.NoCheckStartMeeting(Utils.GetPlayerById(targetId)?.Data), 0.15f, "Hacker Hacking Report");
 

@@ -170,8 +170,7 @@ public class BountyHunter : RoleBase
             return 0xff;
         }
 
-        var rand = IRandom.Instance;
-        var target = cTargets[rand.Next(0, cTargets.Count)];
+        var target = cTargets.RandomElement();
         var targetId = target.PlayerId;
         Target = targetId;
         if (ShowTargetArrow) TargetArrow.Add(playerId, targetId);

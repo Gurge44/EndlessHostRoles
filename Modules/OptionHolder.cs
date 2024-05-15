@@ -29,6 +29,7 @@ public static class Options
     static Task taskOptionsLoad;
 
     public static Dictionary<TabGroup, OptionItem[]> GroupedOptions = [];
+    public static Dictionary<AddonTypes, List<CustomRoles>> GroupedAddons = [];
 
     public static OptionItem GameMode;
 
@@ -884,6 +885,7 @@ public static class Options
         {
             Logger.Info("Options.Load End", "Options");
             GroupOptions();
+            GroupAddons();
         });
     }
 
@@ -895,6 +897,18 @@ public static class Options
             .ToDictionary(x => x.Key, x => x.ToArray());
 
         HnSManager.AllHnSRoles = HnSManager.GetAllHnsRoles(HnSManager.GetAllHnsRoleTypes());
+    }
+
+    private static void GroupAddons()
+    {
+        GroupedAddons = Assembly
+            .GetExecutingAssembly()
+            .GetTypes()
+            .Where(x => x.GetInterfaces().ToList().Contains(typeof(IAddon)))
+            .Select(x => (IAddon)Activator.CreateInstance(x))
+            .Where(x => x != null)
+            .GroupBy(x => x.Type)
+            .ToDictionary(x => x.Key, x => x.Select(y => Enum.Parse<CustomRoles>(y.GetType().Name, true)).ToList());
     }
 
     public static VoteMode GetWhenSkipVote() => (VoteMode)WhenSkipVote.GetValue();

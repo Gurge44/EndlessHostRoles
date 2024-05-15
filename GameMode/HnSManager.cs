@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
 using EHR.GameMode.HideAndSeekRoles;
-using EHR.Modules;
 using HarmonyLib;
 using UnityEngine;
 
@@ -114,7 +113,7 @@ namespace EHR
         {
             Dictionary<PlayerControl, CustomRoles> result = [];
             List<PlayerControl> allPlayers = [.. Main.AllAlivePlayerControls];
-            allPlayers = allPlayers.Shuffle(IRandom.Instance).ToList();
+            allPlayers = allPlayers.Shuffle();
 
             Dictionary<Team, int> memberNum = new()
             {
@@ -142,7 +141,7 @@ namespace EHR
 
             var playerTeams = Enum.GetValues<Team>()[1..]
                 .SelectMany(x => Enumerable.Repeat(x, memberNum[x]))
-                .Shuffle(IRandom.Instance)
+                .Shuffle()
                 .Zip(allPlayers)
                 .GroupBy(x => x.First, x => x.Second)
                 .ToDictionary(x => x.Key, x => x.ToArray());

@@ -296,6 +296,11 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     case CustomRoles.Mare when Options.MareHasIncreasedSpeed.GetBool():
                         Main.AllPlayerSpeed[player.PlayerId] = Options.MareSpeedDuringLightsOut.GetFloat();
                         break;
+                    case CustomRoles.Sleep when Utils.IsActive(SystemTypes.Electrical):
+                        opt.SetVision(false);
+                        opt.SetFloat(FloatOptionNames.CrewLightMod, 0);
+                        opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0);
+                        break;
                     case CustomRoles.Torch:
                         if (!Utils.IsActive(SystemTypes.Electrical))
                         {

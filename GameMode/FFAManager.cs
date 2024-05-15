@@ -142,7 +142,7 @@ internal static class FFAManager
             var teamNum = FFATeamNumber.GetInt();
             var playerNum = allPlayers.Length;
             int memberNum = (teamNum > 5 && playerNum >= 15) || playerNum % teamNum == 0 ? playerNum / teamNum : playerNum / teamNum + 1;
-            var teamMembers = allPlayers.Select(x => x.PlayerId).Shuffle(IRandom.Instance).Chunk(memberNum).ToList();
+            var teamMembers = allPlayers.Select(x => x.PlayerId).Shuffle().Chunk(memberNum).ToList();
 
             for (int i = 0; i < teamMembers.Count; i++)
             {
@@ -455,7 +455,7 @@ internal static class FFAManager
                             pc.IsAlive() && !pc.inVent && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
                         if (filtered.Length == 0) break;
 
-                        PlayerControl target = filtered[rd.Next(0, filtered.Length)];
+                        PlayerControl target = filtered.RandomElement();
 
                         if (pc.inVent || target.inVent) continue;
 

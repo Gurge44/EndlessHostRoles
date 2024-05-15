@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using EHR.Neutral;
 using HarmonyLib;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -9,7 +11,6 @@ namespace EHR;
 //参考元 : https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Mode/SuperHostRoles/BlockTool.cs
 class DisableDevice
 {
-    public static bool DoDisable => Options.DisableDevices.GetBool();
     private static readonly List<byte> DesyncComms = [];
     private static int frame;
 
@@ -33,6 +34,8 @@ class DisableDevice
         ["FungleVital"] = new(-2.50f, -9.80f)
     };
 
+    public static bool DoDisable => Options.DisableDevices.GetBool();
+
     public static float UsableDistance()
     {
         return (MapNames)Main.NormalOptions.MapId switch
@@ -52,7 +55,9 @@ class DisableDevice
         frame = frame == 3 ? 0 : ++frame;
         if (frame != 0) return;
 
-        if (!DoDisable) return;
+        var rogueForce = Rogue.On && Main.PlayerStates.Values.Any(x => x.Role is Rogue { DisableDevices: true });
+
+        if (!DoDisable && !rogueForce) return;
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
             try
@@ -65,55 +70,56 @@ class DisableDevice
                               (Options.DisableDevicesIgnoreNeutrals.GetBool() && pc.Is(CustomRoleTypes.Neutral)) ||
                               (Options.DisableDevicesIgnoreCrewmates.GetBool() && pc.Is(CustomRoleTypes.Crewmate)) ||
                               (Options.DisableDevicesIgnoreAfterAnyoneDied.GetBool() && GameStates.AlreadyDied);
+                ignore &= !rogueForce;
 
                 if (pc.IsAlive() && !Utils.IsActive(SystemTypes.Comms))
                 {
                     switch (Main.NormalOptions.MapId)
                     {
                         case 0:
-                            if (Options.DisableSkeldAdmin.GetBool())
+                            if (Options.DisableSkeldAdmin.GetBool() || rogueForce)
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["SkeldAdmin"]) <= UsableDistance();
-                            if (Options.DisableSkeldCamera.GetBool())
+                            if (Options.DisableSkeldCamera.GetBool() || rogueForce)
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["SkeldCamera"]) <= UsableDistance();
                             break;
                         case 1:
-                            if (Options.DisableMiraHQAdmin.GetBool())
+                            if (Options.DisableMiraHQAdmin.GetBool() || rogueForce)
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["MiraHQAdmin"]) <= UsableDistance();
-                            if (Options.DisableMiraHQDoorLog.GetBool())
+                            if (Options.DisableMiraHQDoorLog.GetBool() || rogueForce)
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["MiraHQDoorLog"]) <= UsableDistance();
                             break;
                         case 2:
-                            if (Options.DisablePolusAdmin.GetBool())
+                            if (Options.DisablePolusAdmin.GetBool() || rogueForce)
                             {
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["PolusLeftAdmin"]) <= UsableDistance();
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["PolusRightAdmin"]) <= UsableDistance();
                             }
 
-                            if (Options.DisablePolusCamera.GetBool())
+                            if (Options.DisablePolusCamera.GetBool() || rogueForce)
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["PolusCamera"]) <= UsableDistance();
-                            if (Options.DisablePolusVital.GetBool())
+                            if (Options.DisablePolusVital.GetBool() || rogueForce)
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["PolusVital"]) <= UsableDistance();
                             break;
                         case 3:
-                            if (Options.DisableSkeldAdmin.GetBool())
+                            if (Options.DisableSkeldAdmin.GetBool() || rogueForce)
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["DleksAdmin"]) <= UsableDistance();
-                            if (Options.DisableSkeldCamera.GetBool())
+                            if (Options.DisableSkeldCamera.GetBool() || rogueForce)
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["DleksCamera"]) <= UsableDistance();
                             break;
                         case 4:
-                            if (Options.DisableAirshipCockpitAdmin.GetBool())
+                            if (Options.DisableAirshipCockpitAdmin.GetBool() || rogueForce)
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["AirshipCockpitAdmin"]) <= UsableDistance();
-                            if (Options.DisableAirshipRecordsAdmin.GetBool())
+                            if (Options.DisableAirshipRecordsAdmin.GetBool() || rogueForce)
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["AirshipRecordsAdmin"]) <= UsableDistance();
-                            if (Options.DisableAirshipCamera.GetBool())
+                            if (Options.DisableAirshipCamera.GetBool() || rogueForce)
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["AirshipCamera"]) <= UsableDistance();
-                            if (Options.DisableAirshipVital.GetBool())
+                            if (Options.DisableAirshipVital.GetBool() || rogueForce)
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["AirshipVital"]) <= UsableDistance();
                             break;
                         case 5:
-                            if (Options.DisableFungleCamera.GetBool())
+                            if (Options.DisableFungleCamera.GetBool() || rogueForce)
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["FungleCamera"]) <= UsableDistance();
-                            if (Options.DisableFungleVital.GetBool())
+                            if (Options.DisableFungleVital.GetBool() || rogueForce)
                                 doComms |= Vector2.Distance(PlayerPos, DevicePos["FungleVital"]) <= UsableDistance();
                             break;
                     }

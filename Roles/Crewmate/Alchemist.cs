@@ -175,11 +175,10 @@ namespace EHR.Roles.Crewmate
                 case 3: // TP to random player
                     _ = new LateTask(() =>
                     {
-                        var rd = IRandom.Instance;
                         List<PlayerControl> allAlivePlayer = [.. Main.AllAlivePlayerControls.Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder).ToArray()];
                         var tar1 = allAlivePlayer[player.PlayerId];
                         allAlivePlayer.Remove(tar1);
-                        var tar2 = allAlivePlayer[rd.Next(0, allAlivePlayer.Count)];
+                        var tar2 = allAlivePlayer.RandomElement();
                         tar1.TP(tar2);
                         tar1.RPCPlayCustomSound("Teleport");
                     }, !isPet ? 2f : 0.1f);

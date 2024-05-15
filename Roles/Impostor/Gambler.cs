@@ -34,13 +34,15 @@ namespace EHR.Roles.Impostor
         public static OptionItem IgnorePestilence;
         public static OptionItem PositiveEffectChance;
 
-        public byte EffectID = byte.MaxValue;
-        public bool isPositiveEffect;
-
         public static Dictionary<byte, long> waitingDelayedKills = [];
         public static Dictionary<byte, long> isShielded = [];
         public static Dictionary<byte, (float, long)> isSpeedChange = [];
         public static Dictionary<byte, long> isVisionChange = [];
+
+        public byte EffectID = byte.MaxValue;
+        public bool isPositiveEffect;
+
+        public override bool IsEnable => playerIdList.Count > 0;
 
         public static void SetupCustomOption()
         {
@@ -96,8 +98,6 @@ namespace EHR.Roles.Impostor
             isPositiveEffect = true;
         }
 
-        public override bool IsEnable => playerIdList.Count > 0;
-
         public override void SetKillCooldown(byte id)
         {
             Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
@@ -149,7 +149,7 @@ namespace EHR.Roles.Impostor
                             if (GameStates.IsInTask && killer.IsAlive())
                             {
                                 var list = Main.AllAlivePlayerControls.Where(a => !Pelican.IsEaten(a.PlayerId) && !a.inVent && a.PlayerId != killer.PlayerId).ToArray();
-                                TP(killer.NetTransform, list[rd.Next(0, list.Length)].Pos());
+                                TP(killer.NetTransform, list.RandomElement().Pos());
                             }
                         }, TPDelay.GetInt(), "Gambler Swap");
                         break;

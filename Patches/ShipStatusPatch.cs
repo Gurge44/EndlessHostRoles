@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BepInEx;
 using EHR.Modules;
+using EHR.Neutral;
 using EHR.Patches;
 using EHR.Roles.AddOns.Crewmate;
 using EHR.Roles.AddOns.Impostor;
@@ -68,21 +69,16 @@ class RepairSystemPatch
         [HarmonyArgument(1)] PlayerControl player,
         [HarmonyArgument(2)] byte amount)
     {
-        Logger.Msg("SystemType: " + systemType + ", PlayerName: " + player.GetNameWithRole().RemoveHtmlTags() + ", amount: " + amount, "RepairSystem");
+        Logger.Msg($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole().RemoveHtmlTags()}, amount: {amount}", "RepairSystem");
         if (RepairSender.enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
-            Logger.SendInGame("SystemType: " + systemType + ", PlayerName: " + player.GetNameWithRole().RemoveHtmlTags() + ", amount: " + amount);
+            Logger.SendInGame($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole().RemoveHtmlTags()}, amount: {amount}");
 
         if (!AmongUsClient.Instance.AmHost) return true; // Execute the following only on the host
 
-        if ((Options.CurrentGameMode != CustomGameMode.Standard) && systemType == SystemTypes.Sabotage) return false;
-
-        if (Options.DisableSabotage.GetBool() && systemType == SystemTypes.Sabotage) return false;
+        if ((Options.CurrentGameMode != CustomGameMode.Standard || Options.DisableSabotage.GetBool()) && systemType == SystemTypes.Sabotage) return false;
 
         // Note: "SystemTypes.Laboratory" сauses bugs in the Host, it is better not to use
-        if (player.Is(CustomRoles.Fool) &&
-            (systemType is
-                SystemTypes.Comms or
-                SystemTypes.Electrical))
+        if (player.Is(CustomRoles.Fool) && (systemType is SystemTypes.Comms or SystemTypes.Electrical))
         {
             return false;
         }
@@ -202,6 +198,7 @@ class RepairSystemPatch
             case SystemTypes.Electrical:
                 if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage(player.PlayerId);
                 if (player.Is(CustomRoles.Stressed) && Stressed.countRepairSabotage) Stressed.OnRepairSabotage(player);
+                if (Main.PlayerStates[player.PlayerId].Role is Rogue rg) rg.OnFixSabotage();
                 break;
         }
     }

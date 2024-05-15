@@ -63,7 +63,6 @@ public class Executioner : RoleBase
         try
         {
             List<PlayerControl> targetList = [];
-            var rand = IRandom.Instance;
             targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetNeutralBenign.GetBool() || !target.IsNeutralBenign() where CanTargetNeutralEvil.GetBool() || !target.IsNeutralEvil() where CanTargetNeutralChaos.GetBool() || !target.IsNeutralChaos() where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where !Utils.GetPlayerById(playerId).Is(CustomRoles.Lovers) || !target.Is(CustomRoles.Lovers) select target);
 
             if (targetList.Count == 0)
@@ -72,7 +71,7 @@ public class Executioner : RoleBase
                 return;
             }
 
-            var SelectedTarget = targetList[rand.Next(targetList.Count)];
+            var SelectedTarget = targetList.RandomElement();
             Target[playerId] = SelectedTarget.PlayerId;
             SendRPC(playerId, SelectedTarget.PlayerId, "SetTarget");
             Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}'s target: {SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Executioner");

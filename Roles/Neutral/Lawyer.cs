@@ -78,7 +78,6 @@ public class Lawyer : RoleBase
             if (AmongUsClient.Instance.AmHost)
             {
                 List<PlayerControl> targetList = [];
-                var rand = IRandom.Instance;
                 targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetCrewmate.GetBool() || !target.Is(CustomRoleTypes.Crewmate) where CanTargetJester.GetBool() || !target.Is(CustomRoles.Jester) where !target.Is(CustomRoleTypes.Neutral) || target.IsNeutralKiller() || target.Is(CustomRoles.Jester) where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where !Utils.GetPlayerById(playerId).Is(CustomRoles.Lovers) || !target.Is(CustomRoles.Lovers) select target);
 
                 if (targetList.Count == 0)
@@ -87,7 +86,7 @@ public class Lawyer : RoleBase
                     return;
                 }
 
-                var SelectedTarget = targetList[rand.Next(targetList.Count)];
+                var SelectedTarget = targetList.RandomElement();
                 Target.Add(playerId, SelectedTarget.PlayerId);
                 SendRPC(playerId, SelectedTarget.PlayerId, "SetTarget");
                 Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}:{SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Lawyer");

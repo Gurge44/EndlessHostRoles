@@ -200,7 +200,7 @@ public static class ElectricTaskInitializePatch
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare) || pc.Is(CustomRoles.Torch) || Beacon.IsAffectedPlayer(pc.PlayerId))
+                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare) || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
                 {
                     Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
                 }
@@ -228,7 +228,7 @@ public static class ElectricTaskCompletePatch
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare) || pc.Is(CustomRoles.Torch) || Beacon.IsAffectedPlayer(pc.PlayerId))
+                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare) || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
                 {
                     Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
                 }

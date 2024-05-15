@@ -1,6 +1,5 @@
-﻿using AmongUs.GameOptions;
-using EHR.Modules;
-using System.Linq;
+﻿using System.Linq;
+using AmongUs.GameOptions;
 using UnityEngine;
 
 namespace EHR.Roles.Impostor
@@ -8,7 +7,6 @@ namespace EHR.Roles.Impostor
     internal class Parasite : RoleBase
     {
         public static bool On;
-        public override bool IsEnable => On;
 
         public static OptionItem ParasiteCD;
         public static OptionItem ShapeshiftCooldown;
@@ -18,6 +16,7 @@ namespace EHR.Roles.Impostor
         public static float SSDur;
 
         private float Duration;
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
@@ -58,7 +57,7 @@ namespace EHR.Roles.Impostor
 
         public override void OnPet(PlayerControl pc)
         {
-            PlayerControl target = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Impostor)).Shuffle(IRandom.Instance).FirstOrDefault();
+            PlayerControl target = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Impostor)).Shuffle().FirstOrDefault();
             if (target != null)
             {
                 Duration = SSDur;

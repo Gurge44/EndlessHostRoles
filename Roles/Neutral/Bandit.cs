@@ -108,8 +108,7 @@ public class Bandit : RoleBase
             return null;
         }
 
-        var rand = IRandom.Instance;
-        var addon = AllSubRoles[rand.Next(0, AllSubRoles.Count)];
+        var addon = AllSubRoles.RandomElement();
         return addon;
     }
 

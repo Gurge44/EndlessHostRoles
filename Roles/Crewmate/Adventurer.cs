@@ -129,7 +129,7 @@ namespace EHR.Roles.Crewmate
                     Utils.SendRPC(CustomRPC.SyncAdventurer, pc.PlayerId, 4, (int)SelectedWeaponToCraft);
                     break;
                 case false when Ingredients[SelectedWeaponToCraft].All(x => x.Count <= ResourceCounts[x.Resource]):
-                    var weapon = SelectedWeaponToCraft == Weapon.RNG ? EnabledWeapons[IRandom.Instance.Next(EnabledWeapons.Count)] : SelectedWeaponToCraft;
+                    var weapon = SelectedWeaponToCraft == Weapon.RNG ? EnabledWeapons.RandomElement() : SelectedWeaponToCraft;
                     ActiveWeapons.Add(weapon);
                     pc.Notify(string.Format(Translator.GetString("AdventurerWeaponCrafted"), Translator.GetString($"AdventurerGun.{weapon}")));
                     foreach ((Resource resource, int count) in Ingredients[weapon])
@@ -169,7 +169,7 @@ namespace EHR.Roles.Crewmate
                             var e = Main.AllAlivePlayerControls.Where(x => x.PlayerId != pc.PlayerId && !x.inVent && !x.inMovingPlat && !x.onLadder);
                             var filtered = e as PlayerControl[] ?? e.ToArray();
                             if (filtered.Length == 0) return;
-                            var other = filtered[IRandom.Instance.Next(filtered.Length)];
+                            var other = filtered.RandomElement();
                             var pos = other.Pos();
                             other.TP(pc);
                             pc.TP(pos);

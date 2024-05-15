@@ -110,7 +110,6 @@ static class LocateArrow
     {
         if (!GameStates.IsInTask) return;
 
-        var seerId = seer.PlayerId;
         var seerIsDead = !seer.IsAlive();
 
         var arrowList = new List<ArrowInfo>(LocateArrows.Keys.Where(a => a.From == seer.PlayerId));

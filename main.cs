@@ -200,7 +200,7 @@ public class Main : BasePlugin
     }
 
     // ReSharper disable once InconsistentNaming
-    public static string Get_TName_Snacks => TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese ? NameSnacksCn[IRandom.Instance.Next(0, NameSnacksCn.Count)] : NameSnacksEn[IRandom.Instance.Next(0, NameSnacksEn.Count)];
+    public static string Get_TName_Snacks => TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese ? NameSnacksCn.RandomElement() : NameSnacksEn.RandomElement();
 
     public static GameData.PlayerInfo LastVotedPlayerInfo { get; set; }
 
@@ -428,6 +428,7 @@ public class Main : BasePlugin
                 { CustomRoles.HexMaster, "#ff00ff" },
                 { CustomRoles.Wraith, "#4B0082" },
                 { CustomRoles.NSerialKiller, "#233fcc" },
+                { CustomRoles.Rogue, "#7a629c" },
                 { CustomRoles.Patroller, "#c1cc27" },
                 { CustomRoles.Simon, "#c4b8ff" },
                 { CustomRoles.Chemist, "#4287f5" },
@@ -504,6 +505,7 @@ public class Main : BasePlugin
                 { CustomRoles.Flashman, "#ff8400" },
                 { CustomRoles.Haste, "#f0ec22" },
                 { CustomRoles.Busy, "#32a852" },
+                { CustomRoles.Sleep, "#000000" },
                 { CustomRoles.Truant, "#eb3467" },
                 { CustomRoles.Disco, "#eb34e8" },
                 { CustomRoles.Sonar, "#b8fffe" },
@@ -542,7 +544,6 @@ public class Main : BasePlugin
                 { CustomRoles.Knighted, "#FFA500" },
                 { CustomRoles.Contagious, "#2E8B57" },
                 { CustomRoles.Unreportable, "#FF6347" },
-                { CustomRoles.Rogue, "#696969" },
                 { CustomRoles.Lucky, "#b8d7a3" },
                 { CustomRoles.Unlucky, "#d7a3a3" },
                 { CustomRoles.DoubleShot, "#19fa8d" },
@@ -701,6 +702,7 @@ public enum CustomWinner
     Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
     SerialKiller = CustomRoles.NSerialKiller,
+    Rogue = CustomRoles.Rogue,
     Patroller = CustomRoles.Patroller,
     Simon = CustomRoles.Simon,
     Chemist = CustomRoles.Chemist,
@@ -726,7 +728,6 @@ public enum CustomWinner
     Juggernaut = CustomRoles.Juggernaut,
     Bandit = CustomRoles.Bandit,
     Virus = CustomRoles.Virus,
-    Rogue = CustomRoles.Rogue,
     Phantom = CustomRoles.Phantom,
     Jinx = CustomRoles.Jinx,
     Ritualist = CustomRoles.Ritualist,

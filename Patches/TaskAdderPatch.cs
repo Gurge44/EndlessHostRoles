@@ -1,9 +1,7 @@
 using System;
 using System.Collections;
-using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
-using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace EHR;
@@ -36,7 +34,6 @@ class ShowFolderPatch
         float maxHeight = 0f;
         if (CustomRolesFolder != null && CustomRolesFolder.FolderName == taskFolder.FolderName)
         {
-            var crewBehaviour = DestroyableSingleton<RoleManager>.Instance.AllRoles.FirstOrDefault(role => role.Role == RoleTypes.Crewmate);
             IList list = Enum.GetValues(typeof(CustomRoles));
             foreach (var cRoleID in list)
             {
@@ -58,7 +55,6 @@ class ShowFolderPatch
                 };
                 button.Role = roleBehaviour;
 
-                Color IconColor = Color.white;
                 var roleColor = Utils.GetRoleColor(cRole);
 
                 button.FileImage.color = roleColor;

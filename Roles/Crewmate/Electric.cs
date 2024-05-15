@@ -6,7 +6,10 @@ namespace EHR.Roles.Crewmate
     internal class Electric : RoleBase
     {
         public static bool On;
+        private static OptionItem FreezeDuration;
         public override bool IsEnable => On;
+
+        private static int Id => 64410;
 
         public override void Add(byte playerId)
         {
@@ -18,8 +21,6 @@ namespace EHR.Roles.Crewmate
             On = false;
         }
 
-        private static int Id => 64410;
-        private static OptionItem FreezeDuration;
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Electric);
@@ -31,11 +32,10 @@ namespace EHR.Roles.Crewmate
         public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
             if (pc == null) return;
-            var Random = IRandom.Instance;
 
             var targetList = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate)).ToList();
             if (targetList.Count == 0) return;
-            var target = targetList[Random.Next(0, targetList.Count)];
+            var target = targetList.RandomElement();
 
             var beforeSpeed = Main.AllPlayerSpeed[target.PlayerId];
             Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;

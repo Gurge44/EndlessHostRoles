@@ -11,14 +11,14 @@ namespace EHR.Roles.Impostor
     internal class OverKiller : RoleBase
     {
         public static bool On;
+
+        public static List<byte> OverDeadPlayerList = [];
         public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(16900, TabGroup.ImpostorRoles, CustomRoles.OverKiller);
         }
-
-        public static List<byte> OverDeadPlayerList = [];
 
         public override void Add(byte playerId)
         {
@@ -78,7 +78,7 @@ namespace EHR.Roles.Impostor
                         if (target.Is(CustomRoles.Avanger))
                         {
                             var pcList = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId || Pelican.IsEaten(x.PlayerId) || Medic.ProtectList.Contains(x.PlayerId) || target.Is(CustomRoles.Pestilence)).ToArray();
-                            var rp = pcList[IRandom.Instance.Next(0, pcList.Length)];
+                            var rp = pcList.RandomElement();
                             rp.Suicide(PlayerState.DeathReason.Revenge, target);
                         }
 

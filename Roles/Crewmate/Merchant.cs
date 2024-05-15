@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using EHR.Roles.AddOns;
 using EHR.Roles.Neutral;
 using static EHR.Options;
 using static EHR.Translator;
@@ -67,15 +64,7 @@ namespace EHR.Roles.Crewmate
             addonsSold = [];
             bribedKiller = [];
 
-            // Get all types that are from the IAddon interface, create an instance of them, group them by the Type into a dictionary and the CustomRoles equivalent (Enum.Parse)
-            GroupedAddons = Assembly
-                .GetExecutingAssembly()
-                .GetTypes()
-                .Where(x => x.GetInterfaces().ToList().Contains(typeof(IAddon)))
-                .Select(x => (IAddon)Activator.CreateInstance(x))
-                .Where(x => x != null)
-                .GroupBy(x => x.Type)
-                .ToDictionary(x => x.Key, x => x.Select(y => Enum.Parse<CustomRoles>(y.GetType().Name, true)).ToList());
+            GroupedAddons = Options.GroupedAddons.ToDictionary(x => x.Key, x => x.Value.ToList());
 
             if (!OptionCanSellHarmful.GetBool()) GroupedAddons.Remove(AddonTypes.Harmful);
             if (!OptionCanSellHelpful.GetBool()) GroupedAddons.Remove(AddonTypes.Helpful);
@@ -109,8 +98,7 @@ namespace EHR.Roles.Crewmate
                 return;
             }
 
-            var rd = IRandom.Instance;
-            CustomRoles addon = Addons[rd.Next(0, Addons.Count)];
+            CustomRoles addon = Addons.RandomElement();
 
             var AllAlivePlayer =
                 Main.AllAlivePlayerControls.Where(x =>
@@ -138,7 +126,7 @@ namespace EHR.Roles.Crewmate
                 return;
             }
 
-            PlayerControl target = AllAlivePlayer[rd.Next(AllAlivePlayer.Count)];
+            PlayerControl target = AllAlivePlayer.RandomElement();
 
             target.RpcSetCustomRole(addon);
             target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Merchant), GetString("MerchantAddonSell")));
@@ -147,7 +135,7 @@ namespace EHR.Roles.Crewmate
             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: target);
             Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: player);
 
-            addonsSold[player.PlayerId] += 1;
+            addonsSold[player.PlayerId]++;
         }
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)

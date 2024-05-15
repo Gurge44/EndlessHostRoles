@@ -122,9 +122,12 @@ class HudManagerPatch
                     {
                         if (!Main.SetAddOns.TryGetValue(role.Key, out var addons)) continue;
 
+                        var pc = Utils.GetPlayerById(role.Key);
+                        if (pc == null) continue;
+
                         foreach (var addon in addons)
                         {
-                            if (!CustomRolesHelper.CheckAddonConflictV2(addon, role.Value))
+                            if (!CustomRolesHelper.CheckAddonConflict(addon, pc))
                             {
                                 resultText[role.Key] += " <#ff0000>(!)</color>";
                                 break;

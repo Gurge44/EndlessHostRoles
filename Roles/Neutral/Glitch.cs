@@ -130,7 +130,7 @@ public class Glitch : RoleBase
 
         try
         {
-            pc.RpcShapeshift(playerlist[IRandom.Instance.Next(0, playerlist.Length)], false);
+            pc.RpcShapeshift(playerlist.RandomElement(), false);
 
             IsShifted = true;
             LastMimic = Utils.TimeStamp;

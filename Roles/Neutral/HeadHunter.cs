@@ -139,7 +139,7 @@ public class HeadHunter : RoleBase
             {
                 var cTargets = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(pc => !Targets.Contains(pc.PlayerId) && pc.GetCustomRole() != CustomRoles.HeadHunter));
                 if (cTargets.Count == 0) break;
-                var target = cTargets[IRandom.Instance.Next(0, cTargets.Count)];
+                var target = cTargets.RandomElement();
                 Targets.Add(target.PlayerId);
             }
             catch (Exception ex)

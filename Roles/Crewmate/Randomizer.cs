@@ -62,7 +62,6 @@ namespace EHR.Roles.Crewmate
                     case Effect.Twist:
                     {
                         List<byte> changePositionPlayers = [];
-                        var rd = IRandom.Instance;
                         foreach (var pc in Main.AllAlivePlayerControls)
                         {
                             if (changePositionPlayers.Contains(pc.PlayerId) || Pelican.IsEaten(pc.PlayerId) || pc.onLadder || pc.inVent || GameStates.IsMeeting) continue;
@@ -70,7 +69,7 @@ namespace EHR.Roles.Crewmate
                             var filtered = Main.AllAlivePlayerControls.Where(a => !a.inVent && !Pelican.IsEaten(a.PlayerId) && !a.onLadder && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
                             if (filtered.Length == 0) break;
 
-                            var target = filtered[rd.Next(0, filtered.Length)];
+                            var target = filtered.RandomElement();
 
                             changePositionPlayers.Add(target.PlayerId);
                             changePositionPlayers.Add(pc.PlayerId);
@@ -251,7 +250,7 @@ namespace EHR.Roles.Crewmate
                     {
                         var addons = Enum.GetValues<CustomRoles>().Where(x => x.IsAdditionRole() && x != CustomRoles.NotAssigned).ToArray();
                         var pc = PickRandomPlayer();
-                        var addon = addons[IRandom.Instance.Next(0, addons.Length)];
+                        var addon = addons.RandomElement();
                         if (Main.PlayerStates[pc.PlayerId].SubRoles.Contains(addon)) break;
                         Main.PlayerStates[pc.PlayerId].SetSubRole(addon);
                         pc.MarkDirtySettings();
@@ -263,7 +262,7 @@ namespace EHR.Roles.Crewmate
                         var pc = PickRandomPlayer();
                         var addons = Main.PlayerStates[pc.PlayerId].SubRoles;
                         if (addons.Count == 0) break;
-                        var addon = addons[IRandom.Instance.Next(0, addons.Count)];
+                        var addon = addons.RandomElement();
                         Main.PlayerStates[pc.PlayerId].RemoveSubRole(addon);
                         pc.MarkDirtySettings();
                         NotifyAboutRNG(pc);
@@ -279,7 +278,6 @@ namespace EHR.Roles.Crewmate
                         break;
                     case Effect.HandcuffAll:
                     {
-                        var now = Utils.TimeStamp;
                         foreach (var pc in Main.AllAlivePlayerControls)
                         {
                             AddEffectForPlayer(pc, effect);
@@ -339,7 +337,7 @@ namespace EHR.Roles.Crewmate
                         var killer = PickRandomPlayer();
                         var allPc = Main.AllAlivePlayerControls.Where(x => x.PlayerId != killer.PlayerId).ToArray();
                         if (allPc.Length == 0) break;
-                        var target = allPc[IRandom.Instance.Next(0, allPc.Length)];
+                        var target = allPc.RandomElement();
                         BallLightning.CheckBallLightningMurder(killer, target, force: true);
                         NotifyAboutRNG(target);
                     }
@@ -372,7 +370,7 @@ namespace EHR.Roles.Crewmate
                         var pc1 = PickRandomPlayer();
                         var allPc = Main.AllAlivePlayerControls.Where(x => x.CanUseKillButton() && x.PlayerId != pc1.PlayerId).ToArray();
                         if (allPc.Length == 0) break;
-                        var pc2 = allPc[IRandom.Instance.Next(0, allPc.Length)];
+                        var pc2 = allPc.RandomElement();
                         var duellist = new Duellist();
                         duellist.OnShapeshift(pc1, pc2, true);
                     }
@@ -523,7 +521,7 @@ namespace EHR.Roles.Crewmate
         {
             var allPc = Main.AllAlivePlayerControls;
             if (allPc.Length == 0) return null;
-            var pc = allPc[IRandom.Instance.Next(0, allPc.Length)];
+            var pc = allPc.RandomElement();
             return pc;
         }
 
@@ -542,7 +540,7 @@ namespace EHR.Roles.Crewmate
             LastEffectPick[id] = now;
 
             var allEffects = Enum.GetValues<Effect>();
-            var effect = allEffects[IRandom.Instance.Next(0, allEffects.Length)];
+            var effect = allEffects.RandomElement();
 
             if (effect == Effect.GhostPlayer)
             {

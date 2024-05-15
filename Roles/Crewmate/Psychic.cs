@@ -19,9 +19,11 @@ public class Psychic : RoleBase
     private static OptionItem CkshowEvil;
     private static OptionItem NBshowEvil;
     private static OptionItem NEshowEvil;
+    private byte PsychicId;
 
     private List<byte> RedPlayer = [];
-    private byte PsychicId;
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
@@ -47,8 +49,6 @@ public class Psychic : RoleBase
         RedPlayer = [];
         PsychicId = playerId;
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     void SendRPC()
     {
@@ -117,14 +117,14 @@ public class Psychic : RoleBase
         RedPlayer = [];
         for (int i = 0; i < ENum && BadList.Count > 0; i++)
         {
-            RedPlayer.Add(BadList[IRandom.Instance.Next(0, BadList.Count)]);
+            RedPlayer.Add(BadList.RandomElement());
             BadList.RemoveAll(RedPlayer.Contains);
         }
 
         AllList.RemoveAll(RedPlayer.Contains);
         for (int i = 0; i < BNum && AllList.Count > 0; i++)
         {
-            RedPlayer.Add(AllList[IRandom.Instance.Next(0, AllList.Count)]);
+            RedPlayer.Add(AllList.RandomElement());
             AllList.RemoveAll(RedPlayer.Contains);
         }
 

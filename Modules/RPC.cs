@@ -135,6 +135,7 @@ public enum CustomRPC
     SyncOverheat,
     SyncChemist,
     SyncSimon,
+    SyncRogue,
 
     // Other Game Modes
     SyncKBPlayer,
@@ -398,6 +399,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SyncSimon:
                 (Main.PlayerStates[reader.ReadByte()].Role as Simon)?.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncRogue:
+                (Main.PlayerStates[reader.ReadByte()].Role as Rogue)?.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetBountyTarget:
             {

@@ -58,7 +58,7 @@ namespace EHR.GameMode.HideAndSeekRoles
                 var imps = HnSManager.PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Where(x => x != null && x.GetPlainShipRoom() != null).ToArray();
                 if (imps.Length > 0)
                 {
-                    var imp = imps[IRandom.Instance.Next(imps.Length)];
+                    var imp = imps.RandomElement();
                     var room = Translator.GetString($"{imp.GetPlainShipRoom().RoomId}");
                     pc.Notify(string.Format(Translator.GetString("DetectorNotify"), room));
                     LastInfoTime = now;

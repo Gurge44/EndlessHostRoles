@@ -558,7 +558,7 @@ class MurderPlayerPatch
         if (target.Is(CustomRoles.Avanger))
         {
             var pcList = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId).ToArray();
-            var rp = pcList[IRandom.Instance.Next(0, pcList.Length)];
+            var rp = pcList.RandomElement();
             if (!rp.Is(CustomRoles.Pestilence))
             {
                 rp.Suicide(PlayerState.DeathReason.Revenge, target);
@@ -903,9 +903,14 @@ class ReportDeadBodyPatch
 
         if (target == null)
         {
-            if (player.Is(CustomRoles.Mayor))
+            switch (Main.PlayerStates[player.PlayerId].Role)
             {
-                Mayor.MayorUsedButtonCount[player.PlayerId] += 1;
+                case Mayor:
+                    Mayor.MayorUsedButtonCount[player.PlayerId]++;
+                    break;
+                case Rogue rg:
+                    rg.OnButtonPressed();
+                    break;
             }
 
             if (QuizMaster.On)
@@ -1179,6 +1184,7 @@ class FixedUpdatePatch
                     if (subRoles.Contains(CustomRoles.Disco)) Disco.OnFixedUpdate(player);
                     if (subRoles.Contains(CustomRoles.Clumsy)) Clumsy.OnFixedUpdate(player);
                     if (subRoles.Contains(CustomRoles.Sonar)) Sonar.OnFixedUpdate(player);
+                    if (subRoles.Contains(CustomRoles.Sleep)) Sleep.CheckGlowNearby(player);
                 }
             }
 

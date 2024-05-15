@@ -48,7 +48,7 @@ namespace EHR.Neutral
 
             LastRoom = null;
             RoomBoosts = ShipStatus.Instance.AllRooms
-                .Shuffle(IRandom.Instance)
+                .Shuffle()
                 .Zip(Enum.GetValues<Boost>())
                 .ToDictionary(x => x.Second, x => x.First);
 

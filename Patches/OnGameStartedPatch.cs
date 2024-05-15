@@ -283,7 +283,7 @@ internal class SelectRolesPatch
                 bloodlustList = Main.SetAddOns.Where(x => x.Value.Contains(CustomRoles.Bloodlust)).Select(x => x.Key).ToList();
             }
 
-            if (bloodlustSpawn) Main.BloodlustPlayer = bloodlustList[rd.Next(0, bloodlustList.Count)];
+            if (bloodlustSpawn) Main.BloodlustPlayer = bloodlustList.RandomElement();
 
 
             Dictionary<(byte, byte), RoleTypes> rolesMap = [];
@@ -361,7 +361,7 @@ internal class SelectRolesPatch
 
             if (nimbleSpawn)
             {
-                Main.NimblePlayer = nimbleList[rd.Next(0, nimbleList.Count)];
+                Main.NimblePlayer = nimbleList.RandomElement();
             }
 
             if (physicistSpawn)
@@ -369,7 +369,7 @@ internal class SelectRolesPatch
                 int i = 0;
                 while ((Main.PhysicistPlayer == byte.MaxValue || Main.PhysicistPlayer == Main.NimblePlayer) && i <= 50)
                 {
-                    Main.PhysicistPlayer = physicistList[rd.Next(0, physicistList.Count)];
+                    Main.PhysicistPlayer = physicistList.RandomElement();
                     i++;
                 }
 
@@ -503,7 +503,7 @@ internal class SelectRolesPatch
             AddonRolesList
                 .Where(x => x.IsEnable())
                 .SelectMany(x => Enumerable.Repeat(x, Math.Clamp(x.GetCount(), 0, aapc.Length)))
-                .Shuffle(rd)
+                .Shuffle()
                 .Chunk(aapc.Length)
                 .Do(c => c.Zip(aapc).Do(x => AssignSubRoles(x.First, x.Second)));
 
@@ -740,13 +740,12 @@ internal class SelectRolesPatch
     {
         var allPlayers = Main.AllPlayerControls.Where(pc => !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && !pc.Is(CustomRoles.Dictator) && !pc.Is(CustomRoles.God) && !pc.Is(CustomRoles.FFF) && !pc.Is(CustomRoles.Bomber) && !pc.Is(CustomRoles.Nuker) && !pc.Is(CustomRoles.Provocateur) && (!pc.IsCrewmate() || Options.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Options.NeutralCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsImpostor() || Options.ImpCanBeInLove.GetBool())).ToList();
         const CustomRoles role = CustomRoles.Lovers;
-        var rd = IRandom.Instance;
         var count = Math.Clamp(RawCount, 0, allPlayers.Count);
         if (RawCount == -1) count = Math.Clamp(role.GetCount(), 0, allPlayers.Count);
         if (count <= 0) return;
         for (var i = 0; i < count; i++)
         {
-            var player = allPlayers[rd.Next(0, allPlayers.Count)];
+            var player = allPlayers.RandomElement();
             Main.LoversPlayers.Add(player);
             allPlayers.Remove(player);
             Main.PlayerStates[player.PlayerId].SetSubRole(role);
