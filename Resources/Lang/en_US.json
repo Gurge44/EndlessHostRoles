@@ -4026,7 +4026,7 @@
   "PickpocketGetVote": "You've got {0} votes",
   "VultureArrowsPointingToDeadBody": "Arrows pointing to dead bodies",
   "VultureNumberOfReportsToWin": "Bodies needed to win",
-  "VultureReportBody": "Body eaten!",
+  "VultureBodyReported": "Body eaten!",
   "VultureEatButtonText": "Consume",
   "VultureReportCooldown": "Eat Cooldown",
   "VultureMaxEatenInOneRound": "Maximum eaten bodies possible per round",
