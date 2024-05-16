@@ -71,7 +71,7 @@ public static class NameColorManager
         }
 
         // Custom Teams
-        if (CustomTeamManager.AreInSameCustomTeam(seer.PlayerId, target.PlayerId) && Options.CTAPlayersCanSeeEachOthersRoles.GetBool()) color = Main.RoleColors[target.GetCustomRole()];
+        if (CustomTeamManager.AreInSameCustomTeam(seer.PlayerId, target.PlayerId) && CustomTeamManager.GetSettingForPlayerTeam(seer.PlayerId, "KnowRoles")) color = Main.RoleColors[target.GetCustomRole()];
 
         // Add-ons
         if (target.Is(CustomRoles.Glow) && Utils.IsActive(SystemTypes.Electrical)) color = Main.RoleColors[CustomRoles.Glow];

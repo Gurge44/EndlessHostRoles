@@ -1868,6 +1868,7 @@
   "EGGuessSnitchTaskDone": "You thought you could guess the Snitch when all of their tasks are done? Nice try.... You're not getting out of this that easily.",
   "GuessDoubleShot": "You guessed a role incorrectly, but you have Double Shot so you get another chance!",
   "LaughToWhoGuessSelf": "Tried to guess, who tried to self-guess! It's you! Ahah!",
+  "GuessSameCTAPlayer": "You tried to guess a player who is in your team.... You're not that smart, are you?",
   "GuessDisabled": "Sorry, the host restricted guessing for your role.",
   "GuessWorkaholic": "Sorry, you can't guess a revealed Workaholic as that would be unfair.",
   "GuessDoctor": "Sorry, you can't guess a revealed Doctor as that would be unfair.",

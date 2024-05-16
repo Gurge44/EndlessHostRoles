@@ -182,6 +182,13 @@ public static class GuessManager
                         return true;
                     }
 
+                    if (CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, targetId) && !CustomTeamManager.GetSettingForPlayerTeam(targetId, "GuessEachOther"))
+                    {
+                        if (!isUI) Utils.SendMessage(GetString("GuessSameCTAPlayer"), pc.PlayerId);
+                        else pc.ShowPopUp(GetString("GuessSameCTAPlayer"));
+                        return true;
+                    }
+
                     Main.GuesserGuessed.TryAdd(pc.PlayerId, 0);
 
                     switch (pc.GetCustomRole())

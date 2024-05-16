@@ -228,9 +228,14 @@ class GameEndChecker
                         .Do(p => WinnerIds.Add(p.PlayerId));
                 }
 
-                if (WinnerTeam != CustomWinner.CustomTeam && !Options.CTAPlayersCanWinWithOriginalTeam.GetBool())
+                if (WinnerTeam != CustomWinner.CustomTeam)
                 {
-                    WinnerIds.RemoveWhere(x => CustomTeamManager.GetCustomTeam(x) != null);
+                    Main.AllPlayerControls
+                        .Select(x => new { Team = CustomTeamManager.GetCustomTeam(x.PlayerId), Player = x })
+                        .Where(x => x.Team != null)
+                        .GroupBy(x => x.Team)
+                        .ToDictionary(x => x.Key, x => x.Select(y => y.Player.PlayerId))
+                        .DoIf(x => !CustomTeamManager.GetSettingForTeam(x.Key, "WinWithOriginalTeam"), x => WinnerIds.ExceptWith(x.Value));
                 }
 
                 if ((WinnerTeam == CustomWinner.Lovers || WinnerIds.Any(x => Main.PlayerStates[x].SubRoles.Contains(CustomRoles.Lovers))) && Main.LoversPlayers.All(x => x.IsAlive()))

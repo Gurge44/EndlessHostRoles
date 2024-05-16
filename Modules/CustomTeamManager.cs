@@ -74,6 +74,26 @@ namespace EHR.Modules
                 .GroupBy(x => EnabledCustomTeams.FirstOrDefault(t => t.TeamMembers.Contains(x.Value.MainRole)), x => x.Key)
                 .Where(x => x.Key != null)
                 .ToDictionary(x => x.Key, x => x.ToHashSet());
+
+            foreach ((CustomTeam team, HashSet<byte> players) in CustomTeamPlayerIds)
+            {
+                if (!GetSettingForTeam(team, "Arrows")) continue;
+
+                foreach (byte player in players)
+                {
+                    foreach (byte target in players)
+                    {
+                        if (player == target) continue;
+                        TargetArrow.Add(player, target);
+                    }
+                }
+            }
+        }
+
+        public static string GetSuffix(PlayerControl seer)
+        {
+            if (seer == null || EnabledCustomTeams.Count == 0 || !GetSettingForPlayerTeam(seer.PlayerId, "Arrows")) return string.Empty;
+            return CustomTeamPlayerIds[GetCustomTeam(seer.PlayerId)].Aggregate(string.Empty, (s, id) => s + Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), TargetArrow.GetArrows(seer, id)));
         }
 
         public static bool CheckCustomTeamGameEnd()
@@ -127,10 +147,20 @@ namespace EHR.Modules
         public static bool GetSettingForPlayerTeam(byte id, string settingName)
         {
             var team = GetCustomTeam(id);
+            return team != null && GetSettingForTeam(team, settingName);
+        }
+
+        public static bool GetSettingForTeam(CustomTeam team, string settingName)
+        {
             var optionsGroup = CustomTeamOptions.First(x => x.Team.Equals(team));
             var setting = optionsGroup.GetType().GetFields().FirstOrDefault(x => x.Name.Contains(settingName));
             if (setting == null) return false;
             return setting.GetValue(optionsGroup) as bool? ?? false;
+        }
+
+        public static string GetTeamEnabledSettingDisplay(int id)
+        {
+            // INCOMPLETE - DO NOT FREAK OUT MR PHGAMING
         }
 
         internal class CustomTeam
@@ -176,7 +206,7 @@ namespace EHR.Modules
 
         internal class CustomTeamOptionGroup(CustomTeam team, BooleanOptionItem enabled, BooleanOptionItem knowRoles, BooleanOptionItem winWithOriginalTeam, BooleanOptionItem killEachOther, BooleanOptionItem guessEachOther, BooleanOptionItem arrows)
         {
-            public List<BooleanOptionItem> AllOptions = [enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows];
+            public readonly List<BooleanOptionItem> AllOptions = [enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows];
             public CustomTeam Team { get; set; } = team;
 
             public BooleanOptionItem Enabled { get; set; } = enabled;
