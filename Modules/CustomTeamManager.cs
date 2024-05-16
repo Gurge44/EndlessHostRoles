@@ -41,7 +41,7 @@ namespace EHR.Modules
             CustomTeamOptions.Clear();
             EnabledCustomTeams.Clear();
 
-            const int startId = 649000;
+            const int startId = 6490002;
             const TabGroup tab = TabGroup.GameSettings;
             CustomTeamOptions = CustomTeams.Select((x, i) => CreateSetting(x, startId + (6 * i))).ToList();
             OptionSaver.Load();
