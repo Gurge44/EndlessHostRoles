@@ -2152,8 +2152,8 @@ public static class Options
         CTAPlayersCanSeeEachOthersRoles = BooleanOptionItem.Create(23551, "CTA.PlayersCanSeeEachOthersRoles", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(215, 227, 84, byte.MaxValue));
-
-        CustomTeamManager.RefreshCustomOptions();
+        
+        CustomTeamManager.LoadCustomTeams();
 
         LoadingPercentage = 100;
 

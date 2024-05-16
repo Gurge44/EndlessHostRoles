@@ -288,8 +288,11 @@ namespace EHR.Neutral
             if (AllTasksCompleted) return Translator.GetString("Rogue.AllTasksCompleted");
             if (CurrentTask.IsCompleted) return Translator.GetString("Rogue.TaskCompleted");
 
+            float d = Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown);
             string c = GotRewards.Contains(Reward.Morph) && MorphCooldown > 0
-                ? string.Format(Translator.GetString("CDPT"), MorphCooldown) + "\n"
+                ? MorphCooldown <= d
+                    ? string.Format(Translator.GetString("CDPT"), MorphCooldown) + "\n"
+                    : $"\u21b9 ({MorphCooldown - d}s)"
                 : string.Empty;
 
             string o = Translator.GetString("Rogue.Objective." + CurrentTask.Objective);
