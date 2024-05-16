@@ -143,9 +143,9 @@ public abstract class OptionItem
     // Getter
     public virtual string GetName(bool disableColor = false, bool console = false)
     {
-        if (Name.Contains("CTA.TeamEnabled"))
+        if (Name.Contains("CTA.FLAG"))
         {
-            return Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary));
+            return Utils.ColorString(NameColor, Translator.GetString("CTA.TeamEnabled.Prefix") + Name[8..] + Translator.GetString("CTA.TeamEnabled.Suffix"));
         }
 
         return disableColor ? Translator.GetString(Name, ReplacementDictionary, console) : Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary));
@@ -275,13 +275,7 @@ public abstract class OptionItem
     private static readonly List<OptionItem> Options = new(1024);
     public static IReadOnlyDictionary<int, OptionItem> FastOptions => FastOpts;
     private static readonly Dictionary<int, OptionItem> FastOpts = new(1024);
-    public static int CurrentPreset { get; set; }
-
-    public static void Remove(int id)
-    {
-        Options.RemoveAll(x => x.Id == id);
-        FastOpts.Remove(id);
-    }
+    private static int CurrentPreset { get; set; }
 
     #endregion
 }

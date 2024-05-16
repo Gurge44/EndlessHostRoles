@@ -20,13 +20,7 @@ namespace EHR.Modules
             try
             {
                 if (!File.Exists("./EHR_DATA/CTA_Data.txt")) return;
-
-                CustomTeams.Clear();
-                // ReSharper disable once ObjectCreationAsStatement
-#pragma warning disable CA1806
-                File.ReadAllLines("./EHR_DATA/CTA_Data.txt").Do(x => new CustomTeam(x));
-#pragma warning restore CA1806
-
+                CustomTeams = File.ReadAllLines("./EHR_DATA/CTA_Data.txt").Select(x => new CustomTeam(x)).ToHashSet();
                 RefreshCustomOptions();
             }
             catch (Exception e)
@@ -35,23 +29,21 @@ namespace EHR.Modules
             }
         }
 
-        public static void RefreshCustomOptions()
+        private static void RefreshCustomOptions()
         {
-            CustomTeamOptions.ForEach(x => x.AllOptions.ForEach(o => OptionItem.Remove(o.Id)));
             CustomTeamOptions.Clear();
             EnabledCustomTeams.Clear();
 
-            const int startId = 649000;
+            const int startId = 647000;
             const TabGroup tab = TabGroup.GameSettings;
             CustomTeamOptions = CustomTeams.Select((x, i) => CreateSetting(x, startId + (6 * i))).ToList();
-            OptionSaver.Load();
-            EnabledCustomTeams = CustomTeamOptions.Where(x => x.Enabled.GetBool()).Select(x => x.Team).ToHashSet();
+            UpdateEnabledTeams();
 
             return;
 
             static CustomTeamOptionGroup CreateSetting(CustomTeam team, int id)
             {
-                var enabled = BooleanOptionItem.Create(id++, "CTA.TeamEnabled", true, tab);
+                var enabled = BooleanOptionItem.Create(id++, "CTA.FLAG" + team.TeamName, true, tab);
                 var knowRoles = BooleanOptionItem.Create(id++, "CTA.KnowRoles", true, tab);
                 var winWithOriginalTeam = BooleanOptionItem.Create(id++, "CTA.WinWithOriginalTeam", false, tab);
                 var killEachOther = BooleanOptionItem.Create(id++, "CTA.KillEachOther", false, tab);
@@ -59,10 +51,17 @@ namespace EHR.Modules
                 var arrows = BooleanOptionItem.Create(id, "CTA.Arrows", true, tab);
 
                 CustomTeamOptionGroup group = new(team, enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows);
-                group.AllOptions.Skip(1).Do(x => x.SetParent(group.Enabled));
+                group.AllOptions.Skip(1).Do(x => x.SetParent(enabled));
                 group.AllOptions.ForEach(x => x.SetColor(new Color32(215, 227, 84, byte.MaxValue)));
+                if (ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out var color)) enabled.SetColor(color);
+                enabled.RegisterUpdateValueEvent((_, _) => UpdateEnabledTeams());
                 return group;
             }
+        }
+
+        private static void UpdateEnabledTeams()
+        {
+            EnabledCustomTeams = CustomTeamOptions.Where(x => x.Enabled.GetBool()).Select(x => x.Team).ToHashSet();
         }
 
         public static void InitializeCustomTeamPlayers()
@@ -158,11 +157,6 @@ namespace EHR.Modules
             return setting.GetValue(optionsGroup) as bool? ?? false;
         }
 
-        public static string GetTeamEnabledSettingDisplay(int id)
-        {
-            // INCOMPLETE - DO NOT FREAK OUT MR PHGAMING
-        }
-
         internal class CustomTeam
         {
             public readonly string RoleRevealScreenBackgroundColor;
@@ -193,7 +187,7 @@ namespace EHR.Modules
                 }
             }
 
-            public List<CustomRoles> TeamMembers { get; set; } = [];
+            public List<CustomRoles> TeamMembers { get; } = [];
 
             public override bool Equals(object obj)
             {

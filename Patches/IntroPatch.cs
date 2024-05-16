@@ -178,7 +178,7 @@ class BeginCrewmatePatch
             return false;
         }
 
-        if (CustomTeamManager.CustomTeams.Count > 0)
+        if (CustomTeamManager.EnabledCustomTeams.Count > 0)
         {
             var team = CustomTeamManager.GetCustomTeam(PlayerControl.LocalPlayer.PlayerId);
             if (team != null)
@@ -420,7 +420,7 @@ class BeginCrewmatePatch
             __instance.ImpostorText.text = GetString("SubText.Madmate");
         }
 
-        if (CustomTeamManager.CustomTeams.Count > 0)
+        if (CustomTeamManager.EnabledCustomTeams.Count > 0)
         {
             var team = CustomTeamManager.GetCustomTeam(PlayerControl.LocalPlayer.PlayerId);
             if (team != null)

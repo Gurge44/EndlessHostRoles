@@ -66,7 +66,7 @@ namespace EHR.Neutral
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = GotRewards.Contains(Reward.DecreasedKillCooldown) ? KillCooldown.GetFloat() / 2f : KillCooldown.GetFloat();
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+        public override bool CanUseImpostorVentButton(PlayerControl pc) => CurrentTask.Objective == Objective.VentXTimes || CanVent.GetBool();
         public override bool CanUseSabotage(PlayerControl pc) => GotRewards.Contains(Reward.Sabotage) || GotRewards.Contains(Reward.Morph);
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
@@ -131,20 +131,24 @@ namespace EHR.Neutral
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!DoCheck || !pc.IsAlive() || !GameStates.IsInTask) return;
+            if (!pc.IsAlive() || !GameStates.IsInTask) return;
 
             Count++;
             if (Count < 30) return;
             Count = 0;
 
-            if (LastPos is null)
+            if (DoCheck && Moving)
             {
-                LastPos = pc.Pos();
-                return;
-            }
+                if (LastPos is null)
+                {
+                    LastPos = pc.Pos();
+                    return;
+                }
 
-            Moving = Vector2.Distance(pc.Pos(), LastPos.Value) >= 0.1f;
-            LastPos = pc.Pos();
+                Moving = Vector2.Distance(pc.Pos(), LastPos.Value) >= 0.1f;
+                LastPos = pc.Pos();
+                if (!Moving) pc.Notify(Utils.ColorString(Color.red, "<size=4>x</size>"));
+            }
 
             if (MorphCooldown > 0)
             {
@@ -163,8 +167,7 @@ namespace EHR.Neutral
         {
             if (CurrentTask.Objective == Objective.CallEmergencyMeeting)
             {
-                SetTaskCompleted();
-                _ = new LateTask(() => { Utils.SendMessage("\n", RoguePC.PlayerId, Translator.GetString("Rogue.TaskCompleted")); }, 8f, log: false);
+                SetTaskCompleted(chatMessage: true);
             }
         }
 
@@ -176,11 +179,13 @@ namespace EHR.Neutral
             }
         }
 
-        void SetTaskCompleted()
+        void SetTaskCompleted(bool chatMessage = false)
         {
             CurrentTask.IsCompleted = true;
             SendRPC();
-            Utils.NotifyRoles(SpecifySeer: RoguePC, SpecifyTarget: RoguePC);
+
+            if (chatMessage) _ = new LateTask(() => { Utils.SendMessage("\n", RoguePC.PlayerId, Translator.GetString("Rogue.TaskCompleted")); }, 8f, log: false);
+            else Utils.NotifyRoles(SpecifySeer: RoguePC, SpecifyTarget: RoguePC);
         }
 
         public override void OnReportDeadBody()
@@ -189,7 +194,7 @@ namespace EHR.Neutral
 
             if (CurrentTask.Objective == Objective.DontStopWalking && Moving)
             {
-                SetTaskCompleted();
+                SetTaskCompleted(chatMessage: true);
             }
         }
 
@@ -205,10 +210,20 @@ namespace EHR.Neutral
                     GotRewards.Add(CurrentTask.Reward);
                 }
 
-                if (CurrentTask.Reward == Reward.HelpfulAddon)
+                switch (CurrentTask.Reward)
                 {
-                    var addon = Options.GroupedAddons[AddonTypes.Helpful].RandomElement();
-                    RoguePC.RpcSetCustomRole(addon);
+                    case Reward.HelpfulAddon:
+                        var addon = Options.GroupedAddons[AddonTypes.Helpful].RandomElement();
+                        RoguePC.RpcSetCustomRole(addon);
+                        break;
+                    case Reward.DecreasedKillCooldown:
+                        RoguePC.ResetKillCooldown();
+                        RoguePC.SyncSettings();
+                        RoguePC.SetKillCooldown();
+                        break;
+                    case Reward.Sabotage when RoguePC.IsHost():
+                        HudManager.Instance.SetHudActive(RoguePC, RoguePC.Data.Role, true);
+                        break;
                 }
 
                 var objective = Enum.GetValues<Objective>().Except(GotObjectives).Shuffle()[0];
@@ -221,7 +236,6 @@ namespace EHR.Neutral
                     Objective.KillXTimes => IRandom.Instance.Next(2, 5),
                     _ => null
                 };
-                if (data is int n) RoguePC.SetAbilityUseLimit(n);
 
                 CurrentTask = (objective, reward, data, false);
                 SendRPC();
@@ -234,6 +248,9 @@ namespace EHR.Neutral
                         DoCheck = true;
                     }, 5f, log: false);
                 }
+
+                Utils.NotifyRoles(SpecifySeer: RoguePC, SpecifyTarget: RoguePC);
+                Logger.Info($" Objective: {Translator.GetString("Rogue.Objective." + objective)} - Reward: {Translator.GetString("Rogue.Reward." + reward)} - Data: {data}", "Rogue");
             }
             catch (Exception e)
             {
@@ -284,7 +301,7 @@ namespace EHR.Neutral
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
         {
-            if (seer.PlayerId != RoguePC.PlayerId || seer.PlayerId != target.PlayerId || (target.IsModClient() && !isHUD)) return string.Empty;
+            if (seer.PlayerId != RoguePC.PlayerId || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !isHUD) || MeetingStates.FirstMeeting) return string.Empty;
             if (AllTasksCompleted) return Translator.GetString("Rogue.AllTasksCompleted");
             if (CurrentTask.IsCompleted) return Translator.GetString("Rogue.TaskCompleted");
 

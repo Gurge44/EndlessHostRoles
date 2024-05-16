@@ -214,7 +214,6 @@ internal class ChangeRoleSettings
             SabotageSystemTypeRepairDamagePatch.Initialize();
             DoorsReset.Initialize();
             GhostRolesManager.Initialize();
-            CustomTeamManager.LoadCustomTeams();
             RoleBlockManager.Reset();
 
             IRandom.SetInstanceById(Options.RoleAssigningAlgorithm.GetValue());

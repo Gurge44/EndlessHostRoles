@@ -1835,15 +1835,15 @@ public static class Utils
 
         Logger.Info($" Seers: {string.Join(", ", seerList.Select(x => x.GetRealName()))} ---- Targets: {string.Join(", ", targetList.Select(x => x.GetRealName()))}", "NR");
 
-        //seer: Players who can see changes made here
-        //target: Players subject to changes that seer can see
+        // seer: Players who can see changes made here
+        // target: Players subject to changes that seer can see
         foreach (PlayerControl seer in seerList)
         {
             try
             {
                 if (seer == null || seer.Data.Disconnected || seer.IsModClient()) continue;
 
-                string fontSize = "1.6";
+                string fontSize = "1.7";
                 if (isForMeeting && (seer.GetClient().PlatformData.Platform == Platforms.Playstation || seer.GetClient().PlatformData.Platform == Platforms.Switch)) fontSize = "70%";
                 //Logger.Info("NotifyRoles-Loop1-" + seer.GetNameWithRole().RemoveHtmlTags() + ":START", "NotifyRoles");
 
