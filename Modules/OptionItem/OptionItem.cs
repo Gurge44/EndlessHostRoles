@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
+using HarmonyLib;
 using UnityEngine;
 
 namespace EHR;
@@ -10,22 +11,26 @@ public abstract class OptionItem
 {
     #region static
 
-    public static IReadOnlyList<OptionItem> AllOptions => _allOptions;
-    private static readonly List<OptionItem> _allOptions = new(1024);
-    public static IReadOnlyDictionary<int, OptionItem> FastOptions => _fastOptions;
-    private static readonly Dictionary<int, OptionItem> _fastOptions = new(1024);
+    public static IReadOnlyList<OptionItem> AllOptions => Options;
+    private static readonly List<OptionItem> Options = new(1024);
+    public static IReadOnlyDictionary<int, OptionItem> FastOptions => FastOpts;
+    private static readonly Dictionary<int, OptionItem> FastOpts = new(1024);
     public static int CurrentPreset { get; set; }
+
+    public static void Remove(int id)
+    {
+        Options.RemoveAll(x => x.Id == id);
+        FastOpts.Remove(id);
+    }
 
     #endregion
 
-    // 必須情報 (コンストラクタで必ず設定させる必要がある値)
     public int Id { get; }
     public string Name { get; }
     public int DefaultValue { get; }
     public TabGroup Tab { get; }
     public bool IsSingleValue { get; }
 
-    // 任意情報 (空・nullを許容する または、ほとんど初期値で問題ない値)
     public Color NameColor { get; protected set; }
     public OptionFormat ValueFormat { get; protected set; }
     public CustomGameMode GameMode { get; protected set; }
@@ -55,29 +60,21 @@ public abstract class OptionItem
 
     public int SingleValue { get; private set; }
 
-    // 親子情報
     public OptionItem Parent { get; private set; }
     public List<OptionItem> Children;
 
     public OptionBehaviour OptionBehaviour;
 
-    // イベント
-    // eventキーワードにより、クラス外からのこのフィールドに対する以下の操作は禁止されます。
-    // - 代入 (+=, -=を除く)
-    // - 直接的な呼び出し
     public event EventHandler<UpdateValueEventArgs> UpdateValueEvent;
 
-    // コンストラクタ
-    public OptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue)
+    protected OptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue)
     {
-        // 必須情報の設定
         Id = id;
         Name = name;
         DefaultValue = defaultValue;
         Tab = tab;
         IsSingleValue = isSingleValue;
 
-        // 任意情報の初期値設定
         NameColor = Color.white;
         ValueFormat = OptionFormat.None;
         GameMode = CustomGameMode.All;
@@ -85,10 +82,8 @@ public abstract class OptionItem
         IsHidden = false;
         IsText = false;
 
-        // オブジェクト初期化
         Children = [];
 
-        // デフォルト値に設定
         if (Id == PresetId)
         {
             SingleValue = DefaultValue;
@@ -106,9 +101,9 @@ public abstract class OptionItem
             }
         }
 
-        if (_fastOptions.TryAdd(id, this))
+        if (FastOpts.TryAdd(id, this))
         {
-            _allOptions.Add(this);
+            Options.Add(this);
         }
         else
         {
@@ -132,7 +127,7 @@ public abstract class OptionItem
 
     public OptionItem SetParent(OptionItem parent) => Do(i =>
     {
-        foreach (var role in Options.CustomRoleSpawnChances.Where(x => x.Value.Name == parent.Name))
+        foreach (var role in EHR.Options.CustomRoleSpawnChances.Where(x => x.Value.Name == parent.Name))
         {
             var roleName = Translator.GetString(Enum.GetName(typeof(CustomRoles), role.Key));
             ReplacementDictionary ??= [];
@@ -147,18 +142,17 @@ public abstract class OptionItem
     public OptionItem SetChild(OptionItem child) => Do(i => i.Children.Add(child));
 
     public OptionItem RegisterUpdateValueEvent(EventHandler<UpdateValueEventArgs> handler)
-        => Do(i => UpdateValueEvent += handler);
+        => Do(_ => UpdateValueEvent += handler);
 
-    // 置き換え辞書
     public OptionItem AddReplacement((string key, string value) kvp)
-        => Do(i =>
+        => Do(_ =>
         {
             ReplacementDictionary ??= [];
             ReplacementDictionary.Add(kvp.key, kvp.value);
         });
 
     public OptionItem RemoveReplacement(string key)
-        => Do(i => ReplacementDictionary?.Remove(key));
+        => Do(_ => ReplacementDictionary?.Remove(key));
 
     // Getter
     public virtual string GetName(bool disableColor = false, bool console = false)
@@ -177,7 +171,6 @@ public abstract class OptionItem
 
     public virtual int GetValue() => IsSingleValue ? SingleValue : AllValues[CurrentPreset];
 
-    // 旧IsHidden関数
     public virtual bool IsHiddenOn(CustomGameMode mode)
     {
         return IsHidden || (GameMode != CustomGameMode.All && GameMode != mode);
@@ -189,10 +182,9 @@ public abstract class OptionItem
         return string.Format(Translator.GetString("Format." + ValueFormat), value);
     }
 
-    // 外部からの操作
     public virtual void Refresh()
     {
-        if (OptionBehaviour is not null and StringOption opt)
+        if (OptionBehaviour is StringOption opt)
         {
             opt.TitleText.text = GetName();
             opt.ValueText.text = GetString();
@@ -235,14 +227,12 @@ public abstract class OptionItem
         AllValues = values;
     }
 
-    // 演算子オーバーロード
     public static OptionItem operator ++(OptionItem item)
         => item.Do(item => item.SetValue(item.CurrentValue + 1));
 
     public static OptionItem operator --(OptionItem item)
         => item.Do(item => item.SetValue(item.CurrentValue - 1));
 
-    // 全体操作用
     public static void SwitchPreset(int newPreset)
     {
         CurrentPreset = Math.Clamp(newPreset, 0, NumPresets - 1);

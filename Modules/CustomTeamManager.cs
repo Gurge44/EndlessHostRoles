@@ -52,6 +52,21 @@ namespace EHR.Modules
         public static HashSet<CustomTeam> CustomTeams = [];
         public static CustomTeam WinnerTeam;
         public static Dictionary<CustomTeam, HashSet<byte>> CustomTeamPlayerIds = [];
+        public static List<CustomTeamOptionGroup> CustomTeamOptions = [];
+
+        internal class CustomTeamOptionGroup(CustomTeam team, BooleanOptionItem enabled, BooleanOptionItem knowRoles, BooleanOptionItem winWithOriginalTeam, BooleanOptionItem killEachOther, BooleanOptionItem guessEachOther, BooleanOptionItem arrows)
+        {
+            public CustomTeam Team {get; set;} = team;
+            
+            public BooleanOptionItem Enabled { get; set; } = enabled;
+            public BooleanOptionItem KnowRoles { get; set; } = knowRoles;
+            public BooleanOptionItem WinWithOriginalTeam { get; set; } = winWithOriginalTeam;
+            public BooleanOptionItem KillEachOther { get; set; } = killEachOther;
+            public BooleanOptionItem GuessEachOther { get; set; } = guessEachOther;
+            public BooleanOptionItem Arrows { get; set; } = arrows;
+
+            public List<BooleanOptionItem> AllOptions = [enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows];
+        }
 
         public static void LoadCustomTeams()
         {
@@ -68,6 +83,31 @@ namespace EHR.Modules
             catch (Exception e)
             {
                 Utils.ThrowException(e);
+            }
+        }
+
+        public static void RefreshCustomOptions()
+        {
+            CustomTeamOptions.ForEach(x => x.AllOptions.ForEach(o => OptionItem.Remove(o.Id)));
+            CustomTeamOptions.Clear();
+
+            const int startId = 649000;
+            const TabGroup tab = TabGroup.GameSettings;
+            CustomTeamOptions = CustomTeams.Select((x, i) => CreateSetting(x, startId + (6 * i))).ToList();
+            return;
+
+            static CustomTeamOptionGroup CreateSetting(CustomTeam team, int id)
+            {
+                var enabled = BooleanOptionItem.Create(id++, "CTA.TeamEnabled", true, tab);
+                var knowRoles = BooleanOptionItem.Create(id++, "CTA.KnowRoles", true, tab);
+                var winWithOriginalTeam = BooleanOptionItem.Create(id++, "CTA.WinWithOriginalTeam", false, tab);
+                var killEachOther = BooleanOptionItem.Create(id++, "CTA.KillEachOther", false, tab);
+                var guessEachOther = BooleanOptionItem.Create(id++, "CTA.GuessEachOther", false, tab);
+                var arrows = BooleanOptionItem.Create(id, "CTA.Arrows", true, tab);
+
+                CustomTeamOptionGroup group = new(team, enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows);
+                group.AllOptions.Skip(1).Do(x => x.SetParent(group.Enabled));
+                return group;
             }
         }
 
