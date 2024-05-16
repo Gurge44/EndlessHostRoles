@@ -274,6 +274,7 @@ public enum CustomRoles
     Reckless,
     Revolutionist,
     Ritualist,
+    Rogue,
     Romantic,
     RuthlessRomantic,
     Samurai,
@@ -384,12 +385,12 @@ public enum CustomRoles
     Nimble,
     Oblivious,
     Onbound,
+    Sleep,
     Specter, // Ghost role
     Physicist,
     Rascal,
     Reach,
     Recruit,
-    Rogue,
     DualPersonality, // Schizophrenic
     Seer,
     Sleuth,
