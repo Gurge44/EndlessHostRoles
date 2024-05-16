@@ -2153,6 +2153,8 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(215, 227, 84, byte.MaxValue));
 
+        CustomTeamManager.RefreshCustomOptions();
+
         LoadingPercentage = 100;
 
         #endregion
