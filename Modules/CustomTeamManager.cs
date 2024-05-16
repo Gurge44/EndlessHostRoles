@@ -182,7 +182,7 @@ namespace EHR.Modules
         public static bool GetSettingForPlayerTeam(byte id, string settingName)
         {
             var team = GetCustomTeam(id);
-            var optionsGroup = CustomTeamOptionGroup.First(x => x.Team.Equals(team));
+            var optionsGroup = CustomTeamOptions.First(x => x.Team.Equals(team));
             var setting = optionsGroup.GetType().GetFields().FirstOrDefault(x => x.Name == settingName);
             if (setting == null) return false;
             return setting.GetValue(optionsGroup) as bool ?? false;
