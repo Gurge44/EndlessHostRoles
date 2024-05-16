@@ -15,31 +15,31 @@ namespace EHR.Neutral
 
         private static OptionItem KillCooldown;
         private static OptionItem CanVent;
-        bool AllTasksCompleted;
+        private bool AllTasksCompleted;
 
         private int Count;
-        (Objective Objective, Reward Reward, object Data, bool IsCompleted) CurrentTask;
+        private (Objective Objective, Reward Reward, object Data, bool IsCompleted) CurrentTask;
         private bool DoCheck;
-        List<Objective> GotObjectives;
-        List<Reward> GotRewards;
+        private List<Objective> GotObjectives;
+        private List<Reward> GotRewards;
         private Vector2? LastPos;
 
-        int MorphCooldown;
+        private int MorphCooldown;
         private bool Moving = true;
 
-        PlayerControl RoguePC;
+        private PlayerControl RoguePC;
 
         public override bool IsEnable => On;
         public bool DisableDevices => GotRewards.Contains(Reward.DisableDevices);
 
         public static void SetupCustomOption()
         {
-            Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.NSerialKiller);
+            Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Rogue);
             KillCooldown = FloatOptionItem.Create(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NSerialKiller])
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Rogue])
                 .SetValueFormat(OptionFormat.Seconds);
             CanVent = BooleanOptionItem.Create(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NSerialKiller]);
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Rogue]);
         }
 
         public override void Init()
@@ -266,8 +266,7 @@ namespace EHR.Neutral
                 var reward = (Reward)reader.ReadPackedInt32();
                 var isCompleted = reader.ReadBoolean();
                 AllTasksCompleted = reader.ReadBoolean();
-                var dataType = reader.ReadPackedInt32();
-                object data = dataType switch
+                object data = reader.ReadPackedInt32() switch
                 {
                     0 => reader.ReadString(),
                     1 => reader.ReadByte(),
@@ -289,12 +288,19 @@ namespace EHR.Neutral
             if (AllTasksCompleted) return Translator.GetString("Rogue.AllTasksCompleted");
             if (CurrentTask.IsCompleted) return Translator.GetString("Rogue.TaskCompleted");
 
+            float d = Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown);
+            string c = GotRewards.Contains(Reward.Morph) && MorphCooldown > 0
+                ? MorphCooldown <= d
+                    ? string.Format(Translator.GetString("CDPT"), MorphCooldown) + "\n"
+                    : $"\u21b9 ({MorphCooldown - d}s)"
+                : string.Empty;
+
             string o = Translator.GetString("Rogue.Objective." + CurrentTask.Objective);
             if (CurrentTask.Objective is Objective.KillInSpecificRoom or Objective.VentXTimes or Objective.KillSpecificPlayer or Objective.KillXTimes)
                 o = string.Format(o, CurrentTask.Data is byte id ? Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), Utils.GetPlayerById(id).GetRealName()) : CurrentTask.Data);
             string r = Translator.GetString("Rogue.Reward." + CurrentTask.Reward);
             string s = string.Format(Translator.GetString("Rogue.Task"), o, r);
-            return "<size=80%>" + s + "</size>";
+            return $"<size=80%>{c}{s}</size>";
         }
 
         enum Objective

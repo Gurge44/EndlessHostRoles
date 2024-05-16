@@ -33,6 +33,11 @@ internal class ControllerManagerUpdatePatch
                 if (OrGetKeysDown(KeyCode.Alpha1 + i, KeyCode.Keypad1 + i) && OptionShower.Pages.Count >= i + 1)
                     OptionShower.CurrentPage = i;
             }
+
+            if (GetKeysDown(KeyCode.LeftShift, KeyCode.LeftControl, KeyCode.T))
+            {
+                CustomTeamManager.RefreshCustomOptions();
+            }
         }
 
         if (GetKeysDown(KeyCode.LeftShift, KeyCode.LeftControl, KeyCode.X) && Main.CurrentMap == MapNames.Airship)
