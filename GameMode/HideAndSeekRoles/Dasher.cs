@@ -72,6 +72,8 @@ namespace EHR.GameMode.HideAndSeekRoles
             On = false;
         }
 
+        public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
+
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             Main.AllPlayerSpeed[playerId] = DashStatus.IsDashing ? DashSpeed.GetFloat() : HnSManager.IsBlindTime ? Main.MinSpeed : RoleSpeed;
