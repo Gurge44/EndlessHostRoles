@@ -30,6 +30,9 @@
 #### Over 350 roles and add-ons, 6 custom game modes, and a custom team assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
 
 ## Visit our website for a list of roles, their descriptions and more features: [EHR](https://sites.google.com/view/ehr-au)
+
+- The website is a work in progress and doesn't have all roles listed yet, but it's a good place to start if you're
+  looking for more information about the mod.
 ## Main Features
 - Note: The goal with this branch is to improve the existing stuff over adding new roles. If some of the stuff you see below are in other mods, they were originally coded by me.
 ### Most Popular Game Mode
