@@ -18,8 +18,6 @@ namespace EHR.Roles.AddOns.Common
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Guesser]);
             GCanGuessAdt = BooleanOptionItem.Create(19115, "GCanGuessAdt", false, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Guesser]);
-            GCanGuessTaskDoneSnitch = BooleanOptionItem.Create(19116, "GCanGuessTaskDoneSnitch", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Guesser]);
             GTryHideMsg = BooleanOptionItem.Create(19117, "GuesserTryHideMsg", true, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Guesser])
                 .SetColor(Color.green);

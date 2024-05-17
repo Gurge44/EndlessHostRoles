@@ -18,11 +18,18 @@ public class Werewolf : RoleBase
     private static OptionItem HasImpostorVision;
     public static OptionItem RampageCD;
     public static OptionItem RampageDur;
+    private static int CD;
+
+    private static long lastFixedTime;
+    public long lastTime;
 
     private long RampageTime;
-    public long lastTime;
-    private static int CD;
     private byte WWId;
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
+    bool CanRampage => GameStates.IsInTask && RampageTime == -10 && lastTime == -10;
+    bool IsRampaging => RampageTime != -10;
 
     public static void SetupCustomOption()
     {
@@ -30,7 +37,7 @@ public class Werewolf : RoleBase
         KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf])
             .SetValueFormat(OptionFormat.Seconds);
         HasImpostorVision = BooleanOptionItem.Create(Id + 11, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf]);
-        RampageCD = FloatOptionItem.Create(Id + 12, "WWRampageCD", new(0f, 180f, 2.5f), 35f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf])
+        RampageCD = FloatOptionItem.Create(Id + 12, "WWRampageCD", new(0f, 180f, 0.5f), 35f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf])
             .SetValueFormat(OptionFormat.Seconds);
         RampageDur = FloatOptionItem.Create(Id + 13, "WWRampageDur", new(0f, 180f, 1f), 12f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf])
             .SetValueFormat(OptionFormat.Seconds);
@@ -59,7 +66,6 @@ public class Werewolf : RoleBase
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanRampage || IsRampaging || pc.inVent;
@@ -80,11 +86,6 @@ public class Werewolf : RoleBase
         RampageTime = long.Parse(reader.ReadString());
         lastTime = long.Parse(reader.ReadString());
     }
-
-    bool CanRampage => GameStates.IsInTask && RampageTime == -10 && lastTime == -10;
-    bool IsRampaging => RampageTime != -10;
-
-    private static long lastFixedTime;
 
     public override void AfterMeetingTasks()
     {
@@ -156,9 +157,9 @@ public class Werewolf : RoleBase
         }, 0.5f, "Werewolf Vent");
     }
 
-    public static string GetHudText(PlayerControl pc)
+    public override string GetSuffix(PlayerControl pc, PlayerControl _, bool hud = false, bool m = false)
     {
-        if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || Main.PlayerStates[pc.PlayerId].Role is not Werewolf { IsEnable: true } ww) return string.Empty;
+        if (!hud || pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || Main.PlayerStates[pc.PlayerId].Role is not Werewolf { IsEnable: true } ww) return string.Empty;
         var str = new StringBuilder();
         if (ww.IsRampaging)
         {

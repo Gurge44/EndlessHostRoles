@@ -6,8 +6,8 @@ namespace EHR.Roles.Impostor
 {
     internal class Escapee : RoleBase
     {
-        public Vector2? EscapeeLocation;
         public static bool On;
+        public Vector2? EscapeeLocation;
         public override bool IsEnable => On;
 
         public static void SetupCustomOption()
@@ -39,14 +39,8 @@ namespace EHR.Roles.Impostor
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             if (Options.UsePets.GetBool()) return;
-            try
-            {
-                AURoleOptions.ShapeshifterCooldown = Options.EscapeeSSCD.GetFloat();
-                AURoleOptions.ShapeshifterDuration = Options.EscapeeSSDuration.GetFloat();
-            }
-            catch
-            {
-            }
+            AURoleOptions.ShapeshifterCooldown = Options.EscapeeSSCD.GetFloat();
+            AURoleOptions.ShapeshifterDuration = 1f;
         }
 
         public override void OnPet(PlayerControl pc)

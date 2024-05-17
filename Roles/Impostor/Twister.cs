@@ -17,6 +17,9 @@ namespace EHR.Roles.Impostor
         private static OptionItem TwisterLimitOpt;
         public static OptionItem TwisterAbilityUseGainWithEachKill;
 
+        public static bool On;
+        public override bool IsEnable => On;
+
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Twister);
@@ -28,9 +31,6 @@ namespace EHR.Roles.Impostor
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
                 .SetValueFormat(OptionFormat.Times);
         }
-
-        public static bool On;
-        public override bool IsEnable => On;
 
         public override void Init()
         {
@@ -70,7 +70,6 @@ namespace EHR.Roles.Impostor
             List<byte> changePositionPlayers = [shapeshifter.PlayerId];
             shapeshifter.RpcRemoveAbilityUse();
 
-            var rd = IRandom.Instance;
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
                 if (changePositionPlayers.Contains(pc.PlayerId) || Pelican.IsEaten(pc.PlayerId) || pc.onLadder || pc.inVent || GameStates.IsMeeting) continue;
@@ -78,7 +77,7 @@ namespace EHR.Roles.Impostor
                 var filtered = Main.AllAlivePlayerControls.Where(a => !a.inVent && !Pelican.IsEaten(a.PlayerId) && !a.onLadder && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
                 if (filtered.Length == 0) break;
 
-                PlayerControl target = filtered[rd.Next(0, filtered.Length)];
+                PlayerControl target = filtered.RandomElement();
 
                 changePositionPlayers.Add(target.PlayerId);
                 changePositionPlayers.Add(pc.PlayerId);

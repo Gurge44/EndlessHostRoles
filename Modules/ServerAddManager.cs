@@ -5,32 +5,37 @@ using System.Linq;
 using System.Linq.Expressions;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes;
+using StringComparison = Il2CppSystem.StringComparison;
 
 namespace EHR;
 
 public static class ServerAddManager
 {
-    private static readonly ServerManager serverManager = DestroyableSingleton<ServerManager>.Instance;
+    private static readonly ServerManager ServerManager = DestroyableSingleton<ServerManager>.Instance;
 
     public static void Init()
     {
-        if (CultureInfo.CurrentCulture.Name.StartsWith("zh") && serverManager.AvailableRegions.Count == 10) return;
-        if (!CultureInfo.CurrentCulture.Name.StartsWith("zh") && serverManager.AvailableRegions.Count == 7) return;
+        if (CultureInfo.CurrentCulture.Name.StartsWith("zh") && ServerManager.AvailableRegions.Count == 10) return;
+        if (!CultureInfo.CurrentCulture.Name.StartsWith("zh") && ServerManager.AvailableRegions.Count == 7) return;
 
-        serverManager.AvailableRegions = ServerManager.DefaultRegions;
-        List<IRegionInfo> regionInfos =
-        [
-            //.. CultureInfo.CurrentCulture.Name.StartsWith("zh") ? [CreateHttp("au-sh.pafyx.top", "梦服上海 (新)", 22000, false)] : [], // VS is dumb
-            CreateHttp("au-as.duikbo.at", "Modded Asia (MAS)", 443, true),
-            CreateHttp("www.aumods.xyz", "Modded NA (MNA)", 443, true),
-            CreateHttp("au-eu.duikbo.at", "Modded EU (MEU)", 443, true),
-            CreateHttp("35.247.251.253", "Modded SA (MSA)", 22023, false),
-        ];
-
-        regionInfos.Where(x => !serverManager.AvailableRegions.Contains(x)).Do(serverManager.AddOrUpdateRegion);
+        ServerManager.AvailableRegions = ServerManager.DefaultRegions;
+        List<IRegionInfo> regionInfos = [];
+        if (CultureInfo.CurrentCulture.Name.StartsWith("zh"))
+        {
+            regionInfos.Add((CreateHttp("45yun.cn", "小猫[北京]", 22000, false)));
+            regionInfos.Add((CreateHttp("45yun.cn", "小猫[成都]", 2267, false)));
+            regionInfos.Add((CreateHttp("mau.kaifuxia.top", "新梦初[上海]", 25000, false)));
+        }
+        regionInfos.Add(CreateHttp("au-as.duikbo.at", "Modded Asia (MAS)", 443, true));
+        regionInfos.Add(CreateHttp("www.aumods.us", "Modded NA (MNA)", 443, true));
+        regionInfos.Add(CreateHttp("au-eu.duikbo.at", "Modded EU (MEU)", 443, true));
+        regionInfos.Add(CreateHttp("35.247.251.253", "Modded SA (MSA)", 22023, false));
+        regionInfos.Where(x => !ServerManager.AvailableRegions.Contains(x)).Do(ServerManager.AddOrUpdateRegion);
+        
+        ServerManager.CurrentRegion = ServerManager.AvailableRegions.FirstOrDefault(x => x.Name.Contains("Europe", StringComparison.OrdinalIgnoreCase)) ?? ServerManager.AvailableRegions.FirstOrDefault() ?? regionInfos.First();
     }
 
-    public static IRegionInfo CreateHttp(string ip, string name, ushort port, bool ishttps)
+    private static IRegionInfo CreateHttp(string ip, string name, ushort port, bool ishttps)
     {
         string serverIp = (ishttps ? "https://" : "http://") + ip;
         ServerInfo serverInfo = new(name, serverIp, port, false);
@@ -40,7 +45,7 @@ public static class ServerAddManager
 
     private static class CastHelper<T> where T : Il2CppObjectBase
     {
-        public static Func<IntPtr, T> Cast;
+        public static readonly Func<IntPtr, T> Cast;
 
         static CastHelper()
         {

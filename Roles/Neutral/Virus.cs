@@ -32,10 +32,12 @@ namespace EHR.Roles.Neutral
             "ContagiousCountMode.Original",
         ];
 
+        public override bool IsEnable => playerIdList.Count > 0;
+
         public static void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Virus);
-            KillCooldown = FloatOptionItem.Create(Id + 10, "VirusKillCooldown", new(0f, 60f, 2.5f), 30f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus])
+            KillCooldown = FloatOptionItem.Create(Id + 10, "VirusKillCooldown", new(0f, 60f, 0.5f), 30f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus])
                 .SetValueFormat(OptionFormat.Seconds);
             CanVent = BooleanOptionItem.Create(Id + 11, "VirusCanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
             ImpostorVision = BooleanOptionItem.Create(Id + 16, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
@@ -63,7 +65,6 @@ namespace EHR.Roles.Neutral
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public override bool IsEnable => playerIdList.Count > 0;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
 
@@ -151,7 +152,7 @@ namespace EHR.Roles.Neutral
             InfectedPlayer.Clear();
         }
 
-        public static bool KnowRole(PlayerControl player, PlayerControl target)
+        public override bool KnowRole(PlayerControl player, PlayerControl target)
         {
             if (player.Is(CustomRoles.Contagious) && target.Is(CustomRoles.Virus)) return true;
             if (KnowTargetRole.GetBool() && player.Is(CustomRoles.Virus) && target.Is(CustomRoles.Contagious)) return true;

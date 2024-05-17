@@ -28,7 +28,7 @@ namespace EHR.Roles.Impostor
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
             CrewpostorKillAfterTask = IntegerOptionItem.Create(4814, "CrewpostorKillAfterTask", new(1, 50, 1), 1, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
-            CrewpostorTasks = OverrideTasksData.Create(4815, TabGroup.ImpostorRoles, CustomRoles.Crewpostor);
+            OverrideTasksData.Create(4815, TabGroup.ImpostorRoles, CustomRoles.Crewpostor);
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)

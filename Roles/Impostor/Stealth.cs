@@ -14,6 +14,14 @@ namespace EHR.Roles.Impostor
         private static OptionItem optionExcludeImpostors;
         private static OptionItem optionDarkenDuration;
 
+        private static bool excludeImpostors;
+        private static float darkenDuration;
+        private static float darkenTimer;
+        private static PlayerControl[] darkenedPlayers = [];
+        private static SystemTypes? darkenedRoom;
+
+        public override bool IsEnable => playerIdList.Count > 0;
+
         public static void SetupCustomOption()
         {
             Options.SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Stealth);
@@ -23,12 +31,6 @@ namespace EHR.Roles.Impostor
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Stealth])
                 .SetValueFormat(OptionFormat.Seconds);
         }
-
-        private static bool excludeImpostors;
-        private static float darkenDuration;
-        private static float darkenTimer;
-        private static PlayerControl[] darkenedPlayers = [];
-        private static SystemTypes? darkenedRoom;
 
         public override void Init()
         {
@@ -44,7 +46,6 @@ namespace EHR.Roles.Impostor
             playerIdList.Add(playerId);
         }
 
-        public override bool IsEnable => playerIdList.Count > 0;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
 
         public override void OnMurder(PlayerControl killer, PlayerControl target)
@@ -168,12 +169,12 @@ namespace EHR.Roles.Impostor
             Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(playerIdList[0]), SpecifyTarget: Utils.GetPlayerById(playerIdList[0]));
         }
 
-        public static string GetSuffix(PlayerControl seer, PlayerControl seen = null, bool isForMeeting = false, bool isHUD = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl seen, bool hud = false, bool meeting = false)
         {
             if (Main.PlayerStates[seer.PlayerId].Role is not Stealth { IsEnable: true }) return string.Empty;
             seen ??= seer;
             // During the meeting, unless it's my suffix, or it's dark everywhere, I won't show anything.
-            return isForMeeting || seen != seer || !darkenedRoom.HasValue || (seer.IsModClient() && !isHUD)
+            return meeting || seen != seer || !darkenedRoom.HasValue || (seer.IsModClient() && !hud)
                 ? string.Empty
                 : string.Format(Translator.GetString("StealthDarkened"), DestroyableSingleton<TranslationController>.Instance.GetString(darkenedRoom.Value));
         }

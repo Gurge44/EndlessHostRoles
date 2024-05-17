@@ -10,7 +10,7 @@ namespace EHR.Roles.Neutral;
 
 public class Doppelganger : RoleBase
 {
-    private const int Id = 194200;
+    private const int Id = 648100;
     public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
@@ -23,9 +23,6 @@ public class Doppelganger : RoleBase
     public static Dictionary<byte, int> TotalSteals = [];
     public static Dictionary<byte, GameData.PlayerOutfit> DoppelDefaultSkin = [];
 
-    private byte DGId;
-    private long StealTimeStamp;
-
     private static readonly string[] ResetModes =
     [
         "DGRM.None",
@@ -33,11 +30,16 @@ public class Doppelganger : RoleBase
         "DGRM.AfterTime"
     ];
 
+    private byte DGId;
+    private long StealTimeStamp;
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Doppelganger);
         MaxSteals = IntegerOptionItem.Create(Id + 10, "DoppelMaxSteals", new(1, 14, 1), 9, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
-        KillCooldown = FloatOptionItem.Create(Id + 11, "KillCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger])
+        KillCooldown = FloatOptionItem.Create(Id + 11, "KillCooldown", new(0f, 180f, 0.5f), 20f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger])
             .SetValueFormat(OptionFormat.Seconds);
         ResetMode = StringOptionItem.Create(Id + 12, "DGResetMode", ResetModes, 0, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
         ResetTimer = FloatOptionItem.Create(Id + 13, "DGResetTimer", new(0f, 60f, 1f), 30f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger])
@@ -70,8 +72,6 @@ public class Doppelganger : RoleBase
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     void SendRPC(byte playerId)
     {

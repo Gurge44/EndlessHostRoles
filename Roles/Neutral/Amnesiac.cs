@@ -31,12 +31,14 @@ public class Amnesiac : RoleBase
         "AmnesiacRM.ByReportingBody"
     ];
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Amnesiac);
         RememberMode = StringOptionItem.Create(Id + 9, "RememberMode", RememberModes, 0, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
-        RememberCooldown = FloatOptionItem.Create(Id + 10, "RememberCooldown", new(0f, 180f, 2.5f), 5f, TabGroup.NeutralRoles)
+        RememberCooldown = FloatOptionItem.Create(Id + 10, "RememberCooldown", new(0f, 180f, 0.5f), 5f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac])
             .SetValueFormat(OptionFormat.Seconds);
         RefugeeKillCD = FloatOptionItem.Create(Id + 11, "RefugeeKillCD", new(0f, 180f, 2.5f), 25f, TabGroup.NeutralRoles)
@@ -62,8 +64,6 @@ public class Amnesiac : RoleBase
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = id.GetAbilityUseLimit() >= 1 ? RememberCooldown.GetFloat() : 300f;
     public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && player.GetAbilityUseLimit() >= 1 && RememberMode.GetValue() == 0;
@@ -162,7 +162,7 @@ public class Amnesiac : RoleBase
         target.RpcGuardAndKill(target);
     }
 
-    public static bool KnowRole(PlayerControl player, PlayerControl target)
+    public override bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (player.IsNeutralKiller() && target.IsNeutralKiller() && player.GetCustomRole() == target.GetCustomRole()) return true;
         if (player.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) return true;

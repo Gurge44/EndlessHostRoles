@@ -6,19 +6,20 @@ namespace EHR.Roles.Crewmate
 {
     internal class Beacon : RoleBase
     {
-        private static int Id => 643480;
         private static OptionItem VisionIncrease;
         private static OptionItem Radius;
         private static List<byte> AffectedPlayers = [];
         private static Dictionary<byte, long> LastChange = [];
 
         public static bool On;
+        private static int Id => 643480;
         public override bool IsEnable => On;
+        public static float IncreasedVision => VisionIncrease.GetFloat() * 5f;
 
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Beacon);
-            VisionIncrease = FloatOptionItem.Create(Id + 2, "BeaconVisionIncrease", new(0.05f, 1.5f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
+            VisionIncrease = FloatOptionItem.Create(Id + 2, "BeaconVisionIncrease", new(0.05f, 1.25f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Beacon])
                 .SetValueFormat(OptionFormat.Multiplier);
             Radius = FloatOptionItem.Create(Id + 3, "PerceiverRadius", new(0.1f, 5f, 0.1f), 1.5f, TabGroup.CrewmateRoles)
@@ -39,7 +40,6 @@ namespace EHR.Roles.Crewmate
         }
 
         public static bool IsAffectedPlayer(byte id) => Utils.IsActive(SystemTypes.Electrical) && AffectedPlayers.Contains(id);
-        public static float IncreasedVision => VisionIncrease.GetFloat();
 
         public override void OnCheckPlayerPosition(PlayerControl pc)
         {

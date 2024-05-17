@@ -6,6 +6,7 @@ using System.IO;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using EHR.Modules;
+using HarmonyLib;
 using LogLevel = BepInEx.Logging.LogLevel;
 
 namespace EHR;
@@ -63,7 +64,7 @@ class Logger
     }
 
     [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "<Pending>")]
-    private static void SendToFile(string text, LogLevel level = LogLevel.Info, string tag = "", bool escapeCRLF = true, int lineNumber = 0, string fileName = "")
+    private static void SendToFile(string text, LogLevel level = LogLevel.Info, string tag = "", bool escapeCRLF = true, int lineNumber = 0, string fileName = "", bool multiLine = false)
     {
         if (!isEnable || disableList.Contains(tag)) return;
         var logger = Main.Logger;
@@ -87,8 +88,11 @@ class Logger
             case LogLevel.Warning:
                 logger.LogWarning(log_text);
                 break;
-            case LogLevel.Error:
+            case LogLevel.Error when !multiLine:
                 logger.LogError(log_text);
+                break;
+            case LogLevel.Error:
+                log_text.Split('\n').Do(x => logger.LogError(x));
                 break;
             case LogLevel.Fatal:
                 logger.LogFatal(log_text);
@@ -115,8 +119,8 @@ class Logger
     public static void Warn(string text, string tag, bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "") =>
         SendToFile(text, LogLevel.Warning, tag, escapeCRLF, lineNumber, fileName);
 
-    public static void Error(string text, string tag, bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "") =>
-        SendToFile(text, LogLevel.Error, tag, escapeCRLF, lineNumber, fileName);
+    public static void Error(string text, string tag, bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "", bool multiLine = false) =>
+        SendToFile(text, LogLevel.Error, tag, escapeCRLF, lineNumber, fileName, multiLine);
 
     public static void Fatal(string text, string tag, bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "") =>
         SendToFile(text, LogLevel.Fatal, tag, escapeCRLF, lineNumber, fileName);

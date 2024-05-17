@@ -15,15 +15,18 @@ namespace EHR.Roles.Neutral
         private static OptionItem NearbyDuration;
         private static OptionItem SuccessKCD;
         private static OptionItem KillDelay;
-
-        public (byte Id, long TimeStamp) Target;
         private Dictionary<byte, long> Delays;
+
+        private PlayerControl SamuraiPC;
+        public (byte Id, long TimeStamp) Target;
+
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
             const int id = 16880;
             SetupRoleOptions(id, TabGroup.NeutralRoles, CustomRoles.Samurai);
-            KillCooldown = FloatOptionItem.Create(id + 2, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles)
+            KillCooldown = FloatOptionItem.Create(id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai])
                 .SetValueFormat(OptionFormat.Seconds);
             CanVent = BooleanOptionItem.Create(id + 3, "CanVent", true, TabGroup.NeutralRoles)
@@ -49,6 +52,7 @@ namespace EHR.Roles.Neutral
         public override void Add(byte playerId)
         {
             On = true;
+            SamuraiPC = Utils.GetPlayerById(playerId);
             Target = (byte.MaxValue, 0);
             Delays = [];
 
@@ -57,7 +61,6 @@ namespace EHR.Roles.Neutral
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public override bool IsEnable => On;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
@@ -73,7 +76,7 @@ namespace EHR.Roles.Neutral
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask) return;
+            if (!GameStates.IsInTask || ExileController.Instance != null) return;
 
             long now = Utils.TimeStamp;
 
@@ -107,6 +110,20 @@ namespace EHR.Roles.Neutral
                 Target = (byte.MaxValue, 0);
                 pc.SetKillCooldown(SuccessKCD.GetFloat());
             }
+        }
+
+        public override void OnReportDeadBody()
+        {
+            foreach (var id in Delays.Keys)
+            {
+                var player = Utils.GetPlayerById(id);
+                if (player == null || !player.IsAlive()) continue;
+
+                if (SamuraiPC.RpcCheckAndMurder(player, check: true))
+                    player.Suicide(realKiller: SamuraiPC);
+            }
+
+            Delays.Clear();
         }
     }
 }

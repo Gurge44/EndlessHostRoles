@@ -15,10 +15,6 @@ namespace EHR.Roles.Impostor
         private const int Id = 1100;
         public static List<byte> playerIdList = [];
 
-        public List<PlayerControl> PlayersInDeathpact = [];
-        public long DeathpactTime;
-        private byte DeathPactId;
-
         public static List<byte> ActiveDeathpacts = [];
 
         private static OptionItem KillCooldown;
@@ -29,6 +25,12 @@ namespace EHR.Roles.Impostor
         private static OptionItem ReduceVisionWhileInPact;
         private static OptionItem VisionWhileInPact;
         private static OptionItem KillDeathpactPlayersOnMeeting;
+        private byte DeathPactId;
+        public long DeathpactTime;
+
+        public List<PlayerControl> PlayersInDeathpact = [];
+
+        public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
 
         public static void SetupCustomOption()
         {
@@ -70,8 +72,6 @@ namespace EHR.Roles.Impostor
             AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
             AURoleOptions.ShapeshifterDuration = 1f;
         }
-
-        public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
 
@@ -196,7 +196,7 @@ namespace EHR.Roles.Impostor
             target.Suicide(realKiller: deathpact);
         }
 
-        public static string GetDeathpactPlayerArrow(PlayerControl seer, PlayerControl target = null)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
         {
             if (GameStates.IsMeeting) return string.Empty;
             if (!ShowArrowsToOtherPlayersInPact.GetBool()) return string.Empty;

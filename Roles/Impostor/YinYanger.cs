@@ -13,11 +13,13 @@ namespace EHR.Roles.Impostor
 
         private static OptionItem YinYangCD;
         private static OptionItem KCD;
+        private List<byte> YinYangedPlayers = [];
+        private byte YinYangerId = byte.MaxValue;
 
         // ReSharper disable once InconsistentNaming
         private PlayerControl YinYanger_ => GetPlayerById(YinYangerId);
-        private byte YinYangerId = byte.MaxValue;
-        private List<byte> YinYangedPlayers = [];
+
+        public override bool IsEnable => YinYangerId != byte.MaxValue;
 
         public static void SetupCustomOption()
         {
@@ -41,8 +43,6 @@ namespace EHR.Roles.Impostor
             YinYangerId = playerId;
             YinYangedPlayers = [];
         }
-
-        public override bool IsEnable => YinYangerId != byte.MaxValue;
 
         public override void SetKillCooldown(byte playerId)
         {
@@ -134,9 +134,10 @@ namespace EHR.Roles.Impostor
             }
         }
 
-        public static string ModeText(PlayerControl pc)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
         {
-            if (Main.PlayerStates[pc.PlayerId].Role is YinYanger { IsEnable: true } yy)
+            if (seer.IsModClient() && !hud) return string.Empty;
+            if (Main.PlayerStates[seer.PlayerId].Role is YinYanger { IsEnable: true } yy && seer.PlayerId == target.PlayerId)
             {
                 return yy.YinYangedPlayers.Count == 2 ? $"<color=#00ffa5>{Translator.GetString("Mode")}:</color> {Translator.GetString("YinYangModeNormal")}" : $"<color=#00ffa5>{Translator.GetString("Mode")}:</color> {Translator.GetString("YinYangMode")} ({yy.YinYangedPlayers.Count}/2)";
             }

@@ -30,6 +30,12 @@ namespace EHR.Roles.Neutral
         private static bool CanInfectSelf;
         private static bool CanInfectVent;
 
+        private static Dictionary<byte, float> InfectInfos;
+        private static bool InfectActive;
+        private static bool LateCheckWin;
+
+        public override bool IsEnable => playerIdList.Count > 0;
+
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.PlagueDoctor);
@@ -51,10 +57,6 @@ namespace EHR.Roles.Neutral
             OptionInfectCanInfectVent = BooleanOptionItem.Create(Id + 16, "PlagueDoctorCanInfectVent", false, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor]);
         }
-
-        private static Dictionary<byte, float> InfectInfos;
-        private static bool InfectActive;
-        private static bool LateCheckWin;
 
         public override void Init()
         {
@@ -86,7 +88,6 @@ namespace EHR.Roles.Neutral
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public override bool IsEnable => playerIdList.Count > 0;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
         public override bool CanUseKillButton(PlayerControl pc) => pc.GetAbilityUseLimit() != 0;
         public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
@@ -238,10 +239,10 @@ namespace EHR.Roles.Neutral
             if (!seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive()) return string.Empty;
             return Utils.ColorString(Utils.GetRoleColor(CustomRoles.PlagueDoctor), GetInfectRateCharactor(seen, pd));
         }
-#pragma warning disable IDE0060
-        public static string GetLowerTextOthers(PlayerControl seer, PlayerControl seen = null, bool isForHud = false)
-#pragma warning restore IDE0060
+
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isForHud = false, bool m = false)
         {
+            if (seer.PlayerId != target.PlayerId && seer.IsAlive()) return string.Empty;
             if (!seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive()) return string.Empty;
             if (!isForHud && seer.IsModClient()) return string.Empty;
             if (Main.PlayerStates[seer.PlayerId].Role is not PlagueDoctor { IsEnable: true } pd) return string.Empty;

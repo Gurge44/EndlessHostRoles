@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
-using EHR.Roles.Neutral;
 using static EHR.Translator;
 
 namespace EHR.Roles.Crewmate
@@ -12,18 +11,24 @@ namespace EHR.Roles.Crewmate
 
         private static OptionItem CD;
         private static OptionItem UseLimit;
+        private static OptionItem Duration;
         public static OptionItem UsePet;
+
+        public override bool IsEnable => playerIdList.Count > 0;
 
         public static void SetupCustomOption()
         {
             Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Escort);
-            CD = FloatOptionItem.Create(Id + 10, "EscortCD", new(2.5f, 60f, 2.5f), 30f, TabGroup.CrewmateRoles)
+            CD = FloatOptionItem.Create(Id + 10, "RoleBlockCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escort])
                 .SetValueFormat(OptionFormat.Seconds);
             UseLimit = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(1, 20, 1), 3, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escort])
                 .SetValueFormat(OptionFormat.Times);
             UsePet = Options.CreatePetUseSetting(Id + 12, CustomRoles.Escort);
+            Duration = FloatOptionItem.Create(Id + 13, "RoleBlockDuration", new(1f, 60f, 1f), 15f, TabGroup.CrewmateRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escort])
+                .SetValueFormat(OptionFormat.Seconds);
         }
 
         public override void Init()
@@ -42,8 +47,6 @@ namespace EHR.Roles.Crewmate
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public override bool IsEnable => playerIdList.Count > 0;
-
         public override void SetKillCooldown(byte playerId)
         {
             Main.AllPlayerKillCooldown[playerId] = playerId.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
@@ -58,7 +61,7 @@ namespace EHR.Roles.Crewmate
 
             killer.RpcRemoveAbilityUse();
             killer.SetKillCooldown();
-            Glitch.hackedIdList.TryAdd(target.PlayerId, Utils.TimeStamp);
+            target.BlockRole(Duration.GetFloat());
             killer.Notify(GetString("EscortTargetHacked"));
 
             return false;

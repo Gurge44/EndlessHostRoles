@@ -19,10 +19,10 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             SetupRoleOptions(10400, TabGroup.NeutralRoles, CustomRoles.Arsonist);
-            ArsonistDouseTime = FloatOptionItem.Create(10410, "ArsonistDouseTime", new(0f, 90f, 1f), 3f, TabGroup.NeutralRoles)
+            ArsonistDouseTime = FloatOptionItem.Create(10410, "ArsonistDouseTime", new(0f, 90f, 0.5f), 3f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist])
                 .SetValueFormat(OptionFormat.Seconds);
-            ArsonistCooldown = FloatOptionItem.Create(10411, "Cooldown", new(0f, 60f, 1f), 10f, TabGroup.NeutralRoles)
+            ArsonistCooldown = FloatOptionItem.Create(10411, "Cooldown", new(0f, 60f, 0.5f), 10f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist])
                 .SetValueFormat(OptionFormat.Seconds);
             ArsonistCanIgniteAnytime = BooleanOptionItem.Create(10413, "ArsonistCanIgniteAnytime", false, TabGroup.NeutralRoles)

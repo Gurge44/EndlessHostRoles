@@ -1,6 +1,6 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using EHR.Modules;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -9,6 +9,7 @@ namespace EHR.Roles.Crewmate;
 public class Divinator : RoleBase
 {
     private const int Id = 6700;
+    private const int RolesPerCategory = 5;
     private static List<byte> playerIdList = [];
 
     public static OptionItem CheckLimitOpt;
@@ -22,7 +23,8 @@ public class Divinator : RoleBase
     public static List<byte> didVote = [];
 
     private static Dictionary<byte, CustomRoles[]> AllPlayerRoleList = [];
-    private const int RolesPerCategory = 5;
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
@@ -32,9 +34,9 @@ public class Divinator : RoleBase
         AccurateCheckMode = BooleanOptionItem.Create(Id + 12, "AccurateCheckMode", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
         ShowSpecificRole = BooleanOptionItem.Create(Id + 13, "ShowSpecificRole", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
         HideVote = BooleanOptionItem.Create(Id + 14, "DivinatorHideVote", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
-        AbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 15, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
+        AbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 15, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
             .SetValueFormat(OptionFormat.Times);
-        AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 16, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
+        AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 16, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
             .SetValueFormat(OptionFormat.Times);
         CancelVote = CreateVoteCancellingUseSetting(Id + 11, CustomRoles.Divinator, TabGroup.CrewmateRoles);
@@ -52,10 +54,9 @@ public class Divinator : RoleBase
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(CheckLimitOpt.GetInt());
 
-        var r = IRandom.Instance;
-        CustomRoles[][] chunked = EnumHelper.GetAllValues<CustomRoles>()
-            .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.KB_Normal and not CustomRoles.Potato and not CustomRoles.Hider and not CustomRoles.Seeker and not CustomRoles.Fox and not CustomRoles.Troll)
-            .Shuffle(r)
+        CustomRoles[][] chunked = Enum.GetValues<CustomRoles>()
+            .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.KB_Normal and not CustomRoles.Potato and not CustomRoles.Hider and not CustomRoles.Seeker and not CustomRoles.Fox and not CustomRoles.Troll and not CustomRoles.Jumper and not CustomRoles.Detector and not CustomRoles.Jet and not CustomRoles.Dasher and not CustomRoles.Locator and not CustomRoles.Venter and not CustomRoles.Agent and not CustomRoles.Taskinator and not CustomRoles.GM and not CustomRoles.Convict)
+            .Shuffle()
             .Chunk(RolesPerCategory)
             .ToArray();
 
@@ -67,8 +68,6 @@ public class Divinator : RoleBase
             index++;
         }
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     public static bool OnVote(PlayerControl player, PlayerControl target)
     {

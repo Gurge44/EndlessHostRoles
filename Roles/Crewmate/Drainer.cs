@@ -18,6 +18,8 @@ namespace EHR.Roles.Crewmate
 
         public static Dictionary<byte, int> playersInVents = [];
 
+        public override bool IsEnable => playerIdList.Count > 0;
+
         public static void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Drainer);
@@ -27,10 +29,10 @@ namespace EHR.Roles.Crewmate
             UseLimit = IntegerOptionItem.Create(Id + 11, "AbilityUseLimit", new(1, 20, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Drainer])
                 .SetValueFormat(OptionFormat.Times);
-            DrainerAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.5f, TabGroup.CrewmateRoles)
+            DrainerAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Drainer])
                 .SetValueFormat(OptionFormat.Times);
-            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
+            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Drainer])
                 .SetValueFormat(OptionFormat.Times);
         }
@@ -51,8 +53,6 @@ namespace EHR.Roles.Crewmate
         {
             AURoleOptions.EngineerCooldown = VentCD.GetFloat();
         }
-
-        public override bool IsEnable => playerIdList.Count > 0;
 
         public static void OnAnyoneExitVent(PlayerControl pc)
         {

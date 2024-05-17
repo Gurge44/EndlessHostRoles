@@ -29,14 +29,8 @@ namespace EHR.Roles.Impostor
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             if (Options.UsePets.GetBool()) return;
-            try
-            {
-                AURoleOptions.ShapeshifterCooldown = Options.MinerSSCD.GetFloat();
-                AURoleOptions.ShapeshifterDuration = Options.MinerSSDuration.GetFloat();
-            }
-            catch
-            {
-            }
+            AURoleOptions.ShapeshifterCooldown = Options.MinerSSCD.GetFloat();
+            AURoleOptions.ShapeshifterDuration = 1f;
         }
 
         public override void SetButtonTexts(HudManager hud, byte id)

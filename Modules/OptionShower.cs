@@ -40,9 +40,12 @@ public static class OptionShower
             {
                 sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}\n\n");
                 sb.Append(GetString("ActiveRolesList")).Append('\n');
-                foreach (var kvp in Options.CustomRoleSpawnChances.Where(kvp => kvp.Value.GameMode is CustomGameMode.Standard or CustomGameMode.All && kvp.Value.GetBool()))
+                foreach (var kvp in Options.CustomRoleSpawnChances)
                 {
-                    sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}\n");
+                    if (kvp.Value.GameMode is CustomGameMode.Standard or CustomGameMode.All && kvp.Value.GetBool())
+                    {
+                        sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}\n");
+                    }
                 }
 
                 Pages.Add(sb + "\n\n");
@@ -51,12 +54,15 @@ public static class OptionShower
 
             Pages.Add("");
             sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}\n\n");
-            foreach (var kvp in Options.CustomRoleSpawnChances)
+            if (Options.CurrentGameMode != CustomGameMode.HideAndSeek)
             {
-                if (!kvp.Key.IsEnable() || kvp.Value.IsHiddenOn(Options.CurrentGameMode)) continue;
-                sb.Append('\n');
-                sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}\n");
-                ShowChildren(kvp.Value, ref sb, Utils.GetRoleColor(kvp.Key).ShadeColor(-0.5f), 1);
+                foreach (var kvp in Options.CustomRoleSpawnChances)
+                {
+                    if (!kvp.Key.IsEnable() || kvp.Value.IsHiddenOn(Options.CurrentGameMode)) continue;
+                    sb.Append('\n');
+                    sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}\n");
+                    ShowChildren(kvp.Value, ref sb, Utils.GetRoleColor(kvp.Key).ShadeColor(-0.5f), 1);
+                }
             }
 
             foreach (var opt in OptionItem.AllOptions)
@@ -70,7 +76,7 @@ public static class OptionShower
             }
         }
 
-        List<string> tmp = [.. sb.ToString().Split("\n\n")];
+        string[] tmp = sb.ToString().Split("\n\n");
         foreach (var str in tmp)
         {
             if (Pages[^1].Count(c => c == '\n') + 1 + str.Count(c => c == '\n') + 1 > 35)

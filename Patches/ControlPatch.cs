@@ -14,10 +14,10 @@ namespace EHR;
 internal class ControllerManagerUpdatePatch
 {
     private static readonly (int, int)[] Resolutions = [(480, 270), (640, 360), (800, 450), (1280, 720), (1600, 900), (1920, 1080)];
-    private static int resolutionIndex;
+    private static int ResolutionIndex;
 
-    public static List<string> addDes = [];
-    public static int addonIndex = -1;
+    private static List<string> AddDes = [];
+    private static int AddonIndex = -1;
 
     public static void Postfix( /*ControllerManager __instance*/)
     {
@@ -30,9 +30,14 @@ internal class ControllerManagerUpdatePatch
 
             for (var i = 0; i < 9; i++)
             {
-                if (ORGetKeysDown(KeyCode.Alpha1 + i, KeyCode.Keypad1 + i) && OptionShower.Pages.Count >= i + 1)
+                if (OrGetKeysDown(KeyCode.Alpha1 + i, KeyCode.Keypad1 + i) && OptionShower.Pages.Count >= i + 1)
                     OptionShower.CurrentPage = i;
             }
+        }
+
+        if (GetKeysDown(KeyCode.LeftShift, KeyCode.LeftControl, KeyCode.X) && Main.CurrentMap == MapNames.Airship)
+        {
+            ExileController.Instance?.ReEnableGameplay();
         }
 
         if (GetKeysDown(KeyCode.LeftAlt, KeyCode.Return))
@@ -66,13 +71,13 @@ internal class ControllerManagerUpdatePatch
                 var lp = PlayerControl.LocalPlayer;
                 if (Main.PlayerStates[lp.PlayerId].SubRoles.Count == 0) return;
 
-                addDes = [];
+                AddDes = [];
                 foreach (var subRole in Main.PlayerStates[lp.PlayerId].SubRoles.Where(x => x is not CustomRoles.Charmed))
-                    addDes.Add(GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
+                    AddDes.Add(GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
 
-                addonIndex++;
-                if (addonIndex >= addDes.Count) addonIndex = 0;
-                HudManager.Instance.ShowPopUp(addDes[addonIndex]);
+                AddonIndex++;
+                if (AddonIndex >= AddDes.Count) AddonIndex = 0;
+                HudManager.Instance.ShowPopUp(AddDes[AddonIndex]);
             }
             catch (Exception ex)
             {
@@ -83,9 +88,9 @@ internal class ControllerManagerUpdatePatch
 
         if (Input.GetKeyDown(KeyCode.F11))
         {
-            resolutionIndex++;
-            if (resolutionIndex >= Resolutions.Length) resolutionIndex = 0;
-            ResolutionManager.SetResolution(Resolutions[resolutionIndex].Item1, Resolutions[resolutionIndex].Item2, false);
+            ResolutionIndex++;
+            if (ResolutionIndex >= Resolutions.Length) ResolutionIndex = 0;
+            ResolutionManager.SetResolution(Resolutions[ResolutionIndex].Item1, Resolutions[ResolutionIndex].Item2, false);
             SetResolutionManager.Postfix();
         }
 
@@ -135,13 +140,12 @@ internal class ControllerManagerUpdatePatch
 
         if (Input.GetKeyDown(KeyCode.LeftShift) && GameStates.IsCountDown && !HudManager.Instance.Chat.IsOpenOrOpening)
         {
-            Logger.Info("倒计时修改为0", "KeyCommand");
+            Logger.Info("Countdown timer set to 0", "KeyCommand");
             GameStartManager.Instance.countDownTimer = 0;
         }
 
         if (Input.GetKeyDown(KeyCode.C) && GameStates.IsCountDown)
         {
-            Logger.Info("重置倒计时", "KeyCommand");
             GameStartManager.Instance.ResetStartState();
             Logger.SendInGame(GetString("CancelStartCountDown"));
         }
@@ -286,7 +290,7 @@ internal class ControllerManagerUpdatePatch
         return false;
     }
 
-    private static bool ORGetKeysDown(params KeyCode[] keys) => keys.Any(Input.GetKeyDown);
+    private static bool OrGetKeysDown(params KeyCode[] keys) => keys.Any(Input.GetKeyDown);
 }
 
 [HarmonyPatch(typeof(ConsoleJoystick), nameof(ConsoleJoystick.HandleHUD))]
@@ -307,7 +311,7 @@ internal class KeyboardJoystickHandleHUDPatch
     }
 }
 
-internal class HandleHUDPatch
+internal static class HandleHUDPatch
 {
     public static void Postfix(Player player)
     {

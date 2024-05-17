@@ -15,9 +15,11 @@ namespace EHR.Roles.Impostor
         public static OptionItem KillCooldown;
         public static OptionItem SuccessKCD;
         public static OptionItem ShapeshiftCooldown;
+        private byte HitmanId = byte.MaxValue;
 
         public byte TargetId = byte.MaxValue;
-        private byte HitmanId = byte.MaxValue;
+
+        public override bool IsEnable => playerIdList.Count > 0;
 
         public static void SetupCustomOption()
         {
@@ -43,8 +45,6 @@ namespace EHR.Roles.Impostor
             HitmanId = playerId;
             TargetId = byte.MaxValue;
         }
-
-        public override bool IsEnable => playerIdList.Count > 0;
 
         public override void SetKillCooldown(byte id)
         {
@@ -118,9 +118,10 @@ namespace EHR.Roles.Impostor
             return false;
         }
 
-        public static string GetTargetText(byte hitman)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
         {
-            var id = (Main.PlayerStates[hitman].Role as Hitman)?.TargetId ?? byte.MaxValue;
+            if (seer.PlayerId != target.PlayerId) return string.Empty;
+            var id = (Main.PlayerStates[seer.PlayerId].Role as Hitman)?.TargetId ?? byte.MaxValue;
             return id == byte.MaxValue ? string.Empty : $"<color=#00ffa5>Target:</color> <color=#ffffff>{GetPlayerById(id).GetRealName().RemoveHtmlTags()}</color>";
         }
     }

@@ -24,6 +24,8 @@ public class WeaponMaster : RoleBase
     private bool shieldUsed;
     private byte WMId;
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     /*
      * 0 = Kill (Sword) ~ Normal Kill
      * 1 = EHRN Werewolf Kill / Higher KCD (Axe)
@@ -34,7 +36,7 @@ public class WeaponMaster : RoleBase
     public static void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.WeaponMaster);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
+        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
             .SetValueFormat(OptionFormat.Seconds);
         CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster]);
         HasImpostorVision = BooleanOptionItem.Create(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster]);
@@ -65,8 +67,6 @@ public class WeaponMaster : RoleBase
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
-
     void SendRPC()
     {
         if (!Utils.DoRPC) return;
@@ -92,9 +92,7 @@ public class WeaponMaster : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
-        if (Mode == 2) opt.SetInt(Int32OptionNames.KillDistance, 2);
-        else opt.SetInt(Int32OptionNames.KillDistance, 0);
-
+        opt.SetInt(Int32OptionNames.KillDistance, Mode == 2 ? 2 : 0);
         opt.SetVision(HasImpostorVision.GetBool());
     }
 
@@ -184,10 +182,10 @@ public class WeaponMaster : RoleBase
         {
             shieldUsed = true;
             SendRPC();
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
@@ -203,7 +201,12 @@ public class WeaponMaster : RoleBase
         return !playerId.IsPlayerModClient() ? GetHudAndProgressText(playerId) : string.Empty;
     }
 
-    public static string GetHudAndProgressText(byte id)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+    {
+        return isHUD ? GetHudAndProgressText(seer.PlayerId) : string.Empty;
+    }
+
+    static string GetHudAndProgressText(byte id)
     {
         return Main.PlayerStates[id].Role is not WeaponMaster { IsEnable: true } wm ? string.Empty : string.Format(GetString("WMMode"), ModeToText(wm.Mode));
     }

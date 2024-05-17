@@ -26,8 +26,12 @@ internal class AntiAdminer : RoleBase
     public static bool IsCameraWatch;
     public static List<byte> PlayersNearDevices = [];
 
-    private bool IsMonitor;
+    private int Count;
     private long ExtraAbilityStartTimeStamp;
+
+    private bool IsMonitor;
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
@@ -59,8 +63,6 @@ internal class AntiAdminer : RoleBase
         IsMonitor = Main.PlayerStates[playerId].MainRole == CustomRoles.Monitor;
         ExtraAbilityStartTimeStamp = 0;
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
@@ -95,8 +97,6 @@ internal class AntiAdminer : RoleBase
         AURoleOptions.EngineerCooldown = 0f;
         AURoleOptions.EngineerInVentMaxTime = 0f;
     }
-
-    private int Count;
 
     public override void OnFixedUpdate(PlayerControl player)
     {
@@ -302,9 +302,9 @@ internal class AntiAdminer : RoleBase
         }
     }
 
-    public static string GetSuffixText(PlayerControl seer)
+    public override string GetSuffix(PlayerControl seer, PlayerControl _, bool h = false, bool m = false)
     {
-        if (Main.PlayerStates[seer.PlayerId].Role is AntiAdminer self)
+        if (Main.PlayerStates[seer.PlayerId].Role is AntiAdminer self && seer.PlayerId == _.PlayerId)
         {
             return self.ExtraAbilityStartTimeStamp > 0
                 ? $"<#ffffff>▩ {Delay.GetInt() - (Utils.TimeStamp - self.ExtraAbilityStartTimeStamp):N0}</color>"

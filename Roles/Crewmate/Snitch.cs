@@ -29,6 +29,8 @@ public class Snitch : RoleBase
     private static readonly HashSet<byte> TargetList = [];
     private static readonly Dictionary<byte, Color> TargetColorlist = [];
 
+    public override bool IsEnable => PlayerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Snitch);
@@ -65,7 +67,6 @@ public class Snitch : RoleBase
         IsComplete[playerId] = false;
     }
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
     public static bool IsThisRole(byte playerId) => PlayerIdList.Contains(playerId);
 
     private static bool GetExpose(PlayerControl pc)
@@ -141,7 +142,7 @@ public class Snitch : RoleBase
         return Utils.ColorString(RoleColor, warning);
     }
 
-    public static string GetSnitchArrow(PlayerControl seer, PlayerControl target = null)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
     {
         if (seer.Is(CustomRoles.Madmate)) return string.Empty;
         if (!EnableTargetArrow || GameStates.IsMeeting) return string.Empty;

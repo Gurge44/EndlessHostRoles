@@ -1,14 +1,14 @@
 ﻿using EHR.Patches;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Roles.Neutral
 {
     internal class Cherokious : RoleBase
     {
         public static bool On;
-        public override bool IsEnable => On;
 
         public static OptionItem KillCooldown;
         public static Options.OverrideTasksData Tasks;
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {

@@ -34,6 +34,8 @@ public class ParityCop : RoleBase
     public static OptionItem ParityAbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.ParityCop);
@@ -48,10 +50,10 @@ public class ParityCop : RoleBase
         ParityCheckTargetKnow = BooleanOptionItem.Create(Id + 15, "ParityCheckTargetKnow", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
         ParityCheckOtherTargetKnow = BooleanOptionItem.Create(Id + 16, "ParityCheckOtherTargetKnow", true, TabGroup.CrewmateRoles).SetParent(ParityCheckTargetKnow);
         ParityCheckRevealTargetTeam = BooleanOptionItem.Create(Id + 17, "ParityCheckRevealTarget", false, TabGroup.CrewmateRoles).SetParent(ParityCheckOtherTargetKnow);
-        ParityAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 18, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1.5f, TabGroup.CrewmateRoles)
+        ParityAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 18, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1.5f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
             .SetValueFormat(OptionFormat.Times);
-        AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 19, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
+        AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 19, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
             .SetValueFormat(OptionFormat.Times);
         OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.ParityCop);
@@ -72,8 +74,6 @@ public class ParityCop : RoleBase
         playerId.SetAbilityUseLimit(ParityCheckLimitMax.GetInt());
         RoundCheckLimit.Add(playerId, ParityCheckLimitPerMeeting.GetInt());
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     public override void OnReportDeadBody()
     {
@@ -296,41 +296,7 @@ public class ParityCop : RoleBase
 
         return false;
     }
-    //public static void TryHideMsgForCompare()
-    //{
-    //    ChatUpdatePatch.DoBlockChat = true;
-    //    List<CustomRoles> roles = Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x is not CustomRoles.NotAssigned and not CustomRoles.KB_Normal).ToList();
-    //    var rd = IRandom.Instance;
-    //    string msg;
-    //    string[] command = new string[] { "cp", "cmp", "compare", "比较" };
-    //    for (int i = 0; i < 20; i++)
-    //    {
-    //        msg = "/";
-    //        if (rd.Next(1, 100) < 20)
-    //        {
-    //            msg += "id";
-    //        }
-    //        else
-    //        {
-    //            msg += command[rd.Next(0, command.Length - 1)];
-    //            msg += " ";
-    //            msg += rd.Next(0, 15).ToString();
-    //            msg += " ";
-    //            msg += rd.Next(0, 15).ToString();
 
-    //        }
-    //        var player = Main.AllAlivePlayerControls[rd.Next(0, Main.AllAlivePlayerControls.Count())];
-    //        DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
-    //        var writer = CustomRpcSender.Create("MessagesToSend", SendOption.None);
-    //        writer.StartMessage(-1);
-    //        writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
-    //            .Write(msg)
-    //            .EndRpc();
-    //        writer.EndMessage();
-    //        writer.SendMessage();
-    //    }
-    //    ChatUpdatePatch.DoBlockChat = false;
-    //}
     private static void ParityCopOnClick(byte playerId /*, MeetingHud __instance*/)
     {
         Logger.Msg($"Click: ID {playerId}", "Inspector UI");
@@ -345,16 +311,6 @@ public class ParityCop : RoleBase
         else
         {
             FirstPick.Add(lpcId, playerId);
-        }
-    }
-
-    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
-    class StartMeetingPatch
-    {
-        public static void Postfix(MeetingHud __instance)
-        {
-            if (PlayerControl.LocalPlayer.Is(CustomRoles.ParityCop) && PlayerControl.LocalPlayer.IsAlive() && AmongUsClient.Instance.AmHost)
-                CreateParityCopButton(__instance);
         }
     }
 
@@ -373,6 +329,16 @@ public class ParityCop : RoleBase
             PassiveButton button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
             button.OnClick.AddListener((Action)(() => ParityCopOnClick(pva.TargetPlayerId /*, __instance*/)));
+        }
+    }
+
+    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    class StartMeetingPatch
+    {
+        public static void Postfix(MeetingHud __instance)
+        {
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.ParityCop) && PlayerControl.LocalPlayer.IsAlive() && AmongUsClient.Instance.AmHost)
+                CreateParityCopButton(__instance);
         }
     }
 }

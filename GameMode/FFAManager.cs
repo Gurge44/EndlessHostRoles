@@ -53,6 +53,8 @@ internal static class FFAManager
     public static OptionItem FFATeamMode;
     public static OptionItem FFATeamNumber;
 
+    public static Dictionary<byte, (string TEXT, long TIMESTAMP)> NameNotify = [];
+
     public static void SetupCustomOption()
     {
         FFAGameTime = IntegerOptionItem.Create(67_223_001, "FFA_GameTime", new(30, 600, 10), 300, TabGroup.GameSettings)
@@ -140,7 +142,7 @@ internal static class FFAManager
             var teamNum = FFATeamNumber.GetInt();
             var playerNum = allPlayers.Length;
             int memberNum = (teamNum > 5 && playerNum >= 15) || playerNum % teamNum == 0 ? playerNum / teamNum : playerNum / teamNum + 1;
-            var teamMembers = allPlayers.Select(x => x.PlayerId).Shuffle(IRandom.Instance).Chunk(memberNum).ToList();
+            var teamMembers = allPlayers.Select(x => x.PlayerId).Shuffle().Chunk(memberNum).ToList();
 
             for (int i = 0; i < teamMembers.Count; i++)
             {
@@ -183,8 +185,6 @@ internal static class FFAManager
         if (!string.IsNullOrEmpty(name))
             NameNotify.Add(PlayerControl.LocalPlayer.PlayerId, (name, 0));
     }
-
-    public static Dictionary<byte, (string TEXT, long TIMESTAMP)> NameNotify = [];
 
     public static void GetNameNotify(PlayerControl player, ref string name)
     {
@@ -455,7 +455,7 @@ internal static class FFAManager
                             pc.IsAlive() && !pc.inVent && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
                         if (filtered.Length == 0) break;
 
-                        PlayerControl target = filtered[rd.Next(0, filtered.Length)];
+                        PlayerControl target = filtered.RandomElement();
 
                         if (pc.inVent || target.inVent) continue;
 
@@ -501,7 +501,7 @@ internal static class FFAManager
                         sync = true;
                     }
 
-                    if (FFALowerVisionList.TryGetValue(pc.PlayerId, out var lvtime) && lvtime + FFAModifiedSpeedDuration.GetInt() < now)
+                    if (FFALowerVisionList.TryGetValue(pc.PlayerId, out var lvtime) && lvtime + FFAModifiedVisionDuration.GetInt() < now)
                     {
                         Logger.Info(pc.GetRealName() + "'s lower vision effect expired", "FFA");
                         FFALowerVisionList.Remove(pc.PlayerId);

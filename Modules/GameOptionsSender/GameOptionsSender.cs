@@ -11,23 +11,6 @@ namespace EHR.Modules;
 
 public abstract class GameOptionsSender
 {
-    #region Static
-
-    public readonly static List<GameOptionsSender> AllSenders = new(15) { new NormalGameOptionsSender() };
-
-    public static void SendAllGameOptions()
-    {
-        AllSenders.RemoveAll(s => s == null || !s.AmValid());
-        var array = AllSenders.ToArray();
-        foreach (GameOptionsSender sender in array)
-        {
-            if (sender.IsDirty) sender.SendGameOptions();
-            sender.IsDirty = false;
-        }
-    }
-
-    #endregion
-
     public abstract IGameOptions BasedGameOptions { get; }
     public abstract bool IsDirty { get; protected set; }
 
@@ -48,12 +31,12 @@ public abstract class GameOptionsSender
         else
         {
             writer.Recycle();
-            Logger.Error("オプションのキャストに失敗しました", ToString());
+            Logger.Error("Option cast failed", ToString());
         }
 
         writer.EndMessage();
 
-        // 配列化&送信
+        // Array & Send
         var byteArray = new Il2CppStructArray<byte>(writer.Length - 1);
         // MessageWriter.ToByteArray
         Buffer.BlockCopy(writer.Buffer.Cast<Array>(), 1, byteArray.Cast<Array>(), 0, writer.Length - 1);
@@ -62,14 +45,17 @@ public abstract class GameOptionsSender
         writer.Recycle();
     }
 
-    public virtual void SendOptionsArray(Il2CppStructArray<byte> optionArray)
+    protected virtual void SendOptionsArray(Il2CppStructArray<byte> optionArray)
     {
-        for (byte i = 0; i < GameManager.Instance.LogicComponents.Count; i++)
+        byte i = 0;
+        foreach (var logicComponent in GameManager.Instance.LogicComponents)
         {
-            if (GameManager.Instance.LogicComponents[(Index)i].TryCast<LogicOptions>(out _))
+            if (logicComponent.TryCast<LogicOptions>(out _))
             {
                 SendOptionsArray(optionArray, i, -1);
             }
+
+            i++;
         }
     }
 
@@ -108,4 +94,21 @@ public abstract class GameOptionsSender
     public abstract IGameOptions BuildGameOptions();
 
     public virtual bool AmValid() => true;
+
+    #region Static
+
+    public readonly static List<GameOptionsSender> AllSenders = new(15) { new NormalGameOptionsSender() };
+
+    public static void SendAllGameOptions()
+    {
+        AllSenders.RemoveAll(s => s == null || !s.AmValid());
+        var array = AllSenders.ToArray();
+        foreach (GameOptionsSender sender in array)
+        {
+            if (sender.IsDirty) sender.SendGameOptions();
+            sender.IsDirty = false;
+        }
+    }
+
+    #endregion
 }

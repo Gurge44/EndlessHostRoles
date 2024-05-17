@@ -26,17 +26,6 @@ public class EvilTracker : RoleBase
     public static RoleTypes RoleTypes;
     public static bool CanSeeLastRoomInMeeting;
 
-#pragma warning disable IDE0079 // Remove unnecessary suppression
-    [SuppressMessage("ReSharper", "UnusedMember.Local")]
-#pragma warning restore IDE0079 // Remove unnecessary suppression
-    private enum TargetMode
-    {
-        Never,
-        OnceInGame,
-        EveryMeeting,
-        Always
-    }
-
     private static readonly string[] TargetModeText =
     [
         "EvilTrackerTargetMode.Never",
@@ -45,10 +34,13 @@ public class EvilTracker : RoleBase
         "EvilTrackerTargetMode.Always",
     ];
 
+    public bool CanSetTarget;
+
     private byte EvilTrackerId;
     public byte Target = byte.MaxValue;
-    public bool CanSetTarget;
     private byte[] ImpostorsId => Main.AllAlivePlayerControls.Where(x => x.PlayerId != EvilTrackerId && x.Is(CustomRoleTypes.Impostor)).Select(x => x.PlayerId).ToArray();
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
@@ -89,8 +81,6 @@ public class EvilTracker : RoleBase
             }
         }, 3f, "Add Evil Tracker Arrows");
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
@@ -196,7 +186,7 @@ public class EvilTracker : RoleBase
     public override string GetProgressText(byte playerId, bool comms) => Main.PlayerStates[playerId].Role is not EvilTracker et ? null : et.CanTarget(playerId) ? Utils.ColorString(Palette.ImpostorRed.ShadeColor(0.5f), "◁") : string.Empty;
     public static string GetTargetMark(PlayerControl seer, PlayerControl target) => Main.PlayerStates[seer.PlayerId].Role is not EvilTracker et ? string.Empty : et.Target == target.PlayerId ? Utils.ColorString(Palette.ImpostorRed, "◀") : string.Empty;
 
-    public static string GetTargetArrow(PlayerControl seer, PlayerControl target)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
     {
         if (!GameStates.IsInTask) return string.Empty;
 
@@ -234,5 +224,16 @@ public class EvilTracker : RoleBase
         if (room == null) text += Utils.ColorString(Color.gray, "@" + GetString("FailToTrack"));
         else text += Utils.ColorString(Palette.ImpostorRed, "@" + GetString(room.RoomId.ToString()));
         return text;
+    }
+
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
+#pragma warning restore IDE0079 // Remove unnecessary suppression
+    private enum TargetMode
+    {
+        Never,
+        OnceInGame,
+        EveryMeeting,
+        Always
     }
 }

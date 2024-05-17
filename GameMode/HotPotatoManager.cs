@@ -17,9 +17,9 @@ namespace EHR
         private static Dictionary<byte, int> SurvivalTimes;
         private static float DefaultSpeed;
 
-        public static (byte HolderID, byte LastHolderID, int TimeLeft, int RoundNum) GetState() => HotPotatoState;
-
         public static bool IsChatDuringGame => Chat.GetBool();
+
+        public static (byte HolderID, byte LastHolderID, int TimeLeft, int RoundNum) GetState() => HotPotatoState;
 
         public static void SetupCustomOption()
         {
@@ -120,7 +120,7 @@ namespace EHR
 
                 try
                 {
-                    target ??= Main.AllAlivePlayerControls[IRandom.Instance.Next(0, Main.AllAlivePlayerControls.Length)];
+                    target ??= Main.AllAlivePlayerControls.RandomElement();
 
                     HotPotatoState.LastHolderID = HotPotatoState.HolderID;
                     HotPotatoState.HolderID = target.PlayerId;

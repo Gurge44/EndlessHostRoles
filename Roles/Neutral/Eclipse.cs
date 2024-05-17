@@ -7,7 +7,7 @@ namespace EHR.Roles.Neutral;
 
 public class Eclipse : RoleBase
 {
-    private const int Id = 128000;
+    private const int Id = 648200;
     public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
@@ -18,10 +18,12 @@ public class Eclipse : RoleBase
 
     private float Vision;
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Eclipse);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Eclipse])
+        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Eclipse])
             .SetValueFormat(OptionFormat.Seconds);
         StartVision = FloatOptionItem.Create(Id + 11, "EclipseStartVision", new(0.1f, 5f, 0.1f), 0.5f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Eclipse])
@@ -50,7 +52,6 @@ public class Eclipse : RoleBase
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
 

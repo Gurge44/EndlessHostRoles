@@ -12,7 +12,7 @@ README file in the root directory of this source tree.
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Custom Team Assigner" Height="720" Width="1280" FontSize="20" ResizeMode="CanMinimize" WindowStyle="None">
+        Title="Custom Team Assigner" Height="720" Width="1280" FontSize="20" MinHeight="640" MinWidth="1024" WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
         <Style TargetType="Button">

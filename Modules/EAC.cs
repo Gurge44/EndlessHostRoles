@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -10,11 +8,11 @@ using static EHR.Translator;
 
 namespace EHR;
 
-internal class EAC
+internal static class EAC
 {
     public static int DeNum;
 
-    public static void WarnHost(int denum = 1)
+    private static void WarnHost(int denum = 1)
     {
         DeNum += denum;
         if (ErrorText.Instance != null)
@@ -120,9 +118,7 @@ internal class EAC
                         return true;
                     }
 
-                    if (pc.Data.DefaultOutfit.ColorId != -1 &&
-                        (Main.AllPlayerControls.Count(x => x.Data.DefaultOutfit.ColorId == color) >= 5
-                         || color < 0 || color > 18))
+                    if (pc.Data.DefaultOutfit.ColorId != -1 && (Main.AllPlayerControls.Count(x => x.Data.DefaultOutfit.ColorId == color) >= 5 || color > 18))
                     {
                         WarnHost();
                         Report(pc, "Illegal color setting");
@@ -180,12 +176,56 @@ internal class EAC
 
             switch (callId)
             {
-                case 101:
-                    var AUMChat = sr.ReadString();
-                    WarnHost();
-                    Report(pc, "AUM");
-                    HandleCheat(pc, GetString("EAC.CheatDetected.EAC"));
-                    return true;
+                case 101: // Aum Chat
+                    try
+                    {
+                        var firstString = reader.ReadString();
+                        var secondString = reader.ReadString();
+                        reader.ReadInt32();
+
+                        var flag = string.IsNullOrEmpty(firstString) && string.IsNullOrEmpty(secondString);
+
+                        if (!flag)
+                        {
+                            Report(pc, "Aum Chat RPC");
+                            HandleCheat(pc, "Aum Chat RPC");
+                            Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] sent an AUM chat, which was rejected", "EAC");
+                            return true;
+                        }
+                    }
+                    catch
+                    {
+                    }
+
+                    break;
+                case unchecked((byte)42069): // 85 AUM
+                    try
+                    {
+                        var aumid = reader.ReadByte();
+
+                        if (aumid == pc.PlayerId)
+                        {
+                            Report(pc, "Aum RPC");
+                            HandleCheat(pc, "Aum RPC");
+                            Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] sent AUM RPC, which was rejected", "EAC");
+                            return true;
+                        }
+                    }
+                    catch
+                    {
+                    }
+
+                    break;
+                case unchecked((byte)420): // 164 Sicko
+                    if (reader.BytesRemaining == 0)
+                    {
+                        Report(pc, "Sicko RPC");
+                        HandleCheat(pc, "Sicko RPC");
+                        Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] sent Sicko RPC, which was rejected", "EAC");
+                        return true;
+                    }
+
+                    break;
                 case 7:
                 case 8:
                     if (!GameStates.IsLobby)
@@ -198,7 +238,7 @@ internal class EAC
 
                     break;
                 case 5:
-                    string name = sr.ReadString();
+                    sr.ReadString();
                     if (GameStates.IsInGame)
                     {
                         WarnHost();
@@ -266,132 +306,20 @@ internal class EAC
                     break;
             }
         }
-        catch (InvalidDataException)
+        catch
         {
-        }
-        catch (NullReferenceException)
-        {
-        }
-        catch /*(Exception e)*/
-        {
-            //Logger.Exception(e, "EAC");
-            //throw e;
         }
 
         WarnHost(-1);
         return false;
     }
 
-    public static Dictionary<byte, CustomRoles> OriginalRoles = [];
-
-    public static void LogAllRoles()
-    {
-        foreach (var pc in Main.AllPlayerControls.ToArray())
-        {
-            try
-            {
-                OriginalRoles.Add(pc.PlayerId, pc.GetCustomRole());
-            }
-            catch (Exception error)
-            {
-                Logger.Fatal(error.ToString(), "EAC.LogAllRoles");
-            }
-        }
-    }
-
-    public static bool RpcUpdateSystemCheck(PlayerControl player, SystemTypes systemType, byte amount)
-    {
-        //Update system rpc can not get received by playercontrol.handlerpc
-        var Mapid = Main.NormalOptions.MapId;
-        Logger.Info("Check sabotage RPC" + ", PlayerName: " + player.GetNameWithRole() + ", SabotageType: " + systemType + ", amount: " + amount, "EAC");
-        if (!AmongUsClient.Instance.AmHost) return false;
-        switch (systemType) //Normal sabotage using buttons
-        {
-            case SystemTypes.Sabotage:
-                if (!player.HasKillButton() && !player.CanUseSabotage())
-                {
-                    WarnHost();
-                    Report(player, "Bad Sabotage A : Non Imp");
-                    HandleCheat(player, "Bad Sabotage A : Non Imp");
-                    Logger.Fatal($"Player【{player.GetClientId()}:{player.GetRealName()}】Bad Sabotage A, rejected", "EAC");
-                    return true;
-                }
-
-                break;
-            case SystemTypes.LifeSupp:
-                if (Mapid is not 0 and not 1 and not 3) goto YesCheat;
-                if (amount is not 64 and not 65) goto YesCheat;
-                break;
-            case SystemTypes.Comms:
-                switch (amount)
-                {
-                    case 0:
-                    {
-                        if (Mapid is 1 or 5) goto YesCheat;
-                        break;
-                    }
-                    case 64 or 65 or 32 or 33 or 16 or 17:
-                    {
-                        if (Mapid is not (1 or 5)) goto YesCheat;
-                        break;
-                    }
-                    default:
-                        goto YesCheat;
-                }
-
-                break;
-            case SystemTypes.Electrical:
-                if (Mapid == 5) goto YesCheat;
-                if (amount >= 5) //0 - 4 normal lights. other sabotage, Should never be sent by client
-                {
-                    goto YesCheat;
-                }
-
-                break;
-            case SystemTypes.Laboratory:
-                if (Mapid != 2) goto YesCheat;
-                if (!(amount is 64 or 65 or 32 or 33)) goto YesCheat;
-                break;
-            case SystemTypes.Reactor:
-                if (Mapid is 2 or 4) goto YesCheat;
-                if (!(amount is 64 or 65 or 32 or 33)) goto YesCheat;
-                //Airship use heli sabotage /Other use 64,65 | 32,33
-                break;
-            case SystemTypes.HeliSabotage:
-                if (Mapid != 4) goto YesCheat;
-                if (!(amount is 64 or 65 or 16 or 17 or 32 or 33)) goto YesCheat;
-                break;
-            case SystemTypes.MushroomMixupSabotage:
-                goto YesCheat;
-        }
-
-        if ((GameStates.IsMeeting && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance != null)
-        {
-            WarnHost();
-            Report(player, "Bad Sabotage D : In Meeting");
-            Logger.Fatal($"Player【{player.GetClientId()}:{player.GetRealName()}】Bad Sabotage D, rejected", "EAC");
-            return true;
-        }
-        //There may be cases where a player is fixing reactor and a meeting start, triggering EAC check in meeting
-
-        return false;
-
-        YesCheat:
-        {
-            WarnHost();
-            Report(player, "Bad Sabotage C : Hack send RPC");
-            HandleCheat(player, "Bad Sabotage C");
-            Logger.Fatal($"Player【{player.GetClientId()}:{player.GetRealName()}】Bad Sabotage C, rejected", "EAC");
-            return true;
-        }
-    }
-
-    public static void Report(PlayerControl pc, string reason)
+    private static void Report(PlayerControl pc, string reason)
     {
         string msg = $"{pc.GetClientId()}|{pc.FriendCode}|{pc.Data.PlayerName}|{pc.GetClient().GetHashedPuid()}|{reason}";
         //Cloud.SendData(msg);
         Logger.Fatal($"EAC report: {msg}", "EAC Cloud");
-        if (Options.CheatResponses.GetInt() != 5) Logger.SendInGame(string.Format(GetString("Message.NoticeByEAC"), $"{pc?.Data?.PlayerName} | {pc.GetClient().GetHashedPuid()}", reason));
+        if (Options.CheatResponses.GetInt() != 5) Logger.SendInGame(string.Format(GetString("Message.NoticeByEAC"), $"{pc.Data?.PlayerName} | {pc.GetClient().GetHashedPuid()}", reason));
     }
 
     public static bool ReceiveInvalidRpc(PlayerControl pc, byte callId)
@@ -407,7 +335,7 @@ internal class EAC
         return true;
     }
 
-    public static void HandleCheat(PlayerControl pc, string text)
+    private static void HandleCheat(PlayerControl pc, string text)
     {
         switch (Options.CheatResponses.GetInt())
         {
@@ -427,8 +355,16 @@ internal class EAC
                 Utils.SendMessage(string.Format(GetString("Message.NoticeByEAC"), pc?.Data?.PlayerName, text), PlayerControl.LocalPlayer.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("MessageFromEAC")));
                 break;
             case 3:
-                foreach (var apc in Main.AllPlayerControls.Where(x => x.PlayerId != pc?.Data?.PlayerId).ToArray())
-                    Utils.SendMessage(string.Format(GetString("Message.NoticeByEAC"), pc?.Data?.PlayerName, text), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("MessageFromEAC")));
+                foreach (var player in Main.AllPlayerControls)
+                {
+                    if (player.PlayerId != pc?.Data?.PlayerId)
+                    {
+                        var message = string.Format(GetString("Message.NoticeByEAC"), pc?.Data?.PlayerName, text);
+                        var title = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("MessageFromEAC"));
+                        Utils.SendMessage(message, player.PlayerId, title);
+                    }
+                }
+
                 break;
             case 4:
                 if (!BanManager.TempBanWhiteList.Contains(pc.GetClient().GetHashedPuid()))

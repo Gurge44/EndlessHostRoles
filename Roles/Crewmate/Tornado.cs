@@ -12,7 +12,6 @@ namespace EHR.Roles.Crewmate
 {
     internal class Tornado : RoleBase
     {
-        private static int Id => 64420;
         private static readonly List<byte> PlayerIdList = [];
 
         public static OptionItem TornadoCooldown;
@@ -25,6 +24,9 @@ namespace EHR.Roles.Crewmate
         private static readonly Dictionary<(Vector2 LOCATION, string ROOM_NAME), long> Tornados = [];
         private static long LastNotify = TimeStamp;
         private static bool CanUseMap;
+        private static int Id => 64420;
+
+        public override bool IsEnable => PlayerIdList.Count > 0 || Randomizer.Exists;
 
         public static void SetupCustomOption()
         {
@@ -76,8 +78,6 @@ namespace EHR.Roles.Crewmate
         {
             PlayerIdList.Add(playerId);
         }
-
-        public override bool IsEnable => PlayerIdList.Count > 0 || Randomizer.Exists;
 
         private static void SendRPCAddTornado(bool add, Vector2 pos, string roomname, long timestamp = 0)
         {
@@ -167,6 +167,10 @@ namespace EHR.Roles.Crewmate
             }
         }
 
-        public static string GetSuffixText(bool isHUD = false) => string.Join(isHUD ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.ROOM_NAME)} {GetFormattedVectorText(x.Key.LOCATION)} ({(int)(TornadoDuration.GetInt() - (TimeStamp - x.Value) + 1)}s)"));
+        public override string GetSuffix(PlayerControl s, PlayerControl t, bool h = false, bool m = false)
+        {
+            if (s.PlayerId != t.PlayerId || !IsEnable || (s.IsModClient() && !h)) return string.Empty;
+            return string.Join(h ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.ROOM_NAME)} {GetFormattedVectorText(x.Key.LOCATION)} ({(int)(TornadoDuration.GetInt() - (TimeStamp - x.Value) + 1)}s)"));
+        }
     }
 }

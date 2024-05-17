@@ -24,10 +24,10 @@ namespace EHR.Roles.Crewmate
             SecurityGuardSkillMaxOfUseage = IntegerOptionItem.Create(6866, "AbilityUseLimit", new(0, 180, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
                 .SetValueFormat(OptionFormat.Times);
-            SecurityGuardAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(6867, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.4f, TabGroup.CrewmateRoles)
+            SecurityGuardAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(6867, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.4f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
                 .SetValueFormat(OptionFormat.Times);
-            SecurityGuardAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(6868, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
+            SecurityGuardAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(6868, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
                 .SetValueFormat(OptionFormat.Times);
         }
@@ -69,6 +69,11 @@ namespace EHR.Roles.Crewmate
         }
 
         public override void OnPet(PlayerControl pc)
+        {
+            Guard(pc);
+        }
+
+        public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
             Guard(pc);
         }

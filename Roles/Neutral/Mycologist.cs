@@ -11,11 +11,6 @@ namespace EHR.Roles.Neutral
 {
     internal class Mycologist : RoleBase
     {
-        private static int Id => 643210;
-
-        private PlayerControl Mycologist_ => GetPlayerById(MycologistId);
-        private byte MycologistId = byte.MaxValue;
-
         private static readonly string[] SpreadMode =
         [
             "VentButtonText", // 0
@@ -31,11 +26,17 @@ namespace EHR.Roles.Neutral
         private static OptionItem InfectTime;
 
         public readonly List<byte> InfectedPlayers = [];
+        private byte MycologistId = byte.MaxValue;
+        private static int Id => 643210;
+
+        private PlayerControl Mycologist_ => GetPlayerById(MycologistId);
+
+        public override bool IsEnable => MycologistId != byte.MaxValue;
 
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Mycologist);
-            KillCooldown = FloatOptionItem.Create(Id + 2, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles)
+            KillCooldown = FloatOptionItem.Create(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mycologist])
                 .SetValueFormat(OptionFormat.Seconds);
             HasImpostorVision = BooleanOptionItem.Create(Id + 7, "ImpostorVision", true, TabGroup.NeutralRoles)
@@ -69,7 +70,6 @@ namespace EHR.Roles.Neutral
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public override bool IsEnable => MycologistId != byte.MaxValue;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
 

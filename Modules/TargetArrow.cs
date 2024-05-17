@@ -1,28 +1,17 @@
 using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
+using Hazel;
 using UnityEngine;
 
 namespace EHR;
 
 static class TargetArrow
 {
-    class ArrowInfo(byte from, byte to)
-    {
-        public readonly byte From = from;
-        public readonly byte To = to;
-
-        public bool Equals(ArrowInfo obj)
-        {
-            return From == obj.From && To == obj.To;
-        }
-        public override string ToString()
-        {
-            return $"(From:{From} To:{To})";
-        }
-    }
-
     static readonly Dictionary<ArrowInfo, string> TargetArrows = [];
-    static readonly string[] Arrows = [
+
+    static readonly string[] Arrows =
+    [
         "↑",
         "↗",
         "→",
@@ -39,6 +28,22 @@ static class TargetArrow
         TargetArrows.Clear();
     }
 
+    public static void ReceiveRPC(MessageReader reader)
+    {
+        switch (reader.ReadPackedInt32())
+        {
+            case 1:
+                Add(reader.ReadByte(), reader.ReadByte());
+                break;
+            case 2:
+                Remove(reader.ReadByte(), reader.ReadByte());
+                break;
+            case 3:
+                RemoveAllTarget(reader.ReadByte());
+                break;
+        }
+    }
+
     /// <summary>
     /// Register a new target arrow object
     /// </summary>
@@ -50,8 +55,10 @@ static class TargetArrow
         if (!TargetArrows.Any(a => a.Key.Equals(arrowInfo)))
         {
             TargetArrows[arrowInfo] = "・";
+            Utils.SendRPC(CustomRPC.Arrow, true, 1, seer, target);
         }
     }
+
     /// <summary>
     /// Delete target
     /// </summary>
@@ -65,7 +72,10 @@ static class TargetArrow
         {
             TargetArrows.Remove(a);
         }
+
+        Utils.SendRPC(CustomRPC.Arrow, true, 2, seer, target);
     }
+
     /// <summary>
     /// Delete all targets for the specified seer
     /// </summary>
@@ -77,6 +87,8 @@ static class TargetArrow
         {
             TargetArrows.Remove(arrowInfo);
         }
+
+        Utils.SendRPC(CustomRPC.Arrow, true, 3, seer);
     }
 
     /// <summary>
@@ -115,6 +127,7 @@ static class TargetArrow
                 update = true;
                 continue;
             }
+
             // Take the direction vector of the target
             var dir = target.transform.position - seer.transform.position;
             int index;
@@ -132,6 +145,7 @@ static class TargetArrow
                 var angle = Vector3.SignedAngle(Vector3.down, dir, Vector3.back) + 180 + 22.5;
                 index = ((int)(angle / 45)) % 8;
             }
+
             var arrow = Arrows[index];
             if (TargetArrows[arrowInfo] != arrow)
             {
@@ -139,9 +153,26 @@ static class TargetArrow
                 update = true;
             }
         }
+
         if (update)
         {
             Utils.NotifyRoles(SpecifySeer: seer, ForceLoop: false, SpecifyTarget: seer);
+        }
+    }
+
+    class ArrowInfo(byte from, byte to)
+    {
+        public readonly byte From = from;
+        public readonly byte To = to;
+
+        public bool Equals(ArrowInfo obj)
+        {
+            return From == obj.From && To == obj.To;
+        }
+
+        public override string ToString()
+        {
+            return $"(From:{From} To:{To})";
         }
     }
 }

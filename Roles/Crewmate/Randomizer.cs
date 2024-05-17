@@ -5,6 +5,7 @@ using EHR.Modules;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
 using HarmonyLib;
+using Hazel;
 using UnityEngine;
 using static EHR.Roles.Crewmate.Randomizer;
 
@@ -61,7 +62,6 @@ namespace EHR.Roles.Crewmate
                     case Effect.Twist:
                     {
                         List<byte> changePositionPlayers = [];
-                        var rd = IRandom.Instance;
                         foreach (var pc in Main.AllAlivePlayerControls)
                         {
                             if (changePositionPlayers.Contains(pc.PlayerId) || Pelican.IsEaten(pc.PlayerId) || pc.onLadder || pc.inVent || GameStates.IsMeeting) continue;
@@ -69,7 +69,7 @@ namespace EHR.Roles.Crewmate
                             var filtered = Main.AllAlivePlayerControls.Where(a => !a.inVent && !Pelican.IsEaten(a.PlayerId) && !a.onLadder && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
                             if (filtered.Length == 0) break;
 
-                            var target = filtered[rd.Next(0, filtered.Length)];
+                            var target = filtered.RandomElement();
 
                             changePositionPlayers.Add(target.PlayerId);
                             changePositionPlayers.Add(pc.PlayerId);
@@ -219,6 +219,7 @@ namespace EHR.Roles.Crewmate
                         break;
                     case Effect.TimeBomb:
                         Bombs.TryAdd(PickRandomPlayer().Pos(), (Utils.TimeStamp, IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration)));
+                        Utils.SendRPC(CustomRPC.SyncRandomizer, randomizer.PlayerId, 1, Bombs.Last().Key, Bombs.Last().Value.PlaceTimeStamp, Bombs.Last().Value.ExplosionDelay);
                         break;
                     case Effect.Tornado:
                         Tornado.SpawnTornado(PickRandomPlayer());
@@ -247,9 +248,9 @@ namespace EHR.Roles.Crewmate
                         break;
                     case Effect.AddonAssign:
                     {
-                        var addons = EnumHelper.GetAllValues<CustomRoles>().Where(x => x.IsAdditionRole() && x != CustomRoles.NotAssigned).ToArray();
+                        var addons = Enum.GetValues<CustomRoles>().Where(x => x.IsAdditionRole() && x != CustomRoles.NotAssigned).ToArray();
                         var pc = PickRandomPlayer();
-                        var addon = addons[IRandom.Instance.Next(0, addons.Length)];
+                        var addon = addons.RandomElement();
                         if (Main.PlayerStates[pc.PlayerId].SubRoles.Contains(addon)) break;
                         Main.PlayerStates[pc.PlayerId].SetSubRole(addon);
                         pc.MarkDirtySettings();
@@ -261,7 +262,7 @@ namespace EHR.Roles.Crewmate
                         var pc = PickRandomPlayer();
                         var addons = Main.PlayerStates[pc.PlayerId].SubRoles;
                         if (addons.Count == 0) break;
-                        var addon = addons[IRandom.Instance.Next(0, addons.Count)];
+                        var addon = addons.RandomElement();
                         Main.PlayerStates[pc.PlayerId].RemoveSubRole(addon);
                         pc.MarkDirtySettings();
                         NotifyAboutRNG(pc);
@@ -271,17 +272,16 @@ namespace EHR.Roles.Crewmate
                     {
                         var pc = PickRandomPlayer();
                         AddEffectForPlayer(pc, effect);
-                        Glitch.hackedIdList.TryAdd(pc.PlayerId, Utils.TimeStamp);
+                        pc.BlockRole(IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration));
                         NotifyAboutRNG(pc);
                     }
                         break;
                     case Effect.HandcuffAll:
                     {
-                        var now = Utils.TimeStamp;
                         foreach (var pc in Main.AllAlivePlayerControls)
                         {
                             AddEffectForPlayer(pc, effect);
-                            Glitch.hackedIdList.TryAdd(pc.PlayerId, now);
+                            pc.BlockRole(IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration));
                             NotifyAboutRNG(pc);
                         }
                     }
@@ -337,7 +337,7 @@ namespace EHR.Roles.Crewmate
                         var killer = PickRandomPlayer();
                         var allPc = Main.AllAlivePlayerControls.Where(x => x.PlayerId != killer.PlayerId).ToArray();
                         if (allPc.Length == 0) break;
-                        var target = allPc[IRandom.Instance.Next(0, allPc.Length)];
+                        var target = allPc.RandomElement();
                         BallLightning.CheckBallLightningMurder(killer, target, force: true);
                         NotifyAboutRNG(target);
                     }
@@ -370,7 +370,7 @@ namespace EHR.Roles.Crewmate
                         var pc1 = PickRandomPlayer();
                         var allPc = Main.AllAlivePlayerControls.Where(x => x.CanUseKillButton() && x.PlayerId != pc1.PlayerId).ToArray();
                         if (allPc.Length == 0) break;
-                        var pc2 = allPc[IRandom.Instance.Next(0, allPc.Length)];
+                        var pc2 = allPc.RandomElement();
                         var duellist = new Duellist();
                         duellist.OnShapeshift(pc1, pc2, true);
                     }
@@ -390,48 +390,6 @@ namespace EHR.Roles.Crewmate
 
     internal class Randomizer : RoleBase
     {
-        private static int Id => 643490;
-        private static List<byte> PlayerIdList = [];
-
-        private static OptionItem EffectFrequencyOpt;
-        private static OptionItem EffectDurMin;
-        private static OptionItem EffectDurMax;
-        private static OptionItem NotifyOpt;
-
-        private static int EffectFrequency;
-        public static int MinimumEffectDuration;
-        public static int MaximumEffectDuration;
-        private static bool Notify;
-
-        public static Dictionary<byte, Dictionary<Effect, (long StartTimeStamp, int Duration)>> CurrentEffects = [];
-        public static Dictionary<byte, float> AllPlayerDefaultSpeed = [];
-
-        public static Dictionary<Vector2, Vector2> Rifts = [];
-        public static Dictionary<Vector2, (long PlaceTimeStamp, int ExplosionDelay)> Bombs = [];
-
-        public static float TimeSinceLastMeeting;
-        private static Dictionary<byte, long> LastEffectPick = [];
-        private static Dictionary<byte, long> LastTP = [];
-        private static long LastDeathEffect;
-
-        private static string RNGString => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Randomizer), Translator.GetString("RNGHasSpoken"));
-
-        public static void NotifyAboutRNG(PlayerControl pc)
-        {
-            if (!Notify) return;
-            pc.Notify(text: RNGString, time: IRandom.Instance.Next(2, 7), log: false);
-        }
-
-        public static bool Exists;
-
-        public static float RandomFloat => IRandom.Instance.Next(0, 5) + (IRandom.Instance.Next(0, 10) / 10f);
-
-        public override bool IsEnable => Exists;
-
-        public static bool IsShielded(PlayerControl pc) => CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && (effects.ContainsKey(Effect.ShieldRandomPlayer) || effects.ContainsKey(Effect.ShieldAll));
-        public static bool HasSuperVision(PlayerControl pc) => CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && (effects.ContainsKey(Effect.SuperVisionForRandomPlayer) || effects.ContainsKey(Effect.SuperVisionForAll));
-        public static bool IsBlind(PlayerControl pc) => CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && (effects.ContainsKey(Effect.BlindnessForRandomPlayer) || effects.ContainsKey(Effect.BlindnessForAll));
-
         public enum Effect
         {
             ShieldRandomPlayer,
@@ -469,6 +427,48 @@ namespace EHR.Roles.Crewmate
             DevourRandomPlayer,
             Duel
         }
+
+        private static List<byte> PlayerIdList = [];
+
+        private static OptionItem EffectFrequencyOpt;
+        private static OptionItem EffectDurMin;
+        private static OptionItem EffectDurMax;
+        private static OptionItem NotifyOpt;
+
+        private static int EffectFrequency;
+        public static int MinimumEffectDuration;
+        public static int MaximumEffectDuration;
+        private static bool Notify;
+
+        public static Dictionary<byte, Dictionary<Effect, (long StartTimeStamp, int Duration)>> CurrentEffects = [];
+        public static Dictionary<byte, float> AllPlayerDefaultSpeed = [];
+
+        public static Dictionary<Vector2, Vector2> Rifts = [];
+        public static Dictionary<Vector2, (long PlaceTimeStamp, int ExplosionDelay)> Bombs = [];
+
+        public static float TimeSinceLastMeeting;
+        private static Dictionary<byte, long> LastEffectPick = [];
+        private static Dictionary<byte, long> LastTP = [];
+        private static long LastDeathEffect;
+
+        public static bool Exists;
+        private static int Id => 643490;
+
+        private static string RNGString => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Randomizer), Translator.GetString("RNGHasSpoken"));
+
+        public static float RandomFloat => IRandom.Instance.Next(0, 5) + (IRandom.Instance.Next(0, 10) / 10f);
+
+        public override bool IsEnable => Exists;
+
+        public static void NotifyAboutRNG(PlayerControl pc)
+        {
+            if (!Notify) return;
+            pc.Notify(text: RNGString, time: IRandom.Instance.Next(2, 7), log: false);
+        }
+
+        public static bool IsShielded(PlayerControl pc) => CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && (effects.ContainsKey(Effect.ShieldRandomPlayer) || effects.ContainsKey(Effect.ShieldAll));
+        public static bool HasSuperVision(PlayerControl pc) => CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && (effects.ContainsKey(Effect.SuperVisionForRandomPlayer) || effects.ContainsKey(Effect.SuperVisionForAll));
+        public static bool IsBlind(PlayerControl pc) => CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && (effects.ContainsKey(Effect.BlindnessForRandomPlayer) || effects.ContainsKey(Effect.BlindnessForAll));
 
         public static void SetupCustomOption()
         {
@@ -514,14 +514,14 @@ namespace EHR.Roles.Crewmate
         {
             Exists = true;
             PlayerIdList.Add(playerId);
-            AllPlayerDefaultSpeed = Main.AllPlayerSpeed;
+            AllPlayerDefaultSpeed = Main.AllPlayerSpeed.ToDictionary(x => x.Key, x => x.Value);
         }
 
         public static PlayerControl PickRandomPlayer()
         {
             var allPc = Main.AllAlivePlayerControls;
             if (allPc.Length == 0) return null;
-            var pc = allPc[IRandom.Instance.Next(0, allPc.Length)];
+            var pc = allPc.RandomElement();
             return pc;
         }
 
@@ -539,8 +539,8 @@ namespace EHR.Roles.Crewmate
 
             LastEffectPick[id] = now;
 
-            var allEffects = EnumHelper.GetAllValues<Effect>();
-            var effect = allEffects[IRandom.Instance.Next(0, allEffects.Length)];
+            var allEffects = Enum.GetValues<Effect>();
+            var effect = allEffects.RandomElement();
 
             if (effect == Effect.GhostPlayer)
             {
@@ -618,6 +618,7 @@ namespace EHR.Roles.Crewmate
             LastDeathEffect = Utils.TimeStamp;
             Rifts.Clear();
             Bombs.Clear();
+            Utils.SendRPC(CustomRPC.SyncRandomizer, PlayerIdList.First(), 3);
             foreach (var pc in Main.AllPlayerControls)
             {
                 RevertSpeedChangesForPlayer(pc, false);
@@ -652,6 +653,7 @@ namespace EHR.Roles.Crewmate
                         }
 
                         Bombs.Remove(bomb.Key);
+                        Utils.SendRPC(CustomRPC.SyncRandomizer, randomizer.PlayerId, 2, bomb.Key);
                     }
                 }
             }
@@ -662,7 +664,23 @@ namespace EHR.Roles.Crewmate
             }
         }
 
-        public static string GetSuffixText(PlayerControl pc, PlayerControl target)
+        public void ReceiveRPC(MessageReader reader)
+        {
+            switch (reader.ReadPackedInt32())
+            {
+                case 1:
+                    Bombs.TryAdd(NetHelpers.ReadVector2(reader), (long.Parse(reader.ReadString()), reader.ReadPackedInt32()));
+                    break;
+                case 2:
+                    Bombs.Remove(NetHelpers.ReadVector2(reader));
+                    break;
+                case 3:
+                    Bombs.Clear();
+                    break;
+            }
+        }
+
+        public override string GetSuffix(PlayerControl pc, PlayerControl target, bool h = false, bool m = false)
         {
             if (pc == null || pc.PlayerId != target.PlayerId || Bombs.Count == 0) return string.Empty;
             var bomb = Bombs.FirstOrDefault(x => Vector2.Distance(x.Key, pc.Pos()) <= 5f);

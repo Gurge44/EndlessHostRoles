@@ -8,6 +8,7 @@ using Assets.CoreScripts;
 using EHR.Modules;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
+using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
 using UnityEngine;
@@ -19,6 +20,10 @@ namespace EHR;
 [HarmonyPatch(typeof(ChatController), nameof(ChatController.SendChat))]
 internal class ChatCommands
 {
+    public static List<string> ChatHistory = [];
+
+    public static Dictionary<byte, long> LastSentCommand = [];
+
     // Function to check if a player is a moderator
     public static bool IsPlayerModerator(string friendCode)
     {
@@ -27,9 +32,6 @@ internal class ChatCommands
         var friendCodes = File.ReadAllLines(friendCodesFilePath);
         return friendCodes.Any(code => code.Contains(friendCode, StringComparison.OrdinalIgnoreCase));
     }
-
-    public static List<string> ChatHistory = [];
-    public static Dictionary<byte, long> LastSentCommand = [];
 
     public static bool Prefix(ChatController __instance)
     {
@@ -264,6 +266,28 @@ internal class ChatCommands
                     Utils.SendMessage(Utils.GetRemainingKillers(), localPlayerId);
                     break;
 
+                case "/addmod":
+                    canceled = true;
+                    if (args.Length < 2 || !byte.TryParse(args[1], out var newModId)) break;
+                    var newModPc = Utils.GetPlayerById(newModId);
+                    if (newModPc == null) break;
+                    var fc = newModPc.FriendCode;
+                    if (IsPlayerModerator(fc)) Utils.SendMessage(GetString("PlayerAlreadyMod"), localPlayerId);
+                    File.AppendAllText("./EHR_DATA/Moderators.txt", $"\n{fc}");
+                    Utils.SendMessage(GetString("PlayerAddedToModList"), localPlayerId);
+                    break;
+
+                case "/deletemod":
+                    canceled = true;
+                    if (args.Length < 2 || !byte.TryParse(args[1], out var remModId)) break;
+                    var remModPc = Utils.GetPlayerById(remModId);
+                    if (remModPc == null) break;
+                    var remFc = remModPc.FriendCode;
+                    if (!IsPlayerModerator(remFc)) Utils.SendMessage(GetString("PlayerNotMod"), localPlayerId);
+                    File.WriteAllLines("./EHR_DATA/Moderators.txt", File.ReadAllLines("./EHR_DATA/Moderators.txt").Where(x => !x.Contains(remFc)));
+                    Utils.SendMessage(GetString("PlayerRemovedFromModList"), localPlayerId);
+                    break;
+
                 case "/combo": // Format: /combo [add/ban/remove/allow] [main role] [addon]
                     canceled = true;
                     if (args.Length < 4)
@@ -400,9 +424,10 @@ internal class ChatCommands
                     break;
 
                 case "/death":
+                case "/d":
                     if (!GameStates.IsInGame) break;
                     var killer = PlayerControl.LocalPlayer.GetRealKiller();
-                    Utils.SendMessage("\n", localPlayerId, string.Format(GetString("DeathCommand"), killer.GetRealName(), GetString(killer.GetCustomRole().ToString())));
+                    Utils.SendMessage("\n", localPlayerId, string.Format(GetString("DeathCommand"), Utils.ColorString(Main.PlayerColors.TryGetValue(killer.PlayerId, out var kColor) ? kColor : Color.white, killer.GetRealName()), killer.GetCustomRole().ToColoredString()));
                     break;
 
                 case "/say":
@@ -433,6 +458,20 @@ internal class ChatCommands
                     Mathematician.Reply(PlayerControl.LocalPlayer, args[1]);
                     break;
 
+                case "/qa":
+                    if (args.Length < 2 || !QuizMaster.On || !PlayerControl.LocalPlayer.IsAlive()) break;
+                    var qm = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
+                    if (qm.Target != localPlayerId) break;
+                    qm.Answer(args[1].ToUpper());
+                    break;
+
+                case "/qs":
+                    if (!QuizMaster.On || !PlayerControl.LocalPlayer.IsAlive()) break;
+                    var qm2 = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
+                    if (qm2.Target != localPlayerId || !QuizMaster.MessagesToSend.TryGetValue(localPlayerId, out var msg)) break;
+                    Utils.SendMessage(msg, localPlayerId, GetString("QuizMaster.QuestionSample.Title"));
+                    break;
+
                 case "/ban":
                 case "/kick":
                     canceled = true;
@@ -457,7 +496,7 @@ internal class ChatCommands
                         break;
                     }
 
-                    if (kickPlayerId == 0)
+                    if (kickPlayerId.IsHost())
                     {
                         Utils.SendMessage(GetString("KickCommandKickHost"), localPlayerId);
                         break;
@@ -700,7 +739,6 @@ internal class ChatCommands
         if (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) && PlayerControl.LocalPlayer.IsAlive())
         {
             ChatManager.SendPreviousMessagesToAll();
-            ChatManager.cancel = false;
             goto Canceled;
         }
 
@@ -839,6 +877,7 @@ internal class ChatCommands
             "和平之鸽" or "和平之鴿" or "和平的鸽子" or "和平" or "dop" or "dove of peace" => GetString("DovesOfNeace"),
             "持槍" or "持械" or "手长" => GetString("Reach"),
             "monarch" => GetString("Monarch"),
+            "sch" => GetString("SchrodingersCat"),
             _ => text,
         };
     }
@@ -863,7 +902,7 @@ internal class ChatCommands
         }
         else name = name.Trim().ToLower();
 
-        foreach (var rl in EnumHelper.GetAllValues<CustomRoles>())
+        foreach (var rl in Enum.GetValues<CustomRoles>())
         {
             if (rl.IsVanilla()) continue;
             var roleName = GetString(rl.ToString()).ToLower().Trim().Replace(" ", string.Empty);
@@ -883,7 +922,7 @@ internal class ChatCommands
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
             Utils.SendMessage(GetString($"ModeDescribe.{Options.CurrentGameMode}"), playerId);
-            return;
+            if (Options.CurrentGameMode != CustomGameMode.HideAndSeek) return;
         }
 
         role = role.Trim().ToLower();
@@ -900,7 +939,7 @@ internal class ChatCommands
 
         role = FixRoleNameInput(role).ToLower().Trim().Replace(" ", string.Empty);
 
-        foreach (var rl in EnumHelper.GetAllValues<CustomRoles>())
+        foreach (var rl in Enum.GetValues<CustomRoles>())
         {
             if (rl.IsVanilla()) continue;
             var roleName = GetString(rl.ToString());
@@ -960,7 +999,7 @@ internal class ChatCommands
             return;
         }
 
-        if (player.PlayerId != 0) ChatManager.SendMessage(player, text);
+        if (!player.IsHost()) ChatManager.SendMessage(player, text);
         if (text.StartsWith("\n")) text = text[1..];
 
         string[] args = text.Split(' ');
@@ -1045,10 +1084,8 @@ internal class ChatCommands
                         _ = sb.Append("\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
                     }
 
-                    ChatManager.DontBlock = true;
                     Utils.SendMessage("\n", player.PlayerId, settings.ToString());
                     Utils.SendMessage(sb.ToString(), player.PlayerId, string.Empty);
-                    _ = new LateTask(() => ChatManager.DontBlock = false, 0.5f, log: false);
                 }
                 else
                     Utils.SendMessage(GetString("Message.CanNotUseInLobby"), player.PlayerId);
@@ -1068,10 +1105,11 @@ internal class ChatCommands
                 break;
 
             case "/death":
+            case "/d":
                 if (!GameStates.IsInGame || player.IsAlive()) break;
                 var killer = player.GetRealKiller();
                 if (killer == null) break;
-                Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathCommand"), Utils.ColorString(Main.PlayerColors.TryGetValue(killer.PlayerId, out var pcColor) ? pcColor : Color.white, killer.GetRealName()), $"<{Main.RoleColors[killer.GetCustomRole()]}>{GetString(killer.GetCustomRole().ToString())}</color>"));
+                Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathCommand"), Utils.ColorString(Main.PlayerColors.TryGetValue(killer.PlayerId, out var pcColor) ? pcColor : Color.white, killer.GetRealName()), killer.GetCustomRole().ToColoredString()));
                 break;
 
             case "/colour":
@@ -1157,6 +1195,18 @@ internal class ChatCommands
                 if (args.Length < 2) break;
                 Mathematician.Reply(player, args[1]);
                 break;
+            case "/qa":
+                if (args.Length < 2 || !QuizMaster.On || !player.IsAlive()) break;
+                var qm = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
+                if (qm.Target != player.PlayerId) break;
+                qm.Answer(args[1].ToUpper());
+                break;
+            case "/qs":
+                if (!QuizMaster.On || !player.IsAlive()) break;
+                var qm2 = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
+                if (qm2.Target != player.PlayerId || !QuizMaster.MessagesToSend.TryGetValue(player.PlayerId, out var msg)) break;
+                Utils.SendMessage(msg, player.PlayerId, GetString("QuizMaster.QuestionSample.Title"));
+                break;
             case "/ban":
             case "/kick":
                 // Check if the kick command is enabled in the settings
@@ -1180,7 +1230,7 @@ internal class ChatCommands
                     break;
                 }
 
-                if (kickPlayerId == 0)
+                if (kickPlayerId.IsHost())
                 {
                     Utils.SendMessage(GetString("KickCommandKickHost"), player.PlayerId);
                     break;
@@ -1217,6 +1267,11 @@ internal class ChatCommands
                 {
                     Utils.SendMessage(GetString("Message.CanNotUseInLobby"), player.PlayerId);
                     break;
+                }
+
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                {
+                    pc.RpcSetNameEx(pc.GetRealName(isMeeting: true));
                 }
 
                 ChatUpdatePatch.DoBlockChat = false;
@@ -1290,10 +1345,9 @@ internal class ChatCommands
                 break;
         }
 
-        if (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive() && player.PlayerId != 0)
+        if (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive() && !player.IsHost())
         {
             ChatManager.SendPreviousMessagesToAll();
-            ChatManager.cancel = false;
             canceled = true;
             LastSentCommand[player.PlayerId] = now;
             return;
@@ -1339,36 +1393,22 @@ internal class ChatUpdatePatch
         }
 
         var writer = CustomRpcSender.Create("MessagesToSend");
-        _ = writer.StartMessage(clientId);
-        _ = writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+        writer.StartMessage(clientId);
+        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
             .Write(title)
             .EndRpc();
-        _ = writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+        writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
             .Write(msg)
             .EndRpc();
-        _ = writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+        writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
             .Write(player.Data.PlayerName)
             .EndRpc();
-        _ = writer.EndMessage();
+        writer.EndMessage();
         writer.SendMessage();
 
         __instance.timeSinceLastMessage = 0f;
     }
 }
-
-//[HarmonyPatch(typeof(ChatController), nameof(ChatController.AddChat))]
-//internal class AddChatPatch
-//{
-//    public static void Postfix(string chatText)
-//    {
-//        switch (chatText)
-//        {
-//            default:
-//                break;
-//        }
-//        if (!AmongUsClient.Instance.AmHost) return;
-//    }
-//}
 
 [HarmonyPatch(typeof(FreeChatInputField), nameof(FreeChatInputField.UpdateCharCount))]
 internal class UpdateCharCountPatch

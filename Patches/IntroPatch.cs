@@ -137,6 +137,7 @@ class CoBeginPatch
 
         logger.Info("-------------Other Information-------------");
         logger.Info($"Number of players: {Main.AllPlayerControls.Length}");
+        logger.Info($"Map: {Main.CurrentMap}");
         Main.AllPlayerControls.Do(x => Main.PlayerStates[x.PlayerId].InitTask(x));
         GameData.Instance.RecomputeTaskCounts();
         TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
@@ -177,7 +178,7 @@ class BeginCrewmatePatch
             return false;
         }
 
-        if (CustomTeamManager.CustomTeams.Count > 0)
+        if (CustomTeamManager.EnabledCustomTeams.Count > 0)
         {
             var team = CustomTeamManager.GetCustomTeam(PlayerControl.LocalPlayer.PlayerId);
             if (team != null)
@@ -419,7 +420,7 @@ class BeginCrewmatePatch
             __instance.ImpostorText.text = GetString("SubText.Madmate");
         }
 
-        if (CustomTeamManager.CustomTeams.Count > 0)
+        if (CustomTeamManager.EnabledCustomTeams.Count > 0)
         {
             var team = CustomTeamManager.GetCustomTeam(PlayerControl.LocalPlayer.PlayerId);
             if (team != null)
@@ -654,7 +655,7 @@ class IntroCutsceneDestroyPatch
                         {
                             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                             {
-                                if (pc.PlayerId == 0) continue; // Skip the host
+                                if (pc.IsHost()) continue; // Skip the host
                                 try
                                 {
                                     pc.RpcShapeshift(pc, false);

@@ -49,6 +49,8 @@ public class Lawyer : RoleBase
         CustomRoles.Doctor,
     ];
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Lawyer);
@@ -76,7 +78,6 @@ public class Lawyer : RoleBase
             if (AmongUsClient.Instance.AmHost)
             {
                 List<PlayerControl> targetList = [];
-                var rand = IRandom.Instance;
                 targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetCrewmate.GetBool() || !target.Is(CustomRoleTypes.Crewmate) where CanTargetJester.GetBool() || !target.Is(CustomRoles.Jester) where !target.Is(CustomRoleTypes.Neutral) || target.IsNeutralKiller() || target.Is(CustomRoles.Jester) where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where !Utils.GetPlayerById(playerId).Is(CustomRoles.Lovers) || !target.Is(CustomRoles.Lovers) select target);
 
                 if (targetList.Count == 0)
@@ -85,7 +86,7 @@ public class Lawyer : RoleBase
                     return;
                 }
 
-                var SelectedTarget = targetList[rand.Next(targetList.Count)];
+                var SelectedTarget = targetList.RandomElement();
                 Target.Add(playerId, SelectedTarget.PlayerId);
                 SendRPC(playerId, SelectedTarget.PlayerId, "SetTarget");
                 Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}:{SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Lawyer");
@@ -96,8 +97,6 @@ public class Lawyer : RoleBase
             Logger.Error(ex.ToString(), "Lawyer.Add");
         }
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SendRPC(byte lawyerId, byte targetId = 0x73, string Progress = "")
     {
@@ -148,7 +147,7 @@ public class Lawyer : RoleBase
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: lawyer);
     }
 
-    public static bool KnowRole(PlayerControl player, PlayerControl target)
+    public override bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (!KnowTargetRole.GetBool()) return false;
         return player.Is(CustomRoles.Lawyer) && Target.TryGetValue(player.PlayerId, out var tar) && tar == target.PlayerId;

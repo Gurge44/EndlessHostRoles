@@ -72,8 +72,8 @@ class TextBoxTMPSetTextPatch
 public class TextBoxPatch
 {
     [HarmonyPatch(nameof(TextBoxTMP.SetText)), HarmonyPrefix]
-    public static void ModifyCharacterLimit(TextBoxTMP __instance/*, [HarmonyArgument(0)] string input, [HarmonyArgument(1)] string inputCompo = ""*/)
+    public static void ModifyCharacterLimit(TextBoxTMP __instance)
     {
-        __instance.characterLimit = AmongUsClient.Instance.AmHost ? 2000 : 300;
+        __instance.characterLimit = 1200;
     }
 }

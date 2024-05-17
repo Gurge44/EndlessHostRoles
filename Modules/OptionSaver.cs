@@ -18,7 +18,7 @@ public static class OptionSaver
         if (DefaultPresetFileInfo.Exists)
         {
             string presetNmber = File.ReadAllText(DefaultPresetFileInfo.FullName);
-            if (int.TryParse(presetNmber, out int number) && number >= 0 && number <= 4) return number;
+            if (int.TryParse(presetNmber, out int number) && number is >= 0 and <= 4) return number;
         }
 
         return 0;

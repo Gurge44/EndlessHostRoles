@@ -20,17 +20,21 @@ public class StringOptionItem(int id, string name, int defaultValue, TabGroup ta
 
     public int GetChance()
     {
-        //For 0% or 100%
-        if (Selections.Length == 2) return CurrentValue * 100;
-
-        //EHR’s career generation mode
-        if (Selections.Length == 3) return CurrentValue;
-
-        //For 0% to 100% or 5% to 100%
-        var offset = Options.Rates.Length - Selections.Length;
-        var index = CurrentValue + offset;
-        var rate = index * 5;
-        return rate;
+        switch (Selections.Length)
+        {
+            // For 0% or 100%
+            case 2:
+                return CurrentValue * 100;
+            // EHR’s career generation mode
+            case 3:
+                return CurrentValue;
+            // For 0% to 100% or 5% to 100%
+            default:
+                var offset = Options.Rates.Length - Selections.Length;
+                var index = CurrentValue + offset;
+                var rate = index * 5;
+                return rate;
+        }
     }
 
     public override int GetValue()

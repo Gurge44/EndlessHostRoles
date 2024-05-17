@@ -89,6 +89,11 @@ README file in the root directory of this source tree.
             <Setter Property="Margin" Value="10,0,10,0"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="Black" Direction="0" ShadowDepth="0" BlurRadius="10"/>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Page.Resources>
 
@@ -120,13 +125,19 @@ README file in the root directory of this source tree.
         <Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="Team Name" FontWeight="Bold"/>
         <TextBox Grid.Row="0" Grid.Column="2" x:Name="TeamNameTextBox" Text="Really Cool Team" Width="720" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" MaxLines="1"/>
 
-        <CheckBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" x:Name="OverrideColorCheckBox" Content=" Override Team Color" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" Checked="OverrideColorCheck" Unchecked="OverrideColorCheck"/>
+        <CheckBox Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" x:Name="OverrideColorCheckBox" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" Checked="OverrideColorCheck" Unchecked="OverrideColorCheck">
+            <Label Content=" Override Team Color" VerticalContentAlignment="Top"></Label>
+        </CheckBox>
         <TextBox Grid.Row="1" Grid.Column="2" x:Name="TeamColorTextBox" Text="#00ffa5" Width="128" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" IsEnabled="False" MaxLength="9" MaxLines="1" TextChanged="ColorTextChanged"/>
 
-        <CheckBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" x:Name="OverrideTitleCheckBox" Content=" Override Team Display Title" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" Checked="OverrideTitleCheck" Unchecked="OverrideTitleCheck"/>
+        <CheckBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" x:Name="OverrideTitleCheckBox" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" Checked="OverrideTitleCheck" Unchecked="OverrideTitleCheck">
+            <Label Content=" Override Team Display Title"></Label>
+        </CheckBox>
         <TextBox Grid.Row="2" Grid.Column="2" x:Name="TeamTitleTextBox" Text="Teamed" Width="720" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" IsEnabled="False" MaxLines="1"/>
 
-        <CheckBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" x:Name="OverrideSubTitleCheckBox" Content=" Override Team Display Subtitle" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" Checked="OverrideSubTitleCheck" Unchecked="OverrideSubTitleCheck"/>
+        <CheckBox Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" x:Name="OverrideSubTitleCheckBox" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" Checked="OverrideSubTitleCheck" Unchecked="OverrideSubTitleCheck">
+            <Label Content=" Override Team Display Subtitle"></Label>
+        </CheckBox>
         <TextBox Grid.Row="3" Grid.Column="2" x:Name="TeamSubTitleTextBox" Text="You're in a Custom Team!" Width="720" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" IsEnabled="False" MaxLines="1"/>
 
         <Label Grid.Row="5" Grid.Column="2" Content="Team Members" FontWeight="Bold" Margin="0" VerticalContentAlignment="Top" VerticalAlignment="Top"/>

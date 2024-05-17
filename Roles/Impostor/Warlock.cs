@@ -14,7 +14,6 @@ namespace EHR.Roles.Impostor
     internal class Warlock : RoleBase
     {
         public static bool On;
-        public override bool IsEnable => On;
 
         public static OptionItem WarlockCanKillAllies;
         public static OptionItem WarlockCanKillSelf;
@@ -27,10 +26,11 @@ namespace EHR.Roles.Impostor
         public static Dictionary<byte, PlayerControl> CursedPlayers = [];
         public static Dictionary<byte, bool> IsCurseAndKill = [];
         public static bool IsCursed;
+        private float CurseCD;
 
         private float KCD;
-        private float CurseCD;
         private long LastNotify;
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
@@ -279,10 +279,11 @@ namespace EHR.Roles.Impostor
             ResetCooldowns(killCooldown: true, curseCooldown: true);
         }
 
-        public static string GetSuffixAndHudText(PlayerControl seer, bool hud = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
         {
             if (seer.IsModClient() && !hud) return string.Empty;
             if (Main.PlayerStates[seer.PlayerId].Role is not Warlock { IsEnable: true } wl) return string.Empty;
+            if (seer.PlayerId != target.PlayerId) return string.Empty;
 
             var sb = new StringBuilder();
             if (wl.KCD > 0f) sb.Append($"<#ffa500>{Translator.GetString("KillCooldown")}:</color> <#ffffff>{(int)Math.Round(wl.KCD)}s</color>");

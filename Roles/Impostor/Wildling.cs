@@ -19,18 +19,22 @@ public class Wildling : RoleBase
     public static OptionItem CanShapeshiftOpt;
     public static OptionItem ShapeshiftCDOpt;
     public static OptionItem ShapeshiftDurOpt;
-
-    private float ProtectionDuration;
-    private bool CanVent;
     private bool CanShapeshift;
-    private float ShapeshiftCD;
-    private float ShapeshiftDur;
+    private bool CanVent;
     private bool HasImpostorVision;
     private float KillCooldown;
 
-    private CustomRoles UsedRole;
+    private float ProtectionDuration;
+    private float ShapeshiftCD;
+    private float ShapeshiftDur;
 
     private long TimeStamp;
+
+    private CustomRoles UsedRole;
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
+    bool InProtect => TimeStamp > Utils.TimeStamp;
 
     public static void SetupCustomOption()
     {
@@ -99,8 +103,6 @@ public class Wildling : RoleBase
 
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent;
 
-    public override bool IsEnable => playerIdList.Count > 0;
-
     void SendRPC(byte playerId)
     {
         if (!IsEnable || !Utils.DoRPC) return;
@@ -118,8 +120,6 @@ public class Wildling : RoleBase
         if (Main.PlayerStates[PlayerId].Role is not Wildling wl) return;
         wl.TimeStamp = long.Parse(Time);
     }
-
-    bool InProtect => TimeStamp > Utils.TimeStamp;
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
@@ -151,9 +151,9 @@ public class Wildling : RoleBase
         }
     }
 
-    public static string GetHudText(PlayerControl pc)
+    public override string GetSuffix(PlayerControl pc, PlayerControl _, bool hud = false, bool m = false)
     {
-        if (pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
+        if (!hud || pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
         if (Main.PlayerStates[pc.PlayerId].Role is not Wildling wl) return string.Empty;
 
         var str = new StringBuilder();

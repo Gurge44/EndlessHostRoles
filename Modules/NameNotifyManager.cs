@@ -42,8 +42,8 @@ public static class NameNotifyManager
     public static bool GetNameNotify(PlayerControl player, out string name)
     {
         name = string.Empty;
-        if (!Notice.ContainsKey(player.PlayerId)) return false;
-        name = Notice[player.PlayerId].TEXT;
+        if (!Notice.TryGetValue(player.PlayerId, out (string TEXT, long TIMESTAMP) value)) return false;
+        name = value.TEXT;
         return true;
     }
 

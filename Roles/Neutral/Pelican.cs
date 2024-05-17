@@ -17,10 +17,14 @@ public class Pelican : RoleBase
     public static OptionItem KillCooldown;
     public static OptionItem CanVent;
 
+    private int Count;
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Pelican);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "PelicanKillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican])
+        KillCooldown = FloatOptionItem.Create(Id + 10, "PelicanKillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican])
             .SetValueFormat(OptionFormat.Seconds);
         CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican]);
     }
@@ -40,7 +44,6 @@ public class Pelican : RoleBase
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
     public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
 
@@ -179,27 +182,24 @@ public class Pelican : RoleBase
 
     public static void OnPelicanDied(byte pc)
     {
-        if (!eatenList.ContainsKey(pc)) return;
-        foreach (byte tar in eatenList[pc])
+        if (!eatenList.TryGetValue(pc, out List<byte> value)) return;
+        foreach (byte tar in value)
         {
             var target = Utils.GetPlayerById(tar);
             var player = Utils.GetPlayerById(pc);
-            if (player == null || target == null)
-                continue;
+            if (player == null || target == null) continue;
             target.TP(player);
             Main.AllPlayerSpeed[tar] = Main.AllPlayerSpeed[tar] - 0.5f + OriginalSpeed[tar];
             ReportDeadBodyPatch.CanReport[tar] = true;
             target.MarkDirtySettings();
             RPC.PlaySoundRPC(tar, Sounds.TaskComplete);
             Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: player);
-            Logger.Info($"{Utils.GetPlayerById(pc).GetRealName()} 吐出了 {target.GetRealName()}", "Pelican");
+            Logger.Info($"{Utils.GetPlayerById(pc).GetRealName()} died, {target.GetRealName()} is back in-game", "Pelican");
         }
 
         eatenList.Remove(pc);
         SyncEatenList( /*pc*/);
     }
-
-    private int Count;
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
@@ -217,9 +217,10 @@ public class Pelican : RoleBase
         if (!IsEnable) return;
         Count--;
         if (Count > 0) return;
-        Count = 10;
+        Count = 20;
 
-        foreach (byte tar in eatenList[pc.PlayerId])
+        if (!eatenList.TryGetValue(pc.PlayerId, out List<byte> list)) return;
+        foreach (byte tar in list)
         {
             var target = Utils.GetPlayerById(tar);
             if (target == null) continue;
@@ -236,7 +237,6 @@ public class Pelican : RoleBase
         if (CanEat(killer, target.PlayerId))
         {
             EatPlayer(killer, target);
-            //killer.RpcGuardAndKill(killer);
             killer.SetKillCooldown();
             killer.RPCPlayCustomSound("Eat");
             target.RPCPlayCustomSound("Eat");

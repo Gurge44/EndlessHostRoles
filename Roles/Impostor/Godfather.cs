@@ -8,8 +8,8 @@
 
         public static void SetupCustomOption()
         {
-            Options.SetupRoleOptions(555420, TabGroup.ImpostorRoles, CustomRoles.Godfather);
-            Options.GodfatherCancelVote = Options.CreateVoteCancellingUseSetting(555422, CustomRoles.Godfather, TabGroup.ImpostorRoles);
+            Options.SetupRoleOptions(648400, TabGroup.ImpostorRoles, CustomRoles.Godfather);
+            Options.GodfatherCancelVote = Options.CreateVoteCancellingUseSetting(648402, CustomRoles.Godfather, TabGroup.ImpostorRoles);
         }
 
         public override void Add(byte playerId)

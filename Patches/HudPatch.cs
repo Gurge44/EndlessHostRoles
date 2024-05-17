@@ -74,15 +74,14 @@ class HudManagerPatch
             {
                 if (OverriddenRolesText == null)
                 {
-                    OverriddenRolesText = Object.Instantiate(__instance.KillButton.cooldownTimerText);
+                    OverriddenRolesText = Object.Instantiate(__instance.KillButton.cooldownTimerText, __instance.transform, true);
                     OverriddenRolesText.alignment = TextAlignmentOptions.Right;
                     OverriddenRolesText.verticalAlignment = VerticalAlignmentOptions.Top;
-                    OverriddenRolesText.transform.parent = __instance.transform;
                     OverriddenRolesText.transform.localPosition = new(4.9f, 0.8f, 0);
                     OverriddenRolesText.overflowMode = TextOverflowModes.Overflow;
                     OverriddenRolesText.enableWordWrapping = false;
                     OverriddenRolesText.color = Color.white;
-                    OverriddenRolesText.fontSize = OverriddenRolesText.fontSizeMax = OverriddenRolesText.fontSizeMin = 2f;
+                    OverriddenRolesText.fontSize = OverriddenRolesText.fontSizeMax = OverriddenRolesText.fontSizeMin = 2.5f;
                 }
 
                 if (Main.SetRoles.Count > 0 || Main.SetAddOns.Count > 0)
@@ -119,24 +118,20 @@ class HudManagerPatch
                         }
                     }
 
-                    bool stop = false;
-                    foreach (var roles in Main.SetRoles)
+                    foreach (var role in Main.SetRoles)
                     {
-                        if (!Main.SetAddOns.ContainsKey(roles.Key)) continue;
-                        foreach (var addons in Main.SetAddOns)
-                        {
-                            if (!Main.SetRoles.ContainsKey(addons.Key)) continue;
-                            foreach (var addon in addons.Value)
-                            {
-                                if (!CustomRolesHelper.CheckAddonConflictV2(addon, roles.Value))
-                                {
-                                    resultText[roles.Key] += " <#ff0000>(!)</color>";
-                                    stop = true;
-                                    break;
-                                }
-                            }
+                        if (!Main.SetAddOns.TryGetValue(role.Key, out var addons)) continue;
 
-                            if (stop) break;
+                        var pc = Utils.GetPlayerById(role.Key);
+                        if (pc == null) continue;
+
+                        foreach (var addon in addons)
+                        {
+                            if (!CustomRolesHelper.CheckAddonConflict(addon, pc))
+                            {
+                                resultText[role.Key] += " <#ff0000>(!)</color>";
+                                break;
+                            }
                         }
                     }
 
@@ -174,11 +169,14 @@ class HudManagerPatch
 
                     switch (player.GetCustomRole())
                     {
+                        case CustomRoles.Sentry:
+                            __instance.PetButton?.OverrideText(GetString("SentryPetButtonText"));
+                            break;
                         case CustomRoles.FireWorks:
                             __instance.AbilityButton?.OverrideText((Main.PlayerStates[player.PlayerId].Role as FireWorks).nowFireWorksCount == 0 ? GetString("FireWorksExplosionButtonText") : GetString("FireWorksInstallAtionButtonText"));
                             break;
                         case CustomRoles.Swiftclaw:
-                            __instance.KillButton?.OverrideText(GetString("SwiftclawKillButtonText"));
+                            __instance.PetButton?.OverrideText(GetString("SwiftclawKillButtonText"));
                             break;
                         case CustomRoles.Pestilence:
                             __instance.KillButton?.OverrideText(GetString("KillButtonText"));
@@ -352,54 +350,28 @@ class HudManagerPatch
 
                     if (LowerInfoText == null)
                     {
-                        LowerInfoText = Object.Instantiate(__instance.KillButton.cooldownTimerText);
+                        LowerInfoText = Object.Instantiate(__instance.KillButton.cooldownTimerText, __instance.transform, true);
                         LowerInfoText.alignment = TextAlignmentOptions.Center;
-                        LowerInfoText.transform.parent = __instance.transform;
                         LowerInfoText.transform.localPosition = new(0, -2f, 0);
                         LowerInfoText.overflowMode = TextOverflowModes.Overflow;
                         LowerInfoText.enableWordWrapping = false;
                         LowerInfoText.color = Color.white;
-                        LowerInfoText.fontSize = LowerInfoText.fontSizeMax = LowerInfoText.fontSizeMin = 2f;
+                        LowerInfoText.fontSize = LowerInfoText.fontSizeMax = LowerInfoText.fontSizeMin = 2.7f;
                     }
+
+                    var state = Main.PlayerStates[player.PlayerId];
 
                     LowerInfoText.text = Options.CurrentGameMode switch
                     {
                         CustomGameMode.SoloKombat => SoloKombatManager.GetHudText(),
-                        CustomGameMode.FFA when player.PlayerId == 0 => FFAManager.GetHudText(),
-                        CustomGameMode.MoveAndStop when player.PlayerId == 0 => MoveAndStopManager.HUDText,
-                        CustomGameMode.HotPotato when player.PlayerId == 0 => HotPotatoManager.GetSuffixText(player.PlayerId),
-                        CustomGameMode.HideAndSeek when player.PlayerId == 0 => CustomHideAndSeekManager.GetSuffixText(player, player, isHUD: true),
-                        CustomGameMode.Standard => player.GetCustomRole() switch
+                        CustomGameMode.FFA when player.IsHost() => FFAManager.GetHudText(),
+                        CustomGameMode.MoveAndStop when player.IsHost() => MoveAndStopManager.HUDText,
+                        CustomGameMode.HotPotato when player.IsHost() => HotPotatoManager.GetSuffixText(player.PlayerId),
+                        CustomGameMode.HideAndSeek when player.IsHost() => HnSManager.GetSuffixText(player, player, isHUD: true),
+                        CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + state.SubRoles switch
                         {
-                            CustomRoles.BountyHunter => BountyHunter.GetTargetText(player, true),
-                            CustomRoles.Witch or CustomRoles.HexMaster => Witch.GetSpellModeText(player, true),
-                            CustomRoles.FireWorks => FireWorks.GetStateText(player),
-                            CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon => Swooper.GetHudText(player),
-                            CustomRoles.HeadHunter => HeadHunter.GetHudText(player),
-                            CustomRoles.Alchemist => Alchemist.GetHudText(player),
-                            CustomRoles.Adventurer => Adventurer.GetSuffixAndHUDText(player, hud: true),
-                            CustomRoles.Werewolf => Werewolf.GetHudText(player),
-                            CustomRoles.Glitch => Glitch.GetHudText(player),
-                            CustomRoles.NiceHacker => NiceHacker.GetHudText(player),
-                            CustomRoles.Wildling or CustomRoles.BloodKnight => Wildling.GetHudText(player),
-                            CustomRoles.YinYanger => YinYanger.ModeText(player),
-                            CustomRoles.WeaponMaster => WeaponMaster.GetHudAndProgressText(player.PlayerId),
-                            CustomRoles.Postman => Postman.GetHudText(player),
-                            CustomRoles.SoulHunter => SoulHunter.HUDText(player.PlayerId),
-                            CustomRoles.Bargainer => Bargainer.GetSuffix(player),
-                            CustomRoles.Chronomancer => Chronomancer.GetHudText(player.PlayerId),
-                            CustomRoles.Mafioso => Mafioso.GetHUDText(player),
-                            CustomRoles.Druid => Druid.GetHUDText(player),
-                            CustomRoles.Rabbit => Rabbit.GetSuffix(player),
-                            CustomRoles.Predator => Predator.GetSuffixAndHudText(player, hud: true),
-                            CustomRoles.Warlock => Warlock.GetSuffixAndHudText(player, hud: true),
-                            CustomRoles.Commander => Commander.GetSuffixText(player, player, hud: true),
-                            CustomRoles.Librarian => Librarian.GetSelfSuffixAndHudText(player.PlayerId),
-                            CustomRoles.PlagueDoctor => PlagueDoctor.GetLowerTextOthers(player, isForHud: true),
-                            CustomRoles.Stealth => Stealth.GetSuffix(player, isHUD: true),
-                            CustomRoles.Hookshot => Hookshot.SuffixText(player.PlayerId),
-                            CustomRoles.Tornado => Tornado.GetSuffixText(isHUD: true),
-                            _ => player.Is(CustomRoles.Asthmatic) ? Asthmatic.GetSuffixText(player.PlayerId) : string.Empty,
+                            { } s when s.Contains(CustomRoles.Asthmatic) => Asthmatic.GetSuffixText(player.PlayerId),
+                            _ => string.Empty
                         },
                         _ => string.Empty,
                     };
@@ -494,6 +466,8 @@ class HudManagerPatch
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ToggleHighlight))]
 class ToggleHighlightPatch
 {
+    private static readonly int OutlineColor = Shader.PropertyToID("_OutlineColor");
+
     public static void Postfix(PlayerControl __instance /*[HarmonyArgument(0)] bool active,*/ /*[HarmonyArgument(1)] RoleTeamTypes team*/)
     {
         if (!GameStates.IsInTask) return;
@@ -501,7 +475,7 @@ class ToggleHighlightPatch
 
         if (player.CanUseKillButton())
         {
-            __instance.cosmetics.currentBodySprite.BodySprite.material.SetColor("_OutlineColor", Utils.GetRoleColor(player.GetCustomRole()));
+            __instance.cosmetics.currentBodySprite.BodySprite.material.SetColor(OutlineColor, Utils.GetRoleColor(player.GetCustomRole()));
         }
     }
 }
@@ -509,11 +483,14 @@ class ToggleHighlightPatch
 [HarmonyPatch(typeof(Vent), nameof(Vent.SetOutline))]
 class SetVentOutlinePatch
 {
+    private static readonly int OutlineColor = Shader.PropertyToID("_OutlineColor");
+    private static readonly int AddColor = Shader.PropertyToID("_AddColor");
+
     public static void Postfix(Vent __instance, [HarmonyArgument(1)] ref bool mainTarget)
     {
         Color color = PlayerControl.LocalPlayer.GetRoleColor();
-        __instance.myRend.material.SetColor("_OutlineColor", color);
-        __instance.myRend.material.SetColor("_AddColor", mainTarget ? color : Color.clear);
+        __instance.myRend.material.SetColor(OutlineColor, color);
+        __instance.myRend.material.SetColor(AddColor, mainTarget ? color : Color.clear);
     }
 }
 
@@ -641,7 +618,47 @@ class MapBehaviourShowPatch
                 opts.Mode = MapOptions.Modes.Normal;
         }
 
+        if (Main.GodMode.Value) opts.ShowLivePlayerPosition = true;
+
         return true;
+    }
+}
+
+[HarmonyPatch(typeof(InfectedOverlay), nameof(InfectedOverlay.Update))]
+class SabotageMapPatch
+{
+    public static Dictionary<SystemTypes, TextMeshPro> TimerTexts = [];
+
+    public static void Postfix(InfectedOverlay __instance)
+    {
+        float perc = __instance.sabSystem.PercentCool;
+        int total = __instance.sabSystem.initialCooldown ? 10 : 30;
+        if (SabotageSystemTypeRepairDamagePatch.IsCooldownModificationEnabled) total = (int)SabotageSystemTypeRepairDamagePatch.ModifiedCooldownSec;
+        int remaining = Math.Clamp(total - (int)Math.Ceiling((1f - perc) * total) + 1, 0, total);
+
+        foreach (var mr in __instance.rooms)
+        {
+            if (mr.special == null || mr.special.transform == null) continue;
+            var room = mr.room;
+            if (!TimerTexts.ContainsKey(room))
+            {
+                TimerTexts[room] = Object.Instantiate(HudManager.Instance.KillButton.cooldownTimerText, mr.special.transform, true);
+                TimerTexts[room].alignment = TextAlignmentOptions.Center;
+                TimerTexts[room].transform.localPosition = mr.special.transform.localPosition;
+                TimerTexts[room].transform.localPosition = new(0, -0.4f, 0f);
+                TimerTexts[room].overflowMode = TextOverflowModes.Overflow;
+                TimerTexts[room].enableWordWrapping = false;
+                TimerTexts[room].color = Color.white;
+                TimerTexts[room].fontSize = TimerTexts[room].fontSizeMax = TimerTexts[room].fontSizeMin = 2.5f;
+                TimerTexts[room].sortingOrder = 100;
+            }
+
+            bool isActive = Utils.IsActive(room);
+            bool isOtherActive = TimerTexts.Keys.Any(Utils.IsActive);
+            bool doorBlock = __instance.DoorsPreventingSabotage;
+            TimerTexts[room].text = $"<b><#ff{(isActive || isOtherActive || doorBlock ? "00" : "ff")}00>{(!isActive && !isOtherActive && !doorBlock ? remaining : GetString(isActive && !doorBlock ? "SabotageActiveIndicator" : "SabotageDisabledIndicator"))}</color></b>";
+            TimerTexts[room].enabled = remaining > 0 || isActive || isOtherActive || doorBlock;
+        }
     }
 }
 
@@ -777,7 +794,7 @@ class TaskPanelBehaviourPatch
                     foreach (var id in list3.Where(x => SummaryText3.ContainsKey(x.Item2)).ToArray())
                     {
                         bool alive = Utils.GetPlayerById(id.Item2).IsAlive();
-                        AllText += $"{(!alive ? "<#777777>" : string.Empty)}<size=1.6>\r\n{(alive ? SummaryText3[id.Item2] : SummaryText3[id.Item2].RemoveHtmlTags())}{(!alive ? "  <#ff0000>DEAD</color>" : string.Empty)}</size>";
+                        AllText += $"{(!alive ? "<#777777>" : string.Empty)}<size=1.6>\r\n{(alive ? SummaryText3[id.Item2] : SummaryText3[id.Item2].RemoveHtmlTags())}{(!alive ? $"  <#ff0000>{GetString("Dead")}</color>" : string.Empty)}</size>";
                     }
 
                     break;
@@ -785,7 +802,7 @@ class TaskPanelBehaviourPatch
                 case CustomGameMode.HotPotato:
 
                     List<string> SummaryText4 = [];
-                    SummaryText4.AddRange(from id in Main.PlayerStates.Keys let pc = Utils.GetPlayerById(id) let name = pc.GetRealName().RemoveHtmlTags().Replace("\r\n", string.Empty) let alive = pc.IsAlive() select $"{(!alive ? "<size=70%><#777777>" : "<size=80%>")}{HotPotatoManager.GetIndicator(id)}{Utils.ColorString(Main.PlayerColors[id], name)}{(!alive ? "</color>  <#ff0000>DEAD</color></size>" : "</size>")}");
+                    SummaryText4.AddRange(from id in Main.PlayerStates.Keys let pc = Utils.GetPlayerById(id) let name = pc.GetRealName().RemoveHtmlTags().Replace("\r\n", string.Empty) let alive = pc.IsAlive() select $"{(!alive ? "<size=70%><#777777>" : "<size=80%>")}{HotPotatoManager.GetIndicator(id)}{Utils.ColorString(Main.PlayerColors[id], name)}{(!alive ? $"</color>  <#ff0000>{GetString("Dead")}</color></size>" : "</size>")}");
 
                     AllText += $"\r\n\r\n{string.Join('\n', SummaryText4)}";
 
@@ -793,7 +810,7 @@ class TaskPanelBehaviourPatch
 
                 case CustomGameMode.HideAndSeek:
 
-                    AllText += $"\r\n\r\n{CustomHideAndSeekManager.GetTaskBarText()}";
+                    AllText += $"\r\n\r\n{HnSManager.GetTaskBarText()}";
 
                     break;
             }
@@ -858,3 +875,5 @@ class RepairSender
         return SystemType + "(" + ((SystemTypes)SystemType) + ")\r\n" + amount;
     }
 }
+
+// The following code comes from Crowded https://github.com/CrowdedMods/CrowdedMod/blob/master/src/CrowdedMod/Patches/CreateGameOptionsPatches.cs

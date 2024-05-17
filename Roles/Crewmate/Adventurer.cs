@@ -1,26 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
 using EHR.Patches;
+using Hazel;
 using UnityEngine;
-using static EHR.Roles.Crewmate.Adventurer;
 
 namespace EHR.Roles.Crewmate
 {
     internal class Adventurer : RoleBase
     {
-        public static bool On;
-        public override bool IsEnable => On;
-
-        enum Resource
-        {
-            TaskCompletion,
-            Random,
-            DeadBody,
-            ShapeshiftSkin,
-            LightsFix,
-            Grouping
-        }
-
         public enum Weapon
         {
             Gun,
@@ -32,6 +21,8 @@ namespace EHR.Roles.Crewmate
             Prediction,
             RNG
         }
+
+        public static bool On;
 
         private static readonly Dictionary<Resource, (char Icon, Color Color)> ResourceDisplayData = new()
         {
@@ -60,6 +51,22 @@ namespace EHR.Roles.Crewmate
 
         private static List<Weapon> EnabledWeapons = [];
 
+        private readonly Dictionary<Resource, int> ResourceCounts = [];
+        public List<Weapon> ActiveWeapons;
+
+        private PlayerControl AdventurerPC;
+        public bool InCraftingMode;
+        private long LastGroupingResourceTimeStamp;
+
+        private long LastRandomResourceTimeStamp;
+
+        public List<Weapon> OrderedWeapons;
+        private Dictionary<Resource, Vector2> ResourceLocations;
+        public HashSet<byte> RevealedPlayers;
+        private Weapon SelectedWeaponToCraft;
+        public HashSet<byte> ShieldedPlayers;
+        public override bool IsEnable => On;
+
         static OptionItem CreateWeaponEnabledSetting(int id, Weapon weapon) => BooleanOptionItem.Create(id, $"AdventurerWeaponEnabled.{weapon}", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adventurer]);
 
         public static void SetupCustomOption()
@@ -70,26 +77,11 @@ namespace EHR.Roles.Crewmate
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adventurer])
                 .SetValueFormat(OptionFormat.Seconds);
 
-            foreach (var weapon in EnumHelper.GetAllValues<Weapon>())
+            foreach (var weapon in Enum.GetValues<Weapon>())
             {
                 WeaponEnabledSettings[weapon] = CreateWeaponEnabledSetting(11333 + (int)weapon, weapon);
             }
         }
-
-        private PlayerControl AdventurerPC;
-
-        private readonly Dictionary<Resource, int> ResourceCounts = [];
-        public bool InCraftingMode;
-        private Weapon SelectedWeaponToCraft;
-
-        public List<Weapon> OrderedWeapons;
-        public List<Weapon> ActiveWeapons;
-        public HashSet<byte> ShieldedPlayers;
-        public HashSet<byte> RevealedPlayers;
-
-        private long LastRandomResourceTimeStamp;
-        private long LastGroupingResourceTimeStamp;
-        private Dictionary<Resource, Vector2> ResourceLocations;
 
         public override void Add(byte playerId)
         {
@@ -108,7 +100,7 @@ namespace EHR.Roles.Crewmate
             LastGroupingResourceTimeStamp = Utils.TimeStamp + 20;
             ResourceLocations = [];
 
-            foreach (var resource in EnumHelper.GetAllValues<Resource>())
+            foreach (var resource in Enum.GetValues<Resource>())
             {
                 ResourceCounts[resource] = 0;
             }
@@ -127,20 +119,23 @@ namespace EHR.Roles.Crewmate
         public override void OnExitVent(PlayerControl pc, Vent vent)
         {
             InCraftingMode = !InCraftingMode;
+            Utils.SendRPC(CustomRPC.SyncAdventurer, pc.PlayerId, 1, InCraftingMode);
 
             switch (InCraftingMode)
             {
                 case true:
                     OrderedWeapons = [.. EnabledWeapons.OrderBy(x => !Ingredients[x].All(r => r.Count <= ResourceCounts[r.Resource]))];
                     SelectedWeaponToCraft = OrderedWeapons.FirstOrDefault();
+                    Utils.SendRPC(CustomRPC.SyncAdventurer, pc.PlayerId, 4, (int)SelectedWeaponToCraft);
                     break;
                 case false when Ingredients[SelectedWeaponToCraft].All(x => x.Count <= ResourceCounts[x.Resource]):
-                    var weapon = SelectedWeaponToCraft == Weapon.RNG ? EnabledWeapons[IRandom.Instance.Next(EnabledWeapons.Count)] : SelectedWeaponToCraft;
+                    var weapon = SelectedWeaponToCraft == Weapon.RNG ? EnabledWeapons.RandomElement() : SelectedWeaponToCraft;
                     ActiveWeapons.Add(weapon);
                     pc.Notify(string.Format(Translator.GetString("AdventurerWeaponCrafted"), Translator.GetString($"AdventurerGun.{weapon}")));
                     foreach ((Resource resource, int count) in Ingredients[weapon])
                     {
                         ResourceCounts[resource] -= count;
+                        Utils.SendRPC(CustomRPC.SyncAdventurer, pc.PlayerId, 2, (int)resource, count);
                     }
 
                     break;
@@ -155,6 +150,7 @@ namespace EHR.Roles.Crewmate
             {
                 case true:
                     SelectedWeaponToCraft = OrderedWeapons[(OrderedWeapons.IndexOf(SelectedWeaponToCraft) + 1) % OrderedWeapons.Count];
+                    Utils.SendRPC(CustomRPC.SyncAdventurer, pc.PlayerId, 4, (int)SelectedWeaponToCraft);
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                     break;
                 case false when ActiveWeapons.Count > 0:
@@ -173,7 +169,7 @@ namespace EHR.Roles.Crewmate
                             var e = Main.AllAlivePlayerControls.Where(x => x.PlayerId != pc.PlayerId && !x.inVent && !x.inMovingPlat && !x.onLadder);
                             var filtered = e as PlayerControl[] ?? e.ToArray();
                             if (filtered.Length == 0) return;
-                            var other = filtered[IRandom.Instance.Next(filtered.Length)];
+                            var other = filtered.RandomElement();
                             var pos = other.Pos();
                             other.TP(pc);
                             pc.TP(pos);
@@ -236,6 +232,7 @@ namespace EHR.Roles.Crewmate
         public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
             ResourceCounts[Resource.TaskCompletion]++;
+            Utils.SendRPC(CustomRPC.SyncAdventurer, pc.PlayerId, 3, (int)Resource.TaskCompletion);
         }
 
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
@@ -276,6 +273,7 @@ namespace EHR.Roles.Crewmate
                 if (Vector2.Distance(pc.Pos(), location) < 2f)
                 {
                     ResourceCounts[resource]++;
+                    Utils.SendRPC(CustomRPC.SyncAdventurer, pc.PlayerId, 3, (int)resource);
                     ResourceLocations.Remove(resource);
                     LocateArrow.Remove(pc.PlayerId, location);
 
@@ -294,6 +292,7 @@ namespace EHR.Roles.Crewmate
         public void OnLightsFix()
         {
             ResourceCounts[Resource.LightsFix]++;
+            Utils.SendRPC(CustomRPC.SyncAdventurer, AdventurerPC.PlayerId, 3, (int)Resource.LightsFix);
         }
 
         public static void OnAnyoneShapeshiftLoop(Adventurer av, PlayerControl shapeshifter)
@@ -328,18 +327,38 @@ namespace EHR.Roles.Crewmate
             return !any;
         }
 
-        public static bool KnowRole(PlayerControl seer, PlayerControl target)
+        public override bool KnowRole(PlayerControl seer, PlayerControl target)
         {
             return Main.PlayerStates[seer.PlayerId].Role is Adventurer { IsEnable: true } av && av.RevealedPlayers.Contains(target.PlayerId);
         }
 
-        public static string GetSuffixAndHUDText(PlayerControl pc, bool hud = false, bool isForMeeting = false)
+        public void ReceiveRPC(MessageReader reader)
+        {
+            switch (reader.ReadPackedInt32())
+            {
+                case 1:
+                    InCraftingMode = reader.ReadBoolean();
+                    break;
+                case 2:
+                    ResourceCounts[(Resource)reader.ReadPackedInt32()] -= reader.ReadInt32();
+                    break;
+                case 3:
+                    ResourceCounts[(Resource)reader.ReadPackedInt32()]++;
+                    break;
+                case 4:
+                    SelectedWeaponToCraft = (Weapon)reader.ReadPackedInt32();
+                    break;
+            }
+        }
+
+        public override string GetSuffix(PlayerControl pc, PlayerControl tar, bool hud = false, bool isForMeeting = false)
         {
             if (pc.IsModClient() && !hud) return string.Empty;
             if (Main.PlayerStates[pc.PlayerId].Role is not Adventurer { IsEnable: true } av) return string.Empty;
+            if (pc.PlayerId != tar.PlayerId) return string.Empty;
 
             IEnumerable<string> resources =
-                from resource in EnumHelper.GetAllValues<Resource>()
+                from resource in Enum.GetValues<Resource>()
                 let displayData = ResourceDisplayData[resource]
                 select $"{Utils.ColorString(displayData.Color, $"{displayData.Icon}")}{av.ResourceCounts[resource]}";
 
@@ -360,6 +379,16 @@ namespace EHR.Roles.Crewmate
             finalText += "</size>";
 
             return finalText;
+        }
+
+        enum Resource
+        {
+            TaskCompletion,
+            Random,
+            DeadBody,
+            ShapeshiftSkin,
+            LightsFix,
+            Grouping
         }
     }
 }

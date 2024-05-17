@@ -22,7 +22,6 @@ public class Sheriff : RoleBase
     public static OptionItem CanKillLovers;
     public static OptionItem CanKillSidekicks;
     public static OptionItem CanKillEgoists;
-    public static OptionItem CanKillInfected;
     public static OptionItem CanKillContagious;
     public static OptionItem SidekickSheriffCanGoBerserk;
     public static OptionItem SetNonCrewCanKill;
@@ -37,6 +36,8 @@ public class Sheriff : RoleBase
         "SheriffCanKillAll",
         "SheriffCanKillSeparately"
     ];
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
@@ -53,7 +54,6 @@ public class Sheriff : RoleBase
         CanKillLovers = BooleanOptionItem.Create(Id + 24, "SheriffCanKillLovers", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillSidekicks = BooleanOptionItem.Create(Id + 23, "SheriffCanKillSidekick", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillEgoists = BooleanOptionItem.Create(Id + 25, "SheriffCanKillEgoist", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
-        CanKillInfected = BooleanOptionItem.Create(Id + 26, "SheriffCanKillInfected", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillContagious = BooleanOptionItem.Create(Id + 27, "SheriffCanKillContagious", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillNeutrals = BooleanOptionItem.Create(Id + 16, "SheriffCanKillNeutrals", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillNeutralsMode = StringOptionItem.Create(Id + 14, "SheriffCanKillNeutralsMode", KillOption, 0, TabGroup.CrewmateRoles).SetParent(CanKillNeutrals);
@@ -68,7 +68,7 @@ public class Sheriff : RoleBase
 
     public static void SetUpNeutralOptions(int id)
     {
-        foreach (var neutral in Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x.IsNeutral() && x is not CustomRoles.KB_Normal and not CustomRoles.Konan and not CustomRoles.Pestilence and not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.Potato and not CustomRoles.Hider and not CustomRoles.Seeker and not CustomRoles.Fox and not CustomRoles.Troll))
+        foreach (var neutral in Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x.IsNeutral() && x is not CustomRoles.KB_Normal and not CustomRoles.Konan and not CustomRoles.Pestilence and not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.Potato and not CustomRoles.Hider and not CustomRoles.Seeker and not CustomRoles.Fox and not CustomRoles.Troll and not CustomRoles.Jumper and not CustomRoles.Detector and not CustomRoles.Jet and not CustomRoles.Dasher and not CustomRoles.Locator and not CustomRoles.Venter and not CustomRoles.Agent and not CustomRoles.Taskinator and not CustomRoles.GM and not CustomRoles.Convict))
         {
             SetUpKillTargetOption(neutral, id, true, CanKillNeutralsMode);
             id++;
@@ -101,7 +101,6 @@ public class Sheriff : RoleBase
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(Utils.GetPlayerById(id)) ? KillCooldown.GetFloat() : 15f;
     public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
 
@@ -141,7 +140,7 @@ public class Sheriff : RoleBase
         var cRole = player.GetCustomRole();
         var subRole = player.GetCustomSubRoles();
         bool CanKill = false;
-        foreach (CustomRoles SubRoleTarget in subRole.ToArray())
+        foreach (CustomRoles SubRoleTarget in subRole)
         {
             CanKill = SubRoleTarget switch
             {

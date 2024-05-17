@@ -20,38 +20,6 @@ class ExileControllerWrapUpPatch
         set => antiBlackout_LastExiled = value;
     }
 
-    [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]
-    class BaseExileControllerPatch
-    {
-        public static void Postfix(ExileController __instance)
-        {
-            try
-            {
-                WrapUpPostfix(__instance.exiled);
-            }
-            finally
-            {
-                WrapUpFinalizer(__instance.exiled);
-            }
-        }
-    }
-
-    [HarmonyPatch(typeof(AirshipExileController), nameof(AirshipExileController.WrapUpAndSpawn))]
-    class AirshipExileControllerPatch
-    {
-        public static void Postfix(AirshipExileController __instance)
-        {
-            try
-            {
-                WrapUpPostfix(__instance.exiled);
-            }
-            finally
-            {
-                WrapUpFinalizer(__instance.exiled);
-            }
-        }
-    }
-
     static void WrapUpPostfix(GameData.PlayerInfo exiled)
     {
         if (AntiBlackout.OverrideExiledPlayer)
@@ -120,9 +88,12 @@ class ExileControllerWrapUpPatch
                 case CustomRoles.Devourer:
                     Devourer.OnDevourerDied(exiled.PlayerId);
                     break;
+                case CustomRoles.Medic:
+                    Medic.IsDead(exiled.Object);
+                    break;
             }
 
-            if (Executioner.CheckExileTarget(exiled, DecidedWinner)) DecidedWinner = true;
+            if (Executioner.CheckExileTarget(exiled)) DecidedWinner = true;
             if (Lawyer.CheckExileTarget(exiled /*, DecidedWinner*/)) DecidedWinner = false;
 
             if (CustomWinnerHolder.WinnerTeam != CustomWinner.Terrorist) Main.PlayerStates[exiled.PlayerId].SetDead();
@@ -187,16 +158,16 @@ class ExileControllerWrapUpPatch
 
     static void WrapUpFinalizer(GameData.PlayerInfo exiled)
     {
-        //WrapUpPostfixで例外が発生しても、この部分だけは確実に実行されます。
+        // Even if an exception occurs in WrapUpPostfix, this part will be executed reliably.
         if (AmongUsClient.Instance.AmHost)
         {
             _ = new LateTask(() =>
             {
                 exiled = AntiBlackout_LastExiled;
                 AntiBlackout.SendGameData();
-                if (AntiBlackout.OverrideExiledPlayer && // 追放対象が上書きされる状態 (上書きされない状態なら実行不要)
-                    exiled != null && //exiledがnullでない
-                    exiled.Object != null) //exiled.Objectがnullでない
+                if (AntiBlackout.OverrideExiledPlayer && // State where the exile target is overwritten (no need to execute if it is not overwritten)
+                    exiled != null &&
+                    exiled.Object != null)
                 {
                     exiled.Object.RpcExileV2();
                 }
@@ -226,11 +197,14 @@ class ExileControllerWrapUpPatch
         SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
         Logger.Info("Start task phase", "Phase");
 
-        if (Options.EnableKillerLeftCommand.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard)
+        bool showRemainingKillers = Options.EnableKillerLeftCommand.GetBool() && Options.ShowImpRemainOnEject.GetBool();
+        bool appendEjectionNotify = CheckForEndVotingPatch.EjectionText != string.Empty;
+        Logger.Warn($"Ejection Text: {CheckForEndVotingPatch.EjectionText}", "debug");
+        if ((showRemainingKillers || appendEjectionNotify) && Options.CurrentGameMode == CustomGameMode.Standard)
         {
             _ = new LateTask(() =>
             {
-                var text = Utils.GetRemainingKillers(notify: true);
+                var text = showRemainingKillers ? Utils.GetRemainingKillers(notify: true) : string.Empty;
                 text = $"<#ffffff>{text}</color>";
                 var r = IRandom.Instance;
                 foreach (var pc in Main.AllAlivePlayerControls)
@@ -241,12 +215,51 @@ class ExileControllerWrapUpPatch
                         finalText = $"\n{notify.TEXT}\n{finalText}";
                     }
 
+                    if (appendEjectionNotify)
+                    {
+                        finalText = $"\n<#ffffff>{CheckForEndVotingPatch.EjectionText}</color>\n{finalText}";
+                    }
+
+                    if (!showRemainingKillers) finalText = finalText.TrimStart();
+
                     pc.Notify(finalText, r.Next(7, 13));
                 }
             }, 0.5f, log: false);
         }
 
         _ = new LateTask(() => { ChatManager.SendPreviousMessagesToAll(); }, 3f, log: false);
+    }
+
+    [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]
+    class BaseExileControllerPatch
+    {
+        public static void Postfix(ExileController __instance)
+        {
+            try
+            {
+                WrapUpPostfix(__instance.exiled);
+            }
+            finally
+            {
+                WrapUpFinalizer(__instance.exiled);
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(AirshipExileController), nameof(AirshipExileController.WrapUpAndSpawn))]
+    class AirshipExileControllerPatch
+    {
+        public static void Postfix(AirshipExileController __instance)
+        {
+            try
+            {
+                WrapUpPostfix(__instance.exiled);
+            }
+            finally
+            {
+                WrapUpFinalizer(__instance.exiled);
+            }
+        }
     }
 }
 

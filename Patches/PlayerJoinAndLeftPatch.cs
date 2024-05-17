@@ -145,12 +145,6 @@ class OnPlayerLeftPatch
 
                 switch (data.Character.GetCustomRole())
                 {
-                    case CustomRoles.Executioner when Executioner.Target.ContainsKey(data.Character.PlayerId):
-                        Executioner.ChangeRole(data.Character);
-                        break;
-                    case CustomRoles.Lawyer when Lawyer.Target.ContainsKey(data.Character.PlayerId):
-                        Lawyer.ChangeRole(data.Character);
-                        break;
                     case CustomRoles.Pelican:
                         Pelican.OnPelicanDied(data.Character.PlayerId);
                         break;
@@ -159,12 +153,9 @@ class OnPlayerLeftPatch
                         break;
                 }
 
-                if (Executioner.Target.ContainsValue(data.Character.PlayerId))
-                    Executioner.ChangeRoleByTarget(data.Character);
-                if (Lawyer.Target.ContainsValue(data.Character.PlayerId))
-                    Lawyer.ChangeRoleByTarget(data.Character);
-                if (Spiritualist.SpiritualistTarget == data.Character.PlayerId)
-                    Spiritualist.RemoveTarget();
+                if (Executioner.Target.ContainsValue(data.Character.PlayerId)) Executioner.ChangeRoleByTarget(data.Character);
+                if (Lawyer.Target.ContainsValue(data.Character.PlayerId)) Lawyer.ChangeRoleByTarget(data.Character);
+                if (Spiritualist.SpiritualistTarget == data.Character.PlayerId) Spiritualist.RemoveTarget();
                 Postman.CheckAndResetTargets(data.Character);
                 GhostRolesManager.AssignedGhostRoles.Remove(data.Character.PlayerId);
 

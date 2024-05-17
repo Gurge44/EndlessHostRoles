@@ -1,4 +1,4 @@
-using System.Linq;
+using EHR.Modules;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Neutral;
 using HarmonyLib;
@@ -6,7 +6,7 @@ using Hazel;
 
 namespace EHR;
 
-//参考
+//Based on:
 //https://github.com/Koke1024/Town-Of-Moss/blob/main/TownOfMoss/Patches/MeltDownBoost.cs
 
 [HarmonyPatch(typeof(ReactorSystemType), nameof(ReactorSystemType.Deteriorate))]
@@ -172,9 +172,12 @@ public static class MushroomMixupSabotageSystemPatch
                 }
             }, 1.2f, "Reset Ability Cooldown Arter Mushroom Mixup");
 
-            foreach (var pc in Main.AllAlivePlayerControls.Where(pc => !pc.Is(CustomRoleTypes.Impostor) && Main.ResetCamPlayerList.Contains(pc.PlayerId)).ToArray())
+            foreach (var pc in Main.AllAlivePlayerControls)
             {
-                Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
+                if (!pc.Is(CustomRoleTypes.Impostor) && Main.ResetCamPlayerList.Contains(pc.PlayerId))
+                {
+                    Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
+                }
             }
         }
     }
@@ -197,7 +200,7 @@ public static class ElectricTaskInitializePatch
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare) || pc.Is(CustomRoles.Torch))
+                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare) || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
                 {
                     Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
                 }
@@ -225,7 +228,7 @@ public static class ElectricTaskCompletePatch
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare) || pc.Is(CustomRoles.Torch))
+                if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare) || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
                 {
                     Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
                 }
@@ -241,27 +244,26 @@ public static class ElectricTaskCompletePatch
 [HarmonyPatch(typeof(SabotageSystemType), nameof(SabotageSystemType.UpdateSystem))]
 public static class SabotageSystemTypeRepairDamagePatch
 {
-    private static bool isCooldownModificationEnabled;
-    private static float modifiedCooldownSec;
+    public static bool IsCooldownModificationEnabled;
+    public static float ModifiedCooldownSec;
 
     public static void Initialize()
     {
-        isCooldownModificationEnabled = Options.SabotageCooldownControl.GetBool();
-        modifiedCooldownSec = Options.SabotageCooldown.GetFloat();
+        IsCooldownModificationEnabled = Options.SabotageCooldownControl.GetBool();
+        ModifiedCooldownSec = Options.SabotageCooldown.GetFloat();
     }
 
     public static bool Prefix([HarmonyArgument(0)] PlayerControl player)
     {
         if (Options.DisableSabotage.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard) return false;
         if (SecurityGuard.BlockSabo.Count > 0) return false;
-        if (Glitch.hackedIdList.ContainsKey(player.PlayerId))
+        if (player.IsRoleBlocked())
         {
-            player.Notify(string.Format(Translator.GetString("HackedByGlitch"), "Sabotage"));
+            player.Notify(BlockedAction.Sabotage.GetBlockNotify());
             return false;
         }
 
         if (player.Is(CustomRoleTypes.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
-        if (player.Is(CustomRoleTypes.Impostor) && (player.IsAlive() || !Options.DeadImpCantSabotage.GetBool()) && player.GetCustomRole() is not CustomRoles.Minimalism and not CustomRoles.Mafioso and not CustomRoles.Generator) return true;
         bool allow = player.GetCustomRole() switch
         {
             CustomRoles.Jackal when Jackal.CanSabotage.GetBool() => true,
@@ -279,12 +281,12 @@ public static class SabotageSystemTypeRepairDamagePatch
 
     public static void Postfix(SabotageSystemType __instance)
     {
-        if (!isCooldownModificationEnabled || !AmongUsClient.Instance.AmHost)
+        if (!IsCooldownModificationEnabled || !AmongUsClient.Instance.AmHost)
         {
             return;
         }
 
-        __instance.Timer = modifiedCooldownSec;
+        __instance.Timer = ModifiedCooldownSec;
         __instance.IsDirty = true;
     }
 }

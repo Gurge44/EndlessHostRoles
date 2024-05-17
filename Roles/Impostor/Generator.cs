@@ -7,14 +7,6 @@ namespace EHR.Roles.Impostor
 {
     internal static class GeneratorStatic
     {
-        enum Action
-        {
-            Kill,
-            Shapeshift,
-            Vent,
-            Sabotage
-        }
-
         private static int GetDefaultCost(this Action action) => action switch
         {
             Action.Kill => 5,
@@ -25,10 +17,17 @@ namespace EHR.Roles.Impostor
             _ => 15
         };
 
+        enum Action
+        {
+            Kill,
+            Shapeshift,
+            Vent,
+            Sabotage
+        }
+
         internal class Generator : RoleBase
         {
             public static bool On;
-            public override bool IsEnable => On;
 
             private static OptionItem ChargesGainedPerSecond;
             private static OptionItem StartingCharges;
@@ -42,6 +41,7 @@ namespace EHR.Roles.Impostor
 
             private int Charges;
             private long LastUpdate;
+            public override bool IsEnable => On;
 
             public static void SetupCustomOption()
             {
@@ -56,7 +56,7 @@ namespace EHR.Roles.Impostor
                 MaxChargesStored = IntegerOptionItem.Create(id + 5, "Generator.MaxChargesStored", new(0, 200, 1), 100, TabGroup.ImpostorRoles)
                     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Generator]);
 
-                foreach (var action in EnumHelper.GetAllValues<Action>())
+                foreach (var action in Enum.GetValues<Action>())
                 {
                     var option = IntegerOptionItem.Create(id + 6 + (int)action, $"Generator.{action}.Cost", new(0, 100, 1), action.GetDefaultCost(), TabGroup.ImpostorRoles)
                         .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Generator]);

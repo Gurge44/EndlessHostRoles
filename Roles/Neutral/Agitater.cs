@@ -20,17 +20,19 @@ public class Agitater : RoleBase
     public static OptionItem AgiTaterBombCooldown;
     public static OptionItem AgitaterAutoReportBait;
     public static OptionItem HasImpostorVision;
+    public bool AgitaterHasBombed;
+    private byte AgitaterId;
 
     public byte CurrentBombedPlayer = byte.MaxValue;
-    public byte LastBombedPlayer = byte.MaxValue;
-    public bool AgitaterHasBombed;
     public long CurrentBombedPlayerTime;
-    private byte AgitaterId;
+    public byte LastBombedPlayer = byte.MaxValue;
+
+    public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
 
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Agitater);
-        AgiTaterBombCooldown = FloatOptionItem.Create(Id + 10, "AgitaterBombCooldown", new(10f, 180f, 2.5f), 20f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Agitater])
+        AgiTaterBombCooldown = FloatOptionItem.Create(Id + 10, "AgitaterBombCooldown", new(10f, 180f, 0.5f), 20f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Agitater])
             .SetValueFormat(OptionFormat.Seconds);
         PassCooldown = FloatOptionItem.Create(Id + 11, "AgitaterPassCooldown", new(0f, 5f, 0.25f), 1f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Agitater])
             .SetValueFormat(OptionFormat.Seconds);
@@ -65,8 +67,6 @@ public class Agitater : RoleBase
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-
-    public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
 
     void ResetBomb()
     {

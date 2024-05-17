@@ -73,6 +73,7 @@ public static class DevManager
         DevUserList.Add(new(code: "tinedpun#6584", color: "#0000ff", tag: "Translator PT-BR", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "Dechis"));
         DevUserList.Add(new(code: "swiftlord#8072", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "But What About"));
         DevUserList.Add(new(code: "ovalinstep#2984", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "Seleneous"));
+        DevUserList.Add(new(code: "seleneous#6930", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "Seleneous"));
         DevUserList.Add(new(code: "innerruler#4140", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "thewhiskas27"));
         DevUserList.Add(new(code: "urbanecalf#4975", color: "#420773", tag: "Streamer", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "Gugutsik"));
         DevUserList.Add(new(code: "crustzonal#9589", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "aviiiv0102"));
@@ -80,7 +81,7 @@ public static class DevManager
         DevUserList.Add(new(code: "ponyholey#5532", color: "#0000FF", tag: "desenvolvedor", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "DrawingsZz"));
         DevUserList.Add(new(code: "akinlaptop#2206", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "MR Carr"));
         DevUserList.Add(new(code: "fursilty#4676", color: "#0000ff", tag: "arthurzin", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "arthurzin"));
-        DevUserList.Add(new(code: "stonefuzzy#8673", color: "#00ffe5", tag: "HyperAtillNotMe", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "HyperAtill"));
+        DevUserList.Add(new(code: "stonefuzzy#8673", color: "#035efc", tag: "Ru Translator", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "HyperAtill"));
         DevUserList.Add(new(code: "frizzytram#2508", color: "#1C87FF", tag: "RafaelBIT50", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "RafaelBIT50"));
         DevUserList.Add(new(code: "foggyzing#6238", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "LdZinnn"));
         DevUserList.Add(new(code: "onsideblur#3929", color: "#fc3a51", tag: "YouTuber", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "Manelzin"));
@@ -90,6 +91,7 @@ public static class DevManager
         DevUserList.Add(new(code: "opaquedot#5610", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "Deh_66"));
         DevUserList.Add(new(code: "furpolitic#3380", color: "#a020f0", tag: "EuOncologico o impostor", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "EuOncologico"));
         DevUserList.Add(new(code: "pithfierce#5073", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "OrigeTv"));
+        DevUserList.Add(new(code: "cannylink#0564", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "SpicyPoops"));
 
         // Sponsor
         DevUserList.Add(new(code: "recentduct#6068", color: "#FF00FF", tag: "高冷男模法师", isUp: false, isDev: false, colorCmd: false, deBug: true, upName: null));

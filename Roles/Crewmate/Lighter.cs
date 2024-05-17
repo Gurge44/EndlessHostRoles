@@ -6,10 +6,9 @@ namespace EHR.Roles.Crewmate
 {
     internal class Lighter : RoleBase
     {
-        private bool IsAbilityActive;
-        private long ActivateTimeStamp;
-
         public static bool On;
+        private long ActivateTimeStamp;
+        private bool IsAbilityActive;
         public override bool IsEnable => On;
 
         public static void SetupCustomOption()
@@ -30,10 +29,10 @@ namespace EHR.Roles.Crewmate
             LighterSkillMaxOfUseage = IntegerOptionItem.Create(6856, "AbilityUseLimit", new(0, 180, 1), 2, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
                 .SetValueFormat(OptionFormat.Times);
-            LighterAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(6857, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1.5f, TabGroup.CrewmateRoles)
+            LighterAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(6857, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1.5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
                 .SetValueFormat(OptionFormat.Times);
-            LighterAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(6858, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
+            LighterAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(6858, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
                 .SetValueFormat(OptionFormat.Times);
         }

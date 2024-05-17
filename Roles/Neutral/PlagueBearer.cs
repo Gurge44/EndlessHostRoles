@@ -20,13 +20,15 @@ public class PlagueBearer : RoleBase
     public static OptionItem PestilenceCanVent;
     public static OptionItem PestilenceHasImpostorVision;
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
 
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.PlagueBearer);
-        PlagueBearerCDOpt = FloatOptionItem.Create(Id + 10, "PlagueBearerCD", new(0f, 180f, 2.5f), 17.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer])
+        PlagueBearerCDOpt = FloatOptionItem.Create(Id + 10, "PlagueBearerCD", new(0f, 180f, 0.5f), 17.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer])
             .SetValueFormat(OptionFormat.Seconds);
-        PestilenceCDOpt = FloatOptionItem.Create(Id + 11, "PestilenceCD", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer])
+        PestilenceCDOpt = FloatOptionItem.Create(Id + 11, "PestilenceCD", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer])
             .SetValueFormat(OptionFormat.Seconds);
         PestilenceCanVent = BooleanOptionItem.Create(Id + 12, "PestilenceCanVent", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer]);
@@ -52,8 +54,6 @@ public class PlagueBearer : RoleBase
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = PlagueBearerCD[id];
     public override bool CanUseImpostorVentButton(PlayerControl pc) => false;

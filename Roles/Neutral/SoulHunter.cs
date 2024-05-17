@@ -11,21 +11,24 @@ namespace EHR.Roles.Neutral
 {
     internal class SoulHunter : RoleBase
     {
-        private static int Id => 643400;
-
         public static OptionItem CanVent;
         private static OptionItem HasImpostorVision;
         public static OptionItem NumOfSoulsToWin;
         private static OptionItem WaitingTimeAfterMeeting;
         private static OptionItem TimeToKillTarget;
         private static OptionItem GetSoulForSuicide;
-
-        private byte SoulHunterId;
-        public PlayerControl SoulHunter_;
-        public int Souls;
         public (byte ID, long START_TIMESTAMP, bool FROZEN) CurrentTarget = (byte.MaxValue, 0, false);
         private long LastUpdate;
         private float NormalSpeed;
+        public PlayerControl SoulHunter_;
+
+        private byte SoulHunterId;
+        public int Souls;
+        private static int Id => 643400;
+
+        public override bool IsEnable => SoulHunterId != byte.MaxValue;
+
+        bool IsTargetBlocked => IsEnable && CurrentTarget.ID != byte.MaxValue && CurrentTarget.START_TIMESTAMP != 0;
 
         public static void SetupCustomOption()
         {
@@ -70,7 +73,6 @@ namespace EHR.Roles.Neutral
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public override bool IsEnable => SoulHunterId != byte.MaxValue;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = WaitingTimeAfterMeeting.GetFloat() + 1.5f;
         public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
@@ -81,7 +83,7 @@ namespace EHR.Roles.Neutral
 
         void SendRPC()
         {
-            var writer = CreateCustomRoleRPC(CustomRPC.SyncSoulHunter);
+            var writer = CreateRPC(CustomRPC.SyncSoulHunter);
             writer.Write(SoulHunterId);
             writer.Write(Souls);
             writer.Write(CurrentTarget.ID);
@@ -233,11 +235,9 @@ namespace EHR.Roles.Neutral
             }
         }
 
-        bool IsTargetBlocked => IsEnable && CurrentTarget.ID != byte.MaxValue && CurrentTarget.START_TIMESTAMP != 0;
-
-        public static string HUDText(byte id)
+        public override string GetSuffix(PlayerControl pc, PlayerControl _, bool hud = false, bool m = false)
         {
-            if (Main.PlayerStates[id].Role is not SoulHunter { IsEnable: true } sh) return string.Empty;
+            if (!hud || Main.PlayerStates[pc.PlayerId].Role is not SoulHunter { IsEnable: true } sh) return string.Empty;
             if (!sh.IsTargetBlocked) return string.Empty;
             return sh.CurrentTarget.FROZEN ? string.Format(GetString("SoulHunterNotifyFreeze"), GetPlayerById(sh.CurrentTarget.ID).GetRealName(), WaitingTimeAfterMeeting.GetInt() - (TimeStamp - sh.CurrentTarget.START_TIMESTAMP) + 1) : string.Format(GetString("SoulHunterNotify"), TimeToKillTarget.GetInt() - (TimeStamp - sh.CurrentTarget.START_TIMESTAMP) + 1, GetPlayerById(sh.CurrentTarget.ID).GetRealName());
         }

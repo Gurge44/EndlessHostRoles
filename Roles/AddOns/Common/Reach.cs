@@ -6,7 +6,7 @@
 
         public void SetupCustomOption()
         {
-            Options.SetupAdtRoleOptions(14600, CustomRoles.Reach, canSetNum: true);
+            Options.SetupAdtRoleOptions(14600, CustomRoles.Reach, canSetNum: true, teamSpawnOptions: true);
         }
     }
 }

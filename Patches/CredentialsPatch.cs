@@ -96,17 +96,31 @@ internal class TitleLogoPatch
     //private static readonly Color themeColor10 = new(0.18f, 0.2f, 0.59f);
     //private static readonly Color themeColor11 = new(0.96f, 0.88f, 0.86f);
 
-    private static readonly Color ThemeColor1 = new(0.98f, 0.7f, 0.44f);
-    private static readonly Color ThemeColor2 = new(0.98f, 0.61f, 0.42f);
-    private static readonly Color ThemeColor3 = new(0.04f, 0.41f, 0.75f);
-    private static readonly Color ThemeColor4 = new(0.12f, 0.17f, 0.47f);
-    private static readonly Color ThemeColor5 = new(0.38f, 0.44f, 0.66f);
-    private static readonly Color ThemeColor6 = new(0.72f, 0.68f, 0.79f);
-    private static readonly Color ThemeColor7 = ThemeColor1.ShadeColor(0.1f);
-    private static readonly Color ThemeColor8 = new(0.19f, 0.24f, 0.37f);
-    private static readonly Color ThemeColor9 = ThemeColor5.ShadeColor(0.1f);
-    private static readonly Color ThemeColor10 = ThemeColor4.ShadeColor(0.1f);
-    private static readonly Color ThemeColor11 = ThemeColor6.ShadeColor(0.1f);
+    // Winter BG
+    // private static readonly Color ThemeColor1 = new(0.98f, 0.7f, 0.44f);
+    // private static readonly Color ThemeColor2 = new(0.98f, 0.61f, 0.42f);
+    // private static readonly Color ThemeColor3 = new(0.04f, 0.41f, 0.75f);
+    // private static readonly Color ThemeColor4 = new(0.12f, 0.17f, 0.47f);
+    // private static readonly Color ThemeColor5 = new(0.38f, 0.44f, 0.66f);
+    // private static readonly Color ThemeColor6 = new(0.72f, 0.68f, 0.79f);
+    // private static readonly Color ThemeColor7 = ThemeColor1.ShadeColor(0.1f);
+    // private static readonly Color ThemeColor8 = new(0.19f, 0.24f, 0.37f);
+    // private static readonly Color ThemeColor9 = ThemeColor5.ShadeColor(0.1f);
+    // private static readonly Color ThemeColor10 = ThemeColor4.ShadeColor(0.1f);
+    // private static readonly Color ThemeColor11 = ThemeColor6.ShadeColor(0.1f);
+
+    // Summer BG
+    private static readonly Color ThemeColor1 = new(0.706f, 0.588f, 0.455f);
+    private static readonly Color ThemeColor2 = new(0.827f, 0.827f, 0.643f);
+    private static readonly Color ThemeColor3 = new(0.196f, 0.196f, 0.067f);
+    private static readonly Color ThemeColor4 = new(0.145f, 0.655f, 0.859f);
+    private static readonly Color ThemeColor5 = new(0.580f, 0.780f, 0.820f);
+    private static readonly Color ThemeColor6 = new(0.435f, 0.776f, 0.925f);
+    private static readonly Color ThemeColor7 = new(0.161f, 0.439f, 0.588f);
+    private static readonly Color ThemeColor8 = new(0.388f, 0.565f, 0.537f);
+    private static readonly Color ThemeColor9 = new(0.463f, 0.471f, 0.188f);
+    private static readonly Color ThemeColor10 = Color.black;
+    private static readonly Color ThemeColor11 = ThemeColor4.ShadeColor(0.1f);
 
     private static void Postfix(MainMenuManager __instance)
     {
@@ -199,7 +213,7 @@ internal class TitleLogoPatch
                     }
                 };
                 var bgRenderer = customBg.AddComponent<SpriteRenderer>();
-                bgRenderer.sprite = Utils.LoadSprite("EHR.Resources.Images.WinterBG.jpg", 180f);
+                bgRenderer.sprite = Utils.LoadSprite("EHR.Resources.Images.SummerBG.jpg", 180f);
 
                 if (__instance.screenTint != null)
                 {

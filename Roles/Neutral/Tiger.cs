@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using EHR.Modules;
 using UnityEngine;
 
 namespace EHR.Roles.Neutral
@@ -13,7 +14,12 @@ namespace EHR.Roles.Neutral
         public static OptionItem KillCooldown;
         public static OptionItem CanVent;
 
-        private float EnrageTimer;
+        public static bool On;
+
+        private int Count;
+
+        public float EnrageTimer;
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
@@ -21,21 +27,18 @@ namespace EHR.Roles.Neutral
             Radius = FloatOptionItem.Create(Id + 2, "TigerRadius", new(0.5f, 10f, 0.5f), 3f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tiger])
                 .SetValueFormat(OptionFormat.Multiplier);
-            EnrageCooldown = FloatOptionItem.Create(Id + 3, "EnrageCooldown", new(0f, 60f, 2.5f), 30f, TabGroup.NeutralRoles)
+            EnrageCooldown = FloatOptionItem.Create(Id + 3, "EnrageCooldown", new(0f, 60f, 0.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tiger])
                 .SetValueFormat(OptionFormat.Seconds);
             EnrageDuration = FloatOptionItem.Create(Id + 4, "EnrageDuration", new(1f, 30f, 1f), 10f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tiger])
                 .SetValueFormat(OptionFormat.Seconds);
-            KillCooldown = FloatOptionItem.Create(Id + 5, "KillCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.NeutralRoles)
+            KillCooldown = FloatOptionItem.Create(Id + 5, "KillCooldown", new(0f, 60f, 0.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tiger])
                 .SetValueFormat(OptionFormat.Seconds);
             CanVent = BooleanOptionItem.Create(Id + 6, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tiger]);
         }
-
-        public static bool On;
-        public override bool IsEnable => On;
 
         public override void Add(byte playerId)
         {
@@ -90,6 +93,12 @@ namespace EHR.Roles.Neutral
 
             EnrageTimer -= Time.fixedDeltaTime;
 
+            Count++;
+            if (Count < 10) return;
+            Count = 0;
+
+            Utils.SendRPC(CustomRPC.SyncTiger, pc.PlayerId, EnrageTimer);
+
             switch (EnrageTimer)
             {
                 case <= 0f:
@@ -115,8 +124,9 @@ namespace EHR.Roles.Neutral
             }
         }
 
-        public static string GetSuffix(PlayerControl seer)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
         {
+            if (seer.PlayerId != target.PlayerId) return string.Empty;
             if (Main.PlayerStates[seer.PlayerId].Role is not Tiger { IsEnable: true } tg) return string.Empty;
             if (float.IsNaN(tg.EnrageTimer)) return string.Empty;
             return tg.EnrageTimer > 5 ? "\u25a9" : $"\u25a9 ({(int)(tg.EnrageTimer + 1)}s)";

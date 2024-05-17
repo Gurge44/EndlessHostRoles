@@ -3,67 +3,25 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using HarmonyLib;
+using UnityEngine;
 
 namespace EHR.Modules
 {
     internal static class CustomTeamManager
     {
-        internal class CustomTeam
-        {
-            public readonly string RoleRevealScreenTitle;
-            public readonly string RoleRevealScreenSubtitle;
-            public readonly string RoleRevealScreenBackgroundColor;
-            public readonly string TeamName;
-
-            public List<CustomRoles> TeamMembers { get; set; } = [];
-
-            public override bool Equals(object obj)
-            {
-                if (obj is not CustomTeam team) return false;
-                return TeamName == team.TeamName;
-            }
-
-            public override int GetHashCode() => TeamName.GetHashCode();
-
-            public CustomTeam(string line)
-            {
-                try
-                {
-                    string[] parts = line.Split(';');
-
-                    TeamName = parts[0];
-                    RoleRevealScreenTitle = parts[1];
-                    RoleRevealScreenSubtitle = parts[2];
-                    RoleRevealScreenBackgroundColor = parts[3];
-
-                    TeamMembers = parts[4].Split(',').Select(x => Enum.Parse<CustomRoles>(x, true)).ToList();
-                }
-                catch (Exception e)
-                {
-                    Utils.ThrowException(e);
-                }
-                finally
-                {
-                    CustomTeams.Add(this);
-                }
-            }
-        }
-
         public static HashSet<CustomTeam> CustomTeams = [];
+        public static HashSet<CustomTeam> EnabledCustomTeams = [];
         public static CustomTeam WinnerTeam;
         public static Dictionary<CustomTeam, HashSet<byte>> CustomTeamPlayerIds = [];
+        public static List<CustomTeamOptionGroup> CustomTeamOptions = [];
 
         public static void LoadCustomTeams()
         {
             try
             {
                 if (!File.Exists("./EHR_DATA/CTA_Data.txt")) return;
-
-                CustomTeams.Clear();
-                // ReSharper disable once ObjectCreationAsStatement
-#pragma warning disable CA1806
-                File.ReadAllLines("./EHR_DATA/CTA_Data.txt").Do(x => new CustomTeam(x));
-#pragma warning restore CA1806
+                CustomTeams = File.ReadAllLines("./EHR_DATA/CTA_Data.txt").Select(x => new CustomTeam(x)).ToHashSet();
+                RefreshCustomOptions();
             }
             catch (Exception e)
             {
@@ -71,20 +29,75 @@ namespace EHR.Modules
             }
         }
 
+        private static void RefreshCustomOptions()
+        {
+            CustomTeamOptions.Clear();
+            EnabledCustomTeams.Clear();
+
+            const int startId = 647000;
+            const TabGroup tab = TabGroup.GameSettings;
+            CustomTeamOptions = CustomTeams.Select((x, i) => CreateSetting(x, startId + (6 * i))).ToList();
+            UpdateEnabledTeams();
+
+            return;
+
+            static CustomTeamOptionGroup CreateSetting(CustomTeam team, int id)
+            {
+                var enabled = BooleanOptionItem.Create(id++, "CTA.FLAG" + team.TeamName, true, tab);
+                var knowRoles = BooleanOptionItem.Create(id++, "CTA.KnowRoles", true, tab);
+                var winWithOriginalTeam = BooleanOptionItem.Create(id++, "CTA.WinWithOriginalTeam", false, tab);
+                var killEachOther = BooleanOptionItem.Create(id++, "CTA.KillEachOther", false, tab);
+                var guessEachOther = BooleanOptionItem.Create(id++, "CTA.GuessEachOther", false, tab);
+                var arrows = BooleanOptionItem.Create(id, "CTA.Arrows", true, tab);
+
+                CustomTeamOptionGroup group = new(team, enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows);
+                group.AllOptions.Skip(1).Do(x => x.SetParent(enabled));
+                group.AllOptions.ForEach(x => x.SetColor(new Color32(215, 227, 84, byte.MaxValue)));
+                if (ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out var color)) enabled.SetColor(color);
+                enabled.RegisterUpdateValueEvent((_, _) => UpdateEnabledTeams());
+                return group;
+            }
+        }
+
+        private static void UpdateEnabledTeams()
+        {
+            EnabledCustomTeams = CustomTeamOptions.Where(x => x.Enabled.GetBool()).Select(x => x.Team).ToHashSet();
+        }
+
         public static void InitializeCustomTeamPlayers()
         {
-            if (CustomTeams.Count == 0) return;
+            if (EnabledCustomTeams.Count == 0) return;
 
             CustomTeamPlayerIds = Main.PlayerStates
                 .IntersectBy(Main.AllAlivePlayerControls.Select(x => x.PlayerId), x => x.Key)
-                .GroupBy(x => CustomTeams.FirstOrDefault(t => t.TeamMembers.Contains(x.Value.MainRole)), x => x.Key)
+                .GroupBy(x => EnabledCustomTeams.FirstOrDefault(t => t.TeamMembers.Contains(x.Value.MainRole)), x => x.Key)
                 .Where(x => x.Key != null)
                 .ToDictionary(x => x.Key, x => x.ToHashSet());
+
+            foreach ((CustomTeam team, HashSet<byte> players) in CustomTeamPlayerIds)
+            {
+                if (!GetSettingForTeam(team, "Arrows")) continue;
+
+                foreach (byte player in players)
+                {
+                    foreach (byte target in players)
+                    {
+                        if (player == target) continue;
+                        TargetArrow.Add(player, target);
+                    }
+                }
+            }
+        }
+
+        public static string GetSuffix(PlayerControl seer)
+        {
+            if (seer == null || EnabledCustomTeams.Count == 0 || !GetSettingForPlayerTeam(seer.PlayerId, "Arrows")) return string.Empty;
+            return CustomTeamPlayerIds[GetCustomTeam(seer.PlayerId)].Aggregate(string.Empty, (s, id) => s + Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), TargetArrow.GetArrows(seer, id)));
         }
 
         public static bool CheckCustomTeamGameEnd()
         {
-            if (CustomTeams.Count == 0 || CustomTeamPlayerIds.Count == 0) return false;
+            if (EnabledCustomTeams.Count == 0 || CustomTeamPlayerIds.Count == 0) return false;
 
             try
             {
@@ -118,16 +131,84 @@ namespace EHR.Modules
             return false;
         }
 
-        public static CustomTeam GetCustomTeam(byte id) => CustomTeams.FirstOrDefault(x => x.TeamMembers.Contains(Main.PlayerStates[id].MainRole));
+        public static CustomTeam GetCustomTeam(byte id) => EnabledCustomTeams.FirstOrDefault(x => x.TeamMembers.Contains(Main.PlayerStates[id].MainRole));
 
         public static bool AreInSameCustomTeam(byte id1, byte id2)
         {
-            if (CustomTeams.Count == 0) return false;
+            if (EnabledCustomTeams.Count == 0) return false;
 
             var team1 = GetCustomTeam(id1);
             var team2 = GetCustomTeam(id2);
 
             return team1 != null && team2 != null && team1.Equals(team2);
+        }
+
+        public static bool GetSettingForPlayerTeam(byte id, string settingName)
+        {
+            var team = GetCustomTeam(id);
+            return team != null && GetSettingForTeam(team, settingName);
+        }
+
+        public static bool GetSettingForTeam(CustomTeam team, string settingName)
+        {
+            var optionsGroup = CustomTeamOptions.First(x => x.Team.Equals(team));
+            var setting = optionsGroup.GetType().GetFields().FirstOrDefault(x => x.Name.Contains(settingName));
+            if (setting == null) return false;
+            return setting.GetValue(optionsGroup) as bool? ?? false;
+        }
+
+        internal class CustomTeam
+        {
+            public readonly string RoleRevealScreenBackgroundColor;
+            public readonly string RoleRevealScreenSubtitle;
+            public readonly string RoleRevealScreenTitle;
+            public readonly string TeamName;
+
+            public CustomTeam(string line)
+            {
+                try
+                {
+                    string[] parts = line.Split(';');
+
+                    TeamName = parts[0];
+                    RoleRevealScreenTitle = parts[1];
+                    RoleRevealScreenSubtitle = parts[2];
+                    RoleRevealScreenBackgroundColor = parts[3];
+
+                    TeamMembers = parts[4].Split(',').Select(x => Enum.Parse<CustomRoles>(x, true)).ToList();
+                }
+                catch (Exception e)
+                {
+                    Utils.ThrowException(e);
+                }
+                finally
+                {
+                    CustomTeams.Add(this);
+                }
+            }
+
+            public List<CustomRoles> TeamMembers { get; } = [];
+
+            public override bool Equals(object obj)
+            {
+                if (obj is not CustomTeam team) return false;
+                return TeamName == team.TeamName;
+            }
+
+            public override int GetHashCode() => TeamName.GetHashCode();
+        }
+
+        internal class CustomTeamOptionGroup(CustomTeam team, BooleanOptionItem enabled, BooleanOptionItem knowRoles, BooleanOptionItem winWithOriginalTeam, BooleanOptionItem killEachOther, BooleanOptionItem guessEachOther, BooleanOptionItem arrows)
+        {
+            public readonly List<BooleanOptionItem> AllOptions = [enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows];
+            public CustomTeam Team { get; set; } = team;
+
+            public BooleanOptionItem Enabled { get; set; } = enabled;
+            public BooleanOptionItem KnowRoles { get; set; } = knowRoles;
+            public BooleanOptionItem WinWithOriginalTeam { get; set; } = winWithOriginalTeam;
+            public BooleanOptionItem KillEachOther { get; set; } = killEachOther;
+            public BooleanOptionItem GuessEachOther { get; set; } = guessEachOther;
+            public BooleanOptionItem Arrows { get; set; } = arrows;
         }
     }
 }

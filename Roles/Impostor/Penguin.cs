@@ -1,4 +1,5 @@
-﻿using EHR.Modules;
+﻿using EHR.Crewmate;
+using EHR.Modules;
 using Hazel;
 using UnityEngine;
 using static EHR.Translator;
@@ -9,24 +10,29 @@ namespace EHR.Roles.Impostor
     {
         private const int Id = 641800;
 
-        private byte PenguinId = byte.MaxValue;
-        private PlayerControl Penguin_;
-
         private static OptionItem OptionAbductTimerLimit;
         private static OptionItem OptionMeetingKill;
         private static OptionItem OptionSpeedDuringDrag;
         private static OptionItem OptionVictimCanUseAbilities;
-
-        private PlayerControl AbductVictim;
         private float AbductTimer;
         private float AbductTimerLimit;
-        private bool stopCount;
+
+        private PlayerControl AbductVictim;
+
+        int Count = 0;
+        private float DefaultSpeed;
+
+        private bool IsGoose;
+        private long LastNotify;
         private bool MeetingKill;
+        private PlayerControl Penguin_;
+
+        private byte PenguinId = byte.MaxValue;
         private float SpeedDuringDrag;
+        private bool stopCount;
         private bool VictimCanUseAbilities;
 
-        private float DefaultSpeed;
-        private long LastNotify;
+        public override bool IsEnable => PenguinId != byte.MaxValue;
 
         // Measures to prevent the opponent who is about to be killed during abduction from using their abilities
         public static bool IsVictim(PlayerControl pc)
@@ -63,12 +69,24 @@ namespace EHR.Roles.Impostor
 
         public override void Add(byte playerId)
         {
-            AbductTimerLimit = OptionAbductTimerLimit.GetFloat();
-            MeetingKill = OptionMeetingKill.GetBool();
-            SpeedDuringDrag = OptionSpeedDuringDrag.GetFloat();
-            VictimCanUseAbilities = OptionVictimCanUseAbilities.GetBool();
+            IsGoose = Main.PlayerStates[playerId].MainRole == CustomRoles.Goose;
 
-            DefaultSpeed = Main.AllPlayerSpeed[playerId];
+            if (!IsGoose)
+            {
+                AbductTimerLimit = OptionAbductTimerLimit.GetFloat();
+                MeetingKill = OptionMeetingKill.GetBool();
+                SpeedDuringDrag = OptionSpeedDuringDrag.GetFloat();
+                VictimCanUseAbilities = OptionVictimCanUseAbilities.GetBool();
+            }
+            else
+            {
+                AbductTimerLimit = Goose.OptionAbductTimerLimit.GetFloat();
+                MeetingKill = Goose.OptionMeetingKill.GetBool();
+                SpeedDuringDrag = Goose.OptionSpeedDuringDrag.GetFloat();
+                VictimCanUseAbilities = Goose.OptionVictimCanUseAbilities.GetBool();
+            }
+
+            _ = new LateTask(() => { DefaultSpeed = Main.AllPlayerSpeed[playerId]; }, 9f, log: false);
 
             PenguinId = playerId;
             Penguin_ = Utils.GetPlayerById(playerId);
@@ -78,15 +96,16 @@ namespace EHR.Roles.Impostor
             LastNotify = 0;
         }
 
-        public override bool IsEnable => PenguinId != byte.MaxValue;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
         public override bool CanUseImpostorVentButton(PlayerControl pc) => AbductVictim == null;
+        public override bool CanUseKillButton(PlayerControl pc) => pc.IsAlive();
 
         void SendRPC()
         {
             if (!IsEnable || !Utils.DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PenguinSync, SendOption.Reliable);
             writer.Write(PenguinId);
+            writer.Write(1);
             writer.Write(AbductVictim?.PlayerId ?? 255);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
@@ -105,41 +124,65 @@ namespace EHR.Roles.Impostor
             }
         }
 
+        public void ReceiveRPC(float timer)
+        {
+            AbductTimer = timer;
+        }
+
         void AddVictim(PlayerControl target)
         {
             if (!IsEnable) return;
-            //Prevent using of moving platform??
             AbductVictim = target;
             AbductTimer = AbductTimerLimit;
             Main.AllPlayerSpeed[PenguinId] = SpeedDuringDrag;
             Penguin_.MarkDirtySettings();
+            LogSpeed();
             Utils.NotifyRoles(SpecifySeer: Penguin_, SpecifyTarget: Penguin_);
             SendRPC();
         }
 
-        void RemoveVictim()
+        void RemoveVictim(bool allowDelay = true)
         {
             if (!IsEnable) return;
-            AbductVictim = null;
+            if (!allowDelay)
+            {
+                AbductVictim = null;
+                SendRPC();
+            }
+            else
+            {
+                _ = new LateTask(() =>
+                {
+                    AbductVictim = null;
+                    SendRPC();
+                }, 1f, log: false);
+            }
+
             AbductTimer = 255f;
             Main.AllPlayerSpeed[PenguinId] = DefaultSpeed;
             Penguin_.MarkDirtySettings();
+            LogSpeed();
             Utils.NotifyRoles(SpecifySeer: Penguin_, SpecifyTarget: Penguin_);
-            SendRPC();
         }
+
+        void LogSpeed() => Logger.Info($" Speed: {Main.AllPlayerSpeed[PenguinId]}", IsGoose ? "Goose" : "Penguin");
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (!IsEnable) return true;
 
-            bool doKill = true;
+            bool doKill = !IsGoose;
             if (AbductVictim != null)
             {
                 if (target.PlayerId != AbductVictim.PlayerId)
                 {
                     // During an abduction, only the abductee can be killed.
-                    Penguin_.Kill(AbductVictim);
-                    Penguin_.ResetKillCooldown();
+                    if (!IsGoose)
+                    {
+                        Penguin_.Kill(AbductVictim);
+                        Penguin_.ResetKillCooldown();
+                    }
+
                     doKill = false;
                 }
 
@@ -157,7 +200,7 @@ namespace EHR.Roles.Impostor
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            hud.KillButton?.OverrideText(AbductVictim != null ? GetString("KillButtonText") : GetString("PenguinKillButtonText"));
+            hud.KillButton?.OverrideText(AbductVictim != null && !IsGoose ? GetString("KillButtonText") : GetString("PenguinKillButtonText"));
         }
 
         public override void OnReportDeadBody()
@@ -167,14 +210,15 @@ namespace EHR.Roles.Impostor
             // If you meet a meeting with time running out, kill it even if you're on a ladder.
             if (AbductVictim != null && AbductTimer <= 0f)
             {
-                Penguin_.Kill(AbductVictim);
+                if (!IsGoose) Penguin_.Kill(AbductVictim);
+                RemoveVictim(allowDelay: false);
             }
 
             if (MeetingKill)
             {
                 if (!AmongUsClient.Instance.AmHost) return;
                 if (AbductVictim == null) return;
-                Penguin_.Kill(AbductVictim);
+                if (!IsGoose) Penguin_.Kill(AbductVictim);
                 RemoveVictim();
             }
         }
@@ -216,7 +260,16 @@ namespace EHR.Roles.Impostor
             if (!GameStates.IsInTask) return;
 
             if (!stopCount)
+            {
                 AbductTimer -= Time.fixedDeltaTime;
+
+                Count++;
+                if (Count >= 10)
+                {
+                    Count = 0;
+                    Utils.SendRPC(CustomRPC.PenguinSync, PenguinId, 2, AbductTimer);
+                }
+            }
 
             if (AbductVictim != null)
             {
@@ -235,14 +288,20 @@ namespace EHR.Roles.Impostor
                 if (AbductTimer <= 0f && !Penguin_.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                 {
                     // Set IsDead to true first (prevents ladder chase)
-                    AbductVictim.Data.IsDead = true;
-                    GameData.Instance.SetDirty();
+                    if (!IsGoose)
+                    {
+                        AbductVictim.Data.IsDead = true;
+                        GameData.Instance.SetDirty();
+                    }
+
                     // If the penguin himself is on a ladder, kill him after getting off the ladder.
                     if (!AbductVictim.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                     {
                         var abductVictim = AbductVictim;
                         _ = new LateTask(() =>
                         {
+                            if (IsGoose) return;
+
                             var sId = abductVictim.NetTransform.lastSequenceId + 5;
                             abductVictim.NetTransform.SnapTo(Penguin_.transform.position, (ushort)sId);
                             Penguin_.Kill(abductVictim);
@@ -263,6 +322,7 @@ namespace EHR.Roles.Impostor
                             }
                             sender.SendMessage();
                         }, 0.3f, "PenguinMurder");
+
                         RemoveVictim();
                     }
                 }
@@ -270,7 +330,7 @@ namespace EHR.Roles.Impostor
                 else if (!AbductVictim.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                 {
                     var position = Penguin_.transform.position;
-                    if (Penguin_.PlayerId != 0)
+                    if (!Penguin_.IsHost())
                     {
                         Utils.TP(AbductVictim.NetTransform, position, log: false);
                     }
@@ -290,9 +350,9 @@ namespace EHR.Roles.Impostor
             }
         }
 
-        public static string GetSuffix(PlayerControl seer)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
         {
-            if (seer == null) return string.Empty;
+            if (seer == null || seer.PlayerId != target.PlayerId) return string.Empty;
             if (Main.PlayerStates.TryGetValue(seer.PlayerId, out var state) && state.Role is Penguin pg && pg.AbductVictim != null)
             {
                 return $"\u21b9 {(int)(pg.AbductTimer + 1f)}s";

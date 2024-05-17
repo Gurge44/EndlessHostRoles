@@ -18,7 +18,7 @@ class ChatControllerUpdatePatch
     private static SpriteRenderer openBanMenuIcon;
     private static SpriteRenderer openKeyboardIcon;
 
-    public static void Prefix(ChatController __instance)
+    public static void Prefix()
     {
         if (AmongUsClient.Instance.AmHost && DataManager.Settings.Multiplayer.ChatMode == QuickChatModes.QuickChatOnly)
             DataManager.Settings.Multiplayer.ChatMode = QuickChatModes.FreeChatOrQuickChat;
@@ -32,13 +32,16 @@ class ChatControllerUpdatePatch
             __instance.freeChatField.textArea.compoText.Color(Color.white);
             __instance.freeChatField.textArea.outputText.color = Color.white;
 
-            if (quickChatIcon == null) quickChatIcon = GameObject.Find("QuickChatIcon")?.transform?.GetComponent<SpriteRenderer>();
+            __instance.quickChatField.background.color = new Color32(40, 40, 40, byte.MaxValue);
+            __instance.quickChatField.text.color = Color.white;
+
+            if (quickChatIcon == null) quickChatIcon = GameObject.Find("QuickChatIcon")?.transform.GetComponent<SpriteRenderer>();
             else quickChatIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkQuickChat.png", 100f);
 
-            if (openBanMenuIcon == null) openBanMenuIcon = GameObject.Find("OpenBanMenuIcon")?.transform?.GetComponent<SpriteRenderer>();
+            if (openBanMenuIcon == null) openBanMenuIcon = GameObject.Find("OpenBanMenuIcon")?.transform.GetComponent<SpriteRenderer>();
             else openBanMenuIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkReport.png", 100f);
 
-            if (openKeyboardIcon == null) openKeyboardIcon = GameObject.Find("OpenKeyboardIcon")?.transform?.GetComponent<SpriteRenderer>();
+            if (openKeyboardIcon == null) openKeyboardIcon = GameObject.Find("OpenKeyboardIcon")?.transform.GetComponent<SpriteRenderer>();
             else openKeyboardIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkKeyboard.png", 100f);
         }
         else
@@ -73,18 +76,27 @@ class ChatControllerUpdatePatch
     }
 }
 
+[HarmonyPatch(typeof(UrlFinder), nameof(UrlFinder.TryFindUrl))]
+class UrlFinderPatch
+{
+    public static bool Prefix(ref bool __result)
+    {
+        __result = false;
+        return false;
+    }
+}
+
 public static class ChatManager
 {
-    public static bool cancel;
-    private static readonly List<string> ChatHistory = [];
     private const int MaxHistorySize = 20;
+    private static readonly List<string> ChatHistory = [];
 
     public static void ResetHistory()
     {
         ChatHistory.Clear();
     }
 
-    public static bool CheckCommand(ref string msg, string command, bool exact = true)
+    private static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
         foreach (string str in comList)
@@ -106,7 +118,7 @@ public static class ChatManager
         return false;
     }
 
-    public static bool CheckName(ref string msg, string command, bool exact = true)
+    private static bool CheckName(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
         foreach (string com in comList)
@@ -141,7 +153,6 @@ public static class ChatManager
 
         if (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive())
         {
-            cancel = true;
             return;
         }
 
@@ -157,17 +168,23 @@ public static class ChatManager
         {
             case 1 when player.IsAlive(): // Guessing Command & Such
                 Logger.Info("Special Command", "ChatManager");
-                cancel = true;
+                _ = new LateTask(() =>
+                {
+                    if (!ChatCommands.LastSentCommand.ContainsKey(player.PlayerId))
+                    {
+                        GuessManager.GuesserMsg(player, message);
+                        Logger.Info("Delayed Guess", "ChatManager");
+                    }
+                    else Logger.Info("Delayed Guess was not necessary", "ChatManager");
+                }, 0.3f, "Trying Delayed Guess");
                 break;
             case 2: // /up
                 Logger.Info($"Command: {message}", "ChatManager");
-                cancel = false;
                 break;
             case 3: // In Lobby & Evertything Else
                 string chatEntry = $"{player.PlayerId}: {message}";
                 ChatHistory.Add(chatEntry);
                 if (ChatHistory.Count > MaxHistorySize) ChatHistory.RemoveAt(0);
-                cancel = false;
                 break;
             case 4: // /r, /n, /m
                 Logger.Info($"Command: {message}", "ChatManager");
@@ -180,8 +197,6 @@ public static class ChatManager
             FFAManager.UpdateLastChatMessage(player.GetRealName(), message);
         }
     }
-
-    public static bool DontBlock;
 
     public static void SendPreviousMessagesToAll(bool realMessagesOnly = false)
     {

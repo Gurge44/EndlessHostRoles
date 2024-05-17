@@ -14,8 +14,6 @@ public class Glitch : RoleBase
     private const int Id = 18125;
     public static List<byte> playerIdList = [];
 
-    public static Dictionary<byte, long> hackedIdList = [];
-
     public static OptionItem KillCooldown;
     public static OptionItem HackCooldown;
     public static OptionItem HackDuration;
@@ -26,18 +24,20 @@ public class Glitch : RoleBase
     private static OptionItem HasImpostorVision;
 
     private byte GlitchId;
-    private long LastUpdate;
 
     public int HackCDTimer;
+
+    private bool IsShifted;
     public int KCDTimer;
-    public int MimicCDTimer;
-    public int MimicDurTimer;
 
     public long LastHack;
     public long LastKill;
     public long LastMimic;
+    private long LastUpdate;
+    public int MimicCDTimer;
+    public int MimicDurTimer;
 
-    private bool IsShifted;
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
@@ -60,7 +60,6 @@ public class Glitch : RoleBase
     public override void Init()
     {
         playerIdList = [];
-        hackedIdList = [];
         GlitchId = byte.MaxValue;
     }
 
@@ -94,7 +93,6 @@ public class Glitch : RoleBase
         hud.SabotageButton.ToggleVisible(true);
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
     public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive();
 
@@ -132,7 +130,7 @@ public class Glitch : RoleBase
 
         try
         {
-            pc.RpcShapeshift(playerlist[IRandom.Instance.Next(0, playerlist.Length)], false);
+            pc.RpcShapeshift(playerlist.RandomElement(), false);
 
             IsShifted = true;
             LastMimic = Utils.TimeStamp;
@@ -167,7 +165,7 @@ public class Glitch : RoleBase
                 {
                     Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                     HackCDTimer = HackCooldown.GetInt();
-                    hackedIdList.TryAdd(target.PlayerId, Utils.TimeStamp);
+                    target.BlockRole(HackDuration.GetFloat());
                     LastHack = Utils.TimeStamp;
                     SendRPCSyncTimers();
                 }
@@ -194,22 +192,7 @@ public class Glitch : RoleBase
         if (MimicCDTimer is > 180 or < 0) MimicCDTimer = 0;
         if (MimicDurTimer is > 180 or < 0) MimicDurTimer = 0;
 
-        bool change = false;
-        foreach (var pc in hackedIdList)
-        {
-            if (pc.Value + HackDuration.GetInt() < now)
-            {
-                hackedIdList.Remove(pc.Key);
-                change = true;
-            }
-        }
-
         if (player == null) return;
-
-        if (change)
-        {
-            Utils.NotifyRoles(SpecifySeer: player);
-        }
 
         if (!player.IsAlive())
         {
@@ -304,9 +287,9 @@ public class Glitch : RoleBase
         if (player.IsNonHostModClient()) SendRPCSyncTimers();
     }
 
-    public static string GetHudText(PlayerControl player)
+    public override string GetSuffix(PlayerControl player, PlayerControl _, bool hud = false, bool m = false)
     {
-        if (player == null || !player.IsAlive()) return string.Empty;
+        if (!hud || player == null || !player.IsAlive()) return string.Empty;
         if (Main.PlayerStates[player.PlayerId].Role is not Glitch gc) return string.Empty;
 
         var sb = new StringBuilder();

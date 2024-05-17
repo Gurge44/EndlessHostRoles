@@ -26,8 +26,10 @@ namespace EHR.Roles.Impostor
         ];
 
         private static List<CustomRoles> Roles = [];
+        public static bool On;
 
-        private CustomRoles CurrentRole;
+        public CustomRoles CurrentRole;
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
@@ -39,7 +41,7 @@ namespace EHR.Roles.Impostor
 
         public static List<CustomRoles> GetAvailableRoles(bool check = false)
         {
-            CustomRoles[] allRoles = EnumHelper.GetAllValues<CustomRoles>();
+            CustomRoles[] allRoles = Enum.GetValues<CustomRoles>();
 
             IEnumerable<CustomRoles> result = AvailableRoles.GetValue() switch
             {
@@ -63,9 +65,6 @@ namespace EHR.Roles.Impostor
             return rolesList;
         }
 
-        public static bool On;
-        public override bool IsEnable => On;
-
         public override void Add(byte playerId)
         {
             On = true;
@@ -73,6 +72,7 @@ namespace EHR.Roles.Impostor
             try
             {
                 CurrentRole = Roles.First();
+                Utils.SendRPC(CustomRPC.SyncChangeling, playerId, (int)CurrentRole);
             }
             catch (InvalidOperationException)
             {
@@ -92,6 +92,7 @@ namespace EHR.Roles.Impostor
         {
             var currentIndex = Roles.IndexOf(CurrentRole);
             CurrentRole = currentIndex == Roles.Count - 1 ? Roles.First() : Roles[currentIndex + 1];
+            Utils.SendRPC(CustomRPC.SyncChangeling, pc.PlayerId, (int)CurrentRole);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
@@ -122,6 +123,6 @@ namespace EHR.Roles.Impostor
             return false;
         }
 
-        public static string GetSuffix(PlayerControl seer) => Main.PlayerStates[seer.PlayerId].Role is not Changeling { IsEnable: true } cl ? string.Empty : string.Format(Translator.GetString("ChangelingCurrentRole"), Utils.ColorString(Utils.GetRoleColor(cl.CurrentRole), Translator.GetString($"{cl.CurrentRole}")));
+        public override string GetSuffix(PlayerControl seer, PlayerControl _, bool h = false, bool m = false) => seer.PlayerId != _.PlayerId || Main.PlayerStates[seer.PlayerId].Role is not Changeling { IsEnable: true } cl ? string.Empty : string.Format(Translator.GetString("ChangelingCurrentRole"), Utils.ColorString(Utils.GetRoleColor(cl.CurrentRole), Translator.GetString($"{cl.CurrentRole}")));
     }
 }

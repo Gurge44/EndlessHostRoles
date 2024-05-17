@@ -6,12 +6,16 @@ namespace EHR.Roles.Crewmate
 {
     internal class Perceiver : RoleBase
     {
-        private static int Id => 643360;
         private static OptionItem Radius;
         public static OptionItem CD;
         public static OptionItem Limit;
         public static OptionItem PerceiverAbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
+
+        public static bool On;
+        private static int Id => 643360;
+
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
@@ -23,15 +27,13 @@ namespace EHR.Roles.Crewmate
             Limit = IntegerOptionItem.Create(Id + 4, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Perceiver])
                 .SetValueFormat(OptionFormat.Times);
-            PerceiverAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 5, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.4f, TabGroup.CrewmateRoles)
+            PerceiverAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 5, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.4f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Perceiver])
                 .SetValueFormat(OptionFormat.Times);
-            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 6, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
+            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 6, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Perceiver])
                 .SetValueFormat(OptionFormat.Times);
         }
-
-        public static bool On;
 
         public override void Init()
         {
@@ -43,8 +45,6 @@ namespace EHR.Roles.Crewmate
             On = true;
             id.SetAbilityUseLimit(Limit.GetInt());
         }
-
-        public override bool IsEnable => On;
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {

@@ -10,22 +10,18 @@ namespace EHR.Roles.Impostor;
 
 public class Vampire : RoleBase
 {
-    private class BittenInfo(byte vampierId, float killTimer)
-    {
-        public readonly byte VampireId = vampierId;
-        public float KillTimer = killTimer;
-    }
-
     private const int Id = 4500;
     private static readonly List<byte> PlayerIdList = [];
     private static OptionItem OptionKillDelay;
     private static readonly Dictionary<byte, BittenInfo> BittenPlayers = [];
-
-    private float KillCooldown;
-    private float KillDelay;
     private bool CanVent;
 
     private bool IsPoisoner;
+
+    private float KillCooldown;
+    private float KillDelay;
+
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
@@ -63,7 +59,6 @@ public class Vampire : RoleBase
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
     public static bool IsThisRole(byte playerId) => PlayerIdList.Contains(playerId);
 
     public override void SetKillCooldown(byte id)
@@ -128,12 +123,12 @@ public class Vampire : RoleBase
         }
     }
 
-    public static void KillBitten(PlayerControl vampire, PlayerControl target, bool isButton = false)
+    void KillBitten(PlayerControl vampire, PlayerControl target, bool isButton = false)
     {
         if (vampire == null || target == null || target.Data.Disconnected) return;
         if (target.IsAlive())
         {
-            target.Suicide(PlayerState.DeathReason.Bite, vampire);
+            target.Suicide(IsPoisoner ? PlayerState.DeathReason.Poison : PlayerState.DeathReason.Bite, vampire);
             if (!isButton && vampire.IsAlive())
             {
                 RPC.PlaySoundRPC(vampire.PlayerId, Sounds.KillSound);
@@ -158,6 +153,12 @@ public class Vampire : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        hud.KillButton.OverrideText(GetString("VampireBiteButtonText"));
+        hud.KillButton.OverrideText(GetString(IsPoisoner ? "PoisonerKillButtonText" : "VampireBiteButtonText"));
+    }
+
+    private class BittenInfo(byte vampierId, float killTimer)
+    {
+        public readonly byte VampireId = vampierId;
+        public float KillTimer = killTimer;
     }
 }

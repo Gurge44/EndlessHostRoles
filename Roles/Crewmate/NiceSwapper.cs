@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Text.RegularExpressions;
 using EHR.Modules;
 using HarmonyLib;
 using Hazel;
@@ -24,6 +23,8 @@ public class NiceSwapper : RoleBase
     private static (byte, byte) SwapTargets = (byte.MaxValue, byte.MaxValue);
     private static byte NiceSwapperId = byte.MaxValue;
 
+    public override bool IsEnable => NiceSwapperId != byte.MaxValue;
+
     public static void SetupCustomOption()
     {
         Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.NiceSwapper);
@@ -31,10 +32,10 @@ public class NiceSwapper : RoleBase
             .SetValueFormat(OptionFormat.Times);
         CanSwapSelf = BooleanOptionItem.Create(Id + 2, "CanSwapSelfVotes", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
         CanStartMeeting = BooleanOptionItem.Create(Id + 4, "JesterCanUseButton", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
-        NiceSwapperAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 6, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.3f, TabGroup.CrewmateRoles)
+        NiceSwapperAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 6, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.3f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])
             .SetValueFormat(OptionFormat.Times);
-        AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 7, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
+        AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 7, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])
             .SetValueFormat(OptionFormat.Times);
         HideMsg = BooleanOptionItem.Create(Id + 5, "SwapperHideMsg", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
@@ -52,13 +53,13 @@ public class NiceSwapper : RoleBase
         playerId.SetAbilityUseLimit(SwapMax.GetInt());
     }
 
-    public override bool IsEnable => NiceSwapperId != byte.MaxValue;
-
     public static bool SwapMsg(PlayerControl pc, string msg, bool isUI = false)
     {
         var originMsg = msg;
 
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || pc == null || pc.GetCustomRole() != CustomRoles.NiceSwapper) return false;
+
+        Logger.Info($"{pc.GetNameWithRole()} : {msg} (UI: {isUI})", "Swapper");
 
         int operate;
         msg = msg.ToLower().TrimStart().TrimEnd();
@@ -90,9 +91,9 @@ public class NiceSwapper : RoleBase
                 if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
                 else if (pc.AmOwner && !isUI) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
-                if (!MsgToPlayerAndRole(msg, out byte targetId, out string error))
+                if (!byte.TryParse(msg.Replace(" ", string.Empty), out byte targetId))
                 {
-                    Utils.SendMessage(error, pc.PlayerId);
+                    Utils.SendMessage(GetString("SwapHelp"), pc.PlayerId);
                     return true;
                 }
 
@@ -103,21 +104,20 @@ public class NiceSwapper : RoleBase
 
                 bool Vote1Empty = (SwapTargets.Item1 == byte.MaxValue) && targetIsntSelected; // Whether the first swapping slot is suitable to swap this target
                 bool Vote2Available = (SwapTargets.Item1 != byte.MaxValue) && (SwapTargets.Item2 == byte.MaxValue) && targetIsntSelected; // Whether the second swapping slot is suitable to swap this target
+                bool selfCheck = CanSwapSelf.GetBool() || target.PlayerId != pc.PlayerId;
 
-                if (Vote1Empty && (CanSwapSelf.GetBool() || target.PlayerId != pc.PlayerId)) // Take first slot
+                if (Vote1Empty && selfCheck) // Take first slot
                 {
                     SwapTargets.Item1 = target.PlayerId;
 
-                    if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
                     if (!isUI) Utils.SendMessage(GetString("Swap1"), pc.PlayerId);
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} chose to swap {target.GetNameWithRole()} (first target)", "Swapper");
                 }
 
-                else if (Vote2Available && (CanSwapSelf.GetBool() || target.PlayerId != pc.PlayerId)) // Take second slot
+                else if (Vote2Available && selfCheck) // Take second slot
                 {
                     SwapTargets.Item2 = target.PlayerId;
 
-                    if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
                     if (!isUI) Utils.SendMessage(GetString("Swap2"), pc.PlayerId);
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} chose to swap {target.GetNameWithRole()} (second target)", "Swapper");
                 }
@@ -126,7 +126,6 @@ public class NiceSwapper : RoleBase
                 {
                     SwapTargets.Item1 = byte.MaxValue;
 
-                    if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
                     if (!isUI) Utils.SendMessage(GetString("CancelSwap1"), pc.PlayerId);
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} canceled swapping on {target.GetNameWithRole()} (first target)", "Swapper");
                 }
@@ -135,14 +134,12 @@ public class NiceSwapper : RoleBase
                 {
                     SwapTargets.Item2 = byte.MaxValue;
 
-                    if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
                     if (!isUI) Utils.SendMessage(GetString("CancelSwap2"), pc.PlayerId);
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} canceled swapping on {target.GetNameWithRole()} (second target)", "Swapper");
                 }
 
-                else if (pc.PlayerId == target.PlayerId && !CanSwapSelf.GetBool()) // When the Swapper tries to swap themselves, but they aren't allowed to
+                else if (!selfCheck) // When the Swapper tries to swap themselves, but they aren't allowed to
                 {
-                    if (HideMsg.GetBool() && !isUI) ChatManager.SendPreviousMessagesToAll();
                     if (!isUI) Utils.SendMessage(GetString("CantSwapSelf"), pc.PlayerId);
                     else pc.ShowPopUp(GetString("CantSwapSelf"));
                 }
@@ -175,14 +172,14 @@ public class NiceSwapper : RoleBase
         playerStates.DoIf(x => x.VotedFor == SwapTargets.Item1, x =>
         {
             x.UnsetVote();
-            if (x.TargetPlayerId == 0) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, SwapTargets.Item2);
+            if (x.TargetPlayerId.IsHost()) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, SwapTargets.Item2);
             else MeetingHud.Instance.CastVote(x.TargetPlayerId, SwapTargets.Item2);
             x.VotedFor = SwapTargets.Item2;
         });
         playerStates.DoIf(votedFor2.Contains, x =>
         {
             x.UnsetVote();
-            if (x.TargetPlayerId == 0) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, SwapTargets.Item1);
+            if (x.TargetPlayerId.IsHost()) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, SwapTargets.Item1);
             else MeetingHud.Instance.CastVote(x.TargetPlayerId, SwapTargets.Item1);
             x.VotedFor = SwapTargets.Item1;
         });
@@ -194,41 +191,7 @@ public class NiceSwapper : RoleBase
         Utils.SendMessage(string.Format(GetString("SwapVote"), Target1.GetRealName(), Target2.GetRealName()), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceSwapper), GetString("SwapTitle")));
     }
 
-    private static bool MsgToPlayerAndRole(string msg, out byte id, out string error)
-    {
-        if (msg.StartsWith("/")) msg = msg.Replace("/", string.Empty);
-
-        Regex r = new("\\d+");
-        MatchCollection mc = r.Matches(msg);
-        string result = string.Empty;
-        for (int i = 0; i < mc.Count; i++)
-        {
-            result += mc[i];
-        }
-
-        if (int.TryParse(result, out int num))
-        {
-            id = Convert.ToByte(num);
-        }
-        else
-        {
-            id = byte.MaxValue;
-            error = GetString("SwapHelp");
-            return false;
-        }
-
-        PlayerControl target = Utils.GetPlayerById(id);
-        if (target == null || target.Data.IsDead)
-        {
-            error = GetString("SwapNull");
-            return false;
-        }
-
-        error = string.Empty;
-        return true;
-    }
-
-    public static bool CheckCommand(ref string msg, string command, bool exact = true)
+    private static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
         foreach (string str in comList)
@@ -261,7 +224,7 @@ public class NiceSwapper : RoleBase
     public static void ReceiveRPC(MessageReader reader, PlayerControl pc)
     {
         byte PlayerId = reader.ReadByte();
-        SwapMsg(pc, $"/sw {PlayerId}");
+        SwapMsg(pc, $"/sw {PlayerId}", true);
     }
 
     private static void SwapperOnClick(byte playerId, MeetingHud __instance)
@@ -285,20 +248,9 @@ public class NiceSwapper : RoleBase
         }
     }
 
-    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
-    class StartMeetingPatch
+    private static void CreateSwapperButton(MeetingHud __instance)
     {
-        // ReSharper disable once UnusedMember.Local
-        public static void Postfix(MeetingHud __instance)
-        {
-            if (PlayerControl.LocalPlayer.GetCustomRole() == CustomRoles.NiceSwapper && PlayerControl.LocalPlayer.IsAlive())
-                CreateSwapperButton(__instance);
-        }
-    }
-
-    public static void CreateSwapperButton(MeetingHud __instance)
-    {
-        foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
+        foreach (PlayerVoteArea pva in __instance.playerStates)
         {
             var pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (pc == null || !pc.IsAlive()) continue;
@@ -315,6 +267,17 @@ public class NiceSwapper : RoleBase
             PassiveButton button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
             button.OnClick.AddListener((Action)(() => SwapperOnClick(pva.TargetPlayerId, __instance)));
+        }
+    }
+
+    [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+    class StartMeetingPatch
+    {
+        // ReSharper disable once UnusedMember.Local
+        public static void Postfix(MeetingHud __instance)
+        {
+            if (PlayerControl.LocalPlayer.GetCustomRole() == CustomRoles.NiceSwapper && PlayerControl.LocalPlayer.IsAlive())
+                CreateSwapperButton(__instance);
         }
     }
 }

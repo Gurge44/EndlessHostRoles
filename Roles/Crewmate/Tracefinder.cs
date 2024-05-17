@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
-using EHR.Modules;
-using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
@@ -18,6 +16,8 @@ public class Tracefinder : RoleBase
     private static OptionItem ArrowDelayMax;
 
     public static bool On;
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
@@ -48,65 +48,23 @@ public class Tracefinder : RoleBase
         On = true;
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
-
-    private static void SendRPC(byte playerId, bool add, Vector3 loc = new())
-    {
-        if (!Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTracefinderArrow, SendOption.Reliable);
-        writer.Write(playerId);
-        writer.Write(add);
-        if (add)
-        {
-            writer.Write(loc.x);
-            writer.Write(loc.y);
-            writer.Write(loc.z);
-        }
-
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         AURoleOptions.ScientistCooldown = VitalsCooldown.GetFloat();
         AURoleOptions.ScientistBatteryCharge = VitalsDuration.GetFloat();
     }
 
-    public static void ReceiveRPC(MessageReader reader)
+    public override void OnReportDeadBody()
     {
-        byte playerId = reader.ReadByte();
-        bool add = reader.ReadBoolean();
-        if (add)
-            LocateArrow.Add(playerId, new(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle()));
-        else
-            LocateArrow.RemoveAllTarget(playerId);
-    }
-
-    public override void OnReportDeadBody( /*PlayerControl pc, GameData.PlayerInfo target*/)
-    {
-        foreach (byte apc in playerIdList.ToArray())
+        foreach (byte apc in playerIdList)
         {
             LocateArrow.RemoveAllTarget(apc);
-            SendRPC(apc, false);
         }
     }
 
     public static void OnPlayerDead(PlayerControl target)
     {
-        if (!On || !GameStates.IsInTask || target == null) return;
-
-        var pos = target.Pos();
-        float minDis = float.MaxValue;
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-        {
-            if (pc.PlayerId == target.PlayerId) continue;
-            var dis = Vector2.Distance(pc.Pos(), pos);
-            if (dis < minDis && dis < 1.5f)
-            {
-                minDis = dis;
-                pc.GetRealName();
-            }
-        }
+        if (!On || !GameStates.IsInTask || target == null || target.Data.Disconnected) return;
 
         float delay;
         if (ArrowDelayMax.GetFloat() < ArrowDelayMin.GetFloat()) delay = 0f;
@@ -120,17 +78,15 @@ public class Tracefinder : RoleBase
                 foreach (byte id in playerIdList)
                 {
                     PlayerControl pc = Utils.GetPlayerById(id);
-                    if (pc == null || !pc.IsAlive())
-                        continue;
+                    if (pc == null || !pc.IsAlive()) continue;
                     LocateArrow.Add(id, target.transform.position);
-                    SendRPC(id, true, target.transform.position);
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 }
             }
         }, delay, "Tracefinder arrow delay");
     }
 
-    public static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
     {
         if (!seer.Is(CustomRoles.Tracefinder)) return string.Empty;
         if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;

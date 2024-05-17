@@ -36,6 +36,8 @@ public class Executioner : RoleBase
         CustomRoles.Doctor,
     ];
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Executioner);
@@ -60,31 +62,25 @@ public class Executioner : RoleBase
 
         try
         {
-            if (AmongUsClient.Instance.AmHost)
+            List<PlayerControl> targetList = [];
+            targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetNeutralBenign.GetBool() || !target.IsNeutralBenign() where CanTargetNeutralEvil.GetBool() || !target.IsNeutralEvil() where CanTargetNeutralChaos.GetBool() || !target.IsNeutralChaos() where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where !Utils.GetPlayerById(playerId).Is(CustomRoles.Lovers) || !target.Is(CustomRoles.Lovers) select target);
+
+            if (targetList.Count == 0)
             {
-                List<PlayerControl> targetList = [];
-                var rand = IRandom.Instance;
-                targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetNeutralBenign.GetBool() || !target.IsNeutralBenign() where CanTargetNeutralEvil.GetBool() || !target.IsNeutralEvil() where CanTargetNeutralChaos.GetBool() || !target.IsNeutralChaos() where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where !Utils.GetPlayerById(playerId).Is(CustomRoles.Lovers) || !target.Is(CustomRoles.Lovers) select target);
-
-                if (targetList.Count == 0)
-                {
-                    ChangeRole(Utils.GetPlayerById(playerId));
-                    return;
-                }
-
-                var SelectedTarget = targetList[rand.Next(targetList.Count)];
-                Target.Add(playerId, SelectedTarget.PlayerId);
-                SendRPC(playerId, SelectedTarget.PlayerId, "SetTarget");
-                Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}:{SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Executioner");
+                ChangeRole(Utils.GetPlayerById(playerId));
+                return;
             }
+
+            var SelectedTarget = targetList.RandomElement();
+            Target[playerId] = SelectedTarget.PlayerId;
+            SendRPC(playerId, SelectedTarget.PlayerId, "SetTarget");
+            Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}'s target: {SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Executioner");
         }
         catch (Exception ex)
         {
             Logger.Error(ex.ToString(), "Executioner.Add");
         }
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SendRPC(byte executionerId, byte targetId = 0x73, string Progress = "")
     {
@@ -102,10 +98,6 @@ public class Executioner : RoleBase
                 writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RemoveExecutionerTarget, SendOption.Reliable);
                 writer.Write(executionerId);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
-                break;
-            case "WinCheck":
-                CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Executioner);
-                CustomWinnerHolder.WinnerIds.Add(executionerId);
                 break;
         }
     }
@@ -133,7 +125,7 @@ public class Executioner : RoleBase
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: ExePC);
     }
 
-    public static void ChangeRole(PlayerControl executioner)
+    private static void ChangeRole(PlayerControl executioner)
     {
         executioner.RpcSetCustomRole(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]);
         Target.Remove(executioner.PlayerId);
@@ -143,7 +135,7 @@ public class Executioner : RoleBase
         executioner.Notify(text);
     }
 
-    public static bool KnowRole(PlayerControl player, PlayerControl target)
+    public override bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (!KnowTargetRole.GetBool()) return false;
         return player.Is(CustomRoles.Executioner) && Target.TryGetValue(player.PlayerId, out var tar) && tar == target.PlayerId;
@@ -151,33 +143,26 @@ public class Executioner : RoleBase
 
     public static string TargetMark(PlayerControl seer, PlayerControl target)
     {
-        var GetValue = Target.TryGetValue(seer.PlayerId, out var targetId);
+        var GetValue = Target.TryGetValue(seer.PlayerId, out var targetId) || (!seer.IsAlive() && Target.ContainsValue(target.PlayerId));
         return GetValue && targetId == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Executioner), "♦") : string.Empty;
     }
 
-    public static bool CheckExileTarget(GameData.PlayerInfo exiled, bool DecidedWinner, bool Check = false)
+    public static bool CheckExileTarget(GameData.PlayerInfo exiled, bool Check = false)
     {
         foreach (var kvp in Target.Where(x => x.Value == exiled.PlayerId))
         {
             var executioner = Utils.GetPlayerById(kvp.Key);
             if (executioner == null || !executioner.IsAlive() || executioner.Data.Disconnected) continue;
-            if (!Check) ExeWin(kvp.Key, DecidedWinner);
+            if (!Check) ExeWin(kvp.Key);
             return true;
         }
 
         return false;
     }
 
-    public static void ExeWin(byte playerId, bool DecidedWinner)
+    private static void ExeWin(byte playerId)
     {
-        if (!DecidedWinner)
-        {
-            SendRPC(playerId, Progress: "WinCheck");
-        }
-        else
-        {
-            CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Executioner);
-            CustomWinnerHolder.WinnerIds.Add(playerId);
-        }
+        CustomWinnerHolder.SetWinnerOrAdditonalWinner(CustomWinner.Executioner);
+        CustomWinnerHolder.WinnerIds.Add(playerId);
     }
 }

@@ -1,7 +1,9 @@
 ﻿using System;
-using AmongUs.GameOptions;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using EHR.Modules;
+using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
@@ -11,6 +13,14 @@ namespace EHR.Roles.Neutral
 {
     internal class Bargainer : RoleBase
     {
+        public enum Item
+        {
+            None,
+            EnergyDrink,
+            LensOfTruth,
+            BandAid
+        }
+
         public static bool On;
 
         private static OptionItem KillCooldown;
@@ -25,13 +35,23 @@ namespace EHR.Roles.Neutral
         private static OptionItem AlignmentVisible;
         private static OptionItem AlignmentVisibleDuration;
 
-        enum AlignmentVisibleOptions
+        private static Dictionary<MoneyGainingAction, int> Gains = [];
+        private static Dictionary<Item, int> Costs = [];
+
+        private static readonly Dictionary<Item, string> Icons = new()
         {
-            Forever,
-            UntilNextMeeting,
-            UntilNextReveal,
-            ForSpecifiedTime
-        }
+            [Item.EnergyDrink] = Utils.ColorString(Color.magenta, "\u2668"),
+            [Item.LensOfTruth] = "\u2600",
+            [Item.BandAid] = Utils.ColorString(Color.green, "♥")
+        };
+
+        public List<(Item Item, long ActivateTimeStamp, int Duration, byte Target)> ActiveItems = [];
+
+        private byte BargainerId;
+        private bool InShop;
+        private int Money;
+        private IEnumerable<Item> OrderedItems;
+        private Item SelectedItem;
 
         private static int AlignmentVisibleValue => (AlignmentVisibleOptions)AlignmentVisible.GetValue() switch
         {
@@ -43,28 +63,12 @@ namespace EHR.Roles.Neutral
             _ => 0
         };
 
-        enum ShieldDurationOptions
-        {
-            UntilNextMeeting,
-            ForSpecifiedTime
-        }
-
         private static int ShieldDurationValue => (ShieldDurationOptions)ShieldDuration.GetValue() switch
         {
             ShieldDurationOptions.UntilNextMeeting => int.MaxValue,
             ShieldDurationOptions.ForSpecifiedTime => ShieldTime.GetInt(),
 
             _ => 0
-        };
-
-        private static Dictionary<MoneyGainingAction, int> Gains = [];
-        private static Dictionary<Item, int> Costs = [];
-
-        private static readonly Dictionary<Item, string> Icons = new()
-        {
-            [Item.EnergyDrink] = Utils.ColorString(Color.magenta, "\u2668"),
-            [Item.LensOfTruth] = "\u2600",
-            [Item.BandAid] = Utils.ColorString(Color.green, "♥")
         };
 
         private static IEnumerable<Vector2> ShopLocations
@@ -77,28 +81,7 @@ namespace EHR.Roles.Neutral
             }
         }
 
-        enum MoneyGainingAction
-        {
-            Kill,
-            Sabotage,
-            SurviveMeeting
-        }
-
-        public enum Item
-        {
-            None,
-            EnergyDrink,
-            LensOfTruth,
-            BandAid
-        }
-
-        private byte BargainerId;
-        private int Money;
-        private bool InShop;
-        private Item SelectedItem;
-        private IEnumerable<Item> OrderedItems;
-
-        public List<(Item Item, long ActivateTimeStamp, int Duration, byte Target)> ActiveItems = [];
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
@@ -107,7 +90,7 @@ namespace EHR.Roles.Neutral
 
             SetupRoleOptions(id++, tab, CustomRoles.Bargainer);
 
-            KillCooldown = FloatOptionItem.Create(++id, "KillCooldown", new(0f, 180f, 2.5f), 22.5f, tab)
+            KillCooldown = FloatOptionItem.Create(++id, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer])
                 .SetValueFormat(OptionFormat.Seconds);
             CanVent = BooleanOptionItem.Create(++id, "CanVent", true, tab)
@@ -117,7 +100,7 @@ namespace EHR.Roles.Neutral
             StartingMoney = IntegerOptionItem.Create(++id, "Bargainer.StartingMoney", new(0, 100, 5), 0, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer]);
 
-            foreach (var action in EnumHelper.GetAllValues<MoneyGainingAction>())
+            foreach (var action in Enum.GetValues<MoneyGainingAction>())
             {
                 var boolOpt = BooleanOptionItem.Create(++id, $"Bargainer.{action}.Enabled", true, tab)
                     .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer]);
@@ -137,7 +120,7 @@ namespace EHR.Roles.Neutral
                 };
             }
 
-            foreach (var item in EnumHelper.GetAllValues<Item>())
+            foreach (var item in Enum.GetValues<Item>())
             {
                 if (item == Item.None) continue;
 
@@ -164,7 +147,7 @@ namespace EHR.Roles.Neutral
                     switch (item)
                     {
                         case Item.BandAid:
-                            ShieldDuration = StringOptionItem.Create(++id, $"Bargainer.{item}.DurationSwitch", EnumHelper.GetAllNames<ShieldDurationOptions>(), 0, tab)
+                            ShieldDuration = StringOptionItem.Create(++id, $"Bargainer.{item}.DurationSwitch", Enum.GetNames<ShieldDurationOptions>(), 0, tab)
                                 .SetParent(boolOpt);
                             ShieldTime = IntegerOptionItem.Create(++id, $"Bargainer.{item}.Duration", new(0, 60, 1), 20, tab)
                                 .SetParent(ShieldDuration)
@@ -176,7 +159,7 @@ namespace EHR.Roles.Neutral
                                 .SetValueFormat(OptionFormat.Seconds);
                             break;
                         case Item.LensOfTruth:
-                            AlignmentVisible = StringOptionItem.Create(++id, $"Bargainer.{item}.DurationSwitch", EnumHelper.GetAllNames<AlignmentVisibleOptions>(), (int)AlignmentVisibleOptions.UntilNextReveal, tab)
+                            AlignmentVisible = StringOptionItem.Create(++id, $"Bargainer.{item}.DurationSwitch", Enum.GetNames<AlignmentVisibleOptions>(), (int)AlignmentVisibleOptions.UntilNextReveal, tab)
                                 .SetParent(boolOpt);
                             AlignmentVisibleDuration = IntegerOptionItem.Create(++id, $"Bargainer.{item}.Duration", new(1, 30, 1), 10, tab)
                                 .SetParent(AlignmentVisible)
@@ -227,7 +210,6 @@ namespace EHR.Roles.Neutral
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public override bool IsEnable => On;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = ActiveItems.Any(x => x.Item == Item.EnergyDrink) ? ReducedKillCooldown.GetFloat() : KillCooldown.GetFloat();
         public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
@@ -250,6 +232,7 @@ namespace EHR.Roles.Neutral
             {
                 var list = OrderedItems.ToList();
                 SelectedItem = list[(list.IndexOf(SelectedItem) + 1) % list.Count];
+                Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 2, (int)SelectedItem);
                 return false;
             }
 
@@ -275,14 +258,23 @@ namespace EHR.Roles.Neutral
         {
             if (!GameStates.IsInTask || !pc.IsAlive())
             {
-                InShop = false;
-                ActiveItems.Clear();
-                Money = 0;
+                if (InShop || ActiveItems.Count > 0 || Money != 0)
+                {
+                    Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 1, false);
+                    Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 5);
+
+                    InShop = false;
+                    ActiveItems.Clear();
+                    Money = 0;
+                    Update();
+                }
+
                 return;
             }
 
             var wasInShop = InShop;
             InShop = ShopLocations.Any(x => Vector2.Distance(pc.Pos(), x) < DisableDevice.UsableDistance());
+            Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 1, InShop);
 
             switch (wasInShop)
             {
@@ -290,6 +282,7 @@ namespace EHR.Roles.Neutral
                 {
                     (int duration, byte target) = GetData(SelectedItem);
                     ActiveItems.Add((SelectedItem, Utils.TimeStamp, duration, target));
+                    Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 3, (int)SelectedItem, Utils.TimeStamp, duration, target);
                     Money -= cost;
                     Update();
 
@@ -312,7 +305,7 @@ namespace EHR.Roles.Neutral
                     static (int Duration, byte Target) GetData(Item item) => item switch
                     {
                         Item.EnergyDrink => (int.MaxValue, byte.MaxValue),
-                        Item.LensOfTruth => (AlignmentVisibleValue, Main.AllAlivePlayerControls[IRandom.Instance.Next(Main.AllAlivePlayerControls.Length)].PlayerId),
+                        Item.LensOfTruth => (AlignmentVisibleValue, Main.AllAlivePlayerControls.RandomElement().PlayerId),
                         Item.BandAid => (ShieldDurationValue, byte.MaxValue),
 
                         _ => (0, byte.MaxValue)
@@ -326,16 +319,21 @@ namespace EHR.Roles.Neutral
                     var affordableItems = orderedItems.TakeWhile(canBuy).Select(x => x.Key);
                     OrderedItems = affordableItems.Concat(unAffordableItems);
                     SelectedItem = OrderedItems.FirstOrDefault();
+                    Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 2, (int)SelectedItem);
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                     break;
                 }
             }
 
-            ActiveItems.RemoveAll(x => x.Item == Item.None);
+            var rc = ActiveItems.RemoveAll(x => x.Item == Item.None);
+            if (rc > 0) Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 6);
 
-            foreach (var item in ActiveItems.Where(x => x.Duration != int.MaxValue && x.ActivateTimeStamp + x.Duration < Utils.TimeStamp).ToArray())
+            var array = ActiveItems.Where(x => x.Duration != int.MaxValue && x.ActivateTimeStamp + x.Duration < Utils.TimeStamp).ToArray();
+            for (int i = 0; i < array.Length; i++)
             {
+                var item = array[i];
                 ActiveItems.Remove(item);
+                Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 4, i);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: Utils.GetPlayerById(item.Target) ?? pc);
             }
         }
@@ -363,18 +361,51 @@ namespace EHR.Roles.Neutral
                 }
             }
 
-            foreach (var index in indexesToRemove) ActiveItems.RemoveAt(index);
+            foreach (var index in indexesToRemove)
+            {
+                ActiveItems.RemoveAt(index);
+                Utils.SendRPC(CustomRPC.SyncBargainer, BargainerId, 4, index);
+            }
 
             Utils.GetPlayerById(BargainerId).ResetKillCooldown();
         }
 
-        public static bool KnowRole(PlayerControl seer, PlayerControl target)
+        public override bool KnowRole(PlayerControl seer, PlayerControl target)
         {
             return Main.PlayerStates[seer.PlayerId].Role is Bargainer bg && bg.ActiveItems.Any(x => x.Target == target.PlayerId);
         }
 
-        public static string GetSuffix(PlayerControl seer)
+        public static void ReceiveRPC(MessageReader reader)
         {
+            byte playerId = reader.ReadByte();
+            if (Main.PlayerStates[playerId].Role is not Bargainer bg) return;
+
+            switch (reader.ReadPackedInt32())
+            {
+                case 1:
+                    bg.InShop = reader.ReadBoolean();
+                    break;
+                case 2:
+                    bg.SelectedItem = (Item)reader.ReadPackedInt32();
+                    break;
+                case 3:
+                    bg.ActiveItems.Add(((Item)reader.ReadPackedInt32(), long.Parse(reader.ReadString()), reader.ReadPackedInt32(), reader.ReadByte()));
+                    break;
+                case 4:
+                    bg.ActiveItems.RemoveAt(reader.ReadPackedInt32());
+                    break;
+                case 5:
+                    bg.ActiveItems.Clear();
+                    break;
+                case 6:
+                    bg.ActiveItems.RemoveAll(x => x.Item == Item.None);
+                    break;
+            }
+        }
+
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+        {
+            if (seer.PlayerId != target.PlayerId) return string.Empty;
             if (Main.PlayerStates[seer.PlayerId].Role is not Bargainer bg) return string.Empty;
 
             string result = string.Empty;
@@ -399,6 +430,27 @@ namespace EHR.Roles.Neutral
             if (seer.IsModClient()) result += "</size>";
 
             return result;
+        }
+
+        enum AlignmentVisibleOptions
+        {
+            Forever,
+            UntilNextMeeting,
+            UntilNextReveal,
+            ForSpecifiedTime
+        }
+
+        enum ShieldDurationOptions
+        {
+            UntilNextMeeting,
+            ForSpecifiedTime
+        }
+
+        enum MoneyGainingAction
+        {
+            Kill,
+            Sabotage,
+            SurviveMeeting
         }
     }
 }

@@ -19,6 +19,8 @@ public class Witch : RoleBase
         DoubleTrigger,
     }
 
+    private const int Id = 2000;
+
     public static readonly string[] SwitchTriggerText =
     [
         "TriggerKill",
@@ -26,16 +28,17 @@ public class Witch : RoleBase
         "TriggerDouble"
     ];
 
-    private const int Id = 2000;
     public static List<byte> playerIdList = [];
-
-    public bool SpellMode;
-    public List<byte> SpelledPlayer = [];
 
     public static OptionItem ModeSwitchAction;
     public static SwitchTrigger NowSwitchTrigger;
 
     private bool IsHM;
+    public List<byte> SpelledPlayer = [];
+
+    public bool SpellMode;
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
@@ -64,8 +67,6 @@ public class Witch : RoleBase
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)
     {
@@ -228,9 +229,9 @@ public class Witch : RoleBase
         return string.Empty;
     }
 
-    public static string GetSpellModeText(PlayerControl witch, bool hud, bool isMeeting = false)
+    public override string GetSuffix(PlayerControl witch, PlayerControl target, bool hud = false, bool isMeeting = false)
     {
-        if (witch == null || isMeeting) return string.Empty;
+        if (witch == null || isMeeting || witch.PlayerId != target.PlayerId) return string.Empty;
 
         var str = new StringBuilder();
         if (hud)

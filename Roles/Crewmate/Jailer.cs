@@ -12,12 +12,14 @@ public class Jailor : RoleBase
     private const int Id = 63420;
     public static List<byte> playerIdList = [];
 
-    public byte JailorTarget;
-    public bool JailorDidVote;
-
     public static OptionItem JailCooldown;
     public static OptionItem notifyJailedOnMeeting;
     public static OptionItem UsePet;
+    public bool JailorDidVote;
+
+    public byte JailorTarget;
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
@@ -46,9 +48,9 @@ public class Jailor : RoleBase
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
     public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).IsAlive() ? JailCooldown.GetFloat() : 0f;
+    public override bool CanUseKillButton(PlayerControl pc) => pc.IsAlive();
 
     void SendRPC(byte jailerId, byte targetId = byte.MaxValue, bool setTarget = true)
     {

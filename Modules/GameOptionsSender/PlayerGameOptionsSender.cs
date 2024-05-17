@@ -14,6 +14,13 @@ namespace EHR.Modules;
 
 public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 {
+    public PlayerControl player = player;
+
+    public override IGameOptions BasedGameOptions =>
+        Main.RealOptionsData.Restore(new NormalGameOptionsV07(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
+
+    public override bool IsDirty { get; protected set; }
+
     public static void SetDirty(byte playerId)
     {
         foreach (GameOptionsSender allSender in AllSenders)
@@ -72,13 +79,6 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
         }
     }
 
-    public override IGameOptions BasedGameOptions =>
-        Main.RealOptionsData.Restore(new NormalGameOptionsV07(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
-
-    public override bool IsDirty { get; protected set; }
-
-    public PlayerControl player = player;
-
     public void SetDirty() => IsDirty = true;
 
     public override void SendGameOptions()
@@ -100,16 +100,19 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
         else base.SendGameOptions();
     }
 
-    public override void SendOptionsArray(Il2CppStructArray<byte> optionArray)
+    protected override void SendOptionsArray(Il2CppStructArray<byte> optionArray)
     {
         try
         {
-            for (byte i = 0; i < GameManager.Instance?.LogicComponents?.Count; i++)
+            byte i = 0;
+            foreach (var logicComponent in GameManager.Instance.LogicComponents)
             {
-                if (GameManager.Instance.LogicComponents[(Index)i].TryCast<LogicOptions>(out _))
+                if (logicComponent.TryCast<LogicOptions>(out _))
                 {
                     SendOptionsArray(optionArray, i, player.GetClientId());
                 }
+
+                i++;
             }
         }
         catch (Exception ex)
@@ -164,7 +167,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     opt.SetFloat(FloatOptionNames.ImpostorLightMod, 1.25f);
                     break;
                 case CustomGameMode.HideAndSeek:
-                    CustomHideAndSeekManager.ApplyGameOptions(opt, player);
+                    HnSManager.ApplyGameOptions(opt, player);
                     break;
             }
 
@@ -270,7 +273,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0);
             }
 
-            var array = Main.PlayerStates[player.PlayerId].SubRoles.ToArray();
+            var array = Main.PlayerStates[player.PlayerId].SubRoles;
             foreach (CustomRoles subRole in array)
             {
                 if (subRole.IsGhostRole() && subRole != CustomRoles.EvilSpirit)
@@ -292,6 +295,11 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                         break;
                     case CustomRoles.Mare when Options.MareHasIncreasedSpeed.GetBool():
                         Main.AllPlayerSpeed[player.PlayerId] = Options.MareSpeedDuringLightsOut.GetFloat();
+                        break;
+                    case CustomRoles.Sleep when Utils.IsActive(SystemTypes.Electrical):
+                        opt.SetVision(false);
+                        opt.SetFloat(FloatOptionNames.CrewLightMod, 0);
+                        opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0);
                         break;
                     case CustomRoles.Torch:
                         if (!Utils.IsActive(SystemTypes.Electrical))
@@ -347,6 +355,13 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 opt.SetVision(true);
                 opt.SetFloat(FloatOptionNames.CrewLightMod, 1.5f);
                 opt.SetFloat(FloatOptionNames.ImpostorLightMod, 1.5f);
+            }
+
+            if (Chemist.Instances.Any(x => x.IsBlinding && player.PlayerId != x.ChemistPC.PlayerId))
+            {
+                opt.SetVision(false);
+                opt.SetFloat(FloatOptionNames.CrewLightMod, 0);
+                opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0);
             }
 
             if (Changeling.ChangedRole.TryGetValue(player.PlayerId, out var changed) && changed && player.GetRoleTypes() != RoleTypes.Shapeshifter)

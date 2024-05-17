@@ -8,17 +8,18 @@ namespace EHR.Roles.AddOns.Common
 
         public void SetupCustomOption()
         {
+            const int id = 648600;
             SetupAdtRoleOptions(111420, CustomRoles.Diseased, canSetNum: true);
-            ImpCanBeDiseased = BooleanOptionItem.Create(111426, "ImpCanBeDiseased", true, TabGroup.Addons)
+            ImpCanBeDiseased = BooleanOptionItem.Create(id + 3, "ImpCanBeDiseased", true, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Diseased]);
-            CrewCanBeDiseased = BooleanOptionItem.Create(111427, "CrewCanBeDiseased", true, TabGroup.Addons)
+            CrewCanBeDiseased = BooleanOptionItem.Create(id + 4, "CrewCanBeDiseased", true, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Diseased]);
-            NeutralCanBeDiseased = BooleanOptionItem.Create(111423, "NeutralCanBeDiseased", true, TabGroup.Addons)
+            NeutralCanBeDiseased = BooleanOptionItem.Create(id + 5, "NeutralCanBeDiseased", true, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Diseased]);
-            DiseasedCDOpt = FloatOptionItem.Create(111424, "DiseasedCDOpt", new(0f, 180f, 1f), 25f, TabGroup.Addons)
+            DiseasedCDOpt = FloatOptionItem.Create(id + 6, "DiseasedCDOpt", new(0f, 180f, 1f), 25f, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Diseased])
                 .SetValueFormat(OptionFormat.Seconds);
-            DiseasedCDReset = BooleanOptionItem.Create(111425, "DiseasedCDReset", true, TabGroup.Addons)
+            DiseasedCDReset = BooleanOptionItem.Create(id + 7, "DiseasedCDReset", true, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Diseased]);
         }
     }

@@ -16,7 +16,7 @@ namespace EHR.Roles.Crewmate
             Options.TransporterTeleportMax = IntegerOptionItem.Create(6210, "TransporterTeleportMax", new(0, 90, 1), 5, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Transporter])
                 .SetValueFormat(OptionFormat.Times);
-            Options.TransporterTasks = Options.OverrideTasksData.Create(6211, TabGroup.CrewmateRoles, CustomRoles.Transporter);
+            Options.OverrideTasksData.Create(6211, TabGroup.CrewmateRoles, CustomRoles.Transporter);
         }
 
         public override void Add(byte playerId)
@@ -33,13 +33,12 @@ namespace EHR.Roles.Crewmate
         {
             if (player.IsAlive() && ((completedTaskCount + 1) <= Options.TransporterTeleportMax.GetInt()))
             {
-                var rd = IRandom.Instance;
                 List<PlayerControl> AllAlivePlayer = Main.AllAlivePlayerControls.Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder).ToList();
                 if (AllAlivePlayer.Count >= 2)
                 {
-                    var tar1 = AllAlivePlayer[rd.Next(0, AllAlivePlayer.Count)];
+                    var tar1 = AllAlivePlayer.RandomElement();
                     AllAlivePlayer.Remove(tar1);
-                    var tar2 = AllAlivePlayer[rd.Next(0, AllAlivePlayer.Count)];
+                    var tar2 = AllAlivePlayer.RandomElement();
                     var pos = tar1.Pos();
                     tar1.TP(tar2);
                     tar2.TP(pos);

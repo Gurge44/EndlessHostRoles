@@ -12,11 +12,6 @@ namespace EHR.Roles.Neutral
 {
     internal class Bubble : RoleBase
     {
-        private static int Id => 643220;
-
-        private PlayerControl Bubble_ => GetPlayerById(BubbleId);
-        private byte BubbleId = byte.MaxValue;
-
         private static OptionItem KillCooldown;
         private static OptionItem HasImpostorVision;
         public static OptionItem CanVent;
@@ -27,11 +22,17 @@ namespace EHR.Roles.Neutral
 
         public static readonly Dictionary<byte, long> EncasedPlayers = [];
         private static readonly Dictionary<byte, long> LastUpdates = [];
+        private byte BubbleId = byte.MaxValue;
+        private static int Id => 643220;
+
+        private PlayerControl Bubble_ => GetPlayerById(BubbleId);
+
+        public override bool IsEnable => BubbleId != byte.MaxValue;
 
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Bubble);
-            KillCooldown = FloatOptionItem.Create(Id + 2, "BubbleCD", new(0f, 180f, 2.5f), 22.5f, TabGroup.NeutralRoles)
+            KillCooldown = FloatOptionItem.Create(Id + 2, "BubbleCD", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bubble])
                 .SetValueFormat(OptionFormat.Seconds);
             HasImpostorVision = BooleanOptionItem.Create(Id + 6, "ImpostorVision", true, TabGroup.NeutralRoles)
@@ -67,7 +68,6 @@ namespace EHR.Roles.Neutral
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public override bool IsEnable => BubbleId != byte.MaxValue;
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
@@ -160,7 +160,7 @@ namespace EHR.Roles.Neutral
             SendRPC(clear: true);
         }
 
-        public static string GetEncasedPlayerSuffix(PlayerControl seer, PlayerControl target)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
         {
             if (target == null || !EncasedPlayers.TryGetValue(target.PlayerId, out var ts) || ((ts + NotifyDelay.GetInt() >= TimeStamp) && !seer.Is(CustomRoles.Bubble))) return string.Empty;
             return ColorString(GetRoleColor(CustomRoles.Bubble), $"⚠ {ExplodeDelay.GetInt() - (TimeStamp - ts) + 1}");

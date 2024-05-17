@@ -6,9 +6,9 @@ namespace EHR.Roles.Impostor
     internal class Blackmailer : RoleBase
     {
         public static bool On;
-        public override bool IsEnable => On;
 
         public byte BlackmailedPlayerId;
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption() => Options.SetupSingleRoleOptions(12190, TabGroup.ImpostorRoles, CustomRoles.Blackmailer);
 
@@ -51,7 +51,7 @@ namespace EHR.Roles.Impostor
             MeetingHud.Instance.playerStates.DoIf(x => x.TargetPlayerId == bm.BlackmailedPlayerId, x =>
             {
                 x.UnsetVote();
-                if (x.TargetPlayerId == 0) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, bmVotedFor);
+                if (x.TargetPlayerId.IsHost()) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, bmVotedFor);
                 else MeetingHud.Instance.CastVote(x.TargetPlayerId, bmVotedFor);
                 x.VotedFor = bmVotedFor;
             });

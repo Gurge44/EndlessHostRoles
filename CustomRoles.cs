@@ -1,5 +1,4 @@
-﻿
-namespace EHR;
+﻿namespace EHR;
 
 public enum CustomRoles
 {
@@ -70,6 +69,7 @@ public enum CustomRoles
     Assassin, // Ninja
     Nuker,
     Nullifier,
+    Overheat,
     Parasite,
     Penguin,
     Puppeteer,
@@ -150,6 +150,7 @@ public enum CustomRoles
     Farseer,
     Divinator, // Fortune Teller
     Gaulois,
+    Goose,
     Grenadier,
     GuessManagerRole,
     Guardian,
@@ -223,6 +224,7 @@ public enum CustomRoles
     Bargainer,
     BloodKnight,
     Bubble,
+    Chemist,
     Cherokious,
     Collector,
     Deathknight,
@@ -255,6 +257,7 @@ public enum CustomRoles
     Mycologist,
     Necromancer,
     Opportunist,
+    Patroller,
     Pelican,
     Pestilence,
     Phantom,
@@ -271,12 +274,14 @@ public enum CustomRoles
     Reckless,
     Revolutionist,
     Ritualist,
+    Rogue,
     Romantic,
     RuthlessRomantic,
     Samurai,
     SchrodingersCat,
     NSerialKiller, // Serial Killer
     Sidekick,
+    Simon,
     SoulHunter,
     Spiritcaller,
     Sprayer,
@@ -312,6 +317,14 @@ public enum CustomRoles
     Seeker,
     Fox,
     Troll,
+    Jumper,
+    Detector,
+    Jet,
+    Dasher,
+    Locator,
+    Venter,
+    Agent,
+    Taskinator,
 
     // GM
     GM,
@@ -323,6 +336,7 @@ public enum CustomRoles
     // Sub-role after 500
     NotAssigned = 500,
     Antidote,
+    AntiTP,
     Asthmatic,
     Autopsy,
     Avanger,
@@ -341,6 +355,7 @@ public enum CustomRoles
     DeadlyQuota,
     Disco,
     Diseased,
+    Dynamo,
     Unreportable, // Disregarded
     DoubleShot,
     Egoist,
@@ -370,15 +385,16 @@ public enum CustomRoles
     Nimble,
     Oblivious,
     Onbound,
+    Sleep,
     Specter, // Ghost role
     Physicist,
     Rascal,
     Reach,
     Recruit,
-    Rogue,
     DualPersonality, // Schizophrenic
     Seer,
     Sleuth,
+    Sonar,
     Stained,
     Taskcounter,
     TicketsStealer, // Stealer

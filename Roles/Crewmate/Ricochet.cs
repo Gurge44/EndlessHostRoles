@@ -11,23 +11,25 @@ namespace EHR.Roles.Crewmate
         private const int Id = 640100;
         public static List<byte> playerIdList = [];
 
-        public byte ProtectAgainst = byte.MaxValue;
-        private byte RicochetId;
-
         public static OptionItem UseLimitOpt;
         public static OptionItem RicochetAbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
         public static OptionItem CancelVote;
+
+        public byte ProtectAgainst = byte.MaxValue;
+        private byte RicochetId;
+
+        public override bool IsEnable => playerIdList.Count > 0;
 
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Ricochet);
             UseLimitOpt = IntegerOptionItem.Create(Id + 10, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Ricochet])
                 .SetValueFormat(OptionFormat.Times);
-            RicochetAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 11, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 0.5f, TabGroup.CrewmateRoles)
+            RicochetAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 11, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ricochet])
                 .SetValueFormat(OptionFormat.Times);
-            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
+            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ricochet])
                 .SetValueFormat(OptionFormat.Times);
             CancelVote = CreateVoteCancellingUseSetting(Id + 12, CustomRoles.Ricochet, TabGroup.CrewmateRoles);
@@ -47,8 +49,6 @@ namespace EHR.Roles.Crewmate
             ProtectAgainst = byte.MaxValue;
             RicochetId = playerId;
         }
-
-        public override bool IsEnable => playerIdList.Count > 0;
 
         void SendRPCSyncTarget(byte targetId)
         {
@@ -103,6 +103,6 @@ namespace EHR.Roles.Crewmate
             SendRPCSyncTarget(ProtectAgainst);
         }
 
-        public static string TargetText(byte id) => Main.PlayerStates[id].Role is Ricochet rc && rc.ProtectAgainst != byte.MaxValue ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(rc.ProtectAgainst).GetRealName()}</color>" : string.Empty;
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false) => Main.PlayerStates[seer.PlayerId].Role is Ricochet rc && rc.ProtectAgainst != byte.MaxValue && seer.PlayerId == target.PlayerId ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(rc.ProtectAgainst).GetRealName()}</color>" : string.Empty;
     }
 }

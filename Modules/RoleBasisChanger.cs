@@ -16,15 +16,15 @@ namespace EHR.Modules
         {
             if (!AmongUsClient.Instance.AmHost) return;
 
-            if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            if (player.IsHost())
             {
-                PlayerControl.LocalPlayer.RpcSetRole(targetVNRole);
-                PlayerControl.LocalPlayer.SyncSettings();
+                player.RpcSetRole(targetVNRole);
+                player.SyncSettings();
 
-                Utils.NotifyRoles(SpecifySeer: PlayerControl.LocalPlayer);
-                Utils.NotifyRoles(SpecifyTarget: PlayerControl.LocalPlayer);
+                Utils.NotifyRoles(SpecifySeer: player);
+                Utils.NotifyRoles(SpecifyTarget: player);
 
-                HudManager.Instance.SetHudActive(PlayerControl.LocalPlayer, PlayerControl.LocalPlayer.Data.Role, !GameStates.IsMeeting);
+                HudManager.Instance.SetHudActive(player, player.Data.Role, !GameStates.IsMeeting);
 
                 return;
             }
@@ -61,13 +61,12 @@ namespace EHR.Modules
             GameData.Instance.SetDirty();
             newplayer.ReactorFlash(0.2f);
             newplayer.TP(position);
-            newplayer.ResetPlayerCam();
 
             _ = new LateTask(() => { IsChangeInProgress = false; }, 5f, log: false);
         }
 
         [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.Spawn))]
-        public static class Client_SpawnDisable
+        public static class InnerNetClientSpawnPatch
         {
             public static bool Prefix(InnerNetClient __instance, [HarmonyArgument(0)] InnerNetObject netObjParent, [HarmonyArgument(1)] int ownerId, [HarmonyArgument(2)] SpawnFlags flags)
             {
@@ -81,7 +80,7 @@ namespace EHR.Modules
         }
 
         [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.Despawn))]
-        public static class Client_DespawnDisable
+        public static class InnerNetClientDespawnPatch
         {
             public static bool Prefix(InnerNetClient __instance, [HarmonyArgument(0)] InnerNetObject objToDespawn)
             {

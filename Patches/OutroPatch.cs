@@ -19,16 +19,13 @@ class EndGamePatch
 {
     public static Dictionary<byte, string> SummaryText = [];
     public static string KillLog = string.Empty;
-    public static GameOverReason LastGameOverReason = GameOverReason.ImpostorByKill;
 
-    public static void Postfix( /*AmongUsClient __instance,*/ [HarmonyArgument(0)] ref EndGameResult endGameResult)
+    public static void Postfix()
     {
         GameStates.InGame = false;
 
         Logger.Info("-----------Game over-----------", "Phase");
         if (!GameStates.IsModHost) return;
-
-        LastGameOverReason = endGameResult.GameOverReason;
 
         Main.SetRoles = [];
         Main.SetAddOns = [];
@@ -65,9 +62,11 @@ class EndGamePatch
             var date = value.RealKiller.TIMESTAMP;
             if (date == DateTime.MinValue) continue;
             var killerId = value.GetRealKiller();
-            sb.Append($"\n{date:T} {Main.AllPlayerNames[key]} ({(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.HideAndSeek ? string.Empty : Utils.GetDisplayRoleName(key, true))}{(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ? string.Empty : Utils.GetSubRolesText(key, summary: true))}) [{Utils.GetVitalText(key)}]");
+            var gmIsFM = Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop;
+            var gmIsFMHH = gmIsFM || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek;
+            sb.Append($"\n{date:T} {Main.AllPlayerNames[key]} ({(gmIsFMHH ? string.Empty : Utils.GetDisplayRoleName(key, true))}{(gmIsFM ? string.Empty : Utils.GetSubRolesText(key, summary: true))}) [{Utils.GetVitalText(key)}]");
             if (killerId != byte.MaxValue && killerId != key)
-                sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.HideAndSeek ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
+                sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(gmIsFMHH ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(gmIsFM ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
         }
 
         KillLog = sb.ToString();
@@ -86,7 +85,6 @@ class EndGamePatch
 
         Main.WinnerNameList = [];
         Main.WinnerList = [];
-        Main.WinnerRolesList = [];
         foreach (PlayerControl pc in winner)
         {
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw && pc.Is(CustomRoles.GM)) continue;
@@ -94,7 +92,6 @@ class EndGamePatch
             TempData.winners.Add(new(pc.Data));
             Main.WinnerList.Add(pc.PlayerId);
             Main.WinnerNameList.Add(pc.GetRealName());
-            Main.WinnerRolesList.Add(pc.GetCustomRole());
         }
 
         Arsonist.IsDoused = [];
@@ -289,10 +286,6 @@ class SetEverythingUpPatch
             case CustomWinner.Impostor:
                 CustomWinnerColor = Utils.GetRoleColorCode(CustomRoles.Impostor);
                 __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Impostor);
-                break;
-            case CustomWinner.Rogue:
-                CustomWinnerColor = Utils.GetRoleColorCode(CustomRoles.Rogue);
-                __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Rogue);
                 break;
             case CustomWinner.Egoist:
                 CustomWinnerColor = Utils.GetRoleColorCode(CustomRoles.Egoist);

@@ -26,6 +26,8 @@ namespace EHR.Roles.Crewmate
         private static Dictionary<byte, Dictionary<Vector2, string>> Triggers = [];
         private static long lastUpdate;
 
+        public override bool IsEnable => playerIdList.Count > 0;
+
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Druid);
@@ -38,10 +40,10 @@ namespace EHR.Roles.Crewmate
             UseLimitOpt = IntegerOptionItem.Create(Id + 12, "AbilityUseLimit", new(0, 20, 1), 3, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Times);
-            DruidAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles)
+            DruidAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Times);
-            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 14, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.1f), 0.2f, TabGroup.CrewmateRoles)
+            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 14, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Druid])
                 .SetValueFormat(OptionFormat.Times);
         }
@@ -60,8 +62,6 @@ namespace EHR.Roles.Crewmate
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             lastUpdate = TimeStamp;
         }
-
-        public override bool IsEnable => playerIdList.Count > 0;
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
@@ -183,11 +183,12 @@ namespace EHR.Roles.Crewmate
             lastUpdate = now;
         }
 
-        public static string GetSuffixText(byte playerId)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (GetPlayerById(playerId) == null) return string.Empty;
+            if (hud) return GetHUDText(seer);
+            if (seer == null || seer.IsModClient() || seer.PlayerId != target.PlayerId) return string.Empty;
 
-            if (!Triggers.TryGetValue(playerId, out var triggers)) return string.Empty;
+            if (!Triggers.TryGetValue(seer.PlayerId, out var triggers)) return string.Empty;
 
             var sb = new StringBuilder();
             sb.Append("\n<size=1.7>");
@@ -199,20 +200,11 @@ namespace EHR.Roles.Crewmate
             return sb.ToString();
         }
 
-        public static string GetHUDText(PlayerControl pc)
+        static string GetHUDText(PlayerControl pc)
         {
-            if (pc == null) return string.Empty;
+            if (pc == null || !Triggers.TryGetValue(pc.PlayerId, out var triggers)) return string.Empty;
 
-            var id = pc.PlayerId;
             var sb = new StringBuilder();
-
-            sb.AppendLine(GetCD_HUDText());
-
-            if (!Triggers.TryGetValue(id, out var triggers)) return sb.ToString();
-
-            string GetCD_HUDText() => !UsePets.GetBool() || !Main.AbilityCD.TryGetValue(id, out var CD)
-                ? string.Empty
-                : string.Format(GetString("CDPT"), CD.TOTALCD - (TimeStamp - CD.START_TIMESTAMP) + 1);
 
             sb.AppendLine($"<#00ffa5>{triggers.Count}</color> trigger{(triggers.Count == 1 ? string.Empty : 's')} active");
             sb.Append(string.Join('\n', triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
