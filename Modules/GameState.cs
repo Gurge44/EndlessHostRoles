@@ -132,7 +132,11 @@ public class PlayerState(byte playerId)
     {
         if (role == CustomRoles.Cleansed)
             AllReplace = true;
-        if (AllReplace) SubRoles.Clear();
+        if (AllReplace)
+        {
+            SubRoles.Clear();
+            Utils.SendRPC(CustomRPC.RemoveSubRole, PlayerId, 2);
+        }
 
         if (!SubRoles.Contains(role))
             SubRoles.Add(role);
@@ -229,7 +233,7 @@ public class PlayerState(byte playerId)
         if (SubRoles.Contains(role))
             SubRoles.Remove(role);
 
-        Utils.SendRPC(CustomRPC.RemoveSubRole, PlayerId, (int)role);
+        Utils.SendRPC(CustomRPC.RemoveSubRole, PlayerId, 1, (int)role);
     }
 
     public void SetDead()

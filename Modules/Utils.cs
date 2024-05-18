@@ -600,6 +600,7 @@ public static class Utils
             case CustomRoles.PlagueDoctor:
             case CustomRoles.Postman:
             case CustomRoles.SchrodingersCat:
+            case CustomRoles.Shifter:
             case CustomRoles.Impartial:
             case CustomRoles.Predator:
             case CustomRoles.Reckless:
@@ -773,7 +774,7 @@ public static class Utils
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool() ||
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() ||
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosImp.GetBool() ||
-               CustomTeamManager.AreInSameCustomTeam(__instance.PlayerId, PlayerControl.LocalPlayer.PlayerId) && CustomTeamManager.GetSettingForPlayerTeam(__instance.PlayerId, "KnowRoles") ||
+               CustomTeamManager.AreInSameCustomTeam(__instance.PlayerId, PlayerControl.LocalPlayer.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(__instance.PlayerId, "KnowRoles") ||
                Main.PlayerStates.Values.Any(x => x.Role.KnowRole(PlayerControl.LocalPlayer, __instance)) ||
                PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) ||
                PlayerControl.LocalPlayer.Is(CustomRoles.God) ||
@@ -1635,6 +1636,23 @@ public static class Utils
         }
     }
 
+    public static void CheckAndSpawnAdditionalRefugee(GameData.PlayerInfo deadPlayer)
+    {
+        if (deadPlayer != null && Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() && Main.AllAlivePlayerControls.Length >= Options.SpawnAdditionalRefugeeMinAlivePlayers.GetInt() && !CustomRoles.Refugee.RoleExist(countDead: true) && !Main.AllAlivePlayerControls.Any(x => x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && Options.SpawnAdditionalRefugeeWhenNKAlive.GetBool()))))
+        {
+            PlayerControl[] ListToChooseFrom = Options.UsePets.GetBool() ? Main.AllAlivePlayerControls.Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate)).ToArray() : Main.AllAlivePlayerControls.Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate) && x.GetCustomRole().GetRoleTypes() == RoleTypes.Impostor).ToArray();
+
+            if (ListToChooseFrom.Length > 0)
+            {
+                var pc = ListToChooseFrom.RandomElement();
+                pc.RpcSetCustomRole(CustomRoles.Refugee);
+                pc.SetKillCooldown();
+                Logger.Warn($"{pc.GetRealName()} is now a Refugee since all Impostors are dead", "Add Refugee");
+            }
+            else Logger.Msg("No Player to change to Refugee.", "Add Refugee");
+        }
+    }
+
     public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "")
     {
         if (!AmongUsClient.Instance.AmHost) return;
@@ -1982,7 +2000,6 @@ public static class Utils
 
                 if (Pelican.IsEaten(seer.PlayerId)) SelfName = $"{ColorString(GetRoleColor(CustomRoles.Pelican), GetString("EatenByPelican"))}";
                 if (Deathpact.IsInActiveDeathpact(seer)) SelfName = Deathpact.GetDeathpactString(seer);
-                if (NameNotifyManager.GetNameNotify(seer, out var name)) SelfName = name;
 
                 // Devourer
                 if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.playerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)) && !CamouflageIsForMeeting)
@@ -1992,6 +2009,8 @@ public static class Utils
                     SelfName = $"<size=0>{SelfName}</size>";
 
                 GameMode2:
+
+                if (NameNotifyManager.GetNameNotify(seer, out var name)) SelfName = name;
 
                 switch (Options.CurrentGameMode)
                 {
@@ -2008,7 +2027,7 @@ public static class Utils
                         break;
                 }
 
-                SelfName += SelfSuffix.ToString() == string.Empty ? string.Empty : $"\r\n {SelfSuffix}";
+                SelfName += SelfSuffix.ToString() == string.Empty ? string.Empty : $"\r\n{SelfSuffix}";
                 if (!isForMeeting) SelfName += "\r\n";
 
                 seer.RpcSetNamePrivate(SelfName, true, force: NoCache);
@@ -2128,7 +2147,7 @@ public static class Utils
                                 (target.Is(CustomRoles.Mayor) && Mayor.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished) ||
                                 (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished) ||
                                 (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
-                                CustomTeamManager.AreInSameCustomTeam(seer.PlayerId, target.PlayerId) && CustomTeamManager.GetSettingForPlayerTeam(seer.PlayerId, "KnowRoles") ||
+                                CustomTeamManager.AreInSameCustomTeam(seer.PlayerId, target.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(seer.PlayerId, "KnowRoles") ||
                                 Main.PlayerStates.Values.Any(x => x.Role.KnowRole(seer, target)) ||
                                 Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == target.PlayerId) ||
                                 Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato ||

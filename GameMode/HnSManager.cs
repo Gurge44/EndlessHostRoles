@@ -122,7 +122,7 @@ namespace EHR
             };
             memberNum[Team.Crewmate] = allPlayers.Count - memberNum.Values.Sum();
 
-            Logger.Warn($"Number of impostors: {memberNum[Team.Impostor]}", "debug");
+            Logger.Warn($"Number of impostors: {memberNum[Team.Impostor]}", "HnsRoleAssigner");
 
             foreach (var item in Main.SetRoles)
             {
@@ -136,7 +136,7 @@ namespace EHR
                 role.Value[item.Value]--;
                 memberNum[role.Key]--;
 
-                Logger.Warn($"Pre-Set Role Assigned: {pc.GetRealName()} => {item.Value}", "CustomRoleSelector");
+                Logger.Warn($"Pre-Set Role Assigned: {pc.GetRealName()} => {item.Value}", "HnsRoleAssigner");
             }
 
             var playerTeams = Enum.GetValues<Team>()[1..]
@@ -186,14 +186,14 @@ namespace EHR
 
             foreach (PlayerControl pc in allPlayers.Except(result.Keys).ToArray())
             {
-                Logger.Warn($"Unassigned, force Hider: {pc.GetRealName()} => {CustomRoles.Hider}", "debug");
+                Logger.Warn($"Unassigned, force Hider: {pc.GetRealName()} => {CustomRoles.Hider}", "HnsRoleAssigner");
                 result[pc] = CustomRoles.Hider;
                 memberNum[Team.Crewmate]--;
                 allPlayers.Remove(pc);
             }
 
-            if (allPlayers.Count > 0) Logger.Error($"Some players were not assigned a role: {allPlayers.Join(x => x.GetRealName())}", "CustomRoleSelector");
-            Logger.Msg($"Roles: {result.Join(x => $"{x.Key.GetRealName()} => {x.Value}")}", "HideAndSeekRoleSelector");
+            if (allPlayers.Count > 0) Logger.Error($"Some players were not assigned a role: {allPlayers.Join(x => x.GetRealName())}", "HnsRoleAssigner");
+            Logger.Msg($"Roles: {result.Join(x => $"{x.Key.GetRealName()} => {x.Value}")}", "HnsRoleAssigner");
 
             var roleInterfaces = Assembly.GetExecutingAssembly().GetTypes()
                 .Where(x => typeof(IHideAndSeekRole).IsAssignableFrom(x) && !x.IsInterface)
@@ -203,6 +203,14 @@ namespace EHR
             PlayerRoles = result.ToDictionary(x => x.Key.PlayerId, x => (roleInterfaces[x.Value.ToString()], x.Value));
 
             result.IntersectBy(Main.PlayerStates.Keys, x => x.Key.PlayerId).Do(x => x.Key.RpcSetCustomRole(x.Value));
+
+            // ==================================================================================================================
+
+            if (result.ContainsValue(CustomRoles.Agent))
+            {
+                var agent = result.GetKeyByValue(CustomRoles.Agent).PlayerId;
+                PlayerRoles.DoIf(x => x.Value.Interface.Team == Team.Impostor, x => TargetArrow.Add(x.Key, agent));
+            }
         }
 
         public static void ApplyGameOptions(IGameOptions opt, PlayerControl pc)
@@ -247,6 +255,12 @@ namespace EHR
             if (seer.PlayerId != target.PlayerId) return string.Empty;
 
             string dangerMeter = GetDangerMeter(seer);
+
+            if (PlayerRoles[seer.PlayerId].Interface.Team == Team.Impostor && PlayerRoles.Values.Any(x => x.Role == CustomRoles.Agent))
+            {
+                var agent = PlayerRoles.First(x => x.Value.Role == CustomRoles.Agent).Key;
+                dangerMeter += TargetArrow.GetArrows(seer, agent);
+            }
 
             if (!isHUD && seer.IsModClient()) return string.Empty;
             if (TimeLeft <= 60)
@@ -304,9 +318,7 @@ namespace EHR
             // If there are no crew roles left, the game is over and only impostors win
             if (alivePlayers.All(x => PlayerRoles[x.PlayerId].Interface.Team != Team.Crewmate))
             {
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Seeker);
-                CustomWinnerHolder.WinnerIds.UnionWith(PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).Select(x => x.Key));
-                AddFoxesToWinners();
+                SetWinners(CustomWinner.Seeker, Team.Impostor);
                 return true;
             }
 
@@ -314,13 +326,18 @@ namespace EHR
             if (TimeLeft <= 0)
             {
                 reason = GameOverReason.HumansByTask;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Hider);
-                CustomWinnerHolder.WinnerIds.UnionWith(PlayerRoles.Where(x => x.Value.Interface.Team == Team.Crewmate).Select(x => x.Key));
-                AddFoxesToWinners();
+                SetWinners(CustomWinner.Hider, Team.Crewmate);
                 return true;
             }
 
             return false;
+
+            static void SetWinners(CustomWinner winner, Team team)
+            {
+                CustomWinnerHolder.ResetAndSetWinner(winner);
+                CustomWinnerHolder.WinnerIds.UnionWith(PlayerRoles.Where(x => x.Value.Interface.Team == team).Select(x => x.Key));
+                AddFoxesToWinners();
+            }
         }
 
         public static void AddFoxesToWinners()

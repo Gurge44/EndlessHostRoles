@@ -35,6 +35,8 @@ namespace EHR.Modules
             IGhostRole instance = CreateGhostRoleInstance(suitableRole);
             instance.OnAssign(pc);
             AssignedGhostRoles[pc.PlayerId] = (suitableRole, instance);
+
+            if (suitableRole == CustomRoles.Haunter) GhostRoles.Remove(suitableRole);
         }
 
         public static void SpecificAssignGhostRole(byte id, CustomRoles role, bool set)
@@ -57,16 +59,11 @@ namespace EHR.Modules
                 if (pc.IsAlive() || pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame || pc.Is(CustomRoles.EvilSpirit)) return false;
 
                 var suitableRole = GetSuitableGhostRole(pc);
-                switch (suitableRole)
+                return suitableRole switch
                 {
-                    case CustomRoles.Specter when IsPartnerPickedRole():
-                        return false;
-                    case CustomRoles.Haunter:
-                        GhostRoles.Remove(CustomRoles.Haunter);
-                        break;
-                }
-
-                return suitableRole.IsGhostRole() && !AssignedGhostRoles.Any(x => x.Key == pc.PlayerId || x.Value.Role == suitableRole);
+                    CustomRoles.Specter when IsPartnerPickedRole() => false,
+                    _ => suitableRole.IsGhostRole() && !AssignedGhostRoles.Any(x => x.Key == pc.PlayerId || x.Value.Role == suitableRole)
+                };
 
                 bool IsPartnerPickedRole() => Main.PlayerStates[pc.PlayerId].Role switch
                 {

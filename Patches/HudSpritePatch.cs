@@ -58,6 +58,9 @@ public static class HudSpritePatch
 
         switch (player.GetCustomRole())
         {
+            case CustomRoles.Shifter:
+                newKillButton = CustomButton.Get("Swap");
+                break;
             case CustomRoles.Changeling:
                 newAbilityButton = CustomButton.Get("GlitchMimic");
                 break;

@@ -362,6 +362,7 @@ internal static class CustomRolesHelper
             CustomRoles.PlagueDoctor => RoleTypes.Impostor,
             CustomRoles.Postman => RoleTypes.Impostor,
             CustomRoles.SchrodingersCat => RoleTypes.Impostor,
+            CustomRoles.Shifter => RoleTypes.Impostor,
             CustomRoles.Impartial => RoleTypes.Impostor,
             CustomRoles.Predator => RoleTypes.Impostor,
             CustomRoles.Reckless => RoleTypes.Impostor,
@@ -400,6 +401,7 @@ internal static class CustomRolesHelper
     public static bool IsNonNK(this CustomRoles role, bool check = false) => (!check && role == CustomRoles.Arsonist && CanCheck && Options.IsLoaded && Options.ArsonistCanIgniteAnytime != null && !Options.ArsonistCanIgniteAnytime.GetBool()) || role is
         CustomRoles.Jester or
         CustomRoles.Postman or
+        CustomRoles.Shifter or
         CustomRoles.SchrodingersCat or
         CustomRoles.Impartial or
         CustomRoles.Predator or
@@ -515,6 +517,7 @@ internal static class CustomRolesHelper
 
     public static bool IsNC(this CustomRoles role) => role is
         CustomRoles.Mario or
+        CustomRoles.Shifter or
         CustomRoles.Terrorist or
         CustomRoles.Revolutionist or
         CustomRoles.Impartial or
@@ -1021,9 +1024,10 @@ internal static class CustomRolesHelper
         CustomRoles.Parasite => CountTypes.Impostor,
         CustomRoles.Crewpostor => CountTypes.Impostor,
         CustomRoles.Refugee => CountTypes.Impostor,
-        CustomRoles.DarkHide => DarkHide.SnatchesWin.GetBool() ? CountTypes.Crew : CountTypes.DarkHide,
-        CustomRoles.Arsonist => !Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Crew : CountTypes.Arsonist,
+        CustomRoles.DarkHide when DarkHide.SnatchesWin.GetBool() => CountTypes.Crew,
+        CustomRoles.Arsonist when !Options.ArsonistKeepsGameGoing.GetBool() => CountTypes.Crew,
         CustomRoles.SchrodingersCat => SchrodingersCat.WinsWithCrewIfNotAttacked.GetBool() ? CountTypes.Crew : CountTypes.OutOfGame,
+        CustomRoles.Shifter => CountTypes.OutOfGame,
 
         _ => Enum.TryParse(role.ToString(), true, out CountTypes type)
             ? type

@@ -445,6 +445,7 @@ public class Main : BasePlugin
                 { CustomRoles.PlagueDoctor, "#ff6633" },
                 { CustomRoles.Postman, "#00b893" },
                 { CustomRoles.SchrodingersCat, "#616161" },
+                { CustomRoles.Shifter, "#777777" },
                 { CustomRoles.Impartial, "#4287f5" },
                 { CustomRoles.Predator, "#c73906" },
                 { CustomRoles.Reckless, "#6e000d" },

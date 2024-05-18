@@ -51,6 +51,7 @@ public enum CustomRPC
     ShowPopUp,
     KillFlash,
     SyncAbilityUseLimit,
+    RemoveAbilityUseLimit,
     RemoveSubRole,
     Arrow,
 
@@ -338,15 +339,23 @@ internal class RPCHandlerPatch
             case CustomRPC.SetCustomRole:
                 byte CustomRoleTargetId = reader.ReadByte();
                 CustomRoles role = (CustomRoles)reader.ReadPackedInt32();
-                RPC.SetCustomRole(CustomRoleTargetId, role);
+                bool replaceAllAddons = reader.ReadBoolean();
+                RPC.SetCustomRole(CustomRoleTargetId, role, replaceAllAddons);
                 break;
             case CustomRPC.SyncAbilityUseLimit:
                 var pc = Utils.GetPlayerById(reader.ReadByte());
                 pc.SetAbilityUseLimit(reader.ReadSingle(), rpc: false);
                 break;
-            case CustomRPC.RemoveSubRole:
-                Main.PlayerStates[reader.ReadByte()].RemoveSubRole((CustomRoles)reader.ReadPackedInt32());
+            case CustomRPC.RemoveAbilityUseLimit:
+                Main.AbilityUseLimit.Remove(reader.ReadByte());
                 break;
+            case CustomRPC.RemoveSubRole:
+            {
+                byte id = reader.ReadByte();
+                if (reader.ReadPackedInt32() == 2) Main.PlayerStates[id].SubRoles.Clear();
+                else Main.PlayerStates[id].RemoveSubRole((CustomRoles)reader.ReadPackedInt32());
+                break;
+            }
             case CustomRPC.Arrow:
                 if (reader.ReadBoolean()) TargetArrow.ReceiveRPC(reader);
                 else LocateArrow.ReceiveRPC(reader);
@@ -989,7 +998,7 @@ internal static class RPC
         }
     }
 
-    public static void SetCustomRole(byte targetId, CustomRoles role)
+    public static void SetCustomRole(byte targetId, CustomRoles role, bool replaceAllAddons = false)
     {
         if (role < CustomRoles.NotAssigned)
         {
@@ -997,7 +1006,7 @@ internal static class RPC
         }
         else
         {
-            Main.PlayerStates[targetId].SetSubRole(role);
+            Main.PlayerStates[targetId].SetSubRole(role, replaceAllAddons);
         }
 
         HudManager.Instance.SetHudActive(true);
