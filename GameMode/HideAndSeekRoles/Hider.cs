@@ -45,12 +45,5 @@
         {
             On = false;
         }
-
-        public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
-        {
-            HnSManager.TimeLeft -= TimeDecreaseOnTaskComplete.GetInt();
-            pc.Notify(Translator.GetString("TimeDecreased"));
-            if (60 - (HnSManager.TimeLeft % 60) <= TimeDecreaseOnTaskComplete.GetInt()) Utils.NotifyRoles();
-        }
     }
 }
