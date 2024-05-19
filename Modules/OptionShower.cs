@@ -17,7 +17,8 @@ public static class OptionShower
 
     public static string GetTextNoFresh()
     {
-        if (Pages.Count < 3) GetText();
+        if (CurrentPage == 0) return $"{GameOptionsManager.Instance.CurrentGameOptions.ToHudString(GameData.Instance ? GameData.Instance.PlayerCount : 10)}\n\n{GetString("PressTabToNextPage")}({CurrentPage + 1}/{Pages.Count})";
+        if (Pages.Count < 3) return GetText();
         return $"{Pages[CurrentPage]}{GetString("PressTabToNextPage")}({CurrentPage + 1}/{Pages.Count})";
     }
 

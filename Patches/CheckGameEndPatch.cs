@@ -108,12 +108,6 @@ class GameEndChecker
             {
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
-                    if (GhostRolesManager.AssignedGhostRoles.TryGetValue(pc.PlayerId, out var ghostRole) && ghostRole is { Role: CustomRoles.Specter, Instance: Specter { IsWon: true } })
-                    {
-                        WinnerIds.Add(pc.PlayerId);
-                        AdditionalWinnerTeams.Add(AdditionalWinners.Specter);
-                    }
-
                     switch (pc.GetCustomRole())
                     {
                         case CustomRoles.DarkHide when !pc.Data.IsDead && ((WinnerTeam == CustomWinner.Impostor && !reason.Equals(GameOverReason.ImpostorBySabotage)) || WinnerTeam == CustomWinner.DarkHide || (WinnerTeam == CustomWinner.Crewmate && !reason.Equals(GameOverReason.HumansByTask) && Main.PlayerStates[pc.PlayerId].Role is DarkHide { IsWinKill: true } && DarkHide.SnatchesWin.GetBool())):
@@ -220,6 +214,13 @@ class GameEndChecker
                     }
                 }
 
+                var winningSpecters = GhostRolesManager.AssignedGhostRoles.Where(x => x.Value.Instance is Specter { IsWon: true }).Select(x => x.Key).ToArray();
+                if (winningSpecters.Length > 0)
+                {
+                    AdditionalWinnerTeams.Add(AdditionalWinners.Specter);
+                    WinnerIds.UnionWith(winningSpecters);
+                }
+
                 if (CustomRoles.God.RoleExist())
                 {
                     ResetAndSetWinner(CustomWinner.God);
@@ -228,7 +229,7 @@ class GameEndChecker
                         .Do(p => WinnerIds.Add(p.PlayerId));
                 }
 
-                if (WinnerTeam != CustomWinner.CustomTeam)
+                if (WinnerTeam != CustomWinner.CustomTeam && CustomTeamManager.EnabledCustomTeams.Count > 0)
                 {
                     Main.AllPlayerControls
                         .Select(x => new { Team = CustomTeamManager.GetCustomTeam(x.PlayerId), Player = x })
