@@ -2145,14 +2145,6 @@ public static class Options
             .SetHeader(true)
             .SetColor(new Color32(215, 227, 84, byte.MaxValue));
 
-        CTAPlayersCanWinWithOriginalTeam = BooleanOptionItem.Create(23550, "CTA.PlayersCanWinWithOriginalTeam", false, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
-            .SetHeader(true)
-            .SetColor(new Color32(215, 227, 84, byte.MaxValue));
-        CTAPlayersCanSeeEachOthersRoles = BooleanOptionItem.Create(23551, "CTA.PlayersCanSeeEachOthersRoles", true, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
-            .SetColor(new Color32(215, 227, 84, byte.MaxValue));
-        
         CustomTeamManager.LoadCustomTeams();
 
         LoadingPercentage = 100;

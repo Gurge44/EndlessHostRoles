@@ -280,6 +280,7 @@ public enum CustomRoles
     Samurai,
     SchrodingersCat,
     NSerialKiller, // Serial Killer
+    Shifter,
     Sidekick,
     Simon,
     SoulHunter,
