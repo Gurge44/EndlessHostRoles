@@ -69,16 +69,17 @@ namespace EHR
                 .Select(x => (IHideAndSeekRole)Activator.CreateInstance(x))
                 .Where(x => x != null)
                 .Join(AllHnSRoles, x => x.GetType().Name.ToLower(), x => x.ToString().ToLower(), (Interface, Enum) => (Enum, Interface))
-                .Where(x => (!x.Enum.OnlySpawnsWithPets() || Options.UsePets.GetBool()) && (x.Enum != CustomRoles.Agent || SeekerNum >= 2) && x.Interface.Count > 0 && x.Interface.Chance > IRandom.Instance.Next(100))
+                .Where(x => (!x.Enum.OnlySpawnsWithPets() || Options.UsePets.GetBool()) && (x.Enum != CustomRoles.Agent || SeekerNum >= 2) && x.Interface.Count > 0 && (x.Interface.Team == Team.Neutral || x.Interface.Chance > IRandom.Instance.Next(100)))
                 .OrderBy(x => x.Enum is CustomRoles.Seeker or CustomRoles.Hider ? 100 : IRandom.Instance.Next(100))
                 .GroupBy(x => x.Interface.Team)
                 .ToDictionary(x => x.Key, x => x.ToDictionary(y => y.Enum, y => y.Interface.Count));
 
             PlayerRoles = [];
             ClosestImpostor = [];
+        }
 
-            if (Options.CurrentGameMode != CustomGameMode.HideAndSeek) return;
-
+        public static void StartSeekerBlindTime()
+        {
             IsBlindTime = true;
             Utils.MarkEveryoneDirtySettingsV4();
             _ = new LateTask(() =>
@@ -95,7 +96,7 @@ namespace EHR
         public static List<CustomRoles> GetAllHnsRoles(IEnumerable<Type> types)
         {
             return types
-                .Select(x => ((CustomRoles)Enum.Parse(typeof(CustomRoles), ignoreCase: true, value: x.Name)))
+                .Select(x => Enum.Parse<CustomRoles>(ignoreCase: true, value: x.Name))
                 .Where(role => role is CustomRoles.Seeker or CustomRoles.Hider || role.GetMode() != 0)
                 .ToList();
         }
@@ -145,6 +146,11 @@ namespace EHR
                 .Zip(allPlayers)
                 .GroupBy(x => x.First, x => x.Second)
                 .ToDictionary(x => x.Key, x => x.ToArray());
+
+            if (memberNum[Team.Neutral] > 0 && HideAndSeekRoles.TryGetValue(Team.Neutral, out var neutrals))
+            {
+                HideAndSeekRoles[Team.Neutral] = neutrals.Shuffle().ToDictionary(x => x.Key, x => x.Value);
+            }
 
             foreach ((Team team, Dictionary<CustomRoles, int> roleCounts) in HideAndSeekRoles)
             {
@@ -209,7 +215,7 @@ namespace EHR
             if (result.ContainsValue(CustomRoles.Agent))
             {
                 var agent = result.GetKeyByValue(CustomRoles.Agent).PlayerId;
-                PlayerRoles.DoIf(x => x.Value.Interface.Team == Team.Impostor, x => TargetArrow.Add(x.Key, agent));
+                PlayerRoles.DoIf(x => x.Value.Role != CustomRoles.Agent && x.Value.Interface.Team == Team.Impostor, x => TargetArrow.Add(x.Key, agent));
             }
         }
 
@@ -368,7 +374,7 @@ namespace EHR
                 TaskState ts = state.Value.TaskState;
                 string stateText = string.Empty;
                 if (PlayersSeeRoles.GetBool()) stateText = $" ({GetRole().ToColoredString()}){GetTaskCount()}";
-                else if (isSeeker) stateText = $" ({CustomRoles.Seeker.ToString()})";
+                else if (isSeeker) stateText = $" ({CustomRoles.Seeker.ToColoredString()})";
                 if (!alive) stateText += $"  <color=#ff0000>{Translator.GetString("Dead")}</color>";
 
                 stateText = $"{name}{stateText}";
@@ -418,7 +424,7 @@ namespace EHR
                 var imps = PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).ToDictionary(x => x.Key, x => Utils.GetPlayerById(x.Key).Pos());
                 var nonImps = PlayerRoles.Where(x => x.Value.Interface.Team is Team.Crewmate or Team.Neutral).ToArray();
                 ClosestImpostor = nonImps.ToDictionary(x => x.Key, x => imps.MinBy(y => Vector2.Distance(y.Value, Utils.GetPlayerById(x.Key).Pos())).Key);
-                Danger = nonImps.ToDictionary(x => x.Key, x => (1 + (int)Vector2.Distance(Utils.GetPlayerById(x.Key).Pos(), Utils.GetPlayerById(ClosestImpostor[x.Key]).Pos())) / 2);
+                Danger = nonImps.ToDictionary(x => x.Key, x => Math.Clamp(((1 + (int)Math.Ceiling(Vector2.Distance(Utils.GetPlayerById(x.Key).Pos(), Utils.GetPlayerById(ClosestImpostor[x.Key]).Pos()))) / 3) - 1, 0, 5));
             }
         }
     }

@@ -298,14 +298,14 @@ internal class ChatCommands
                         if (Main.AlwaysSpawnTogetherCombos.Count > 0)
                         {
                             sb.AppendLine(GetString("AlwaysComboListTitle"));
-                            sb.AppendLine(Main.AlwaysSpawnTogetherCombos.Join(x => $"{x.Key.ToColoredString()} \u00a7 {x.Value.ToColoredString()}", "\n"));
+                            sb.AppendLine(Main.AlwaysSpawnTogetherCombos.Join(x => $"{x.Key.ToColoredString()} \u00a7 {x.Value.Join(r => r.ToColoredString())}", "\n"));
                             sb.AppendLine();
                         }
 
                         if (Main.NeverSpawnTogetherCombos.Count > 0)
                         {
                             sb.AppendLine(GetString("NeverComboListTitle"));
-                            sb.AppendLine(Main.NeverSpawnTogetherCombos.Join(x => $"{x.Key.ToColoredString()} \u2194 {x.Value.ToColoredString()}", "\n"));
+                            sb.AppendLine(Main.NeverSpawnTogetherCombos.Join(x => $"{x.Key.ToColoredString()} \u2194 {x.Value.Join(r => r.ToColoredString())}", "\n"));
                             sb.AppendLine();
                         }
 
@@ -322,8 +322,17 @@ internal class ChatCommands
                             if (GetRoleByName(args[2], out CustomRoles mainRole) && GetRoleByName(args[3], out CustomRoles addOn))
                             {
                                 if (mainRole.IsAdditionRole() || !addOn.IsAdditionRole() || addOn == CustomRoles.Lovers) break;
-                                if (args[1] == "add") Main.AlwaysSpawnTogetherCombos[mainRole] = addOn;
-                                else Main.NeverSpawnTogetherCombos[mainRole] = addOn;
+                                if (args[1] == "add")
+                                {
+                                    if (!Main.AlwaysSpawnTogetherCombos.TryGetValue(mainRole, out var list1)) Main.AlwaysSpawnTogetherCombos[mainRole] = [addOn];
+                                    else if (!list1.Contains(addOn)) list1.Add(addOn);
+                                }
+                                else
+                                {
+                                    if (!Main.NeverSpawnTogetherCombos.TryGetValue(mainRole, out var list2)) Main.NeverSpawnTogetherCombos[mainRole] = [addOn];
+                                    else if (!list2.Contains(addOn)) list2.Add(addOn);
+                                }
+
                                 Utils.SendMessage(string.Format(args[1] == "add" ? GetString("ComboAdd") : GetString("ComboBan"), GetString(mainRole.ToString()), GetString(addOn.ToString())), localPlayerId);
                             }
 
@@ -333,14 +342,14 @@ internal class ChatCommands
                             if (GetRoleByName(args[2], out CustomRoles mainRole2) && GetRoleByName(args[3], out CustomRoles addOn2))
                             {
                                 if (mainRole2.IsAdditionRole() || !addOn2.IsAdditionRole()) break;
-                                if (args[1] == "remove" && Main.AlwaysSpawnTogetherCombos.TryGetValue(mainRole2, out var comboAddon) && comboAddon == addOn2)
+                                if (args[1] == "remove" && Main.AlwaysSpawnTogetherCombos.TryGetValue(mainRole2, out var list3))
                                 {
-                                    Main.AlwaysSpawnTogetherCombos.Remove(mainRole2);
+                                    list3.Remove(addOn2);
                                     Utils.SendMessage(string.Format(GetString("ComboRemove"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), localPlayerId);
                                 }
-                                else if (Main.NeverSpawnTogetherCombos.TryGetValue(mainRole2, out var comboAddon2) && comboAddon2 == addOn2)
+                                else if (Main.NeverSpawnTogetherCombos.TryGetValue(mainRole2, out var list4))
                                 {
-                                    Main.NeverSpawnTogetherCombos.Remove(mainRole2);
+                                    list4.Remove(addOn2);
                                     Utils.SendMessage(string.Format(GetString("ComboAllow"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), localPlayerId);
                                 }
                             }

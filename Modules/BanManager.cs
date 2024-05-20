@@ -152,11 +152,40 @@ public static class BanManager
     public static void CheckBanPlayer(ClientData player)
     {
         if (!AmongUsClient.Instance.AmHost || !Options.ApplyBanList.GetBool()) return;
+
+        string friendcode = player?.FriendCode;
+        if (friendcode?.Length < 7) // #1234 is 5 chars, and it's impossible for a friend code to only have 3
+        {
+            AmongUsClient.Instance.KickPlayer(player.Id, true);
+            Logger.SendInGame(string.Format(GetString("Message.BannedByEACList"), player.PlayerName));
+            Logger.Info($"{player.PlayerName} banned by EAC because their friend code is too short.", "EAC");
+            return;
+        }
+
+        if (friendcode?.Count(c => c == '#') != 1)
+        {
+            // This is part of eac, so that's why it will say banned by EAC list.
+            AmongUsClient.Instance.KickPlayer(player.Id, true);
+            Logger.SendInGame(string.Format(GetString("Message.BannedByEACList"), player.PlayerName));
+            Logger.Info($"{player.PlayerName} EAC Banned bc friendcode contains more than 1 #", "EAC");
+            return;
+        }
+
+        // Contains any non-word character or digits
+        const string pattern = @"[\W\d]";
+        if (Regex.IsMatch(friendcode[..friendcode.IndexOf("#", StringComparison.Ordinal)], pattern))
+        {
+            AmongUsClient.Instance.KickPlayer(player.Id, true);
+            Logger.SendInGame(string.Format(GetString("Message.BannedByEACList"), player.PlayerName));
+            Logger.Info($"{player.PlayerName} was banned because of a spoofed friend code", "EAC");
+            return;
+        }
+
         if (CheckBanList(player?.FriendCode, player?.GetHashedPuid()))
         {
             AmongUsClient.Instance.KickPlayer(player.Id, true);
             Logger.SendInGame(string.Format(GetString("Message.BanedByBanList"), player.PlayerName));
-            Logger.Info($"{player.PlayerName}は過去にBAN済みのためBANされました。", "BAN");
+            Logger.Info($"{player.PlayerName} is banned because he has been banned in the past.", "BAN");
             return;
         }
 
@@ -164,14 +193,13 @@ public static class BanManager
         {
             AmongUsClient.Instance.KickPlayer(player.Id, true);
             Logger.SendInGame(string.Format(GetString("Message.BanedByEACList"), player.PlayerName));
-            Logger.Info($"{player.PlayerName}存在于EAC封禁名单", "BAN");
+            Logger.Info($"{player.PlayerName} is on the EAC ban list", "BAN");
             return;
         }
 
         if (TempBanWhiteList.Contains(player?.GetHashedPuid()))
         {
             AmongUsClient.Instance.KickPlayer(player.Id, true);
-            //This should not happen
             Logger.Info($"{player.PlayerName} was in temp ban list", "BAN");
         }
     }

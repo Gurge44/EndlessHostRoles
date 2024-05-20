@@ -60,8 +60,7 @@ namespace EHR.Roles.Neutral
 
         public override void OnTaskComplete(PlayerControl player, int CompletedTasksCount, int AllTasksCount)
         {
-            var alive = player.IsAlive();
-            if ((CompletedTasksCount + 1) >= AllTasksCount && !(WorkaholicCannotWinAtDeath.GetBool() && !alive))
+            if ((CompletedTasksCount + 1) >= AllTasksCount && (!WorkaholicCannotWinAtDeath.GetBool() || player.IsAlive()))
             {
                 Logger.Info("Workaholic Tasks Finished", "Workaholic");
                 RPC.PlaySoundRPC(player.PlayerId, Sounds.KillSound);

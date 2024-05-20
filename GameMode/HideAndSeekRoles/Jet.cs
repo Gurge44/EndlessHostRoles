@@ -45,7 +45,7 @@ namespace EHR.GameMode.HideAndSeekRoles
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(66, 245, 75, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Jet]);
-            DashSpeed = FloatOptionItem.Create(69_213_707, "JetSpeedIncreased", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
+            DashSpeed = FloatOptionItem.Create(69_213_707, "JetSpeedIncreased", new(0.05f, 5f, 0.05f), 1.5f, TabGroup.CrewmateRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(66, 245, 75, byte.MaxValue))

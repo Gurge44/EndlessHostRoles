@@ -274,8 +274,8 @@ class CreatePlayerPatch
             if (Regex.Replace(Regex.Replace(name, @"\s", string.Empty), @"[\x01-\x1F,\x7F]", string.Empty).Length < 1) name = Main.Get_TName_Snacks;
         }
 
-        Main.AllPlayerNames.Remove(client.Character.PlayerId);
-        Main.AllPlayerNames.TryAdd(client.Character.PlayerId, name);
+        Main.AllPlayerNames[client.Character.PlayerId] = name;
+
         if (!name.Equals(client.PlayerName))
         {
             _ = new LateTask(() =>

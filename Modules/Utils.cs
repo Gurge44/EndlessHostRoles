@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Neutral;
 using EHR.Patches;
 using EHR.Roles.AddOns.Common;
 using EHR.Roles.AddOns.Crewmate;
@@ -569,6 +570,8 @@ public static class Utils
             case CustomGameMode.HotPotato: return false;
             case CustomGameMode.HideAndSeek: return HnSManager.HasTasks(p);
         }
+
+        if (Shifter.ForceDisableTasks(p.PlayerId)) return false;
 
         var role = States.MainRole;
         switch (role)
@@ -1638,19 +1641,18 @@ public static class Utils
 
     public static void CheckAndSpawnAdditionalRefugee(GameData.PlayerInfo deadPlayer)
     {
-        if (deadPlayer != null && Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() && Main.AllAlivePlayerControls.Length >= Options.SpawnAdditionalRefugeeMinAlivePlayers.GetInt() && !CustomRoles.Refugee.RoleExist(countDead: true) && !Main.AllAlivePlayerControls.Any(x => x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && Options.SpawnAdditionalRefugeeWhenNKAlive.GetBool()))))
-        {
-            PlayerControl[] ListToChooseFrom = Options.UsePets.GetBool() ? Main.AllAlivePlayerControls.Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate)).ToArray() : Main.AllAlivePlayerControls.Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate) && x.GetCustomRole().GetRoleTypes() == RoleTypes.Impostor).ToArray();
+        if (Options.CurrentGameMode != CustomGameMode.Standard || deadPlayer == null || !Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() || Main.AllAlivePlayerControls.Length < Options.SpawnAdditionalRefugeeMinAlivePlayers.GetInt() || CustomRoles.Refugee.RoleExist(countDead: true) || Main.AllAlivePlayerControls.Any(x => x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && Options.SpawnAdditionalRefugeeWhenNKAlive.GetBool())))) return;
 
-            if (ListToChooseFrom.Length > 0)
-            {
-                var pc = ListToChooseFrom.RandomElement();
-                pc.RpcSetCustomRole(CustomRoles.Refugee);
-                pc.SetKillCooldown();
-                Logger.Warn($"{pc.GetRealName()} is now a Refugee since all Impostors are dead", "Add Refugee");
-            }
-            else Logger.Msg("No Player to change to Refugee.", "Add Refugee");
+        PlayerControl[] ListToChooseFrom = Options.UsePets.GetBool() ? Main.AllAlivePlayerControls.Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate)).ToArray() : Main.AllAlivePlayerControls.Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate) && x.GetCustomRole().GetRoleTypes() == RoleTypes.Impostor).ToArray();
+
+        if (ListToChooseFrom.Length > 0)
+        {
+            var pc = ListToChooseFrom.RandomElement();
+            pc.RpcSetCustomRole(CustomRoles.Refugee);
+            pc.SetKillCooldown();
+            Logger.Warn($"{pc.GetRealName()} is now a Refugee since all Impostors are dead", "Add Refugee");
         }
+        else Logger.Msg("No Player to change to Refugee.", "Add Refugee");
     }
 
     public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "")
@@ -1883,7 +1885,7 @@ public static class Utils
 
                 SelfSuffix.Clear();
 
-                if (Options.CurrentGameMode != CustomGameMode.Standard) goto GameMode;
+                if (Options.CurrentGameMode is not CustomGameMode.Standard and not CustomGameMode.HideAndSeek) goto GameMode;
 
                 Main.PlayerStates.Values.Do(x => SelfSuffix.Append(x.Role.GetSuffix(seer, seer, isMeeting: isForMeeting)));
 

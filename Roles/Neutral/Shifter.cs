@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using HarmonyLib;
@@ -10,6 +11,9 @@ namespace EHR.Neutral
         private const int Id = 644400;
         public static bool On;
 
+        private static List<byte> WasShifter = [];
+        private static Dictionary<byte, RoleTypes> AllPlayerBasis = [];
+
         private static OptionItem KillCooldown;
         private static OptionItem CanVent;
         private static OptionItem HasImpostorVision;
@@ -17,6 +21,7 @@ namespace EHR.Neutral
         private static OptionItem StealProgress;
 
         public override bool IsEnable => On;
+        public static bool ForceDisableTasks(byte id) => WasShifter.Contains(id) && AllPlayerBasis.TryGetValue(id, out var basis) && basis is RoleTypes.Impostor or RoleTypes.Shapeshifter;
 
         public static void SetupCustomOption()
         {
@@ -37,6 +42,10 @@ namespace EHR.Neutral
         public override void Init()
         {
             On = false;
+
+            WasShifter = [];
+            AllPlayerBasis = [];
+            _ = new LateTask(() => AllPlayerBasis = Main.PlayerStates.ToDictionary(x => x.Key, x => x.Value.MainRole.GetRoleTypes()), 10f, log: false);
         }
 
         public override void Add(byte playerId)
@@ -56,6 +65,8 @@ namespace EHR.Neutral
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (!base.OnCheckMurder(killer, target)) return false;
+
+            WasShifter.Add(killer.PlayerId);
 
             killer.RpcSetCustomRole(target.GetCustomRole());
 
@@ -81,6 +92,9 @@ namespace EHR.Neutral
                     killerSubRoles.Skip(1).Do(x => target.RpcSetCustomRole(x));
                 }
             }
+
+            Main.AbilityCD.Remove(killer.PlayerId);
+            killer.SyncSettings();
 
             // ------------------------------------------------------------------------------------------
 

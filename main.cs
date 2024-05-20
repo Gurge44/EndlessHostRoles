@@ -61,8 +61,8 @@ public class Main : BasePlugin
     public static Dictionary<CustomRoles, string> RoleColors;
     public static Dictionary<byte, CustomRoles> SetRoles = [];
     public static Dictionary<byte, List<CustomRoles>> SetAddOns = [];
-    public static readonly Dictionary<CustomRoles, CustomRoles> AlwaysSpawnTogetherCombos = [];
-    public static readonly Dictionary<CustomRoles, CustomRoles> NeverSpawnTogetherCombos = [];
+    public static readonly Dictionary<CustomRoles, List<CustomRoles>> AlwaysSpawnTogetherCombos = [];
+    public static readonly Dictionary<CustomRoles, List<CustomRoles>> NeverSpawnTogetherCombos = [];
     public static Dictionary<byte, string> LastAddOns = [];
     public static List<RoleBase> AllRoleClasses;
     public static float RefixCooldownDelay;

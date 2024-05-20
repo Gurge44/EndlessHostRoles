@@ -69,7 +69,7 @@ namespace EHR.GameMode.HideAndSeekRoles
             {
                 if (Status.LastArrowEndTime + ArrowFrequency.GetInt() < Utils.TimeStamp)
                 {
-                    var target = HnSManager.PlayerRoles.Where(x => x.Value.Interface.Team != Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Shuffle().FirstOrDefault();
+                    var target = HnSManager.PlayerRoles.Where(x => x.Value.Interface.Team != Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Where(x => x != null && x.IsAlive()).Shuffle().FirstOrDefault();
                     if (target != null)
                     {
                         Status.TargetId = target.PlayerId;

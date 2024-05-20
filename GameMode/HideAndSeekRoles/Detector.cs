@@ -52,6 +52,8 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
+            if (!pc.IsAlive()) return;
+
             long now = Utils.TimeStamp;
             if (LastInfoTime + InfoFrequency.GetInt() <= now)
             {
