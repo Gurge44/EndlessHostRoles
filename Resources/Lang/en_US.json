@@ -3416,7 +3416,7 @@
   "TaskMarkPerRound": "Maximum Number of Tasks Marked Each Round",
   "Shifter": "Shifter",
   "ShifterInfo": "Steal Someone's Role",
-  "ShifterInfoLong": "(Neutrals):\\nAs the Shifter, you must steal someone's role by using your kill button on them. Depending on the settings, you may also steal their progress in their role and ability uses, and their add-ons.\\nIf you have this role when the game ends, you lose!",
+  "ShifterInfoLong": "(Neutrals):\\nAs the Shifter, you must steal someone's role by using your pet button near them. Depending on the settings, you may also steal their progress in their role and ability uses, and their add-ons.\\nIf you have this role when the game ends, you lose!",
   "Shifter.StealAddons": "Steal Add-ons",
   "Shifter.StealProgress": "Steal Progress",
   "Rogue": "Rogue",
