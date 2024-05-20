@@ -162,4 +162,9 @@ public class Postman : RoleBase
         if (seer.IsModClient() || Main.PlayerStates[seer.PlayerId].Role is not Postman { IsEnable: true } pm) return string.Empty;
         return !pm.IsFinished ? string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(pm.Target).GetRealName()) : "<color=#00ff00>✓</color>";
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.KillButton?.OverrideText(GetString("PostmanKillButtonText"));
+    }
 }

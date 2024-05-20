@@ -125,4 +125,9 @@ public class Succubus : RoleBase
             charmed.Suicide(realKiller: pc);
         }
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.KillButton?.OverrideText(GetString("SuccubusKillButtonText"));
+    }
 }

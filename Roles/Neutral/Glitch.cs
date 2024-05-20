@@ -90,7 +90,8 @@ public class Glitch : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        hud.SabotageButton.ToggleVisible(true);
+        hud.SabotageButton?.ToggleVisible(true);
+        hud.SabotageButton?.OverrideText(Translator.GetString("HackButtonText"));
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();

@@ -17,6 +17,8 @@ internal class QuickShooter : RoleBase
 
     public static Dictionary<byte, int> ShotLimit = [];
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.QuickShooter);
@@ -39,8 +41,6 @@ internal class QuickShooter : RoleBase
         playerIdList.Add(playerId);
         ShotLimit.TryAdd(playerId, 0);
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     private static void SendRPC(byte playerId)
     {
@@ -110,4 +110,17 @@ internal class QuickShooter : RoleBase
     }
 
     public override string GetProgressText(byte playerId, bool comms) => Utils.ColorString(ShotLimit.ContainsKey(playerId) && ShotLimit[playerId] > 0 ? Utils.GetRoleColor(CustomRoles.QuickShooter).ShadeColor(0.25f) : Color.gray, ShotLimit.TryGetValue(playerId, out var shotLimit) ? $"({shotLimit})" : "Invalid");
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        if (Options.UsePets.GetBool())
+        {
+            hud.PetButton?.OverrideText(Translator.GetString("QuickShooterShapeshiftText"));
+        }
+        else
+        {
+            hud.AbilityButton?.OverrideText(Translator.GetString("QuickShooterShapeshiftText"));
+            hud.AbilityButton?.SetUsesRemaining(ShotLimit.GetValueOrDefault(PlayerControl.LocalPlayer.PlayerId, 0));
+        }
+    }
 }

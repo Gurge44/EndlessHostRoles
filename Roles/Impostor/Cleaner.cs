@@ -9,14 +9,14 @@ namespace EHR.Roles.Impostor
     {
         public static List<byte> CleanerBodies = [];
 
-        private bool HasImpostorVision;
+        public static bool On;
         private bool CanVent;
-        private float KillCooldown;
-        private float KCDAfterClean;
+
+        private bool HasImpostorVision;
 
         private bool IsMedusa;
-
-        public static bool On;
+        private float KCDAfterClean;
+        private float KillCooldown;
         public override bool IsEnable => On;
 
         public static void SetupCustomOption()
@@ -74,7 +74,12 @@ namespace EHR.Roles.Impostor
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            hud.ReportButton?.OverrideText(Translator.GetString("CleanerReportButtonText"));
+            if (IsMedusa)
+            {
+                hud.KillButton?.OverrideText(Translator.GetString("KillButtonText"));
+                hud.ReportButton?.OverrideText(Translator.GetString("MedusaReportButtonText"));
+            }
+            else hud.ReportButton?.OverrideText(Translator.GetString("CleanerReportButtonText"));
         }
 
         public override bool CheckReportDeadBody(PlayerControl cleaner, GameData.PlayerInfo target, PlayerControl killer)

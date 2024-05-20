@@ -422,5 +422,13 @@ namespace EHR.Roles.Crewmate
         {
             return !IsProtected;
         }
+
+        public override void SetButtonTexts(HudManager hud, byte id)
+        {
+            if (UsePets.GetBool())
+                hud.PetButton?.OverrideText(GetString("AlchemistVentButtonText"));
+            else
+                hud.AbilityButton?.OverrideText(GetString("AlchemistVentButtonText"));
+        }
     }
 }

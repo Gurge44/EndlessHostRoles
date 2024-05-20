@@ -9,23 +9,19 @@ namespace EHR.Roles.Impostor
 {
     public class Devourer : RoleBase
     {
+        private const int Id = 3550;
         private static readonly GameData.PlayerOutfit ConsumedOutfit = new GameData.PlayerOutfit().Set("", 15, "", "", "visor_Crack", "", "");
         private static Dictionary<byte, GameData.PlayerOutfit> OriginalPlayerSkins = [];
-
-        private const int Id = 3550;
         public static List<byte> playerIdList = [];
 
         private static OptionItem DefaultKillCooldown;
         private static OptionItem ReduceKillCooldown;
         private static OptionItem MinKillCooldown;
-
         private static OptionItem ShapeshiftCooldown;
-
-        //   private static OptionItem ShapeshiftDuration;
         public static OptionItem HideNameOfConsumedPlayer;
+        private float NowCooldown;
 
         public List<byte> PlayerSkinsCosumed = [];
-        private float NowCooldown;
 
         public override bool IsEnable => playerIdList.Count > 0;
 
@@ -143,6 +139,11 @@ namespace EHR.Roles.Impostor
                 .EndRpc();
 
             sender.SendMessage();
+        }
+
+        public override void SetButtonTexts(HudManager hud, byte id)
+        {
+            hud.AbilityButton?.OverrideText(GetString("DevourerButtonText"));
         }
     }
 }

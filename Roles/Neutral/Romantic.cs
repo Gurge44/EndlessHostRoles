@@ -244,6 +244,11 @@ public class Romantic : RoleBase
 
         RomanticPC.SetKillCooldown();
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.KillButton?.OverrideText(!HasPickedPartner ? GetString("RomanticKillButtonText") : GetString("MedicalerButtonText"));
+    }
 }
 
 public class VengefulRomantic : RoleBase
@@ -315,6 +320,11 @@ public class VengefulRomantic : RoleBase
     {
         byte target = reader.ReadByte();
         Target = target;
+    }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.KillButton?.OverrideText(GetString("VengefulRomanticKillButtonText"));
     }
 }
 

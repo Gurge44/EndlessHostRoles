@@ -311,5 +311,10 @@ namespace EHR.Roles.Neutral
                 }
             }
         }
+
+        public override void SetButtonTexts(HudManager hud, byte id)
+        {
+            hud.KillButton?.OverrideText(Translator.GetString("InfectiousKillButtonText"));
+        }
     }
 }

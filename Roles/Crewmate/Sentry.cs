@@ -207,5 +207,10 @@ namespace EHR.Roles.Impostor
         {
             DeadBodiesInRoom.Clear();
         }
+
+        public override void SetButtonTexts(HudManager hud, byte id)
+        {
+            hud.PetButton?.OverrideText(Translator.GetString("SentryPetButtonText"));
+        }
     }
 }

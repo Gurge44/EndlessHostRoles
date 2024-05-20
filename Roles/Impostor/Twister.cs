@@ -92,5 +92,18 @@ namespace EHR.Roles.Impostor
                 pc.Notify(ColorString(GetRoleColor(CustomRoles.Twister), string.Format(GetString("TeleportedByTwister"), target.GetRealName())));
             }
         }
+
+        public override void SetButtonTexts(HudManager hud, byte id)
+        {
+            if (UsePets.GetBool())
+            {
+                hud.PetButton?.OverrideText(GetString("TwisterButtonText"));
+            }
+            else
+            {
+                hud.AbilityButton?.OverrideText(GetString("TwisterButtonText"));
+                hud.AbilityButton?.SetUsesRemaining((int)id.GetAbilityUseLimit());
+            }
+        }
     }
 }

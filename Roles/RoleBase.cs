@@ -162,35 +162,6 @@ namespace EHR
 
         public virtual void SetButtonTexts(HudManager hud, byte id)
         {
-            hud.KillButton?.OverrideText(Translator.GetString("KillButtonText"));
-            hud.ReportButton?.OverrideText(Translator.GetString("ReportButtonText"));
-            hud.PetButton?.OverrideText(Translator.GetString("PetButtonText"));
-            hud.ImpostorVentButton?.OverrideText(Translator.GetString("VentButtonText"));
-            hud.SabotageButton?.OverrideText(Translator.GetString("SabotageButtonText"));
-            if (PlayerControl.LocalPlayer.GetCustomRole().UsesPetInsteadOfKill())
-            {
-                hud.PetButton?.OverrideText(Translator.GetString("KillButtonText"));
-            }
-
-            if (PlayerControl.LocalPlayer.Is(RoleTypes.Shapeshifter))
-            {
-                hud.AbilityButton?.OverrideText(Translator.GetString("AbilityButtonText.Shapeshifter"));
-            }
-
-            if (PlayerControl.LocalPlayer.Is(RoleTypes.Engineer))
-            {
-                hud.AbilityButton?.OverrideText(Translator.GetString("AbilityButtonText.Engineer"));
-            }
-
-            if (PlayerControl.LocalPlayer.Is(RoleTypes.Scientist))
-            {
-                hud.AbilityButton?.OverrideText(Translator.GetString("AbilityButtonText.Scientist"));
-            }
-
-            if (PlayerControl.LocalPlayer.Is(RoleTypes.GuardianAngel))
-            {
-                hud.AbilityButton?.OverrideText(Translator.GetString("AbilityButtonText.GuardianAngel"));
-            }
         }
 
         public virtual string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)

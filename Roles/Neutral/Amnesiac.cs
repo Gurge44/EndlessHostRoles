@@ -168,4 +168,10 @@ public class Amnesiac : RoleBase
         if (player.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) return true;
         return player.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Refugee);
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        ActionButton amneButton = RememberMode.GetValue() == 0 ? hud.KillButton : hud.ReportButton;
+        amneButton?.OverrideText(GetString("RememberButtonText"));
+    }
 }

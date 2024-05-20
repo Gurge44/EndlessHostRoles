@@ -26,6 +26,8 @@ namespace EHR.Roles.Neutral
 
         public bool IsWon;
 
+        public override bool IsEnable => On;
+
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.FFF, zeroOne: false);
@@ -59,7 +61,6 @@ namespace EHR.Roles.Neutral
                 Main.ResetCamPlayerList.Add(playerId);
         }
 
-        public override bool IsEnable => On;
         public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
         public override bool CanUseKillButton(PlayerControl pc)
@@ -104,6 +105,7 @@ namespace EHR.Roles.Neutral
                     return false;
                 }
             }
+
             if (MisFireKillTarget.GetBool() && killer.RpcCheckAndMurder(target, true))
             {
                 target.SetRealKiller(killer);
@@ -111,6 +113,7 @@ namespace EHR.Roles.Neutral
                 target.Data.IsDead = true;
                 Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Misfire;
             }
+
             killer.Suicide(PlayerState.DeathReason.Sacrifice);
             Logger.Info($"{killer.GetRealName()} killed incorrect target => misfire", "FFF");
             return false;
@@ -121,19 +124,24 @@ namespace EHR.Roles.Neutral
             return role switch
             {
                 CustomRoles.Gangster or
-                CustomRoles.Succubus or
-                CustomRoles.Deathknight or
-                CustomRoles.Necromancer or
-                CustomRoles.Romantic or
-                CustomRoles.RuthlessRomantic or
-                CustomRoles.VengefulRomantic or
-                CustomRoles.Sidekick or
-                CustomRoles.Jackal or
-                CustomRoles.Virus
-                => true,
+                    CustomRoles.Succubus or
+                    CustomRoles.Deathknight or
+                    CustomRoles.Necromancer or
+                    CustomRoles.Romantic or
+                    CustomRoles.RuthlessRomantic or
+                    CustomRoles.VengefulRomantic or
+                    CustomRoles.Sidekick or
+                    CustomRoles.Jackal or
+                    CustomRoles.Virus
+                    => true,
 
                 _ => false,
             };
+        }
+
+        public override void SetButtonTexts(HudManager hud, byte id)
+        {
+            hud.KillButton?.OverrideText(Translator.GetString("FFFButtonText"));
         }
     }
 }

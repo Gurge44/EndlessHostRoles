@@ -24,6 +24,7 @@ internal static class CustomRolesHelper
         CustomRoles.Sentry,
         CustomRoles.Cherokious,
         CustomRoles.Chemist,
+        CustomRoles.Shifter,
 
         // HnS
         CustomRoles.Jet,
@@ -699,8 +700,9 @@ internal static class CustomRolesHelper
         CustomRoles.Refugee => true,
         CustomRoles.Necromancer => true,
         CustomRoles.Deathknight => true,
+        CustomRoles.Shifter => true,
 
-        _ => false,
+        _ => false
     };
 
     public static bool OnlySpawnsWithPets(this CustomRoles role) => OnlySpawnsWithPetsRoleList.Contains(role);

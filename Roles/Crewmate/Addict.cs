@@ -20,10 +20,12 @@ namespace EHR.Roles.Crewmate
         public static OptionItem SpeedWhileImmortal;
         public static OptionItem FreezeTimeAfterImmortal;
 
-        private float SuicideTimer = -10f;
+        private static float DefaultSpeed;
         private float ImmortalTimer = 420f;
 
-        private static float DefaultSpeed;
+        private float SuicideTimer = -10f;
+
+        public override bool IsEnable => playerIdList.Count > 0;
 
         public static void SetupCustomOption()
         {
@@ -55,8 +57,6 @@ namespace EHR.Roles.Crewmate
             ImmortalTimer = 420f;
             DefaultSpeed = Main.AllPlayerSpeed[playerId];
         }
-
-        public override bool IsEnable => playerIdList.Count > 0;
 
         bool IsImmortal(PlayerControl player) => player.Is(CustomRoles.Addict) && ImmortalTimer <= ImmortalTimeAfterVent.GetFloat();
 
@@ -131,6 +131,11 @@ namespace EHR.Roles.Crewmate
                 ReportDeadBodyPatch.CanReport[addict.PlayerId] = true;
                 addict.MarkDirtySettings();
             }, FreezeTimeAfterImmortal.GetFloat(), "AddictGetDown");
+        }
+
+        public override void SetButtonTexts(HudManager hud, byte id)
+        {
+            hud.AbilityButton?.OverrideText(Translator.GetString("AddictVentButtonText"));
         }
     }
 }

@@ -4,11 +4,14 @@ namespace EHR.Roles.Impostor
 {
     internal class Swiftclaw : RoleBase
     {
-        private static int Id => 643340;
         public static OptionItem DashCD;
         public static OptionItem DashDuration;
         public static OptionItem DashSpeed;
         private static readonly Dictionary<byte, (long StartTimeStamp, float NormalSpeed)> DashStart = [];
+
+        public static bool On;
+        private static int Id => 643340;
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
@@ -35,9 +38,6 @@ namespace EHR.Roles.Impostor
             On = true;
         }
 
-        public static bool On;
-        public override bool IsEnable => On;
-
         public override void OnPet(PlayerControl pc)
         {
             if (pc == null || DashStart.ContainsKey(pc.PlayerId)) return;
@@ -62,7 +62,13 @@ namespace EHR.Roles.Impostor
             {
                 Main.AllPlayerSpeed[item.Key] = item.Value.NormalSpeed;
             }
+
             DashStart.Clear();
+        }
+
+        public override void SetButtonTexts(HudManager hud, byte id)
+        {
+            hud.PetButton?.OverrideText(Translator.GetString("SwiftclawKillButtonText"));
         }
     }
 }
