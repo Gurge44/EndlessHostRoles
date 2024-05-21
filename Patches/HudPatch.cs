@@ -117,23 +117,6 @@ class HudManagerPatch
                         }
                     }
 
-                    foreach (var role in Main.SetRoles)
-                    {
-                        if (!Main.SetAddOns.TryGetValue(role.Key, out var addons)) continue;
-
-                        var pc = Utils.GetPlayerById(role.Key);
-                        if (pc == null) continue;
-
-                        foreach (var addon in addons)
-                        {
-                            if (!CustomRolesHelper.CheckAddonConflict(addon, pc))
-                            {
-                                resultText[role.Key] += " <#ff0000>(!)</color>";
-                                break;
-                            }
-                        }
-                    }
-
                     OverriddenRolesText.text = string.Join(string.Empty, resultText.Values);
                 }
                 else
