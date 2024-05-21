@@ -116,6 +116,10 @@
 
 <br>
 
+![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=gurge44&show=reviews,discussions_started,discussions_answered,prs_merged,prs_merged_percentage&show_icons=true&theme=transparent&include_all_commits=true&rank_icon=github)
+
+<br>
+
 ## Credit to these mods and their developers for the code and help:
 ### :star: [TOHER/TOHRE/TOHEN](https://github.com/0xDrMoe/TownofHost-Enhanced) :
 > 
