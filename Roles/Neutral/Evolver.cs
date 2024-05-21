@@ -91,6 +91,12 @@ namespace EHR.Neutral
         public override void OnReportDeadBody()
         {
             Stats.Shielded = false;
+
+            if (ChooseTimer > 0)
+            {
+                ApplySelectedUpgradeAndReset();
+                ChooseTimer = 0;
+            }
         }
 
         public override void AfterMeetingTasks()
@@ -127,53 +133,58 @@ namespace EHR.Neutral
             ChooseTimer--;
             Utils.SendRPC(CustomRPC.SyncEvolver, EvolverPC.PlayerId, 3, ChooseTimer);
 
-            if (ChooseTimer == 0)
+            if (ChooseTimer == 0) ApplySelectedUpgradeAndReset();
+        }
+
+        private void ApplySelectedUpgradeAndReset()
+        {
+            switch (Upgrades[SelectedUpgradeIndex])
             {
-                switch (Upgrades[SelectedUpgradeIndex])
-                {
-                    case Upgrade.DecreaseKillCooldown:
-                        Stats.KillCooldown -= 2.5f;
-                        break;
-                    case Upgrade.GainImpostorVision:
-                        Stats.ImpostorVision = true;
-                        break;
-                    case Upgrade.IncreaseVision:
-                        Stats.Vision += 0.4f;
-                        break;
-                    case Upgrade.IncreaseSpeed:
-                        Stats.Speed += 0.25f;
-                        break;
-                    case Upgrade.IncreaseKillDistance:
-                        Stats.KillDistance++;
-                        break;
-                    case Upgrade.GainVent:
-                        Stats.CanVent = true;
-                        Stats.VentUseLimit = 1;
-                        break;
-                    case Upgrade.IncreaseVentUseLimit:
-                        Stats.VentUseLimit += 3;
-                        break;
-                    case Upgrade.GainSabotage:
-                        Stats.CanSabotage = true;
-                        Stats.SabotageUseLimit = 1;
-                        break;
-                    case Upgrade.IncreaseSabotageUseLimit:
-                        Stats.SabotageUseLimit += 2;
-                        break;
-                    case Upgrade.GainShield:
-                        Stats.Shielded = true;
-                        break;
-                }
-
-                EnsureStatLimits();
-                pc.SyncSettings();
-                if (Main.KillTimers[pc.PlayerId] > Stats.KillCooldown) pc.SetKillCooldown();
-                if (PlayerControl.LocalPlayer.PlayerId == pc.PlayerId) HudManager.Instance.SetHudActive(pc, pc.Data.Role, true);
-
-                Upgrades = [];
-                SelectedUpgradeIndex = -1;
-                Utils.SendRPC(CustomRPC.SyncEvolver, EvolverPC.PlayerId, 2, SelectedUpgradeIndex);
+                case Upgrade.DecreaseKillCooldown:
+                    Stats.KillCooldown -= 2.5f;
+                    break;
+                case Upgrade.GainImpostorVision:
+                    Stats.ImpostorVision = true;
+                    break;
+                case Upgrade.IncreaseVision:
+                    Stats.Vision += 0.4f;
+                    break;
+                case Upgrade.IncreaseSpeed:
+                    Stats.Speed += 0.25f;
+                    break;
+                case Upgrade.IncreaseKillDistance:
+                    Stats.KillDistance++;
+                    break;
+                case Upgrade.GainVent:
+                    Stats.CanVent = true;
+                    Stats.VentUseLimit = 1;
+                    break;
+                case Upgrade.IncreaseVentUseLimit:
+                    Stats.VentUseLimit += 3;
+                    break;
+                case Upgrade.GainSabotage:
+                    Stats.CanSabotage = true;
+                    Stats.SabotageUseLimit = 1;
+                    break;
+                case Upgrade.IncreaseSabotageUseLimit:
+                    Stats.SabotageUseLimit += 2;
+                    break;
+                case Upgrade.GainShield:
+                    Stats.Shielded = true;
+                    break;
             }
+
+            EnsureStatLimits();
+            if (GameStates.IsInTask)
+            {
+                EvolverPC.SyncSettings();
+                if (Main.KillTimers[EvolverPC.PlayerId] > Stats.KillCooldown) EvolverPC.SetKillCooldown();
+                if (PlayerControl.LocalPlayer.PlayerId == EvolverPC.PlayerId) HudManager.Instance.SetHudActive(EvolverPC, EvolverPC.Data.Role, true);
+            }
+
+            Upgrades = [];
+            SelectedUpgradeIndex = -1;
+            Utils.SendRPC(CustomRPC.SyncEvolver, EvolverPC.PlayerId, 2, SelectedUpgradeIndex);
         }
 
         void EnsureStatLimits()
