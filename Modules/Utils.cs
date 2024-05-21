@@ -2400,9 +2400,12 @@ public static class Utils
             CustomRoles.Parasite => (int)Parasite.SSCD + (includeDuration ? (int)Parasite.SSDur : 0),
             CustomRoles.Tiger => Tiger.EnrageCooldown.GetInt() + (includeDuration ? Tiger.EnrageDuration.GetInt() : 0),
             CustomRoles.Cherokious => Cherokious.KillCooldown.GetInt(),
-            _ => -1,
+            _ => -1
         };
         if (CD == -1) return;
+
+        if (Main.PlayerStates[playerId].SubRoles.Contains(CustomRoles.Energetic))
+            CD = (int)Math.Round(CD * 0.75f);
 
         Main.AbilityCD[playerId] = (TimeStamp, CD);
     }

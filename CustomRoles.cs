@@ -361,6 +361,7 @@ public enum CustomRoles
     Unreportable, // Disregarded
     DoubleShot,
     Egoist,
+    Energetic,
     EvilSpirit,
     Flashman,
     Fool,

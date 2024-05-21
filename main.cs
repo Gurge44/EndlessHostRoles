@@ -499,6 +499,7 @@ public class Main : BasePlugin
                 { CustomRoles.Madmate, "#ff1919" },
                 { CustomRoles.Watcher, "#800080" },
                 { CustomRoles.Sleuth, "#30221c" },
+                { CustomRoles.Energetic, "#ffff00" },
                 { CustomRoles.Dynamo, "#ebe534" },
                 { CustomRoles.AntiTP, "#fcba03" },
                 { CustomRoles.Taskcounter, "#ff1919" },
