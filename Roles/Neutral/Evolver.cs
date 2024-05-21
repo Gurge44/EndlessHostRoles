@@ -58,14 +58,14 @@ namespace EHR.Neutral
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Stats.KillCooldown;
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => Stats is { CanVent: true, VentUseLimit: > 0 };
+        public override bool CanUseImpostorVentButton(PlayerControl pc) => pc.inVent || Stats is { CanVent: true, VentUseLimit: > 0 };
         public override bool CanUseSabotage(PlayerControl pc) => Stats is { CanSabotage: true, SabotageUseLimit: > 0 };
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            opt.SetVision(Stats.ImpostorVision);
             opt.SetFloat(FloatOptionNames.CrewLightMod, Stats.Vision);
             opt.SetFloat(FloatOptionNames.ImpostorLightMod, Stats.Vision);
+            opt.SetVision(Stats.ImpostorVision);
             Main.AllPlayerSpeed[playerId] = Stats.Speed;
             opt.SetInt(Int32OptionNames.KillDistance, Stats.KillDistance);
         }
