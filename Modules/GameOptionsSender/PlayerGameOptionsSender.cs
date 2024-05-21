@@ -130,7 +130,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
         AllSenders.Remove(sender);
     }
 
-    public override IGameOptions BuildGameOptions()
+    protected override IGameOptions BuildGameOptions()
     {
         try
         {
@@ -416,7 +416,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
         }
     }
 
-    public override bool AmValid()
+    protected override bool AmValid()
     {
         return base.AmValid() && player != null && !player.Data.Disconnected && Main.RealOptionsData != null;
     }

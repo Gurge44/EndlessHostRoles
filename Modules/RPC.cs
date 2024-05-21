@@ -137,6 +137,7 @@ public enum CustomRPC
     SyncChemist,
     SyncSimon,
     SyncRogue,
+    SyncEvolver,
 
     // Other Game Modes
     SyncKBPlayer,
@@ -411,6 +412,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SyncRogue:
                 (Main.PlayerStates[reader.ReadByte()].Role as Rogue)?.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncEvolver:
+                (Main.PlayerStates[reader.ReadByte()].Role as Evolver)?.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetBountyTarget:
             {

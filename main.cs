@@ -22,12 +22,13 @@ namespace EHR;
 
 [BepInPlugin(PluginGuid, "EHR", PluginVersion)]
 [BepInIncompatibility("jp.ykundesu.supernewroles")]
+[BepInIncompatibility("MalumMenu")]
 [BepInProcess("Among Us.exe")]
 public class Main : BasePlugin
 {
-    public const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
-    public const string DebugKeySalt = "59687b";
-    public const string PluginGuid = "com.gurge44.endlesshostroles";
+    private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
+    private const string DebugKeySalt = "59687b";
+    private const string PluginGuid = "com.gurge44.endlesshostroles";
     public const string PluginVersion = "3.4.0";
     public const string PluginDisplayVersion = "3.4.0";
     public const string NeutralColor = "#ffab1b";
@@ -37,11 +38,11 @@ public class Main : BasePlugin
     public const float MinSpeed = 0.0001f;
 
     // == プログラム設定 / Program Config ==
-    public static readonly string ModName = "EHR";
-    public static readonly string ModColor = "#00ffff";
-    public static readonly bool AllowPublicRoom = true;
-    public static readonly string ForkId = "EHR";
-    public static readonly string SupportedAUVersion = "2024.3.5";
+    public const string ModName = "EHR";
+    public const string ModColor = "#00ffff";
+    public const bool AllowPublicRoom = true;
+    public const string ForkId = "EHR";
+    public const string SupportedAUVersion = "2024.3.5";
     public static readonly Version Version = Version.Parse(PluginVersion);
     public static ManualLogSource Logger;
     public static bool HasArgumentException;
@@ -126,10 +127,10 @@ public class Main : BasePlugin
 
     // ReSharper disable once StringLiteralTypo
     public static readonly List<string> NameSnacksEn = ["Ice cream", "Milk tea", "Chocolate", "Cake", "Donut", "Coke", "Lemonade", "Candied haws", "Jelly", "Candy", "Milk", "Matcha", "Burning Grass Jelly", "Pineapple Bun", "Pudding", "Coconut Jelly", "Cookies", "Red Bean Toast", "Three Color Dumplings", "Wormwood Dumplings", "Puffs", "Can be Crepe", "Peach Crisp", "Mochi", "Egg Waffle", "Macaron", "Snow Plum Niang", "Fried Yogurt", "Egg Tart", "Muffin", "Sago Dew", "panna cotta", "soufflé", "croissant", "toffee"];
-    public static HashAuth DebugKeyAuth { get; private set; }
-    public static ConfigEntry<string> DebugKeyInput { get; private set; }
+    private static HashAuth DebugKeyAuth { get; set; }
+    private static ConfigEntry<string> DebugKeyInput { get; set; }
 
-    public Harmony Harmony { get; } = new(PluginGuid);
+    private Harmony Harmony { get; } = new(PluginGuid);
 
     public static NormalGameOptionsV07 NormalOptions => GameOptionsManager.Instance.currentNormalGameOptions;
 
@@ -428,6 +429,7 @@ public class Main : BasePlugin
                 { CustomRoles.HexMaster, "#ff00ff" },
                 { CustomRoles.Wraith, "#4B0082" },
                 { CustomRoles.NSerialKiller, "#233fcc" },
+                { CustomRoles.Evolver, "#f2c444" },
                 { CustomRoles.Rogue, "#7a629c" },
                 { CustomRoles.Patroller, "#c1cc27" },
                 { CustomRoles.Simon, "#c4b8ff" },
@@ -703,6 +705,7 @@ public enum CustomWinner
     Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
     SerialKiller = CustomRoles.NSerialKiller,
+    Evolver = CustomRoles.Evolver,
     Rogue = CustomRoles.Rogue,
     Patroller = CustomRoles.Patroller,
     Simon = CustomRoles.Simon,

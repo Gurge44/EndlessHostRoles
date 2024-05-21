@@ -10,16 +10,15 @@ namespace EHR;
 [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.MakePublic))]
 internal class MakePublicPatch
 {
-    public static bool Prefix(/*GameStartManager __instance*/)
+    public static bool Prefix( /*GameStartManager __instance*/)
     {
-        // 定数設定による公開ルームブロック
-        if (!Main.AllowPublicRoom)
-        {
-            var message = GetString("DisabledByProgram");
-            Logger.Info(message, "MakePublicPatch");
-            Logger.SendInGame(message);
-            return false;
-        }
+        // if (!Main.AllowPublicRoom)
+        // {
+        //     var message = GetString("DisabledByProgram");
+        //     Logger.Info(message, "MakePublicPatch");
+        //     Logger.SendInGame(message);
+        //     return false;
+        // }
         if (ModUpdater.isBroken || (ModUpdater.hasUpdate && ModUpdater.forceUpdate) || !VersionChecker.IsSupported)
         {
             var message = string.Empty;
@@ -30,9 +29,11 @@ internal class MakePublicPatch
             Logger.SendInGame(message);
             return false;
         }
+
         return true;
     }
 }
+
 [HarmonyPatch(typeof(MMOnlineManager), nameof(MMOnlineManager.Start))]
 internal class MMOnlineManagerStartPatch
 {
@@ -46,12 +47,14 @@ internal class MMOnlineManagerStartPatch
             var textObj = Object.Instantiate(obj?.transform.FindChild("Text_TMP").GetComponent<TextMeshPro>());
             textObj.transform.position = new(1f, -0.3f, 0);
             textObj.name = "CanNotJoinPublic";
-            var message = ModUpdater.isBroken ? $"<size=2>{Utils.ColorString(Color.red, GetString("ModBrokenMessage"))}</size>"
+            var message = ModUpdater.isBroken
+                ? $"<size=2>{Utils.ColorString(Color.red, GetString("ModBrokenMessage"))}</size>"
                 : $"<size=2>{Utils.ColorString(Color.red, GetString("CanNotJoinPublicRoomNoLatest"))}</size>";
             _ = new LateTask(() => { textObj.text = message; }, 0.01f, "CanNotJoinPublic");
         }
     }
 }
+
 [HarmonyPatch(typeof(SplashManager), nameof(SplashManager.Update))]
 internal class SplashLogoAnimatorPatch
 {
@@ -64,6 +67,7 @@ internal class SplashLogoAnimatorPatch
         //}
     }
 }
+
 [HarmonyPatch(typeof(EOSManager), nameof(EOSManager.IsAllowedOnline))]
 internal class RunLoginPatch
 {
@@ -85,6 +89,7 @@ internal class RunLoginPatch
 #endif
     }
 }
+
 [HarmonyPatch(typeof(BanMenu), nameof(BanMenu.SetVisible))]
 internal class BanMenuSetVisiblePatch
 {
@@ -98,6 +103,7 @@ internal class BanMenuSetVisiblePatch
         return false;
     }
 }
+
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.CanBan))]
 internal class InnerNetClientCanBanPatch
 {
@@ -107,10 +113,11 @@ internal class InnerNetClientCanBanPatch
         return false;
     }
 }
+
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.KickPlayer))]
 internal class KickPlayerPatch
 {
-    public static bool Prefix(/*InnerNetClient __instance,*/ int clientId, bool ban)
+    public static bool Prefix( /*InnerNetClient __instance,*/ int clientId, bool ban)
     {
         if (!AmongUsClient.Instance.AmHost) return true;
 
@@ -126,6 +133,7 @@ internal class KickPlayerPatch
         return true;
     }
 }
+
 [HarmonyPatch(typeof(ResolutionManager), nameof(ResolutionManager.SetResolution))]
 internal class SetResolutionManager
 {

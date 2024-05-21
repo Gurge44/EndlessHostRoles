@@ -91,19 +91,18 @@ public abstract class GameOptionsSender
         }
     }
 
-    public abstract IGameOptions BuildGameOptions();
+    protected abstract IGameOptions BuildGameOptions();
 
-    public virtual bool AmValid() => true;
+    protected virtual bool AmValid() => true;
 
     #region Static
 
-    public readonly static List<GameOptionsSender> AllSenders = new(15) { new NormalGameOptionsSender() };
+    public static readonly List<GameOptionsSender> AllSenders = new(15) { new NormalGameOptionsSender() };
 
     public static void SendAllGameOptions()
     {
         AllSenders.RemoveAll(s => s == null || !s.AmValid());
-        var array = AllSenders.ToArray();
-        foreach (GameOptionsSender sender in array)
+        foreach (GameOptionsSender sender in AllSenders)
         {
             if (sender.IsDirty) sender.SendGameOptions();
             sender.IsDirty = false;

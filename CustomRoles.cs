@@ -233,6 +233,7 @@ public enum CustomRoles
     Doomsayer,
     Eclipse,
     Enderman,
+    Evolver,
     Executioner,
     Totocalcio, // Follower
     Glitch,
