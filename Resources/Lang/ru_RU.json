@@ -1399,7 +1399,7 @@
   "UsePets": "Использовать кнопку питомца вместо использования люка/морфа",
   "PetToAssign": "Питомец, который будет назначен всем без питомца",
   "UseVoteCancelling": "Использовать метод отмены голоса вместо команд",
-  "UseVoteCancellingAfterVote": "Имеет 2 голоса - 1 только активирует способность, 2 обычный",
+  "UseVoteCancellingAfterVote": "Имеет 2 голоса: 1 только активирует способность, 2 обычный",
   "AbilityOnCooldown": "<color=#ffff00>Способность на откате!</color>",
   "KillCooldownOnStrangle": "Откат убийства после удушения",
   "CDPT": "<color=#00ffa5>КД:</color> <color=#ffffff><b>{0}</b>с</color>",
