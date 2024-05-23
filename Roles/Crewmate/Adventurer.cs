@@ -237,8 +237,8 @@ namespace EHR.Roles.Crewmate
 
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
         {
-            long now = Utils.TimeStamp;
             if (lowLoad) return;
+            long now = Utils.TimeStamp;
 
             if (!GameStates.IsInTask)
             {

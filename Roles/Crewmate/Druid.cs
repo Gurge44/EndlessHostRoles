@@ -22,9 +22,11 @@ namespace EHR.Roles.Crewmate
         public static OptionItem DruidAbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
 
-        private static Dictionary<byte, long> TriggerDelays = [];
-        private static Dictionary<byte, Dictionary<Vector2, string>> Triggers = [];
-        private static long lastUpdate;
+        private PlayerControl DruidPC;
+        private long lastUpdate;
+        private long TriggerDelay;
+        private Dictionary<Vector2, int> TriggerIds = [];
+        private Dictionary<Vector2, string> Triggers = [];
 
         public override bool IsEnable => playerIdList.Count > 0;
 
@@ -51,7 +53,7 @@ namespace EHR.Roles.Crewmate
         public override void Init()
         {
             playerIdList = [];
-            TriggerDelays = [];
+            TriggerDelay = 0;
             Triggers = [];
             lastUpdate = TimeStamp;
         }
@@ -59,8 +61,10 @@ namespace EHR.Roles.Crewmate
         public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
+            DruidPC = GetPlayerById(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             lastUpdate = TimeStamp;
+            TriggerIds = [];
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -86,7 +90,7 @@ namespace EHR.Roles.Crewmate
             bool add = reader.ReadBoolean();
             byte playerId = reader.ReadByte();
 
-            if (Main.PlayerStates[playerId].Role is not Druid { IsEnable: true }) return;
+            if (Main.PlayerStates[playerId].Role is not Druid { IsEnable: true } di) return;
 
             float x = reader.ReadSingle();
             float y = reader.ReadSingle();
@@ -97,13 +101,12 @@ namespace EHR.Roles.Crewmate
             {
                 string roomName = reader.ReadString();
 
-                TriggerDelays.Remove(playerId);
-                if (!Triggers.ContainsKey(playerId)) Triggers.Add(playerId, []);
-                Triggers[playerId].TryAdd(position, roomName);
+                di.TriggerDelay = 0;
+                di.Triggers.TryAdd(position, roomName);
             }
             else
             {
-                Triggers[playerId].Remove(position);
+                di.Triggers.Remove(position);
             }
         }
 
@@ -128,13 +131,14 @@ namespace EHR.Roles.Crewmate
             if (isPet)
             {
                 (Vector2 LOCATION, string ROOM_NAME) = pc.GetPositionInfo();
-                if (!Triggers.ContainsKey(pc.PlayerId)) Triggers.Add(pc.PlayerId, []);
-                Triggers[pc.PlayerId].TryAdd(LOCATION, ROOM_NAME);
+                Triggers.TryAdd(LOCATION, ROOM_NAME);
                 SendRPCAddTrigger(true, pc.PlayerId, LOCATION, ROOM_NAME);
+                _ = new PlayerDetector(LOCATION, [pc.PlayerId], out int id);
+                TriggerIds.TryAdd(LOCATION, id);
             }
             else
             {
-                TriggerDelays.TryAdd(pc.PlayerId, now);
+                TriggerDelay = now;
             }
 
             pc.RpcRemoveAbilityUse();
@@ -144,41 +148,35 @@ namespace EHR.Roles.Crewmate
         {
             if (!GameStates.IsInTask || Triggers.Count <= 0 || playerIdList.Contains(pc.PlayerId)) return;
 
-            foreach (var triggers in Triggers.ToArray()) // Check for all Druids' traps - Most likely just 1 loop
+            foreach (var trigger in Triggers.Where(trigger => Vector2.Distance(trigger.Key, pc.Pos()) <= 1.5f))
             {
-                foreach (var trigger in triggers.Value.Where(trigger => Vector2.Distance(trigger.Key, pc.Pos()) <= 1.5f)) // Check for all traps of the current Druid - Most likely 0-3 loops
-                {
-                    GetPlayerById(triggers.Key).Notify(string.Format(GetString("DruidTriggerTriggered"), GetFormattedRoomName(trigger.Value), GetFormattedVectorText(trigger.Key)));
-                    Triggers[triggers.Key].Remove(trigger.Key);
-                    SendRPCAddTrigger(false, triggers.Key, trigger.Key);
-                }
+                DruidPC.Notify(string.Format(GetString("DruidTriggerTriggered"), GetFormattedRoomName(trigger.Value), GetFormattedVectorText(trigger.Key)));
+                Triggers.Remove(trigger.Key);
+                SendRPCAddTrigger(false, DruidPC.PlayerId, trigger.Key);
+                CustomNetObject.Get(TriggerIds[trigger.Key])?.Despawn();
             }
         }
 
-        public override void OnFixedUpdate(PlayerControl _)
+        public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!IsEnable || !GameStates.IsInTask || TriggerDelays.Count <= 0) return;
+            if (!IsEnable || !GameStates.IsInTask || TriggerDelay == 0 || pc == null) return;
 
             long now = TimeStamp;
 
-            foreach ((byte id, long ts) in TriggerDelays)
+            if (TriggerDelay + TriggerPlaceDelay.GetInt() < now)
             {
-                var pc = GetPlayerById(id);
-                if (pc == null) continue;
-
-                if (ts + TriggerPlaceDelay.GetInt() < now)
-                {
-                    TriggerDelays.Remove(id);
-                    (Vector2 LOCATION, string ROOM_NAME) = pc.GetPositionInfo();
-                    if (!Triggers.ContainsKey(id)) Triggers.Add(id, []);
-                    Triggers[id].TryAdd(LOCATION, ROOM_NAME);
-                    SendRPCAddTrigger(true, id, LOCATION, ROOM_NAME);
-                    continue;
-                }
-
-                var timeLeft = TriggerPlaceDelay.GetInt() - (now - ts);
-                if (lastUpdate < now) pc.Notify(string.Format(GetString("DruidTimeLeft"), timeLeft, 2f));
+                var id = pc.PlayerId;
+                TriggerDelay = 0;
+                (Vector2 LOCATION, string ROOM_NAME) = pc.GetPositionInfo();
+                Triggers.TryAdd(LOCATION, ROOM_NAME);
+                SendRPCAddTrigger(true, id, LOCATION, ROOM_NAME);
+                _ = new PlayerDetector(LOCATION, [pc.PlayerId], out int oid);
+                TriggerIds.TryAdd(LOCATION, oid);
+                return;
             }
+
+            var timeLeft = TriggerPlaceDelay.GetInt() - (now - TriggerDelay);
+            if (lastUpdate < now) pc.Notify(string.Format(GetString("DruidTimeLeft"), timeLeft, 2f));
 
             lastUpdate = now;
         }
@@ -188,26 +186,26 @@ namespace EHR.Roles.Crewmate
             if (hud) return GetHUDText(seer);
             if (seer == null || seer.IsModClient() || seer.PlayerId != target.PlayerId) return string.Empty;
 
-            if (!Triggers.TryGetValue(seer.PlayerId, out var triggers)) return string.Empty;
+            if (Triggers.Count == 0) return string.Empty;
 
             var sb = new StringBuilder();
             sb.Append("\n<size=1.7>");
 
-            sb.AppendLine($"<#00ffa5>{triggers.Count}</color> trigger{(triggers.Count == 1 ? string.Empty : 's')} active");
-            sb.Append(string.Join(", ", triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
+            sb.AppendLine($"<#00ffa5>{Triggers.Count}</color> trigger{(Triggers.Count == 1 ? string.Empty : 's')} active");
+            sb.Append(string.Join(", ", Triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
 
             sb.Append("</size>");
             return sb.ToString();
         }
 
-        static string GetHUDText(PlayerControl pc)
+        string GetHUDText(PlayerControl pc)
         {
-            if (pc == null || !Triggers.TryGetValue(pc.PlayerId, out var triggers)) return string.Empty;
+            if (pc == null || Triggers.Count == 0) return string.Empty;
 
             var sb = new StringBuilder();
 
-            sb.AppendLine($"<#00ffa5>{triggers.Count}</color> trigger{(triggers.Count == 1 ? string.Empty : 's')} active");
-            sb.Append(string.Join('\n', triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
+            sb.AppendLine($"<#00ffa5>{Triggers.Count}</color> trigger{(Triggers.Count == 1 ? string.Empty : 's')} active");
+            sb.Append(string.Join('\n', Triggers.Select(trigger => $"Trigger {GetFormattedRoomName(trigger.Value)} {GetFormattedVectorText(trigger.Key)}")));
 
             return sb.ToString();
         }

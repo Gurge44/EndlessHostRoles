@@ -80,13 +80,22 @@ namespace EHR.Neutral
             Count = 0;
 
             var room = pc.GetPlainShipRoom();
-            if (LastRoom != null && room == LastRoom) return;
+            if ((LastRoom != null && room != null && room == LastRoom) || (LastRoom == null && room == null)) return;
             LastRoom = room;
 
-            var roomName = Translator.GetString(room.RoomId.ToString());
-            pc.Notify(RoomBoosts.Any(x => x.Value == room)
-                ? string.Format(Translator.GetString("PatrollerNotify"), roomName, Translator.GetString($"PatrollerBoost.{RoomBoosts.First(x => x.Value == room).Key}"))
-                : string.Format(Translator.GetString("PatrollerNotifyNoBoost"), roomName), 300f);
+            if (room != null)
+            {
+                var roomName = Translator.GetString(room.RoomId.ToString());
+                pc.Notify(RoomBoosts.Any(x => x.Value == room)
+                    ? string.Format(Translator.GetString("PatrollerNotify"), roomName, Translator.GetString($"PatrollerBoost.{RoomBoosts.First(x => x.Value == room).Key}"))
+                    : string.Format(Translator.GetString("PatrollerNotifyNoBoost"), roomName), 300f);
+            }
+            else
+            {
+                NameNotifyManager.Notice.Remove(pc.PlayerId);
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            }
+
             pc.MarkDirtySettings();
 
             if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)

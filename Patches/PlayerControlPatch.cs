@@ -452,6 +452,7 @@ class MurderPlayerPatch
 
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
+        if (__instance == null || target == null || __instance.PlayerId == 255 || target.PlayerId == 255) return;
         if (target.AmOwner) RemoveDisableDevicesPatch.UpdateDisableDevices();
         if (!target.Data.IsDead || !AmongUsClient.Instance.AmHost) return;
 
@@ -1005,7 +1006,7 @@ class FixedUpdatePatch
 
     public static async void Postfix(PlayerControl __instance)
     {
-        if (__instance == null) return;
+        if (__instance == null || __instance.PlayerId == 255) return;
         if (!GameStates.IsModHost) return;
 
         byte id = __instance.PlayerId;

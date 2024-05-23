@@ -134,9 +134,11 @@ namespace EHR.Neutral
             Utils.SendRPC(CustomRPC.SyncEvolver, EvolverPC.PlayerId, 3, ChooseTimer);
 
             if (ChooseTimer == 0) ApplySelectedUpgradeAndReset();
+
+            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
-        private void ApplySelectedUpgradeAndReset()
+        void ApplySelectedUpgradeAndReset()
         {
             switch (Upgrades[SelectedUpgradeIndex])
             {

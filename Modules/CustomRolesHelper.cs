@@ -713,7 +713,6 @@ internal static class CustomRolesHelper
         CustomRoles.Refugee => true,
         CustomRoles.Necromancer => true,
         CustomRoles.Deathknight => true,
-        CustomRoles.Shifter => true,
 
         _ => false
     };

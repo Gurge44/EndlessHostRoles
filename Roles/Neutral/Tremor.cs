@@ -3,6 +3,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using HarmonyLib;
+using Hazel;
 using UnityEngine;
 
 namespace EHR.Roles.Neutral;
@@ -18,7 +19,7 @@ public class Tremor : RoleBase
     private static OptionItem TimerStart;
     private static OptionItem TimerDecrease;
     private static OptionItem DoomTime;
-    int Count = 0;
+    int Count;
     int DoomTimer;
 
     long LastUpdate = Utils.TimeStamp;
@@ -118,7 +119,7 @@ public class Tremor : RoleBase
         Utils.SendRPC(CustomRPC.SyncTremor, killer.PlayerId, Timer);
     }
 
-    public void ReceiveRPC(Hazel.MessageReader reader)
+    public void ReceiveRPC(MessageReader reader)
     {
         int value = reader.ReadPackedInt32();
         if (IsDoom) DoomTimer = value;
@@ -129,6 +130,8 @@ public class Tremor : RoleBase
     {
         if (seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || meeting) return string.Empty;
         var color = IsDoom ? Color.yellow : Color.cyan;
-        return Utils.ColorString(color, IsDoom ? DoomTimer.ToString() : Timer.ToString());
+        var text = IsDoom ? DoomTimer.ToString() : Timer.ToString();
+        if (hud) text = $"<size=130%><b>{text}</b></size>";
+        return Utils.ColorString(color, text);
     }
 }

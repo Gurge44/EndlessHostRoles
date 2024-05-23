@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using EHR.Roles.Crewmate;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -13,7 +14,7 @@ namespace EHR
     public class CustomNetObject
     {
         private static readonly Dictionary<int, CustomNetObject> AllObjects = [];
-        private readonly int Id = Enumerable.Range(0, int.MaxValue).First(id => !AllObjects.ContainsKey(id));
+        protected readonly int Id = Enumerable.Range(0, int.MaxValue).First(id => !AllObjects.ContainsKey(id));
         private PlayerControl PC;
 
         protected void RpcChangeSprite(string sprite)
@@ -28,7 +29,7 @@ namespace EHR
         }
 */
 
-        protected void Despawn()
+        public void Despawn()
         {
             PC.Despawn();
             AllObjects.Remove(Id);
@@ -199,7 +200,7 @@ namespace EHR
             WaitDuration = waitDuration;
             State = 0;
             CreateNetObject($"<size={Size}><font=\"VCR SDF\"><#c7c7c769>●", position);
-            foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in Main.AllAlivePlayerControls)
             {
                 if (!visibleList.Contains(pc.PlayerId))
                     Hide(pc);
@@ -220,6 +221,43 @@ namespace EHR
                 RpcChangeSprite($"<size={Size}><font=\"VCR SDF\"><#ff000069>●");
                 State = 2;
             }
+        }
+    }
+
+    public class TornadoObject : CustomNetObject
+    {
+        private readonly long SpawnTimeStamp;
+
+        public TornadoObject(Vector2 position, List<byte> visibleList)
+        {
+            SpawnTimeStamp = Utils.TimeStamp;
+            CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=85%><alpha=#00>\u2588<alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<br><#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<br><#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#636363>\u2588<#636363>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<br><#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#636363>\u2588<#636363>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<br><#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<br><alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>", position);
+            foreach (var pc in Main.AllAlivePlayerControls)
+            {
+                if (!visibleList.Contains(pc.PlayerId))
+                    Hide(pc);
+            }
+        }
+
+        protected override void OnFixedUpdate()
+        {
+            if (SpawnTimeStamp + Tornado.TornadoDuration.GetInt() < Utils.TimeStamp)
+                Despawn();
+        }
+    }
+
+    public class PlayerDetector : CustomNetObject
+    {
+        public PlayerDetector(Vector2 position, List<byte> visibleList, out int id)
+        {
+            CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=85%><alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#000000>\u2588<#000000>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#000000>\u2588<#000000>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>", position);
+            foreach (var pc in Main.AllAlivePlayerControls)
+            {
+                if (!visibleList.Contains(pc.PlayerId))
+                    Hide(pc);
+            }
+
+            id = Id;
         }
     }
 }

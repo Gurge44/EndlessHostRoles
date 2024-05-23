@@ -15,7 +15,7 @@ namespace EHR.Roles.Crewmate
         private static readonly List<byte> PlayerIdList = [];
 
         public static OptionItem TornadoCooldown;
-        private static OptionItem TornadoDuration;
+        public static OptionItem TornadoDuration;
         private static OptionItem TornadoRange;
 
         private static readonly Dictionary<string, string> ReplacementDict = new() { { "Tornado", ColorString(GetRoleColor(CustomRoles.Tornado), "Tornado") } };
@@ -101,7 +101,7 @@ namespace EHR.Roles.Crewmate
             if (add)
             {
                 long timestamp = long.Parse(reader.ReadString());
-                Tornados.Add((new(x, y), roomname), timestamp);
+                Tornados.TryAdd((new(x, y), roomname), timestamp);
             }
             else
             {
@@ -119,8 +119,9 @@ namespace EHR.Roles.Crewmate
             if (pc == null) return;
             var info = pc.GetPositionInfo();
             var now = TimeStamp;
-            Tornados.Add(info, now);
+            Tornados.TryAdd(info, now);
             SendRPCAddTornado(true, info.LOCATION, info.ROOM_NAME, now);
+            _ = new TornadoObject(info.LOCATION, [pc.PlayerId]);
         }
 
         public override void OnCheckPlayerPosition(PlayerControl pc)

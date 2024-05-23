@@ -2,6 +2,7 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using EHR.Patches;
 using HarmonyLib;
 
 namespace EHR.Neutral
@@ -102,6 +103,11 @@ namespace EHR.Neutral
             Utils.NotifyRoles(SpecifyTarget: target);
 
             return false;
+        }
+
+        public override void OnPet(PlayerControl pc)
+        {
+            OnCheckMurder(pc, ExternalRpcPetPatch.SelectKillButtonTarget(pc));
         }
     }
 }
