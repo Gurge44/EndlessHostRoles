@@ -1496,6 +1496,7 @@ class FixedUpdatePatch
                 {
                     Suffix.Append(Bloodmoon.GetSuffix(seer));
                     if (seer.Is(CustomRoles.Asthmatic)) Suffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
+                    if (seer.Is(CustomRoles.Sonar)) Suffix.Append(Sonar.GetSuffix(seer, GameStates.IsMeeting));
                 }
 
                 switch (Options.CurrentGameMode)

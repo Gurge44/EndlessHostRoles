@@ -120,7 +120,7 @@ class RepairSystemPatch
                     return false;
                 }
 
-                if (player.Is(CustomRoleTypes.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
+                if (player.Is(Team.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
                 return player.GetCustomRole() switch
                 {
                     CustomRoles.Jackal when Jackal.CanSabotage.GetBool() => true,

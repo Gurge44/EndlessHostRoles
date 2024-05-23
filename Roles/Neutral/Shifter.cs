@@ -66,48 +66,12 @@ namespace EHR.Neutral
         {
             if (!base.OnCheckMurder(killer, target)) return false;
 
-            WasShifter.Add(killer.PlayerId);
+            var killerId = killer.PlayerId;
+            killer.PlayerId = target.PlayerId;
+            target.PlayerId = killerId;
 
-            killer.RpcSetCustomRole(target.GetCustomRole());
-
-            if (StealProgress.GetBool())
-            {
-                Main.PlayerStates[killer.PlayerId].Role = Main.PlayerStates[target.PlayerId].Role;
-                killer.SetAbilityUseLimit(target.GetAbilityUseLimit());
-            }
-
-            if (StealAddons.GetBool())
-            {
-                var killerSubRoles = killer.GetCustomSubRoles();
-                var targetSubRoles = target.GetCustomSubRoles();
-                if (targetSubRoles.Count > 0)
-                {
-                    killer.RpcSetCustomRole(targetSubRoles[0], replaceAllAddons: true);
-                    targetSubRoles.Skip(1).Do(x => killer.RpcSetCustomRole(x));
-                }
-
-                if (killerSubRoles.Count > 0)
-                {
-                    target.RpcSetCustomRole(killerSubRoles[0], replaceAllAddons: true);
-                    killerSubRoles.Skip(1).Do(x => target.RpcSetCustomRole(x));
-                }
-            }
-
-            Main.AbilityCD.Remove(killer.PlayerId);
-            killer.SyncSettings();
-
-            // ------------------------------------------------------------------------------------------
-
-            target.RpcSetCustomRole(CustomRoles.Shifter);
-            Main.AbilityUseLimit.Remove(target.PlayerId);
-            Utils.SendRPC(CustomRPC.RemoveAbilityUseLimit, target.PlayerId);
-            target.SyncSettings();
-            target.SetKillCooldown();
-
-            // ------------------------------------------------------------------------------------------
-
-            Utils.NotifyRoles(SpecifyTarget: killer);
-            Utils.NotifyRoles(SpecifyTarget: target);
+            Utils.SyncAllSettings();
+            Utils.NotifyRoles(NoCache: true);
 
             return false;
         }

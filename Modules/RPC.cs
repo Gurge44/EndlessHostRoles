@@ -228,6 +228,7 @@ internal class RPCHandlerPatch
 
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
     {
+        if (AmongUsClient.Instance.AmHost) return;
         var rpcType = (CustomRPC)callId;
         switch (rpcType)
         {

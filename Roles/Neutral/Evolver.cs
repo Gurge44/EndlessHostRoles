@@ -44,7 +44,7 @@ namespace EHR.Neutral
 
             var opts = Main.RealOptionsData;
             Stats = (
-                opts.GetFloat(FloatOptionNames.KillCooldown),
+                Options.DefaultKillCooldown,
                 false,
                 opts.GetFloat(FloatOptionNames.CrewLightMod),
                 opts.GetFloat(FloatOptionNames.PlayerSpeedMod),
@@ -116,7 +116,7 @@ namespace EHR.Neutral
         {
             var banned = new List<Upgrade>();
             if (Stats.KillCooldown <= Limits.MinKillCooldown) banned.Add(Upgrade.DecreaseKillCooldown);
-            if (Stats.Vision >= Limits.MaxVision) banned.Add(Upgrade.GainImpostorVision);
+            if (Stats.ImpostorVision) banned.Add(Upgrade.GainImpostorVision);
             if (Stats.Vision >= Limits.MaxVision) banned.Add(Upgrade.IncreaseVision);
             if (Stats.Speed >= Limits.MaxSpeed) banned.Add(Upgrade.IncreaseSpeed);
             if (Stats.KillDistance >= Limits.MaxKillDistance) banned.Add(Upgrade.IncreaseKillDistance);
@@ -197,6 +197,7 @@ namespace EHR.Neutral
             Stats.SabotageUseLimit = Math.Max(Stats.SabotageUseLimit, 0);
 
             Utils.NotifyRoles(SpecifySeer: EvolverPC, SpecifyTarget: EvolverPC);
+            Logger.Info($" KCD: {Stats.KillCooldown}, Vision: {Stats.Vision}, Speed: {Stats.Speed}, KDis: {Stats.KillDistance}", "Evolver Stats");
         }
 
         public override void OnPet(PlayerControl pc)
