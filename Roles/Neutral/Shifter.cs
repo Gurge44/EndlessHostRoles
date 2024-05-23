@@ -2,7 +2,6 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using HarmonyLib;
 
 namespace EHR.Neutral
 {
@@ -12,16 +11,15 @@ namespace EHR.Neutral
         public static bool On;
 
         private static List<int> WasShifter = [];
-        private static Dictionary<byte, RoleTypes> AllPlayerBasis = [];
+        private static Dictionary<int, RoleTypes> AllPlayerBasis = [];
 
         private static OptionItem KillCooldown;
         private static OptionItem CanVent;
         private static OptionItem HasImpostorVision;
-        private static OptionItem StealAddons;
-        private static OptionItem StealProgress;
+        private static OptionItem TrySwapBasis;
 
         public override bool IsEnable => On;
-        public static bool ForceDisableTasks(byte id) => WasShifter.Contains(id) && AllPlayerBasis.TryGetValue(id, out var basis) && basis is RoleTypes.Impostor or RoleTypes.Shapeshifter;
+        public static bool ForceDisableTasks(int id) => !TrySwapBasis.GetBool() && WasShifter.Contains(id) && AllPlayerBasis.TryGetValue(id, out var basis) && basis is RoleTypes.Impostor or RoleTypes.Shapeshifter;
 
         public static void SetupCustomOption()
         {
@@ -33,9 +31,7 @@ namespace EHR.Neutral
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
             HasImpostorVision = BooleanOptionItem.Create(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
-            StealAddons = BooleanOptionItem.Create(Id + 5, "Shifter.StealAddons", true, TabGroup.NeutralRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
-            StealProgress = BooleanOptionItem.Create(Id + 6, "Shifter.StealProgress", true, TabGroup.NeutralRoles)
+            TrySwapBasis = BooleanOptionItem.Create(Id + 5, "Shifter.TrySwapBasis", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
         }
 
@@ -45,7 +41,7 @@ namespace EHR.Neutral
 
             WasShifter = [];
             AllPlayerBasis = [];
-            _ = new LateTask(() => AllPlayerBasis = Main.PlayerStates.ToDictionary(x => x.Key, x => x.Value.MainRole.GetRoleTypes()), 10f, log: false);
+            _ = new LateTask(() => AllPlayerBasis = Main.AllPlayerControls.ToDictionary(x => x.GetClientId(), x => x.GetRoleTypes()), 10f, log: false);
         }
 
         public override void Add(byte playerId)
@@ -69,9 +65,9 @@ namespace EHR.Neutral
             var clientId = killer.GetClientId();
             if (clientId != -1) WasShifter.Add(clientId);
 
-            var killerId = killer.PlayerId;
-            killer.PlayerId = target.PlayerId;
-            target.PlayerId = killerId;
+            if (TrySwapBasis.GetBool()) killer.ChangeRoleBasis(AllPlayerBasis[target.GetClientId()]);
+
+            (killer.PlayerId, target.PlayerId) = (target.PlayerId, killer.PlayerId);
 
             Utils.SyncAllSettings();
             Utils.NotifyRoles(NoCache: true);

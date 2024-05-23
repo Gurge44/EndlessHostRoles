@@ -1,4 +1,7 @@
+using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
+using HarmonyLib;
 using UnityEngine;
 
 namespace EHR.Roles.Neutral;
@@ -14,11 +17,14 @@ public class Tremor : RoleBase
     private static OptionItem TimerStart;
     private static OptionItem TimerDecrease;
     private static OptionItem DoomTime;
+    int Count = 0;
+    int DoomTimer;
 
-    public override bool IsEnable => On;
+    long LastUpdate = Utils.TimeStamp;
 
     int Timer;
-    int DoomTimer;
+
+    public override bool IsEnable => On;
     public bool IsDoom => Timer <= 0;
 
     public static void SetupCustomOption()
@@ -62,9 +68,6 @@ public class Tremor : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
 
-    long LastUpdate = Utils.TimeStamp;
-    int Count = 0;
-
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!GameStates.IsInTask || !pc.IsAlive()) return;
@@ -92,7 +95,7 @@ public class Tremor : RoleBase
             var pos = pc.Pos();
             Main.AllAlivePlayerControls
                 .Where(x => x.PlayerId != pc.PlayerId && Vector2.Distance(pos, x.Pos()) <= 1.5f)
-                .Do(x => pc.Kill(x));
+                .Do(pc.Kill);
 
             if (LastUpdate == Utils.TimeStamp) return;
             LastUpdate = Utils.TimeStamp;
@@ -107,7 +110,7 @@ public class Tremor : RoleBase
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
         Timer -= TimerDecrease.GetInt();
-        Utils.SendRPC(CustomRPC.SyncTremor, pc.PlayerId, Timer);
+        Utils.SendRPC(CustomRPC.SyncTremor, killer.PlayerId, Timer);
     }
 
     public void ReceiveRPC(Hazel.MessageReader reader)
@@ -117,9 +120,9 @@ public class Tremor : RoleBase
         else Timer = value;
     }
 
-    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud, bool meeting)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || meeting) return;
+        if (seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || meeting) return string.Empty;
         var color = IsDoom ? Color.yellow : Color.cyan;
         return Utils.ColorString(color, IsDoom ? DoomTimer.ToString() : Timer.ToString());
     }
