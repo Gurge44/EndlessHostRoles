@@ -24,9 +24,9 @@ static class ExtendedPlayerControl
 {
     public const MurderResultFlags ResultFlags = MurderResultFlags.Succeeded;
 
-    public static void RpcSetCustomRole(this PlayerControl player, CustomRoles role, bool isRoleForced = false, bool replaceAllAddons = false)
+    public static void RpcSetCustomRole(this PlayerControl player, CustomRoles role, bool replaceAllAddons = false)
     {
-        if (role < CustomRoles.NotAssigned || isRoleForced)
+        if (role < CustomRoles.NotAssigned)
         {
             Main.PlayerStates[player.PlayerId].SetMainRole(role);
         }

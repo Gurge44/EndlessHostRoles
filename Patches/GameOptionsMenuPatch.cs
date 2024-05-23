@@ -303,8 +303,10 @@ public class StringOptionEnablePatch
         if (option.Id == Options.UsePets.Id) LoadLangs();
         else if (!Options.UsePets.GetBool() && CustomRolesHelper.OnlySpawnsWithPetsRoleList.Any(role => role.ToString().Equals(option.GetName().RemoveHtmlTags().Replace(" ", string.Empty))))
             __instance.TitleText.text += GetString("RequiresPetIndicator");
-        else if (Options.UsePets.GetBool() && Enum.TryParse(option.GetName().RemoveHtmlTags().Replace(" ", string.Empty), true, out CustomRoles enumerable) && enumerable.PetActivatedAbility())
+        else if (Options.UsePets.GetBool() && Enum.TryParse(option.GetName().RemoveHtmlTags().Replace(" ", string.Empty), true, out CustomRoles petRole) && petRole.PetActivatedAbility())
             __instance.TitleText.text += GetString("SupportsPetIndicator");
+        if (CustomRolesHelper.ExperimentalRoleList.Any(role => role.ToString().Equals(option.GetName().RemoveHtmlTags().Replace(" ", string.Empty))))
+            __instance.TitleText.text += GetString("ExperimentalRoleIndicator");
         __instance.Value = __instance.oldValue = option.CurrentValue;
         __instance.ValueText.text = option.GetString();
 

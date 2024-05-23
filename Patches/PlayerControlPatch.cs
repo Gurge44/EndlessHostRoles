@@ -729,7 +729,7 @@ class RpcShapeshiftPatch
 class ReportDeadBodyPatch
 {
     public static Dictionary<byte, bool> CanReport;
-    public static Dictionary<byte, List<GameData.PlayerInfo>> WaitReport = [];
+    public static readonly Dictionary<byte, List<GameData.PlayerInfo>> WaitReport = [];
 
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] GameData.PlayerInfo target)
     {

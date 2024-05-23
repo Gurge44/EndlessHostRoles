@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -37,7 +38,7 @@ public class Tremor : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tremor]);
         HasImpostorVision = BooleanOptionItem.Create(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tremor]);
-        TimerStart = IntegerOptionItem.Create(Id + 5, "Tremor.TimerStart", new(0, 600, 1), 180, TabGroup.NeutralRoles)
+        TimerStart = IntegerOptionItem.Create(Id + 5, "Tremor.TimerStart", new(0, 600, 5), 180, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tremor])
             .SetValueFormat(OptionFormat.Seconds);
         TimerDecrease = IntegerOptionItem.Create(Id + 6, "Tremor.TimerDecrease", new(0, 180, 1), 15, TabGroup.NeutralRoles)
@@ -56,7 +57,7 @@ public class Tremor : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        Timer = TimerStart.GetInt();
+        Timer = TimerStart.GetInt() + 8;
         DoomTimer = 0;
 
         if (!AmongUsClient.Instance.AmHost) return;
@@ -82,15 +83,19 @@ public class Tremor : RoleBase
         }
 
         if (wasDoom != IsDoom)
+        {
             Main.AllAlivePlayerControls.Do(x => x.Notify(Translator.GetString("Tremor.DoomNotify")));
+            DoomTimer = DoomTime.GetInt();
+        }
 
         if (IsDoom)
         {
             Count++;
-            if (Count < 5) return;
-            Count = 0;
 
-            pc.RpcGuardAndKill();
+            if (Count % 3 == 0) pc.RpcGuardAndKill();
+
+            if (Count < 15) return;
+            Count = 0;
 
             var pos = pc.Pos();
             Main.AllAlivePlayerControls
@@ -109,7 +114,7 @@ public class Tremor : RoleBase
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
-        Timer -= TimerDecrease.GetInt();
+        Timer = Math.Max(Timer - TimerDecrease.GetInt(), 0);
         Utils.SendRPC(CustomRPC.SyncTremor, killer.PlayerId, Timer);
     }
 

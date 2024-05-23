@@ -33,6 +33,13 @@ internal static class CustomRolesHelper
         CustomRoles.Dasher
     ];
 
+    public static readonly List<CustomRoles> ExperimentalRoleList =
+    [
+        CustomRoles.Shifter
+    ];
+
+    public static bool IsExperimental(this CustomRoles role) => ExperimentalRoleList.Contains(role);
+
     public static RoleBase GetRoleClass(this CustomRoles role)
     {
         var roleClass = role switch

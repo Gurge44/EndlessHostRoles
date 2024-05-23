@@ -2,6 +2,7 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using HarmonyLib;
 
 namespace EHR.Neutral
 {
@@ -16,10 +17,9 @@ namespace EHR.Neutral
         private static OptionItem KillCooldown;
         private static OptionItem CanVent;
         private static OptionItem HasImpostorVision;
-        private static OptionItem TrySwapBasis;
 
         public override bool IsEnable => On;
-        public static bool ForceDisableTasks(int id) => !TrySwapBasis.GetBool() && WasShifter.Contains(id) && AllPlayerBasis.TryGetValue(id, out var basis) && basis is RoleTypes.Impostor or RoleTypes.Shapeshifter;
+        public static bool ForceDisableTasks(int id) => WasShifter.Contains(id) && AllPlayerBasis.TryGetValue(id, out var basis) && basis is RoleTypes.Impostor or RoleTypes.Shapeshifter;
 
         public static void SetupCustomOption()
         {
@@ -30,8 +30,6 @@ namespace EHR.Neutral
             CanVent = BooleanOptionItem.Create(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
             HasImpostorVision = BooleanOptionItem.Create(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
-            TrySwapBasis = BooleanOptionItem.Create(Id + 5, "Shifter.TrySwapBasis", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
         }
 
@@ -65,12 +63,43 @@ namespace EHR.Neutral
             var clientId = killer.GetClientId();
             if (clientId != -1) WasShifter.Add(clientId);
 
-            if (TrySwapBasis.GetBool()) killer.ChangeRoleBasis(AllPlayerBasis[target.GetClientId()]);
+            killer.RpcSetCustomRole(target.GetCustomRole());
 
-            (killer.PlayerId, target.PlayerId) = (target.PlayerId, killer.PlayerId);
+            Main.PlayerStates[killer.PlayerId].Role = Main.PlayerStates[target.PlayerId].Role;
+            killer.SetAbilityUseLimit(target.GetAbilityUseLimit());
 
-            Utils.SyncAllSettings();
-            Utils.NotifyRoles(NoCache: true);
+            var taskState = target.GetTaskState();
+            if (taskState.hasTasks) Main.PlayerStates[killer.PlayerId].taskState = taskState;
+
+            var killerSubRoles = killer.GetCustomSubRoles();
+            var targetSubRoles = target.GetCustomSubRoles();
+            if (targetSubRoles.Count > 0)
+            {
+                killer.RpcSetCustomRole(targetSubRoles[0], replaceAllAddons: true);
+                targetSubRoles.Skip(1).Do(x => killer.RpcSetCustomRole(x));
+            }
+
+            if (killerSubRoles.Count > 0)
+            {
+                target.RpcSetCustomRole(killerSubRoles[0], replaceAllAddons: true);
+                killerSubRoles.Skip(1).Do(x => target.RpcSetCustomRole(x));
+            }
+
+            Main.AbilityCD.Remove(killer.PlayerId);
+            killer.SyncSettings();
+
+            // ------------------------------------------------------------------------------------------
+
+            target.RpcSetCustomRole(CustomRoles.Shifter);
+            Main.AbilityUseLimit.Remove(target.PlayerId);
+            Utils.SendRPC(CustomRPC.RemoveAbilityUseLimit, target.PlayerId);
+            target.SyncSettings();
+            target.SetKillCooldown();
+
+            // ------------------------------------------------------------------------------------------
+
+            Utils.NotifyRoles(SpecifyTarget: killer);
+            Utils.NotifyRoles(SpecifyTarget: target);
 
             return false;
         }
