@@ -138,6 +138,7 @@ public enum CustomRPC
     SyncSimon,
     SyncRogue,
     SyncEvolver,
+    SyncTremor,
 
     // Other Game Modes
     SyncKBPlayer,
@@ -230,6 +231,12 @@ internal class RPCHandlerPatch
     {
         if (AmongUsClient.Instance.AmHost) return;
         var rpcType = (CustomRPC)callId;
+        
+        // Finish this later
+        // Main.PlayerStates.Values
+        //     .Where(x => "Sync" + x.Role.GetType().Name == rpcType.ToString())
+        //     .Do(x => x.Role.GetType().GetMethod("ReceiveRPC")?.Invoke(reader));
+
         switch (rpcType)
         {
             case CustomRPC.AntiBlackout:
@@ -416,6 +423,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SyncEvolver:
                 (Main.PlayerStates[reader.ReadByte()].Role as Evolver)?.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncTremor:
+                (Main.PlayerStates[reader.ReadByte()].Role as Tremor)?.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetBountyTarget:
             {

@@ -293,6 +293,7 @@ public enum CustomRoles
     Terrorist,
     Tiger,
     Traitor,
+    Tremor,
     Vengeance,
     VengefulRomantic,
     Virus,

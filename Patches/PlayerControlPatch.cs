@@ -766,6 +766,7 @@ class ReportDeadBodyPatch
             var killerRole = killer?.GetCustomRole();
 
             if (((IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool() && (Main.NormalOptions.MapId != 5 || !Options.CommsCamouflageDisableOnFungle.GetBool())) || Camouflager.IsActive) && Options.DisableReportWhenCC.GetBool()) return false;
+            if (Main.PlayerStates.Values.Any(x => x.Role is Tremor {IsDoom: true})) return false;
 
             if (target == null)
             {

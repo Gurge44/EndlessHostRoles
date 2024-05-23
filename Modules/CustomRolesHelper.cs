@@ -348,6 +348,7 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Tremor => RoleTypes.Impostor,
             CustomRoles.Evolver => RoleTypes.Impostor,
             CustomRoles.Rogue => RoleTypes.Impostor,
             CustomRoles.Patroller => RoleTypes.Impostor,
@@ -461,6 +462,7 @@ internal static class CustomRolesHelper
         CustomRoles.Rogue or
         CustomRoles.Parasite or
         CustomRoles.NSerialKiller or
+        CustomRoles.Tremor or
         CustomRoles.Evolver or
         CustomRoles.Chemist or
         CustomRoles.QuizMaster or
@@ -1156,6 +1158,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     NSerialKiller,
+    Tremor,
     Evolver,
     Rogue,
     Patroller,

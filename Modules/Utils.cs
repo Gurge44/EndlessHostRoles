@@ -565,7 +565,7 @@ public static class Utils
             case CustomGameMode.HideAndSeek: return HnSManager.HasTasks(p);
         }
 
-        if (Shifter.ForceDisableTasks(p.PlayerId)) return false;
+        if (Shifter.ForceDisableTasks(p.Object.GetClientId())) return false;
 
         var role = States.MainRole;
         switch (role)
@@ -579,6 +579,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.Tremor:
             case CustomRoles.Evolver:
             case CustomRoles.Rogue:
             case CustomRoles.Patroller:

@@ -11,7 +11,7 @@ namespace EHR.Neutral
         private const int Id = 644400;
         public static bool On;
 
-        private static List<byte> WasShifter = [];
+        private static List<int> WasShifter = [];
         private static Dictionary<byte, RoleTypes> AllPlayerBasis = [];
 
         private static OptionItem KillCooldown;
@@ -65,6 +65,9 @@ namespace EHR.Neutral
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (!base.OnCheckMurder(killer, target)) return false;
+
+            var clientId = killer.GetClientId();
+            if (clientId != -1) WasShifter.Add(clientId);
 
             var killerId = killer.PlayerId;
             killer.PlayerId = target.PlayerId;
