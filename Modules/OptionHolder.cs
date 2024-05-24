@@ -879,6 +879,7 @@ public static class Options
     public static void OptionsLoadStart()
     {
         Logger.Info("Options.Load Start", "Options");
+        AddSteamID.AddSteamAppIdFile();
         Main.LoadRoleClasses();
         taskOptionsLoad = Task.Run(Load);
         taskOptionsLoad.ContinueWith(_ =>
