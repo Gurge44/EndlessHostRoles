@@ -3438,6 +3438,7 @@
   "Shifter": "Shifter",
   "ShifterInfo": "Steal Someone's Role",
   "ShifterInfoLong": "(Neutrals):\\nAs the Shifter, you must steal someone's role by using your pet button near them. Depending on the settings, you may also steal their progress in their role and ability uses, and their add-ons.\\nIf you have this role when the game ends, you lose!",
+  "TryChangeBasis": "Try Changing Role Basis <#ffff00>(EXPERIMENTAL)</color>",
   "Tremor": "Tremor",
   "TremorInfo": "When Doom Happens, Everyone is Doomed",
   "TremorInfoLong": "(Neutral):\\nAs the Tremor, you see a timer below your name indicating when doom happens. When you kill, the timer decreases. If doom happens, you kill everyone that comes near you, and you have a specified amount of time to kill everyone, otherwise you suicide.",
