@@ -12,15 +12,16 @@ namespace EHR.Neutral
         private const int Id = 644400;
         public static bool On;
 
-        private static List<int> WasShifter = [];
-        private static Dictionary<int, RoleTypes> AllPlayerBasis = [];
+        public static List<byte> WasShifter = [];
+        private static Dictionary<byte, RoleTypes> AllPlayerBasis = [];
 
         private static OptionItem KillCooldown;
         private static OptionItem CanVent;
         private static OptionItem HasImpostorVision;
+        private static OptionItem TryChangeBasis;
 
         public override bool IsEnable => On;
-        public static bool ForceDisableTasks(int id) => WasShifter.Contains(id) && AllPlayerBasis.TryGetValue(id, out var basis) && basis is RoleTypes.Impostor or RoleTypes.Shapeshifter;
+        public static bool ForceDisableTasks(byte id) => !TryChangeBasis.GetBool() && WasShifter.Contains(id) && AllPlayerBasis.TryGetValue(id, out var basis) && basis is RoleTypes.Impostor or RoleTypes.Shapeshifter;
 
         public static void SetupCustomOption()
         {
@@ -32,20 +33,27 @@ namespace EHR.Neutral
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
             HasImpostorVision = BooleanOptionItem.Create(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
+            TryChangeBasis = BooleanOptionItem.Create(Id + 5, "TryChangeBasis", true, TabGroup.NeutralRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
         }
 
         public override void Init()
         {
+            if (GameStates.InGame && !Main.HasJustStarted) return;
+
             On = false;
 
             WasShifter = [];
             AllPlayerBasis = [];
-            _ = new LateTask(() => AllPlayerBasis = Main.AllPlayerControls.ToDictionary(x => x.GetClientId(), x => x.GetRoleTypes()), 10f, log: false);
+            _ = new LateTask(() => AllPlayerBasis = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, x => x.GetRoleTypes()), 10f, log: false);
         }
 
         public override void Add(byte playerId)
         {
             On = true;
+
+            if (!TryChangeBasis.GetBool() || playerId == 0)
+                WasShifter.Add(playerId);
 
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -61,12 +69,13 @@ namespace EHR.Neutral
         {
             if (!base.OnCheckMurder(killer, target)) return false;
 
-            var clientId = killer.GetClientId();
-            if (clientId != -1) WasShifter.Add(clientId);
-
             killer.RpcSetCustomRole(target.GetCustomRole());
+            if (TryChangeBasis.GetBool())
+                killer.ChangeRoleBasis(target.GetRoleTypes());
 
-            Main.PlayerStates[killer.PlayerId].Role = Main.PlayerStates[target.PlayerId].Role;
+            var targetRoleBase = Main.PlayerStates[target.PlayerId].Role;
+            _ = new LateTask(() => Main.PlayerStates[killer.PlayerId].Role = targetRoleBase, 0.5f, "Change RoleBase");
+
             killer.SetAbilityUseLimit(target.GetAbilityUseLimit());
 
             var taskState = target.GetTaskState();

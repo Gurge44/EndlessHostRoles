@@ -1248,7 +1248,7 @@ class FixedUpdatePatch
 
         if (__instance.AmOwner)
         {
-            if ((Main.ChangedRole && __instance == PlayerControl.LocalPlayer && AmongUsClient.Instance.AmHost) || (GameStates.IsInTask && !__instance.Is(CustomRoleTypes.Impostor) && __instance.CanUseKillButton() && !__instance.Data.IsDead))
+            if ((Main.ChangedRole && __instance.PlayerId == PlayerControl.LocalPlayer.PlayerId && AmongUsClient.Instance.AmHost) || (GameStates.IsInTask && (!__instance.Is(CustomRoleTypes.Impostor) || Shifter.WasShifter.Contains(__instance.PlayerId)) && __instance.CanUseKillButton() && !__instance.Data.IsDead))
             {
                 var players = __instance.GetPlayersInAbilityRangeSorted();
                 PlayerControl closest = players.Count == 0 ? null : players[0];

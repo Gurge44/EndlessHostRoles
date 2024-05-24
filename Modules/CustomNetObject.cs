@@ -223,6 +223,7 @@ namespace EHR
     internal sealed class TornadoObject : CustomNetObject
     {
         private readonly long SpawnTimeStamp;
+        private bool Gone;
 
         public TornadoObject(Vector2 position, List<byte> visibleList)
         {
@@ -233,8 +234,12 @@ namespace EHR
 
         protected override void OnFixedUpdate()
         {
+            if (Gone) return;
             if (SpawnTimeStamp + Tornado.TornadoDuration.GetInt() < Utils.TimeStamp)
+            {
+                Gone = true;
                 Despawn();
+            }
         }
     }
 
