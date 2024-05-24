@@ -235,11 +235,11 @@ public class Main : BasePlugin
         EHR.Logger.Disable("NotifyRoles");
         EHR.Logger.Disable("SwitchSystem");
         EHR.Logger.Disable("ModNews");
+        EHR.Logger.Disable("CustomRpcSender");
         if (!DebugModeManager.AmDebugger)
         {
             EHR.Logger.Disable("2018k");
             EHR.Logger.Disable("Github");
-            EHR.Logger.Disable("CustomRpcSender");
             //EHR.Logger.Disable("ReceiveRPC");
             EHR.Logger.Disable("SendRPC");
             EHR.Logger.Disable("SetRole");
@@ -258,10 +258,9 @@ public class Main : BasePlugin
         }
         //EHR.Logger.isDetail = true;
 
-        // 認証関連-初期化
+        // Authentication related - Initialization
         DebugKeyAuth = new(DebugKeyHash, DebugKeySalt);
 
-        // 認証関連-認証
         DebugModeManager.Auth(DebugKeyAuth, DebugKeyInput.Value);
 
         Preset1 = Config.Bind("Preset Name Options", "Preset1", "Preset_1");

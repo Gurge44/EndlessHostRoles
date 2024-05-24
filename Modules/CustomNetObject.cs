@@ -11,9 +11,9 @@ using UnityEngine;
 
 namespace EHR
 {
-    public class CustomNetObject
+    internal class CustomNetObject
     {
-        private static readonly Dictionary<int, CustomNetObject> AllObjects = [];
+        public static readonly Dictionary<int, CustomNetObject> AllObjects = [];
         protected readonly int Id = Enumerable.Range(0, int.MaxValue).First(id => !AllObjects.ContainsKey(id));
         private PlayerControl PC;
 
@@ -135,7 +135,7 @@ namespace EHR
         public static void FixedUpdate() => AllObjects.Values.Do(x => x.OnFixedUpdate());
     }
 
-    public class Explosion : CustomNetObject
+    internal sealed class Explosion : CustomNetObject
     {
         private readonly float Duration;
 
@@ -186,7 +186,7 @@ namespace EHR
         }
     }
 
-    public class TrapArea : CustomNetObject
+    internal sealed class TrapArea : CustomNetObject
     {
         private readonly float Size;
         private readonly float WaitDuration;
@@ -200,11 +200,7 @@ namespace EHR
             WaitDuration = waitDuration;
             State = 0;
             CreateNetObject($"<size={Size}><font=\"VCR SDF\"><#c7c7c769>●", position);
-            foreach (var pc in Main.AllAlivePlayerControls)
-            {
-                if (!visibleList.Contains(pc.PlayerId))
-                    Hide(pc);
-            }
+            Main.AllAlivePlayerControls.ExceptBy(visibleList, x => x.PlayerId).Do(Hide);
         }
 
         protected override void OnFixedUpdate()
@@ -224,7 +220,7 @@ namespace EHR
         }
     }
 
-    public class TornadoObject : CustomNetObject
+    internal sealed class TornadoObject : CustomNetObject
     {
         private readonly long SpawnTimeStamp;
 
@@ -232,11 +228,7 @@ namespace EHR
         {
             SpawnTimeStamp = Utils.TimeStamp;
             CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=85%><alpha=#00>\u2588<alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<br><#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<br><#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#636363>\u2588<#636363>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<br><#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#636363>\u2588<#636363>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<br><#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<br><alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>", position);
-            foreach (var pc in Main.AllAlivePlayerControls)
-            {
-                if (!visibleList.Contains(pc.PlayerId))
-                    Hide(pc);
-            }
+            Main.AllAlivePlayerControls.ExceptBy(visibleList, x => x.PlayerId).Do(Hide);
         }
 
         protected override void OnFixedUpdate()
@@ -246,18 +238,26 @@ namespace EHR
         }
     }
 
-    public class PlayerDetector : CustomNetObject
+    internal sealed class PlayerDetector : CustomNetObject
     {
         public PlayerDetector(Vector2 position, List<byte> visibleList, out int id)
         {
             CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=85%><alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#000000>\u2588<#000000>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#000000>\u2588<#000000>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>", position);
-            foreach (var pc in Main.AllAlivePlayerControls)
-            {
-                if (!visibleList.Contains(pc.PlayerId))
-                    Hide(pc);
-            }
-
+            Main.AllAlivePlayerControls.ExceptBy(visibleList, x => x.PlayerId).Do(Hide);
             id = Id;
+        }
+    }
+
+    internal sealed class AdventurerItem : CustomNetObject
+    {
+        public readonly Adventurer.Resource Resource;
+
+        internal AdventurerItem(Vector2 position, Adventurer.Resource resource, List<byte> visibleList)
+        {
+            Resource = resource;
+            var data = Adventurer.ResourceDisplayData[resource];
+            CreateNetObject($"<size=300%><font=\"VCR SDF\"><line-height=85%>{Utils.ColorString(data.Color, data.Icon.ToString())}</line-height></font></size>", position);
+            Main.AllAlivePlayerControls.ExceptBy(visibleList, x => x.PlayerId).Do(Hide);
         }
     }
 }

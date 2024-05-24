@@ -10,6 +10,16 @@ namespace EHR.Roles.Crewmate
 {
     internal class Adventurer : RoleBase
     {
+        public enum Resource
+        {
+            TaskCompletion,
+            Random,
+            DeadBody,
+            ShapeshiftSkin,
+            LightsFix,
+            Grouping
+        }
+
         public enum Weapon
         {
             Gun,
@@ -24,7 +34,7 @@ namespace EHR.Roles.Crewmate
 
         public static bool On;
 
-        private static readonly Dictionary<Resource, (char Icon, Color Color)> ResourceDisplayData = new()
+        public static readonly Dictionary<Resource, (char Icon, Color Color)> ResourceDisplayData = new()
         {
             { Resource.TaskCompletion, ('\u2756', Color.blue) },
             { Resource.Random, ('Θ', Color.cyan) },
@@ -66,6 +76,8 @@ namespace EHR.Roles.Crewmate
         private Weapon SelectedWeaponToCraft;
         public HashSet<byte> ShieldedPlayers;
         public override bool IsEnable => On;
+
+        static void HideObject(Resource resource) => CustomNetObject.AllObjects.Values.FirstOrDefault(x => x is AdventurerItem a && a.Resource == resource)?.Despawn();
 
         static OptionItem CreateWeaponEnabledSetting(int id, Weapon weapon) => BooleanOptionItem.Create(id, $"AdventurerWeaponEnabled.{weapon}", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adventurer]);
 
@@ -249,18 +261,32 @@ namespace EHR.Roles.Crewmate
 
             if (LastRandomResourceTimeStamp + 20 <= now && pc.PlayerId != AdventurerPC.PlayerId && IRandom.Instance.Next(50) == 0)
             {
+                if (ResourceLocations.TryGetValue(Resource.Random, out var location))
+                {
+                    LocateArrow.Remove(AdventurerPC.PlayerId, location);
+                    HideObject(Resource.Random);
+                }
+
                 var pos = pc.Pos();
                 LocateArrow.Add(AdventurerPC.PlayerId, pos);
                 ResourceLocations[Resource.Random] = pos;
+                _ = new AdventurerItem(pos, Resource.Random, [AdventurerPC.PlayerId]);
                 LastRandomResourceTimeStamp = now;
                 Utils.NotifyRoles(SpecifySeer: AdventurerPC, SpecifyTarget: AdventurerPC);
             }
 
             if (LastGroupingResourceTimeStamp + 20 <= now && Main.AllAlivePlayerControls.Count(x => x.PlayerId != pc.PlayerId && Vector2.Distance(x.Pos(), pc.Pos()) < 2f) >= 2)
             {
+                if (ResourceLocations.TryGetValue(Resource.Grouping, out var location))
+                {
+                    LocateArrow.Remove(AdventurerPC.PlayerId, location);
+                    HideObject(Resource.Grouping);
+                }
+
                 var pos = pc.Pos();
                 LocateArrow.Add(AdventurerPC.PlayerId, pos);
                 ResourceLocations[Resource.Grouping] = pos;
+                _ = new AdventurerItem(pos, Resource.Grouping, [AdventurerPC.PlayerId]);
                 LastGroupingResourceTimeStamp = now;
                 Utils.NotifyRoles(SpecifySeer: AdventurerPC, SpecifyTarget: AdventurerPC);
             }
@@ -275,6 +301,7 @@ namespace EHR.Roles.Crewmate
                     ResourceCounts[resource]++;
                     Utils.SendRPC(CustomRPC.SyncAdventurer, pc.PlayerId, 3, (int)resource);
                     ResourceLocations.Remove(resource);
+                    HideObject(resource);
                     LocateArrow.Remove(pc.PlayerId, location);
 
                     var displayData = ResourceDisplayData[resource];
@@ -297,7 +324,10 @@ namespace EHR.Roles.Crewmate
 
         public static void OnAnyoneShapeshiftLoop(Adventurer av, PlayerControl shapeshifter)
         {
-            av.ResourceLocations[Resource.ShapeshiftSkin] = shapeshifter.Pos();
+            var pos = shapeshifter.Pos();
+            av.ResourceLocations[Resource.ShapeshiftSkin] = pos;
+            HideObject(Resource.ShapeshiftSkin);
+            _ = new AdventurerItem(pos, Resource.ShapeshiftSkin, [av.AdventurerPC.PlayerId]);
         }
 
         public static void OnAnyoneDead(PlayerControl target)
@@ -306,7 +336,10 @@ namespace EHR.Roles.Crewmate
             {
                 if (state.Role is Adventurer { IsEnable: true } av)
                 {
-                    av.ResourceLocations[Resource.DeadBody] = target.Pos();
+                    var pos = target.Pos();
+                    av.ResourceLocations[Resource.DeadBody] = pos;
+                    HideObject(Resource.DeadBody);
+                    _ = new AdventurerItem(pos, Resource.DeadBody, [av.AdventurerPC.PlayerId]);
                 }
             }
         }
@@ -379,16 +412,6 @@ namespace EHR.Roles.Crewmate
             finalText += "</size>";
 
             return finalText;
-        }
-
-        enum Resource
-        {
-            TaskCompletion,
-            Random,
-            DeadBody,
-            ShapeshiftSkin,
-            LightsFix,
-            Grouping
         }
     }
 }
