@@ -2265,27 +2265,25 @@ public static class Options
         public static OverrideTasksData Create(int idStart, TabGroup tab, CustomRoles role) => new(idStart, tab, role);
     }
 
-    // Ability Use Gain With Each Task Completed
     // ReSharper disable NotAccessedField.Global
+
+    // Ability Use Gain With Each Task Completed
     public static OptionItem TimeMasterAbilityUseGainWithEachTaskCompleted;
     public static OptionItem VeteranAbilityUseGainWithEachTaskCompleted;
     public static OptionItem VentguardAbilityUseGainWithEachTaskCompleted;
     public static OptionItem GrenadierAbilityUseGainWithEachTaskCompleted;
     public static OptionItem LighterAbilityUseGainWithEachTaskCompleted;
     public static OptionItem SecurityGuardAbilityUseGainWithEachTaskCompleted;
-
     public static OptionItem DovesOfNeaceAbilityUseGainWithEachTaskCompleted;
-    // ReSharper restore NotAccessedField.Global
 
     // Ability Use Gain every 5 seconds
-    // ReSharper disable NotAccessedField.Global
     public static OptionItem VentguardAbilityChargesWhenFinishedTasks;
     public static OptionItem GrenadierAbilityChargesWhenFinishedTasks;
     public static OptionItem LighterAbilityChargesWhenFinishedTasks;
     public static OptionItem SecurityGuardAbilityChargesWhenFinishedTasks;
     public static OptionItem DovesOfNeaceAbilityChargesWhenFinishedTasks;
     public static OptionItem TimeMasterAbilityChargesWhenFinishedTasks;
-
     public static OptionItem VeteranAbilityChargesWhenFinishedTasks;
+
     // ReSharper restore NotAccessedField.Global
 }
