@@ -1740,6 +1740,7 @@
   "Alive": "Vivo",
   "Win": " Vence!",
   "Last-": "Último ",
+  "DiedR1Warning": "<#ffff00>(Died First in Last Game)</color>",
   "DeputyHandcuffCooldown": "Recarga de Algemas",
   "DeputyHandcuffMax": "Máximo de Algemamentos",
   "CanHandcuffSheriff": "Pode algemar <color=#f8cd46>Xerife</color>",
