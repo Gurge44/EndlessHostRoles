@@ -58,7 +58,7 @@ namespace EHR
 
         public static void Init()
         {
-            TimeLeft = MaxGameLength.GetInt() + 8;
+            TimeLeft = MaxGameLength.GetInt();
             LastUpdate = Utils.TimeStamp;
 
             Type[] types = GetAllHnsRoleTypes();
@@ -114,6 +114,7 @@ namespace EHR
         {
             Dictionary<PlayerControl, CustomRoles> result = [];
             List<PlayerControl> allPlayers = [.. Main.AllAlivePlayerControls];
+            if (Main.GM.Value) allPlayers.RemoveAll(x => x.IsHost());
             allPlayers = allPlayers.Shuffle();
 
             Dictionary<Team, int> memberNum = new()
@@ -328,10 +329,9 @@ namespace EHR
                 return true;
             }
 
-            // If time is up, the game is over and crewmates win
-            if (TimeLeft <= 0)
+            // If time is up or there are no impostors in the game, the game is over and crewmates win
+            if (TimeLeft <= 0 || PlayerRoles.Values.All(x => x.Interface.Team != Team.Impostor))
             {
-                reason = GameOverReason.HumansByTask;
                 SetWinners(CustomWinner.Hider, Team.Crewmate);
                 return true;
             }
@@ -409,7 +409,7 @@ namespace EHR
         {
             public static void Postfix(PlayerControl __instance)
             {
-                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.HideAndSeek) return;
+                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted) return;
 
                 long now = Utils.TimeStamp;
                 if (LastUpdate == now) return;
@@ -417,14 +417,14 @@ namespace EHR
 
                 TimeLeft--;
 
-                if (DangerMeter.GetBool() || (TimeLeft + 1) % 60 == 0 || TimeLeft <= 60) Utils.NotifyRoles();
-
                 PlayerRoles = PlayerRoles.Where(x => Utils.GetPlayerById(x.Key) != null).ToDictionary(x => x.Key, x => x.Value);
 
                 var imps = PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).ToDictionary(x => x.Key, x => Utils.GetPlayerById(x.Key).Pos());
                 var nonImps = PlayerRoles.Where(x => x.Value.Interface.Team is Team.Crewmate or Team.Neutral).ToArray();
                 ClosestImpostor = nonImps.ToDictionary(x => x.Key, x => imps.MinBy(y => Vector2.Distance(y.Value, Utils.GetPlayerById(x.Key).Pos())).Key);
                 Danger = nonImps.ToDictionary(x => x.Key, x => Math.Clamp(((1 + (int)Math.Ceiling(Vector2.Distance(Utils.GetPlayerById(x.Key).Pos(), Utils.GetPlayerById(ClosestImpostor[x.Key]).Pos()))) / 3) - 1, 0, 5));
+
+                if (DangerMeter.GetBool() || (TimeLeft + 1) % 60 == 0 || TimeLeft <= 60) Utils.NotifyRoles();
             }
         }
     }

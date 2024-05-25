@@ -71,7 +71,6 @@ public class Main : BasePlugin
     public static readonly Dictionary<byte, (long START_TIMESTAMP, int TOTALCD)> AbilityCD = [];
     public static Dictionary<byte, float> AbilityUseLimit = [];
     public static List<byte> DontCancelVoteList = [];
-    public static string LastVotedPlayer;
     public static byte NimblePlayer = byte.MaxValue;
     public static byte PhysicistPlayer = byte.MaxValue;
     public static byte BloodlustPlayer = byte.MaxValue;
@@ -102,8 +101,8 @@ public class Main : BasePlugin
     public static float DefaultImpostorVision;
     public static readonly bool IsAprilFools = DateTime.Now.Month == 4 && DateTime.Now.Day is 1;
     public static bool ResetOptions = true;
-    public static byte FirstDied = byte.MaxValue;
-    public static byte ShieldPlayer = byte.MaxValue;
+    public static int FirstDied = int.MaxValue;
+    public static int ShieldPlayer = int.MaxValue;
 
     public static readonly List<PlayerControl> LoversPlayers = [];
     public static bool IsLoversDead = true;

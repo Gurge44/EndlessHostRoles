@@ -348,7 +348,6 @@ class CheckForEndVotingPatch
         var exileId = exiledPlayer.PlayerId;
         if (exileId > 254) return;
         var realName = exiledPlayer.Object.GetRealName(isMeeting: true);
-        Main.LastVotedPlayer = realName;
 
         var player = Utils.GetPlayerById(exiledPlayer.PlayerId);
         var crole = exiledPlayer.GetCustomRole();

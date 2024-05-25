@@ -35,7 +35,7 @@ internal class ControllerManagerUpdatePatch
             }
         }
 
-        if (GetKeysDown(KeyCode.LeftShift, KeyCode.LeftControl, KeyCode.X) && Main.CurrentMap == MapNames.Airship)
+        if (GetKeysDown(KeyCode.LeftShift, KeyCode.LeftControl, KeyCode.X))
         {
             ExileController.Instance?.ReEnableGameplay();
         }

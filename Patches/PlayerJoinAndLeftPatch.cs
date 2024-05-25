@@ -133,9 +133,11 @@ class OnPlayerLeftPatch
         {
             if (GameStates.IsInGame)
             {
+                if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) HnSManager.PlayerRoles.Remove(data.Character.PlayerId);
+
                 if (data.Character.Is(CustomRoles.Lovers) && !data.Character.Data.IsDead)
                 {
-                    foreach (var lovers in Main.LoversPlayers)
+                    foreach (var lovers in Main.LoversPlayers.ToArray())
                     {
                         Main.IsLoversDead = true;
                         Main.LoversPlayers.Remove(lovers);

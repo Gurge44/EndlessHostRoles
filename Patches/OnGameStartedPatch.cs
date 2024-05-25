@@ -64,8 +64,8 @@ internal class ChangeRoleSettings
             Main.ClientIdList = [];
             Main.CheckShapeshift = [];
             Main.ShapeshiftTarget = [];
-            Main.ShieldPlayer = Options.ShieldPersonDiedFirst.GetBool() ? Main.FirstDied : byte.MaxValue;
-            Main.FirstDied = byte.MaxValue;
+            Main.ShieldPlayer = Options.ShieldPersonDiedFirst.GetBool() ? Main.FirstDied : int.MaxValue;
+            Main.FirstDied = int.MaxValue;
             Main.MadmateNum = 0;
 
             Mayor.MayorUsedButtonCount = [];

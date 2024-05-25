@@ -2300,6 +2300,9 @@ public static class Utils
 
                             Main.PlayerStates.Values.Do(x => TargetSuffix.Append(x.Role.GetSuffix(seer, target, isMeeting: isForMeeting)));
 
+                            if (Main.FirstDied != int.MaxValue && Main.FirstDied == target.GetClientId())
+                                TargetSuffix.Append(GetString("DiedR1Warning"));
+
                             string TargetDeathReason = string.Empty;
                             if (seer.KnowDeathReason(target))
                                 TargetDeathReason = $"\n<size=1.7>({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))})</size>";

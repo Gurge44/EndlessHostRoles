@@ -401,9 +401,9 @@ class CheckMurderPatch
                 break;
         }
 
-        if (Main.ShieldPlayer != byte.MaxValue && Main.ShieldPlayer == target.PlayerId && IsAllAlive)
+        if (Main.ShieldPlayer != int.MaxValue && Main.ShieldPlayer == target.GetClientId() && IsAllAlive)
         {
-            Main.ShieldPlayer = byte.MaxValue;
+            Main.ShieldPlayer = int.MaxValue;
             killer.SetKillCooldown(15f);
             killer.Notify(GetString("TriedToKillLastGameFirstKill"), 10f);
             return false;
@@ -485,16 +485,16 @@ class MurderPlayerPatch
         }
 
         // Let’s see if Youtuber was stabbed first
-        if (Main.FirstDied == byte.MaxValue && target.Is(CustomRoles.Youtuber))
+        if (Main.FirstDied == int.MaxValue && target.Is(CustomRoles.Youtuber))
         {
             CustomSoundsManager.RPCPlayCustomSoundAll("Congrats");
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Youtuber);
             CustomWinnerHolder.WinnerIds.Add(target.PlayerId);
         }
 
-        // Record the first blow
-        if (Main.FirstDied == byte.MaxValue)
-            Main.FirstDied = target.PlayerId;
+        // Record the first death
+        if (Main.FirstDied == int.MaxValue)
+            Main.FirstDied = target.GetClientId();
 
         Postman.CheckAndResetTargets(target, isDeath: true);
 
@@ -1521,6 +1521,9 @@ class FixedUpdatePatch
 
                 if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
                     Suffix.Append(SoloKombatManager.GetDisplayHealth(target));
+
+                if (Main.FirstDied != int.MaxValue && Main.FirstDied == target.GetClientId() && !self)
+                    Suffix.Append(GetString("DiedR1Warning"));
 
                 // Devourer
                 if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.playerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)))
