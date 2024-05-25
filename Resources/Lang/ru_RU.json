@@ -3539,7 +3539,7 @@
   "HideAndSeek_MaxGameTime": "Макс. длительность игры",
   "HNS.MinNeutrals": "<#00ffff>Мин.</color> кол-во <#ffab1b>Нейтралов</color>",
   "HNS.MaxNeutrals": "<#0000ff>Макс.</color> кол-во <#ffab1b>Нейтралов</color>",
-  "HNS.DangerMeter": "Показывать (Модовый) Измеритель Опасности",
+  "HNS.DangerMeter": "Включить (Модовый) Измеритель Опасности",
   "HNS.PlayersSeeRoles": "Игроки видят роли друг друга",
   "HNS.TaskCount": "Таски:",
   "SubText.HideAndSeek": "ИЩИ ИЛИ ПРЯЧЬСЯ",
