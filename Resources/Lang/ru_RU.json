@@ -1740,6 +1740,7 @@
   "Alive": "Жив",
   "Win": " Победил!",
   "Last-": "Последний-",
+  "DiedR1Warning": "<#ffff00>(Died First in Last Game)</color>",
   "DeputyHandcuffCooldown": "Откат наручников",
   "DeputyHandcuffMax": "Макс. наручников",
   "CanHandcuffSheriff": "Может надеть наручники на <color=#f8cd46>Sheriff</color>'а",
