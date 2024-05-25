@@ -1740,6 +1740,7 @@
   "Alive": "Alive",
   "Win": " Wins!",
   "Last-": "Last ",
+  "DiedR1Warning": "<#ffff00>(Died First in Last Game)</color>",
   "DeputyHandcuffCooldown": "Handcuff Cooldown",
   "DeputyHandcuffMax": "Maximum Handcuffs",
   "CanHandcuffSheriff": "Can Handcuff <color=#f8cd46>Sheriff</color>",
