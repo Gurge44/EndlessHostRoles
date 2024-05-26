@@ -1076,7 +1076,7 @@
   "DisableFungleVital": "Выключить пульсы",
   "DisableFungleCamera": "Выключить бинокль",
   "IgnoreConditions": "Условия игнорирования",
-  "IgnoreImpostors": "Игнорировать<color=#ff1919>Предателей</color>",
+  "IgnoreImpostors": "Игнорировать <color=#ff1919>Предателей</color>",
   "IgnoreNeutrals": "Игнорировать <color=#ffab1b>Нейтралов</color>",
   "IgnoreCrewmates": "Игнорировать <color=#8cffff>Членов Экипажа</color>",
   "IgnoreAfterAnyoneDied": "Игнорировать после первой смерти",
