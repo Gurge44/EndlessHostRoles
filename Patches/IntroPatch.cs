@@ -626,7 +626,7 @@ class IntroCutsceneDestroyPatch
             };
             if (chat) Utils.SetChatVisible();
 
-            _ = new LateTask(() => Main.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
+            // _ = new LateTask(() => Main.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 
             if (Options.UsePets.GetBool())
             {

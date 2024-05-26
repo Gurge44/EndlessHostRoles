@@ -138,6 +138,18 @@ class HudManagerPatch
             {
                 if (player.IsAlive() || Options.CurrentGameMode != CustomGameMode.Standard)
                 {
+                    if (player.Data.Role is ShapeshifterRole ssrole)
+                    {
+                        var timer = shapeshifting ? ssrole.durationSecondsRemaining : ssrole.cooldownSecondsRemaining;
+                        var button = __instance.AbilityButton;
+                        if (timer > 0f)
+                        {
+                            var color = shapeshifting ? Color.green : Color.white;
+                            button.cooldownTimerText.text = Utils.ColorString(color, Mathf.CeilToInt(timer).ToString());
+                            button.cooldownTimerText.gameObject.SetActive(true);
+                        }
+                    }
+
                     var role = player.GetCustomRole();
 
                     bool usesPetInsteadOfKill = role.UsesPetInsteadOfKill();
@@ -296,6 +308,20 @@ class HudManagerPatch
         catch (Exception e)
         {
             Utils.ThrowException(e);
+        }
+    }
+}
+
+[HarmonyPatch(typeof(ActionButton), nameof(ActionButton.SetFillUp))]
+class ActionButtonSetFillUpPatch
+{
+    public static void Postfix(ActionButton __instance, [HarmonyArgument(0)] float timer)
+    {
+        if (__instance.isCoolingDown)
+        {
+            var color = PlayerControl.LocalPlayer.IsShifted() ? Color.green : Color.white;
+            __instance.cooldownTimerText.text = Utils.ColorString(color, Mathf.CeilToInt(timer).ToString());
+            __instance.cooldownTimerText.gameObject.SetActive(true);
         }
     }
 }
@@ -712,5 +738,3 @@ class RepairSender
         return SystemType + "(" + ((SystemTypes)SystemType) + ")\r\n" + amount;
     }
 }
-
-// The following code comes from Crowded https://github.com/CrowdedMods/CrowdedMod/blob/master/src/CrowdedMod/Patches/CreateGameOptionsPatches.cs
