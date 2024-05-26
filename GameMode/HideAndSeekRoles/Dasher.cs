@@ -45,7 +45,7 @@ namespace EHR.GameMode.HideAndSeekRoles
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(245, 66, 176, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dasher]);
-            DashSpeed = FloatOptionItem.Create(69_213_807, "DasherSpeedIncreased", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
+            DashSpeed = FloatOptionItem.Create(69_213_807, "DasherSpeedIncreased", new(0.05f, 5f, 0.05f), 1.5f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(245, 66, 176, byte.MaxValue))
@@ -81,6 +81,8 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
+            if (!DashStatus.IsDashing) return;
+
             long now = Utils.TimeStamp;
             if (DashStatus.DashEndTime <= now)
             {

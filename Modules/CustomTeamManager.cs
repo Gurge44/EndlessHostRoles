@@ -76,7 +76,7 @@ namespace EHR.Modules
 
             foreach ((CustomTeam team, HashSet<byte> players) in CustomTeamPlayerIds)
             {
-                if (!GetSettingForTeam(team, "Arrows")) continue;
+                if (!IsSettingEnabledForTeam(team, "Arrows")) continue;
 
                 foreach (byte player in players)
                 {
@@ -91,7 +91,7 @@ namespace EHR.Modules
 
         public static string GetSuffix(PlayerControl seer)
         {
-            if (seer == null || EnabledCustomTeams.Count == 0 || !GetSettingForPlayerTeam(seer.PlayerId, "Arrows")) return string.Empty;
+            if (seer == null || EnabledCustomTeams.Count == 0 || !IsSettingEnabledForPlayerTeam(seer.PlayerId, "Arrows")) return string.Empty;
             return CustomTeamPlayerIds[GetCustomTeam(seer.PlayerId)].Aggregate(string.Empty, (s, id) => s + Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), TargetArrow.GetArrows(seer, id)));
         }
 
@@ -143,13 +143,13 @@ namespace EHR.Modules
             return team1 != null && team2 != null && team1.Equals(team2);
         }
 
-        public static bool GetSettingForPlayerTeam(byte id, string settingName)
+        public static bool IsSettingEnabledForPlayerTeam(byte id, string settingName)
         {
             var team = GetCustomTeam(id);
-            return team != null && GetSettingForTeam(team, settingName);
+            return team != null && IsSettingEnabledForTeam(team, settingName);
         }
 
-        public static bool GetSettingForTeam(CustomTeam team, string settingName)
+        public static bool IsSettingEnabledForTeam(CustomTeam team, string settingName)
         {
             var optionsGroup = CustomTeamOptions.First(x => x.Team.Equals(team));
             var setting = optionsGroup.GetType().GetFields().FirstOrDefault(x => x.Name.Contains(settingName));

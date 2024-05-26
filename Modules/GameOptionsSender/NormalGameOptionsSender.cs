@@ -32,6 +32,6 @@ public class NormalGameOptionsSender : GameOptionsSender
         protected set { _logicOptions?.ClearDirtyFlag(); }
     }
 
-    public override IGameOptions BuildGameOptions()
+    protected override IGameOptions BuildGameOptions()
         => BasedGameOptions;
 }

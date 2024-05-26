@@ -133,11 +133,12 @@ public class Snitch : RoleBase
 
         var exposedSnitch = PlayerIdList.Where(s => !Main.PlayerStates[s].IsDead && IsExposed[s]);
         var snitch = exposedSnitch as byte[] ?? exposedSnitch.ToArray();
-        if (!snitch.Any()) return string.Empty;
+        if (snitch.Length == 0) return string.Empty;
 
         var warning = $"\n{Translator.GetString("Snitch")} ";
         if (EnableTargetArrow)
             warning += TargetArrow.GetArrows(seer, snitch);
+        else warning += "⚠";
 
         return Utils.ColorString(RoleColor, warning);
     }

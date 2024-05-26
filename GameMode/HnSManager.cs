@@ -58,7 +58,7 @@ namespace EHR
 
         public static void Init()
         {
-            TimeLeft = MaxGameLength.GetInt() + 8;
+            TimeLeft = MaxGameLength.GetInt();
             LastUpdate = Utils.TimeStamp;
 
             Type[] types = GetAllHnsRoleTypes();
@@ -69,16 +69,17 @@ namespace EHR
                 .Select(x => (IHideAndSeekRole)Activator.CreateInstance(x))
                 .Where(x => x != null)
                 .Join(AllHnSRoles, x => x.GetType().Name.ToLower(), x => x.ToString().ToLower(), (Interface, Enum) => (Enum, Interface))
-                .Where(x => (!x.Enum.OnlySpawnsWithPets() || Options.UsePets.GetBool()) && (x.Enum != CustomRoles.Agent || SeekerNum >= 2) && x.Interface.Count > 0 && x.Interface.Chance > IRandom.Instance.Next(100))
+                .Where(x => (!x.Enum.OnlySpawnsWithPets() || Options.UsePets.GetBool()) && (x.Enum != CustomRoles.Agent || SeekerNum >= 2) && x.Interface.Count > 0 && (x.Interface.Team == Team.Neutral || x.Interface.Chance > IRandom.Instance.Next(100)))
                 .OrderBy(x => x.Enum is CustomRoles.Seeker or CustomRoles.Hider ? 100 : IRandom.Instance.Next(100))
                 .GroupBy(x => x.Interface.Team)
                 .ToDictionary(x => x.Key, x => x.ToDictionary(y => y.Enum, y => y.Interface.Count));
 
             PlayerRoles = [];
             ClosestImpostor = [];
+        }
 
-            if (Options.CurrentGameMode != CustomGameMode.HideAndSeek) return;
-
+        public static void StartSeekerBlindTime()
+        {
             IsBlindTime = true;
             Utils.MarkEveryoneDirtySettingsV4();
             _ = new LateTask(() =>
@@ -95,7 +96,7 @@ namespace EHR
         public static List<CustomRoles> GetAllHnsRoles(IEnumerable<Type> types)
         {
             return types
-                .Select(x => ((CustomRoles)Enum.Parse(typeof(CustomRoles), ignoreCase: true, value: x.Name)))
+                .Select(x => Enum.Parse<CustomRoles>(ignoreCase: true, value: x.Name))
                 .Where(role => role is CustomRoles.Seeker or CustomRoles.Hider || role.GetMode() != 0)
                 .ToList();
         }
@@ -113,6 +114,7 @@ namespace EHR
         {
             Dictionary<PlayerControl, CustomRoles> result = [];
             List<PlayerControl> allPlayers = [.. Main.AllAlivePlayerControls];
+            if (Main.GM.Value) allPlayers.RemoveAll(x => x.IsHost());
             allPlayers = allPlayers.Shuffle();
 
             Dictionary<Team, int> memberNum = new()
@@ -122,7 +124,7 @@ namespace EHR
             };
             memberNum[Team.Crewmate] = allPlayers.Count - memberNum.Values.Sum();
 
-            Logger.Warn($"Number of impostors: {memberNum[Team.Impostor]}", "debug");
+            Logger.Warn($"Number of impostors: {memberNum[Team.Impostor]}", "HnsRoleAssigner");
 
             foreach (var item in Main.SetRoles)
             {
@@ -136,7 +138,7 @@ namespace EHR
                 role.Value[item.Value]--;
                 memberNum[role.Key]--;
 
-                Logger.Warn($"Pre-Set Role Assigned: {pc.GetRealName()} => {item.Value}", "CustomRoleSelector");
+                Logger.Warn($"Pre-Set Role Assigned: {pc.GetRealName()} => {item.Value}", "HnsRoleAssigner");
             }
 
             var playerTeams = Enum.GetValues<Team>()[1..]
@@ -145,6 +147,11 @@ namespace EHR
                 .Zip(allPlayers)
                 .GroupBy(x => x.First, x => x.Second)
                 .ToDictionary(x => x.Key, x => x.ToArray());
+
+            if (memberNum[Team.Neutral] > 0 && HideAndSeekRoles.TryGetValue(Team.Neutral, out var neutrals))
+            {
+                HideAndSeekRoles[Team.Neutral] = neutrals.Shuffle().ToDictionary(x => x.Key, x => x.Value);
+            }
 
             foreach ((Team team, Dictionary<CustomRoles, int> roleCounts) in HideAndSeekRoles)
             {
@@ -186,14 +193,14 @@ namespace EHR
 
             foreach (PlayerControl pc in allPlayers.Except(result.Keys).ToArray())
             {
-                Logger.Warn($"Unassigned, force Hider: {pc.GetRealName()} => {CustomRoles.Hider}", "debug");
+                Logger.Warn($"Unassigned, force Hider: {pc.GetRealName()} => {CustomRoles.Hider}", "HnsRoleAssigner");
                 result[pc] = CustomRoles.Hider;
                 memberNum[Team.Crewmate]--;
                 allPlayers.Remove(pc);
             }
 
-            if (allPlayers.Count > 0) Logger.Error($"Some players were not assigned a role: {allPlayers.Join(x => x.GetRealName())}", "CustomRoleSelector");
-            Logger.Msg($"Roles: {result.Join(x => $"{x.Key.GetRealName()} => {x.Value}")}", "HideAndSeekRoleSelector");
+            if (allPlayers.Count > 0) Logger.Error($"Some players were not assigned a role: {allPlayers.Join(x => x.GetRealName())}", "HnsRoleAssigner");
+            Logger.Msg($"Roles: {result.Join(x => $"{x.Key.GetRealName()} => {x.Value}")}", "HnsRoleAssigner");
 
             var roleInterfaces = Assembly.GetExecutingAssembly().GetTypes()
                 .Where(x => typeof(IHideAndSeekRole).IsAssignableFrom(x) && !x.IsInterface)
@@ -203,6 +210,14 @@ namespace EHR
             PlayerRoles = result.ToDictionary(x => x.Key.PlayerId, x => (roleInterfaces[x.Value.ToString()], x.Value));
 
             result.IntersectBy(Main.PlayerStates.Keys, x => x.Key.PlayerId).Do(x => x.Key.RpcSetCustomRole(x.Value));
+
+            // ==================================================================================================================
+
+            if (result.ContainsValue(CustomRoles.Agent))
+            {
+                var agent = result.GetKeyByValue(CustomRoles.Agent).PlayerId;
+                PlayerRoles.DoIf(x => x.Value.Role != CustomRoles.Agent && x.Value.Interface.Team == Team.Impostor, x => TargetArrow.Add(x.Key, agent));
+            }
         }
 
         public static void ApplyGameOptions(IGameOptions opt, PlayerControl pc)
@@ -247,6 +262,12 @@ namespace EHR
             if (seer.PlayerId != target.PlayerId) return string.Empty;
 
             string dangerMeter = GetDangerMeter(seer);
+
+            if (PlayerRoles[seer.PlayerId].Interface.Team == Team.Impostor && PlayerRoles.Values.Any(x => x.Role == CustomRoles.Agent))
+            {
+                var agent = PlayerRoles.First(x => x.Value.Role == CustomRoles.Agent).Key;
+                dangerMeter += TargetArrow.GetArrows(seer, agent);
+            }
 
             if (!isHUD && seer.IsModClient()) return string.Empty;
             if (TimeLeft <= 60)
@@ -304,23 +325,25 @@ namespace EHR
             // If there are no crew roles left, the game is over and only impostors win
             if (alivePlayers.All(x => PlayerRoles[x.PlayerId].Interface.Team != Team.Crewmate))
             {
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Seeker);
-                CustomWinnerHolder.WinnerIds.UnionWith(PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).Select(x => x.Key));
-                AddFoxesToWinners();
+                SetWinners(CustomWinner.Seeker, Team.Impostor);
                 return true;
             }
 
-            // If time is up, the game is over and crewmates win
-            if (TimeLeft <= 0)
+            // If time is up or there are no impostors in the game, the game is over and crewmates win
+            if (TimeLeft <= 0 || PlayerRoles.Values.All(x => x.Interface.Team != Team.Impostor))
             {
-                reason = GameOverReason.HumansByTask;
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Hider);
-                CustomWinnerHolder.WinnerIds.UnionWith(PlayerRoles.Where(x => x.Value.Interface.Team == Team.Crewmate).Select(x => x.Key));
-                AddFoxesToWinners();
+                SetWinners(CustomWinner.Hider, Team.Crewmate);
                 return true;
             }
 
             return false;
+
+            static void SetWinners(CustomWinner winner, Team team)
+            {
+                CustomWinnerHolder.ResetAndSetWinner(winner);
+                CustomWinnerHolder.WinnerIds.UnionWith(PlayerRoles.Where(x => x.Value.Interface.Team == team).Select(x => x.Key));
+                AddFoxesToWinners();
+            }
         }
 
         public static void AddFoxesToWinners()
@@ -351,7 +374,7 @@ namespace EHR
                 TaskState ts = state.Value.TaskState;
                 string stateText = string.Empty;
                 if (PlayersSeeRoles.GetBool()) stateText = $" ({GetRole().ToColoredString()}){GetTaskCount()}";
-                else if (isSeeker) stateText = $" ({CustomRoles.Seeker.ToString()})";
+                else if (isSeeker) stateText = $" ({CustomRoles.Seeker.ToColoredString()})";
                 if (!alive) stateText += $"  <color=#ff0000>{Translator.GetString("Dead")}</color>";
 
                 stateText = $"{name}{stateText}";
@@ -386,7 +409,7 @@ namespace EHR
         {
             public static void Postfix(PlayerControl __instance)
             {
-                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.HideAndSeek) return;
+                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted) return;
 
                 long now = Utils.TimeStamp;
                 if (LastUpdate == now) return;
@@ -394,14 +417,14 @@ namespace EHR
 
                 TimeLeft--;
 
-                if (DangerMeter.GetBool() || (TimeLeft + 1) % 60 == 0 || TimeLeft <= 60) Utils.NotifyRoles();
-
                 PlayerRoles = PlayerRoles.Where(x => Utils.GetPlayerById(x.Key) != null).ToDictionary(x => x.Key, x => x.Value);
 
                 var imps = PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).ToDictionary(x => x.Key, x => Utils.GetPlayerById(x.Key).Pos());
                 var nonImps = PlayerRoles.Where(x => x.Value.Interface.Team is Team.Crewmate or Team.Neutral).ToArray();
                 ClosestImpostor = nonImps.ToDictionary(x => x.Key, x => imps.MinBy(y => Vector2.Distance(y.Value, Utils.GetPlayerById(x.Key).Pos())).Key);
-                Danger = nonImps.ToDictionary(x => x.Key, x => (1 + (int)Vector2.Distance(Utils.GetPlayerById(x.Key).Pos(), Utils.GetPlayerById(ClosestImpostor[x.Key]).Pos())) / 2);
+                Danger = nonImps.ToDictionary(x => x.Key, x => Math.Clamp(((1 + (int)Math.Ceiling(Vector2.Distance(Utils.GetPlayerById(x.Key).Pos(), Utils.GetPlayerById(ClosestImpostor[x.Key]).Pos()))) / 3) - 1, 0, 5));
+
+                if (DangerMeter.GetBool() || (TimeLeft + 1) % 60 == 0 || TimeLeft <= 60) Utils.NotifyRoles();
             }
         }
     }

@@ -179,4 +179,9 @@ public class Vulture : RoleBase
             pc.RpcSetCustomRole(role);
         }
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.ReportButton?.OverrideText(GetString("VultureEatButtonText"));
+    }
 }

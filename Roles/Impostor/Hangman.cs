@@ -16,6 +16,8 @@ public class Hangman : RoleBase
     private static OptionItem HangmanLimitOpt;
     public static OptionItem HangmanAbilityUseGainWithEachKill;
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Hangman);
@@ -42,8 +44,6 @@ public class Hangman : RoleBase
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(HangmanLimitOpt.GetInt());
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
@@ -75,5 +75,11 @@ public class Hangman : RoleBase
         }
 
         return true;
+    }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        if (id.IsPlayerShifted()) hud.KillButton?.OverrideText(Translator.GetString("HangmanKillButtonTextDuringSS"));
+        hud.AbilityButton?.SetUsesRemaining((int)id.GetAbilityUseLimit());
     }
 }

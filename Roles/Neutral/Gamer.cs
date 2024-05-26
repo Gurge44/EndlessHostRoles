@@ -155,4 +155,9 @@ public class Gamer : RoleBase
         else G = x;
         return new((byte)R, (byte)G, (byte)B, byte.MaxValue);
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.KillButton?.OverrideText(Translator.GetString("GamerButtonText"));
+    }
 }

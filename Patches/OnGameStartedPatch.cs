@@ -64,8 +64,8 @@ internal class ChangeRoleSettings
             Main.ClientIdList = [];
             Main.CheckShapeshift = [];
             Main.ShapeshiftTarget = [];
-            Main.ShieldPlayer = Options.ShieldPersonDiedFirst.GetBool() ? Main.FirstDied : byte.MaxValue;
-            Main.FirstDied = byte.MaxValue;
+            Main.ShieldPlayer = Options.ShieldPersonDiedFirst.GetBool() ? Main.FirstDied : int.MaxValue;
+            Main.FirstDied = int.MaxValue;
             Main.MadmateNum = 0;
 
             Mayor.MayorUsedButtonCount = [];
@@ -504,20 +504,20 @@ internal class SelectRolesPatch
                 .SelectMany(x => Enumerable.Repeat(x, Math.Clamp(x.GetCount(), 0, aapc.Length)))
                 .Shuffle()
                 .Chunk(aapc.Length)
-                .Do(c => c.Zip(aapc).Do(x => AssignSubRoles(x.First, x.Second)));
+                .Do(c => c.Zip(aapc).DoIf(x => CustomRolesHelper.CheckAddonConflict(x.First, x.Second) && IRandom.Instance.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(x.First, out var sc) ? sc.GetFloat() : 0), x => Main.PlayerStates[x.Second.PlayerId].SetSubRole(x.First)));
 
 
             foreach (var state in Main.PlayerStates.Values)
             {
-                if (Main.NeverSpawnTogetherCombos.TryGetValue(state.MainRole, out var bannedAddon))
+                if (Main.NeverSpawnTogetherCombos.TryGetValue(state.MainRole, out var bannedAddonList))
                 {
-                    state.RemoveSubRole(bannedAddon);
+                    bannedAddonList.ForEach(x => state.RemoveSubRole(x));
                     continue;
                 }
 
-                if (Main.AlwaysSpawnTogetherCombos.TryGetValue(state.MainRole, out var addon))
+                if (Main.AlwaysSpawnTogetherCombos.TryGetValue(state.MainRole, out var addonList))
                 {
-                    state.SetSubRole(addon);
+                    addonList.ForEach(x => state.SetSubRole(x));
                 }
             }
 
@@ -525,9 +525,17 @@ internal class SelectRolesPatch
             {
                 ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
 
+                var sb = new System.Text.StringBuilder();
                 foreach (CustomRoles subRole in pair.Value.SubRoles)
                 {
                     ExtendedPlayerControl.RpcSetCustomRole(pair.Key, subRole);
+                    sb.Append(subRole).Append(", ");
+                }
+
+                if (sb.Length > 0)
+                {
+                    sb.Remove(sb.Length - 2, 2);
+                    Logger.Info($"{Main.AllPlayerNames[pair.Key]} has sub roles: {sb}", "SelectRolesPatch");
                 }
             }
 
@@ -555,7 +563,15 @@ internal class SelectRolesPatch
 
             EndOfSelectRolePatch:
 
-            if (Options.CurrentGameMode == CustomGameMode.HotPotato) HotPotatoManager.OnGameStart();
+            switch (Options.CurrentGameMode)
+            {
+                case CustomGameMode.HotPotato:
+                    HotPotatoManager.OnGameStart();
+                    break;
+                case CustomGameMode.HideAndSeek:
+                    HnSManager.StartSeekerBlindTime();
+                    break;
+            }
 
             HudManager.Instance.SetHudActive(true);
 
@@ -752,16 +768,6 @@ internal class SelectRolesPatch
         }
 
         RPC.SyncLoversPlayers();
-    }
-
-    private static void AssignSubRoles(CustomRoles role, PlayerControl player)
-    {
-        if (!CustomRolesHelper.CheckAddonConflict(role, player)) return;
-        if (IRandom.Instance.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(role, out var sc) ? sc.GetFloat() : 0))
-        {
-            Main.PlayerStates[player.PlayerId].SetSubRole(role);
-            Logger.Info($"Assigned add-on: {player.Data?.PlayerName} = {player.GetCustomRole()} + {role}", $"Assign {role}");
-        }
     }
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSetRole))]

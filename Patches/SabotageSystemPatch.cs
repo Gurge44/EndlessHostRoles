@@ -263,7 +263,7 @@ public static class SabotageSystemTypeRepairDamagePatch
             return false;
         }
 
-        if (player.Is(CustomRoleTypes.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
+        if (player.Is(Team.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
         bool allow = player.GetCustomRole() switch
         {
             CustomRoles.Jackal when Jackal.CanSabotage.GetBool() => true,
@@ -271,7 +271,7 @@ public static class SabotageSystemTypeRepairDamagePatch
             CustomRoles.Traitor when Traitor.CanSabotage.GetBool() => true,
             CustomRoles.Parasite when player.IsAlive() => true,
             CustomRoles.Refugee when player.IsAlive() => true,
-            _ => Main.PlayerStates[player.PlayerId].Role.OnSabotage(player) && Main.PlayerStates[player.PlayerId].Role.CanUseSabotage(player)
+            _ => Main.PlayerStates[player.PlayerId].Role.CanUseSabotage(player) && Main.PlayerStates[player.PlayerId].Role.OnSabotage(player)
         };
         if (allow && QuizMaster.On) QuizMaster.Data.NumSabotages++;
 

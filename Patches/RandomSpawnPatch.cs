@@ -9,6 +9,16 @@ namespace EHR;
 
 class RandomSpawn
 {
+    public static void TP(CustomNetworkTransform nt, Vector2 location)
+    {
+        //if (AmongUsClient.Instance.AmHost) nt.SnapTo(location);
+        //MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.None);
+        //NetHelpers.WriteVector2(location, writer);
+        //writer.Write(nt.lastSequenceId);
+        //AmongUsClient.Instance.FinishRpcImmediately(writer);
+        Utils.TP(nt, location);
+    }
+
     [HarmonyPatch(typeof(CustomNetworkTransform), nameof(CustomNetworkTransform.SnapTo), typeof(Vector2), typeof(ushort))]
     public class CustomNetworkTransformPatch
     {
@@ -17,7 +27,7 @@ class RandomSpawn
         public static void Postfix(CustomNetworkTransform __instance, [HarmonyArgument(0)] Vector2 position)
         {
             if (!AmongUsClient.Instance.AmHost) return;
-            if (position == new Vector2(-25f, 40f)) return; //最初の湧き地点ならreturn
+            if (position == new Vector2(-25f, 40f)) return;
             if (GameStates.IsInTask)
             {
                 var player = Main.AllPlayerControls.FirstOrDefault(p => p.NetTransform == __instance);
@@ -43,16 +53,6 @@ class RandomSpawn
                 }
             }
         }
-    }
-
-    public static void TP(CustomNetworkTransform nt, Vector2 location)
-    {
-        //if (AmongUsClient.Instance.AmHost) nt.SnapTo(location);
-        //MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.None);
-        //NetHelpers.WriteVector2(location, writer);
-        //writer.Write(nt.lastSequenceId);
-        //AmongUsClient.Instance.FinishRpcImmediately(writer);
-        Utils.TP(nt, location);
     }
 
     public abstract class SpawnMap

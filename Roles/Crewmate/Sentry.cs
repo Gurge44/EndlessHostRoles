@@ -141,6 +141,8 @@ namespace EHR.Roles.Impostor
 
         public static void OnAnyoneEnterVent(PlayerControl pc)
         {
+            if (!AmongUsClient.Instance.AmHost) return;
+
             foreach (var state in Main.PlayerStates.Values)
             {
                 if (state.Role is Sentry st && st.IsInMonitoredRoom(pc) && NameNotifyManager.Notice.TryGetValue(st.SentryPC.PlayerId, out var notify))
@@ -206,6 +208,11 @@ namespace EHR.Roles.Impostor
         public override void AfterMeetingTasks()
         {
             DeadBodiesInRoom.Clear();
+        }
+
+        public override void SetButtonTexts(HudManager hud, byte id)
+        {
+            hud.PetButton?.OverrideText(Translator.GetString("SentryPetButtonText"));
         }
     }
 }

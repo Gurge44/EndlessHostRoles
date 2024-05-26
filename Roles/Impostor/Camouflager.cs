@@ -15,6 +15,8 @@ namespace EHR.Roles.Impostor
         public static bool IsActive;
         public static bool On;
 
+        public override bool IsEnable => On;
+
         public static void SetupCustomOption()
         {
             Options.SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Camouflager);
@@ -48,8 +50,6 @@ namespace EHR.Roles.Impostor
             playerId.SetAbilityUseLimit(CamoLimitOpt.GetInt());
             On = true;
         }
-
-        public override bool IsEnable => On;
 
         public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
         {
@@ -86,6 +86,12 @@ namespace EHR.Roles.Impostor
                 Camouflage.CheckCamouflage();
                 Utils.NotifyRoles(ForceLoop: true);
             }
+        }
+
+        public override void SetButtonTexts(HudManager hud, byte id)
+        {
+            hud.AbilityButton?.OverrideText(Translator.GetString("CamouflagerShapeshiftText"));
+            hud.AbilityButton?.SetUsesRemaining((int)id.GetAbilityUseLimit());
         }
     }
 }

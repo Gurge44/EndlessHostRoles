@@ -133,9 +133,11 @@ class OnPlayerLeftPatch
         {
             if (GameStates.IsInGame)
             {
+                if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) HnSManager.PlayerRoles.Remove(data.Character.PlayerId);
+
                 if (data.Character.Is(CustomRoles.Lovers) && !data.Character.Data.IsDead)
                 {
-                    foreach (var lovers in Main.LoversPlayers)
+                    foreach (var lovers in Main.LoversPlayers.ToArray())
                     {
                         Main.IsLoversDead = true;
                         Main.LoversPlayers.Remove(lovers);
@@ -274,8 +276,8 @@ class CreatePlayerPatch
             if (Regex.Replace(Regex.Replace(name, @"\s", string.Empty), @"[\x01-\x1F,\x7F]", string.Empty).Length < 1) name = Main.Get_TName_Snacks;
         }
 
-        Main.AllPlayerNames.Remove(client.Character.PlayerId);
-        Main.AllPlayerNames.TryAdd(client.Character.PlayerId, name);
+        Main.AllPlayerNames[client.Character.PlayerId] = name;
+
         if (!name.Equals(client.PlayerName))
         {
             _ = new LateTask(() =>

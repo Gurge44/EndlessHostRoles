@@ -35,7 +35,7 @@ internal class ControllerManagerUpdatePatch
             }
         }
 
-        if (GetKeysDown(KeyCode.LeftShift, KeyCode.LeftControl, KeyCode.X) && Main.CurrentMap == MapNames.Airship)
+        if (GetKeysDown(KeyCode.LeftShift, KeyCode.LeftControl, KeyCode.X))
         {
             ExileController.Instance?.ReEnableGameplay();
         }
@@ -103,14 +103,14 @@ internal class ControllerManagerUpdatePatch
 
         if (GetKeysDown(KeyCode.F5, KeyCode.X))
         {
-            Logger.Info("导出自定义翻译文件", "KeyCommand");
+            Logger.Info("Exported Custom Translation File", "KeyCommand");
             ExportCustomTranslation();
             Logger.SendInGame("Exported Custom Translation File");
         }
 
         if (GetKeysDown(KeyCode.F1, KeyCode.LeftControl))
         {
-            Logger.Info("输出日志", "KeyCommand");
+            Logger.Info("Log dumped", "KeyCommand");
             Utils.DumpLog();
         }
 
@@ -211,7 +211,7 @@ internal class ControllerManagerUpdatePatch
 
         if (GetKeysDown(KeyCode.Return, KeyCode.K, KeyCode.LeftShift) && GameStates.IsInGame)
         {
-            PlayerControl.LocalPlayer.Data.Object.SetKillTimer(0f);
+            PlayerControl.LocalPlayer.SetKillTimer(0f);
             PlayerControl.LocalPlayer.SetKillCooldown(0f);
         }
 
@@ -241,7 +241,7 @@ internal class ControllerManagerUpdatePatch
 
         if (Input.GetKeyDown(KeyCode.I))
         {
-            Logger.Info(PlayerControl.LocalPlayer.Pos().ToString(), "GetLocalPlayerPos");
+            Logger.SendInGame(PlayerControl.LocalPlayer.Pos().ToString());
         }
 
         if (Input.GetKeyDown(KeyCode.C))

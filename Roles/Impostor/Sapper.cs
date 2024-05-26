@@ -21,6 +21,8 @@ namespace EHR.Roles.Impostor
 
         public static Dictionary<Vector2, long> Bombs = [];
 
+        public override bool IsEnable => playerIdList.Count > 0;
+
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Sapper);
@@ -53,8 +55,6 @@ namespace EHR.Roles.Impostor
         {
             Main.AllPlayerKillCooldown[id] = 300f;
         }
-
-        public override bool IsEnable => playerIdList.Count > 0;
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
@@ -129,6 +129,12 @@ namespace EHR.Roles.Impostor
         public override void OnReportDeadBody()
         {
             Bombs.Clear();
+        }
+
+        public override void SetButtonTexts(HudManager hud, byte id)
+        {
+            if (UsePets.GetBool()) hud.PetButton?.OverrideText(GetString("BomberShapeshiftText"));
+            else hud.AbilityButton?.OverrideText(GetString("BomberShapeshiftText"));
         }
     }
 }

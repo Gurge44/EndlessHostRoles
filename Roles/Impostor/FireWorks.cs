@@ -196,4 +196,9 @@ public class FireWorks : RoleBase
 
         return retText;
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.AbilityButton?.OverrideText(nowFireWorksCount == 0 ? GetString("FireWorksExplosionButtonText") : GetString("FireWorksInstallAtionButtonText"));
+    }
 }

@@ -24,16 +24,16 @@ static class ExtendedPlayerControl
 {
     public const MurderResultFlags ResultFlags = MurderResultFlags.Succeeded;
 
-    public static void RpcSetCustomRole(this PlayerControl player, CustomRoles role, bool isRoleForced = false)
+    public static void RpcSetCustomRole(this PlayerControl player, CustomRoles role, bool replaceAllAddons = false)
     {
-        if (role < CustomRoles.NotAssigned || isRoleForced)
+        if (role < CustomRoles.NotAssigned)
         {
             Main.PlayerStates[player.PlayerId].SetMainRole(role);
         }
         else
         {
             if (!Cleanser.CleansedCanGetAddon.GetBool() && player.Is(CustomRoles.Cleansed)) return;
-            Main.PlayerStates[player.PlayerId].SetSubRole(role);
+            Main.PlayerStates[player.PlayerId].SetSubRole(role, replaceAllAddons);
         }
 
         if (AmongUsClient.Instance.AmHost)
@@ -41,6 +41,7 @@ static class ExtendedPlayerControl
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCustomRole, SendOption.Reliable);
             writer.Write(player.PlayerId);
             writer.WritePacked((int)role);
+            writer.Write(replaceAllAddons);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
     }
@@ -868,6 +869,8 @@ static class ExtendedPlayerControl
     {
         if (Options.CurrentGameMode == CustomGameMode.SoloKombat) return;
         if (target == null) target = killer;
+
+        CheckAndSpawnAdditionalRefugee(target.Data);
 
         if (target.GetTeam() is Team.Impostor or Team.Neutral) Stressed.OnNonCrewmateDead();
 

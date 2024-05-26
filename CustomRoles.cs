@@ -233,6 +233,7 @@ public enum CustomRoles
     Doomsayer,
     Eclipse,
     Enderman,
+    Evolver,
     Executioner,
     Totocalcio, // Follower
     Glitch,
@@ -280,6 +281,7 @@ public enum CustomRoles
     Samurai,
     SchrodingersCat,
     NSerialKiller, // Serial Killer
+    Shifter,
     Sidekick,
     Simon,
     SoulHunter,
@@ -291,6 +293,7 @@ public enum CustomRoles
     Terrorist,
     Tiger,
     Traitor,
+    Tremor,
     Vengeance,
     VengefulRomantic,
     Virus,
@@ -359,6 +362,7 @@ public enum CustomRoles
     Unreportable, // Disregarded
     DoubleShot,
     Egoist,
+    Energetic,
     EvilSpirit,
     Flashman,
     Fool,

@@ -306,5 +306,10 @@ namespace EHR.Roles.Impostor
                 ClearDeathpact(deathpact);
             }
         }
+
+        public override void SetButtonTexts(HudManager hud, byte id)
+        {
+            hud.AbilityButton?.OverrideText(GetString("DeathpactButtonText"));
+        }
     }
 }

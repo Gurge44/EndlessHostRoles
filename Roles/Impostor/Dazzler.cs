@@ -11,14 +11,16 @@ namespace EHR.Roles.Impostor
         private const int Id = 3500;
         public static List<byte> playerIdList = [];
 
-        public List<byte> PlayersDazzled = [];
-
         private static OptionItem KillCooldown;
         private static OptionItem ShapeshiftCooldown;
         private static OptionItem CauseVision;
         public static OptionItem DazzleLimitOpt;
         private static OptionItem ResetDazzledVisionOnDeath;
         public static OptionItem DazzlerAbilityUseGainWithEachKill;
+
+        public List<byte> PlayersDazzled = [];
+
+        public override bool IsEnable => playerIdList.Count > 0;
 
         public static void SetupCustomOption()
         {
@@ -56,8 +58,6 @@ namespace EHR.Roles.Impostor
             AURoleOptions.ShapeshifterDuration = 1f;
         }
 
-        public override bool IsEnable => playerIdList.Count > 0;
-
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
 
         public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
@@ -88,6 +88,12 @@ namespace EHR.Roles.Impostor
                     }
                 }
             }
+        }
+
+        public override void SetButtonTexts(HudManager hud, byte id)
+        {
+            hud.AbilityButton?.OverrideText(GetString("DazzleButtonText"));
+            hud.AbilityButton?.SetUsesRemaining((int)id.GetAbilityUseLimit());
         }
     }
 }

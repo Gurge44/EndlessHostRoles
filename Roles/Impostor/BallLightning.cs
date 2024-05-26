@@ -21,6 +21,8 @@ public class BallLightning : RoleBase
     private static List<byte> GhostPlayer = [];
     private static Dictionary<byte, PlayerControl> RealKiller = [];
 
+    public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.BallLightning);
@@ -42,8 +44,6 @@ public class BallLightning : RoleBase
     {
         playerIdList.Add(playerId);
     }
-
-    public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
 
     private static void SendRPC(byte playerId)
     {
@@ -177,5 +177,10 @@ public class BallLightning : RoleBase
 
         GhostPlayer = [];
         SendRPC(byte.MaxValue);
+    }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.KillButton?.OverrideText(Translator.GetString("BallLightningButtonText"));
     }
 }

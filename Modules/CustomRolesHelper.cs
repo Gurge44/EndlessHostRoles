@@ -24,11 +24,21 @@ internal static class CustomRolesHelper
         CustomRoles.Sentry,
         CustomRoles.Cherokious,
         CustomRoles.Chemist,
+        CustomRoles.Shifter,
+        CustomRoles.Evolver,
+        CustomRoles.Energetic,
 
         // HnS
         CustomRoles.Jet,
         CustomRoles.Dasher
     ];
+
+    public static readonly List<CustomRoles> ExperimentalRoleList =
+    [
+        CustomRoles.Shifter
+    ];
+
+    public static bool IsExperimental(this CustomRoles role) => ExperimentalRoleList.Contains(role);
 
     public static RoleBase GetRoleClass(this CustomRoles role)
     {
@@ -345,6 +355,8 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Tremor => RoleTypes.Impostor,
+            CustomRoles.Evolver => RoleTypes.Impostor,
             CustomRoles.Rogue => RoleTypes.Impostor,
             CustomRoles.Patroller => RoleTypes.Impostor,
             CustomRoles.Simon => RoleTypes.Impostor,
@@ -362,6 +374,7 @@ internal static class CustomRolesHelper
             CustomRoles.PlagueDoctor => RoleTypes.Impostor,
             CustomRoles.Postman => RoleTypes.Impostor,
             CustomRoles.SchrodingersCat => RoleTypes.Impostor,
+            CustomRoles.Shifter => RoleTypes.Impostor,
             CustomRoles.Impartial => RoleTypes.Impostor,
             CustomRoles.Predator => RoleTypes.Impostor,
             CustomRoles.Reckless => RoleTypes.Impostor,
@@ -400,6 +413,7 @@ internal static class CustomRolesHelper
     public static bool IsNonNK(this CustomRoles role, bool check = false) => (!check && role == CustomRoles.Arsonist && CanCheck && Options.IsLoaded && Options.ArsonistCanIgniteAnytime != null && !Options.ArsonistCanIgniteAnytime.GetBool()) || role is
         CustomRoles.Jester or
         CustomRoles.Postman or
+        CustomRoles.Shifter or
         CustomRoles.SchrodingersCat or
         CustomRoles.Impartial or
         CustomRoles.Predator or
@@ -455,6 +469,8 @@ internal static class CustomRolesHelper
         CustomRoles.Rogue or
         CustomRoles.Parasite or
         CustomRoles.NSerialKiller or
+        CustomRoles.Tremor or
+        CustomRoles.Evolver or
         CustomRoles.Chemist or
         CustomRoles.QuizMaster or
         CustomRoles.Samurai or
@@ -515,6 +531,7 @@ internal static class CustomRolesHelper
 
     public static bool IsNC(this CustomRoles role) => role is
         CustomRoles.Mario or
+        CustomRoles.Shifter or
         CustomRoles.Terrorist or
         CustomRoles.Revolutionist or
         CustomRoles.Impartial or
@@ -697,7 +714,7 @@ internal static class CustomRolesHelper
         CustomRoles.Necromancer => true,
         CustomRoles.Deathknight => true,
 
-        _ => false,
+        _ => false
     };
 
     public static bool OnlySpawnsWithPets(this CustomRoles role) => OnlySpawnsWithPetsRoleList.Contains(role);
@@ -760,8 +777,9 @@ internal static class CustomRolesHelper
         CustomRoles.Hangman or
         CustomRoles.Generator;
 
-    public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc) => role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(pc.GetCustomRole(), out var bannedAddon) || role != bannedAddon) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.Egoist) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out var o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && role switch
+    public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc) => role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(pc.GetCustomRole(), out var bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.Egoist) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out var o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && role switch
     {
+        CustomRoles.Energetic when !Options.UsePets.GetBool() => false,
         CustomRoles.Sidekick when pc.Is(CustomRoles.Madmate) => false,
         CustomRoles.Madmate when pc.Is(CustomRoles.Sidekick) => false,
         CustomRoles.Egoist when pc.Is(CustomRoles.Sidekick) => false,
@@ -1021,9 +1039,10 @@ internal static class CustomRolesHelper
         CustomRoles.Parasite => CountTypes.Impostor,
         CustomRoles.Crewpostor => CountTypes.Impostor,
         CustomRoles.Refugee => CountTypes.Impostor,
-        CustomRoles.DarkHide => DarkHide.SnatchesWin.GetBool() ? CountTypes.Crew : CountTypes.DarkHide,
-        CustomRoles.Arsonist => !Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Crew : CountTypes.Arsonist,
+        CustomRoles.DarkHide when DarkHide.SnatchesWin.GetBool() => CountTypes.Crew,
+        CustomRoles.Arsonist when !Options.ArsonistKeepsGameGoing.GetBool() => CountTypes.Crew,
         CustomRoles.SchrodingersCat => SchrodingersCat.WinsWithCrewIfNotAttacked.GetBool() ? CountTypes.Crew : CountTypes.OutOfGame,
+        CustomRoles.Shifter => CountTypes.OutOfGame,
 
         _ => Enum.TryParse(role.ToString(), true, out CountTypes type)
             ? type
@@ -1145,6 +1164,8 @@ public enum CountTypes
     HexMaster,
     Wraith,
     NSerialKiller,
+    Tremor,
+    Evolver,
     Rogue,
     Patroller,
     Simon,

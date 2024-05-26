@@ -22,12 +22,13 @@ namespace EHR;
 
 [BepInPlugin(PluginGuid, "EHR", PluginVersion)]
 [BepInIncompatibility("jp.ykundesu.supernewroles")]
+[BepInIncompatibility("MalumMenu")]
 [BepInProcess("Among Us.exe")]
 public class Main : BasePlugin
 {
-    public const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
-    public const string DebugKeySalt = "59687b";
-    public const string PluginGuid = "com.gurge44.endlesshostroles";
+    private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
+    private const string DebugKeySalt = "59687b";
+    private const string PluginGuid = "com.gurge44.endlesshostroles";
     public const string PluginVersion = "3.4.0";
     public const string PluginDisplayVersion = "3.4.0";
     public const string NeutralColor = "#ffab1b";
@@ -37,11 +38,11 @@ public class Main : BasePlugin
     public const float MinSpeed = 0.0001f;
 
     // == プログラム設定 / Program Config ==
-    public static readonly string ModName = "EHR";
-    public static readonly string ModColor = "#00ffff";
-    public static readonly bool AllowPublicRoom = true;
-    public static readonly string ForkId = "EHR";
-    public static readonly string SupportedAUVersion = "2024.3.5";
+    public const string ModName = "EHR";
+    public const string ModColor = "#00ffff";
+    public const bool AllowPublicRoom = true;
+    public const string ForkId = "EHR";
+    public const string SupportedAUVersion = "2024.3.5";
     public static readonly Version Version = Version.Parse(PluginVersion);
     public static ManualLogSource Logger;
     public static bool HasArgumentException;
@@ -61,8 +62,8 @@ public class Main : BasePlugin
     public static Dictionary<CustomRoles, string> RoleColors;
     public static Dictionary<byte, CustomRoles> SetRoles = [];
     public static Dictionary<byte, List<CustomRoles>> SetAddOns = [];
-    public static readonly Dictionary<CustomRoles, CustomRoles> AlwaysSpawnTogetherCombos = [];
-    public static readonly Dictionary<CustomRoles, CustomRoles> NeverSpawnTogetherCombos = [];
+    public static readonly Dictionary<CustomRoles, List<CustomRoles>> AlwaysSpawnTogetherCombos = [];
+    public static readonly Dictionary<CustomRoles, List<CustomRoles>> NeverSpawnTogetherCombos = [];
     public static Dictionary<byte, string> LastAddOns = [];
     public static List<RoleBase> AllRoleClasses;
     public static float RefixCooldownDelay;
@@ -70,7 +71,6 @@ public class Main : BasePlugin
     public static readonly Dictionary<byte, (long START_TIMESTAMP, int TOTALCD)> AbilityCD = [];
     public static Dictionary<byte, float> AbilityUseLimit = [];
     public static List<byte> DontCancelVoteList = [];
-    public static string LastVotedPlayer;
     public static byte NimblePlayer = byte.MaxValue;
     public static byte PhysicistPlayer = byte.MaxValue;
     public static byte BloodlustPlayer = byte.MaxValue;
@@ -101,8 +101,8 @@ public class Main : BasePlugin
     public static float DefaultImpostorVision;
     public static readonly bool IsAprilFools = DateTime.Now.Month == 4 && DateTime.Now.Day is 1;
     public static bool ResetOptions = true;
-    public static byte FirstDied = byte.MaxValue;
-    public static byte ShieldPlayer = byte.MaxValue;
+    public static int FirstDied = int.MaxValue;
+    public static int ShieldPlayer = int.MaxValue;
 
     public static readonly List<PlayerControl> LoversPlayers = [];
     public static bool IsLoversDead = true;
@@ -126,10 +126,10 @@ public class Main : BasePlugin
 
     // ReSharper disable once StringLiteralTypo
     public static readonly List<string> NameSnacksEn = ["Ice cream", "Milk tea", "Chocolate", "Cake", "Donut", "Coke", "Lemonade", "Candied haws", "Jelly", "Candy", "Milk", "Matcha", "Burning Grass Jelly", "Pineapple Bun", "Pudding", "Coconut Jelly", "Cookies", "Red Bean Toast", "Three Color Dumplings", "Wormwood Dumplings", "Puffs", "Can be Crepe", "Peach Crisp", "Mochi", "Egg Waffle", "Macaron", "Snow Plum Niang", "Fried Yogurt", "Egg Tart", "Muffin", "Sago Dew", "panna cotta", "soufflé", "croissant", "toffee"];
-    public static HashAuth DebugKeyAuth { get; private set; }
-    public static ConfigEntry<string> DebugKeyInput { get; private set; }
+    private static HashAuth DebugKeyAuth { get; set; }
+    private static ConfigEntry<string> DebugKeyInput { get; set; }
 
-    public Harmony Harmony { get; } = new(PluginGuid);
+    private Harmony Harmony { get; } = new(PluginGuid);
 
     public static NormalGameOptionsV07 NormalOptions => GameOptionsManager.Instance.currentNormalGameOptions;
 
@@ -234,11 +234,11 @@ public class Main : BasePlugin
         EHR.Logger.Disable("NotifyRoles");
         EHR.Logger.Disable("SwitchSystem");
         EHR.Logger.Disable("ModNews");
+        EHR.Logger.Disable("CustomRpcSender");
         if (!DebugModeManager.AmDebugger)
         {
             EHR.Logger.Disable("2018k");
             EHR.Logger.Disable("Github");
-            EHR.Logger.Disable("CustomRpcSender");
             //EHR.Logger.Disable("ReceiveRPC");
             EHR.Logger.Disable("SendRPC");
             EHR.Logger.Disable("SetRole");
@@ -257,10 +257,9 @@ public class Main : BasePlugin
         }
         //EHR.Logger.isDetail = true;
 
-        // 認証関連-初期化
+        // Authentication related - Initialization
         DebugKeyAuth = new(DebugKeyHash, DebugKeySalt);
 
-        // 認証関連-認証
         DebugModeManager.Auth(DebugKeyAuth, DebugKeyInput.Value);
 
         Preset1 = Config.Bind("Preset Name Options", "Preset1", "Preset_1");
@@ -428,6 +427,8 @@ public class Main : BasePlugin
                 { CustomRoles.HexMaster, "#ff00ff" },
                 { CustomRoles.Wraith, "#4B0082" },
                 { CustomRoles.NSerialKiller, "#233fcc" },
+                { CustomRoles.Tremor, "#e942f5" },
+                { CustomRoles.Evolver, "#f2c444" },
                 { CustomRoles.Rogue, "#7a629c" },
                 { CustomRoles.Patroller, "#c1cc27" },
                 { CustomRoles.Simon, "#c4b8ff" },
@@ -445,6 +446,7 @@ public class Main : BasePlugin
                 { CustomRoles.PlagueDoctor, "#ff6633" },
                 { CustomRoles.Postman, "#00b893" },
                 { CustomRoles.SchrodingersCat, "#616161" },
+                { CustomRoles.Shifter, "#777777" },
                 { CustomRoles.Impartial, "#4287f5" },
                 { CustomRoles.Predator, "#c73906" },
                 { CustomRoles.Reckless, "#6e000d" },
@@ -496,6 +498,7 @@ public class Main : BasePlugin
                 { CustomRoles.Madmate, "#ff1919" },
                 { CustomRoles.Watcher, "#800080" },
                 { CustomRoles.Sleuth, "#30221c" },
+                { CustomRoles.Energetic, "#ffff00" },
                 { CustomRoles.Dynamo, "#ebe534" },
                 { CustomRoles.AntiTP, "#fcba03" },
                 { CustomRoles.Taskcounter, "#ff1919" },
@@ -702,6 +705,8 @@ public enum CustomWinner
     Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
     SerialKiller = CustomRoles.NSerialKiller,
+    Tremor = CustomRoles.Tremor,
+    Evolver = CustomRoles.Evolver,
     Rogue = CustomRoles.Rogue,
     Patroller = CustomRoles.Patroller,
     Simon = CustomRoles.Simon,

@@ -51,6 +51,7 @@ public enum CustomRPC
     ShowPopUp,
     KillFlash,
     SyncAbilityUseLimit,
+    RemoveAbilityUseLimit,
     RemoveSubRole,
     Arrow,
 
@@ -136,6 +137,8 @@ public enum CustomRPC
     SyncChemist,
     SyncSimon,
     SyncRogue,
+    SyncEvolver,
+    SyncTremor,
 
     // Other Game Modes
     SyncKBPlayer,
@@ -226,7 +229,14 @@ internal class RPCHandlerPatch
 
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
     {
+        if (AmongUsClient.Instance.AmHost) return;
         var rpcType = (CustomRPC)callId;
+        
+        // Finish this later
+        // Main.PlayerStates.Values
+        //     .Where(x => "Sync" + x.Role.GetType().Name == rpcType.ToString())
+        //     .Do(x => x.Role.GetType().GetMethod("ReceiveRPC")?.Invoke(reader));
+
         switch (rpcType)
         {
             case CustomRPC.AntiBlackout:
@@ -338,15 +348,23 @@ internal class RPCHandlerPatch
             case CustomRPC.SetCustomRole:
                 byte CustomRoleTargetId = reader.ReadByte();
                 CustomRoles role = (CustomRoles)reader.ReadPackedInt32();
-                RPC.SetCustomRole(CustomRoleTargetId, role);
+                bool replaceAllAddons = reader.ReadBoolean();
+                RPC.SetCustomRole(CustomRoleTargetId, role, replaceAllAddons);
                 break;
             case CustomRPC.SyncAbilityUseLimit:
                 var pc = Utils.GetPlayerById(reader.ReadByte());
                 pc.SetAbilityUseLimit(reader.ReadSingle(), rpc: false);
                 break;
-            case CustomRPC.RemoveSubRole:
-                Main.PlayerStates[reader.ReadByte()].RemoveSubRole((CustomRoles)reader.ReadPackedInt32());
+            case CustomRPC.RemoveAbilityUseLimit:
+                Main.AbilityUseLimit.Remove(reader.ReadByte());
                 break;
+            case CustomRPC.RemoveSubRole:
+            {
+                byte id = reader.ReadByte();
+                if (reader.ReadPackedInt32() == 2) Main.PlayerStates[id].SubRoles.Clear();
+                else Main.PlayerStates[id].RemoveSubRole((CustomRoles)reader.ReadPackedInt32());
+                break;
+            }
             case CustomRPC.Arrow:
                 if (reader.ReadBoolean()) TargetArrow.ReceiveRPC(reader);
                 else LocateArrow.ReceiveRPC(reader);
@@ -402,6 +420,12 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SyncRogue:
                 (Main.PlayerStates[reader.ReadByte()].Role as Rogue)?.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncEvolver:
+                (Main.PlayerStates[reader.ReadByte()].Role as Evolver)?.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncTremor:
+                (Main.PlayerStates[reader.ReadByte()].Role as Tremor)?.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetBountyTarget:
             {
@@ -989,7 +1013,7 @@ internal static class RPC
         }
     }
 
-    public static void SetCustomRole(byte targetId, CustomRoles role)
+    public static void SetCustomRole(byte targetId, CustomRoles role, bool replaceAllAddons = false)
     {
         if (role < CustomRoles.NotAssigned)
         {
@@ -997,7 +1021,7 @@ internal static class RPC
         }
         else
         {
-            Main.PlayerStates[targetId].SetSubRole(role);
+            Main.PlayerStates[targetId].SetSubRole(role, replaceAllAddons);
         }
 
         HudManager.Instance.SetHudActive(true);

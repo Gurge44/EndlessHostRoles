@@ -153,4 +153,9 @@ public class Totocalcio : RoleBase
         if (Main.PlayerStates[playerId].Role is not Totocalcio tc) return string.Empty;
         return player == null ? string.Empty : Utils.ColorString(tc.CanUseKillButton(player) ? Utils.GetRoleColor(CustomRoles.Totocalcio) : Color.gray, $"({tc.BetTimes})");
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.KillButton?.OverrideText(GetString("TotocalcioKillButtonText"));
+    }
 }

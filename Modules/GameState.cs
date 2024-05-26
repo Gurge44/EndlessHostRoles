@@ -97,7 +97,7 @@ public class PlayerState(byte playerId)
         {
             CustomRoles.DarkHide => !DarkHide.SnatchesWin.GetBool() ? CountTypes.DarkHide : CountTypes.Crew,
             CustomRoles.Arsonist => Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Arsonist : CountTypes.Crew,
-            _ => role.GetCountTypes(),
+            _ => role.GetCountTypes()
         };
 
         Role = role.GetRoleClass();
@@ -110,6 +110,10 @@ public class PlayerState(byte playerId)
         MainRole = role;
 
         Role.Add(PlayerId);
+
+        Logger.Info($"ID {PlayerId} => {role}", "SetMainRole");
+
+        if (!AmongUsClient.Instance.AmHost) return;
 
         if (!Main.HasJustStarted)
         {
@@ -132,7 +136,11 @@ public class PlayerState(byte playerId)
     {
         if (role == CustomRoles.Cleansed)
             AllReplace = true;
-        if (AllReplace) SubRoles.Clear();
+        if (AllReplace)
+        {
+            SubRoles.Clear();
+            Utils.SendRPC(CustomRPC.RemoveSubRole, PlayerId, 2);
+        }
 
         if (!SubRoles.Contains(role))
             SubRoles.Add(role);
@@ -229,7 +237,7 @@ public class PlayerState(byte playerId)
         if (SubRoles.Contains(role))
             SubRoles.Remove(role);
 
-        Utils.SendRPC(CustomRPC.RemoveSubRole, PlayerId, (int)role);
+        Utils.SendRPC(CustomRPC.RemoveSubRole, PlayerId, 1, (int)role);
     }
 
     public void SetDead()

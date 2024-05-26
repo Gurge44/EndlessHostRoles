@@ -255,7 +255,7 @@ public class Witch : RoleBase
         return str.ToString();
     }
 
-    public static void GetAbilityButtonText(HudManager hud)
+    public override void SetButtonTexts(HudManager hud, byte id)
     {
         if (IsSpellMode(PlayerControl.LocalPlayer.PlayerId) && NowSwitchTrigger != SwitchTrigger.DoubleTrigger)
         {

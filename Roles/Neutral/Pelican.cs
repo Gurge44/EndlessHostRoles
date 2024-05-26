@@ -244,4 +244,9 @@ public class Pelican : RoleBase
 
         return false;
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.KillButton?.OverrideText(Translator.GetString("PelicanButtonText"));
+    }
 }

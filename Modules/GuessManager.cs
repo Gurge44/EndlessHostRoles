@@ -115,41 +115,6 @@ public static class GuessManager
         Logger.Msg(msg, "Msg Guesser");
         Logger.Msg($"{operate}", "Operate");
 
-        if (!pc.IsAlive())
-        {
-            if (!isUI) Utils.SendMessage(GetString("GuessDead"), pc.PlayerId);
-            else pc.ShowPopUp(GetString("GuessDead"));
-            return true;
-        }
-
-        if (!pc.Is(CustomRoles.NiceGuesser) && pc.IsCrewmate() && !Options.CrewmatesCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Judge) && !pc.Is(CustomRoles.NiceSwapper))
-        {
-            if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
-            else pc.ShowPopUp(GetString("GuessNotAllowed"));
-            return true;
-        }
-
-        if (!pc.Is(CustomRoles.EvilGuesser) && pc.GetCustomRole().IsImpostor() && !Options.ImpostorsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Councillor))
-        {
-            if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
-            else pc.ShowPopUp(GetString("GuessNotAllowed"));
-            return true;
-        }
-
-        if (pc.IsNeutralKiller() && !Options.NeutralKillersCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser))
-        {
-            if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
-            else pc.ShowPopUp(GetString("GuessNotAllowed"));
-            return true;
-        }
-
-        if (pc.GetCustomRole().IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Doomsayer))
-        {
-            if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
-            else pc.ShowPopUp(GetString("GuessNotAllowed"));
-            return true;
-        }
-
         switch (operate)
         {
             case 1:
@@ -157,6 +122,41 @@ public static class GuessManager
                 return true;
             case 2:
             {
+                if (!pc.IsAlive())
+                {
+                    if (!isUI) Utils.SendMessage(GetString("GuessDead"), pc.PlayerId);
+                    else pc.ShowPopUp(GetString("GuessDead"));
+                    return true;
+                }
+
+                if (!pc.Is(CustomRoles.NiceGuesser) && pc.IsCrewmate() && !Options.CrewmatesCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Judge) && !pc.Is(CustomRoles.NiceSwapper))
+                {
+                    if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
+                    else pc.ShowPopUp(GetString("GuessNotAllowed"));
+                    return true;
+                }
+
+                if (!pc.Is(CustomRoles.EvilGuesser) && pc.GetCustomRole().IsImpostor() && !Options.ImpostorsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Councillor))
+                {
+                    if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
+                    else pc.ShowPopUp(GetString("GuessNotAllowed"));
+                    return true;
+                }
+
+                if (pc.IsNeutralKiller() && !Options.NeutralKillersCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser))
+                {
+                    if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
+                    else pc.ShowPopUp(GetString("GuessNotAllowed"));
+                    return true;
+                }
+
+                if (pc.GetCustomRole().IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Doomsayer))
+                {
+                    if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
+                    else pc.ShowPopUp(GetString("GuessNotAllowed"));
+                    return true;
+                }
+
                 if ((pc.Is(CustomRoles.NiceGuesser) && Options.GGTryHideMsg.GetBool()) ||
                     (pc.Is(CustomRoles.EvilGuesser) && Options.EGTryHideMsg.GetBool()) ||
                     (pc.Is(CustomRoles.Doomsayer) && Doomsayer.DoomsayerTryHideMsg.GetBool()) ||
@@ -182,7 +182,7 @@ public static class GuessManager
                         return true;
                     }
 
-                    if (CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, targetId) && !CustomTeamManager.GetSettingForPlayerTeam(targetId, "GuessEachOther"))
+                    if (CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, targetId) && !CustomTeamManager.IsSettingEnabledForPlayerTeam(targetId, "GuessEachOther"))
                     {
                         if (!isUI) Utils.SendMessage(GetString("GuessSameCTAPlayer"), pc.PlayerId);
                         else pc.ShowPopUp(GetString("GuessSameCTAPlayer"));
@@ -852,8 +852,8 @@ public static class GuessManager
                 }
                 else if (PlayerControl.LocalPlayer.Is(CustomRoles.Guesser))
                 {
-                    if (!Options.GCanGuessCrew.GetBool() && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && index == 0) continue;
-                    if (!Options.GCanGuessImp.GetBool() && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && index == 1) continue;
+                    // if (!Options.GCanGuessCrew.GetBool() && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && index == 0) continue;
+                    // if (!Options.GCanGuessImp.GetBool() && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && index == 1) continue;
                     if (!Options.GCanGuessAdt.GetBool() && index == 3) continue;
                 }
                 else if (Options.GuesserMode.GetBool())

@@ -82,6 +82,15 @@ public class Disperser : RoleBase
     public override void SetButtonTexts(HudManager __instance, byte id)
     {
         __instance.AbilityButton.ToggleVisible(GetPlayerById(id).IsAlive());
-        __instance.AbilityButton.OverrideText(GetString("DisperserVentButtonText"));
+
+        if (UsePets.GetBool())
+        {
+            __instance.PetButton?.OverrideText(GetString("DisperserVentButtonText"));
+        }
+        else
+        {
+            __instance.AbilityButton?.OverrideText(GetString("DisperserVentButtonText"));
+            __instance.AbilityButton?.SetUsesRemaining((int)id.GetAbilityUseLimit());
+        }
     }
 }

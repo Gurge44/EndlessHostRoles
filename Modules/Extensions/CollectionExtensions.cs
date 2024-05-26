@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-// ReSharper disable InconsistentNaming
+// ReSharper disable ConvertIfStatementToReturnStatement
 
 namespace EHR
 {
@@ -10,14 +10,14 @@ namespace EHR
         /// <summary>
         /// Returns the key of a dictionary by its value
         /// </summary>
-        /// <param name="dict">The dictionary</param>
-        /// <param name="value">The value used to search for the corresponding key</param>
-        /// <typeparam name="K">The Key type of the dictionary</typeparam>
-        /// <typeparam name="V">The Value type of the dictionary</typeparam>
-        /// <returns>The key of the dictionary that corresponds to the value, or the default value of <typeparamref name="K"/> if the value is not found</returns>
-        public static K GetKeyByValue<K, V>(this Dictionary<K, V> dict, V value)
+        /// <param name="dictionary">The <see cref="Dictionary{TKey,TValue}"/> to search</param>
+        /// <param name="value">The <typeparamref name="TValue"/> used to search for the corresponding key</param>
+        /// <typeparam name="TKey">The type of the keys in the <paramref name="dictionary"/></typeparam>
+        /// <typeparam name="TValue">The type of the values in the <paramref name="dictionary"/></typeparam>
+        /// <returns>The key of the <paramref name="dictionary"/> that corresponds to the given <paramref name="value"/>, or the default value of <typeparamref name="TKey"/> if the <paramref name="value"/> is not found in the <paramref name="dictionary"/></returns>
+        public static TKey GetKeyByValue<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TValue value)
         {
-            foreach (KeyValuePair<K, V> pair in dict)
+            foreach (KeyValuePair<TKey, TValue> pair in dictionary)
             {
                 if (pair.Value.Equals(value))
                 {
@@ -45,7 +45,7 @@ namespace EHR
         /// </summary>
         /// <typeparam name="T">The type of the collection</typeparam>
         /// <param name="collection">The collection to be shuffled</param>
-        /// <returns>The shuffled collection as a List</returns>
+        /// <returns>The shuffled collection as a <see cref="List{T}"/></returns>
         public static List<T> Shuffle<T>(this IEnumerable<T> collection)
         {
             var list = collection.ToList();
@@ -60,99 +60,17 @@ namespace EHR
 
             return list;
         }
-    }
 
-    /*
-    // Credit: https://github.com/dabao40/TheOtherRolesGMIA/blob/main/TheOtherRoles/Utilities/EnumerationHelpers.cs
-
-    public static class EnumerationHelpers
-    {
         /// <summary>
-        /// Improves the speed of the code in a foreach loop for Il2CppSystem.Collections.Generic.List
+        /// Combines multiple collections into a single collection
         /// </summary>
-        /// <param name="list"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static IEnumerable<T> GetFastEnumerator<T>(this Il2CppSystem.Collections.Generic.List<T> list) where T : Il2CppSystem.Object => new Il2CppListEnumerable<T>(list);
+        /// <param name="firstCollection">The collection to start with</param>
+        /// <param name="collections">The other collections to add to <paramref name="firstCollection"/></param>
+        /// <typeparam name="T">The type of the elements in the collections to combine</typeparam>
+        /// <returns>A collection containing all elements of <paramref name="firstCollection"/> and all <paramref name="collections"/></returns>
+        public static IEnumerable<T> CombineWith<T>(this IEnumerable<T> firstCollection, params IEnumerable<T>[] collections)
+        {
+            return firstCollection.Concat(collections.SelectMany(x => x));
+        }
     }
-
-    public unsafe class Il2CppListEnumerable<T> : IEnumerable<T>, IEnumerator<T> where T : Il2CppSystem.Object
-    {
-        // ReSharper disable once FieldCanBeMadeReadOnly.Local
-        private static Func<IntPtr, T> _objFactory;
-
-        private readonly IntPtr _arrayPointer;
-        private readonly int _count;
-        private int _index = -1;
-
-        static Il2CppListEnumerable()
-        {
-            _elemSize = IntPtr.Size;
-            _offset = 4 * IntPtr.Size;
-
-            var constructor = typeof(T).GetConstructor([typeof(IntPtr)]);
-            var ptr = Expression.Parameter(typeof(IntPtr));
-            var create = Expression.New(constructor!, ptr);
-            var lambda = Expression.Lambda<Func<IntPtr, T>>(create, ptr);
-            _objFactory = lambda.Compile();
-        }
-
-        public Il2CppListEnumerable(Il2CppSystem.Collections.Generic.List<T> list)
-        {
-            var listStruct = (Il2CppListStruct*)list.Pointer;
-            _count = listStruct->_size;
-            _arrayPointer = listStruct->_items;
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return this;
-        }
-
-        IEnumerator<T> IEnumerable<T>.GetEnumerator()
-        {
-            return this;
-        }
-
-        T IEnumerator<T>.Current => (T)Current;
-        public object Current { get; private set; }
-
-        public bool MoveNext()
-        {
-            if (++_index >= _count) return false;
-            var refPtr = *(IntPtr*)IntPtr.Add(IntPtr.Add(_arrayPointer, _offset), _index * _elemSize);
-            Current = _objFactory(refPtr);
-            return true;
-        }
-
-        public void Reset()
-        {
-            _index = -1;
-        }
-
-#pragma warning disable CA1816
-        public void Dispose()
-        {
-        }
-#pragma warning restore CA1816
-        private struct Il2CppListStruct
-        {
-#pragma warning disable CS0169 // Field is never used
-            private IntPtr _unusedPtr1;
-            private IntPtr _unusedPtr2;
-#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
-            public IntPtr _items;
-            public int _size;
-#pragma warning restore CS0649 // Field is never assigned to, and will always have its default value
-#pragma warning restore CS0169 // Field is never used
-        }
-
-        // ReSharper disable StaticMemberInGenericType
-        private static readonly int _elemSize;
-
-        private static readonly int _offset;
-        // ReSharper restore StaticMemberInGenericType
-    }
-
-    */
 }

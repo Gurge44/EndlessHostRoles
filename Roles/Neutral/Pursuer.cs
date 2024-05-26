@@ -95,4 +95,9 @@ public class Pursuer : RoleBase
     {
         notActiveList.Clear();
     }
+
+    public override void SetButtonTexts(HudManager hud, byte id)
+    {
+        hud.KillButton?.OverrideText(Translator.GetString("PursuerButtonText"));
+    }
 }

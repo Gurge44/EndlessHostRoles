@@ -9,6 +9,8 @@ using EHR.Roles.AddOns;
 using HarmonyLib;
 using UnityEngine;
 
+// ReSharper disable InconsistentNaming
+
 namespace EHR;
 
 [Flags]
@@ -258,10 +260,7 @@ public static class Options
     public static OptionItem TimeMasterSkillCooldown;
     public static OptionItem TimeMasterSkillDuration;
     public static OptionItem TimeMasterMaxUses;
-    public static OptionItem TimeMasterAbilityUseGainWithEachTaskCompleted;
     public static OptionItem VeteranSkillMaxOfUseage;
-    public static OptionItem VeteranAbilityUseGainWithEachTaskCompleted;
-    public static OptionItem VentguardAbilityUseGainWithEachTaskCompleted;
     public static OptionItem VentguardMaxGuards;
     public static OptionItem VentguardBlockDoesNotAffectCrew;
     public static OptionItem BodyguardProtectRadius;
@@ -319,17 +318,14 @@ public static class Options
     public static OptionItem GrenadierCauseVision;
     public static OptionItem GrenadierCanAffectNeutral;
     public static OptionItem GrenadierSkillMaxOfUseage;
-    public static OptionItem GrenadierAbilityUseGainWithEachTaskCompleted;
     public static OptionItem LighterVisionNormal;
     public static OptionItem LighterVisionOnLightsOut;
     public static OptionItem LighterSkillCooldown;
     public static OptionItem LighterSkillDuration;
     public static OptionItem LighterSkillMaxOfUseage;
-    public static OptionItem LighterAbilityUseGainWithEachTaskCompleted;
     public static OptionItem SecurityGuardSkillCooldown;
     public static OptionItem SecurityGuardSkillDuration;
     public static OptionItem SecurityGuardSkillMaxOfUseage;
-    public static OptionItem SecurityGuardAbilityUseGainWithEachTaskCompleted;
     public static OptionItem EscapeeSSCD;
     public static OptionItem MinerSSCD;
     public static OptionItem RevolutionistDrawTime;
@@ -459,7 +455,6 @@ public static class Options
     public static OptionItem TaskBasedCrewCanBeLazy;
     public static OptionItem DovesOfNeaceCooldown;
     public static OptionItem DovesOfNeaceMaxOfUseage;
-    public static OptionItem DovesOfNeaceAbilityUseGainWithEachTaskCompleted;
     public static OptionItem BTKillCooldown;
     public static OptionItem TrapOnlyWorksOnTheBodyBoobyTrap;
     public static OptionItem ImpCanBeDoubleShot;
@@ -482,17 +477,12 @@ public static class Options
     public static OptionItem ScientistDur;
     public static OptionItem ScientistCD;
 
-    public static OptionItem GCanGuessImp;
-    public static OptionItem GCanGuessCrew;
     public static OptionItem GCanGuessAdt;
     public static OptionItem GTryHideMsg;
 
-    // Masochist
-    //public static OptionItem MasochistKillMax;
-
     public static OptionItem DisableTaskWinIfAllCrewsAreDead;
 
-    //Task Management
+    // Task Management
     public static OptionItem DisableShortTasks;
     public static OptionItem DisableCleanVent;
     public static OptionItem DisableCalibrateDistributor;
@@ -599,15 +589,6 @@ public static class Options
     public static OptionItem DisableDevicesIgnoreNeutrals;
     public static OptionItem DisableDevicesIgnoreCrewmates;
     public static OptionItem DisableDevicesIgnoreAfterAnyoneDied;
-
-    // Ability Use Gain every 5 seconds
-    public static OptionItem VentguardAbilityChargesWhenFinishedTasks;
-    public static OptionItem GrenadierAbilityChargesWhenFinishedTasks;
-    public static OptionItem LighterAbilityChargesWhenFinishedTasks;
-    public static OptionItem SecurityGuardAbilityChargesWhenFinishedTasks;
-    public static OptionItem DovesOfNeaceAbilityChargesWhenFinishedTasks;
-    public static OptionItem TimeMasterAbilityChargesWhenFinishedTasks;
-    public static OptionItem VeteranAbilityChargesWhenFinishedTasks;
 
     // Maps
     public static OptionItem RandomMapsMode;
@@ -756,9 +737,6 @@ public static class Options
     public static OptionItem EndWhenPlayerBug;
     public static OptionItem RemovePetsAtDeadPlayers;
 
-    public static OptionItem CTAPlayersCanWinWithOriginalTeam;
-    public static OptionItem CTAPlayersCanSeeEachOthersRoles;
-
     public static OptionItem UsePets;
     public static OptionItem PetToAssignToEveryone;
     public static OptionItem UseVoteCancelling;
@@ -879,6 +857,7 @@ public static class Options
     public static void OptionsLoadStart()
     {
         Logger.Info("Options.Load Start", "Options");
+        AddSteamID.AddSteamAppIdFile();
         Main.LoadRoleClasses();
         taskOptionsLoad = Task.Run(Load);
         taskOptionsLoad.ContinueWith(_ =>
@@ -2145,14 +2124,6 @@ public static class Options
             .SetHeader(true)
             .SetColor(new Color32(215, 227, 84, byte.MaxValue));
 
-        CTAPlayersCanWinWithOriginalTeam = BooleanOptionItem.Create(23550, "CTA.PlayersCanWinWithOriginalTeam", false, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
-            .SetHeader(true)
-            .SetColor(new Color32(215, 227, 84, byte.MaxValue));
-        CTAPlayersCanSeeEachOthersRoles = BooleanOptionItem.Create(23551, "CTA.PlayersCanSeeEachOthersRoles", true, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
-            .SetColor(new Color32(215, 227, 84, byte.MaxValue));
-        
         CustomTeamManager.LoadCustomTeams();
 
         LoadingPercentage = 100;
@@ -2293,4 +2264,26 @@ public static class Options
 
         public static OverrideTasksData Create(int idStart, TabGroup tab, CustomRoles role) => new(idStart, tab, role);
     }
+
+    // ReSharper disable NotAccessedField.Global
+
+    // Ability Use Gain With Each Task Completed
+    public static OptionItem TimeMasterAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem VeteranAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem VentguardAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem GrenadierAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem LighterAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem SecurityGuardAbilityUseGainWithEachTaskCompleted;
+    public static OptionItem DovesOfNeaceAbilityUseGainWithEachTaskCompleted;
+
+    // Ability Use Gain every 5 seconds
+    public static OptionItem VentguardAbilityChargesWhenFinishedTasks;
+    public static OptionItem GrenadierAbilityChargesWhenFinishedTasks;
+    public static OptionItem LighterAbilityChargesWhenFinishedTasks;
+    public static OptionItem SecurityGuardAbilityChargesWhenFinishedTasks;
+    public static OptionItem DovesOfNeaceAbilityChargesWhenFinishedTasks;
+    public static OptionItem TimeMasterAbilityChargesWhenFinishedTasks;
+    public static OptionItem VeteranAbilityChargesWhenFinishedTasks;
+
+    // ReSharper restore NotAccessedField.Global
 }
