@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Hazel;
 using UnityEngine;
 
 namespace EHR.Roles.Crewmate
@@ -54,31 +53,6 @@ namespace EHR.Roles.Crewmate
             PlayerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             BloodhoundTargets = [];
-        }
-
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            byte playerId = reader.ReadByte();
-            if (Main.PlayerStates[playerId].Role is not Bloodhound bh) return;
-
-            switch (reader.ReadPackedInt32())
-            {
-                case 1:
-                    TargetArrow.RemoveAllTarget(playerId);
-                    LocateArrow.RemoveAllTarget(playerId);
-                    bh.BloodhoundTargets.Clear();
-                    break;
-                case 2:
-                    LocateArrow.Add(playerId, NetHelpers.ReadVector2(reader));
-                    break;
-                case 3:
-                    LocateArrow.Remove(playerId, NetHelpers.ReadVector2(reader));
-                    break;
-                case 4:
-                    bh.BloodhoundTargets.Add(reader.ReadByte());
-                    TargetArrow.Add(playerId, bh.BloodhoundTargets.Last());
-                    break;
-            }
         }
 
         public override void OnReportDeadBody()

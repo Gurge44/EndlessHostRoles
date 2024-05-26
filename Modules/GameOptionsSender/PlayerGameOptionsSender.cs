@@ -300,6 +300,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                         opt.SetVision(false);
                         opt.SetFloat(FloatOptionNames.CrewLightMod, 0);
                         opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0);
+                        Main.AllPlayerSpeed[player.PlayerId] = Main.MinSpeed;
                         break;
                     case CustomRoles.Torch:
                         if (!Utils.IsActive(SystemTypes.Electrical))
