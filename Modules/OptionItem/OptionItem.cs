@@ -8,7 +8,7 @@ namespace EHR;
 
 public abstract class OptionItem
 {
-    public const int NumPresets = 5;
+    public const int NumPresets = 10;
     public const int PresetId = 0;
 
     private Dictionary<string, string> _replacementDictionary;
@@ -215,7 +215,14 @@ public abstract class OptionItem
 
     public void SetAllValues(int[] values)
     {
-        AllValues = values;
+        if (values.Length == AllValues.Length) AllValues = values;
+        else
+        {
+            for (int i = 0; i < values.Length; i++)
+            {
+                AllValues[i] = values[i];
+            }
+        }
     }
 
     public static OptionItem operator ++(OptionItem item)
