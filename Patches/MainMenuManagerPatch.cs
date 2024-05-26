@@ -75,7 +75,6 @@ public class MainMenuManagerPatch
         //    discordButton.gameObject.SetActive(Main.ShowDiscordButton && !Main.IsAprilFools);
         //}
 
-        ////Updateボタンを生成
         if (updateButton == null) updateButton = Object.Instantiate(template, template.transform.parent);
         updateButton.name = "UpdateButton";
         updateButton.transform.position = template.transform.position + new Vector3(0.25f, 0.75f);
@@ -105,19 +104,6 @@ public class MainMenuManagerPatch
             __instance.StartCoroutine(Effects.Lerp(0.01f, new Action<float>(p => freeplayButton.transform.GetChild(0).GetComponent<TMP_Text>().SetText(GetString("Website")))));
         }
 #endif
-
-        if (Main.IsAprilFools) return;
-
-        var bottomTemplate = GameObject.Find("InventoryButton");
-        if (bottomTemplate == null) return;
-
-        var CreditsButton = Object.Instantiate(bottomTemplate, bottomTemplate.transform.parent);
-        var passiveCreditsButton = CreditsButton.GetComponent<PassiveButton>();
-        var spriteCreditsButton = CreditsButton.GetComponent<SpriteRenderer>();
-
-        spriteCreditsButton.sprite = Utils.LoadSprite("EHR.Resources.Images.CreditsButton.png", 75f);
-        passiveCreditsButton.OnClick = new();
-        passiveCreditsButton.OnClick.AddListener((Action)(() => { CredentialsPatch.LogoPatch.CreditsPopup?.SetActive(true); }));
 
         Application.targetFrameRate = Main.UnlockFps.Value ? 165 : 60;
     }
