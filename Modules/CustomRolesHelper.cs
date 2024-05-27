@@ -26,6 +26,9 @@ internal static class CustomRolesHelper
         CustomRoles.Chemist,
         CustomRoles.Shifter,
         CustomRoles.Evolver,
+        CustomRoles.ToiletMaster,
+        
+        // Add-ons
         CustomRoles.Energetic,
 
         // HnS
@@ -183,6 +186,7 @@ internal static class CustomRolesHelper
             CustomRoles.Altruist => CustomRoles.Crewmate,
             CustomRoles.Transmitter => CustomRoles.Crewmate,
             CustomRoles.Autocrat => CustomRoles.Crewmate,
+            CustomRoles.ToiletMaster => CustomRoles.Crewmate,
             CustomRoles.Sentry => CustomRoles.Crewmate,
             CustomRoles.Perceiver => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Convener => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
