@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AmongUs.GameOptions;
+using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
 using EHR.Patches;
@@ -222,6 +223,8 @@ class CheckMurderPatch
                 HnSManager.OnCheckMurder(killer, target);
                 return false;
         }
+
+        if (ToiletMaster.OnAnyoneCheckMurderStart(killer, target)) return false;
 
         Simon.RemoveTarget(killer, Simon.Instruction.Kill);
 

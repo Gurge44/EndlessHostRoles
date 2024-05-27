@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Roles.Crewmate;
-using HarmonyLib;
 using Hazel;
 using InnerNet;
 using UnityEngine;
@@ -34,7 +33,7 @@ namespace EHR
         public void Despawn()
         {
             PC.Despawn();
-            AllObjects.Remove(Id);
+            _ = new LateTask(() => AllObjects.Remove(Id), 0.001f, log: false);
         }
 
         protected void Hide(PlayerControl player)
@@ -284,10 +283,10 @@ namespace EHR
 
     internal sealed class Toilet : CustomNetObject
     {
-        internal Toilet(Vector2 position, IEnumerable<byte> visibleList)
+        internal Toilet(Vector2 position, ParallelQuery<PlayerControl> hideList)
         {
             CreateNetObject("INCOMPLETE", position);
-            Main.AllAlivePlayerControls.ExceptBy(visibleList, x => x.PlayerId).Do(Hide);
+            hideList.Do(Hide);
         }
     }
 }

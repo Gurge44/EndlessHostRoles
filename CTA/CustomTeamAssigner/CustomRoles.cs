@@ -204,6 +204,7 @@ public enum CustomRoles
     Tether,
     TimeManager,
     TimeMaster,
+    ToiletMaster,
     Tornado,
     Tracker,
     Transmitter,
