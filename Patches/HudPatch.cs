@@ -317,7 +317,7 @@ class ActionButtonSetFillUpPatch
 {
     public static void Postfix(ActionButton __instance, [HarmonyArgument(0)] float timer)
     {
-        if (__instance.isCoolingDown)
+        if (__instance.isCoolingDown && timer is <= 90f and > 0f)
         {
             var color = PlayerControl.LocalPlayer.IsShifted() ? Color.green : Color.white;
             __instance.cooldownTimerText.text = Utils.ColorString(color, Mathf.CeilToInt(timer).ToString());
