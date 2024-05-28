@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
 using EHR.Patches;
@@ -2388,6 +2389,7 @@ public static class Utils
             CustomRoles.Sentinel => Sentinel.PatrolCooldown.GetInt(),
             CustomRoles.Druid => Druid.VentCooldown.GetInt(),
             CustomRoles.Sentry => Roles.Impostor.Sentry.ShowInfoCooldown.GetInt(),
+            CustomRoles.ToiletMaster => ToiletMaster.AbilityCooldown.GetInt(),
             CustomRoles.Sniper => Options.DefaultShapeshiftCooldown.GetInt(),
             CustomRoles.Assassin => Assassin.AssassinateCooldownOpt.GetInt(),
             CustomRoles.Undertaker => Undertaker.UndertakerAssassinateCooldown.GetInt(),
