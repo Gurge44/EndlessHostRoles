@@ -426,8 +426,8 @@ class CheckMurderPatch
             return false;
         }
 
-        if (!Sentinel.OnAnyoneCheckMurder(killer))
-            return false;
+        if (!Sentinel.OnAnyoneCheckMurder(killer)) return false;
+        if (!ToiletMaster.OnAnyoneCheckMurder(killer, target)) return false;
 
         if (!Main.PlayerStates[target.PlayerId].Role.OnCheckMurderAsTarget(killer, target)) return false;
 
@@ -1525,7 +1525,7 @@ class FixedUpdatePatch
                 if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
                     Suffix.Append(SoloKombatManager.GetDisplayHealth(target));
 
-                if (Main.FirstDied != int.MaxValue && Main.FirstDied == target.GetClientId() && !self)
+                if (MeetingStates.FirstMeeting && Main.FirstDied != int.MaxValue && Main.FirstDied == target.GetClientId() && !self)
                     Suffix.Append(GetString("DiedR1Warning"));
 
                 // Devourer

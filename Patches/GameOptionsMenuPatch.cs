@@ -133,12 +133,20 @@ public static class GameOptionsMenuPatch
                         bg.localScale = new(1.6f, 1f, 1f);
                         if (Main.DarkTheme.Value) bg.GetComponent<SpriteRenderer>().color = new(0f, 0f, 0f, 1f);
 
-                        stringOption.transform.FindChild("Plus_TMP").localPosition += new Vector3(1.4f, yoffset, 0f);
-                        stringOption.transform.FindChild("Minus_TMP").localPosition += new Vector3(1.0f, yoffset, 0f);
+                        var plus = stringOption.transform.FindChild("Plus_TMP");
+                        var minus = stringOption.transform.FindChild("Minus_TMP");
+                        plus.localPosition += new Vector3(1.4f, yoffset, 0f);
+                        minus.localPosition += new Vector3(1.0f, yoffset, 0f);
+                        if (option.IsText)
+                        {
+                            plus.gameObject.SetActive(false);
+                            minus.gameObject.SetActive(false);
+                        }
 
                         var valueTMP = stringOption.transform.FindChild("Value_TMP");
                         valueTMP.localPosition += new Vector3(1.2f, yoffset, 0f);
                         valueTMP.GetComponent<RectTransform>().sizeDelta = new(1.6f, 0.26f);
+                        if (option.IsText) valueTMP.gameObject.SetActive(false);
 
                         var titleTMP = stringOption.transform.FindChild("Title_TMP");
                         titleTMP.localPosition += new Vector3(option.IsText ? 0.25f : 0.1f, option.IsText ? -0.1f : 0f, 0f);

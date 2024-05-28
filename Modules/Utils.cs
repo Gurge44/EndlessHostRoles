@@ -2301,7 +2301,7 @@ public static class Utils
 
                             Main.PlayerStates.Values.Do(x => TargetSuffix.Append(x.Role.GetSuffix(seer, target, isMeeting: isForMeeting)));
 
-                            if (Main.FirstDied != int.MaxValue && Main.FirstDied == target.GetClientId())
+                            if (MeetingStates.FirstMeeting && Main.FirstDied != int.MaxValue && Main.FirstDied == target.GetClientId())
                                 TargetSuffix.Append(GetString("DiedR1Warning"));
 
                             string TargetDeathReason = string.Empty;

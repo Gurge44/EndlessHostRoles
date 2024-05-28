@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using HarmonyLib;
 using Hazel;
 using UnityEngine;
 using static EHR.Options;
@@ -442,18 +441,21 @@ namespace EHR.Roles.Neutral
             var beforeFactory = CurrentFactory;
             var room = pc.GetPlainShipRoom();
 
-            CurrentFactory = FactoryLocations.GetValueOrDefault(Translator.GetString($"{room.RoomId}"));
-            Utils.SendRPC(CustomRPC.SyncChemist, pc.PlayerId, 3, (int)CurrentFactory);
-
-            if (CurrentFactory != beforeFactory)
+            if (room != null)
             {
-                SortedAvailableProcesses = Processes[CurrentFactory]
-                    .OrderByDescending(x => x.Value.Ingredients.TrueForAll(y => ItemCounts[y.Item] >= y.Count))
-                    .Select(x => x.Key)
-                    .ToList();
+                CurrentFactory = FactoryLocations.GetValueOrDefault(Translator.GetString($"{room.RoomId}"));
+                Utils.SendRPC(CustomRPC.SyncChemist, pc.PlayerId, 3, (int)CurrentFactory);
 
-                SelectedProcess = SortedAvailableProcesses.FirstOrDefault() ?? string.Empty;
-                Utils.SendRPC(CustomRPC.SyncChemist, pc.PlayerId, 2, SelectedProcess);
+                if (CurrentFactory != beforeFactory)
+                {
+                    SortedAvailableProcesses = Processes[CurrentFactory]
+                        .OrderByDescending(x => x.Value.Ingredients.TrueForAll(y => ItemCounts[y.Item] >= y.Count))
+                        .Select(x => x.Key)
+                        .ToList();
+
+                    SelectedProcess = SortedAvailableProcesses.FirstOrDefault() ?? string.Empty;
+                    Utils.SendRPC(CustomRPC.SyncChemist, pc.PlayerId, 2, SelectedProcess);
+                }
             }
 
             if ((AcidPlayersDieOptions)AcidPlayersDie.GetValue() == AcidPlayersDieOptions.AfterTime)

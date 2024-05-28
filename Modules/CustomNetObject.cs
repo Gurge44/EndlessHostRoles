@@ -283,7 +283,7 @@ namespace EHR
 
     internal sealed class Toilet : CustomNetObject
     {
-        internal Toilet(Vector2 position, ParallelQuery<PlayerControl> hideList)
+        internal Toilet(Vector2 position, IEnumerable<PlayerControl> hideList)
         {
             CreateNetObject("INCOMPLETE", position);
             hideList.Do(Hide);

@@ -10,6 +10,7 @@ namespace EHR.Crewmate
     public class ToiletMaster : RoleBase
     {
         public static bool On;
+        static List<ToiletMaster> Instances = [];
 
         public static OptionItem AbilityCooldown;
         private static OptionItem AbilityUses;
@@ -27,18 +28,21 @@ namespace EHR.Crewmate
         private static readonly Dictionary<Poop, OptionItem> PoopDurationSettings = [];
 
         private Dictionary<byte, (Poop Poop, long TimeStamp, object Data)> ActivePoops = [];
+
+        private long LastUpdate;
         private Dictionary<byte, long> PlayersUsingToilet = [];
 
-        private Dictionary<Vector2, (Toilet NetObject, int Uses)> Toilets = [];
+        private Dictionary<Vector2, (Toilet NetObject, int Uses, long PlaceTimeStamp)> Toilets = [];
         static ToiletVisibilityOptions ToiletVisible => (ToiletVisibilityOptions)ToiletVisibility.GetValue();
         public override bool IsEnable => On;
-
-        private static ParallelQuery<PlayerControl> EmptyParallelQuery => Enumerable.Empty<PlayerControl>().AsParallel();
 
         public static void SetupCustomOption()
         {
             int id = 644700;
             const TabGroup tab = TabGroup.CrewmateRoles;
+            var poops = Enum.GetValues<Poop>();
+            Dictionary<string, string> replacements = poops.ToDictionary(x => x.ToString(), x => Utils.ColorString(GetPoopColor(x), x.ToString()));
+
             SetupRoleOptions(id++, tab, CustomRoles.ToiletMaster);
             AbilityCooldown = IntegerOptionItem.Create(++id, "AbilityCooldown", new(0, 60, 1), 5, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster])
@@ -74,17 +78,22 @@ namespace EHR.Crewmate
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster]);
             AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(++id, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.1f, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster]);
-            Enum.GetValues<Poop>().Do(poop =>
+            poops.Do(x =>
             {
-                PoopDurationSettings[poop] = IntegerOptionItem.Create(++id, $"TM.{poop}PoopDuration", new(0, 60, 1), 10, tab)
+                PoopDurationSettings[x] = IntegerOptionItem.Create(++id, $"TM.{x}PoopDuration", new(0, 60, 1), 10, tab)
                     .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster])
                     .SetValueFormat(OptionFormat.Seconds);
             });
+
+            PoopDurationSettings.Values
+                .CombineWith([BrownPoopSpeedBoost], [GreenPoopRadius], [RedPoopRadius], [RedPoopRoleBlockDuration], [PurplePoopNotifyOnKillAttempt])
+                .Do(x => x.ReplacementDictionary = replacements);
         }
 
         public override void Init()
         {
             On = false;
+            Instances = [];
             Toilets = [];
             ActivePoops = [];
             PlayersUsingToilet = [];
@@ -93,21 +102,24 @@ namespace EHR.Crewmate
         public override void Add(byte playerId)
         {
             On = true;
+            Instances.Add(this);
+            LastUpdate = 8 + AbilityCooldown.GetInt() + ToiletDuration.GetInt();
             playerId.SetAbilityUseLimit(AbilityUses.GetFloat());
         }
 
         public override void OnPet(PlayerControl pc)
         {
             var pos = pc.Pos();
-            ParallelQuery<PlayerControl> hideList = ToiletVisible switch
+            IEnumerable<PlayerControl> hideList = ToiletVisible switch
             {
-                ToiletVisibilityOptions.Instant => EmptyParallelQuery,
+                ToiletVisibilityOptions.Instant => [],
                 _ => Main.AllPlayerControls.Remove(pc)
             };
-            Toilets[pos] = (new(pos, hideList), 0);
+            Toilets[pos] = (new(pos, hideList), 0, Utils.TimeStamp);
+            pc.RpcRemoveAbilityUse();
 
             if (ToiletVisible == ToiletVisibilityOptions.Delayed)
-                _ = new LateTask(() => Toilets[pos] = (new(pos, EmptyParallelQuery), Toilets[pos].Uses), 5f, log: false);
+                _ = new LateTask(() => Toilets[pos] = (new(pos, []), Toilets[pos].Uses, Toilets[pos].PlaceTimeStamp), 5f, log: false);
         }
 
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
@@ -149,7 +161,7 @@ namespace EHR.Crewmate
                 toilet.Uses++;
 
                 var poop = Enum.GetValues<Poop>().RandomElement();
-                if (poop != Poop.Green) pc.Notify(Utils.ColorString(GetPoopColor(poop), Translator.GetString($"TM.{poop}PoopNotify")));
+                if (poop != Poop.Green) pc.Notify(Utils.ColorString(GetPoopColor(poop), string.Format(Translator.GetString("TM.GetPoopNotify"), poop)));
                 switch (poop)
                 {
                     case Poop.Brown:
@@ -192,7 +204,7 @@ namespace EHR.Crewmate
         public override void AfterMeetingTasks()
         {
             if (ToiletVisible == ToiletVisibilityOptions.AfterMeeting)
-                Toilets.Values.Do(x => x.NetObject = new(Toilets.GetKeyByValue((x.NetObject, x.Uses)), EmptyParallelQuery));
+                Toilets.Values.Do(x => x.NetObject = new(Toilets.GetKeyByValue((x.NetObject, x.Uses, x.PlaceTimeStamp)), []));
         }
 
         static Color GetPoopColor(Poop poop)
@@ -208,11 +220,23 @@ namespace EHR.Crewmate
             };
         }
 
+        public override void OnFixedUpdate(PlayerControl pc)
+        {
+            if (!pc.IsAlive() || !GameStates.IsInTask) return;
+
+            long now = Utils.TimeStamp;
+            if (LastUpdate >= now) return;
+            LastUpdate = now;
+
+            int duration = ToiletDuration.GetInt();
+            Toilets.DoIf(x => x.Value.PlaceTimeStamp + duration <= now, x => Toilets.Remove(x.Key));
+        }
+
         public static bool OnAnyoneCheckMurderStart(PlayerControl killer, PlayerControl target)
         {
-            foreach (var state in Main.PlayerStates.Values)
+            foreach (var tm in Instances)
             {
-                if (state.Role is ToiletMaster tm && tm.ActivePoops.TryGetValue(killer.PlayerId, out var poop) && poop.Poop == Poop.Blue)
+                if (tm.ActivePoops.TryGetValue(killer.PlayerId, out var poop) && poop.Poop == Poop.Blue)
                 {
                     killer.RpcCheckAndMurder(target);
                     return true;
@@ -222,11 +246,28 @@ namespace EHR.Crewmate
             return false;
         }
 
+        public static bool OnAnyoneCheckMurder(PlayerControl killer, PlayerControl target)
+        {
+            foreach (var tm in Instances)
+            {
+                if (tm.ActivePoops.TryGetValue(killer.PlayerId, out var poop) && poop.Poop == Poop.Purple)
+                {
+                    if (PurplePoopNotifyOnKillAttempt.GetBool())
+                        target.Notify(Translator.GetString("TM.TryKillNotify"));
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         enum ToiletVisibilityOptions
         {
             Instant,
             Delayed,
             AfterMeeting,
+
+            // ReSharper disable once UnusedMember.Local
             Invisible
         }
 
@@ -236,7 +277,7 @@ namespace EHR.Crewmate
             Green,
             Red,
             Purple,
-            Blue,
+            Blue
         }
     }
 }

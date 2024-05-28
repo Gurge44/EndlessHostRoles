@@ -44,7 +44,8 @@ namespace CustomTeamAssigner
             { CustomRoles.Totocalcio, "Follower" },
             { CustomRoles.FFF, "Hater" },
             { CustomRoles.NSerialKiller, "Serial Killer" },
-            { CustomRoles.DarkHide, "Stalker" }
+            { CustomRoles.DarkHide, "Stalker" },
+            { CustomRoles.ToiletMaster, "Toilet Master" }
         };
 
         public static void SetMainWindowContents(Visibility visibility)

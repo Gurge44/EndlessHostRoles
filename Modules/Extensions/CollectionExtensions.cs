@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 // ReSharper disable ConvertIfStatementToReturnStatement
 
@@ -76,29 +75,21 @@ namespace EHR
         }
 
         /// <summary>
-        /// Executes an action for each element in a collection in parallel
+        /// Executes an action for each element in a collection
         /// </summary>
         /// <param name="collection">The collection to iterate over</param>
         /// <param name="action">The action to execute for each element</param>
         /// <typeparam name="T">The type of the elements in the collection</typeparam>
         public static void Do<T>(this IEnumerable<T> collection, System.Action<T> action)
         {
-            Parallel.ForEach(collection, action);
+            foreach (T element in collection)
+            {
+                action(element);
+            }
         }
 
         /// <summary>
-        /// Executes an action for each element in a collection in parallel
-        /// </summary>
-        /// <param name="collection">The collection to iterate over</param>
-        /// <param name="action">The action to execute for each element</param>
-        /// <typeparam name="T">The type of the elements in the collection</typeparam>
-        public static void Do<T>(this ParallelQuery<T> collection, System.Action<T> action)
-        {
-            collection.ForAll(action);
-        }
-
-        /// <summary>
-        /// Executes an action for each element in a collection in parallel if the predicate is true
+        /// Executes an action for each element in a collection if the predicate is true
         /// </summary>
         /// <param name="collection">The collection to iterate over</param>
         /// <param name="predicate">The predicate to check for each element</param>
@@ -107,19 +98,10 @@ namespace EHR
         public static void DoIf<T>(this IEnumerable<T> collection, System.Func<T, bool> predicate, System.Action<T> action)
         {
             var partitioner = Partitioner.Create(collection.Where(predicate));
-            Parallel.ForEach(partitioner, action);
-        }
-
-        /// <summary>
-        /// Executes an action for each element in a collection in parallel if the predicate is true
-        /// </summary>
-        /// <param name="collection">The collection to iterate over</param>
-        /// <param name="predicate">The predicate to check for each element</param>
-        /// <param name="action">The action to execute for each element that satisfies the predicate</param>
-        /// <typeparam name="T">The type of the elements in the collection</typeparam>
-        public static void DoIf<T>(this ParallelQuery<T> collection, System.Func<T, bool> predicate, System.Action<T> action)
-        {
-            collection.Where(predicate).ForAll(action);
+            foreach (T element in partitioner.GetDynamicPartitions())
+            {
+                action(element);
+            }
         }
 
         /// <summary>
@@ -129,9 +111,9 @@ namespace EHR
         /// <param name="element">The element to remove</param>
         /// <typeparam name="T">The type of the elements in the collection</typeparam>
         /// <returns>A collection containing all elements of <paramref name="collection"/> except for <paramref name="element"/></returns>
-        public static ParallelQuery<T> Remove<T>(this IEnumerable<T> collection, T element)
+        public static IEnumerable<T> Remove<T>(this IEnumerable<T> collection, T element)
         {
-            return collection.AsParallel().Where(x => !x.Equals(element));
+            return collection.Where(x => !x.Equals(element));
         }
     }
 }
