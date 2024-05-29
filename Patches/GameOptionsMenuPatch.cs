@@ -37,7 +37,7 @@ public static class GameOptionsMenuPatch
 {
     public static void Postfix(GameOptionsMenu __instance)
     {
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             foreach (OptionBehaviour ob in __instance.Children)
             {
@@ -111,7 +111,7 @@ public static class GameOptionsMenuPatch
 
             var scOptions = new System.Collections.Generic.List<OptionBehaviour>();
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 tohMenu.GetComponentsInChildren<OptionBehaviour>().Do(x => Object.Destroy(x.gameObject));
 

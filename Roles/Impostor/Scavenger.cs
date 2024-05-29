@@ -43,7 +43,7 @@ namespace EHR.Roles.Impostor
                 float dur = ScavengerKillDuration.GetFloat();
                 killer.Notify("....", dur);
                 killer.SetKillCooldown(dur + 0.5f);
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     if (Vector2.Distance(killer.Pos(), target.Pos()) > 2f) return;
                     target.TP(Pelican.GetBlackRoomPS());

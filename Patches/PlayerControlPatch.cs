@@ -286,7 +286,7 @@ class CheckMurderPatch
         if (killer.Is(CustomRoles.Magnet) && !target.Is(CustomRoles.Pestilence))
         {
             target.TP(killer);
-            _ = new LateTask(() => { killer.RpcCheckAndMurder(target); }, 0.1f, log: false);
+            LateTask.New(() => { killer.RpcCheckAndMurder(target); }, 0.1f, log: false);
             return false;
         }
 
@@ -331,7 +331,7 @@ class CheckMurderPatch
         if (SoulHunter.IsSoulHunterTarget(killer.PlayerId) && target.Is(CustomRoles.SoulHunter))
         {
             killer.Notify(GetString("SoulHunterTargetNotifyNoKill"));
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 if (SoulHunter.IsSoulHunterTarget(killer.PlayerId)) killer.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter.GetSoulHunter(killer.PlayerId).SoulHunter_.GetRealName()), 300f);
             }, 4f, log: false);
@@ -553,7 +553,7 @@ class MurderPlayerPatch
             delay = Math.Max(delay, 0.15f);
             if (delay > 0.15f && Options.BaitDelayNotify.GetBool()) killer.Notify(ColorString(GetRoleColor(CustomRoles.Bait), string.Format(GetString("KillBaitNotify"), (int)delay)), delay);
             Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} 击杀诱饵 => {target.GetNameWithRole().RemoveHtmlTags()}", "MurderPlayer");
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 if (GameStates.IsInTask)
                 {
@@ -669,12 +669,12 @@ class ShapeshiftPatch
         // Forced rewriting in case the name cannot be corrected due to the timing of canceling the transformation being off.
         if (!shapeshifting && !shapeshifter.Is(CustomRoles.Glitch) && isSSneeded)
         {
-            _ = new LateTask(() => { NotifyRoles(NoCache: true); }, 1.2f, "ShapeShiftNotify");
+            LateTask.New(() => { NotifyRoles(NoCache: true); }, 1.2f, "ShapeShiftNotify");
         }
 
         if ((!shapeshifting || !isSSneeded) && !Swapster.FirstSwapTarget.ContainsKey(shapeshifter.PlayerId))
         {
-            _ = new LateTask(shapeshifter.RpcResetAbilityCooldown, 0.01f, log: false);
+            LateTask.New(shapeshifter.RpcResetAbilityCooldown, 0.01f, log: false);
         }
 
         if (!isSSneeded)
@@ -779,7 +779,7 @@ class ReportDeadBodyPatch
                 if (SoulHunter.IsSoulHunterTarget(__instance.PlayerId))
                 {
                     __instance.Notify(GetString("SoulHunterTargetNotifyNoMeeting"));
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         if (SoulHunter.IsSoulHunterTarget(__instance.PlayerId)) __instance.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter.GetSoulHunter(__instance.PlayerId).SoulHunter_.GetRealName()), 300f);
                     }, 4f, log: false);
@@ -818,27 +818,6 @@ class ReportDeadBodyPatch
                         __instance.Suicide();
                         return false;
                     }
-                }
-
-                if (BoobyTrap.BoobyTrapBody.Contains(target.PlayerId) && __instance.IsAlive())
-                {
-                    if (!Options.TrapOnlyWorksOnTheBodyBoobyTrap.GetBool())
-                    {
-                        var killerID = BoobyTrap.KillerOfBoobyTrapBody[target.PlayerId];
-
-                        __instance.Suicide(PlayerState.DeathReason.Bombed, GetPlayerById(killerID));
-                        RPC.PlaySoundRPC(killerID, Sounds.KillSound);
-
-                        if (!BoobyTrap.BoobyTrapBody.Contains(__instance.PlayerId)) BoobyTrap.BoobyTrapBody.Add(__instance.PlayerId);
-                        BoobyTrap.KillerOfBoobyTrapBody.TryAdd(__instance.PlayerId, killerID);
-                        return false;
-                    }
-
-                    var killerID2 = target.PlayerId;
-
-                    __instance.Suicide(PlayerState.DeathReason.Bombed, GetPlayerById(killerID2));
-                    RPC.PlaySoundRPC(killerID2, Sounds.KillSound);
-                    return false;
                 }
 
                 if (tpc.Is(CustomRoles.Unreportable)) return false;
@@ -990,9 +969,9 @@ class ReportDeadBodyPatch
         NameNotifyManager.Reset();
         NotifyRoles(isForMeeting: true, NoCache: true, CamouflageIsForMeeting: true, GuesserIsForMeeting: true);
 
-        _ = new LateTask(SyncAllSettings, 3f, "SyncAllSettings on meeting start");
+        LateTask.New(SyncAllSettings, 3f, "SyncAllSettings on meeting start");
 
-        _ = new LateTask(() => Main.ProcessShapeshifts = false, 5f, log: false);
+        LateTask.New(() => Main.ProcessShapeshifts = false, 5f, log: false);
     }
 }
 
@@ -1645,7 +1624,7 @@ class ExitVentPatch
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "ExitVent");
 
         if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
-            _ = new LateTask(() => { HudManager.Instance.SetHudActive(pc, pc.Data.Role, true); }, 0.6f, log: false);
+            LateTask.New(() => { HudManager.Instance.SetHudActive(pc, pc.Data.Role, true); }, 0.6f, log: false);
 
         if (!AmongUsClient.Instance.AmHost) return;
 
@@ -1655,7 +1634,7 @@ class ExitVentPatch
 
         if (Options.WhackAMole.GetBool())
         {
-            _ = new LateTask(() => { pc.TPtoRndVent(); }, 0.5f, "Whack-A-Mole TP");
+            LateTask.New(() => { pc.TPtoRndVent(); }, 0.5f, "Whack-A-Mole TP");
         }
 
         if (!pc.IsModClient() && pc.Is(CustomRoles.Haste))
@@ -1733,22 +1712,22 @@ class CoEnterVentPatch
         {
             case CustomGameMode.FFA when FFAManager.FFADisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Length <= 2:
                 var pc = __instance.myPlayer;
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     pc?.Notify(GetString("FFA-NoVentingBecauseTwoPlayers"), 7f);
                     pc?.MyPhysics?.RpcBootFromVent(id);
-                }, 0.5f);
+                }, 0.5f, "FFA-NoVentingWhenTwoPlayersAlive");
                 return true;
             case CustomGameMode.FFA when FFAManager.FFADisableVentingWhenKcdIsUp.GetBool() && Main.KillTimers[__instance.myPlayer.PlayerId] <= 0:
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     __instance.myPlayer?.Notify(GetString("FFA-NoVentingBecauseKCDIsUP"), 7f);
                     __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
-                }, 0.5f);
+                }, 0.5f, "FFA-NoVentingWhenKCDIsUP");
                 return true;
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
-                _ = new LateTask(() => { __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id); }, 0.5f);
+                LateTask.New(() => { __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id); }, 0.5f, log: false);
                 return true;
             case CustomGameMode.HideAndSeek:
                 HnSManager.OnCoEnterVent(__instance, id);
@@ -1757,31 +1736,31 @@ class CoEnterVentPatch
 
         if (__instance.myPlayer.IsRoleBlocked())
         {
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 __instance.myPlayer?.Notify(BlockedAction.Vent.GetBlockNotify());
                 __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
-            }, 0.5f);
+            }, 0.5f, "RoleBlockedBootFromVent");
             return true;
         }
 
         if (Penguin.IsVictim(__instance.myPlayer))
         {
-            _ = new LateTask(() => { __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id); }, 0.5f);
+            LateTask.New(() => { __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id); }, 0.5f, "PenguinVictimBootFromVent");
             return true;
         }
 
         if (SoulHunter.IsSoulHunterTarget(__instance.myPlayer.PlayerId))
         {
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 __instance.myPlayer?.Notify(GetString("SoulHunterTargetNotifyNoVent"));
                 __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     if (SoulHunter.IsSoulHunterTarget(__instance.myPlayer.PlayerId)) __instance.myPlayer.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter.GetSoulHunter(__instance.myPlayer.PlayerId).SoulHunter_.GetRealName()), 300f);
                 }, 4f, log: false);
-            }, 0.5f);
+            }, 0.5f, "SoulHunterTargetBootFromVent");
             return true;
         }
 
@@ -1790,11 +1769,11 @@ class CoEnterVentPatch
             var pc = __instance.myPlayer;
             if (!Options.VentguardBlockDoesNotAffectCrew.GetBool() || !pc.IsCrewmate())
             {
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     pc?.Notify(GetString("EnteredBlockedVent"));
                     pc?.MyPhysics?.RpcBootFromVent(id);
-                }, 0.5f);
+                }, 0.5f, "VentguardBlockedVentBootFromVent");
                 foreach (var ventguard in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Ventguard)).ToArray())
                 {
                     ventguard.Notify(GetString("VentguardNotify"));
@@ -1811,7 +1790,7 @@ class CoEnterVentPatch
 
         if (__instance.myPlayer.GetCustomRole().GetDYRole() == RoleTypes.Impostor && !Main.PlayerStates[__instance.myPlayer.PlayerId].Role.CanUseImpostorVentButton(__instance.myPlayer) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !__instance.myPlayer.Is(CustomRoles.Nimble) && !__instance.myPlayer.Is(CustomRoles.Bloodlust))
         {
-            _ = new LateTask(() => { __instance.RpcBootFromVent(id); }, 0.5f);
+            LateTask.New(() => { __instance.RpcBootFromVent(id); }, 0.5f, "CannotUseVentBootFromVent");
         }
 
         if (((__instance.myPlayer.Data.Role.Role != RoleTypes.Engineer && !__instance.myPlayer.CanUseImpostorVentButton()) ||
@@ -1821,7 +1800,7 @@ class CoEnterVentPatch
         {
             try
             {
-                _ = new LateTask(() => { __instance.RpcBootFromVent(id); }, 0.5f);
+                LateTask.New(() => { __instance.RpcBootFromVent(id); }, 0.5f, "CannotUseVentBootFromVent2");
                 return false;
             }
             catch

@@ -4,7 +4,6 @@ using System.Linq;
 using EHR.Modules;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
-using HarmonyLib;
 using Hazel;
 using UnityEngine;
 using static EHR.Roles.Crewmate.Randomizer;
@@ -347,7 +346,7 @@ namespace EHR.Roles.Crewmate
                         camouflager.Init();
                         camouflager.Add(randomizer.PlayerId);
                         camouflager.OnShapeshift(randomizer, randomizer, true);
-                        _ = new LateTask(camouflager.OnReportDeadBody, IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration), "Randomizer Revert Camo");
+                        LateTask.New(camouflager.OnReportDeadBody, IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration), "Randomizer Revert Camo");
                         break;
                     case Effect.Deathpact:
                     {

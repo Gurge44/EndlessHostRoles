@@ -68,7 +68,7 @@ public class Vengeance : RoleBase
         if (killer.PlayerId == target.PlayerId) return true;
         if (IsRevenge) return true;
 
-        _ = new LateTask(() => { target.TPtoRndVent(); }, 0.01f);
+        LateTask.New(() => { target.TPtoRndVent(); }, 0.01f, log: false);
 
         Timer = RevengeTime.GetInt();
         Countdown(Timer, target);
@@ -101,7 +101,7 @@ public class Vengeance : RoleBase
         player.Notify(string.Format(GetString("VengeanceRevenge"), seconds), 1.1f);
         Timer = seconds;
 
-        _ = new LateTask(() => { Countdown(seconds - 1, player); }, 1.01f);
+        LateTask.New(() => { Countdown(seconds - 1, player); }, 1.01f, log: false);
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

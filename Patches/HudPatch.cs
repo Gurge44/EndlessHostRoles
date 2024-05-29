@@ -455,7 +455,7 @@ class VentButtonDoClickPatch
     public static void Prefix()
     {
         Animating = true;
-        _ = new LateTask(() => { Animating = false; }, 0.6f, log: false);
+        LateTask.New(() => { Animating = false; }, 0.6f, log: false);
     }
 }
 

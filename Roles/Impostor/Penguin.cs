@@ -86,7 +86,7 @@ namespace EHR.Roles.Impostor
                 VictimCanUseAbilities = Goose.OptionVictimCanUseAbilities.GetBool();
             }
 
-            _ = new LateTask(() => { DefaultSpeed = Main.AllPlayerSpeed[playerId]; }, 9f, log: false);
+            LateTask.New(() => { DefaultSpeed = Main.AllPlayerSpeed[playerId]; }, 9f, log: false);
 
             PenguinId = playerId;
             Penguin_ = Utils.GetPlayerById(playerId);
@@ -151,7 +151,7 @@ namespace EHR.Roles.Impostor
             }
             else
             {
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     AbductVictim = null;
                     SendRPC();
@@ -298,7 +298,7 @@ namespace EHR.Roles.Impostor
                     if (!AbductVictim.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                     {
                         var abductVictim = AbductVictim;
-                        _ = new LateTask(() =>
+                        LateTask.New(() =>
                         {
                             if (IsGoose) return;
 
@@ -336,7 +336,7 @@ namespace EHR.Roles.Impostor
                     }
                     else
                     {
-                        _ = new LateTask(() =>
+                        LateTask.New(() =>
                         {
                             if (AbductVictim != null)
                                 Utils.TP(AbductVictim.NetTransform, position, log: false);

@@ -4,7 +4,6 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Neutral;
-using HarmonyLib;
 using UnityEngine;
 using static EHR.Options;
 
@@ -14,10 +13,25 @@ namespace EHR.Roles.Impostor
     {
         public static Dictionary<byte, byte> PuppeteerList = [];
         public static Dictionary<byte, long> PuppeteerDelayList = [];
-        public static Dictionary<byte, int> PuppeteerDelay = [];
-        public static Dictionary<byte, int> PuppeteerMaxPuppets = [];
+        private static Dictionary<byte, int> PuppeteerDelay = [];
+        private static Dictionary<byte, int> PuppeteerMaxPuppets = [];
 
         public static bool On;
+
+        private static OptionItem PuppeteerKCD;
+        private static OptionItem PuppeteerCD;
+        private static OptionItem PuppeteerCanKillNormally;
+        private static OptionItem PuppeteerManipulationBypassesLazy;
+        private static OptionItem PuppeteerManipulationBypassesLazyGuy;
+        private static OptionItem PuppeteerPuppetCanKillPuppeteer;
+        private static OptionItem PuppeteerPuppetCanKillImpostors;
+        private static OptionItem PuppeteerMaxPuppetsOpt;
+        private static OptionItem PuppeteerDiesAfterMaxPuppets;
+        private static OptionItem PuppeteerMinDelay;
+        private static OptionItem PuppeteerMaxDelay;
+        private static OptionItem PuppeteerManipulationEndsAfterFixedTime;
+        private static OptionItem PuppeteerManipulationEndsAfterTime;
+        private static OptionItem PuppetDiesAlongWithVictim;
         public override bool IsEnable => On;
 
         public static void SetupCustomOption()
@@ -50,10 +64,12 @@ namespace EHR.Roles.Impostor
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
             PuppeteerPuppetCanKillPuppeteer = BooleanOptionItem.Create(3920, "PuppeteerPuppetCanKillPuppeteer", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
-            Options.PuppeteerMaxPuppets = IntegerOptionItem.Create(3921, "PuppeteerMaxPuppets", new(0, 30, 1), 5, TabGroup.ImpostorRoles)
+            PuppeteerMaxPuppetsOpt = IntegerOptionItem.Create(3921, "PuppeteerMaxPuppets", new(0, 30, 1), 5, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer])
                 .SetValueFormat(OptionFormat.Times);
             PuppeteerDiesAfterMaxPuppets = BooleanOptionItem.Create(3923, "PuppeteerDiesAfterMaxPuppets", false, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
+            PuppetDiesAlongWithVictim = BooleanOptionItem.Create(3924, "PuppetDiesAlongWithVictim", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
         }
 
@@ -89,7 +105,7 @@ namespace EHR.Roles.Impostor
 
             if (!PuppeteerMaxPuppets.TryGetValue(killer.PlayerId, out var usesLeft))
             {
-                usesLeft = Options.PuppeteerMaxPuppets.GetInt();
+                usesLeft = PuppeteerMaxPuppetsOpt.GetInt();
                 PuppeteerMaxPuppets.Add(killer.PlayerId, usesLeft);
             }
 
@@ -103,7 +119,7 @@ namespace EHR.Roles.Impostor
                     killer.SetKillCooldown(time: PuppeteerCD.GetFloat());
                     if (usesLeft <= 1 && PuppeteerDiesAfterMaxPuppets.GetBool())
                     {
-                        _ = new LateTask(() => { killer.Suicide(); }, 1.5f, "Puppeteer Max Uses Reached => Suicide");
+                        LateTask.New(() => { killer.Suicide(); }, 1.5f, "Puppeteer Max Uses Reached => Suicide");
                     }
                     else killer.Notify(string.Format(Translator.GetString("PuppeteerUsesRemaining"), usesLeft - 1));
 
@@ -119,7 +135,7 @@ namespace EHR.Roles.Impostor
             killer.SetKillCooldown();
             if (usesLeft <= 1)
             {
-                _ = new LateTask(() => { killer.Suicide(); }, 1.5f, "Puppeteer Max Uses Reached => Suicide");
+                LateTask.New(() => { killer.Suicide(); }, 1.5f, "Puppeteer Max Uses Reached => Suicide");
             }
             else killer.Notify(string.Format(Translator.GetString("PuppeteerUsesRemaining"), usesLeft - 1));
 
@@ -176,8 +192,10 @@ namespace EHR.Roles.Impostor
                             {
                                 var puppeteerId = PuppeteerList[playerId];
                                 RPC.PlaySoundRPC(puppeteerId, Sounds.KillSound);
-                                target.SetRealKiller(Utils.GetPlayerById(puppeteerId));
+                                var puppeteer = Utils.GetPlayerById(puppeteerId);
+                                target.SetRealKiller(puppeteer);
                                 player.Kill(target);
+                                if (PuppetDiesAlongWithVictim.GetBool()) player.Suicide(realKiller: puppeteer);
                                 player.MarkDirtySettings();
                                 target.MarkDirtySettings();
                                 PuppeteerList.Remove(playerId);

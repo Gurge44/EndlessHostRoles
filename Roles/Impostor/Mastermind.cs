@@ -23,9 +23,11 @@ namespace EHR.Roles.Impostor
         public static OptionItem Delay;
 
         public static float ManipulateCD;
+        public byte MastermindId = byte.MaxValue;
 
         private PlayerControl Mastermind_ => GetPlayerById(MastermindId);
-        public byte MastermindId = byte.MaxValue;
+
+        public override bool IsEnable => MastermindId != byte.MaxValue || Randomizer.Exists;
 
         public static void SetupCustomOption()
         {
@@ -54,8 +56,6 @@ namespace EHR.Roles.Impostor
             ManipulateCD = KillCooldown.GetFloat() + TimeLimit.GetFloat() + Delay.GetFloat();
             PlayerIdList.Add(playerId);
         }
-
-        public override bool IsEnable => MastermindId != byte.MaxValue || Randomizer.Exists;
 
         public override void SetKillCooldown(byte id)
         {
@@ -172,7 +172,7 @@ namespace EHR.Roles.Impostor
 
             killer.Notify(GetString("MastermindTargetSurvived"));
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 var kcd = TempKCDs.TryGetValue(killer.PlayerId, out var cd) ? cd : Main.AllPlayerKillCooldown.GetValueOrDefault(killer.PlayerId, DefaultKillCooldown);
                 killer.SetKillCooldown(time: kcd);

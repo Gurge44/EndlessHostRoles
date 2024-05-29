@@ -141,13 +141,13 @@ namespace EHR.Roles.Neutral
                 Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
                 ReportDeadBodyPatch.CanReport[target.PlayerId] = false;
                 target.MarkDirtySettings();
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     Main.AllPlayerSpeed[target.PlayerId] = Main.AllPlayerSpeed[target.PlayerId] - Main.MinSpeed + tmpSpeed;
                     ReportDeadBodyPatch.CanReport[target.PlayerId] = true;
                     target.MarkDirtySettings();
                     RPC.PlaySoundRPC(target.PlayerId, Sounds.TaskComplete);
-                }, SpiritFreezeTime.GetFloat());
+                }, SpiritFreezeTime.GetFloat(), "SpiritcallerFreezeTime");
             }
         }
 

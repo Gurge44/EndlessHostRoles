@@ -59,7 +59,7 @@ public class Pyromaniac : RoleBase
 
         if (DousedList.Contains(target.PlayerId))
         {
-            _ = new LateTask(() => { killer.SetKillCooldown(BurnCooldown.GetFloat()); }, 0.1f);
+            LateTask.New(() => { killer.SetKillCooldown(BurnCooldown.GetFloat()); }, 0.1f, log: false);
             return true;
         }
 

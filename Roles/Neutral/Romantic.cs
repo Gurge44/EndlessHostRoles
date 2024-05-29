@@ -138,7 +138,7 @@ public class Romantic : RoleBase
             RomanticPC.Notify(GetString("RomanticProtectPartner"));
             Partner.Notify(GetString("RomanticIsProtectingYou"));
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 if (!Partner.IsAlive()) return;
 
@@ -150,7 +150,7 @@ public class Romantic : RoleBase
                 Partner.Notify(GetString("ProtectingOver"));
 
                 RomanticPC.SetKillCooldown();
-            }, ProtectDuration.GetFloat());
+            }, ProtectDuration.GetFloat(), "RomanticProtecting");
         }
 
         return false;

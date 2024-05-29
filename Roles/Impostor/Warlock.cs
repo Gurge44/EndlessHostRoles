@@ -112,7 +112,7 @@ namespace EHR.Roles.Impostor
 
             if (KCD > 0f && CurseCD > 0f)
             {
-                _ = new LateTask(() => { warlock.SetKillCooldown(Math.Min(KCD, CurseCD) - 1f); }, 0.1f, log: false);
+                LateTask.New(() => { warlock.SetKillCooldown(Math.Min(KCD, CurseCD) - 1f); }, 0.1f, log: false);
             }
 
             Utils.NotifyRoles(SpecifySeer: warlock, SpecifyTarget: warlock);
@@ -212,7 +212,7 @@ namespace EHR.Roles.Impostor
                                 float speed = Main.AllPlayerSpeed[pc.PlayerId];
                                 Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
                                 pc.MarkDirtySettings();
-                                _ = new LateTask(() =>
+                                LateTask.New(() =>
                                 {
                                     Main.AllPlayerSpeed[pc.PlayerId] = speed;
                                     pc.MarkDirtySettings();
@@ -220,7 +220,7 @@ namespace EHR.Roles.Impostor
                             }
                         }
 
-                        if (!UsePets.GetBool()) _ = new LateTask(() => { pc.RpcShapeshift(pc, false); }, 1.5f, "Warlock RpcRevertShapeshift");
+                        if (!UsePets.GetBool()) LateTask.New(() => { pc.RpcShapeshift(pc, false); }, 1.5f, "Warlock RpcRevertShapeshift");
                     }
                     else
                     {

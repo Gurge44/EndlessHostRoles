@@ -2,7 +2,6 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using HarmonyLib;
 using Hazel;
 using UnityEngine;
 using static EHR.Options;
@@ -125,7 +124,7 @@ namespace EHR.Roles.Neutral
                     {
                         if (BubbleDiesIfInRange.GetBool())
                         {
-                            _ = new LateTask(() =>
+                            LateTask.New(() =>
                             {
                                 if (GameStates.IsInTask) pc.Suicide(PlayerState.DeathReason.Bombed);
                             }, 0.5f, log: false);

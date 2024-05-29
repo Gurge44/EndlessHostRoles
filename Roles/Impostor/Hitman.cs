@@ -80,7 +80,7 @@ namespace EHR.Roles.Impostor
             {
                 TargetId = byte.MaxValue;
                 SendRPC();
-                _ = new LateTask(() => { killer.SetKillCooldown(time: SuccessKCD.GetFloat()); }, 0.1f, "Hitman Killed Target - SetKillCooldown Task");
+                LateTask.New(() => { killer.SetKillCooldown(time: SuccessKCD.GetFloat()); }, 0.1f, "Hitman Killed Target - SetKillCooldown Task");
             }
 
             return true;

@@ -8,7 +8,7 @@ namespace EHR.Roles.AddOns.Common
 
         public void SetupCustomOption()
         {
-            SetupAdtRoleOptions(14350, CustomRoles.Unlucky, canSetNum: true);
+            SetupAdtRoleOptions(14350, CustomRoles.Unlucky, canSetNum: true, teamSpawnOptions: true);
             UnluckyKillSuicideChance = IntegerOptionItem.Create(14364, "UnluckyKillSuicideChance", new(0, 100, 1), 2, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Unlucky])
                 .SetValueFormat(OptionFormat.Percent);
@@ -24,12 +24,6 @@ namespace EHR.Roles.AddOns.Common
             UnluckySabotageSuicideChance = IntegerOptionItem.Create(14368, "UnluckySabotageSuicideChance", new(0, 100, 1), 4, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Unlucky])
                 .SetValueFormat(OptionFormat.Percent);
-            ImpCanBeUnlucky = BooleanOptionItem.Create(14361, "ImpCanBeUnlucky", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Unlucky]);
-            CrewCanBeUnlucky = BooleanOptionItem.Create(14362, "CrewCanBeUnlucky", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Unlucky]);
-            NeutralCanBeUnlucky = BooleanOptionItem.Create(14363, "NeutralCanBeUnlucky", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Unlucky]);
         }
     }
 }

@@ -71,9 +71,6 @@ public class Main : BasePlugin
     public static readonly Dictionary<byte, (long START_TIMESTAMP, int TOTALCD)> AbilityCD = [];
     public static Dictionary<byte, float> AbilityUseLimit = [];
     public static List<byte> DontCancelVoteList = [];
-    public static byte NimblePlayer = byte.MaxValue;
-    public static byte PhysicistPlayer = byte.MaxValue;
-    public static byte BloodlustPlayer = byte.MaxValue;
     public static List<byte> ResetCamPlayerList = [];
     public static List<byte> WinnerList = [];
     public static List<string> WinnerNameList = [];

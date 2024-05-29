@@ -8,13 +8,7 @@ namespace EHR.Roles.AddOns.Common
 
         public void SetupCustomOption()
         {
-            SetupAdtRoleOptions(14400, CustomRoles.Necroview, canSetNum: true, tab: TabGroup.Addons);
-            ImpCanBeNecroview = BooleanOptionItem.Create(14410, "ImpCanBeNecroview", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Necroview]);
-            CrewCanBeNecroview = BooleanOptionItem.Create(14411, "CrewCanBeNecroview", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Necroview]);
-            NeutralCanBeNecroview = BooleanOptionItem.Create(14412, "NeutralCanBeNecroview", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Necroview]);
+            SetupAdtRoleOptions(14400, CustomRoles.Necroview, canSetNum: true, teamSpawnOptions: true);
         }
     }
 }

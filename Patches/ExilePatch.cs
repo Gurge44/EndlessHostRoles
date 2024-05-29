@@ -147,7 +147,7 @@ class ExileControllerWrapUpPatch
         // Even if an exception occurs in WrapUpPostfix, this part will be executed reliably.
         if (AmongUsClient.Instance.AmHost)
         {
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 exiled = AntiBlackout_LastExiled;
                 AntiBlackout.SendGameData();
@@ -158,7 +158,7 @@ class ExileControllerWrapUpPatch
                     exiled.Object.RpcExileV2();
                 }
             }, 0.8f, "Restore IsDead Task");
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 Main.AfterMeetingDeathPlayers.Do(x =>
                 {
@@ -188,7 +188,7 @@ class ExileControllerWrapUpPatch
         Logger.Warn($"Ejection Text: {CheckForEndVotingPatch.EjectionText}", "debug");
         if ((showRemainingKillers || appendEjectionNotify) && Options.CurrentGameMode == CustomGameMode.Standard)
         {
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 var text = showRemainingKillers ? Utils.GetRemainingKillers(notify: true) : string.Empty;
                 text = $"<#ffffff>{text}</color>";
@@ -213,7 +213,7 @@ class ExileControllerWrapUpPatch
             }, 0.5f, log: false);
         }
 
-        _ = new LateTask(() => { ChatManager.SendPreviousMessagesToAll(); }, 3f, log: false);
+        LateTask.New(() => { ChatManager.SendPreviousMessagesToAll(); }, 3f, log: false);
     }
 
     [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]

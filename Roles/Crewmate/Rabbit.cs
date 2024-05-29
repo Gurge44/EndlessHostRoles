@@ -74,7 +74,7 @@ namespace EHR.Roles.Crewmate
                 Utils.NotifyRoles(SpecifySeer: Player, SpecifyTarget: Player);
                 Logger.Info($"{Player.GetNameWithRole()}'s target: {target.GetNameWithRole()}", "Rabbit");
 
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     LocateArrow.Remove(Player.PlayerId, pos);
                     HasArrow = false;

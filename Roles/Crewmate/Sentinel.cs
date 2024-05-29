@@ -10,6 +10,9 @@ namespace EHR.Roles.Crewmate
 {
     public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRadius, PlayerControl sentinel = null, bool isPatrolling = false, Vector2? startingPosition = null, long patrolStartTimeStamp = 0)
     {
+        private readonly List<byte> LastNearbyKillers = [];
+        private long LastUpdate;
+
         public byte SentinelId
         {
             get => sentinelId;
@@ -53,8 +56,6 @@ namespace EHR.Roles.Crewmate
         }
 
         public PlayerControl[] NearbyKillers => GetPlayersInRadius(PatrolRadius, StartingPosition).Where(x => !x.Is(Team.Crewmate) && SentinelId != x.PlayerId).ToArray();
-        private readonly List<byte> LastNearbyKillers = [];
-        private long LastUpdate;
 
         public void SetPlayer() => Sentinel = GetPlayerById(SentinelId);
 
@@ -123,14 +124,15 @@ namespace EHR.Roles.Crewmate
 
     internal class Sentinel : RoleBase
     {
-        private static int Id => 64430;
-
         public static OptionItem PatrolCooldown;
         private static OptionItem PatrolDuration;
         public static OptionItem LoweredVision;
         private static OptionItem PatrolRadius;
+        private static int Id => 64430;
 
         public static List<PatrollingState> PatrolStates { get; } = [];
+
+        public override bool IsEnable => PatrolStates.Count > 0 || Randomizer.Exists;
 
         public static void SetupCustomOption()
         {
@@ -156,10 +158,8 @@ namespace EHR.Roles.Crewmate
         {
             var newPatrolState = new PatrollingState(playerId, PatrolDuration.GetInt(), PatrolRadius.GetFloat());
             PatrolStates.Add(newPatrolState);
-            _ = new LateTask(newPatrolState.SetPlayer, 8f, log: false);
+            LateTask.New(newPatrolState.SetPlayer, 8f, log: false);
         }
-
-        public override bool IsEnable => PatrolStates.Count > 0 || Randomizer.Exists;
 
         public static PatrollingState GetPatrollingState(byte playerId) => PatrolStates.FirstOrDefault(x => x.SentinelId == playerId) ?? new(playerId, PatrolDuration.GetInt(), PatrolRadius.GetInt());
         public static bool IsPatrolling(byte playerId) => GetPatrollingState(playerId).IsPatrolling;
@@ -208,7 +208,7 @@ namespace EHR.Roles.Crewmate
         public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 foreach (PatrollingState state in PatrolStates)
                 {
@@ -217,7 +217,7 @@ namespace EHR.Roles.Crewmate
                         state.FinishPatrolling();
                     }
                 }
-            }, 0.1f);
+            }, 0.1f, "SentinelFinishPatrol");
         }
     }
 }

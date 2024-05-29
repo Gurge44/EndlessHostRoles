@@ -168,7 +168,7 @@ public static class ChatManager
         {
             case 1 when player.IsAlive(): // Guessing Command & Such
                 Logger.Info("Special Command", "ChatManager");
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     if (!ChatCommands.LastSentCommand.ContainsKey(player.PlayerId))
                     {

@@ -24,6 +24,7 @@ using HarmonyLib;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes;
 using InnerNet;
+using Newtonsoft.Json;
 using UnityEngine;
 using static EHR.Translator;
 using Object = UnityEngine.Object;
@@ -73,8 +74,8 @@ public static class Utils
             Logger.Fatal($"{text} error, triggering anti-black screen measures", "Anti-Blackout");
             ChatUpdatePatch.DoBlockChat = true;
             Main.OverrideWelcomeMsg = GetString("AntiBlackOutNotifyInLobby");
-            _ = new LateTask(() => { Logger.SendInGame(GetString("AntiBlackOutLoggerSendInGame") /*, true*/); }, 3f, "Anti-Black Msg SendInGame");
-            _ = new LateTask(() =>
+            LateTask.New(() => { Logger.SendInGame(GetString("AntiBlackOutLoggerSendInGame") /*, true*/); }, 3f, "Anti-Black Msg SendInGame");
+            LateTask.New(() =>
             {
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Error);
                 GameManager.Instance.LogicFlow.CheckEndCriteria();
@@ -88,12 +89,12 @@ public static class Utils
             writer.EndMessage();
             if (Options.EndWhenPlayerBug.GetBool())
             {
-                _ = new LateTask(() => { Logger.SendInGame(GetString("AntiBlackOutRequestHostToForceEnd") /*, true*/); }, 3f, "Anti-Black Msg SendInGame");
+                LateTask.New(() => { Logger.SendInGame(GetString("AntiBlackOutRequestHostToForceEnd") /*, true*/); }, 3f, "Anti-Black Msg SendInGame");
             }
             else
             {
-                _ = new LateTask(() => { Logger.SendInGame(GetString("AntiBlackOutHostRejectForceEnd") /*, true*/); }, 3f, "Anti-Black Msg SendInGame");
-                _ = new LateTask(() =>
+                LateTask.New(() => { Logger.SendInGame(GetString("AntiBlackOutHostRejectForceEnd") /*, true*/); }, 3f, "Anti-Black Msg SendInGame");
+                LateTask.New(() =>
                 {
                     AmongUsClient.Instance.ExitGame(DisconnectReasons.Custom);
                     Logger.Fatal($"{text} error, disconnected from game", "Anti-black");
@@ -307,6 +308,57 @@ public static class Utils
         {
             opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0);
             opt.SetFloat(FloatOptionNames.CrewLightMod, 0);
+        }
+    }
+
+    public static void SaveComboInfo()
+    {
+        SaveFile("./EHR_Data/AlwaysCombos.json");
+        SaveFile("./EHR_Data/NeverCombos.json");
+        return;
+
+        void SaveFile(string path)
+        {
+            try
+            {
+                var data = new Il2CppSystem.Collections.Generic.Dictionary<string, List<int>>();
+                var dict = path.Contains("Always") ? Main.AlwaysSpawnTogetherCombos : Main.NeverSpawnTogetherCombos;
+                dict.Do(pair => data[pair.Key.ToString()] = pair.Value.ConvertAll(x => (int)x));
+                File.WriteAllText(path, JsonConvert.SerializeObject(data, Formatting.Indented));
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Failed to save combo info", "SaveComboInfo");
+                ThrowException(e);
+            }
+        }
+    }
+
+    public static void LoadComboInfo()
+    {
+        LoadFile("./EHR_Data/AlwaysCombos.json");
+        LoadFile("./EHR_Data/NeverCombos.json");
+        return;
+
+        void LoadFile(string path)
+        {
+            try
+            {
+                if (!File.Exists(path)) return;
+                var data = JsonConvert.DeserializeObject<Il2CppSystem.Collections.Generic.Dictionary<string, List<int>>>(File.ReadAllText(path));
+                var dict = path.Contains("Always") ? Main.AlwaysSpawnTogetherCombos : Main.NeverSpawnTogetherCombos;
+                dict.Clear();
+                foreach (var pair in data)
+                {
+                    var key = Enum.Parse<CustomRoles>(pair.Key);
+                    dict[key] = pair.Value.ConvertAll(x => (CustomRoles)x);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Failed to load combo info", "LoadComboInfo");
+                ThrowException(e);
+            }
         }
     }
 
@@ -2431,7 +2483,7 @@ public static class Utils
                     float beforeSpeed = Main.AllPlayerSpeed[pc.PlayerId];
                     Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
                     pc.MarkDirtySettings();
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                         {
                             Main.AllPlayerSpeed[pc.PlayerId] = beforeSpeed;
                             pc.MarkDirtySettings();
@@ -2488,7 +2540,7 @@ public static class Utils
 
         if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.Is(CustomRoles.GM))
         {
-            _ = new LateTask(() => { PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)); }, 11f, "GM Auto-TP Failsafe"); // TP to Main Hall
+            LateTask.New(() => { PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)); }, 11f, "GM Auto-TP Failsafe"); // TP to Main Hall
         }
     }
 

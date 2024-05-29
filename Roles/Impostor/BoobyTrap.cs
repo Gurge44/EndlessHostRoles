@@ -1,15 +1,20 @@
 ﻿using System.Collections.Generic;
+using EHR.Modules;
 using static EHR.Options;
 
 namespace EHR.Roles.Impostor
 {
     internal class BoobyTrap : RoleBase
     {
-        public static List<byte> BoobyTrapBody = [];
-        public static List<byte> BoobyTrapKiller = [];
-        public static Dictionary<byte, byte> KillerOfBoobyTrapBody = [];
+        private static List<byte> BoobyTrapBody = [];
+        private static List<byte> BoobyTrapKiller = [];
+        private static Dictionary<byte, byte> KillerOfBoobyTrapBody = [];
 
         public static bool On;
+
+        private static OptionItem BTKillCooldown;
+        private static OptionItem TrapOnlyWorksOnTheBodyBoobyTrap;
+        private static OptionItem TrapConsecutiveBodies;
         public override bool IsEnable => On;
 
         public static void SetupCustomOption()
@@ -19,6 +24,8 @@ namespace EHR.Roles.Impostor
                 .SetParent(CustomRoleSpawnChances[CustomRoles.BoobyTrap])
                 .SetValueFormat(OptionFormat.Seconds);
             TrapOnlyWorksOnTheBodyBoobyTrap = BooleanOptionItem.Create(16511, "TrapOnlyWorksOnTheBodyBoobyTrap", true, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.BoobyTrap]);
+            TrapConsecutiveBodies = BooleanOptionItem.Create(16512, "TrapConsecutiveBodies", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.BoobyTrap]);
         }
 
@@ -58,6 +65,32 @@ namespace EHR.Roles.Impostor
                 if (!KillerOfBoobyTrapBody.ContainsKey(target.PlayerId)) KillerOfBoobyTrapBody.Add(target.PlayerId, killer.PlayerId);
                 killer.Suicide();
             }
+        }
+
+        public override bool CheckReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target, PlayerControl killer)
+        {
+            if (BoobyTrapBody.Contains(target.PlayerId) && reporter.IsAlive())
+            {
+                if (!TrapOnlyWorksOnTheBodyBoobyTrap.GetBool())
+                {
+                    var killerID = KillerOfBoobyTrapBody[target.PlayerId];
+
+                    reporter.Suicide(PlayerState.DeathReason.Bombed, Utils.GetPlayerById(killerID));
+                    RPC.PlaySoundRPC(killerID, Sounds.KillSound);
+
+                    if (!BoobyTrapBody.Contains(reporter.PlayerId) && TrapConsecutiveBodies.GetBool()) BoobyTrapBody.Add(reporter.PlayerId);
+                    KillerOfBoobyTrapBody.TryAdd(reporter.PlayerId, killerID);
+                    return false;
+                }
+
+                var killerID2 = target.PlayerId;
+
+                reporter.Suicide(PlayerState.DeathReason.Bombed, Utils.GetPlayerById(killerID2));
+                RPC.PlaySoundRPC(killerID2, Sounds.KillSound);
+                return false;
+            }
+
+            return true;
         }
     }
 }

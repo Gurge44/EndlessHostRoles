@@ -93,7 +93,7 @@ namespace EHR.Roles.Crewmate
                 if (pc != null && pc.RpcCheckAndMurder(venter, true))
                 {
                     venter.MyPhysics.RpcBootFromVent(ventId);
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         venter.Suicide(PlayerState.DeathReason.Demolished, pc);
                         Logger.Info($"Killed venter {venter.GetNameWithRole()} (was inside {vent.name}, ID {ventId})", "Drainer");

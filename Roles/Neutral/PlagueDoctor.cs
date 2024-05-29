@@ -223,7 +223,7 @@ namespace EHR.Roles.Neutral
             // You may win if a non-infected person is hanged.
             LateCheckWin = true;
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
                 {
                     Logger.Info("Infect Active", "PlagueDoctor");
                     InfectActive = true;

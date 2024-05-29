@@ -189,7 +189,7 @@ namespace EHR.Roles.Crewmate
                             break;
                         case Weapon.Lantern:
                             Utils.MarkEveryoneDirtySettings();
-                            _ = new LateTask(() => { ActiveWeapons.Remove(Weapon.Lantern); }, IncreasedVisionDuration.GetInt(), log: false);
+                            LateTask.New(() => { ActiveWeapons.Remove(Weapon.Lantern); }, IncreasedVisionDuration.GetInt(), log: false);
                             break;
                         case Weapon.Wrench:
                             if (Utils.IsActive(SystemTypes.Electrical))

@@ -100,7 +100,7 @@ public class Agitater : RoleBase
         AgitaterHasBombed = true;
         killer.ResetKillCooldown();
         killer.SetKillCooldown();
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             if (CurrentBombedPlayer != byte.MaxValue && GameStates.IsInTask)
             {

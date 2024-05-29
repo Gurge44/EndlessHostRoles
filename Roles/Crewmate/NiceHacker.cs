@@ -153,7 +153,7 @@ namespace EHR.Roles.Crewmate
                 UseLimitSeconds[pc.PlayerId] -= 1; // Remove 1s for opening the map, so they can't utilize spamming
                 SendRPC(pc.PlayerId, UseLimitSeconds[pc.PlayerId]);
                 opts.Mode = MapOptions.Modes.CountOverlay;
-                _ = new LateTask(() => { MapCountdown(pc, map, opts, (int)UseLimitSeconds[pc.PlayerId]); }, 1f, "NiceHacker.StartCountdown");
+                LateTask.New(() => { MapCountdown(pc, map, opts, (int)UseLimitSeconds[pc.PlayerId]); }, 1f, "NiceHacker.StartCountdown");
             }
             else
             {
@@ -179,7 +179,7 @@ namespace EHR.Roles.Crewmate
 
             UseLimitSeconds[pc.PlayerId] -= 1;
             SendRPC(pc.PlayerId, UseLimitSeconds[pc.PlayerId]);
-            _ = new LateTask(() => { MapCountdown(pc, map, opts, seconds - 1); }, 1f, "NiceHackerAbilityCountdown");
+            LateTask.New(() => { MapCountdown(pc, map, opts, seconds - 1); }, 1f, "NiceHackerAbilityCountdown");
         }
 
         public override string GetSuffix(PlayerControl pc, PlayerControl _, bool hud = false, bool m = false)

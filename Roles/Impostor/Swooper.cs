@@ -187,7 +187,7 @@ public class Swooper : RoleBase
                     InvisTime = -10;
                     SendRPC();
                     refresh = true;
-                    _ = new LateTask(() => { player.TP(pos); }, 0.5f, log: false);
+                    LateTask.New(() => { player.TP(pos); }, 0.5f, log: false);
                     break;
                 case <= 10 when !player.IsModClient():
                     player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1));
@@ -203,7 +203,7 @@ public class Swooper : RoleBase
         if (!AmongUsClient.Instance.AmHost || IsInvis) return;
 
         var pc = __instance.myPlayer;
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             float limit = pc.GetAbilityUseLimit();
             bool naN = float.IsNaN(limit);

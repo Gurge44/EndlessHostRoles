@@ -110,14 +110,14 @@ namespace EHR.Roles.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 shapeshifter.RpcSetCustomRole(CurrentRole);
                 ChangedRole[shapeshifter.PlayerId] = true;
                 shapeshifter.RpcResetAbilityCooldown();
                 if (!DisableShapeshiftAnimations.GetBool())
                 {
-                    _ = new LateTask(() => { shapeshifter.RpcShapeshift(shapeshifter, false); }, 1f, log: false);
+                    LateTask.New(() => { shapeshifter.RpcShapeshift(shapeshifter, false); }, 1f, log: false);
                 }
             }, 0.3f, log: false);
             return false;

@@ -66,8 +66,8 @@ namespace EHR.Roles.Crewmate
             }
             else
             {
-                _ = new LateTask(() => { pc.MyPhysics.RpcBootFromVent(ventId); }, 0.5f, "Convener RpcBootFromVent");
-                _ = new LateTask(() => { Utils.TPAll(pc.Pos()); }, 1f, "Convener TP");
+                LateTask.New(() => { pc.MyPhysics.RpcBootFromVent(ventId); }, 0.5f, "Convener RpcBootFromVent");
+                LateTask.New(() => { Utils.TPAll(pc.Pos()); }, 1f, "Convener TP");
             }
 
             pc.RpcRemoveAbilityUse();

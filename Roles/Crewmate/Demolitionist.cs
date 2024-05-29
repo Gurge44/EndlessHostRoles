@@ -19,7 +19,7 @@ namespace EHR.Roles.Crewmate
         {
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Demolitionist), Translator.GetString("OnDemolitionistDead")));
             killer.KillFlash();
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 if (!killer.inVent && (killer.PlayerId != target.PlayerId))
                 {
@@ -35,7 +35,7 @@ namespace EHR.Roles.Crewmate
                     else killer.RpcGuardAndKill(killer);
                     killer.SetKillCooldown(Main.AllPlayerKillCooldown[killer.PlayerId] - (DemolitionistVentTime.GetFloat() + 0.5f));
                 }
-            }, DemolitionistVentTime.GetFloat() + 0.5f);
+            }, DemolitionistVentTime.GetFloat() + 0.5f, "DemolitionistCheck");
         }
     }
 }

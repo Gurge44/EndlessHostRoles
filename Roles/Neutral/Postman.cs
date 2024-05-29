@@ -46,7 +46,7 @@ public class Postman : RoleBase
     {
         playerIdList.Add(playerId);
         PostmanId = playerId;
-        _ = new LateTask(SetNewTarget, 8f, "Set Postman First Target");
+        LateTask.New(SetNewTarget, 8f, "Set Postman First Target");
 
         Target = byte.MaxValue;
         IsFinished = false;

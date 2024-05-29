@@ -16,7 +16,7 @@ public class EndGameManagerPatch
         if (!AmongUsClient.Instance.AmHost || !Options.AutoPlayAgain.GetBool()) return;
         IsRestarting = false;
 
-        _ = _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             Logger.Msg("Beginning Auto Play Again Countdown!", "AutoPlayAgain");
             IsRestarting = true;
@@ -51,7 +51,11 @@ public class EndGameManagerPatch
             CountdownTextText.text = string.Format(GetString("CountdownText"), seconds);
         }
 
-        if (seconds == 0) { navigation.NextGame(); CountdownText.transform.DestroyChildren(); }
-        else _ = new LateTask(() => { BeginAutoPlayAgainCountdown(endGameManager, seconds - 1); }, 1f);
+        if (seconds == 0)
+        {
+            navigation.NextGame();
+            CountdownText.transform.DestroyChildren();
+        }
+        else LateTask.New(() => { BeginAutoPlayAgainCountdown(endGameManager, seconds - 1); }, 1f, log: false);
     }
 }

@@ -9,8 +9,6 @@ namespace EHR.Roles.AddOns.Crewmate
 {
     public class Stressed : IAddon
     {
-        public AddonTypes Type => AddonTypes.Harmful;
-
         private const int Id = 14685;
 
         private static OptionItem StressedExtraTimeAfterTaskComplete;
@@ -37,6 +35,7 @@ namespace EHR.Roles.AddOns.Crewmate
         public static bool countRepairSabotage;
 
         private static bool IsEnable => Timers.Count > 0;
+        public AddonTypes Type => AddonTypes.Harmful;
 
         public void SetupCustomOption()
         {
@@ -87,7 +86,7 @@ namespace EHR.Roles.AddOns.Crewmate
         {
             long now = Utils.TimeStamp;
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 foreach (var pc in Main.AllAlivePlayerControls)
                 {

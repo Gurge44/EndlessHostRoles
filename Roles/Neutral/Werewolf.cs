@@ -146,7 +146,7 @@ public class Werewolf : RoleBase
         if (pc == null) return;
 
         if (!AmongUsClient.Instance.AmHost || IsRampaging) return;
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             if (CanRampage)
             {

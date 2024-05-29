@@ -3,7 +3,6 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Patches;
-using HarmonyLib;
 
 namespace EHR.Neutral
 {
@@ -45,7 +44,7 @@ namespace EHR.Neutral
 
             WasShifter = [];
             AllPlayerBasis = [];
-            _ = new LateTask(() => AllPlayerBasis = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, x => x.GetRoleTypes()), 10f, log: false);
+            LateTask.New(() => AllPlayerBasis = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, x => x.GetRoleTypes()), 10f, log: false);
         }
 
         public override void Add(byte playerId)
@@ -74,7 +73,7 @@ namespace EHR.Neutral
                 killer.ChangeRoleBasis(target.GetRoleTypes());
 
             var targetRoleBase = Main.PlayerStates[target.PlayerId].Role;
-            _ = new LateTask(() => Main.PlayerStates[killer.PlayerId].Role = targetRoleBase, 0.5f, "Change RoleBase");
+            LateTask.New(() => Main.PlayerStates[killer.PlayerId].Role = targetRoleBase, 0.5f, "Change RoleBase");
 
             killer.SetAbilityUseLimit(target.GetAbilityUseLimit());
 

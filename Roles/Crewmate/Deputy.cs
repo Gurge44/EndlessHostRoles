@@ -16,6 +16,8 @@ public class Deputy : RoleBase
     private static OptionItem DeputyHandcuffDelay;
     public static OptionItem UsePet;
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Deputy);
@@ -45,7 +47,6 @@ public class Deputy : RoleBase
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = HandcuffCooldown.GetFloat();
     public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && player.GetAbilityUseLimit() >= 1;
     public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
@@ -60,7 +61,7 @@ public class Deputy : RoleBase
 
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("DeputyHandcuffedPlayer")));
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 if (GameStates.IsInTask)
                 {
@@ -69,7 +70,7 @@ public class Deputy : RoleBase
                     if (target.IsModClient()) target.RpcResetAbilityCooldown();
                     if (!target.IsModClient()) target.RpcGuardAndKill(target);
                 }
-            }, DeputyHandcuffDelay.GetInt());
+            }, DeputyHandcuffDelay.GetInt(), "DeputyHandcuffDelay");
 
             killer.SetKillCooldown();
 

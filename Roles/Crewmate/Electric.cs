@@ -40,7 +40,7 @@ namespace EHR.Roles.Crewmate
             var beforeSpeed = Main.AllPlayerSpeed[target.PlayerId];
             Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
             target.MarkDirtySettings();
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 Main.AllPlayerSpeed[target.PlayerId] = beforeSpeed;
                 target.MarkDirtySettings();

@@ -62,7 +62,7 @@ namespace EHR.Roles.Neutral
         public override void Add(byte playerId)
         {
             SoulHunterId = playerId;
-            _ = new LateTask(() => { SoulHunter_ = GetPlayerById(playerId); }, 3f, log: false);
+            LateTask.New(() => { SoulHunter_ = GetPlayerById(playerId); }, 3f, log: false);
             Souls = 0;
             CurrentTarget = (byte.MaxValue, 0, false);
             LastUpdate = 0;
@@ -123,7 +123,7 @@ namespace EHR.Roles.Neutral
                 LastUpdate = 0;
                 Souls++;
                 SoulHunter_.Notify(GetString("SoulHunterNotifySuccess"));
-                _ = new LateTask(() => { SoulHunter_.SetKillCooldown(1f); }, 0.1f, log: false);
+                LateTask.New(() => { SoulHunter_.SetKillCooldown(1f); }, 0.1f, log: false);
                 Logger.Info("Killed Target", "SoulHunter");
                 SendRPC();
                 return true;

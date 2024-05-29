@@ -42,7 +42,7 @@ internal class ControllerManagerUpdatePatch
 
         if (GetKeysDown(KeyCode.LeftAlt, KeyCode.Return))
         {
-            _ = new LateTask(SetResolutionManager.Postfix, 0.01f, "Fix Button Position");
+            LateTask.New(SetResolutionManager.Postfix, 0.01f, "Fix Button Position");
         }
 
         if (Input.GetKeyDown(KeyCode.F1) && GameStates.InGame && Options.CurrentGameMode == CustomGameMode.Standard)

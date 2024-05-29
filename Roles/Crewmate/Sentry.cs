@@ -117,7 +117,7 @@ namespace EHR.Roles.Impostor
 
                 SentryPC.Notify($"{notify.TEXT}{text}", ShowInfoDuration.GetInt() - (Utils.TimeStamp - notify.TIMESTAMP));
 
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     if (NameNotifyManager.Notice.TryGetValue(SentryPC.PlayerId, out var laterNotify))
                     {
@@ -153,7 +153,7 @@ namespace EHR.Roles.Impostor
 
                     st.SentryPC.Notify($"{notify.TEXT}{text}", ShowInfoDuration.GetInt() - (Utils.TimeStamp - notify.TIMESTAMP));
 
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         if (NameNotifyManager.Notice.TryGetValue(st.SentryPC.PlayerId, out var laterNotify))
                         {

@@ -120,7 +120,7 @@ namespace EHR.Roles.Impostor
             Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
             pc.MarkDirtySettings();
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 Main.AllPlayerSpeed[pc.PlayerId] = speed;
                 pc.MarkDirtySettings();

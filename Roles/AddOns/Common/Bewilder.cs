@@ -8,16 +8,10 @@ namespace EHR.Roles.AddOns.Common
 
         public void SetupCustomOption()
         {
-            SetupAdtRoleOptions(15200, CustomRoles.Bewilder, canSetNum: true);
+            SetupAdtRoleOptions(15200, CustomRoles.Bewilder, canSetNum: true, teamSpawnOptions: true);
             BewilderVision = FloatOptionItem.Create(15210, "BewilderVision", new(0f, 5f, 0.05f), 0.6f, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bewilder])
                 .SetValueFormat(OptionFormat.Multiplier);
-            ImpCanBeBewilder = BooleanOptionItem.Create(15211, "ImpCanBeBewilder", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Bewilder]);
-            CrewCanBeBewilder = BooleanOptionItem.Create(15212, "CrewCanBeBewilder", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Bewilder]);
-            NeutralCanBeBewilder = BooleanOptionItem.Create(15213, "NeutralCanBeBewilder", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Bewilder]);
         }
     }
 }

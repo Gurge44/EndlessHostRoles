@@ -76,7 +76,7 @@ namespace EHR.Roles.Neutral
             NeutralKillCount = (0, r.Next(NeutralMinOpt.GetInt(), NeutralMaxOpt.GetInt() + 1));
             CrewKillCount = (0, r.Next(CrewMinOpt.GetInt(), CrewMaxOpt.GetInt() + 1));
 
-            _ = new LateTask(() => { Utils.SendRPC(CustomRPC.SyncImpartial, playerId, 1, ImpKillCount.Killed, ImpKillCount.Limit, NeutralKillCount.Killed, NeutralKillCount.Limit, CrewKillCount.Killed, CrewKillCount.Limit); }, 5f, log: false);
+            LateTask.New(() => { Utils.SendRPC(CustomRPC.SyncImpartial, playerId, 1, ImpKillCount.Killed, ImpKillCount.Limit, NeutralKillCount.Killed, NeutralKillCount.Limit, CrewKillCount.Killed, CrewKillCount.Limit); }, 5f, log: false);
         }
 
         public override void Init()

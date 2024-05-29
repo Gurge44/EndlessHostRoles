@@ -8,13 +8,7 @@ namespace EHR.Roles.AddOns.Common
 
         public void SetupCustomOption()
         {
-            SetupAdtRoleOptions(15400, CustomRoles.Oblivious, canSetNum: true);
-            ImpCanBeOblivious = BooleanOptionItem.Create(15410, "ImpCanBeOblivious", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
-            CrewCanBeOblivious = BooleanOptionItem.Create(15411, "CrewCanBeOblivious", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
-            NeutralCanBeOblivious = BooleanOptionItem.Create(15412, "NeutralCanBeOblivious", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
+            SetupAdtRoleOptions(15400, CustomRoles.Oblivious, canSetNum: true, teamSpawnOptions: true);
             ObliviousBaitImmune = BooleanOptionItem.Create(15413, "ObliviousBaitImmune", false, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Oblivious]);
         }

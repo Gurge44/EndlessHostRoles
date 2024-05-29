@@ -162,7 +162,7 @@ public static class MushroomMixupSabotageSystemPatch
         // When Mushroom Mixup Sabotage ends
         if (__instance.IsActive != __state && GameStates.IsInTask)
         {
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 // After MushroomMixup sabotage, shapeshift cooldown sets to 0
                 foreach (var pc in Main.AllAlivePlayerControls)

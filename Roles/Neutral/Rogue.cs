@@ -184,7 +184,7 @@ namespace EHR.Neutral
             CurrentTask.IsCompleted = true;
             SendRPC();
 
-            if (chatMessage) _ = new LateTask(() => { Utils.SendMessage("\n", RoguePC.PlayerId, Translator.GetString("Rogue.TaskCompleted")); }, 8f, log: false);
+            if (chatMessage) LateTask.New(() => { Utils.SendMessage("\n", RoguePC.PlayerId, Translator.GetString("Rogue.TaskCompleted")); }, 8f, log: false);
             else Utils.NotifyRoles(SpecifySeer: RoguePC, SpecifyTarget: RoguePC);
         }
 
@@ -242,7 +242,7 @@ namespace EHR.Neutral
 
                 if (objective == Objective.DontStopWalking)
                 {
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         Moving = true;
                         DoCheck = true;

@@ -33,7 +33,7 @@ namespace EHR
         public void Despawn()
         {
             PC.Despawn();
-            _ = new LateTask(() => AllObjects.Remove(Id), 0.001f, log: false);
+            LateTask.New(() => AllObjects.Remove(Id), 0.001f, log: false);
         }
 
         protected void Hide(PlayerControl player)
@@ -93,18 +93,18 @@ namespace EHR
             msg.Recycle();
             if (PlayerControl.AllPlayerControls.Contains(PC))
                 PlayerControl.AllPlayerControls.Remove(PC);
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 PC.RpcSetName(sprite);
                 PC.NetTransform.RpcSnapTo(position);
-            }, 0.1f);
+            }, 0.1f, log: false);
             PC.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
             PC.cosmetics.colorBlindText.color = Color.clear;
             AllObjects.Add(Id, this);
             foreach (var pc in Main.AllPlayerControls)
             {
                 if (pc.AmOwner) continue;
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     CustomRpcSender sender = CustomRpcSender.Create("SetFakeData");
                     MessageWriter writer = sender.stream;
@@ -127,7 +127,7 @@ namespace EHR
                     writer.EndMessage();
                     sender.EndMessage();
                     sender.SendMessage();
-                }, 0.1f);
+                }, 0.1f, log: false);
             }
         }
 
@@ -285,7 +285,7 @@ namespace EHR
     {
         internal Toilet(Vector2 position, IEnumerable<PlayerControl> hideList)
         {
-            CreateNetObject("INCOMPLETE", position);
+            CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<alpha=#00>\u2588<br><#e6e6e6>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<br><#e6e6e6>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<br><alpha=#00>\u2588<#e6e6e6>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#d3d4ce>\u2588<#dedede>\u2588<#dedede>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#bfbfbf>\u2588<#454545>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#bfbfbf>\u2588<br><alpha=#00>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#bfbfbf>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#dedede>\u2588<#dedede>\u2588<#dedede>\u2588<#dedede>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#dedede>\u2588<#dedede>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>", position);
             hideList.Do(Hide);
         }
     }

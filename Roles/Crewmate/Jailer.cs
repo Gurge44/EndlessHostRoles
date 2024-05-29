@@ -112,7 +112,7 @@ public class Jailor : RoleBase
 
         if (tpc.IsAlive())
         {
-            _ = new LateTask(() => { Utils.SendMessage(GetString("JailedNotifyMsg"), JailorTarget, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle"))); }, 0.3f, "JailorNotifyJailed");
+            LateTask.New(() => { Utils.SendMessage(GetString("JailedNotifyMsg"), JailorTarget, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle"))); }, 0.3f, "JailorNotifyJailed");
         }
     }
 }

@@ -20,7 +20,7 @@ namespace EHR.Roles.AddOns.GhostRoles
             target.MarkDirtySettings();
             target.Notify(Translator.GetString("WardenNotify"));
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 Main.AllPlayerSpeed[target.PlayerId] = speed;
                 target.MarkDirtySettings();

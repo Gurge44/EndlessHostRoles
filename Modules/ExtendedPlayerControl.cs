@@ -11,7 +11,6 @@ using EHR.Roles.AddOns.Impostor;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
-using HarmonyLib;
 using Hazel;
 using InnerNet;
 using UnityEngine;
@@ -208,7 +207,7 @@ static class ExtendedPlayerControl
         else if (!ReactorCheck) player.ReactorFlash(); // Reactor flash
 
         player.MarkDirtySettings();
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             Main.PlayerStates[player.PlayerId].IsBlackOut = false; // Cancel blackout
             player.MarkDirtySettings();
@@ -551,11 +550,11 @@ static class ExtendedPlayerControl
             _ => SystemTypes.Reactor,
         };
 
-        _ = new LateTask(() => { pc.RpcDesyncRepairSystem(systemtypes, 128); }, 0f + delay, "Reactor Desync");
+        LateTask.New(() => { pc.RpcDesyncRepairSystem(systemtypes, 128); }, 0f + delay, "Reactor Desync");
 
-        _ = new LateTask(() => { pc.RpcSpecificMurderPlayer(); }, 0.2f + delay, "Murder To Reset Cam");
+        LateTask.New(() => { pc.RpcSpecificMurderPlayer(); }, 0.2f + delay, "Murder To Reset Cam");
 
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             pc.RpcDesyncRepairSystem(systemtypes, 16);
             if (Main.NormalOptions.MapId == 4) // Airship only
@@ -580,7 +579,7 @@ static class ExtendedPlayerControl
 
         pc.RpcDesyncRepairSystem(systemtypes, 128);
 
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             pc.RpcDesyncRepairSystem(systemtypes, 16);
 
@@ -810,7 +809,7 @@ static class ExtendedPlayerControl
         Main.AllPlayerSpeed[killer.PlayerId] = Main.MinSpeed; //tmpSpeedで後ほど値を戻すので代入しています。
         ReportDeadBodyPatch.CanReport[killer.PlayerId] = false;
         killer.MarkDirtySettings();
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             Main.AllPlayerSpeed[killer.PlayerId] = Main.AllPlayerSpeed[killer.PlayerId] - Main.MinSpeed + tmpSpeed;
             ReportDeadBodyPatch.CanReport[killer.PlayerId] = true;
@@ -885,7 +884,7 @@ static class ExtendedPlayerControl
 
         if (killer.PlayerId == target.PlayerId && killer.shapeshifting)
         {
-            _ = new LateTask(() => { killer.RpcMurderPlayer(target, true); }, 1.5f, "Shapeshifting Suicide Delay");
+            LateTask.New(() => { killer.RpcMurderPlayer(target, true); }, 1.5f, "Shapeshifting Suicide Delay");
             return;
         }
 

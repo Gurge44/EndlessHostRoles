@@ -13,6 +13,8 @@ namespace EHR.Roles.Impostor
         private static OptionItem KCD;
         private static OptionItem Delay;
 
+        public override bool IsEnable => playerIdList.Count > 0;
+
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Nullifier);
@@ -39,8 +41,6 @@ namespace EHR.Roles.Impostor
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KCD.GetFloat();
 
-        public override bool IsEnable => playerIdList.Count > 0;
-
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (!IsEnable || killer == null || target == null) return false;
@@ -49,7 +49,7 @@ namespace EHR.Roles.Impostor
             {
                 killer.SetKillCooldown(time: NullCD.GetFloat());
                 killer.Notify(Translator.GetString("NullifierUseRemoved"));
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     switch (target.GetCustomRole())
                     {

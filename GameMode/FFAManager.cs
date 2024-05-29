@@ -152,7 +152,7 @@ internal static class FFAManager
                 }
             }
 
-            _ = new LateTask(() => { Utils.NotifyRoles(NoCache: true, ForceLoop: true); }, 10f, log: false);
+            LateTask.New(() => { Utils.NotifyRoles(NoCache: true, ForceLoop: true); }, 10f, log: false);
         }
     }
 
@@ -357,7 +357,7 @@ internal static class FFAManager
                 }
                 // Mixed
                 default:
-                    _ = new LateTask(() => { killer.TPtoRndVent(); }, 0.5f, "FFA-Event-TP");
+                    LateTask.New(() => { killer.TPtoRndVent(); }, 0.5f, "FFA-Event-TP");
                     killer.Notify(GetString("FFA-Event-GetTP"));
                     Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
                     break;

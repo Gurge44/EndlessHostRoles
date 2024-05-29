@@ -18,6 +18,7 @@ namespace EHR.Crewmate
         private static OptionItem ToiletVisibility;
         private static OptionItem ToiletUseRadius;
         private static OptionItem ToiletUseTime;
+        private static OptionItem ToiletMaxUses;
         private static OptionItem BrownPoopSpeedBoost;
         private static OptionItem GreenPoopRadius;
         private static OptionItem RedPoopRadius;
@@ -60,6 +61,8 @@ namespace EHR.Crewmate
             ToiletUseTime = IntegerOptionItem.Create(++id, "TM.ToiletUseTime", new(0, 60, 1), 5, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster])
                 .SetValueFormat(OptionFormat.Seconds);
+            ToiletMaxUses = IntegerOptionItem.Create(++id, "TM.ToiletMaxUses", new(0, 10, 1), 3, tab)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster]);
             BrownPoopSpeedBoost = FloatOptionItem.Create(++id, "TM.BrownPoopSpeedBoost", new(0f, 3f, 0.05f), 0.5f, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster])
                 .SetValueFormat(OptionFormat.Multiplier);
@@ -119,30 +122,35 @@ namespace EHR.Crewmate
             pc.RpcRemoveAbilityUse();
 
             if (ToiletVisible == ToiletVisibilityOptions.Delayed)
-                _ = new LateTask(() => Toilets[pos] = (new(pos, []), Toilets[pos].Uses, Toilets[pos].PlaceTimeStamp), 5f, log: false);
+                LateTask.New(() => Toilets[pos] = (new(pos, []), Toilets[pos].Uses, Toilets[pos].PlaceTimeStamp), 5f, log: false);
         }
 
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
         {
             if (lowLoad || !pc.IsAlive() || !GameStates.IsInTask) return;
 
-            if (ActivePoops.TryGetValue(pc.PlayerId, out var activePoop) && activePoop.TimeStamp + PoopDurationSettings[activePoop.Poop].GetInt() <= Utils.TimeStamp)
+            if (ActivePoops.TryGetValue(pc.PlayerId, out var activePoop))
             {
-                ActivePoops.Remove(pc.PlayerId);
-                switch (activePoop.Poop)
+                if (activePoop.TimeStamp + PoopDurationSettings[activePoop.Poop].GetInt() <= Utils.TimeStamp)
                 {
-                    case Poop.Brown:
-                        Main.AllPlayerSpeed[pc.PlayerId] -= BrownPoopSpeedBoost.GetFloat();
-                        break;
-                    case Poop.Red:
-                        var defaultSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-                        ((List<PlayerControl>)activePoop.Data).Do(x =>
-                        {
-                            Main.AllPlayerSpeed[x.PlayerId] = defaultSpeed;
-                            x.MarkDirtySettings();
-                        });
-                        break;
+                    ActivePoops.Remove(pc.PlayerId);
+                    switch (activePoop.Poop)
+                    {
+                        case Poop.Brown:
+                            Main.AllPlayerSpeed[pc.PlayerId] -= BrownPoopSpeedBoost.GetFloat();
+                            break;
+                        case Poop.Red:
+                            var defaultSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                            ((List<PlayerControl>)activePoop.Data).DoIf(x => x, x =>
+                            {
+                                Main.AllPlayerSpeed[x.PlayerId] = defaultSpeed;
+                                x.MarkDirtySettings();
+                            });
+                            break;
+                    }
                 }
+
+                return;
             }
 
             try
@@ -193,6 +201,7 @@ namespace EHR.Crewmate
                         break;
                 }
 
+                PlayersUsingToilet.Remove(pc.PlayerId);
                 Logger.Info($"{pc.GetNameWithRole()} used a toilet => {poop} poop", "ToiletMaster");
             }
             catch
@@ -229,7 +238,12 @@ namespace EHR.Crewmate
             LastUpdate = now;
 
             int duration = ToiletDuration.GetInt();
-            Toilets.DoIf(x => x.Value.PlaceTimeStamp + duration <= now, x => Toilets.Remove(x.Key));
+            int maxUses = ToiletMaxUses.GetInt();
+            Toilets.DoIf(x => x.Value.PlaceTimeStamp + duration <= now || x.Value.Uses >= maxUses, x =>
+            {
+                Toilets.Remove(x.Key);
+                x.Value.NetObject.Despawn();
+            });
         }
 
         public static bool OnAnyoneCheckMurderStart(PlayerControl killer, PlayerControl target)

@@ -7,9 +7,9 @@ namespace EHR.Roles.Crewmate
     {
         public static List<byte> playerIdList = [];
 
-        public static void SetupCustomOption() => Options.SetupRoleOptions(642640, TabGroup.CrewmateRoles, CustomRoles.GuessManagerRole);
-
         public override bool IsEnable => playerIdList.Count > 0;
+
+        public static void SetupCustomOption() => Options.SetupRoleOptions(642640, TabGroup.CrewmateRoles, CustomRoles.GuessManagerRole);
         public override void Init() => playerIdList = [];
         public override void Add(byte playerId) => playerIdList.Add(playerId);
 
@@ -17,7 +17,7 @@ namespace EHR.Roles.Crewmate
         {
             foreach (var guessManager in playerIdList)
             {
-                _ = new LateTask(() => { Utils.SendMessage(dp == pc ? string.Format(GetString("GuessManagerMessageAboutMisguess"), dp.GetRealName().Replace("\n", " + ")) : string.Format(GetString("GuessManagerMessageAboutGuessedRole"), dp.GetAllRoleName().Replace("\n", " + ")), guessManager); }, 1f, "Guess Manager Messages");
+                LateTask.New(() => { Utils.SendMessage(dp == pc ? string.Format(GetString("GuessManagerMessageAboutMisguess"), dp.GetRealName().Replace("\n", " + ")) : string.Format(GetString("GuessManagerMessageAboutGuessedRole"), dp.GetAllRoleName().Replace("\n", " + ")), guessManager); }, 1f, "Guess Manager Messages");
             }
         }
     }

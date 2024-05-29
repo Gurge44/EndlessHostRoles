@@ -5,8 +5,6 @@ namespace EHR.Roles.AddOns.Impostor
 {
     internal class Circumvent : IAddon
     {
-        public AddonTypes Type => AddonTypes.ImpOnly;
-
         private static Dictionary<byte, int> Limits = [];
 
         private static OptionItem VentPreventionMode;
@@ -18,6 +16,8 @@ namespace EHR.Roles.AddOns.Impostor
             "LimitPerGame",
             "LimitPerRounds"
         ];
+
+        public AddonTypes Type => AddonTypes.ImpOnly;
 
         public void SetupCustomOption()
         {
@@ -38,7 +38,7 @@ namespace EHR.Roles.AddOns.Impostor
         {
             if (VentPreventionMode.GetValue() == 0) return;
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 foreach (var state in Main.PlayerStates)
                 {
@@ -54,7 +54,7 @@ namespace EHR.Roles.AddOns.Impostor
         {
             if (VentPreventionMode.GetValue() == 0)
             {
-                _ = new LateTask(() => { physics.RpcBootFromVent(ventId); }, 0.5f, "Circumvent Boot From Vent");
+                LateTask.New(() => { physics.RpcBootFromVent(ventId); }, 0.5f, "Circumvent Boot From Vent");
                 return;
             }
 

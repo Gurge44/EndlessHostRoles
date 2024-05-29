@@ -82,11 +82,11 @@ public class Vampire : RoleBase
         if (Medic.ProtectList.Contains(target.PlayerId)) return false;
 
         killer.SetKillCooldown();
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             if (GameStates.IsInTask)
                 killer.SetKillCooldown();
-        }, OptionKillDelay.GetFloat());
+        }, OptionKillDelay.GetFloat(), "VampireKillCooldown");
         killer.RPCPlayCustomSound("Bite");
 
         if (!BittenPlayers.ContainsKey(target.PlayerId))

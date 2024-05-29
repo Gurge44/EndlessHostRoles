@@ -71,7 +71,7 @@ public class Tracefinder : RoleBase
         else delay = IRandom.Instance.Next((int)ArrowDelayMin.GetFloat(), (int)ArrowDelayMax.GetFloat() + 1);
         delay = Math.Max(delay, 0.15f);
 
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             if (GameStates.IsInTask)
             {

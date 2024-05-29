@@ -27,7 +27,7 @@ namespace EHR.Roles.AddOns.GhostRoles
 
         public void OnAssign(PlayerControl pc)
         {
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 var taskState = pc.GetTaskState();
                 if (taskState == null) return;

@@ -43,7 +43,7 @@ namespace EHR.Roles.Neutral
             On = true;
             IsWon = false;
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 RolesToKill = [];
 

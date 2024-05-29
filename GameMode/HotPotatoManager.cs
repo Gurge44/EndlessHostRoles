@@ -54,7 +54,7 @@ namespace EHR
 
         public static void OnGameStart()
         {
-            _ = new LateTask(() => { FixedUpdatePatch.Return = false; }, 7f, log: false);
+            LateTask.New(() => { FixedUpdatePatch.Return = false; }, 7f, log: false);
             HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 5, 1);
         }
 
@@ -96,13 +96,14 @@ namespace EHR
                     return;
                 }
 
-                if (HotPotatoState.HolderID != __instance.PlayerId || !Main.AllAlivePlayerControls.Any(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || Main.AllAlivePlayerControls.Length == 2) && Vector2.Distance(x.Pos(), Holder.Pos()) <= Range.GetFloat())) return;
+                PlayerControl[] aapc = Main.AllAlivePlayerControls;
+                if (HotPotatoState.HolderID != __instance.PlayerId || !aapc.Any(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || aapc.Length == 2) && Vector2.Distance(x.Pos(), Holder.Pos()) <= Range.GetFloat())) return;
 
                 UpdateDelay += UnityEngine.Time.fixedDeltaTime;
                 if (UpdateDelay < 0.3f) return;
                 UpdateDelay = 0;
 
-                var Target = Main.AllAlivePlayerControls.OrderBy(x => Vector2.Distance(x.Pos(), Holder.Pos())).FirstOrDefault(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || Main.AllAlivePlayerControls.Length == 2));
+                var Target = aapc.OrderBy(x => Vector2.Distance(x.Pos(), Holder.Pos())).FirstOrDefault(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || aapc.Length == 2));
                 if (Target == null) return;
 
                 PassHotPotato(Target, resetTime: false);
@@ -134,9 +135,9 @@ namespace EHR
                         Main.AllPlayerSpeed[HotPotatoState.LastHolderID] = DefaultSpeed;
                         LastHolder.MarkDirtySettings();
                         Utils.NotifyRoles(SpecifyTarget: LastHolder);
-                    }
 
-                    Logger.Info($"Hot Potato Passed: {LastHolder.GetRealName()} => {target.GetRealName()}", "HotPotato");
+                        Logger.Info($"Hot Potato Passed: {LastHolder.GetRealName()} => {target.GetRealName()}", "HotPotato");
+                    }
                 }
                 catch (Exception ex)
                 {

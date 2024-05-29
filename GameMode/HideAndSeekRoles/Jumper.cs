@@ -69,7 +69,7 @@ namespace EHR.GameMode.HideAndSeekRoles
         {
             if (physics.myPlayer.GetAbilityUseLimit() < 1f)
             {
-                _ = new LateTask(() => { physics.RpcBootFromVent(ventId); }, 0.5f, "Jumper no uses boot from vent");
+                LateTask.New(() => { physics.RpcBootFromVent(ventId); }, 0.5f, "Jumper no uses boot from vent");
             }
             else physics.myPlayer.RpcRemoveAbilityUse();
         }

@@ -204,7 +204,7 @@ namespace EHR.Roles.Impostor
 
             if (Tier >= 5)
             {
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     // ReSharper disable once ConditionIsAlwaysTrueOrFalse ---- Can be null since it's a task that completes later
                     if (target != null && target.IsAlive() && GameStates.IsInTask)
@@ -218,7 +218,7 @@ namespace EHR.Roles.Impostor
 
             if (Pistol1CD > 1 && Pistol2CD > 1)
             {
-                _ = new LateTask(() => { killer.SetKillCooldown(time: Math.Min(Pistol1CD, Pistol2CD) - 1); }, 0.1f, "Mafioso SetKillCooldown");
+                LateTask.New(() => { killer.SetKillCooldown(time: Math.Min(Pistol1CD, Pistol2CD) - 1); }, 0.1f, "Mafioso SetKillCooldown");
             }
 
             return true;

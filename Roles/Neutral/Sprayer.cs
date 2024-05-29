@@ -140,7 +140,7 @@ namespace EHR.Roles.Neutral
                     else
                     {
                         pc.MarkDirtySettings();
-                        _ = new LateTask(() =>
+                        LateTask.New(() =>
                         {
                             Main.AllPlayerSpeed[playerId] = tempSpeed;
                             LowerVisionList.Remove(playerId);

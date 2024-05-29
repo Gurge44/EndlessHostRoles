@@ -9,8 +9,8 @@ namespace EHR.Roles.Impostor
 {
     internal class Bomber : RoleBase
     {
-        private bool IsNuker;
         public static bool On;
+        private bool IsNuker;
         public override bool IsEnable => On;
 
         public static void SetupCustomOption()
@@ -115,7 +115,7 @@ namespace EHR.Roles.Impostor
                 tg.Suicide(PlayerState.DeathReason.Bombed, pc);
             }
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 var totalAlive = Main.AllAlivePlayerControls.Length;
                 if (BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded)

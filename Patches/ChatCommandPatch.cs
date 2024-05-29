@@ -334,6 +334,7 @@ internal class ChatCommands
                                 }
 
                                 Utils.SendMessage(string.Format(args[1] == "add" ? GetString("ComboAdd") : GetString("ComboBan"), GetString(mainRole.ToString()), GetString(addOn.ToString())), localPlayerId);
+                                Utils.SaveComboInfo();
                             }
 
                             break;
@@ -346,11 +347,13 @@ internal class ChatCommands
                                 {
                                     list3.Remove(addOn2);
                                     Utils.SendMessage(string.Format(GetString("ComboRemove"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), localPlayerId);
+                                    Utils.SaveComboInfo();
                                 }
                                 else if (Main.NeverSpawnTogetherCombos.TryGetValue(mainRole2, out var list4))
                                 {
                                     list4.Remove(addOn2);
                                     Utils.SendMessage(string.Format(GetString("ComboAllow"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), localPlayerId);
+                                    Utils.SaveComboInfo();
                                 }
                             }
 

@@ -60,7 +60,7 @@ public class HeadHunter : RoleBase
         playerIdList.Add(playerId);
         HeadHunterId = playerId;
         Targets = [];
-        _ = new LateTask(ResetTargets, 8f);
+        LateTask.New(ResetTargets, 8f, log: false);
         KCD = KillCooldown.GetFloat();
 
         if (!AmongUsClient.Instance.AmHost) return;

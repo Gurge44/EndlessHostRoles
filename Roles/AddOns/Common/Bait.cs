@@ -8,13 +8,7 @@ namespace EHR.Roles.AddOns.Common
 
         public void SetupCustomOption()
         {
-            SetupAdtRoleOptions(13700, CustomRoles.Bait, canSetNum: true);
-            ImpCanBeBait = BooleanOptionItem.Create(13710, "ImpCanBeBait", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Bait]);
-            CrewCanBeBait = BooleanOptionItem.Create(13711, "CrewCanBeBait", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Bait]);
-            NeutralCanBeBait = BooleanOptionItem.Create(13712, "NeutralCanBeBait", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Bait]);
+            SetupAdtRoleOptions(13700, CustomRoles.Bait, canSetNum: true, teamSpawnOptions: true);
             BaitDelayMin = FloatOptionItem.Create(13713, "BaitDelayMin", new(0f, 90f, 1f), 0f, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bait])
                 .SetValueFormat(OptionFormat.Seconds);

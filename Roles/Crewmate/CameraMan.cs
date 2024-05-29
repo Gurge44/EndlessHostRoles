@@ -71,7 +71,7 @@ namespace EHR.Roles.Crewmate
                     _ => throw new NotImplementedException(),
                 };
 
-                _ = new LateTask(() => { pc.TP(pos); }, UsePets.GetBool() ? 0.1f : 2f, "CameraMan Teleport");
+                LateTask.New(() => { pc.TP(pos); }, UsePets.GetBool() ? 0.1f : 2f, "CameraMan Teleport");
             }
             else
             {

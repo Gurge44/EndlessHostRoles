@@ -167,7 +167,7 @@ public class Judge : RoleBase
                     pc.RpcRemoveAbilityUse();
                     GlobalUseLimit[pc.PlayerId]--;
 
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         Main.PlayerStates[dp.PlayerId].deathReason = PlayerState.DeathReason.Trialed;
                         dp.SetRealKiller(pc);
@@ -177,7 +177,7 @@ public class Judge : RoleBase
 
                         Utils.NotifyRoles(isForMeeting: false, NoCache: true);
 
-                        _ = new LateTask(() => { Utils.SendMessage(string.Format(GetString("TrialKill"), Name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("TrialKillTitle"))); }, 0.6f, "Guess Msg");
+                        LateTask.New(() => { Utils.SendMessage(string.Format(GetString("TrialKill"), Name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("TrialKillTitle"))); }, 0.6f, "Guess Msg");
                     }, 0.2f, "Trial Kill");
                 }
 

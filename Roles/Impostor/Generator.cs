@@ -118,7 +118,7 @@ namespace EHR.Roles.Impostor
 
                 if (Charges < cost)
                 {
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         physics.RpcBootFromVent(ventId);
                         physics.myPlayer.Notify(string.Format(Translator.GetString("Generator.Notify.NotEnoughCharges"), cost));

@@ -73,7 +73,7 @@ public class EvilTracker : RoleBase
         CanSetTarget = CurrentTargetMode != TargetMode.Never;
         EvilTrackerId = playerId;
 
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             foreach (var id in ImpostorsId)
             {

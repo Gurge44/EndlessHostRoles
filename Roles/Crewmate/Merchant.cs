@@ -114,8 +114,8 @@ namespace EHR.Roles.Crewmate
 
             if (AllAlivePlayer.Count <= 0) return;
 
-            bool helpfulAddon = GroupedAddons[AddonTypes.Helpful].Contains(addon);
-            bool harmfulAddon = GroupedAddons[AddonTypes.Harmful].Contains(addon);
+            bool helpfulAddon = GroupedAddons.TryGetValue(AddonTypes.Helpful, out var helpful) && helpful.Contains(addon);
+            bool harmfulAddon = GroupedAddons.TryGetValue(AddonTypes.Harmful, out var harmful) && harmful.Contains(addon);
 
             if (helpfulAddon && OptionSellOnlyHarmfulToEvil.GetBool()) AllAlivePlayer.RemoveAll(x => !x.Is(Team.Crewmate));
             if (harmfulAddon && OptionSellOnlyHelpfulToCrew.GetBool()) AllAlivePlayer.RemoveAll(x => x.Is(Team.Crewmate));

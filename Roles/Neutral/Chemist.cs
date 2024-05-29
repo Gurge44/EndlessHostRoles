@@ -174,7 +174,7 @@ namespace EHR.Roles.Neutral
             Instances = [];
 
             FactoryLocations = [];
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 FactoryLocations = ShipStatus.Instance.AllRooms
                     .Select(x => Translator.GetString($"{x.RoomId}"))
@@ -357,7 +357,7 @@ namespace EHR.Roles.Neutral
 
                 IsBlinding = true;
                 Utils.MarkEveryoneDirtySettings();
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     if (IsBlinding)
                     {

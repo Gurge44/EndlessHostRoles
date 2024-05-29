@@ -487,7 +487,7 @@ class CheckForEndVotingPatch
         name = name.Replace("color=", string.Empty) + "<size=0>";
         EjectionText = name.Split('\n')[DecidedWinner ? 1 : 0];
 
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             Main.DoBlockNameChange = true;
             if (GameStates.IsInGame && player != null && !player.Data.Disconnected)
@@ -496,7 +496,7 @@ class CheckForEndVotingPatch
                 player.RpcSetName(name);
             }
         }, 2.5f, "Change Exiled Player Name");
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             if (GameStates.IsInGame && player != null && !player.Data.Disconnected)
             {
@@ -656,7 +656,7 @@ class MeetingHudStartPatch
 
         if (msgToSend.Count > 0)
         {
-            _ = new LateTask(() => { msgToSend.Do(x => Utils.SendMessage(x.MESSAGE, x.TARGET_ID, x.TITLE)); }, 3f, "Skill Description First Meeting");
+            LateTask.New(() => { msgToSend.Do(x => Utils.SendMessage(x.MESSAGE, x.TARGET_ID, x.TITLE)); }, 3f, "Skill Description First Meeting");
         }
 
         if (Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.GetCount() > 0)
@@ -745,7 +745,7 @@ class MeetingHudStartPatch
 
         if (msgToSend.Count > 0)
         {
-            _ = new LateTask(() => { msgToSend.Do(x => Utils.SendMessage(x.MESSAGE, x.TARGET_ID, x.TITLE)); }, 6f, "Meeting Start Notify");
+            LateTask.New(() => { msgToSend.Do(x => Utils.SendMessage(x.MESSAGE, x.TARGET_ID, x.TITLE)); }, 6f, "Meeting Start Notify");
         }
 
         Main.CyberStarDead.Clear();
@@ -775,8 +775,8 @@ class MeetingHudStartPatch
         SoundManager.Instance.ChangeAmbienceVolume(0f);
         if (!GameStates.IsModHost) return;
 
-        GuessManager.textTemplate = Object.Instantiate(__instance.playerStates[0].NameText);
-        GuessManager.textTemplate.enabled = false;
+        GuessManager.TextTemplate = Object.Instantiate(__instance.playerStates[0].NameText);
+        GuessManager.TextTemplate.enabled = false;
 
         foreach (var pva in __instance.playerStates)
         {
@@ -845,7 +845,7 @@ class MeetingHudStartPatch
 
         if (AntiBlackout.OverrideExiledPlayer && MeetingStates.FirstMeeting)
         {
-            _ = new LateTask(() => { Utils.SendMessage(GetString("Warning.OverrideExiledPlayer"), 255, Utils.ColorString(Color.red, GetString("DefaultSystemMessageTitle"))); }, 5f, "Warning OverrideExiledPlayer");
+            LateTask.New(() => { Utils.SendMessage(GetString("Warning.OverrideExiledPlayer"), 255, Utils.ColorString(Color.red, GetString("DefaultSystemMessageTitle"))); }, 5f, "Warning OverrideExiledPlayer");
         }
 
         TemplateManager.SendTemplate("OnMeeting", noErr: true);
@@ -856,7 +856,7 @@ class MeetingHudStartPatch
 
         if (AmongUsClient.Instance.AmHost)
         {
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {

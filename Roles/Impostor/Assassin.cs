@@ -17,13 +17,15 @@ internal class Assassin : RoleBase
     private static OptionItem MarkCooldownOpt;
     public static OptionItem AssassinateCooldownOpt;
     private static OptionItem CanKillAfterAssassinateOpt;
-
-    private float MarkCooldown;
     private float AssassinateCooldown;
     private bool CanKillAfterAssassinate;
+    private bool IsUndertaker;
+
+    private float MarkCooldown;
 
     public byte MarkedPlayer;
-    private bool IsUndertaker;
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
@@ -64,8 +66,6 @@ internal class Assassin : RoleBase
             CanKillAfterAssassinate = CanKillAfterAssassinateOpt.GetBool();
         }
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     void SendRPC(byte playerId)
     {
@@ -137,7 +137,7 @@ internal class Assassin : RoleBase
             if (IsUndertaker) target.TP(pc);
             else pc.TP(target);
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 if (!(target == null || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask) && pc.RpcCheckAndMurder(target))
                 {

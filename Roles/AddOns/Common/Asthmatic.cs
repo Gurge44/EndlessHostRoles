@@ -50,7 +50,7 @@ namespace EHR.Roles.AddOns.Common
 
         public static void Add()
         {
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 var r = IRandom.Instance;
                 var now = Utils.TimeStamp;

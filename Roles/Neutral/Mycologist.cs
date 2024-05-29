@@ -127,7 +127,7 @@ namespace EHR.Roles.Neutral
         {
             if (!IsEnable || Mycologist_.HasAbilityCD()) return;
             Mycologist_.AddAbilityCD(CD.GetInt());
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 InfectedPlayers.AddRange(GetPlayersInRadius(InfectRadius.GetFloat(), Mycologist_.Pos()).Select(x => x.PlayerId));
                 SendRPC();

@@ -83,7 +83,7 @@ namespace EHR.Roles.Neutral
             Data = ((new(), string.Empty, null), string.Empty, default, string.Empty, 0, string.Empty, 0, 0, 0, 0, 0);
 
             AllColors = [];
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 foreach (var kvp in Main.PlayerColors)
                 {

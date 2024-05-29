@@ -53,7 +53,7 @@ namespace EHR.Roles.Crewmate
                 player.RPCPlayCustomSound("Congrats");
                 GameData.Instance.CompletedTasks = GameData.Instance.TotalTasks;
                 Logger.Info($"TotalTaskCounts = {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}", "TaskState.Update");
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     if (!GameStates.IsEnded) CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Crewmate);
                 }, 1f, log: false);

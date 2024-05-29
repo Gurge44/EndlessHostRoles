@@ -144,7 +144,7 @@ namespace EHR.Roles.Impostor
                         return false;
                     case 4: // Swap with random player
                         killer.Notify(GetString("GamblerGet.Swap"));
-                        _ = new LateTask(() =>
+                        LateTask.New(() =>
                         {
                             if (GameStates.IsInTask && killer.IsAlive())
                             {
@@ -176,7 +176,7 @@ namespace EHR.Roles.Impostor
                         return false;
                     case 6: // Low KCD
                         killer.Notify(string.Format(GetString("GamblerGet.LowKCD"), LowKCD.GetFloat()));
-                        _ = new LateTask(() => { killer.SetKillCooldown(LowKCD.GetFloat()); }, 0.1f, "Gambler SetLowKCD");
+                        LateTask.New(() => { killer.SetKillCooldown(LowKCD.GetFloat()); }, 0.1f, "Gambler SetLowKCD");
                         break;
                     case 7: // Speed
                         killer.Notify(string.Format(GetString("GamblerGet.Speedup"), SpeedDur.GetInt(), Speed.GetFloat()));
@@ -201,7 +201,7 @@ namespace EHR.Roles.Impostor
                             killer.Notify(string.Format(GetString("GamblerGet.BSR"), BSRDelay.GetInt()));
                         }
 
-                        _ = new LateTask(() =>
+                        LateTask.New(() =>
                         {
                             if (GameStates.IsInTask) killer.CmdReportDeadBody(target.Data);
                         }, delay, "Gambler Self Report");
@@ -219,7 +219,7 @@ namespace EHR.Roles.Impostor
                         break;
                     case 4: // High KCD
                         killer.Notify(string.Format(GetString("GamblerGet.HighKCD"), HighKCD.GetFloat()));
-                        _ = new LateTask(() => { killer.SetKillCooldown(HighKCD.GetFloat()); }, 0.1f, "Gambler SetHighKCD");
+                        LateTask.New(() => { killer.SetKillCooldown(HighKCD.GetFloat()); }, 0.1f, "Gambler SetHighKCD");
                         break;
                     default:
                         Logger.Error("Invalid Effect ID (negative)", "Gambler.OnCheckMurder");

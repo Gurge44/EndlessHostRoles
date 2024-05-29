@@ -125,7 +125,7 @@ namespace EHR.Roles.Crewmate
             Main.AllPlayerSpeed[addict.PlayerId] = Main.MinSpeed;
             ReportDeadBodyPatch.CanReport[addict.PlayerId] = false;
             addict.MarkDirtySettings();
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 Main.AllPlayerSpeed[addict.PlayerId] = DefaultSpeed;
                 ReportDeadBodyPatch.CanReport[addict.PlayerId] = true;

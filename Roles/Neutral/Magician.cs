@@ -207,7 +207,7 @@ public class Magician : RoleBase
                         NotifyRoles(SpecifySeer: x);
                     }
 
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         foreach (PlayerControl x in list1)
                         {
@@ -239,7 +239,7 @@ public class Magician : RoleBase
                 Main.AllPlayerSpeed[pc.PlayerId] = Speed.GetFloat();
                 isSpeedup = true;
                 sync = true;
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     Main.AllPlayerSpeed[pc.PlayerId] = originalSpeed;
                     pc.MarkDirtySettings();
@@ -349,7 +349,7 @@ public class Magician : RoleBase
                 Bombs.Remove(bomb.Key);
                 pc.Notify(GetString("MagicianBombExploded"));
                 if (b)
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         if (!GameStates.IsEnded)
                         {

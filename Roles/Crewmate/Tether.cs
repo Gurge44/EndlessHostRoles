@@ -88,7 +88,7 @@ namespace EHR.Roles.Crewmate
 
             if (Target != byte.MaxValue)
             {
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     if (GameStates.IsInTask)
                     {
@@ -98,7 +98,7 @@ namespace EHR.Roles.Crewmate
             }
             else if (!isPet)
             {
-                _ = new LateTask(() => { pc.MyPhysics?.RpcBootFromVent(ventId); }, 0.5f, "Tether No Target Boot From Vent");
+                LateTask.New(() => { pc.MyPhysics?.RpcBootFromVent(ventId); }, 0.5f, "Tether No Target Boot From Vent");
             }
         }
 

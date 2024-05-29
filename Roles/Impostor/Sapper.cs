@@ -108,7 +108,7 @@ namespace EHR.Roles.Impostor
                 Bombs.Remove(bomb.Key);
                 pc.Notify(GetString("MagicianBombExploded"));
                 if (b)
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         if (!GameStates.IsEnded)
                         {

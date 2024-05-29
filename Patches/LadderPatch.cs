@@ -39,7 +39,7 @@ public class FallFromLadder
             if (player.Data.IsDead) return;
             // In order to insert LateTask, first enter the death judgment.
             player.Data.IsDead = true;
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 Vector2 targetPos = (Vector2)TargetLadderData[player.PlayerId] + new Vector2(0.1f, 0f);
                 ushort num = (ushort)(NetHelpers.XRange.ReverseLerp(targetPos.x) * 65535f);

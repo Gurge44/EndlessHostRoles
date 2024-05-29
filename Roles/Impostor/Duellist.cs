@@ -15,6 +15,8 @@ namespace EHR.Roles.Impostor
         private static Dictionary<byte, byte> DuelPair = [];
         private static OptionItem SSCD;
 
+        public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
+
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Duellist);
@@ -33,8 +35,6 @@ namespace EHR.Roles.Impostor
         {
             playerIdList.Add(playerId);
         }
-
-        public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
@@ -84,11 +84,11 @@ namespace EHR.Roles.Impostor
                         break;
                     case true when !TAlive:
                         DuelPair.Remove(pair.Key);
-                        _ = new LateTask(() => { duellist.TPtoRndVent(); }, 0.5f, log: false);
+                        LateTask.New(() => { duellist.TPtoRndVent(); }, 0.5f, log: false);
                         break;
                     case false:
                         DuelPair.Remove(pair.Key);
-                        _ = new LateTask(() => { target.TPtoRndVent(); }, 0.5f, log: false);
+                        LateTask.New(() => { target.TPtoRndVent(); }, 0.5f, log: false);
                         break;
                 }
             }

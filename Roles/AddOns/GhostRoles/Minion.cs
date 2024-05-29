@@ -17,7 +17,7 @@ namespace EHR.Roles.AddOns.GhostRoles
             if (!BlindPlayers.Add(target.PlayerId)) return;
             target.MarkDirtySettings();
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 if (BlindPlayers.Remove(target.PlayerId))
                 {

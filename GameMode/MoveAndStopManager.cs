@@ -164,6 +164,22 @@ internal class MoveAndStopManager
 {
     private static Dictionary<byte, MoveAndStopPlayerData> AllPlayerTimers = [];
 
+    private static OptionItem MoveAndStop_GameTime;
+    private static OptionItem MoveAndStop_RightCounterGreenMin;
+    private static OptionItem MoveAndStop_RightCounterRedMin;
+    private static OptionItem MoveAndStop_RightCounterGreenMax;
+    private static OptionItem MoveAndStop_RightCounterRedMax;
+    private static OptionItem MoveAndStop_LeftCounterGreenMin;
+    private static OptionItem MoveAndStop_LeftCounterRedMin;
+    private static OptionItem MoveAndStop_LeftCounterGreenMax;
+    private static OptionItem MoveAndStop_LeftCounterRedMax;
+    private static OptionItem MoveAndStop_MiddleCounterGreenMin;
+    private static OptionItem MoveAndStop_MiddleCounterRedMin;
+    private static OptionItem MoveAndStop_MiddleCounterGreenMax;
+    private static OptionItem MoveAndStop_MiddleCounterRedMax;
+    private static OptionItem MoveAndStop_ExtraGreenTimeOnAirhip;
+    private static OptionItem MoveAndStop_ExtraGreenTimeOnFungle;
+
     private static IRandom Random => IRandom.Instance;
 
     public static int RoundTime { get; set; }
@@ -176,6 +192,13 @@ internal class MoveAndStopManager
         MapNames.Fungle => MoveAndStop_ExtraGreenTimeOnFungle.GetInt(),
         _ => 0
     };
+
+    private static IntegerValueRule CounterValueRule => new(1, 100, 1);
+    private static IntegerValueRule ExtraTimeValue => new(0, 50, 1);
+    private static int DefaultMinValue => 5;
+    private static int DefaultMaxValue => 30;
+
+    public static string HUDText => string.Format(GetString("KBTimeRemain"), RoundTime.ToString());
 
     public static int RandomRedTime(char direction) => direction switch
     {
@@ -193,27 +216,7 @@ internal class MoveAndStopManager
         _ => throw new NotImplementedException(),
     };
 
-    private static OptionItem MoveAndStop_GameTime;
-    private static OptionItem MoveAndStop_RightCounterGreenMin;
-    private static OptionItem MoveAndStop_RightCounterRedMin;
-    private static OptionItem MoveAndStop_RightCounterGreenMax;
-    private static OptionItem MoveAndStop_RightCounterRedMax;
-    private static OptionItem MoveAndStop_LeftCounterGreenMin;
-    private static OptionItem MoveAndStop_LeftCounterRedMin;
-    private static OptionItem MoveAndStop_LeftCounterGreenMax;
-    private static OptionItem MoveAndStop_LeftCounterRedMax;
-    private static OptionItem MoveAndStop_MiddleCounterGreenMin;
-    private static OptionItem MoveAndStop_MiddleCounterRedMin;
-    private static OptionItem MoveAndStop_MiddleCounterGreenMax;
-    private static OptionItem MoveAndStop_MiddleCounterRedMax;
-    private static OptionItem MoveAndStop_ExtraGreenTimeOnAirhip;
-    private static OptionItem MoveAndStop_ExtraGreenTimeOnFungle;
-
     private static string CounterSettingString(string direction, bool red, bool min) => $"MoveAndStop_{direction}Counter{(red ? "Red" : "Green")}{(min ? "Min" : "Max")}";
-    private static IntegerValueRule CounterValueRule => new(1, 100, 1);
-    private static IntegerValueRule ExtraTimeValue => new(0, 50, 1);
-    private static int DefaultMinValue => 5;
-    private static int DefaultMaxValue => 30;
 
     private static OptionItem CreateSetting(int Id, string direction, bool red, bool min) =>
         IntegerOptionItem.Create(Id, CounterSettingString(direction, red, min), CounterValueRule, min ? DefaultMinValue : DefaultMaxValue, TabGroup.GameSettings)
@@ -268,7 +271,7 @@ internal class MoveAndStopManager
         RoundTime = MoveAndStop_GameTime.GetInt() + 8;
 
         FixedUpdatePatch.DoChecks = false;
-        _ = new LateTask(() => { FixedUpdatePatch.DoChecks = true; }, 10f, log: false);
+        LateTask.New(() => { FixedUpdatePatch.DoChecks = true; }, 10f, log: false);
 
         long now = Utils.TimeStamp;
 
@@ -311,7 +314,6 @@ internal class MoveAndStopManager
         }
     }
 
-    public static string HUDText => string.Format(GetString("KBTimeRemain"), RoundTime.ToString());
     public static string GetSuffixText(PlayerControl pc) => !pc.IsAlive() ? string.Empty : AllPlayerTimers.TryGetValue(pc.PlayerId, out var timers) ? timers.ToString() : string.Empty;
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]

@@ -16,31 +16,8 @@ internal class Cloud
 
     //private static Socket ClientSocket;
     private static Socket EacClientSocket;
+
     private static long LastRepotTimeStamp;
-
-    public static void Init()
-    {
-        try
-        {
-            var content = GetResourcesTxt("EHR.Resources.Config.Port.txt");
-            string[] ar = content.Split('|');
-            IP = ar[0];
-            //LOBBY_PORT = int.Parse(ar[1]);
-            EAC_PORT = int.Parse(ar[2]);
-        }
-        catch (Exception e)
-        {
-            Logger.Exception(e, "Cloud Init");
-        }
-    }
-
-    private static string GetResourcesTxt(string path)
-    {
-        var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
-        stream.Position = 0;
-        using StreamReader reader = new(stream, Encoding.UTF8);
-        return reader.ReadToEnd();
-    }
     /*public static bool ShareLobby(bool command = false)
     {
         try
@@ -77,11 +54,35 @@ internal class Cloud
 
     private static bool connecting;
 
+    public static void Init()
+    {
+        try
+        {
+            var content = GetResourcesTxt("EHR.Resources.Config.Port.txt");
+            string[] ar = content.Split('|');
+            IP = ar[0];
+            //LOBBY_PORT = int.Parse(ar[1]);
+            EAC_PORT = int.Parse(ar[2]);
+        }
+        catch (Exception e)
+        {
+            Logger.Exception(e, "Cloud Init");
+        }
+    }
+
+    private static string GetResourcesTxt(string path)
+    {
+        var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
+        stream.Position = 0;
+        using StreamReader reader = new(stream, Encoding.UTF8);
+        return reader.ReadToEnd();
+    }
+
     public static void StartConnect()
     {
         if (connecting || (EacClientSocket != null && EacClientSocket.Connected)) return;
         connecting = true;
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             if (!AmongUsClient.Instance.AmHost || !GameData.Instance || AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame)
             {

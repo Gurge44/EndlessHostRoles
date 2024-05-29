@@ -146,7 +146,7 @@ public class WeaponMaster : RoleBase
             case 0:
                 return true;
             case 1:
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     foreach (PlayerControl player in Main.AllAlivePlayerControls)
                     {

@@ -17,7 +17,7 @@ class SetUpRoleTextPatch
     public static void Postfix(IntroCutscene __instance)
     {
         if (!GameStates.IsModHost) return;
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             switch (Options.CurrentGameMode)
             {
@@ -602,7 +602,7 @@ class IntroCutsceneDestroyPatch
 
                 if (Options.StartingKillCooldown.GetInt() is not 10 and > 0)
                 {
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         Main.AllPlayerControls.Do(x => x.ResetKillCooldown());
                         Main.AllPlayerControls.Do(pc => pc.SetKillCooldown(Options.StartingKillCooldown.GetInt() - 2));
@@ -610,7 +610,7 @@ class IntroCutsceneDestroyPatch
                 }
                 else if (Options.FixFirstKillCooldown.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard)
                 {
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         Main.AllPlayerControls.Do(x => x.ResetKillCooldown());
                         Main.AllPlayerControls.Where(x => (Main.AllPlayerKillCooldown[x.PlayerId] - 2f) > 0f).Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
@@ -626,7 +626,7 @@ class IntroCutsceneDestroyPatch
             };
             if (chat) Utils.SetChatVisible();
 
-            // _ = new LateTask(() => Main.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
+            // LateTask.New(() => Main.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 
             if (Options.UsePets.GetBool())
             {
@@ -637,7 +637,7 @@ class IntroCutsceneDestroyPatch
 
                 var r = IRandom.Instance;
 
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     foreach (var pc in Main.AllAlivePlayerControls)
                     {
@@ -649,7 +649,7 @@ class IntroCutsceneDestroyPatch
                 }, 0.3f, "Grant Pet For Everyone");
                 try
                 {
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         try
                         {
@@ -677,7 +677,7 @@ class IntroCutsceneDestroyPatch
                 {
                 }
 
-                _ = new LateTask(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
+                LateTask.New(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
             }
 
             if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))

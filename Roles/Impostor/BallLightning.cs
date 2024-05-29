@@ -101,7 +101,7 @@ public class BallLightning : RoleBase
 
     private static void StartConvertCountDown(PlayerControl killer, PlayerControl target)
     {
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             if (GameStates.IsInGame && GameStates.IsInTask && !GameStates.IsMeeting && target.IsAlive() && !Pelican.IsEaten(target.PlayerId))
             {

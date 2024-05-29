@@ -45,7 +45,7 @@ namespace EHR.Roles.Impostor
         {
             if (shapeshifting)
             {
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     if (!(!GameStates.IsInTask || !shapeshifter.IsAlive() || !target.IsAlive() || shapeshifter.inVent || target.inVent))
                     {

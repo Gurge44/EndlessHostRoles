@@ -73,7 +73,7 @@ public class Vulture : RoleBase
         BodyReportCount = 0;
         playerId.SetAbilityUseLimit(MaxEaten.GetInt());
         LastReport = Utils.TimeStamp;
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             if (GameStates.IsInTask)
             {
@@ -108,7 +108,7 @@ public class Vulture : RoleBase
             {
                 apc.SetAbilityUseLimit(MaxEaten.GetInt());
                 LastReport = Utils.TimeStamp;
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     if (GameStates.IsInTask)
                     {

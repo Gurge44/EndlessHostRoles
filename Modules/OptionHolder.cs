@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -35,7 +34,7 @@ public static class Options
 
     public static OptionItem GameMode;
 
-    public static readonly string[] GameModes =
+    private static readonly string[] GameModes =
     [
         "Standard",
         "SoloKombat",
@@ -45,8 +44,8 @@ public static class Options
         "HideAndSeek"
     ];
 
-    public static Dictionary<CustomRoles, int> roleCounts;
-    public static Dictionary<CustomRoles, float> roleSpawnChances;
+    private static Dictionary<CustomRoles, int> roleCounts;
+    private static Dictionary<CustomRoles, float> roleSpawnChances;
     public static Dictionary<CustomRoles, OptionItem> CustomRoleCounts;
     public static Dictionary<CustomRoles, StringOptionItem> CustomRoleSpawnChances;
     public static Dictionary<CustomRoles, IntegerOptionItem> CustomAdtRoleSpawnRate;
@@ -83,7 +82,7 @@ public static class Options
         "RoleRate",
     ];
 
-    public static readonly string[] CheatResponsesName =
+    private static readonly string[] CheatResponsesName =
     [
         "Ban",
         "Kick",
@@ -92,14 +91,14 @@ public static class Options
         "OnlyCancel"
     ];
 
-    public static readonly string[] ConfirmEjectionsMode =
+    private static readonly string[] ConfirmEjectionsMode =
     [
         "ConfirmEjections.None",
         "ConfirmEjections.Team",
         "ConfirmEjections.Role"
     ];
 
-    public static readonly string[] CamouflageMode =
+    private static readonly string[] CamouflageMode =
     [
         "CamouflageMode.Default",
         "CamouflageMode.Host",
@@ -213,27 +212,12 @@ public static class Options
     public static OptionItem EGTryHideMsg;
     public static OptionItem ScavengerKillCooldown;
     public static OptionItem ScavengerKillDuration;
-    public static OptionItem ZombieKillCooldown;
-    public static OptionItem ZombieSpeedReduce;
     public static OptionItem GGCanGuessCrew;
     public static OptionItem GGCanGuessAdt;
     public static OptionItem GGCanGuessTime;
     public static OptionItem GGTryHideMsg;
     public static OptionItem LuckeyProbability;
     public static OptionItem LuckyProbability;
-    public static OptionItem PuppeteerKCD;
-    public static OptionItem PuppeteerCD;
-    public static OptionItem PuppeteerCanKillNormally;
-    public static OptionItem PuppeteerManipulationBypassesLazy;
-    public static OptionItem PuppeteerManipulationBypassesLazyGuy;
-    public static OptionItem PuppeteerPuppetCanKillPuppeteer;
-    public static OptionItem PuppeteerPuppetCanKillImpostors;
-    public static OptionItem PuppeteerMaxPuppets;
-    public static OptionItem PuppeteerDiesAfterMaxPuppets;
-    public static OptionItem PuppeteerMinDelay;
-    public static OptionItem PuppeteerMaxDelay;
-    public static OptionItem PuppeteerManipulationEndsAfterFixedTime;
-    public static OptionItem PuppeteerManipulationEndsAfterTime;
     public static OptionItem VindicatorAdditionalVote;
     public static OptionItem VindicatorHideVote;
     public static OptionItem OppoImmuneToAttacksWhenTasksDone;
@@ -290,6 +274,8 @@ public static class Options
     public static OptionItem NukeCooldown;
     public static OptionItem ReportBaitAtAllCost;
 
+    public static OptionItem GuesserDoesntDieOnMisguess;
+
     public static OptionItem SkeldChance;
     public static OptionItem MiraChance;
     public static OptionItem PolusChance;
@@ -340,52 +326,10 @@ public static class Options
     public static OptionItem AlliesKnowCrewpostor;
     public static OptionItem CrewpostorKillAfterTask;
     public static OptionItem CrewpostorLungeKill;
-    public static OptionItem ImpCanBeSeer;
-    public static OptionItem CrewCanBeSeer;
-    public static OptionItem NeutralCanBeSeer;
-    public static OptionItem ImpCanBeAutopsy;
-    public static OptionItem CrewCanBeAutopsy;
-    public static OptionItem NeutralCanBeAutopsy;
-    public static OptionItem ImpCanBeBewilder;
-    public static OptionItem CrewCanBeBewilder;
-    public static OptionItem NeutralCanBeBewilder;
-    public static OptionItem ImpCanBeSunglasses;
-    public static OptionItem CrewCanBeSunglasses;
-    public static OptionItem NeutralCanBeSunglasses;
-    public static OptionItem ImpCanBeGlow;
-    public static OptionItem CrewCanBeGlow;
-    public static OptionItem NeutralCanBeGlow;
-    public static OptionItem ImpCanBeGuesser;
-    public static OptionItem CrewCanBeGuesser;
-    public static OptionItem NeutralCanBeGuesser;
-    public static OptionItem ImpCanBeWatcher;
-    public static OptionItem CrewCanBeWatcher;
-    public static OptionItem NeutralCanBeWatcher;
-    public static OptionItem ImpCanBeNecroview;
-    public static OptionItem CrewCanBeNecroview;
-    public static OptionItem NeutralCanBeNecroview;
-    public static OptionItem ImpCanBeOblivious;
-    public static OptionItem CrewCanBeOblivious;
-    public static OptionItem NeutralCanBeOblivious;
     public static OptionItem ObliviousBaitImmune;
-    public static OptionItem ImpCanBeTiebreaker;
-    public static OptionItem CrewCanBeTiebreaker;
-    public static OptionItem NeutralCanBeTiebreaker;
-    public static OptionItem ImpCanBeOnbound;
-    public static OptionItem CrewCanBeOnbound;
-    public static OptionItem NeutralCanBeOnbound;
     public static OptionItem ImpCanBeInLove;
     public static OptionItem CrewCanBeInLove;
     public static OptionItem NeutralCanBeInLove;
-    public static OptionItem ImpCanBeUnreportable;
-    public static OptionItem CrewCanBeUnreportable;
-    public static OptionItem NeutralCanBeUnreportable;
-    public static OptionItem ImpCanBeLucky;
-    public static OptionItem CrewCanBeLucky;
-    public static OptionItem NeutralCanBeLucky;
-    public static OptionItem ImpCanBeUnlucky;
-    public static OptionItem CrewCanBeUnlucky;
-    public static OptionItem NeutralCanBeUnlucky;
     public static OptionItem UnluckyTaskSuicideChance;
     public static OptionItem UnluckyKillSuicideChance;
     public static OptionItem UnluckyVentSuicideChance;
@@ -401,11 +345,6 @@ public static class Options
 
     // RASCAL //
     public static OptionItem RascalAppearAsMadmate;
-
-    // Gravestone
-    public static OptionItem ImpCanBeGravestone;
-    public static OptionItem CrewCanBeGravestone;
-    public static OptionItem NeutralCanBeGravestone;
 
     // Mare Add-on
     public static OptionItem MareKillCD;
@@ -425,42 +364,22 @@ public static class Options
 
     public static OptionItem PhantomSnatchesWin;
 
-    public static OptionItem ImpCanBeDiseased;
-    public static OptionItem CrewCanBeDiseased;
-    public static OptionItem NeutralCanBeDiseased;
     public static OptionItem DiseasedCDOpt;
     public static OptionItem DiseasedCDReset;
 
-    public static OptionItem ImpCanBeAntidote;
-    public static OptionItem CrewCanBeAntidote;
-    public static OptionItem NeutralCanBeAntidote;
     public static OptionItem AntidoteCDOpt;
     public static OptionItem AntidoteCDReset;
 
-    public static OptionItem ImpCanBeBait;
-    public static OptionItem CrewCanBeBait;
-    public static OptionItem NeutralCanBeBait;
     public static OptionItem BaitDelayMin;
     public static OptionItem BaitDelayMax;
     public static OptionItem BaitDelayNotify;
-    public static OptionItem ImpCanBeTrapper;
-    public static OptionItem CrewCanBeTrapper;
-    public static OptionItem NeutralCanBeTrapper;
-    public static OptionItem ImpCanBeFool;
-    public static OptionItem CrewCanBeFool;
-    public static OptionItem NeutralCanBeFool;
     public static OptionItem TorchVision;
     public static OptionItem TorchAffectedByLights;
     public static OptionItem TasklessCrewCanBeLazy;
     public static OptionItem TaskBasedCrewCanBeLazy;
     public static OptionItem DovesOfNeaceCooldown;
     public static OptionItem DovesOfNeaceMaxOfUseage;
-    public static OptionItem BTKillCooldown;
-    public static OptionItem TrapOnlyWorksOnTheBodyBoobyTrap;
-    public static OptionItem ImpCanBeDoubleShot;
-    public static OptionItem CrewCanBeDoubleShot;
     public static OptionItem killAttacker;
-    public static OptionItem NeutralCanBeDoubleShot;
     public static OptionItem MimicCanSeeDeadRoles;
     public static OptionItem ResetDoorsEveryTurns;
     public static OptionItem DoorsResetMode;
@@ -476,9 +395,6 @@ public static class Options
 
     public static OptionItem ScientistDur;
     public static OptionItem ScientistCD;
-
-    public static OptionItem GCanGuessAdt;
-    public static OptionItem GTryHideMsg;
 
     public static OptionItem DisableTaskWinIfAllCrewsAreDead;
 
@@ -566,25 +482,25 @@ public static class Options
 
     // Disable Devices
     public static OptionItem DisableDevices;
-    public static OptionItem DisableSkeldDevices;
+    private static OptionItem DisableSkeldDevices;
     public static OptionItem DisableSkeldAdmin;
     public static OptionItem DisableSkeldCamera;
-    public static OptionItem DisableMiraHQDevices;
+    private static OptionItem DisableMiraHQDevices;
     public static OptionItem DisableMiraHQAdmin;
     public static OptionItem DisableMiraHQDoorLog;
-    public static OptionItem DisablePolusDevices;
+    private static OptionItem DisablePolusDevices;
     public static OptionItem DisablePolusAdmin;
     public static OptionItem DisablePolusCamera;
     public static OptionItem DisablePolusVital;
-    public static OptionItem DisableAirshipDevices;
+    private static OptionItem DisableAirshipDevices;
     public static OptionItem DisableAirshipCockpitAdmin;
     public static OptionItem DisableAirshipRecordsAdmin;
     public static OptionItem DisableAirshipCamera;
     public static OptionItem DisableAirshipVital;
-    public static OptionItem DisableFungleDevices;
+    private static OptionItem DisableFungleDevices;
     public static OptionItem DisableFungleCamera;
     public static OptionItem DisableFungleVital;
-    public static OptionItem DisableDevicesIgnoreConditions;
+    private static OptionItem DisableDevicesIgnoreConditions;
     public static OptionItem DisableDevicesIgnoreImpostors;
     public static OptionItem DisableDevicesIgnoreNeutrals;
     public static OptionItem DisableDevicesIgnoreCrewmates;
@@ -597,7 +513,7 @@ public static class Options
     public static OptionItem AirshipVariableElectrical;
     public static OptionItem DisableAirshipMovingPlatform;
     public static OptionItem DisableSporeTriggerOnFungle;
-    public static OptionItem DisableZiplineOnFungle;
+    private static OptionItem DisableZiplineOnFungle;
     public static OptionItem DisableZiplineFromTop;
     public static OptionItem DisableZiplineFromUnder;
     public static OptionItem DisableZiplineForImps;
@@ -619,7 +535,7 @@ public static class Options
     public static OptionItem AirshipReactorTimeLimit;
     public static OptionItem FungleReactorTimeLimit;
     public static OptionItem FungleMushroomMixupDuration;
-    public static OptionItem LightsOutSpecialSettings;
+    private static OptionItem LightsOutSpecialSettings;
     public static OptionItem DisableAirshipViewingDeckLightsPanel;
     public static OptionItem DisableAirshipGapRoomLightsPanel;
     public static OptionItem DisableAirshipCargoLightsPanel;
@@ -648,14 +564,14 @@ public static class Options
 
     // Voting Modes
     public static OptionItem VoteMode;
-    public static OptionItem WhenSkipVote;
+    private static OptionItem WhenSkipVote;
     public static OptionItem WhenSkipVoteIgnoreFirstMeeting;
     public static OptionItem WhenSkipVoteIgnoreNoDeadBody;
     public static OptionItem WhenSkipVoteIgnoreEmergency;
-    public static OptionItem WhenNonVote;
+    private static OptionItem WhenNonVote;
     public static OptionItem WhenTie;
 
-    public static readonly string[] VoteModes =
+    private static readonly string[] VoteModes =
     [
         "Default",
         "Suicide",
@@ -663,7 +579,7 @@ public static class Options
         "Skip"
     ];
 
-    public static readonly string[] TieModes =
+    private static readonly string[] TieModes =
     [
         "TieMode.Default",
         "TieMode.All",
@@ -727,7 +643,7 @@ public static class Options
     public static OptionItem AutoDisplayLastAddOns;
     public static OptionItem AutoDisplayKillLog;
     public static OptionItem AutoDisplayLastResult;
-    public static OptionItem SuffixMode;
+    private static OptionItem SuffixMode;
     public static OptionItem HideGameSettings;
     public static OptionItem FormatNameMode;
     public static OptionItem DisableEmojiName;
@@ -766,7 +682,6 @@ public static class Options
     public static OptionItem NoLimitAddonsNumMax;
     public static OptionItem BewilderVision;
     public static OptionItem SunglassesVision;
-    public static OptionItem ImpCanBeAvanger;
     public static OptionItem MadmateSpawnMode;
     public static OptionItem MadmateCountMode;
     public static OptionItem SheriffCanBeMadmate;
@@ -786,8 +701,6 @@ public static class Options
     public static OptionItem LoverSuicide;
     public static OptionItem ImpEgoistVisibalToAllies;
     public static OptionItem TicketsPerKill;
-    public static OptionItem ImpCanBeDualPersonality;
-    public static OptionItem CrewCanBeDualPersonality;
     public static OptionItem DualVotes;
     public static OptionItem ImpCanBeLoyal;
     public static OptionItem CrewCanBeLoyal;
@@ -797,7 +710,7 @@ public static class Options
 
     public static OptionItem DumpLogAfterGameEnd;
 
-    public static readonly string[] SuffixModes =
+    private static readonly string[] SuffixModes =
     [
         "SuffixMode.None",
         "SuffixMode.Version",
@@ -810,7 +723,7 @@ public static class Options
         "SuffixMode.AutoHost"
     ];
 
-    public static readonly string[] RoleAssigningAlgorithms =
+    private static readonly string[] RoleAssigningAlgorithms =
     [
         "RoleAssigningAlgorithm.Default",
         "RoleAssigningAlgorithm.NetRandom",
@@ -819,7 +732,7 @@ public static class Options
         "RoleAssigningAlgorithm.MersenneTwister",
     ];
 
-    public static readonly string[] FormatNameModes =
+    private static readonly string[] FormatNameModes =
     [
         "FormatNameModes.None",
         "FormatNameModes.Color",
@@ -832,9 +745,9 @@ public static class Options
     public static string MainLoadingText = string.Empty;
     public static string RoleLoadingText = string.Empty;
 
-    public static Dictionary<CustomRoles, (OptionItem Imp, OptionItem Neutral, OptionItem Crew)> AddonCanBeSettings = [];
+    public static readonly Dictionary<CustomRoles, (OptionItem Imp, OptionItem Neutral, OptionItem Crew)> AddonCanBeSettings = [];
 
-    public static HashSet<CustomRoles> SingleRoles = [];
+    public static readonly HashSet<CustomRoles> SingleRoles = [];
 
     static Options()
     {
@@ -858,6 +771,7 @@ public static class Options
     {
         Logger.Info("Options.Load Start", "Options");
         AddSteamID.AddSteamAppIdFile();
+        Utils.LoadComboInfo();
         Main.LoadRoleClasses();
         taskOptionsLoad = Task.Run(Load);
         taskOptionsLoad.ContinueWith(_ =>
@@ -895,7 +809,7 @@ public static class Options
 
     public static SuffixModes GetSuffixMode() => (SuffixModes)SuffixMode.GetValue();
 
-    public static void ResetRoleCounts()
+    private static void ResetRoleCounts()
     {
         roleCounts = [];
         roleSpawnChances = [];
@@ -930,10 +844,7 @@ public static class Options
         return CustomRoleSpawnChances.TryGetValue(role, out var option) ? option.GetValue() /* / 10f */ : roleSpawnChances[role];
     }
 
-#pragma warning disable IDE0079 // Remove unnecessary suppression
-    [SuppressMessage("ReSharper", "AccessToModifiedClosure")]
-#pragma warning restore IDE0079 // Remove unnecessary suppression
-    public static void Load()
+    private static void Load()
     {
         LoadingPercentage = 0;
         MainLoadingText = "Building system settings";
@@ -1972,25 +1883,10 @@ public static class Options
             .SetParent(GuesserMode)
             .SetColor(Color.green);
 
+        GuesserDoesntDieOnMisguess = BooleanOptionItem.Create(19718, "GuesserDoesntDieOnMisguess", false, TabGroup.TaskSettings);
+
         LoadingPercentage = 92;
-
-
-        TextOptionItem.Create(100050, "MenuTitle.GuesserModeRoles", TabGroup.TaskSettings)
-            .SetGameMode(CustomGameMode.Standard)
-            .SetColor(Color.yellow)
-            .SetHeader(true);
-        SetupAdtRoleOptions(14500, CustomRoles.Onbound, canSetNum: true, tab: TabGroup.TaskSettings);
-        ImpCanBeOnbound = BooleanOptionItem.Create(14510, "ImpCanBeOnbound", true, TabGroup.TaskSettings)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Onbound]);
-        CrewCanBeOnbound = BooleanOptionItem.Create(14511, "CrewCanBeOnbound", true, TabGroup.TaskSettings)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Onbound]);
-        NeutralCanBeOnbound = BooleanOptionItem.Create(14512, "NeutralCanBeOnbound", true, TabGroup.TaskSettings)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Onbound]);
-
-
-        LoadingPercentage = 93;
         MainLoadingText = "Building game settings";
-
 
         TextOptionItem.Create(100037, "MenuTitle.Meeting", TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
@@ -2005,6 +1901,8 @@ public static class Options
             .SetParent(SyncButtonMode)
             .SetValueFormat(OptionFormat.Times)
             .SetGameMode(CustomGameMode.Standard);
+
+        LoadingPercentage = 93;
 
         AllAliveMeeting = BooleanOptionItem.Create(23400, "AllAliveMeeting", false, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
@@ -2227,17 +2125,17 @@ public static class Options
 
     public class OverrideTasksData
     {
-        public static Dictionary<CustomRoles, OverrideTasksData> AllData = [];
-        public OptionItem AssignCommonTasks;
-        public OptionItem DoOverride;
-        public OptionItem NumLongTasks;
-        public OptionItem NumShortTasks;
+        public static readonly Dictionary<CustomRoles, OverrideTasksData> AllData = [];
+        public readonly OptionItem AssignCommonTasks;
+        public readonly OptionItem DoOverride;
+        public readonly OptionItem NumLongTasks;
+        public readonly OptionItem NumShortTasks;
 
-        public OverrideTasksData(int idStart, TabGroup tab, CustomRoles role)
+        private OverrideTasksData(int idStart, TabGroup tab, CustomRoles role)
         {
             IdStart = idStart;
             Role = role;
-            Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(Utils.GetRoleColor(role), Utils.GetRoleName(role)) } };
+            Dictionary<string, string> replacementDic = new() { { "%role%", role.ToColoredString() } };
             DoOverride = BooleanOptionItem.Create(idStart++, "doOverride", false, tab)
                 .SetParent(CustomRoleSpawnChances[role])
                 .SetValueFormat(OptionFormat.None);

@@ -112,7 +112,7 @@ namespace EHR.Roles.Impostor
             if (librarian.RpcCheckAndMurder(reporter))
             {
                 sssh.Add(librarian.PlayerId);
-                _ = new LateTask(() => { sssh.Remove(librarian.PlayerId); }, NameDuration.GetInt(), "Librarian sssh text");
+                LateTask.New(() => { sssh.Remove(librarian.PlayerId); }, NameDuration.GetInt(), "Librarian sssh text");
             }
 
             return false;

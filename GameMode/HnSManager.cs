@@ -82,7 +82,7 @@ namespace EHR
         {
             IsBlindTime = true;
             Utils.MarkEveryoneDirtySettingsV4();
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 IsBlindTime = false;
 
@@ -407,7 +407,7 @@ namespace EHR
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
         class FixedUpdatePatch
         {
-            public static void Postfix(PlayerControl __instance)
+            public static void Postfix()
             {
                 if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted) return;
 
@@ -417,12 +417,13 @@ namespace EHR
 
                 TimeLeft--;
 
-                PlayerRoles = PlayerRoles.Where(x => Utils.GetPlayerById(x.Key) != null).ToDictionary(x => x.Key, x => x.Value);
+                PlayerRoles = PlayerRoles.IntersectBy(Main.AllPlayerControls.Select(x => x.PlayerId), x => x.Key).ToDictionary(x => x.Key, x => x.Value);
 
-                var imps = PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).ToDictionary(x => x.Key, x => Utils.GetPlayerById(x.Key).Pos());
+                var idPosPairs = PlayerRoles.Join(Main.AllPlayerControls, x => x.Key, x => x.PlayerId, (role, pc) => (role.Key, pc)).ToDictionary(x => x.Key, x => x.pc.Pos());
+                var imps = PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).ToDictionary(x => x.Key, x => idPosPairs[x.Key]);
                 var nonImps = PlayerRoles.Where(x => x.Value.Interface.Team is Team.Crewmate or Team.Neutral).ToArray();
-                ClosestImpostor = nonImps.ToDictionary(x => x.Key, x => imps.MinBy(y => Vector2.Distance(y.Value, Utils.GetPlayerById(x.Key).Pos())).Key);
-                Danger = nonImps.ToDictionary(x => x.Key, x => Math.Clamp(((1 + (int)Math.Ceiling(Vector2.Distance(Utils.GetPlayerById(x.Key).Pos(), Utils.GetPlayerById(ClosestImpostor[x.Key]).Pos()))) / 3) - 1, 0, 5));
+                ClosestImpostor = nonImps.ToDictionary(x => x.Key, x => imps.MinBy(y => Vector2.Distance(y.Value, idPosPairs[x.Key])).Key);
+                Danger = nonImps.ToDictionary(x => x.Key, x => Math.Clamp(((1 + (int)Math.Ceiling(Vector2.Distance(idPosPairs[x.Key], idPosPairs[ClosestImpostor[x.Key]]))) / 3) - 1, 0, 5));
 
                 if (DangerMeter.GetBool() || (TimeLeft + 1) % 60 == 0 || TimeLeft <= 60) Utils.NotifyRoles();
             }

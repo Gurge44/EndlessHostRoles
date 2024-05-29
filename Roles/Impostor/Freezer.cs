@@ -4,13 +4,12 @@ namespace EHR.Roles.Impostor
 {
     internal class Freezer : RoleBase
     {
-        public static bool On;
-        public override bool IsEnable => On;
-
         private const int Id = 643530;
+        public static bool On;
 
         private static OptionItem FreezeCooldown;
         private static OptionItem FreezeDuration;
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
@@ -46,11 +45,11 @@ namespace EHR.Roles.Impostor
                 var beforeSpeed = Main.AllPlayerSpeed[target.PlayerId];
                 Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
                 target.MarkDirtySettings();
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     Main.AllPlayerSpeed[target.PlayerId] = beforeSpeed;
                     target.MarkDirtySettings();
-                }, FreezeDuration.GetFloat());
+                }, FreezeDuration.GetFloat(), "FreezerFreezeDuration");
             }
 
             return false;
