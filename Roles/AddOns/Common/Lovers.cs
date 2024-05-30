@@ -4,6 +4,8 @@ namespace EHR.Roles.AddOns.Common
 {
     internal class Lovers : IAddon
     {
+        public static bool IsChatActivated = false;
+
         public static OptionItem LegacyLovers;
         public static OptionItem LovingImpostorSpawnChance;
         public static OptionItem PrivateChat;

@@ -45,6 +45,8 @@ internal class PingTrackerUpdatePatch
         if (!GameStates.IsModHost) Sb.Append("\r\n").Append(Utils.ColorString(Color.red, GetString("Warning.NoModHost")));
         if (DebugModeManager.IsDebugMode) Sb.Append("\r\n").Append(Utils.ColorString(Color.green, GetString("DebugMode")));
 
+        if (Main.IsAprilFools || Options.AprilFoolsMode.GetBool()) Sb.Append("\r\n").Append(Utils.ColorString(Color.yellow, "CHEESE"));
+
         var offsetX = 1.2f;
         if (HudManager.InstanceExists && HudManager._instance.Chat.chatButton.active) offsetX += 0.8f;
         if (FriendsListManager.InstanceExists && FriendsListManager._instance.FriendsListButton.Button.active) offsetX += 0.8f;

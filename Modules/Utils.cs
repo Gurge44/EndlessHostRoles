@@ -2470,11 +2470,14 @@ public static class Utils
 
     public static void AfterMeetingTasks()
     {
-        if (Lovers.PrivateChat.GetBool() && !GameStates.IsEnded)
+        if (!Lovers.IsChatActivated && Lovers.PrivateChat.GetBool() && !GameStates.IsEnded)
         {
             SetChatVisible();
+            Lovers.IsChatActivated = true;
             return;
         }
+
+        Lovers.IsChatActivated = false;
 
         Main.ProcessShapeshifts = true;
 
