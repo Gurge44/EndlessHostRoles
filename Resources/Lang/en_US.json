@@ -1356,6 +1356,7 @@
   "PrivateChat": "Enable Private Chat for Lovers",
   "CannotBeGuessed": "<color=#ff9ace>Lovers</color> Cannot Be Guessed",
   "GuessLovers": "Sorry, <color=#ff9ace>Lovers</color> cannot be guessed.",
+  "GuessVanillaCrewmate": "Did you seriously just try to guess someone as vanilla crewmate?! Shame on you!",
   "TrapperBlockMoveTime": "Freeze time",
   "RogueKnowEachOtherRoles": "<color=#696969>Rogues</color> know the roles of each other",
   "RogueKnowEachOther": "<color=#696969>Rogues</color> know each other",

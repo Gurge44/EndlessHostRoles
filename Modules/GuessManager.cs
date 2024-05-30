@@ -273,6 +273,10 @@ public static class GuessManager
 
                     switch (target.GetCustomRole())
                     {
+                        case CustomRoles.Crewmate or CustomRoles.CrewmateEHR when Options.VanillaCrewmateCannotBeGuessed.GetBool():
+                            if (!isUI) Utils.SendMessage(GetString("GuessVanillaCrewmate"), pc.PlayerId);
+                            else pc.ShowPopUp(GetString("GuessVanillaCrewmate"));
+                            return true;
                         case CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor when Lovers.CannotBeGuessed.GetBool():
                             if (!isUI) Utils.SendMessage(GetString("GuessLovers"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessLovers"));
