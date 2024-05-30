@@ -116,7 +116,7 @@ namespace EHR.Crewmate
             IEnumerable<PlayerControl> hideList = ToiletVisible switch
             {
                 ToiletVisibilityOptions.Instant => [],
-                _ => Main.AllPlayerControls.Remove(pc)
+                _ => Main.AllPlayerControls.Without(pc)
             };
             Toilets[pos] = (new(pos, hideList), 0, Utils.TimeStamp);
             pc.RpcRemoveAbilityUse();
@@ -186,7 +186,7 @@ namespace EHR.Crewmate
                     case Poop.Red:
                         var duration = RedPoopRoleBlockDuration.GetInt();
                         List<PlayerControl> affectedPlayers = [];
-                        Utils.GetPlayersInRadius(RedPoopRadius.GetFloat(), pos).Remove(pc).Do(x =>
+                        Utils.GetPlayersInRadius(RedPoopRadius.GetFloat(), pos).Without(pc).Do(x =>
                         {
                             x.BlockRole(duration);
                             Main.AllPlayerSpeed[x.PlayerId] = Main.MinSpeed;

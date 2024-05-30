@@ -111,7 +111,7 @@ namespace EHR
         /// <param name="element">The element to remove</param>
         /// <typeparam name="T">The type of the elements in the collection</typeparam>
         /// <returns>A collection containing all elements of <paramref name="collection"/> except for <paramref name="element"/></returns>
-        public static IEnumerable<T> Remove<T>(this IEnumerable<T> collection, T element)
+        public static IEnumerable<T> Without<T>(this IEnumerable<T> collection, T element)
         {
             return collection.Where(x => !x.Equals(element));
         }
