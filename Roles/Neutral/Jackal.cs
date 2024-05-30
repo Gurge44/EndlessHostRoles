@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using HarmonyLib;
 using EHR.Modules;
 using static EHR.Options;
 using static EHR.Translator;

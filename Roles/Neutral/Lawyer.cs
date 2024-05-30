@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
-using HarmonyLib;
 using Hazel;
 using static EHR.Options;
 

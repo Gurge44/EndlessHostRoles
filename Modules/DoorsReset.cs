@@ -2,6 +2,13 @@ namespace EHR.Modules;
 
 public static class DoorsReset
 {
+    public enum ResetMode
+    {
+        AllOpen,
+        AllClosed,
+        RandomByDoor
+    }
+
     private static bool isEnabled;
     private static ResetMode mode;
     private static DoorsSystemType DoorsSystem => ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Doors, out var system) ? system.TryCast<DoorsSystemType>() : null;
@@ -14,6 +21,7 @@ public static class DoorsReset
             isEnabled = false;
             return;
         }
+
         isEnabled = Options.ResetDoorsEveryTurns.GetBool();
         mode = (ResetMode)Options.DoorsResetMode.GetValue();
         Logger.Info($"Initalization: [ {isEnabled}, {mode} ]", "DoorsReset");
@@ -26,36 +34,50 @@ public static class DoorsReset
         {
             return;
         }
+
         Logger.Info("Reset Completed", "DoorsReset");
 
         switch (mode)
         {
-            case ResetMode.AllOpen: OpenAllDoors(); break;
-            case ResetMode.AllClosed: CloseAllDoors(); break;
-            case ResetMode.RandomByDoor: OpenOrCloseAllDoorsRandomly(); break;
-            default: Logger.Warn($"Invalid Reset Doors Mode: {mode}", "DoorsReset"); break;
+            case ResetMode.AllOpen:
+                OpenAllDoors();
+                break;
+            case ResetMode.AllClosed:
+                CloseAllDoors();
+                break;
+            case ResetMode.RandomByDoor:
+                OpenOrCloseAllDoorsRandomly();
+                break;
+            default:
+                Logger.Warn($"Invalid Reset Doors Mode: {mode}", "DoorsReset");
+                break;
         }
     }
+
     /// <summary>Open all doors on the map</summary>
     public static void OpenAllDoors()
     {
-        foreach (var door in ShipStatus.Instance?.AllDoors)
+        foreach (var door in ShipStatus.Instance.AllDoors)
         {
             if (door == null) continue;
             SetDoorOpenState(door, true);
         }
+
         DoorsSystem.IsDirty = true;
     }
+
     /// <summary>Close all doors on the map</summary>
     public static void CloseAllDoors()
     {
-        foreach (var door in ShipStatus.Instance?.AllDoors)
+        foreach (var door in ShipStatus.Instance.AllDoors)
         {
             if (door == null) continue;
             SetDoorOpenState(door, false);
         }
+
         DoorsSystem.IsDirty = true;
     }
+
     /// <summary>Randomly opens and closes all doors on the map</summary>
     public static void OpenOrCloseAllDoorsRandomly()
     {
@@ -64,6 +86,7 @@ public static class DoorsReset
             var isOpen = IRandom.Instance.Next(2) > 0;
             SetDoorOpenState(door, isOpen);
         }
+
         DoorsSystem.IsDirty = true;
     }
 
@@ -77,6 +100,7 @@ public static class DoorsReset
             door.SetDoorway(isOpen);
         }
     }
+
     /// <summary>Determine if the door is subject to reset</summary>
     /// <returns>true if it is subject to reset</returns>
     private static bool IsValidDoor(OpenableDoor door)
@@ -84,6 +108,4 @@ public static class DoorsReset
         // Airship lounge toilets and Polus decontamination room doors are not closed
         return door.Room is not (SystemTypes.Lounge or SystemTypes.Decontamination);
     }
-
-    public enum ResetMode { AllOpen, AllClosed, RandomByDoor, }
 }

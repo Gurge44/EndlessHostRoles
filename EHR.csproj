@@ -22,15 +22,6 @@
       <EmbeddedResource Remove="CTA\**" />
       <None Remove="CTA\**" />
     </ItemGroup>
-	
-    <ItemGroup>
-    <None Remove="Modules\zqihthf4.eqf~" />
-    <None Remove="resources\modnews\english\EHR.v1.2.0.txt" />
-    <None Remove="resources\modnews\english\EHR.v1.3.0.txt" />
-    <None Remove="resources\modnews\english\EHR.v1.4.0.txt" />
-    <None Remove="Roles\Crewmate\Doormaster.cs~RF5dd42bf0.TMP" />
-    <None Remove="Roles\Neutral\scqzwl4z.0wp~" />
-    </ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="AmongUs.GameLibs.Steam" Version="2024.3.5" PrivateAssets="all" />
@@ -40,10 +31,6 @@
 	</ItemGroup>
 
     <ItemGroup>
-    <!--<PackageReference Include="Costura.Fody" Version="5.7.0">
-        <IncludeAssets>runtime; compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        <PrivateAssets>all</PrivateAssets>
-    </PackageReference>-->
     <PackageReference Include="csv" Version="2.0.93" />
     <PackageReference Include="GitInfo" Version="3.3.4">
         <PrivateAssets>all</PrivateAssets>

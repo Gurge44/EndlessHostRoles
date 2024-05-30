@@ -2,7 +2,6 @@
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles.Impostor;
-using HarmonyLib;
 using static EHR.Options;
 
 namespace EHR.Roles.Crewmate

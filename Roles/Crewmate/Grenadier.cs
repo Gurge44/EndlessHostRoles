@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using HarmonyLib;
 using static EHR.Options;
 
 namespace EHR.Roles.Crewmate

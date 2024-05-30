@@ -2,7 +2,6 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using HarmonyLib;
 using Hazel;
 
 namespace EHR.Roles.Crewmate;

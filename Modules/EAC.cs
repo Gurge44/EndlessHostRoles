@@ -15,7 +15,7 @@ internal static class EAC
     private static void WarnHost(int denum = 1)
     {
         DeNum += denum;
-        if (ErrorText.Instance != null)
+        if (ErrorText.Instance)
         {
             ErrorText.Instance.CheatDetected = DeNum > 3;
             ErrorText.Instance.SBDetected = DeNum > 10;
