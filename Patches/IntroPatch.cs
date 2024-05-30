@@ -178,6 +178,17 @@ class BeginCrewmatePatch
             return false;
         }
 
+        if (PlayerControl.LocalPlayer.GetCustomRole() == CustomRoles.LovingCrewmate)
+        {
+            teamToDisplay = new();
+            teamToDisplay.Add(PlayerControl.LocalPlayer);
+            teamToDisplay.Add(Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId));
+        }
+        else if (PlayerControl.LocalPlayer.GetCustomRole() == CustomRoles.LovingImpostor)
+        {
+            teamToDisplay.Add(Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId));
+        }
+
         if (CustomTeamManager.EnabledCustomTeams.Count > 0)
         {
             var team = CustomTeamManager.GetCustomTeam(PlayerControl.LocalPlayer.PlayerId);
@@ -222,6 +233,15 @@ class BeginCrewmatePatch
             PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
             __instance.ImpostorText.gameObject.SetActive(true);
             __instance.ImpostorText.text = GetString("SubText.Bloodlust");
+        }
+        else if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
+        {
+            __instance.TeamTitle.text = GetString($"Team{role}");
+            __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
+            PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(role.GetRoleTypes());
+            __instance.ImpostorText.gameObject.SetActive(true);
+            byte otherLoverId = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).PlayerId;
+            __instance.ImpostorText.text = string.Format(GetString($"SubText.{role}"), Utils.ColorString(Main.PlayerColors.TryGetValue(otherLoverId, out var color) ? color : Color.white, Main.AllPlayerNames[otherLoverId]));
         }
         else
         {

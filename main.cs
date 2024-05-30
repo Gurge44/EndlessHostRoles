@@ -330,6 +330,8 @@ public class Main : BasePlugin
                 { CustomRoles.Gaulois, "#42d1f5" },
                 { CustomRoles.Druid, "#ffb694" },
                 { CustomRoles.Autocrat, "#e2ed64" },
+                { CustomRoles.LovingCrewmate, "#ff9ace" },
+                { CustomRoles.LovingImpostor, "#ff9ace" },
                 { CustomRoles.ToiletMaster, "#4281f5" },
                 { CustomRoles.Goose, "#f9ffb8" },
                 { CustomRoles.Sentry, "#db55f2" },

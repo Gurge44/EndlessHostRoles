@@ -17,6 +17,8 @@ namespace EHR.Roles.Crewmate
             ScientistDur = FloatOptionItem.Create(5111, "VitalsDuration", new(1f, 250f, 1f), 15f, Tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ScientistEHR])
                 .SetValueFormat(OptionFormat.Seconds);
+            VanillaCrewmateCannotBeGuessed = BooleanOptionItem.Create(5112, "VanillaCrewmateCannotBeGuessed", false, Tab)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.CrewmateEHR]);
         }
     }
 }

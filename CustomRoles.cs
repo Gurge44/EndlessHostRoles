@@ -131,6 +131,8 @@ public enum CustomRoles
     Convener,
     CopyCat,
     Bloodhound, // Coroner
+    LovingCrewmate,
+    LovingImpostor,
     Crusader,
     Demolitionist,
     Deputy,

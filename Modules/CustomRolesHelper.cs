@@ -186,6 +186,8 @@ internal static class CustomRolesHelper
             CustomRoles.Altruist => CustomRoles.Crewmate,
             CustomRoles.Transmitter => CustomRoles.Crewmate,
             CustomRoles.Autocrat => CustomRoles.Crewmate,
+            CustomRoles.LovingCrewmate => CustomRoles.Crewmate,
+            CustomRoles.LovingImpostor => CustomRoles.Impostor,
             CustomRoles.ToiletMaster => CustomRoles.Crewmate,
             CustomRoles.Sentry => CustomRoles.Crewmate,
             CustomRoles.Perceiver => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
@@ -557,6 +559,7 @@ internal static class CustomRolesHelper
 
     public static bool IsImpostor(this CustomRoles role) => role is
         CustomRoles.Impostor or
+        CustomRoles.LovingImpostor or
         CustomRoles.Godfather or
         CustomRoles.Shapeshifter or
         CustomRoles.ShapeshifterEHR or

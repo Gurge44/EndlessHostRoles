@@ -206,6 +206,7 @@ public static class Options
     public static OptionItem SidekickCanKillJackal;
     public static OptionItem SidekickCanKillSidekick;
 
+    public static OptionItem VanillaCrewmateCannotBeGuessed;
     public static OptionItem EGCanGuessImp;
     public static OptionItem EGCanGuessAdt;
     public static OptionItem EGCanGuessTime;

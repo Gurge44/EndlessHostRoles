@@ -6,6 +6,11 @@ namespace EHR.Roles.AddOns.Common
     {
         public AddonTypes Type => AddonTypes.Mixed;
 
+        public static OptionItem LegacyLovers;
+        public static OptionItem LovingImpostorSpawnChance;
+        public static OptionItem PrivateChat;
+        public static OptionItem CannotBeGuessed;
+
         public void SetupCustomOption()
         {
             const CustomRoles role = CustomRoles.Lovers;
@@ -40,6 +45,22 @@ namespace EHR.Roles.AddOns.Common
                 .SetGameMode(customGameMode);
 
             NeutralCanBeInLove = BooleanOptionItem.Create(id + 7, "NeutralCanBeInLove", true, TabGroup.Addons)
+                .SetParent(spawnOption)
+                .SetGameMode(customGameMode);
+
+            LegacyLovers = BooleanOptionItem.Create(id + 8, "LegacyLovers", false, TabGroup.Addons)
+                .SetParent(spawnOption)
+                .SetGameMode(customGameMode);
+
+            LovingImpostorSpawnChance = FloatOptionItem.Create(id + 9, "LovingImpostorSpawnChance", new(0, 100, 5), 25, TabGroup.Addons)
+                .SetParent(LegacyLovers)
+                .SetGameMode(customGameMode);
+
+            PrivateChat = BooleanOptionItem.Create(id + 10, "PrivateChat", false, TabGroup.Addons)
+                .SetParent(spawnOption)
+                .SetGameMode(customGameMode);
+
+            CannotBeGuessed = BooleanOptionItem.Create(id + 11, "CannotBeGuessed", false, TabGroup.Addons)
                 .SetParent(spawnOption)
                 .SetGameMode(customGameMode);
 

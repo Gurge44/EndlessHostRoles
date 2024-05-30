@@ -273,6 +273,10 @@ public static class GuessManager
 
                     switch (target.GetCustomRole())
                     {
+                        case CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor when Lovers.CannotBeGuessed.GetBool():
+                            if (!isUI) Utils.SendMessage(GetString("GuessLovers"), pc.PlayerId);
+                            else pc.ShowPopUp(GetString("GuessLovers"));
+                            return true;
                         case CustomRoles.Workaholic when Workaholic.WorkaholicVisibleToEveryone.GetBool():
                             if (!isUI) Utils.SendMessage(GetString("GuessWorkaholic"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessWorkaholic"));
@@ -344,6 +348,13 @@ public static class GuessManager
                     {
                         if (!isUI) Utils.SendMessage(GetString("GuessOnbound"), pc.PlayerId);
                         else pc.ShowPopUp(GetString("GuessOnbound"));
+                        return true;
+                    }
+
+                    if (target.Is(CustomRoles.Lovers) && Lovers.CannotBeGuessed.GetBool())
+                    {
+                        if (!isUI) Utils.SendMessage(GetString("GuessLovers"), pc.PlayerId);
+                        else pc.ShowPopUp(GetString("GuessLovers"));
                         return true;
                     }
 
