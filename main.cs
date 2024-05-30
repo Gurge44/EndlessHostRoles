@@ -101,7 +101,7 @@ public class Main : BasePlugin
     public static int FirstDied = int.MaxValue;
     public static int ShieldPlayer = int.MaxValue;
 
-    public static readonly List<PlayerControl> LoversPlayers = [];
+    public static List<PlayerControl> LoversPlayers = [];
     public static bool IsLoversDead = true;
     public static List<byte> CyberStarDead = [];
     public static List<byte> BaitAlive = [];

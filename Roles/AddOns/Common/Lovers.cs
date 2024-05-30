@@ -4,12 +4,19 @@ namespace EHR.Roles.AddOns.Common
 {
     internal class Lovers : IAddon
     {
-        public AddonTypes Type => AddonTypes.Mixed;
-
         public static OptionItem LegacyLovers;
         public static OptionItem LovingImpostorSpawnChance;
         public static OptionItem PrivateChat;
-        public static OptionItem CannotBeGuessed;
+        public static OptionItem GuessAbility;
+
+        private static readonly string[] GuessModes =
+        [
+            "RoleOff", // 0
+            "Untouched", // 1
+            "RoleOn" // 2
+        ];
+
+        public AddonTypes Type => AddonTypes.Mixed;
 
         public void SetupCustomOption()
         {
@@ -54,13 +61,14 @@ namespace EHR.Roles.AddOns.Common
 
             LovingImpostorSpawnChance = FloatOptionItem.Create(id + 9, "LovingImpostorSpawnChance", new(0, 100, 5), 25, TabGroup.Addons)
                 .SetParent(LegacyLovers)
+                .SetValueFormat(OptionFormat.Percent)
                 .SetGameMode(customGameMode);
 
             PrivateChat = BooleanOptionItem.Create(id + 10, "PrivateChat", false, TabGroup.Addons)
                 .SetParent(spawnOption)
                 .SetGameMode(customGameMode);
 
-            CannotBeGuessed = BooleanOptionItem.Create(id + 11, "CannotBeGuessed", false, TabGroup.Addons)
+            GuessAbility = StringOptionItem.Create(id + 11, "GuessAbility", GuessModes, 1, TabGroup.Addons)
                 .SetParent(spawnOption)
                 .SetGameMode(customGameMode);
 

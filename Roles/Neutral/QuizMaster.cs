@@ -252,8 +252,8 @@ namespace EHR.Roles.Neutral
 
             return new(title, allAnswersList.ToArray(), correctIndex);
 
-            IEnumerable<string> GetTwoRandomNames(string except) => Main.AllPlayerControls.Select(x => x?.GetRealName()).Remove(except).Shuffle().TakeLast(2);
-            IEnumerable<string> GetTwoRandomNumbers(params int[] nums) => Enumerable.Range(nums[1], nums[2]).Remove(nums[0]).Shuffle().Take(2).Select(x => x.ToString());
+            IEnumerable<string> GetTwoRandomNames(string except) => Main.AllPlayerControls.Select(x => x?.GetRealName()).Without(except).Shuffle().TakeLast(2);
+            IEnumerable<string> GetTwoRandomNumbers(params int[] nums) => IRandom.SequenceUnique(3, nums[1], nums[2] + 1).Without(nums[0]).Take(2).Select(x => x.ToString());
         }
 
         public override void OnReportDeadBody()

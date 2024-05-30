@@ -2470,6 +2470,12 @@ public static class Utils
 
     public static void AfterMeetingTasks()
     {
+        if (Lovers.PrivateChat.GetBool() && !GameStates.IsEnded)
+        {
+            SetChatVisible();
+            return;
+        }
+
         Main.ProcessShapeshifts = true;
 
         foreach (var pc in Main.AllPlayerControls)

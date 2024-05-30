@@ -224,11 +224,12 @@ class HudManagerPatch
                         },
                         _ => string.Empty,
                     };
-                    if (GetCD_HUDText() != string.Empty) LowerInfoText.text = $"{GetCD_HUDText()}\n{LowerInfoText.text}";
 
-                    string GetCD_HUDText() => !Options.UsePets.GetBool() || !Main.AbilityCD.TryGetValue(player.PlayerId, out var CD)
+                    string CD_HUDText = !Options.UsePets.GetBool() || !Main.AbilityCD.TryGetValue(player.PlayerId, out var CD)
                         ? string.Empty
                         : string.Format(GetString("CDPT"), CD.TOTALCD - (Utils.TimeStamp - CD.START_TIMESTAMP) + 1);
+
+                    if (CD_HUDText != string.Empty) LowerInfoText.text = $"{CD_HUDText}\n{LowerInfoText.text}";
 
                     LowerInfoText.enabled = LowerInfoText.text != string.Empty;
 
