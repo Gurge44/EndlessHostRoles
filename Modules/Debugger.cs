@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using EHR.Modules;
-using HarmonyLib;
 using LogLevel = BepInEx.Logging.LogLevel;
 
 namespace EHR;
@@ -31,31 +29,28 @@ class Webhook
 
 class Logger
 {
-    public static bool isEnable;
-    public static List<string> disableList = [];
-
-    public static List<string> sendToGameList = [];
-
-    //public static bool isDetail; - This was always false and never true
-    public static bool isAlsoInGame;
-    public static void Enable() => isEnable = true;
-    public static void Disable() => isEnable = false;
+    private static bool IsEnable;
+    private static readonly List<string> DisableList = [];
+    private static readonly List<string> SendToGameList = [];
+    public static bool IsAlsoInGame;
+    public static void Enable() => IsEnable = true;
+    public static void Disable() => IsEnable = false;
 
     public static void Enable(string tag, bool toGame = false)
     {
-        disableList.Remove(tag);
-        if (toGame && !sendToGameList.Contains(tag)) sendToGameList.Add(tag);
-        else sendToGameList.Remove(tag);
+        DisableList.Remove(tag);
+        if (toGame && !SendToGameList.Contains(tag)) SendToGameList.Add(tag);
+        else SendToGameList.Remove(tag);
     }
 
     public static void Disable(string tag)
     {
-        if (!disableList.Contains(tag)) disableList.Add(tag);
+        if (!DisableList.Contains(tag)) DisableList.Add(tag);
     }
 
     public static void SendInGame(string text /*, bool isAlways = false*/)
     {
-        if (!isEnable) return;
+        if (!IsEnable) return;
         if (DestroyableSingleton<HudManager>._instance)
         {
             DestroyableSingleton<HudManager>.Instance.Notifier.AddItem(text);
@@ -63,23 +58,32 @@ class Logger
         }
     }
 
-    [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "<Pending>")]
     private static void SendToFile(string text, LogLevel level = LogLevel.Info, string tag = "", bool escapeCRLF = true, int lineNumber = 0, string fileName = "", bool multiLine = false)
     {
-        if (!isEnable || disableList.Contains(tag)) return;
+        if (!IsEnable || DisableList.Contains(tag)) return;
         var logger = Main.Logger;
-        string t = DateTime.Now.ToString("HH:mm:ss");
-        if (sendToGameList.Contains(tag) || isAlsoInGame) SendInGame($"[{tag}]{text}");
-        if (escapeCRLF)
-            text = text.Replace("\r", "\\r").Replace("\n", "\\n");
-        string log_text = $"[{t}][{tag}]{text}";
-        //if (isDetail && DebugModeManager.AmDebugger)  // isDetail was always false
-        //{
-        //    StackFrame stack = new(2);
-        //    string className = stack.GetMethod().ReflectedType.Name;
-        //    string memberName = stack.GetMethod().Name;
-        //    log_text = $"[{t}][{className}.{memberName}({Path.GetFileName(fileName)}:{lineNumber})][{tag}]{text}";
-        //}
+
+        if (SendToGameList.Contains(tag) || IsAlsoInGame)
+        {
+            SendInGame($"[{tag}]{text}");
+        }
+
+        string log_text;
+        if (level is LogLevel.Error or LogLevel.Fatal && !multiLine)
+        {
+            string t = DateTime.Now.ToString("HH:mm:ss");
+            StackFrame stack = new(2);
+            string className = stack.GetMethod()?.ReflectedType?.Name;
+            string memberName = stack.GetMethod()?.Name;
+            log_text = $"[{t}][{className}.{memberName}({Path.GetFileName(fileName)}:{lineNumber})][{tag}]{text}";
+        }
+        else
+        {
+            if (escapeCRLF) text = text.Replace("\r", "\\r").Replace("\n", "\\n");
+            string t = DateTime.Now.ToString("HH:mm:ss");
+            log_text = $"[{t}][{tag}]{text}";
+        }
+
         switch (level)
         {
             case LogLevel.Info:
@@ -134,9 +138,8 @@ class Logger
     public static void CurrentMethod([CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "")
     {
         StackFrame stack = new(1);
-        Msg($"\"{stack.GetMethod().ReflectedType.Name}.{stack.GetMethod().Name}\" Called in \"{Path.GetFileName(fileName)}({lineNumber})\"", "Method");
+        Msg($"\"{stack.GetMethod()?.ReflectedType?.Name}.{stack.GetMethod()?.Name}\" Called in \"{Path.GetFileName(fileName)}({lineNumber})\"", "Method");
     }
 
-    public static LogHandler Handler(string tag)
-        => new(tag);
+    public static LogHandler Handler(string tag) => new(tag);
 }

@@ -38,21 +38,21 @@ namespace EHR.Modules
                 var lp = PlayerControl.LocalPlayer;
                 var anims = PlayerControl.LocalPlayer.MyPhysics.Animations;
 
-                bool visible = AmongUsClient.Instance.AmHost && AmongUsClient.Instance.IsGameStarted && !GameStates.IsCanMove && (!GameStates.IsInTask || ExileController.Instance != null) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening && !lp.inVent && !anims.IsPlayingAnyLadderAnimation() && !VentButtonDoClickPatch.Animating && !lp.onLadder;
+                bool visible = AmongUsClient.Instance.AmHost && AmongUsClient.Instance.IsGameStarted && !GameStates.IsCanMove && (!GameStates.IsInTask || ExileController.Instance) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening && !lp.inVent && !anims.IsPlayingAnyLadderAnimation() && !VentButtonDoClickPatch.Animating && !lp.onLadder;
 
-                if (!visible && LoadingAnimation != null)
+                if (!visible && LoadingAnimation)
                 {
                     Object.Destroy(LoadingAnimation);
                     return;
                 }
 
-                if (LoadingAnimation == null && visible)
+                if (!LoadingAnimation && visible)
                 {
                     UpdateLoadingAnimation();
                     return;
                 }
 
-                if (LoadingAnimation != null)
+                if (LoadingAnimation)
                 {
                     var tempButton = Object.Instantiate(ModManager.Instance.ModStamp);
                     var basePos = tempButton.transform.position;

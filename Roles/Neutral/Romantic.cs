@@ -253,8 +253,8 @@ public class Romantic : RoleBase
 
 public class VengefulRomantic : RoleBase
 {
-    public static byte VengefulRomanticId = byte.MaxValue;
-    public static PlayerControl VengefulRomantic_;
+    private static byte VengefulRomanticId = byte.MaxValue;
+    private static PlayerControl VengefulRomantic_;
 
     public static bool HasKilledKiller;
     public static byte Target = byte.MaxValue;
@@ -304,8 +304,8 @@ public class VengefulRomantic : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
     {
-        if (seer.PlayerId != target.PlayerId) return string.Empty;
-        return seer == null ? string.Empty : Utils.ColorString(HasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"{(HasKilledKiller ? "✓" : "☹️")}");
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != VengefulRomanticId) return string.Empty;
+        return !seer ? string.Empty : Utils.ColorString(HasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"{(HasKilledKiller ? "✓" : "☹")}");
     }
 
     public static void SendRPC()

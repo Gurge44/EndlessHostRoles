@@ -127,7 +127,7 @@ public class Tremor : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || meeting) return string.Empty;
+        if (!seer.Is(CustomRoles.Tremor) || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || meeting) return string.Empty;
         var color = IsDoom ? Color.yellow : Color.cyan;
         var text = IsDoom ? DoomTimer.ToString() : Timer.ToString();
         if (hud) text = $"<size=130%><b>{text}</b></size>";
