@@ -72,14 +72,14 @@ public static class Options
         "Rate85",
         "Rate90",
         "Rate95",
-        "Rate100",
+        "Rate100"
     ];
 
     public static readonly string[] RatesZeroOne =
     [
         "RoleOff", /*"Rate10", "Rate20", "Rate30", "Rate40", "Rate50",
         "Rate60", "Rate70", "Rate80", "Rate90", */
-        "RoleRate",
+        "RoleRate"
     ];
 
     private static readonly string[] CheatResponsesName =
@@ -591,21 +591,21 @@ public static class Options
     [
         "MadmateSpawnMode.Assign",
         "MadmateSpawnMode.FirstKill",
-        "MadmateSpawnMode.SelfVote",
+        "MadmateSpawnMode.SelfVote"
     ];
 
     public static readonly string[] MadmateCountModeStrings =
     [
         "MadmateCountMode.None",
         "MadmateCountMode.Imp",
-        "MadmateCountMode.Crew",
+        "MadmateCountMode.Crew"
     ];
 
     public static readonly string[] SidekickCountMode =
     [
         "SidekickCountMode.Jackal",
         "SidekickCountMode.None",
-        "SidekickCountMode.Original",
+        "SidekickCountMode.Original"
     ];
 
     public static OptionItem SyncButtonMode;
@@ -730,14 +730,14 @@ public static class Options
         "RoleAssigningAlgorithm.NetRandom",
         "RoleAssigningAlgorithm.HashRandom",
         "RoleAssigningAlgorithm.Xorshift",
-        "RoleAssigningAlgorithm.MersenneTwister",
+        "RoleAssigningAlgorithm.MersenneTwister"
     ];
 
     private static readonly string[] FormatNameModes =
     [
         "FormatNameModes.None",
         "FormatNameModes.Color",
-        "FormatNameModes.Snacks",
+        "FormatNameModes.Snacks"
     ];
 
     public static bool IsLoaded;

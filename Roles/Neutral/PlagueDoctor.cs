@@ -272,7 +272,7 @@ namespace EHR.Roles.Neutral
                 < 50 => "\u2581",
                 >= 50 and < 100 => "\u2584",
                 >= 100 => "\u2588",
-                _ => string.Empty,
+                _ => string.Empty
             };
         }
 

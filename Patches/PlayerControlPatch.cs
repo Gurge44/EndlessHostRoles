@@ -2001,7 +2001,7 @@ class PlayerControlLocalSetRolePatch
                 RoleTypes.Crewmate => CustomRoles.CrewmateEHR,
                 RoleTypes.Engineer => CustomRoles.EngineerEHR,
                 RoleTypes.Scientist => CustomRoles.ScientistEHR,
-                _ => CustomRoles.NotAssigned,
+                _ => CustomRoles.NotAssigned
             };
             if (moddedRole != CustomRoles.NotAssigned)
             {

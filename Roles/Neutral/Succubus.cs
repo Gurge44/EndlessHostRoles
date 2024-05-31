@@ -24,7 +24,7 @@ public class Succubus : RoleBase
     [
         "CharmedCountMode.None",
         "CharmedCountMode.Succubus",
-        "CharmedCountMode.Original",
+        "CharmedCountMode.Original"
     ];
 
     public override bool IsEnable => playerIdList.Count > 0;

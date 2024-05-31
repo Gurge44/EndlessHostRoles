@@ -62,7 +62,7 @@ namespace EHR.Roles.Crewmate
                     MapNames.Dleks => new RandomSpawn.DleksSpawnMap(),
                     MapNames.Airship => new RandomSpawn.AirshipSpawnMap(),
                     MapNames.Fungle => new RandomSpawn.FungleSpawnMap(),
-                    _ => throw new NotImplementedException(),
+                    _ => throw new NotImplementedException()
                 };
                 CanUseMap = true;
             }

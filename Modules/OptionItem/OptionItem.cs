@@ -310,5 +310,5 @@ public enum OptionFormat
     Votes,
     Pieces,
     Health,
-    Level,
+    Level
 }

@@ -28,7 +28,7 @@ public class Jackal : RoleBase
     [
         "SidekickAssignMode.SidekickAndRecruit",
         "SidekickAssignMode.Sidekick",
-        "SidekickAssignMode.Recruit",
+        "SidekickAssignMode.Recruit"
     ];
 
     public static bool On;

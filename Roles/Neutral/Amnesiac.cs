@@ -22,7 +22,7 @@ public class Amnesiac : RoleBase
         "Role.Amnesiac", // 0
         "Role.Pursuer", // 1
         "Role.Follower", // 2
-        "Role.Maverick", // 3
+        "Role.Maverick" // 3
     ];
 
     private static readonly string[] RememberModes =

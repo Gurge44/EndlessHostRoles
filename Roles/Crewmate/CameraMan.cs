@@ -68,7 +68,7 @@ namespace EHR.Roles.Crewmate
                     MapNames.Dleks => new(-13.5f, -5.5f),
                     MapNames.Airship => new(5.8f, -10.8f),
                     MapNames.Fungle => new(9.5f, 1.2f),
-                    _ => throw new NotImplementedException(),
+                    _ => throw new NotImplementedException()
                 };
 
                 LateTask.New(() => { pc.TP(pos); }, UsePets.GetBool() ? 0.1f : 2f, "CameraMan Teleport");

@@ -32,7 +32,7 @@ public class Lawyer : RoleBase
         "Role.Bodyguard",
         "Role.Dictator",
         "Role.Mayor",
-        "Role.Doctor",
+        "Role.Doctor"
     ];
 
     public static readonly CustomRoles[] CRoleChangeRoles =
@@ -45,7 +45,7 @@ public class Lawyer : RoleBase
         CustomRoles.Bodyguard,
         CustomRoles.Dictator,
         CustomRoles.Mayor,
-        CustomRoles.Doctor,
+        CustomRoles.Doctor
     ];
 
     public override bool IsEnable => playerIdList.Count > 0;

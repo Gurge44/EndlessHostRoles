@@ -135,7 +135,7 @@ namespace EHR.Roles.Neutral
                     CustomRoles.Virus
                     => true,
 
-                _ => false,
+                _ => false
             };
         }
 

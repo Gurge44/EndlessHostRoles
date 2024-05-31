@@ -128,7 +128,7 @@ public class CopyCat : RoleBase
                 CustomRoles.Vindicator or CustomRoles.Pickpocket => CustomRoles.Mayor,
                 CustomRoles.Councillor => CustomRoles.Judge,
                 CustomRoles.EvilGuesser or CustomRoles.Doomsayer or CustomRoles.Ritualist => CustomRoles.NiceGuesser,
-                _ => role,
+                _ => role
             };
         }
 

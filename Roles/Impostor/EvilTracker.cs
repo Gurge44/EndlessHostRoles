@@ -31,7 +31,7 @@ public class EvilTracker : RoleBase
         "EvilTrackerTargetMode.Never",
         "EvilTrackerTargetMode.OnceInGame",
         "EvilTrackerTargetMode.EveryMeeting",
-        "EvilTrackerTargetMode.Always",
+        "EvilTrackerTargetMode.Always"
     ];
 
     public bool CanSetTarget;

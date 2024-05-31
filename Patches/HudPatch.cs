@@ -222,7 +222,7 @@ class HudManagerPatch
                             { } s when s.Contains(CustomRoles.Asthmatic) => Asthmatic.GetSuffixText(player.PlayerId),
                             _ => string.Empty
                         },
-                        _ => string.Empty,
+                        _ => string.Empty
                     };
 
                     string CD_HUDText = !Options.UsePets.GetBool() || !Main.AbilityCD.TryGetValue(player.PlayerId, out var CD)

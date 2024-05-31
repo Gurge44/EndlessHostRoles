@@ -16,7 +16,7 @@ public class Witch : RoleBase
     {
         Kill,
         Vent,
-        DoubleTrigger,
+        DoubleTrigger
     }
 
     private const int Id = 2000;

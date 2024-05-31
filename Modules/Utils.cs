@@ -523,12 +523,10 @@ public static class Utils
                     w.Write(l.ToString());
                     break;
                 case Vector2 v:
-                    NetHelpers.WriteVector2(v, w);
+                    w.Write(v);
                     break;
                 case Vector3 v:
-                    w.Write(v.x);
-                    w.Write(v.y);
-                    w.Write(v.z);
+                    w.Write(v);
                     break;
                 default:
                     try
@@ -546,14 +544,6 @@ public static class Utils
         }
 
         EndRPC(w);
-    }
-
-    public static Vector3 ReadVector3(MessageReader reader)
-    {
-        float x = reader.ReadSingle();
-        float y = reader.ReadSingle();
-        float z = reader.ReadSingle();
-        return new(x, y, z);
     }
 
     public static void IncreaseAbilityUseLimitOnKill(PlayerControl killer)
@@ -1929,21 +1919,22 @@ public static class Utils
         {
             try
             {
-                if (seer == null || seer.Data.Disconnected || seer.IsModClient()) continue;
+                if (seer is null || !seer || seer.Data.Disconnected || seer.IsModClient()) continue;
 
                 // During intro scene, set team name for non-modded clients and skip the rest.
                 string SelfName;
                 Team seerTeam = seer.GetTeam();
-                if (SetUpRoleTextPatch.IsInIntro)
+                if (SetUpRoleTextPatch.IsInIntro && seer.GetCustomRole().IsDesyncRole() || seer.Is(CustomRoles.Bloodlust))
                 {
-                    const string iconText = "<color=#ffffff>|</color>";
+                    const string iconTextLeft = "<color=#ffffff>\u21e8</color>";
+                    const string iconTextRight = "<color=#ffffff>\u21e6</color>";
                     const string roleNameUp = "</size><size=1350%>\n \n</size>";
-                    string selfTeamName = $"<size=450%>{iconText} <font=\"VCR SDF\" material=\"VCR Black Outline\">{ColorString(seerTeam.GetTeamColor(), $"{seerTeam}")}</font> {iconText}</size><size=900%>\n \n</size>";
+                    string selfTeamName = $"<size=450%>{iconTextLeft} <font=\"VCR SDF\" material=\"VCR Black Outline\">{ColorString(seerTeam.GetTeamColor(), $"{seerTeam}")}</font> {iconTextRight}</size><size=900%>\n \n</size>";
                     SelfName = $"{ColorString(seer.GetRoleColor(), seer.GetRealName())}";
 
                     SelfName = $"{selfTeamName}\r\n{seer.GetDisplayRoleName()}\r\n{SelfName}{roleNameUp}";
 
-                    // Privately sent name.
+                    // Privately set name
                     seer.RpcSetNamePrivate(SelfName, true, seer);
                     continue;
                 }
@@ -2722,7 +2713,7 @@ public static class Utils
             253 => "Skip",
             254 => "None",
             255 => "Dead",
-            _ => "invalid",
+            _ => "invalid"
         };
     }
 

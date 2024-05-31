@@ -417,7 +417,7 @@ class BeginCrewmatePatch
                     CustomRoleTypes.Impostor => GetIntroSound(RoleTypes.Impostor),
                     CustomRoleTypes.Crewmate => GetIntroSound(RoleTypes.Crewmate),
                     CustomRoleTypes.Neutral => GetIntroSound(RoleTypes.Shapeshifter),
-                    _ => GetIntroSound(RoleTypes.Crewmate),
+                    _ => GetIntroSound(RoleTypes.Crewmate)
                 }
             };
         }
@@ -428,7 +428,7 @@ class BeginCrewmatePatch
                 CustomRoleTypes.Impostor => GetIntroSound(RoleTypes.Impostor),
                 CustomRoleTypes.Crewmate => GetIntroSound(RoleTypes.Crewmate),
                 CustomRoleTypes.Neutral => GetIntroSound(RoleTypes.Shapeshifter),
-                _ => GetIntroSound(RoleTypes.Crewmate),
+                _ => GetIntroSound(RoleTypes.Crewmate)
             };
             Logger.Warn($"Could not set intro sound\n{ex}", "IntroSound");
         }
@@ -725,7 +725,7 @@ class IntroCutsceneDestroyPatch
                     2 => new RandomSpawn.PolusSpawnMap(),
                     3 => new RandomSpawn.DleksSpawnMap(),
                     5 => new RandomSpawn.FungleSpawnMap(),
-                    _ => null,
+                    _ => null
                 };
                 if (map != null) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
             }

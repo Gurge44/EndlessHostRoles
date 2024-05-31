@@ -33,7 +33,7 @@ public class Executioner : RoleBase
         CustomRoles.CyberStar,
         CustomRoles.Bodyguard,
         CustomRoles.Dictator,
-        CustomRoles.Doctor,
+        CustomRoles.Doctor
     ];
 
     public override bool IsEnable => playerIdList.Count > 0;

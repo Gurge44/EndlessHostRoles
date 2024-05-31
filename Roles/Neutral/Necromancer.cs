@@ -19,7 +19,7 @@ namespace EHR.Roles.Neutral
         [
             "UndeadCountMode.None",
             "UndeadCountMode.Necromancer",
-            "UndeadCountMode.Original",
+            "UndeadCountMode.Original"
         ];
 
         public static readonly List<byte> PartiallyRecruitedIds = [];

@@ -31,14 +31,14 @@ public class Medic : RoleBase
         "SeeMedicAndTarget",
         "SeeMedic",
         "SeeTarget",
-        "SeeNoone",
+        "SeeNoone"
     ];
 
     public static readonly string[] ShieldDeactivationIsVisibleOption =
     [
         "DeactivationImmediately",
         "DeactivationAfterMeeting",
-        "DeactivationIsVisibleOFF",
+        "DeactivationIsVisibleOFF"
     ];
 
     public override bool IsEnable => playerIdList.Count > 0;
@@ -288,6 +288,6 @@ public class Medic : RoleBase
     {
         Immediately,
         AfterMeeting,
-        OFF,
+        OFF
     }
 }

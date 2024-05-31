@@ -151,7 +151,7 @@ public class Sheriff : RoleBase
                 CustomRoles.Egoist => CanKillEgoists.GetBool(),
                 CustomRoles.Contagious => CanKillContagious.GetBool(),
                 CustomRoles.Rascal => true,
-                _ => false,
+                _ => false
             };
         }
 
@@ -163,7 +163,7 @@ public class Sheriff : RoleBase
             {
                 CustomRoleTypes.Impostor => true,
                 CustomRoleTypes.Neutral => CanKillNeutrals.GetBool() && (CanKillNeutralsMode.GetValue() == 0 || !KillTargetOptions.TryGetValue(cRole, out var option) || option.GetBool()),
-                _ => CanKill,
+                _ => CanKill
             }
         };
     }

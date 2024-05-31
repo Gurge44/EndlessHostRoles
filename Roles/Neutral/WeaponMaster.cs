@@ -219,7 +219,7 @@ public class WeaponMaster : RoleBase
             1 => GetString("Axe"),
             2 => GetString("Lance"),
             3 => GetString("Shield"),
-            _ => string.Empty,
+            _ => string.Empty
         };
     }
 }

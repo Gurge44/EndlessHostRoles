@@ -185,7 +185,7 @@ static class ExtendedPlayerControl
         {
             MapNames.Polus => SystemTypes.Laboratory,
             MapNames.Airship => SystemTypes.HeliSabotage,
-            _ => SystemTypes.Reactor,
+            _ => SystemTypes.Reactor
         };
         bool ReactorCheck = IsActive(systemtypes); //Checking whether the reactor sabotage is active
 
@@ -547,7 +547,7 @@ static class ExtendedPlayerControl
         {
             MapNames.Polus => SystemTypes.Laboratory,
             MapNames.Airship => SystemTypes.HeliSabotage,
-            _ => SystemTypes.Reactor,
+            _ => SystemTypes.Reactor
         };
 
         LateTask.New(() => { pc.RpcDesyncRepairSystem(systemtypes, 128); }, 0f + delay, "Reactor Desync");
@@ -572,7 +572,7 @@ static class ExtendedPlayerControl
         {
             MapNames.Polus => SystemTypes.Laboratory,
             MapNames.Airship => SystemTypes.HeliSabotage,
-            _ => SystemTypes.Reactor,
+            _ => SystemTypes.Reactor
         };
 
         float FlashDuration = Options.KillFlashDuration.GetFloat();
@@ -677,7 +677,7 @@ static class ExtendedPlayerControl
             // Hot Potato
             CustomRoles.Potato => false,
 
-            _ => Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseImpostorVentButton(pc),
+            _ => Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseImpostorVentButton(pc)
         };
     }
 
@@ -1025,7 +1025,7 @@ static class ExtendedPlayerControl
         Team.Neutral => target.GetCustomRole().IsNeutralTeamV2() || target.Is(CustomRoles.Bloodlust),
         Team.Crewmate => target.GetCustomRole().IsCrewmateTeamV2(),
         Team.None => target.Is(CustomRoles.GM) || target.Is(CountTypes.None) || target.Is(CountTypes.OutOfGame),
-        _ => false,
+        _ => false
     };
 
     public static Team GetTeam(this PlayerControl target)

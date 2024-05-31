@@ -20,7 +20,7 @@ public class ParityCop : RoleBase
     public static readonly string[] PcEgoistCountMode =
     [
         "EgoistCountMode.Original",
-        "EgoistCountMode.Neutral",
+        "EgoistCountMode.Neutral"
     ];
 
     private static OptionItem TryHideMsg;

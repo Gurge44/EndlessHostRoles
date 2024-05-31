@@ -890,7 +890,7 @@ internal class ChatCommands
             "持槍" or "持械" or "手长" => GetString("Reach"),
             "monarch" => GetString("Monarch"),
             "sch" => GetString("SchrodingersCat"),
-            _ => text,
+            _ => text
         };
     }
 

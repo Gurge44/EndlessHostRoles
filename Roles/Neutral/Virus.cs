@@ -29,7 +29,7 @@ namespace EHR.Roles.Neutral
         [
             "ContagiousCountMode.None",
             "ContagiousCountMode.Virus",
-            "ContagiousCountMode.Original",
+            "ContagiousCountMode.Original"
         ];
 
         public override bool IsEnable => playerIdList.Count > 0;

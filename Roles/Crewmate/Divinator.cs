@@ -22,7 +22,7 @@ public class Divinator : RoleBase
 
     public static List<byte> didVote = [];
 
-    private static Dictionary<byte, CustomRoles[]> AllPlayerRoleList = [];
+    private static Dictionary<byte, List<CustomRoles>> AllPlayerRoleList = [];
 
     public override bool IsEnable => playerIdList.Count > 0;
 
@@ -55,18 +55,14 @@ public class Divinator : RoleBase
         playerId.SetAbilityUseLimit(CheckLimitOpt.GetInt());
 
         CustomRoles[][] chunked = Enum.GetValues<CustomRoles>()
-            .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.KB_Normal and not CustomRoles.Potato and not CustomRoles.Hider and not CustomRoles.Seeker and not CustomRoles.Fox and not CustomRoles.Troll and not CustomRoles.Jumper and not CustomRoles.Detector and not CustomRoles.Jet and not CustomRoles.Dasher and not CustomRoles.Locator and not CustomRoles.Venter and not CustomRoles.Agent and not CustomRoles.Taskinator and not CustomRoles.GM and not CustomRoles.Convict)
+            .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.KB_Normal and not CustomRoles.Potato and not CustomRoles.GM and not CustomRoles.Convict && !HnSManager.AllHnSRoles.Contains(x))
             .Shuffle()
             .Chunk(RolesPerCategory)
             .ToArray();
 
-        int index = 0;
-        foreach (var pc in Main.AllAlivePlayerControls)
-        {
-            if (index >= chunked.Length) break;
-            AllPlayerRoleList[pc.PlayerId] = chunked[index];
-            index++;
-        }
+        AllPlayerRoleList = Main.AllAlivePlayerControls
+            .Select((pc, index) => (pc.PlayerId, chunked[index].Append(pc.GetCustomRole()).Shuffle()))
+            .ToDictionary(x => x.PlayerId, x => x.Item2);
     }
 
     public static bool OnVote(PlayerControl player, PlayerControl target)
