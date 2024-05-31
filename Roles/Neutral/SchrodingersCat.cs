@@ -3,15 +3,15 @@
     internal class SchrodingersCat : RoleBase
     {
         public static bool On;
-        public override bool IsEnable => On;
 
         public static OptionItem WinsWithCrewIfNotAttacked;
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
             const int id = 13840;
             Options.SetupRoleOptions(id, TabGroup.NeutralRoles, CustomRoles.SchrodingersCat);
-            WinsWithCrewIfNotAttacked = BooleanOptionItem.Create(id + 2, "SchrodingersCat.WinsWithCrewIfNotAttacked", true, TabGroup.NeutralRoles)
+            WinsWithCrewIfNotAttacked = new BooleanOptionItem(id + 2, "SchrodingersCat.WinsWithCrewIfNotAttacked", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SchrodingersCat]);
         }
 

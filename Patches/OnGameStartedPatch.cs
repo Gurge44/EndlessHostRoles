@@ -23,6 +23,8 @@ internal class ChangeRoleSettings
 {
     public static void Postfix(AmongUsClient __instance)
     {
+        SetUpRoleTextPatch.IsInIntro = true;
+
         Main.OverrideWelcomeMsg = string.Empty;
         try
         {

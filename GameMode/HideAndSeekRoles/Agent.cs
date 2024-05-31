@@ -17,12 +17,12 @@
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(69_211_2001, TabGroup.ImpostorRoles, CustomRoles.Agent, CustomGameMode.HideAndSeek);
-            Vision = FloatOptionItem.Create(69_211_2003, "AgentVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
+            Vision = new FloatOptionItem(69_211_2003, "AgentVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(255, 143, 143, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Agent]);
-            Speed = FloatOptionItem.Create(69_213_2004, "AgentSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
+            Speed = new FloatOptionItem(69_213_2004, "AgentSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(255, 143, 143, byte.MaxValue))

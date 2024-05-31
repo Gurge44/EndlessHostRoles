@@ -12,16 +12,18 @@ namespace EHR.Roles.Impostor
         private static OptionItem StartingPoints;
         private static OptionItem KCD;
 
+        public override bool IsEnable => playerIdList.Count > 0;
+
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Cantankerous);
-            KCD = FloatOptionItem.Create(Id + 5, "KillCooldown", new(0f, 60f, 2.5f), 22.5f, TabGroup.ImpostorRoles)
+            KCD = new FloatOptionItem(Id + 5, "KillCooldown", new(0f, 60f, 2.5f), 22.5f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Cantankerous])
                 .SetValueFormat(OptionFormat.Seconds);
-            PointsGainedPerEjection = IntegerOptionItem.Create(Id + 6, "CantankerousPointsGainedPerEjection", new(1, 5, 1), 2, TabGroup.ImpostorRoles)
+            PointsGainedPerEjection = new IntegerOptionItem(Id + 6, "CantankerousPointsGainedPerEjection", new(1, 5, 1), 2, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Cantankerous])
                 .SetValueFormat(OptionFormat.Times);
-            StartingPoints = IntegerOptionItem.Create(Id + 7, "CantankerousStartingPoints", new(0, 5, 1), 1, TabGroup.ImpostorRoles)
+            StartingPoints = new IntegerOptionItem(Id + 7, "CantankerousStartingPoints", new(0, 5, 1), 1, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Cantankerous])
                 .SetValueFormat(OptionFormat.Times);
         }
@@ -36,8 +38,6 @@ namespace EHR.Roles.Impostor
             playerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(StartingPoints.GetInt());
         }
-
-        public override bool IsEnable => playerIdList.Count > 0;
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KCD.GetFloat();
 

@@ -49,33 +49,33 @@ public class Magician : RoleBase
     public static void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Magician);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
             .SetValueFormat(OptionFormat.Seconds);
 
-        SlownessValue = FloatOptionItem.Create(Id + 11, "MagicianSlownessValue", new(0f, 1f, 0.05f), 1f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
+        SlownessValue = new FloatOptionItem(Id + 11, "MagicianSlownessValue", new(0f, 1f, 0.05f), 1f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
             .SetValueFormat(OptionFormat.Multiplier);
-        SlownessRadius = FloatOptionItem.Create(Id + 12, "MagicianSlownessRadius", new(0f, 10f, 0.25f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
+        SlownessRadius = new FloatOptionItem(Id + 12, "MagicianSlownessRadius", new(0f, 10f, 0.25f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
             .SetValueFormat(OptionFormat.Multiplier);
-        SlownessDur = IntegerOptionItem.Create(Id + 13, "MagicianSlownessDur", new(1, 30, 1), 10, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
+        SlownessDur = new IntegerOptionItem(Id + 13, "MagicianSlownessDur", new(1, 30, 1), 10, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
             .SetValueFormat(OptionFormat.Seconds);
-        Speed = FloatOptionItem.Create(Id + 14, "MagicianSpeedup", new(0.1f, 3f, 0.05f), 1.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
+        Speed = new FloatOptionItem(Id + 14, "MagicianSpeedup", new(0.1f, 3f, 0.05f), 1.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
             .SetValueFormat(OptionFormat.Multiplier);
-        SpeedDur = IntegerOptionItem.Create(Id + 15, "MagicianSpeedupDur", new(1, 20, 1), 10, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
+        SpeedDur = new IntegerOptionItem(Id + 15, "MagicianSpeedupDur", new(1, 20, 1), 10, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
             .SetValueFormat(OptionFormat.Seconds);
-        LowKCD = FloatOptionItem.Create(Id + 16, "MagicianLowKCD", new(1f, 20f, 1f), 5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
+        LowKCD = new FloatOptionItem(Id + 16, "MagicianLowKCD", new(1f, 20f, 1f), 5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
             .SetValueFormat(OptionFormat.Seconds);
-        BlindDur = IntegerOptionItem.Create(Id + 17, "MagicianBlindDur", new(1, 20, 1), 5, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
+        BlindDur = new IntegerOptionItem(Id + 17, "MagicianBlindDur", new(1, 20, 1), 5, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
             .SetValueFormat(OptionFormat.Seconds);
-        BlindRadius = FloatOptionItem.Create(Id + 18, "MagicianBlindRadius", new(0f, 10f, 0.25f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
+        BlindRadius = new FloatOptionItem(Id + 18, "MagicianBlindRadius", new(0f, 10f, 0.25f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
             .SetValueFormat(OptionFormat.Multiplier);
-        ClearPortalAfterMeeting = BooleanOptionItem.Create(Id + 19, "MagicianClearPortalAfterMeeting", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician]);
-        BombRadius = FloatOptionItem.Create(Id + 20, "MagicianBombRadius", new(0f, 10f, 0.25f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
+        ClearPortalAfterMeeting = new BooleanOptionItem(Id + 19, "MagicianClearPortalAfterMeeting", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician]);
+        BombRadius = new FloatOptionItem(Id + 20, "MagicianBombRadius", new(0f, 10f, 0.25f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
             .SetValueFormat(OptionFormat.Multiplier);
-        BombDelay = IntegerOptionItem.Create(Id + 21, "MagicianBombDelay", new(0, 10, 1), 3, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
+        BombDelay = new IntegerOptionItem(Id + 21, "MagicianBombDelay", new(0, 10, 1), 3, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
             .SetValueFormat(OptionFormat.Seconds);
 
-        CanVent = BooleanOptionItem.Create(Id + 22, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician]);
-        HasImpostorVision = BooleanOptionItem.Create(Id + 23, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician]);
+        CanVent = new BooleanOptionItem(Id + 22, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician]);
+        HasImpostorVision = new BooleanOptionItem(Id + 23, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician]);
     }
 
     public override void Init()

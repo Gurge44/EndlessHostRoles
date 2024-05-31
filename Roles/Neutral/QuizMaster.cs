@@ -53,21 +53,21 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.QuizMaster);
-            MarkCooldown = FloatOptionItem.Create(Id + 2, "QuizMaster.MarkCooldown", new(0f, 180f, 1f), 1f, TabGroup.NeutralRoles)
+            MarkCooldown = new FloatOptionItem(Id + 2, "QuizMaster.MarkCooldown", new(0f, 180f, 1f), 1f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster])
                 .SetValueFormat(OptionFormat.Seconds);
-            CanVent = BooleanOptionItem.Create(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
+            CanVent = new BooleanOptionItem(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster]);
-            HasImpostorVision = BooleanOptionItem.Create(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
+            HasImpostorVision = new BooleanOptionItem(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster]);
-            CanKillWithDoubleClick = BooleanOptionItem.Create(Id + 5, "CanKillWithDoubleClick", true, TabGroup.NeutralRoles)
+            CanKillWithDoubleClick = new BooleanOptionItem(Id + 5, "CanKillWithDoubleClick", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster]);
-            KillCooldown = FloatOptionItem.Create(Id + 6, "KillCooldown", new(0f, 60f, 0.5f), 22.5f, TabGroup.NeutralRoles)
+            KillCooldown = new FloatOptionItem(Id + 6, "KillCooldown", new(0f, 60f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CanKillWithDoubleClick)
                 .SetValueFormat(OptionFormat.Seconds);
-            EnableCustomQuestionsOpt = BooleanOptionItem.Create(Id + 7, "QuizMaster.EnableCustomQuestions", true, TabGroup.NeutralRoles)
+            EnableCustomQuestionsOpt = new BooleanOptionItem(Id + 7, "QuizMaster.EnableCustomQuestions", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster]);
-            CustomQuestionChance = FloatOptionItem.Create(Id + 8, "QuizMaster.CustomQuestionChance", new(0f, 100f, 5f), 50f, TabGroup.NeutralRoles)
+            CustomQuestionChance = new FloatOptionItem(Id + 8, "QuizMaster.CustomQuestionChance", new(0f, 100f, 5f), 50f, TabGroup.NeutralRoles)
                 .SetParent(EnableCustomQuestionsOpt)
                 .SetValueFormat(OptionFormat.Percent);
         }

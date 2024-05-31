@@ -1,4 +1,5 @@
 ﻿using EHR.Patches;
+using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
 using HarmonyLib;
@@ -195,7 +196,7 @@ public static class HudSpritePatch
                 else
                     newAbilityButton = CustomButton.Get("Paranoid");
                 break;
-            case CustomRoles.Mayor:
+            case CustomRoles.Mayor when Mayor.MayorHasPortableButton.GetBool():
                 if (Options.UsePets.GetBool())
                     newPetButton = CustomButton.Get("Button");
                 else

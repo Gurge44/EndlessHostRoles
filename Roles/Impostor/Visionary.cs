@@ -6,24 +6,24 @@ namespace EHR.Roles.Impostor
     internal class Visionary : RoleBase
     {
         public static bool On;
-        public override bool IsEnable => On;
-
-        public List<byte> RevealedPlayerIds = [];
 
         private static OptionItem UseLimit;
         private static OptionItem VisionaryAbilityUseGainWithEachKill;
         private static OptionItem ShapeshiftCooldown;
 
+        public List<byte> RevealedPlayerIds = [];
+        public override bool IsEnable => On;
+
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(16150, TabGroup.ImpostorRoles, CustomRoles.Visionary);
-            UseLimit = IntegerOptionItem.Create(16152, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles)
+            UseLimit = new IntegerOptionItem(16152, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Visionary])
                 .SetValueFormat(OptionFormat.Times);
-            VisionaryAbilityUseGainWithEachKill = FloatOptionItem.Create(16153, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 1f, TabGroup.ImpostorRoles)
+            VisionaryAbilityUseGainWithEachKill = new FloatOptionItem(16153, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 1f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Visionary])
                 .SetValueFormat(OptionFormat.Times);
-            ShapeshiftCooldown = FloatOptionItem.Create(16154, "ShapeshiftCooldown", new(1f, 60f, 1f), 15f, TabGroup.ImpostorRoles)
+            ShapeshiftCooldown = new FloatOptionItem(16154, "ShapeshiftCooldown", new(1f, 60f, 1f), 15f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Visionary])
                 .SetValueFormat(OptionFormat.Seconds);
         }

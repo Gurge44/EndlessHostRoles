@@ -14,10 +14,12 @@ public class Collector : RoleBase
     public static Dictionary<byte, byte> CollectorVoteFor = [];
     public static Dictionary<byte, int> CollectVote = [];
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Collector);
-        CollectorCollectAmount = IntegerOptionItem.Create(Id + 13, "CollectorCollectAmount", new(1, 60, 1), 30, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Collector])
+        CollectorCollectAmount = new IntegerOptionItem(Id + 13, "CollectorCollectAmount", new(1, 60, 1), 30, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Collector])
             .SetValueFormat(OptionFormat.Votes);
     }
 
@@ -33,8 +35,6 @@ public class Collector : RoleBase
         playerIdList.Add(playerId);
         CollectVote.TryAdd(playerId, 0);
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     private static void SendRPC(byte playerId)
     {

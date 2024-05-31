@@ -36,13 +36,13 @@ internal class AntiAdminer : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.AntiAdminer);
-        CanCheckCamera = BooleanOptionItem.Create(Id + 10, "CanCheckCamera", true, TabGroup.ImpostorRoles)
+        CanCheckCamera = new BooleanOptionItem(Id + 10, "CanCheckCamera", true, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.AntiAdminer]);
-        EnableExtraAbility = BooleanOptionItem.Create(Id + 11, "EnableExtraAbility", true, TabGroup.ImpostorRoles)
+        EnableExtraAbility = new BooleanOptionItem(Id + 11, "EnableExtraAbility", true, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.AntiAdminer]);
-        CanOnlyUseWhileAnyWatch = BooleanOptionItem.Create(Id + 12, "CanOnlyUseWhileAnyWatch", true, TabGroup.ImpostorRoles)
+        CanOnlyUseWhileAnyWatch = new BooleanOptionItem(Id + 12, "CanOnlyUseWhileAnyWatch", true, TabGroup.ImpostorRoles)
             .SetParent(EnableExtraAbility);
-        Delay = FloatOptionItem.Create(Id + 13, "AADelay", new(0f, 20f, 0.5f), 5f, TabGroup.ImpostorRoles)
+        Delay = new FloatOptionItem(Id + 13, "AADelay", new(0f, 20f, 0.5f), 5f, TabGroup.ImpostorRoles)
             .SetParent(EnableExtraAbility)
             .SetValueFormat(OptionFormat.Seconds);
     }

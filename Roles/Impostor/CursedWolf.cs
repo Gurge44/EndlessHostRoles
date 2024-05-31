@@ -17,10 +17,10 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(1000, TabGroup.ImpostorRoles, CustomRoles.CursedWolf); //TOH_Y
-            Options.GuardSpellTimes = IntegerOptionItem.Create(1010, "GuardSpellTimes", new(1, 15, 1), 3, TabGroup.ImpostorRoles)
+            Options.GuardSpellTimes = new IntegerOptionItem(1010, "GuardSpellTimes", new(1, 15, 1), 3, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.CursedWolf])
                 .SetValueFormat(OptionFormat.Times);
-            Options.killAttacker = BooleanOptionItem.Create(1011, "killAttacker", true, TabGroup.ImpostorRoles)
+            Options.killAttacker = new BooleanOptionItem(1011, "killAttacker", true, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.CursedWolf]);
         }
 

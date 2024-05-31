@@ -11,16 +11,19 @@ public class TimeThief : RoleBase
     public static OptionItem DecreaseMeetingTime;
     public static OptionItem LowerLimitVotingTime;
     public static OptionItem ReturnStolenTimeUponDeath;
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.TimeThief);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.TimeThief])
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.TimeThief])
             .SetValueFormat(OptionFormat.Seconds);
-        DecreaseMeetingTime = IntegerOptionItem.Create(Id + 11, "TimeThiefDecreaseMeetingTime", new(0, 100, 1), 10, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.TimeThief])
+        DecreaseMeetingTime = new IntegerOptionItem(Id + 11, "TimeThiefDecreaseMeetingTime", new(0, 100, 1), 10, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.TimeThief])
             .SetValueFormat(OptionFormat.Seconds);
-        LowerLimitVotingTime = IntegerOptionItem.Create(Id + 12, "TimeThiefLowerLimitVotingTime", new(0, 300, 5), 50, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.TimeThief])
+        LowerLimitVotingTime = new IntegerOptionItem(Id + 12, "TimeThiefLowerLimitVotingTime", new(0, 300, 5), 50, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.TimeThief])
             .SetValueFormat(OptionFormat.Seconds);
-        ReturnStolenTimeUponDeath = BooleanOptionItem.Create(Id + 13, "TimeThiefReturnStolenTimeUponDeath", true, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.TimeThief]);
+        ReturnStolenTimeUponDeath = new BooleanOptionItem(Id + 13, "TimeThiefReturnStolenTimeUponDeath", true, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.TimeThief]);
     }
 
     public override void Init()
@@ -33,7 +36,6 @@ public class TimeThief : RoleBase
         playerIdList.Add(playerId);
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
 
     private static int StolenTime(byte id)
@@ -42,6 +44,7 @@ public class TimeThief : RoleBase
             ? DecreaseMeetingTime.GetInt() * Main.PlayerStates[id].GetKillCount(true)
             : 0;
     }
+
     public static int TotalDecreasedMeetingTime()
     {
         int sec = playerIdList.ToArray().Aggregate(0, (current, playerId) => current - StolenTime(playerId));

@@ -10,10 +10,10 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(5600, TabGroup.CrewmateRoles, CustomRoles.Doctor);
-            Options.DoctorTaskCompletedBatteryCharge = FloatOptionItem.Create(5610, "DoctorTaskCompletedBatteryCharge", new(0f, 250f, 1f), 50f, TabGroup.CrewmateRoles)
+            Options.DoctorTaskCompletedBatteryCharge = new FloatOptionItem(5610, "DoctorTaskCompletedBatteryCharge", new(0f, 250f, 1f), 50f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doctor])
                 .SetValueFormat(OptionFormat.Seconds);
-            Options.DoctorVisibleToEveryone = BooleanOptionItem.Create(5611, "DoctorVisibleToEveryone", false, TabGroup.CrewmateRoles)
+            Options.DoctorVisibleToEveryone = new BooleanOptionItem(5611, "DoctorVisibleToEveryone", false, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doctor]);
         }
 

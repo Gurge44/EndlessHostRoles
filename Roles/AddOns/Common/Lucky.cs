@@ -9,7 +9,7 @@ namespace EHR.Roles.AddOns.Common
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(14300, CustomRoles.Lucky, canSetNum: true, teamSpawnOptions: true);
-            LuckyProbability = IntegerOptionItem.Create(14310, "LuckyProbability", new(0, 100, 5), 50, TabGroup.Addons)
+            LuckyProbability = new IntegerOptionItem(14310, "LuckyProbability", new(0, 100, 5), 50, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lucky])
                 .SetValueFormat(OptionFormat.Percent);
         }

@@ -20,19 +20,19 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(16400, TabGroup.ImpostorRoles, CustomRoles.Zombie);
-            ZombieKillCooldown = FloatOptionItem.Create(16410, "KillCooldown", new(0f, 180f, 2.5f), 5f, TabGroup.ImpostorRoles)
+            ZombieKillCooldown = new FloatOptionItem(16410, "KillCooldown", new(0f, 180f, 2.5f), 5f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Zombie])
                 .SetValueFormat(OptionFormat.Seconds);
-            ZombieSpeedReduce = FloatOptionItem.Create(16411, "ZombieSpeedReduce", new(0.0f, 1.0f, 0.1f), 0.1f, TabGroup.ImpostorRoles)
+            ZombieSpeedReduce = new FloatOptionItem(16411, "ZombieSpeedReduce", new(0.0f, 1.0f, 0.1f), 0.1f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Zombie])
                 .SetValueFormat(OptionFormat.Multiplier);
-            ZombieSpeedReduceInterval = FloatOptionItem.Create(16412, "ZombieSpeedReduceInterval", new(0f, 180f, 1f), 10f, TabGroup.ImpostorRoles)
+            ZombieSpeedReduceInterval = new FloatOptionItem(16412, "ZombieSpeedReduceInterval", new(0f, 180f, 1f), 10f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Zombie])
                 .SetValueFormat(OptionFormat.Seconds);
-            ZombieInitialSpeed = FloatOptionItem.Create(16413, "ZombieInitialSpeed", new(0.1f, 3f, 0.1f), 1f, TabGroup.ImpostorRoles)
+            ZombieInitialSpeed = new FloatOptionItem(16413, "ZombieInitialSpeed", new(0.1f, 3f, 0.1f), 1f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Zombie])
                 .SetValueFormat(OptionFormat.Multiplier);
-            ZombieMinimumSpeed = FloatOptionItem.Create(16414, "ZombieMinimumSpeed", new(0.05f, 2f, 0.05f), 0.1f, TabGroup.ImpostorRoles)
+            ZombieMinimumSpeed = new FloatOptionItem(16414, "ZombieMinimumSpeed", new(0.05f, 2f, 0.05f), 0.1f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Zombie])
                 .SetValueFormat(OptionFormat.Multiplier);
         }

@@ -24,19 +24,19 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             SetupRoleOptions(11700, TabGroup.NeutralRoles, CustomRoles.Workaholic);
-            WorkaholicCannotWinAtDeath = BooleanOptionItem.Create(11710, "WorkaholicCannotWinAtDeath", true, TabGroup.NeutralRoles)
+            WorkaholicCannotWinAtDeath = new BooleanOptionItem(11710, "WorkaholicCannotWinAtDeath", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic]);
-            WorkaholicVentCooldown = FloatOptionItem.Create(11711, "VentCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
+            WorkaholicVentCooldown = new FloatOptionItem(11711, "VentCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic])
                 .SetValueFormat(OptionFormat.Seconds);
-            WorkaholicVisibleToEveryone = BooleanOptionItem.Create(11712, "WorkaholicVisibleToEveryone", false, TabGroup.NeutralRoles)
+            WorkaholicVisibleToEveryone = new BooleanOptionItem(11712, "WorkaholicVisibleToEveryone", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic]);
-            WorkaholicGiveAdviceAlive = BooleanOptionItem.Create(11713, "WorkaholicGiveAdviceAlive", false, TabGroup.NeutralRoles)
+            WorkaholicGiveAdviceAlive = new BooleanOptionItem(11713, "WorkaholicGiveAdviceAlive", false, TabGroup.NeutralRoles)
                 .SetParent(WorkaholicVisibleToEveryone);
             OverrideTasksData.Create(11714, TabGroup.NeutralRoles, CustomRoles.Workaholic);
-            WorkaholicCanGuess = BooleanOptionItem.Create(11725, "CanGuess", true, TabGroup.NeutralRoles)
+            WorkaholicCanGuess = new BooleanOptionItem(11725, "CanGuess", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic]);
-            WorkaholicSpeed = FloatOptionItem.Create(11726, "WorkaholicSpeed", new(0.1f, 3f, 0.1f), 1.5f, TabGroup.NeutralRoles)
+            WorkaholicSpeed = new FloatOptionItem(11726, "WorkaholicSpeed", new(0.1f, 3f, 0.1f), 1.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic])
                 .SetValueFormat(OptionFormat.Multiplier);
         }

@@ -18,14 +18,6 @@ internal static class SoloKombatManager
     private static Dictionary<byte, float> PlayerATK = [];
     private static Dictionary<byte, float> PlayerDF = [];
 
-    public static bool SoloAlive(this PlayerControl pc) => pc.HP() > 0f;
-
-    public static float HPMAX(this PlayerControl pc) => PlayerHPMax[pc.PlayerId];
-    public static float HP(this PlayerControl pc) => PlayerHP[pc.PlayerId];
-    public static float HPRECO(this PlayerControl pc) => PlayerHPReco[pc.PlayerId];
-    public static float ATK(this PlayerControl pc) => PlayerATK[pc.PlayerId];
-    public static float DF(this PlayerControl pc) => PlayerDF[pc.PlayerId];
-
     private static Dictionary<byte, float> originalSpeed = [];
     public static Dictionary<byte, int> KBScore = [];
     public static int RoundTime;
@@ -41,42 +33,55 @@ internal static class SoloKombatManager
     public static OptionItem KB_KillBonusMultiplier;
     public static OptionItem KB_BootVentWhenDead;
 
+    public static Dictionary<byte, (string TEXT, long TIMESTAMP)> NameNotify = [];
+
+    private static Dictionary<byte, int> BackCountdown = [];
+    private static Dictionary<byte, long> LastHurt = [];
+
+    public static bool SoloAlive(this PlayerControl pc) => pc.HP() > 0f;
+
+    public static float HPMAX(this PlayerControl pc) => PlayerHPMax[pc.PlayerId];
+    public static float HP(this PlayerControl pc) => PlayerHP[pc.PlayerId];
+    public static float HPRECO(this PlayerControl pc) => PlayerHPReco[pc.PlayerId];
+    public static float ATK(this PlayerControl pc) => PlayerATK[pc.PlayerId];
+    public static float DF(this PlayerControl pc) => PlayerDF[pc.PlayerId];
+
     public static void SetupCustomOption()
     {
-        KB_GameTime = IntegerOptionItem.Create(66_233_001, "KB_GameTime", new(30, 300, 5), 180, TabGroup.GameSettings)
+        KB_GameTime = new IntegerOptionItem(66_233_001, "KB_GameTime", new(30, 300, 5), 180, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloKombat)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds)
             .SetHeader(true);
-        KB_ATKCooldown = FloatOptionItem.Create(66_223_008, "KB_ATKCooldown", new(1f, 10f, 0.1f), 1f, TabGroup.GameSettings)
+        KB_ATKCooldown = new FloatOptionItem(66_223_008, "KB_ATKCooldown", new(1f, 10f, 0.1f), 1f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloKombat)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
-        KB_HPMax = FloatOptionItem.Create(66_233_002, "KB_HPMax", new(10f, 990f, 5f), 100f, TabGroup.GameSettings)
+        KB_HPMax = new FloatOptionItem(66_233_002, "KB_HPMax", new(10f, 990f, 5f), 100f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloKombat)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Health);
-        KB_ATK = FloatOptionItem.Create(66_233_003, "KB_ATK", new(1f, 100f, 1f), 8f, TabGroup.GameSettings)
+        KB_ATK = new FloatOptionItem(66_233_003, "KB_ATK", new(1f, 100f, 1f), 8f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloKombat)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Health);
-        KB_RecoverPerSecond = FloatOptionItem.Create(66_233_005, "KB_RecoverPerSecond", new(1f, 180f, 1f), 2f, TabGroup.GameSettings)
+        KB_RecoverPerSecond = new FloatOptionItem(66_233_005, "KB_RecoverPerSecond", new(1f, 180f, 1f), 2f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloKombat)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Health);
-        KB_RecoverAfterSecond = IntegerOptionItem.Create(66_233_004, "KB_RecoverAfterSecond", new(0, 60, 1), 8, TabGroup.GameSettings)
+        KB_RecoverAfterSecond = new IntegerOptionItem(66_233_004, "KB_RecoverAfterSecond", new(0, 60, 1), 8, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloKombat)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
-        KB_ResurrectionWaitingTime = IntegerOptionItem.Create(66_233_006, "KB_ResurrectionWaitingTime", new(3, 990, 1), 15, TabGroup.GameSettings)
+        KB_ResurrectionWaitingTime = new IntegerOptionItem(66_233_006, "KB_ResurrectionWaitingTime", new(3, 990, 1), 15, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloKombat)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Seconds);
-        KB_KillBonusMultiplier = FloatOptionItem.Create(66_233_007, "KB_KillBonusMultiplier", new(0.25f, 5f, 0.25f), 1.25f, TabGroup.GameSettings)
+        KB_KillBonusMultiplier = new FloatOptionItem(66_233_007, "KB_KillBonusMultiplier", new(0.25f, 5f, 0.25f), 1.25f, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloKombat)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue))
             .SetValueFormat(OptionFormat.Multiplier);
-        KB_BootVentWhenDead = BooleanOptionItem.Create(66_233_009, "KB_BootVentWhenDead", false, TabGroup.GameSettings)
+        KB_BootVentWhenDead = new BooleanOptionItem(66_233_009, "KB_BootVentWhenDead", false, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.SoloKombat)
             .SetColor(new Color32(245, 82, 82, byte.MaxValue));
     }
@@ -186,8 +191,6 @@ internal static class SoloKombatManager
         else G = x;
         return new((byte)R, (byte)G, (byte)B, byte.MaxValue);
     }
-
-    public static Dictionary<byte, (string TEXT, long TIMESTAMP)> NameNotify = [];
 
     public static void GetNameNotify(PlayerControl player, ref string name)
     {
@@ -349,9 +352,6 @@ internal static class SoloKombatManager
         SendRPCSyncKBPlayer(pc.PlayerId);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
-
-    private static Dictionary<byte, int> BackCountdown = [];
-    private static Dictionary<byte, long> LastHurt = [];
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     class FixedUpdatePatch

@@ -23,19 +23,19 @@ namespace EHR
 
         public static void SetupCustomOption()
         {
-            Time = IntegerOptionItem.Create(69_213_001, "HotPotato_Time", new(1, 90, 1), 20, TabGroup.GameSettings)
+            Time = new IntegerOptionItem(69_213_001, "HotPotato_Time", new(1, 90, 1), 20, TabGroup.GameSettings)
                 .SetHeader(true)
                 .SetGameMode(CustomGameMode.HotPotato)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new Color32(232, 205, 70, byte.MaxValue));
-            HolderSpeed = FloatOptionItem.Create(69_213_002, "HotPotato_HolderSpeed", new(0.1f, 5f, 0.1f), 1.5f, TabGroup.GameSettings)
+            HolderSpeed = new FloatOptionItem(69_213_002, "HotPotato_HolderSpeed", new(0.1f, 5f, 0.1f), 1.5f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HotPotato)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new Color32(232, 205, 70, byte.MaxValue));
-            Chat = BooleanOptionItem.Create(69_213_003, "FFA_ChatDuringGame", false, TabGroup.GameSettings)
+            Chat = new BooleanOptionItem(69_213_003, "FFA_ChatDuringGame", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HotPotato)
                 .SetColor(new Color32(232, 205, 70, byte.MaxValue));
-            Range = FloatOptionItem.Create(69_213_004, "HotPotato_Range", new(0.25f, 5f, 0.25f), 1f, TabGroup.GameSettings)
+            Range = new FloatOptionItem(69_213_004, "HotPotato_Range", new(0.25f, 5f, 0.25f), 1f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HotPotato)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new Color32(232, 205, 70, byte.MaxValue));

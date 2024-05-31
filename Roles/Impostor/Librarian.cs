@@ -30,20 +30,20 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Librarian);
-            Radius = FloatOptionItem.Create(Id + 5, "LibrarianRadius", new(0.5f, 5f, 0.5f), 3f, TabGroup.ImpostorRoles)
+            Radius = new FloatOptionItem(Id + 5, "LibrarianRadius", new(0.5f, 5f, 0.5f), 3f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Librarian])
                 .SetValueFormat(OptionFormat.Multiplier);
-            ShowSSAnimation = BooleanOptionItem.Create(Id + 6, "LibrarianShowSSAnimation", false, TabGroup.ImpostorRoles)
+            ShowSSAnimation = new BooleanOptionItem(Id + 6, "LibrarianShowSSAnimation", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Librarian]);
-            SSCD = FloatOptionItem.Create(Id + 7, "ShapeshiftCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles)
+            SSCD = new FloatOptionItem(Id + 7, "ShapeshiftCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(ShowSSAnimation)
                 .SetValueFormat(OptionFormat.Seconds);
-            SSDur = FloatOptionItem.Create(Id + 8, "ShapeshiftDuration", new(2.5f, 60f, 2.5f), 10f, TabGroup.ImpostorRoles)
+            SSDur = new FloatOptionItem(Id + 8, "ShapeshiftDuration", new(2.5f, 60f, 2.5f), 10f, TabGroup.ImpostorRoles)
                 .SetParent(ShowSSAnimation)
                 .SetValueFormat(OptionFormat.Seconds);
-            CanKillWhileShifted = BooleanOptionItem.Create(Id + 9, "CanKillWhileShifted", false, TabGroup.ImpostorRoles)
+            CanKillWhileShifted = new BooleanOptionItem(Id + 9, "CanKillWhileShifted", false, TabGroup.ImpostorRoles)
                 .SetParent(ShowSSAnimation);
-            NameDuration = IntegerOptionItem.Create(Id + 10, "LibrarianNameNotifyDuration", new(1, 30, 1), 10, TabGroup.ImpostorRoles)
+            NameDuration = new IntegerOptionItem(Id + 10, "LibrarianNameNotifyDuration", new(1, 30, 1), 10, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Librarian])
                 .SetValueFormat(OptionFormat.Seconds);
         }

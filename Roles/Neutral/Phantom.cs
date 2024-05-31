@@ -7,11 +7,11 @@ namespace EHR.Roles.Neutral
         public void SetupCustomOption()
         {
             SetupRoleOptions(11400, TabGroup.NeutralRoles, CustomRoles.Phantom);
-            PhantomCanVent = BooleanOptionItem.Create(11410, "CanVent", false, TabGroup.NeutralRoles)
+            PhantomCanVent = new BooleanOptionItem(11410, "CanVent", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Phantom]);
-            PhantomSnatchesWin = BooleanOptionItem.Create(11411, "SnatchesWin", false, TabGroup.NeutralRoles)
+            PhantomSnatchesWin = new BooleanOptionItem(11411, "SnatchesWin", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Phantom]);
-            PhantomCanGuess = BooleanOptionItem.Create(11412, "CanGuess", false, TabGroup.NeutralRoles)
+            PhantomCanGuess = new BooleanOptionItem(11412, "CanGuess", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Phantom]);
             OverrideTasksData.Create(11413, TabGroup.NeutralRoles, CustomRoles.Phantom);
         }

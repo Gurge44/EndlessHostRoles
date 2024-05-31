@@ -14,9 +14,19 @@ namespace EHR;
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.ShowRole))]
 class SetUpRoleTextPatch
 {
+    public static bool IsInIntro;
+
     public static void Postfix(IntroCutscene __instance)
     {
         if (!GameStates.IsModHost) return;
+
+        // After showing team for non-modded clients update player names.
+        LateTask.New(() =>
+        {
+            IsInIntro = false;
+            Utils.NotifyRoles(NoCache: true);
+        }, 1f);
+
         LateTask.New(() =>
         {
             switch (Options.CurrentGameMode)

@@ -13,10 +13,10 @@ public class Wraith : ISettingHolder
     public void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Wraith);
-        WraithCooldown = FloatOptionItem.Create(Id + 2, "WraithCooldown", new(0f, 60f, 0.5f), 20f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wraith])
+        WraithCooldown = new FloatOptionItem(Id + 2, "WraithCooldown", new(0f, 60f, 0.5f), 20f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wraith])
             .SetValueFormat(OptionFormat.Seconds);
-        WraithDuration = FloatOptionItem.Create(Id + 3, "WraithDuration", new(0f, 30f, 0.5f), 10f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wraith])
+        WraithDuration = new FloatOptionItem(Id + 3, "WraithDuration", new(0f, 30f, 0.5f), 10f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wraith])
             .SetValueFormat(OptionFormat.Seconds);
-        WraithVentNormallyOnCooldown = BooleanOptionItem.Create(Id + 4, "WraithVentNormallyOnCooldown", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wraith]);
+        WraithVentNormallyOnCooldown = new BooleanOptionItem(Id + 4, "WraithVentNormallyOnCooldown", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wraith]);
     }
 }

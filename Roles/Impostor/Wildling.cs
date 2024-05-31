@@ -39,13 +39,13 @@ public class Wildling : RoleBase
     public static void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Wildling);
-        ProtectDurationOpt = FloatOptionItem.Create(Id + 14, "BKProtectDuration", new(1f, 30f, 1f), 15f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling])
+        ProtectDurationOpt = new FloatOptionItem(Id + 14, "BKProtectDuration", new(1f, 30f, 1f), 15f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling])
             .SetValueFormat(OptionFormat.Seconds);
-        CanVentOpt = BooleanOptionItem.Create(Id + 15, "CanVent", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling]);
-        CanShapeshiftOpt = BooleanOptionItem.Create(Id + 16, "CanShapeshift", false, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling]);
-        ShapeshiftCDOpt = FloatOptionItem.Create(Id + 17, "ShapeshiftCooldown", new(1f, 60f, 1f), 30f, TabGroup.ImpostorRoles).SetParent(CanShapeshiftOpt)
+        CanVentOpt = new BooleanOptionItem(Id + 15, "CanVent", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling]);
+        CanShapeshiftOpt = new BooleanOptionItem(Id + 16, "CanShapeshift", false, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling]);
+        ShapeshiftCDOpt = new FloatOptionItem(Id + 17, "ShapeshiftCooldown", new(1f, 60f, 1f), 30f, TabGroup.ImpostorRoles).SetParent(CanShapeshiftOpt)
             .SetValueFormat(OptionFormat.Seconds);
-        ShapeshiftDurOpt = FloatOptionItem.Create(Id + 18, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles).SetParent(CanShapeshiftOpt)
+        ShapeshiftDurOpt = new FloatOptionItem(Id + 18, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles).SetParent(CanShapeshiftOpt)
             .SetValueFormat(OptionFormat.Seconds);
     }
 

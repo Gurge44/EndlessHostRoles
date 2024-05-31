@@ -1,12 +1,10 @@
+using System.Collections.Generic;
+
 namespace EHR;
 
-public class StringOptionItem(int id, string name, int defaultValue, TabGroup tab, bool isSingleValue, string[] selections, bool noTranslation = false) : OptionItem(id, name, defaultValue, tab, isSingleValue)
+public class StringOptionItem(int id, string name, IList<string> selections, int defaultValue, TabGroup tab, bool isSingleValue = false, bool noTranslation = false) : OptionItem(id, name, defaultValue, tab, isSingleValue)
 {
-    public IntegerValueRule Rule = (0, selections.Length - 1, 1);
-    public string[] Selections = selections;
-
-    public static StringOptionItem Create(int id, string name, string[] selections, int defaultIndex, TabGroup tab, bool isSingleValue = false, bool noTranslation = false)
-        => new(id, name, defaultIndex, tab, isSingleValue, selections, noTranslation);
+    private readonly IntegerValueRule Rule = (0, selections.Count - 1, 1);
 
     // Getter
     public override int GetInt() => Rule.GetValueByIndex(CurrentValue);
@@ -14,13 +12,13 @@ public class StringOptionItem(int id, string name, int defaultValue, TabGroup ta
 
     public override string GetString()
     {
-        var str = Selections[Rule.GetValueByIndex(CurrentValue)];
+        var str = selections[Rule.GetValueByIndex(CurrentValue)];
         return noTranslation ? str : Translator.GetString(str);
     }
 
     public int GetChance()
     {
-        switch (Selections.Length)
+        switch (selections.Count)
         {
             // For 0% or 100%
             case 2:
@@ -30,15 +28,14 @@ public class StringOptionItem(int id, string name, int defaultValue, TabGroup ta
                 return CurrentValue;
             // For 0% to 100% or 5% to 100%
             default:
-                var offset = Options.Rates.Length - Selections.Length;
+                var offset = Options.Rates.Length - selections.Count;
                 var index = CurrentValue + offset;
                 var rate = index * 5;
                 return rate;
         }
     }
 
-    public override int GetValue()
-        => Rule.RepeatIndex(base.GetValue());
+    public override int GetValue() => Rule.RepeatIndex(base.GetValue());
 
     // Setter
     public override void SetValue(int value, bool doSync = true)

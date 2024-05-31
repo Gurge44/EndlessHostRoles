@@ -4,11 +4,6 @@ public class PresetOptionItem(int defaultValue, TabGroup tab) : OptionItem(0, "P
 {
     private readonly IntegerValueRule Rule = (0, NumPresets - 1, 1);
 
-    public static PresetOptionItem Create(int defaultValue, TabGroup tab)
-    {
-        return new(defaultValue, tab);
-    }
-
     // Getter
     public override int GetInt() => Rule.GetValueByIndex(CurrentValue);
     public override float GetFloat() => Rule.GetValueByIndex(CurrentValue);

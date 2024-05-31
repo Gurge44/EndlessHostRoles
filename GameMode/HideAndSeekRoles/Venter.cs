@@ -18,17 +18,17 @@
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(69_211_1001, TabGroup.ImpostorRoles, CustomRoles.Venter, CustomGameMode.HideAndSeek);
-            Vision = FloatOptionItem.Create(69_211_1003, "VenterVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
+            Vision = new FloatOptionItem(69_211_1003, "VenterVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(105, 65, 65, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Venter]);
-            Speed = FloatOptionItem.Create(69_213_1004, "VenterSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
+            Speed = new FloatOptionItem(69_213_1004, "VenterSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(105, 65, 65, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Venter]);
-            UseLimit = IntegerOptionItem.Create(69_213_1007, "AbilityUseLimit", new(0, 60, 1), 3, TabGroup.ImpostorRoles)
+            UseLimit = new IntegerOptionItem(69_213_1007, "AbilityUseLimit", new(0, 60, 1), 3, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(new(105, 65, 65, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Venter]);

@@ -20,13 +20,15 @@ public class Silencer : RoleBase
         "Shapeshift"
     ];
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Silencer);
-        SkillCooldown = FloatOptionItem.Create(Id + 5, "SilencerSkillCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles)
+        SkillCooldown = new FloatOptionItem(Id + 5, "SilencerSkillCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Silencer])
             .SetValueFormat(OptionFormat.Seconds);
-        SilenceMode = StringOptionItem.Create(Id + 4, "SilenceMode", SilenceModes, 1, TabGroup.ImpostorRoles)
+        SilenceMode = new StringOptionItem(Id + 4, "SilenceMode", SilenceModes, 1, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Silencer]);
     }
 
@@ -46,8 +48,6 @@ public class Silencer : RoleBase
         AURoleOptions.ShapeshifterCooldown = SkillCooldown.GetFloat();
         AURoleOptions.ShapeshifterDuration = 1f;
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {

@@ -16,24 +16,26 @@ public class Greedier : RoleBase // Also used for Imitator as the NK version of 
     private static OptionItem OddKillCooldown;
     private static OptionItem EvenKillCooldown;
     private static OptionItem AfterMeetingKillCooldown;
-
-    private float OddKCD;
-    private float EvenKCD;
     private float AfterMeetingKCD;
+    private float EvenKCD;
     private bool HasImpVision;
 
     private bool IsImitator;
 
     public bool IsOdd = true;
 
+    private float OddKCD;
+
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Greedier);
-        OddKillCooldown = FloatOptionItem.Create(Id + 10, "OddKillCooldown", new(0f, 60f, 2.5f), 27.5f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Greedier])
+        OddKillCooldown = new FloatOptionItem(Id + 10, "OddKillCooldown", new(0f, 60f, 2.5f), 27.5f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Greedier])
             .SetValueFormat(OptionFormat.Seconds);
-        EvenKillCooldown = FloatOptionItem.Create(Id + 11, "EvenKillCooldown", new(0f, 30f, 2.5f), 15f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Greedier])
+        EvenKillCooldown = new FloatOptionItem(Id + 11, "EvenKillCooldown", new(0f, 30f, 2.5f), 15f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Greedier])
             .SetValueFormat(OptionFormat.Seconds);
-        AfterMeetingKillCooldown = FloatOptionItem.Create(Id + 12, "AfterMeetingKillCooldown", new(0f, 30f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Greedier])
+        AfterMeetingKillCooldown = new FloatOptionItem(Id + 12, "AfterMeetingKillCooldown", new(0f, 30f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Greedier])
             .SetValueFormat(OptionFormat.Seconds);
     }
 
@@ -70,8 +72,6 @@ public class Greedier : RoleBase // Also used for Imitator as the NK version of 
             Main.ResetCamPlayerList.Add(playerId);
         }
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {

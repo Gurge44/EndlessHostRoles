@@ -11,6 +11,6 @@ public class HexMaster : ISettingHolder
     public void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.HexMaster);
-        ModeSwitchAction = StringOptionItem.Create(Id + 10, "WitchModeSwitchAction", Witch.SwitchTriggerText, 2, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HexMaster]);
+        ModeSwitchAction = new StringOptionItem(Id + 10, "WitchModeSwitchAction", Witch.SwitchTriggerText, 2, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HexMaster]);
     }
 }

@@ -45,45 +45,45 @@ namespace EHR.Crewmate
             Dictionary<string, string> replacements = poops.ToDictionary(x => x.ToString(), x => Utils.ColorString(GetPoopColor(x), x.ToString()));
 
             SetupRoleOptions(id++, tab, CustomRoles.ToiletMaster);
-            AbilityCooldown = IntegerOptionItem.Create(++id, "AbilityCooldown", new(0, 60, 1), 5, tab)
+            AbilityCooldown = new IntegerOptionItem(++id, "AbilityCooldown", new(0, 60, 1), 5, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster])
                 .SetValueFormat(OptionFormat.Seconds);
-            AbilityUses = IntegerOptionItem.Create(++id, "AbilityUseLimit", new(0, 10, 1), 3, tab)
+            AbilityUses = new IntegerOptionItem(++id, "AbilityUseLimit", new(0, 10, 1), 3, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster]);
-            ToiletDuration = IntegerOptionItem.Create(++id, "TM.ToiletDuration", new(0, 60, 1), 10, tab)
+            ToiletDuration = new IntegerOptionItem(++id, "TM.ToiletDuration", new(0, 60, 1), 10, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster])
                 .SetValueFormat(OptionFormat.Seconds);
-            ToiletVisibility = StringOptionItem.Create(++id, "TM.ToiletVisibility", Enum.GetNames<ToiletVisibilityOptions>(), 0, tab)
+            ToiletVisibility = new StringOptionItem(++id, "TM.ToiletVisibility", Enum.GetNames<ToiletVisibilityOptions>(), 0, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster]);
-            ToiletUseRadius = FloatOptionItem.Create(++id, "TM.ToiletUseRadius", new(0f, 5f, 0.25f), 1f, tab)
+            ToiletUseRadius = new FloatOptionItem(++id, "TM.ToiletUseRadius", new(0f, 5f, 0.25f), 1f, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster])
                 .SetValueFormat(OptionFormat.Multiplier);
-            ToiletUseTime = IntegerOptionItem.Create(++id, "TM.ToiletUseTime", new(0, 60, 1), 5, tab)
+            ToiletUseTime = new IntegerOptionItem(++id, "TM.ToiletUseTime", new(0, 60, 1), 5, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster])
                 .SetValueFormat(OptionFormat.Seconds);
-            ToiletMaxUses = IntegerOptionItem.Create(++id, "TM.ToiletMaxUses", new(0, 10, 1), 3, tab)
+            ToiletMaxUses = new IntegerOptionItem(++id, "TM.ToiletMaxUses", new(0, 10, 1), 3, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster]);
-            BrownPoopSpeedBoost = FloatOptionItem.Create(++id, "TM.BrownPoopSpeedBoost", new(0f, 3f, 0.05f), 0.5f, tab)
+            BrownPoopSpeedBoost = new FloatOptionItem(++id, "TM.BrownPoopSpeedBoost", new(0f, 3f, 0.05f), 0.5f, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster])
                 .SetValueFormat(OptionFormat.Multiplier);
-            GreenPoopRadius = FloatOptionItem.Create(++id, "TM.GreenPoopRadius", new(0f, 5f, 0.25f), 1f, tab)
+            GreenPoopRadius = new FloatOptionItem(++id, "TM.GreenPoopRadius", new(0f, 5f, 0.25f), 1f, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster])
                 .SetValueFormat(OptionFormat.Multiplier);
-            RedPoopRadius = FloatOptionItem.Create(++id, "TM.RedPoopRadius", new(0f, 5f, 0.25f), 1f, tab)
+            RedPoopRadius = new FloatOptionItem(++id, "TM.RedPoopRadius", new(0f, 5f, 0.25f), 1f, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster])
                 .SetValueFormat(OptionFormat.Multiplier);
-            RedPoopRoleBlockDuration = IntegerOptionItem.Create(++id, "TM.RedPoopRoleBlockDuration", new(0, 60, 1), 10, tab)
+            RedPoopRoleBlockDuration = new IntegerOptionItem(++id, "TM.RedPoopRoleBlockDuration", new(0, 60, 1), 10, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster])
                 .SetValueFormat(OptionFormat.Seconds);
-            PurplePoopNotifyOnKillAttempt = BooleanOptionItem.Create(++id, "TM.PurplePoopNotifyOnKillAttempt", false, tab)
+            PurplePoopNotifyOnKillAttempt = new BooleanOptionItem(++id, "TM.PurplePoopNotifyOnKillAttempt", false, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster]);
-            AbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(++id, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.6f, tab)
+            AbilityUseGainWithEachTaskCompleted = new FloatOptionItem(++id, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.6f, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster]);
-            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(++id, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.1f, tab)
+            AbilityChargesWhenFinishedTasks = new FloatOptionItem(++id, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.1f, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster]);
             poops.Do(x =>
             {
-                PoopDurationSettings[x] = IntegerOptionItem.Create(++id, $"TM.{x}PoopDuration", new(0, 60, 1), 10, tab)
+                PoopDurationSettings[x] = new IntegerOptionItem(++id, $"TM.{x}PoopDuration", new(0, 60, 1), 10, tab)
                     .SetParent(CustomRoleSpawnChances[CustomRoles.ToiletMaster])
                     .SetValueFormat(OptionFormat.Seconds);
             });

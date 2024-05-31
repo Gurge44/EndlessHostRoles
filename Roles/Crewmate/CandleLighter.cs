@@ -18,29 +18,31 @@ namespace EHR.Roles.Crewmate
         private static OptionItem OptionTaskEndVision;
         private static OptionItem OptionTaskTimeMoveMeeting;
         private static OptionItem OptionTasksFinishedVision;
+        private bool Active = true;
+        private float ElapsedTime;
 
         private float UpdateTime;
-        private float ElapsedTime;
-        private bool Active = true;
+
+        public override bool IsEnable => playerIdList.Count > 0;
 
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Ignitor);
-            OptionTaskStartVision = FloatOptionItem.Create(Id + 2, "CandleLighterStartVision", new(0.5f, 5f, 0.1f), 0.8f, TabGroup.CrewmateRoles)
+            OptionTaskStartVision = new FloatOptionItem(Id + 2, "CandleLighterStartVision", new(0.5f, 5f, 0.1f), 0.8f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ignitor])
                 .SetValueFormat(OptionFormat.Multiplier);
-            OptionCountStartTime = IntegerOptionItem.Create(Id + 3, "CandleLighterCountStartTime", new(0, 50, 5), 0, TabGroup.CrewmateRoles)
+            OptionCountStartTime = new IntegerOptionItem(Id + 3, "CandleLighterCountStartTime", new(0, 50, 5), 0, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ignitor])
                 .SetValueFormat(OptionFormat.Seconds);
-            OptionTaskEndVisionTime = IntegerOptionItem.Create(Id + 4, "CandleLighterEndVisionTime", new(20, 200, 10), 50, TabGroup.CrewmateRoles)
+            OptionTaskEndVisionTime = new IntegerOptionItem(Id + 4, "CandleLighterEndVisionTime", new(20, 200, 10), 50, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ignitor])
                 .SetValueFormat(OptionFormat.Seconds);
-            OptionTaskEndVision = FloatOptionItem.Create(Id + 5, "CandleLighterEndVision", new(0f, 0.5f, 0.05f), 0.1f, TabGroup.CrewmateRoles)
+            OptionTaskEndVision = new FloatOptionItem(Id + 5, "CandleLighterEndVision", new(0f, 0.5f, 0.05f), 0.1f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ignitor])
                 .SetValueFormat(OptionFormat.Multiplier);
-            OptionTaskTimeMoveMeeting = BooleanOptionItem.Create(Id + 6, "CandleLighterTimeMoveMeeting", false, TabGroup.CrewmateRoles)
+            OptionTaskTimeMoveMeeting = new BooleanOptionItem(Id + 6, "CandleLighterTimeMoveMeeting", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ignitor]);
-            OptionTasksFinishedVision = FloatOptionItem.Create(Id + 7, "CandleLighterTasksFinishedVision", new(0.5f, 5f, 0.1f), 0.5f, TabGroup.CrewmateRoles)
+            OptionTasksFinishedVision = new FloatOptionItem(Id + 7, "CandleLighterTasksFinishedVision", new(0.5f, 5f, 0.1f), 0.5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ignitor])
                 .SetValueFormat(OptionFormat.Multiplier);
             OverrideTasksData.Create(Id + 8, TabGroup.CrewmateRoles, CustomRoles.Ignitor);
@@ -73,8 +75,6 @@ namespace EHR.Roles.Crewmate
             if (Utils.IsActive(SystemTypes.Electrical))
                 opt.SetFloat(FloatOptionNames.CrewLightMod, Vision * 5);
         }
-
-        public override bool IsEnable => playerIdList.Count > 0;
 
         public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {

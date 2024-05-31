@@ -45,11 +45,11 @@ public class EvilTracker : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.EvilTracker);
-        OptionCanSeeKillFlash = BooleanOptionItem.Create(Id + 10, "EvilTrackerCanSeeKillFlash", true, TabGroup.ImpostorRoles)
+        OptionCanSeeKillFlash = new BooleanOptionItem(Id + 10, "EvilTrackerCanSeeKillFlash", true, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.EvilTracker]);
-        OptionTargetMode = StringOptionItem.Create(Id + 11, "EvilTrackerTargetMode", TargetModeText, 2, TabGroup.ImpostorRoles)
+        OptionTargetMode = new StringOptionItem(Id + 11, "EvilTrackerTargetMode", TargetModeText, 2, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.EvilTracker]);
-        OptionCanSeeLastRoomInMeeting = BooleanOptionItem.Create(Id + 12, "EvilTrackerCanSeeLastRoomInMeeting", false, TabGroup.ImpostorRoles)
+        OptionCanSeeLastRoomInMeeting = new BooleanOptionItem(Id + 12, "EvilTrackerCanSeeLastRoomInMeeting", false, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.EvilTracker]);
     }
 

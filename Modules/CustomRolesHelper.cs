@@ -931,7 +931,7 @@ internal static class CustomRolesHelper
     public static bool IsImpostorTeam(this CustomRoles role) => role.IsImpostor() || role == CustomRoles.Madmate;
     public static bool IsCrewmate(this CustomRoles role) => !role.IsImpostor() && !role.IsNeutral() && !role.IsMadmate();
 
-    public static bool IsImpostorTeamV2(this CustomRoles role) => (role.IsImpostorTeam() && role != CustomRoles.Trickster && !role.IsConverted()) || role == CustomRoles.Rascal;
+    private static bool IsImpostorTeamV2(this CustomRoles role) => (role.IsImpostorTeam() && role != CustomRoles.Trickster && !role.IsConverted()) || role == CustomRoles.Rascal;
     public static bool IsNeutralTeamV2(this CustomRoles role) => role.IsConverted() || (role.IsNeutral() && role != CustomRoles.Madmate);
     public static bool IsCrewmateTeamV2(this CustomRoles role) => (!role.IsImpostorTeamV2() && !role.IsNeutralTeamV2()) || (role == CustomRoles.Trickster && !role.IsConverted());
 
@@ -1089,6 +1089,16 @@ internal static class CustomRolesHelper
         AddonTypes.Mixed => Utils.GetRoleColor(CustomRoles.TaskManager),
         _ => Palette.CrewmateBlue
     };
+
+    public static Color GetTeamColor(this Team team) => ColorUtility.TryParseHtmlString(team switch
+    {
+        Team.Crewmate => Main.CrewmateColor,
+        Team.Neutral => Main.NeutralColor,
+        Team.Impostor => Main.ImpostorColor,
+        _ => string.Empty
+    }, out var color)
+        ? color
+        : Color.clear;
 
     public static string ToColoredString(this CustomRoles role) => Utils.ColorString(Utils.GetRoleColor(role), Translator.GetString($"{role}"));
 }

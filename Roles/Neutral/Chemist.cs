@@ -116,43 +116,43 @@ namespace EHR.Roles.Neutral
 
             SetupRoleOptions(id++, tab, CustomRoles.Chemist);
 
-            KillCooldown = FloatOptionItem.Create(++id, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, tab)
+            KillCooldown = new FloatOptionItem(++id, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Seconds);
-            HasImpostorVision = BooleanOptionItem.Create(++id, "ImpostorVision", true, tab)
+            HasImpostorVision = new BooleanOptionItem(++id, "ImpostorVision", true, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist]);
 
-            AirGainedPerSecond = IntegerOptionItem.Create(++id, "Chemist.AirGainedPerSecond", new(5, 100, 5), 10, tab)
+            AirGainedPerSecond = new IntegerOptionItem(++id, "Chemist.AirGainedPerSecond", new(5, 100, 5), 10, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Times);
-            WaterGainedPerSecond = IntegerOptionItem.Create(++id, "Chemist.WaterGainedPerSecond", new(5, 100, 5), 10, tab)
+            WaterGainedPerSecond = new IntegerOptionItem(++id, "Chemist.WaterGainedPerSecond", new(5, 100, 5), 10, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Times);
-            CoalGainedPerVent = IntegerOptionItem.Create(++id, "Chemist.CoalGainedPerVent", new(1, 10, 1), 1, tab)
+            CoalGainedPerVent = new IntegerOptionItem(++id, "Chemist.CoalGainedPerVent", new(1, 10, 1), 1, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Times);
-            IronOreGainedPerVent = IntegerOptionItem.Create(++id, "Chemist.IronOreGainedPerVent", new(1, 50, 1), 4, tab)
+            IronOreGainedPerVent = new IntegerOptionItem(++id, "Chemist.IronOreGainedPerVent", new(1, 50, 1), 4, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Times);
 
             FinalProductUsageAmounts = Enum.GetValues<Item>()
                 .Where(x => GetItemType(x) == ItemType.FinalProduct)
-                .ToDictionary(x => x, x => IntegerOptionItem.Create(++id, $"Chemist.Item.{x}.Usage", new(1, 100, 1), GetDefaultValue(x), tab)
+                .ToDictionary(x => x, x => new IntegerOptionItem(++id, $"Chemist.Item.{x}.Usage", new(1, 100, 1), GetDefaultValue(x), tab)
                     .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                     .SetValueFormat(OptionFormat.Times));
 
-            AcidPlayersDie = StringOptionItem.Create(++id, "Chemist.AcidPlayersDie", Enum.GetNames<AcidPlayersDieOptions>(), 0, tab)
+            AcidPlayersDie = new StringOptionItem(++id, "Chemist.AcidPlayersDie", Enum.GetNames<AcidPlayersDieOptions>(), 0, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist]);
-            AcidPlayersDieAfterTime = IntegerOptionItem.Create(++id, "Chemist.AcidPlayersDieAfterTime", new(1, 60, 1), 15, tab)
+            AcidPlayersDieAfterTime = new IntegerOptionItem(++id, "Chemist.AcidPlayersDieAfterTime", new(1, 60, 1), 15, tab)
                 .SetParent(AcidPlayersDie)
                 .SetValueFormat(OptionFormat.Seconds);
-            BlindDuration = IntegerOptionItem.Create(++id, "Chemist.BlindDuration", new(1, 60, 1), 10, tab)
+            BlindDuration = new IntegerOptionItem(++id, "Chemist.BlindDuration", new(1, 60, 1), 10, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Seconds);
-            GrenadeExplodeDelay = IntegerOptionItem.Create(++id, "Chemist.GrenadeExplodeDelay", new(1, 60, 1), 5, tab)
+            GrenadeExplodeDelay = new IntegerOptionItem(++id, "Chemist.GrenadeExplodeDelay", new(1, 60, 1), 5, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Seconds);
-            GrenadeExplodeRadius = FloatOptionItem.Create(++id, "Chemist.GrenadeExplodeRadius", new(0.25f, 10f, 0.25f), 4f, tab)
+            GrenadeExplodeRadius = new FloatOptionItem(++id, "Chemist.GrenadeExplodeRadius", new(0.25f, 10f, 0.25f), 4f, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chemist])
                 .SetValueFormat(OptionFormat.Multiplier);
 

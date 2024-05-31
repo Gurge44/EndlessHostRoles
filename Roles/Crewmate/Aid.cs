@@ -13,17 +13,18 @@ namespace EHR.Roles.Crewmate
         public static OptionItem AidCD;
         public static OptionItem UseLimitOpt;
         public static OptionItem UsePet;
+        public override bool IsEnable => playerIdList.Count > 0;
 
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Aid);
-            AidCD = FloatOptionItem.Create(Id + 10, "AidCD", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles)
+            AidCD = new FloatOptionItem(Id + 10, "AidCD", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Aid])
                 .SetValueFormat(OptionFormat.Seconds);
-            AidDur = FloatOptionItem.Create(Id + 11, "AidDur", new(0f, 60f, 1f), 10f, TabGroup.CrewmateRoles)
+            AidDur = new FloatOptionItem(Id + 11, "AidDur", new(0f, 60f, 1f), 10f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Aid])
                 .SetValueFormat(OptionFormat.Seconds);
-            UseLimitOpt = IntegerOptionItem.Create(Id + 12, "AbilityUseLimit", new(1, 20, 1), 5, TabGroup.CrewmateRoles)
+            UseLimitOpt = new IntegerOptionItem(Id + 12, "AbilityUseLimit", new(1, 20, 1), 5, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Aid])
                 .SetValueFormat(OptionFormat.Times);
             UsePet = Options.CreatePetUseSetting(Id + 13, CustomRoles.Aid);
@@ -47,7 +48,6 @@ namespace EHR.Roles.Crewmate
 
         public override void SetKillCooldown(byte playerId) => Main.AllPlayerKillCooldown[playerId] = AidCD.GetInt();
         public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
-        public override bool IsEnable => playerIdList.Count > 0;
         public override bool CanUseKillButton(PlayerControl pc) => pc.GetAbilityUseLimit() >= 1;
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

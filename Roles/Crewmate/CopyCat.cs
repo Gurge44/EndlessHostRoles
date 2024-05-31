@@ -10,23 +10,25 @@ public class CopyCat : RoleBase
     private const int Id = 666420;
     public static List<byte> PlayerIdList = [];
 
-    public float CurrentKillCooldown = DefaultKillCooldown;
-    private float TempLimit;
-
     public static OptionItem KillCooldown;
     public static OptionItem CanKill;
     public static OptionItem CopyCrewVar;
     public static OptionItem MiscopyLimitOpt;
     public static OptionItem UsePet;
 
+    public float CurrentKillCooldown = DefaultKillCooldown;
+    private float TempLimit;
+
+    public override bool IsEnable => PlayerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.CopyCat);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "CopyCatCopyCooldown", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat])
+        KillCooldown = new FloatOptionItem(Id + 10, "CopyCatCopyCooldown", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat])
             .SetValueFormat(OptionFormat.Seconds);
-        CanKill = BooleanOptionItem.Create(Id + 11, "CopyCatCanKill", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat]);
-        CopyCrewVar = BooleanOptionItem.Create(Id + 13, "CopyCrewVar", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat]);
-        MiscopyLimitOpt = IntegerOptionItem.Create(Id + 12, "CopyCatMiscopyLimit", new(0, 14, 1), 2, TabGroup.CrewmateRoles).SetParent(CanKill)
+        CanKill = new BooleanOptionItem(Id + 11, "CopyCatCanKill", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat]);
+        CopyCrewVar = new BooleanOptionItem(Id + 13, "CopyCrewVar", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat]);
+        MiscopyLimitOpt = new IntegerOptionItem(Id + 12, "CopyCatMiscopyLimit", new(0, 14, 1), 2, TabGroup.CrewmateRoles).SetParent(CanKill)
             .SetValueFormat(OptionFormat.Times);
         UsePet = CreatePetUseSetting(Id + 14, CustomRoles.CopyCat);
     }
@@ -48,7 +50,6 @@ public class CopyCat : RoleBase
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).IsAlive() ? CurrentKillCooldown : 0f;
 
     public override bool CanUseKillButton(PlayerControl pc)

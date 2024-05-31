@@ -18,17 +18,17 @@
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(69_211_3001, TabGroup.NeutralRoles, CustomRoles.Taskinator, CustomGameMode.HideAndSeek);
-            Vision = FloatOptionItem.Create(69_211_3003, "TaskinatorVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.NeutralRoles)
+            Vision = new FloatOptionItem(69_211_3003, "TaskinatorVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.NeutralRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(86, 29, 209, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Taskinator]);
-            Speed = FloatOptionItem.Create(69_213_3004, "TaskinatorSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.NeutralRoles)
+            Speed = new FloatOptionItem(69_213_3004, "TaskinatorSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.NeutralRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(86, 29, 209, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Taskinator]);
-            CanWinWhenDead = BooleanOptionItem.Create(69_213_3005, "TaskinatorCanWinAfterDeath", true, TabGroup.NeutralRoles)
+            CanWinWhenDead = new BooleanOptionItem(69_213_3005, "TaskinatorCanWinAfterDeath", true, TabGroup.NeutralRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(new(86, 29, 209, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Taskinator]);

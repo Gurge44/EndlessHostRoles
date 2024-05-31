@@ -24,27 +24,27 @@ namespace EHR.GameMode.HideAndSeekRoles
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(69_211_901, TabGroup.ImpostorRoles, CustomRoles.Locator, CustomGameMode.HideAndSeek);
-            Vision = FloatOptionItem.Create(69_211_903, "LocatorVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
+            Vision = new FloatOptionItem(69_211_903, "LocatorVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(245, 158, 66, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Locator]);
-            Speed = FloatOptionItem.Create(69_213_904, "LocatorSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
+            Speed = new FloatOptionItem(69_213_904, "LocatorSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(245, 158, 66, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Locator]);
-            ArrowFrequency = IntegerOptionItem.Create(69_213_905, "LocatorFrequency", new(0, 60, 1), 20, TabGroup.ImpostorRoles)
+            ArrowFrequency = new IntegerOptionItem(69_213_905, "LocatorFrequency", new(0, 60, 1), 20, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(245, 158, 66, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Locator]);
-            ArrowDuration = FloatOptionItem.Create(69_213_906, "LocatorDuration", new(1f, 30f, 1f), 5f, TabGroup.ImpostorRoles)
+            ArrowDuration = new FloatOptionItem(69_213_906, "LocatorDuration", new(1f, 30f, 1f), 5f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(245, 158, 66, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Locator]);
-            HidersKnowTheyAreLocated = BooleanOptionItem.Create(69_213_907, "LocatorTargetKnows", true, TabGroup.ImpostorRoles)
+            HidersKnowTheyAreLocated = new BooleanOptionItem(69_213_907, "LocatorTargetKnows", true, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(new(245, 158, 66, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Locator]);

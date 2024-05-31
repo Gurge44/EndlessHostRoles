@@ -37,17 +37,17 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Virus);
-            KillCooldown = FloatOptionItem.Create(Id + 10, "VirusKillCooldown", new(0f, 60f, 0.5f), 30f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus])
+            KillCooldown = new FloatOptionItem(Id + 10, "VirusKillCooldown", new(0f, 60f, 0.5f), 30f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus])
                 .SetValueFormat(OptionFormat.Seconds);
-            CanVent = BooleanOptionItem.Create(Id + 11, "VirusCanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
-            ImpostorVision = BooleanOptionItem.Create(Id + 16, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
-            InfectMax = IntegerOptionItem.Create(Id + 12, "VirusInfectMax", new(1, 15, 1), 2, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus])
+            CanVent = new BooleanOptionItem(Id + 11, "VirusCanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
+            ImpostorVision = new BooleanOptionItem(Id + 16, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
+            InfectMax = new IntegerOptionItem(Id + 12, "VirusInfectMax", new(1, 15, 1), 2, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus])
                 .SetValueFormat(OptionFormat.Times);
-            KnowTargetRole = BooleanOptionItem.Create(Id + 13, "VirusKnowTargetRole", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
-            TargetKnowOtherTarget = BooleanOptionItem.Create(Id + 14, "VirusTargetKnowOtherTarget", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
-            KillInfectedPlayerAfterMeeting = BooleanOptionItem.Create(Id + 15, "VirusKillInfectedPlayerAfterMeeting", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
-            ContagiousPlayersCanKillEachOther = BooleanOptionItem.Create(Id + 18, "ContagiousPlayersCanKillEachOther", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
-            ContagiousCountMode = StringOptionItem.Create(Id + 17, "ContagiousCountMode", ContagiousCountModeStrings, 0, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
+            KnowTargetRole = new BooleanOptionItem(Id + 13, "VirusKnowTargetRole", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
+            TargetKnowOtherTarget = new BooleanOptionItem(Id + 14, "VirusTargetKnowOtherTarget", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
+            KillInfectedPlayerAfterMeeting = new BooleanOptionItem(Id + 15, "VirusKillInfectedPlayerAfterMeeting", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
+            ContagiousPlayersCanKillEachOther = new BooleanOptionItem(Id + 18, "ContagiousPlayersCanKillEachOther", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
+            ContagiousCountMode = new StringOptionItem(Id + 17, "ContagiousCountMode", ContagiousCountModeStrings, 0, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Virus]);
         }
 
         public override void Init()

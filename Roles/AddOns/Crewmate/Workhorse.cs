@@ -27,18 +27,18 @@ public class Workhorse : IAddon
     public void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Workhorse, zeroOne: true);
-        SpawnChance = IntegerOptionItem.Create(Id + 13, "WorkhorseSpawnChance", new(0, 100, 1), 65, TabGroup.Addons)
+        SpawnChance = new IntegerOptionItem(Id + 13, "WorkhorseSpawnChance", new(0, 100, 1), 65, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
             .SetValueFormat(OptionFormat.Percent);
-        OptionAssignOnlyToCrewmate = BooleanOptionItem.Create(Id + 10, "AssignOnlyToCrewmate", true, TabGroup.Addons)
+        OptionAssignOnlyToCrewmate = new BooleanOptionItem(Id + 10, "AssignOnlyToCrewmate", true, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse]);
-        OptionNumLongTasks = IntegerOptionItem.Create(Id + 11, "WorkhorseNumLongTasks", new(0, 5, 1), 1, TabGroup.Addons)
+        OptionNumLongTasks = new IntegerOptionItem(Id + 11, "WorkhorseNumLongTasks", new(0, 5, 1), 1, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
             .SetValueFormat(OptionFormat.Pieces);
-        OptionNumShortTasks = IntegerOptionItem.Create(Id + 12, "WorkhorseNumShortTasks", new(0, 5, 1), 1, TabGroup.Addons)
+        OptionNumShortTasks = new IntegerOptionItem(Id + 12, "WorkhorseNumShortTasks", new(0, 5, 1), 1, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
             .SetValueFormat(OptionFormat.Pieces);
-        OptionSnitchCanBeWorkhorse = BooleanOptionItem.Create(Id + 14, "SnitchCanBeWorkhorse", false, TabGroup.Addons)
+        OptionSnitchCanBeWorkhorse = new BooleanOptionItem(Id + 14, "SnitchCanBeWorkhorse", false, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse]);
     }
 

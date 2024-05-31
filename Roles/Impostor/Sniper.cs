@@ -42,13 +42,13 @@ public class Sniper : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Sniper);
-        SniperBulletCount = IntegerOptionItem.Create(Id + 10, "SniperBulletCount", new(1, 10, 1), 2, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper])
+        SniperBulletCount = new IntegerOptionItem(Id + 10, "SniperBulletCount", new(1, 10, 1), 2, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper])
             .SetValueFormat(OptionFormat.Pieces);
-        SniperPrecisionShooting = BooleanOptionItem.Create(Id + 11, "SniperPrecisionShooting", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
-        SniperAimAssist = BooleanOptionItem.Create(Id + 12, "SniperAimAssist", true, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
-        SniperAimAssistOnshot = BooleanOptionItem.Create(Id + 13, "SniperAimAssistOneshot", false, TabGroup.ImpostorRoles).SetParent(SniperAimAssist);
-        CanKillWithBullets = BooleanOptionItem.Create(Id + 14, "SniperCanKill", true, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
-        ShapeshiftDuration = FloatOptionItem.Create(Id + 15, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper])
+        SniperPrecisionShooting = new BooleanOptionItem(Id + 11, "SniperPrecisionShooting", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
+        SniperAimAssist = new BooleanOptionItem(Id + 12, "SniperAimAssist", true, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
+        SniperAimAssistOnshot = new BooleanOptionItem(Id + 13, "SniperAimAssistOneshot", false, TabGroup.ImpostorRoles).SetParent(SniperAimAssist);
+        CanKillWithBullets = new BooleanOptionItem(Id + 14, "SniperCanKill", true, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
+        ShapeshiftDuration = new FloatOptionItem(Id + 15, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper])
             .SetValueFormat(OptionFormat.Seconds);
     }
 
