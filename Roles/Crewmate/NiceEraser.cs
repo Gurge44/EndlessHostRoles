@@ -15,12 +15,14 @@ internal class NiceEraser : RoleBase
     private static List<byte> didVote = [];
     private static List<byte> PlayerToErase = [];
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.NiceEraser);
-        EraseLimitOpt = IntegerOptionItem.Create(Id + 2, "EraseLimit", new(1, 15, 1), 1, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceEraser])
+        EraseLimitOpt = new IntegerOptionItem(Id + 2, "EraseLimit", new(1, 15, 1), 1, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceEraser])
             .SetValueFormat(OptionFormat.Times);
-        HideVote = BooleanOptionItem.Create(Id + 3, "NiceEraserHideVote", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceEraser]);
+        HideVote = new BooleanOptionItem(Id + 3, "NiceEraserHideVote", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceEraser]);
         CancelVote = Options.CreateVoteCancellingUseSetting(Id + 4, CustomRoles.NiceEraser, TabGroup.CrewmateRoles);
     }
 
@@ -34,8 +36,6 @@ internal class NiceEraser : RoleBase
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(EraseLimitOpt.GetInt());
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     public static bool OnVote(PlayerControl player, PlayerControl target)
     {

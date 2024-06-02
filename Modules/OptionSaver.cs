@@ -69,7 +69,7 @@ public static class OptionSaver
         {
             Version = Version,
             SingleOptions = singleOptions,
-            PresetOptions = presetOptions,
+            PresetOptions = presetOptions
         };
     }
 
@@ -105,7 +105,7 @@ public static class OptionSaver
     {
         if (AmongUsClient.Instance != null && !AmongUsClient.Instance.AmHost) return;
 
-        var jsonString = JsonSerializer.Serialize(GenerateOptionsData(), new JsonSerializerOptions { WriteIndented = true, });
+        var jsonString = JsonSerializer.Serialize(GenerateOptionsData(), new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(OptionSaverFileInfo.FullName, jsonString);
         File.WriteAllText(DefaultPresetFileInfo.FullName, DefaultPresetNumber.ToString());
     }

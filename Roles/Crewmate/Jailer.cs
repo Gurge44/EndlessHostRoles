@@ -24,9 +24,9 @@ public class Jailor : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Jailor);
-        JailCooldown = FloatOptionItem.Create(Id + 10, "JailorJailCooldown", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jailor])
+        JailCooldown = new FloatOptionItem(Id + 10, "JailorJailCooldown", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jailor])
             .SetValueFormat(OptionFormat.Seconds);
-        notifyJailedOnMeeting = BooleanOptionItem.Create(Id + 18, "notifyJailedOnMeeting", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jailor]);
+        notifyJailedOnMeeting = new BooleanOptionItem(Id + 18, "notifyJailedOnMeeting", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jailor]);
         UsePet = CreatePetUseSetting(Id + 11, CustomRoles.Jailor);
     }
 

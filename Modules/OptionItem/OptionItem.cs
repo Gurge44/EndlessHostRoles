@@ -9,10 +9,10 @@ namespace EHR;
 public abstract class OptionItem
 {
     public const int NumPresets = 10;
-    public const int PresetId = 0;
+    private const int PresetId = 0;
+    public readonly List<OptionItem> Children;
 
     private Dictionary<string, string> _replacementDictionary;
-    public List<OptionItem> Children;
 
     public OptionBehaviour OptionBehaviour;
 
@@ -66,11 +66,11 @@ public abstract class OptionItem
     public TabGroup Tab { get; }
     public bool IsSingleValue { get; }
 
-    public Color NameColor { get; protected set; }
-    public OptionFormat ValueFormat { get; protected set; }
-    public CustomGameMode GameMode { get; protected set; }
+    private Color NameColor { get; set; }
+    private OptionFormat ValueFormat { get; set; }
+    public CustomGameMode GameMode { get; private set; }
     public bool IsHeader { get; protected set; }
-    public bool IsHidden { get; protected set; }
+    private bool IsHidden { get; set; }
     public bool IsText { get; protected set; }
 
     public Dictionary<string, string> ReplacementDictionary
@@ -98,7 +98,7 @@ public abstract class OptionItem
     public event EventHandler<UpdateValueEventArgs> UpdateValueEvent;
 
     // Setter
-    public OptionItem Do(Action<OptionItem> action)
+    private OptionItem Do(Action<OptionItem> action)
     {
         action(this);
         return this;
@@ -125,7 +125,7 @@ public abstract class OptionItem
         parent.SetChild(i);
     });
 
-    public OptionItem SetChild(OptionItem child) => Do(i => i.Children.Add(child));
+    private OptionItem SetChild(OptionItem child) => Do(i => i.Children.Add(child));
 
     public OptionItem RegisterUpdateValueEvent(EventHandler<UpdateValueEventArgs> handler)
         => Do(_ => UpdateValueEvent += handler);
@@ -167,13 +167,13 @@ public abstract class OptionItem
         return IsHidden || (GameMode != CustomGameMode.All && GameMode != mode);
     }
 
-    public string ApplyFormat(string value)
+    protected string ApplyFormat(string value)
     {
         if (ValueFormat == OptionFormat.None) return value;
         return string.Format(Translator.GetString("Format." + ValueFormat), value);
     }
 
-    public virtual void Refresh()
+    protected virtual void Refresh()
     {
         if (OptionBehaviour is StringOption opt)
         {
@@ -231,7 +231,7 @@ public abstract class OptionItem
     public static OptionItem operator --(OptionItem item)
         => item.Do(item => item.SetValue(item.CurrentValue - 1));
 
-    public static void SwitchPreset(int newPreset)
+    protected static void SwitchPreset(int newPreset)
     {
         CurrentPreset = Math.Clamp(newPreset, 0, NumPresets - 1);
 
@@ -310,5 +310,5 @@ public enum OptionFormat
     Votes,
     Pieces,
     Health,
-    Level,
+    Level
 }

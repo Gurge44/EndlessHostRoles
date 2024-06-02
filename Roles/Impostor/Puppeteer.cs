@@ -37,39 +37,39 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(3900, TabGroup.ImpostorRoles, CustomRoles.Puppeteer);
-            PuppeteerCD = FloatOptionItem.Create(3911, "PuppeteerCD", new(2.5f, 60f, 2.5f), 22.5f, TabGroup.ImpostorRoles)
+            PuppeteerCD = new FloatOptionItem(3911, "PuppeteerCD", new(2.5f, 60f, 2.5f), 22.5f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer])
                 .SetValueFormat(OptionFormat.Seconds);
-            PuppeteerCanKillNormally = BooleanOptionItem.Create(3917, "PuppeteerCanKillNormally", true, TabGroup.ImpostorRoles)
+            PuppeteerCanKillNormally = new BooleanOptionItem(3917, "PuppeteerCanKillNormally", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
-            PuppeteerKCD = FloatOptionItem.Create(3912, "PuppeteerKCD", new(2.5f, 60f, 2.5f), 25f, TabGroup.ImpostorRoles)
+            PuppeteerKCD = new FloatOptionItem(3912, "PuppeteerKCD", new(2.5f, 60f, 2.5f), 25f, TabGroup.ImpostorRoles)
                 .SetParent(PuppeteerCanKillNormally)
                 .SetValueFormat(OptionFormat.Seconds);
-            PuppeteerMinDelay = IntegerOptionItem.Create(3913, "PuppeteerMinDelay", new(0, 90, 1), 3, TabGroup.ImpostorRoles)
+            PuppeteerMinDelay = new IntegerOptionItem(3913, "PuppeteerMinDelay", new(0, 90, 1), 3, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer])
                 .SetValueFormat(OptionFormat.Seconds);
-            PuppeteerMaxDelay = IntegerOptionItem.Create(3914, "PuppeteerMaxDelay", new(0, 90, 1), 7, TabGroup.ImpostorRoles)
+            PuppeteerMaxDelay = new IntegerOptionItem(3914, "PuppeteerMaxDelay", new(0, 90, 1), 7, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer])
                 .SetValueFormat(OptionFormat.Seconds);
-            PuppeteerManipulationEndsAfterFixedTime = BooleanOptionItem.Create(3915, "PuppeteerManipulationEndsAfterFixedTime", false, TabGroup.ImpostorRoles)
+            PuppeteerManipulationEndsAfterFixedTime = new BooleanOptionItem(3915, "PuppeteerManipulationEndsAfterFixedTime", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
-            PuppeteerManipulationEndsAfterTime = IntegerOptionItem.Create(3916, "PuppeteerManipulationEndsAfterTime", new(0, 90, 1), 30, TabGroup.ImpostorRoles)
+            PuppeteerManipulationEndsAfterTime = new IntegerOptionItem(3916, "PuppeteerManipulationEndsAfterTime", new(0, 90, 1), 30, TabGroup.ImpostorRoles)
                 .SetParent(PuppeteerManipulationEndsAfterFixedTime)
                 .SetValueFormat(OptionFormat.Seconds);
-            PuppeteerManipulationBypassesLazy = BooleanOptionItem.Create(3918, "PuppeteerManipulationBypassesLazy", false, TabGroup.ImpostorRoles)
+            PuppeteerManipulationBypassesLazy = new BooleanOptionItem(3918, "PuppeteerManipulationBypassesLazy", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
-            PuppeteerManipulationBypassesLazyGuy = BooleanOptionItem.Create(3922, "PuppeteerManipulationBypassesLazyGuy", false, TabGroup.ImpostorRoles)
+            PuppeteerManipulationBypassesLazyGuy = new BooleanOptionItem(3922, "PuppeteerManipulationBypassesLazyGuy", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
-            PuppeteerPuppetCanKillImpostors = BooleanOptionItem.Create(3919, "PuppeteerPuppetCanKillImpostors", false, TabGroup.ImpostorRoles)
+            PuppeteerPuppetCanKillImpostors = new BooleanOptionItem(3919, "PuppeteerPuppetCanKillImpostors", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
-            PuppeteerPuppetCanKillPuppeteer = BooleanOptionItem.Create(3920, "PuppeteerPuppetCanKillPuppeteer", false, TabGroup.ImpostorRoles)
+            PuppeteerPuppetCanKillPuppeteer = new BooleanOptionItem(3920, "PuppeteerPuppetCanKillPuppeteer", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
-            PuppeteerMaxPuppetsOpt = IntegerOptionItem.Create(3921, "PuppeteerMaxPuppets", new(0, 30, 1), 5, TabGroup.ImpostorRoles)
+            PuppeteerMaxPuppetsOpt = new IntegerOptionItem(3921, "PuppeteerMaxPuppets", new(0, 30, 1), 5, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer])
                 .SetValueFormat(OptionFormat.Times);
-            PuppeteerDiesAfterMaxPuppets = BooleanOptionItem.Create(3923, "PuppeteerDiesAfterMaxPuppets", false, TabGroup.ImpostorRoles)
+            PuppeteerDiesAfterMaxPuppets = new BooleanOptionItem(3923, "PuppeteerDiesAfterMaxPuppets", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
-            PuppetDiesAlongWithVictim = BooleanOptionItem.Create(3924, "PuppetDiesAlongWithVictim", false, TabGroup.ImpostorRoles)
+            PuppetDiesAlongWithVictim = new BooleanOptionItem(3924, "PuppetDiesAlongWithVictim", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Puppeteer]);
         }
 

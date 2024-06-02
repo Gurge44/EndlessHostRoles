@@ -47,36 +47,36 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Gambler);
-            KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 60f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+            KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 60f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
-            KillDelay = IntegerOptionItem.Create(Id + 11, "GamblerKillDelay", new(0, 10, 1), 3, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+            KillDelay = new IntegerOptionItem(Id + 11, "GamblerKillDelay", new(0, 10, 1), 3, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
-            ShieldDur = IntegerOptionItem.Create(Id + 12, "GamblerShieldDur", new(1, 30, 1), 15, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+            ShieldDur = new IntegerOptionItem(Id + 12, "GamblerShieldDur", new(1, 30, 1), 15, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
-            FreezeDur = IntegerOptionItem.Create(Id + 13, "GamblerFreezeDur", new(1, 10, 1), 3, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+            FreezeDur = new IntegerOptionItem(Id + 13, "GamblerFreezeDur", new(1, 10, 1), 3, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
-            LowVision = FloatOptionItem.Create(Id + 14, "GamblerLowVision", new(0f, 1f, 0.05f), 0.7f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+            LowVision = new FloatOptionItem(Id + 14, "GamblerLowVision", new(0f, 1f, 0.05f), 0.7f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Multiplier);
-            LowVisionDur = IntegerOptionItem.Create(Id + 15, "GamblerLowVisionDur", new(1, 30, 1), 10, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+            LowVisionDur = new IntegerOptionItem(Id + 15, "GamblerLowVisionDur", new(1, 30, 1), 10, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
-            Speed = FloatOptionItem.Create(Id + 16, "GamblerSpeedup", new(0.1f, 3f, 0.05f), 1.5f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+            Speed = new FloatOptionItem(Id + 16, "GamblerSpeedup", new(0.1f, 3f, 0.05f), 1.5f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Multiplier);
-            SpeedDur = IntegerOptionItem.Create(Id + 17, "GamblerSpeedupDur", new(1, 20, 1), 5, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+            SpeedDur = new IntegerOptionItem(Id + 17, "GamblerSpeedupDur", new(1, 20, 1), 5, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
-            BSRDelay = IntegerOptionItem.Create(Id + 18, "GamblerBSRDelay", new(0, 10, 1), 2, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+            BSRDelay = new IntegerOptionItem(Id + 18, "GamblerBSRDelay", new(0, 10, 1), 2, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
-            HighKCD = FloatOptionItem.Create(Id + 19, "GamblerHighKCD", new(10f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+            HighKCD = new FloatOptionItem(Id + 19, "GamblerHighKCD", new(10f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
-            LowKCD = FloatOptionItem.Create(Id + 20, "GamblerLowKCD", new(10f, 60f, 2.5f), 17.5f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+            LowKCD = new FloatOptionItem(Id + 20, "GamblerLowKCD", new(10f, 60f, 2.5f), 17.5f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
-            TPDelay = IntegerOptionItem.Create(Id + 21, "GamblerTPDelay", new(0, 10, 1), 2, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+            TPDelay = new IntegerOptionItem(Id + 21, "GamblerTPDelay", new(0, 10, 1), 2, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
-            WhatToIgnore = BooleanOptionItem.Create(Id + 22, "GamblerWhatToIgnore", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler]);
-            IgnoreMedicShield = BooleanOptionItem.Create(Id + 23, "GamblerIgnoreMedicShield", true, TabGroup.ImpostorRoles).SetParent(WhatToIgnore);
-            IgnoreCursedWolfAndJinx = BooleanOptionItem.Create(Id + 24, "GamblerIgnoreCursedWolfAndJinx", true, TabGroup.ImpostorRoles).SetParent(WhatToIgnore);
-            IgnoreVeteranAlert = BooleanOptionItem.Create(Id + 25, "GamblerIgnoreVeteranAlert", false, TabGroup.ImpostorRoles).SetParent(WhatToIgnore);
-            IgnorePestilence = BooleanOptionItem.Create(Id + 26, "GamblerIgnorePestilence", false, TabGroup.ImpostorRoles).SetParent(WhatToIgnore);
-            PositiveEffectChance = IntegerOptionItem.Create(Id + 27, "GamblerPositiveEffectChance", new(0, 100, 5), 70, TabGroup.ImpostorRoles)
+            WhatToIgnore = new BooleanOptionItem(Id + 22, "GamblerWhatToIgnore", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler]);
+            IgnoreMedicShield = new BooleanOptionItem(Id + 23, "GamblerIgnoreMedicShield", true, TabGroup.ImpostorRoles).SetParent(WhatToIgnore);
+            IgnoreCursedWolfAndJinx = new BooleanOptionItem(Id + 24, "GamblerIgnoreCursedWolfAndJinx", true, TabGroup.ImpostorRoles).SetParent(WhatToIgnore);
+            IgnoreVeteranAlert = new BooleanOptionItem(Id + 25, "GamblerIgnoreVeteranAlert", false, TabGroup.ImpostorRoles).SetParent(WhatToIgnore);
+            IgnorePestilence = new BooleanOptionItem(Id + 26, "GamblerIgnorePestilence", false, TabGroup.ImpostorRoles).SetParent(WhatToIgnore);
+            PositiveEffectChance = new IntegerOptionItem(Id + 27, "GamblerPositiveEffectChance", new(0, 100, 5), 70, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Percent);
         }

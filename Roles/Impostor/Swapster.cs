@@ -5,10 +5,10 @@ namespace EHR.Roles.Impostor
 {
     internal class Swapster : RoleBase
     {
-        private static int Id => 643320;
         public static OptionItem SSCD;
         public static readonly Dictionary<byte, byte> FirstSwapTarget = [];
         public static bool On;
+        private static int Id => 643320;
         public override bool IsEnable => On;
 
         public override void Init()
@@ -22,7 +22,7 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Swapster);
-            SSCD = FloatOptionItem.Create(Id + 2, "ShapeshiftCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+            SSCD = new FloatOptionItem(Id + 2, "ShapeshiftCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Swapster])
                 .SetValueFormat(OptionFormat.Seconds);
         }

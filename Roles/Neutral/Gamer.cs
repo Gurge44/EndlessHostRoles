@@ -28,17 +28,17 @@ public class Gamer : RoleBase
     public static void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Gamer);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "GamerKillCooldown", new(1f, 180f, 1f), 2f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
+        KillCooldown = new FloatOptionItem(Id + 10, "GamerKillCooldown", new(1f, 180f, 1f), 2f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
             .SetValueFormat(OptionFormat.Seconds);
-        CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer]);
-        HasImpostorVision = BooleanOptionItem.Create(Id + 13, "ImpostorVision", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer]);
-        HealthMax = IntegerOptionItem.Create(Id + 15, "GamerHealthMax", new(5, 300, 5), 100, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
+        CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer]);
+        HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer]);
+        HealthMax = new IntegerOptionItem(Id + 15, "GamerHealthMax", new(5, 300, 5), 100, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
             .SetValueFormat(OptionFormat.Health);
-        Damage = IntegerOptionItem.Create(Id + 16, "GamerDamage", new(1, 100, 1), 15, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
+        Damage = new IntegerOptionItem(Id + 16, "GamerDamage", new(1, 100, 1), 15, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
             .SetValueFormat(OptionFormat.Health);
-        SelfHealthMax = IntegerOptionItem.Create(Id + 17, "GamerSelfHealthMax", new(100, 100, 5), 100, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
+        SelfHealthMax = new IntegerOptionItem(Id + 17, "GamerSelfHealthMax", new(100, 100, 5), 100, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
             .SetValueFormat(OptionFormat.Health);
-        SelfDamage = IntegerOptionItem.Create(Id + 18, "GamerSelfDamage", new(1, 100, 1), 35, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
+        SelfDamage = new IntegerOptionItem(Id + 18, "GamerSelfDamage", new(1, 100, 1), 35, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
             .SetValueFormat(OptionFormat.Health);
     }
 

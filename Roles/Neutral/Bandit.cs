@@ -34,14 +34,14 @@ public class Bandit : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Bandit);
-        MaxSteals = IntegerOptionItem.Create(Id + 10, "BanditMaxSteals", new(1, 20, 1), 3, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
-        KillCooldown = FloatOptionItem.Create(Id + 11, "KillCooldown", new(0f, 180f, 0.5f), 20f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Bandit])
+        MaxSteals = new IntegerOptionItem(Id + 10, "BanditMaxSteals", new(1, 20, 1), 3, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
+        KillCooldown = new FloatOptionItem(Id + 11, "KillCooldown", new(0f, 180f, 0.5f), 20f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Bandit])
             .SetValueFormat(OptionFormat.Seconds);
-        StealMode = StringOptionItem.Create(Id + 12, "BanditStealMode", BanditStealModeOpt, 0, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
-        CanStealBetrayalAddon = BooleanOptionItem.Create(Id + 13, "BanditCanStealBetrayalAddon", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
-        CanStealImpOnlyAddon = BooleanOptionItem.Create(Id + 14, "BanditCanStealImpOnlyAddon", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
-        CanVent = BooleanOptionItem.Create(Id + 16, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
-        HasImpostorVision = BooleanOptionItem.Create(Id + 17, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
+        StealMode = new StringOptionItem(Id + 12, "BanditStealMode", BanditStealModeOpt, 0, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
+        CanStealBetrayalAddon = new BooleanOptionItem(Id + 13, "BanditCanStealBetrayalAddon", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
+        CanStealImpOnlyAddon = new BooleanOptionItem(Id + 14, "BanditCanStealImpOnlyAddon", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
+        CanVent = new BooleanOptionItem(Id + 16, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
+        HasImpostorVision = new BooleanOptionItem(Id + 17, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
     }
 
     public override void Init()

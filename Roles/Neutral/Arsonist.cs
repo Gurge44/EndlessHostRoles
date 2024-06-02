@@ -19,19 +19,19 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             SetupRoleOptions(10400, TabGroup.NeutralRoles, CustomRoles.Arsonist);
-            ArsonistDouseTime = FloatOptionItem.Create(10410, "ArsonistDouseTime", new(0f, 90f, 0.5f), 3f, TabGroup.NeutralRoles)
+            ArsonistDouseTime = new FloatOptionItem(10410, "ArsonistDouseTime", new(0f, 90f, 0.5f), 3f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist])
                 .SetValueFormat(OptionFormat.Seconds);
-            ArsonistCooldown = FloatOptionItem.Create(10411, "Cooldown", new(0f, 60f, 0.5f), 10f, TabGroup.NeutralRoles)
+            ArsonistCooldown = new FloatOptionItem(10411, "Cooldown", new(0f, 60f, 0.5f), 10f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist])
                 .SetValueFormat(OptionFormat.Seconds);
-            ArsonistCanIgniteAnytime = BooleanOptionItem.Create(10413, "ArsonistCanIgniteAnytime", false, TabGroup.NeutralRoles)
+            ArsonistCanIgniteAnytime = new BooleanOptionItem(10413, "ArsonistCanIgniteAnytime", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist]);
-            ArsonistMinPlayersToIgnite = IntegerOptionItem.Create(10414, "ArsonistMinPlayersToIgnite", new(1, 14, 1), 1, TabGroup.NeutralRoles)
+            ArsonistMinPlayersToIgnite = new IntegerOptionItem(10414, "ArsonistMinPlayersToIgnite", new(1, 14, 1), 1, TabGroup.NeutralRoles)
                 .SetParent(ArsonistCanIgniteAnytime);
-            ArsonistMaxPlayersToIgnite = IntegerOptionItem.Create(10415, "ArsonistMaxPlayersToIgnite", new(1, 14, 1), 3, TabGroup.NeutralRoles)
+            ArsonistMaxPlayersToIgnite = new IntegerOptionItem(10415, "ArsonistMaxPlayersToIgnite", new(1, 14, 1), 3, TabGroup.NeutralRoles)
                 .SetParent(ArsonistCanIgniteAnytime);
-            ArsonistKeepsGameGoing = BooleanOptionItem.Create(10412, "ArsonistKeepsGameGoing", false, TabGroup.NeutralRoles)
+            ArsonistKeepsGameGoing = new BooleanOptionItem(10412, "ArsonistKeepsGameGoing", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Arsonist]);
         }
 

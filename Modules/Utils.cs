@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -521,12 +522,10 @@ public static class Utils
                     w.Write(l.ToString());
                     break;
                 case Vector2 v:
-                    NetHelpers.WriteVector2(v, w);
+                    w.Write(v);
                     break;
                 case Vector3 v:
-                    w.Write(v.x);
-                    w.Write(v.y);
-                    w.Write(v.z);
+                    w.Write(v);
                     break;
                 default:
                     try
@@ -544,14 +543,6 @@ public static class Utils
         }
 
         EndRPC(w);
-    }
-
-    public static Vector3 ReadVector3(MessageReader reader)
-    {
-        float x = reader.ReadSingle();
-        float y = reader.ReadSingle();
-        float z = reader.ReadSingle();
-        return new(x, y, z);
     }
 
     public static void IncreaseAbilityUseLimitOnKill(PlayerControl killer)
@@ -1703,13 +1694,31 @@ public static class Utils
         else Logger.Msg("No Player to change to Refugee.", "Add Refugee");
     }
 
-    public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "")
+    public static int ToInt(this string input)
+    {
+        using MD5 md5 = MD5.Create();
+        byte[] hashBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(input));
+
+        int hashInt = BitConverter.ToInt32(hashBytes, 0);
+
+        hashInt = Math.Abs(hashInt);
+
+        string hashStr = hashInt.ToString().PadLeft(8, '0');
+        if (hashStr.Length > 8)
+        {
+            hashStr = hashStr[..8];
+        }
+
+        return int.Parse(hashStr);
+    }
+
+    public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false)
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (title == "") title = "<color=#aaaaff>" + GetString("DefaultSystemMessageTitle") + "</color>";
         text = text.Replace("color=", string.Empty);
 
-        if (text.Length >= 1200)
+        if (text.Length >= 1200 && !noSplit)
         {
             var lines = text.Split('\n');
             var shortenedText = string.Empty;
@@ -1721,12 +1730,12 @@ public static class Utils
                     continue;
                 }
 
-                if (shortenedText.Length >= 1200) shortenedText.Chunk(1200).Do(x => SendMessage(new(x), sendTo, title));
-                else SendMessage(shortenedText, sendTo, title);
+                if (shortenedText.Length >= 1200) shortenedText.Chunk(1200).Do(x => SendMessage(new(x), sendTo, title, true));
+                else SendMessage(shortenedText, sendTo, title, true);
                 shortenedText = line + "\n";
             }
 
-            if (shortenedText.Length > 0) SendMessage(shortenedText, sendTo, title);
+            if (shortenedText.Length > 0) SendMessage(shortenedText, sendTo, title, true);
             return;
         }
 
@@ -1907,7 +1916,25 @@ public static class Utils
         {
             try
             {
-                if (seer == null || seer.Data.Disconnected || seer.IsModClient()) continue;
+                if (seer is null || !seer || seer.Data.Disconnected || seer.IsModClient()) continue;
+
+                // During intro scene, set team name for non-modded clients and skip the rest.
+                string SelfName;
+                Team seerTeam = seer.GetTeam();
+                if (SetUpRoleTextPatch.IsInIntro && seer.GetCustomRole().IsDesyncRole() || seer.Is(CustomRoles.Bloodlust))
+                {
+                    const string iconTextLeft = "<color=#ffffff>\u21e8</color>";
+                    const string iconTextRight = "<color=#ffffff>\u21e6</color>";
+                    const string roleNameUp = "</size><size=1350%>\n \n</size>";
+                    string selfTeamName = $"<size=450%>{iconTextLeft} <font=\"VCR SDF\" material=\"VCR Black Outline\">{ColorString(seerTeam.GetTeamColor(), $"{seerTeam}")}</font> {iconTextRight}</size><size=900%>\n \n</size>";
+                    SelfName = $"{ColorString(seer.GetRoleColor(), seer.GetRealName())}";
+
+                    SelfName = $"{selfTeamName}\r\n{seer.GetDisplayRoleName()}\r\n{SelfName}{roleNameUp}";
+
+                    // Privately set name
+                    seer.RpcSetNamePrivate(SelfName, true, seer);
+                    continue;
+                }
 
                 string fontSize = "1.7";
                 if (isForMeeting && (seer.GetClient().PlatformData.Platform == Platforms.Playstation || seer.GetClient().PlatformData.Platform == Platforms.Switch)) fontSize = "70%";
@@ -2021,7 +2048,7 @@ public static class Utils
                     {
                         SeerRealName = !Options.ChangeNameToRoleInfo.GetBool()
                             ? SeerRealName
-                            : seer.GetTeam() switch
+                            : seerTeam switch
                             {
                                 Team.Impostor when seer.GetCustomRole().IsMadmate() || seer.Is(CustomRoles.Madmate) => $"<color=#ff1919>{GetString("YouAreMadmate")}</color>\n<size=90%>{seer.GetRoleInfo()}</size>",
                                 Team.Impostor => $"\n<size=90%>{seer.GetRoleInfo()}</size>",
@@ -2035,7 +2062,7 @@ public static class Utils
                 // Combine seer's job title and SelfTaskText with seer's player name and SelfMark
                 string SelfRoleName = $"<size={fontSize}>{seer.GetDisplayRoleName()}{SelfTaskText}</size>";
                 string SelfDeathReason = seer.KnowDeathReason(seer) ? $"\n<size=1.7>({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(seer.PlayerId))})</size>" : string.Empty;
-                string SelfName = $"{ColorString(seer.GetRoleColor(), SeerRealName)}{SelfDeathReason}{SelfMark}";
+                SelfName = $"{ColorString(seer.GetRoleColor(), SeerRealName)}{SelfDeathReason}{SelfMark}";
 
                 if (Options.CurrentGameMode != CustomGameMode.Standard) goto GameMode2;
 
@@ -2421,7 +2448,7 @@ public static class Utils
             CustomRoles.Mole => 5,
             CustomRoles.Doormaster => Doormaster.VentCooldown.GetInt(),
             CustomRoles.Tether => Tether.VentCooldown.GetInt(),
-            CustomRoles.Mayor => (int)Math.Round(Options.DefaultKillCooldown),
+            CustomRoles.Mayor when Mayor.MayorHasPortableButton.GetBool() => (int)Math.Round(Options.DefaultKillCooldown),
             CustomRoles.Paranoia => (int)Math.Round(Options.DefaultKillCooldown),
             CustomRoles.Grenadier => Options.GrenadierSkillCooldown.GetInt() + (includeDuration ? Options.GrenadierSkillDuration.GetInt() : 0),
             CustomRoles.Lighter => Options.LighterSkillCooldown.GetInt() + (includeDuration ? Options.LighterSkillDuration.GetInt() : 0),
@@ -2683,7 +2710,7 @@ public static class Utils
             253 => "Skip",
             254 => "None",
             255 => "Dead",
-            _ => "invalid",
+            _ => "invalid"
         };
     }
 

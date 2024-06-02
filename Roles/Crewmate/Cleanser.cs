@@ -14,20 +14,22 @@ public class Cleanser : RoleBase
     public static List<byte> CleansedPlayers = [];
     public static Dictionary<byte, bool> DidVote = [];
 
-    public byte CleanserTarget = byte.MaxValue;
-    public int CleanserUses;
-    private byte CleanserId;
-
     public static OptionItem CleanserUsesOpt;
     public static OptionItem CleansedCanGetAddon;
     public static OptionItem CancelVote;
+    private byte CleanserId;
+
+    public byte CleanserTarget = byte.MaxValue;
+    public int CleanserUses;
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Cleanser);
-        CleanserUsesOpt = IntegerOptionItem.Create(Id + 10, "MaxCleanserUses", new(1, 14, 1), 3, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser])
+        CleanserUsesOpt = new IntegerOptionItem(Id + 10, "MaxCleanserUses", new(1, 14, 1), 3, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser])
             .SetValueFormat(OptionFormat.Times);
-        CleansedCanGetAddon = BooleanOptionItem.Create(Id + 11, "CleansedCanGetAddon", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser]);
+        CleansedCanGetAddon = new BooleanOptionItem(Id + 11, "CleansedCanGetAddon", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser]);
         CancelVote = CreateVoteCancellingUseSetting(Id + 12, CustomRoles.Cleanser, TabGroup.CrewmateRoles);
     }
 
@@ -49,8 +51,6 @@ public class Cleanser : RoleBase
         DidVote.Add(playerId, false);
         CleanserId = playerId;
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     //public static string GetProgressText(byte playerId) => Utils.ColorString(CleanserUsesOpt.GetInt() - CleanserUses[playerId] > 0 ? Utils.GetRoleColor(CustomRoles.Cleanser).ShadeColor(0.25f) : Color.gray, CleanserUses.TryGetValue(playerId, out var x) ? $"({CleanserUsesOpt.GetInt() - x})" : "Invalid");
     public override string GetProgressText(byte playerId, bool comms)

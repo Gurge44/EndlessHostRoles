@@ -32,7 +32,7 @@ public class Lawyer : RoleBase
         "Role.Bodyguard",
         "Role.Dictator",
         "Role.Mayor",
-        "Role.Doctor",
+        "Role.Doctor"
     ];
 
     public static readonly CustomRoles[] CRoleChangeRoles =
@@ -45,7 +45,7 @@ public class Lawyer : RoleBase
         CustomRoles.Bodyguard,
         CustomRoles.Dictator,
         CustomRoles.Mayor,
-        CustomRoles.Doctor,
+        CustomRoles.Doctor
     ];
 
     public override bool IsEnable => playerIdList.Count > 0;
@@ -53,13 +53,13 @@ public class Lawyer : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Lawyer);
-        CanTargetImpostor = BooleanOptionItem.Create(Id + 10, "LawyerCanTargetImpostor", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
-        CanTargetNeutralKiller = BooleanOptionItem.Create(Id + 11, "LawyerCanTargetNeutralKiller", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
-        CanTargetCrewmate = BooleanOptionItem.Create(Id + 12, "LawyerCanTargetCrewmate", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
-        CanTargetJester = BooleanOptionItem.Create(Id + 13, "LawyerCanTargetJester", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
-        KnowTargetRole = BooleanOptionItem.Create(Id + 14, "KnowTargetRole", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
-        TargetKnowsLawyer = BooleanOptionItem.Create(Id + 15, "TargetKnowsLawyer", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
-        ChangeRolesAfterTargetKilled = StringOptionItem.Create(Id + 16, "LawyerChangeRolesAfterTargetKilled", ChangeRoles, 2, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
+        CanTargetImpostor = new BooleanOptionItem(Id + 10, "LawyerCanTargetImpostor", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
+        CanTargetNeutralKiller = new BooleanOptionItem(Id + 11, "LawyerCanTargetNeutralKiller", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
+        CanTargetCrewmate = new BooleanOptionItem(Id + 12, "LawyerCanTargetCrewmate", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
+        CanTargetJester = new BooleanOptionItem(Id + 13, "LawyerCanTargetJester", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
+        KnowTargetRole = new BooleanOptionItem(Id + 14, "KnowTargetRole", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
+        TargetKnowsLawyer = new BooleanOptionItem(Id + 15, "TargetKnowsLawyer", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
+        ChangeRolesAfterTargetKilled = new StringOptionItem(Id + 16, "LawyerChangeRolesAfterTargetKilled", ChangeRoles, 2, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
     }
 
     public override void Init()

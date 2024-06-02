@@ -46,13 +46,13 @@ namespace EHR.Roles.AddOns.GhostRoles
         public void SetupCustomOption()
         {
             Options.SetupRoleOptions(649300, TabGroup.OtherRoles, CustomRoles.Haunter, zeroOne: true);
-            TasksBeforeBeingKnown = IntegerOptionItem.Create(649302, "Haunter.TasksBeforeBeingKnown", new(1, 10, 1), 1, TabGroup.OtherRoles)
+            TasksBeforeBeingKnown = new IntegerOptionItem(649302, "Haunter.TasksBeforeBeingKnown", new(1, 10, 1), 1, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
-            RevealNeutralKillers = BooleanOptionItem.Create(649303, "Haunter.RevealNeutralKillers", true, TabGroup.OtherRoles)
+            RevealNeutralKillers = new BooleanOptionItem(649303, "Haunter.RevealNeutralKillers", true, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
-            RevealMadmates = BooleanOptionItem.Create(649304, "Haunter.RevealMadmates", true, TabGroup.OtherRoles)
+            RevealMadmates = new BooleanOptionItem(649304, "Haunter.RevealMadmates", true, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
-            NumberOfReveals = IntegerOptionItem.Create(649305, "Haunter.NumberOfReveals", new(1, 10, 1), 1, TabGroup.OtherRoles)
+            NumberOfReveals = new IntegerOptionItem(649305, "Haunter.NumberOfReveals", new(1, 10, 1), 1, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
             Options.OverrideTasksData.Create(649306, TabGroup.OtherRoles, CustomRoles.Haunter);
         }

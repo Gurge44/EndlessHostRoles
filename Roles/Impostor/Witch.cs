@@ -16,7 +16,7 @@ public class Witch : RoleBase
     {
         Kill,
         Vent,
-        DoubleTrigger,
+        DoubleTrigger
     }
 
     private const int Id = 2000;
@@ -43,7 +43,7 @@ public class Witch : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Witch);
-        ModeSwitchAction = StringOptionItem.Create(Id + 10, "WitchModeSwitchAction", SwitchTriggerText, 2, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Witch]);
+        ModeSwitchAction = new StringOptionItem(Id + 10, "WitchModeSwitchAction", SwitchTriggerText, 2, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Witch]);
     }
 
     public override void Init()

@@ -9,10 +9,10 @@ namespace EHR.Roles.AddOns.Common
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(14200, CustomRoles.Torch, canSetNum: true);
-            TorchVision = FloatOptionItem.Create(14210, "TorchVision", new(0.5f, 5f, 0.25f), 1.25f, TabGroup.Addons)
+            TorchVision = new FloatOptionItem(14210, "TorchVision", new(0.5f, 5f, 0.25f), 1.25f, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Torch])
                 .SetValueFormat(OptionFormat.Multiplier);
-            TorchAffectedByLights = BooleanOptionItem.Create(14220, "TorchAffectedByLights", false, TabGroup.Addons)
+            TorchAffectedByLights = new BooleanOptionItem(14220, "TorchAffectedByLights", false, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Torch]);
         }
     }

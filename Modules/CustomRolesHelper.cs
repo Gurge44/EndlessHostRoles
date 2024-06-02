@@ -784,12 +784,11 @@ internal static class CustomRolesHelper
         CustomRoles.Hangman or
         CustomRoles.Generator;
 
-    public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc) => role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(pc.GetCustomRole(), out var bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.Egoist) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out var o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && role switch
+    public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc) => role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(pc.GetCustomRole(), out var bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out var o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && role switch
     {
         CustomRoles.Energetic when !Options.UsePets.GetBool() => false,
         CustomRoles.Sidekick when pc.Is(CustomRoles.Madmate) => false,
         CustomRoles.Madmate when pc.Is(CustomRoles.Sidekick) => false,
-        CustomRoles.Egoist when pc.Is(CustomRoles.Sidekick) => false,
         CustomRoles.Autopsy when pc.Is(CustomRoles.Doctor) || pc.Is(CustomRoles.Tracefinder) || pc.Is(CustomRoles.Scientist) || pc.Is(CustomRoles.ScientistEHR) || pc.Is(CustomRoles.Sunnyboy) => false,
         CustomRoles.Necroview when pc.Is(CustomRoles.Doctor) => false,
         CustomRoles.Lazy when pc.Is(CustomRoles.Speedrunner) => false,
@@ -909,7 +908,7 @@ internal static class CustomRolesHelper
         Team.Neutral => role.IsNeutralTeamV2(),
         Team.Crewmate => role.IsCrewmateTeamV2(),
         Team.None => role.GetCountTypes() is CountTypes.OutOfGame or CountTypes.None || role == CustomRoles.GM,
-        _ => false,
+        _ => false
     };
 
     public static RoleTypes GetRoleTypes(this CustomRoles role)
@@ -923,7 +922,7 @@ internal static class CustomRolesHelper
             CustomRoles.GuardianAngel => RoleTypes.GuardianAngel,
             CustomRoles.Shapeshifter => RoleTypes.Shapeshifter,
             CustomRoles.Crewmate => RoleTypes.Crewmate,
-            _ => role.IsImpostor() ? RoleTypes.Impostor : RoleTypes.Crewmate,
+            _ => role.IsImpostor() ? RoleTypes.Impostor : RoleTypes.Crewmate
         };
     }
 
@@ -931,11 +930,11 @@ internal static class CustomRolesHelper
     public static bool IsImpostorTeam(this CustomRoles role) => role.IsImpostor() || role == CustomRoles.Madmate;
     public static bool IsCrewmate(this CustomRoles role) => !role.IsImpostor() && !role.IsNeutral() && !role.IsMadmate();
 
-    public static bool IsImpostorTeamV2(this CustomRoles role) => (role.IsImpostorTeam() && role != CustomRoles.Trickster && !role.IsConverted()) || role == CustomRoles.Rascal;
+    private static bool IsImpostorTeamV2(this CustomRoles role) => (role.IsImpostorTeam() && role != CustomRoles.Trickster && !role.IsConverted()) || role == CustomRoles.Rascal;
     public static bool IsNeutralTeamV2(this CustomRoles role) => role.IsConverted() || (role.IsNeutral() && role != CustomRoles.Madmate);
     public static bool IsCrewmateTeamV2(this CustomRoles role) => (!role.IsImpostorTeamV2() && !role.IsNeutralTeamV2()) || (role == CustomRoles.Trickster && !role.IsConverted());
 
-    public static bool IsConverted(this CustomRoles role) => ((role is CustomRoles.Egoist) && (ParityCop.ParityCheckEgoistInt() == 1)) || role is
+    public static bool IsConverted(this CustomRoles role) => (role == CustomRoles.Egoist && ParityCop.ParityCheckEgoistInt() == 1) || role is
         CustomRoles.Charmed or
         CustomRoles.Recruit or
         CustomRoles.Contagious or
@@ -1089,6 +1088,16 @@ internal static class CustomRolesHelper
         AddonTypes.Mixed => Utils.GetRoleColor(CustomRoles.TaskManager),
         _ => Palette.CrewmateBlue
     };
+
+    public static Color GetTeamColor(this Team team) => ColorUtility.TryParseHtmlString(team switch
+    {
+        Team.Crewmate => Main.CrewmateColor,
+        Team.Neutral => Main.NeutralColor,
+        Team.Impostor => Main.ImpostorColor,
+        _ => string.Empty
+    }, out var color)
+        ? color
+        : Color.clear;
 
     public static string ToColoredString(this CustomRoles role) => Utils.ColorString(Utils.GetRoleColor(role), Translator.GetString($"{role}"));
 }

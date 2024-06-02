@@ -35,23 +35,23 @@ namespace EHR
             const int id = 69_211_001;
             Color color = new(52, 94, 235, byte.MaxValue);
 
-            MaxGameLength = IntegerOptionItem.Create(id, "FFA_GameTime", new(0, 1200, 10), 600, TabGroup.GameSettings)
+            MaxGameLength = new IntegerOptionItem(id, "FFA_GameTime", new(0, 1200, 10), 600, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(color);
 
-            MinNeutrals = IntegerOptionItem.Create(id + 1, "HNS.MinNeutrals", new(0, 13, 1), 1, TabGroup.GameSettings)
+            MinNeutrals = new IntegerOptionItem(id + 1, "HNS.MinNeutrals", new(0, 13, 1), 1, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(color);
-            MaxNeutrals = IntegerOptionItem.Create(id + 2, "HNS.MaxNeutrals", new(0, 13, 1), 3, TabGroup.GameSettings)
-                .SetGameMode(CustomGameMode.HideAndSeek)
-                .SetColor(color);
-
-            DangerMeter = BooleanOptionItem.Create(id + 3, "HNS.DangerMeter", true, TabGroup.GameSettings)
+            MaxNeutrals = new IntegerOptionItem(id + 2, "HNS.MaxNeutrals", new(0, 13, 1), 3, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(color);
 
-            PlayersSeeRoles = BooleanOptionItem.Create(id + 4, "HNS.PlayersSeeRoles", true, TabGroup.GameSettings)
+            DangerMeter = new BooleanOptionItem(id + 3, "HNS.DangerMeter", true, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.HideAndSeek)
+                .SetColor(color);
+
+            PlayersSeeRoles = new BooleanOptionItem(id + 4, "HNS.PlayersSeeRoles", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(color);
         }

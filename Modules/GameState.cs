@@ -87,7 +87,7 @@ public class PlayerState(byte playerId)
                 RoleTypes.GuardianAngel => CustomRoles.GuardianAngel,
                 RoleTypes.Impostor => CustomRoles.Impostor,
                 RoleTypes.Shapeshifter => CustomRoles.Shapeshifter,
-                _ => CustomRoles.Crewmate,
+                _ => CustomRoles.Crewmate
             };
     }
 
@@ -97,6 +97,12 @@ public class PlayerState(byte playerId)
         {
             CustomRoles.DarkHide => !DarkHide.SnatchesWin.GetBool() ? CountTypes.DarkHide : CountTypes.Crew,
             CustomRoles.Arsonist => Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Arsonist : CountTypes.Crew,
+            _ when SubRoles.Contains(CustomRoles.Recruit) => Jackal.SidekickCountMode.GetValue() switch
+            {
+                0 => CountTypes.Jackal,
+                1 => CountTypes.OutOfGame,
+                _ => role.GetCountTypes()
+            },
             _ => role.GetCountTypes()
         };
 

@@ -460,7 +460,7 @@ class CheckForEndVotingPatch
                         1 => $"1 <color=#ff1919>{GetString("RemainingText.ImpSingle")}</color> <color=#777777>&</color> ",
                         2 => $"2 <color=#ff1919>{GetString("RemainingText.ImpPlural")}</color> <color=#777777>&</color> ",
                         3 => $"3 <color=#ff1919>{GetString("RemainingText.ImpPlural")}</color> <color=#777777>&</color> ",
-                        _ => string.Empty,
+                        _ => string.Empty
                     };
                     if (neutralnum == 1) name += $"1 <color=#ffab1b>{GetString("RemainingText.NKSingle")}</color> <color=#777777>{GetString("RemainingText.EjectionSuffix.NKSingle")}</color>";
                     else name += $"{neutralnum} <color=#ffab1b>{GetString("RemainingText.NKPlural")}</color> <color=#777777>{GetString("RemainingText.EjectionSuffix.NKPlural")}</color>";
@@ -471,7 +471,7 @@ class CheckForEndVotingPatch
                         1 => GetString("OneImpRemain"),
                         2 => GetString("TwoImpRemain"),
                         3 => GetString("ThreeImpRemain"),
-                        _ => string.Empty,
+                        _ => string.Empty
                     };
                     break;
                 case (0, > 0): // Only neutrals remain

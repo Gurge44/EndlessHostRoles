@@ -740,7 +740,7 @@ class ReportDeadBodyPatch
         if (GameStates.IsMeeting) return false;
         if (Options.DisableMeeting.GetBool()) return false;
         if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
-        if (Options.DisableReportWhenCC.GetBool() && (Camouflager.IsActive || IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool())) return false;
+        if (Options.DisableReportWhenCC.GetBool() && (Camouflager.IsActive || (IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool()))) return false;
         if (!CanReport[__instance.PlayerId])
         {
             WaitReport[__instance.PlayerId].Add(target);
@@ -2001,7 +2001,7 @@ class PlayerControlLocalSetRolePatch
                 RoleTypes.Crewmate => CustomRoles.CrewmateEHR,
                 RoleTypes.Engineer => CustomRoles.EngineerEHR,
                 RoleTypes.Scientist => CustomRoles.ScientistEHR,
-                _ => CustomRoles.NotAssigned,
+                _ => CustomRoles.NotAssigned
             };
             if (moddedRole != CustomRoles.NotAssigned)
             {

@@ -14,10 +14,12 @@ public class SwordsMan : RoleBase
     public static OptionItem CanVent;
     public static OptionItem UsePet;
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.SwordsMan);
-        CanVent = BooleanOptionItem.Create(Id + 11, "CanVent", false, TabGroup.CrewmateRoles)
+        CanVent = new BooleanOptionItem(Id + 11, "CanVent", false, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SwordsMan]);
         UsePet = Options.CreatePetUseSetting(Id + 10, CustomRoles.SwordsMan);
     }
@@ -47,8 +49,6 @@ public class SwordsMan : RoleBase
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SendRPC(byte playerId)
     {

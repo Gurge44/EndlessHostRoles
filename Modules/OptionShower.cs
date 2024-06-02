@@ -67,7 +67,7 @@ public static class OptionShower
 
             foreach (var opt in OptionItem.AllOptions)
             {
-                if (opt.Id is >= 90000 and (< 600000 or > 700000) && !opt.IsHiddenOn(Options.CurrentGameMode) && opt.Parent == null && !opt.IsText)
+                if (opt.Id != 0 && !opt.IsHiddenOn(Options.CurrentGameMode) && opt.Parent == null && !opt.IsText)
                 {
                     if (opt.IsHeader) sb.Append('\n');
                     sb.Append($"{opt.GetName()}: {opt.GetString()}\n");

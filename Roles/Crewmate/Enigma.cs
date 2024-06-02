@@ -46,23 +46,25 @@ namespace EHR.Roles.Crewmate
             new EnigmaKillerLevelClue { ClueStage = 1, EnigmaClueType = EnigmaClueType.KillerLevelClue },
             new EnigmaKillerLevelClue { ClueStage = 2, EnigmaClueType = EnigmaClueType.KillerLevelClue },
             new EnigmaKillerLevelClue { ClueStage = 3, EnigmaClueType = EnigmaClueType.KillerLevelClue },
-            new EnigmaFriendCodeClue { ClueStage = 3, EnigmaClueType = EnigmaClueType.FriendCodeClue },
+            new EnigmaFriendCodeClue { ClueStage = 3, EnigmaClueType = EnigmaClueType.FriendCodeClue }
         ];
+
+        public override bool IsEnable => playerIdList.Count > 0;
 
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Enigma);
-            EnigmaClueStage1Tasks = FloatOptionItem.Create(Id + 11, "EnigmaClueStage1Tasks", new(0f, 10f, 1f), 1f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
+            EnigmaClueStage1Tasks = new FloatOptionItem(Id + 11, "EnigmaClueStage1Tasks", new(0f, 10f, 1f), 1f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
                 .SetValueFormat(OptionFormat.Times);
-            EnigmaClueStage2Tasks = FloatOptionItem.Create(Id + 12, "EnigmaClueStage2Tasks", new(0f, 10f, 1f), 3f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
+            EnigmaClueStage2Tasks = new FloatOptionItem(Id + 12, "EnigmaClueStage2Tasks", new(0f, 10f, 1f), 3f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
                 .SetValueFormat(OptionFormat.Times);
-            EnigmaClueStage3Tasks = FloatOptionItem.Create(Id + 13, "EnigmaClueStage3Tasks", new(0f, 10f, 1f), 7f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
+            EnigmaClueStage3Tasks = new FloatOptionItem(Id + 13, "EnigmaClueStage3Tasks", new(0f, 10f, 1f), 7f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
                 .SetValueFormat(OptionFormat.Times);
-            EnigmaClueStage2Probability = IntegerOptionItem.Create(Id + 14, "EnigmaClueStage2Probability", new(0, 100, 5), 75, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
+            EnigmaClueStage2Probability = new IntegerOptionItem(Id + 14, "EnigmaClueStage2Probability", new(0, 100, 5), 75, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
                 .SetValueFormat(OptionFormat.Percent);
-            EnigmaClueStage3Probability = IntegerOptionItem.Create(Id + 15, "EnigmaClueStage3Probability", new(0, 100, 5), 60, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
+            EnigmaClueStage3Probability = new IntegerOptionItem(Id + 15, "EnigmaClueStage3Probability", new(0, 100, 5), 60, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
                 .SetValueFormat(OptionFormat.Percent);
-            EnigmaGetCluesWithoutReporting = BooleanOptionItem.Create(Id + 16, "EnigmaClueGetCluesWithoutReporting", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma]);
+            EnigmaGetCluesWithoutReporting = new BooleanOptionItem(Id + 16, "EnigmaClueGetCluesWithoutReporting", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma]);
 
             OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Enigma);
         }
@@ -80,8 +82,6 @@ namespace EHR.Roles.Crewmate
             playerIdList.Add(playerId);
             ShownClues.Add(playerId, []);
         }
-
-        public override bool IsEnable => playerIdList.Count > 0;
 
         public static void OnReportDeadBody(PlayerControl player, GameData.PlayerInfo targetInfo)
         {
@@ -146,9 +146,13 @@ namespace EHR.Roles.Crewmate
             public abstract string Title { get; }
             public abstract string GetMessage(PlayerControl killer, bool showStageClue);
         }
+
         private class EnigmaHatClue : EnigmaClue
         {
-            public override string Title { get { return GetString("EnigmaClueHatTitle"); } }
+            public override string Title
+            {
+                get { return GetString("EnigmaClueHatTitle"); }
+            }
 
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
@@ -165,9 +169,13 @@ namespace EHR.Roles.Crewmate
                 };
             }
         }
+
         private class EnigmaVisorClue : EnigmaClue
         {
-            public override string Title { get { return GetString("EnigmaClueVisorTitle"); } }
+            public override string Title
+            {
+                get { return GetString("EnigmaClueVisorTitle"); }
+            }
 
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
@@ -184,9 +192,13 @@ namespace EHR.Roles.Crewmate
                 };
             }
         }
+
         private class EnigmaSkinClue : EnigmaClue
         {
-            public override string Title { get { return GetString("EnigmaClueSkinTitle"); } }
+            public override string Title
+            {
+                get { return GetString("EnigmaClueSkinTitle"); }
+            }
 
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
@@ -203,9 +215,13 @@ namespace EHR.Roles.Crewmate
                 };
             }
         }
+
         private class EnigmaPetClue : EnigmaClue
         {
-            public override string Title { get { return GetString("EnigmaCluePetTitle"); } }
+            public override string Title
+            {
+                get { return GetString("EnigmaCluePetTitle"); }
+            }
 
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
@@ -222,11 +238,15 @@ namespace EHR.Roles.Crewmate
                 };
             }
         }
+
         private class EnigmaNameClue : EnigmaClue
         {
             private readonly IRandom rd = IRandom.Instance;
 
-            public override string Title { get { return GetString("EnigmaClueNameTitle"); } }
+            public override string Title
+            {
+                get { return GetString("EnigmaClueNameTitle"); }
+            }
 
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
@@ -282,11 +302,15 @@ namespace EHR.Roles.Crewmate
                 return letter2;
             }
         }
+
         private class EnigmaNameLengthClue : EnigmaClue
         {
             private readonly IRandom rd = IRandom.Instance;
 
-            public override string Title { get { return GetString("EnigmaClueNameLengthTitle"); } }
+            public override string Title
+            {
+                get { return GetString("EnigmaClueNameLengthTitle"); }
+            }
 
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
@@ -329,9 +353,13 @@ namespace EHR.Roles.Crewmate
                 return string.Format(GetString("EnigmaClueNameLength2"), length);
             }
         }
+
         private class EnigmaColorClue : EnigmaClue
         {
-            public override string Title { get { return GetString("EnigmaClueColorTitle"); } }
+            public override string Title
+            {
+                get { return GetString("EnigmaClueColorTitle"); }
+            }
 
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
@@ -352,13 +380,17 @@ namespace EHR.Roles.Crewmate
                 {
                     0 or 3 or 4 or 5 or 7 or 10 or 11 or 13 or 14 or 17 => GetString("EnigmaClueColor1"),
                     1 or 2 or 6 or 8 or 9 or 12 or 15 or 16 => GetString("EnigmaClueColor2"),
-                    _ => null,
+                    _ => null
                 };
             }
         }
+
         private class EnigmaLocationClue : EnigmaClue
         {
-            public override string Title { get { return GetString("EnigmaClueLocationTitle"); } }
+            public override string Title
+            {
+                get { return GetString("EnigmaClueLocationTitle"); }
+            }
 
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
@@ -369,18 +401,26 @@ namespace EHR.Roles.Crewmate
                 return string.Format(GetString("EnigmaClueLocation"), room);
             }
         }
+
         private class EnigmaKillerStatusClue : EnigmaClue
         {
-            public override string Title { get { return GetString("EnigmaClueStatusTitle"); } }
+            public override string Title
+            {
+                get { return GetString("EnigmaClueStatusTitle"); }
+            }
 
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
                 return killer.inVent ? GetString("EnigmaClueStatus1") : killer.onLadder ? GetString("EnigmaClueStatus2") : GetString(killer.Data.IsDead ? "EnigmaClueStatus3" : "EnigmaClueStatus4");
             }
         }
+
         private class EnigmaKillerRoleClue : EnigmaClue
         {
-            public override string Title { get { return GetString("EnigmaClueRoleTitle"); } }
+            public override string Title
+            {
+                get { return GetString("EnigmaClueRoleTitle"); }
+            }
 
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
@@ -394,11 +434,15 @@ namespace EHR.Roles.Crewmate
                 };
             }
         }
+
         private class EnigmaKillerLevelClue : EnigmaClue
         {
             private readonly IRandom rd = IRandom.Instance;
 
-            public override string Title { get { return GetString("EnigmaClueLevelTitle"); } }
+            public override string Title
+            {
+                get { return GetString("EnigmaClueLevelTitle"); }
+            }
 
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
@@ -431,9 +475,13 @@ namespace EHR.Roles.Crewmate
                 return string.Format(GetString("EnigmaClueLevel4"), level);
             }
         }
+
         private class EnigmaFriendCodeClue : EnigmaClue
         {
-            public override string Title { get { return GetString("EnigmaClueFriendCodeTitle"); } }
+            public override string Title
+            {
+                get { return GetString("EnigmaClueFriendCodeTitle"); }
+            }
 
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
@@ -455,6 +503,7 @@ namespace EHR.Roles.Crewmate
             KillerStatusClue,
             KillerRoleClue,
             KillerLevelClue,
+
             FriendCodeClue
             //SecurityClue,
             //SabotageClue,

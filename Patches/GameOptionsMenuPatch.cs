@@ -218,7 +218,7 @@ public class GameOptionsMenuUpdatePatch
                 TabGroup.NeutralRoles => "#ffab1b",
                 TabGroup.Addons => "#ff9ace",
                 TabGroup.OtherRoles => "#76b8e0",
-                _ => "#ffffff",
+                _ => "#ffffff"
             };
             if (__instance.transform.parent.parent.name != tab + "Tab") continue;
             __instance.transform.FindChild("../../GameGroup/Text").GetComponent<TextMeshPro>().SetText($"<color={tabcolor}>" + GetString("TabGroup." + tab) + "</color>");

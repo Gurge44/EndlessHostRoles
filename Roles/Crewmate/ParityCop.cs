@@ -20,7 +20,7 @@ public class ParityCop : RoleBase
     public static readonly string[] PcEgoistCountMode =
     [
         "EgoistCountMode.Original",
-        "EgoistCountMode.Neutral",
+        "EgoistCountMode.Neutral"
     ];
 
     private static OptionItem TryHideMsg;
@@ -39,21 +39,21 @@ public class ParityCop : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.ParityCop);
-        TryHideMsg = BooleanOptionItem.Create(Id + 10, "ParityCopTryHideMsg", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
+        TryHideMsg = new BooleanOptionItem(Id + 10, "ParityCopTryHideMsg", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
             .SetColor(Color.green);
-        ParityCheckLimitMax = IntegerOptionItem.Create(Id + 11, "MaxParityCheckLimit", new(0, 20, 1), 2, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
+        ParityCheckLimitMax = new IntegerOptionItem(Id + 11, "MaxParityCheckLimit", new(0, 20, 1), 2, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
             .SetValueFormat(OptionFormat.Times);
-        ParityCheckLimitPerMeeting = IntegerOptionItem.Create(Id + 12, "ParityCheckLimitPerMeeting", new(1, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
+        ParityCheckLimitPerMeeting = new IntegerOptionItem(Id + 12, "ParityCheckLimitPerMeeting", new(1, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
             .SetValueFormat(OptionFormat.Times);
-        ParityCheckEgoistCountType = StringOptionItem.Create(Id + 13, "ParityCheckEgoistickCountMode", PcEgoistCountMode, 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
-        ParityCheckBaitCountType = BooleanOptionItem.Create(Id + 14, "ParityCheckBaitCountMode", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
-        ParityCheckTargetKnow = BooleanOptionItem.Create(Id + 15, "ParityCheckTargetKnow", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
-        ParityCheckOtherTargetKnow = BooleanOptionItem.Create(Id + 16, "ParityCheckOtherTargetKnow", true, TabGroup.CrewmateRoles).SetParent(ParityCheckTargetKnow);
-        ParityCheckRevealTargetTeam = BooleanOptionItem.Create(Id + 17, "ParityCheckRevealTarget", false, TabGroup.CrewmateRoles).SetParent(ParityCheckOtherTargetKnow);
-        ParityAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 18, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1.5f, TabGroup.CrewmateRoles)
+        ParityCheckEgoistCountType = new StringOptionItem(Id + 13, "ParityCheckEgoistickCountMode", PcEgoistCountMode, 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
+        ParityCheckBaitCountType = new BooleanOptionItem(Id + 14, "ParityCheckBaitCountMode", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
+        ParityCheckTargetKnow = new BooleanOptionItem(Id + 15, "ParityCheckTargetKnow", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
+        ParityCheckOtherTargetKnow = new BooleanOptionItem(Id + 16, "ParityCheckOtherTargetKnow", true, TabGroup.CrewmateRoles).SetParent(ParityCheckTargetKnow);
+        ParityCheckRevealTargetTeam = new BooleanOptionItem(Id + 17, "ParityCheckRevealTarget", false, TabGroup.CrewmateRoles).SetParent(ParityCheckOtherTargetKnow);
+        ParityAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 18, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1.5f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
             .SetValueFormat(OptionFormat.Times);
-        AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 19, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 19, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
             .SetValueFormat(OptionFormat.Times);
         OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.ParityCop);

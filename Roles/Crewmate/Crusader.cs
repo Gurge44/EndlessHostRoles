@@ -16,12 +16,14 @@ public class Crusader : RoleBase
 
     public float CurrentKillCooldown;
 
+    public override bool IsEnable => playerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Crusader);
-        SkillCooldown = FloatOptionItem.Create(Id + 10, "CrusaderSkillCooldown", new(2.5f, 60f, 2.5f), 20f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Crusader])
+        SkillCooldown = new FloatOptionItem(Id + 10, "CrusaderSkillCooldown", new(2.5f, 60f, 2.5f), 20f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Crusader])
             .SetValueFormat(OptionFormat.Seconds);
-        SkillLimitOpt = IntegerOptionItem.Create(Id + 11, "CrusaderSkillLimit", new(1, 10, 1), 2, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Crusader])
+        SkillLimitOpt = new IntegerOptionItem(Id + 11, "CrusaderSkillLimit", new(1, 10, 1), 2, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Crusader])
             .SetValueFormat(OptionFormat.Times);
         UsePet = Options.CreatePetUseSetting(Id + 12, CustomRoles.Crusader);
     }
@@ -42,8 +44,6 @@ public class Crusader : RoleBase
         if (!Main.ResetCamPlayerList.Contains(playerId))
             Main.ResetCamPlayerList.Add(playerId);
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     public override bool CanUseKillButton(PlayerControl pc)
         => !Main.PlayerStates[pc.PlayerId].IsDead

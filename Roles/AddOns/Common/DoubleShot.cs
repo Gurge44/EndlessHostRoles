@@ -15,7 +15,7 @@ namespace EHR.Roles.AddOns.Common
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(13900, CustomRoles.DoubleShot, canSetNum: true, teamSpawnOptions: true);
-            MaxTries = IntegerOptionItem.Create(13906, "DoubleShot.MaxTries", new(1, 30, 1), 1, TabGroup.Addons)
+            MaxTries = new IntegerOptionItem(13906, "DoubleShot.MaxTries", new(1, 30, 1), 1, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.DoubleShot])
                 .SetValueFormat(OptionFormat.Times);
         }

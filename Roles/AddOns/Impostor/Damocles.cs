@@ -10,8 +10,6 @@ namespace EHR.Roles.AddOns.Impostor
 {
     public class Damocles : IAddon
     {
-        public AddonTypes Type => AddonTypes.ImpOnly;
-
         private const int Id = 14670;
 
         private static OptionItem DamoclesExtraTimeAfterKill;
@@ -28,17 +26,18 @@ namespace EHR.Roles.AddOns.Impostor
         public static Dictionary<byte, List<int>> PreviouslyEnteredVents;
 
         public static bool countRepairSabotage;
+        public AddonTypes Type => AddonTypes.ImpOnly;
 
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(Id, CustomRoles.Damocles, canSetNum: true);
-            DamoclesExtraTimeAfterKill = IntegerOptionItem.Create(Id + 3, "DamoclesExtraTimeAfterKill", new(0, 60, 1), 30, TabGroup.Addons)
+            DamoclesExtraTimeAfterKill = new IntegerOptionItem(Id + 3, "DamoclesExtraTimeAfterKill", new(0, 60, 1), 30, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Damocles])
                 .SetValueFormat(OptionFormat.Seconds);
-            DamoclesExtraTimeAfterMeeting = IntegerOptionItem.Create(Id + 4, "DamoclesExtraTimeAfterMeeting", new(0, 60, 1), 30, TabGroup.Addons)
+            DamoclesExtraTimeAfterMeeting = new IntegerOptionItem(Id + 4, "DamoclesExtraTimeAfterMeeting", new(0, 60, 1), 30, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Damocles])
                 .SetValueFormat(OptionFormat.Seconds);
-            DamoclesStartingTime = IntegerOptionItem.Create(Id + 5, "DamoclesStartingTime", new(0, 60, 1), 30, TabGroup.Addons)
+            DamoclesStartingTime = new IntegerOptionItem(Id + 5, "DamoclesStartingTime", new(0, 60, 1), 30, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Damocles])
                 .SetValueFormat(OptionFormat.Seconds);
         }

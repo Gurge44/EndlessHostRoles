@@ -310,7 +310,7 @@ public static class SecurityCameraPatch
                 MapNames.Skeld or MapNames.Dleks => Options.DisableSkeldCamera.GetBool(),
                 MapNames.Polus => Options.DisablePolusCamera.GetBool(),
                 MapNames.Airship => Options.DisableAirshipCamera.GetBool(),
-                _ => false,
+                _ => false
             });
         }
 

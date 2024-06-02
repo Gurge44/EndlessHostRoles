@@ -47,18 +47,18 @@ namespace EHR.Roles.Impostor
             {
                 const int id = 11380;
                 Options.SetupRoleOptions(id, TabGroup.ImpostorRoles, CustomRoles.Generator);
-                ChargesGainedPerSecond = IntegerOptionItem.Create(id + 2, "Generator.ChargesGainedEverySecond", new(1, 30, 1), 1, TabGroup.ImpostorRoles)
+                ChargesGainedPerSecond = new IntegerOptionItem(id + 2, "Generator.ChargesGainedEverySecond", new(1, 30, 1), 1, TabGroup.ImpostorRoles)
                     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Generator]);
-                StartingCharges = IntegerOptionItem.Create(id + 3, "Generator.StartingCharges", new(0, 100, 1), 0, TabGroup.ImpostorRoles)
+                StartingCharges = new IntegerOptionItem(id + 3, "Generator.StartingCharges", new(0, 100, 1), 0, TabGroup.ImpostorRoles)
                     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Generator]);
-                ChargesLostWhileShiftedPerSecond = IntegerOptionItem.Create(id + 4, "Generator.ChargesLostWhileShiftedPerSecond", new(1, 30, 1), 1, TabGroup.ImpostorRoles)
+                ChargesLostWhileShiftedPerSecond = new IntegerOptionItem(id + 4, "Generator.ChargesLostWhileShiftedPerSecond", new(1, 30, 1), 1, TabGroup.ImpostorRoles)
                     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Generator]);
-                MaxChargesStored = IntegerOptionItem.Create(id + 5, "Generator.MaxChargesStored", new(0, 200, 1), 100, TabGroup.ImpostorRoles)
+                MaxChargesStored = new IntegerOptionItem(id + 5, "Generator.MaxChargesStored", new(0, 200, 1), 100, TabGroup.ImpostorRoles)
                     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Generator]);
 
                 foreach (var action in Enum.GetValues<Action>())
                 {
-                    var option = IntegerOptionItem.Create(id + 6 + (int)action, $"Generator.{action}.Cost", new(0, 100, 1), action.GetDefaultCost(), TabGroup.ImpostorRoles)
+                    var option = new IntegerOptionItem(id + 6 + (int)action, $"Generator.{action}.Cost", new(0, 100, 1), action.GetDefaultCost(), TabGroup.ImpostorRoles)
                         .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Generator]);
                     ActionCostSettings.Add(action, option);
                 }

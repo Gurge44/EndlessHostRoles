@@ -27,13 +27,13 @@ namespace EHR.Roles.AddOns.GhostRoles
         public void SetupCustomOption()
         {
             Options.SetupRoleOptions(649400, TabGroup.OtherRoles, CustomRoles.Bloodmoon, zeroOne: true);
-            CD = IntegerOptionItem.Create(649402, "AbilityCooldown", new(0, 60, 1), 60, TabGroup.OtherRoles)
+            CD = new IntegerOptionItem(649402, "AbilityCooldown", new(0, 60, 1), 60, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon])
                 .SetValueFormat(OptionFormat.Seconds);
-            Duration = IntegerOptionItem.Create(649403, "Bloodmoon.Duration", new(0, 60, 1), 15, TabGroup.OtherRoles)
+            Duration = new IntegerOptionItem(649403, "Bloodmoon.Duration", new(0, 60, 1), 15, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon])
                 .SetValueFormat(OptionFormat.Seconds);
-            Speed = FloatOptionItem.Create(649404, "Bloodmoon.Speed", new(0.05f, 5f, 0.05f), 1f, TabGroup.OtherRoles)
+            Speed = new FloatOptionItem(649404, "Bloodmoon.Speed", new(0.05f, 5f, 0.05f), 1f, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon])
                 .SetValueFormat(OptionFormat.Multiplier);
         }

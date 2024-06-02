@@ -18,24 +18,24 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             SetupRoleOptions(6800, TabGroup.CrewmateRoles, CustomRoles.Grenadier);
-            GrenadierSkillCooldown = FloatOptionItem.Create(6810, "GrenadierSkillCooldown", new(0f, 180f, 1f), 25f, TabGroup.CrewmateRoles)
+            GrenadierSkillCooldown = new FloatOptionItem(6810, "GrenadierSkillCooldown", new(0f, 180f, 1f), 25f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
                 .SetValueFormat(OptionFormat.Seconds);
-            GrenadierSkillDuration = FloatOptionItem.Create(6811, "GrenadierSkillDuration", new(0f, 180f, 1f), 10f, TabGroup.CrewmateRoles)
+            GrenadierSkillDuration = new FloatOptionItem(6811, "GrenadierSkillDuration", new(0f, 180f, 1f), 10f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
                 .SetValueFormat(OptionFormat.Seconds);
-            GrenadierCauseVision = FloatOptionItem.Create(6812, "GrenadierCauseVision", new(0f, 5f, 0.05f), 0.3f, TabGroup.CrewmateRoles)
+            GrenadierCauseVision = new FloatOptionItem(6812, "GrenadierCauseVision", new(0f, 5f, 0.05f), 0.3f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
                 .SetValueFormat(OptionFormat.Multiplier);
-            GrenadierCanAffectNeutral = BooleanOptionItem.Create(6813, "GrenadierCanAffectNeutral", false, TabGroup.CrewmateRoles)
+            GrenadierCanAffectNeutral = new BooleanOptionItem(6813, "GrenadierCanAffectNeutral", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier]);
-            GrenadierSkillMaxOfUseage = IntegerOptionItem.Create(6814, "GrenadierSkillMaxOfUseage", new(0, 180, 1), 2, TabGroup.CrewmateRoles)
+            GrenadierSkillMaxOfUseage = new IntegerOptionItem(6814, "GrenadierSkillMaxOfUseage", new(0, 180, 1), 2, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
                 .SetValueFormat(OptionFormat.Times);
-            GrenadierAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(6815, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
+            GrenadierAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(6815, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
                 .SetValueFormat(OptionFormat.Times);
-            GrenadierAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(6816, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+            GrenadierAbilityChargesWhenFinishedTasks = new FloatOptionItem(6816, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
                 .SetValueFormat(OptionFormat.Times);
         }

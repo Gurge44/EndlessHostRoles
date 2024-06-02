@@ -20,13 +20,13 @@ namespace EHR.Roles.AddOns.Common
         {
             const int id = 19391;
             Options.SetupAdtRoleOptions(id, CustomRoles.Dynamo, canSetNum: true, teamSpawnOptions: true);
-            IncreaseSpeedBy = FloatOptionItem.Create(id + 6, "Dynamo.IncreaseSpeedBy", new(0.1f, 1f, 0.1f), 0.1f, TabGroup.Addons)
+            IncreaseSpeedBy = new FloatOptionItem(id + 6, "Dynamo.IncreaseSpeedBy", new(0.1f, 1f, 0.1f), 0.1f, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dynamo])
                 .SetValueFormat(OptionFormat.Percent);
-            IncreaseSpeedFrequency = FloatOptionItem.Create(id + 7, "Dynamo.IncreaseSpeedFrequency", new(0.5f, 30f, 0.5f), 5f, TabGroup.Addons)
+            IncreaseSpeedFrequency = new FloatOptionItem(id + 7, "Dynamo.IncreaseSpeedFrequency", new(0.5f, 30f, 0.5f), 5f, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dynamo])
                 .SetValueFormat(OptionFormat.Seconds);
-            MaxSpeed = FloatOptionItem.Create(id + 8, "Dynamo.MaxSpeed", new(0.1f, 3f, 0.1f), 3f, TabGroup.Addons)
+            MaxSpeed = new FloatOptionItem(id + 8, "Dynamo.MaxSpeed", new(0.1f, 3f, 0.1f), 3f, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dynamo])
                 .SetValueFormat(OptionFormat.Multiplier);
         }

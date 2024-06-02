@@ -42,12 +42,12 @@ namespace EHR.Modules
 
             static CustomTeamOptionGroup CreateSetting(CustomTeam team, int id)
             {
-                var enabled = BooleanOptionItem.Create(id++, "CTA.FLAG" + team.TeamName, true, tab);
-                var knowRoles = BooleanOptionItem.Create(id++, "CTA.KnowRoles", true, tab);
-                var winWithOriginalTeam = BooleanOptionItem.Create(id++, "CTA.WinWithOriginalTeam", false, tab);
-                var killEachOther = BooleanOptionItem.Create(id++, "CTA.KillEachOther", false, tab);
-                var guessEachOther = BooleanOptionItem.Create(id++, "CTA.GuessEachOther", false, tab);
-                var arrows = BooleanOptionItem.Create(id, "CTA.Arrows", true, tab);
+                var enabled = new BooleanOptionItem(id++, "CTA.FLAG" + team.TeamName, true, tab);
+                var knowRoles = new BooleanOptionItem(id++, "CTA.KnowRoles", true, tab);
+                var winWithOriginalTeam = new BooleanOptionItem(id++, "CTA.WinWithOriginalTeam", false, tab);
+                var killEachOther = new BooleanOptionItem(id++, "CTA.KillEachOther", false, tab);
+                var guessEachOther = new BooleanOptionItem(id++, "CTA.GuessEachOther", false, tab);
+                var arrows = new BooleanOptionItem(id, "CTA.Arrows", true, tab);
 
                 CustomTeamOptionGroup group = new(team, enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows);
                 group.AllOptions.Skip(1).Do(x => x.SetParent(enabled));

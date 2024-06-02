@@ -2,17 +2,16 @@ namespace EHR.Roles.AddOns.Impostor;
 
 public class LastImpostor : IAddon
 {
-    public AddonTypes Type => AddonTypes.ImpOnly;
-
     private const int Id = 15900;
     public static byte currentId = byte.MaxValue;
 
     public static OptionItem KillCooldown;
+    public AddonTypes Type => AddonTypes.ImpOnly;
 
     public void SetupCustomOption()
     {
         Options.SetupSingleRoleOptions(Id, TabGroup.Addons, CustomRoles.LastImpostor);
-        KillCooldown = FloatOptionItem.Create(Id + 15, "SansReduceKillCooldown", new(5f, 95f, 5f), 50f, TabGroup.Addons)
+        KillCooldown = new FloatOptionItem(Id + 15, "SansReduceKillCooldown", new(5f, 95f, 5f), 50f, TabGroup.Addons)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.LastImpostor])
             .SetValueFormat(OptionFormat.Percent);
     }

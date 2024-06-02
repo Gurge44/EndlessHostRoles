@@ -38,7 +38,7 @@ public static class TemplateManager
         ["NumLongTasks"] = () => Main.NormalOptions.NumLongTasks.ToString(),
         ["NumShortTasks"] = () => Main.NormalOptions.NumShortTasks.ToString(),
         ["Date"] = () => DateTime.Now.ToShortDateString(),
-        ["Time"] = () => DateTime.Now.ToShortTimeString(),
+        ["Time"] = () => DateTime.Now.ToShortTimeString()
     };
 
     public static void Init()

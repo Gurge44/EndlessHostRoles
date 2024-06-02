@@ -33,10 +33,10 @@ static class LocateArrow
         switch (reader.ReadPackedInt32())
         {
             case 1:
-                Add(reader.ReadByte(), Utils.ReadVector3(reader));
+                Add(reader.ReadByte(), reader.ReadVector3());
                 break;
             case 2:
-                Remove(reader.ReadByte(), Utils.ReadVector3(reader));
+                Remove(reader.ReadByte(), reader.ReadVector3());
                 break;
             case 3:
                 RemoveAllTarget(reader.ReadByte());

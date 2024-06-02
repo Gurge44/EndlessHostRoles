@@ -33,19 +33,19 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.SoulHunter);
-            CanVent = BooleanOptionItem.Create(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
+            CanVent = new BooleanOptionItem(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SoulHunter]);
-            HasImpostorVision = BooleanOptionItem.Create(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
+            HasImpostorVision = new BooleanOptionItem(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SoulHunter]);
-            NumOfSoulsToWin = IntegerOptionItem.Create(Id + 5, "SoulHunterNumOfSoulsToWin", new(1, 14, 1), 3, TabGroup.NeutralRoles)
+            NumOfSoulsToWin = new IntegerOptionItem(Id + 5, "SoulHunterNumOfSoulsToWin", new(1, 14, 1), 3, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SoulHunter]);
-            WaitingTimeAfterMeeting = IntegerOptionItem.Create(Id + 6, "SoulHunterFreezeTimeAfterMeeting", new(0, 90, 1), 3, TabGroup.NeutralRoles)
+            WaitingTimeAfterMeeting = new IntegerOptionItem(Id + 6, "SoulHunterFreezeTimeAfterMeeting", new(0, 90, 1), 3, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SoulHunter])
                 .SetValueFormat(OptionFormat.Seconds);
-            TimeToKillTarget = IntegerOptionItem.Create(Id + 7, "SoulHunterTimeToKillTarget", new(1, 90, 1), 30, TabGroup.NeutralRoles)
+            TimeToKillTarget = new IntegerOptionItem(Id + 7, "SoulHunterTimeToKillTarget", new(1, 90, 1), 30, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SoulHunter])
                 .SetValueFormat(OptionFormat.Seconds);
-            GetSoulForSuicide = BooleanOptionItem.Create(Id + 8, "SoulHunterGetSoulForSuicide", true, TabGroup.NeutralRoles)
+            GetSoulForSuicide = new BooleanOptionItem(Id + 8, "SoulHunterGetSoulForSuicide", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SoulHunter]);
         }
 

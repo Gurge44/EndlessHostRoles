@@ -7,9 +7,9 @@ namespace EHR.Roles.Neutral
         public void SetupCustomOption()
         {
             SetupRoleOptions(11500, TabGroup.NeutralRoles, CustomRoles.Terrorist);
-            CanTerroristSuicideWin = BooleanOptionItem.Create(11510, "CanTerroristSuicideWin", false, TabGroup.NeutralRoles)
+            CanTerroristSuicideWin = new BooleanOptionItem(11510, "CanTerroristSuicideWin", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Terrorist]);
-            TerroristCanGuess = BooleanOptionItem.Create(11511, "CanGuess", true, TabGroup.NeutralRoles)
+            TerroristCanGuess = new BooleanOptionItem(11511, "CanGuess", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Terrorist]);
             OverrideTasksData.Create(11512, TabGroup.NeutralRoles, CustomRoles.Terrorist);
         }

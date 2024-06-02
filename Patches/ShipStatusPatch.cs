@@ -136,7 +136,7 @@ class RepairSystemPatch
                     MapNames.Skeld => Options.DisableSkeldCamera.GetBool(),
                     MapNames.Polus => Options.DisablePolusCamera.GetBool(),
                     MapNames.Airship => Options.DisableAirshipCamera.GetBool(),
-                    _ => false,
+                    _ => false
                 };
                 if (camerasDisabled)
                 {

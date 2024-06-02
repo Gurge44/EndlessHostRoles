@@ -14,16 +14,16 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             SetupRoleOptions(7700, TabGroup.CrewmateRoles, CustomRoles.DovesOfNeace);
-            DovesOfNeaceCooldown = FloatOptionItem.Create(7710, "DovesOfNeaceCooldown", new(0f, 180f, 1f), 7f, TabGroup.CrewmateRoles)
+            DovesOfNeaceCooldown = new FloatOptionItem(7710, "DovesOfNeaceCooldown", new(0f, 180f, 1f), 7f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
                 .SetValueFormat(OptionFormat.Seconds);
-            DovesOfNeaceMaxOfUseage = IntegerOptionItem.Create(7711, "DovesOfNeaceMaxOfUseage", new(0, 180, 1), 0, TabGroup.CrewmateRoles)
+            DovesOfNeaceMaxOfUseage = new IntegerOptionItem(7711, "DovesOfNeaceMaxOfUseage", new(0, 180, 1), 0, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
                 .SetValueFormat(OptionFormat.Times);
-            DovesOfNeaceAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(7712, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+            DovesOfNeaceAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(7712, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
                 .SetValueFormat(OptionFormat.Times);
-            DovesOfNeaceAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(7713, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+            DovesOfNeaceAbilityChargesWhenFinishedTasks = new FloatOptionItem(7713, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.DovesOfNeace])
                 .SetValueFormat(OptionFormat.Times);
         }

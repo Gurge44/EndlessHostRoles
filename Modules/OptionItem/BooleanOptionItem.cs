@@ -1,23 +1,14 @@
 namespace EHR;
 
-public class BooleanOptionItem(int id, string name, bool defaultValue, TabGroup tab, bool isSingleValue) : OptionItem(id, name, defaultValue ? 1 : 0, tab, isSingleValue)
+public class BooleanOptionItem(int id, string name, bool defaultValue, TabGroup tab, bool isSingleValue = false) : OptionItem(id, name, defaultValue ? 1 : 0, tab, isSingleValue)
 {
-    public const string TEXT_true = "ColoredOn";
-    public const string TEXT_false = "ColoredOff";
-
-    public static BooleanOptionItem Create(
-        int id, string name, bool defaultValue, TabGroup tab, bool isSingleValue = false
-    )
-    {
-        return new(
-            id, name, defaultValue, tab, isSingleValue
-        );
-    }
+    private const string TextTrue = "ColoredOn";
+    private const string TextFalse = "ColoredOff";
 
     // Getter
     public override string GetString()
     {
-        return Translator.GetString(GetBool() ? TEXT_true : TEXT_false);
+        return Translator.GetString(GetBool() ? TextTrue : TextFalse);
     }
 
     // Setter

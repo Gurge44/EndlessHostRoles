@@ -13,18 +13,20 @@ namespace EHR.Roles.Impostor
         private const int Id = 640900;
         public static List<byte> playerIdList = [];
 
-        public List<Vector2> Marks = [];
-        public long LastTP = TimeStamp;
-
         public static OptionItem KillCooldown;
         public static OptionItem ShapeshiftCooldown;
+        public long LastTP = TimeStamp;
+
+        public List<Vector2> Marks = [];
+
+        public override bool IsEnable => playerIdList.Count > 0;
 
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.RiftMaker);
-            KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.RiftMaker])
+            KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.RiftMaker])
                 .SetValueFormat(OptionFormat.Seconds);
-            ShapeshiftCooldown = FloatOptionItem.Create(Id + 11, "ShapeshiftCooldown", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.RiftMaker])
+            ShapeshiftCooldown = new FloatOptionItem(Id + 11, "ShapeshiftCooldown", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.RiftMaker])
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
@@ -40,8 +42,6 @@ namespace EHR.Roles.Impostor
             LastTP = TimeStamp;
             Marks = [];
         }
-
-        public override bool IsEnable => playerIdList.Count > 0;
 
         public override void SetKillCooldown(byte id)
         {

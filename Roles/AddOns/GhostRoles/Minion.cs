@@ -33,10 +33,10 @@ namespace EHR.Roles.AddOns.GhostRoles
         public void SetupCustomOption()
         {
             Options.SetupRoleOptions(649000, TabGroup.OtherRoles, CustomRoles.Minion, zeroOne: true);
-            BlindDuration = IntegerOptionItem.Create(649002, "MinionBlindDuration", new(1, 90, 1), 5, TabGroup.OtherRoles)
+            BlindDuration = new IntegerOptionItem(649002, "MinionBlindDuration", new(1, 90, 1), 5, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minion])
                 .SetValueFormat(OptionFormat.Seconds);
-            CD = IntegerOptionItem.Create(649003, "AbilityCooldown", new(0, 60, 1), 30, TabGroup.OtherRoles)
+            CD = new IntegerOptionItem(649003, "AbilityCooldown", new(0, 60, 1), 30, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minion])
                 .SetValueFormat(OptionFormat.Seconds);
         }

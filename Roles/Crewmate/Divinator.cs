@@ -22,21 +22,21 @@ public class Divinator : RoleBase
 
     public static List<byte> didVote = [];
 
-    private static Dictionary<byte, CustomRoles[]> AllPlayerRoleList = [];
+    private static Dictionary<byte, List<CustomRoles>> AllPlayerRoleList = [];
 
     public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Divinator);
-        CheckLimitOpt = IntegerOptionItem.Create(Id + 10, "DivinatorSkillLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
+        CheckLimitOpt = new IntegerOptionItem(Id + 10, "DivinatorSkillLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
             .SetValueFormat(OptionFormat.Times);
-        AccurateCheckMode = BooleanOptionItem.Create(Id + 12, "AccurateCheckMode", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
-        ShowSpecificRole = BooleanOptionItem.Create(Id + 13, "ShowSpecificRole", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
-        HideVote = BooleanOptionItem.Create(Id + 14, "DivinatorHideVote", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
-        AbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 15, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
+        AccurateCheckMode = new BooleanOptionItem(Id + 12, "AccurateCheckMode", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
+        ShowSpecificRole = new BooleanOptionItem(Id + 13, "ShowSpecificRole", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
+        HideVote = new BooleanOptionItem(Id + 14, "DivinatorHideVote", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
+        AbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 15, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
             .SetValueFormat(OptionFormat.Times);
-        AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 16, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 16, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
             .SetValueFormat(OptionFormat.Times);
         CancelVote = CreateVoteCancellingUseSetting(Id + 11, CustomRoles.Divinator, TabGroup.CrewmateRoles);
@@ -55,18 +55,14 @@ public class Divinator : RoleBase
         playerId.SetAbilityUseLimit(CheckLimitOpt.GetInt());
 
         CustomRoles[][] chunked = Enum.GetValues<CustomRoles>()
-            .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.KB_Normal and not CustomRoles.Potato and not CustomRoles.Hider and not CustomRoles.Seeker and not CustomRoles.Fox and not CustomRoles.Troll and not CustomRoles.Jumper and not CustomRoles.Detector and not CustomRoles.Jet and not CustomRoles.Dasher and not CustomRoles.Locator and not CustomRoles.Venter and not CustomRoles.Agent and not CustomRoles.Taskinator and not CustomRoles.GM and not CustomRoles.Convict)
+            .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.KB_Normal and not CustomRoles.Potato and not CustomRoles.GM and not CustomRoles.Convict && !HnSManager.AllHnSRoles.Contains(x))
             .Shuffle()
             .Chunk(RolesPerCategory)
             .ToArray();
 
-        int index = 0;
-        foreach (var pc in Main.AllAlivePlayerControls)
-        {
-            if (index >= chunked.Length) break;
-            AllPlayerRoleList[pc.PlayerId] = chunked[index];
-            index++;
-        }
+        AllPlayerRoleList = Main.AllAlivePlayerControls
+            .Select((pc, index) => (pc.PlayerId, chunked[index].Append(pc.GetCustomRole()).Shuffle()))
+            .ToDictionary(x => x.PlayerId, x => x.Item2);
     }
 
     public static bool OnVote(PlayerControl player, PlayerControl target)

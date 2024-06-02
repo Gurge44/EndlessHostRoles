@@ -16,16 +16,18 @@ namespace EHR.Roles.Crewmate
 
         public static List<byte> IncreasedSpeedPlayerList = [];
 
+        public override bool IsEnable => playerIdList.Count > 0;
+
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Gaulois);
-            CD = FloatOptionItem.Create(Id + 5, "AbilityCooldown", new(0f, 60f, 2.5f), 30f, TabGroup.CrewmateRoles)
+            CD = new FloatOptionItem(Id + 5, "AbilityCooldown", new(0f, 60f, 2.5f), 30f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Gaulois])
                 .SetValueFormat(OptionFormat.Seconds);
-            AdditionalSpeed = FloatOptionItem.Create(Id + 6, "GauloisSpeedBoost", new(0f, 2f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
+            AdditionalSpeed = new FloatOptionItem(Id + 6, "GauloisSpeedBoost", new(0f, 2f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Gaulois])
                 .SetValueFormat(OptionFormat.Multiplier);
-            UseLimitOpt = IntegerOptionItem.Create(Id + 7, "AbilityUseLimit", new(1, 14, 1), 3, TabGroup.CrewmateRoles)
+            UseLimitOpt = new IntegerOptionItem(Id + 7, "AbilityUseLimit", new(1, 14, 1), 3, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Gaulois])
                 .SetValueFormat(OptionFormat.Times);
             UsePet = CreatePetUseSetting(Id + 8, CustomRoles.Gaulois);
@@ -46,8 +48,6 @@ namespace EHR.Roles.Crewmate
             if (!Main.ResetCamPlayerList.Contains(playerId))
                 Main.ResetCamPlayerList.Add(playerId);
         }
-
-        public override bool IsEnable => playerIdList.Count > 0;
 
         public override void SetKillCooldown(byte playerId)
         {

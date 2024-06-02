@@ -18,13 +18,13 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Nullifier);
-            NullCD = FloatOptionItem.Create(Id + 10, "NullCD", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+            NullCD = new FloatOptionItem(Id + 10, "NullCD", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Nullifier])
                 .SetValueFormat(OptionFormat.Seconds);
-            KCD = FloatOptionItem.Create(Id + 11, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
+            KCD = new FloatOptionItem(Id + 11, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Nullifier])
                 .SetValueFormat(OptionFormat.Seconds);
-            Delay = IntegerOptionItem.Create(Id + 12, "NullifierDelay", new(0, 90, 1), 5, TabGroup.ImpostorRoles)
+            Delay = new IntegerOptionItem(Id + 12, "NullifierDelay", new(0, 90, 1), 5, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Nullifier])
                 .SetValueFormat(OptionFormat.Seconds);
         }

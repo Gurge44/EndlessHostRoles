@@ -178,8 +178,8 @@ internal class ControllerManagerUpdatePatch
 
         if (GetKeysDown(KeyCode.F2, KeyCode.LeftControl))
         {
-            Logger.isAlsoInGame = !Logger.isAlsoInGame;
-            Logger.SendInGame($"In-game output log：{Logger.isAlsoInGame}");
+            Logger.IsAlsoInGame = !Logger.IsAlsoInGame;
+            Logger.SendInGame($"In-game output log：{Logger.IsAlsoInGame}");
         }
 
         if (!DebugModeManager.IsDebugMode) return;

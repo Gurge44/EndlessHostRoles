@@ -14,9 +14,19 @@ namespace EHR;
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.ShowRole))]
 class SetUpRoleTextPatch
 {
+    public static bool IsInIntro;
+
     public static void Postfix(IntroCutscene __instance)
     {
         if (!GameStates.IsModHost) return;
+
+        // After showing team for non-modded clients update player names.
+        LateTask.New(() =>
+        {
+            IsInIntro = false;
+            Utils.NotifyRoles(NoCache: true);
+        }, 1f);
+
         LateTask.New(() =>
         {
             switch (Options.CurrentGameMode)
@@ -407,7 +417,7 @@ class BeginCrewmatePatch
                     CustomRoleTypes.Impostor => GetIntroSound(RoleTypes.Impostor),
                     CustomRoleTypes.Crewmate => GetIntroSound(RoleTypes.Crewmate),
                     CustomRoleTypes.Neutral => GetIntroSound(RoleTypes.Shapeshifter),
-                    _ => GetIntroSound(RoleTypes.Crewmate),
+                    _ => GetIntroSound(RoleTypes.Crewmate)
                 }
             };
         }
@@ -418,7 +428,7 @@ class BeginCrewmatePatch
                 CustomRoleTypes.Impostor => GetIntroSound(RoleTypes.Impostor),
                 CustomRoleTypes.Crewmate => GetIntroSound(RoleTypes.Crewmate),
                 CustomRoleTypes.Neutral => GetIntroSound(RoleTypes.Shapeshifter),
-                _ => GetIntroSound(RoleTypes.Crewmate),
+                _ => GetIntroSound(RoleTypes.Crewmate)
             };
             Logger.Warn($"Could not set intro sound\n{ex}", "IntroSound");
         }
@@ -715,7 +725,7 @@ class IntroCutsceneDestroyPatch
                     2 => new RandomSpawn.PolusSpawnMap(),
                     3 => new RandomSpawn.DleksSpawnMap(),
                     5 => new RandomSpawn.FungleSpawnMap(),
-                    _ => null,
+                    _ => null
                 };
                 if (map != null) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
             }

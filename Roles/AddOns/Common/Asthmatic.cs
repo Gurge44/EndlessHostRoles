@@ -19,16 +19,16 @@ namespace EHR.Roles.AddOns.Common
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(15420, CustomRoles.Asthmatic, canSetNum: true, teamSpawnOptions: true);
-            AsthmaticMinRedTime = IntegerOptionItem.Create(15426, "AsthmaticMinRedTime", new(1, 90, 1), 5, TabGroup.Addons)
+            AsthmaticMinRedTime = new IntegerOptionItem(15426, "AsthmaticMinRedTime", new(1, 90, 1), 5, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
                 .SetValueFormat(OptionFormat.Seconds);
-            AsthmaticMaxRedTime = IntegerOptionItem.Create(15427, "AsthmaticMaxRedTime", new(1, 90, 1), 30, TabGroup.Addons)
+            AsthmaticMaxRedTime = new IntegerOptionItem(15427, "AsthmaticMaxRedTime", new(1, 90, 1), 30, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
                 .SetValueFormat(OptionFormat.Seconds);
-            AsthmaticMinGreenTime = IntegerOptionItem.Create(15428, "AsthmaticMinGreenTime", new(1, 90, 1), 5, TabGroup.Addons)
+            AsthmaticMinGreenTime = new IntegerOptionItem(15428, "AsthmaticMinGreenTime", new(1, 90, 1), 5, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
                 .SetValueFormat(OptionFormat.Seconds);
-            AsthmaticMaxGreenTime = IntegerOptionItem.Create(15429, "AsthmaticMaxGreenTime", new(1, 90, 1), 30, TabGroup.Addons)
+            AsthmaticMaxGreenTime = new IntegerOptionItem(15429, "AsthmaticMaxGreenTime", new(1, 90, 1), 30, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
                 .SetValueFormat(OptionFormat.Seconds);
         }

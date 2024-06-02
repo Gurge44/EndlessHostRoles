@@ -21,13 +21,13 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             Options.SetupSingleRoleOptions(4900, TabGroup.ImpostorRoles, CustomRoles.Parasite);
-            ParasiteCD = FloatOptionItem.Create(4910, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+            ParasiteCD = new FloatOptionItem(4910, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Parasite])
                 .SetValueFormat(OptionFormat.Seconds);
-            ShapeshiftCooldown = FloatOptionItem.Create(4911, "ShapeshiftCooldown", new(0f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
+            ShapeshiftCooldown = new FloatOptionItem(4911, "ShapeshiftCooldown", new(0f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Parasite])
                 .SetValueFormat(OptionFormat.Seconds);
-            ShapeshiftDuration = FloatOptionItem.Create(4912, "ShapeshiftDuration", new(0f, 180f, 1f), 15f, TabGroup.ImpostorRoles)
+            ShapeshiftDuration = new FloatOptionItem(4912, "ShapeshiftDuration", new(0f, 180f, 1f), 15f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Parasite])
                 .SetValueFormat(OptionFormat.Seconds);
         }

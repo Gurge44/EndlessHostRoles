@@ -6,17 +6,16 @@ namespace EHR.Roles.AddOns.Common
 {
     internal class Disco : IAddon
     {
+        private static readonly Dictionary<byte, long> LastChange = [];
         public AddonTypes Type => AddonTypes.Mixed;
 
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(15430, CustomRoles.Disco, canSetNum: true);
-            DiscoChangeInterval = IntegerOptionItem.Create(15433, "DiscoChangeInterval", new(1, 90, 1), 5, TabGroup.Addons)
+            DiscoChangeInterval = new IntegerOptionItem(15433, "DiscoChangeInterval", new(1, 90, 1), 5, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Disco])
                 .SetValueFormat(OptionFormat.Seconds);
         }
-
-        private static readonly Dictionary<byte, long> LastChange = [];
 
         private static void ChangeColor(PlayerControl pc)
         {

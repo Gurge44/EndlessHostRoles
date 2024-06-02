@@ -31,14 +31,14 @@ public class Medic : RoleBase
         "SeeMedicAndTarget",
         "SeeMedic",
         "SeeTarget",
-        "SeeNoone",
+        "SeeNoone"
     ];
 
     public static readonly string[] ShieldDeactivationIsVisibleOption =
     [
         "DeactivationImmediately",
         "DeactivationAfterMeeting",
-        "DeactivationIsVisibleOFF",
+        "DeactivationIsVisibleOFF"
     ];
 
     public override bool IsEnable => playerIdList.Count > 0;
@@ -46,27 +46,27 @@ public class Medic : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Medic);
-        WhoCanSeeProtect = StringOptionItem.Create(Id + 2, "MedicWhoCanSeeProtect", MedicWhoCanSeeProtectName, 0, TabGroup.CrewmateRoles)
+        WhoCanSeeProtect = new StringOptionItem(Id + 2, "MedicWhoCanSeeProtect", MedicWhoCanSeeProtectName, 0, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
-        KnowShieldBroken = StringOptionItem.Create(Id + 3, "MedicKnowShieldBroken", MedicWhoCanSeeProtectName, 1, TabGroup.CrewmateRoles)
+        KnowShieldBroken = new StringOptionItem(Id + 3, "MedicKnowShieldBroken", MedicWhoCanSeeProtectName, 1, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
-        ShieldDeactivatesWhenMedicDies = BooleanOptionItem.Create(Id + 4, "MedicShieldDeactivatesWhenMedicDies", true, TabGroup.CrewmateRoles)
+        ShieldDeactivatesWhenMedicDies = new BooleanOptionItem(Id + 4, "MedicShieldDeactivatesWhenMedicDies", true, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
-        ShieldDeactivationIsVisible = StringOptionItem.Create(Id + 5, "MedicShielDeactivationIsVisible", ShieldDeactivationIsVisibleOption, 0, TabGroup.CrewmateRoles)
+        ShieldDeactivationIsVisible = new StringOptionItem(Id + 5, "MedicShielDeactivationIsVisible", ShieldDeactivationIsVisibleOption, 0, TabGroup.CrewmateRoles)
             .SetParent(ShieldDeactivatesWhenMedicDies);
-        ShieldBreaksOnKillAttempt = BooleanOptionItem.Create(Id + 6, "MedicShieldBreaksOnKillAttempt", true, TabGroup.CrewmateRoles)
+        ShieldBreaksOnKillAttempt = new BooleanOptionItem(Id + 6, "MedicShieldBreaksOnKillAttempt", true, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
-        ShieldBreakIsVisible = StringOptionItem.Create(Id + 7, "MedicShieldBreakIsVisible", ShieldDeactivationIsVisibleOption, 0, TabGroup.CrewmateRoles)
+        ShieldBreakIsVisible = new StringOptionItem(Id + 7, "MedicShieldBreakIsVisible", ShieldDeactivationIsVisibleOption, 0, TabGroup.CrewmateRoles)
             .SetParent(ShieldBreaksOnKillAttempt);
-        ResetCooldown = FloatOptionItem.Create(Id + 8, "MedicResetCooldown", new(0f, 120f, 1f), 15f, TabGroup.CrewmateRoles)
+        ResetCooldown = new FloatOptionItem(Id + 8, "MedicResetCooldown", new(0f, 120f, 1f), 15f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic])
             .SetValueFormat(OptionFormat.Seconds);
-        GuesserIgnoreShield = BooleanOptionItem.Create(Id + 9, "MedicShieldedCanBeGuessed", true, TabGroup.CrewmateRoles)
+        GuesserIgnoreShield = new BooleanOptionItem(Id + 9, "MedicShieldedCanBeGuessed", true, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
-        AmountOfShields = IntegerOptionItem.Create(Id + 10, "MedicAmountOfShields", new(1, 14, 1), 1, TabGroup.CrewmateRoles)
+        AmountOfShields = new IntegerOptionItem(Id + 10, "MedicAmountOfShields", new(1, 14, 1), 1, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
         UsePet = Options.CreatePetUseSetting(Id + 11, CustomRoles.Medic);
-        CD = FloatOptionItem.Create(Id + 12, "AbilityCooldown", new(0f, 180f, 2.5f), 7.5f, TabGroup.CrewmateRoles)
+        CD = new FloatOptionItem(Id + 12, "AbilityCooldown", new(0f, 180f, 2.5f), 7.5f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic])
             .SetValueFormat(OptionFormat.Seconds);
     }
@@ -288,6 +288,6 @@ public class Medic : RoleBase
     {
         Immediately,
         AfterMeeting,
-        OFF,
+        OFF
     }
 }
