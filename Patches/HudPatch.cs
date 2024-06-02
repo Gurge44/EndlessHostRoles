@@ -17,22 +17,10 @@ namespace EHR.Patches;
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 class HudManagerPatch
 {
-    //public static bool ShowDebugText;
-    //public static int LastCallNotifyRolesPerSecond;
-    public static int NowCallNotifyRolesCount;
-
-    public static int LastSetNameDesyncCount;
-
-    //public static int LastFPS;
-    //public static int NowFrameCount;
-    //public static float FrameRateTimer;
-    public static TextMeshPro LowerInfoText;
-
+    private static TextMeshPro LowerInfoText;
     private static TextMeshPro OverriddenRolesText;
-
     private static long LastNullError;
 
-    //public static GameObject TempLowerInfoText;
     public static void Postfix(HudManager __instance)
     {
         try

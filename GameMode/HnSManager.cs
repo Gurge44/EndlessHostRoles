@@ -114,7 +114,14 @@ namespace EHR
         {
             Dictionary<PlayerControl, CustomRoles> result = [];
             List<PlayerControl> allPlayers = [.. Main.AllAlivePlayerControls];
-            if (Main.GM.Value) allPlayers.RemoveAll(x => x.IsHost());
+
+            if (Main.GM.Value)
+            {
+                allPlayers.RemoveAll(x => x.IsHost());
+                PlayerRoles[0] = (new Hider(), CustomRoles.GM);
+                PlayerControl.LocalPlayer.RpcSetCustomRole(CustomRoles.GM);
+            }
+
             allPlayers = allPlayers.Shuffle();
 
             Dictionary<Team, int> memberNum = new()
@@ -237,7 +244,14 @@ namespace EHR
             var targetRole = PlayerRoles[target.PlayerId];
             var seerRole = PlayerRoles[seer.PlayerId];
 
-            if (targetRole.Interface.Team == Team.Impostor && (PlayersSeeRoles.GetBool() || targetRole.Role != CustomRoles.Agent || seerRole.Interface.Team == Team.Impostor))
+            if (PlayersSeeRoles.GetBool())
+            {
+                color = Main.RoleColors[targetRole.Role];
+                if (targetRole.Role == CustomRoles.Agent) color = Main.RoleColors[CustomRoles.Hider];
+                return true;
+            }
+
+            if (targetRole.Interface.Team == Team.Impostor && (targetRole.Role != CustomRoles.Agent || seerRole.Interface.Team == Team.Impostor))
             {
                 color = Main.RoleColors[CustomRoles.Seeker];
                 return true;
@@ -254,7 +268,10 @@ namespace EHR
 
         public static bool IsRoleTextEnabled(PlayerControl seer, PlayerControl target)
         {
-            return seer.PlayerId == target.PlayerId || PlayersSeeRoles.GetBool();
+            if (seer.PlayerId == target.PlayerId || PlayersSeeRoles.GetBool()) return true;
+            var targetRole = PlayerRoles[target.PlayerId];
+            var seerRole = PlayerRoles[seer.PlayerId];
+            return targetRole.Interface.Team == Team.Impostor && (targetRole.Role != CustomRoles.Agent || seerRole.Interface.Team == Team.Impostor);
         }
 
         public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool isHUD = false)

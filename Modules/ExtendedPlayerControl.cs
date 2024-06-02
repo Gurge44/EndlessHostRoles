@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Patches;
 using EHR.Roles.AddOns.Crewmate;
 using EHR.Roles.AddOns.Impostor;
 using EHR.Roles.Crewmate;
@@ -136,8 +135,6 @@ static class ExtendedPlayerControl
             Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
         }
 
-        HudManagerPatch.LastSetNameDesyncCount++;
-
         Logger.Info($"Set:{player?.Data?.PlayerName}:{name} for All", "RpcSetNameEx");
         player?.RpcSetName(name);
     }
@@ -149,7 +146,6 @@ static class ExtendedPlayerControl
         if (!force && Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name) return;
 
         Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
-        HudManagerPatch.LastSetNameDesyncCount++;
         Logger.Info($"Set:{player.Data?.PlayerName}:{name} for {seer.GetNameWithRole().RemoveHtmlTags()}", "RpcSetNamePrivate");
 
         var clientId = seer.GetClientId();
@@ -661,7 +657,7 @@ static class ExtendedPlayerControl
     public static bool CanUseImpostorVentButton(this PlayerControl pc)
     {
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Penguin.IsVictim(pc)) return false;
-        if (CopyCat.PlayerIdList.Contains(pc.PlayerId)) return true;
+        if (CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId)) return true;
 
         if ((pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool()) && pc.GetCustomRole().GetVNRole() != CustomRoles.Engineer) return true;
         if (pc.Is(CustomRoles.Bloodlust)) return true;

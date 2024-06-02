@@ -12,7 +12,6 @@ using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
-using EHR.Patches;
 using EHR.Roles.AddOns.Common;
 using EHR.Roles.AddOns.Crewmate;
 using EHR.Roles.AddOns.GhostRoles;
@@ -572,7 +571,7 @@ public static class Utils
             StackFrame firstFrame = stFrames.FirstOrDefault();
 
             var sb = new StringBuilder();
-            sb.Append($" Exception: {ex.Message} ----");
+            sb.Append($" Exception: {ex.Message}");
 
             bool skip = true;
             foreach (StackFrame sf in stFrames)
@@ -765,7 +764,7 @@ public static class Utils
             }
         }
 
-        if (CopyCat.PlayerIdList.Contains(p.PlayerId) && ForRecompute && (!Options.UsePets.GetBool() || CopyCat.UsePet.GetBool())) hasTasks = false;
+        if (CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == p.PlayerId) && ForRecompute && (!Options.UsePets.GetBool() || CopyCat.UsePet.GetBool())) hasTasks = false;
 
         hasTasks |= role.UsesPetInsteadOfKill();
 
@@ -1690,7 +1689,7 @@ public static class Utils
 
     public static void CheckAndSpawnAdditionalRefugee(GameData.PlayerInfo deadPlayer)
     {
-        if (Options.CurrentGameMode != CustomGameMode.Standard || deadPlayer == null || !Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() || Main.AllAlivePlayerControls.Length < Options.SpawnAdditionalRefugeeMinAlivePlayers.GetInt() || CustomRoles.Refugee.RoleExist(countDead: true) || Main.AllAlivePlayerControls.Any(x => x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && !Options.SpawnAdditionalRefugeeWhenNKAlive.GetBool())))) return;
+        if (Options.CurrentGameMode != CustomGameMode.Standard || deadPlayer == null || deadPlayer.Object.Is(CustomRoles.Refugee) || !Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() || Main.AllAlivePlayerControls.Length < Options.SpawnAdditionalRefugeeMinAlivePlayers.GetInt() || CustomRoles.Refugee.RoleExist(countDead: true) || Main.AllAlivePlayerControls.Any(x => x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && !Options.SpawnAdditionalRefugeeWhenNKAlive.GetBool())))) return;
 
         PlayerControl[] ListToChooseFrom = Options.UsePets.GetBool() ? Main.AllAlivePlayerControls.Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate)).ToArray() : Main.AllAlivePlayerControls.Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate) && x.GetCustomRole().GetRoleTypes() == RoleTypes.Impostor).ToArray();
 
@@ -1896,8 +1895,6 @@ public static class Utils
         //string callerMethodName = callerMethod.Name;
         //string callerClassName = callerMethod.DeclaringType.FullName;
         //Logger.Info("NotifyRoles was called from " + callerClassName + "." + callerMethodName, "NotifyRoles");
-        HudManagerPatch.NowCallNotifyRolesCount++;
-        HudManagerPatch.LastSetNameDesyncCount = 0;
 
         PlayerControl[] seerList = SpecifySeer != null ? ( [SpecifySeer]) : Main.AllPlayerControls;
         PlayerControl[] targetList = SpecifyTarget != null ? ( [SpecifyTarget]) : Main.AllPlayerControls;
@@ -2509,7 +2506,7 @@ public static class Utils
             Main.CheckShapeshift[pc.PlayerId] = false;
         }
 
-        CopyCat.ResetRole();
+        CopyCat.ResetRoles();
 
         if (Options.DiseasedCDReset.GetBool())
         {

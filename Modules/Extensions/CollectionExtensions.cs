@@ -115,5 +115,46 @@ namespace EHR
         {
             return collection.Where(x => !x.Equals(element));
         }
+
+        /// <summary>
+        /// Partitions a collection into a specified number of parts
+        /// </summary>
+        /// <param name="collection">The collection to partition</param>
+        /// <param name="parts">The number of parts to partition the collection into</param>
+        /// <typeparam name="T">The type of the elements in the collection</typeparam>
+        /// <returns>A collection of collections, each containing a part of the original collection</returns>
+        public static IEnumerable<IEnumerable<T>> Partition<T>(this IEnumerable<T> collection, int parts)
+        {
+            var list = collection.ToList();
+            int size = list.Count / parts;
+            int remainder = list.Count % parts;
+            int index = 0;
+            for (int i = 0; i < parts; i++)
+            {
+                int partSize = size + (i < remainder ? 1 : 0);
+                yield return list.GetRange(index, partSize);
+                index += partSize;
+            }
+        }
+
+        /// <summary>
+        /// Partitions an array into a specified number of parts
+        /// </summary>
+        /// <param name="collection">The array to partition</param>
+        /// <param name="parts">The number of parts to partition the array into</param>
+        /// <typeparam name="T">The type of the elements in the array</typeparam>
+        /// <returns>An array of arrays, each containing a part of the original array</returns>
+        public static IEnumerable<IEnumerable<T>> Partition<T>(this T[] collection, int parts)
+        {
+            int size = collection.Length / parts;
+            int remainder = collection.Length % parts;
+            int index = 0;
+            for (int i = 0; i < parts; i++)
+            {
+                int partSize = size + (i < remainder ? 1 : 0);
+                yield return collection.Skip(index).Take(partSize);
+                index += partSize;
+            }
+        }
     }
 }

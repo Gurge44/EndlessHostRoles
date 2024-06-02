@@ -33,6 +33,8 @@ class Logger
     private static readonly List<string> DisableList = [];
     private static readonly List<string> SendToGameList = [];
     public static bool IsAlsoInGame;
+
+    private static readonly HashSet<string> NowDetailedErrorLog = [];
     public static void Enable() => IsEnable = true;
     public static void Disable() => IsEnable = false;
 
@@ -69,13 +71,15 @@ class Logger
         }
 
         string log_text;
-        if (level is LogLevel.Error or LogLevel.Fatal && !multiLine)
+        if (level is LogLevel.Error or LogLevel.Fatal && !multiLine && !NowDetailedErrorLog.Contains(tag))
         {
             string t = DateTime.Now.ToString("HH:mm:ss");
             StackFrame stack = new(2);
             string className = stack.GetMethod()?.ReflectedType?.Name;
             string memberName = stack.GetMethod()?.Name;
             log_text = $"[{t}][{className}.{memberName}({Path.GetFileName(fileName)}:{lineNumber})][{tag}]{text}";
+            NowDetailedErrorLog.Add(tag);
+            LateTask.New(() => NowDetailedErrorLog.Remove(tag), 5f, log: false);
         }
         else
         {

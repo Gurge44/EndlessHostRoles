@@ -8,16 +8,19 @@ namespace EHR.Roles.Crewmate;
 public class CopyCat : RoleBase
 {
     private const int Id = 666420;
-    public static List<byte> PlayerIdList = [];
+    public static List<CopyCat> Instances = [];
 
-    public float CurrentKillCooldown = DefaultKillCooldown;
+    private static OptionItem KillCooldown;
+    private static OptionItem CanKill;
+    private static OptionItem CopyCrewVar;
+    private static OptionItem MiscopyLimitOpt;
+    public static OptionItem UsePet;
+
+    public PlayerControl CopyCatPC;
+    private float CurrentKillCooldown = DefaultKillCooldown;
     private float TempLimit;
 
-    public static OptionItem KillCooldown;
-    public static OptionItem CanKill;
-    public static OptionItem CopyCrewVar;
-    public static OptionItem MiscopyLimitOpt;
-    public static OptionItem UsePet;
+    public override bool IsEnable => Instances.Count > 0;
 
     public static void SetupCustomOption()
     {
@@ -33,13 +36,14 @@ public class CopyCat : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
+        Instances = [];
         CurrentKillCooldown = DefaultKillCooldown;
     }
 
     public override void Add(byte playerId)
     {
-        PlayerIdList.Add(playerId);
+        Instances.Add(this);
+        CopyCatPC = Utils.GetPlayerById(playerId);
         CurrentKillCooldown = KillCooldown.GetFloat();
         playerId.SetAbilityUseLimit(MiscopyLimitOpt.GetInt());
 
@@ -48,52 +52,46 @@ public class CopyCat : RoleBase
             Main.ResetCamPlayerList.Add(playerId);
     }
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
-    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).IsAlive() ? CurrentKillCooldown : 0f;
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CurrentKillCooldown;
+    public override bool CanUseKillButton(PlayerControl pc) => pc.IsAlive();
 
-    public override bool CanUseKillButton(PlayerControl pc)
+    void ResetRole()
     {
-        return pc.IsAlive();
-    }
-
-    public static void ResetRole()
-    {
-        foreach (var player in PlayerIdList)
+        var role = CopyCatPC.GetCustomRole();
+        // Remove the settings for current role
+        switch (role)
         {
-            var pc = Utils.GetPlayerById(player);
-            var role = pc.GetCustomRole();
-            ////////////           /*remove the settings for current role*/             /////////////////////
-            switch (role)
-            {
-                case CustomRoles.Cleanser:
-                    Cleanser.DidVote.Remove(pc.PlayerId);
-                    break;
-                case CustomRoles.Merchant:
-                    Merchant.addonsSold.Remove(player);
-                    Merchant.bribedKiller.Remove(player);
-                    break;
-                case CustomRoles.Paranoia:
-                    Paranoia.ParaUsedButtonCount.Remove(player);
-                    break;
-                case CustomRoles.Snitch:
-                    Snitch.IsExposed.Remove(player);
-                    Snitch.IsComplete.Remove(player);
-                    break;
-                case CustomRoles.Mayor:
-                    Mayor.MayorUsedButtonCount.Remove(player);
-                    break;
-            }
-
-            pc.RpcSetCustomRole(CustomRoles.CopyCat);
-            if (Main.PlayerStates[player].Role is CopyCat cc)
-            {
-                pc.SetAbilityUseLimit(cc.TempLimit);
-                cc.SetKillCooldown(player);
-            }
+            case CustomRoles.Cleanser:
+                Cleanser.DidVote.Remove(CopyCatPC.PlayerId);
+                break;
+            case CustomRoles.Merchant:
+                Merchant.addonsSold.Remove(CopyCatPC.PlayerId);
+                Merchant.bribedKiller.Remove(CopyCatPC.PlayerId);
+                break;
+            case CustomRoles.Paranoia:
+                Paranoia.ParaUsedButtonCount.Remove(CopyCatPC.PlayerId);
+                break;
+            case CustomRoles.Snitch:
+                Snitch.IsExposed.Remove(CopyCatPC.PlayerId);
+                Snitch.IsComplete.Remove(CopyCatPC.PlayerId);
+                break;
+            case CustomRoles.Mayor:
+                Mayor.MayorUsedButtonCount.Remove(CopyCatPC.PlayerId);
+                break;
         }
+
+        Main.PlayerStates[CopyCatPC.PlayerId].MainRole = CustomRoles.CopyCat;
+        Main.PlayerStates[CopyCatPC.PlayerId].Role = this;
+        CopyCatPC.SetAbilityUseLimit(TempLimit);
+        SetKillCooldown(CopyCatPC.PlayerId);
     }
 
-    public static bool BlacklList(CustomRoles role) => role is
+    public static void ResetRoles()
+    {
+        Instances.Do(x => x.ResetRole());
+    }
+
+    private static bool BlacklList(CustomRoles role) => role is
         CustomRoles.CopyCat or
         // can't copy due to vent cooldown
         CustomRoles.Grenadier or
