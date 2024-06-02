@@ -4215,6 +4215,8 @@
   "WinnerRoleText.Specter": "Vitória do Fantasma!",
   "WinnerRoleText.Hider": "Hiders Win!",
   "WinnerRoleText.Seeker": "Seekers Win!",
+  "WinnerRoleText.Taskinator": "Taskinator Wins!",
+  "WinnerRoleText.Fox": "Fox Wins!",
   "WinnerRoleText.Default": "{0} Vence!",
   "AdditionalWinnerRoleText.Sidekick": "junto com os Ajudantes",
   "AdditionalWinnerRoleText.Opportunist": "O Oportunista sobreviveu",
