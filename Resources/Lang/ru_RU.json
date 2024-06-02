@@ -4215,6 +4215,8 @@
   "WinnerRoleText.Specter": "Phantom Победил!",
   "WinnerRoleText.Hider": "Прячущиеся Победили!",
   "WinnerRoleText.Seeker": "Искатели Победили!",
+  "WinnerRoleText.Taskinator": "Taskinator Wins!",
+  "WinnerRoleText.Fox": "Fox Wins!",
   "WinnerRoleText.Default": "{0} Победили!",
   "AdditionalWinnerRoleText.Sidekick": "вместе с Sidekick'ами",
   "AdditionalWinnerRoleText.Opportunist": "Opportunist выжил",
