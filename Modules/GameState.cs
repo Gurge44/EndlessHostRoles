@@ -117,7 +117,7 @@ public class PlayerState(byte playerId)
 
         Role.Add(PlayerId);
 
-        Logger.Info($"ID {PlayerId} => {role}", "SetMainRole");
+        Logger.Info($"ID {PlayerId} ({Utils.GetPlayerById(PlayerId)?.GetRealName()}) => {role}", "SetMainRole");
 
         if (!AmongUsClient.Instance.AmHost) return;
 
@@ -243,6 +243,12 @@ public class PlayerState(byte playerId)
         if (SubRoles.Contains(role))
             SubRoles.Remove(role);
 
+        if (role is CustomRoles.Flashman or CustomRoles.Dynamo)
+        {
+            Main.AllPlayerSpeed[PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            Utils.GetPlayerById(PlayerId).MarkDirtySettings();
+        }
+
         Utils.SendRPC(CustomRPC.RemoveSubRole, PlayerId, 1, (int)role);
     }
 
@@ -335,7 +341,14 @@ public class TaskState
                 if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0) player.RpcIncreaseAbilityUseLimitBy(add);
             }
 
-            Main.PlayerStates[player.PlayerId].Role.OnTaskComplete(player, CompletedTasksCount, AllTasksCount);
+            try
+            {
+                Main.PlayerStates[player.PlayerId].Role.OnTaskComplete(player, CompletedTasksCount, AllTasksCount);
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
 
             var addons = Main.PlayerStates[player.PlayerId].SubRoles;
 

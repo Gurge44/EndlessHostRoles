@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
 using HarmonyLib;
+using UnityEngine;
 
 namespace EHR.Roles.Impostor
 {
@@ -13,9 +15,12 @@ namespace EHR.Roles.Impostor
         private static OptionItem ShowInfoDuration;
         private static OptionItem PlayersKnowAboutCamera;
         private static OptionItem CannotSeeInfoDuringComms;
+        private static OptionItem UsableDevicesForInfoView;
+        private static OptionItem AdditionalDevicesForInfoView;
         private static OptionItem AbilityUseLimit;
         public static OptionItem AbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
+        private static Dictionary<SimpleRoleOptionType, OptionItem> TeamsCanSeeInfo;
 
         private readonly HashSet<byte> LastNotified = [];
 
@@ -25,25 +30,52 @@ namespace EHR.Roles.Impostor
         private PlayerControl SentryPC;
         public override bool IsEnable => On;
 
+        private static Vector2[] AvailableDevices = [];
+
+        enum UsableDevicesStrings
+        {
+            None,
+            Cameras,
+            Admin,
+            CamerasAndAdmin
+        }
+        
+        enum AdditionalDevicesStrings
+        {
+            None,
+            DoorLog,
+            Binoculars,
+            DoorLogAndBinoculars
+        }
+
         public static void SetupCustomOption()
         {
-            const int id = 11370;
-            Options.SetupRoleOptions(id, TabGroup.CrewmateRoles, CustomRoles.Sentry);
-            ShowInfoCooldown = new IntegerOptionItem(id + 2, "AbilityCooldown", new(1, 60, 1), 15, TabGroup.CrewmateRoles)
+            int id = 11370;
+            Options.SetupRoleOptions(id++, TabGroup.CrewmateRoles, CustomRoles.Sentry);
+            ShowInfoCooldown = new IntegerOptionItem(++id, "AbilityCooldown", new(1, 60, 1), 15, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry])
                 .SetValueFormat(OptionFormat.Seconds);
-            ShowInfoDuration = new IntegerOptionItem(id + 3, "Sentry.ShowInfoDuration", new(1, 60, 1), 5, TabGroup.CrewmateRoles)
+            ShowInfoDuration = new IntegerOptionItem(++id, "Sentry.ShowInfoDuration", new(1, 60, 1), 5, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry])
                 .SetValueFormat(OptionFormat.Seconds);
-            PlayersKnowAboutCamera = new BooleanOptionItem(id + 4, "Sentry.PlayersKnowAboutCamera", true, TabGroup.CrewmateRoles)
+            PlayersKnowAboutCamera = new BooleanOptionItem(++id, "Sentry.PlayersKnowAboutCamera", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
-            CannotSeeInfoDuringComms = new BooleanOptionItem(id + 5, "Sentry.CannotSeeInfoDuringComms", true, TabGroup.CrewmateRoles)
+            CannotSeeInfoDuringComms = new BooleanOptionItem(++id, "Sentry.CannotSeeInfoDuringComms", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
-            AbilityUseLimit = new IntegerOptionItem(id + 6, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.CrewmateRoles)
+            UsableDevicesForInfoView = new StringOptionItem(++id, "Sentry.UsableDevicesForInfoView", Enum.GetNames<UsableDevicesStrings>(), 0, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
-            AbilityUseGainWithEachTaskCompleted = new FloatOptionItem(id + 7, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
+            AdditionalDevicesForInfoView = new StringOptionItem(++id, "Sentry.AdditionalDevicesForInfoView", Enum.GetNames<AdditionalDevicesStrings>(), 0, TabGroup.CrewmateRoles)
+                .SetParent(UsableDevicesForInfoView);
+            Enum.GetValues<SimpleRoleOptionType>().Do(x =>
+            {
+                TeamsCanSeeInfo[x] = new BooleanOptionItem(++id, "Sentry.TeamsCanSeeInfo." + x, true, TabGroup.CrewmateRoles)
+                    .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
+            });
+            AbilityUseLimit = new IntegerOptionItem(++id, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
-            AbilityChargesWhenFinishedTasks = new FloatOptionItem(id + 8, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+            AbilityUseGainWithEachTaskCompleted = new FloatOptionItem(++id, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
+            AbilityChargesWhenFinishedTasks = new FloatOptionItem(++id, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
         }
 
@@ -59,6 +91,32 @@ namespace EHR.Roles.Impostor
         public override void Init()
         {
             On = false;
+            AvailableDevices = DisableDevice.DevicePos.Where(x =>
+            {
+                var correctMap = x.Key.Contains(Main.CurrentMap.ToString(), StringComparison.OrdinalIgnoreCase);
+                var devicesOpt = (UsableDevicesStrings)UsableDevicesForInfoView.GetValue();
+                var enabled = devicesOpt switch
+                {
+                    UsableDevicesStrings.None => false,
+                    UsableDevicesStrings.Cameras => x.Key.Contains("Camera") && !x.Key.Contains("Fungle"),
+                    UsableDevicesStrings.Admin => x.Key.Contains("Admin"),
+                    UsableDevicesStrings.CamerasAndAdmin => x.Key.Contains("Camera") || x.Key.Contains("Admin"),
+                    _ => false
+                };
+                if (!enabled && devicesOpt != UsableDevicesStrings.None)
+                {
+                    enabled |= (AdditionalDevicesStrings)AdditionalDevicesForInfoView.GetValue() switch
+                    {
+                        AdditionalDevicesStrings.None => false,
+                        AdditionalDevicesStrings.DoorLog => x.Key.Contains("DoorLog"),
+                        AdditionalDevicesStrings.Binoculars => x.Key.Contains("Camera") && x.Key.Contains("Fungle"),
+                        AdditionalDevicesStrings.DoorLogAndBinoculars => x.Key.Contains("DoorLog") || (x.Key.Contains("Camera") && x.Key.Contains("Fungle")),
+                        _ => false
+                    };
+                }
+
+                return correctMap && enabled;
+            }).Select(x => x.Value).ToArray();
         }
 
         public override void OnPet(PlayerControl pc)
@@ -203,6 +261,39 @@ namespace EHR.Roles.Impostor
                     LastNotified.Remove(pc.PlayerId);
                     break;
             }
+        }
+
+        private Dictionary<byte, long> LastInfoSend = [];
+
+        public override void OnCheckPlayerPosition(PlayerControl pc)
+        {
+            var usableDevices = (UsableDevicesStrings)UsableDevicesForInfoView.GetValue();
+            var additionalDevices = (AdditionalDevicesStrings)AdditionalDevicesForInfoView.GetValue();
+            
+            if (usableDevices == UsableDevicesStrings.None) return;
+            
+            if (LastInfoSend.TryGetValue(pc.PlayerId, out var ts) && ts == Utils.TimeStamp) return;
+            LastInfoSend[pc.PlayerId] = Utils.TimeStamp;
+            
+            if (!CheckTeam(pc)) return;
+
+            var pos = pc.Pos();
+            var range = DisableDevice.UsableDistance();
+            if (!AvailableDevices.Any(x => Vector2.Distance(pos, x) <= range)) return;
+            
+            DisplayRoomInfo(pc);
+        }
+
+        static bool CheckTeam(PlayerControl pc)
+        {
+            SimpleRoleOptionType team = pc.GetTeam() switch
+            {
+                Team.Crewmate => SimpleRoleOptionType.Crewmate,
+                Team.Impostor => SimpleRoleOptionType.Impostor,
+                Team.Neutral => pc.IsNeutralKiller() ? SimpleRoleOptionType.NK : SimpleRoleOptionType.NNK,
+                _ => SimpleRoleOptionType.Crewmate
+            };
+            return TeamsCanSeeInfo[team].GetBool();
         }
 
         public override void AfterMeetingTasks()

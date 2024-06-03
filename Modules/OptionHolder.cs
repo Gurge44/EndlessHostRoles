@@ -398,6 +398,7 @@ public static class Options
     public static OptionItem ScientistCD;
 
     public static OptionItem DisableTaskWinIfAllCrewsAreDead;
+    public static OptionItem DisableTaskWinIfAllCrewsAreConverted;
 
     // Task Management
     public static OptionItem DisableShortTasks;
@@ -1458,6 +1459,9 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
         DisableTaskWinIfAllCrewsAreDead = new BooleanOptionItem(22651, "DisableTaskWinIfAllCrewsAreDead", false, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+        DisableTaskWinIfAllCrewsAreConverted = new BooleanOptionItem(22652, "DisableTaskWinIfAllCrewsAreConverted", false, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 153, 153, byte.MaxValue));
 

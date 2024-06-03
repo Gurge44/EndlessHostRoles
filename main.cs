@@ -496,6 +496,7 @@ public class Main : BasePlugin
                 { CustomRoles.Specter, "#b446e3" },
                 { CustomRoles.Haunter, "#d1b1de" },
                 { CustomRoles.Bloodmoon, "#ff1313" },
+                { CustomRoles.GA, "#8cffff" },
                 // GM
                 { CustomRoles.GM, "#ff5b70" },
                 // Add-ons
