@@ -126,6 +126,8 @@ namespace EHR
         public static IEnumerable<IEnumerable<T>> Partition<T>(this IEnumerable<T> collection, int parts)
         {
             var list = collection.ToList();
+            if (parts <= 0 || list.Count == 0) yield break;
+            if (parts > list.Count) parts = list.Count;
             int size = list.Count / parts;
             int remainder = list.Count % parts;
             int index = 0;
@@ -146,6 +148,8 @@ namespace EHR
         /// <returns>An array of arrays, each containing a part of the original array</returns>
         public static IEnumerable<IEnumerable<T>> Partition<T>(this T[] collection, int parts)
         {
+            if (parts <= 0 || collection.Length == 0) yield break;
+            if (parts > collection.Length) parts = collection.Length;
             int size = collection.Length / parts;
             int remainder = collection.Length % parts;
             int index = 0;
