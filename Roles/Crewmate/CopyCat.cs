@@ -62,7 +62,7 @@ public class CopyCat : RoleBase
     void ResetRole()
     {
         var role = CopyCatPC.GetCustomRole();
-        // Remove the settings for current role
+        // Remove settings for current role
         switch (role)
         {
             case CustomRoles.Cleanser:
@@ -95,7 +95,7 @@ public class CopyCat : RoleBase
         Instances.Do(x => x.ResetRole());
     }
 
-    private static bool BlacklList(CustomRoles role) => role is
+    private static bool BlackList(CustomRoles role) => role is
         CustomRoles.CopyCat or
         // can't copy due to vent cooldown
         CustomRoles.Grenadier or
@@ -111,7 +111,7 @@ public class CopyCat : RoleBase
     {
         CustomRoles role = tpc.GetCustomRole();
 
-        if (BlacklList(role))
+        if (BlackList(role))
         {
             pc.Notify(GetString("CopyCatCanNotCopy"));
             SetKillCooldown(pc.PlayerId);

@@ -70,6 +70,7 @@ public static class DevManager
         DevUserList.Add(new(code: "radarright#2509", color: "null", tag: "null", isUp: false, isDev: false, deBug: true, colorCmd: false, upName: null));
 
         // EHR players
+        DevUserList.Add(new(code: "ravenknurl#4562", color: "#008000", tag: "Moderador do FH", isUp: false, isDev: false, deBug: false, colorCmd: false, upName: "RicardoFumante"));
         DevUserList.Add(new(code: "crustzonal#9589", color: "#00FFFF", tag: "Translator PT-BR", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "artyleague01"));
         DevUserList.Add(new(code: "tinedpun#6584", color: "#0000ff", tag: "Translator PT-BR", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "Dechis"));
         DevUserList.Add(new(code: "swiftlord#8072", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "But What About"));
@@ -83,7 +84,7 @@ public static class DevManager
         DevUserList.Add(new(code: "akinlaptop#2206", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "MR Carr"));
         DevUserList.Add(new(code: "fursilty#4676", color: "#0000ff", tag: "arthurzin", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "arthurzin"));
         DevUserList.Add(new(code: "stonefuzzy#8673", color: "#035efc", tag: "Ru Translator", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "HyperAtill"));
-        DevUserList.Add(new(code: "frizzytram#2508", color: "#1C87FF", tag: "RafaelBIT50", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "RafaelBIT50"));
+        DevUserList.Add(new(code: "frizzytram#2508", color: "#1C87FF", tag: "RafaelBIT50", isUp: false, isDev: false, deBug: false, colorCmd: false, upName: "RafaelBIT50"));
         DevUserList.Add(new(code: "foggyzing#6238", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "LdZinnn"));
         DevUserList.Add(new(code: "onsideblur#3929", color: "#fc3a51", tag: "YouTuber", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "Manelzin"));
         DevUserList.Add(new(code: "modestspan#7071", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "Shark"));

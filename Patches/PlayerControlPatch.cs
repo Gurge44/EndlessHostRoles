@@ -328,6 +328,8 @@ class CheckMurderPatch
 
         if (killer.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) return false;
 
+        if (GhostRolesManager.AssignedGhostRoles.TryGetValue(target.PlayerId, out var ghostRole) && ghostRole.Instance is GA ga && ga.ProtectionList.Contains(target.PlayerId)) return false;
+
         if (SoulHunter.IsSoulHunterTarget(killer.PlayerId) && target.Is(CustomRoles.SoulHunter))
         {
             killer.Notify(GetString("SoulHunterTargetNotifyNoKill"));
@@ -1801,7 +1803,7 @@ class CoEnterVentPatch
             try
             {
                 LateTask.New(() => { __instance.RpcBootFromVent(id); }, 0.5f, "CannotUseVentBootFromVent2");
-                return false;
+                return true;
             }
             catch
             {

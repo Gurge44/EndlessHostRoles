@@ -72,7 +72,13 @@ namespace EHR.Roles.Impostor
                 if (Main.PlayerStates[kkId].Role is Kamikaze { IsEnable: true } kk)
                 {
                     var kamikazePc = GetPlayerById(kk.KamikazeId);
-                    if (kamikazePc.IsAlive()) continue;
+                    if (kamikazePc == null)
+                    {
+                        LateTask.New(() => PlayerIdList.Remove(kkId), 0.001f, log: false);
+                        continue;
+                    }
+                    
+                    if (kamikazePc.IsAlive() || kk.MarkedPlayers.Count == 0) continue;
 
                     foreach (var id in kk.MarkedPlayers)
                     {
