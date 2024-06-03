@@ -54,14 +54,14 @@ public class Divinator : RoleBase
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(CheckLimitOpt.GetInt());
 
-        CustomRoles[][] chunked = Enum.GetValues<CustomRoles>()
+        var roles = Enum.GetValues<CustomRoles>()
             .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.KB_Normal and not CustomRoles.Potato and not CustomRoles.GM and not CustomRoles.Convict && !HnSManager.AllHnSRoles.Contains(x))
-            .Shuffle()
-            .Chunk(RolesPerCategory)
-            .ToArray();
-
-        AllPlayerRoleList = Main.AllAlivePlayerControls
-            .Select((pc, index) => (pc.PlayerId, chunked[index].Append(pc.GetCustomRole()).Shuffle()))
+            .Shuffle();
+        var players = Main.AllAlivePlayerControls;
+        int parts = (int)Math.Ceiling((double)players.Length / RolesPerCategory);
+        var chunked = roles.Partition(parts).ToArray();
+        AllPlayerRoleList = players
+            .Select((pc, index) => (pc.PlayerId, chunked[index % parts].Append(pc.GetCustomRole()).Shuffle()))
             .ToDictionary(x => x.PlayerId, x => x.Item2);
     }
 

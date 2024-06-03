@@ -1,8 +1,10 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
 // ReSharper disable ConvertIfStatementToReturnStatement
+// ReSharper disable ForCanBeConvertedToForeach
 
 namespace EHR
 {
@@ -42,27 +44,6 @@ namespace EHR
         }
 
         /// <summary>
-        /// Shuffles all elements in a collection randomly
-        /// </summary>
-        /// <typeparam name="T">The type of the collection</typeparam>
-        /// <param name="collection">The collection to be shuffled</param>
-        /// <returns>The shuffled collection as a <see cref="List{T}"/></returns>
-        public static List<T> Shuffle<T>(this IEnumerable<T> collection)
-        {
-            var list = collection.ToList();
-            int n = list.Count;
-            var r = IRandom.Instance;
-            while (n > 1)
-            {
-                n--;
-                int k = r.Next(n + 1);
-                (list[n], list[k]) = (list[k], list[n]);
-            }
-
-            return list;
-        }
-
-        /// <summary>
         /// Combines multiple collections into a single collection
         /// </summary>
         /// <param name="firstCollection">The collection to start with</param>
@@ -80,8 +61,18 @@ namespace EHR
         /// <param name="collection">The collection to iterate over</param>
         /// <param name="action">The action to execute for each element</param>
         /// <typeparam name="T">The type of the elements in the collection</typeparam>
-        public static void Do<T>(this IEnumerable<T> collection, System.Action<T> action)
+        public static void Do<T>(this IEnumerable<T> collection, Action<T> action)
         {
+            if (collection is List<T> list)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    action(list[i]);
+                }
+
+                return;
+            }
+
             foreach (T element in collection)
             {
                 action(element);
@@ -95,13 +86,10 @@ namespace EHR
         /// <param name="predicate">The predicate to check for each element</param>
         /// <param name="action">The action to execute for each element that satisfies the predicate</param>
         /// <typeparam name="T">The type of the elements in the collection</typeparam>
-        public static void DoIf<T>(this IEnumerable<T> collection, System.Func<T, bool> predicate, System.Action<T> action)
+        public static void DoIf<T>(this IEnumerable<T> collection, Func<T, bool> predicate, Action<T> action)
         {
             var partitioner = Partitioner.Create(collection.Where(predicate));
-            foreach (T element in partitioner.GetDynamicPartitions())
-            {
-                action(element);
-            }
+            partitioner.GetDynamicPartitions().Do(action);
         }
 
         /// <summary>
@@ -117,6 +105,99 @@ namespace EHR
         }
 
         /// <summary>
+        /// Splits a collection into two collections based on a predicate
+        /// </summary>
+        /// <param name="collection">The collection to split</param>
+        /// <param name="predicate">The predicate to split the collection by</param>
+        /// <typeparam name="T">The type of the elements in the collection</typeparam>
+        /// <returns>A tuple containing two collections: one with elements that satisfy the predicate, and one with elements that do not</returns>
+        public static (List<T> TrueList, List<T> FalseList) Split<T>(this IEnumerable<T> collection, Func<T, bool> predicate)
+        {
+            var list1 = new List<T>();
+            var list2 = new List<T>();
+            foreach (T element in collection)
+            {
+                if (predicate(element))
+                {
+                    list1.Add(element);
+                }
+                else
+                {
+                    list2.Add(element);
+                }
+            }
+
+            return (list1, list2);
+        }
+
+        #region Shuffle
+
+        /// <summary>
+        /// Shuffles all elements in a collection randomly
+        /// </summary>
+        /// <typeparam name="T">The type of the collection</typeparam>
+        /// <param name="collection">The collection to be shuffled</param>
+        /// <returns>A new, shuffled collection as a <see cref="List{T}"/></returns>
+        public static List<T> Shuffle<T>(this IEnumerable<T> collection)
+        {
+            var list = collection.ToList();
+            int n = list.Count;
+            var r = IRandom.Instance;
+            while (n > 1)
+            {
+                n--;
+                int k = r.Next(n + 1);
+                (list[n], list[k]) = (list[k], list[n]);
+            }
+
+            return list;
+        }
+
+        /// <summary>
+        /// Shuffles all elements in a collection randomly
+        /// </summary>
+        /// <param name="collection">The collection to be shuffled</param>
+        /// <typeparam name="T">The type of the collection</typeparam>
+        /// <returns>The same collection with its elements shuffled</returns>
+        public static List<T> Shuffle<T>(this List<T> collection)
+        {
+            int n = collection.Count;
+            var r = IRandom.Instance;
+            while (n > 1)
+            {
+                n--;
+                int k = r.Next(n + 1);
+                (collection[n], collection[k]) = (collection[k], collection[n]);
+            }
+
+            return collection;
+        }
+
+        /// <summary>
+        /// Shuffles all elements in an array randomly
+        /// </summary>
+        /// <param name="collection">The array to be shuffled</param>
+        /// <typeparam name="T">The type of the array</typeparam>
+        /// <returns>The same array with its elements shuffled</returns>
+        public static T[] Shuffle<T>(this T[] collection)
+        {
+            int n = collection.Length;
+            var r = IRandom.Instance;
+            while (n > 1)
+            {
+                n--;
+                int k = r.Next(n + 1);
+                (collection[n], collection[k]) = (collection[k], collection[n]);
+            }
+
+            return collection;
+        }
+
+        #endregion
+
+        #region Partition
+
+        /// <summary>
         /// Partitions a collection into a specified number of parts
         /// </summary>
         /// <param name="collection">The collection to partition</param>
@@ -126,32 +207,34 @@ namespace EHR
         public static IEnumerable<IEnumerable<T>> Partition<T>(this IEnumerable<T> collection, int parts)
         {
             var list = collection.ToList();
-            if (parts <= 0 || list.Count == 0) yield break;
-            if (parts > list.Count) parts = list.Count;
-            int size = list.Count / parts;
-            int remainder = list.Count % parts;
+            var length = list.Count;
+            if (parts <= 0 || length == 0) yield break;
+            if (parts > length) parts = length;
+            int size = length / parts;
+            int remainder = length % parts;
             int index = 0;
             for (int i = 0; i < parts; i++)
             {
                 int partSize = size + (i < remainder ? 1 : 0);
-                yield return list.GetRange(index, partSize);
+                yield return list.Skip(index).Take(partSize);
                 index += partSize;
             }
         }
 
         /// <summary>
-        /// Partitions an array into a specified number of parts
+        /// Partitions a list into a specified number of parts
         /// </summary>
-        /// <param name="collection">The array to partition</param>
-        /// <param name="parts">The number of parts to partition the array into</param>
-        /// <typeparam name="T">The type of the elements in the array</typeparam>
-        /// <returns>An array of arrays, each containing a part of the original array</returns>
-        public static IEnumerable<IEnumerable<T>> Partition<T>(this T[] collection, int parts)
+        /// <param name="collection">The list to partition</param>
+        /// <param name="parts">The number of parts to partition the list into</param>
+        /// <typeparam name="T">The type of the elements in the list</typeparam>
+        /// <returns>A list of lists, each containing a part of the original list</returns>
+        public static IEnumerable<IEnumerable<T>> Partition<T>(this IList<T> collection, int parts)
         {
-            if (parts <= 0 || collection.Length == 0) yield break;
-            if (parts > collection.Length) parts = collection.Length;
-            int size = collection.Length / parts;
-            int remainder = collection.Length % parts;
+            var length = collection.Count;
+            if (parts <= 0 || length == 0) yield break;
+            if (parts > length) parts = length;
+            int size = length / parts;
+            int remainder = length % parts;
             int index = 0;
             for (int i = 0; i < parts; i++)
             {
@@ -160,5 +243,7 @@ namespace EHR
                 index += partSize;
             }
         }
+
+        #endregion
     }
 }

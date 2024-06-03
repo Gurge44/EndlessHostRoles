@@ -1296,6 +1296,15 @@ internal class ChatCommands
                 Utils.SendMessage(Utils.GetRemainingKillers(), player.PlayerId);
                 break;
 
+            case "/lt":
+                var timer = GameStartManagerPatch.Timer;
+                int minutes = (int)timer / 60;
+                int seconds = (int)timer % 60;
+                string lt = string.Format(GetString("LobbyCloseTimer"), $"{minutes:00}:{seconds:00}");
+                if (timer <= 60) lt = Utils.ColorString(Color.red, lt);
+                Utils.SendMessage(lt, player.PlayerId);
+                break;
+
             case "/gno":
                 canceled = true;
                 if (!GameStates.IsLobby && player.IsAlive())

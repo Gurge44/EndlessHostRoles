@@ -122,7 +122,7 @@ namespace EHR
                 PlayerControl.LocalPlayer.RpcSetCustomRole(CustomRoles.GM);
             }
 
-            allPlayers = allPlayers.Shuffle();
+            allPlayers.Shuffle();
 
             Dictionary<Team, int> memberNum = new()
             {

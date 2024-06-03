@@ -3086,6 +3086,7 @@
   "SpawnAdditionalRefugeeOnImpsDead": "Random <#8cffff>Crewmate</color> Turns To <#ff1919>Renegade</color> When All <#ff1919>Impostors</color> Die",
   "SpawnAdditionalRefugeeWhenNKAlive": "Spawn Even If a <#ffab1b>Neutral Killer</color> is Alive",
   "SpawnAdditionalRefugeeMinAlivePlayers": "Minimum Number of Alive Players to Spawn",
+  "LobbyCloseTimer": "Lobby Closing Timer: {0}",
   "HorseMode": "Horse Mode",
   "LongMode": "Long Mode",
   "CustomTeamHelp": "You are in the {0}!{1}\\nWork with your team members to win together!",
