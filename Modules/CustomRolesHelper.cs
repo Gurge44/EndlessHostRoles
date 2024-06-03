@@ -113,6 +113,7 @@ internal static class CustomRolesHelper
             CustomRoles.Dictator => CustomRoles.Crewmate,
             CustomRoles.Inhibitor => CustomRoles.Impostor,
             CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
+            CustomRoles.Abyssbringer => CustomRoles.Shapeshifter,
             CustomRoles.Overheat => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Generator => CustomRoles.Shapeshifter,
             CustomRoles.Blackmailer => CustomRoles.Impostor,
@@ -583,6 +584,7 @@ internal static class CustomRolesHelper
         CustomRoles.SerialKiller or
         CustomRoles.Overheat or
         CustomRoles.Underdog or
+        CustomRoles.Abyssbringer or
         CustomRoles.Inhibitor or
         CustomRoles.Kidnapper or
         CustomRoles.Generator or

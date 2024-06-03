@@ -104,15 +104,13 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
     {
         try
         {
-            byte i = 0;
-            foreach (var logicComponent in GameManager.Instance.LogicComponents)
+            for (byte i = 0; i < GameManager.Instance.LogicComponents.Count; i++)
             {
+                var logicComponent = GameManager.Instance.LogicComponents[i];
                 if (logicComponent.TryCast<LogicOptions>(out _))
                 {
                     SendOptionsArray(optionArray, i, player.GetClientId());
                 }
-
-                i++;
             }
         }
         catch (Exception ex)

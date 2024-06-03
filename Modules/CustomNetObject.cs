@@ -23,12 +23,10 @@ namespace EHR
             PC.RpcSetName(sprite);
         }
 
-/*
         public void TP(Vector2 position)
         {
             PC.NetTransform.RpcSnapTo(position);
         }
-*/
 
         public void Despawn()
         {
@@ -287,6 +285,14 @@ namespace EHR
         {
             CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<alpha=#00>\u2588<br><#e6e6e6>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<br><#e6e6e6>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<br><alpha=#00>\u2588<#e6e6e6>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#d3d4ce>\u2588<#dedede>\u2588<#dedede>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#bfbfbf>\u2588<#454545>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#bfbfbf>\u2588<br><alpha=#00>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#bfbfbf>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#dedede>\u2588<#dedede>\u2588<#dedede>\u2588<#dedede>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#dedede>\u2588<#dedede>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>", position);
             hideList.Do(Hide);
+        }
+    }
+
+    internal sealed class BlackHole : CustomNetObject
+    {
+        internal BlackHole(Vector2 position)
+        {
+            CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<alpha=#00>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<alpha=#00>\u2588<br><#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<br><#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<br><#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<br><#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<br><alpha=#00>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>", position);
         }
     }
 }

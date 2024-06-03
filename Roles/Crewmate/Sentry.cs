@@ -20,33 +20,19 @@ namespace EHR.Roles.Impostor
         private static OptionItem AbilityUseLimit;
         public static OptionItem AbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
-        private static Dictionary<SimpleRoleOptionType, OptionItem> TeamsCanSeeInfo;
+        private static readonly Dictionary<SimpleRoleOptionType, OptionItem> TeamsCanSeeInfo = [];
+
+        private static Vector2[] AvailableDevices = [];
 
         private readonly HashSet<byte> LastNotified = [];
 
         private HashSet<byte> DeadBodiesInRoom;
+
+        private Dictionary<byte, long> LastInfoSend = [];
         public PlainShipRoom MonitoredRoom;
 
         private PlayerControl SentryPC;
         public override bool IsEnable => On;
-
-        private static Vector2[] AvailableDevices = [];
-
-        enum UsableDevicesStrings
-        {
-            None,
-            Cameras,
-            Admin,
-            CamerasAndAdmin
-        }
-        
-        enum AdditionalDevicesStrings
-        {
-            None,
-            DoorLog,
-            Binoculars,
-            DoorLogAndBinoculars
-        }
 
         public static void SetupCustomOption()
         {
@@ -263,24 +249,22 @@ namespace EHR.Roles.Impostor
             }
         }
 
-        private Dictionary<byte, long> LastInfoSend = [];
-
         public override void OnCheckPlayerPosition(PlayerControl pc)
         {
             var usableDevices = (UsableDevicesStrings)UsableDevicesForInfoView.GetValue();
             var additionalDevices = (AdditionalDevicesStrings)AdditionalDevicesForInfoView.GetValue();
-            
+
             if (usableDevices == UsableDevicesStrings.None) return;
-            
+
             if (LastInfoSend.TryGetValue(pc.PlayerId, out var ts) && ts == Utils.TimeStamp) return;
             LastInfoSend[pc.PlayerId] = Utils.TimeStamp;
-            
+
             if (!CheckTeam(pc)) return;
 
             var pos = pc.Pos();
             var range = DisableDevice.UsableDistance();
             if (!AvailableDevices.Any(x => Vector2.Distance(pos, x) <= range)) return;
-            
+
             DisplayRoomInfo(pc);
         }
 
@@ -304,6 +288,22 @@ namespace EHR.Roles.Impostor
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             hud.PetButton?.OverrideText(Translator.GetString("SentryPetButtonText"));
+        }
+
+        enum UsableDevicesStrings
+        {
+            None,
+            Cameras,
+            Admin,
+            CamerasAndAdmin
+        }
+
+        enum AdditionalDevicesStrings
+        {
+            None,
+            DoorLog,
+            Binoculars,
+            DoorLogAndBinoculars
         }
     }
 }
