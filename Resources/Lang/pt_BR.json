@@ -2941,6 +2941,7 @@
   "EnigmaClueLevelTitle": "Pista do nível do assassino!",
   "EnigmaClueFriendCodeTitle": "Pista do código de amigo do assassino!",
   "EnigmaClueTitle": "Pistas do Informante!",
+  "GuesserSuicides": "Guessers Suicide When Trying to Guess Players With <#BAAAE9>Onbound</color>",
   "PlagueDoctor": "Maldição",
   "PlagueDoctorInfo": "Espalhe a infecção",
   "PlagueDoctorInfoLong": "(Neutros):\\n(Doutor da Praga do TOH)\\nO objetivo da Maldição é Infectar todos.\\nEle começa escolhendo um jogador para infectar, após isso qualquer jogador que passe um certo tempo no alcançe desse jogador infectado será infectado tambem.\\nO Progresso da infecção é cumulativo, e não é redefinido com a distancia ou após reuniões.",
