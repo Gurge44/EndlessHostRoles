@@ -22,6 +22,18 @@ class HudManagerPatch
     private static TextMeshPro OverriddenRolesText;
     private static long LastNullError;
 
+    public static bool Prefix(HudManager __instance)
+    {
+        if (PlayerControl.LocalPlayer != null) return true;
+
+        __instance.taskDirtyTimer += Time.deltaTime;
+        if (__instance.taskDirtyTimer <= 0.25) return false;
+        __instance.taskDirtyTimer = 0.0f;
+        __instance.TaskPanel?.SetTaskText(string.Empty);
+
+        return false;
+    }
+
     public static void Postfix(HudManager __instance)
     {
         try
@@ -30,7 +42,7 @@ class HudManagerPatch
 
             if (!GameStates.IsModHost) return;
             var player = PlayerControl.LocalPlayer;
-            if (player is null || !player) return;
+            if (player == null) return;
 
             if (Input.GetKeyDown(KeyCode.LeftControl))
             {
@@ -48,19 +60,19 @@ class HudManagerPatch
                 }
             }
 
-            if (__instance is null || !__instance) return;
+            if (__instance == null) return;
 
             if (GameStates.IsLobby)
             {
                 var POM = GameObject.Find("PlayerOptionsMenu(Clone)");
-                __instance.GameSettings.text = POM is not null && POM ? string.Empty : OptionShower.GetTextNoFresh();
+                __instance.GameSettings.text = POM != null ? string.Empty : OptionShower.GetTextNoFresh();
                 __instance.GameSettings.fontSizeMin =
                     __instance.GameSettings.fontSizeMax = 1f;
             }
 
             if (AmongUsClient.Instance.AmHost)
             {
-                if (OverriddenRolesText is null || !OverriddenRolesText)
+                if (OverriddenRolesText == null)
                 {
                     OverriddenRolesText = Object.Instantiate(__instance.KillButton.cooldownTimerText, __instance.transform, true);
                     OverriddenRolesText.alignment = TextAlignmentOptions.Right;
@@ -80,7 +92,7 @@ class HudManagerPatch
                     {
                         var pc = Utils.GetPlayerById(item.Key);
                         string prefix = first ? string.Empty : "\n";
-                        string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc is null || !pc ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <color={Main.RoleColors.GetValueOrDefault(item.Value, "#ffffff")}>{GetString(item.Value.ToString())}</color>";
+                        string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <color={Main.RoleColors.GetValueOrDefault(item.Value, "#ffffff")}>{GetString(item.Value.ToString())}</color>";
                         resultText[item.Key] = text;
                         first = false;
                     }
@@ -99,7 +111,7 @@ class HudManagerPatch
                             else
                             {
                                 string prefix = first ? string.Empty : "\n";
-                                string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc is null || !pc ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <#ffffff>(</color><color={Main.RoleColors.GetValueOrDefault(role, "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>";
+                                string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <#ffffff>(</color><color={Main.RoleColors.GetValueOrDefault(role, "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>";
                                 resultText[item.Key] = text;
                                 first = false;
                             }
@@ -186,7 +198,7 @@ class HudManagerPatch
                             break;
                     }
 
-                    if (LowerInfoText is null || !LowerInfoText)
+                    if (LowerInfoText == null)
                     {
                         LowerInfoText = Object.Instantiate(__instance.KillButton.cooldownTimerText, __instance.transform, true);
                         LowerInfoText.alignment = TextAlignmentOptions.Center;
@@ -267,14 +279,14 @@ class HudManagerPatch
                 }
             }
 
-            if (AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame) RepairSender.enabled = false;
+            if (AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame) RepairSender.Enabled = false;
             if (Input.GetKeyDown(KeyCode.RightShift) && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             {
-                RepairSender.enabled = !RepairSender.enabled;
+                RepairSender.Enabled = !RepairSender.Enabled;
                 RepairSender.Reset();
             }
 
-            if (RepairSender.enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
+            if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             {
                 if (Input.GetKeyDown(KeyCode.Alpha0)) RepairSender.Input(0);
                 if (Input.GetKeyDown(KeyCode.Alpha1)) RepairSender.Input(1);
@@ -678,18 +690,18 @@ class TaskPanelBehaviourPatch
             __instance.taskText.text = AllText;
         }
 
-        if (RepairSender.enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
+        if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             __instance.taskText.text = RepairSender.GetText();
     }
 }
 
-class RepairSender
+static class RepairSender
 {
-    public static bool enabled;
-    public static bool TypingAmount;
+    public static bool Enabled;
+    private static bool TypingAmount;
 
-    public static int SystemType;
-    public static int amount;
+    private static int SystemType;
+    private static int Amount;
 
     public static void Input(int num)
     {
@@ -700,8 +712,8 @@ class RepairSender
         }
         else
         {
-            amount *= 10;
-            amount += num;
+            Amount *= 10;
+            Amount += num;
         }
     }
 
@@ -717,9 +729,9 @@ class RepairSender
         }
     }
 
-    public static void Send()
+    private static void Send()
     {
-        ShipStatus.Instance.RpcUpdateSystem((SystemTypes)SystemType, (byte)amount);
+        ShipStatus.Instance.RpcUpdateSystem((SystemTypes)SystemType, (byte)Amount);
         Reset();
     }
 
@@ -727,11 +739,11 @@ class RepairSender
     {
         TypingAmount = false;
         SystemType = 0;
-        amount = 0;
+        Amount = 0;
     }
 
     public static string GetText()
     {
-        return SystemType + "(" + ((SystemTypes)SystemType) + ")\r\n" + amount;
+        return SystemType + "(" + ((SystemTypes)SystemType) + ")\r\n" + Amount;
     }
 }

@@ -274,19 +274,18 @@ internal class RPCHandlerPatch
                         Main.PlayerVersion[__instance.PlayerId] = Main.PlayerVersion[0];
 
                     // Kick Unmached Player Start
-                    if (AmongUsClient.Instance.AmHost && tag != $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})")
+                    if (AmongUsClient.Instance.AmHost && tag != $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" && forkId != Main.ForkId)
                     {
-                        if (forkId != Main.ForkId)
-                            LateTask.New(() =>
+                        LateTask.New(() =>
+                        {
+                            if (__instance.Data?.Disconnected is not null and not true)
                             {
-                                if (__instance.Data?.Disconnected is not null and not true)
-                                {
-                                    var msg = string.Format(GetString("KickBecauseDiffrentVersionOrMod"), __instance.Data?.PlayerName);
-                                    Logger.Warn(msg, "Version Kick");
-                                    Logger.SendInGame(msg);
-                                    AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
-                                }
-                            }, 5f, "Kick");
+                                var msg = string.Format(GetString("KickBecauseDiffrentVersionOrMod"), __instance.Data?.PlayerName);
+                                Logger.Warn(msg, "Version Kick");
+                                Logger.SendInGame(msg);
+                                AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
+                            }
+                        }, 5f, "Kick");
                     }
                     // Kick Unmached Player End
                 }

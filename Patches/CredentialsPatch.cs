@@ -261,19 +261,25 @@ internal class TitleLogoPatch
 [HarmonyPatch(typeof(ModManager), nameof(ModManager.LateUpdate))]
 internal class ModManagerLateUpdatePatch
 {
-    public static void Prefix(ModManager __instance)
+    public static bool Prefix(ModManager __instance)
     {
         __instance.ShowModStamp();
 
         LateTask.Update(Time.deltaTime);
         CheckMurderPatch.Update();
+
+        return false;
     }
 
     public static void Postfix(ModManager __instance)
     {
-        var offsetY = HudManager.InstanceExists ? 1.6f : 0.9f;
-        __instance.ModStamp.transform.position = AspectPosition.ComputeWorldPosition(
-            __instance.localCamera, AspectPosition.EdgeAlignments.RightTop,
-            new(0.4f, offsetY, __instance.localCamera.nearClipPlane + 0.1f));
+        if (__instance.localCamera == null) __instance.localCamera = !DestroyableSingleton<HudManager>.InstanceExists ? Camera.main : DestroyableSingleton<HudManager>.Instance.GetComponentInChildren<Camera>();
+        if (__instance.localCamera != null)
+        {
+            var offsetY = HudManager.InstanceExists ? 1.6f : 0.9f;
+            __instance.ModStamp.transform.position = AspectPosition.ComputeWorldPosition(
+                __instance.localCamera, AspectPosition.EdgeAlignments.RightTop,
+                new(0.4f, offsetY, __instance.localCamera.nearClipPlane + 0.1f));
+        }
     }
 }

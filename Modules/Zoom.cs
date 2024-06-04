@@ -5,8 +5,8 @@ using UnityEngine;
 
 namespace EHR;
 
-// 来源：https://github.com/tugaru1975/TownOfPlus/TOPmods/Zoom.cs 
-// 参考：https://github.com/Yumenopai/TownOfHost_Y
+// Credit：https://github.com/tugaru1975/TownOfPlus/TOPmods/Zoom.cs 
+// Credit：https://github.com/Yumenopai/TownOfHost_Y
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 public static class Zoom
 {
@@ -14,42 +14,57 @@ public static class Zoom
 
     public static void Postfix()
     {
-        //if (PlayerControl.LocalPlayer.Is(RoleType.Impostor) && Options.OperateVisibilityImpostor.GetBool()) return;
-        if ((GameStates.IsShip && !GameStates.IsMeeting && GameStates.IsCanMove && PlayerControl.LocalPlayer.Data.IsDead) || (GameStates.IsLobby && GameStates.IsCanMove))
+        try
         {
-            if (Camera.main.orthographicSize > 3.0f)
-                ResetButtons = true;
-
-            if (Input.mouseScrollDelta.y > 0)
+            if (Camera.main == null) return;
+            if ((GameStates.IsShip && !GameStates.IsMeeting && GameStates.IsCanMove && PlayerControl.LocalPlayer.Data.IsDead) || (GameStates.IsLobby && GameStates.IsCanMove))
             {
                 if (Camera.main.orthographicSize > 3.0f)
-                {
-                    SetZoomSize(times: false);
-                }
-            }
+                    ResetButtons = true;
 
-            if (Input.mouseScrollDelta.y < 0)
-            {
-                if (GameStates.IsDead || GameStates.IsFreePlay || DebugModeManager.AmDebugger || GameStates.IsLobby ||
-                    PlayerControl.LocalPlayer.FriendCode.GetDevUser().DeBug)
+                switch (Input.mouseScrollDelta.y)
                 {
-                    if (Camera.main.orthographicSize < 18.0f)
+                    case > 0:
                     {
-                        SetZoomSize(times: true);
+                        if (Camera.main.orthographicSize > 3.0f)
+                        {
+                            SetZoomSize(times: false);
+                        }
+
+                        break;
+                    }
+                    case < 0:
+                    {
+                        if (GameStates.IsDead || GameStates.IsFreePlay || DebugModeManager.AmDebugger || GameStates.IsLobby ||
+                            PlayerControl.LocalPlayer.FriendCode.GetDevUser().DeBug)
+                        {
+                            if (Camera.main.orthographicSize < 18.0f)
+                            {
+                                SetZoomSize(times: true);
+                            }
+                        }
+
+                        break;
                     }
                 }
-            }
 
-            Flag.NewFlag("Zoom");
+                Flag.NewFlag("Zoom");
+            }
+            else
+            {
+                Flag.Run(() => { SetZoomSize(reset: true); }, "Zoom");
+            }
         }
-        else
+        catch (Exception e)
         {
-            Flag.Run(() => { SetZoomSize(reset: true); }, "Zoom");
+            Utils.ThrowException(e);
         }
     }
 
     private static void SetZoomSize(bool times = false, bool reset = false)
     {
+        if (Camera.main == null) return;
+
         var size = 1.5f;
         if (!times) size = 1 / size;
         if (reset)
@@ -65,7 +80,7 @@ public static class Zoom
             HudManager.Instance.UICamera.orthographicSize *= size;
         }
 
-        DestroyableSingleton<HudManager>.Instance?.ShadowQuad?.gameObject?.SetActive((reset || Camera.main.orthographicSize == 3.0f) && PlayerControl.LocalPlayer.IsAlive());
+        DestroyableSingleton<HudManager>.Instance?.ShadowQuad?.gameObject?.SetActive((reset || Mathf.Approximately(Camera.main.orthographicSize, 3.0f)) && PlayerControl.LocalPlayer.IsAlive());
 
         if (ResetButtons)
         {
@@ -75,7 +90,10 @@ public static class Zoom
     }
 
     public static void OnFixedUpdate()
-        => DestroyableSingleton<HudManager>.Instance?.ShadowQuad?.gameObject?.SetActive((Camera.main.orthographicSize == 3.0f) && PlayerControl.LocalPlayer.IsAlive());
+    {
+        if (Camera.main == null) return;
+        DestroyableSingleton<HudManager>.Instance?.ShadowQuad?.gameObject.SetActive((Mathf.Approximately(Camera.main.orthographicSize, 3.0f)) && PlayerControl.LocalPlayer.IsAlive());
+    }
 }
 
 public static class Flag
@@ -98,8 +116,10 @@ public static class Flag
         if (!OneTimeList.Contains(type)) OneTimeList.Add(type);
     }
 
+/*
     public static void DeleteFlag(string type)
     {
         if (OneTimeList.Contains(type)) OneTimeList.Remove(type);
     }
+*/
 }

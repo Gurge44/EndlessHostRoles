@@ -14,7 +14,7 @@ public enum CustomRoles
     ShapeshifterEHR,
 
     // Impostors
-    
+
     Abyssbringer,
     Hacker, // Anonymous
     AntiAdminer,

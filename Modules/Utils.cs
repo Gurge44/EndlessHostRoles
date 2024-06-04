@@ -1916,7 +1916,7 @@ public static class Utils
         {
             try
             {
-                if (seer is null || !seer || seer.Data.Disconnected || seer.IsModClient()) continue;
+                if (seer == null || seer.Data.Disconnected || seer.IsModClient()) continue;
 
                 // During intro scene, set team name for non-modded clients and skip the rest.
                 string SelfName;

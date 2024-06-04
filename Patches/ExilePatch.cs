@@ -185,7 +185,7 @@ class ExileControllerWrapUpPatch
 
         bool showRemainingKillers = Options.EnableKillerLeftCommand.GetBool() && Options.ShowImpRemainOnEject.GetBool();
         bool appendEjectionNotify = CheckForEndVotingPatch.EjectionText != string.Empty;
-        Logger.Warn($"Ejection Text: {CheckForEndVotingPatch.EjectionText}", "debug");
+        Logger.Warn($"Ejection Text: {CheckForEndVotingPatch.EjectionText}", "ExilePatch");
         if ((showRemainingKillers || appendEjectionNotify) && Options.CurrentGameMode == CustomGameMode.Standard)
         {
             LateTask.New(() =>

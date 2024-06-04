@@ -175,7 +175,7 @@ internal static class SoloKombatManager
 
     public static void GetNameNotify(PlayerControl player, ref string name)
     {
-        if (Options.CurrentGameMode != CustomGameMode.SoloKombat || player is null || !player) return;
+        if (Options.CurrentGameMode != CustomGameMode.SoloKombat || player == null) return;
         if (BackCountdown.TryGetValue(player.PlayerId, out int value))
         {
             name = string.Format(Translator.GetString("KBBackCountDown"), value);

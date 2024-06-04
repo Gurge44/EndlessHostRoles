@@ -118,7 +118,7 @@ class CheckMurderPatch
 
     public static void Update()
     {
-        int n = Math.Max(Main.AllPlayerControls.Length, 15);
+        int n = HudManager.InstanceExists ? Math.Max(Main.AllPlayerControls.Length, 15) : 15;
         for (byte i = 0; i < n; i++)
         {
             if (TimeSinceLastKill.ContainsKey(i))
@@ -1089,110 +1089,113 @@ class FixedUpdatePatch
                 }
             }
 
-            if (!Main.KillTimers.TryAdd(playerId, 10f) && ((!player.inVent && !player.MyPhysics.Animations.IsPlayingEnterVentAnimation()) || player.Is(CustomRoles.Haste)) && Main.KillTimers[playerId] > 0)
+            if (!GameStates.IsLobby)
             {
-                Main.KillTimers[playerId] -= Time.fixedDeltaTime;
-            }
+                if (!Main.KillTimers.TryAdd(playerId, 10f) && ((!player.inVent && !player.MyPhysics.Animations.IsPlayingEnterVentAnimation()) || player.Is(CustomRoles.Haste)) && Main.KillTimers[playerId] > 0)
+                {
+                    Main.KillTimers[playerId] -= Time.fixedDeltaTime;
+                }
 
-            CustomNetObject.FixedUpdate();
+                CustomNetObject.FixedUpdate();
 
-            if (!lowLoad && player.IsModClient() && player.Is(CustomRoles.Haste)) player.ForceKillTimerContinue = true;
+                if (!lowLoad && player.IsModClient() && player.Is(CustomRoles.Haste)) player.ForceKillTimerContinue = true;
 
-            if (DoubleTrigger.FirstTriggerTimer.Count > 0) DoubleTrigger.OnFixedUpdate(player);
+                if (DoubleTrigger.FirstTriggerTimer.Count > 0) DoubleTrigger.OnFixedUpdate(player);
 
-            if (Main.PlayerStates.TryGetValue(playerId, out var s) && s.Role.IsEnable)
-            {
-                s.Role.OnFixedUpdate(player);
-            }
+                if (Main.PlayerStates.TryGetValue(playerId, out var s) && s.Role.IsEnable)
+                {
+                    s.Role.OnFixedUpdate(player);
+                }
 
-            if (GameStates.IsInTask && player.Is(CustomRoles.PlagueBearer) && PlagueBearer.IsPlaguedAll(player))
-            {
-                player.RpcSetCustomRole(CustomRoles.Pestilence);
-                player.Notify(GetString("PlagueBearerToPestilence"));
-                player.RpcGuardAndKill(player);
-                if (!PlagueBearer.PestilenceList.Contains(playerId))
-                    PlagueBearer.PestilenceList.Add(playerId);
-                player.ResetKillCooldown();
-                PlagueBearer.playerIdList.Remove(playerId);
-            }
+                if (GameStates.IsInTask && player.Is(CustomRoles.PlagueBearer) && PlagueBearer.IsPlaguedAll(player))
+                {
+                    player.RpcSetCustomRole(CustomRoles.Pestilence);
+                    player.Notify(GetString("PlagueBearerToPestilence"));
+                    player.RpcGuardAndKill(player);
+                    if (!PlagueBearer.PestilenceList.Contains(playerId))
+                        PlagueBearer.PestilenceList.Add(playerId);
+                    player.ResetKillCooldown();
+                    PlagueBearer.playerIdList.Remove(playerId);
+                }
 
-            if (QuizMaster.On && GameStates.IsInTask && !lowLoad && QuizMaster.AllSabotages.Any(IsActive))
-            {
-                QuizMaster.Data.LastSabotage = QuizMaster.AllSabotages.FirstOrDefault(IsActive);
-            }
+                if (QuizMaster.On && GameStates.IsInTask && !lowLoad && QuizMaster.AllSabotages.Any(IsActive))
+                {
+                    QuizMaster.Data.LastSabotage = QuizMaster.AllSabotages.FirstOrDefault(IsActive);
+                }
 
-            if (GameStates.IsInTask && player != null && player.IsAlive() && !Pelican.IsEaten(player.PlayerId))
-            {
+                if (GameStates.IsInTask && player != null && player.IsAlive() && !Pelican.IsEaten(player.PlayerId))
+                {
+                    foreach (var state in Main.PlayerStates.Values)
+                    {
+                        if (state.Role.IsEnable)
+                        {
+                            state.Role.OnCheckPlayerPosition(player);
+                        }
+                    }
+
+                    Asthmatic.OnCheckPlayerPosition(player);
+                }
+
+                if (Main.PlayerStates.TryGetValue(playerId, out var playerState) && GameStates.IsInTask && player.IsAlive())
+                {
+                    var subRoles = playerState.SubRoles;
+                    if (subRoles.Contains(CustomRoles.Dynamo)) Dynamo.OnFixedUpdate(player);
+                    if (!lowLoad)
+                    {
+                        if (subRoles.Contains(CustomRoles.Damocles)) Damocles.Update(player);
+                        if (subRoles.Contains(CustomRoles.Stressed)) Stressed.Update(player);
+                        if (subRoles.Contains(CustomRoles.Asthmatic)) Asthmatic.OnFixedUpdate();
+                        if (subRoles.Contains(CustomRoles.Disco)) Disco.OnFixedUpdate(player);
+                        if (subRoles.Contains(CustomRoles.Clumsy)) Clumsy.OnFixedUpdate(player);
+                        if (subRoles.Contains(CustomRoles.Sonar)) Sonar.OnFixedUpdate(player);
+                        if (subRoles.Contains(CustomRoles.Sleep)) Sleep.CheckGlowNearby(player);
+                    }
+                }
+
+                if (GhostRolesManager.AssignedGhostRoles.TryGetValue(player.PlayerId, out var ghostRole))
+                {
+                    switch (ghostRole.Instance)
+                    {
+                        case Haunter haunter:
+                            haunter.Update(player);
+                            break;
+                        case Bloodmoon when !lowLoad:
+                            Bloodmoon.Update(player);
+                            break;
+                    }
+                }
+                else if (!lowLoad && !Main.HasJustStarted && GameStates.IsInTask && GhostRolesManager.ShouldHaveGhostRole(player))
+                {
+                    GhostRolesManager.AssignGhostRole(player);
+                }
+
+                long now = TimeStamp;
+                if (!lowLoad && Options.UsePets.GetBool() && GameStates.IsInTask && (!LastUpdate.TryGetValue(playerId, out var lastPetNotify) || lastPetNotify < now))
+                {
+                    if (Main.AbilityCD.TryGetValue(playerId, out var timer))
+                    {
+                        if (timer.START_TIMESTAMP + timer.TOTALCD < TimeStamp || !player.IsAlive())
+                        {
+                            Main.AbilityCD.Remove(playerId);
+                        }
+
+                        if (!player.IsModClient() && timer.TOTALCD - (now - timer.START_TIMESTAMP) <= 60) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                        LastUpdate[playerId] = now;
+                    }
+                }
+
                 foreach (var state in Main.PlayerStates.Values)
                 {
                     if (state.Role.IsEnable)
                     {
-                        state.Role.OnCheckPlayerPosition(player);
+                        state.Role.OnGlobalFixedUpdate(player, lowLoad);
                     }
                 }
 
-                Asthmatic.OnCheckPlayerPosition(player);
+                if (!lowLoad) Randomizer.OnFixedUpdateForPlayers(player);
+
+                RoleBlockManager.OnFixedUpdate(player);
             }
-
-            if (Main.PlayerStates.TryGetValue(playerId, out var playerState) && GameStates.IsInTask && player.IsAlive())
-            {
-                var subRoles = playerState.SubRoles;
-                if (subRoles.Contains(CustomRoles.Dynamo)) Dynamo.OnFixedUpdate(player);
-                if (!lowLoad)
-                {
-                    if (subRoles.Contains(CustomRoles.Damocles)) Damocles.Update(player);
-                    if (subRoles.Contains(CustomRoles.Stressed)) Stressed.Update(player);
-                    if (subRoles.Contains(CustomRoles.Asthmatic)) Asthmatic.OnFixedUpdate();
-                    if (subRoles.Contains(CustomRoles.Disco)) Disco.OnFixedUpdate(player);
-                    if (subRoles.Contains(CustomRoles.Clumsy)) Clumsy.OnFixedUpdate(player);
-                    if (subRoles.Contains(CustomRoles.Sonar)) Sonar.OnFixedUpdate(player);
-                    if (subRoles.Contains(CustomRoles.Sleep)) Sleep.CheckGlowNearby(player);
-                }
-            }
-
-            if (GhostRolesManager.AssignedGhostRoles.TryGetValue(player.PlayerId, out var ghostRole))
-            {
-                switch (ghostRole.Instance)
-                {
-                    case Haunter haunter:
-                        haunter.Update(player);
-                        break;
-                    case Bloodmoon when !lowLoad:
-                        Bloodmoon.Update(player);
-                        break;
-                }
-            }
-            else if (!lowLoad && !Main.HasJustStarted && GameStates.IsInTask && GhostRolesManager.ShouldHaveGhostRole(player))
-            {
-                GhostRolesManager.AssignGhostRole(player);
-            }
-
-            long now = TimeStamp;
-            if (!lowLoad && Options.UsePets.GetBool() && GameStates.IsInTask && (!LastUpdate.TryGetValue(playerId, out var lastPetNotify) || lastPetNotify < now))
-            {
-                if (Main.AbilityCD.TryGetValue(playerId, out var timer))
-                {
-                    if (timer.START_TIMESTAMP + timer.TOTALCD < TimeStamp || !player.IsAlive())
-                    {
-                        Main.AbilityCD.Remove(playerId);
-                    }
-
-                    if (!player.IsModClient() && timer.TOTALCD - (now - timer.START_TIMESTAMP) <= 60) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-                    LastUpdate[playerId] = now;
-                }
-            }
-
-            foreach (var state in Main.PlayerStates.Values)
-            {
-                if (state.Role.IsEnable)
-                {
-                    state.Role.OnGlobalFixedUpdate(player, lowLoad);
-                }
-            }
-
-            if (!lowLoad) Randomizer.OnFixedUpdateForPlayers(player);
-
-            RoleBlockManager.OnFixedUpdate(player);
         }
 
         if (!lowLoad)
@@ -1230,14 +1233,11 @@ class FixedUpdatePatch
                 ApplySuffix(__instance);
         }
 
-        if (__instance.AmOwner)
+        if (__instance.AmOwner && GameStates.IsInTask && ((Main.ChangedRole && __instance.PlayerId == PlayerControl.LocalPlayer.PlayerId && AmongUsClient.Instance.AmHost) || (!__instance.Is(CustomRoleTypes.Impostor) || Shifter.WasShifter.Contains(__instance.PlayerId)) && __instance.CanUseKillButton() && !__instance.Data.IsDead))
         {
-            if ((Main.ChangedRole && __instance.PlayerId == PlayerControl.LocalPlayer.PlayerId && AmongUsClient.Instance.AmHost) || (GameStates.IsInTask && (!__instance.Is(CustomRoleTypes.Impostor) || Shifter.WasShifter.Contains(__instance.PlayerId)) && __instance.CanUseKillButton() && !__instance.Data.IsDead))
-            {
-                var players = __instance.GetPlayersInAbilityRangeSorted();
-                PlayerControl closest = players.Count == 0 ? null : players[0];
-                HudManager.Instance.KillButton.SetTarget(closest);
-            }
+            var players = __instance.GetPlayersInAbilityRangeSorted();
+            PlayerControl closest = players.Count == 0 ? null : players[0];
+            HudManager.Instance.KillButton.SetTarget(closest);
         }
 
         var RoleTextTransform = __instance.cosmetics.nameText.transform.Find("RoleText");

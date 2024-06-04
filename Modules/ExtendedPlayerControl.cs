@@ -75,7 +75,7 @@ static class ExtendedPlayerControl
 
     public static int GetClientId(this PlayerControl player)
     {
-        if (player is null || !player) return -1;
+        if (player == null) return -1;
         var client = player.GetClient();
         return client?.Id ?? -1;
     }
@@ -90,7 +90,7 @@ static class ExtendedPlayerControl
     /// </summary>
     public static CustomRoles GetCustomRole(this PlayerControl player)
     {
-        if (player is null || !player)
+        if (player == null)
         {
             var callerMethod = new StackFrame(1, false).GetMethod();
             string callerMethodName = callerMethod?.Name;
@@ -104,7 +104,7 @@ static class ExtendedPlayerControl
     public static List<CustomRoles> GetCustomSubRoles(this PlayerControl player)
     {
         if (GameStates.IsLobby) return [CustomRoles.NotAssigned];
-        if (player is null || !player)
+        if (player == null)
         {
             Logger.Warn("The player is null", "GetCustomSubRoles");
             return [CustomRoles.NotAssigned];
@@ -115,7 +115,7 @@ static class ExtendedPlayerControl
 
     public static CountTypes GetCountTypes(this PlayerControl player)
     {
-        if (player is null || !player)
+        if (player == null)
         {
             var caller = new StackFrame(1, false);
             var callerMethod = caller.GetMethod();
@@ -141,8 +141,8 @@ static class ExtendedPlayerControl
 
     public static void RpcSetNamePrivate(this PlayerControl player, string name, bool DontShowOnModdedClient = false, PlayerControl seer = null, bool force = false)
     {
-        if (player is null || !player || name == null || !AmongUsClient.Instance.AmHost) return;
-        if (seer is null || !seer) seer = player;
+        if (player == null || name == null || !AmongUsClient.Instance.AmHost) return;
+        if (seer == null) seer = player;
         if (!force && Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name) return;
 
         Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
@@ -222,7 +222,7 @@ static class ExtendedPlayerControl
             return;
         }
 
-        if (target is null || !target) target = killer;
+        if (target == null) target = killer;
 
         // Check Observer
         if (!forObserver && !MeetingStates.FirstMeeting)
@@ -297,7 +297,7 @@ static class ExtendedPlayerControl
         Main.PlayerStates[pc.PlayerId].SetDead();
 
         Medic.IsDead(pc);
-        if (realKiller is not null && realKiller)
+        if (realKiller != null)
         {
             pc.SetRealKiller(realKiller);
             if (realKiller.Is(CustomRoles.Damocles)) Damocles.OnMurder(realKiller.PlayerId);
@@ -309,7 +309,7 @@ static class ExtendedPlayerControl
 
     public static void SetKillCooldown(this PlayerControl player, float time = -1f, PlayerControl target = null, bool forceAnime = false)
     {
-        if (player is null || !player) return;
+        if (player == null) return;
         Logger.Info($"{player.GetNameWithRole()}'s KCD set to {(Math.Abs(time - (-1f)) < 0.5f ? Main.AllPlayerKillCooldown[player.PlayerId] : time)}s", "SetKCD");
         if (player.GetCustomRole().UsesPetInsteadOfKill())
         {
@@ -320,7 +320,7 @@ static class ExtendedPlayerControl
 
         if (!player.CanUseKillButton()) return;
         player.AddKillTimerToDict(CD: time);
-        if (target is null || !target) target = player;
+        if (target == null) target = player;
         if (time >= 0f) Main.AllPlayerKillCooldown[player.PlayerId] = time * 2;
         else Main.AllPlayerKillCooldown[player.PlayerId] *= 2;
         if (player.Is(CustomRoles.Glitch) && Main.PlayerStates[player.PlayerId].Role is Glitch gc)
@@ -466,7 +466,7 @@ static class ExtendedPlayerControl
 
     public static void ResetPlayerCam(this PlayerControl pc, float delay = 0f)
     {
-        if (pc is null || !pc || !AmongUsClient.Instance.AmHost || pc.AmOwner) return;
+        if (pc == null || !AmongUsClient.Instance.AmHost || pc.AmOwner) return;
 
         var systemtypes = (MapNames)Main.NormalOptions.MapId switch
         {
@@ -489,7 +489,7 @@ static class ExtendedPlayerControl
 
     public static void ReactorFlash(this PlayerControl pc, float delay = 0f)
     {
-        if (pc is null || !pc) return;
+        if (pc == null) return;
 
         Logger.Info($"Reactor Flash for {pc.GetNameWithRole()}", "ReactorFlash");
 
@@ -521,7 +521,7 @@ static class ExtendedPlayerControl
         }
         catch (NullReferenceException nullReferenceException)
         {
-            Logger.Error($"{nullReferenceException.Message} - player is null? {player is null || !player}", "GetRealName");
+            Logger.Error($"{nullReferenceException.Message} - player is null? {player == null}", "GetRealName");
             return string.Empty;
         }
         catch (Exception exception)
@@ -643,21 +643,21 @@ static class ExtendedPlayerControl
 
     public static bool IsDousedPlayer(this PlayerControl arsonist, PlayerControl target)
     {
-        if (arsonist is null || !arsonist || target is null || !target || Arsonist.IsDoused == null) return false;
+        if (arsonist == null || target == null || Arsonist.IsDoused == null) return false;
         Arsonist.IsDoused.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDoused);
         return isDoused;
     }
 
     public static bool IsDrawPlayer(this PlayerControl arsonist, PlayerControl target)
     {
-        if (arsonist is null || !arsonist || target is null || !target || Revolutionist.IsDraw == null) return false;
+        if (arsonist == null || target == null || Revolutionist.IsDraw == null) return false;
         Revolutionist.IsDraw.TryGetValue((arsonist.PlayerId, target.PlayerId), out bool isDraw);
         return isDraw;
     }
 
     public static bool IsRevealedPlayer(this PlayerControl player, PlayerControl target)
     {
-        if (player is null || !player || target is null || !target || Farseer.IsRevealed == null) return false;
+        if (player == null || target == null || Farseer.IsRevealed == null) return false;
         Farseer.IsRevealed.TryGetValue((player.PlayerId, target.PlayerId), out bool isDoused);
         return isDoused;
     }
@@ -881,7 +881,7 @@ static class ExtendedPlayerControl
 
     public static void SetRealKiller(this PlayerControl target, PlayerControl killer, bool NotOverRide = false)
     {
-        if (target is null || !target)
+        if (target == null)
         {
             Logger.Info("target is null", "SetRealKiller");
             return;
@@ -889,7 +889,7 @@ static class ExtendedPlayerControl
 
         var State = Main.PlayerStates[target.PlayerId];
         if (State.RealKiller.TIMESTAMP != DateTime.MinValue && NotOverRide) return; // Do not overwrite if value already exists
-        byte killerId = killer is null || !killer ? byte.MaxValue : killer.PlayerId;
+        byte killerId = killer == null ? byte.MaxValue : killer.PlayerId;
         RPC.SetRealKiller(target.PlayerId, killerId);
     }
 
@@ -938,7 +938,7 @@ static class ExtendedPlayerControl
     public static bool IsAlive(this PlayerControl target)
     {
         // If target is not null and cannot be obtained, it is assumed to be alive because it has not been registered
-        if (target is null || !target || target.Is(CustomRoles.GM)) return false;
+        if (target == null || target.Is(CustomRoles.GM)) return false;
         return GameStates.IsLobby || !Main.PlayerStates.TryGetValue(target.PlayerId, out var ps) || !ps.IsDead;
     }
 

@@ -6,9 +6,9 @@ namespace EHR;
 class LateTask
 {
     private static readonly List<LateTask> Tasks = [];
-    public readonly Action action;
-    public readonly bool log;
-    public readonly string name;
+    private readonly Action action;
+    private readonly bool log;
+    private readonly string name;
     private float timer;
 
     /// <summary>

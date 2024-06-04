@@ -6,11 +6,11 @@ using Object = UnityEngine.Object;
 
 namespace EHR.Modules
 {
-    internal class LoadingScreen
+    internal static class LoadingScreen
     {
-        public static SpriteRenderer LoadingAnimation;
+        private static SpriteRenderer LoadingAnimation;
 
-        public static void UpdateLoadingAnimation()
+        private static void UpdateLoadingAnimation()
         {
             try
             {
@@ -36,7 +36,8 @@ namespace EHR.Modules
             try
             {
                 var lp = PlayerControl.LocalPlayer;
-                var anims = PlayerControl.LocalPlayer.MyPhysics.Animations;
+                if (lp == null) return;
+                var anims = lp.MyPhysics.Animations;
 
                 bool visible = AmongUsClient.Instance.AmHost && AmongUsClient.Instance.IsGameStarted && !GameStates.IsCanMove && (!GameStates.IsInTask || ExileController.Instance) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening && !lp.inVent && !anims.IsPlayingAnyLadderAnimation() && !VentButtonDoClickPatch.Animating && !lp.onLadder;
 
@@ -64,7 +65,7 @@ namespace EHR.Modules
 
                     if (LoadingAnimation.transform.position != new Vector3(x, y, z)) LoadingAnimation.transform.position = new(x, y, z);
 
-                    LoadingAnimation.transform?.Rotate(Vector3.forward, 200f * Time.deltaTime);
+                    LoadingAnimation.transform.Rotate(Vector3.forward, 200f * Time.deltaTime);
                 }
             }
             catch (Exception ex)

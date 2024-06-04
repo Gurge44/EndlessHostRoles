@@ -164,6 +164,7 @@ namespace EHR.Roles.Crewmate
         public static PatrollingState GetPatrollingState(byte playerId) => PatrolStates.FirstOrDefault(x => x.SentinelId == playerId) ?? new(playerId, PatrolDuration.GetInt(), PatrolRadius.GetInt());
         public static bool IsPatrolling(byte playerId) => GetPatrollingState(playerId).IsPatrolling;
         public override void OnEnterVent(PlayerControl pc, Vent vent) => GetPatrollingState(pc.PlayerId)?.StartPatrolling();
+        public override void OnPet(PlayerControl pc) => GetPatrollingState(pc.PlayerId)?.StartPatrolling();
 
         public static bool OnAnyoneCheckMurder(PlayerControl killer)
         {

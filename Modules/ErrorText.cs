@@ -16,9 +16,9 @@ public class ErrorText : MonoBehaviour
     public bool HnSFlag;
     public bool CheatDetected;
     public bool SBDetected;
+    private readonly List<ErrorData> AllErrors = [];
     private Camera _camera;
     private Camera _camera1;
-    public List<ErrorData> AllErrors = [];
 
     public void Update()
     {
@@ -117,12 +117,12 @@ public class ErrorText : MonoBehaviour
         UpdateText();
     }
 
-    public class ErrorData
+    private class ErrorData
     {
         public readonly ErrorCode Code;
         public readonly int ErrorLevel;
-        public readonly int ErrorType1;
-        public readonly int ErrorType2;
+        private readonly int ErrorType1;
+        private readonly int ErrorType2;
 
         public ErrorData(ErrorCode code)
         {
@@ -149,12 +149,6 @@ public class ErrorText : MonoBehaviour
 
     public static ErrorText Instance { get; private set; }
 
-    private void Start()
-    {
-        _camera1 = HudManager.Instance.PlayerCam.GetComponent<Camera>();
-        _camera = Camera.main;
-    }
-
     private void Awake()
     {
         if (Instance)
@@ -165,6 +159,25 @@ public class ErrorText : MonoBehaviour
         {
             Instance = this;
             DontDestroyOnLoad(this);
+        }
+    }
+
+    private int Frame;
+
+    private void FixedUpdate()
+    {
+        if (Frame++ < 40) return;
+        Frame = 0;
+
+        if (_camera != null && _camera1 != null) return;
+
+        try
+        {
+            _camera1 = HudManager.Instance.PlayerCam.GetComponent<Camera>();
+            _camera = Camera.main;
+        }
+        catch
+        {
         }
     }
 
