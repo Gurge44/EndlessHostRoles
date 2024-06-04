@@ -106,7 +106,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
         {
             for (byte i = 0; i < GameManager.Instance.LogicComponents.Count; i++)
             {
-                var logicComponent = GameManager.Instance.LogicComponents[i];
+                var logicComponent = GameManager.Instance.LogicComponents[(Index)i];
                 if (logicComponent.TryCast<LogicOptions>(out _))
                 {
                     SendOptionsArray(optionArray, i, player.GetClientId());

@@ -328,9 +328,6 @@ public static class Options
     public static OptionItem CrewpostorKillAfterTask;
     public static OptionItem CrewpostorLungeKill;
     public static OptionItem ObliviousBaitImmune;
-    public static OptionItem ImpCanBeInLove;
-    public static OptionItem CrewCanBeInLove;
-    public static OptionItem NeutralCanBeInLove;
     public static OptionItem UnluckyTaskSuicideChance;
     public static OptionItem UnluckyKillSuicideChance;
     public static OptionItem UnluckyVentSuicideChance;
@@ -698,9 +695,6 @@ public static class Options
     public static OptionItem MadSnitchTasks;
     public static OptionItem FlashmanSpeed;
     public static OptionItem GiantSpeed;
-    public static OptionItem LoverSpawnChances;
-    public static OptionItem LoverKnowRoles;
-    public static OptionItem LoverSuicide;
     public static OptionItem ImpEgoistVisibalToAllies;
     public static OptionItem TicketsPerKill;
     public static OptionItem DualVotes;

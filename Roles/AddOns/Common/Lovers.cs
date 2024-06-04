@@ -6,6 +6,12 @@ namespace EHR.Roles.AddOns.Common
     {
         public static bool IsChatActivated = false;
 
+        public static OptionItem LoverSpawnChances;
+        public static OptionItem LoverKnowRoles;
+        public static OptionItem LoverSuicide;
+        public static OptionItem ImpCanBeInLove;
+        public static OptionItem CrewCanBeInLove;
+        public static OptionItem NeutralCanBeInLove;
         public static OptionItem LegacyLovers;
         public static OptionItem LovingImpostorSpawnChance;
         public static OptionItem PrivateChat;

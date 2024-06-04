@@ -9,7 +9,7 @@ namespace EHR.Roles.AddOns.Common
 
         public void SetupCustomOption()
         {
-            Options.SetupAdtRoleOptions(15180, CustomRoles.Stained, canSetNum: true);
+            Options.SetupAdtRoleOptions(15180, CustomRoles.Stained, canSetNum: true, teamSpawnOptions: true);
         }
 
         public static void OnDeath(PlayerControl pc, PlayerControl killer)

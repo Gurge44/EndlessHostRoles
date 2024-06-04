@@ -494,7 +494,7 @@ internal class SelectRolesPatch
                 }
             }
 
-            if (!overrideLovers && CustomRoles.Lovers.IsEnable() && (CustomRoles.FFF.IsEnable() ? -1 : rd.Next(1, 100)) <= Options.LoverSpawnChances.GetInt()) AssignLoversRolesFromList();
+            if (!overrideLovers && CustomRoles.Lovers.IsEnable() && (CustomRoles.FFF.IsEnable() ? -1 : rd.Next(1, 100)) <= Lovers.LoverSpawnChances.GetInt()) AssignLoversRolesFromList();
 
             var aapc = Main.AllAlivePlayerControls;
             AddonRolesList
@@ -715,7 +715,7 @@ internal class SelectRolesPatch
             return;
         }
 
-        var allPlayers = Main.AllPlayerControls.Where(pc => !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && !pc.Is(CustomRoles.Dictator) && !pc.Is(CustomRoles.God) && !pc.Is(CustomRoles.FFF) && !pc.Is(CustomRoles.Bomber) && !pc.Is(CustomRoles.Nuker) && !pc.Is(CustomRoles.Provocateur) && (!pc.IsCrewmate() || Options.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Options.NeutralCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsImpostor() || Options.ImpCanBeInLove.GetBool())).ToList();
+        var allPlayers = Main.AllPlayerControls.Where(pc => !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && !pc.Is(CustomRoles.Dictator) && !pc.Is(CustomRoles.God) && !pc.Is(CustomRoles.FFF) && !pc.Is(CustomRoles.Bomber) && !pc.Is(CustomRoles.Nuker) && !pc.Is(CustomRoles.Provocateur) && (!pc.IsCrewmate() || Lovers.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Lovers.NeutralCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsImpostor() || Lovers.ImpCanBeInLove.GetBool())).ToList();
         const CustomRoles role = CustomRoles.Lovers;
         var count = Math.Clamp(RawCount, 0, allPlayers.Count);
         if (RawCount == -1) count = Math.Clamp(role.GetCount(), 0, allPlayers.Count);

@@ -246,7 +246,7 @@ public class PlayerState(byte playerId)
         if (role is CustomRoles.Flashman or CustomRoles.Dynamo)
         {
             Main.AllPlayerSpeed[PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-            Utils.GetPlayerById(PlayerId).MarkDirtySettings();
+            PlayerGameOptionsSender.SetDirty(PlayerId);
         }
 
         Utils.SendRPC(CustomRPC.RemoveSubRole, PlayerId, 1, (int)role);

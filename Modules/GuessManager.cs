@@ -340,7 +340,9 @@ public static class GuessManager
                     {
                         if (!isUI) Utils.SendMessage(GetString("GuessOnbound"), pc.PlayerId);
                         else pc.ShowPopUp(GetString("GuessOnbound"));
-                        return true;
+
+                        if (Onbound.GuesserSuicides.GetBool()) guesserSuicide = true;
+                        else return true;
                     }
 
                     if (target.Is(CustomRoles.Lovers) && Lovers.GuessAbility.GetValue() == 0)

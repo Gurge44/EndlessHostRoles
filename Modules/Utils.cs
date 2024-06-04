@@ -811,7 +811,7 @@ public static class Utils
 
         return __instance.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool() ||
                __instance.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead ||
-               __instance.Is(CustomRoles.Lovers) && PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) && Options.LoverKnowRoles.GetBool() ||
+               __instance.Is(CustomRoles.Lovers) && PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) && Lovers.LoverKnowRoles.GetBool() ||
                __instance.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool() ||
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool() ||
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() ||
@@ -1926,12 +1926,10 @@ public static class Utils
                     const string iconTextLeft = "<color=#ffffff>\u21e8</color>";
                     const string iconTextRight = "<color=#ffffff>\u21e6</color>";
                     const string roleNameUp = "</size><size=1350%>\n \n</size>";
+
                     string selfTeamName = $"<size=450%>{iconTextLeft} <font=\"VCR SDF\" material=\"VCR Black Outline\">{ColorString(seerTeam.GetTeamColor(), $"{seerTeam}")}</font> {iconTextRight}</size><size=900%>\n \n</size>";
-                    SelfName = $"{ColorString(seer.GetRoleColor(), seer.GetRealName())}";
+                    SelfName = $"{selfTeamName}\r\n{seer.GetCustomRole().ToColoredString()}{roleNameUp}";
 
-                    SelfName = $"{selfTeamName}\r\n{seer.GetDisplayRoleName()}\r\n{SelfName}{roleNameUp}";
-
-                    // Privately set name
                     seer.RpcSetNamePrivate(SelfName, true, seer);
                     continue;
                 }
@@ -2209,7 +2207,7 @@ public static class Utils
                                 (seer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) ||
                                 (seer.Is(CustomRoles.Mimic) && target.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) ||
                                 (target.Is(CustomRoles.Gravestone) && target.Data.IsDead) ||
-                                (seer.Is(CustomRoles.Lovers) && target.Is(CustomRoles.Lovers) && Options.LoverKnowRoles.GetBool()) ||
+                                (seer.Is(CustomRoles.Lovers) && target.Is(CustomRoles.Lovers) && Lovers.LoverKnowRoles.GetBool()) ||
                                 (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool()) ||
                                 (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoleTypes.Impostor) && Options.MadmateKnowWhosImp.GetBool()) ||
                                 (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Madmate) && Options.ImpKnowWhosMadmate.GetBool()) ||

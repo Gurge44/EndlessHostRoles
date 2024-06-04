@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles.AddOns.Common;
 using EHR.Roles.Crewmate;
@@ -29,7 +30,7 @@ class HudManagerPatch
 
             if (!GameStates.IsModHost) return;
             var player = PlayerControl.LocalPlayer;
-            if (player == null) return;
+            if (player is null || !player) return;
 
             if (Input.GetKeyDown(KeyCode.LeftControl))
             {
@@ -47,19 +48,19 @@ class HudManagerPatch
                 }
             }
 
-            if (__instance == null) return;
+            if (__instance is null || !__instance) return;
 
             if (GameStates.IsLobby)
             {
                 var POM = GameObject.Find("PlayerOptionsMenu(Clone)");
-                __instance.GameSettings.text = POM != null ? string.Empty : OptionShower.GetTextNoFresh();
+                __instance.GameSettings.text = POM is not null && POM ? string.Empty : OptionShower.GetTextNoFresh();
                 __instance.GameSettings.fontSizeMin =
                     __instance.GameSettings.fontSizeMax = 1f;
             }
 
             if (AmongUsClient.Instance.AmHost)
             {
-                if (OverriddenRolesText == null)
+                if (OverriddenRolesText is null || !OverriddenRolesText)
                 {
                     OverriddenRolesText = Object.Instantiate(__instance.KillButton.cooldownTimerText, __instance.transform, true);
                     OverriddenRolesText.alignment = TextAlignmentOptions.Right;
@@ -79,7 +80,7 @@ class HudManagerPatch
                     {
                         var pc = Utils.GetPlayerById(item.Key);
                         string prefix = first ? string.Empty : "\n";
-                        string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <color={Main.RoleColors.GetValueOrDefault(item.Value, "#ffffff")}>{GetString(item.Value.ToString())}</color>";
+                        string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc is null || !pc ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <color={Main.RoleColors.GetValueOrDefault(item.Value, "#ffffff")}>{GetString(item.Value.ToString())}</color>";
                         resultText[item.Key] = text;
                         first = false;
                     }
@@ -98,7 +99,7 @@ class HudManagerPatch
                             else
                             {
                                 string prefix = first ? string.Empty : "\n";
-                                string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <#ffffff>(</color><color={Main.RoleColors.GetValueOrDefault(role, "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>";
+                                string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc is null || !pc ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <#ffffff>(</color><color={Main.RoleColors.GetValueOrDefault(role, "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>";
                                 resultText[item.Key] = text;
                                 first = false;
                             }
@@ -185,7 +186,7 @@ class HudManagerPatch
                             break;
                     }
 
-                    if (LowerInfoText == null)
+                    if (LowerInfoText is null || !LowerInfoText)
                     {
                         LowerInfoText = Object.Instantiate(__instance.KillButton.cooldownTimerText, __instance.transform, true);
                         LowerInfoText.alignment = TextAlignmentOptions.Center;
@@ -308,7 +309,14 @@ class ActionButtonSetFillUpPatch
     {
         if (__instance.isCoolingDown && timer is <= 90f and > 0f)
         {
-            var color = PlayerControl.LocalPlayer.IsShifted() ? Color.green : Color.white;
+            var roleType = PlayerControl.LocalPlayer.GetRoleTypes();
+            var usingAbility = roleType switch
+            {
+                RoleTypes.Engineer => PlayerControl.LocalPlayer.inVent || VentButtonDoClickPatch.Animating,
+                RoleTypes.Shapeshifter => PlayerControl.LocalPlayer.IsShifted(),
+                _ => false
+            };
+            var color = usingAbility ? Color.green : Color.white;
             __instance.cooldownTimerText.text = Utils.ColorString(color, Mathf.CeilToInt(timer).ToString());
             __instance.cooldownTimerText.gameObject.SetActive(true);
         }
@@ -568,9 +576,9 @@ class TaskPanelBehaviourPatch
                     var lpc = PlayerControl.LocalPlayer;
 
                     AllText += "\r\n";
-                    AllText += $"\r\n{GetString("PVP.ATK")}: {lpc.ATK()}";
-                    AllText += $"\r\n{GetString("PVP.DF")}: {lpc.DF()}";
-                    AllText += $"\r\n{GetString("PVP.RCO")}: {lpc.HPRECO()}";
+                    AllText += $"\r\n{GetString("PVP.ATK")}: {SoloKombatManager.PlayerATK[lpc.PlayerId]}";
+                    AllText += $"\r\n{GetString("PVP.DF")}: {SoloKombatManager.PlayerDF[lpc.PlayerId]}";
+                    AllText += $"\r\n{GetString("PVP.RCO")}: {SoloKombatManager.PlayerHPReco[lpc.PlayerId]}";
                     AllText += "\r\n";
 
                     Dictionary<byte, string> SummaryText = [];

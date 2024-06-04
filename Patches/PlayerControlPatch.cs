@@ -1583,7 +1583,7 @@ class FixedUpdatePatch
 
     public static void LoversSuicide(byte deathId = 0x7f, bool isExiled = false)
     {
-        if (!Options.LoverSuicide.GetBool() || Main.IsLoversDead || !Main.LoversPlayers.Any(player => player.Data.IsDead && player.PlayerId == deathId)) return;
+        if (!Lovers.LoverSuicide.GetBool() || Main.IsLoversDead || !Main.LoversPlayers.Any(player => player.Data.IsDead && player.PlayerId == deathId)) return;
 
         Main.IsLoversDead = true;
         var partnerPlayer = Main.LoversPlayers.First(player => player.PlayerId != deathId && !player.Data.IsDead);
