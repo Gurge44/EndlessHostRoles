@@ -2941,7 +2941,7 @@
   "EnigmaClueLevelTitle": "Подсказка Enigma'ы - Уровень!",
   "EnigmaClueFriendCodeTitle": "Подсказка Enigma'ы - Код Дружбы!",
   "EnigmaClueTitle": "Подсказка Enigma'ы!",
-  "GuesserSuicides": "Guessers Suicide When Trying to Guess Players With <#BAAAE9>Onbound</color>",
+  "GuesserSuicides": "Угадыватели умирают при попытке угадать <#BAAAE9>Onbound</color>",
   "PlagueDoctor": "Infection",
   "PlagueDoctorInfo": "Зарази всех!",
   "PlagueDoctorInfoLong": "(Нейтральный Убийца):\\n(Plague Doctor из мода TOH)\\nЦель Infection - заразить всех живых игроков.\\nОн выбирает одного игрока для заражения с помощью кнопки убийства, после чего игрок, который будет в радиусе зараженного игрока в течение X времени, станет зараженным и получит атрибут Infected.\\nПрогресс заражения не сбрасывается после собраний. Infected игроки находятся в одной команде.",
