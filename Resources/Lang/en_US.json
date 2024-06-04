@@ -2941,6 +2941,7 @@
   "EnigmaClueLevelTitle": "Enigma Level Clue!",
   "EnigmaClueFriendCodeTitle": "Enigma Friend Code Clue!",
   "EnigmaClueTitle": "Enigma Clue!",
+  "GuesserSuicides": "Guessers Suicide When Trying to Guess Players With <#BAAAE9>Onbound</color>",
   "PlagueDoctor": "Infection",
   "PlagueDoctorInfo": "Spread the infection!",
   "PlagueDoctorInfoLong": "(Neutrals):\\n(Plague Doctor from TOH)\\nThe Plague Doctor's goal is to infect every living player.\\nThey start by choosing one player to infect, after which anyone who spends a set\\namount of time in range of the infected player becomes infected themselves.\\nInfection progress is cumulative, and does not reset with distance or after meetings.",
