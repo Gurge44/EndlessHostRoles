@@ -273,7 +273,7 @@ internal class ModManagerLateUpdatePatch
 
     public static void Postfix(ModManager __instance)
     {
-        if (__instance.localCamera == null) __instance.localCamera = !DestroyableSingleton<HudManager>.InstanceExists ? Camera.main : DestroyableSingleton<HudManager>.Instance.GetComponentInChildren<Camera>();
+        __instance.localCamera = !DestroyableSingleton<HudManager>.InstanceExists ? Camera.main : DestroyableSingleton<HudManager>.Instance.GetComponentInChildren<Camera>();
         if (__instance.localCamera != null)
         {
             var offsetY = HudManager.InstanceExists ? 1.6f : 0.9f;

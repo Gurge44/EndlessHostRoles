@@ -8,7 +8,7 @@ namespace EHR.Roles.AddOns.Common
 
         public void SetupCustomOption()
         {
-            SetupAdtRoleOptions(15650, CustomRoles.Physicist);
+            SetupAdtRoleOptions(15650, CustomRoles.Physicist, canSetNum: true);
             PhysicistCD = new FloatOptionItem(15655, "VitalsCooldown", new(0, 180, 1), 20, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Physicist])
                 .SetValueFormat(OptionFormat.Seconds);

@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Roles.AddOns.Common;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
-using EHR.Roles.AddOns.Common;
 using HarmonyLib;
 
 namespace EHR.Modules;
@@ -85,6 +85,7 @@ internal static class CustomRoleSelector
         foreach (var id in Main.SetRoles.Keys.Where(id => Utils.GetPlayerById(id) == null).ToArray()) Main.SetRoles.Remove(id);
 
         (bool Spawning, bool OneIsImp) LoversData = (Lovers.LegacyLovers.GetBool(), rd.Next(100) < Lovers.LovingImpostorSpawnChance.GetInt());
+        LoversData.Spawning &= rd.Next(100) < Options.CustomAdtRoleSpawnRate[CustomRoles.Lovers].GetInt();
 
         foreach (var role in Enum.GetValues<CustomRoles>())
         {
@@ -92,7 +93,7 @@ internal static class CustomRoleSelector
             if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || (role != CustomRoles.Randomizer && role.IsCrewmate() && Options.AprilFoolsMode.GetBool()) || HnSManager.AllHnSRoles.Contains(role)) continue;
             switch (role)
             {
-                case CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor when !Lovers.LegacyLovers.GetBool():
+                case CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor when !LoversData.Spawning:
                 case CustomRoles.Commander when optImpNum <= 1 && Commander.CannotSpawnAsSoloImp.GetBool():
                 case CustomRoles.Changeling when Changeling.GetAvailableRoles(check: true).Count == 0:
                 case CustomRoles.Camouflager when Camouflager.DoesntSpawnOnFungle.GetBool() && Main.CurrentMap == MapNames.Fungle:
@@ -122,8 +123,6 @@ internal static class CustomRoleSelector
             else if (role.IsNonNK()) Roles[RoleAssignType.NonKillingNeutral].Add(info);
             else Roles[RoleAssignType.Crewmate].Add(info);
         }
-
-        LoversData.Spawning &= rd.Next(100) < Options.CustomAdtRoleSpawnRate[CustomRoles.Lovers].GetInt();
 
         if (LoversData.Spawning)
         {

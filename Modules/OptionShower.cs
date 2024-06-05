@@ -11,13 +11,20 @@ public static class OptionShower
     public static int CurrentPage;
     public static List<string> Pages = [];
 
+    private static long LastUpdate;
+
     static OptionShower()
     {
     }
 
     public static string GetTextNoFresh()
     {
-        if (Pages.Count < 3 || CurrentPage == 0) GetText();
+        if (Pages.Count < 3 || (CurrentPage == 0 && LastUpdate != Utils.TimeStamp))
+        {
+            GetText();
+            LastUpdate = Utils.TimeStamp;
+        }
+
         return $"{Pages[CurrentPage]}{GetString("PressTabToNextPage")}({CurrentPage + 1}/{Pages.Count})";
     }
 
@@ -67,7 +74,7 @@ public static class OptionShower
 
             foreach (var opt in OptionItem.AllOptions)
             {
-                if (opt.Id != 0 && !opt.IsHiddenOn(Options.CurrentGameMode) && opt.Parent == null && !opt.IsText)
+                if (opt.Id is >= 90000 and (< 600000 or > 700000) && !opt.IsHiddenOn(Options.CurrentGameMode) && opt.Parent == null && !opt.IsText)
                 {
                     if (opt.IsHeader) sb.Append('\n');
                     sb.Append($"{opt.GetName()}: {opt.GetString()}\n");

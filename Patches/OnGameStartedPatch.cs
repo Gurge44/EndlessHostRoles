@@ -323,8 +323,8 @@ internal class SelectRolesPatch
             BasisChangingAddons.Remove(CustomRoles.Nimble);
             BasisChangingAddons.Remove(CustomRoles.Physicist);
 
-            bool physicistSpawn = rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Physicist, out var option1) ? option1.GetFloat() : 0) && CustomRoles.Physicist.IsEnable();
-            bool nimbleSpawn = rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Nimble, out var option2) ? option2.GetFloat() : 0) && CustomRoles.Nimble.IsEnable();
+            bool physicistSpawn = rd.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Physicist, out var option1) ? option1.GetFloat() : 0) && CustomRoles.Physicist.IsEnable();
+            bool nimbleSpawn = rd.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Nimble, out var option2) ? option2.GetFloat() : 0) && CustomRoles.Nimble.IsEnable();
 
             if (Options.EveryoneCanVent.GetBool())
             {
@@ -375,7 +375,7 @@ internal class SelectRolesPatch
 
             if (physicistSpawn)
             {
-                if (nimbleSpawn) physicistList.ExceptWith(nimbleList);
+                if (nimbleSpawn) physicistList.ExceptWith(BasisChangingAddons[CustomRoles.Nimble]);
                 BasisChangingAddons[CustomRoles.Physicist] = physicistList.Shuffle().Take(CustomRoles.Physicist.GetCount()).ToList();
             }
 

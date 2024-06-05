@@ -86,6 +86,7 @@ class SetUpRoleTextPatch
 
                     foreach (CustomRoles subRole in Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SubRoles)
                     {
+                        if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && subRole == CustomRoles.Lovers) continue;
                         __instance.RoleBlurbText.text += "\n<size=30%>" + Utils.ColorString(Utils.GetRoleColor(subRole), GetString($"{subRole}Info"));
                     }
 
@@ -247,6 +248,7 @@ class BeginCrewmatePatch
         else if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
         {
             __instance.TeamTitle.text = GetString($"Team{role}");
+            if (role == CustomRoles.LovingImpostor) __instance.TeamTitle.text = $"<size=90%>{__instance.TeamTitle.text}</size>";
             __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
             PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(role.GetRoleTypes());
             __instance.ImpostorText.gameObject.SetActive(true);

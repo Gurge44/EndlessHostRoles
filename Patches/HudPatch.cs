@@ -168,7 +168,10 @@ class HudManagerPatch
                     __instance.ImpostorVentButton?.OverrideText(GetString("VentButtonText"));
                     __instance.SabotageButton?.OverrideText(GetString("SabotageButtonText"));
 
-                    __instance.AbilityButton?.OverrideText(GetString($"AbilityButtonText.{player.GetRoleTypes()}"));
+                    var roleTypes = player.GetRoleTypes();
+                    if (player.Is(CustomRoles.Nimble)) roleTypes = RoleTypes.Engineer;
+                    if (player.Is(CustomRoles.Physicist)) roleTypes = RoleTypes.Scientist;
+                    __instance.AbilityButton?.OverrideText(GetString($"AbilityButtonText.{roleTypes}"));
 
                     Main.PlayerStates[player.PlayerId].Role.SetButtonTexts(__instance, player.PlayerId);
 

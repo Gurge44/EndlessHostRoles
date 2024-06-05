@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Assets.CoreScripts;
 using EHR.Modules;
+using EHR.Roles.AddOns.Common;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
@@ -754,6 +755,8 @@ internal class ChatCommands
             goto Canceled;
         }
 
+        if ((PlayerControl.LocalPlayer.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting)) goto Canceled;
+
         goto Skip;
         Canceled:
         Main.IsChatCommand = false;
@@ -1372,6 +1375,17 @@ internal class ChatCommands
             canceled = true;
             LastSentCommand[player.PlayerId] = now;
             return;
+        }
+
+        if ((player.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting))
+        {
+            ChatManager.SendPreviousMessagesToAll();
+            canceled = true;
+            if (player.Is(CustomRoles.Lovers) || player.GetCustomRole() is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
+            {
+                var otherLover = Main.LoversPlayers.First(x => x.PlayerId != player.PlayerId);
+                LateTask.New(() => Utils.SendMessage(text, otherLover.PlayerId, player.GetRealName()), 0.5f, log: false);
+            }
         }
 
         if (isCommand) LastSentCommand[player.PlayerId] = now;

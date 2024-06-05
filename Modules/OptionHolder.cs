@@ -950,6 +950,9 @@ public static class Options
 
             foreach (var addonType in addonTypes)
             {
+                MainLoadingText = $"Building Add-on Settings ({addonType.Key})";
+                int index = 0;
+
                 new TextOptionItem(titleId, $"ROT.AddonType.{addonType.Key}", TabGroup.Addons)
                     .SetGameMode(CustomGameMode.Standard)
                     .SetColor(addonType.Key.GetAddonTypeColor())
@@ -958,6 +961,10 @@ public static class Options
 
                 foreach (var addon in addonType.Value)
                 {
+                    index++;
+                    RoleLoadingText = $"{addon.GetType().Name} ({index}/{addonType.Value.Length})";
+                    Log();
+
                     addon.SetupCustomOption();
                 }
             }
@@ -980,6 +987,9 @@ public static class Options
                         .SetHeader(true);
                     titleId += 10;
 
+                    RoleLoadingText = x.GetType().Name;
+                    Log();
+
                     x.SetupCustomOption();
                 });
 
@@ -996,13 +1006,6 @@ public static class Options
                 .Where(x => x.GetType().Name != "VanillaRole")
                 .GroupBy(x => ((CustomRoles)Enum.Parse(typeof(CustomRoles), ignoreCase: true, value: x.GetType().Name)).GetRoleOptionType())
                 .ToDictionary(x => x.Key, x => x.ToArray());
-
-
-            new TextOptionItem(titleId, "ROT.MadMates", TabGroup.ImpostorRoles)
-                .SetHeader(true)
-                .SetGameMode(CustomGameMode.Standard)
-                .SetColor(Palette.ImpostorRed);
-            titleId += 10;
 
             foreach (var roleClasses in roleClassesDict)
             {
@@ -1029,6 +1032,9 @@ public static class Options
 
                     foreach (ISettingHolder holder in value)
                     {
+                        RoleLoadingText = $"(Simple {key}) {holder.GetType().Name} (total: {value.Length})";
+                        Log();
+
                         holder.SetupCustomOption();
                     }
 
@@ -1046,6 +1052,7 @@ public static class Options
                     index++;
                     var type = roleClass.GetType();
                     RoleLoadingText = $"{index}/{allRoles} ({type.Name})";
+                    Log();
                     try
                     {
                         type.GetMethod("SetupCustomOption")?.Invoke(roleClass, null);
@@ -1055,7 +1062,18 @@ public static class Options
                         Logger.Exception(e, $"{MainLoadingText} - {RoleLoadingText}");
                     }
                 }
+
+                if (roleClasses.Key == RoleOptionType.Impostor)
+                {
+                    new TextOptionItem(titleId, "ROT.MadMates", TabGroup.ImpostorRoles)
+                        .SetHeader(true)
+                        .SetGameMode(CustomGameMode.Standard)
+                        .SetColor(Palette.ImpostorRed);
+                    titleId += 10;
+                }
             }
+
+            void Log() => Logger.Info(" " + RoleLoadingText, MainLoadingText);
         }
         catch (Exception ex)
         {

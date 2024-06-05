@@ -55,7 +55,7 @@ namespace EHR.Roles.Impostor
             Enum.GetValues<SimpleRoleOptionType>().Do(x =>
             {
                 TeamsCanSeeInfo[x] = new BooleanOptionItem(++id, "Sentry.TeamsCanSeeInfo." + x, true, TabGroup.CrewmateRoles)
-                    .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
+                    .SetParent(UsableDevicesForInfoView);
             });
             AbilityUseLimit = new IntegerOptionItem(++id, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);

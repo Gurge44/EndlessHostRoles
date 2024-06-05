@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using AmongUs.Data;
 using EHR.Roles.AddOns.Crewmate;
@@ -201,7 +202,7 @@ class ExileControllerWrapUpPatch
                         finalText = $"\n{notify.TEXT}\n{finalText}";
                     }
 
-                    if (appendEjectionNotify)
+                    if (appendEjectionNotify && !finalText.Contains(CheckForEndVotingPatch.EjectionText, StringComparison.OrdinalIgnoreCase))
                     {
                         finalText = $"\n<#ffffff>{CheckForEndVotingPatch.EjectionText}</color>\n{finalText}";
                     }

@@ -24,7 +24,7 @@ namespace EHR.Roles.Impostor
             int id = 649800;
             const TabGroup tab = TabGroup.ImpostorRoles;
             const CustomRoles role = CustomRoles.Abyssbringer;
-            Options.SetupRoleOptions(id++, tab, role, zeroOne: true);
+            Options.SetupRoleOptions(id++, tab, role);
             BlackHolePlaceCooldown = new IntegerOptionItem(++id, "BlackHolePlaceCooldown", new(1, 180, 1), 30, tab)
                 .SetParent(Options.CustomRoleSpawnChances[role])
                 .SetValueFormat(OptionFormat.Seconds);

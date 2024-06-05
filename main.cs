@@ -29,8 +29,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "3.4.0";
-    public const string PluginDisplayVersion = "3.4.0";
+    public const string PluginVersion = "3.5.0";
+    public const string PluginDisplayVersion = "3.5.0";
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
     public const string CrewmateColor = "#8cffff";
@@ -46,8 +46,6 @@ public class Main : BasePlugin
     public static readonly Version Version = Version.Parse(PluginVersion);
     public static ManualLogSource Logger;
     public static bool HasArgumentException;
-    public static string ExceptionMessage;
-    public static bool ExceptionMessageIsShown;
     public static string CredentialsText;
 
     public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
@@ -280,7 +278,6 @@ public class Main : BasePlugin
         LastShapeshifterCooldown = Config.Bind("Other", "LastShapeshifterCooldown", (float)30);
 
         HasArgumentException = false;
-        ExceptionMessage = string.Empty;
         try
         {
             RoleColors = new()
@@ -602,8 +599,6 @@ public class Main : BasePlugin
             EHR.Logger.Error("错误：字典出现重复项", "LoadDictionary");
             EHR.Logger.Exception(ex, "LoadDictionary");
             HasArgumentException = true;
-            ExceptionMessage = ex.Message;
-            ExceptionMessageIsShown = false;
         }
         catch (Exception ex)
         {
