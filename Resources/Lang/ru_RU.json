@@ -1353,7 +1353,7 @@
   "NumberOfLovers": "Количество пар у <color=#ff9ace>Lovers</color> (x2 участника)",
   "LoverKnowRoles": "<color=#ff9ace>Lovers</color> знают роли друг друга",
   "LegacyLovers": "Легаси Lovers",
-  "LovingImpostorSpawnChance": "Шанс на <color=#ff9ace>Loving Impostor</color>",
+  "LovingImpostorSpawnChance": "Шанс на <color=#ff9ace>Loving</color> <#ff1919>Impostor</color>",
   "PrivateChat": "У Lovers есть приватный чат <#ffff00>(ЭКСПЕРИМЕНТАЛЬНО)</color>",
   "GuessAbility": "''Lovers'' можно угадать",
   "Untouched": "Untouched",
