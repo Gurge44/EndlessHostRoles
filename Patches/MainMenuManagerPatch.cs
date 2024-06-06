@@ -10,11 +10,11 @@ namespace EHR;
 [HarmonyPatch]
 public class MainMenuManagerPatch
 {
-    public static GameObject template;
+    public static GameObject Template;
 
     //public static GameObject qqButton;
     //public static GameObject discordButton;
-    public static GameObject updateButton;
+    public static GameObject UpdateButton;
 
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.LateUpdate)), HarmonyPostfix]
     public static void Postfix(MainMenuManager __instance)
@@ -35,8 +35,8 @@ public class MainMenuManagerPatch
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPrefix]
     public static void Start_Prefix(MainMenuManager __instance)
     {
-        if (template == null) template = GameObject.Find("/MainUI/ExitGameButton");
-        if (template == null) return;
+        if (Template == null) Template = GameObject.Find("/MainUI/ExitGameButton");
+        if (Template == null) return;
 
         //if (CultureInfo.CurrentCulture.Name == "zh-CN")
         //{
@@ -75,25 +75,25 @@ public class MainMenuManagerPatch
         //    discordButton.gameObject.SetActive(Main.ShowDiscordButton && !Main.IsAprilFools);
         //}
 
-        if (updateButton == null) updateButton = Object.Instantiate(template, template.transform.parent);
-        updateButton.name = "UpdateButton";
-        updateButton.transform.position = template.transform.position + new Vector3(0.25f, 0.75f);
-        updateButton.transform.GetChild(0).GetComponent<RectTransform>().localScale *= 1.5f;
+        if (UpdateButton == null) UpdateButton = Object.Instantiate(Template, Template.transform.parent);
+        UpdateButton.name = "UpdateButton";
+        UpdateButton.transform.position = Template.transform.position + new Vector3(0.25f, 0.75f);
+        UpdateButton.transform.GetChild(0).GetComponent<RectTransform>().localScale *= 1.5f;
 
-        var updateText = updateButton.transform.GetChild(0).GetComponent<TMP_Text>();
+        var updateText = UpdateButton.transform.GetChild(0).GetComponent<TMP_Text>();
         Color updateColor = new Color32(247, 56, 23, byte.MaxValue);
-        PassiveButton updatePassiveButton = updateButton.GetComponent<PassiveButton>();
-        SpriteRenderer updateButtonSprite = updateButton.GetComponent<SpriteRenderer>();
+        PassiveButton updatePassiveButton = UpdateButton.GetComponent<PassiveButton>();
+        SpriteRenderer updateButtonSprite = UpdateButton.GetComponent<SpriteRenderer>();
         updatePassiveButton.OnClick = new();
         updatePassiveButton.OnClick.AddListener((Action)(() =>
         {
-            updateButton.SetActive(false);
+            UpdateButton.SetActive(false);
             ModUpdater.StartUpdate(ModUpdater.downloadUrl, true);
         }));
         updatePassiveButton.OnMouseOut.AddListener((Action)(() => updateButtonSprite.color = updateText.color = updateColor));
         updateButtonSprite.color = updateText.color = updateColor;
         updateButtonSprite.size *= 1.5f;
-        updateButton.gameObject.SetActive(ModUpdater.hasUpdate);
+        UpdateButton.gameObject.SetActive(ModUpdater.hasUpdate);
 
 #if RELEASE
         var freeplayButton = GameObject.Find("/MainUI/FreePlayButton");

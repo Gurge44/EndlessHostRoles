@@ -30,7 +30,6 @@ class HudManagerPatch
         if (__instance.taskDirtyTimer <= 0.25) return false;
         __instance.taskDirtyTimer = 0.0f;
         __instance.TaskPanel?.SetTaskText(string.Empty);
-
         return false;
     }
 
