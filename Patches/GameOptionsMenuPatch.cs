@@ -309,11 +309,11 @@ public class StringOptionEnablePatch
         __instance.OnValueChanged = new Action<OptionBehaviour>(_ => { });
         __instance.TitleText.text = option.GetName();
         if (option.Id == Options.UsePets.Id) LoadLangs();
-        else if (!Options.UsePets.GetBool() && CustomRolesHelper.OnlySpawnsWithPetsRoleList.Any(role => role.ToString().Equals(option.GetName().RemoveHtmlTags().Replace(" ", string.Empty))))
+        else if (!Options.UsePets.GetBool() && CustomRolesHelper.OnlySpawnsWithPetsRoleList.Any(role => GetString(role.ToString()).RemoveHtmlTags().Equals(option.GetName().RemoveHtmlTags())))
             __instance.TitleText.text += GetString("RequiresPetIndicator");
-        else if (Options.UsePets.GetBool() && Enum.TryParse(option.GetName().RemoveHtmlTags().Replace(" ", string.Empty), true, out CustomRoles petRole) && petRole.PetActivatedAbility())
+        else if (Options.UsePets.GetBool() && Enum.TryParse(option.Name, true, out CustomRoles petRole) && petRole.PetActivatedAbility())
             __instance.TitleText.text += GetString("SupportsPetIndicator");
-        if (CustomRolesHelper.ExperimentalRoleList.Any(role => role.ToString().Equals(option.GetName().RemoveHtmlTags().Replace(" ", string.Empty))))
+        if (CustomRolesHelper.ExperimentalRoleList.Any(role => GetString(role.ToString()).RemoveHtmlTags().Equals(option.GetName().RemoveHtmlTags())))
             __instance.TitleText.text += GetString("ExperimentalRoleIndicator");
         __instance.Value = __instance.oldValue = option.CurrentValue;
         __instance.ValueText.text = option.GetString();
@@ -330,7 +330,7 @@ public class StringOptionIncreasePatch
         var option = OptionItem.AllOptions.FirstOrDefault(opt => opt.OptionBehaviour == __instance);
         if (option == null) return true;
 
-        option.SetValue(option.CurrentValue + (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) ? 5 : 1));
+        option.SetValue(option.CurrentValue + (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) ? 5 : (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) ? 10 : 1)));
         return false;
     }
 
@@ -345,7 +345,7 @@ public class StringOptionDecreasePatch
         var option = OptionItem.AllOptions.FirstOrDefault(opt => opt.OptionBehaviour == __instance);
         if (option == null) return true;
 
-        option.SetValue(option.CurrentValue - (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) ? 5 : 1));
+        option.SetValue(option.CurrentValue - (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) ? 5 : (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) ? 10 : 1)));
         return false;
     }
 

@@ -21,11 +21,8 @@ class SetUpRoleTextPatch
         if (!GameStates.IsModHost) return;
 
         // After showing team for non-modded clients update player names.
-        LateTask.New(() =>
-        {
-            IsInIntro = false;
-            Utils.NotifyRoles(NoCache: true);
-        }, 1f);
+        IsInIntro = false;
+        Utils.NotifyRoles(NoCache: true);
 
         LateTask.New(() =>
         {
@@ -193,11 +190,11 @@ class BeginCrewmatePatch
         {
             teamToDisplay = new();
             teamToDisplay.Add(PlayerControl.LocalPlayer);
-            teamToDisplay.Add(Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId));
+            teamToDisplay.Add(Main.LoversPlayers.FirstOrDefault(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId));
         }
         else if (PlayerControl.LocalPlayer.GetCustomRole() == CustomRoles.LovingImpostor)
         {
-            teamToDisplay.Add(Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId));
+            teamToDisplay.Add(Main.LoversPlayers.FirstOrDefault(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId));
         }
 
         if (CustomTeamManager.EnabledCustomTeams.Count > 0)

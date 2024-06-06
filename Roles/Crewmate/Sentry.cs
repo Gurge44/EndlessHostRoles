@@ -32,6 +32,8 @@ namespace EHR.Roles.Impostor
         public PlainShipRoom MonitoredRoom;
 
         private PlayerControl SentryPC;
+
+        private HashSet<byte> UsingDevice = [];
         public override bool IsEnable => On;
 
         public static void SetupCustomOption()
@@ -72,6 +74,7 @@ namespace EHR.Roles.Impostor
             MonitoredRoom = null;
             DeadBodiesInRoom = [];
             playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
+            UsingDevice = [];
         }
 
         public override void Init()
@@ -129,9 +132,13 @@ namespace EHR.Roles.Impostor
         {
             if (CannotSeeInfoDuringComms.GetBool() && Utils.IsActive(SystemTypes.Comms)) return;
 
-            if (pc.GetAbilityUseLimit() < 1) return;
-            pc.RpcRemoveAbilityUse();
+            if (pc.Is(CustomRoles.Sentry))
+            {
+                if (pc.GetAbilityUseLimit() < 1) return;
+                pc.RpcRemoveAbilityUse();
+            }
 
+            var roomName = Translator.GetString(MonitoredRoom.RoomId.ToString());
             var players = Main.AllAlivePlayerControls.Where(IsInMonitoredRoom).Select(x => Utils.GetPlayerById(x.shapeshiftTargetPlayerId) ?? x).Select(x => Utils.ColorString(Main.PlayerColors[x.PlayerId], x.GetRealName())).Join();
             var bodies = GetColoredNames(DeadBodiesInRoom);
 
@@ -139,7 +146,7 @@ namespace EHR.Roles.Impostor
             if (players.Length == 0) players = noDataString;
             if (bodies.Length == 0) bodies = noDataString;
 
-            pc.Notify(string.Format(Translator.GetString("Sentry.Notify.Info"), players, bodies), ShowInfoDuration.GetInt());
+            pc.Notify(string.Format(Translator.GetString("Sentry.Notify.Info"), roomName, players, bodies), ShowInfoDuration.GetInt());
             return;
 
             static string GetColoredNames(IEnumerable<byte> ids) => ids.Where(x => Utils.GetPlayerById(x) != null).Select(x => Utils.ColorString(Main.PlayerColors[x], Utils.GetPlayerById(x).GetRealName())).Join();
@@ -251,21 +258,28 @@ namespace EHR.Roles.Impostor
 
         public override void OnCheckPlayerPosition(PlayerControl pc)
         {
-            var usableDevices = (UsableDevicesStrings)UsableDevicesForInfoView.GetValue();
-            var additionalDevices = (AdditionalDevicesStrings)AdditionalDevicesForInfoView.GetValue();
-
-            if (usableDevices == UsableDevicesStrings.None) return;
-
+            if (MonitoredRoom == null || MonitoredRoom == default || MonitoredRoom == default(PlainShipRoom)) return;
             if (LastInfoSend.TryGetValue(pc.PlayerId, out var ts) && ts == Utils.TimeStamp) return;
             LastInfoSend[pc.PlayerId] = Utils.TimeStamp;
 
             if (!CheckTeam(pc)) return;
 
             var pos = pc.Pos();
-            var range = DisableDevice.UsableDistance();
-            if (!AvailableDevices.Any(x => Vector2.Distance(pos, x) <= range)) return;
+            var range = DisableDevice.UsableDeviceDistance - 1f;
+            if (!AvailableDevices.Any(x => Vector2.Distance(pos, x) <= range))
+            {
+                if (UsingDevice.Contains(pc.PlayerId))
+                {
+                    NameNotifyManager.Notice.Remove(pc.PlayerId);
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                    UsingDevice.Remove(pc.PlayerId);
+                }
+
+                return;
+            }
 
             DisplayRoomInfo(pc);
+            UsingDevice.Add(pc.PlayerId);
         }
 
         static bool CheckTeam(PlayerControl pc)

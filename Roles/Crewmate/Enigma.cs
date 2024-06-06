@@ -8,7 +8,7 @@ namespace EHR.Roles.Crewmate
     public class Enigma : RoleBase
     {
         private const int Id = 8460;
-        private static List<byte> playerIdList = [];
+        public static List<byte> playerIdList = [];
         private static Dictionary<byte, List<EnigmaClue>> ShownClues = [];
 
         public static OptionItem EnigmaClueStage1Tasks;

@@ -142,7 +142,8 @@ internal class TitleLogoPatch
             __instance.playButton.transform.gameObject.SetActive(false);
         }
 
-        if ((Ambience = GameObject.Find("Ambience")) != null)
+        Ambience = GameObject.Find("Ambience");
+        if (Ambience != null)
         {
             try
             {

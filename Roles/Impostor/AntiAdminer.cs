@@ -133,7 +133,7 @@ internal class AntiAdminer : RoleBase
 
         PlayersNearDevices = [];
         bool Admin = false, Camera = false, DoorLog = false, Vital = false;
-        float usableDistance = DisableDevice.UsableDistance();
+        float usableDistance = DisableDevice.UsableDeviceDistance;
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
             if (Pelican.IsEaten(pc.PlayerId) || pc.inVent || pc.GetCustomRole().IsImpostor()) continue;

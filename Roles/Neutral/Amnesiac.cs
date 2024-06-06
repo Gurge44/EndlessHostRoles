@@ -58,7 +58,6 @@ public class Amnesiac : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(1);
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -93,8 +92,6 @@ public class Amnesiac : RoleBase
 
     public static void RememberRole(PlayerControl killer, PlayerControl target)
     {
-        if (killer.GetAbilityUseLimit() < 1) return;
-
         CustomRoles? RememberedRole = null;
         string killerNotifyString = string.Empty;
 
@@ -148,8 +145,6 @@ public class Amnesiac : RoleBase
         }
 
         var role = (CustomRoles)RememberedRole;
-
-        killer.RpcRemoveAbilityUse();
 
         killer.RpcSetCustomRole(role);
 

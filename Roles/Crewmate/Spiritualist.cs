@@ -9,7 +9,7 @@ namespace EHR.Roles.Crewmate
     {
         private const int Id = 8100;
 
-        private static List<byte> playerIdList = [];
+        public static List<byte> playerIdList = [];
 
         public static OptionItem ShowGhostArrowEverySeconds;
         public static OptionItem ShowGhostArrowForSeconds;

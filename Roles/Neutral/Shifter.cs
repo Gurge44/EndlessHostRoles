@@ -3,6 +3,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Patches;
+using EHR.Roles.Crewmate;
 
 namespace EHR.Neutral
 {
@@ -68,7 +69,24 @@ namespace EHR.Neutral
         {
             if (!base.OnCheckMurder(killer, target)) return false;
 
-            killer.RpcSetCustomRole(target.GetCustomRole());
+            var targetRole = target.GetCustomRole();
+            switch (targetRole)
+            {
+                case CustomRoles.Enigma:
+                    Enigma.playerIdList.Remove(target.PlayerId);
+                    break;
+                case CustomRoles.Mediumshiper:
+                    Mediumshiper.playerIdList.Remove(target.PlayerId);
+                    break;
+                case CustomRoles.Mortician:
+                    Mortician.playerIdList.Remove(target.PlayerId);
+                    break;
+                case CustomRoles.Spiritualist:
+                    Spiritualist.playerIdList.Remove(target.PlayerId);
+                    break;
+            }
+
+            killer.RpcSetCustomRole(targetRole);
             if (TryChangeBasis.GetBool())
                 killer.ChangeRoleBasis(target.GetRoleTypes());
 

@@ -24,13 +24,6 @@ public class Jackal : RoleBase
     public static OptionItem CanVentSK;
     public static OptionItem CanSabotageSK;
 
-    public static readonly string[] SidekickAssignModeStrings =
-    [
-        "SidekickAssignMode.SidekickAndRecruit",
-        "SidekickAssignMode.Sidekick",
-        "SidekickAssignMode.Recruit"
-    ];
-
     public static bool On;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
@@ -56,19 +49,21 @@ public class Jackal : RoleBase
             .SetValueFormat(OptionFormat.Seconds);
         JackalCanKillSidekick = new BooleanOptionItem(Id + 15, "JackalCanKillSidekick", false, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
+        var SKOpts = new BooleanOptionItem(Id + 17, "SidekickSettings", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
         KillCooldownSK = new FloatOptionItem(Id + 20, "KillCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal])
+            .SetParent(SKOpts)
             .SetValueFormat(OptionFormat.Seconds);
         CanVentSK = new BooleanOptionItem(Id + 21, "CanVent", true, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
+            .SetParent(SKOpts);
         CanSabotageSK = new BooleanOptionItem(Id + 22, "CanSabotage", true, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
+            .SetParent(SKOpts);
         SidekickCanKillJackal = new BooleanOptionItem(Id + 23, "SidekickCanKillJackal", false, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
+            .SetParent(SKOpts);
         SidekickCanKillSidekick = new BooleanOptionItem(Id + 24, "SidekickCanKillSidekick", false, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
+            .SetParent(SKOpts);
         SidekickCountMode = new StringOptionItem(Id + 25, "SidekickCountMode", Options.SidekickCountMode, 0, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
+            .SetParent(SKOpts);
     }
 
     public override void Init()
@@ -134,10 +129,19 @@ public class Jackal : RoleBase
         return false;
     }
 
-    public static bool CanBeSidekick(PlayerControl pc, out bool needBasisChange, out RoleTypes targetRoleType)
+    private static bool CanBeSidekick(PlayerControl pc, out bool needBasisChange, out RoleTypes targetRoleType)
     {
         targetRoleType = pc.GetRoleTypes();
         needBasisChange = targetRoleType is not RoleTypes.Impostor and not RoleTypes.Shapeshifter;
         return pc != null && !pc.Is(CustomRoles.Sidekick) && !pc.Is(CustomRoles.Recruit) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Rascal) && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Contagious) && pc.GetCustomRole().IsAbleToBeSidekicked();
+    }
+
+    public override void OnFixedUpdate(PlayerControl pc)
+    {
+        if (pc.IsAlive()) return;
+        var sk = Main.AllPlayerControls.FirstOrDefault(x => x.Is(CustomRoles.Sidekick));
+        if (sk == null) return;
+        sk.RpcSetCustomRole(CustomRoles.Jackal);
+        sk.SetAbilityUseLimit(0);
     }
 }

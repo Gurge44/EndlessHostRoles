@@ -576,6 +576,7 @@ public static class GuessManager
     public static void RpcGuesserMurderPlayer(this PlayerControl pc /*, float delay = 0f*/)
     {
         // DEATH STUFF //
+        GameEndChecker.ShouldNotCheck = true;
         var amOwner = pc.AmOwner;
         pc.Data.IsDead = true;
         pc.RpcExileV2();
@@ -615,6 +616,8 @@ public static class GuessManager
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.GuessKill, SendOption.Reliable);
         writer.Write(pc.PlayerId);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
+
+        GameEndChecker.ShouldNotCheck = false;
     }
 
     public static void RpcClientGuess(PlayerControl pc)

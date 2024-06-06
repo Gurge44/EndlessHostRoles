@@ -24,6 +24,7 @@ internal class ChangeRoleSettings
     public static void Postfix(AmongUsClient __instance)
     {
         SetUpRoleTextPatch.IsInIntro = true;
+        Utils.NotifyRoles(NoCache: true);
 
         Main.OverrideWelcomeMsg = string.Empty;
         try

@@ -157,6 +157,8 @@ public class PlayerState(byte playerId)
                 countTypes = CountTypes.Bloodlust;
                 break;
             case CustomRoles.Madmate:
+                TaskState.hasTasks = false;
+                TaskState.AllTasksCount = 0;
                 countTypes = Options.MadmateCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,
@@ -172,6 +174,8 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Undead);
                 break;
             case CustomRoles.Charmed:
+                TaskState.hasTasks = false;
+                TaskState.AllTasksCount = 0;
                 countTypes = Succubus.CharmedCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,
@@ -187,6 +191,8 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Undead);
                 break;
             case CustomRoles.Undead:
+                TaskState.hasTasks = false;
+                TaskState.AllTasksCount = 0;
                 countTypes = Necromancer.UndeadCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,
@@ -205,6 +211,8 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Mare);
                 break;
             case CustomRoles.Recruit:
+                TaskState.hasTasks = false;
+                TaskState.AllTasksCount = 0;
                 countTypes = Jackal.SidekickCountMode.GetInt() switch
                 {
                     0 => CountTypes.Jackal,
@@ -221,6 +229,8 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Undead);
                 break;
             case CustomRoles.Contagious:
+                TaskState.hasTasks = false;
+                TaskState.AllTasksCount = 0;
                 countTypes = Virus.ContagiousCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,
@@ -258,6 +268,7 @@ public class PlayerState(byte playerId)
         if (AmongUsClient.Instance.AmHost)
         {
             RPC.SendDeathReason(PlayerId, deathReason);
+            Utils.CheckAndSpawnAdditionalRefugee(Utils.GetPlayerInfoById(PlayerId));
         }
     }
 

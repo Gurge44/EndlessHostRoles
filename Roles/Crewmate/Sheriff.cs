@@ -113,8 +113,6 @@ public class Sheriff : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        killer.RpcRemoveAbilityUse();
-        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : Number of kills left: {killer.GetAbilityUseLimit()}", "Sheriff");
         if (CanBeKilledBySheriff(target)
             || (killer.Is(CustomRoles.Recruit) && SidekickSheriffCanGoBerserk.GetBool())
             || (SetNonCrewCanKill.GetBool() &&
@@ -133,6 +131,12 @@ public class Sheriff : RoleBase
 
         killer.Suicide(PlayerState.DeathReason.Misfire);
         return MisfireKillsTarget.GetBool();
+    }
+
+    public override void OnMurder(PlayerControl killer, PlayerControl target)
+    {
+        killer.RpcRemoveAbilityUse();
+        Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : Number of kills left: {killer.GetAbilityUseLimit()}", "Sheriff");
     }
 
     public static bool CanBeKilledBySheriff(PlayerControl player)

@@ -7,7 +7,7 @@ namespace EHR.Roles.Crewmate;
 public class Mortician : RoleBase
 {
     private const int Id = 7400;
-    private static List<byte> playerIdList = [];
+    public static List<byte> playerIdList = [];
 
     private static OptionItem ShowArrows;
 

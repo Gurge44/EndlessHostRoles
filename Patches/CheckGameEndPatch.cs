@@ -23,12 +23,13 @@ class GameEndChecker
 {
     private const float EndGameDelay = 0.2f;
     private static GameEndPredicate Predicate;
+    public static bool ShouldNotCheck = false;
 
     public static bool Prefix()
     {
         if (!AmongUsClient.Instance.AmHost) return true;
 
-        if (Predicate == null) return false;
+        if (Predicate == null || ShouldNotCheck) return false;
 
         if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return false;
 

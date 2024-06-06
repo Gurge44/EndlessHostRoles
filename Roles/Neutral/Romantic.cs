@@ -32,7 +32,9 @@ public class Romantic : RoleBase
     private static readonly Dictionary<CustomRoles, CustomRoles> ConvertingRolesAndAddons = new()
     {
         [CustomRoles.Jackal] = CustomRoles.Sidekick,
-        [CustomRoles.Virus] = CustomRoles.Contagious
+        [CustomRoles.Virus] = CustomRoles.Contagious,
+        [CustomRoles.Deathknight] = CustomRoles.Undead,
+        [CustomRoles.Necromancer] = CustomRoles.Undead
     };
 
     public static bool HasPickedPartner => PartnerId != byte.MaxValue;
@@ -71,6 +73,9 @@ public class Romantic : RoleBase
     {
         RomanticId = playerId;
         RomanticPC = Utils.GetPlayerById(playerId);
+        PartnerId = byte.MaxValue;
+        Partner = null;
+        IsPartnerProtected = false;
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
