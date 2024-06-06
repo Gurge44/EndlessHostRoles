@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AmongUs.Data;
 using AmongUs.GameOptions;
+using Assets.CoreScripts;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR.Modules;
 using EHR.Patches;
 using EHR.Roles.AddOns.Common;
@@ -13,18 +16,119 @@ using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
+using InnerNet;
+using UnityEngine;
 using static EHR.Modules.CustomRoleSelector;
 using static EHR.Translator;
+using DateTime = Il2CppSystem.DateTime;
+using Object = UnityEngine.Object;
 
 namespace EHR;
 
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CoStartGame))]
 internal class ChangeRoleSettings
 {
+    public static bool Prefix(AmongUsClient __instance)
+    {
+        __instance.StartCoroutine(CSG().WrapToIl2Cpp());
+        return false;
+
+        IEnumerator<object> CSG()
+        {
+            AmongUsClient amongUsClient = __instance;
+            if (DestroyableSingleton<HudManager>.Instance.GameMenu.IsOpen)
+                DestroyableSingleton<HudManager>.Instance.GameMenu.Close();
+            DestroyableSingleton<UnityTelemetry>.Instance.Init();
+            amongUsClient.logger.Info("Received game start: " + amongUsClient.AmHost);
+            yield return null;
+            while (!DestroyableSingleton<HudManager>.InstanceExists)
+                yield return null;
+            while (PlayerControl.LocalPlayer == null)
+                yield return null;
+            PlayerControl.LocalPlayer.moveable = false;
+            PlayerControl.LocalPlayer.MyPhysics.inputHandler.enabled = true;
+            PlayerCustomizationMenu objectOfType1 = Object.FindObjectOfType<PlayerCustomizationMenu>();
+            if (objectOfType1)
+                objectOfType1.Close(false);
+            GameSettingMenu objectOfType2 = Object.FindObjectOfType<GameSettingMenu>();
+            if (objectOfType2)
+                objectOfType2.Close();
+            if (DestroyableSingleton<GameStartManager>.InstanceExists)
+            {
+                // amongUsClient.DisconnectHandlers.Remove((IDisconnectHandler) DestroyableSingleton<GameStartManager>.Instance);
+                Object.Destroy(DestroyableSingleton<GameStartManager>.Instance.gameObject);
+            }
+
+            if (DestroyableSingleton<DiscordManager>.InstanceExists)
+                DestroyableSingleton<DiscordManager>.Instance.SetPlayingGame();
+            if (!string.IsNullOrEmpty(DataManager.Player.Store.ActiveCosmicube))
+            {
+                AmongUsClient.Instance.SetActivePodType(DestroyableSingleton<CosmicubeManager>.Instance.GetCubeDataByID(DataManager.Player.Store.ActiveCosmicube).podId);
+            }
+            else
+            {
+                PlayerStorageManager.CloudPlayerPrefs playerPrefs = DestroyableSingleton<PlayerStorageManager>.Instance.PlayerPrefs;
+                AmongUsClient.Instance.SetActivePodType(playerPrefs.ActivePodType);
+            }
+
+            DestroyableSingleton<FriendsListManager>.Instance.ConfirmationScreen.Cancel();
+            DestroyableSingleton<FriendsListManager>.Instance.Ui.Close(true);
+            DestroyableSingleton<FriendsListManager>.Instance.ReparentUI();
+            // CosmeticsCache.ClearUnusedCosmetics();
+            yield return DestroyableSingleton<HudManager>.Instance.CoFadeFullScreen(Color.clear, Color.black, showLoader: true);
+            while (!GameData.Instance)
+                yield return null;
+            ++StatsManager.Instance.BanPoints;
+            StatsManager.Instance.LastGameStarted = DateTime.UtcNow;
+            if (amongUsClient.AmHost)
+            {
+                GameData.Instance.SetDirty();
+                yield return amongUsClient.CoStartGameHost();
+            }
+            else
+            {
+                yield return amongUsClient.CoStartGameClient();
+                if (amongUsClient.AmHost)
+                    yield return amongUsClient.CoStartGameHost();
+            }
+
+            for (int index = 0; index < GameData.Instance.PlayerCount; ++index)
+            {
+                PlayerControl player = GameData.Instance.AllPlayers.ToArray()[index].Object;
+                if (player != null)
+                {
+                    player.moveable = true;
+                    player.NetTransform.enabled = true;
+                    player.MyPhysics.enabled = true;
+                    player.MyPhysics.Awake();
+                    player.MyPhysics.ResetMoveState();
+                    player.Collider.enabled = true;
+                    ShipStatus.Instance.SpawnPlayer(player, GameData.Instance.PlayerCount, true);
+                }
+            }
+
+            DestroyableSingleton<FriendsListManager>.Instance.SetRecentlyPlayed(GameData.Instance.AllPlayers);
+            TempData.TimeGameStarted = Time.realtimeSinceStartup;
+            int map = Mathf.Clamp(GameOptionsManager.Instance.CurrentGameOptions.MapId, 0, Constants.MapNames.Length - 1);
+            string gameName = GameCode.IntToGameName(AmongUsClient.Instance.GameId);
+            DestroyableSingleton<DebugAnalytics>.Instance.Analytics.StartGame(PlayerControl.LocalPlayer.Data, GameData.Instance.PlayerCount, GameOptionsManager.Instance.CurrentGameOptions.NumImpostors, AmongUsClient.Instance.NetworkMode, (MapNames)map, GameOptionsManager.Instance.CurrentGameOptions.GameMode, gameName, DestroyableSingleton<ServerManager>.Instance.CurrentRegion.Name, GameOptionsManager.Instance.CurrentGameOptions, GameData.Instance.AllPlayers);
+            try
+            {
+                DestroyableSingleton<UnityTelemetry>.Instance.StartGame(AmongUsClient.Instance.AmHost, GameData.Instance.PlayerCount, GameOptionsManager.Instance.CurrentGameOptions.NumImpostors, AmongUsClient.Instance.NetworkMode, StatsManager.Instance.GetStat(StringNames.StatsGamesImpostor), StatsManager.Instance.GetStat(StringNames.StatsGamesStarted), StatsManager.Instance.GetStat(StringNames.StatsCrewmateStreak));
+                GameData.PlayerOutfit defaultOutfit = PlayerControl.LocalPlayer.Data.DefaultOutfit;
+                DestroyableSingleton<UnityTelemetry>.Instance.StartGameCosmetics(defaultOutfit.ColorId, defaultOutfit.HatId, defaultOutfit.SkinId, defaultOutfit.PetId, defaultOutfit.VisorId, defaultOutfit.NamePlateId);
+            }
+            catch
+            {
+            }
+
+            GameDebugCommands.AddCommands();
+        }
+    }
+
     public static void Postfix(AmongUsClient __instance)
     {
         SetUpRoleTextPatch.IsInIntro = true;
-        Utils.DoNotifyRoles(NoCache: true);
 
         Main.OverrideWelcomeMsg = string.Empty;
         try
