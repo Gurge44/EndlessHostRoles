@@ -4036,7 +4036,7 @@
   "TM.ToiletVisibility": "Режим видимости свалки для остальных игроков после создания",
   "TM.ToiletUseRadius": "Радиус использования свалки",
   "TM.ToiletUseTime": "Длительность использования свалки",
-  "TM.ToiletMaxUses": "Max Toilet Uses",
+  "TM.ToiletMaxUses": "Макс. использований свалок",
   "TM.BrownPoopSpeedBoost": "Ускорение от коричневого мусора",
   "TM.GreenPoopRadius": "Радиус зелёного мусора",
   "TM.RedPoopRadius": "Радиус красного мусора",
