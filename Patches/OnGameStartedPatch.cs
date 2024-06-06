@@ -30,6 +30,8 @@ internal class ChangeRoleSettings
 {
     public static bool Prefix(AmongUsClient __instance)
     {
+        if (!GameStates.IsLocalGame) return true;
+
         __instance.StartCoroutine(CSG().WrapToIl2Cpp());
         return false;
 
