@@ -4034,6 +4034,7 @@
   "TM.ToiletVisibility": "Toilet Visibility Mode For Other Players After Placing",
   "TM.ToiletUseRadius": "Toilet Use Radius",
   "TM.ToiletUseTime": "Toilet Use Time",
+  "TM.ToiletMaxUses": "Max Toilet Uses",
   "TM.BrownPoopSpeedBoost": "Brown Poop Speed Boost",
   "TM.GreenPoopRadius": "Green Poop Radius",
   "TM.RedPoopRadius": "Red Poop Radius",
