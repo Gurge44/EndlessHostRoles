@@ -4036,6 +4036,7 @@
   "TM.ToiletVisibility": "Modo de visibilidade dos banheiros para outros jogadores após a construção",
   "TM.ToiletUseRadius": "Raio de Uso do Banheiro",
   "TM.ToiletUseTime": "Tempo de uso do banheiro",
+  "TM.ToiletMaxUses": "Max Toilet Uses",
   "TM.BrownPoopSpeedBoost": "Impulso de velocidade do cocô marrom",
   "TM.GreenPoopRadius": "Alcance do cocô verde",
   "TM.RedPoopRadius": "Alcance do cocô vermelho",
