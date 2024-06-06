@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using EHR.Roles.Neutral;
 using HarmonyLib;
 using InnerNet;
@@ -249,6 +250,9 @@ public class GameStartManagerPatch
                 int seconds = (int)Timer % 60;
                 string suffix = $" ({minutes:00}:{seconds:00})";
                 if (Timer <= 60) suffix = Utils.ColorString(Color.red, suffix);
+
+                if (Mathf.Approximately(Timer, 60f) && AmongUsClient.Instance.AmHost)
+                    PlayerControl.LocalPlayer.ShowPopUp(GetString("Warning.OneMinuteLeft"));
 
                 __instance.PlayerCounter.text = currentText + suffix;
                 __instance.PlayerCounter.autoSizeTextContainer = true;

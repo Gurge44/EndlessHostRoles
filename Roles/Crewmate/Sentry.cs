@@ -265,7 +265,7 @@ namespace EHR.Roles.Impostor
             if (!CheckTeam(pc)) return;
 
             var pos = pc.Pos();
-            var range = DisableDevice.UsableDeviceDistance - 1f;
+            var range = DisableDevice.UsableDistance - 1f;
             if (!AvailableDevices.Any(x => Vector2.Distance(pos, x) <= range))
             {
                 if (UsingDevice.Contains(pc.PlayerId))

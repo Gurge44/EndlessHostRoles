@@ -1935,7 +1935,7 @@ public static class Utils
                 {
                     const string iconTextLeft = "<color=#ffffff>\u21e8</color>";
                     const string iconTextRight = "<color=#ffffff>\u21e6</color>";
-                    const string roleNameUp = "</size><size=1350%>\n \n</size>";
+                    // const string roleNameUp = "</size><size=1350%>\n \n</size>";
 
                     string selfTeamName = $"<size=450%>{iconTextLeft} <font=\"VCR SDF\" material=\"VCR Black Outline\">{ColorString(seerTeam.GetTeamColor(), $"{seerTeam}")}</font> {iconTextRight}</size><size=900%>\n \n</size>";
                     SelfName = $"{selfTeamName}\r\n{seer.GetCustomRole().ToColoredString()}";
