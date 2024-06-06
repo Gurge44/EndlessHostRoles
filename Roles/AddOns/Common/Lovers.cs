@@ -30,7 +30,7 @@ namespace EHR.Roles.AddOns.Common
             "Impostor",
             "RandomONImpRole",
             "LovingImpostor"
-        ]
+        ];
 
         public AddonTypes Type => AddonTypes.Mixed;
 
@@ -79,7 +79,7 @@ namespace EHR.Roles.AddOns.Common
                 .SetParent(LegacyLovers)
                 .SetValueFormat(OptionFormat.Percent)
                 .SetGameMode(customGameMode);
-            
+
             LovingImpostorRoleForOtherImps = new StringOptionItem(id + 12, "LIRoleForOtherImps", LIRole, 2, TabGroup.Addons)
                 .SetParent(LovingImpostorSpawnChance)
                 .SetGameMode(customGameMode);

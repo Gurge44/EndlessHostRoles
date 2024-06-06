@@ -22,7 +22,7 @@ class SetUpRoleTextPatch
 
         // After showing team for non-modded clients update player names.
         IsInIntro = false;
-        Utils.NotifyRoles(NoCache: true);
+        Utils.DoNotifyRoles(NoCache: true);
 
         LateTask.New(() =>
         {

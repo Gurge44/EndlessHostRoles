@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
+using UnityEngine;
 
 namespace EHR.Roles.Crewmate
 {
@@ -8,14 +10,15 @@ namespace EHR.Roles.Crewmate
         private const int Id = 640200;
         public static Dictionary<byte, long> ShieldedPlayers = [];
 
-        public byte TargetId;
-
         public static OptionItem AidDur;
         public static OptionItem AidCD;
         public static OptionItem TargetKnowsShield;
         public static OptionItem UseLimitOpt;
         public static OptionItem UsePet;
-        public override bool IsEnable => playerIdList.Count > 0;
+        private static bool On;
+
+        public byte TargetId;
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
@@ -27,7 +30,7 @@ namespace EHR.Roles.Crewmate
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Aid])
                 .SetValueFormat(OptionFormat.Seconds);
             TargetKnowsShield = new BooleanOptionItem(Id + 14, "AidTargetKnowsAboutShield", true, TabGroup.CrewmateRoles)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Aid])
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Aid]);
             UseLimitOpt = new IntegerOptionItem(Id + 12, "AbilityUseLimit", new(1, 20, 1), 5, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Aid])
                 .SetValueFormat(OptionFormat.Times);
@@ -36,11 +39,13 @@ namespace EHR.Roles.Crewmate
 
         public override void Init()
         {
+            On = false;
             ShieldedPlayers = [];
         }
 
         public override void Add(byte playerId)
         {
+            On = true;
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             TargetId = byte.MaxValue;
 
@@ -85,7 +90,7 @@ namespace EHR.Roles.Crewmate
             }
         }
 
-        public override void OnCoEnterVent(PlayerPhysics physics, Vent vent)
+        public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
         {
             var pc = physics.myPlayer;
             if (pc.GetAbilityUseLimit() >= 1 && TargetId != byte.MaxValue)
@@ -98,10 +103,10 @@ namespace EHR.Roles.Crewmate
                 TargetId = byte.MaxValue;
             }
 
-            LateTask.New(() => physics.RpcBootFromVent(vent), 0.5f, log: false);
+            LateTask.New(() => physics.RpcBootFromVent(ventId), 0.5f, log: false);
         }
 
-        public override GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud)) return string.Empty;
             if (TargetKnowsShield.GetBool() && ShieldedPlayers.TryGetValue(seer.PlayerId, out var ts))

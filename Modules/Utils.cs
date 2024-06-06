@@ -430,8 +430,9 @@ public static class Utils
                 0 => CustomRoles.ImpostorEHR,
                 1 => Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && x.IsImpostor() && x != CustomRoles.LovingImpostor && !HnSManager.AllHnSRoles.Contains(x)).Shuffle()[0],
                 _ => CustomRoles.LovingImpostor
-            }
+            };
         }
+
         string RoleText = GetRoleName(isHnsAgentOverride ? CustomRoles.Hider : targetMainRole);
         Color RoleColor = GetRoleColor(targetMainRole);
 
