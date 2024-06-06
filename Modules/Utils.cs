@@ -423,6 +423,15 @@ public static class Utils
         var self = seerId == targetId || Main.PlayerStates[seerId].IsDead;
 
         bool isHnsAgentOverride = Options.CurrentGameMode == CustomGameMode.HideAndSeek && targetMainRole == CustomRoles.Agent && HnSManager.PlayerRoles[seerId].Interface.Team != Team.Impostor;
+        if (targetMainRole == CustomRoles.LovingImpostor)
+        {
+            targetMainRole = Lovers.LovingImpostorRoleForOtherImps.GetValue() switch
+            {
+                0 => CustomRoles.ImpostorEHR,
+                1 => Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && x.IsImpostor() && x != CustomRoles.LovingImpostor && !HnSManager.AllHnSRoles.Contains(x)).Shuffle()[0],
+                _ => CustomRoles.LovingImpostor
+            }
+        }
         string RoleText = GetRoleName(isHnsAgentOverride ? CustomRoles.Hider : targetMainRole);
         Color RoleColor = GetRoleColor(targetMainRole);
 

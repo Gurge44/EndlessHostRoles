@@ -247,12 +247,10 @@ class BeginCrewmatePatch
         }
         else if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
         {
-            __instance.TeamTitle.text = GetString($"Team{role}");
-            if (role == CustomRoles.LovingImpostor) __instance.TeamTitle.text = $"<size=90%>{__instance.TeamTitle.text}</size>";
             __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
             PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(role.GetRoleTypes());
-            __instance.ImpostorText.gameObject.SetActive(true);
             byte otherLoverId = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).PlayerId;
+            __instance.ImpostorText.gameObject.SetActive(true);
             __instance.ImpostorText.text = string.Format(GetString($"SubText.{role}"), Utils.ColorString(Main.PlayerColors.TryGetValue(otherLoverId, out var color) ? color : Color.white, Main.AllPlayerNames[otherLoverId]));
         }
         else

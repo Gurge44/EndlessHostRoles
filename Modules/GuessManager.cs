@@ -197,6 +197,13 @@ public static class GuessManager
 
                     bool forceAllowGuess = role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Lovers && Lovers.GuessAbility.GetValue() == 2;
 
+                    if (role == CustomRoles.Lovers && Lovers.GuessAbility.GetValue() == 0)
+                    {
+                        if (!isUI) Utils.SendMessage(GetString("GuessLovers"), pc.PlayerId);
+                        else pc.ShowPopUp(GetString("GuessLovers"));
+                        return true;
+                    }
+
                     switch (pc.GetCustomRole())
                     {
                         case CustomRoles.NiceGuesser when Main.GuesserGuessed[pc.PlayerId] >= Options.GGCanGuessTime.GetInt():
@@ -278,10 +285,6 @@ public static class GuessManager
                         case CustomRoles.Crewmate or CustomRoles.CrewmateEHR when Options.VanillaCrewmateCannotBeGuessed.GetBool():
                             if (!isUI) Utils.SendMessage(GetString("GuessVanillaCrewmate"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessVanillaCrewmate"));
-                            return true;
-                        case CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor when Lovers.GuessAbility.GetValue() == 0:
-                            if (!isUI) Utils.SendMessage(GetString("GuessLovers"), pc.PlayerId);
-                            else pc.ShowPopUp(GetString("GuessLovers"));
                             return true;
                         case CustomRoles.Workaholic when Workaholic.WorkaholicVisibleToEveryone.GetBool():
                             if (!isUI) Utils.SendMessage(GetString("GuessWorkaholic"), pc.PlayerId);
