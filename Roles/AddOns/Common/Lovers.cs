@@ -14,6 +14,7 @@ namespace EHR.Roles.AddOns.Common
         public static OptionItem NeutralCanBeInLove;
         public static OptionItem LegacyLovers;
         public static OptionItem LovingImpostorSpawnChance;
+        public static OptionItem LovingImpostorRoleForOtherImps;
         public static OptionItem PrivateChat;
         public static OptionItem GuessAbility;
 
@@ -23,6 +24,13 @@ namespace EHR.Roles.AddOns.Common
             "Untouched", // 1
             "RoleOn" // 2
         ];
+
+        private static readonly string[] LIRole =
+        [
+            "Impostor",
+            "RandomONImpRole",
+            "LovingImpostor"
+        ]
 
         public AddonTypes Type => AddonTypes.Mixed;
 
@@ -70,6 +78,10 @@ namespace EHR.Roles.AddOns.Common
             LovingImpostorSpawnChance = new FloatOptionItem(id + 9, "LovingImpostorSpawnChance", new(0, 100, 5), 25, TabGroup.Addons)
                 .SetParent(LegacyLovers)
                 .SetValueFormat(OptionFormat.Percent)
+                .SetGameMode(customGameMode);
+            
+            LovingImpostorRoleForOtherImps = new StringOptionItem(id + 12, "LIRoleForOtherImps", LIRole, 2, TabGroup.Addons)
+                .SetParent(LovingImpostorSpawnChance)
                 .SetGameMode(customGameMode);
 
             PrivateChat = new BooleanOptionItem(id + 10, "PrivateChat", false, TabGroup.Addons)

@@ -1900,7 +1900,8 @@ public static class Options
             .SetParent(GuesserMode)
             .SetColor(Color.green);
 
-        GuesserDoesntDieOnMisguess = new BooleanOptionItem(19718, "GuesserDoesntDieOnMisguess", false, TabGroup.TaskSettings);
+        GuesserDoesntDieOnMisguess = new BooleanOptionItem(19718, "GuesserDoesntDieOnMisguess", false, TabGroup.TaskSettings)
+            .SetGameMode(CustomGameMode.Standard);
 
         LoadingPercentage = 92;
         MainLoadingText = "Building game settings";
