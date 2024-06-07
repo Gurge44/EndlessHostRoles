@@ -284,3 +284,43 @@ internal class ModManagerLateUpdatePatch
         }
     }
 }
+
+[HarmonyPatch(typeof(OptionsMenuBehaviour), nameof(OptionsMenuBehaviour.Open))]
+class OptionsMenuBehaviourOpenPatch
+{
+    public static bool Prefix(OptionsMenuBehaviour __instance)
+    {
+        try
+        {
+            if (DestroyableSingleton<HudManager>.InstanceExists && !DestroyableSingleton<HudManager>.Instance.SettingsButton.activeSelf)
+                return false;
+        }
+        catch
+        {
+        }
+
+        __instance.ResetText();
+        if (__instance.gameObject.activeSelf)
+        {
+            if (!__instance.Toggle) return false;
+            __instance.GetComponent<TransitionOpen>().Close();
+        }
+        else
+        {
+            if (Minigame.Instance != null) Minigame.Instance.Close();
+            __instance.OpenTabGroup(0);
+            __instance.UpdateButtons();
+            __instance.gameObject.SetActive(true);
+            if (DestroyableSingleton<HudManager>.InstanceExists) ConsoleJoystick.SetMode_MenuAdditive();
+            if (!__instance.grabbedControllerButtons)
+            {
+                __instance.grabbedControllerButtons = true;
+                __instance.GrabControllerButtons();
+            }
+
+            ControllerManager.Instance.OpenOverlayMenu("OptionsMenu", __instance.BackButton, __instance.DefaultButtonSelected, __instance.ControllerSelectable);
+        }
+
+        return false;
+    }
+}

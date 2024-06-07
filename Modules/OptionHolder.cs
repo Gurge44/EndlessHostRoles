@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -776,46 +777,46 @@ public static class Options
             GroupOptions();
             GroupAddons();
 
+#if DEBUG
             // Used for generating the table of roles for the README
-            // This is commented out because it's not needed for the mod to function
-            // 
-            // try
-            // {
-            //     var sb = new StringBuilder();
-            //     var grouped = Enum.GetValues<CustomRoles>().GroupBy(x =>
-            //     {
-            //         if (x is CustomRoles.GM or CustomRoles.Philantropist or CustomRoles.Konan or CustomRoles.KB_Normal or CustomRoles.Killer or CustomRoles.Potato or CustomRoles.Tasker or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict || HnSManager.AllHnSRoles.Contains(x) || x.IsVanilla() || x.ToString().Contains("EHR")) return 4;
-            //         if (x.IsAdditionRole()) return 3;
-            //         if (x.IsImpostor() || x.IsMadmate()) return 0;
-            //         if (x.IsNeutral()) return 1;
-            //         if (x.IsCrewmate()) return 2;
-            //         return 4;
-            //     }).ToDictionary(x => x.Key, x => x.ToArray());
-            //     var max = grouped.Max(x => x.Value.Length);
-            //     for (int i = 0; i < max; i++)
-            //     {
-            //         var cr = grouped[2].ElementAtOrDefault(i);
-            //         var crew = Translator.GetString(cr.ToString());
-            //         var ir = grouped[0].ElementAtOrDefault(i);
-            //         var imp = Translator.GetString(ir.ToString());
-            //         if (ir == default) imp = string.Empty;
-            //         var nr = grouped[1].ElementAtOrDefault(i);
-            //         var neu = Translator.GetString(nr.ToString());
-            //         if (nr == default) neu = string.Empty;
-            //         var a = grouped[3].ElementAtOrDefault(i);
-            //         var add = Translator.GetString(a.ToString());
-            //         if (a == default) add = string.Empty;
-            //         sb.AppendLine($"| {crew, 17} | {imp, 17} | {neu, 17} | {add, 17} |");
-            //     }
-            //
-            //     const string path = "./roles.txt";
-            //     if (!File.Exists(path)) File.Create(path).Close();
-            //     File.WriteAllText(path, sb.ToString());
-            // }
-            // catch (Exception e)
-            // {
-            //     Utils.ThrowException(e);
-            // }
+            try
+            {
+                var sb = new System.Text.StringBuilder();
+                var grouped = Enum.GetValues<CustomRoles>().GroupBy(x =>
+                {
+                    if (x is CustomRoles.GM or CustomRoles.Philantropist or CustomRoles.Konan or CustomRoles.KB_Normal or CustomRoles.Killer or CustomRoles.Potato or CustomRoles.Tasker or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict || HnSManager.AllHnSRoles.Contains(x) || x.IsVanilla() || x.ToString().Contains("EHR")) return 4;
+                    if (x.IsAdditionRole()) return 3;
+                    if (x.IsImpostor() || x.IsMadmate()) return 0;
+                    if (x.IsNeutral()) return 1;
+                    if (x.IsCrewmate()) return 2;
+                    return 4;
+                }).ToDictionary(x => x.Key, x => x.ToArray());
+                var max = grouped.Max(x => x.Value.Length);
+                for (int i = 0; i < max; i++)
+                {
+                    var cr = grouped[2].ElementAtOrDefault(i);
+                    var crew = Translator.GetString(cr.ToString());
+                    var ir = grouped[0].ElementAtOrDefault(i);
+                    var imp = Translator.GetString(ir.ToString());
+                    if (ir == default) imp = string.Empty;
+                    var nr = grouped[1].ElementAtOrDefault(i);
+                    var neu = Translator.GetString(nr.ToString());
+                    if (nr == default) neu = string.Empty;
+                    var a = grouped[3].ElementAtOrDefault(i);
+                    var add = Translator.GetString(a.ToString());
+                    if (a == default) add = string.Empty;
+                    sb.AppendLine($"| {crew,17} | {imp,17} | {neu,17} | {add,17} |");
+                }
+
+                const string path = "./roles.txt";
+                if (!File.Exists(path)) File.Create(path).Close();
+                File.WriteAllText(path, sb.ToString());
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
+#endif
         });
     }
 

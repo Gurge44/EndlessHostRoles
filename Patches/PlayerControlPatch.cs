@@ -652,7 +652,8 @@ class ShapeshiftPatch
             isSSneeded = false;
         }
 
-        bool forceCancel = shapeshifter.GetCustomRole().ForceCancelShapeshift();
+        var role = shapeshifter.GetCustomRole();
+        bool forceCancel = role.ForceCancelShapeshift();
 
         if (shapeshifter.Is(CustomRoles.Camouflager) && !shapeshifting) Camouflager.Reset();
         if (Changeling.ChangedRole.TryGetValue(shapeshifter.PlayerId, out var changed) && changed && shapeshifter.GetRoleTypes() != RoleTypes.Shapeshifter)
@@ -665,8 +666,10 @@ class ShapeshiftPatch
         bool shouldAlwaysCancel = shouldCancel && Options.DisableAllShapeshiftAnimations.GetBool();
         bool doSSwithoutAnim = isSSneeded && shouldAlwaysCancel;
 
+        doSSwithoutAnim |= isSSneeded && role.IsNoAnimationShifter();
         isSSneeded &= !shouldAlwaysCancel;
         forceCancel |= shouldAlwaysCancel;
+        isSSneeded &= !doSSwithoutAnim;
 
         // Forced rewriting in case the name cannot be corrected due to the timing of canceling the transformation being off.
         if (!shapeshifting && !shapeshifter.Is(CustomRoles.Glitch) && isSSneeded)
@@ -674,7 +677,7 @@ class ShapeshiftPatch
             LateTask.New(() => { NotifyRoles(NoCache: true); }, 1.2f, "ShapeShiftNotify");
         }
 
-        if ((!shapeshifting || !isSSneeded) && !Swapster.FirstSwapTarget.ContainsKey(shapeshifter.PlayerId))
+        if (!(shapeshifting && doSSwithoutAnim) && !isSSneeded && !Swapster.FirstSwapTarget.ContainsKey(shapeshifter.PlayerId))
         {
             LateTask.New(shapeshifter.RpcResetAbilityCooldown, 0.01f, log: false);
         }

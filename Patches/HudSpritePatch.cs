@@ -64,6 +64,9 @@ public static class HudSpritePatch
 
             switch (player.GetCustomRole())
             {
+                case CustomRoles.Echo:
+                    newAbilityButton = player.IsShifted() ? Kill : CustomButton.Get("Puttpuer");
+                    break;
                 case CustomRoles.Shifter:
                     newKillButton = CustomButton.Get("Swap");
                     break;

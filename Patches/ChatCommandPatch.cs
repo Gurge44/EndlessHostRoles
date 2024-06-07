@@ -1382,7 +1382,7 @@ internal class ChatCommands
             return;
         }
 
-        if ((player.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting))
+        if (GameStates.IsInGame && ((player.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting)))
         {
             ChatManager.SendPreviousMessagesToAll();
             canceled = true;

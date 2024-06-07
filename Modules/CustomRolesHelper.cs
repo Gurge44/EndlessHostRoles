@@ -113,6 +113,7 @@ internal static class CustomRolesHelper
             CustomRoles.Dictator => CustomRoles.Crewmate,
             CustomRoles.Inhibitor => CustomRoles.Impostor,
             CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
+            CustomRoles.Echo => CustomRoles.Shapeshifter,
             CustomRoles.Abyssbringer => CustomRoles.Shapeshifter,
             CustomRoles.Overheat => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Generator => CustomRoles.Shapeshifter,
@@ -585,6 +586,7 @@ internal static class CustomRolesHelper
         CustomRoles.Overheat or
         CustomRoles.Underdog or
         CustomRoles.Abyssbringer or
+        CustomRoles.Echo or
         CustomRoles.Inhibitor or
         CustomRoles.Kidnapper or
         CustomRoles.Generator or
@@ -783,8 +785,12 @@ internal static class CustomRolesHelper
         CustomRoles.TicketsStealer;
 
     public static bool ForceCancelShapeshift(this CustomRoles role) => role is
+        CustomRoles.Echo or
         CustomRoles.Hangman or
         CustomRoles.Generator;
+
+    public static bool IsNoAnimationShifter(this CustomRoles role) => role is
+        CustomRoles.Echo;
 
     public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc) => role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(pc.GetCustomRole(), out var bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out var o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && role switch
     {

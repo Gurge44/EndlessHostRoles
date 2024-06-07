@@ -41,6 +41,7 @@ public enum CustomRoles
     Disperser,
     Duellist,
     Dazzler,
+    Echo,
     Escapee,
     Eraser,
     EvilGuesser,
