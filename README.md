@@ -64,67 +64,67 @@
 | Doctor            | Disperser       | Hex Master        | Egoist         |
 | Donut Delivery    | Duellist        | Hookshot          | Energetic      |
 | Door Master       | Dazzler         | Imitator          | Evil Spirit    |
-| Pacifist          | Escapist        | Impartial         | Flash          |
-| Drainer           | Eraser          | Innocent          | Fool           |
-| Druid             | Evil Guesser    | Jackal            | Giant          |
-| Electric          | Evil Tracker    | Jester            | Glow           |
-| Enigma            | Fireworker      | Jinx              | Gravestone     |
-| Escort            | Freezer         | Juggernaut        | Guardian Angel |
-| Express           | Gambler         | Lawyer            | Guesser        |
-| Investigator      | Gangster        | Magician          | Haste          |
-| Fortune Teller    | Generator       | Vector            | Haunter        |
-| Gaulois           | Godfather       | Maverick          | Knighted       |
-| Goose             | Greedy          | Medusa            | Last Impostor  |
-| Grenadier         | Hangman         | Mycologist        | Lazy           |
-| Guess Manager     | Hitman          | Necromancer       | Lovers         |
-| Guardian          | Inhibitor       | Opportunist       | Loyal          |
-| Ignitor           | Kamikaze        | Patroller         | Lucky          |
-| Insight           | Kidnapper       | Pelican           | Madmate        |
-| Inspector         | Killing Machine | Pestilence        | Magnet         |
-| Jailor            | Lightning       | Specter           | Mare           |
-| Judge             | Librarian       | Pickpocket        | Mimic          |
-| Lazy Guy          | Lurker          | Plaguebearer      | Minion         |
-| Lighter           | Mafioso         | Infection         | Mischievous    |
-| Lookout           | Mastermind      | Poisoner          | Necroview      |
-| Luckey            | Nemesis         | Postman           | Neptune        |
-| Markseeker        | Mercenary       | Predator          | Nimble         |
-| Marshall          | Miner           | Provocateur       | Oblivious      |
-| Mathematician     | Morphling       | Pursuer           | Onbound        |
-| Mayor             | Ninja           | Pyromaniac        | Sleep          |
-| Mechanic          | Nuker           | Quiz Master       | Phantom        |
-| Medic             | Nullifier       | Reckless          | Physicist      |
-| Medium            | Overheat        | Revolutionist     | Rascal         |
-| Merchant          | Parasite        | Ritualist         | Reach          |
-| Telecommunication | Penguin         | Rogue             | Recruit        |
-| Mole              | Puppeteer       | Romantic          | Schizophrenic  |
-| Monarch           | Quick Shooter   | Ruthless Romantic | Seer           |
-| Mortician         | Renegade        | Samurai           | Sleuth         |
-| Nice Eraser       | Rift Maker      | Schrödinger's Cat | Sonar          |
-| Nice Guesser      | Saboteur        | Serial Killer     | Stained        |
-| Hacker            | Sapper          | Shifter           | Taskcounter    |
-| Swapper           | Scavenger       | Sidekick          | Stealer        |
-| Nightmare         | Silencer        | Simon             | Stressed       |
-| Observer          | Sniper          | Soul Hunter       | Swift          |
-| Oracle            | Soul Catcher    | Spiritcaller      | Sunglasses     |
-| Paranoid          | Swapster        | Sprayer           | Tiebreaker     |
-| Perceiver         | Swiftclaw       | Stalker           | Torch          |
-| Psychic           | Swooper         | Cultist           | Truant         |
-| Rabbit            | Stealth         | Sunnyboy          | Undead         |
-| Randomizer        | Time Thief      | Terrorist         | Unlucky        |
-| Ricochet          | Trapster        | Tiger             | Warden         |
-| Security Guard    | Trickster       | Traitor           | Watcher        |
-| Sentinel          | Twister         | Tremor            | Workhorse      |
-| Sentry            | Underdog        | Vengeance         | YouTuber       |
-| Sheriff           | Undertaker      | Vengeful Romantic |                |
-| Shiftguard        | Vampire         | Virus             |                |
-| Snitch            | Vindicator      | Vulture           |                |
-| Spiritualist      | Visionary       | Wraith            |                |
-| Speedrunner       | Warlock         | Werewolf          |                |
-| Speed Booster     | Wildling        | Weapon Master     |                |
-| Spy               | Witch           | Workaholic        |                |
-| Super Star        | Yin Yanger      |                   |                |
-| Task Manager      | Zombie          |                   |                |
-| Tether            |                 |                   |                |
+| Pacifist          | Echo            | Impartial         | Flash          |
+| Drainer           | Escapist        | Innocent          | Fool           |
+| Druid             | Eraser          | Jackal            | Giant          |
+| Electric          | Evil Guesser    | Jester            | Glow           |
+| Enigma            | Evil Tracker    | Jinx              | Gravestone     |
+| Escort            | Fireworker      | Juggernaut        | Guardian Angel |
+| Express           | Freezer         | Lawyer            | Guesser        |
+| Investigator      | Gambler         | Magician          | Haste          |
+| Fortune Teller    | Gangster        | Vector            | Haunter        |
+| Gaulois           | Generator       | Maverick          | Knighted       |
+| Goose             | Godfather       | Medusa            | Last Impostor  |
+| Grenadier         | Greedy          | Mycologist        | Lazy           |
+| Guess Manager     | Hangman         | Necromancer       | Lovers         |
+| Guardian          | Hitman          | Opportunist       | Loyal          |
+| Ignitor           | Inhibitor       | Patroller         | Lucky          |
+| Insight           | Kamikaze        | Pelican           | Madmate        |
+| Inspector         | Kidnapper       | Pestilence        | Magnet         |
+| Jailor            | Killing Machine | Specter           | Mare           |
+| Judge             | Lightning       | Pickpocket        | Mimic          |
+| Lazy Guy          | Librarian       | Plaguebearer      | Minion         |
+| Lighter           | Lurker          | Infection         | Mischievous    |
+| Lookout           | Mafioso         | Poisoner          | Necroview      |
+| Luckey            | Mastermind      | Postman           | Neptune        |
+| Markseeker        | Nemesis         | Predator          | Nimble         |
+| Marshall          | Mercenary       | Provocateur       | Oblivious      |
+| Mathematician     | Miner           | Pursuer           | Onbound        |
+| Mayor             | Morphling       | Pyromaniac        | Sleep          |
+| Mechanic          | Ninja           | Quiz Master       | Phantom        |
+| Medic             | Nuker           | Reckless          | Physicist      |
+| Medium            | Nullifier       | Revolutionist     | Rascal         |
+| Merchant          | Overheat        | Ritualist         | Reach          |
+| Telecommunication | Parasite        | Rogue             | Recruit        |
+| Mole              | Penguin         | Romantic          | Schizophrenic  |
+| Monarch           | Puppeteer       | Ruthless Romantic | Seer           |
+| Mortician         | Quick Shooter   | Samurai           | Sleuth         |
+| Nice Eraser       | Renegade        | Schrödinger's Cat | Sonar          |
+| Nice Guesser      | Rift Maker      | Serial Killer     | Stained        |
+| Hacker            | Saboteur        | Shifter           | Taskcounter    |
+| Swapper           | Sapper          | Sidekick          | Stealer        |
+| Nightmare         | Scavenger       | Simon             | Stressed       |
+| Observer          | Silencer        | Soul Hunter       | Swift          |
+| Oracle            | Sniper          | Spiritcaller      | Sunglasses     |
+| Paranoid          | Soul Catcher    | Sprayer           | Tiebreaker     |
+| Perceiver         | Swapster        | Stalker           | Torch          |
+| Psychic           | Swiftclaw       | Cultist           | Truant         |
+| Rabbit            | Swooper         | Sunnyboy          | Undead         |
+| Randomizer        | Stealth         | Terrorist         | Unlucky        |
+| Ricochet          | Time Thief      | Tiger             | Warden         |
+| Security Guard    | Trapster        | Traitor           | Watcher        |
+| Sentinel          | Trickster       | Tremor            | Workhorse      |
+| Sentry            | Twister         | Vengeance         | YouTuber       |
+| Sheriff           | Underdog        | Vengeful Romantic |                |
+| Shiftguard        | Undertaker      | Virus             |                |
+| Snitch            | Vampire         | Vulture           |                |
+| Spiritualist      | Vindicator      | Wraith            |                |
+| Speedrunner       | Visionary       | Werewolf          |                |
+| Speed Booster     | Warlock         | Weapon Master     |                |
+| Spy               | Wildling        | Workaholic        |                |
+| Super Star        | Witch           |                   |                |
+| Task Manager      | Yin Yanger      |                   |                |
+| Tether            | Zombie          |                   |                |
 | Time Manager      |                 |                   |                |
 | Time Master       |                 |                   |                |
 | Toilet Master     |                 |                   |                |
@@ -142,7 +142,8 @@
 ## Main Features
 - Note: The goal with this branch is to improve the existing stuff over adding new roles. If some of the stuff you see below are in other mods, they were originally coded by me.
 ### Most Popular Game Mode
-- A brand new official gamemode, Basic FFA (Free For All)
+
+- A brand-new official gamemode, Basic FFA (Free For All)
 - This mode makes everyone a killer and the last player alive wins
 - Features: Random events, ranks and scoring, random ability gain for every kill, game timer, scoreboard (task list), unique end screen, fully customizable
 ### Overall improvements compared to other mods
@@ -150,7 +151,8 @@
 - Gain more ability uses for completing tasks as crewmate roles
 - Gain more ability uses for getting kills as impostor roles
 - Most shapeshifting roles that only used shapeshifting as an ability trigger or a target selector now don't actually shapeshift with the egg animation, it's automatically canceled
-- Prevent kills while shifted when no abiltiy uses are left for some roles (Sniper, Twister, Disperser, Hangman, Camouflager, etc.)
+- Prevent kills while shifted when no ability uses are left for some roles (Sniper, Twister, Disperser, Hangman,
+  Camouflager, etc.)
 - Code cleanup and major performance improvement
 - Improved EAC
 - Better intro sounds
@@ -164,12 +166,13 @@
 - More customizable settings; More reasonable default settings
 - Starting Kill Cooldown setting
 - Better confirm ejections text
-- Brand new HUD text
+- Brand-new HUD text
 - Better role summary
 - Option to use Pet button instead of Vent, Shapeshift or Sabotage (assigns the Pusheen pet to everyone at the start of the game)
 - Smaller mod version text and smaller credentials text (imo it was annoying that it covered a quarter of the screen)
 - Players have their name displayed with their color on the ejection screen
-- Everyone knows how many killers remain after each ejection (even if no one was ejected, like it was a skip or a tie)
+- How many killers remain after each ejection (even if no one was ejected, like it was a skip or a tie) is displayed
+  below everyone's name
 - You can chat during the game if the game mode is FFA
 - Simplified and shortened role descriptions
 - Loading animation
@@ -182,7 +185,7 @@
 - Fortune Teller: Setting whether it shows specific roles after completing tasks
 - Merchant: Option to sell Balanced add-ons (based on my opinion)
 - Mortician: Setting whether it has arrows toward dead bodies
-- Oracle: Chance to show incorrect result
+- Oracle: Chance to show incorrect results
 - Mechanic: Settings that determine how many uses it takes to fix Lights/Comms and Reactor/O2
 - Sheriff: Setting whether to display the shot limit next to the role name
 - Tracefinder: Settings that determine the delay in which the arrows show up
@@ -210,14 +213,16 @@
 - Medusa: Can only clean bodies if their kill cooldown is up
 - Wraith: Setting whether it can vent normally when invis is on cooldown; Invis Cooldown is visualized next to the role name
 - Poisoner: Kill Cooldown is reset when the poisoned target dies
-- Glitch is now The Glitch from TOU-R, it was completely rewritten and I worked really hard on it
+- Glitch is now The Glitch from TOU-R, it was completely rewritten, and I worked really hard on it
 - Provocateur: No longer suicides after selecting a target
 - Pursuer: Target doesn't die when trying to use their kill button, they'll just have their kill cooldown reset
 
 ### To see the full list of unique roles and their descriptions, visit our website: [EHR](https://sites.google.com/view/ehr-au)
 
 ## Note:
-- You can use parts of the code in here, but if you do, you'll have to credit me (Gurge44) or the mod by mentioning its name (EHR) and providing a link to this github page. (Or leaving the in-game credits as they are is also fine!)
+
+- You can use parts of the code in here, but if you do, you'll have to credit me (Gurge44) or the mod by mentioning its
+  name (EHR) and providing a link to this GitHub page. (Or leaving the in-game credits as they are is also fine!)
 - To play the mod, use the given dll in the release section.
 
 <br>
@@ -289,7 +294,7 @@
 
 ### :star: [TOHEX/TONEX](https://github.com/TOHEX-Official/TownOfHostEdited-Xi) :
 >
-> - Provided role: Swapper
+> - Provided the role: Swapper
 > - Reference: Store message history
 >
 
