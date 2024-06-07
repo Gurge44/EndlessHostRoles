@@ -1355,12 +1355,12 @@
   "LoverKnowRoles": "<color=#ff9ace>Lovers</color> know the roles of each other",
   "LegacyLovers": "Legacy Lovers",
   "LovingImpostorSpawnChance": "<color=#ff9ace>Loving</color> <#ff1919>Impostor</color> Spawn Chance",
-  "LIRoleForOtherImps": "Other Impostors see Loving Impostor role as"
+  "LIRoleForOtherImps": "Other Impostors see Loving Impostor role as",
   "PrivateChat": "Enable Private Chat for Lovers <#ffff00>(VERY EXPERIMENTAL!!!!)</color>",
   "GuessAbility": "Guessers Can Guess Lovers",
   "Untouched": "Untouched",
   "GuessLovers": "Sorry, <color=#ff9ace>Lovers</color> cannot be guessed.",
-  "VanillaCrewmateCannotBeGuessed": "Crewmate role cannot be guessed"б
+  "VanillaCrewmateCannotBeGuessed": "Crewmate role cannot be guessed",
   "GuessVanillaCrewmate": "Host settings don't allow to guess someone as the vanilla Crewmate",
   "TrapperBlockMoveTime": "Freeze time",
   "RogueKnowEachOtherRoles": "<color=#696969>Rogues</color> know the roles of each other",
