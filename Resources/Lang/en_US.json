@@ -1360,7 +1360,7 @@
   "GuessAbility": "Guessers Can Guess Lovers",
   "Untouched": "Untouched",
   "GuessLovers": "Sorry, <color=#ff9ace>Lovers</color> cannot be guessed.",
-  "VanillaCrewmateCannotBeGuessed"
+  "VanillaCrewmateCannotBeGuessed": "Crewmate role cannot be guessed"б
   "GuessVanillaCrewmate": "Host settings don't allow to guess someone as the vanilla Crewmate",
   "TrapperBlockMoveTime": "Freeze time",
   "RogueKnowEachOtherRoles": "<color=#696969>Rogues</color> know the roles of each other",
