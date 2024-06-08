@@ -240,6 +240,7 @@
 > 
 > - Our repo is a continuation of TOHE
 > - TONX reference: Modify character limit for chat messages
+> - TONX reference: Modify and apply cool animations on Main Menu
 > 
 ### :star: [TOH](https://github.com/tukasa0001/TownOfHost) :
 > 
@@ -296,6 +297,11 @@
 >
 > - Provided the role: Swapper
 > - Reference: Store message history
+>
+
+### :star: [MoreGamemodes](https://github.com/Rabek009/MoreGamemodes) :
+> 
+> - Reference: Part of the code used for the Endless Host Roles Image in the Main Menu
 >
 
 ### Endless Host Roles (EHR), with Endless Possibilities, brought to you by the Endless Network.
