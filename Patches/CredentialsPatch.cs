@@ -91,8 +91,6 @@ internal class TitleLogoPatch
     public static GameObject RightPanel;
     public static GameObject CloseRightButton;
     public static GameObject Tint;
-    public static GameObject Sizer;
-    public static GameObject AULogo;
     public static GameObject BottomButtonBounds;
 
     public static Vector3 RightPanelOp;
@@ -214,14 +212,6 @@ internal class TitleLogoPatch
             var closeButton = creditsScreen.transform.FindChild("CloseButton");
             closeButton?.gameObject.SetActive(false);
         }
-
-        if (!(Sizer = GameObject.Find("Sizer"))) return;
-        if (!(AULogo = GameObject.Find("LOGO-AU"))) return;
-        Sizer.transform.localPosition += new Vector3(0f, 0.12f, 0f);
-        AULogo.transform.localScale = new Vector3(0.66f, 0.67f, 1f);
-        AULogo.transform.position += new Vector3(0f, 0.1f, 0f);
-        var logoRenderer = AULogo.GetComponent<SpriteRenderer>();
-        logoRenderer.sprite = Utils.LoadSprite("EHR.Resources.Images.EHR-Logo.png", 50f);
 
         if (!(BottomButtonBounds = GameObject.Find("BottomButtonBounds"))) return;
         BottomButtonBounds.transform.localPosition -= new Vector3(0f, 0.1f, 0f);
