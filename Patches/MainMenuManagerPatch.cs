@@ -11,8 +11,11 @@ public class MainMenuManagerPatch
 {
     public static MainMenuManager Instance { get; private set; }
 
-    public static GameObject Template;
-    public static GameObject UpdateButton;
+    public static PassiveButton Template;
+    public static PassiveButton UpdateButton;
+    private static PassiveButton gitHubButton;
+    private static PassiveButton discordButton;
+    private static PassiveButton websiteButton;
 
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.OpenGameModeMenu))]
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.OpenAccountMenu))]
@@ -45,8 +48,6 @@ public class MainMenuManagerPatch
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPrefix]
     public static void Start_Prefix(MainMenuManager __instance)
     {
-        if (Template == null) Template = GameObject.Find("/MainUI/ExitGameButton");
-        if (Template == null) return;
 
         if (UpdateButton == null) UpdateButton = Object.Instantiate(Template, Template.transform.parent);
         UpdateButton.name = "UpdateButton";
@@ -60,7 +61,7 @@ public class MainMenuManagerPatch
         updatePassiveButton.OnClick = new();
         updatePassiveButton.OnClick.AddListener((Action)(() =>
         {
-            UpdateButton.SetActive(false);
+            UpdateButton.gameObject.SetActive(false);
             ModUpdater.StartUpdate(ModUpdater.downloadUrl, true);
         }));
         updatePassiveButton.OnMouseOut.AddListener((Action)(() => updateButtonSprite.color = updateText.color = updateColor));
@@ -100,6 +101,45 @@ public class MainMenuManagerPatch
     {
         Instance = __instance;
 
+        // GitHub Button
+        if (gitHubButton == null)
+        {
+            gitHubButton = CreateButton(
+                "GitHubButton",
+                new Vector3(-1.8f, -1.5f, 1f),
+                new Color32(153, 153, 153, byte.MaxValue),
+                new Color32(209, 209, 209, byte.MaxValue),
+                () => Application.OpenURL("https://github.com/Gurge44/EndlessHostRoles"),
+                Translator.GetString("GitHub")); //"GitHub"
+        }
+        gitHubButton.gameObject.SetActive(true);
+
+        // Discord Button
+        if (discordButton == null)
+        {
+            discordButton = CreateButton(
+                "DiscordButton",
+                new Vector3(-1.8f, -1.9f, 1f),
+                new Color32(88, 101, 242, byte.MaxValue),
+                new Color32(148, 161, byte.MaxValue, byte.MaxValue),
+                () => Application.OpenURL("https://discord.com/invite/m3ayxfumC8"),
+                Translator.GetString("Discord")); //"Discord"
+        }
+        discordButton.gameObject.SetActive(true);
+
+        // Website Button
+        if (websiteButton == null)
+        {
+            websiteButton = CreateButton(
+                "WebsiteButton",
+                new Vector3(-1.8f, -2.3f, 1f),
+                new Color32(251, 81, 44, byte.MaxValue),
+                new Color32(211, 77, 48, byte.MaxValue),
+                () => Application.OpenURL("https://sites.google.com/view/ehr-au"),
+                Translator.GetString("Website")); //"Website"
+        }
+        websiteButton.gameObject.SetActive(true);
+
         SimpleButton.SetBase(__instance.quitButton);
             var logoObject = new GameObject("titleLogo_MG");
             var logoTransform = logoObject.transform;
@@ -109,5 +149,42 @@ public class MainMenuManagerPatch
             MG_Logo.sprite = Utils.LoadSprite("EHR.Resources.Images.EHR-Icon.png", 400f);
 
         Application.targetFrameRate = Main.UnlockFps.Value ? 9999 : 60;
+    }
+    public static PassiveButton CreateButton(string name, Vector3 localPosition, Color32 normalColor, Color32 hoverColor, Action action, string label, Vector2? scale = null)
+    {
+        var button = Object.Instantiate(Template, Template.transform.parent);
+        button.name = name;
+        Object.Destroy(button.GetComponent<AspectPosition>());
+        button.transform.localPosition = localPosition;
+
+        button.OnClick = new();
+        button.OnClick.AddListener(action);
+
+        var buttonText = button.transform.Find("FontPlacer/Text_TMP").GetComponent<TMP_Text>();
+        buttonText.DestroyTranslator();
+        buttonText.fontSize = buttonText.fontSizeMax = buttonText.fontSizeMin = 3.5f;
+        buttonText.enableWordWrapping = false;
+        buttonText.text = label;
+        var normalSprite = button.inactiveSprites.GetComponent<SpriteRenderer>();
+        var hoverSprite = button.activeSprites.GetComponent<SpriteRenderer>();
+        normalSprite.color = normalColor;
+        hoverSprite.color = hoverColor;
+
+        var container = buttonText.transform.parent;
+        Object.Destroy(container.GetComponent<AspectPosition>());
+        Object.Destroy(buttonText.GetComponent<AspectPosition>());
+        container.SetLocalX(0f);
+        buttonText.transform.SetLocalX(0f);
+        buttonText.horizontalAlignment = HorizontalAlignmentOptions.Center;
+
+        var buttonCollider = button.GetComponent<BoxCollider2D>();
+        if (scale.HasValue)
+        {
+            normalSprite.size = hoverSprite.size = buttonCollider.size = scale.Value;
+        }
+
+        buttonCollider.offset = new(0f, 0f);
+
+        return button;
     }
 }
