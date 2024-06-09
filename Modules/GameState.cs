@@ -250,8 +250,7 @@ public class PlayerState(byte playerId)
 
     public void RemoveSubRole(CustomRoles role)
     {
-        if (SubRoles.Contains(role))
-            SubRoles.Remove(role);
+        SubRoles.Remove(role);
 
         if (role is CustomRoles.Flashman or CustomRoles.Dynamo)
         {

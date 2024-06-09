@@ -1,11 +1,16 @@
-﻿namespace EHR.Roles.Impostor
+﻿using System.Collections.Generic;
+
+namespace EHR.Roles.Impostor
 {
     public class Echo : RoleBase
     {
         public static bool On;
+        public static List<Echo> Instances = [];
 
         private static OptionItem ShapeshiftCooldown;
         private static OptionItem ShapeshiftDuration;
+
+        public PlayerControl EchoPC;
         public override bool IsEnable => On;
 
         public static void SetupCustomOption()
@@ -23,14 +28,17 @@
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
+        public override void Init()
+        {
+            Instances = [];
+            On = false;
+        }
+
         public override void Add(byte playerId)
         {
             On = true;
-        }
-
-        public override void Init()
-        {
-            On = false;
+            EchoPC = Utils.GetPlayerById(playerId);
+            Instances.Add(this);
         }
 
         public override void SetButtonTexts(HudManager hud, byte id)
@@ -57,14 +65,40 @@
             {
                 target = Utils.GetPlayerById(shapeshifter.shapeshiftTargetPlayerId);
                 if (target == null) return true;
-                target.RpcShapeshift(target, false);
-                var pos = shapeshifter.Pos();
-                shapeshifter.TP(target);
-                target.TP(pos);
+                RevertSwap(shapeshifter, target);
                 LateTask.New(() => target.Suicide(PlayerState.DeathReason.Kill, shapeshifter), 0.2f, "Echo Unshift Kill");
             }
 
             return true;
+        }
+
+        private static void RevertSwap(PlayerControl echo, PlayerControl target)
+        {
+            target.RpcShapeshift(target, false);
+            var pos = echo.Pos();
+            echo.TP(target);
+            target.TP(pos);
+        }
+
+        public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
+        {
+            if (!target.IsShifted()) return true;
+            var ssTarget = Utils.GetPlayerById(target.shapeshiftTargetPlayerId);
+            if (ssTarget == null || !killer.RpcCheckAndMurder(ssTarget, check: true)) return true;
+
+            RevertSwap(target, ssTarget);
+            LateTask.New(() => killer.Kill(ssTarget), 0.2f, log: false);
+            return false;
+        }
+
+        public void OnTargetCheckMurder(PlayerControl killer, PlayerControl target)
+        {
+            RevertSwap(EchoPC, target);
+            LateTask.New(() =>
+            {
+                killer.RpcCheckAndMurder(EchoPC);
+                target.Suicide(PlayerState.DeathReason.Kill, EchoPC);
+            }, 0.2f, log: false);
         }
     }
 }

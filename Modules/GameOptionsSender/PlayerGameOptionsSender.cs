@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Neutral;
 using EHR.Roles.AddOns.GhostRoles;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
@@ -194,6 +195,8 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     AURoleOptions.ScientistBatteryCharge = Options.ScientistDur.GetFloat();
                     break;
             }
+
+            if (Shifter.WasShifter.Contains(player.PlayerId) && role.IsImpostor()) opt.SetVision(true);
 
             Main.PlayerStates[player.PlayerId].Role.ApplyGameOptions(opt, player.PlayerId);
 

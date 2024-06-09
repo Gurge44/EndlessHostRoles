@@ -302,7 +302,7 @@ class CheckMurderPatch
         if (!AmongUsClient.Instance.AmHost) return false;
         if (target == null) target = killer;
 
-        if (CustomTeamManager.AreInSameCustomTeam(killer.PlayerId, target.PlayerId) && !CustomTeamManager.IsSettingEnabledForPlayerTeam(killer.PlayerId, "KillEachOther")) return false;
+        if (CustomTeamManager.AreInSameCustomTeam(killer.PlayerId, target.PlayerId) && !CustomTeamManager.IsSettingEnabledForPlayerTeam(killer.PlayerId, CTAOption.KillEachOther)) return false;
 
         if (killer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Sidekick) && !Options.JackalCanKillSidekick.GetBool()) return false;
         if (killer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Jackal) && !Options.SidekickCanKillJackal.GetBool()) return false;
@@ -328,7 +328,19 @@ class CheckMurderPatch
 
         if (killer.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) return false;
 
-        if (GhostRolesManager.AssignedGhostRoles.TryGetValue(target.PlayerId, out var ghostRole) && ghostRole.Instance is GA ga && ga.ProtectionList.Contains(target.PlayerId)) return false;
+        if (Echo.On)
+        {
+            foreach (Echo echo in Echo.Instances)
+            {
+                if (echo.EchoPC.shapeshiftTargetPlayerId == target.PlayerId)
+                {
+                    echo.OnTargetCheckMurder(killer, target);
+                    return false;
+                }
+            }
+        }
+
+        if (GhostRolesManager.AssignedGhostRoles.Values.Any(x => x.Instance is GA ga && ga.ProtectionList.Contains(target.PlayerId))) return false;
 
         if (SoulHunter.IsSoulHunterTarget(killer.PlayerId) && target.Is(CustomRoles.SoulHunter))
         {
@@ -1002,7 +1014,7 @@ class FixedUpdatePatch
             if (id.IsPlayerRoleBlocked())
             {
                 __instance.Notify(BlockedAction.Report.GetBlockNotify());
-                Logger.Info("Dead Body Report Blocked (player is hacked by Glitch)", "FixedUpdate.ReportDeadBody");
+                Logger.Info("Dead Body Report Blocked (player role blocked)", "FixedUpdate.ReportDeadBody");
                 ReportDeadBodyPatch.WaitReport[id].Clear();
             }
             else
@@ -1014,12 +1026,32 @@ class FixedUpdatePatch
             }
         }
 
+        if (AmongUsClient.Instance.AmHost)
+        {
+            if (GhostRolesManager.AssignedGhostRoles.TryGetValue(__instance.PlayerId, out var ghostRole))
+            {
+                switch (ghostRole.Instance)
+                {
+                    case Haunter haunter:
+                        haunter.Update(__instance);
+                        break;
+                    case Bloodmoon:
+                        Bloodmoon.Update(__instance);
+                        break;
+                }
+            }
+            else if (!Main.HasJustStarted && GameStates.IsInTask && GhostRolesManager.ShouldHaveGhostRole(__instance))
+            {
+                GhostRolesManager.AssignGhostRole(__instance);
+            }
+        }
+
         if (Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive())
         {
-            DeadBufferTime.TryAdd(id, IRandom.Instance.Next(50, 70));
+            DeadBufferTime.TryAdd(id, IRandom.Instance.Next(20, 40));
             DeadBufferTime[id]--;
             if (DeadBufferTime[id] > 0) return;
-            DeadBufferTime[id] = IRandom.Instance.Next(50, 70);
+            DeadBufferTime[id] = IRandom.Instance.Next(20, 40);
         }
 
         if (Options.LowLoadMode.GetBool())
@@ -1153,23 +1185,6 @@ class FixedUpdatePatch
                         if (subRoles.Contains(CustomRoles.Sonar)) Sonar.OnFixedUpdate(player);
                         if (subRoles.Contains(CustomRoles.Sleep)) Sleep.CheckGlowNearby(player);
                     }
-                }
-
-                if (GhostRolesManager.AssignedGhostRoles.TryGetValue(player.PlayerId, out var ghostRole))
-                {
-                    switch (ghostRole.Instance)
-                    {
-                        case Haunter haunter:
-                            haunter.Update(player);
-                            break;
-                        case Bloodmoon when !lowLoad:
-                            Bloodmoon.Update(player);
-                            break;
-                    }
-                }
-                else if (!lowLoad && !Main.HasJustStarted && GameStates.IsInTask && GhostRolesManager.ShouldHaveGhostRole(player))
-                {
-                    GhostRolesManager.AssignGhostRole(player);
                 }
 
                 long now = TimeStamp;
@@ -1486,6 +1501,7 @@ class FixedUpdatePatch
                 if (self)
                 {
                     Suffix.Append(Bloodmoon.GetSuffix(seer));
+                    Suffix.Append(Haunter.GetSuffix(seer));
                     if (seer.Is(CustomRoles.Asthmatic)) Suffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
                     if (seer.Is(CustomRoles.Sonar)) Suffix.Append(Sonar.GetSuffix(seer, GameStates.IsMeeting));
                 }

@@ -45,20 +45,24 @@ public static class GameOptionsMenuPatch
                 {
                     case StringNames.GameVotingTime:
                         ob.Cast<NumberOption>().ValidRange = new(0, 600);
+                        ob.Cast<NumberOption>().Value = (float)Math.Round(ob.Cast<NumberOption>().Value, 2);
                         break;
                     case StringNames.GameShortTasks:
                     case StringNames.GameLongTasks:
                     case StringNames.GameCommonTasks:
                         ob.Cast<NumberOption>().ValidRange = new(0, 90);
+                        ob.Cast<NumberOption>().Value = (float)Math.Round(ob.Cast<NumberOption>().Value, 2);
                         break;
                     case StringNames.GameKillCooldown:
                         ob.Cast<NumberOption>().ValidRange = new(0, 180);
                         ob.Cast<NumberOption>().Increment = 0.5f;
+                        ob.Cast<NumberOption>().Value = (float)Math.Round(ob.Cast<NumberOption>().Value, 2);
                         break;
                     case StringNames.GamePlayerSpeed:
                     case StringNames.GameCrewLight:
                     case StringNames.GameImpostorLight:
                         ob.Cast<NumberOption>().Increment = 0.05f;
+                        ob.Cast<NumberOption>().Value = (float)Math.Round(ob.Cast<NumberOption>().Value, 2);
                         break;
                 }
             }

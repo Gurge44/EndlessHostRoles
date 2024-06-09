@@ -1,4 +1,6 @@
-﻿using static EHR.Options;
+﻿using System;
+using System.Linq;
+using static EHR.Options;
 
 namespace EHR.Roles.AddOns.Common
 {
@@ -31,6 +33,8 @@ namespace EHR.Roles.AddOns.Common
             "RandomONImpRole",
             "LovingImpostor"
         ];
+
+        public static CustomRoles LovingImpostorRole;
 
         public AddonTypes Type => AddonTypes.Mixed;
 
@@ -102,6 +106,11 @@ namespace EHR.Roles.AddOns.Common
             CustomRoleCounts.Add(role, countOption);
 
             CustomAdtRoleSpawnRate.Add(role, rateOption);
+        }
+
+        public static void Init()
+        {
+            LovingImpostorRole = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && x.IsImpostor() && x != CustomRoles.LovingImpostor && !x.RoleExist(countDead: true) && !HnSManager.AllHnSRoles.Contains(x)).Shuffle()[0];
         }
     }
 }

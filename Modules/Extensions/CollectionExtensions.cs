@@ -83,11 +83,25 @@ namespace EHR
         /// Executes an action for each element in a collection if the predicate is true
         /// </summary>
         /// <param name="collection">The collection to iterate over</param>
+        /// <param name="fast">Whether to use a fast loop or linq</param>
         /// <param name="predicate">The predicate to check for each element</param>
         /// <param name="action">The action to execute for each element that satisfies the predicate</param>
         /// <typeparam name="T">The type of the elements in the collection</typeparam>
-        public static void DoIf<T>(this IEnumerable<T> collection, Func<T, bool> predicate, Action<T> action)
+        public static void DoIf<T>(this IEnumerable<T> collection, Func<T, bool> predicate, Action<T> action, bool fast = false)
         {
+            if (fast)
+            {
+                foreach (T element in collection)
+                {
+                    if (predicate(element))
+                    {
+                        action(element);
+                    }
+                }
+
+                return;
+            }
+
             var partitioner = Partitioner.Create(collection.Where(predicate));
             partitioner.GetDynamicPartitions().Do(action);
         }

@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using AmongUs.Data;
+using EHR.Roles.AddOns.Common;
 using EHR.Roles.AddOns.Crewmate;
 using EHR.Roles.AddOns.Impostor;
 using EHR.Roles.Crewmate;
@@ -184,6 +185,8 @@ class ExileControllerWrapUpPatch
         SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
         Logger.Info("Start task phase", "Phase");
 
+        if (!Lovers.IsChatActivated && Lovers.PrivateChat.GetBool()) return;
+
         bool showRemainingKillers = Options.EnableKillerLeftCommand.GetBool() && Options.ShowImpRemainOnEject.GetBool();
         bool appendEjectionNotify = CheckForEndVotingPatch.EjectionText != string.Empty;
         Logger.Warn($"Ejection Text: {CheckForEndVotingPatch.EjectionText}", "ExilePatch");
@@ -214,7 +217,7 @@ class ExileControllerWrapUpPatch
             }, 0.5f, log: false);
         }
 
-        LateTask.New(() => { ChatManager.SendPreviousMessagesToAll(); }, 3f, log: false);
+        LateTask.New(() => ChatManager.SendPreviousMessagesToAll(), 3f, log: false);
     }
 
     [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]

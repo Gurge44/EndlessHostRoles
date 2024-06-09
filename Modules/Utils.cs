@@ -313,17 +313,21 @@ public static class Utils
 
     public static void SaveComboInfo()
     {
-        SaveFile("./EHR_Data/AlwaysCombos.json");
-        SaveFile("./EHR_Data/NeverCombos.json");
+        SaveFile("./EHR_DATA/AlwaysCombos.json");
+        SaveFile("./EHR_DATA/NeverCombos.json");
         return;
 
         void SaveFile(string path)
         {
             try
             {
-                var data = new Il2CppSystem.Collections.Generic.Dictionary<string, List<int>>();
+                var data = new Il2CppSystem.Collections.Generic.Dictionary<string, Il2CppSystem.Collections.Generic.List<int>>();
                 var dict = path.Contains("Always") ? Main.AlwaysSpawnTogetherCombos : Main.NeverSpawnTogetherCombos;
-                dict.Do(pair => data[pair.Key.ToString()] = pair.Value.ConvertAll(x => (int)x));
+                dict.Do(pair =>
+                {
+                    data[pair.Key.ToString()] = new();
+                    pair.Value.Do(x => data[pair.Key.ToString()].Add((int)x));
+                });
                 File.WriteAllText(path, JsonConvert.SerializeObject(data, Formatting.Indented));
             }
             catch (Exception e)
@@ -336,8 +340,8 @@ public static class Utils
 
     public static void LoadComboInfo()
     {
-        LoadFile("./EHR_Data/AlwaysCombos.json");
-        LoadFile("./EHR_Data/NeverCombos.json");
+        LoadFile("./EHR_DATA/AlwaysCombos.json");
+        LoadFile("./EHR_DATA/NeverCombos.json");
         return;
 
         void LoadFile(string path)
@@ -345,13 +349,17 @@ public static class Utils
             try
             {
                 if (!File.Exists(path)) return;
-                var data = JsonConvert.DeserializeObject<Il2CppSystem.Collections.Generic.Dictionary<string, List<int>>>(File.ReadAllText(path));
+                var data = JsonConvert.DeserializeObject<Il2CppSystem.Collections.Generic.Dictionary<string, Il2CppSystem.Collections.Generic.List<int>>>(File.ReadAllText(path));
                 var dict = path.Contains("Always") ? Main.AlwaysSpawnTogetherCombos : Main.NeverSpawnTogetherCombos;
                 dict.Clear();
                 foreach (var pair in data)
                 {
                     var key = Enum.Parse<CustomRoles>(pair.Key);
-                    dict[key] = pair.Value.ConvertAll(x => (CustomRoles)x);
+                    dict[key] = [];
+                    foreach (var n in pair.Value)
+                    {
+                        dict[key].Add((CustomRoles)n);
+                    }
                 }
             }
             catch (Exception e)
@@ -423,12 +431,12 @@ public static class Utils
         var self = seerId == targetId || Main.PlayerStates[seerId].IsDead;
 
         bool isHnsAgentOverride = Options.CurrentGameMode == CustomGameMode.HideAndSeek && targetMainRole == CustomRoles.Agent && HnSManager.PlayerRoles[seerId].Interface.Team != Team.Impostor;
-        if (targetMainRole == CustomRoles.LovingImpostor)
+        if (!GameStates.IsEnded && targetMainRole == CustomRoles.LovingImpostor && !self && seerMainRole != CustomRoles.LovingCrewmate && !seerSubRoles.Contains(CustomRoles.Lovers))
         {
             targetMainRole = Lovers.LovingImpostorRoleForOtherImps.GetValue() switch
             {
                 0 => CustomRoles.ImpostorEHR,
-                1 => Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && x.IsImpostor() && x != CustomRoles.LovingImpostor && !HnSManager.AllHnSRoles.Contains(x)).Shuffle()[0],
+                1 => Lovers.LovingImpostorRole,
                 _ => CustomRoles.LovingImpostor
             };
         }
@@ -826,7 +834,7 @@ public static class Utils
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool() ||
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() ||
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosImp.GetBool() ||
-               CustomTeamManager.AreInSameCustomTeam(__instance.PlayerId, PlayerControl.LocalPlayer.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(__instance.PlayerId, "KnowRoles") ||
+               CustomTeamManager.AreInSameCustomTeam(__instance.PlayerId, PlayerControl.LocalPlayer.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(__instance.PlayerId, CTAOption.KnowRoles) ||
                Main.PlayerStates.Values.Any(x => x.Role.KnowRole(PlayerControl.LocalPlayer, __instance)) ||
                PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) ||
                PlayerControl.LocalPlayer.Is(CustomRoles.God) ||
@@ -1984,6 +1992,7 @@ public static class Utils
                     if (seer.Is(CustomRoles.Sonar)) SelfSuffix.Append(Sonar.GetSuffix(seer, isForMeeting));
 
                     SelfSuffix.Append(Bloodmoon.GetSuffix(seer));
+                    SelfSuffix.Append(Haunter.GetSuffix(seer));
 
                     switch (seer.GetCustomRole())
                     {
@@ -2230,7 +2239,7 @@ public static class Utils
                                 (target.Is(CustomRoles.Mayor) && Mayor.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished) ||
                                 (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished) ||
                                 (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
-                                CustomTeamManager.AreInSameCustomTeam(seer.PlayerId, target.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(seer.PlayerId, "KnowRoles") ||
+                                CustomTeamManager.AreInSameCustomTeam(seer.PlayerId, target.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(seer.PlayerId, CTAOption.KnowRoles) ||
                                 Main.PlayerStates.Values.Any(x => x.Role.KnowRole(seer, target)) ||
                                 Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == target.PlayerId) ||
                                 Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato ||

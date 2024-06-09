@@ -300,6 +300,7 @@ internal class ChangeRoleSettings
                 Asthmatic.Init();
                 DoubleShot.Init();
                 Circumvent.Init();
+                Lovers.Init();
             }
             catch (Exception ex)
             {
@@ -603,13 +604,23 @@ internal class SelectRolesPatch
 
             if (!overrideLovers && CustomRoles.Lovers.IsEnable() && (CustomRoles.FFF.IsEnable() ? -1 : rd.Next(1, 100)) <= Lovers.LoverSpawnChances.GetInt()) AssignLoversRolesFromList();
 
+            // Add-on assignment
             var aapc = Main.AllAlivePlayerControls;
+            var addonNum = aapc.ToDictionary(x => x, _ => 0);
             AddonRolesList
                 .Where(x => x.IsEnable())
                 .SelectMany(x => Enumerable.Repeat(x, Math.Clamp(x.GetCount(), 0, aapc.Length)))
                 .Shuffle()
                 .Chunk(aapc.Length)
-                .Do(c => c.Zip(aapc).DoIf(x => CustomRolesHelper.CheckAddonConflict(x.First, x.Second) && IRandom.Instance.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(x.First, out var sc) ? sc.GetFloat() : 0), x => Main.PlayerStates[x.Second.PlayerId].SetSubRole(x.First)));
+                .SelectMany(a => a.Select(x =>
+                {
+                    var suitablePlayer = aapc
+                        .OrderBy(p => addonNum[p])
+                        .FirstOrDefault(p => CustomRolesHelper.CheckAddonConflict(x, p));
+                    if (suitablePlayer != null) addonNum[suitablePlayer]++;
+                    return (Role: x, SuitablePlayer: suitablePlayer);
+                }))
+                .DoIf(x => x.SuitablePlayer != null && IRandom.Instance.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(x.Role, out var sc) ? sc.GetFloat() : 0), x => Main.PlayerStates[x.SuitablePlayer.PlayerId].SetSubRole(x.Role), fast: true);
 
 
             foreach (var state in Main.PlayerStates.Values)

@@ -223,7 +223,7 @@ namespace EHR
             if (result.ContainsValue(CustomRoles.Agent))
             {
                 var agent = result.GetKeyByValue(CustomRoles.Agent).PlayerId;
-                PlayerRoles.DoIf(x => x.Value.Role != CustomRoles.Agent && x.Value.Interface.Team == Team.Impostor, x => TargetArrow.Add(x.Key, agent));
+                PlayerRoles.DoIf(x => x.Value.Role != CustomRoles.Agent && x.Value.Interface.Team == Team.Impostor, x => TargetArrow.Add(x.Key, agent), fast: true);
             }
         }
 

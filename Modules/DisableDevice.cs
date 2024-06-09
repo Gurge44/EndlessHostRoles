@@ -178,21 +178,21 @@ public class RemoveDisableDevicesPatch
                 if (Options.DisableSkeldAdmin.GetBool() || rogueForce)
                     admins[0].gameObject.GetComponent<CircleCollider2D>().enabled = ignore;
                 if (Options.DisableSkeldCamera.GetBool() || rogueForce)
-                    consoles.DoIf(x => x.name == "SurvConsole", x => x.gameObject.GetComponent<PolygonCollider2D>().enabled = ignore);
+                    consoles.DoIf(x => x.name == "SurvConsole", x => x.gameObject.GetComponent<PolygonCollider2D>().enabled = ignore, fast: true);
                 break;
             case 1:
                 if (Options.DisableMiraHQAdmin.GetBool() || rogueForce)
                     admins[0].gameObject.GetComponent<CircleCollider2D>().enabled = ignore;
                 if (Options.DisableMiraHQDoorLog.GetBool() || rogueForce)
-                    consoles.DoIf(x => x.name == "SurvLogConsole", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = ignore);
+                    consoles.DoIf(x => x.name == "SurvLogConsole", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = ignore, fast: true);
                 break;
             case 2:
                 if (Options.DisablePolusAdmin.GetBool() || rogueForce)
                     admins.Do(x => x.gameObject.GetComponent<BoxCollider2D>().enabled = ignore);
                 if (Options.DisablePolusCamera.GetBool() || rogueForce)
-                    consoles.DoIf(x => x.name == "Surv_Panel", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = ignore);
+                    consoles.DoIf(x => x.name == "Surv_Panel", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = ignore, fast: true);
                 if (Options.DisablePolusVital.GetBool() || rogueForce)
-                    consoles.DoIf(x => x.name == "panel_vitals", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = ignore);
+                    consoles.DoIf(x => x.name == "panel_vitals", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = ignore, fast: true);
                 break;
             case 4:
                 admins.Do(x =>
@@ -202,15 +202,15 @@ public class RemoveDisableDevicesPatch
                         x.gameObject.GetComponent<BoxCollider2D>().enabled = ignore;
                 });
                 if (Options.DisableAirshipCamera.GetBool() || rogueForce)
-                    consoles.DoIf(x => x.name == "task_cams", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = ignore);
+                    consoles.DoIf(x => x.name == "task_cams", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = ignore, fast: true);
                 if (Options.DisableAirshipVital.GetBool() || rogueForce)
-                    consoles.DoIf(x => x.name == "panel_vitals", x => x.gameObject.GetComponent<CircleCollider2D>().enabled = ignore);
+                    consoles.DoIf(x => x.name == "panel_vitals", x => x.gameObject.GetComponent<CircleCollider2D>().enabled = ignore, fast: true);
                 break;
             case 5:
                 if (Options.DisableFungleCamera.GetBool() || rogueForce)
-                    consoles.DoIf(x => x.name == "BinocularsSecurityConsole", x => x.gameObject.GetComponent<PolygonCollider2D>().enabled = ignore);
+                    consoles.DoIf(x => x.name == "BinocularsSecurityConsole", x => x.gameObject.GetComponent<PolygonCollider2D>().enabled = ignore, fast: true);
                 if (Options.DisableFungleCamera.GetBool() || rogueForce)
-                    consoles.DoIf(x => x.name == "VitalsConsole", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = ignore);
+                    consoles.DoIf(x => x.name == "VitalsConsole", x => x.gameObject.GetComponent<BoxCollider2D>().enabled = ignore, fast: true);
                 break;
         }
     }

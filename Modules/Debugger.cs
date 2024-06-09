@@ -79,7 +79,7 @@ class Logger
             string memberName = stack.GetMethod()?.Name;
             log_text = $"[{t}][{className}.{memberName}({Path.GetFileName(fileName)}:{lineNumber})][{tag}]{text}";
             NowDetailedErrorLog.Add(tag);
-            LateTask.New(() => NowDetailedErrorLog.Remove(tag), 5f, log: false);
+            LateTask.New(() => NowDetailedErrorLog.Remove(tag), 3f, log: false);
         }
         else
         {

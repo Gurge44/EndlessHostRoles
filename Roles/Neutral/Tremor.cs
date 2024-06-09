@@ -18,11 +18,10 @@ public class Tremor : RoleBase
     private static OptionItem TimerStart;
     private static OptionItem TimerDecrease;
     private static OptionItem DoomTime;
+
     int Count;
     int DoomTimer;
-
     long LastUpdate = Utils.TimeStamp;
-
     int Timer;
 
     public override bool IsEnable => On;
@@ -71,7 +70,7 @@ public class Tremor : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || !pc.IsAlive()) return;
+        if (!GameStates.IsInTask || ExileController.Instance || !pc.IsAlive()) return;
 
         bool wasDoom = IsDoom;
 

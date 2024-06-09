@@ -755,7 +755,20 @@ internal class ChatCommands
             goto Canceled;
         }
 
-        if ((PlayerControl.LocalPlayer.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting)) goto Canceled;
+        if (GameStates.IsInGame && ((PlayerControl.LocalPlayer.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting)))
+        {
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) || PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
+            {
+                var otherLover = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId);
+                var title = PlayerControl.LocalPlayer.GetRealName();
+                ChatUpdatePatch.LoversMessage = true;
+                Utils.SendMessage(text, otherLover.PlayerId, title);
+                Utils.SendMessage(text, PlayerControl.LocalPlayer.PlayerId, title);
+                LateTask.New(() => ChatUpdatePatch.LoversMessage = false, 1f, log: false);
+            }
+
+            goto Canceled;
+        }
 
         goto Skip;
         Canceled:
@@ -1382,14 +1395,21 @@ internal class ChatCommands
             return;
         }
 
-        if (GameStates.IsInGame && ((player.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting)))
+        if (GameStates.IsInGame && !ChatUpdatePatch.LoversMessage && ((player.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting)))
         {
-            ChatManager.SendPreviousMessagesToAll();
+            ChatManager.SendPreviousMessagesToAll(clear: true);
             canceled = true;
             if (player.Is(CustomRoles.Lovers) || player.GetCustomRole() is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
             {
                 var otherLover = Main.LoversPlayers.First(x => x.PlayerId != player.PlayerId);
-                LateTask.New(() => Utils.SendMessage(text, otherLover.PlayerId, player.GetRealName()), 0.5f, log: false);
+                LateTask.New(() =>
+                {
+                    var title = player.GetRealName();
+                    ChatUpdatePatch.LoversMessage = true;
+                    Utils.SendMessage(text, otherLover.PlayerId, title);
+                    Utils.SendMessage(text, player.PlayerId, title);
+                    LateTask.New(() => ChatUpdatePatch.LoversMessage = false, 1f, log: false);
+                }, 0.5f, log: false);
             }
         }
 
@@ -1402,6 +1422,7 @@ internal class ChatCommands
 internal class ChatUpdatePatch
 {
     public static bool DoBlockChat;
+    public static bool LoversMessage;
 
     public static void Postfix(ChatController __instance)
     {

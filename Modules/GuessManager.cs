@@ -186,7 +186,7 @@ public static class GuessManager
                         return true;
                     }
 
-                    if (CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, targetId) && !CustomTeamManager.IsSettingEnabledForPlayerTeam(targetId, "GuessEachOther"))
+                    if (CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, targetId) && !CustomTeamManager.IsSettingEnabledForPlayerTeam(targetId, CTAOption.GuessEachOther))
                     {
                         if (!isUI) Utils.SendMessage(GetString("GuessSameCTAPlayer"), pc.PlayerId);
                         else pc.ShowPopUp(GetString("GuessSameCTAPlayer"));
@@ -237,8 +237,8 @@ public static class GuessManager
                         case CustomRoles.Doomsayer:
                             if (Doomsayer.CantGuess)
                             {
-                                if (!isUI) Utils.SendMessage(GetString("DommsayerCantGuess"), pc.PlayerId);
-                                else pc.ShowPopUp(GetString("DommsayerCantGuess"));
+                                if (!isUI) Utils.SendMessage(GetString("DoomsayerCantGuess"), pc.PlayerId);
+                                else pc.ShowPopUp(GetString("DoomsayerCantGuess"));
                                 return true;
                             }
 
@@ -357,8 +357,8 @@ public static class GuessManager
 
                     if (Jailor.playerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == target.PlayerId))
                     {
-                        if (!isUI) Utils.SendMessage(GetString("Can'tGuessJailed"), pc.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
-                        else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")) + "\n" + GetString("Can'tGuessJailed"));
+                        if (!isUI) Utils.SendMessage(GetString("CantGuessJailed"), pc.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
+                        else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")) + "\n" + GetString("CantGuessJailed"));
                         return true;
                     }
 
@@ -482,8 +482,8 @@ public static class GuessManager
                     {
                         if (Doomsayer.GuessesCountPerMeeting >= Doomsayer.MaxNumberOfGuessesPerMeeting.GetInt() && pc.PlayerId != dp.PlayerId)
                         {
-                            if (!isUI) Utils.SendMessage(GetString("DommsayerCantGuess"), pc.PlayerId);
-                            else pc.ShowPopUp(GetString("DommsayerCantGuess"));
+                            if (!isUI) Utils.SendMessage(GetString("DoomsayerCantGuess"), pc.PlayerId);
+                            else pc.ShowPopUp(GetString("DoomsayerCantGuess"));
                             return true;
                         }
 
