@@ -48,25 +48,20 @@ public class MainMenuManagerPatch
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPrefix]
     public static void Start_Prefix(MainMenuManager __instance)
     {
+        if (Template == null) Template = __instance.quitButton;
+        if (Template == null) return;
 
-        if (UpdateButton == null) UpdateButton = Object.Instantiate(Template, Template.transform.parent);
-        UpdateButton.name = "UpdateButton";
-        UpdateButton.transform.position = Template.transform.position + new Vector3(0.25f, 0.75f);
-        UpdateButton.transform.GetChild(0).GetComponent<RectTransform>().localScale *= 1.5f;
-
-        var updateText = UpdateButton.transform.GetChild(0).GetComponent<TMP_Text>();
-        Color updateColor = new Color32(247, 56, 23, byte.MaxValue);
-        PassiveButton updatePassiveButton = UpdateButton.GetComponent<PassiveButton>();
-        SpriteRenderer updateButtonSprite = UpdateButton.GetComponent<SpriteRenderer>();
-        updatePassiveButton.OnClick = new();
-        updatePassiveButton.OnClick.AddListener((Action)(() =>
+        if (UpdateButton == null)
         {
-            UpdateButton.gameObject.SetActive(false);
-            ModUpdater.StartUpdate(ModUpdater.downloadUrl, true);
-        }));
-        updatePassiveButton.OnMouseOut.AddListener((Action)(() => updateButtonSprite.color = updateText.color = updateColor));
-        updateButtonSprite.color = updateText.color = updateColor;
-        updateButtonSprite.size *= 1.5f;
+            UpdateButton = CreateButton(
+                "updateButton",
+                new(4.2f, -1.3f, 1f),
+                new(255, 165, 0, byte.MaxValue),
+                new(255, 200, 0, byte.MaxValue),
+                () => ModUpdater.StartUpdate(ModUpdater.downloadUrl, true),
+                Translator.GetString("updateButton"));
+            UpdateButton.transform.localScale = Vector3.one;
+        }
         UpdateButton.gameObject.SetActive(ModUpdater.hasUpdate);
 
         Application.targetFrameRate = Main.UnlockFps.Value ? 9999 : 60;
@@ -101,12 +96,20 @@ public class MainMenuManagerPatch
     {
         Instance = __instance;
 
+        SimpleButton.SetBase(__instance.quitButton);
+            var logoObject = new GameObject("titleLogo_MG");
+            var logoTransform = logoObject.transform;
+            MG_Logo = logoObject.AddComponent<SpriteRenderer>();
+            logoTransform.localPosition = new(2f, -0.5f, 1f);
+            logoTransform.localScale *= 1.2f;
+            MG_Logo.sprite = Utils.LoadSprite("EHR.Resources.Images.EHR-Icon.png", 400f);
+
         // GitHub Button
         if (gitHubButton == null)
         {
             gitHubButton = CreateButton(
                 "GitHubButton",
-                new Vector3(-1.8f, -1.5f, 1f),
+                new Vector3(-2.3f, -1.3f, 1f),
                 new Color32(153, 153, 153, byte.MaxValue),
                 new Color32(209, 209, 209, byte.MaxValue),
                 () => Application.OpenURL("https://github.com/Gurge44/EndlessHostRoles"),
@@ -119,7 +122,7 @@ public class MainMenuManagerPatch
         {
             discordButton = CreateButton(
                 "DiscordButton",
-                new Vector3(-1.8f, -1.9f, 1f),
+                new Vector3(-0.5f, -1.3f, 1f),
                 new Color32(88, 101, 242, byte.MaxValue),
                 new Color32(148, 161, byte.MaxValue, byte.MaxValue),
                 () => Application.OpenURL("https://discord.com/invite/m3ayxfumC8"),
@@ -132,21 +135,13 @@ public class MainMenuManagerPatch
         {
             websiteButton = CreateButton(
                 "WebsiteButton",
-                new Vector3(-1.8f, -2.3f, 1f),
+                new Vector3(1.3f, -1.3f, 1f),
                 new Color32(251, 81, 44, byte.MaxValue),
                 new Color32(211, 77, 48, byte.MaxValue),
                 () => Application.OpenURL("https://sites.google.com/view/ehr-au"),
                 Translator.GetString("Website")); //"Website"
         }
         websiteButton.gameObject.SetActive(true);
-
-        SimpleButton.SetBase(__instance.quitButton);
-            var logoObject = new GameObject("titleLogo_MG");
-            var logoTransform = logoObject.transform;
-            MG_Logo = logoObject.AddComponent<SpriteRenderer>();
-            logoTransform.localPosition = new(2f, -0.5f, 1f);
-            logoTransform.localScale *= 1.2f;
-            MG_Logo.sprite = Utils.LoadSprite("EHR.Resources.Images.EHR-Icon.png", 400f);
 
         Application.targetFrameRate = Main.UnlockFps.Value ? 9999 : 60;
     }
