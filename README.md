@@ -299,9 +299,10 @@
 > - Reference: Store message history
 >
 
-### :star: [MoreGamemodes](https://github.com/Rabek009/MoreGamemodes) :
+### :star: [More Gamemodes](https://github.com/Rabek009/MoreGamemodes) :
 > 
 > - Reference: Part of the code used for the Endless Host Roles Image in the Main Menu
+> - Reference: Custom Net Objects
 >
 
 ### Endless Host Roles (EHR), with Endless Possibilities, brought to you by the Endless Network.
