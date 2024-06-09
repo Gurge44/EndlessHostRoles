@@ -2379,6 +2379,8 @@
   "AntiBlackOutLoggerSendInGame": "Из-за неизвестной ошибки игра будет завершена для предотвращения чёрного экрана.",
   "AntiBlackOutRequestHostToForceEnd": "Вы - причина чёрного экрана. Ваш клиент просит хоста остановить игру.",
   "AntiBlackOutHostRejectForceEnd": "Вы - причина чёрного экрана, но хост не остановит игру, поэтому мы сейчас вас отключим.",
+  "GitHub": "GitHub",
+  "Discord": "Discord",
   "Website": "Веб-сайт",
   "NextPage": "След. страница",
   "PreviousPage": "Пред. страница",
