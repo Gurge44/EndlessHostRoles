@@ -3104,7 +3104,7 @@
   "LobbyCloseTimer": "Время до закрытия лобби: {0}",
   "HorseMode": "Лошадиный Режим",
   "LongMode": "Длинный Режим",
-  "CustomTeamHelp": "You are in the {0}! ({1})\\nWork with your team members to win together!",
+  "CustomTeamHelp": "Вы состоите в команде {0}! ({1}) \\nРаботайте сообща, чтобы выиграть вместе!",
   "NoPetActionMsg1": "Вы съели печеньку",
   "NoPetActionMsg2": "Вы осмотрелись",
   "NoPetActionMsg3": "Вы задумались, подозрительные вы или нет...",
