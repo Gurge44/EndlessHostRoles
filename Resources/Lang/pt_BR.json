@@ -2399,6 +2399,8 @@
   "AntiBlackOutLoggerSendInGame": "Por causa de um erro desconhecido, o Jogo irá acabar para evitar telas pretas.",
   "AntiBlackOutRequestHostToForceEnd": "Você foi o motivo da tela preta, você está pedindo para o Anfitrião encerrar o jogo...",
   "AntiBlackOutHostRejectForceEnd": "Você foi o motivo pra tela preta, e o Anfitrião não irá encerrar o jogo, você será desconectado em breve.",
+  "GitHub": "GitHub",
+  "Discord": "Discord",
   "Website": "Página",
   "NextPage": "Próxima Página",
   "PreviousPage": "Página Anterior",
