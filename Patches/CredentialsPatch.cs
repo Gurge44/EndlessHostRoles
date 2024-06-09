@@ -200,18 +200,8 @@ internal class TitleLogoPatch
         Tint.transform.SetParent(RightPanel.transform);
         Tint.transform.localPosition = new Vector3(-0.0824f, 0.0513f, Tint.transform.localPosition.z);
         Tint.transform.localScale = new Vector3(1f, 1f, 1f);
-            __instance.creditsButton.gameObject.SetActive(false);
             __instance.howToPlayButton.gameObject.SetActive(false);
             __instance.howToPlayButton.transform.parent.Find("FreePlayButton").gameObject.SetActive(false);
-
-        var creditsScreen = __instance.creditsScreen;
-        if (creditsScreen)
-        {
-            var csto = creditsScreen.GetComponent<TransitionOpen>();
-            if (csto) Object.Destroy(csto);
-            var closeButton = creditsScreen.transform.FindChild("CloseButton");
-            closeButton?.gameObject.SetActive(false);
-        }
 
         if (!(BottomButtonBounds = GameObject.Find("BottomButtonBounds"))) return;
         BottomButtonBounds.transform.localPosition -= new Vector3(0f, 0.1f, 0f);

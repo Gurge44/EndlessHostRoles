@@ -68,7 +68,7 @@ public class MainMenuManagerPatch
         updateButtonSprite.size *= 1.5f;
         UpdateButton.gameObject.SetActive(ModUpdater.hasUpdate);
 
-        Application.targetFrameRate = Main.UnlockFps.Value ? 165 : 60;
+        Application.targetFrameRate = Main.UnlockFps.Value ? 9999 : 60;
     }
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.LateUpdate)), HarmonyPostfix]
     public static void MainMenuManager_LateUpdate()
