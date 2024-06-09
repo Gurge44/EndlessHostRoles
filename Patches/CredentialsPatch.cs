@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using EHR.Modules;
@@ -80,52 +81,28 @@ internal class VersionShowerStartPatch
     }
 }
 
-[HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start))]
+[HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPriority(Priority.First)]
 internal class TitleLogoPatch
 {
+    public static GameObject ModStamp;
     public static GameObject Ambience;
     public static GameObject LoadingHint;
+    public static GameObject LeftPanel;
+    public static GameObject RightPanel;
+    public static GameObject CloseRightButton;
+    public static GameObject Tint;
+    public static GameObject BottomButtonBounds;
 
-    //private static readonly Color themeColor1 = new(0.99f, 0.55f, 0.56f);
-    //private static readonly Color themeColor2 = new(1f, 0.31f, 0.09f);
-    //private static readonly Color themeColor3 = new(0.08f, 0.03f, 0.12f);
-    //private static readonly Color themeColor4 = new(0.11f, 0.13f, 0.59f);
-    //private static readonly Color themeColor5 = new(0.63f, 0.53f, 0.89f);
-    //private static readonly Color themeColor6 = new(0.69f, 0.2f, 0.65f);
-    //private static readonly Color themeColor7 = new(0.97f, 0.41f, 0.61f);
-    //private static readonly Color themeColor8 = new(0.27f, 0.21f, 0.7f);
-    //private static readonly Color themeColor9 = new(0.42f, 0.3f, 0.8f);
-    //private static readonly Color themeColor10 = new(0.18f, 0.2f, 0.59f);
-    //private static readonly Color themeColor11 = new(0.96f, 0.88f, 0.86f);
-
-    // Winter BG
-    // private static readonly Color ThemeColor1 = new(0.98f, 0.7f, 0.44f);
-    // private static readonly Color ThemeColor2 = new(0.98f, 0.61f, 0.42f);
-    // private static readonly Color ThemeColor3 = new(0.04f, 0.41f, 0.75f);
-    // private static readonly Color ThemeColor4 = new(0.12f, 0.17f, 0.47f);
-    // private static readonly Color ThemeColor5 = new(0.38f, 0.44f, 0.66f);
-    // private static readonly Color ThemeColor6 = new(0.72f, 0.68f, 0.79f);
-    // private static readonly Color ThemeColor7 = ThemeColor1.ShadeColor(0.1f);
-    // private static readonly Color ThemeColor8 = new(0.19f, 0.24f, 0.37f);
-    // private static readonly Color ThemeColor9 = ThemeColor5.ShadeColor(0.1f);
-    // private static readonly Color ThemeColor10 = ThemeColor4.ShadeColor(0.1f);
-    // private static readonly Color ThemeColor11 = ThemeColor6.ShadeColor(0.1f);
-
-    // Summer BG
-    private static readonly Color ThemeColor1 = new(0.706f, 0.588f, 0.455f);
-    private static readonly Color ThemeColor2 = new(0.827f, 0.827f, 0.643f);
-    private static readonly Color ThemeColor3 = new(0.196f, 0.196f, 0.067f);
-    private static readonly Color ThemeColor4 = new(0.145f, 0.655f, 0.859f);
-    private static readonly Color ThemeColor5 = new(0.580f, 0.780f, 0.820f);
-    private static readonly Color ThemeColor6 = new(0.435f, 0.776f, 0.925f);
-    private static readonly Color ThemeColor7 = new(0.161f, 0.439f, 0.588f);
-    private static readonly Color ThemeColor8 = new(0.388f, 0.565f, 0.537f);
-    private static readonly Color ThemeColor9 = new(0.463f, 0.471f, 0.188f);
-    private static readonly Color ThemeColor10 = Color.black;
-    private static readonly Color ThemeColor11 = ThemeColor4.ShadeColor(0.1f);
+    public static Vector3 RightPanelOp;
 
     private static void Postfix(MainMenuManager __instance)
     {
+
+        GameObject.Find("BackgroundTexture")?.SetActive(!MainMenuManagerPatch.ShowedBak);
+
+        if (!(ModStamp = GameObject.Find("ModStamp"))) return;
+        ModStamp.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+
         if (!Options.IsLoaded)
         {
             LoadingHint = new("LoadingHint")
@@ -148,114 +125,86 @@ internal class TitleLogoPatch
             try
             {
                 if (Options.IsLoaded) __instance.playButton.transform.gameObject.SetActive(true);
-
-                SpriteRenderer activeSpriteRender = __instance.playButton.activeSprites.GetComponent<SpriteRenderer>();
-                activeSpriteRender.color = ThemeColor1;
-
-                SpriteRenderer inactiveSpriteRender = __instance.playButton.inactiveSprites.GetComponent<SpriteRenderer>();
-                inactiveSpriteRender.color = ThemeColor2;
-                inactiveSpriteRender.sprite = activeSpriteRender.sprite;
-
-                __instance.playLocalButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.yellow;
-                __instance.PlayOnlineButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.yellow;
-
-                __instance.howToPlayButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.magenta;
-                __instance.howToPlayButton.inactiveSprites.GetComponent<SpriteRenderer>().color = Color.blue;
-                __instance.howToPlayButton.activeTextColor = Color.white;
-                __instance.howToPlayButton.inactiveTextColor = Color.white;
-                __instance.accountCTAButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.yellow;
-
-                __instance.playButton.activeTextColor = ThemeColor3;
-                __instance.playButton.inactiveTextColor = ThemeColor3;
-
-                __instance.inventoryButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor4;
-                __instance.inventoryButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor5;
-                __instance.inventoryButton.activeTextColor = Color.white;
-                __instance.inventoryButton.inactiveTextColor = Color.white;
-
-                __instance.shopButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor4;
-                __instance.shopButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor5;
-                __instance.shopButton.activeTextColor = Color.white;
-                __instance.shopButton.inactiveTextColor = Color.white;
-
-                __instance.newsButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor6;
-                __instance.newsButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor7;
-                __instance.newsButton.activeTextColor = Color.white;
-                __instance.newsButton.inactiveTextColor = Color.white;
-
-                __instance.myAccountButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor6;
-                __instance.myAccountButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor7;
-                __instance.myAccountButton.activeTextColor = Color.white;
-                __instance.myAccountButton.inactiveTextColor = Color.white;
-
-                __instance.settingsButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor6;
-                __instance.settingsButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor7;
-                __instance.settingsButton.activeTextColor = Color.white;
-                __instance.settingsButton.inactiveTextColor = Color.white;
-
-                __instance.quitButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor8;
-                __instance.quitButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor9;
-                __instance.quitButton.activeTextColor = Color.white;
-                __instance.quitButton.inactiveTextColor = Color.white;
-
-                __instance.creditsButton.inactiveSprites.GetComponent<SpriteRenderer>().color = ThemeColor10;
-                __instance.creditsButton.activeSprites.GetComponent<SpriteRenderer>().color = ThemeColor11;
-                __instance.creditsButton.activeTextColor = Color.white;
-                __instance.creditsButton.inactiveTextColor = Color.white;
-
-                GameObject.Find("WindowShine")?.transform.gameObject.SetActive(false);
-                GameObject.Find("ScreenCover")?.transform.gameObject.SetActive(false);
-                GameObject.Find("BackgroundTexture")?.transform.gameObject.SetActive(false);
-
-                Ambience.SetActive(false);
-                var customBg = new GameObject("CustomBG")
-                {
-                    transform =
-                    {
-                        position = new(0f, 0f, 520f)
-                    }
-                };
-                var bgRenderer = customBg.AddComponent<SpriteRenderer>();
-                bgRenderer.sprite = Utils.LoadSprite("EHR.Resources.Images.SummerBG.jpg", 180f);
-
-                if (__instance.screenTint != null)
-                {
-                    __instance.screenTint.gameObject.transform.localPosition += new Vector3(1000f, 0f);
-                    __instance.screenTint.enabled = false;
-                }
-
-                __instance.rightPanelMask?.SetActive(true);
-
-                GameObject leftPanel = GameObject.Find("LeftPanel")?.transform.gameObject;
-                GameObject rightPanel = GameObject.Find("RightPanel")?.transform.gameObject;
-                if (rightPanel != null)
-                {
-                    rightPanel.gameObject.GetComponent<SpriteRenderer>().enabled = false;
-                }
-
-                GameObject maskedBlackScreen = GameObject.Find("MaskedBlackScreen")?.transform.gameObject;
-                if (maskedBlackScreen != null)
-                {
-                    maskedBlackScreen.GetComponent<SpriteRenderer>().enabled = false;
-                    maskedBlackScreen.transform.localPosition = new(-2.5f, 0.6f);
-                    maskedBlackScreen.transform.localScale = new(7.35f, 4.5f, 4f);
-                }
-
-                GameObject.Find("Shine")?.transform.gameObject.SetActive(false);
-
-                leftPanel?.GetComponentsInChildren<SpriteRenderer>(true).Where(r => r.name == "Shine").Do(r => r.color = new(0f, 0f, 1f, 0.1f));
-
-                if (leftPanel != null) leftPanel.gameObject.GetComponent<SpriteRenderer>().enabled = false;
-                GameObject.Find("LeftPanel")?.transform.Find("Divider")?.gameObject.SetActive(false);
-
-                PlayerParticles particles = Object.FindObjectOfType<PlayerParticles>();
-                particles?.gameObject.SetActive(false);
             }
             catch (Exception ex)
             {
                 Logger.Warn(ex.ToString(), "MainMenuLoader");
             }
         }
+
+        if (!(LeftPanel = GameObject.Find("LeftPanel"))) return;
+        LeftPanel.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
+        static void ResetParent(GameObject obj) => obj.transform.SetParent(LeftPanel.transform.parent);
+        LeftPanel.ForEachChild((Il2CppSystem.Action<GameObject>)ResetParent);
+        LeftPanel.SetActive(false);
+
+        Color shade = new(0f, 0f, 0f, 0f);
+        var standardActiveSprite = __instance.newsButton.activeSprites.GetComponent<SpriteRenderer>().sprite;
+        var minorActiveSprite = __instance.quitButton.activeSprites.GetComponent<SpriteRenderer>().sprite;
+
+        Dictionary<List<PassiveButton>, (Sprite, Color, Color, Color, Color)> mainButtons = new()
+        {
+            {new List<PassiveButton>() {__instance.playButton, __instance.inventoryButton, __instance.shopButton},
+                (standardActiveSprite, new(1f, 0.524f, 0.549f, 0.8f), shade, Color.white, Color.white) },
+            {new List<PassiveButton>() {__instance.newsButton, __instance.myAccountButton, __instance.settingsButton},
+                (minorActiveSprite, new(1f, 0.825f, 0.686f, 0.8f), shade, Color.white, Color.white) },
+            {new List<PassiveButton>() {__instance.creditsButton, __instance.quitButton},
+                (minorActiveSprite, new(0.526f, 1f, 0.792f, 0.8f), shade, Color.white, Color.white) },
+        };
+
+        void FormatButtonColor(PassiveButton button, Sprite borderType, Color inActiveColor, Color activeColor, Color inActiveTextColor, Color activeTextColor)
+        {
+            button.activeSprites.transform.FindChild("Shine")?.gameObject?.SetActive(false);
+            button.inactiveSprites.transform.FindChild("Shine")?.gameObject?.SetActive(false);
+            var activeRenderer = button.activeSprites.GetComponent<SpriteRenderer>();
+            var inActiveRenderer = button.inactiveSprites.GetComponent<SpriteRenderer>();
+            activeRenderer.sprite = minorActiveSprite;
+            inActiveRenderer.sprite = minorActiveSprite;
+            activeRenderer.color = activeColor.a == 0f ? new Color(inActiveColor.r, inActiveColor.g, inActiveColor.b, 1f) : activeColor;
+            inActiveRenderer.color = inActiveColor;
+            button.activeTextColor = activeTextColor;
+            button.inactiveTextColor = inActiveTextColor;
+        }
+
+        foreach (var kvp in mainButtons)
+            kvp.Key.Do(button => FormatButtonColor(button, kvp.Value.Item1, kvp.Value.Item2, kvp.Value.Item3, kvp.Value.Item4, kvp.Value.Item5));
+
+        GameObject.Find("Divider")?.SetActive(false);
+
+        if (!(RightPanel = GameObject.Find("RightPanel"))) return;
+        var rpap = RightPanel.GetComponent<AspectPosition>();
+        if (rpap) Object.Destroy(rpap);
+        RightPanelOp = RightPanel.transform.localPosition;
+        RightPanel.transform.localPosition = RightPanelOp + new Vector3(10f, 0f, 0f);
+        RightPanel.GetComponent<SpriteRenderer>().color = new(1f, 0.78f, 0.9f, 1f);
+
+        CloseRightButton = new GameObject("CloseRightPanelButton");
+        CloseRightButton.transform.SetParent(RightPanel.transform);
+        CloseRightButton.transform.localPosition = new Vector3(-4.78f, 1.3f, 1f);
+        CloseRightButton.transform.localScale = new(1f, 1f, 1f);
+        CloseRightButton.AddComponent<BoxCollider2D>().size = new(0.6f, 1.5f);
+        var closeRightSpriteRenderer = CloseRightButton.AddComponent<SpriteRenderer>();
+        closeRightSpriteRenderer.sprite = Utils.LoadSprite("EHR.Resources.Images.RightPanelCloseButton.png", 100f);
+        closeRightSpriteRenderer.color = new(1f, 0.78f, 0.9f, 1f);
+        var closeRightPassiveButton = CloseRightButton.AddComponent<PassiveButton>();
+        closeRightPassiveButton.OnClick = new();
+        closeRightPassiveButton.OnClick.AddListener((System.Action)MainMenuManagerPatch.HideRightPanel);
+        closeRightPassiveButton.OnMouseOut = new();
+        closeRightPassiveButton.OnMouseOut.AddListener((System.Action)(() => closeRightSpriteRenderer.color = new(1f, 0.78f, 0.9f, 1f)));
+        closeRightPassiveButton.OnMouseOver = new();
+        closeRightPassiveButton.OnMouseOver.AddListener((System.Action)(() => closeRightSpriteRenderer.color = new(1f, 0.68f, 0.99f, 1f)));
+
+        Tint = __instance.screenTint.gameObject;
+        var ttap = Tint.GetComponent<AspectPosition>();
+        if (ttap) Object.Destroy(ttap);
+        Tint.transform.SetParent(RightPanel.transform);
+        Tint.transform.localPosition = new Vector3(-0.0824f, 0.0513f, Tint.transform.localPosition.z);
+        Tint.transform.localScale = new Vector3(1f, 1f, 1f);
+            __instance.howToPlayButton.gameObject.SetActive(false);
+            __instance.howToPlayButton.transform.parent.Find("FreePlayButton").gameObject.SetActive(false);
+
+        if (!(BottomButtonBounds = GameObject.Find("BottomButtonBounds"))) return;
+        BottomButtonBounds.transform.localPosition -= new Vector3(0f, 0.1f, 0f);
     }
 }
 

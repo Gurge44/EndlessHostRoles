@@ -2379,6 +2379,8 @@
   "AntiBlackOutLoggerSendInGame": "Because of an unknown error, the game will end to prevent black screen.",
   "AntiBlackOutRequestHostToForceEnd": "You were the reason of the black screen, you are asking the host to stop the game...",
   "AntiBlackOutHostRejectForceEnd": "You were the reason of the black screen, and the host is not going to end the game, we will disconnect you soon.",
+  "GitHub": "GitHub",
+  "Discord": "Discord",
   "Website": "Website",
   "NextPage": "Next Page",
   "PreviousPage": "Previous Page",
