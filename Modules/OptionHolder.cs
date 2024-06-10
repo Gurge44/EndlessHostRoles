@@ -278,6 +278,8 @@ public static class Options
 
     public static OptionItem GuesserDoesntDieOnMisguess;
 
+    public static OptionItem RefugeeKillCD;
+
     public static OptionItem SkeldChance;
     public static OptionItem MiraChance;
     public static OptionItem PolusChance;
@@ -925,6 +927,10 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard);
         MadmateHasImpostorVision = new BooleanOptionItem(156, "MadmateHasImpostorVision", true, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.Standard);
+
+        RefugeeKillCD = new FloatOptionItem(157, "RefugeeKillCD", new(0f, 180f, 2.5f), 25f, TabGroup.NeutralRoles)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetValueFormat(OptionFormat.Seconds);
 
         DefaultShapeshiftCooldown = new FloatOptionItem(200, "DefaultShapeshiftCooldown", new(5f, 180f, 5f), 15f, TabGroup.ImpostorRoles)
             .SetGameMode(CustomGameMode.Standard)

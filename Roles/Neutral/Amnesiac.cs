@@ -12,7 +12,6 @@ public class Amnesiac : RoleBase
     private static List<byte> playerIdList = [];
 
     public static OptionItem RememberCooldown;
-    public static OptionItem RefugeeKillCD;
     public static OptionItem IncompatibleNeutralMode;
     private static OptionItem CanVent;
     public static OptionItem RememberMode;
@@ -39,9 +38,6 @@ public class Amnesiac : RoleBase
         RememberMode = new StringOptionItem(Id + 9, "RememberMode", RememberModes, 0, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
         RememberCooldown = new FloatOptionItem(Id + 10, "RememberCooldown", new(0f, 180f, 0.5f), 5f, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac])
-            .SetValueFormat(OptionFormat.Seconds);
-        RefugeeKillCD = new FloatOptionItem(Id + 11, "RefugeeKillCD", new(0f, 180f, 2.5f), 25f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac])
             .SetValueFormat(OptionFormat.Seconds);
         IncompatibleNeutralMode = new StringOptionItem(Id + 12, "IncompatibleNeutralMode", AmnesiacIncompatibleNeutralMode, 0, TabGroup.NeutralRoles)
