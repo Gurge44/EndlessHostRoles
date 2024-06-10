@@ -72,6 +72,12 @@ public class SabotageMaster : RoleBase
         AURoleOptions.EngineerInVentMaxTime = 0f;
     }
 
+    public override string GetProgressText(byte playerId, bool comms)
+    {
+        var limit = SkillLimit.GetInt() - UsedSkillCount;
+        return limit + base.GetProgressText(playerId, comms);
+    }
+
     public void SendRPC()
     {
         if (!IsEnable || !Utils.DoRPC) return;

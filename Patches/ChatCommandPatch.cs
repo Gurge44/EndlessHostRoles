@@ -73,14 +73,12 @@ internal class ChatCommands
         switch (args[0])
         {
             case "/dump":
-                //canceled = true;
                 Utils.DumpLog();
                 break;
             case "/v":
             case "/version":
                 canceled = true;
                 string version_text = Main.PlayerVersion.OrderBy(pair => pair.Key).Aggregate(string.Empty, (current, kvp) => current + $"{kvp.Key}:{Main.AllPlayerNames[kvp.Key]}:{kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n");
-
                 if (version_text != string.Empty) HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, (PlayerControl.LocalPlayer.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + version_text);
                 break;
             default:
@@ -764,7 +762,7 @@ internal class ChatCommands
                 ChatUpdatePatch.LoversMessage = true;
                 Utils.SendMessage(text, otherLover.PlayerId, title);
                 Utils.SendMessage(text, PlayerControl.LocalPlayer.PlayerId, title);
-                LateTask.New(() => ChatUpdatePatch.LoversMessage = false, 1f, log: false);
+                LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Main.MessageWait.Value, log: false);
             }
 
             goto Canceled;
@@ -1408,8 +1406,8 @@ internal class ChatCommands
                     ChatUpdatePatch.LoversMessage = true;
                     Utils.SendMessage(text, otherLover.PlayerId, title);
                     Utils.SendMessage(text, player.PlayerId, title);
-                    LateTask.New(() => ChatUpdatePatch.LoversMessage = false, 1f, log: false);
-                }, 0.5f, log: false);
+                    LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Main.MessageWait.Value, log: false);
+                }, 0.2f, log: false);
             }
         }
 

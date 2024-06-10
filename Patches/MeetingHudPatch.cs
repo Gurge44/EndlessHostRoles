@@ -354,8 +354,18 @@ class CheckForEndVotingPatch
         var crole = exiledPlayer.GetCustomRole();
         var coloredRole = Utils.GetDisplayRoleName(exileId, true);
 
+        if (crole == CustomRoles.LovingImpostor && !Options.ConfirmLoversOnEject.GetBool())
+        {
+            coloredRole = (Lovers.LovingImpostorRoleForOtherImps.GetValue() switch
+            {
+                0 => CustomRoles.ImpostorEHR,
+                1 => Lovers.LovingImpostorRole,
+                _ => CustomRoles.LovingImpostor
+            }).ToColoredString();
+        }
+
         if (Options.ConfirmEgoistOnEject.GetBool() && player.Is(CustomRoles.Egoist)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Egoist), GetRoleString("Temp.Blank") + coloredRole.RemoveHtmlTags());
-        if (Options.ConfirmLoversOnEject.GetBool() && player.Is(CustomRoles.Lovers)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), GetRoleString("Temp.Blank") + coloredRole.RemoveHtmlTags());
+        if (Options.ConfirmLoversOnEject.GetBool() && Main.LoversPlayers.Contains(player)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), GetRoleString("Temp.Blank") + coloredRole.RemoveHtmlTags());
         if (Options.RascalAppearAsMadmate.GetBool() && player.Is(CustomRoles.Rascal)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Madmate), GetRoleString("Mad-") + coloredRole.RemoveHtmlTags());
 
         var name = string.Empty;
@@ -373,9 +383,7 @@ class CheckForEndVotingPatch
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
             if (pc == exiledPlayer.Object) continue;
-            var pc_role = pc.GetCustomRole();
-
-            if (pc_role.IsImpostor()) impnum++;
+            if (pc.GetCustomRole().IsImpostor()) impnum++;
             else if (pc.IsNeutralKiller()) neutralnum++;
         }
 
@@ -797,7 +805,7 @@ class MeetingHudStartPatch
                 (Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) ||
                 (PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && pc.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) ||
                 (pc.Is(CustomRoles.Gravestone) && Main.VisibleTasksCount && pc.Data.IsDead) ||
-                (pc.Is(CustomRoles.Lovers) && PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) && Lovers.LoverKnowRoles.GetBool()) ||
+                (Main.LoversPlayers.TrueForAll(x => x.PlayerId == pc.PlayerId || x.PlayerId == PlayerControl.LocalPlayer.PlayerId) && Lovers.LoverKnowRoles.GetBool()) ||
                 (pc.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool()) ||
                 (pc.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosImp.GetBool()) ||
                 (pc.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool()) ||
@@ -964,7 +972,7 @@ class MeetingHudStartPatch
             if (Silencer.ForSilencer.Contains(target.PlayerId))
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Silencer), "╳"));
 
-            if (target.GetCustomSubRoles().Contains(CustomRoles.Lovers) && (seer.Is(CustomRoles.Lovers) || seer.Data.IsDead))
+            if (Main.LoversPlayers.Contains(target) && (Main.LoversPlayers.Contains(seer) || seer.Data.IsDead))
             {
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), "♥"));
             }

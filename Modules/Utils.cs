@@ -431,6 +431,7 @@ public static class Utils
         var self = seerId == targetId || Main.PlayerStates[seerId].IsDead;
 
         bool isHnsAgentOverride = Options.CurrentGameMode == CustomGameMode.HideAndSeek && targetMainRole == CustomRoles.Agent && HnSManager.PlayerRoles[seerId].Interface.Team != Team.Impostor;
+        bool loversShowDifferentRole = false;
         if (!GameStates.IsEnded && targetMainRole == CustomRoles.LovingImpostor && !self && seerMainRole != CustomRoles.LovingCrewmate && !seerSubRoles.Contains(CustomRoles.Lovers))
         {
             targetMainRole = Lovers.LovingImpostorRoleForOtherImps.GetValue() switch
@@ -439,10 +440,11 @@ public static class Utils
                 1 => Lovers.LovingImpostorRole,
                 _ => CustomRoles.LovingImpostor
             };
+            loversShowDifferentRole = true;
         }
 
         string RoleText = GetRoleName(isHnsAgentOverride ? CustomRoles.Hider : targetMainRole);
-        Color RoleColor = GetRoleColor(targetMainRole);
+        Color RoleColor = GetRoleColor(loversShowDifferentRole ? CustomRoles.Impostor : targetMainRole);
 
         if (LastImpostor.currentId == targetId)
             RoleText = GetRoleString("Last-") + RoleText;
@@ -829,11 +831,11 @@ public static class Utils
 
         return __instance.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool() ||
                __instance.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead ||
-               __instance.Is(CustomRoles.Lovers) && PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) && Lovers.LoverKnowRoles.GetBool() ||
                __instance.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool() ||
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool() ||
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() ||
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosImp.GetBool() ||
+               Main.LoversPlayers.TrueForAll(x => x.PlayerId == __instance.PlayerId || x.PlayerId == PlayerControl.LocalPlayer.PlayerId) && Lovers.LoverKnowRoles.GetBool() ||
                CustomTeamManager.AreInSameCustomTeam(__instance.PlayerId, PlayerControl.LocalPlayer.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(__instance.PlayerId, CTAOption.KnowRoles) ||
                Main.PlayerStates.Values.Any(x => x.Role.KnowRole(PlayerControl.LocalPlayer, __instance)) ||
                PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) ||
@@ -1351,7 +1353,7 @@ public static class Utils
         var sb = new StringBuilder();
         if (intro)
         {
-            bool isLovers = SubRoles.Contains(CustomRoles.Lovers);
+            bool isLovers = SubRoles.Contains(CustomRoles.Lovers) && Main.PlayerStates[id].MainRole is not CustomRoles.LovingCrewmate and not CustomRoles.LovingImpostor;
             SubRoles.RemoveAll(x => x is CustomRoles.NotAssigned or CustomRoles.LastImpostor or CustomRoles.Lovers);
 
             if (isLovers)
@@ -1963,7 +1965,7 @@ public static class Utils
                 if (Options.CurrentGameMode != CustomGameMode.Standard) goto GameMode0;
 
                 SelfMark.Append(Snitch.GetWarningArrow(seer));
-                if (seer.Is(CustomRoles.Lovers)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), " ♥"));
+                if (Main.LoversPlayers.Contains(seer)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), " ♥"));
                 if (BallLightning.IsGhost(seer)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.BallLightning), "■"));
                 SelfMark.Append(Medic.GetMark(seer, seer));
                 SelfMark.Append(Gamer.TargetMark(seer, seer));
@@ -2152,8 +2154,7 @@ public static class Utils
 
                             TargetMark.Append(Snitch.GetWarningMark(seer, target));
 
-                            if ((seer.Is(CustomRoles.Lovers) && target.Is(CustomRoles.Lovers))
-                                || (seer.Data.IsDead && target.Is(CustomRoles.Lovers)))
+                            if (Main.LoversPlayers.TrueForAll(x => x.PlayerId == seer.PlayerId || x.PlayerId == target.PlayerId) || (seer.Data.IsDead && Main.LoversPlayers.Contains(target)))
                             {
                                 TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
                             }
@@ -2226,7 +2227,7 @@ public static class Utils
                                 (seer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) ||
                                 (seer.Is(CustomRoles.Mimic) && target.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) ||
                                 (target.Is(CustomRoles.Gravestone) && target.Data.IsDead) ||
-                                (seer.Is(CustomRoles.Lovers) && target.Is(CustomRoles.Lovers) && Lovers.LoverKnowRoles.GetBool()) ||
+                                (Main.LoversPlayers.TrueForAll(x => x.PlayerId == seer.PlayerId || x.PlayerId == target.PlayerId) && Lovers.LoverKnowRoles.GetBool()) ||
                                 (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool()) ||
                                 (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoleTypes.Impostor) && Options.MadmateKnowWhosImp.GetBool()) ||
                                 (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Madmate) && Options.ImpKnowWhosMadmate.GetBool()) ||
@@ -2513,7 +2514,7 @@ public static class Utils
     {
         if (!Lovers.IsChatActivated && Lovers.PrivateChat.GetBool() && !GameStates.IsEnded)
         {
-            SetChatVisible();
+            LateTask.New(SetChatVisible, 0.5f, log: false);
             Lovers.IsChatActivated = true;
             return;
         }

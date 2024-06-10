@@ -327,6 +327,7 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("GuessSuperStar"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessSuperStar"));
                             return true;
+                        case CustomRoles.Shifter:
                         case CustomRoles.Goose when !Goose.CanBeGuessed.GetBool():
                         case CustomRoles.Disco:
                         case CustomRoles.Glow:

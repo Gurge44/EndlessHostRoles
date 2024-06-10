@@ -240,12 +240,10 @@ class GameEndChecker
                         .DoIf(x => !CustomTeamManager.IsSettingEnabledForTeam(x.Key, CTAOption.WinWithOriginalTeam), x => WinnerIds.ExceptWith(x.Value), fast: true);
                 }
 
-                if ((WinnerTeam == CustomWinner.Lovers || WinnerIds.Any(x => Main.PlayerStates[x].SubRoles.Contains(CustomRoles.Lovers))) && Main.LoversPlayers.All(x => x.IsAlive()))
+                if ((WinnerTeam == CustomWinner.Lovers || WinnerIds.Any(x => Main.PlayerStates[x].SubRoles.Contains(CustomRoles.Lovers))) && Main.LoversPlayers.All(x => x.IsAlive()) && reason != GameOverReason.HumansByTask)
                 {
                     if (WinnerTeam != CustomWinner.Lovers) AdditionalWinnerTeams.Add(AdditionalWinners.Lovers);
-                    Main.AllPlayerControls
-                        .Where(p => p.Is(CustomRoles.Lovers))
-                        .Do(p => WinnerIds.Add(p.PlayerId));
+                    WinnerIds.UnionWith(Main.LoversPlayers.Select(x => x.PlayerId));
                 }
 
                 if (Options.NeutralWinTogether.GetBool() && WinnerIds.Any(x => GetPlayerById(x) != null && GetPlayerById(x).GetCustomRole().IsNeutral()))
@@ -378,7 +376,7 @@ class GameEndChecker
 
             if (CustomTeamManager.CheckCustomTeamGameEnd()) return true;
 
-            if (Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.Lovers)) && !Main.LoversPlayers.All(x => x.Is(CustomRoles.LovingCrewmate)))
+            if (Main.AllAlivePlayerControls.All(Main.LoversPlayers.Contains) && !Main.LoversPlayers.All(x => x.Is(Team.Crewmate)))
             {
                 ResetAndSetWinner(CustomWinner.Lovers);
                 return true;

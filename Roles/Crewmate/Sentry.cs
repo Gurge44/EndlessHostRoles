@@ -125,14 +125,14 @@ namespace EHR.Roles.Impostor
                 MonitoredRoom = room;
                 Utils.SendRPC(CustomRPC.SyncSentry, pc.PlayerId);
             }
-            else DisplayRoomInfo(pc);
+            else DisplayRoomInfo(pc, false);
         }
 
-        void DisplayRoomInfo(PlayerControl pc)
+        void DisplayRoomInfo(PlayerControl pc, bool fromDevice)
         {
             if (CannotSeeInfoDuringComms.GetBool() && Utils.IsActive(SystemTypes.Comms)) return;
 
-            if (pc.Is(CustomRoles.Sentry))
+            if (!fromDevice)
             {
                 if (pc.GetAbilityUseLimit() < 1) return;
                 pc.RpcRemoveAbilityUse();
@@ -278,7 +278,7 @@ namespace EHR.Roles.Impostor
                 return;
             }
 
-            DisplayRoomInfo(pc);
+            DisplayRoomInfo(pc, true);
             UsingDevice.Add(pc.PlayerId);
         }
 
