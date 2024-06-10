@@ -139,6 +139,7 @@ public enum CustomRPC
     SyncRogue,
     SyncEvolver,
     SyncTremor,
+    SyncAid,
 
     // Other Game Modes
     SyncKBPlayer,
@@ -425,6 +426,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SyncTremor:
                 (Main.PlayerStates[reader.ReadByte()].Role as Tremor)?.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncAid:
+                (Main.PlayerStates[reader.ReadByte()].Role as Aid)?.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetBountyTarget:
             {

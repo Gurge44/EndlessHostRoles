@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
+using Hazel;
 using UnityEngine;
 
 namespace EHR.Roles.Crewmate
@@ -80,6 +82,7 @@ namespace EHR.Roles.Crewmate
                 if (x.Value + AidDur.GetInt() <= Utils.TimeStamp || !GameStates.IsInTask)
                 {
                     ShieldedPlayers.Remove(x.Key);
+                    Utils.SendRPC(CustomRPC.SyncAid, pc.PlayerId, 1, x.Key);
                     change = true;
                 }
             }
@@ -97,6 +100,7 @@ namespace EHR.Roles.Crewmate
             {
                 pc.RpcRemoveAbilityUse();
                 ShieldedPlayers[TargetId] = Utils.TimeStamp;
+                Utils.SendRPC(CustomRPC.SyncAid, pc.PlayerId, 0, TargetId);
                 var target = Utils.GetPlayerById(TargetId);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
@@ -104,6 +108,19 @@ namespace EHR.Roles.Crewmate
             }
 
             LateTask.New(() => physics.RpcBootFromVent(ventId), 0.5f, log: false);
+        }
+
+        public void ReceiveRPC(MessageReader reader)
+        {
+            switch (reader.ReadPackedInt32())
+            {
+                case 0:
+                    ShieldedPlayers[reader.ReadByte()] = Utils.TimeStamp;
+                    break;
+                case 1:
+                    ShieldedPlayers.Remove(reader.ReadByte());
+                    break;
+            }
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
