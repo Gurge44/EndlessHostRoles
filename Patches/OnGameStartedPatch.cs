@@ -300,7 +300,6 @@ internal class ChangeRoleSettings
                 Asthmatic.Init();
                 DoubleShot.Init();
                 Circumvent.Init();
-                Lovers.Init();
             }
             catch (Exception ex)
             {
@@ -672,6 +671,7 @@ internal class SelectRolesPatch
             Asthmatic.Add();
             Circumvent.Add();
             Dynamo.Add();
+            Lovers.Init();
 
             LateTask.New(CustomTeamManager.InitializeCustomTeamPlayers, 7f, log: false);
 
