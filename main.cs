@@ -29,8 +29,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "3.4.0";
-    public const string PluginDisplayVersion = "3.4.0";
+    public const string PluginVersion = "3.5.0";
+    public const string PluginDisplayVersion = "3.5.0";
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
     public const string CrewmateColor = "#8cffff";
@@ -46,8 +46,6 @@ public class Main : BasePlugin
     public static readonly Version Version = Version.Parse(PluginVersion);
     public static ManualLogSource Logger;
     public static bool HasArgumentException;
-    public static string ExceptionMessage;
-    public static bool ExceptionMessageIsShown;
     public static string CredentialsText;
 
     public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
@@ -71,9 +69,6 @@ public class Main : BasePlugin
     public static readonly Dictionary<byte, (long START_TIMESTAMP, int TOTALCD)> AbilityCD = [];
     public static Dictionary<byte, float> AbilityUseLimit = [];
     public static List<byte> DontCancelVoteList = [];
-    public static byte NimblePlayer = byte.MaxValue;
-    public static byte PhysicistPlayer = byte.MaxValue;
-    public static byte BloodlustPlayer = byte.MaxValue;
     public static List<byte> ResetCamPlayerList = [];
     public static List<byte> WinnerList = [];
     public static List<string> WinnerNameList = [];
@@ -104,7 +99,7 @@ public class Main : BasePlugin
     public static int FirstDied = int.MaxValue;
     public static int ShieldPlayer = int.MaxValue;
 
-    public static readonly List<PlayerControl> LoversPlayers = [];
+    public static List<PlayerControl> LoversPlayers = [];
     public static bool IsLoversDead = true;
     public static List<byte> CyberStarDead = [];
     public static List<byte> BaitAlive = [];
@@ -151,15 +146,19 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> HorseMode { get; private set; }
     public static ConfigEntry<bool> LongMode { get; private set; }
 
-    //Preset Name Options
+    // Preset Name Options
     public static ConfigEntry<string> Preset1 { get; private set; }
     public static ConfigEntry<string> Preset2 { get; private set; }
     public static ConfigEntry<string> Preset3 { get; private set; }
     public static ConfigEntry<string> Preset4 { get; private set; }
-
     public static ConfigEntry<string> Preset5 { get; private set; }
+    public static ConfigEntry<string> Preset6 { get; private set; }
+    public static ConfigEntry<string> Preset7 { get; private set; }
+    public static ConfigEntry<string> Preset8 { get; private set; }
+    public static ConfigEntry<string> Preset9 { get; private set; }
+    public static ConfigEntry<string> Preset10 { get; private set; }
 
-    //Other Configs
+    // Other Configs
     public static ConfigEntry<string> WebhookUrl { get; private set; }
     public static ConfigEntry<string> BetaBuildUrl { get; private set; }
     public static ConfigEntry<float> LastKillCooldown { get; private set; }
@@ -267,6 +266,11 @@ public class Main : BasePlugin
         Preset3 = Config.Bind("Preset Name Options", "Preset3", "Preset_3");
         Preset4 = Config.Bind("Preset Name Options", "Preset4", "Preset_4");
         Preset5 = Config.Bind("Preset Name Options", "Preset5", "Preset_5");
+        Preset6 = Config.Bind("Preset Name Options", "Preset6", "Preset_6");
+        Preset7 = Config.Bind("Preset Name Options", "Preset7", "Preset_7");
+        Preset8 = Config.Bind("Preset Name Options", "Preset8", "Preset_8");
+        Preset9 = Config.Bind("Preset Name Options", "Preset9", "Preset_9");
+        Preset10 = Config.Bind("Preset Name Options", "Preset10", "Preset_10");
         WebhookUrl = Config.Bind("Other", "WebhookURL", "none");
         BetaBuildUrl = Config.Bind("Other", "BetaBuildURL", string.Empty);
         MessageWait = Config.Bind("Other", "MessageWait", 0);
@@ -274,7 +278,6 @@ public class Main : BasePlugin
         LastShapeshifterCooldown = Config.Bind("Other", "LastShapeshifterCooldown", (float)30);
 
         HasArgumentException = false;
-        ExceptionMessage = string.Empty;
         try
         {
             RoleColors = new()
@@ -324,6 +327,9 @@ public class Main : BasePlugin
                 { CustomRoles.Gaulois, "#42d1f5" },
                 { CustomRoles.Druid, "#ffb694" },
                 { CustomRoles.Autocrat, "#e2ed64" },
+                { CustomRoles.LovingCrewmate, "#ff9ace" },
+                { CustomRoles.LovingImpostor, "#ff9ace" },
+                { CustomRoles.ToiletMaster, "#4281f5" },
                 { CustomRoles.Goose, "#f9ffb8" },
                 { CustomRoles.Sentry, "#db55f2" },
                 { CustomRoles.Perceiver, "#ebeb34" },
@@ -487,6 +493,7 @@ public class Main : BasePlugin
                 { CustomRoles.Specter, "#b446e3" },
                 { CustomRoles.Haunter, "#d1b1de" },
                 { CustomRoles.Bloodmoon, "#ff1313" },
+                { CustomRoles.GA, "#8cffff" },
                 // GM
                 { CustomRoles.GM, "#ff5b70" },
                 // Add-ons
@@ -592,8 +599,6 @@ public class Main : BasePlugin
             EHR.Logger.Error("错误：字典出现重复项", "LoadDictionary");
             EHR.Logger.Exception(ex, "LoadDictionary");
             HasArgumentException = true;
-            ExceptionMessage = ex.Message;
-            ExceptionMessageIsShown = false;
         }
         catch (Exception ex)
         {

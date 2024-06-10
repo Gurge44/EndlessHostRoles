@@ -5,18 +5,18 @@ namespace EHR.Roles.Impostor
     internal class Minimalism : RoleBase
     {
         public static bool On;
-        public override bool IsEnable => On;
 
         public static OptionItem MNKillCooldown;
         public static OptionItem BypassShields;
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(16300, TabGroup.ImpostorRoles, CustomRoles.Minimalism);
-            MNKillCooldown = FloatOptionItem.Create(16310, "KillCooldown", new(2.5f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles)
+            MNKillCooldown = new FloatOptionItem(16310, "KillCooldown", new(2.5f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minimalism])
                 .SetValueFormat(OptionFormat.Seconds);
-            BypassShields = BooleanOptionItem.Create(16311, "BypassShields", false, TabGroup.ImpostorRoles)
+            BypassShields = new BooleanOptionItem(16311, "BypassShields", false, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minimalism]);
         }
 

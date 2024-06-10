@@ -26,20 +26,20 @@ namespace EHR.Roles.Neutral
         {
             const int id = 16880;
             SetupRoleOptions(id, TabGroup.NeutralRoles, CustomRoles.Samurai);
-            KillCooldown = FloatOptionItem.Create(id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
+            KillCooldown = new FloatOptionItem(id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai])
                 .SetValueFormat(OptionFormat.Seconds);
-            CanVent = BooleanOptionItem.Create(id + 3, "CanVent", true, TabGroup.NeutralRoles)
+            CanVent = new BooleanOptionItem(id + 3, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai]);
-            HasImpostorVision = BooleanOptionItem.Create(id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
+            HasImpostorVision = new BooleanOptionItem(id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai]);
-            NearbyDuration = FloatOptionItem.Create(id + 5, "Samurai.NearbyDuration", new(0f, 30f, 0.5f), 3f, TabGroup.NeutralRoles)
+            NearbyDuration = new FloatOptionItem(id + 5, "Samurai.NearbyDuration", new(0f, 30f, 0.5f), 3f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai])
                 .SetValueFormat(OptionFormat.Seconds);
-            SuccessKCD = FloatOptionItem.Create(id + 6, "Samurai.SuccessKCD", new(0f, 180f, 0.5f), 17.5f, TabGroup.NeutralRoles)
+            SuccessKCD = new FloatOptionItem(id + 6, "Samurai.SuccessKCD", new(0f, 180f, 0.5f), 17.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai])
                 .SetValueFormat(OptionFormat.Seconds);
-            KillDelay = FloatOptionItem.Create(id + 7, "Samurai.KillDelay", new(0f, 60f, 0.5f), 5f, TabGroup.NeutralRoles)
+            KillDelay = new FloatOptionItem(id + 7, "Samurai.KillDelay", new(0f, 60f, 0.5f), 5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai])
                 .SetValueFormat(OptionFormat.Seconds);
         }

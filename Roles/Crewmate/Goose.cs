@@ -13,17 +13,17 @@
         public void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Goose);
-            OptionAbductTimerLimit = FloatOptionItem.Create(Id + 11, "PenguinAbductTimerLimit", new(1f, 20f, 1f), 10f, TabGroup.CrewmateRoles)
+            OptionAbductTimerLimit = new FloatOptionItem(Id + 11, "PenguinAbductTimerLimit", new(1f, 20f, 1f), 10f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Goose])
                 .SetValueFormat(OptionFormat.Seconds);
-            OptionMeetingKill = BooleanOptionItem.Create(Id + 12, "PenguinMeetingKill", false, TabGroup.CrewmateRoles)
+            OptionMeetingKill = new BooleanOptionItem(Id + 12, "PenguinMeetingKill", false, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Goose]);
-            OptionSpeedDuringDrag = FloatOptionItem.Create(Id + 13, "PenguinSpeedDuringDrag", new(0.1f, 3f, 0.1f), 1f, TabGroup.CrewmateRoles)
+            OptionSpeedDuringDrag = new FloatOptionItem(Id + 13, "PenguinSpeedDuringDrag", new(0.1f, 3f, 0.1f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Goose])
                 .SetValueFormat(OptionFormat.Multiplier);
-            OptionVictimCanUseAbilities = BooleanOptionItem.Create(Id + 14, "PenguinVictimCanUseAbilities", false, TabGroup.CrewmateRoles)
+            OptionVictimCanUseAbilities = new BooleanOptionItem(Id + 14, "PenguinVictimCanUseAbilities", false, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Goose]);
-            CanBeGuessed = BooleanOptionItem.Create(Id + 15, "CanBeGuessed", true, TabGroup.CrewmateRoles)
+            CanBeGuessed = new BooleanOptionItem(Id + 15, "CanBeGuessed", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Goose]);
         }
     }

@@ -17,19 +17,19 @@ namespace EHR.Roles.Crewmate
         {
             const int id = 8990;
             SetupRoleOptions(id, TabGroup.CrewmateRoles, CustomRoles.Veteran);
-            VeteranSkillCooldown = FloatOptionItem.Create(id + 2, "VeteranSkillCooldown", new(0f, 180f, 1f), 20f, TabGroup.CrewmateRoles)
+            VeteranSkillCooldown = new FloatOptionItem(id + 2, "VeteranSkillCooldown", new(0f, 180f, 1f), 20f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
                 .SetValueFormat(OptionFormat.Seconds);
-            VeteranSkillDuration = FloatOptionItem.Create(id + 3, "VeteranSkillDuration", new(0f, 180f, 1f), 10f, TabGroup.CrewmateRoles)
+            VeteranSkillDuration = new FloatOptionItem(id + 3, "VeteranSkillDuration", new(0f, 180f, 1f), 10f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
                 .SetValueFormat(OptionFormat.Seconds);
-            VeteranSkillMaxOfUseage = IntegerOptionItem.Create(id + 4, "VeteranSkillMaxOfUseage", new(0, 180, 1), 1, TabGroup.CrewmateRoles)
+            VeteranSkillMaxOfUseage = new IntegerOptionItem(id + 4, "VeteranSkillMaxOfUseage", new(0, 180, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
                 .SetValueFormat(OptionFormat.Times);
-            VeteranAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(id + 5, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.3f, TabGroup.CrewmateRoles)
+            VeteranAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(id + 5, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.3f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
                 .SetValueFormat(OptionFormat.Times);
-            VeteranAbilityChargesWhenFinishedTasks = FloatOptionItem.Create(id + 6, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+            VeteranAbilityChargesWhenFinishedTasks = new FloatOptionItem(id + 6, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
                 .SetValueFormat(OptionFormat.Times);
         }

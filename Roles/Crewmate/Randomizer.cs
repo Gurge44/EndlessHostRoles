@@ -4,7 +4,6 @@ using System.Linq;
 using EHR.Modules;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
-using HarmonyLib;
 using Hazel;
 using UnityEngine;
 using static EHR.Roles.Crewmate.Randomizer;
@@ -347,7 +346,7 @@ namespace EHR.Roles.Crewmate
                         camouflager.Init();
                         camouflager.Add(randomizer.PlayerId);
                         camouflager.OnShapeshift(randomizer, randomizer, true);
-                        _ = new LateTask(camouflager.OnReportDeadBody, IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration), "Randomizer Revert Camo");
+                        LateTask.New(camouflager.OnReportDeadBody, IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration), "Randomizer Revert Camo");
                         break;
                     case Effect.Deathpact:
                     {
@@ -473,16 +472,16 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Randomizer);
-            EffectFrequencyOpt = IntegerOptionItem.Create(Id + 2, "RandomizerEffectFrequency", new(1, 90, 1), 10, TabGroup.CrewmateRoles)
+            EffectFrequencyOpt = new IntegerOptionItem(Id + 2, "RandomizerEffectFrequency", new(1, 90, 1), 10, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Randomizer])
                 .SetValueFormat(OptionFormat.Seconds);
-            EffectDurMin = IntegerOptionItem.Create(Id + 3, "RandomizerEffectDurMin", new(1, 90, 1), 5, TabGroup.CrewmateRoles)
+            EffectDurMin = new IntegerOptionItem(Id + 3, "RandomizerEffectDurMin", new(1, 90, 1), 5, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Randomizer])
                 .SetValueFormat(OptionFormat.Seconds);
-            EffectDurMax = IntegerOptionItem.Create(Id + 4, "RandomizerEffectDurMax", new(1, 90, 1), 15, TabGroup.CrewmateRoles)
+            EffectDurMax = new IntegerOptionItem(Id + 4, "RandomizerEffectDurMax", new(1, 90, 1), 15, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Randomizer])
                 .SetValueFormat(OptionFormat.Seconds);
-            NotifyOpt = BooleanOptionItem.Create(Id + 5, "RandomizerNotifyOpt", true, TabGroup.CrewmateRoles)
+            NotifyOpt = new BooleanOptionItem(Id + 5, "RandomizerNotifyOpt", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Randomizer]);
         }
 

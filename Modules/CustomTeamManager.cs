@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using HarmonyLib;
 using UnityEngine;
 
 namespace EHR.Modules
@@ -43,12 +42,12 @@ namespace EHR.Modules
 
             static CustomTeamOptionGroup CreateSetting(CustomTeam team, int id)
             {
-                var enabled = BooleanOptionItem.Create(id++, "CTA.FLAG" + team.TeamName, true, tab);
-                var knowRoles = BooleanOptionItem.Create(id++, "CTA.KnowRoles", true, tab);
-                var winWithOriginalTeam = BooleanOptionItem.Create(id++, "CTA.WinWithOriginalTeam", false, tab);
-                var killEachOther = BooleanOptionItem.Create(id++, "CTA.KillEachOther", false, tab);
-                var guessEachOther = BooleanOptionItem.Create(id++, "CTA.GuessEachOther", false, tab);
-                var arrows = BooleanOptionItem.Create(id, "CTA.Arrows", true, tab);
+                var enabled = new BooleanOptionItem(id++, "CTA.FLAG" + team.TeamName, true, tab);
+                var knowRoles = new BooleanOptionItem(id++, "CTA.KnowRoles", true, tab);
+                var winWithOriginalTeam = new BooleanOptionItem(id++, "CTA.WinWithOriginalTeam", false, tab);
+                var killEachOther = new BooleanOptionItem(id++, "CTA.KillEachOther", false, tab);
+                var guessEachOther = new BooleanOptionItem(id++, "CTA.GuessEachOther", false, tab);
+                var arrows = new BooleanOptionItem(id, "CTA.Arrows", true, tab);
 
                 CustomTeamOptionGroup group = new(team, enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows);
                 group.AllOptions.Skip(1).Do(x => x.SetParent(enabled));
@@ -76,7 +75,7 @@ namespace EHR.Modules
 
             foreach ((CustomTeam team, HashSet<byte> players) in CustomTeamPlayerIds)
             {
-                if (!IsSettingEnabledForTeam(team, "Arrows")) continue;
+                if (!IsSettingEnabledForTeam(team, CTAOption.Arrows)) continue;
 
                 foreach (byte player in players)
                 {
@@ -91,7 +90,7 @@ namespace EHR.Modules
 
         public static string GetSuffix(PlayerControl seer)
         {
-            if (seer == null || EnabledCustomTeams.Count == 0 || !IsSettingEnabledForPlayerTeam(seer.PlayerId, "Arrows")) return string.Empty;
+            if (seer == null || EnabledCustomTeams.Count == 0 || !IsSettingEnabledForPlayerTeam(seer.PlayerId, CTAOption.Arrows)) return string.Empty;
             return CustomTeamPlayerIds[GetCustomTeam(seer.PlayerId)].Aggregate(string.Empty, (s, id) => s + Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), TargetArrow.GetArrows(seer, id)));
         }
 
@@ -143,18 +142,17 @@ namespace EHR.Modules
             return team1 != null && team2 != null && team1.Equals(team2);
         }
 
-        public static bool IsSettingEnabledForPlayerTeam(byte id, string settingName)
+        public static bool IsSettingEnabledForPlayerTeam(byte id, CTAOption setting)
         {
             var team = GetCustomTeam(id);
-            return team != null && IsSettingEnabledForTeam(team, settingName);
+            return team != null && IsSettingEnabledForTeam(team, setting);
         }
 
-        public static bool IsSettingEnabledForTeam(CustomTeam team, string settingName)
+        public static bool IsSettingEnabledForTeam(CustomTeam team, CTAOption setting)
         {
             var optionsGroup = CustomTeamOptions.First(x => x.Team.Equals(team));
-            var setting = optionsGroup.GetType().GetFields().FirstOrDefault(x => x.Name.Contains(settingName));
-            if (setting == null) return false;
-            return setting.GetValue(optionsGroup) as bool? ?? false;
+            var values = optionsGroup.AllOptions.ConvertAll(x => x.GetBool());
+            return values[(int)setting];
         }
 
         internal class CustomTeam
@@ -210,5 +208,15 @@ namespace EHR.Modules
             public BooleanOptionItem GuessEachOther { get; set; } = guessEachOther;
             public BooleanOptionItem Arrows { get; set; } = arrows;
         }
+    }
+
+    public enum CTAOption
+    {
+        Enabled,
+        KnowRoles,
+        WinWithOriginalTeam,
+        KillEachOther,
+        GuessEachOther,
+        Arrows
     }
 }

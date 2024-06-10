@@ -231,7 +231,7 @@ internal class RPCHandlerPatch
     {
         if (AmongUsClient.Instance.AmHost) return;
         var rpcType = (CustomRPC)callId;
-        
+
         // Finish this later
         // Main.PlayerStates.Values
         //     .Where(x => "Sync" + x.Role.GetType().Name == rpcType.ToString())
@@ -245,8 +245,8 @@ internal class RPCHandlerPatch
                     Logger.Fatal($"{__instance?.Data?.PlayerName}({__instance?.PlayerId}): {reader.ReadString()} - Error, terminate the game according to settings", "Anti-blackout");
                     ChatUpdatePatch.DoBlockChat = true;
                     Main.OverrideWelcomeMsg = string.Format(GetString("RpcAntiBlackOutNotifyInLobby"), __instance?.Data?.PlayerName, GetString("EndWhenPlayerBug"));
-                    _ = new LateTask(() => { Logger.SendInGame(string.Format(GetString("RpcAntiBlackOutEndGame"), __instance?.Data?.PlayerName) /*, true*/); }, 3f, "Anti-Black Msg SendInGame");
-                    _ = new LateTask(() =>
+                    LateTask.New(() => { Logger.SendInGame(string.Format(GetString("RpcAntiBlackOutEndGame"), __instance?.Data?.PlayerName) /*, true*/); }, 3f, "Anti-Black Msg SendInGame");
+                    LateTask.New(() =>
                     {
                         CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Error);
                         GameManager.Instance.LogicFlow.CheckEndCriteria();
@@ -256,7 +256,7 @@ internal class RPCHandlerPatch
                 else if (GameStates.IsOnlineGame)
                 {
                     Logger.Fatal($"{__instance?.Data?.PlayerName}({__instance?.PlayerId}): Change Role Setting Postfix - Error, continue the game according to settings", "Anti-blackout");
-                    _ = new LateTask(() => { Logger.SendInGame(string.Format(GetString("RpcAntiBlackOutIgnored"), __instance?.Data?.PlayerName) /*, true*/); }, 3f, "Anti-Black Msg SendInGame");
+                    LateTask.New(() => { Logger.SendInGame(string.Format(GetString("RpcAntiBlackOutIgnored"), __instance?.Data?.PlayerName) /*, true*/); }, 3f, "Anti-Black Msg SendInGame");
                 }
 
                 break;
@@ -274,26 +274,25 @@ internal class RPCHandlerPatch
                         Main.PlayerVersion[__instance.PlayerId] = Main.PlayerVersion[0];
 
                     // Kick Unmached Player Start
-                    if (AmongUsClient.Instance.AmHost && tag != $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})")
+                    if (AmongUsClient.Instance.AmHost && tag != $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" && forkId != Main.ForkId)
                     {
-                        if (forkId != Main.ForkId)
-                            _ = new LateTask(() =>
+                        LateTask.New(() =>
+                        {
+                            if (__instance.Data?.Disconnected is not null and not true)
                             {
-                                if (__instance.Data?.Disconnected is not null and not true)
-                                {
-                                    var msg = string.Format(GetString("KickBecauseDiffrentVersionOrMod"), __instance.Data?.PlayerName);
-                                    Logger.Warn(msg, "Version Kick");
-                                    Logger.SendInGame(msg);
-                                    AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
-                                }
-                            }, 5f, "Kick");
+                                var msg = string.Format(GetString("KickBecauseDiffrentVersionOrMod"), __instance.Data?.PlayerName);
+                                Logger.Warn(msg, "Version Kick");
+                                Logger.SendInGame(msg);
+                                AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
+                            }
+                        }, 5f, "Kick");
                     }
                     // Kick Unmached Player End
                 }
                 catch
                 {
                     Logger.Warn($"{__instance?.Data?.PlayerName}({__instance?.PlayerId}): バージョン情報が無効です", "RpcVersionCheck");
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, __instance.GetClientId());
                         AmongUsClient.Instance.FinishRpcImmediately(writer);

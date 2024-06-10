@@ -87,7 +87,7 @@ public class PlayerState(byte playerId)
                 RoleTypes.GuardianAngel => CustomRoles.GuardianAngel,
                 RoleTypes.Impostor => CustomRoles.Impostor,
                 RoleTypes.Shapeshifter => CustomRoles.Shapeshifter,
-                _ => CustomRoles.Crewmate,
+                _ => CustomRoles.Crewmate
             };
     }
 
@@ -97,6 +97,12 @@ public class PlayerState(byte playerId)
         {
             CustomRoles.DarkHide => !DarkHide.SnatchesWin.GetBool() ? CountTypes.DarkHide : CountTypes.Crew,
             CustomRoles.Arsonist => Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Arsonist : CountTypes.Crew,
+            _ when SubRoles.Contains(CustomRoles.Recruit) => Jackal.SidekickCountMode.GetValue() switch
+            {
+                0 => CountTypes.Jackal,
+                1 => CountTypes.OutOfGame,
+                _ => role.GetCountTypes()
+            },
             _ => role.GetCountTypes()
         };
 
@@ -111,7 +117,7 @@ public class PlayerState(byte playerId)
 
         Role.Add(PlayerId);
 
-        Logger.Info($"ID {PlayerId} => {role}", "SetMainRole");
+        Logger.Info($"ID {PlayerId} ({Utils.GetPlayerById(PlayerId)?.GetRealName()}) => {role}", "SetMainRole");
 
         if (!AmongUsClient.Instance.AmHost) return;
 
@@ -151,6 +157,8 @@ public class PlayerState(byte playerId)
                 countTypes = CountTypes.Bloodlust;
                 break;
             case CustomRoles.Madmate:
+                TaskState.hasTasks = false;
+                TaskState.AllTasksCount = 0;
                 countTypes = Options.MadmateCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,
@@ -166,6 +174,8 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Undead);
                 break;
             case CustomRoles.Charmed:
+                TaskState.hasTasks = false;
+                TaskState.AllTasksCount = 0;
                 countTypes = Succubus.CharmedCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,
@@ -181,6 +191,8 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Undead);
                 break;
             case CustomRoles.Undead:
+                TaskState.hasTasks = false;
+                TaskState.AllTasksCount = 0;
                 countTypes = Necromancer.UndeadCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,
@@ -199,6 +211,8 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Mare);
                 break;
             case CustomRoles.Recruit:
+                TaskState.hasTasks = false;
+                TaskState.AllTasksCount = 0;
                 countTypes = Jackal.SidekickCountMode.GetInt() switch
                 {
                     0 => CountTypes.Jackal,
@@ -215,6 +229,8 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Undead);
                 break;
             case CustomRoles.Contagious:
+                TaskState.hasTasks = false;
+                TaskState.AllTasksCount = 0;
                 countTypes = Virus.ContagiousCountMode.GetInt() switch
                 {
                     0 => CountTypes.OutOfGame,
@@ -234,8 +250,13 @@ public class PlayerState(byte playerId)
 
     public void RemoveSubRole(CustomRoles role)
     {
-        if (SubRoles.Contains(role))
-            SubRoles.Remove(role);
+        SubRoles.Remove(role);
+
+        if (role is CustomRoles.Flashman or CustomRoles.Dynamo)
+        {
+            Main.AllPlayerSpeed[PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+            PlayerGameOptionsSender.SetDirty(PlayerId);
+        }
 
         Utils.SendRPC(CustomRPC.RemoveSubRole, PlayerId, 1, (int)role);
     }
@@ -246,6 +267,7 @@ public class PlayerState(byte playerId)
         if (AmongUsClient.Instance.AmHost)
         {
             RPC.SendDeathReason(PlayerId, deathReason);
+            Utils.CheckAndSpawnAdditionalRefugee(Utils.GetPlayerInfoById(PlayerId));
         }
     }
 
@@ -329,7 +351,14 @@ public class TaskState
                 if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0) player.RpcIncreaseAbilityUseLimitBy(add);
             }
 
-            Main.PlayerStates[player.PlayerId].Role.OnTaskComplete(player, CompletedTasksCount, AllTasksCount);
+            try
+            {
+                Main.PlayerStates[player.PlayerId].Role.OnTaskComplete(player, CompletedTasksCount, AllTasksCount);
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
 
             var addons = Main.PlayerStates[player.PlayerId].SubRoles;
 

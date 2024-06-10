@@ -47,15 +47,13 @@ public abstract class GameOptionsSender
 
     protected virtual void SendOptionsArray(Il2CppStructArray<byte> optionArray)
     {
-        byte i = 0;
-        foreach (var logicComponent in GameManager.Instance.LogicComponents)
+        for (byte i = 0; i < GameManager.Instance.LogicComponents.Count; i++)
         {
+            var logicComponent = GameManager.Instance.LogicComponents[(Index)i];
             if (logicComponent.TryCast<LogicOptions>(out _))
             {
                 SendOptionsArray(optionArray, i, -1);
             }
-
-            i++;
         }
     }
 

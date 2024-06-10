@@ -49,15 +49,15 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Penguin);
-            OptionAbductTimerLimit = FloatOptionItem.Create(Id + 11, "PenguinAbductTimerLimit", new(1f, 20f, 1f), 10f, TabGroup.ImpostorRoles)
+            OptionAbductTimerLimit = new FloatOptionItem(Id + 11, "PenguinAbductTimerLimit", new(1f, 20f, 1f), 10f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Penguin])
                 .SetValueFormat(OptionFormat.Seconds);
-            OptionMeetingKill = BooleanOptionItem.Create(Id + 12, "PenguinMeetingKill", false, TabGroup.ImpostorRoles)
+            OptionMeetingKill = new BooleanOptionItem(Id + 12, "PenguinMeetingKill", false, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Penguin]);
-            OptionSpeedDuringDrag = FloatOptionItem.Create(Id + 13, "PenguinSpeedDuringDrag", new(0.1f, 3f, 0.1f), 1f, TabGroup.ImpostorRoles)
+            OptionSpeedDuringDrag = new FloatOptionItem(Id + 13, "PenguinSpeedDuringDrag", new(0.1f, 3f, 0.1f), 1f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Penguin])
                 .SetValueFormat(OptionFormat.Multiplier);
-            OptionVictimCanUseAbilities = BooleanOptionItem.Create(Id + 14, "PenguinVictimCanUseAbilities", false, TabGroup.ImpostorRoles)
+            OptionVictimCanUseAbilities = new BooleanOptionItem(Id + 14, "PenguinVictimCanUseAbilities", false, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Penguin]);
         }
 
@@ -86,7 +86,7 @@ namespace EHR.Roles.Impostor
                 VictimCanUseAbilities = Goose.OptionVictimCanUseAbilities.GetBool();
             }
 
-            _ = new LateTask(() => { DefaultSpeed = Main.AllPlayerSpeed[playerId]; }, 9f, log: false);
+            LateTask.New(() => { DefaultSpeed = Main.AllPlayerSpeed[playerId]; }, 9f, log: false);
 
             PenguinId = playerId;
             Penguin_ = Utils.GetPlayerById(playerId);
@@ -151,7 +151,7 @@ namespace EHR.Roles.Impostor
             }
             else
             {
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     AbductVictim = null;
                     SendRPC();
@@ -298,7 +298,7 @@ namespace EHR.Roles.Impostor
                     if (!AbductVictim.MyPhysics.Animations.IsPlayingAnyLadderAnimation())
                     {
                         var abductVictim = AbductVictim;
-                        _ = new LateTask(() =>
+                        LateTask.New(() =>
                         {
                             if (IsGoose) return;
 
@@ -336,7 +336,7 @@ namespace EHR.Roles.Impostor
                     }
                     else
                     {
-                        _ = new LateTask(() =>
+                        LateTask.New(() =>
                         {
                             if (AbductVictim != null)
                                 Utils.TP(AbductVictim.NetTransform, position, log: false);

@@ -48,21 +48,21 @@ namespace EHR.Roles.Neutral
             NeutralMaxOpt = CreateSetting(id + 5, false, "Neutral");
             CrewMinOpt = CreateSetting(id + 6, true, "Crew");
             CrewMaxOpt = CreateSetting(id + 7, false, "Crew");
-            CanVent = BooleanOptionItem.Create(id + 8, "CanVent", true, TabGroup.NeutralRoles)
+            CanVent = new BooleanOptionItem(id + 8, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);
-            CanVentAfterWinning = BooleanOptionItem.Create(id + 9, "EvenAfterWinning", false, TabGroup.NeutralRoles)
+            CanVentAfterWinning = new BooleanOptionItem(id + 9, "EvenAfterWinning", false, TabGroup.NeutralRoles)
                 .SetParent(CanVent);
-            HasImpVision = BooleanOptionItem.Create(id + 10, "ImpostorVision", true, TabGroup.NeutralRoles)
+            HasImpVision = new BooleanOptionItem(id + 10, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);
-            HasImpVisionAfterWinning = BooleanOptionItem.Create(id + 11, "EvenAfterWinning", false, TabGroup.NeutralRoles)
+            HasImpVisionAfterWinning = new BooleanOptionItem(id + 11, "EvenAfterWinning", false, TabGroup.NeutralRoles)
                 .SetParent(HasImpVision);
-            CanWinWhenKillingMore = BooleanOptionItem.Create(id + 12, "ImpartialCanWinWhenKillingMore", false, TabGroup.NeutralRoles)
+            CanWinWhenKillingMore = new BooleanOptionItem(id + 12, "ImpartialCanWinWhenKillingMore", false, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);
         }
 
         static OptionItem CreateSetting(int id, bool min, string roleType)
         {
-            var opt = IntegerOptionItem.Create(id, $"Impartial{roleType}{(min ? "min" : "max")}", new(0, 14, 1), 1, TabGroup.NeutralRoles)
+            var opt = new IntegerOptionItem(id, $"Impartial{roleType}{(min ? "min" : "max")}", new(0, 14, 1), 1, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);
             opt.ReplacementDictionary = ReplacementDictionary;
             return opt;
@@ -76,7 +76,7 @@ namespace EHR.Roles.Neutral
             NeutralKillCount = (0, r.Next(NeutralMinOpt.GetInt(), NeutralMaxOpt.GetInt() + 1));
             CrewKillCount = (0, r.Next(CrewMinOpt.GetInt(), CrewMaxOpt.GetInt() + 1));
 
-            _ = new LateTask(() => { Utils.SendRPC(CustomRPC.SyncImpartial, playerId, 1, ImpKillCount.Killed, ImpKillCount.Limit, NeutralKillCount.Killed, NeutralKillCount.Limit, CrewKillCount.Killed, CrewKillCount.Limit); }, 5f, log: false);
+            LateTask.New(() => { Utils.SendRPC(CustomRPC.SyncImpartial, playerId, 1, ImpKillCount.Killed, ImpKillCount.Limit, NeutralKillCount.Killed, NeutralKillCount.Limit, CrewKillCount.Killed, CrewKillCount.Limit); }, 5f, log: false);
         }
 
         public override void Init()

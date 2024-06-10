@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Neutral;
 using EHR.Roles.AddOns.GhostRoles;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
@@ -104,15 +105,13 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
     {
         try
         {
-            byte i = 0;
-            foreach (var logicComponent in GameManager.Instance.LogicComponents)
+            for (byte i = 0; i < GameManager.Instance.LogicComponents.Count; i++)
             {
+                var logicComponent = GameManager.Instance.LogicComponents[(Index)i];
                 if (logicComponent.TryCast<LogicOptions>(out _))
                 {
                     SendOptionsArray(optionArray, i, player.GetClientId());
                 }
-
-                i++;
             }
         }
         catch (Exception ex)
@@ -196,6 +195,8 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     AURoleOptions.ScientistBatteryCharge = Options.ScientistDur.GetFloat();
                     break;
             }
+
+            if (Shifter.WasShifter.Contains(player.PlayerId) && role.IsImpostor()) opt.SetVision(true);
 
             Main.PlayerStates[player.PlayerId].Role.ApplyGameOptions(opt, player.PlayerId);
 
@@ -300,6 +301,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                         opt.SetVision(false);
                         opt.SetFloat(FloatOptionNames.CrewLightMod, 0);
                         opt.SetFloat(FloatOptionNames.ImpostorLightMod, 0);
+                        Main.AllPlayerSpeed[player.PlayerId] = Main.MinSpeed;
                         break;
                     case CustomRoles.Torch:
                         if (!Utils.IsActive(SystemTypes.Electrical))

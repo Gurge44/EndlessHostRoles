@@ -162,7 +162,7 @@ public static class MushroomMixupSabotageSystemPatch
         // When Mushroom Mixup Sabotage ends
         if (__instance.IsActive != __state && GameStates.IsInTask)
         {
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 // After MushroomMixup sabotage, shapeshift cooldown sets to 0
                 foreach (var pc in Main.AllAlivePlayerControls)
@@ -310,7 +310,7 @@ public static class SecurityCameraPatch
                 MapNames.Skeld or MapNames.Dleks => Options.DisableSkeldCamera.GetBool(),
                 MapNames.Polus => Options.DisablePolusCamera.GetBool(),
                 MapNames.Airship => Options.DisableAirshipCamera.GetBool(),
-                _ => false,
+                _ => false
             });
         }
 

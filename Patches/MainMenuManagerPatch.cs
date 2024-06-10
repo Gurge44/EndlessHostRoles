@@ -2,7 +2,6 @@ using System;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
-using static EHR.Translator;
 using Object = UnityEngine.Object;
 
 namespace EHR;
@@ -10,115 +9,177 @@ namespace EHR;
 [HarmonyPatch]
 public class MainMenuManagerPatch
 {
-    public static GameObject template;
+    public static MainMenuManager Instance { get; private set; }
 
-    //public static GameObject qqButton;
-    //public static GameObject discordButton;
-    public static GameObject updateButton;
+    public static PassiveButton Template;
+    public static PassiveButton UpdateButton;
+    private static PassiveButton gitHubButton;
+    private static PassiveButton discordButton;
+    private static PassiveButton websiteButton;
 
-    [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.LateUpdate)), HarmonyPostfix]
-    public static void Postfix(MainMenuManager __instance)
+    [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.OpenGameModeMenu))]
+    [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.OpenAccountMenu))]
+    [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.OpenCredits))]
+    [HarmonyPrefix, HarmonyPriority(Priority.Last)]
+    public static void ShowRightPanel() => ShowingPanel = true;
+
+    [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start))]
+    [HarmonyPatch(typeof(OptionsMenuBehaviour), nameof(OptionsMenuBehaviour.Open))]
+    [HarmonyPatch(typeof(AnnouncementPopUp), nameof(AnnouncementPopUp.Show))]
+    [HarmonyPrefix, HarmonyPriority(Priority.Last)]
+    public static void HideRightPanel()
     {
-        if (__instance == null) return;
-        try
-        {
-            __instance.playButton.transform.gameObject.SetActive(Options.IsLoaded);
-            if (TitleLogoPatch.LoadingHint == null) return;
-            TitleLogoPatch.LoadingHint.SetActive(!Options.IsLoaded);
-            TitleLogoPatch.LoadingHint.GetComponent<TextMeshPro>().text = string.Format(GetString("LoadingWithPercentage"), Options.LoadingPercentage, Options.MainLoadingText, Options.RoleLoadingText);
-        }
-        catch
-        {
-        }
+        ShowingPanel = false;
+        AccountManager.Instance?.transform?.FindChild("AccountTab/AccountWindow")?.gameObject?.SetActive(false);
     }
 
+    public static void ShowRightPanelImmediately()
+    {
+        ShowingPanel = true;
+        TitleLogoPatch.RightPanel.transform.localPosition = TitleLogoPatch.RightPanelOp;
+        Instance.OpenGameModeMenu();
+    }
+
+    private static bool isOnline = false;
+    public static bool ShowedBak = false;
+    private static bool ShowingPanel = false;
+    [HarmonyPatch(typeof(SignInStatusComponent), nameof(SignInStatusComponent.SetOnline)), HarmonyPostfix]
+    public static void SetOnline_Postfix() {LateTask.New(() => { isOnline = true; }, 0.1f, "Set Online Status"); }
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPrefix]
     public static void Start_Prefix(MainMenuManager __instance)
     {
-        if (template == null) template = GameObject.Find("/MainUI/ExitGameButton");
-        if (template == null) return;
+        if (Template == null) Template = __instance.quitButton;
+        if (Template == null) return;
 
-        //if (CultureInfo.CurrentCulture.Name == "zh-CN")
-        //{
-        //    //生成QQ群按钮
-        //    if (qqButton == null) qqButton = Object.Instantiate(template, template.transform.parent);
-        //    qqButton.name = "qqButton";
-        //    qqButton.transform.position = Vector3.Reflect(template.transform.position, Vector3.left);
-
-        //    var qqText = qqButton.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
-        //    Color qqColor = new Color32(0, 164, 255, byte.MaxValue);
-        //    PassiveButton qqPassiveButton = qqButton.GetComponent<PassiveButton>();
-        //    SpriteRenderer qqButtonSprite = qqButton.GetComponent<SpriteRenderer>();
-        //    qqPassiveButton.OnClick = new();
-        //    qqPassiveButton.OnClick.AddListener((Action)(() => Application.OpenURL(Main.QQInviteUrl)));
-        //    qqPassiveButton.OnMouseOut.AddListener((Action)(() => qqButtonSprite.color = qqText.color = qqColor));
-        //    __instance.StartCoroutine(Effects.Lerp(0.01f, new Action<float>((p) => qqText.SetText("QQ群"))));
-        //    qqButtonSprite.color = qqText.color = qqColor;
-        //    qqButton.gameObject.SetActive(Main.ShowQQButton && !Main.IsAprilFools);
-        //}
-        //else
-        //{
-        //    //Discordボタンを生成
-        //    if (discordButton == null) discordButton = Object.Instantiate(template, template.transform.parent);
-        //    discordButton.name = "DiscordButton";
-        //    discordButton.transform.position = Vector3.Reflect(template.transform.position, Vector3.left);
-
-        //    var discordText = discordButton.transform.GetChild(0).GetComponent<TMPro.TMP_Text>();
-        //    Color discordColor = new Color32(86, 98, 246, byte.MaxValue);
-        //    PassiveButton discordPassiveButton = discordButton.GetComponent<PassiveButton>();
-        //    SpriteRenderer discordButtonSprite = discordButton.GetComponent<SpriteRenderer>();
-        //    discordPassiveButton.OnClick = new();
-        //    discordPassiveButton.OnClick.AddListener((Action)(() => Application.OpenURL(Main.DiscordInviteUrl)));
-        //    discordPassiveButton.OnMouseOut.AddListener((Action)(() => discordButtonSprite.color = discordText.color = discordColor));
-        //    __instance.StartCoroutine(Effects.Lerp(0.01f, new Action<float>((p) => discordText.SetText("Discord"))));
-        //    discordButtonSprite.color = discordText.color = discordColor;
-        //    discordButton.gameObject.SetActive(Main.ShowDiscordButton && !Main.IsAprilFools);
-        //}
-
-        ////Updateボタンを生成
-        if (updateButton == null) updateButton = Object.Instantiate(template, template.transform.parent);
-        updateButton.name = "UpdateButton";
-        updateButton.transform.position = template.transform.position + new Vector3(0.25f, 0.75f);
-        updateButton.transform.GetChild(0).GetComponent<RectTransform>().localScale *= 1.5f;
-
-        var updateText = updateButton.transform.GetChild(0).GetComponent<TMP_Text>();
-        Color updateColor = new Color32(247, 56, 23, byte.MaxValue);
-        PassiveButton updatePassiveButton = updateButton.GetComponent<PassiveButton>();
-        SpriteRenderer updateButtonSprite = updateButton.GetComponent<SpriteRenderer>();
-        updatePassiveButton.OnClick = new();
-        updatePassiveButton.OnClick.AddListener((Action)(() =>
+        if (UpdateButton == null)
         {
-            updateButton.SetActive(false);
-            ModUpdater.StartUpdate(ModUpdater.downloadUrl, true);
-        }));
-        updatePassiveButton.OnMouseOut.AddListener((Action)(() => updateButtonSprite.color = updateText.color = updateColor));
-        updateButtonSprite.color = updateText.color = updateColor;
-        updateButtonSprite.size *= 1.5f;
-        updateButton.gameObject.SetActive(ModUpdater.hasUpdate);
-
-#if RELEASE
-        var freeplayButton = GameObject.Find("/MainUI/FreePlayButton");
-        if (freeplayButton != null)
-        {
-            freeplayButton.GetComponent<PassiveButton>().OnClick = new();
-            freeplayButton.GetComponent<PassiveButton>().OnClick.AddListener((Action)(() => Application.OpenURL("https://tohe.cc")));
-            __instance.StartCoroutine(Effects.Lerp(0.01f, new Action<float>(p => freeplayButton.transform.GetChild(0).GetComponent<TMP_Text>().SetText(GetString("Website")))));
+            UpdateButton = CreateButton(
+                "updateButton",
+                new(4.2f, -1.3f, 1f),
+                new(255, 165, 0, byte.MaxValue),
+                new(255, 200, 0, byte.MaxValue),
+                () => ModUpdater.StartUpdate(ModUpdater.downloadUrl, true),
+                Translator.GetString("updateButton"));
+            UpdateButton.transform.localScale = Vector3.one;
         }
-#endif
+        UpdateButton.gameObject.SetActive(ModUpdater.hasUpdate);
 
-        if (Main.IsAprilFools) return;
+        Application.targetFrameRate = Main.UnlockFps.Value ? 9999 : 60;
+    }
+    [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.LateUpdate)), HarmonyPostfix]
+    public static void MainMenuManager_LateUpdate()
+    {
 
-        var bottomTemplate = GameObject.Find("InventoryButton");
-        if (bottomTemplate == null) return;
+        if (GameObject.Find("MainUI") == null) ShowingPanel = false;
 
-        var CreditsButton = Object.Instantiate(bottomTemplate, bottomTemplate.transform.parent);
-        var passiveCreditsButton = CreditsButton.GetComponent<PassiveButton>();
-        var spriteCreditsButton = CreditsButton.GetComponent<SpriteRenderer>();
+        if (TitleLogoPatch.RightPanel != null)
+        {
+            var pos1 = TitleLogoPatch.RightPanel.transform.localPosition;
+            Vector3 lerp1 = Vector3.Lerp(pos1, TitleLogoPatch.RightPanelOp + new Vector3(ShowingPanel ? 0f : 10f, 0f, 0f), Time.deltaTime * (ShowingPanel ? 3f : 2f));
+            if (ShowingPanel
+                ? TitleLogoPatch.RightPanel.transform.localPosition.x > TitleLogoPatch.RightPanelOp.x + 0.03f
+                : TitleLogoPatch.RightPanel.transform.localPosition.x < TitleLogoPatch.RightPanelOp.x + 9f
+                ) TitleLogoPatch.RightPanel.transform.localPosition = lerp1;
+        }
 
-        spriteCreditsButton.sprite = Utils.LoadSprite("EHR.Resources.Images.CreditsButton.png", 75f);
-        passiveCreditsButton.OnClick = new();
-        passiveCreditsButton.OnClick.AddListener((Action)(() => { CredentialsPatch.LogoPatch.CreditsPopup?.SetActive(true); }));
+        if (ShowedBak || !isOnline) return;
+        var bak = GameObject.Find("BackgroundTexture");
+        if (bak == null || !bak.active) return;
+        var pos2 = bak.transform.position;
+        Vector3 lerp2 = Vector3.Lerp(pos2, new Vector3(pos2.x, 7.1f, pos2.z), Time.deltaTime * 1.4f);
+        bak.transform.position = lerp2;
+        if (pos2.y > 7f) ShowedBak = true;
+    }
+    public static SpriteRenderer MG_Logo;
+    [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix, HarmonyPriority(Priority.VeryHigh)]
+    public static void Start_Postfix(MainMenuManager __instance)
+    {
+        Instance = __instance;
 
-        Application.targetFrameRate = Main.UnlockFps.Value ? 165 : 60;
+        SimpleButton.SetBase(__instance.quitButton);
+            var logoObject = new GameObject("titleLogo_MG");
+            var logoTransform = logoObject.transform;
+            MG_Logo = logoObject.AddComponent<SpriteRenderer>();
+            logoTransform.localPosition = new(2f, -0.5f, 1f);
+            logoTransform.localScale *= 1.2f;
+            MG_Logo.sprite = Utils.LoadSprite("EHR.Resources.Images.EHR-Icon.png", 400f);
+
+        // GitHub Button
+        if (gitHubButton == null)
+        {
+            gitHubButton = CreateButton(
+                "GitHubButton",
+                new Vector3(-2.3f, -1.3f, 1f),
+                new Color32(153, 153, 153, byte.MaxValue),
+                new Color32(209, 209, 209, byte.MaxValue),
+                () => Application.OpenURL("https://github.com/Gurge44/EndlessHostRoles"),
+                Translator.GetString("GitHub")); //"GitHub"
+        }
+        gitHubButton.gameObject.SetActive(true);
+
+        // Discord Button
+        if (discordButton == null)
+        {
+            discordButton = CreateButton(
+                "DiscordButton",
+                new Vector3(-0.5f, -1.3f, 1f),
+                new Color32(88, 101, 242, byte.MaxValue),
+                new Color32(148, 161, byte.MaxValue, byte.MaxValue),
+                () => Application.OpenURL("https://discord.com/invite/m3ayxfumC8"),
+                Translator.GetString("Discord")); //"Discord"
+        }
+        discordButton.gameObject.SetActive(true);
+
+        // Website Button
+        if (websiteButton == null)
+        {
+            websiteButton = CreateButton(
+                "WebsiteButton",
+                new Vector3(1.3f, -1.3f, 1f),
+                new Color32(251, 81, 44, byte.MaxValue),
+                new Color32(211, 77, 48, byte.MaxValue),
+                () => Application.OpenURL("https://sites.google.com/view/ehr-au"),
+                Translator.GetString("Website")); //"Website"
+        }
+        websiteButton.gameObject.SetActive(true);
+
+        Application.targetFrameRate = Main.UnlockFps.Value ? 9999 : 60;
+    }
+    public static PassiveButton CreateButton(string name, Vector3 localPosition, Color32 normalColor, Color32 hoverColor, Action action, string label, Vector2? scale = null)
+    {
+        var button = Object.Instantiate(Template, Template.transform.parent);
+        button.name = name;
+        Object.Destroy(button.GetComponent<AspectPosition>());
+        button.transform.localPosition = localPosition;
+
+        button.OnClick = new();
+        button.OnClick.AddListener(action);
+
+        var buttonText = button.transform.Find("FontPlacer/Text_TMP").GetComponent<TMP_Text>();
+        buttonText.DestroyTranslator();
+        buttonText.fontSize = buttonText.fontSizeMax = buttonText.fontSizeMin = 3.5f;
+        buttonText.enableWordWrapping = false;
+        buttonText.text = label;
+        var normalSprite = button.inactiveSprites.GetComponent<SpriteRenderer>();
+        var hoverSprite = button.activeSprites.GetComponent<SpriteRenderer>();
+        normalSprite.color = normalColor;
+        hoverSprite.color = hoverColor;
+
+        var container = buttonText.transform.parent;
+        Object.Destroy(container.GetComponent<AspectPosition>());
+        Object.Destroy(buttonText.GetComponent<AspectPosition>());
+        container.SetLocalX(0f);
+        buttonText.transform.SetLocalX(0f);
+        buttonText.horizontalAlignment = HorizontalAlignmentOptions.Center;
+
+        var buttonCollider = button.GetComponent<BoxCollider2D>();
+        if (scale.HasValue)
+        {
+            normalSprite.size = hoverSprite.size = buttonCollider.size = scale.Value;
+        }
+
+        buttonCollider.offset = new(0f, 0f);
+
+        return button;
     }
 }

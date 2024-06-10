@@ -31,20 +31,20 @@ public class HeadHunter : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.HeadHunter);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 27.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 27.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
             .SetValueFormat(OptionFormat.Seconds);
-        SuccessKillCooldown = FloatOptionItem.Create(Id + 11, "HHSuccessKCDDecrease", new(0f, 180f, 0.5f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
+        SuccessKillCooldown = new FloatOptionItem(Id + 11, "HHSuccessKCDDecrease", new(0f, 180f, 0.5f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
             .SetValueFormat(OptionFormat.Seconds);
-        FailureKillCooldown = FloatOptionItem.Create(Id + 12, "HHFailureKCDIncrease", new(0f, 180f, 0.5f), 10f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
+        FailureKillCooldown = new FloatOptionItem(Id + 12, "HHFailureKCDIncrease", new(0f, 180f, 0.5f), 10f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
             .SetValueFormat(OptionFormat.Seconds);
-        CanVent = BooleanOptionItem.Create(Id + 13, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter]);
-        HasImpostorVision = BooleanOptionItem.Create(Id + 14, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter]);
-        NumOfTargets = IntegerOptionItem.Create(Id + 15, "HHNumOfTargets", new(0, 10, 1), 3, TabGroup.NeutralRoles)
+        CanVent = new BooleanOptionItem(Id + 13, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter]);
+        HasImpostorVision = new BooleanOptionItem(Id + 14, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter]);
+        NumOfTargets = new IntegerOptionItem(Id + 15, "HHNumOfTargets", new(0, 10, 1), 3, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
             .SetValueFormat(OptionFormat.Times);
-        MaxKCD = FloatOptionItem.Create(Id + 16, "HHMaxKCD", new(0f, 180f, 0.5f), 40f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
+        MaxKCD = new FloatOptionItem(Id + 16, "HHMaxKCD", new(0f, 180f, 0.5f), 40f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
             .SetValueFormat(OptionFormat.Seconds);
-        MinKCD = FloatOptionItem.Create(Id + 17, "HHMinKCD", new(0f, 180f, 0.5f), 10f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
+        MinKCD = new FloatOptionItem(Id + 17, "HHMinKCD", new(0f, 180f, 0.5f), 10f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
             .SetValueFormat(OptionFormat.Seconds);
     }
 
@@ -60,7 +60,7 @@ public class HeadHunter : RoleBase
         playerIdList.Add(playerId);
         HeadHunterId = playerId;
         Targets = [];
-        _ = new LateTask(ResetTargets, 8f);
+        LateTask.New(ResetTargets, 8f, log: false);
         KCD = KillCooldown.GetFloat();
 
         if (!AmongUsClient.Instance.AmHost) return;

@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Assets.CoreScripts;
 using EHR.Modules;
+using EHR.Roles.AddOns.Common;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
@@ -72,14 +73,12 @@ internal class ChatCommands
         switch (args[0])
         {
             case "/dump":
-                //canceled = true;
                 Utils.DumpLog();
                 break;
             case "/v":
             case "/version":
                 canceled = true;
                 string version_text = Main.PlayerVersion.OrderBy(pair => pair.Key).Aggregate(string.Empty, (current, kvp) => current + $"{kvp.Key}:{Main.AllPlayerNames[kvp.Key]}:{kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n");
-
                 if (version_text != string.Empty) HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, (PlayerControl.LocalPlayer.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + version_text);
                 break;
             default:
@@ -334,6 +333,7 @@ internal class ChatCommands
                                 }
 
                                 Utils.SendMessage(string.Format(args[1] == "add" ? GetString("ComboAdd") : GetString("ComboBan"), GetString(mainRole.ToString()), GetString(addOn.ToString())), localPlayerId);
+                                Utils.SaveComboInfo();
                             }
 
                             break;
@@ -346,11 +346,13 @@ internal class ChatCommands
                                 {
                                     list3.Remove(addOn2);
                                     Utils.SendMessage(string.Format(GetString("ComboRemove"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), localPlayerId);
+                                    Utils.SaveComboInfo();
                                 }
                                 else if (Main.NeverSpawnTogetherCombos.TryGetValue(mainRole2, out var list4))
                                 {
                                     list4.Remove(addOn2);
                                     Utils.SendMessage(string.Format(GetString("ComboAllow"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), localPlayerId);
+                                    Utils.SaveComboInfo();
                                 }
                             }
 
@@ -751,6 +753,21 @@ internal class ChatCommands
             goto Canceled;
         }
 
+        if (GameStates.IsInGame && ((PlayerControl.LocalPlayer.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting)))
+        {
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) || PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
+            {
+                var otherLover = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId);
+                var title = PlayerControl.LocalPlayer.GetRealName();
+                ChatUpdatePatch.LoversMessage = true;
+                Utils.SendMessage(text, otherLover.PlayerId, title);
+                Utils.SendMessage(text, PlayerControl.LocalPlayer.PlayerId, title);
+                LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Main.MessageWait.Value, log: false);
+            }
+
+            goto Canceled;
+        }
+
         goto Skip;
         Canceled:
         Main.IsChatCommand = false;
@@ -887,7 +904,7 @@ internal class ChatCommands
             "持槍" or "持械" or "手长" => GetString("Reach"),
             "monarch" => GetString("Monarch"),
             "sch" => GetString("SchrodingersCat"),
-            _ => text,
+            _ => text
         };
     }
 
@@ -978,19 +995,24 @@ internal class ChatCommands
                 var title = $"<{Main.RoleColors[rl]}>{roleName}</color> {Utils.GetRoleMode(rl)}";
                 _ = sb.Append($"{GetString($"{rl}InfoLong")}");
                 var settings = new StringBuilder();
-                if (Options.CustomRoleSpawnChances.TryGetValue(rl, out StringOptionItem chance))
-                {
-                    settings.AppendLine($"<size=70%><u>{GetString("SettingsForRoleText")} <{Main.RoleColors[rl]}>{roleName}</color>:</u>");
-                    Utils.ShowChildrenSettings(chance, ref settings, disableColor: false);
-                    settings.Append("</size>");
-                    var txt = $"<size=90%>{sb}</size>";
-                    _ = sb.Clear().Append(txt);
-                }
+                if (Options.CustomRoleSpawnChances.TryGetValue(rl, out StringOptionItem chance)) AddSettings(chance);
+
+                if (rl is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && Options.CustomRoleSpawnChances.TryGetValue(CustomRoles.Lovers, out chance)) AddSettings(chance);
+
+                var txt = $"<size=90%>{sb}</size>";
+                sb.Clear().Append(txt);
 
                 if (rl.PetActivatedAbility() && sb.Length < 1000) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
                 Utils.SendMessage(text: "\n", sendTo: playerId, title: settings.ToString());
                 Utils.SendMessage(text: sb.ToString(), sendTo: playerId, title: title);
                 return;
+
+                void AddSettings(StringOptionItem stringOptionItem)
+                {
+                    settings.AppendLine($"<size=70%><u>{GetString("SettingsForRoleText")} <{Main.RoleColors[rl]}>{roleName}</color>:</u>");
+                    Utils.ShowChildrenSettings(stringOptionItem, ref settings, disableColor: false);
+                    settings.Append("</size>");
+                }
             }
         }
 
@@ -1293,6 +1315,15 @@ internal class ChatCommands
                 Utils.SendMessage(Utils.GetRemainingKillers(), player.PlayerId);
                 break;
 
+            case "/lt":
+                var timer = GameStartManagerPatch.Timer;
+                int minutes = (int)timer / 60;
+                int seconds = (int)timer % 60;
+                string lt = string.Format(GetString("LobbyCloseTimer"), $"{minutes:00}:{seconds:00}");
+                if (timer <= 60) lt = Utils.ColorString(Color.red, lt);
+                Utils.SendMessage(lt, player.PlayerId);
+                break;
+
             case "/gno":
                 canceled = true;
                 if (!GameStates.IsLobby && player.IsAlive())
@@ -1362,6 +1393,24 @@ internal class ChatCommands
             return;
         }
 
+        if (GameStates.IsInGame && !ChatUpdatePatch.LoversMessage && ((player.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting)))
+        {
+            ChatManager.SendPreviousMessagesToAll(clear: true);
+            canceled = true;
+            if (player.Is(CustomRoles.Lovers) || player.GetCustomRole() is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
+            {
+                var otherLover = Main.LoversPlayers.First(x => x.PlayerId != player.PlayerId);
+                LateTask.New(() =>
+                {
+                    var title = player.GetRealName();
+                    ChatUpdatePatch.LoversMessage = true;
+                    Utils.SendMessage(text, otherLover.PlayerId, title);
+                    Utils.SendMessage(text, player.PlayerId, title);
+                    LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Main.MessageWait.Value, log: false);
+                }, 0.2f, log: false);
+            }
+        }
+
         if (isCommand) LastSentCommand[player.PlayerId] = now;
         SpamManager.CheckSpam(player, text);
     }
@@ -1371,6 +1420,7 @@ internal class ChatCommands
 internal class ChatUpdatePatch
 {
     public static bool DoBlockChat;
+    public static bool LoversMessage;
 
     public static void Postfix(ChatController __instance)
     {

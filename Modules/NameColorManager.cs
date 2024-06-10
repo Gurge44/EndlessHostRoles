@@ -71,7 +71,7 @@ public static class NameColorManager
         }
 
         // Custom Teams
-        if (CustomTeamManager.AreInSameCustomTeam(seer.PlayerId, target.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(seer.PlayerId, "KnowRoles")) color = Main.RoleColors[target.GetCustomRole()];
+        if (CustomTeamManager.AreInSameCustomTeam(seer.PlayerId, target.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(seer.PlayerId, CTAOption.KnowRoles)) color = Main.RoleColors[target.GetCustomRole()];
 
         // Add-ons
         if (target.Is(CustomRoles.Glow) && Utils.IsActive(SystemTypes.Electrical)) color = Main.RoleColors[CustomRoles.Glow];
@@ -112,7 +112,7 @@ public static class NameColorManager
             (CustomRoles.Necromancer, CustomRoles.Deathknight) => Main.RoleColors[CustomRoles.Deathknight],
             (CustomRoles.Deathknight, CustomRoles.Necromancer) => Main.RoleColors[CustomRoles.Necromancer],
             (CustomRoles.Deathknight, CustomRoles.Deathknight) => Main.RoleColors[CustomRoles.Deathknight],
-            _ => color,
+            _ => color
         };
 
         // Check if the seer can see the target's role color
@@ -145,7 +145,7 @@ public static class NameColorManager
             CustomRoles.SoulHunter when SoulHunter.IsSoulHunterTarget(target.PlayerId) => Main.RoleColors[CustomRoles.SoulHunter],
             CustomRoles.Kamikaze when ((Kamikaze)Main.PlayerStates[seer.PlayerId].Role).MarkedPlayers.Contains(target.PlayerId) => Main.RoleColors[CustomRoles.Electric],
             CustomRoles.QuizMaster when ((QuizMaster)Main.PlayerStates[seer.PlayerId].Role).Target == target.PlayerId => "000000",
-            _ => color,
+            _ => color
         };
 
         // Check if the target can see the seer's role color
@@ -199,7 +199,7 @@ public static class NameColorManager
                || seer.Is(CustomRoles.GM)
                || seer.Is(CustomRoles.God)
                || (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor))
-               || (seer.Is(CustomRoles.Traitor) && target.Is(CustomRoleTypes.Impostor))
+               || (seer.Is(CustomRoles.Traitor) && target.Is(Team.Impostor))
                || (seer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Sidekick))
                || (seer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Sidekick))
                || (seer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Jackal))

@@ -44,14 +44,14 @@ public class Swooper : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Swooper);
-        SwooperCooldown = FloatOptionItem.Create(Id + 2, "SwooperCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
+        SwooperCooldown = new FloatOptionItem(Id + 2, "SwooperCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
             .SetValueFormat(OptionFormat.Seconds);
-        SwooperDuration = FloatOptionItem.Create(Id + 3, "SwooperDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
+        SwooperDuration = new FloatOptionItem(Id + 3, "SwooperDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
             .SetValueFormat(OptionFormat.Seconds);
-        SwooperVentNormallyOnCooldown = BooleanOptionItem.Create(Id + 4, "SwooperVentNormallyOnCooldown", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper]);
-        SwooperLimitOpt = IntegerOptionItem.Create(Id + 5, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
+        SwooperVentNormallyOnCooldown = new BooleanOptionItem(Id + 4, "SwooperVentNormallyOnCooldown", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper]);
+        SwooperLimitOpt = new IntegerOptionItem(Id + 5, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
             .SetValueFormat(OptionFormat.Times);
-        SwooperAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 6, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles)
+        SwooperAbilityUseGainWithEachKill = new FloatOptionItem(Id + 6, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -187,7 +187,7 @@ public class Swooper : RoleBase
                     InvisTime = -10;
                     SendRPC();
                     refresh = true;
-                    _ = new LateTask(() => { player.TP(pos); }, 0.5f, log: false);
+                    LateTask.New(() => { player.TP(pos); }, 0.5f, log: false);
                     break;
                 case <= 10 when !player.IsModClient():
                     player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1));
@@ -203,7 +203,7 @@ public class Swooper : RoleBase
         if (!AmongUsClient.Instance.AmHost || IsInvis) return;
 
         var pc = __instance.myPlayer;
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             float limit = pc.GetAbilityUseLimit();
             bool naN = float.IsNaN(limit);

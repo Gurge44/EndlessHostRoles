@@ -45,7 +45,7 @@ namespace EHR.Roles.Impostor
             if (killer.PlayerId != target.PlayerId)
             {
                 Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Dismembered;
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     if (!OverDeadPlayerList.Contains(target.PlayerId)) OverDeadPlayerList.Add(target.PlayerId);
                     if (target.Is(CustomRoles.Avanger))

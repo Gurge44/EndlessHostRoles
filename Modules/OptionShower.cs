@@ -11,13 +11,20 @@ public static class OptionShower
     public static int CurrentPage;
     public static List<string> Pages = [];
 
+    private static long LastUpdate;
+
     static OptionShower()
     {
     }
 
     public static string GetTextNoFresh()
     {
-        if (Pages.Count < 3 || CurrentPage == 0) GetText();
+        if (Pages.Count < 3 || (CurrentPage == 0 && LastUpdate != Utils.TimeStamp))
+        {
+            GetText();
+            LastUpdate = Utils.TimeStamp;
+        }
+
         return $"{Pages[CurrentPage]}{GetString("PressTabToNextPage")}({CurrentPage + 1}/{Pages.Count})";
     }
 

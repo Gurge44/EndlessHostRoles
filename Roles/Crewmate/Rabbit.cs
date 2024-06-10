@@ -17,7 +17,7 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Rabbit);
-            OptionTaskTrigger = IntegerOptionItem.Create(Id + 2, "RabbitMinTasks", new(0, 90, 1), 3, TabGroup.CrewmateRoles)
+            OptionTaskTrigger = new IntegerOptionItem(Id + 2, "RabbitMinTasks", new(0, 90, 1), 3, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Rabbit]);
             Options.OverrideTasksData.Create(Id + 3, TabGroup.CrewmateRoles, CustomRoles.Rabbit);
         }
@@ -64,8 +64,9 @@ namespace EHR.Roles.Crewmate
             {
                 if (!Player.IsAlive() || (MyTaskState.CompletedTasksCount < TaskTrigger && !MyTaskState.IsTaskFinished)) return;
 
-                var Impostors = Main.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor)).ToArray();
-                var target = Impostors.RandomElement();
+                var impostors = Main.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor)).ToArray();
+                var target = impostors.RandomElement();
+                if (target == null) return;
 
                 var pos = target.Pos();
                 LocateArrow.Add(Player.PlayerId, pos);
@@ -74,7 +75,7 @@ namespace EHR.Roles.Crewmate
                 Utils.NotifyRoles(SpecifySeer: Player, SpecifyTarget: Player);
                 Logger.Info($"{Player.GetNameWithRole()}'s target: {target.GetNameWithRole()}", "Rabbit");
 
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     LocateArrow.Remove(Player.PlayerId, pos);
                     HasArrow = false;

@@ -1,5 +1,7 @@
+using System;
 using System.Linq;
 using AmongUs.Data;
+using EHR.Roles.AddOns.Common;
 using EHR.Roles.AddOns.Crewmate;
 using EHR.Roles.AddOns.Impostor;
 using EHR.Roles.Crewmate;
@@ -128,7 +130,7 @@ class ExileControllerWrapUpPatch
                 2 => new RandomSpawn.PolusSpawnMap(),
                 3 => new RandomSpawn.DleksSpawnMap(),
                 5 => new RandomSpawn.FungleSpawnMap(),
-                _ => null,
+                _ => null
             };
             if (map != null) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
         }
@@ -147,7 +149,7 @@ class ExileControllerWrapUpPatch
         // Even if an exception occurs in WrapUpPostfix, this part will be executed reliably.
         if (AmongUsClient.Instance.AmHost)
         {
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 exiled = AntiBlackout_LastExiled;
                 AntiBlackout.SendGameData();
@@ -158,7 +160,7 @@ class ExileControllerWrapUpPatch
                     exiled.Object.RpcExileV2();
                 }
             }, 0.8f, "Restore IsDead Task");
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 Main.AfterMeetingDeathPlayers.Do(x =>
                 {
@@ -183,12 +185,14 @@ class ExileControllerWrapUpPatch
         SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
         Logger.Info("Start task phase", "Phase");
 
+        if (!Lovers.IsChatActivated && Lovers.PrivateChat.GetBool()) return;
+
         bool showRemainingKillers = Options.EnableKillerLeftCommand.GetBool() && Options.ShowImpRemainOnEject.GetBool();
         bool appendEjectionNotify = CheckForEndVotingPatch.EjectionText != string.Empty;
-        Logger.Warn($"Ejection Text: {CheckForEndVotingPatch.EjectionText}", "debug");
+        Logger.Warn($"Ejection Text: {CheckForEndVotingPatch.EjectionText}", "ExilePatch");
         if ((showRemainingKillers || appendEjectionNotify) && Options.CurrentGameMode == CustomGameMode.Standard)
         {
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 var text = showRemainingKillers ? Utils.GetRemainingKillers(notify: true) : string.Empty;
                 text = $"<#ffffff>{text}</color>";
@@ -201,7 +205,7 @@ class ExileControllerWrapUpPatch
                         finalText = $"\n{notify.TEXT}\n{finalText}";
                     }
 
-                    if (appendEjectionNotify)
+                    if (appendEjectionNotify && !finalText.Contains(CheckForEndVotingPatch.EjectionText, StringComparison.OrdinalIgnoreCase))
                     {
                         finalText = $"\n<#ffffff>{CheckForEndVotingPatch.EjectionText}</color>\n{finalText}";
                     }
@@ -213,7 +217,7 @@ class ExileControllerWrapUpPatch
             }, 0.5f, log: false);
         }
 
-        _ = new LateTask(() => { ChatManager.SendPreviousMessagesToAll(); }, 3f, log: false);
+        LateTask.New(() => ChatManager.SendPreviousMessagesToAll(), 3f, log: false);
     }
 
     [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]

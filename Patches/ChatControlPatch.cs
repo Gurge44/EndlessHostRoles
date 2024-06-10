@@ -168,7 +168,7 @@ public static class ChatManager
         {
             case 1 when player.IsAlive(): // Guessing Command & Such
                 Logger.Info("Special Command", "ChatManager");
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     if (!ChatCommands.LastSentCommand.ContainsKey(player.PlayerId))
                     {
@@ -198,7 +198,7 @@ public static class ChatManager
         }
     }
 
-    public static void SendPreviousMessagesToAll(bool realMessagesOnly = false)
+    public static void SendPreviousMessagesToAll(bool clear = false)
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return;
         ChatUpdatePatch.DoBlockChat = true;
@@ -209,36 +209,31 @@ public static class ChatManager
 
         var filtered = ChatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
 
-        switch (realMessagesOnly)
+        for (int i = clear ? 0 : filtered.Length; i < 20; i++)
         {
-            case true when filtered.Length < 5:
-                return;
-            case false:
-                for (int i = filtered.Length; i < 20; i++)
-                {
-                    var player = x[r.Next(0, totalAlive)];
-                    DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
-                    SendRPC(player, msg);
-                }
-
-                break;
+            var player = x[r.Next(0, totalAlive)];
+            DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
+            SendRPC(player, msg);
         }
 
-        foreach (string str in filtered)
+        if (!clear)
         {
-            var entryParts = str.Split(':');
-            var senderId = entryParts[0].Trim();
-            var senderMessage = entryParts[1].Trim();
-            for (int j = 2; j < entryParts.Length; j++)
+            foreach (string str in filtered)
             {
-                senderMessage += ':' + entryParts[j].Trim();
+                var entryParts = str.Split(':');
+                var senderId = entryParts[0].Trim();
+                var senderMessage = entryParts[1].Trim();
+                for (int j = 2; j < entryParts.Length; j++)
+                {
+                    senderMessage += ':' + entryParts[j].Trim();
+                }
+
+                var senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
+                if (senderPlayer == null) continue;
+
+                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
+                SendRPC(senderPlayer, senderMessage);
             }
-
-            var senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
-            if (senderPlayer == null) continue;
-
-            DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
-            SendRPC(senderPlayer, senderMessage);
         }
 
         ChatUpdatePatch.DoBlockChat = false;

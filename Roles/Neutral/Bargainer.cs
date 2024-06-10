@@ -90,21 +90,21 @@ namespace EHR.Roles.Neutral
 
             SetupRoleOptions(id++, tab, CustomRoles.Bargainer);
 
-            KillCooldown = FloatOptionItem.Create(++id, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, tab)
+            KillCooldown = new FloatOptionItem(++id, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer])
                 .SetValueFormat(OptionFormat.Seconds);
-            CanVent = BooleanOptionItem.Create(++id, "CanVent", true, tab)
+            CanVent = new BooleanOptionItem(++id, "CanVent", true, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer]);
-            HasImpostorVision = BooleanOptionItem.Create(++id, "ImpostorVision", true, tab)
+            HasImpostorVision = new BooleanOptionItem(++id, "ImpostorVision", true, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer]);
-            StartingMoney = IntegerOptionItem.Create(++id, "Bargainer.StartingMoney", new(0, 100, 5), 0, tab)
+            StartingMoney = new IntegerOptionItem(++id, "Bargainer.StartingMoney", new(0, 100, 5), 0, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer]);
 
             foreach (var action in Enum.GetValues<MoneyGainingAction>())
             {
-                var boolOpt = BooleanOptionItem.Create(++id, $"Bargainer.{action}.Enabled", true, tab)
+                var boolOpt = new BooleanOptionItem(++id, $"Bargainer.{action}.Enabled", true, tab)
                     .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer]);
-                var intOpt = IntegerOptionItem.Create(++id, $"Bargainer.{action}.Amount", new(0, 100, 5), GetDefaultValue(), tab)
+                var intOpt = new IntegerOptionItem(++id, $"Bargainer.{action}.Amount", new(0, 100, 5), GetDefaultValue(), tab)
                     .SetParent(boolOpt);
 
                 MoneySettings[action] = (boolOpt, intOpt);
@@ -124,9 +124,9 @@ namespace EHR.Roles.Neutral
             {
                 if (item == Item.None) continue;
 
-                var boolOpt = BooleanOptionItem.Create(++id, $"Bargainer.{item}.Enabled", true, tab)
+                var boolOpt = new BooleanOptionItem(++id, $"Bargainer.{item}.Enabled", true, tab)
                     .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer]);
-                var intOpt = IntegerOptionItem.Create(++id, $"Bargainer.{item}.Cost", new(0, 200, 5), GetDefaultValue(), tab)
+                var intOpt = new IntegerOptionItem(++id, $"Bargainer.{item}.Cost", new(0, 200, 5), GetDefaultValue(), tab)
                     .SetParent(boolOpt);
                 SetupExtraSettings();
 
@@ -147,21 +147,21 @@ namespace EHR.Roles.Neutral
                     switch (item)
                     {
                         case Item.BandAid:
-                            ShieldDuration = StringOptionItem.Create(++id, $"Bargainer.{item}.DurationSwitch", Enum.GetNames<ShieldDurationOptions>(), 0, tab)
+                            ShieldDuration = new StringOptionItem(++id, $"Bargainer.{item}.DurationSwitch", Enum.GetNames<ShieldDurationOptions>(), 0, tab)
                                 .SetParent(boolOpt);
-                            ShieldTime = IntegerOptionItem.Create(++id, $"Bargainer.{item}.Duration", new(0, 60, 1), 20, tab)
+                            ShieldTime = new IntegerOptionItem(++id, $"Bargainer.{item}.Duration", new(0, 60, 1), 20, tab)
                                 .SetParent(ShieldDuration)
                                 .SetValueFormat(OptionFormat.Seconds);
                             break;
                         case Item.EnergyDrink:
-                            ReducedKillCooldown = FloatOptionItem.Create(++id, $"Bargainer.{item}.ReducedKCD", new(0f, 180f, 0.5f), 17.5f, tab)
+                            ReducedKillCooldown = new FloatOptionItem(++id, $"Bargainer.{item}.ReducedKCD", new(0f, 180f, 0.5f), 17.5f, tab)
                                 .SetParent(boolOpt)
                                 .SetValueFormat(OptionFormat.Seconds);
                             break;
                         case Item.LensOfTruth:
-                            AlignmentVisible = StringOptionItem.Create(++id, $"Bargainer.{item}.DurationSwitch", Enum.GetNames<AlignmentVisibleOptions>(), (int)AlignmentVisibleOptions.UntilNextReveal, tab)
+                            AlignmentVisible = new StringOptionItem(++id, $"Bargainer.{item}.DurationSwitch", Enum.GetNames<AlignmentVisibleOptions>(), (int)AlignmentVisibleOptions.UntilNextReveal, tab)
                                 .SetParent(boolOpt);
-                            AlignmentVisibleDuration = IntegerOptionItem.Create(++id, $"Bargainer.{item}.Duration", new(1, 30, 1), 10, tab)
+                            AlignmentVisibleDuration = new IntegerOptionItem(++id, $"Bargainer.{item}.Duration", new(1, 30, 1), 10, tab)
                                 .SetParent(AlignmentVisible)
                                 .SetValueFormat(OptionFormat.Seconds);
                             break;
@@ -273,7 +273,7 @@ namespace EHR.Roles.Neutral
             }
 
             var wasInShop = InShop;
-            InShop = ShopLocations.Any(x => Vector2.Distance(pc.Pos(), x) < DisableDevice.UsableDistance());
+            InShop = ShopLocations.Any(x => Vector2.Distance(pc.Pos(), x) < DisableDevice.UsableDistance);
             Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 1, InShop);
 
             switch (wasInShop)

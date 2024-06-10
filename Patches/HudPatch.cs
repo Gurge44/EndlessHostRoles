@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles.AddOns.Common;
 using EHR.Roles.Crewmate;
@@ -17,22 +18,21 @@ namespace EHR.Patches;
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
 class HudManagerPatch
 {
-    //public static bool ShowDebugText;
-    //public static int LastCallNotifyRolesPerSecond;
-    public static int NowCallNotifyRolesCount;
-
-    public static int LastSetNameDesyncCount;
-
-    //public static int LastFPS;
-    //public static int NowFrameCount;
-    //public static float FrameRateTimer;
-    public static TextMeshPro LowerInfoText;
-
+    private static TextMeshPro LowerInfoText;
     private static TextMeshPro OverriddenRolesText;
-
     private static long LastNullError;
 
-    //public static GameObject TempLowerInfoText;
+    public static bool Prefix(HudManager __instance)
+    {
+        if (PlayerControl.LocalPlayer != null) return true;
+
+        __instance.taskDirtyTimer += Time.deltaTime;
+        if (__instance.taskDirtyTimer <= 0.25) return false;
+        __instance.taskDirtyTimer = 0.0f;
+        __instance.TaskPanel?.SetTaskText(string.Empty);
+        return false;
+    }
+
     public static void Postfix(HudManager __instance)
     {
         try
@@ -138,6 +138,18 @@ class HudManagerPatch
             {
                 if (player.IsAlive() || Options.CurrentGameMode != CustomGameMode.Standard)
                 {
+                    if (player.Data.Role is ShapeshifterRole ssrole)
+                    {
+                        var timer = shapeshifting ? ssrole.durationSecondsRemaining : ssrole.cooldownSecondsRemaining;
+                        var button = __instance.AbilityButton;
+                        if (timer > 0f)
+                        {
+                            var color = shapeshifting ? Color.green : Color.white;
+                            button.cooldownTimerText.text = Utils.ColorString(color, Mathf.CeilToInt(timer).ToString());
+                            button.cooldownTimerText.gameObject.SetActive(true);
+                        }
+                    }
+
                     var role = player.GetCustomRole();
 
                     bool usesPetInsteadOfKill = role.UsesPetInsteadOfKill();
@@ -155,7 +167,10 @@ class HudManagerPatch
                     __instance.ImpostorVentButton?.OverrideText(GetString("VentButtonText"));
                     __instance.SabotageButton?.OverrideText(GetString("SabotageButtonText"));
 
-                    __instance.AbilityButton?.OverrideText(GetString($"AbilityButtonText.{player.GetRoleTypes()}"));
+                    var roleTypes = player.GetRoleTypes();
+                    if (player.Is(CustomRoles.Nimble)) roleTypes = RoleTypes.Engineer;
+                    if (player.Is(CustomRoles.Physicist)) roleTypes = RoleTypes.Scientist;
+                    __instance.AbilityButton?.OverrideText(GetString($"AbilityButtonText.{roleTypes}"));
 
                     Main.PlayerStates[player.PlayerId].Role.SetButtonTexts(__instance, player.PlayerId);
 
@@ -210,13 +225,14 @@ class HudManagerPatch
                             { } s when s.Contains(CustomRoles.Asthmatic) => Asthmatic.GetSuffixText(player.PlayerId),
                             _ => string.Empty
                         },
-                        _ => string.Empty,
+                        _ => string.Empty
                     };
-                    if (GetCD_HUDText() != string.Empty) LowerInfoText.text = $"{GetCD_HUDText()}\n{LowerInfoText.text}";
 
-                    string GetCD_HUDText() => !Options.UsePets.GetBool() || !Main.AbilityCD.TryGetValue(player.PlayerId, out var CD)
+                    string CD_HUDText = !Options.UsePets.GetBool() || !Main.AbilityCD.TryGetValue(player.PlayerId, out var CD)
                         ? string.Empty
                         : string.Format(GetString("CDPT"), CD.TOTALCD - (Utils.TimeStamp - CD.START_TIMESTAMP) + 1);
+
+                    if (CD_HUDText != string.Empty) LowerInfoText.text = $"{CD_HUDText}\n{LowerInfoText.text}";
 
                     LowerInfoText.enabled = LowerInfoText.text != string.Empty;
 
@@ -265,14 +281,14 @@ class HudManagerPatch
                 }
             }
 
-            if (AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame) RepairSender.enabled = false;
+            if (AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame) RepairSender.Enabled = false;
             if (Input.GetKeyDown(KeyCode.RightShift) && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             {
-                RepairSender.enabled = !RepairSender.enabled;
+                RepairSender.Enabled = !RepairSender.Enabled;
                 RepairSender.Reset();
             }
 
-            if (RepairSender.enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
+            if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             {
                 if (Input.GetKeyDown(KeyCode.Alpha0)) RepairSender.Input(0);
                 if (Input.GetKeyDown(KeyCode.Alpha1)) RepairSender.Input(1);
@@ -296,6 +312,27 @@ class HudManagerPatch
         catch (Exception e)
         {
             Utils.ThrowException(e);
+        }
+    }
+}
+
+[HarmonyPatch(typeof(ActionButton), nameof(ActionButton.SetFillUp))]
+class ActionButtonSetFillUpPatch
+{
+    public static void Postfix(ActionButton __instance, [HarmonyArgument(0)] float timer)
+    {
+        if (__instance.isCoolingDown && timer is <= 90f and > 0f)
+        {
+            var roleType = PlayerControl.LocalPlayer.GetRoleTypes();
+            var usingAbility = roleType switch
+            {
+                RoleTypes.Engineer => PlayerControl.LocalPlayer.inVent || VentButtonDoClickPatch.Animating,
+                RoleTypes.Shapeshifter => PlayerControl.LocalPlayer.IsShifted(),
+                _ => false
+            };
+            var color = usingAbility ? Color.green : Color.white;
+            __instance.cooldownTimerText.text = Utils.ColorString(color, Mathf.CeilToInt(timer).ToString());
+            __instance.cooldownTimerText.gameObject.SetActive(true);
         }
     }
 }
@@ -429,7 +466,7 @@ class VentButtonDoClickPatch
     public static void Prefix()
     {
         Animating = true;
-        _ = new LateTask(() => { Animating = false; }, 0.6f, log: false);
+        LateTask.New(() => { Animating = false; }, 0.6f, log: false);
     }
 }
 
@@ -553,9 +590,9 @@ class TaskPanelBehaviourPatch
                     var lpc = PlayerControl.LocalPlayer;
 
                     AllText += "\r\n";
-                    AllText += $"\r\n{GetString("PVP.ATK")}: {lpc.ATK()}";
-                    AllText += $"\r\n{GetString("PVP.DF")}: {lpc.DF()}";
-                    AllText += $"\r\n{GetString("PVP.RCO")}: {lpc.HPRECO()}";
+                    AllText += $"\r\n{GetString("PVP.ATK")}: {SoloKombatManager.PlayerATK[lpc.PlayerId]}";
+                    AllText += $"\r\n{GetString("PVP.DF")}: {SoloKombatManager.PlayerDF[lpc.PlayerId]}";
+                    AllText += $"\r\n{GetString("PVP.RCO")}: {SoloKombatManager.PlayerHPReco[lpc.PlayerId]}";
                     AllText += "\r\n";
 
                     Dictionary<byte, string> SummaryText = [];
@@ -655,18 +692,18 @@ class TaskPanelBehaviourPatch
             __instance.taskText.text = AllText;
         }
 
-        if (RepairSender.enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
+        if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             __instance.taskText.text = RepairSender.GetText();
     }
 }
 
-class RepairSender
+static class RepairSender
 {
-    public static bool enabled;
-    public static bool TypingAmount;
+    public static bool Enabled;
+    private static bool TypingAmount;
 
-    public static int SystemType;
-    public static int amount;
+    private static int SystemType;
+    private static int Amount;
 
     public static void Input(int num)
     {
@@ -677,8 +714,8 @@ class RepairSender
         }
         else
         {
-            amount *= 10;
-            amount += num;
+            Amount *= 10;
+            Amount += num;
         }
     }
 
@@ -694,9 +731,9 @@ class RepairSender
         }
     }
 
-    public static void Send()
+    private static void Send()
     {
-        ShipStatus.Instance.RpcUpdateSystem((SystemTypes)SystemType, (byte)amount);
+        ShipStatus.Instance.RpcUpdateSystem((SystemTypes)SystemType, (byte)Amount);
         Reset();
     }
 
@@ -704,13 +741,11 @@ class RepairSender
     {
         TypingAmount = false;
         SystemType = 0;
-        amount = 0;
+        Amount = 0;
     }
 
     public static string GetText()
     {
-        return SystemType + "(" + ((SystemTypes)SystemType) + ")\r\n" + amount;
+        return SystemType + "(" + ((SystemTypes)SystemType) + ")\r\n" + Amount;
     }
 }
-
-// The following code comes from Crowded https://github.com/CrowdedMods/CrowdedMod/blob/master/src/CrowdedMod/Patches/CreateGameOptionsPatches.cs

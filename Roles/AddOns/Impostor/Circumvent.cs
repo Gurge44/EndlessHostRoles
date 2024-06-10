@@ -5,8 +5,6 @@ namespace EHR.Roles.AddOns.Impostor
 {
     internal class Circumvent : IAddon
     {
-        public AddonTypes Type => AddonTypes.ImpOnly;
-
         private static Dictionary<byte, int> Limits = [];
 
         private static OptionItem VentPreventionMode;
@@ -19,13 +17,15 @@ namespace EHR.Roles.AddOns.Impostor
             "LimitPerRounds"
         ];
 
+        public AddonTypes Type => AddonTypes.ImpOnly;
+
         public void SetupCustomOption()
         {
             const int id = 14680;
             Options.SetupAdtRoleOptions(id, CustomRoles.Circumvent, canSetNum: true);
-            VentPreventionMode = StringOptionItem.Create(id + 3, "VentPreventionMode", VentPreventionModes, 1, TabGroup.Addons)
+            VentPreventionMode = new StringOptionItem(id + 3, "VentPreventionMode", VentPreventionModes, 1, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Circumvent]);
-            Limit = IntegerOptionItem.Create(id + 4, "VentLimit", new(1, 90, 1), 8, TabGroup.Addons)
+            Limit = new IntegerOptionItem(id + 4, "VentLimit", new(1, 90, 1), 8, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Circumvent]);
         }
 
@@ -38,7 +38,7 @@ namespace EHR.Roles.AddOns.Impostor
         {
             if (VentPreventionMode.GetValue() == 0) return;
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 foreach (var state in Main.PlayerStates)
                 {
@@ -54,7 +54,7 @@ namespace EHR.Roles.AddOns.Impostor
         {
             if (VentPreventionMode.GetValue() == 0)
             {
-                _ = new LateTask(() => { physics.RpcBootFromVent(ventId); }, 0.5f, "Circumvent Boot From Vent");
+                LateTask.New(() => { physics.RpcBootFromVent(ventId); }, 0.5f, "Circumvent Boot From Vent");
                 return;
             }
 

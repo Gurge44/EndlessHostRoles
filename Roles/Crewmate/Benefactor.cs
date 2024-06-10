@@ -20,13 +20,15 @@ namespace EHR.Roles.Crewmate
         public static OptionItem TaskMarkPerRoundOpt;
         public static OptionItem ShieldDuration;
 
+        public override bool IsEnable => playerIdList.Count > 0;
+
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Benefactor);
-            TaskMarkPerRoundOpt = IntegerOptionItem.Create(Id + 10, "TaskMarkPerRound", new(1, 14, 1), 3, TabGroup.CrewmateRoles)
+            TaskMarkPerRoundOpt = new IntegerOptionItem(Id + 10, "TaskMarkPerRound", new(1, 14, 1), 3, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Benefactor])
                 .SetValueFormat(OptionFormat.Votes);
-            ShieldDuration = IntegerOptionItem.Create(Id + 11, "AidDur", new(1, 30, 1), 10, TabGroup.CrewmateRoles)
+            ShieldDuration = new IntegerOptionItem(Id + 11, "AidDur", new(1, 30, 1), 10, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Benefactor])
                 .SetValueFormat(OptionFormat.Seconds);
             Options.OverrideTasksData.Create(Id + 12, TabGroup.CrewmateRoles, CustomRoles.Benefactor);
@@ -46,8 +48,6 @@ namespace EHR.Roles.Crewmate
             playerIdList.Add(playerId);
             TaskMarkPerRound[playerId] = 0;
         }
-
-        public override bool IsEnable => playerIdList.Count > 0;
 
         private static void SendRPC(byte benefactorId, int task_Index = -1, bool isShield = false, bool clearAll = false, bool shieldExpire = false, byte shieldedId = byte.MaxValue)
         {

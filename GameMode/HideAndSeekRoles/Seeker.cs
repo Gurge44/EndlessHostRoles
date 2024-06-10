@@ -18,23 +18,23 @@
 
         public static void SetupCustomOption()
         {
-            TextOptionItem.Create(69_211_205, "Seeker", TabGroup.ImpostorRoles)
+            new TextOptionItem(69_211_299, "Seeker", TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetHeader(true)
                 .SetColor(new(255, 25, 25, byte.MaxValue));
 
-            Vision = FloatOptionItem.Create(69_211_201, "SeekerVision", new(0.05f, 5f, 0.05f), 0.5f, TabGroup.ImpostorRoles)
+            Vision = new FloatOptionItem(69_211_201, "SeekerVision", new(0.05f, 5f, 0.05f), 0.5f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(255, 25, 25, byte.MaxValue));
-            Speed = FloatOptionItem.Create(69_211_202, "SeekerSpeed", new(0.05f, 5f, 0.05f), 1.5f, TabGroup.ImpostorRoles)
+            Speed = new FloatOptionItem(69_211_202, "SeekerSpeed", new(0.05f, 5f, 0.05f), 1.5f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(255, 25, 25, byte.MaxValue));
-            CanVent = BooleanOptionItem.Create(69_211_204, "CanVent", false, TabGroup.ImpostorRoles)
+            CanVent = new BooleanOptionItem(69_211_204, "CanVent", false, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(new(255, 25, 25, byte.MaxValue));
-            BlindTime = FloatOptionItem.Create(69_211_206, "BlindTime", new(0f, 60f, 1f), 10f, TabGroup.ImpostorRoles)
+            BlindTime = new FloatOptionItem(69_211_206, "BlindTime", new(0f, 60f, 1f), 10f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(255, 25, 25, byte.MaxValue));

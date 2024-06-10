@@ -6,9 +6,7 @@
 
         public void SetupCustomOption()
         {
-            Options.SetupAdtRoleOptions(15100, CustomRoles.Avanger, canSetNum: true);
-            Options.ImpCanBeAvanger = BooleanOptionItem.Create(15110, "ImpCanBeAvanger", false, TabGroup.Addons)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Avanger]);
+            Options.SetupAdtRoleOptions(15100, CustomRoles.Avanger, canSetNum: true, teamSpawnOptions: true);
         }
     }
 }

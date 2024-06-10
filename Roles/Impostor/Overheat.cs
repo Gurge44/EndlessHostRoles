@@ -25,19 +25,19 @@ namespace EHR.Roles.Impostor
         {
             const int id = 12332;
             Options.SetupRoleOptions(id, TabGroup.ImpostorRoles, CustomRoles.Overheat);
-            OverheatChanceIncrease = FloatOptionItem.Create(id + 2, "Overheat.ChanceIncrease", new(1f, 10f, 1f), 1f, TabGroup.ImpostorRoles)
+            OverheatChanceIncrease = new FloatOptionItem(id + 2, "Overheat.ChanceIncrease", new(1f, 10f, 1f), 1f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
                 .SetValueFormat(OptionFormat.Percent);
-            OverheatChanceIncreaseFrequency = FloatOptionItem.Create(id + 3, "Overheat.ChanceIncreaseFrequency", new(0.5f, 30f, 0.5f), 5f, TabGroup.ImpostorRoles)
+            OverheatChanceIncreaseFrequency = new FloatOptionItem(id + 3, "Overheat.ChanceIncreaseFrequency", new(0.5f, 30f, 0.5f), 5f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
                 .SetValueFormat(OptionFormat.Seconds);
-            OverheatRollChanceFrequency = FloatOptionItem.Create(id + 4, "Overheat.RollChanceFrequency", new(0.5f, 60f, 0.5f), 3f, TabGroup.ImpostorRoles)
+            OverheatRollChanceFrequency = new FloatOptionItem(id + 4, "Overheat.RollChanceFrequency", new(0.5f, 60f, 0.5f), 3f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
                 .SetValueFormat(OptionFormat.Seconds);
-            CoolDownTime = FloatOptionItem.Create(id + 5, "Overheat.CoolDownTime", new(0.5f, 30f, 0.5f), 4f, TabGroup.ImpostorRoles)
+            CoolDownTime = new FloatOptionItem(id + 5, "Overheat.CoolDownTime", new(0.5f, 30f, 0.5f), 4f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
                 .SetValueFormat(OptionFormat.Seconds);
-            KCDDecreasePerIncreasedTemperature = FloatOptionItem.Create(id + 6, "Overheat.KCDDecreasePerIncreasedTemperature", new(0.5f, 15f, 0.5f), 3f, TabGroup.ImpostorRoles)
+            KCDDecreasePerIncreasedTemperature = new FloatOptionItem(id + 6, "Overheat.KCDDecreasePerIncreasedTemperature", new(0.5f, 15f, 0.5f), 3f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -120,7 +120,7 @@ namespace EHR.Roles.Impostor
             Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
             pc.MarkDirtySettings();
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 Main.AllPlayerSpeed[pc.PlayerId] = speed;
                 pc.MarkDirtySettings();

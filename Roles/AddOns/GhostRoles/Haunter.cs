@@ -14,6 +14,7 @@ namespace EHR.Roles.AddOns.GhostRoles
         private static OptionItem RevealNeutralKillers;
         private static OptionItem RevealMadmates;
         private static OptionItem NumberOfReveals;
+        private byte HaunterId;
 
         private List<byte> WarnedImps = [];
 
@@ -27,7 +28,8 @@ namespace EHR.Roles.AddOns.GhostRoles
 
         public void OnAssign(PlayerControl pc)
         {
-            _ = new LateTask(() =>
+            HaunterId = pc.PlayerId;
+            LateTask.New(() =>
             {
                 var taskState = pc.GetTaskState();
                 if (taskState == null) return;
@@ -46,13 +48,13 @@ namespace EHR.Roles.AddOns.GhostRoles
         public void SetupCustomOption()
         {
             Options.SetupRoleOptions(649300, TabGroup.OtherRoles, CustomRoles.Haunter, zeroOne: true);
-            TasksBeforeBeingKnown = IntegerOptionItem.Create(649302, "Haunter.TasksBeforeBeingKnown", new(1, 10, 1), 1, TabGroup.OtherRoles)
+            TasksBeforeBeingKnown = new IntegerOptionItem(649302, "Haunter.TasksBeforeBeingKnown", new(1, 10, 1), 1, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
-            RevealNeutralKillers = BooleanOptionItem.Create(649303, "Haunter.RevealNeutralKillers", true, TabGroup.OtherRoles)
+            RevealNeutralKillers = new BooleanOptionItem(649303, "Haunter.RevealNeutralKillers", true, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
-            RevealMadmates = BooleanOptionItem.Create(649304, "Haunter.RevealMadmates", true, TabGroup.OtherRoles)
+            RevealMadmates = new BooleanOptionItem(649304, "Haunter.RevealMadmates", true, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
-            NumberOfReveals = IntegerOptionItem.Create(649305, "Haunter.NumberOfReveals", new(1, 10, 1), 1, TabGroup.OtherRoles)
+            NumberOfReveals = new IntegerOptionItem(649305, "Haunter.NumberOfReveals", new(1, 10, 1), 1, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
             Options.OverrideTasksData.Create(649306, TabGroup.OtherRoles, CustomRoles.Haunter);
         }
@@ -122,6 +124,18 @@ namespace EHR.Roles.AddOns.GhostRoles
                 GhostRolesManager.AssignedGhostRoles.Remove(pc.PlayerId);
                 pc.Notify(Translator.GetString("HaunterStoppedSelf"), 7f);
             }
+        }
+
+        public static string GetSuffix(PlayerControl seer)
+        {
+            foreach (var role in GhostRolesManager.AssignedGhostRoles.Values)
+            {
+                if (role.Instance is not Haunter haunter) continue;
+                if (!haunter.WarnedImps.Contains(seer.PlayerId)) continue;
+                return TargetArrow.GetArrows(seer, haunter.HaunterId);
+            }
+
+            return string.Empty;
         }
     }
 }

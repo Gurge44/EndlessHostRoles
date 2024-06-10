@@ -9,46 +9,16 @@ namespace EHR;
 
 public class ErrorText : MonoBehaviour
 {
-    #region Singleton
-
-    public static ErrorText Instance => _instance;
-
-    private static ErrorText _instance;
-#pragma warning disable IDE0051 // Remove unused private members
-    private void Awake()
-#pragma warning restore IDE0051 // Remove unused private members
-    {
-        if (_instance != null)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            _instance = this;
-            DontDestroyOnLoad(this);
-        }
-    }
-
-    #endregion
-
-    public static void Create(TextMeshPro baseText)
-    {
-        var Text = Instantiate(baseText);
-        var instance = Text.gameObject.AddComponent<ErrorText>();
-        instance.Text = Text;
-        instance.name = "ErrorText";
-
-        Text.enabled = false;
-        Text.text = "NO ERROR";
-        Text.color = Color.red;
-        Text.outlineColor = Color.black;
-        Text.alignment = TextAlignmentOptions.Top;
-    }
-
     public TextMeshPro Text;
     public Camera Camera;
-    public List<ErrorData> AllErrors = [];
     public Vector3 TextOffset = new(0, 0.3f, -1000f);
+
+    public bool HnSFlag;
+    public bool CheatDetected;
+    public bool SBDetected;
+    private readonly List<ErrorData> AllErrors = [];
+    private Camera _camera;
+    private Camera _camera1;
 
     public void Update()
     {
@@ -67,12 +37,26 @@ public class ErrorText : MonoBehaviour
     {
         if (!Text.enabled) return;
 
-        if (Camera == null)
-            Camera = !HudManager.InstanceExists ? Camera.main : HudManager.Instance.PlayerCam.GetComponent<Camera>();
-        if (Camera != null)
+        if (!Camera)
+            Camera = !HudManager.InstanceExists ? _camera : _camera1;
+        if (Camera)
         {
             transform.position = AspectPosition.ComputeWorldPosition(Camera, AspectPosition.EdgeAlignments.Top, TextOffset);
         }
+    }
+
+    public static void Create(TextMeshPro baseText)
+    {
+        var Text = Instantiate(baseText);
+        var instance = Text.gameObject.AddComponent<ErrorText>();
+        instance.Text = Text;
+        instance.name = "ErrorText";
+
+        Text.enabled = false;
+        Text.text = "NO ERROR";
+        Text.color = Color.red;
+        Text.outlineColor = Color.black;
+        Text.alignment = TextAlignmentOptions.Top;
     }
 
     public void AddError(ErrorCode code)
@@ -95,7 +79,7 @@ public class ErrorText : MonoBehaviour
         {
             string text = string.Empty;
             int maxLevel = 0;
-            foreach (ErrorData err in AllErrors.ToArray())
+            foreach (ErrorData err in AllErrors)
             {
                 text += $"{err}: {err.Message}\n";
                 if (maxLevel < err.ErrorLevel) maxLevel = err.ErrorLevel;
@@ -133,14 +117,12 @@ public class ErrorText : MonoBehaviour
         UpdateText();
     }
 
-    public class ErrorData
+    private class ErrorData
     {
         public readonly ErrorCode Code;
-        public readonly int ErrorType1;
-        public readonly int ErrorType2;
         public readonly int ErrorLevel;
-        public float Timer { get; private set; }
-        public string Message => GetString(ToString());
+        private readonly int ErrorType1;
+        private readonly int ErrorType2;
 
         public ErrorData(ErrorCode code)
         {
@@ -151,6 +133,9 @@ public class ErrorText : MonoBehaviour
             Timer = 0f;
         }
 
+        public float Timer { get; private set; }
+        public string Message => GetString(ToString());
+
         public override string ToString()
         {
             // ERR-xxx-yyy-z
@@ -160,9 +145,43 @@ public class ErrorText : MonoBehaviour
         public void IncreaseTimer() => Timer += Time.deltaTime;
     }
 
-    public bool HnSFlag;
-    public bool CheatDetected;
-    public bool SBDetected;
+    #region Singleton
+
+    public static ErrorText Instance { get; private set; }
+
+    private void Awake()
+    {
+        if (Instance)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+            DontDestroyOnLoad(this);
+        }
+    }
+
+    private int Frame;
+
+    private void FixedUpdate()
+    {
+        if (Frame++ < 40) return;
+        Frame = 0;
+
+        if (_camera != null && _camera1 != null) return;
+
+        try
+        {
+            _camera1 = HudManager.Instance.PlayerCam.GetComponent<Camera>();
+            _camera = Camera.main;
+        }
+        catch
+        {
+        }
+    }
+
+    #endregion
 }
 
 public enum ErrorCode
@@ -191,5 +210,5 @@ public enum ErrorCode
     TestError3 = 0009303, // 000-930-3 Test Error 3
     HnsUnload = 000_804_1, // 000-804-1 Unloaded By HnS
     CheatDetected = 000_666_2, // 000-666-2 疑似存在作弊玩家
-    SBDetected = 000_666_1, // 000-666-1 傻逼外挂司马东西
+    SBDetected = 000_666_1 // 000-666-1 傻逼外挂司马东西
 }

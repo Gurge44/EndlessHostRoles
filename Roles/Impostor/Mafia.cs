@@ -15,22 +15,22 @@ namespace EHR.Roles.Impostor
     internal class Mafia : RoleBase
     {
         public static bool On;
-        public override bool IsEnable => On;
 
         public static Dictionary<byte, int> MafiaRevenged = [];
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
             SetupRoleOptions(3100, TabGroup.ImpostorRoles, CustomRoles.Mafia);
-            MafiaCanKillNum = IntegerOptionItem.Create(3200, "MafiaCanKillNum", new(0, 15, 1), 1, TabGroup.ImpostorRoles)
+            MafiaCanKillNum = new IntegerOptionItem(3200, "MafiaCanKillNum", new(0, 15, 1), 1, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafia])
                 .SetValueFormat(OptionFormat.Players);
-            LegacyMafia = BooleanOptionItem.Create(3210, "LegacyMafia", false, TabGroup.ImpostorRoles)
+            LegacyMafia = new BooleanOptionItem(3210, "LegacyMafia", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafia]);
-            MafiaShapeshiftCD = FloatOptionItem.Create(3211, "ShapeshiftCooldown", new(1f, 180f, 1f), 15f, TabGroup.ImpostorRoles)
+            MafiaShapeshiftCD = new FloatOptionItem(3211, "ShapeshiftCooldown", new(1f, 180f, 1f), 15f, TabGroup.ImpostorRoles)
                 .SetParent(LegacyMafia)
                 .SetValueFormat(OptionFormat.Seconds);
-            MafiaShapeshiftDur = FloatOptionItem.Create(3212, "ShapeshiftDuration", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
+            MafiaShapeshiftDur = new FloatOptionItem(3212, "ShapeshiftDuration", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(LegacyMafia)
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -130,7 +130,7 @@ namespace EHR.Roles.Impostor
 
             CustomSoundsManager.RPCPlayCustomSoundAll("AWP");
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Revenge;
                 target.SetRealKiller(pc);
@@ -150,7 +150,7 @@ namespace EHR.Roles.Impostor
                     Main.PlayerStates[target.PlayerId].SetDead();
                 }
 
-                _ = new LateTask(() => { Utils.SendMessage(string.Format(GetString("MafiaKillSucceed"), Name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mafia), GetString("MafiaRevengeTitle"))); }, 0.6f, "Mafia Kill");
+                LateTask.New(() => { Utils.SendMessage(string.Format(GetString("MafiaKillSucceed"), Name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mafia), GetString("MafiaRevengeTitle"))); }, 0.6f, "Mafia Kill");
             }, 0.2f, "Mafia Kill");
             return true;
         }
@@ -177,16 +177,6 @@ namespace EHR.Roles.Impostor
             else SendRPC(playerId);
         }
 
-        [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
-        class StartMeetingPatch
-        {
-            public static void Postfix(MeetingHud __instance)
-            {
-                if (PlayerControl.LocalPlayer.Is(CustomRoles.Mafia) && !PlayerControl.LocalPlayer.IsAlive())
-                    CreateJudgeButton(__instance);
-            }
-        }
-
         public static void CreateJudgeButton(MeetingHud __instance)
         {
             foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
@@ -202,6 +192,16 @@ namespace EHR.Roles.Impostor
                 PassiveButton button = targetBox.GetComponent<PassiveButton>();
                 button.OnClick.RemoveAllListeners();
                 button.OnClick.AddListener((Action)(() => MafiaOnClick(pva.TargetPlayerId /*, __instance*/)));
+            }
+        }
+
+        [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
+        class StartMeetingPatch
+        {
+            public static void Postfix(MeetingHud __instance)
+            {
+                if (PlayerControl.LocalPlayer.Is(CustomRoles.Mafia) && !PlayerControl.LocalPlayer.IsAlive())
+                    CreateJudgeButton(__instance);
             }
         }
     }

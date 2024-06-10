@@ -26,9 +26,9 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Commander);
-            CannotSpawnAsSoloImp = BooleanOptionItem.Create(Id + 2, "CannotSpawnAsSoloImp", true, TabGroup.ImpostorRoles)
+            CannotSpawnAsSoloImp = new BooleanOptionItem(Id + 2, "CannotSpawnAsSoloImp", true, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Commander]);
-            ShapeshiftCooldown = FloatOptionItem.Create(Id + 3, "ShapeshiftCooldown", new(0f, 60f, 1f), 1f, TabGroup.ImpostorRoles)
+            ShapeshiftCooldown = new FloatOptionItem(Id + 3, "ShapeshiftCooldown", new(0f, 60f, 1f), 1f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Commander]);
         }
 

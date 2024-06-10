@@ -17,24 +17,26 @@ internal class Assassin : RoleBase
     private static OptionItem MarkCooldownOpt;
     public static OptionItem AssassinateCooldownOpt;
     private static OptionItem CanKillAfterAssassinateOpt;
-
-    private float MarkCooldown;
     private float AssassinateCooldown;
     private bool CanKillAfterAssassinate;
+    private bool IsUndertaker;
+
+    private float MarkCooldown;
 
     public byte MarkedPlayer;
-    private bool IsUndertaker;
+
+    public override bool IsEnable => playerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Assassin);
-        MarkCooldownOpt = FloatOptionItem.Create(Id + 10, "AssassinMarkCooldown", new(0f, 180f, 0.5f), 1f, TabGroup.ImpostorRoles)
+        MarkCooldownOpt = new FloatOptionItem(Id + 10, "AssassinMarkCooldown", new(0f, 180f, 0.5f), 1f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Assassin])
             .SetValueFormat(OptionFormat.Seconds);
-        AssassinateCooldownOpt = FloatOptionItem.Create(Id + 11, "AssassinAssassinateCooldown", new(0f, 180f, 0.5f), 18.5f, TabGroup.ImpostorRoles)
+        AssassinateCooldownOpt = new FloatOptionItem(Id + 11, "AssassinAssassinateCooldown", new(0f, 180f, 0.5f), 18.5f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Assassin])
             .SetValueFormat(OptionFormat.Seconds);
-        CanKillAfterAssassinateOpt = BooleanOptionItem.Create(Id + 12, "AssassinCanKillAfterAssassinate", true, TabGroup.ImpostorRoles)
+        CanKillAfterAssassinateOpt = new BooleanOptionItem(Id + 12, "AssassinCanKillAfterAssassinate", true, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Assassin]);
     }
 
@@ -64,8 +66,6 @@ internal class Assassin : RoleBase
             CanKillAfterAssassinate = CanKillAfterAssassinateOpt.GetBool();
         }
     }
-
-    public override bool IsEnable => playerIdList.Count > 0;
 
     void SendRPC(byte playerId)
     {
@@ -137,7 +137,7 @@ internal class Assassin : RoleBase
             if (IsUndertaker) target.TP(pc);
             else pc.TP(target);
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 if (!(target == null || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask) && pc.RpcCheckAndMurder(target))
                 {

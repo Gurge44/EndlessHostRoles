@@ -7,9 +7,9 @@ namespace EHR.Roles.Crewmate
         public void SetupCustomOption()
         {
             SetupRoleOptions(5300, TabGroup.CrewmateRoles, CustomRoles.CyberStar);
-            ImpKnowCyberStarDead = BooleanOptionItem.Create(5400, "ImpKnowCyberStarDead", false, TabGroup.CrewmateRoles)
+            ImpKnowCyberStarDead = new BooleanOptionItem(5400, "ImpKnowCyberStarDead", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.CyberStar]);
-            NeutralKnowCyberStarDead = BooleanOptionItem.Create(5500, "NeutralKnowCyberStarDead", false, TabGroup.CrewmateRoles)
+            NeutralKnowCyberStarDead = new BooleanOptionItem(5500, "NeutralKnowCyberStarDead", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.CyberStar]);
         }
     }

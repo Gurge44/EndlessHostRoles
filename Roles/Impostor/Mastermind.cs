@@ -23,19 +23,21 @@ namespace EHR.Roles.Impostor
         public static OptionItem Delay;
 
         public static float ManipulateCD;
+        public byte MastermindId = byte.MaxValue;
 
         private PlayerControl Mastermind_ => GetPlayerById(MastermindId);
-        public byte MastermindId = byte.MaxValue;
+
+        public override bool IsEnable => MastermindId != byte.MaxValue || Randomizer.Exists;
 
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Mastermind);
-            KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Mastermind])
+            KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Mastermind])
                 .SetValueFormat(OptionFormat.Seconds);
             // Manipulation Cooldown = Kill Cooldown + Delay + Time Limit
-            TimeLimit = IntegerOptionItem.Create(Id + 12, "MastermindTimeLimit", new(1, 60, 1), 20, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Mastermind])
+            TimeLimit = new IntegerOptionItem(Id + 12, "MastermindTimeLimit", new(1, 60, 1), 20, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Mastermind])
                 .SetValueFormat(OptionFormat.Seconds);
-            Delay = IntegerOptionItem.Create(Id + 13, "MastermindDelay", new(0, 30, 1), 7, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Mastermind])
+            Delay = new IntegerOptionItem(Id + 13, "MastermindDelay", new(0, 30, 1), 7, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Mastermind])
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
@@ -54,8 +56,6 @@ namespace EHR.Roles.Impostor
             ManipulateCD = KillCooldown.GetFloat() + TimeLimit.GetFloat() + Delay.GetFloat();
             PlayerIdList.Add(playerId);
         }
-
-        public override bool IsEnable => MastermindId != byte.MaxValue || Randomizer.Exists;
 
         public override void SetKillCooldown(byte id)
         {
@@ -172,7 +172,7 @@ namespace EHR.Roles.Impostor
 
             killer.Notify(GetString("MastermindTargetSurvived"));
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 var kcd = TempKCDs.TryGetValue(killer.PlayerId, out var cd) ? cd : Main.AllPlayerKillCooldown.GetValueOrDefault(killer.PlayerId, DefaultKillCooldown);
                 killer.SetKillCooldown(time: kcd);

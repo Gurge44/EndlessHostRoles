@@ -6,7 +6,7 @@ namespace EHR;
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnDisconnected))]
 internal class OnDisconnectedPatch
 {
-    public static void Postfix(/*AmongUsClient __instance*/)
+    public static void Postfix( /*AmongUsClient __instance*/)
     {
         Main.VisibleTasksCount = false;
     }
@@ -17,9 +17,10 @@ internal class ShowDisconnectPopupPatch
 {
     public static DisconnectReasons Reason;
     public static string StringReason;
+
     public static void Postfix(DisconnectPopup __instance)
     {
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             if (__instance != null)
             {

@@ -20,7 +20,7 @@ public class ParityCop : RoleBase
     public static readonly string[] PcEgoistCountMode =
     [
         "EgoistCountMode.Original",
-        "EgoistCountMode.Neutral",
+        "EgoistCountMode.Neutral"
     ];
 
     private static OptionItem TryHideMsg;
@@ -39,21 +39,21 @@ public class ParityCop : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.ParityCop);
-        TryHideMsg = BooleanOptionItem.Create(Id + 10, "ParityCopTryHideMsg", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
+        TryHideMsg = new BooleanOptionItem(Id + 10, "ParityCopTryHideMsg", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
             .SetColor(Color.green);
-        ParityCheckLimitMax = IntegerOptionItem.Create(Id + 11, "MaxParityCheckLimit", new(0, 20, 1), 2, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
+        ParityCheckLimitMax = new IntegerOptionItem(Id + 11, "MaxParityCheckLimit", new(0, 20, 1), 2, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
             .SetValueFormat(OptionFormat.Times);
-        ParityCheckLimitPerMeeting = IntegerOptionItem.Create(Id + 12, "ParityCheckLimitPerMeeting", new(1, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
+        ParityCheckLimitPerMeeting = new IntegerOptionItem(Id + 12, "ParityCheckLimitPerMeeting", new(1, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
             .SetValueFormat(OptionFormat.Times);
-        ParityCheckEgoistCountType = StringOptionItem.Create(Id + 13, "ParityCheckEgoistickCountMode", PcEgoistCountMode, 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
-        ParityCheckBaitCountType = BooleanOptionItem.Create(Id + 14, "ParityCheckBaitCountMode", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
-        ParityCheckTargetKnow = BooleanOptionItem.Create(Id + 15, "ParityCheckTargetKnow", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
-        ParityCheckOtherTargetKnow = BooleanOptionItem.Create(Id + 16, "ParityCheckOtherTargetKnow", true, TabGroup.CrewmateRoles).SetParent(ParityCheckTargetKnow);
-        ParityCheckRevealTargetTeam = BooleanOptionItem.Create(Id + 17, "ParityCheckRevealTarget", false, TabGroup.CrewmateRoles).SetParent(ParityCheckOtherTargetKnow);
-        ParityAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 18, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1.5f, TabGroup.CrewmateRoles)
+        ParityCheckEgoistCountType = new StringOptionItem(Id + 13, "ParityCheckEgoistickCountMode", PcEgoistCountMode, 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
+        ParityCheckBaitCountType = new BooleanOptionItem(Id + 14, "ParityCheckBaitCountMode", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
+        ParityCheckTargetKnow = new BooleanOptionItem(Id + 15, "ParityCheckTargetKnow", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
+        ParityCheckOtherTargetKnow = new BooleanOptionItem(Id + 16, "ParityCheckOtherTargetKnow", true, TabGroup.CrewmateRoles).SetParent(ParityCheckTargetKnow);
+        ParityCheckRevealTargetTeam = new BooleanOptionItem(Id + 17, "ParityCheckRevealTarget", false, TabGroup.CrewmateRoles).SetParent(ParityCheckOtherTargetKnow);
+        ParityAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 18, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1.5f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
             .SetValueFormat(OptionFormat.Times);
-        AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 19, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 19, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
             .SetValueFormat(OptionFormat.Times);
         OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.ParityCop);
@@ -130,7 +130,7 @@ public class ParityCop : RoleBase
                     {
                         if (pc.GetAbilityUseLimit() < 1)
                         {
-                            _ = new LateTask(() =>
+                            LateTask.New(() =>
                             {
                                 if (!isUI) Utils.SendMessage(GetString("ParityCheckMax"), pc.PlayerId);
                                 else pc.ShowPopUp(GetString("ParityCheckMax"));
@@ -139,7 +139,7 @@ public class ParityCop : RoleBase
                         }
                         else
                         {
-                            _ = new LateTask(() =>
+                            LateTask.New(() =>
                             {
                                 if (!isUI) Utils.SendMessage(GetString("ParityCheckRound"), pc.PlayerId);
                                 else pc.ShowPopUp(GetString("ParityCheckRound"));
@@ -152,7 +152,7 @@ public class ParityCop : RoleBase
 
                     if (pc.PlayerId == target1.PlayerId || pc.PlayerId == target2.PlayerId)
                     {
-                        _ = new LateTask(() =>
+                        LateTask.New(() =>
                         {
                             if (!isUI) Utils.SendMessage(GetString("ParityCheckSelf"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
                             else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckSelf")) + "\n" + GetString("ParityCheckTitle"));
@@ -163,7 +163,7 @@ public class ParityCop : RoleBase
 
                     if (target1.GetCustomRole().IsRevealingRole(target1) || target1.GetCustomSubRoles().Any(role => role.IsRevealingRole(target1)) || target2.GetCustomRole().IsRevealingRole(target2) || target2.GetCustomSubRoles().Any(role => role.IsRevealingRole(target2)))
                     {
-                        _ = new LateTask(() =>
+                        LateTask.New(() =>
                         {
                             if (!isUI) Utils.SendMessage(GetString("ParityCheckReveal"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
                             else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckReveal")) + "\n" + GetString("ParityCheckTitle"));
@@ -176,7 +176,7 @@ public class ParityCop : RoleBase
                         ((target1.Is(Team.Neutral) || target1.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2())) && (target2.Is(Team.Neutral) || target2.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2()))) ||
                         (target1.Is(Team.Crewmate) && (target1.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || (target1.GetCustomSubRoles().Count == 0)) && target2.Is(Team.Crewmate) && (target2.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || target2.GetCustomSubRoles().Count == 0)))
                     {
-                        _ = new LateTask(() =>
+                        LateTask.New(() =>
                         {
                             if (!isUI) Utils.SendMessage(string.Format(GetString("ParityCheckTrue"), target1.GetRealName(), target2.GetRealName()), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
                             else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTrue")) + "\n" + GetString("ParityCheckTitle"));
@@ -185,7 +185,7 @@ public class ParityCop : RoleBase
                     }
                     else
                     {
-                        _ = new LateTask(() =>
+                        LateTask.New(() =>
                         {
                             if (!isUI) Utils.SendMessage(string.Format(GetString("ParityCheckFalse"), target1.GetRealName(), target2.GetRealName()), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
                             else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckFalse")) + "\n" + GetString("ParityCheckTitle"));
@@ -204,7 +204,7 @@ public class ParityCop : RoleBase
                         if (ParityCheckOtherTargetKnow.GetBool())
                             textToSend1 += $" and {target1.GetRealName()}";
                         textToSend1 += GetString("ParityCheckTargetMsg");
-                        _ = new LateTask(() =>
+                        LateTask.New(() =>
                         {
                             Utils.SendMessage(textToSend, target1.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
                             Utils.SendMessage(textToSend1, target2.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
@@ -223,7 +223,7 @@ public class ParityCop : RoleBase
                                 else if (target2.Is(Team.Neutral) || target2.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2())) roleT2 = "Neutral";
                                 else if (target2.Is(Team.Crewmate) && (target2.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || target2.GetCustomSubRoles().Count == 0)) roleT2 = "Crewmate";
 
-                            _ = new LateTask(() =>
+                            LateTask.New(() =>
                             {
                                 Utils.SendMessage(string.Format(GetString("ParityCopTargetReveal"), target2.GetRealName(), roleT2), target1.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
                                 Utils.SendMessage(string.Format(GetString("ParityCopTargetReveal"), target1.GetRealName(), roleT1), target2.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));

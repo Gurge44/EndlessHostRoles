@@ -14,10 +14,17 @@ namespace EHR;
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.ShowRole))]
 class SetUpRoleTextPatch
 {
+    public static bool IsInIntro;
+
     public static void Postfix(IntroCutscene __instance)
     {
         if (!GameStates.IsModHost) return;
-        _ = new LateTask(() =>
+
+        // After showing team for non-modded clients update player names.
+        IsInIntro = false;
+        Utils.DoNotifyRoles(NoCache: true);
+
+        LateTask.New(() =>
         {
             switch (Options.CurrentGameMode)
             {
@@ -76,6 +83,7 @@ class SetUpRoleTextPatch
 
                     foreach (CustomRoles subRole in Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SubRoles)
                     {
+                        if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && subRole == CustomRoles.Lovers) continue;
                         __instance.RoleBlurbText.text += "\n<size=30%>" + Utils.ColorString(Utils.GetRoleColor(subRole), GetString($"{subRole}Info"));
                     }
 
@@ -178,6 +186,17 @@ class BeginCrewmatePatch
             return false;
         }
 
+        if (PlayerControl.LocalPlayer.GetCustomRole() == CustomRoles.LovingCrewmate)
+        {
+            teamToDisplay = new();
+            teamToDisplay.Add(PlayerControl.LocalPlayer);
+            teamToDisplay.Add(Main.LoversPlayers.FirstOrDefault(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId));
+        }
+        else if (PlayerControl.LocalPlayer.GetCustomRole() == CustomRoles.LovingImpostor)
+        {
+            teamToDisplay.Add(Main.LoversPlayers.FirstOrDefault(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId));
+        }
+
         if (CustomTeamManager.EnabledCustomTeams.Count > 0)
         {
             var team = CustomTeamManager.GetCustomTeam(PlayerControl.LocalPlayer.PlayerId);
@@ -222,6 +241,14 @@ class BeginCrewmatePatch
             PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
             __instance.ImpostorText.gameObject.SetActive(true);
             __instance.ImpostorText.text = GetString("SubText.Bloodlust");
+        }
+        else if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
+        {
+            __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(role);
+            PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(role.GetRoleTypes());
+            byte otherLoverId = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).PlayerId;
+            __instance.ImpostorText.gameObject.SetActive(true);
+            __instance.ImpostorText.text = string.Format(GetString($"SubText.{role}"), Utils.ColorString(Main.PlayerColors.TryGetValue(otherLoverId, out var color) ? color : Color.white, Main.AllPlayerNames[otherLoverId]));
         }
         else
         {
@@ -387,7 +414,7 @@ class BeginCrewmatePatch
                     CustomRoleTypes.Impostor => GetIntroSound(RoleTypes.Impostor),
                     CustomRoleTypes.Crewmate => GetIntroSound(RoleTypes.Crewmate),
                     CustomRoleTypes.Neutral => GetIntroSound(RoleTypes.Shapeshifter),
-                    _ => GetIntroSound(RoleTypes.Crewmate),
+                    _ => GetIntroSound(RoleTypes.Crewmate)
                 }
             };
         }
@@ -398,7 +425,7 @@ class BeginCrewmatePatch
                 CustomRoleTypes.Impostor => GetIntroSound(RoleTypes.Impostor),
                 CustomRoleTypes.Crewmate => GetIntroSound(RoleTypes.Crewmate),
                 CustomRoleTypes.Neutral => GetIntroSound(RoleTypes.Shapeshifter),
-                _ => GetIntroSound(RoleTypes.Crewmate),
+                _ => GetIntroSound(RoleTypes.Crewmate)
             };
             Logger.Warn($"Could not set intro sound\n{ex}", "IntroSound");
         }
@@ -602,7 +629,7 @@ class IntroCutsceneDestroyPatch
 
                 if (Options.StartingKillCooldown.GetInt() is not 10 and > 0)
                 {
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         Main.AllPlayerControls.Do(x => x.ResetKillCooldown());
                         Main.AllPlayerControls.Do(pc => pc.SetKillCooldown(Options.StartingKillCooldown.GetInt() - 2));
@@ -610,7 +637,7 @@ class IntroCutsceneDestroyPatch
                 }
                 else if (Options.FixFirstKillCooldown.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard)
                 {
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         Main.AllPlayerControls.Do(x => x.ResetKillCooldown());
                         Main.AllPlayerControls.Where(x => (Main.AllPlayerKillCooldown[x.PlayerId] - 2f) > 0f).Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
@@ -626,7 +653,7 @@ class IntroCutsceneDestroyPatch
             };
             if (chat) Utils.SetChatVisible();
 
-            _ = new LateTask(() => Main.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
+            // LateTask.New(() => Main.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 
             if (Options.UsePets.GetBool())
             {
@@ -637,7 +664,7 @@ class IntroCutsceneDestroyPatch
 
                 var r = IRandom.Instance;
 
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     foreach (var pc in Main.AllAlivePlayerControls)
                     {
@@ -649,7 +676,7 @@ class IntroCutsceneDestroyPatch
                 }, 0.3f, "Grant Pet For Everyone");
                 try
                 {
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         try
                         {
@@ -677,7 +704,7 @@ class IntroCutsceneDestroyPatch
                 {
                 }
 
-                _ = new LateTask(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
+                LateTask.New(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
             }
 
             if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
@@ -695,7 +722,7 @@ class IntroCutsceneDestroyPatch
                     2 => new RandomSpawn.PolusSpawnMap(),
                     3 => new RandomSpawn.DleksSpawnMap(),
                     5 => new RandomSpawn.FungleSpawnMap(),
-                    _ => null,
+                    _ => null
                 };
                 if (map != null) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
             }

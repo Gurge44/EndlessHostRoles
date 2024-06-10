@@ -23,12 +23,13 @@ class GameEndChecker
 {
     private const float EndGameDelay = 0.2f;
     private static GameEndPredicate Predicate;
+    public static bool ShouldNotCheck = false;
 
     public static bool Prefix()
     {
         if (!AmongUsClient.Instance.AmHost) return true;
 
-        if (Predicate == null) return false;
+        if (Predicate == null || ShouldNotCheck) return false;
 
         if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return false;
 
@@ -236,15 +237,13 @@ class GameEndChecker
                         .Where(x => x.Team != null)
                         .GroupBy(x => x.Team)
                         .ToDictionary(x => x.Key, x => x.Select(y => y.Player.PlayerId))
-                        .DoIf(x => !CustomTeamManager.IsSettingEnabledForTeam(x.Key, "WinWithOriginalTeam"), x => WinnerIds.ExceptWith(x.Value));
+                        .DoIf(x => !CustomTeamManager.IsSettingEnabledForTeam(x.Key, CTAOption.WinWithOriginalTeam), x => WinnerIds.ExceptWith(x.Value), fast: true);
                 }
 
-                if ((WinnerTeam == CustomWinner.Lovers || WinnerIds.Any(x => Main.PlayerStates[x].SubRoles.Contains(CustomRoles.Lovers))) && Main.LoversPlayers.All(x => x.IsAlive()))
+                if ((WinnerTeam == CustomWinner.Lovers || WinnerIds.Any(x => Main.PlayerStates[x].SubRoles.Contains(CustomRoles.Lovers))) && Main.LoversPlayers.All(x => x.IsAlive()) && reason != GameOverReason.HumansByTask)
                 {
                     if (WinnerTeam != CustomWinner.Lovers) AdditionalWinnerTeams.Add(AdditionalWinners.Lovers);
-                    Main.AllPlayerControls
-                        .Where(p => p.Is(CustomRoles.Lovers))
-                        .Do(p => WinnerIds.Add(p.PlayerId));
+                    WinnerIds.UnionWith(Main.LoversPlayers.Select(x => x.PlayerId));
                 }
 
                 if (Options.NeutralWinTogether.GetBool() && WinnerIds.Any(x => GetPlayerById(x) != null && GetPlayerById(x).GetCustomRole().IsNeutral()))
@@ -377,7 +376,7 @@ class GameEndChecker
 
             if (CustomTeamManager.CheckCustomTeamGameEnd()) return true;
 
-            if (Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.Lovers)))
+            if (Main.AllAlivePlayerControls.All(Main.LoversPlayers.Contains) && !Main.LoversPlayers.All(x => x.Is(Team.Crewmate)))
             {
                 ResetAndSetWinner(CustomWinner.Lovers);
                 return true;
@@ -700,6 +699,7 @@ class GameEndChecker
             reason = GameOverReason.ImpostorByKill;
             if (Options.DisableTaskWin.GetBool() || TaskState.InitialTotalTasks == 0) return false;
             if (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoleTypes.Crewmate))) return false;
+            if (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool() && Main.AllPlayerControls.Where(x => x.Is(Team.Crewmate) && x.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel).All(x => x.GetCustomSubRoles().Any(y => y.IsConverted()))) return false;
 
             if (GameData.Instance.TotalTasks <= GameData.Instance.CompletedTasks)
             {

@@ -7,9 +7,9 @@ namespace EHR.Roles.Neutral
         public void SetupCustomOption()
         {
             SetupRoleOptions(18200, TabGroup.NeutralRoles, CustomRoles.God);
-            NotifyGodAlive = BooleanOptionItem.Create(18210, "NotifyGodAlive", true, TabGroup.NeutralRoles)
+            NotifyGodAlive = new BooleanOptionItem(18210, "NotifyGodAlive", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.God]);
-            GodCanGuess = BooleanOptionItem.Create(18211, "CanGuess", false, TabGroup.NeutralRoles)
+            GodCanGuess = new BooleanOptionItem(18211, "CanGuess", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.God]);
         }
     }

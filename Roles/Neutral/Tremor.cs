@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using HarmonyLib;
 using Hazel;
 using UnityEngine;
 
@@ -19,11 +18,10 @@ public class Tremor : RoleBase
     private static OptionItem TimerStart;
     private static OptionItem TimerDecrease;
     private static OptionItem DoomTime;
+
     int Count;
     int DoomTimer;
-
     long LastUpdate = Utils.TimeStamp;
-
     int Timer;
 
     public override bool IsEnable => On;
@@ -32,20 +30,20 @@ public class Tremor : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Tremor);
-        KillCooldown = FloatOptionItem.Create(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
+        KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tremor])
             .SetValueFormat(OptionFormat.Seconds);
-        CanVent = BooleanOptionItem.Create(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
+        CanVent = new BooleanOptionItem(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tremor]);
-        HasImpostorVision = BooleanOptionItem.Create(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
+        HasImpostorVision = new BooleanOptionItem(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tremor]);
-        TimerStart = IntegerOptionItem.Create(Id + 5, "Tremor.TimerStart", new(0, 600, 5), 180, TabGroup.NeutralRoles)
+        TimerStart = new IntegerOptionItem(Id + 5, "Tremor.TimerStart", new(0, 600, 5), 180, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tremor])
             .SetValueFormat(OptionFormat.Seconds);
-        TimerDecrease = IntegerOptionItem.Create(Id + 6, "Tremor.TimerDecrease", new(0, 180, 1), 15, TabGroup.NeutralRoles)
+        TimerDecrease = new IntegerOptionItem(Id + 6, "Tremor.TimerDecrease", new(0, 180, 1), 15, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tremor])
             .SetValueFormat(OptionFormat.Seconds);
-        DoomTime = IntegerOptionItem.Create(Id + 7, "Tremor.DoomTime", new(0, 180, 1), 30, TabGroup.NeutralRoles)
+        DoomTime = new IntegerOptionItem(Id + 7, "Tremor.DoomTime", new(0, 180, 1), 30, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Tremor])
             .SetValueFormat(OptionFormat.Seconds);
     }
@@ -72,7 +70,7 @@ public class Tremor : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || !pc.IsAlive()) return;
+        if (!GameStates.IsInTask || ExileController.Instance || !pc.IsAlive()) return;
 
         bool wasDoom = IsDoom;
 
@@ -128,7 +126,7 @@ public class Tremor : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || meeting) return string.Empty;
+        if (!seer.Is(CustomRoles.Tremor) || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || meeting) return string.Empty;
         var color = IsDoom ? Color.yellow : Color.cyan;
         var text = IsDoom ? DoomTimer.ToString() : Timer.ToString();
         if (hud) text = $"<size=130%><b>{text}</b></size>";

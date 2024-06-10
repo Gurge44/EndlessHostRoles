@@ -35,23 +35,23 @@ namespace EHR
             const int id = 69_211_001;
             Color color = new(52, 94, 235, byte.MaxValue);
 
-            MaxGameLength = IntegerOptionItem.Create(id, "FFA_GameTime", new(0, 1200, 10), 600, TabGroup.GameSettings)
+            MaxGameLength = new IntegerOptionItem(id, "FFA_GameTime", new(0, 1200, 10), 600, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(color);
 
-            MinNeutrals = IntegerOptionItem.Create(id + 1, "HNS.MinNeutrals", new(0, 13, 1), 1, TabGroup.GameSettings)
+            MinNeutrals = new IntegerOptionItem(id + 1, "HNS.MinNeutrals", new(0, 13, 1), 1, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(color);
-            MaxNeutrals = IntegerOptionItem.Create(id + 2, "HNS.MaxNeutrals", new(0, 13, 1), 3, TabGroup.GameSettings)
-                .SetGameMode(CustomGameMode.HideAndSeek)
-                .SetColor(color);
-
-            DangerMeter = BooleanOptionItem.Create(id + 3, "HNS.DangerMeter", true, TabGroup.GameSettings)
+            MaxNeutrals = new IntegerOptionItem(id + 2, "HNS.MaxNeutrals", new(0, 13, 1), 3, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(color);
 
-            PlayersSeeRoles = BooleanOptionItem.Create(id + 4, "HNS.PlayersSeeRoles", true, TabGroup.GameSettings)
+            DangerMeter = new BooleanOptionItem(id + 3, "HNS.DangerMeter", true, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.HideAndSeek)
+                .SetColor(color);
+
+            PlayersSeeRoles = new BooleanOptionItem(id + 4, "HNS.PlayersSeeRoles", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(color);
         }
@@ -82,7 +82,7 @@ namespace EHR
         {
             IsBlindTime = true;
             Utils.MarkEveryoneDirtySettingsV4();
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 IsBlindTime = false;
 
@@ -114,8 +114,15 @@ namespace EHR
         {
             Dictionary<PlayerControl, CustomRoles> result = [];
             List<PlayerControl> allPlayers = [.. Main.AllAlivePlayerControls];
-            if (Main.GM.Value) allPlayers.RemoveAll(x => x.IsHost());
-            allPlayers = allPlayers.Shuffle();
+
+            if (Main.GM.Value)
+            {
+                allPlayers.RemoveAll(x => x.IsHost());
+                PlayerRoles[0] = (new Hider(), CustomRoles.GM);
+                PlayerControl.LocalPlayer.RpcSetCustomRole(CustomRoles.GM);
+            }
+
+            allPlayers.Shuffle();
 
             Dictionary<Team, int> memberNum = new()
             {
@@ -216,7 +223,7 @@ namespace EHR
             if (result.ContainsValue(CustomRoles.Agent))
             {
                 var agent = result.GetKeyByValue(CustomRoles.Agent).PlayerId;
-                PlayerRoles.DoIf(x => x.Value.Role != CustomRoles.Agent && x.Value.Interface.Team == Team.Impostor, x => TargetArrow.Add(x.Key, agent));
+                PlayerRoles.DoIf(x => x.Value.Role != CustomRoles.Agent && x.Value.Interface.Team == Team.Impostor, x => TargetArrow.Add(x.Key, agent), fast: true);
             }
         }
 
@@ -237,7 +244,14 @@ namespace EHR
             var targetRole = PlayerRoles[target.PlayerId];
             var seerRole = PlayerRoles[seer.PlayerId];
 
-            if (targetRole.Interface.Team == Team.Impostor && (PlayersSeeRoles.GetBool() || targetRole.Role != CustomRoles.Agent || seerRole.Interface.Team == Team.Impostor))
+            if (PlayersSeeRoles.GetBool())
+            {
+                color = Main.RoleColors[targetRole.Role];
+                if (targetRole.Role == CustomRoles.Agent) color = Main.RoleColors[CustomRoles.Hider];
+                return true;
+            }
+
+            if (targetRole.Interface.Team == Team.Impostor && (targetRole.Role != CustomRoles.Agent || seerRole.Interface.Team == Team.Impostor))
             {
                 color = Main.RoleColors[CustomRoles.Seeker];
                 return true;
@@ -254,7 +268,10 @@ namespace EHR
 
         public static bool IsRoleTextEnabled(PlayerControl seer, PlayerControl target)
         {
-            return seer.PlayerId == target.PlayerId || PlayersSeeRoles.GetBool();
+            if (seer.PlayerId == target.PlayerId || PlayersSeeRoles.GetBool()) return true;
+            var targetRole = PlayerRoles[target.PlayerId];
+            var seerRole = PlayerRoles[seer.PlayerId];
+            return targetRole.Interface.Team == Team.Impostor && (targetRole.Role != CustomRoles.Agent || seerRole.Interface.Team == Team.Impostor);
         }
 
         public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool isHUD = false)
@@ -407,7 +424,7 @@ namespace EHR
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
         class FixedUpdatePatch
         {
-            public static void Postfix(PlayerControl __instance)
+            public static void Postfix()
             {
                 if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted) return;
 
@@ -417,12 +434,13 @@ namespace EHR
 
                 TimeLeft--;
 
-                PlayerRoles = PlayerRoles.Where(x => Utils.GetPlayerById(x.Key) != null).ToDictionary(x => x.Key, x => x.Value);
+                PlayerRoles = PlayerRoles.IntersectBy(Main.AllPlayerControls.Select(x => x.PlayerId), x => x.Key).ToDictionary(x => x.Key, x => x.Value);
 
-                var imps = PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).ToDictionary(x => x.Key, x => Utils.GetPlayerById(x.Key).Pos());
+                var idPosPairs = PlayerRoles.Join(Main.AllPlayerControls, x => x.Key, x => x.PlayerId, (role, pc) => (role.Key, pc)).ToDictionary(x => x.Key, x => x.pc.Pos());
+                var imps = PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).ToDictionary(x => x.Key, x => idPosPairs[x.Key]);
                 var nonImps = PlayerRoles.Where(x => x.Value.Interface.Team is Team.Crewmate or Team.Neutral).ToArray();
-                ClosestImpostor = nonImps.ToDictionary(x => x.Key, x => imps.MinBy(y => Vector2.Distance(y.Value, Utils.GetPlayerById(x.Key).Pos())).Key);
-                Danger = nonImps.ToDictionary(x => x.Key, x => Math.Clamp(((1 + (int)Math.Ceiling(Vector2.Distance(Utils.GetPlayerById(x.Key).Pos(), Utils.GetPlayerById(ClosestImpostor[x.Key]).Pos()))) / 3) - 1, 0, 5));
+                ClosestImpostor = nonImps.ToDictionary(x => x.Key, x => imps.MinBy(y => Vector2.Distance(y.Value, idPosPairs[x.Key])).Key);
+                Danger = nonImps.ToDictionary(x => x.Key, x => Math.Clamp(((1 + (int)Math.Ceiling(Vector2.Distance(idPosPairs[x.Key], idPosPairs[ClosestImpostor[x.Key]]))) / 3) - 1, 0, 5));
 
                 if (DangerMeter.GetBool() || (TimeLeft + 1) % 60 == 0 || TimeLeft <= 60) Utils.NotifyRoles();
             }

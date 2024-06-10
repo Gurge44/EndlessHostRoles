@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using BepInEx;
 using EHR.Modules;
 using EHR.Neutral;
@@ -70,7 +71,7 @@ class RepairSystemPatch
         [HarmonyArgument(2)] byte amount)
     {
         Logger.Msg($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole().RemoveHtmlTags()}, amount: {amount}", "RepairSystem");
-        if (RepairSender.enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
+        if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             Logger.SendInGame($"SystemType: {systemType}, PlayerName: {player.GetNameWithRole().RemoveHtmlTags()}, amount: {amount}");
 
         if (!AmongUsClient.Instance.AmHost) return true; // Execute the following only on the host
@@ -136,7 +137,7 @@ class RepairSystemPatch
                     MapNames.Skeld => Options.DisableSkeldCamera.GetBool(),
                     MapNames.Polus => Options.DisablePolusCamera.GetBool(),
                     MapNames.Airship => Options.DisableAirshipCamera.GetBool(),
-                    _ => false,
+                    _ => false
                 };
                 if (camerasDisabled)
                 {
@@ -291,7 +292,7 @@ class CheckTaskCompletionPatch
 {
     public static bool Prefix(ref bool __result)
     {
-        if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || TaskState.InitialTotalTasks == 0 || (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoleTypes.Crewmate))) || Options.CurrentGameMode != CustomGameMode.Standard)
+        if (Options.DisableTaskWin.GetBool() || Options.NoGameEnd.GetBool() || TaskState.InitialTotalTasks == 0 || (Options.DisableTaskWinIfAllCrewsAreDead.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoleTypes.Crewmate))) || (Options.DisableTaskWinIfAllCrewsAreConverted.GetBool() && Main.AllPlayerControls.Where(x => x.Is(Team.Crewmate) && x.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist or RoleTypes.CrewmateGhost or RoleTypes.GuardianAngel).All(x => x.GetCustomSubRoles().Any(y => y.IsConverted()))) || Options.CurrentGameMode != CustomGameMode.Standard)
         {
             __result = false;
             return false;

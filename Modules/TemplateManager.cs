@@ -16,9 +16,9 @@ namespace EHR;
 
 public static class TemplateManager
 {
-    private static readonly string TEMPLATE_FILE_PATH = "./EHR_DATA/template.txt";
+    private const string TemplateFilePath = "./EHR_DATA/template.txt";
 
-    private static readonly Dictionary<string, Func<string>> _replaceDictionary = new()
+    private static readonly Dictionary<string, Func<string>> ReplaceDictionary = new()
     {
         ["RoomCode"] = () => GameCode.IntToGameName(AmongUsClient.Instance.GameId),
         ["PlayerName"] = () => DataManager.Player.Customization.Name,
@@ -38,7 +38,7 @@ public static class TemplateManager
         ["NumLongTasks"] = () => Main.NormalOptions.NumLongTasks.ToString(),
         ["NumShortTasks"] = () => Main.NormalOptions.NumShortTasks.ToString(),
         ["Date"] = () => DateTime.Now.ToShortDateString(),
-        ["Time"] = () => DateTime.Now.ToShortTimeString(),
+        ["Time"] = () => DateTime.Now.ToShortTimeString()
     };
 
     public static void Init()
@@ -48,12 +48,12 @@ public static class TemplateManager
 
     public static void CreateIfNotExists()
     {
-        if (!File.Exists(TEMPLATE_FILE_PATH))
+        if (!File.Exists(TemplateFilePath))
         {
             try
             {
-                if (!Directory.Exists(@"EHR_DATA")) Directory.CreateDirectory(@"EHR_DATA");
-                if (File.Exists(@"./template.txt")) File.Move(@"./template.txt", TEMPLATE_FILE_PATH);
+                if (!Directory.Exists("EHR_DATA")) Directory.CreateDirectory("EHR_DATA");
+                if (File.Exists("./template.txt")) File.Move("./template.txt", TemplateFilePath);
                 else
                 {
                     string fileName;
@@ -67,7 +67,7 @@ public static class TemplateManager
                         };
                     else fileName = "English";
                     Logger.Warn($"创建新的 Template 文件：{fileName}", "TemplateManager");
-                    File.WriteAllText(TEMPLATE_FILE_PATH, GetResourcesTxt($"EHR.Resources.Config.template.{fileName}.txt"));
+                    File.WriteAllText(TemplateFilePath, GetResourcesTxt($"EHR.Resources.Config.template.{fileName}.txt"));
                 }
             }
             catch (Exception ex)
@@ -77,14 +77,15 @@ public static class TemplateManager
         }
         else
         {
-            var text = File.ReadAllText(TEMPLATE_FILE_PATH, Encoding.GetEncoding("UTF-8"));
-            File.WriteAllText(TEMPLATE_FILE_PATH, text.Replace("5PNwUaN5", "hkk2p9ggv4"));
+            var text = File.ReadAllText(TemplateFilePath, Encoding.GetEncoding("UTF-8"));
+            File.WriteAllText(TemplateFilePath, text.Replace("5PNwUaN5", "hkk2p9ggv4"));
         }
     }
 
     private static string GetResourcesTxt(string path)
     {
         var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
+        if (stream == null) return string.Empty;
         stream.Position = 0;
         using StreamReader reader = new(stream, Encoding.UTF8);
         return reader.ReadToEnd();
@@ -93,7 +94,7 @@ public static class TemplateManager
     public static void SendTemplate(string str = "", byte playerId = 0xff, bool noErr = false)
     {
         CreateIfNotExists();
-        using StreamReader sr = new(TEMPLATE_FILE_PATH, Encoding.GetEncoding("UTF-8"));
+        using StreamReader sr = new(TemplateFilePath, Encoding.GetEncoding("UTF-8"));
         List<string> sendList = [];
         HashSet<string> tags = [];
         while (sr.ReadLine() is { } text)
@@ -120,7 +121,7 @@ public static class TemplateManager
 
     private static string ApplyReplaceDictionary(string text)
     {
-        foreach (var kvp in _replaceDictionary)
+        foreach (var kvp in ReplaceDictionary)
         {
             text = Regex.Replace(text, "{{" + kvp.Key + "}}", kvp.Value.Invoke() ?? "", RegexOptions.IgnoreCase);
         }

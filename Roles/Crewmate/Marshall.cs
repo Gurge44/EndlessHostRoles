@@ -10,10 +10,12 @@ public class Marshall : RoleBase
     public static OptionItem OptionMadmateCanFindMarshall;
     public static bool MadmateCanFindMarshall;
 
+    public override bool IsEnable => PlayerIdList.Count > 0;
+
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Marshall);
-        OptionMadmateCanFindMarshall = BooleanOptionItem.Create(Id + 14, "MadmateCanFindMarshall", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Marshall]);
+        OptionMadmateCanFindMarshall = new BooleanOptionItem(Id + 14, "MadmateCanFindMarshall", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Marshall]);
         OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Marshall);
     }
 
@@ -28,6 +30,5 @@ public class Marshall : RoleBase
         MadmateCanFindMarshall = OptionMadmateCanFindMarshall.GetBool();
     }
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
     public static string GetWarningMark(PlayerControl seer, PlayerControl target) => (seer.Is(Team.Crewmate) || (seer.Is(CustomRoles.Madmate) && MadmateCanFindMarshall)) && PlayerIdList.Contains(target.PlayerId) && target.IsAlive() && target.GetTaskState().IsTaskFinished ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Marshall), "★") : string.Empty;
 }

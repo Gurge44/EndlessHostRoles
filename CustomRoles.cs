@@ -15,6 +15,7 @@ public enum CustomRoles
 
     // Impostors
 
+    Abyssbringer,
     Hacker, // Anonymous
     AntiAdminer,
     Sans, // Arrogance
@@ -40,6 +41,7 @@ public enum CustomRoles
     Disperser,
     Duellist,
     Dazzler,
+    Echo,
     Escapee,
     Eraser,
     EvilGuesser,
@@ -131,6 +133,8 @@ public enum CustomRoles
     Convener,
     CopyCat,
     Bloodhound, // Coroner
+    LovingCrewmate,
+    LovingImpostor,
     Crusader,
     Demolitionist,
     Deputy,
@@ -204,6 +208,7 @@ public enum CustomRoles
     Tether,
     TimeManager,
     TimeMaster,
+    ToiletMaster,
     Tornado,
     Tracker,
     Transmitter,
@@ -369,6 +374,7 @@ public enum CustomRoles
     Giant,
     Glow,
     Gravestone,
+    GA, // Guardian Angel - Ghost role
     Guesser,
     Haste,
     Haunter, // Ghost role

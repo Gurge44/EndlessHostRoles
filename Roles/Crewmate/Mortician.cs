@@ -7,7 +7,7 @@ namespace EHR.Roles.Crewmate;
 public class Mortician : RoleBase
 {
     private const int Id = 7400;
-    private static List<byte> playerIdList = [];
+    public static List<byte> playerIdList = [];
 
     private static OptionItem ShowArrows;
 
@@ -19,7 +19,7 @@ public class Mortician : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mortician);
-        ShowArrows = BooleanOptionItem.Create(Id + 2, "ShowArrows", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Mortician]);
+        ShowArrows = new BooleanOptionItem(Id + 2, "ShowArrows", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Mortician]);
     }
 
     public override void Init()

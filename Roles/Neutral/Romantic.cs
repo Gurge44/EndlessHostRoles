@@ -32,7 +32,9 @@ public class Romantic : RoleBase
     private static readonly Dictionary<CustomRoles, CustomRoles> ConvertingRolesAndAddons = new()
     {
         [CustomRoles.Jackal] = CustomRoles.Sidekick,
-        [CustomRoles.Virus] = CustomRoles.Contagious
+        [CustomRoles.Virus] = CustomRoles.Contagious,
+        [CustomRoles.Deathknight] = CustomRoles.Undead,
+        [CustomRoles.Necromancer] = CustomRoles.Undead
     };
 
     public static bool HasPickedPartner => PartnerId != byte.MaxValue;
@@ -42,20 +44,20 @@ public class Romantic : RoleBase
     public static void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Romantic);
-        BetCooldown = FloatOptionItem.Create(Id + 10, "RomanticBetCooldown", new(0f, 60f, 1f), 7f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
+        BetCooldown = new FloatOptionItem(Id + 10, "RomanticBetCooldown", new(0f, 60f, 1f), 7f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
-        ProtectCooldown = FloatOptionItem.Create(Id + 11, "RomanticProtectCooldown", new(0f, 60f, 2.5f), 25f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
+        ProtectCooldown = new FloatOptionItem(Id + 11, "RomanticProtectCooldown", new(0f, 60f, 2.5f), 25f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
-        ProtectDuration = FloatOptionItem.Create(Id + 12, "RomanticProtectDuration", new(0f, 60f, 2.5f), 10f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
+        ProtectDuration = new FloatOptionItem(Id + 12, "RomanticProtectDuration", new(0f, 60f, 2.5f), 10f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
-        KnowTargetRole = BooleanOptionItem.Create(Id + 13, "RomanticKnowTargetRole", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        BetTargetKnowRomantic = BooleanOptionItem.Create(Id + 14, "RomanticBetTargetKnowRomantic", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        VengefulKCD = FloatOptionItem.Create(Id + 15, "VengefulKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
+        KnowTargetRole = new BooleanOptionItem(Id + 13, "RomanticKnowTargetRole", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+        BetTargetKnowRomantic = new BooleanOptionItem(Id + 14, "RomanticBetTargetKnowRomantic", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+        VengefulKCD = new FloatOptionItem(Id + 15, "VengefulKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
-        VengefulCanVent = BooleanOptionItem.Create(Id + 16, "VengefulCanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        RuthlessKCD = FloatOptionItem.Create(Id + 17, "RuthlessKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
+        VengefulCanVent = new BooleanOptionItem(Id + 16, "VengefulCanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+        RuthlessKCD = new FloatOptionItem(Id + 17, "RuthlessKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
-        RuthlessCanVent = BooleanOptionItem.Create(Id + 18, "RuthlessCanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+        RuthlessCanVent = new BooleanOptionItem(Id + 18, "RuthlessCanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
     }
 
     public override void Init()
@@ -71,6 +73,9 @@ public class Romantic : RoleBase
     {
         RomanticId = playerId;
         RomanticPC = Utils.GetPlayerById(playerId);
+        PartnerId = byte.MaxValue;
+        Partner = null;
+        IsPartnerProtected = false;
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -138,7 +143,7 @@ public class Romantic : RoleBase
             RomanticPC.Notify(GetString("RomanticProtectPartner"));
             Partner.Notify(GetString("RomanticIsProtectingYou"));
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 if (!Partner.IsAlive()) return;
 
@@ -150,7 +155,7 @@ public class Romantic : RoleBase
                 Partner.Notify(GetString("ProtectingOver"));
 
                 RomanticPC.SetKillCooldown();
-            }, ProtectDuration.GetFloat());
+            }, ProtectDuration.GetFloat(), "RomanticProtecting");
         }
 
         return false;
@@ -253,8 +258,8 @@ public class Romantic : RoleBase
 
 public class VengefulRomantic : RoleBase
 {
-    public static byte VengefulRomanticId = byte.MaxValue;
-    public static PlayerControl VengefulRomantic_;
+    private static byte VengefulRomanticId = byte.MaxValue;
+    private static PlayerControl VengefulRomantic_;
 
     public static bool HasKilledKiller;
     public static byte Target = byte.MaxValue;
@@ -304,8 +309,8 @@ public class VengefulRomantic : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
     {
-        if (seer.PlayerId != target.PlayerId) return string.Empty;
-        return seer == null ? string.Empty : Utils.ColorString(HasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"{(HasKilledKiller ? "✓" : "☹️")}");
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != VengefulRomanticId) return string.Empty;
+        return seer == null ? string.Empty : Utils.ColorString(HasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"{(HasKilledKiller ? "✓" : "☹")}");
     }
 
     public static void SendRPC()

@@ -9,16 +9,18 @@ public static class OptionSaver
 {
     private static readonly DirectoryInfo SaveDataDirectoryInfo = new("./EHR_DATA/SaveData/");
     private static readonly FileInfo OptionSaverFileInfo = new($"{SaveDataDirectoryInfo.FullName}/Options.json");
-    private static readonly LogHandler logger = Logger.Handler(nameof(OptionSaver));
+    private static readonly LogHandler Logger = EHR.Logger.Handler(nameof(OptionSaver));
     private static readonly FileInfo DefaultPresetFileInfo = new($"{SaveDataDirectoryInfo.FullName}/DefaultPreset.txt");
     private static int DefaultPresetNumber;
+
+    public static readonly int Version;
 
     public static int GetDefaultPresetNumber()
     {
         if (DefaultPresetFileInfo.Exists)
         {
             string presetNmber = File.ReadAllText(DefaultPresetFileInfo.FullName);
-            if (int.TryParse(presetNmber, out int number) && number is >= 0 and <= 4) return number;
+            if (int.TryParse(presetNmber, out int number) && number is >= 0 and <= OptionItem.NumPresets - 1) return number;
         }
 
         return 0;
@@ -53,12 +55,12 @@ public static class OptionSaver
             {
                 if (!singleOptions.TryAdd(option.Id, option.SingleValue))
                 {
-                    Logger.Warn($"Duplicate SingleOption ID: {option.Id}", "Options Load");
+                    EHR.Logger.Warn($"Duplicate SingleOption ID: {option.Id}", "Options Load");
                 }
             }
             else if (!presetOptions.TryAdd(option.Id, option.AllValues))
             {
-                Logger.Warn($"Duplicate preset option ID: {option.Id}", "Options Load");
+                EHR.Logger.Warn($"Duplicate preset option ID: {option.Id}", "Options Load");
             }
         }
 
@@ -67,7 +69,7 @@ public static class OptionSaver
         {
             Version = Version,
             SingleOptions = singleOptions,
-            PresetOptions = presetOptions,
+            PresetOptions = presetOptions
         };
     }
 
@@ -75,7 +77,7 @@ public static class OptionSaver
     {
         if (serializableOptionsData.Version != Version)
         {
-            logger.Info($"Loaded option version {serializableOptionsData.Version} does not match current version {Version}, overwriting with default value");
+            Logger.Info($"Loaded option version {serializableOptionsData.Version} does not match current version {Version}, overwriting with default value");
             Save();
             return;
         }
@@ -103,7 +105,7 @@ public static class OptionSaver
     {
         if (AmongUsClient.Instance != null && !AmongUsClient.Instance.AmHost) return;
 
-        var jsonString = JsonSerializer.Serialize(GenerateOptionsData(), new JsonSerializerOptions { WriteIndented = true, });
+        var jsonString = JsonSerializer.Serialize(GenerateOptionsData(), new JsonSerializerOptions { WriteIndented = true });
         File.WriteAllText(OptionSaverFileInfo.FullName, jsonString);
         File.WriteAllText(DefaultPresetFileInfo.FullName, DefaultPresetNumber.ToString());
     }
@@ -114,7 +116,7 @@ public static class OptionSaver
 
         if (jsonString.Length <= 0)
         {
-            logger.Info("Save default value as option data is empty");
+            Logger.Info("Save default value as option data is empty");
             Save();
             return;
         }
@@ -128,6 +130,4 @@ public static class OptionSaver
         public Dictionary<int, int> SingleOptions { get; init; }
         public Dictionary<int, int[]> PresetOptions { get; init; }
     }
-
-    public static readonly int Version;
 }

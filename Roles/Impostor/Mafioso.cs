@@ -52,16 +52,16 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Mafioso);
-            Delay = IntegerOptionItem.Create(Id + 10, "MafiosoDelay", new(1, 10, 1), 3, TabGroup.ImpostorRoles)
+            Delay = new IntegerOptionItem(Id + 10, "MafiosoDelay", new(1, 10, 1), 3, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso])
                 .SetValueFormat(OptionFormat.Seconds);
-            RewardForKilling = IntegerOptionItem.Create(Id + 11, "MafiosoRewardForKilling", new(0, 100, 5), 40, TabGroup.ImpostorRoles)
+            RewardForKilling = new IntegerOptionItem(Id + 11, "MafiosoRewardForKilling", new(0, 100, 5), 40, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
-            RewardForSabotaging = IntegerOptionItem.Create(Id + 12, "MafiosoRewardForSabotaging", new(0, 100, 5), 25, TabGroup.ImpostorRoles)
+            RewardForSabotaging = new IntegerOptionItem(Id + 12, "MafiosoRewardForSabotaging", new(0, 100, 5), 25, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
-            RewardForVenting = IntegerOptionItem.Create(Id + 13, "MafiosoRewardForVenting", new(0, 100, 5), 10, TabGroup.ImpostorRoles)
+            RewardForVenting = new IntegerOptionItem(Id + 13, "MafiosoRewardForVenting", new(0, 100, 5), 10, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
-            RewardForOtherPlayerEjected = IntegerOptionItem.Create(Id + 14, "MafiosoRewardForOtherPlayerEjected", new(0, 100, 5), 30, TabGroup.ImpostorRoles)
+            RewardForOtherPlayerEjected = new IntegerOptionItem(Id + 14, "MafiosoRewardForOtherPlayerEjected", new(0, 100, 5), 30, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafioso]);
         }
 
@@ -204,7 +204,7 @@ namespace EHR.Roles.Impostor
 
             if (Tier >= 5)
             {
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     // ReSharper disable once ConditionIsAlwaysTrueOrFalse ---- Can be null since it's a task that completes later
                     if (target != null && target.IsAlive() && GameStates.IsInTask)
@@ -218,7 +218,7 @@ namespace EHR.Roles.Impostor
 
             if (Pistol1CD > 1 && Pistol2CD > 1)
             {
-                _ = new LateTask(() => { killer.SetKillCooldown(time: Math.Min(Pistol1CD, Pistol2CD) - 1); }, 0.1f, "Mafioso SetKillCooldown");
+                LateTask.New(() => { killer.SetKillCooldown(time: Math.Min(Pistol1CD, Pistol2CD) - 1); }, 0.1f, "Mafioso SetKillCooldown");
             }
 
             return true;

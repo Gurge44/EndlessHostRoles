@@ -50,7 +50,7 @@ internal class MMOnlineManagerStartPatch
             var message = ModUpdater.isBroken
                 ? $"<size=2>{Utils.ColorString(Color.red, GetString("ModBrokenMessage"))}</size>"
                 : $"<size=2>{Utils.ColorString(Color.red, GetString("CanNotJoinPublicRoomNoLatest"))}</size>";
-            _ = new LateTask(() => { textObj.text = message; }, 0.01f, "CanNotJoinPublic");
+            LateTask.New(() => { textObj.text = message; }, 0.01f, "CanNotJoinPublic");
         }
     }
 }
@@ -143,8 +143,8 @@ internal class SetResolutionManager
         //    MainMenuManagerPatch.qqButton.transform.localPosition = Vector3.Reflect(MainMenuManagerPatch.template.transform.localPosition, Vector3.left);
         //if (MainMenuManagerPatch.discordButton != null)
         //    MainMenuManagerPatch.discordButton.transform.localPosition = Vector3.Reflect(MainMenuManagerPatch.template.transform.localPosition, Vector3.left);
-        if (MainMenuManagerPatch.updateButton != null)
-            MainMenuManagerPatch.updateButton.transform.localPosition = MainMenuManagerPatch.template.transform.localPosition + new Vector3(0.25f, 0.75f);
+        if (MainMenuManagerPatch.UpdateButton != null)
+            MainMenuManagerPatch.UpdateButton.transform.localPosition = MainMenuManagerPatch.Template.transform.localPosition + new Vector3(0.25f, 0.75f);
     }
 }
 

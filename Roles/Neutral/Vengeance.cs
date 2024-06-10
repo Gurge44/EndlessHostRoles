@@ -26,12 +26,12 @@ public class Vengeance : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Vengeance);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Vengeance])
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Vengeance])
             .SetValueFormat(OptionFormat.Seconds);
-        RevengeTime = IntegerOptionItem.Create(Id + 11, "VengeanceRevengeTime", new(0, 30, 1), 15, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Vengeance])
+        RevengeTime = new IntegerOptionItem(Id + 11, "VengeanceRevengeTime", new(0, 30, 1), 15, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Vengeance])
             .SetValueFormat(OptionFormat.Seconds);
-        CanVent = BooleanOptionItem.Create(Id + 12, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Vengeance]);
-        HasImpostorVision = BooleanOptionItem.Create(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Vengeance]);
+        CanVent = new BooleanOptionItem(Id + 12, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Vengeance]);
+        HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Vengeance]);
     }
 
     public override void Init()
@@ -68,7 +68,7 @@ public class Vengeance : RoleBase
         if (killer.PlayerId == target.PlayerId) return true;
         if (IsRevenge) return true;
 
-        _ = new LateTask(() => { target.TPtoRndVent(); }, 0.01f);
+        LateTask.New(() => { target.TPtoRndVent(); }, 0.01f, log: false);
 
         Timer = RevengeTime.GetInt();
         Countdown(Timer, target);
@@ -101,7 +101,7 @@ public class Vengeance : RoleBase
         player.Notify(string.Format(GetString("VengeanceRevenge"), seconds), 1.1f);
         Timer = seconds;
 
-        _ = new LateTask(() => { Countdown(seconds - 1, player); }, 1.01f);
+        LateTask.New(() => { Countdown(seconds - 1, player); }, 1.01f, log: false);
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

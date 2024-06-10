@@ -6,7 +6,7 @@
 
         public void SetupCustomOption()
         {
-            Options.SetupAdtRoleOptions(15150, CustomRoles.Sleuth, canSetNum: true);
+            Options.SetupAdtRoleOptions(15150, CustomRoles.Sleuth, canSetNum: true, teamSpawnOptions: true);
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Hazel;
 using UnityEngine;
 
 namespace EHR.Roles.Crewmate
@@ -29,15 +28,19 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Bloodhound);
-            ArrowsPointingToDeadBody = BooleanOptionItem.Create(Id + 10, "BloodhoundArrowsPointingToDeadBody", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound]);
-            LeaveDeadBodyUnreportable = BooleanOptionItem.Create(Id + 11, "BloodhoundLeaveDeadBodyUnreportable", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound]);
-            NotifyKiller = BooleanOptionItem.Create(Id + 14, "BloodhoundNotifyKiller", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound]);
-            UseLimitOpt = IntegerOptionItem.Create(Id + 12, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound])
-                .SetValueFormat(OptionFormat.Times);
-            BloodhoundAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+            ArrowsPointingToDeadBody = new BooleanOptionItem(Id + 10, "BloodhoundArrowsPointingToDeadBody", false, TabGroup.CrewmateRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound]);
+            LeaveDeadBodyUnreportable = new BooleanOptionItem(Id + 11, "BloodhoundLeaveDeadBodyUnreportable", false, TabGroup.CrewmateRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound]);
+            NotifyKiller = new BooleanOptionItem(Id + 14, "BloodhoundNotifyKiller", false, TabGroup.CrewmateRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound]);
+            UseLimitOpt = new IntegerOptionItem(Id + 12, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound])
                 .SetValueFormat(OptionFormat.Times);
-            AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 15, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+            BloodhoundAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 13, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound])
+                .SetValueFormat(OptionFormat.Times);
+            AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 15, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bloodhound])
                 .SetValueFormat(OptionFormat.Times);
         }
@@ -54,31 +57,6 @@ namespace EHR.Roles.Crewmate
             PlayerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             BloodhoundTargets = [];
-        }
-
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            byte playerId = reader.ReadByte();
-            if (Main.PlayerStates[playerId].Role is not Bloodhound bh) return;
-
-            switch (reader.ReadPackedInt32())
-            {
-                case 1:
-                    TargetArrow.RemoveAllTarget(playerId);
-                    LocateArrow.RemoveAllTarget(playerId);
-                    bh.BloodhoundTargets.Clear();
-                    break;
-                case 2:
-                    LocateArrow.Add(playerId, NetHelpers.ReadVector2(reader));
-                    break;
-                case 3:
-                    LocateArrow.Remove(playerId, NetHelpers.ReadVector2(reader));
-                    break;
-                case 4:
-                    bh.BloodhoundTargets.Add(reader.ReadByte());
-                    TargetArrow.Add(playerId, bh.BloodhoundTargets.Last());
-                    break;
-            }
         }
 
         public override void OnReportDeadBody()

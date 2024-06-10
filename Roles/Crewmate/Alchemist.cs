@@ -42,21 +42,21 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Alchemist);
-            VentCooldown = FloatOptionItem.Create(Id + 11, "VentCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
+            VentCooldown = new FloatOptionItem(Id + 11, "VentCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Seconds);
-            ShieldDuration = FloatOptionItem.Create(Id + 12, "AlchemistShieldDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
+            ShieldDuration = new FloatOptionItem(Id + 12, "AlchemistShieldDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Seconds);
-            InvisDuration = FloatOptionItem.Create(Id + 13, "AlchemistInvisDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
+            InvisDuration = new FloatOptionItem(Id + 13, "AlchemistInvisDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Seconds);
-            Speed = FloatOptionItem.Create(Id + 14, "AlchemistSpeed", new(0.1f, 5f, 0.1f), 1.5f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
+            Speed = new FloatOptionItem(Id + 14, "AlchemistSpeed", new(0.1f, 5f, 0.1f), 1.5f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Multiplier);
-            SpeedDuration = FloatOptionItem.Create(Id + 15, "AlchemistSpeedDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
+            SpeedDuration = new FloatOptionItem(Id + 15, "AlchemistSpeedDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Seconds);
-            Vision = FloatOptionItem.Create(Id + 16, "AlchemistVision", new(0f, 1f, 0.05f), 0.85f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
+            Vision = new FloatOptionItem(Id + 16, "AlchemistVision", new(0f, 1f, 0.05f), 0.85f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Multiplier);
-            VisionOnLightsOut = FloatOptionItem.Create(Id + 17, "AlchemistVisionOnLightsOut", new(0f, 1f, 0.05f), 0.4f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
+            VisionOnLightsOut = new FloatOptionItem(Id + 17, "AlchemistVisionOnLightsOut", new(0f, 1f, 0.05f), 0.4f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Multiplier);
-            VisionDuration = FloatOptionItem.Create(Id + 18, "AlchemistVisionDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
+            VisionDuration = new FloatOptionItem(Id + 18, "AlchemistVisionDur", new(5f, 70f, 1f), 20f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
                 .SetValueFormat(OptionFormat.Seconds);
             OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Alchemist);
         }
@@ -162,18 +162,18 @@ namespace EHR.Roles.Crewmate
                 case 1: // Shield
                     am.IsProtected = true;
                     player.Notify(GetString("AlchemistShielded"), ShieldDuration.GetInt());
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         am.IsProtected = false;
                         player.Notify(GetString("AlchemistShieldOut"));
-                    }, ShieldDuration.GetInt());
+                    }, ShieldDuration.GetInt(), "Alchemist Shield");
                     break;
                 case 2: // Suicide
                     if (!isPet) player.MyPhysics.RpcBootFromVent(ventId);
-                    _ = new LateTask(() => { player.Suicide(PlayerState.DeathReason.Poison); }, !isPet ? 1f : 0.1f);
+                    LateTask.New(() => { player.Suicide(PlayerState.DeathReason.Poison); }, !isPet ? 1f : 0.1f, "Alchemist Suicide");
                     break;
                 case 3: // TP to random player
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         List<PlayerControl> allAlivePlayer = [.. Main.AllAlivePlayerControls.Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder).ToArray()];
                         var tar1 = allAlivePlayer[player.PlayerId];
@@ -181,19 +181,19 @@ namespace EHR.Roles.Crewmate
                         var tar2 = allAlivePlayer.RandomElement();
                         tar1.TP(tar2);
                         tar1.RPCPlayCustomSound("Teleport");
-                    }, !isPet ? 2f : 0.1f);
+                    }, !isPet ? 2f : 0.1f, "AlchemistTPToRandomPlayer");
                     break;
                 case 4: // Increased speed
                     player.Notify(GetString("AlchemistHasSpeed"));
                     player.MarkDirtySettings();
                     var tmpSpeed = Main.AllPlayerSpeed[player.PlayerId];
                     Main.AllPlayerSpeed[player.PlayerId] = Speed.GetFloat();
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         Main.AllPlayerSpeed[player.PlayerId] = Main.AllPlayerSpeed[player.PlayerId] - Speed.GetFloat() + tmpSpeed;
                         player.MarkDirtySettings();
                         player.Notify(GetString("AlchemistSpeedOut"));
-                    }, SpeedDuration.GetInt());
+                    }, SpeedDuration.GetInt(), "Alchemist Speed");
                     break;
                 case 5: // Quick fix next sabo
                     // Done when making the potion
@@ -205,12 +205,12 @@ namespace EHR.Roles.Crewmate
                     am.VisionPotionActive = true;
                     player.MarkDirtySettings();
                     player.Notify(GetString("AlchemistHasVision"), VisionDuration.GetFloat());
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         am.VisionPotionActive = false;
                         player.MarkDirtySettings();
                         player.Notify(GetString("AlchemistVisionOut"));
-                    }, VisionDuration.GetFloat());
+                    }, VisionDuration.GetFloat(), "Alchemist Vision");
                     break;
                 case 10:
                     if (!isPet) player.MyPhysics.RpcBootFromVent(ventId);
@@ -253,7 +253,7 @@ namespace EHR.Roles.Crewmate
             var pc = instance.myPlayer;
             NameNotifyManager.Notice.Remove(pc.PlayerId);
             if (!AmongUsClient.Instance.AmHost) return;
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 ventedId = ventId;
 

@@ -28,17 +28,17 @@ public class NiceSwapper : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.NiceSwapper);
-        SwapMax = IntegerOptionItem.Create(Id + 3, "NiceSwapperMax", new(0, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])
+        SwapMax = new IntegerOptionItem(Id + 3, "NiceSwapperMax", new(0, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])
             .SetValueFormat(OptionFormat.Times);
-        CanSwapSelf = BooleanOptionItem.Create(Id + 2, "CanSwapSelfVotes", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
-        CanStartMeeting = BooleanOptionItem.Create(Id + 4, "JesterCanUseButton", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
-        NiceSwapperAbilityUseGainWithEachTaskCompleted = FloatOptionItem.Create(Id + 6, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.3f, TabGroup.CrewmateRoles)
+        CanSwapSelf = new BooleanOptionItem(Id + 2, "CanSwapSelfVotes", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
+        CanStartMeeting = new BooleanOptionItem(Id + 4, "JesterCanUseButton", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
+        NiceSwapperAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 6, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.3f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])
             .SetValueFormat(OptionFormat.Times);
-        AbilityChargesWhenFinishedTasks = FloatOptionItem.Create(Id + 7, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+        AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 7, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])
             .SetValueFormat(OptionFormat.Times);
-        HideMsg = BooleanOptionItem.Create(Id + 5, "SwapperHideMsg", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
+        HideMsg = new BooleanOptionItem(Id + 5, "SwapperHideMsg", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper]);
     }
 
     public override void Init()
@@ -144,7 +144,7 @@ public class NiceSwapper : RoleBase
                     else pc.ShowPopUp(GetString("CantSwapSelf"));
                 }
 
-                _ = new LateTask(() => Utils.NotifyRoles(isForMeeting: true, NoCache: true), 0.2f);
+                LateTask.New(() => Utils.NotifyRoles(isForMeeting: true, NoCache: true), 0.2f, "NiceSwapperNotifyRoles");
 
                 break;
             }
@@ -175,14 +175,14 @@ public class NiceSwapper : RoleBase
             if (x.TargetPlayerId.IsHost()) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, SwapTargets.Item2);
             else MeetingHud.Instance.CastVote(x.TargetPlayerId, SwapTargets.Item2);
             x.VotedFor = SwapTargets.Item2;
-        });
+        }, fast: true);
         playerStates.DoIf(votedFor2.Contains, x =>
         {
             x.UnsetVote();
             if (x.TargetPlayerId.IsHost()) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, SwapTargets.Item1);
             else MeetingHud.Instance.CastVote(x.TargetPlayerId, SwapTargets.Item1);
             x.VotedFor = SwapTargets.Item1;
-        });
+        }, fast: true);
 
         PlayerControl Target1 = Utils.GetPlayerById(SwapTargets.Item1);
         PlayerControl Target2 = Utils.GetPlayerById(SwapTargets.Item2);

@@ -8,11 +8,9 @@ namespace EHR.Roles.AddOns.Crewmate;
 
 public class Workhorse : IAddon
 {
-    public AddonTypes Type => AddonTypes.Harmful;
-
     private const int Id = 15700;
     public static Color RoleColor = Utils.GetRoleColor(CustomRoles.Workhorse);
-    public static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     private static OptionItem SpawnChance;
     private static OptionItem OptionAssignOnlyToCrewmate;
@@ -20,38 +18,46 @@ public class Workhorse : IAddon
     private static OptionItem OptionNumShortTasks;
     private static OptionItem OptionSnitchCanBeWorkhorse;
 
-    public static bool AssignOnlyToCrewmate;
-    public static int NumLongTasks;
-    public static int NumShortTasks;
+    private static bool AssignOnlyToCrewmate;
+    private static int NumLongTasks;
+    private static int NumShortTasks;
+    public static (bool, int, int) TaskData => (false, NumLongTasks, NumShortTasks);
+    public AddonTypes Type => AddonTypes.Harmful;
 
     public void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Workhorse, zeroOne: true);
-        SpawnChance = IntegerOptionItem.Create(Id + 13, "WorkhorseSpawnChance", new(0, 100, 1), 65, TabGroup.Addons)
+        SpawnChance = new IntegerOptionItem(Id + 13, "WorkhorseSpawnChance", new(0, 100, 1), 65, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
             .SetValueFormat(OptionFormat.Percent);
-        OptionAssignOnlyToCrewmate = BooleanOptionItem.Create(Id + 10, "AssignOnlyToCrewmate", true, TabGroup.Addons).SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse]);
-        OptionNumLongTasks = IntegerOptionItem.Create(Id + 11, "WorkhorseNumLongTasks", new(0, 5, 1), 1, TabGroup.Addons).SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
+        OptionAssignOnlyToCrewmate = new BooleanOptionItem(Id + 10, "AssignOnlyToCrewmate", true, TabGroup.Addons)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse]);
+        OptionNumLongTasks = new IntegerOptionItem(Id + 11, "WorkhorseNumLongTasks", new(0, 5, 1), 1, TabGroup.Addons)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
             .SetValueFormat(OptionFormat.Pieces);
-        OptionNumShortTasks = IntegerOptionItem.Create(Id + 12, "WorkhorseNumShortTasks", new(0, 5, 1), 1, TabGroup.Addons).SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
+        OptionNumShortTasks = new IntegerOptionItem(Id + 12, "WorkhorseNumShortTasks", new(0, 5, 1), 1, TabGroup.Addons)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
             .SetValueFormat(OptionFormat.Pieces);
-        OptionSnitchCanBeWorkhorse = BooleanOptionItem.Create(Id + 14, "SnitchCanBeWorkhorse", false, TabGroup.Addons).SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse]);
+        OptionSnitchCanBeWorkhorse = new BooleanOptionItem(Id + 14, "SnitchCanBeWorkhorse", false, TabGroup.Addons)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse]);
     }
+
     public static void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
 
         AssignOnlyToCrewmate = OptionAssignOnlyToCrewmate.GetBool();
         NumLongTasks = OptionNumLongTasks.GetInt();
         NumShortTasks = OptionNumShortTasks.GetInt();
     }
-    public static void Add(byte playerId)
+
+    private static void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
     }
-    public static bool IsEnable => playerIdList.Count > 0;
-    public static bool IsThisRole(byte playerId) => playerIdList.Contains(playerId);
-    public static (bool, int, int) TaskData => (false, NumLongTasks, NumShortTasks);
+
+    public static bool IsThisRole(byte playerId) => PlayerIdList.Contains(playerId);
+
     private static bool IsAssignTarget(PlayerControl pc)
     {
         if (!pc.IsAlive() || IsThisRole(pc.PlayerId)) return false;
@@ -65,9 +71,10 @@ public class Workhorse : IAddon
         if (AssignOnlyToCrewmate) return canBeTarget && pc.Is(CustomRoleTypes.Crewmate);
         return canBeTarget;
     }
+
     public static bool OnCompleteTask(PlayerControl pc)
     {
-        if (!CustomRoles.Workhorse.IsEnable() || playerIdList.Count >= CustomRoles.Workhorse.GetCount()) return false;
+        if (!CustomRoles.Workhorse.IsEnable() || PlayerIdList.Count >= CustomRoles.Workhorse.GetCount()) return false;
         if (pc.Is(CustomRoles.Snitch) && !OptionSnitchCanBeWorkhorse.GetBool()) return false;
         if (!IsAssignTarget(pc)) return false;
         if (IRandom.Instance.Next(100) >= SpawnChance.GetInt()) return false;

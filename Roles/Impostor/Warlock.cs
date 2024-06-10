@@ -35,19 +35,19 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(4600, TabGroup.ImpostorRoles, CustomRoles.Warlock);
-            WarlockCanKillAllies = BooleanOptionItem.Create(4610, "CanKillAllies", true, TabGroup.ImpostorRoles)
+            WarlockCanKillAllies = new BooleanOptionItem(4610, "CanKillAllies", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock]);
-            WarlockCanKillSelf = BooleanOptionItem.Create(4611, "CanKillSelf", false, TabGroup.ImpostorRoles)
+            WarlockCanKillSelf = new BooleanOptionItem(4611, "CanKillSelf", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock]);
-            KillCooldown = FloatOptionItem.Create(4613, "KillCooldown", new(0f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
+            KillCooldown = new FloatOptionItem(4613, "KillCooldown", new(0f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
                 .SetValueFormat(OptionFormat.Seconds);
-            CurseCooldown = FloatOptionItem.Create(4614, "CurseCooldown", new(0f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
+            CurseCooldown = new FloatOptionItem(4614, "CurseCooldown", new(0f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
                 .SetValueFormat(OptionFormat.Seconds);
-            FreezeAfterCurseKill = BooleanOptionItem.Create(4615, "FreezeAfterCurseKill", true, TabGroup.ImpostorRoles)
+            FreezeAfterCurseKill = new BooleanOptionItem(4615, "FreezeAfterCurseKill", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock]);
-            FreezeDurationAfterCurseKill = FloatOptionItem.Create(4616, "FreezeDuration", new(0f, 60f, 1f), 4f, TabGroup.ImpostorRoles)
+            FreezeDurationAfterCurseKill = new FloatOptionItem(4616, "FreezeDuration", new(0f, 60f, 1f), 4f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -112,7 +112,7 @@ namespace EHR.Roles.Impostor
 
             if (KCD > 0f && CurseCD > 0f)
             {
-                _ = new LateTask(() => { warlock.SetKillCooldown(Math.Min(KCD, CurseCD) - 1f); }, 0.1f, log: false);
+                LateTask.New(() => { warlock.SetKillCooldown(Math.Min(KCD, CurseCD) - 1f); }, 0.1f, log: false);
             }
 
             Utils.NotifyRoles(SpecifySeer: warlock, SpecifyTarget: warlock);
@@ -212,7 +212,7 @@ namespace EHR.Roles.Impostor
                                 float speed = Main.AllPlayerSpeed[pc.PlayerId];
                                 Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
                                 pc.MarkDirtySettings();
-                                _ = new LateTask(() =>
+                                LateTask.New(() =>
                                 {
                                     Main.AllPlayerSpeed[pc.PlayerId] = speed;
                                     pc.MarkDirtySettings();
@@ -220,7 +220,7 @@ namespace EHR.Roles.Impostor
                             }
                         }
 
-                        if (!UsePets.GetBool()) _ = new LateTask(() => { pc.RpcShapeshift(pc, false); }, 1.5f, "Warlock RpcRevertShapeshift");
+                        if (!UsePets.GetBool()) LateTask.New(() => { pc.RpcShapeshift(pc, false); }, 1.5f, "Warlock RpcRevertShapeshift");
                     }
                     else
                     {

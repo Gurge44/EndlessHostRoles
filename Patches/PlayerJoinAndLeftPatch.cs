@@ -45,7 +45,7 @@ class OnGameJoinedPatch
             if (AURoleOptions.ShapeshifterCooldown == 0f)
                 AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode, PlayerControl.LocalPlayer.GetClient().GetHashedPuid()) && GameStates.IsOnlineGame)
                 {
@@ -218,7 +218,7 @@ class OnPlayerLeftPatch
                     break;
                 case DisconnectReasons.Error:
                     Logger.SendInGame(string.Format(GetString("PlayerLeftByError"), data?.PlayerName));
-                    _ = new LateTask(() =>
+                    LateTask.New(() =>
                     {
                         CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Error);
                         GameManager.Instance.enabled = false;
@@ -280,7 +280,7 @@ class CreatePlayerPatch
 
         if (!name.Equals(client.PlayerName))
         {
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 if (client.Character == null) return;
                 Logger.Warn($"Standard nickname：{client.PlayerName} => {name}", "Name Format");
@@ -288,7 +288,7 @@ class CreatePlayerPatch
             }, 1f, "Name Format");
         }
 
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             if (client.Character == null || !GameStates.IsLobby) return;
             OptionItem.SyncAllOptions(client.Id);
@@ -296,7 +296,7 @@ class CreatePlayerPatch
 
         Main.GuessNumber[client.Character.PlayerId] = [-1, 7];
 
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             if (client.Character == null) return;
             if (Main.OverrideWelcomeMsg != string.Empty) Utils.SendMessage(Main.OverrideWelcomeMsg, client.Character.PlayerId);
@@ -306,7 +306,7 @@ class CreatePlayerPatch
         {
             if (Options.AutoDisplayKillLog.GetBool())
             {
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
                     {
@@ -318,7 +318,7 @@ class CreatePlayerPatch
 
             if (Options.AutoDisplayLastAddOns.GetBool())
             {
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
                     {
@@ -330,7 +330,7 @@ class CreatePlayerPatch
 
             if (Options.AutoDisplayLastRoles.GetBool())
             {
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
                     {
@@ -342,7 +342,7 @@ class CreatePlayerPatch
 
             if (Options.AutoDisplayLastResult.GetBool())
             {
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
                     {
@@ -354,7 +354,7 @@ class CreatePlayerPatch
 
             if (PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp && Options.EnableUpMode.GetBool())
             {
-                _ = new LateTask(() =>
+                LateTask.New(() =>
                 {
                     if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
                     {

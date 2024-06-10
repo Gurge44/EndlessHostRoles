@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -19,7 +20,7 @@ namespace EHR.Roles.Neutral
         [
             "UndeadCountMode.None",
             "UndeadCountMode.Necromancer",
-            "UndeadCountMode.Original",
+            "UndeadCountMode.Original"
         ];
 
         public static readonly List<byte> PartiallyRecruitedIds = [];
@@ -30,15 +31,15 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Necromancer);
-            CD = FloatOptionItem.Create(Id + 2, "NecromancerCD", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
+            CD = new FloatOptionItem(Id + 2, "NecromancerCD", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer])
                 .SetValueFormat(OptionFormat.Seconds);
-            DKCD = FloatOptionItem.Create(Id + 10, "DKCD", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles)
+            DKCD = new FloatOptionItem(Id + 10, "DKCD", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer])
                 .SetValueFormat(OptionFormat.Seconds);
-            KnowTargetRole = BooleanOptionItem.Create(Id + 13, "NecromancerKnowTargetRole", true, TabGroup.NeutralRoles)
+            KnowTargetRole = new BooleanOptionItem(Id + 13, "NecromancerKnowTargetRole", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer]);
-            UndeadCountMode = StringOptionItem.Create(Id + 15, "UndeadCountMode", UndeadCountModeStrings, 0, TabGroup.NeutralRoles)
+            UndeadCountMode = new StringOptionItem(Id + 15, "UndeadCountMode", UndeadCountModeStrings, 0, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer]);
         }
 
@@ -153,6 +154,7 @@ namespace EHR.Roles.Neutral
         {
             DeathknightId = playerId;
             Deathknight_ = Utils.GetPlayerById(playerId);
+            if (!UsePets.GetBool()) Deathknight_.ChangeRoleBasis(RoleTypes.Impostor);
 
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))

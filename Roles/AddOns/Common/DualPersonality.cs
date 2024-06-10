@@ -8,12 +8,8 @@ namespace EHR.Roles.AddOns.Common
 
         public void SetupCustomOption()
         {
-            SetupAdtRoleOptions(14700, CustomRoles.DualPersonality, canSetNum: true);
-            ImpCanBeDualPersonality = BooleanOptionItem.Create(14710, "ImpCanBeDualPersonality", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.DualPersonality]);
-            CrewCanBeDualPersonality = BooleanOptionItem.Create(14711, "CrewCanBeDualPersonality", true, TabGroup.Addons)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.DualPersonality]);
-            DualVotes = BooleanOptionItem.Create(14712, "DualVotes", true, TabGroup.Addons)
+            SetupAdtRoleOptions(14700, CustomRoles.DualPersonality, canSetNum: true, teamSpawnOptions: true);
+            DualVotes = new BooleanOptionItem(14712, "DualVotes", true, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.DualPersonality]);
         }
     }

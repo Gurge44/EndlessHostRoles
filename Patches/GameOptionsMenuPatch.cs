@@ -37,7 +37,7 @@ public static class GameOptionsMenuPatch
 {
     public static void Postfix(GameOptionsMenu __instance)
     {
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             foreach (OptionBehaviour ob in __instance.Children)
             {
@@ -45,20 +45,24 @@ public static class GameOptionsMenuPatch
                 {
                     case StringNames.GameVotingTime:
                         ob.Cast<NumberOption>().ValidRange = new(0, 600);
+                        ob.Cast<NumberOption>().Value = (float)Math.Round(ob.Cast<NumberOption>().Value, 2);
                         break;
                     case StringNames.GameShortTasks:
                     case StringNames.GameLongTasks:
                     case StringNames.GameCommonTasks:
                         ob.Cast<NumberOption>().ValidRange = new(0, 90);
+                        ob.Cast<NumberOption>().Value = (float)Math.Round(ob.Cast<NumberOption>().Value, 2);
                         break;
                     case StringNames.GameKillCooldown:
                         ob.Cast<NumberOption>().ValidRange = new(0, 180);
                         ob.Cast<NumberOption>().Increment = 0.5f;
+                        ob.Cast<NumberOption>().Value = (float)Math.Round(ob.Cast<NumberOption>().Value, 2);
                         break;
                     case StringNames.GamePlayerSpeed:
                     case StringNames.GameCrewLight:
                     case StringNames.GameImpostorLight:
                         ob.Cast<NumberOption>().Increment = 0.05f;
+                        ob.Cast<NumberOption>().Value = (float)Math.Round(ob.Cast<NumberOption>().Value, 2);
                         break;
                 }
             }
@@ -111,7 +115,7 @@ public static class GameOptionsMenuPatch
 
             var scOptions = new System.Collections.Generic.List<OptionBehaviour>();
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 tohMenu.GetComponentsInChildren<OptionBehaviour>().Do(x => Object.Destroy(x.gameObject));
 
@@ -133,12 +137,20 @@ public static class GameOptionsMenuPatch
                         bg.localScale = new(1.6f, 1f, 1f);
                         if (Main.DarkTheme.Value) bg.GetComponent<SpriteRenderer>().color = new(0f, 0f, 0f, 1f);
 
-                        stringOption.transform.FindChild("Plus_TMP").localPosition += new Vector3(1.4f, yoffset, 0f);
-                        stringOption.transform.FindChild("Minus_TMP").localPosition += new Vector3(1.0f, yoffset, 0f);
+                        var plus = stringOption.transform.FindChild("Plus_TMP");
+                        var minus = stringOption.transform.FindChild("Minus_TMP");
+                        plus.localPosition += new Vector3(1.4f, yoffset, 0f);
+                        minus.localPosition += new Vector3(1.0f, yoffset, 0f);
+                        if (option.IsText)
+                        {
+                            plus.gameObject.SetActive(false);
+                            minus.gameObject.SetActive(false);
+                        }
 
                         var valueTMP = stringOption.transform.FindChild("Value_TMP");
                         valueTMP.localPosition += new Vector3(1.2f, yoffset, 0f);
                         valueTMP.GetComponent<RectTransform>().sizeDelta = new(1.6f, 0.26f);
+                        if (option.IsText) valueTMP.gameObject.SetActive(false);
 
                         var titleTMP = stringOption.transform.FindChild("Title_TMP");
                         titleTMP.localPosition += new Vector3(option.IsText ? 0.25f : 0.1f, option.IsText ? -0.1f : 0f, 0f);
@@ -210,7 +222,7 @@ public class GameOptionsMenuUpdatePatch
                 TabGroup.NeutralRoles => "#ffab1b",
                 TabGroup.Addons => "#ff9ace",
                 TabGroup.OtherRoles => "#76b8e0",
-                _ => "#ffffff",
+                _ => "#ffffff"
             };
             if (__instance.transform.parent.parent.name != tab + "Tab") continue;
             __instance.transform.FindChild("../../GameGroup/Text").GetComponent<TextMeshPro>().SetText($"<color={tabcolor}>" + GetString("TabGroup." + tab) + "</color>");
@@ -301,11 +313,11 @@ public class StringOptionEnablePatch
         __instance.OnValueChanged = new Action<OptionBehaviour>(_ => { });
         __instance.TitleText.text = option.GetName();
         if (option.Id == Options.UsePets.Id) LoadLangs();
-        else if (!Options.UsePets.GetBool() && CustomRolesHelper.OnlySpawnsWithPetsRoleList.Any(role => role.ToString().Equals(option.GetName().RemoveHtmlTags().Replace(" ", string.Empty))))
+        else if (!Options.UsePets.GetBool() && CustomRolesHelper.OnlySpawnsWithPetsRoleList.Any(role => GetString(role.ToString()).RemoveHtmlTags().Equals(option.GetName().RemoveHtmlTags())))
             __instance.TitleText.text += GetString("RequiresPetIndicator");
-        else if (Options.UsePets.GetBool() && Enum.TryParse(option.GetName().RemoveHtmlTags().Replace(" ", string.Empty), true, out CustomRoles petRole) && petRole.PetActivatedAbility())
+        else if (Options.UsePets.GetBool() && Enum.TryParse(option.Name, true, out CustomRoles petRole) && petRole.PetActivatedAbility())
             __instance.TitleText.text += GetString("SupportsPetIndicator");
-        if (CustomRolesHelper.ExperimentalRoleList.Any(role => role.ToString().Equals(option.GetName().RemoveHtmlTags().Replace(" ", string.Empty))))
+        if (CustomRolesHelper.ExperimentalRoleList.Any(role => GetString(role.ToString()).RemoveHtmlTags().Equals(option.GetName().RemoveHtmlTags())))
             __instance.TitleText.text += GetString("ExperimentalRoleIndicator");
         __instance.Value = __instance.oldValue = option.CurrentValue;
         __instance.ValueText.text = option.GetString();
@@ -322,7 +334,7 @@ public class StringOptionIncreasePatch
         var option = OptionItem.AllOptions.FirstOrDefault(opt => opt.OptionBehaviour == __instance);
         if (option == null) return true;
 
-        option.SetValue(option.CurrentValue + (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) ? 5 : 1));
+        option.SetValue(option.CurrentValue + (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) ? 5 : (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) ? 10 : 1)));
         return false;
     }
 
@@ -337,7 +349,7 @@ public class StringOptionDecreasePatch
         var option = OptionItem.AllOptions.FirstOrDefault(opt => opt.OptionBehaviour == __instance);
         if (option == null) return true;
 
-        option.SetValue(option.CurrentValue - (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) ? 5 : 1));
+        option.SetValue(option.CurrentValue - (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift) ? 5 : (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl) ? 10 : 1)));
         return false;
     }
 

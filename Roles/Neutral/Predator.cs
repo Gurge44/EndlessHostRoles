@@ -25,16 +25,16 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Predator);
-            NumOfRolesToKill = IntegerOptionItem.Create(Id + 2, "NumOfRolesToKill", new(1, 10, 1), 3, TabGroup.NeutralRoles)
+            NumOfRolesToKill = new IntegerOptionItem(Id + 2, "NumOfRolesToKill", new(1, 10, 1), 3, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator]);
-            MaxImpRolePicks = IntegerOptionItem.Create(Id + 3, "MaxImpRolePicks", new(1, 10, 1), 1, TabGroup.NeutralRoles)
+            MaxImpRolePicks = new IntegerOptionItem(Id + 3, "MaxImpRolePicks", new(1, 10, 1), 1, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator]);
-            KillCooldown = FloatOptionItem.Create(Id + 4, "KillCooldown", new(0f, 180f, 0.5f), 15f, TabGroup.NeutralRoles)
+            KillCooldown = new FloatOptionItem(Id + 4, "KillCooldown", new(0f, 180f, 0.5f), 15f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator])
                 .SetValueFormat(OptionFormat.Seconds);
-            CanVent = BooleanOptionItem.Create(Id + 5, "CanVent", true, TabGroup.NeutralRoles)
+            CanVent = new BooleanOptionItem(Id + 5, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator]);
-            HasImpVision = BooleanOptionItem.Create(Id + 6, "ImpostorVision", false, TabGroup.NeutralRoles)
+            HasImpVision = new BooleanOptionItem(Id + 6, "ImpostorVision", false, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator]);
         }
 
@@ -43,7 +43,7 @@ namespace EHR.Roles.Neutral
             On = true;
             IsWon = false;
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 RolesToKill = [];
 

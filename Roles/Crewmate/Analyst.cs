@@ -25,33 +25,33 @@ namespace EHR.Roles.Crewmate
         public static Dictionary<byte, int> VentCount = [];
         public (byte ID, long TIME) CurrentTarget = (byte.MaxValue, Utils.TimeStamp);
 
+        public override bool IsEnable => playerId != byte.MaxValue;
+
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Analyst);
-            UseLimitOpt = IntegerOptionItem.Create(Id + 10, "AbilityUseLimit", new(0, 30, 1), 3, TabGroup.CrewmateRoles)
+            UseLimitOpt = new IntegerOptionItem(Id + 10, "AbilityUseLimit", new(0, 30, 1), 3, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyst])
                 .SetValueFormat(OptionFormat.Times);
-            CD = FloatOptionItem.Create(Id + 11, "AnalyzeCD", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles)
+            CD = new FloatOptionItem(Id + 11, "AnalyzeCD", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyst])
                 .SetValueFormat(OptionFormat.Seconds);
             CD.ReplacementDictionary = ReplacementDict;
-            Duration = IntegerOptionItem.Create(Id + 12, "AnalyzeDur", new(1, 30, 1), 5, TabGroup.CrewmateRoles)
+            Duration = new IntegerOptionItem(Id + 12, "AnalyzeDur", new(1, 30, 1), 5, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyst])
                 .SetValueFormat(OptionFormat.Seconds);
             Duration.ReplacementDictionary = ReplacementDict;
-            SeeKillCount = BooleanOptionItem.Create(Id + 13, "AnalyzerSeeKillCount", true, TabGroup.CrewmateRoles)
+            SeeKillCount = new BooleanOptionItem(Id + 13, "AnalyzerSeeKillCount", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyst]);
-            SeeVentCount = BooleanOptionItem.Create(Id + 14, "AnalyzerSeeVentCount", true, TabGroup.CrewmateRoles)
+            SeeVentCount = new BooleanOptionItem(Id + 14, "AnalyzerSeeVentCount", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyst]);
-            SeeRoleBasis = BooleanOptionItem.Create(Id + 15, "AnalyzerSeeRoleBasis", true, TabGroup.CrewmateRoles)
+            SeeRoleBasis = new BooleanOptionItem(Id + 15, "AnalyzerSeeRoleBasis", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyst]);
             UsePet = CreatePetUseSetting(Id + 16, CustomRoles.Analyst);
         }
 
         public override bool CanUseKillButton(PlayerControl pc) => CurrentTarget.ID == byte.MaxValue && pc.GetAbilityUseLimit() > 0;
         public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(false);
-
-        public override bool IsEnable => playerId != byte.MaxValue;
 
         private static string GetRoleBasis(CustomRoles role) =>
             SeeRoleBasis.GetBool()

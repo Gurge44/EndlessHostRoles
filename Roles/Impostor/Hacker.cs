@@ -21,11 +21,11 @@ public class Hacker : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Hacker);
-        KillCooldown = FloatOptionItem.Create(Id + 2, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
+        KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Seconds);
-        HackLimitOpt = IntegerOptionItem.Create(Id + 3, "HackLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
+        HackLimitOpt = new IntegerOptionItem(Id + 3, "HackLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Times);
-        HackerAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 4, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.2f, TabGroup.ImpostorRoles)
+        HackerAbilityUseGainWithEachKill = new FloatOptionItem(Id + 4, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.2f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Times);
     }
@@ -74,7 +74,6 @@ public class Hacker : RoleBase
 
         var targetId = byte.MaxValue;
 
-        // 寻找骇客击杀的尸体
         foreach (byte db in DeadBodyList.ToArray())
         {
             var dp = Utils.GetPlayerById(db);
@@ -82,11 +81,11 @@ public class Hacker : RoleBase
             if (dp.GetRealKiller().PlayerId == pc.PlayerId) targetId = db;
         }
 
-        // 未找到骇客击杀的尸体，寻找其他尸体
         if (targetId == byte.MaxValue && DeadBodyList.Count > 0)
             targetId = DeadBodyList.RandomElement();
 
-        _ = targetId == byte.MaxValue ? new(() => ssTarget.NoCheckStartMeeting(ssTarget.Data), 0.15f, "Hacker Hacking Report Self") : new LateTask(() => ssTarget.NoCheckStartMeeting(Utils.GetPlayerById(targetId)?.Data), 0.15f, "Hacker Hacking Report");
+        if (targetId == byte.MaxValue) LateTask.New(() => ssTarget.NoCheckStartMeeting(ssTarget.Data), 0.15f, "Hacker Hacking Report Self");
+        else LateTask.New(() => ssTarget.NoCheckStartMeeting(Utils.GetPlayerById(targetId)?.Data), 0.15f, "Hacker Hacking Report");
 
         return false;
     }

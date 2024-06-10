@@ -79,13 +79,13 @@ namespace EHR.Roles.Crewmate
 
         static void HideObject(Resource resource) => CustomNetObject.AllObjects.Values.FirstOrDefault(x => x is AdventurerItem a && a.Resource == resource)?.Despawn();
 
-        static OptionItem CreateWeaponEnabledSetting(int id, Weapon weapon) => BooleanOptionItem.Create(id, $"AdventurerWeaponEnabled.{weapon}", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adventurer]);
+        static OptionItem CreateWeaponEnabledSetting(int id, Weapon weapon) => new BooleanOptionItem(id, $"AdventurerWeaponEnabled.{weapon}", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adventurer]);
 
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(11330, TabGroup.CrewmateRoles, CustomRoles.Adventurer);
 
-            IncreasedVisionDuration = IntegerOptionItem.Create(11332, "AdventurerIncreasedVisionDuration", new(1, 60, 1), 30, TabGroup.CrewmateRoles)
+            IncreasedVisionDuration = new IntegerOptionItem(11332, "AdventurerIncreasedVisionDuration", new(1, 60, 1), 30, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adventurer])
                 .SetValueFormat(OptionFormat.Seconds);
 
@@ -189,7 +189,7 @@ namespace EHR.Roles.Crewmate
                             break;
                         case Weapon.Lantern:
                             Utils.MarkEveryoneDirtySettings();
-                            _ = new LateTask(() => { ActiveWeapons.Remove(Weapon.Lantern); }, IncreasedVisionDuration.GetInt(), log: false);
+                            LateTask.New(() => { ActiveWeapons.Remove(Weapon.Lantern); }, IncreasedVisionDuration.GetInt(), log: false);
                             break;
                         case Weapon.Wrench:
                             if (Utils.IsActive(SystemTypes.Electrical))

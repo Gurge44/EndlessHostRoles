@@ -5,17 +5,17 @@ namespace EHR.Roles.Impostor
 {
     internal class Saboteur : RoleBase
     {
-        private byte SaboteurId;
         public static bool On;
+        private byte SaboteurId;
         public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
             SetupRoleOptions(10005, TabGroup.ImpostorRoles, CustomRoles.Saboteur);
-            SaboteurCD = FloatOptionItem.Create(10015, "KillCooldown", new(0f, 180f, 2.5f), 17.5f, TabGroup.ImpostorRoles)
+            SaboteurCD = new FloatOptionItem(10015, "KillCooldown", new(0f, 180f, 2.5f), 17.5f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Saboteur])
                 .SetValueFormat(OptionFormat.Seconds);
-            SaboteurCDAfterMeetings = FloatOptionItem.Create(10016, "AfterMeetingKillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
+            SaboteurCDAfterMeetings = new FloatOptionItem(10016, "AfterMeetingKillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Saboteur])
                 .SetValueFormat(OptionFormat.Seconds);
         }

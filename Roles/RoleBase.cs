@@ -171,7 +171,8 @@ namespace EHR
 
         public virtual bool KnowRole(PlayerControl seer, PlayerControl target)
         {
-            return seer.GetCustomRole() == target.GetCustomRole() && seer.GetTeam() == target.GetTeam();
+            var seerRole = seer.GetCustomRole();
+            return seerRole.IsNK() && seerRole == target.GetCustomRole() && seer.GetTeam() == target.GetTeam();
         }
     }
 }

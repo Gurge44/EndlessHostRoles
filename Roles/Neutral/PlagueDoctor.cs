@@ -39,22 +39,22 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.PlagueDoctor);
-            OptionInfectLimit = IntegerOptionItem.Create(Id + 10, "PlagueDoctorInfectLimit", new(1, 3, 1), 1, TabGroup.NeutralRoles)
+            OptionInfectLimit = new IntegerOptionItem(Id + 10, "PlagueDoctorInfectLimit", new(1, 3, 1), 1, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor])
                 .SetValueFormat(OptionFormat.Times);
-            OptionInfectWhenKilled = BooleanOptionItem.Create(Id + 11, "PlagueDoctorInfectWhenKilled", false, TabGroup.NeutralRoles)
+            OptionInfectWhenKilled = new BooleanOptionItem(Id + 11, "PlagueDoctorInfectWhenKilled", false, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor]);
-            OptionInfectTime = FloatOptionItem.Create(Id + 12, "PlagueDoctorInfectTime", new(3f, 20f, 1f), 8f, TabGroup.NeutralRoles)
+            OptionInfectTime = new FloatOptionItem(Id + 12, "PlagueDoctorInfectTime", new(3f, 20f, 1f), 8f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor])
                 .SetValueFormat(OptionFormat.Seconds);
-            OptionInfectDistance = FloatOptionItem.Create(Id + 13, "PlagueDoctorInfectDistance", new(0.5f, 2f, 0.25f), 1.5f, TabGroup.NeutralRoles)
+            OptionInfectDistance = new FloatOptionItem(Id + 13, "PlagueDoctorInfectDistance", new(0.5f, 2f, 0.25f), 1.5f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor]);
-            OptionInfectInactiveTime = FloatOptionItem.Create(Id + 14, "PlagueDoctorInfectInactiveTime", new(0.5f, 10f, 0.5f), 5f, TabGroup.NeutralRoles)
+            OptionInfectInactiveTime = new FloatOptionItem(Id + 14, "PlagueDoctorInfectInactiveTime", new(0.5f, 10f, 0.5f), 5f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor])
                 .SetValueFormat(OptionFormat.Seconds);
-            OptionInfectCanInfectSelf = BooleanOptionItem.Create(Id + 15, "PlagueDoctorCanInfectSelf", false, TabGroup.NeutralRoles)
+            OptionInfectCanInfectSelf = new BooleanOptionItem(Id + 15, "PlagueDoctorCanInfectSelf", false, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor]);
-            OptionInfectCanInfectVent = BooleanOptionItem.Create(Id + 16, "PlagueDoctorCanInfectVent", false, TabGroup.NeutralRoles)
+            OptionInfectCanInfectVent = new BooleanOptionItem(Id + 16, "PlagueDoctorCanInfectVent", false, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.PlagueDoctor]);
         }
 
@@ -223,7 +223,7 @@ namespace EHR.Roles.Neutral
             // You may win if a non-infected person is hanged.
             LateCheckWin = true;
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
                 {
                     Logger.Info("Infect Active", "PlagueDoctor");
                     InfectActive = true;
@@ -272,7 +272,7 @@ namespace EHR.Roles.Neutral
                 < 50 => "\u2581",
                 >= 50 and < 100 => "\u2584",
                 >= 100 => "\u2588",
-                _ => string.Empty,
+                _ => string.Empty
             };
         }
 

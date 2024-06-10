@@ -23,19 +23,19 @@ namespace EHR
 
         public static void SetupCustomOption()
         {
-            Time = IntegerOptionItem.Create(69_213_001, "HotPotato_Time", new(1, 90, 1), 20, TabGroup.GameSettings)
+            Time = new IntegerOptionItem(69_213_001, "HotPotato_Time", new(1, 90, 1), 20, TabGroup.GameSettings)
                 .SetHeader(true)
                 .SetGameMode(CustomGameMode.HotPotato)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new Color32(232, 205, 70, byte.MaxValue));
-            HolderSpeed = FloatOptionItem.Create(69_213_002, "HotPotato_HolderSpeed", new(0.1f, 5f, 0.1f), 1.5f, TabGroup.GameSettings)
+            HolderSpeed = new FloatOptionItem(69_213_002, "HotPotato_HolderSpeed", new(0.1f, 5f, 0.1f), 1.5f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HotPotato)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new Color32(232, 205, 70, byte.MaxValue));
-            Chat = BooleanOptionItem.Create(69_213_003, "FFA_ChatDuringGame", false, TabGroup.GameSettings)
+            Chat = new BooleanOptionItem(69_213_003, "FFA_ChatDuringGame", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HotPotato)
                 .SetColor(new Color32(232, 205, 70, byte.MaxValue));
-            Range = FloatOptionItem.Create(69_213_004, "HotPotato_Range", new(0.25f, 5f, 0.25f), 1f, TabGroup.GameSettings)
+            Range = new FloatOptionItem(69_213_004, "HotPotato_Range", new(0.25f, 5f, 0.25f), 1f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HotPotato)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new Color32(232, 205, 70, byte.MaxValue));
@@ -54,7 +54,7 @@ namespace EHR
 
         public static void OnGameStart()
         {
-            _ = new LateTask(() => { FixedUpdatePatch.Return = false; }, 7f, log: false);
+            LateTask.New(() => { FixedUpdatePatch.Return = false; }, 7f, log: false);
             HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 5, 1);
         }
 
@@ -96,13 +96,14 @@ namespace EHR
                     return;
                 }
 
-                if (HotPotatoState.HolderID != __instance.PlayerId || !Main.AllAlivePlayerControls.Any(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || Main.AllAlivePlayerControls.Length == 2) && Vector2.Distance(x.Pos(), Holder.Pos()) <= Range.GetFloat())) return;
+                PlayerControl[] aapc = Main.AllAlivePlayerControls;
+                if (HotPotatoState.HolderID != __instance.PlayerId || !aapc.Any(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || aapc.Length == 2) && Vector2.Distance(x.Pos(), Holder.Pos()) <= Range.GetFloat())) return;
 
                 UpdateDelay += UnityEngine.Time.fixedDeltaTime;
                 if (UpdateDelay < 0.3f) return;
                 UpdateDelay = 0;
 
-                var Target = Main.AllAlivePlayerControls.OrderBy(x => Vector2.Distance(x.Pos(), Holder.Pos())).FirstOrDefault(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || Main.AllAlivePlayerControls.Length == 2));
+                var Target = aapc.OrderBy(x => Vector2.Distance(x.Pos(), Holder.Pos())).FirstOrDefault(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || aapc.Length == 2));
                 if (Target == null) return;
 
                 PassHotPotato(Target, resetTime: false);
@@ -134,9 +135,9 @@ namespace EHR
                         Main.AllPlayerSpeed[HotPotatoState.LastHolderID] = DefaultSpeed;
                         LastHolder.MarkDirtySettings();
                         Utils.NotifyRoles(SpecifyTarget: LastHolder);
-                    }
 
-                    Logger.Info($"Hot Potato Passed: {LastHolder.GetRealName()} => {target.GetRealName()}", "HotPotato");
+                        Logger.Info($"Hot Potato Passed: {LastHolder.GetRealName()} => {target.GetRealName()}", "HotPotato");
+                    }
                 }
                 catch (Exception ex)
                 {

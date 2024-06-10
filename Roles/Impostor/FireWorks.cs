@@ -23,14 +23,15 @@ public class FireWorks : RoleBase
     }
 
     private const int Id = 2800;
-    private static OptionItem FireWorksCount;
-    private static OptionItem FireWorksRadius;
-    public static OptionItem CanKill;
-    public static OptionItem CanIgniteBeforePlacingAllFireworks;
+    private static OptionItem FireWorksCountOpt;
+    private static OptionItem FireWorksRadiusOpt;
+    private static OptionItem CanKill;
+    private static OptionItem KillCooldown;
+    private static OptionItem CanIgniteBeforePlacingAllFireworks;
 
     public static bool On;
-    private static int fireWorksCount = 1;
-    private static float fireWorksRadius = 1;
+    private static int FireWorksCount = 1;
+    private static float FireWorksRadius = 1;
     private List<Vector3> fireWorksPosition = [];
 
     public int nowFireWorksCount;
@@ -41,12 +42,19 @@ public class FireWorks : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.FireWorks);
-        FireWorksCount = IntegerOptionItem.Create(Id + 10, "FireWorksMaxCount", new(1, 10, 1), 3, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks])
+        FireWorksCountOpt = new IntegerOptionItem(Id + 10, "FireWorksMaxCount", new(1, 10, 1), 3, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks])
             .SetValueFormat(OptionFormat.Pieces);
-        FireWorksRadius = FloatOptionItem.Create(Id + 11, "FireWorksRadius", new(0.5f, 5f, 0.5f), 2f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks])
+        FireWorksRadiusOpt = new FloatOptionItem(Id + 11, "FireWorksRadius", new(0.5f, 5f, 0.5f), 2f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks])
             .SetValueFormat(OptionFormat.Multiplier);
-        CanKill = BooleanOptionItem.Create(Id + 12, "CanKill", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks]);
-        CanIgniteBeforePlacingAllFireworks = BooleanOptionItem.Create(Id + 13, "CanIgniteBeforePlacingAllFireworks", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks]);
+        CanKill = new BooleanOptionItem(Id + 12, "CanKill", false, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks]);
+        KillCooldown = new FloatOptionItem(Id + 13, "KillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks])
+            .SetValueFormat(OptionFormat.Seconds);
+        CanIgniteBeforePlacingAllFireworks = new BooleanOptionItem(Id + 14, "CanIgniteBeforePlacingAllFireworks", false, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks]);
     }
 
     public override void Init()
@@ -60,11 +68,16 @@ public class FireWorks : RoleBase
     public override void Add(byte playerId)
     {
         On = true;
-        fireWorksCount = FireWorksCount.GetInt();
-        fireWorksRadius = FireWorksRadius.GetFloat();
-        nowFireWorksCount = fireWorksCount;
+        FireWorksCount = FireWorksCountOpt.GetInt();
+        FireWorksRadius = FireWorksRadiusOpt.GetFloat();
+        nowFireWorksCount = FireWorksCount;
         fireWorksPosition = [];
         state = FireWorksState.Initial;
+    }
+
+    public override void SetKillCooldown(byte id)
+    {
+        Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     }
 
     void SendRPC(byte playerId)
@@ -132,7 +145,7 @@ public class FireWorks : RoleBase
                     foreach (Vector3 pos in fireWorksPosition)
                     {
                         var dis = Vector2.Distance(pos, target.transform.position);
-                        if (dis > fireWorksRadius) continue;
+                        if (dis > FireWorksRadius) continue;
 
                         if (target == pc)
                         {

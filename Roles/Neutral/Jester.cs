@@ -18,19 +18,19 @@ namespace EHR.Roles.Neutral
         public static void SetupCustomOption()
         {
             SetupRoleOptions(10900, TabGroup.NeutralRoles, CustomRoles.Jester);
-            JesterCanUseButton = BooleanOptionItem.Create(10910, "JesterCanUseButton", false, TabGroup.NeutralRoles)
+            JesterCanUseButton = new BooleanOptionItem(10910, "JesterCanUseButton", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Jester]);
-            JesterCanVent = BooleanOptionItem.Create(10911, "CanVent", false, TabGroup.NeutralRoles)
+            JesterCanVent = new BooleanOptionItem(10911, "CanVent", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Jester]);
-            JesterHasImpostorVision = BooleanOptionItem.Create(10912, "ImpostorVision", false, TabGroup.NeutralRoles)
+            JesterHasImpostorVision = new BooleanOptionItem(10912, "ImpostorVision", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Jester]);
-            VentCooldown = FloatOptionItem.Create(10913, "VentCooldown", new(0f, 60f, 0.5f), 0f, TabGroup.NeutralRoles)
+            VentCooldown = new FloatOptionItem(10913, "VentCooldown", new(0f, 60f, 0.5f), 0f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Jester])
                 .SetValueFormat(OptionFormat.Seconds);
-            MaxInVentTime = FloatOptionItem.Create(10914, "MaxInVentTime", new(0f, 900f, 0.5f), 900f, TabGroup.NeutralRoles)
+            MaxInVentTime = new FloatOptionItem(10914, "MaxInVentTime", new(0f, 900f, 0.5f), 900f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Jester])
                 .SetValueFormat(OptionFormat.Seconds);
-            SunnyboyChance = IntegerOptionItem.Create(10915, "SunnyboyChance", new(0, 100, 5), 0, TabGroup.NeutralRoles)
+            SunnyboyChance = new IntegerOptionItem(10915, "SunnyboyChance", new(0, 100, 5), 0, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Jester])
                 .SetValueFormat(OptionFormat.Percent);
         }

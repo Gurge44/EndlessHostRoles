@@ -7,27 +7,29 @@ namespace EHR.Roles.Impostor
 {
     internal class Kamikaze : RoleBase
     {
-        private static int Id => 643310;
         private static List<byte> PlayerIdList = [];
         public static bool On;
-
-        public List<byte> MarkedPlayers = [];
-        private byte KamikazeId;
 
         private static OptionItem MarkCD;
         private static OptionItem KamikazeLimitOpt;
         public static OptionItem KamikazeAbilityUseGainWithEachKill;
+        private byte KamikazeId;
+
+        public List<byte> MarkedPlayers = [];
+        private static int Id => 643310;
+
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Kamikaze);
-            MarkCD = FloatOptionItem.Create(Id + 2, "KamikazeMarkCD", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+            MarkCD = new FloatOptionItem(Id + 2, "KamikazeMarkCD", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Kamikaze])
                 .SetValueFormat(OptionFormat.Seconds);
-            KamikazeLimitOpt = IntegerOptionItem.Create(Id + 3, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles)
+            KamikazeLimitOpt = new IntegerOptionItem(Id + 3, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Kamikaze])
                 .SetValueFormat(OptionFormat.Times);
-            KamikazeAbilityUseGainWithEachKill = FloatOptionItem.Create(Id + 4, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles)
+            KamikazeAbilityUseGainWithEachKill = new FloatOptionItem(Id + 4, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Kamikaze])
                 .SetValueFormat(OptionFormat.Times);
         }
@@ -48,8 +50,6 @@ namespace EHR.Roles.Impostor
             On = true;
             KamikazeId = playerId;
         }
-
-        public override bool IsEnable => On;
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
@@ -72,7 +72,13 @@ namespace EHR.Roles.Impostor
                 if (Main.PlayerStates[kkId].Role is Kamikaze { IsEnable: true } kk)
                 {
                     var kamikazePc = GetPlayerById(kk.KamikazeId);
-                    if (kamikazePc.IsAlive()) continue;
+                    if (kamikazePc == null)
+                    {
+                        LateTask.New(() => PlayerIdList.Remove(kkId), 0.001f, log: false);
+                        continue;
+                    }
+                    
+                    if (kamikazePc.IsAlive() || kk.MarkedPlayers.Count == 0) continue;
 
                     foreach (var id in kk.MarkedPlayers)
                     {

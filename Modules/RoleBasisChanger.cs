@@ -62,7 +62,7 @@ namespace EHR.Modules
             newplayer.ReactorFlash(0.2f);
             newplayer.TP(position);
 
-            _ = new LateTask(() => { IsChangeInProgress = false; }, 5f, log: false);
+            LateTask.New(() => { IsChangeInProgress = false; }, 5f, log: false);
         }
 
         [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.Spawn))]

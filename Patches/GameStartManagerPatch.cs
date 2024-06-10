@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using EHR.Roles.Neutral;
 using HarmonyLib;
 using InnerNet;
@@ -29,11 +30,10 @@ public static class GameStartManagerUpdatePatch
     }
 }
 
-//タイマーとコード隠し
 public class GameStartManagerPatch
 {
     private static SpriteRenderer cancelButton;
-    private static float timer = 600f;
+    public static float Timer { get; private set; } = 600f;
 
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Start))]
     public class GameStartManagerStartPatch
@@ -48,7 +48,7 @@ public class GameStartManagerPatch
 
                 __instance.GameRoomNameCode.text = GameCode.IntToGameName(AmongUsClient.Instance.GameId);
                 // Reset lobby countdown timer
-                timer = 600f;
+                Timer = 600f;
 
                 HideName = Object.Instantiate(__instance.GameRoomNameCode, __instance.GameRoomNameCode.transform);
                 HideName.text = ColorUtility.TryParseHtmlString(Main.HideColor.Value, out _)
@@ -143,11 +143,11 @@ public class GameStartManagerPatch
                     if (Main.UpdateTime >= 50)
                     {
                         Main.UpdateTime = 0;
-                        if (((GameData.Instance.PlayerCount >= minPlayer && timer <= minWait) || timer <= maxWait) && !GameStates.IsCountDown)
+                        if (((GameData.Instance?.PlayerCount >= minPlayer && Timer <= minWait) || Timer <= maxWait) && !GameStates.IsCountDown)
                         {
-                            var invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId);
+                            var invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).ToArray();
 
-                            if (invalidColor.Any())
+                            if (invalidColor.Length > 0)
                             {
                                 Main.AllPlayerControls
                                     .Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId)
@@ -166,7 +166,7 @@ public class GameStartManagerPatch
 
                             GameStartManager.Instance.startState = GameStartManager.StartingStates.Countdown;
                             GameStartManager.Instance.countDownTimer = Options.AutoStartTimer.GetInt();
-                            __instance.StartButton.gameObject.SetActive(false);
+                            __instance?.StartButton.gameObject.SetActive(false);
                         }
                     }
                 }
@@ -191,12 +191,11 @@ public class GameStartManagerPatch
                 {
                     bool canStartGame = true;
                     List<string> mismatchedPlayerNameList = [];
-                    foreach (var client in AmongUsClient.Instance.allClients.ToArray())
+                    foreach (var client in AmongUsClient.Instance.allClients)
                     {
                         if (client.Character == null) continue;
                         var dummyComponent = client.Character.GetComponent<DummyBehaviour>();
-                        if (dummyComponent != null && dummyComponent.enabled)
-                            continue;
+                        if (dummyComponent != null && dummyComponent.enabled) continue;
                         if (!MatchVersions(client.Character.PlayerId, true))
                         {
                             canStartGame = false;
@@ -246,11 +245,14 @@ public class GameStartManagerPatch
 
                 if (update) currentText = __instance.PlayerCounter.text;
 
-                timer = Mathf.Max(0f, timer -= Time.deltaTime);
-                int minutes = (int)timer / 60;
-                int seconds = (int)timer % 60;
+                Timer = Mathf.Max(0f, Timer -= Time.deltaTime);
+                int minutes = (int)Timer / 60;
+                int seconds = (int)Timer % 60;
                 string suffix = $" ({minutes:00}:{seconds:00})";
-                if (timer <= 60) suffix = Utils.ColorString(Color.red, suffix);
+                if (Timer <= 60) suffix = Utils.ColorString(Color.red, suffix);
+
+                if (Mathf.Approximately(Timer, 60f) && AmongUsClient.Instance.AmHost)
+                    PlayerControl.LocalPlayer.ShowPopUp(GetString("Warning.OneMinuteLeft"));
 
                 __instance.PlayerCounter.text = currentText + suffix;
                 __instance.PlayerCounter.autoSizeTextContainer = true;

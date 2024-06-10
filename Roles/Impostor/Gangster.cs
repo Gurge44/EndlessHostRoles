@@ -16,24 +16,25 @@ public class Gangster : RoleBase
     public static OptionItem JudgeCanBeMadmate;
     public static OptionItem MarshallCanBeMadmate;
     public static OptionItem FarseerCanBeMadmate;
+
+    public override bool IsEnable => playerIdList.Count > 0;
     //public static OptionItem RetributionistCanBeMadmate;
 
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Gangster);
-        KillCooldown = FloatOptionItem.Create(Id + 10, "GangsterRecruitCooldown", new(0f, 60f, 2.5f), 7.5f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster])
+        KillCooldown = new FloatOptionItem(Id + 10, "GangsterRecruitCooldown", new(0f, 60f, 2.5f), 7.5f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster])
             .SetValueFormat(OptionFormat.Seconds);
-        RecruitLimitOpt = IntegerOptionItem.Create(Id + 12, "GangsterRecruitLimit", new(1, 5, 1), 1, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster])
+        RecruitLimitOpt = new IntegerOptionItem(Id + 12, "GangsterRecruitLimit", new(1, 5, 1), 1, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster])
             .SetValueFormat(OptionFormat.Times);
 
-        SheriffCanBeMadmate = BooleanOptionItem.Create(Id + 14, "GanSheriffCanBeMadmate", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
-        MayorCanBeMadmate = BooleanOptionItem.Create(Id + 15, "GanMayorCanBeMadmate", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
-        NGuesserCanBeMadmate = BooleanOptionItem.Create(Id + 16, "GanNGuesserCanBeMadmate", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
-        JudgeCanBeMadmate = BooleanOptionItem.Create(Id + 17, "GanJudgeCanBeMadmate", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
-        MarshallCanBeMadmate = BooleanOptionItem.Create(Id + 18, "GanMarshallCanBeMadmate", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
-        FarseerCanBeMadmate = BooleanOptionItem.Create(Id + 19, "GanFarseerCanBeMadmate", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
-        //RetributionistCanBeMadmate = BooleanOptionItem.Create(Id + 20, "GanRetributionistCanBeMadmate", false, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
-
+        SheriffCanBeMadmate = new BooleanOptionItem(Id + 14, "GanSheriffCanBeMadmate", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
+        MayorCanBeMadmate = new BooleanOptionItem(Id + 15, "GanMayorCanBeMadmate", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
+        NGuesserCanBeMadmate = new BooleanOptionItem(Id + 16, "GanNGuesserCanBeMadmate", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
+        JudgeCanBeMadmate = new BooleanOptionItem(Id + 17, "GanJudgeCanBeMadmate", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
+        MarshallCanBeMadmate = new BooleanOptionItem(Id + 18, "GanMarshallCanBeMadmate", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
+        FarseerCanBeMadmate = new BooleanOptionItem(Id + 19, "GanFarseerCanBeMadmate", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
+        //RetributionistCanBeMadmate = new BooleanOptionItem(Id + 20, "GanRetributionistCanBeMadmate", false, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
     }
 
     public override void Init()
@@ -47,7 +48,6 @@ public class Gangster : RoleBase
         playerId.SetAbilityUseLimit(RecruitLimitOpt.GetInt());
     }
 
-    public override bool IsEnable => playerIdList.Count > 0;
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanRecruit(id) ? KillCooldown.GetFloat() : Options.DefaultKillCooldown;
     public static bool CanRecruit(byte id) => id.GetAbilityUseLimit() > 0;
 
@@ -84,6 +84,7 @@ public class Gangster : RoleBase
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{killer.GetAbilityUseLimit()}次招募机会", "Gangster");
                 return false;
             }
+
             if (killer.Is(CustomRoles.Recruit))
             {
                 killer.RpcRemoveAbilityUse();
@@ -107,6 +108,7 @@ public class Gangster : RoleBase
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{killer.GetAbilityUseLimit()}次招募机会", "Gangster");
                 return false;
             }
+
             if (killer.Is(CustomRoles.Charmed))
             {
                 killer.RpcRemoveAbilityUse();
@@ -130,6 +132,7 @@ public class Gangster : RoleBase
                 Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : 剩余{killer.GetAbilityUseLimit()}次招募机会", "Gangster");
                 return false;
             }
+
             if (killer.Is(CustomRoles.Contagious))
             {
                 killer.RpcRemoveAbilityUse();

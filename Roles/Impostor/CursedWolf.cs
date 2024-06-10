@@ -5,23 +5,22 @@ namespace EHR.Roles.Impostor
 {
     internal class CursedWolf : RoleBase
     {
-        private bool IsJinx;
-
-        private float KillCooldown;
+        public static bool On;
         private bool CanVent;
         private bool HasImpostorVision;
+        private bool IsJinx;
         private bool KillAttacker;
 
-        public static bool On;
+        private float KillCooldown;
         public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(1000, TabGroup.ImpostorRoles, CustomRoles.CursedWolf); //TOH_Y
-            Options.GuardSpellTimes = IntegerOptionItem.Create(1010, "GuardSpellTimes", new(1, 15, 1), 3, TabGroup.ImpostorRoles)
+            Options.GuardSpellTimes = new IntegerOptionItem(1010, "GuardSpellTimes", new(1, 15, 1), 3, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.CursedWolf])
                 .SetValueFormat(OptionFormat.Times);
-            Options.killAttacker = BooleanOptionItem.Create(1011, "killAttacker", true, TabGroup.ImpostorRoles)
+            Options.killAttacker = new BooleanOptionItem(1011, "killAttacker", true, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.CursedWolf]);
         }
 
@@ -88,7 +87,7 @@ namespace EHR.Roles.Impostor
                 Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Curse;
                 killer.SetRealKiller(target);
                 target.Kill(killer);
-                _ = new LateTask(() => { target.SetKillCooldown(time: kcd); }, 0.1f, log: false);
+                LateTask.New(() => { target.SetKillCooldown(time: kcd); }, 0.1f, log: false);
             }
 
             return false;

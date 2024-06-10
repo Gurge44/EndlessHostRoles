@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using EHR.Modules;
+using EHR.Roles.AddOns.Common;
 using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
@@ -353,8 +354,18 @@ class CheckForEndVotingPatch
         var crole = exiledPlayer.GetCustomRole();
         var coloredRole = Utils.GetDisplayRoleName(exileId, true);
 
+        if (crole == CustomRoles.LovingImpostor && !Options.ConfirmLoversOnEject.GetBool())
+        {
+            coloredRole = (Lovers.LovingImpostorRoleForOtherImps.GetValue() switch
+            {
+                0 => CustomRoles.ImpostorEHR,
+                1 => Lovers.LovingImpostorRole,
+                _ => CustomRoles.LovingImpostor
+            }).ToColoredString();
+        }
+
         if (Options.ConfirmEgoistOnEject.GetBool() && player.Is(CustomRoles.Egoist)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Egoist), GetRoleString("Temp.Blank") + coloredRole.RemoveHtmlTags());
-        if (Options.ConfirmLoversOnEject.GetBool() && player.Is(CustomRoles.Lovers)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), GetRoleString("Temp.Blank") + coloredRole.RemoveHtmlTags());
+        if (Options.ConfirmLoversOnEject.GetBool() && Main.LoversPlayers.Contains(player)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), GetRoleString("Temp.Blank") + coloredRole.RemoveHtmlTags());
         if (Options.RascalAppearAsMadmate.GetBool() && player.Is(CustomRoles.Rascal)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Madmate), GetRoleString("Mad-") + coloredRole.RemoveHtmlTags());
 
         var name = string.Empty;
@@ -372,9 +383,7 @@ class CheckForEndVotingPatch
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
             if (pc == exiledPlayer.Object) continue;
-            var pc_role = pc.GetCustomRole();
-
-            if (pc_role.IsImpostor()) impnum++;
+            if (pc.GetCustomRole().IsImpostor()) impnum++;
             else if (pc.IsNeutralKiller()) neutralnum++;
         }
 
@@ -460,7 +469,7 @@ class CheckForEndVotingPatch
                         1 => $"1 <color=#ff1919>{GetString("RemainingText.ImpSingle")}</color> <color=#777777>&</color> ",
                         2 => $"2 <color=#ff1919>{GetString("RemainingText.ImpPlural")}</color> <color=#777777>&</color> ",
                         3 => $"3 <color=#ff1919>{GetString("RemainingText.ImpPlural")}</color> <color=#777777>&</color> ",
-                        _ => string.Empty,
+                        _ => string.Empty
                     };
                     if (neutralnum == 1) name += $"1 <color=#ffab1b>{GetString("RemainingText.NKSingle")}</color> <color=#777777>{GetString("RemainingText.EjectionSuffix.NKSingle")}</color>";
                     else name += $"{neutralnum} <color=#ffab1b>{GetString("RemainingText.NKPlural")}</color> <color=#777777>{GetString("RemainingText.EjectionSuffix.NKPlural")}</color>";
@@ -471,7 +480,7 @@ class CheckForEndVotingPatch
                         1 => GetString("OneImpRemain"),
                         2 => GetString("TwoImpRemain"),
                         3 => GetString("ThreeImpRemain"),
-                        _ => string.Empty,
+                        _ => string.Empty
                     };
                     break;
                 case (0, > 0): // Only neutrals remain
@@ -487,7 +496,7 @@ class CheckForEndVotingPatch
         name = name.Replace("color=", string.Empty) + "<size=0>";
         EjectionText = name.Split('\n')[DecidedWinner ? 1 : 0];
 
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             Main.DoBlockNameChange = true;
             if (GameStates.IsInGame && player != null && !player.Data.Disconnected)
@@ -496,7 +505,7 @@ class CheckForEndVotingPatch
                 player.RpcSetName(name);
             }
         }, 2.5f, "Change Exiled Player Name");
-        _ = new LateTask(() =>
+        LateTask.New(() =>
         {
             if (GameStates.IsInGame && player != null && !player.Data.Disconnected)
             {
@@ -656,7 +665,7 @@ class MeetingHudStartPatch
 
         if (msgToSend.Count > 0)
         {
-            _ = new LateTask(() => { msgToSend.Do(x => Utils.SendMessage(x.MESSAGE, x.TARGET_ID, x.TITLE)); }, 3f, "Skill Description First Meeting");
+            LateTask.New(() => { msgToSend.Do(x => Utils.SendMessage(x.MESSAGE, x.TARGET_ID, x.TITLE)); }, 3f, "Skill Description First Meeting");
         }
 
         if (Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.GetCount() > 0)
@@ -745,7 +754,7 @@ class MeetingHudStartPatch
 
         if (msgToSend.Count > 0)
         {
-            _ = new LateTask(() => { msgToSend.Do(x => Utils.SendMessage(x.MESSAGE, x.TARGET_ID, x.TITLE)); }, 6f, "Meeting Start Notify");
+            LateTask.New(() => { msgToSend.Do(x => Utils.SendMessage(x.MESSAGE, x.TARGET_ID, x.TITLE)); }, 6f, "Meeting Start Notify");
         }
 
         Main.CyberStarDead.Clear();
@@ -775,8 +784,8 @@ class MeetingHudStartPatch
         SoundManager.Instance.ChangeAmbienceVolume(0f);
         if (!GameStates.IsModHost) return;
 
-        GuessManager.textTemplate = Object.Instantiate(__instance.playerStates[0].NameText);
-        GuessManager.textTemplate.enabled = false;
+        GuessManager.TextTemplate = Object.Instantiate(__instance.playerStates[0].NameText);
+        GuessManager.TextTemplate.enabled = false;
 
         foreach (var pva in __instance.playerStates)
         {
@@ -796,7 +805,7 @@ class MeetingHudStartPatch
                 (Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) ||
                 (PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && pc.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) ||
                 (pc.Is(CustomRoles.Gravestone) && Main.VisibleTasksCount && pc.Data.IsDead) ||
-                (pc.Is(CustomRoles.Lovers) && PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) && Options.LoverKnowRoles.GetBool()) ||
+                (Main.LoversPlayers.TrueForAll(x => x.PlayerId == pc.PlayerId || x.PlayerId == PlayerControl.LocalPlayer.PlayerId) && Lovers.LoverKnowRoles.GetBool()) ||
                 (pc.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool()) ||
                 (pc.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosImp.GetBool()) ||
                 (pc.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool()) ||
@@ -809,7 +818,7 @@ class MeetingHudStartPatch
                 (pc.Is(CustomRoles.Mayor) && Mayor.MayorRevealWhenDoneTasks.GetBool() && pc.GetTaskState().IsTaskFinished) ||
                 (pc.Is(CustomRoles.Marshall) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && pc.GetTaskState().IsTaskFinished) ||
                 (Main.PlayerStates[pc.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
-                CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(pc.PlayerId, "KnowRoles") ||
+                CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(pc.PlayerId, CTAOption.KnowRoles) ||
                 Main.PlayerStates.Values.Any(x => x.Role.KnowRole(PlayerControl.LocalPlayer, pc)) ||
                 Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == pc.PlayerId) ||
                 PlayerControl.LocalPlayer.IsRevealedPlayer(pc) ||
@@ -845,7 +854,7 @@ class MeetingHudStartPatch
 
         if (AntiBlackout.OverrideExiledPlayer && MeetingStates.FirstMeeting)
         {
-            _ = new LateTask(() => { Utils.SendMessage(GetString("Warning.OverrideExiledPlayer"), 255, Utils.ColorString(Color.red, GetString("DefaultSystemMessageTitle"))); }, 5f, "Warning OverrideExiledPlayer");
+            LateTask.New(() => { Utils.SendMessage(GetString("Warning.OverrideExiledPlayer"), 255, Utils.ColorString(Color.red, GetString("DefaultSystemMessageTitle"))); }, 5f, "Warning OverrideExiledPlayer");
         }
 
         TemplateManager.SendTemplate("OnMeeting", noErr: true);
@@ -856,7 +865,7 @@ class MeetingHudStartPatch
 
         if (AmongUsClient.Instance.AmHost)
         {
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
@@ -963,7 +972,7 @@ class MeetingHudStartPatch
             if (Silencer.ForSilencer.Contains(target.PlayerId))
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Silencer), "╳"));
 
-            if (target.GetCustomSubRoles().Contains(CustomRoles.Lovers) && (seer.Is(CustomRoles.Lovers) || seer.Data.IsDead))
+            if (Main.LoversPlayers.Contains(target) && (Main.LoversPlayers.Contains(seer) || seer.Data.IsDead))
             {
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), "♥"));
             }
@@ -1033,7 +1042,7 @@ class MeetingHudUpdatePatch
                         Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}を処刑しました", "Execution");
                         __instance.CheckForEndVoting();
                     }
-                });
+                }, fast: true);
             }
 
             if (!GameStates.IsVoting && __instance.lastSecond < 1)

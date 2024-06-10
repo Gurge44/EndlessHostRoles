@@ -26,13 +26,13 @@ public class PlagueBearer : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.PlagueBearer);
-        PlagueBearerCDOpt = FloatOptionItem.Create(Id + 10, "PlagueBearerCD", new(0f, 180f, 0.5f), 17.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer])
+        PlagueBearerCDOpt = new FloatOptionItem(Id + 10, "PlagueBearerCD", new(0f, 180f, 0.5f), 17.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer])
             .SetValueFormat(OptionFormat.Seconds);
-        PestilenceCDOpt = FloatOptionItem.Create(Id + 11, "PestilenceCD", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer])
+        PestilenceCDOpt = new FloatOptionItem(Id + 11, "PestilenceCD", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer])
             .SetValueFormat(OptionFormat.Seconds);
-        PestilenceCanVent = BooleanOptionItem.Create(Id + 12, "PestilenceCanVent", true, TabGroup.NeutralRoles)
+        PestilenceCanVent = new BooleanOptionItem(Id + 12, "PestilenceCanVent", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer]);
-        PestilenceHasImpostorVision = BooleanOptionItem.Create(Id + 13, "PestilenceHasImpostorVision", true, TabGroup.NeutralRoles)
+        PestilenceHasImpostorVision = new BooleanOptionItem(Id + 13, "PestilenceHasImpostorVision", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer]);
     }
 

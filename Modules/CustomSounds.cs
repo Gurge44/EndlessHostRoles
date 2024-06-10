@@ -8,6 +8,8 @@ namespace EHR.Modules;
 
 public static class CustomSoundsManager
 {
+    private static readonly string SOUNDS_PATH = @$"{Environment.CurrentDirectory.Replace(@"\", "/")}/BepInEx/resources/";
+
     public static void RPCPlayCustomSound(this PlayerControl pc, string sound, bool force = false)
     {
         if (!force)
@@ -35,9 +37,6 @@ public static class CustomSoundsManager
 
     public static void ReceiveRPC(MessageReader reader) => Play(reader.ReadString());
 
-
-    private static readonly string SOUNDS_PATH = @$"{Environment.CurrentDirectory.Replace(@"\", "/")}/BepInEx/resources/";
-
     public static void Play(string sound)
     {
         if (!Constants.ShouldPlaySfx() || !Main.EnableCustomSoundEffect.Value) return;
@@ -64,11 +63,8 @@ public static class CustomSoundsManager
         Logger.Msg($"Playing sound：{sound}", "CustomSounds");
     }
 
-#pragma warning disable CA2101 // Specify marshaling for P/Invoke string arguments
-    [DllImport("winmm.dll")]
-#pragma warning restore CA2101 // Specify marshaling for P/Invoke string arguments
-#pragma warning disable CA1401 // P/Invokes should not be visible
-    public static extern bool PlaySound(string Filename, int Mod, int Flags);
-#pragma warning restore CA1401 // P/Invokes should not be visible
-    public static void StartPlay(string path) => PlaySound(@$"{path}", 0, 1); //第3个形参，把1换为9，连续播放
+    [DllImport("winmm.dll", CharSet = CharSet.Unicode)]
+    private static extern bool PlaySound(string Filename, int Mod, int Flags);
+
+    private static void StartPlay(string path) => PlaySound($"{path}", 0, 1); // The third parameter, replace 1 with 9, and play continuously
 }

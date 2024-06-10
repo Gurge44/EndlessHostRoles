@@ -15,7 +15,7 @@ public static class DeconSystemUpdateSystemPatch
             {
                 MapNames.Mira => Options.DecontaminationTimeOnMiraHQ.GetFloat(),
                 MapNames.Polus => Options.DecontaminationTimeOnPolus.GetFloat(),
-                _ => 3f,
+                _ => 3f
             };
 
             __instance.DoorOpenTime = deconTime;

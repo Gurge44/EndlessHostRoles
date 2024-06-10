@@ -9,35 +9,35 @@ namespace EHR.Roles.Impostor
 {
     internal class Bomber : RoleBase
     {
-        private bool IsNuker;
         public static bool On;
+        private bool IsNuker;
         public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
             SetupRoleOptions(2400, TabGroup.ImpostorRoles, CustomRoles.Bomber);
-            BomberRadius = FloatOptionItem.Create(2018, "BomberRadius", new(0.5f, 5f, 0.5f), 2f, TabGroup.ImpostorRoles)
+            BomberRadius = new FloatOptionItem(2018, "BomberRadius", new(0.5f, 5f, 0.5f), 2f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber])
                 .SetValueFormat(OptionFormat.Multiplier);
-            BomberCanKill = BooleanOptionItem.Create(2015, "CanKill", false, TabGroup.ImpostorRoles)
+            BomberCanKill = new BooleanOptionItem(2015, "CanKill", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber]);
-            BomberKillCD = FloatOptionItem.Create(2020, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+            BomberKillCD = new FloatOptionItem(2020, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(BomberCanKill)
                 .SetValueFormat(OptionFormat.Seconds);
-            BombCooldown = FloatOptionItem.Create(2030, "BombCooldown", new(5f, 180f, 2.5f), 60f, TabGroup.ImpostorRoles)
+            BombCooldown = new FloatOptionItem(2030, "BombCooldown", new(5f, 180f, 2.5f), 60f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber])
                 .SetValueFormat(OptionFormat.Seconds);
-            ImpostorsSurviveBombs = BooleanOptionItem.Create(2031, "ImpostorsSurviveBombs", true, TabGroup.ImpostorRoles)
+            ImpostorsSurviveBombs = new BooleanOptionItem(2031, "ImpostorsSurviveBombs", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber]);
-            BomberDiesInExplosion = BooleanOptionItem.Create(2032, "BomberDiesInExplosion", true, TabGroup.ImpostorRoles)
+            BomberDiesInExplosion = new BooleanOptionItem(2032, "BomberDiesInExplosion", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber]);
-            NukerChance = IntegerOptionItem.Create(2033, "NukerChance", new(0, 100, 5), 0, TabGroup.ImpostorRoles)
+            NukerChance = new IntegerOptionItem(2033, "NukerChance", new(0, 100, 5), 0, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber])
                 .SetValueFormat(OptionFormat.Percent);
-            NukeCooldown = FloatOptionItem.Create(2035, "NukeCooldown", new(5f, 180f, 2.5f), 60f, TabGroup.ImpostorRoles)
+            NukeCooldown = new FloatOptionItem(2035, "NukeCooldown", new(5f, 180f, 2.5f), 60f, TabGroup.ImpostorRoles)
                 .SetParent(NukerChance)
                 .SetValueFormat(OptionFormat.Seconds);
-            NukeRadius = FloatOptionItem.Create(2034, "NukeRadius", new(5f, 100f, 1f), 25f, TabGroup.ImpostorRoles)
+            NukeRadius = new FloatOptionItem(2034, "NukeRadius", new(5f, 100f, 1f), 25f, TabGroup.ImpostorRoles)
                 .SetParent(NukerChance)
                 .SetValueFormat(OptionFormat.Multiplier);
         }
@@ -115,7 +115,7 @@ namespace EHR.Roles.Impostor
                 tg.Suicide(PlayerState.DeathReason.Bombed, pc);
             }
 
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 var totalAlive = Main.AllAlivePlayerControls.Length;
                 if (BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded)

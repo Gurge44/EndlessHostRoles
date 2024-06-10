@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using HarmonyLib;
 
 namespace EHR.Roles.Impostor
 {
@@ -54,7 +53,7 @@ namespace EHR.Roles.Impostor
                 if (x.TargetPlayerId.IsHost()) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, bmVotedFor);
                 else MeetingHud.Instance.CastVote(x.TargetPlayerId, bmVotedFor);
                 x.VotedFor = bmVotedFor;
-            });
+            }, fast: true);
         }
     }
 }

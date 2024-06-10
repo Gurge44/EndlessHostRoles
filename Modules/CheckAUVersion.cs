@@ -6,8 +6,7 @@ namespace EHR.Modules;
 // https://github.com/tukasa0001/TownOfHost/blob/main/Modules/VersionChecker.cs
 public static class VersionChecker
 {
-    private static bool isSupported = true;
-    public static bool IsSupported { get => isSupported; private set => isSupported = value; }
+    public static bool IsSupported { get; private set; } = true;
 
     public static void Check()
     {

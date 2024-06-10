@@ -8,11 +8,11 @@ namespace EHR;
 
 public abstract class OptionItem
 {
-    public const int NumPresets = 5;
-    public const int PresetId = 0;
+    public const int NumPresets = 10;
+    private const int PresetId = 0;
+    public readonly List<OptionItem> Children;
 
     private Dictionary<string, string> _replacementDictionary;
-    public List<OptionItem> Children;
 
     public OptionBehaviour OptionBehaviour;
 
@@ -66,11 +66,11 @@ public abstract class OptionItem
     public TabGroup Tab { get; }
     public bool IsSingleValue { get; }
 
-    public Color NameColor { get; protected set; }
-    public OptionFormat ValueFormat { get; protected set; }
-    public CustomGameMode GameMode { get; protected set; }
+    private Color NameColor { get; set; }
+    private OptionFormat ValueFormat { get; set; }
+    public CustomGameMode GameMode { get; private set; }
     public bool IsHeader { get; protected set; }
-    public bool IsHidden { get; protected set; }
+    private bool IsHidden { get; set; }
     public bool IsText { get; protected set; }
 
     public Dictionary<string, string> ReplacementDictionary
@@ -98,7 +98,7 @@ public abstract class OptionItem
     public event EventHandler<UpdateValueEventArgs> UpdateValueEvent;
 
     // Setter
-    public OptionItem Do(Action<OptionItem> action)
+    private OptionItem Do(Action<OptionItem> action)
     {
         action(this);
         return this;
@@ -125,7 +125,7 @@ public abstract class OptionItem
         parent.SetChild(i);
     });
 
-    public OptionItem SetChild(OptionItem child) => Do(i => i.Children.Add(child));
+    private OptionItem SetChild(OptionItem child) => Do(i => i.Children.Add(child));
 
     public OptionItem RegisterUpdateValueEvent(EventHandler<UpdateValueEventArgs> handler)
         => Do(_ => UpdateValueEvent += handler);
@@ -151,7 +151,13 @@ public abstract class OptionItem
         return disableColor ? Translator.GetString(Name, ReplacementDictionary, console) : Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary));
     }
 
-    public virtual bool GetBool() => Name == "Bargainer.LensOfTruth.DurationSwitch" ? GetValue() == 3 : CurrentValue != 0 && (Parent == null || Parent.GetBool());
+    public virtual bool GetBool() => Name switch
+    {
+        "Bargainer.LensOfTruth.DurationSwitch" => GetValue() == 3,
+        "BlackHoleDespawnMode" => GetValue() == 1,
+        _ => CurrentValue != 0 && (Parent == null || Parent.GetBool())
+    };
+
     public virtual int GetInt() => CurrentValue;
     public virtual float GetFloat() => CurrentValue;
 
@@ -167,13 +173,13 @@ public abstract class OptionItem
         return IsHidden || (GameMode != CustomGameMode.All && GameMode != mode);
     }
 
-    public string ApplyFormat(string value)
+    protected string ApplyFormat(string value)
     {
         if (ValueFormat == OptionFormat.None) return value;
         return string.Format(Translator.GetString("Format." + ValueFormat), value);
     }
 
-    public virtual void Refresh()
+    protected virtual void Refresh()
     {
         if (OptionBehaviour is StringOption opt)
         {
@@ -215,7 +221,14 @@ public abstract class OptionItem
 
     public void SetAllValues(int[] values)
     {
-        AllValues = values;
+        if (values.Length == AllValues.Length) AllValues = values;
+        else
+        {
+            for (int i = 0; i < values.Length; i++)
+            {
+                AllValues[i] = values[i];
+            }
+        }
     }
 
     public static OptionItem operator ++(OptionItem item)
@@ -224,7 +237,7 @@ public abstract class OptionItem
     public static OptionItem operator --(OptionItem item)
         => item.Do(item => item.SetValue(item.CurrentValue - 1));
 
-    public static void SwitchPreset(int newPreset)
+    protected static void SwitchPreset(int newPreset)
     {
         CurrentPreset = Math.Clamp(newPreset, 0, NumPresets - 1);
 
@@ -303,5 +316,5 @@ public enum OptionFormat
     Votes,
     Pieces,
     Health,
-    Level,
+    Level
 }

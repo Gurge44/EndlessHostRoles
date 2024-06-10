@@ -14,7 +14,7 @@ namespace EHR.Roles.Neutral
         {
             const int id = 13860;
             Options.SetupRoleOptions(id, TabGroup.NeutralRoles, CustomRoles.Cherokious);
-            KillCooldown = IntegerOptionItem.Create(id + 2, "KillCooldown", new(0, 60, 1), 15, TabGroup.NeutralRoles)
+            KillCooldown = new IntegerOptionItem(id + 2, "KillCooldown", new(0, 60, 1), 15, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Cherokious])
                 .SetValueFormat(OptionFormat.Seconds);
             Tasks = Options.OverrideTasksData.Create(id + 3, TabGroup.NeutralRoles, CustomRoles.Cherokious);

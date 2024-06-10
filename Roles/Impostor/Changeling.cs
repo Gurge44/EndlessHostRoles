@@ -34,9 +34,9 @@ namespace EHR.Roles.Impostor
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Changeling);
-            CanPickPartnerRole = BooleanOptionItem.Create(Id + 10, "CanPickPartnerRole", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Changeling]);
-            CanKillBeforeRoleChange = BooleanOptionItem.Create(Id + 11, "CanKillBeforeRoleChange", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Changeling]);
-            AvailableRoles = StringOptionItem.Create(Id + 12, "AvailableRoles", AvailableRolesMode, 0, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Changeling]);
+            CanPickPartnerRole = new BooleanOptionItem(Id + 10, "CanPickPartnerRole", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Changeling]);
+            CanKillBeforeRoleChange = new BooleanOptionItem(Id + 11, "CanKillBeforeRoleChange", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Changeling]);
+            AvailableRoles = new StringOptionItem(Id + 12, "AvailableRoles", AvailableRolesMode, 0, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Changeling]);
         }
 
         public static List<CustomRoles> GetAvailableRoles(bool check = false)
@@ -110,14 +110,14 @@ namespace EHR.Roles.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            _ = new LateTask(() =>
+            LateTask.New(() =>
             {
                 shapeshifter.RpcSetCustomRole(CurrentRole);
                 ChangedRole[shapeshifter.PlayerId] = true;
                 shapeshifter.RpcResetAbilityCooldown();
                 if (!DisableShapeshiftAnimations.GetBool())
                 {
-                    _ = new LateTask(() => { shapeshifter.RpcShapeshift(shapeshifter, false); }, 1f, log: false);
+                    LateTask.New(() => { shapeshifter.RpcShapeshift(shapeshifter, false); }, 1f, log: false);
                 }
             }, 0.3f, log: false);
             return false;

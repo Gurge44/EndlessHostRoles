@@ -42,7 +42,7 @@ internal class ControllerManagerUpdatePatch
 
         if (GetKeysDown(KeyCode.LeftAlt, KeyCode.Return))
         {
-            _ = new LateTask(SetResolutionManager.Postfix, 0.01f, "Fix Button Position");
+            LateTask.New(SetResolutionManager.Postfix, 0.01f, "Fix Button Position");
         }
 
         if (Input.GetKeyDown(KeyCode.F1) && GameStates.InGame && Options.CurrentGameMode == CustomGameMode.Standard)
@@ -178,8 +178,8 @@ internal class ControllerManagerUpdatePatch
 
         if (GetKeysDown(KeyCode.F2, KeyCode.LeftControl))
         {
-            Logger.isAlsoInGame = !Logger.isAlsoInGame;
-            Logger.SendInGame($"In-game output log：{Logger.isAlsoInGame}");
+            Logger.IsAlsoInGame = !Logger.IsAlsoInGame;
+            Logger.SendInGame($"In-game output log：{Logger.IsAlsoInGame}");
         }
 
         if (!DebugModeManager.IsDebugMode) return;
