@@ -3407,7 +3407,7 @@
   "CanPickPartnerRole": "Может стать ролью, которая есть у тиммейта",
   "CanKillBeforeRoleChange": "Может убивать до выбора роли",
   "AvailableRoles": "Доступные для становления роли:",
-  "ChangelingCurrentRole": "Выбранная роль: {0}",
+  "ChangelingCurrentRole": "Роль на выбор: {0}",
   "Doormaster": "Door Master",
   "DoormasterInfo": "Открывай двери в любой момент",
   "DoormasterInfoLong": "(Член Экипажа):\\nDoor Master может прыгнуть в люк/погладить питомца, чтобы открыть все двери на карте.\\n\\nВ связи с техническими ограничениями, это не работает на карте Skeld.",
