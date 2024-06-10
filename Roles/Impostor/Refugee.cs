@@ -1,5 +1,4 @@
 ﻿using AmongUs.GameOptions;
-using EHR.Roles.Neutral;
 
 namespace EHR.Roles.Impostor
 {
@@ -20,7 +19,7 @@ namespace EHR.Roles.Impostor
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = Amnesiac.RefugeeKillCD.GetFloat();
+            Main.AllPlayerKillCooldown[id] = Options.RefugeeKillCD.GetFloat();
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
