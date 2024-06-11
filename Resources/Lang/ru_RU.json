@@ -1402,7 +1402,7 @@
   "NotifyGodAlive": "Сообщать игрокам на собраниях, что God ещё жив",
   "TransporterTeleportMax": "Кол-во телепортаций",
   "TriggerKill": "Убийство",
-  "ExperimentalRoleIndicator": "    <color=#ffff00>ЭКСПЕРИМЕНТАЛЬНОЕ</color>",
+  "ExperimentalRoleIndicator": "    <color=#ffff00>ЭКСПЕРИМЕНТАЛЬНО</color>",
   "RequiresPetIndicator": "  <#ff0000>ПЕТ</color>",
   "SupportsPetIndicator": "    <#00ff00>✓ПЕТ</color>",
   "SupportsPetMessage": "\\n\\n<#00ff00>[✓] Эта роль поддерживает использование кнопки питомца, которая, возможно, заменяет использование способности этой роли с помощью использования люка, морфа, убийства или чего-то ещё</color>",
