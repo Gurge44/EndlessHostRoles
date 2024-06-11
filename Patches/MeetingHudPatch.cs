@@ -365,7 +365,7 @@ class CheckForEndVotingPatch
         }
 
         if (Options.ConfirmEgoistOnEject.GetBool() && player.Is(CustomRoles.Egoist)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Egoist), GetRoleString("Temp.Blank") + coloredRole.RemoveHtmlTags());
-        if (Options.ConfirmLoversOnEject.GetBool() && Main.LoversPlayers.Contains(player)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), GetRoleString("Temp.Blank") + coloredRole.RemoveHtmlTags());
+        if (Options.ConfirmLoversOnEject.GetBool() && Main.LoversPlayers.Any(x => x.PlayerId == player.PlayerId)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), GetRoleString("Temp.Blank") + coloredRole.RemoveHtmlTags());
         if (Options.RascalAppearAsMadmate.GetBool() && player.Is(CustomRoles.Rascal)) coloredRole = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Madmate), GetRoleString("Mad-") + coloredRole.RemoveHtmlTags());
 
         var name = string.Empty;
@@ -972,7 +972,7 @@ class MeetingHudStartPatch
             if (Silencer.ForSilencer.Contains(target.PlayerId))
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Silencer), "╳"));
 
-            if (Main.LoversPlayers.Contains(target) && (Main.LoversPlayers.Contains(seer) || seer.Data.IsDead))
+            if (Main.LoversPlayers.Any(x => x.PlayerId == target.PlayerId) && (Main.LoversPlayers.Any(x => x.PlayerId == seer.PlayerId) || seer.Data.IsDead))
             {
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lovers), "♥"));
             }

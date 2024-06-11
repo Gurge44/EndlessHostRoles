@@ -762,7 +762,7 @@ internal class ChatCommands
                 ChatUpdatePatch.LoversMessage = true;
                 Utils.SendMessage(text, otherLover.PlayerId, title);
                 Utils.SendMessage(text, PlayerControl.LocalPlayer.PlayerId, title);
-                LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Main.MessageWait.Value, log: false);
+                LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max((AmongUsClient.Instance.Ping / 1000f) * 2f, 0.2f), log: false);
             }
 
             goto Canceled;
@@ -1406,7 +1406,7 @@ internal class ChatCommands
                     ChatUpdatePatch.LoversMessage = true;
                     Utils.SendMessage(text, otherLover.PlayerId, title);
                     Utils.SendMessage(text, player.PlayerId, title);
-                    LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Main.MessageWait.Value, log: false);
+                    LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max((AmongUsClient.Instance.Ping / 1000f) * 2f, 0.2f), log: false);
                 }, 0.2f, log: false);
             }
         }

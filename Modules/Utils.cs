@@ -1965,7 +1965,7 @@ public static class Utils
                 if (Options.CurrentGameMode != CustomGameMode.Standard) goto GameMode0;
 
                 SelfMark.Append(Snitch.GetWarningArrow(seer));
-                if (Main.LoversPlayers.Contains(seer)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), " ♥"));
+                if (Main.LoversPlayers.Any(x => x.PlayerId == seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), " ♥"));
                 if (BallLightning.IsGhost(seer)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.BallLightning), "■"));
                 SelfMark.Append(Medic.GetMark(seer, seer));
                 SelfMark.Append(Gamer.TargetMark(seer, seer));
@@ -2154,7 +2154,7 @@ public static class Utils
 
                             TargetMark.Append(Snitch.GetWarningMark(seer, target));
 
-                            if (Main.LoversPlayers.TrueForAll(x => x.PlayerId == seer.PlayerId || x.PlayerId == target.PlayerId) || (seer.Data.IsDead && Main.LoversPlayers.Contains(target)))
+                            if (Main.LoversPlayers.TrueForAll(x => x.PlayerId == seer.PlayerId || x.PlayerId == target.PlayerId) || (seer.Data.IsDead && Main.LoversPlayers.Any(x => x.PlayerId == target.PlayerId)))
                             {
                                 TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
                             }

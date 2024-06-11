@@ -28,6 +28,8 @@ namespace CustomTeamAssigner
             { CustomRoles.EvilDiviner, "Consigliere" },
             { CustomRoles.Minimalism, "Killing Machine" },
             { CustomRoles.BallLightning, "Lightning" },
+            { CustomRoles.LovingCrewmate, "Lover" },
+            { CustomRoles.LovingImpostor, "Loving Impostor" },
             { CustomRoles.Mafia, "Nemesis" },
             { CustomRoles.SerialKiller, "Mercenary" },
             { CustomRoles.Assassin, "Ninja" },

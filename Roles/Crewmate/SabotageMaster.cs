@@ -1,7 +1,9 @@
 using System.Collections.Generic;
+using System.Globalization;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
+using UnityEngine;
 
 namespace EHR.Roles.Crewmate;
 
@@ -75,7 +77,8 @@ public class SabotageMaster : RoleBase
     public override string GetProgressText(byte playerId, bool comms)
     {
         var limit = SkillLimit.GetInt() - UsedSkillCount;
-        return limit + base.GetProgressText(playerId, comms);
+        var str = Utils.ColorString(Color.white, limit.ToString(CultureInfo.CurrentCulture));
+        return str + base.GetProgressText(playerId, comms);
     }
 
     public void SendRPC()
