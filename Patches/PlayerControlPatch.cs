@@ -302,31 +302,72 @@ class CheckMurderPatch
         if (!AmongUsClient.Instance.AmHost) return false;
         if (target == null) target = killer;
 
-        if (CustomTeamManager.AreInSameCustomTeam(killer.PlayerId, target.PlayerId) && !CustomTeamManager.IsSettingEnabledForPlayerTeam(killer.PlayerId, CTAOption.KillEachOther)) return false;
+        if (CustomTeamManager.AreInSameCustomTeam(killer.PlayerId, target.PlayerId) && !CustomTeamManager.IsSettingEnabledForPlayerTeam(killer.PlayerId, CTAOption.KillEachOther))
+        {
+            Notify("SameCTATeam");
+            return false;
+        }
 
-        if (killer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Sidekick) && !Options.JackalCanKillSidekick.GetBool()) return false;
-        if (killer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Jackal) && !Options.SidekickCanKillJackal.GetBool()) return false;
-        if (killer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Recruit) && !Options.JackalCanKillSidekick.GetBool()) return false;
-        if (killer.Is(CustomRoles.Recruit) && target.Is(CustomRoles.Jackal) && !Options.SidekickCanKillJackal.GetBool()) return false;
-        if (killer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Sidekick) && !Options.SidekickCanKillSidekick.GetBool()) return false;
-        if (killer.Is(CustomRoles.Recruit) && target.Is(CustomRoles.Recruit) && !Options.SidekickCanKillSidekick.GetBool()) return false;
-        if (killer.Is(CustomRoles.Recruit) && target.Is(CustomRoles.Sidekick) && !Options.SidekickCanKillSidekick.GetBool()) return false;
-        if (killer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Recruit) && !Options.SidekickCanKillSidekick.GetBool()) return false;
+        if ((killer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Sidekick) && !Options.JackalCanKillSidekick.GetBool()) ||
+            (killer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Jackal) && !Options.SidekickCanKillJackal.GetBool()) ||
+            (killer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Recruit) && !Options.JackalCanKillSidekick.GetBool()) ||
+            (killer.Is(CustomRoles.Recruit) && target.Is(CustomRoles.Jackal) && !Options.SidekickCanKillJackal.GetBool()) ||
+            (killer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Sidekick) && !Options.SidekickCanKillSidekick.GetBool()) ||
+            (killer.Is(CustomRoles.Recruit) && target.Is(CustomRoles.Recruit) && !Options.SidekickCanKillSidekick.GetBool()) ||
+            (killer.Is(CustomRoles.Recruit) && target.Is(CustomRoles.Sidekick) && !Options.SidekickCanKillSidekick.GetBool()) ||
+            (killer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Recruit) && !Options.SidekickCanKillSidekick.GetBool()))
+        {
+            Notify("JackalSidekick");
+            return false;
+        }
 
-        if (!Virus.ContagiousPlayersCanKillEachOther.GetBool() && target.Is(CustomRoles.Contagious) && killer.Is(CustomRoles.Contagious)) return false;
+        if (!Virus.ContagiousPlayersCanKillEachOther.GetBool() && target.Is(CustomRoles.Contagious) && killer.Is(CustomRoles.Contagious))
+        {
+            Notify("ContagiousPlayers");
+            return false;
+        }
 
-        if (killer.Is(CustomRoles.Madmate) && target.Is(CustomRoleTypes.Impostor) && !Options.MadmateCanKillImp.GetBool()) return false;
-        if (killer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Madmate) && !Options.ImpCanKillMadmate.GetBool()) return false;
+        if (killer.Is(CustomRoles.Madmate) && target.Is(CustomRoleTypes.Impostor) && !Options.MadmateCanKillImp.GetBool())
+        {
+            Notify("MadmateKillImpostor");
+            return false;
+        }
 
-        if (Romantic.PartnerId == target.PlayerId && Romantic.IsPartnerProtected) return false;
+        if (killer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Madmate) && !Options.ImpCanKillMadmate.GetBool())
+        {
+            Notify("ImpostorKillMadmate");
+            return false;
+        }
 
-        if (Medic.OnAnyoneCheckMurder(killer, target)) return false;
-        if (Mathematician.State.ProtectedPlayerId == target.PlayerId) return false;
-        if (Randomizer.IsShielded(target)) return false;
-        if (Penguin.IsVictim(killer)) return false;
-        if (!Adventurer.OnAnyoneCheckMurder(target)) return false;
+        if (Romantic.PartnerId == target.PlayerId && Romantic.IsPartnerProtected ||
+            Medic.OnAnyoneCheckMurder(killer, target) ||
+            Randomizer.IsShielded(target) ||
+            Aid.ShieldedPlayers.ContainsKey(target.PlayerId) ||
+            !Adventurer.OnAnyoneCheckMurder(target) ||
+            !Sentinel.OnAnyoneCheckMurder(killer) ||
+            !ToiletMaster.OnAnyoneCheckMurder(killer, target))
+        {
+            Notify("SomeSortOfProtection");
+            return false;
+        }
 
-        if (killer.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) return false;
+        if (Penguin.IsVictim(killer))
+        {
+            Notify("PenguinVictimKill");
+            return false;
+        }
+
+        if (Mathematician.State.ProtectedPlayerId == target.PlayerId)
+        {
+            Notify("MathematicianProtected");
+            return false;
+        }
+
+        if (killer.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor))
+        {
+            Notify("RefugeeKillImpostor");
+            return false;
+        }
 
         if (Echo.On)
         {
@@ -340,11 +381,15 @@ class CheckMurderPatch
             }
         }
 
-        if (GhostRolesManager.AssignedGhostRoles.Values.Any(x => x.Instance is GA ga && ga.ProtectionList.Contains(target.PlayerId))) return false;
+        if (GhostRolesManager.AssignedGhostRoles.Values.Any(x => x.Instance is GA ga && ga.ProtectionList.Contains(target.PlayerId)))
+        {
+            Notify("GAGuarded");
+            return false;
+        }
 
         if (SoulHunter.IsSoulHunterTarget(killer.PlayerId) && target.Is(CustomRoles.SoulHunter))
         {
-            killer.Notify(GetString("SoulHunterTargetNotifyNoKill"));
+            Notify("SoulHunterTargetNotifyNoKill");
             LateTask.New(() =>
             {
                 if (SoulHunter.IsSoulHunterTarget(killer.PlayerId)) killer.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter.GetSoulHunter(killer.PlayerId).SoulHunter_.GetRealName()), 300f);
@@ -358,7 +403,11 @@ class CheckMurderPatch
             return false;
         }
 
-        if (killer.Is(CustomRoles.Traitor) && target.Is(CustomRoleTypes.Impostor)) return false;
+        if (killer.Is(CustomRoles.Traitor) && target.Is(CustomRoleTypes.Impostor))
+        {
+            Notify("TraitorKillImpostor");
+            return false;
+        }
 
         if (Jackal.On && Jackal.ResetKillCooldownWhenSbGetKilled.GetBool() && !killer.Is(CustomRoles.Sidekick) && !target.Is(CustomRoles.Sidekick) && !killer.Is(CustomRoles.Jackal) && !target.Is(CustomRoles.Jackal) && !GameStates.IsMeeting)
             Jackal.AfterPlayerDiedTask(killer);
@@ -396,22 +445,23 @@ class CheckMurderPatch
             }
         }
 
-        if (Aid.ShieldedPlayers.ContainsKey(target.PlayerId)) return false;
-
         switch (target.GetCustomRole())
         {
             case CustomRoles.Medic:
                 Medic.IsDead(target);
                 break;
             case CustomRoles.Monarch when killer.Is(CustomRoles.Knighted):
+                Notify("KnightedKillMonarch");
                 return false;
-            case CustomRoles.Gambler when Gambler.isShielded.ContainsKey(target.PlayerId):
+            case CustomRoles.Gambler when Gambler.IsShielded.ContainsKey(target.PlayerId):
+                Notify("SomeSortOfProtection");
                 killer.SetKillCooldown(time: 5f);
                 return false;
             case CustomRoles.Spiritcaller:
                 if (Spiritcaller.InProtect(target))
                 {
                     killer.RpcGuardAndKill(target);
+                    Notify("SomeSortOfProtection");
                     return false;
                 }
 
@@ -440,14 +490,17 @@ class CheckMurderPatch
             return false;
         }
 
-        if (!Sentinel.OnAnyoneCheckMurder(killer)) return false;
-        if (!ToiletMaster.OnAnyoneCheckMurder(killer, target)) return false;
-
-        if (!Main.PlayerStates[target.PlayerId].Role.OnCheckMurderAsTarget(killer, target)) return false;
+        if (!Main.PlayerStates[target.PlayerId].Role.OnCheckMurderAsTarget(killer, target))
+        {
+            Notify("SomeSortOfProtection");
+            return false;
+        }
 
         if (!check) killer.Kill(target);
         if (killer.Is(CustomRoles.Doppelganger)) Doppelganger.OnCheckMurderEnd(killer, target);
         return true;
+
+        void Notify(string message) => killer.Notify(ColorString(Color.yellow, GetString("CheckMurderFail") + GetString(message)));
     }
 }
 

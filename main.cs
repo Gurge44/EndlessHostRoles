@@ -336,6 +336,8 @@ public class Main : BasePlugin
                 { CustomRoles.Convener, "#34eb7a" },
                 { CustomRoles.Mathematician, "#eb3474" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Safeguard, "#4949e3" },
+                { CustomRoles.Clairvoyant, "#d4ffdd" },
                 { CustomRoles.Doppelganger, "#f6f4a3" },
                 { CustomRoles.Nightmare, "#1e1247" },
                 { CustomRoles.Altruist, "#300000" },

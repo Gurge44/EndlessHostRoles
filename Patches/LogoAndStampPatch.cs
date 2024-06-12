@@ -7,23 +7,17 @@ using static EHR.Translator;
 
 namespace EHR;
 
-//参考：https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Patches/LogoAndStampPatch.cs
+// Credit：https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Patches/LogoAndStampPatch.cs
 [HarmonyPatch]
 public static class CredentialsPatch
 {
-    public static GenericPopup popup;
-
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start))]
     public static class LogoPatch
     {
-        public static string BoosterData = string.Empty;
-        public static string SponsersData = string.Empty;
-        public static string DevsData = string.Empty;
-        public static string TransData = string.Empty;
-
-        public static GameObject CreditsPopup;
-
-        public static MainMenuManager instance;
+        private static string BoosterData = string.Empty;
+        private static string SponsersData = string.Empty;
+        private static string DevsData = string.Empty;
+        private static string TransData = string.Empty;
 
         static IEnumerator ViewCredentialsCoro(MainMenuManager __instance)
         {
@@ -87,7 +81,6 @@ public static class CredentialsPatch
         {
             var template = __instance.transform.FindChild("StatsPopup");
             var obj = Object.Instantiate(template, template.transform.parent).gameObject;
-            CreditsPopup = obj;
             Object.Destroy(obj.GetComponent<StatsPopup>());
 
             var devtitletext = obj.transform.FindChild("StatNumsText_TMP");
@@ -151,7 +144,6 @@ public static class CredentialsPatch
         public static void Postfix(MainMenuManager __instance)
         {
             InitCredentialsData();
-            instance = __instance;
             AmongUsClient.Instance.StartCoroutine(ViewCredentialsCoro(__instance));
         }
     }

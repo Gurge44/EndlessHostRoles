@@ -2853,23 +2853,17 @@ public static class Utils
                 : summary;
     }
 
-    public static string GetRemainingKillers(bool notify = false)
+    public static string GetRemainingKillers(bool notify = false, bool forClairvoyant = false)
     {
         int impnum = 0;
         int neutralnum = 0;
+        bool impShow = forClairvoyant || Options.ShowImpRemainOnEject.GetBool();
+        bool nkShow = forClairvoyant || Options.ShowNKRemainOnEject.GetBool();
+
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            if (Options.ShowImpRemainOnEject.GetBool())
-            {
-                if (pc.GetCustomRole().IsImpostor())
-                    impnum++;
-            }
-
-            if (Options.ShowNKRemainOnEject.GetBool())
-            {
-                if (pc.IsNeutralKiller())
-                    neutralnum++;
-            }
+            if (impShow && pc.GetCustomRole().IsImpostor()) impnum++;
+            if (nkShow && pc.IsNeutralKiller()) neutralnum++;
         }
 
         var sb = new StringBuilder();

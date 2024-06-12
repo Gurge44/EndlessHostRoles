@@ -187,6 +187,8 @@ internal static class CustomRolesHelper
             CustomRoles.GuessManagerRole => CustomRoles.Crewmate,
             CustomRoles.Altruist => CustomRoles.Crewmate,
             CustomRoles.Transmitter => CustomRoles.Crewmate,
+            CustomRoles.Safeguard => CustomRoles.Crewmate,
+            CustomRoles.Clairvoyant => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Autocrat => CustomRoles.Crewmate,
             CustomRoles.LovingCrewmate => CustomRoles.Crewmate,
             CustomRoles.LovingImpostor => CustomRoles.Impostor,
@@ -916,16 +918,8 @@ internal static class CustomRolesHelper
     public static RoleTypes GetRoleTypes(this CustomRoles role)
     {
         if (role.GetDYRole() == RoleTypes.Impostor) return RoleTypes.Impostor;
-        return role.GetVNRole() switch
-        {
-            CustomRoles.Impostor => RoleTypes.Impostor,
-            CustomRoles.Scientist => RoleTypes.Scientist,
-            CustomRoles.Engineer => RoleTypes.Engineer,
-            CustomRoles.GuardianAngel => RoleTypes.GuardianAngel,
-            CustomRoles.Shapeshifter => RoleTypes.Shapeshifter,
-            CustomRoles.Crewmate => RoleTypes.Crewmate,
-            _ => role.IsImpostor() ? RoleTypes.Impostor : RoleTypes.Crewmate
-        };
+        if (Enum.TryParse<RoleTypes>(role.ToString(), ignoreCase: true, out var type)) return type;
+        return role.IsImpostor() ? RoleTypes.Impostor : RoleTypes.Crewmate;
     }
 
     public static bool IsDesyncRole(this CustomRoles role) => role.GetDYRole() != RoleTypes.GuardianAngel;

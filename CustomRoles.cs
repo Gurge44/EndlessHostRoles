@@ -129,6 +129,7 @@ public enum CustomRoles
     CameraMan,
     CyberStar, // Celebrity
     Chameleon,
+    Clairvoyant,
     Cleanser,
     Convener,
     CopyCat,
@@ -193,6 +194,7 @@ public enum CustomRoles
     Rabbit,
     Randomizer,
     Ricochet,
+    Safeguard,
     SecurityGuard,
     Sentinel,
     Sentry,

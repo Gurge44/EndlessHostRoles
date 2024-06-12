@@ -93,7 +93,6 @@ public class Doppelganger : RoleBase
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
-    //overloading
     public static GameData.PlayerOutfit Set(GameData.PlayerOutfit instance, string playerName, int colorId, string hatId, string skinId, string visorId, string petId, string nameplateId)
     {
         instance.PlayerName = playerName;
@@ -151,19 +150,19 @@ public class Doppelganger : RoleBase
         DoppelPresentSkin[pc.PlayerId] = newOutfit;
     }
 
-    public static bool OnCheckMurderEnd(PlayerControl killer, PlayerControl target)
+    public static void OnCheckMurderEnd(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || Camouflage.IsCamouflage || Camouflager.IsActive || Main.PlayerStates[killer.PlayerId].Role is not Doppelganger { IsEnable: true } dg) return true;
+        if (killer == null || target == null || Camouflage.IsCamouflage || Camouflager.IsActive || Main.PlayerStates[killer.PlayerId].Role is not Doppelganger { IsEnable: true } dg) return;
         if (target.IsShifted())
         {
             Logger.Info("Target was shapeshifting", "Doppelganger");
-            return true;
+            return;
         }
 
         if (TotalSteals[killer.PlayerId] >= MaxSteals.GetInt())
         {
             TotalSteals[killer.PlayerId] = MaxSteals.GetInt();
-            return true;
+            return;
         }
 
         TotalSteals[killer.PlayerId]++;
@@ -189,12 +188,12 @@ public class Doppelganger : RoleBase
         RpcChangeSkin(killer, targetSkin);
         Logger.Info("Changed killer skin", "Doppelganger");
 
+        target.Notify(Translator.GetString("DoppelgangerWarning"));
+
         dg.SendRPC(killer.PlayerId);
         Utils.NotifyRoles();
         killer.ResetKillCooldown();
         killer.SetKillCooldown();
-
-        return true;
     }
 
     public override void OnReportDeadBody()
