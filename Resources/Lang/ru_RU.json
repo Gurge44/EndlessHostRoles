@@ -3119,7 +3119,7 @@
   "NoPetActionMsgImp2": "Вы задумываетесь, что сделать из Члена Экипажа - бургер или пиццу?",
   "NoPetActionMsgCrewTaskDone": "Вы свободны",
   "NoPetActionMsgCrewWithTasksLeft": "Вы понимаете, что у вас ещё остались таски",
-  "NoPetActionMsgCrew": "Вы представляете себя предателем в параллельной вселенной",
+  "NoPetActionMsgCrew": "Ты представляешь себя предателем\\nв параллельной вселенной",
   "NoPetActionMsgNeutral1": "Ты представляешь себя предателем в параллельной вселенной",
   "NoPetActionMsgNeutral2": "Вы спрашиваете себя, как вы сюда попали",
   "TruantWaitingTime": "Время ожидания после собраний",
