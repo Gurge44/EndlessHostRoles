@@ -2530,7 +2530,7 @@
   "RandomizerEffectDurMin": "Мин. длительность ивента",
   "RandomizerEffectDurMax": "Макс. длительность ивента",
   "RandomizerNotifyOpt": "Уведомлять о начале ивента (выключите, если ивенты частые)",
-  "MadmateCanFindMarshall": "Раскрывать <color=#ff1919>Медмейтам</color>",
+  "MadmateCanFindMarshall": "Раскрывается <color=#ff1919>Медмейтам</color>",
   "DoesntSpawnOnFungle": "Не появляется на <color=#ffa646>Fungle</color>",
   "Blackmailer": "Blackmailer",
   "BlackmailerInfo": "Шантажируй игроков",
