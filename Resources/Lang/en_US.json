@@ -3897,6 +3897,8 @@
   "AbyssbringerInfoLong": "(Impostors):\\nAs the Abyssbringer, you can place black holes. Black holes will suck in players and kill them when colliding with them.",
   "BlackHolePlaceCooldown": "Black Hole Place Cooldown",
   "BlackHoleDespawnMode": "Black Hole Despawn Mode",
+  "BlackHoleDespawnTime": "Time After Black Hole Despawns",
+  "After1PlayerEaten": "After 1 Player Was Eaten",
   "BlackHoleMovesTowardsNearestPlayer": "Black Hole Moves Towards Nearest Player",
   "BlackHoleMoveSpeed": "Black Hole Moving Speed",
   "Sleep": "Sleep",
