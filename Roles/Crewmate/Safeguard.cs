@@ -18,7 +18,7 @@ namespace EHR.Crewmate
         {
             const TabGroup tab = TabGroup.CrewmateRoles;
             const CustomRoles role = CustomRoles.Safeguard;
-            int id = 645000;
+            int id = 645500;
 
             Options.SetupRoleOptions(id++, tab, role);
             ShieldDuration = new FloatOptionItem(++id, "AidDur", new(0.5f, 60f, 0.5f), 5f, tab)

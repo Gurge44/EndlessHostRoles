@@ -129,7 +129,7 @@
 | Time Master       |                 |                   |                |
 | Toilet Master     |                 |                   |                |
 | Tornado           |                 |                   |                |
-| Tracker           |                 |                   |                |
+| Scout             |                 |                   |                |
 | Transmitter       |                 |                   |                |
 | Transporter       |                 |                   |                |
 | Tracefinder       |                 |                   |                |

@@ -18,7 +18,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
     public PlayerControl player = player;
 
     public override IGameOptions BasedGameOptions =>
-        Main.RealOptionsData.Restore(new NormalGameOptionsV07(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
+        Main.RealOptionsData.Restore(new NormalGameOptionsV08(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
 
     public override bool IsDirty { get; protected set; }
 

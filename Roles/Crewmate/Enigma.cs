@@ -83,7 +83,7 @@ namespace EHR.Roles.Crewmate
             ShownClues.Add(playerId, []);
         }
 
-        public static void OnReportDeadBody(PlayerControl player, GameData.PlayerInfo targetInfo)
+        public static void OnReportDeadBody(PlayerControl player, NetworkedPlayerInfo targetInfo)
         {
             if (targetInfo == null) return;
 

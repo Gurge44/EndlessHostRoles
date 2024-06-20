@@ -59,7 +59,7 @@ public class Mortician : RoleBase
         }
     }
 
-    public static void OnReportDeadBody(PlayerControl pc, GameData.PlayerInfo target)
+    public static void OnReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target)
     {
         foreach (byte apc in playerIdList)
         {

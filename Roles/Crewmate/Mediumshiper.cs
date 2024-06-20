@@ -44,7 +44,7 @@ public class Mediumshiper : RoleBase
         playerId.SetAbilityUseLimit(ContactLimitOpt.GetInt());
     }
 
-    public static void OnReportDeadBody(GameData.PlayerInfo target)
+    public static void OnReportDeadBody(NetworkedPlayerInfo target)
     {
         ContactPlayer = [];
         if (target == null) return;

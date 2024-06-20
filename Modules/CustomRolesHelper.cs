@@ -100,9 +100,7 @@ internal static class CustomRolesHelper
             CustomRoles.BountyHunter => CustomRoles.Impostor,
             CustomRoles.Trickster => CustomRoles.Impostor,
             CustomRoles.Witch => CustomRoles.Impostor,
-            CustomRoles.ShapeshifterEHR => CustomRoles.Shapeshifter,
             CustomRoles.Agitater => CustomRoles.Impostor,
-            CustomRoles.ImpostorEHR => CustomRoles.Impostor,
             CustomRoles.EvilDiviner => CustomRoles.Impostor,
             CustomRoles.Wildling => Wildling.CanShapeshiftOpt.GetBool() ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
             CustomRoles.Morphling => CustomRoles.Shapeshifter,
@@ -141,15 +139,12 @@ internal static class CustomRolesHelper
             CustomRoles.Hitman => CustomRoles.Shapeshifter,
             CustomRoles.Saboteur => CustomRoles.Impostor,
             CustomRoles.Doctor => CustomRoles.Scientist,
-            CustomRoles.ScientistEHR => CustomRoles.Scientist,
             CustomRoles.Tracefinder => CustomRoles.Scientist,
             CustomRoles.Puppeteer => CustomRoles.Impostor,
             CustomRoles.TimeThief => CustomRoles.Impostor,
             CustomRoles.EvilTracker => CustomRoles.Shapeshifter,
             CustomRoles.Paranoia => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
-            CustomRoles.EngineerEHR => CustomRoles.Engineer,
             CustomRoles.TimeMaster => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
-            CustomRoles.CrewmateEHR => CustomRoles.Crewmate,
             CustomRoles.Cleanser => CustomRoles.Crewmate,
             CustomRoles.Miner => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Psychic => CustomRoles.Crewmate,
@@ -246,7 +241,7 @@ internal static class CustomRolesHelper
             CustomRoles.OverKiller => CustomRoles.Impostor,
             CustomRoles.Hangman => CustomRoles.Shapeshifter,
             CustomRoles.Sunnyboy => CustomRoles.Scientist,
-            CustomRoles.Phantom => Options.PhantomCanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
+            CustomRoles.Phantasm => Options.PhantomCanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Judge => CustomRoles.Crewmate,
             CustomRoles.Councillor => CustomRoles.Impostor,
             CustomRoles.Mortician => CustomRoles.Crewmate,
@@ -277,6 +272,16 @@ internal static class CustomRolesHelper
             CustomRoles.Godfather => CustomRoles.Impostor,
             CustomRoles.Silencer => Silencer.SilenceMode.GetValue() == 1 ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
 
+            // Vanilla roles (just in case)
+            CustomRoles.ImpostorEHR => CustomRoles.Impostor,
+            CustomRoles.PhantomEHR => CustomRoles.Phantom,
+            CustomRoles.ShapeshifterEHR => CustomRoles.Shapeshifter,
+            CustomRoles.CrewmateEHR => CustomRoles.Crewmate,
+            CustomRoles.EngineerEHR => CustomRoles.Engineer,
+            CustomRoles.ScientistEHR => CustomRoles.Scientist,
+            CustomRoles.TrackerEHR => CustomRoles.Tracker,
+            CustomRoles.NoisemakerEHR => CustomRoles.Noisemaker,
+
             // Hide And Seek
             CustomRoles.Hider => CustomRoles.Crewmate,
             CustomRoles.Seeker => CustomRoles.Impostor,
@@ -304,9 +309,12 @@ internal static class CustomRolesHelper
         {
             CustomRoles.Crewmate => CustomRoles.CrewmateEHR,
             CustomRoles.Engineer => CustomRoles.EngineerEHR,
+            CustomRoles.Noisemaker => CustomRoles.NoisemakerEHR,
+            CustomRoles.Tracker => CustomRoles.TrackerEHR,
             CustomRoles.Scientist => CustomRoles.ScientistEHR,
             CustomRoles.Impostor when role.IsCrewmate() => CustomRoles.CrewmateEHR,
             CustomRoles.Impostor => CustomRoles.ImpostorEHR,
+            CustomRoles.Phantom => CustomRoles.PhantomEHR,
             CustomRoles.Shapeshifter => CustomRoles.ShapeshifterEHR,
             _ => role.IsImpostor() ? CustomRoles.ImpostorEHR : CustomRoles.CrewmateEHR
         };
@@ -445,7 +453,7 @@ internal static class CustomRolesHelper
         CustomRoles.Collector or
         CustomRoles.Sunnyboy or
         CustomRoles.Maverick or
-        CustomRoles.Phantom or
+        CustomRoles.Phantasm or
         CustomRoles.Totocalcio or
         CustomRoles.Romantic or
         CustomRoles.VengefulRomantic or
@@ -546,7 +554,7 @@ internal static class CustomRolesHelper
         CustomRoles.Revolutionist or
         CustomRoles.Impartial or
         CustomRoles.Vulture or
-        CustomRoles.Phantom or
+        CustomRoles.Phantasm or
         CustomRoles.Workaholic or
         CustomRoles.Collector or
         CustomRoles.Provocateur;
@@ -951,9 +959,12 @@ internal static class CustomRolesHelper
     public static bool IsVanilla(this CustomRoles role) => role is
         CustomRoles.Crewmate or
         CustomRoles.Engineer or
+        CustomRoles.Noisemaker or
+        CustomRoles.Tracker or
         CustomRoles.Scientist or
         CustomRoles.GuardianAngel or
         CustomRoles.Impostor or
+        CustomRoles.Phantom or
         CustomRoles.Shapeshifter;
 
     public static CustomRoleTypes GetCustomRoleTypes(this CustomRoles role)
@@ -976,7 +987,11 @@ internal static class CustomRolesHelper
             return role switch
             {
                 CustomRoles.Engineer => roleOpt.GetNumPerGame(RoleTypes.Engineer),
+                CustomRoles.Noisemaker => roleOpt.GetNumPerGame(RoleTypes.Noisemaker),
+                CustomRoles.Tracker => roleOpt.GetNumPerGame(RoleTypes.Tracker),
                 CustomRoles.Scientist => roleOpt.GetNumPerGame(RoleTypes.Scientist),
+                CustomRoles.Impostor => roleOpt.GetNumPerGame(RoleTypes.Impostor),
+                CustomRoles.Phantom => roleOpt.GetNumPerGame(RoleTypes.Phantom),
                 CustomRoles.Shapeshifter => roleOpt.GetNumPerGame(RoleTypes.Shapeshifter),
                 CustomRoles.GuardianAngel => roleOpt.GetNumPerGame(RoleTypes.GuardianAngel),
                 CustomRoles.Crewmate => roleOpt.GetNumPerGame(RoleTypes.Crewmate),
@@ -997,7 +1012,11 @@ internal static class CustomRolesHelper
             return role switch
             {
                 CustomRoles.Engineer => roleOpt.GetChancePerGame(RoleTypes.Engineer),
+                CustomRoles.Noisemaker => roleOpt.GetChancePerGame(RoleTypes.Noisemaker),
+                CustomRoles.Tracker => roleOpt.GetChancePerGame(RoleTypes.Tracker),
                 CustomRoles.Scientist => roleOpt.GetChancePerGame(RoleTypes.Scientist),
+                CustomRoles.Impostor => roleOpt.GetChancePerGame(RoleTypes.Impostor),
+                CustomRoles.Phantom => roleOpt.GetChancePerGame(RoleTypes.Phantom),
                 CustomRoles.Shapeshifter => roleOpt.GetChancePerGame(RoleTypes.Shapeshifter),
                 CustomRoles.GuardianAngel => roleOpt.GetChancePerGame(RoleTypes.GuardianAngel),
                 CustomRoles.Crewmate => roleOpt.GetChancePerGame(RoleTypes.Crewmate),

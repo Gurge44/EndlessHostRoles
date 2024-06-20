@@ -288,7 +288,7 @@ public abstract class OptionItem
     private static readonly List<OptionItem> Options = new(1024);
     public static IReadOnlyDictionary<int, OptionItem> FastOptions => FastOpts;
     private static readonly Dictionary<int, OptionItem> FastOpts = new(1024);
-    private static int CurrentPreset { get; set; }
+    public static int CurrentPreset { get; set; }
 
     #endregion
 }

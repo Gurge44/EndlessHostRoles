@@ -321,7 +321,7 @@ class BeginCrewmatePatch
 
                 CustomRoles.EvilTracker or
                     CustomRoles.Tracefinder or
-                    CustomRoles.Tracker or
+                    CustomRoles.Scout or
                     CustomRoles.Bloodhound or
                     CustomRoles.Mortician or
                     CustomRoles.Lighter

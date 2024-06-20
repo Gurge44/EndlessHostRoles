@@ -13,15 +13,15 @@ namespace EHR.Patches;
 
 class ExileControllerWrapUpPatch
 {
-    private static GameData.PlayerInfo antiBlackout_LastExiled;
+    private static NetworkedPlayerInfo antiBlackout_LastExiled;
 
-    public static GameData.PlayerInfo AntiBlackout_LastExiled
+    public static NetworkedPlayerInfo AntiBlackout_LastExiled
     {
         get => antiBlackout_LastExiled;
         set => antiBlackout_LastExiled = value;
     }
 
-    static void WrapUpPostfix(GameData.PlayerInfo exiled)
+    static void WrapUpPostfix(NetworkedPlayerInfo exiled)
     {
         if (AntiBlackout.OverrideExiledPlayer)
         {
@@ -144,7 +144,7 @@ class ExileControllerWrapUpPatch
         Utils.NotifyRoles(ForceLoop: true);
     }
 
-    static void WrapUpFinalizer(GameData.PlayerInfo exiled)
+    static void WrapUpFinalizer(NetworkedPlayerInfo exiled)
     {
         // Even if an exception occurs in WrapUpPostfix, this part will be executed reliably.
         if (AmongUsClient.Instance.AmHost)

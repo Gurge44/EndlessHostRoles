@@ -143,7 +143,7 @@ namespace EHR
         {
         }
 
-        public virtual bool CheckReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target, PlayerControl killer)
+        public virtual bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
         {
             return true;
         }

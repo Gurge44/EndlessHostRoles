@@ -31,6 +31,7 @@ namespace EHR.Roles.AddOns.Common
             {
                 var sender = CustomRpcSender.Create(name: $"Disco.ChangeColor({pc.Data.PlayerName})");
                 sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetColor)
+                    .Write(pc.Data.NetId)
                     .Write((byte)colorId)
                     .EndRpc();
                 sender.SendMessage();

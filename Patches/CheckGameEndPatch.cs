@@ -115,12 +115,12 @@ class GameEndChecker
                             ResetAndSetWinner(CustomWinner.DarkHide);
                             WinnerIds.Add(pc.PlayerId);
                             break;
-                        case CustomRoles.Phantom when pc.GetTaskState().IsTaskFinished && pc.Data.IsDead && Options.PhantomSnatchesWin.GetBool():
+                        case CustomRoles.Phantasm when pc.GetTaskState().IsTaskFinished && pc.Data.IsDead && Options.PhantomSnatchesWin.GetBool():
                             reason = GameOverReason.ImpostorByKill;
                             ResetAndSetWinner(CustomWinner.Phantom);
                             WinnerIds.Add(pc.PlayerId);
                             break;
-                        case CustomRoles.Phantom when !Options.PhantomSnatchesWin.GetBool() && !pc.IsAlive() && pc.GetTaskState().IsTaskFinished:
+                        case CustomRoles.Phantasm when !Options.PhantomSnatchesWin.GetBool() && !pc.IsAlive() && pc.GetTaskState().IsTaskFinished:
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.Phantom);
                             break;
@@ -340,7 +340,7 @@ class GameEndChecker
                 // resuscitation
                 playerInfo.IsDead = false;
                 // transmission
-                GameData.Instance.SetDirtyBit(0b_1u << playerId);
+                playerInfo.SetDirtyBit(0b_1u << playerId);
                 AmongUsClient.Instance.SendAllStreamedObjects();
             }
 

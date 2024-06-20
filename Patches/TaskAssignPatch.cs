@@ -111,12 +111,12 @@ class AddTasksFromListPatch
     }
 }
 
-[HarmonyPatch(typeof(GameData), nameof(GameData.RpcSetTasks))]
+[HarmonyPatch(typeof(NetworkedPlayerInfo), nameof(NetworkedPlayerInfo.RpcSetTasks))]
 class RpcSetTasksPatch
 {
     // Patch that overwrites the task just before assigning the task and sending the RPC
     // Do not interfere with vanilla task allocation process itself
-    public static void Prefix( /*GameData __instance,*/
+    public static void Prefix(NetworkedPlayerInfo __instance,
         [HarmonyArgument(0)] byte playerId,
         [HarmonyArgument(1)] ref Il2CppStructArray<byte> taskTypeIds)
     {
@@ -127,7 +127,7 @@ class RpcSetTasksPatch
             return;
         }
 
-        var pc = Utils.GetPlayerById(playerId);
+        var pc = __instance.Object;
         if (pc == null) return;
         CustomRoles role = GhostRolesManager.AssignedGhostRoles.TryGetValue(pc.PlayerId, out var gr) && gr.Instance is Specter or Haunter ? gr.Role : pc.GetCustomRole();
 
@@ -247,7 +247,7 @@ class RpcSetTasksPatch
         }
     }
 
-    public static void Shuffle<T>(List<T> list)
+    private static void Shuffle<T>(List<T> list)
     {
         for (int i = 0; i < list.Count - 1; i++)
         {

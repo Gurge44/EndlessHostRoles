@@ -82,7 +82,7 @@ namespace EHR.Roles.Impostor
             else hud.ReportButton?.OverrideText(Translator.GetString("CleanerReportButtonText"));
         }
 
-        public override bool CheckReportDeadBody(PlayerControl cleaner, GameData.PlayerInfo target, PlayerControl killer)
+        public override bool CheckReportDeadBody(PlayerControl cleaner, NetworkedPlayerInfo target, PlayerControl killer)
         {
             if (Main.KillTimers[cleaner.PlayerId] > 0f) return true;
 

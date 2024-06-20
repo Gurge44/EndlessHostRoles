@@ -174,7 +174,7 @@ public class Lawyer : RoleBase
         lawyer.Notify(text);
     }
 
-    public static bool CheckExileTarget(GameData.PlayerInfo exiled /*, bool DecidedWinner, bool Check = false*/)
+    public static bool CheckExileTarget(NetworkedPlayerInfo exiled /*, bool DecidedWinner, bool Check = false*/)
     {
         return Target.Where(x => x.Value == exiled.PlayerId).Select(kvp => Utils.GetPlayerById(kvp.Key)).Any(lawyer => lawyer != null && !lawyer.Data.Disconnected);
     }

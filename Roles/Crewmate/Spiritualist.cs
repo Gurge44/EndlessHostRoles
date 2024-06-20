@@ -41,9 +41,11 @@ namespace EHR.Roles.Crewmate
         public static void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Spiritualist);
-            ShowGhostArrowEverySeconds = new FloatOptionItem(Id + 10, "SpiritualistShowGhostArrowEverySeconds", new(1f, 60f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Spiritualist])
+            ShowGhostArrowEverySeconds = new FloatOptionItem(Id + 10, "SpiritualistShowGhostArrowEverySeconds", new(1f, 60f, 1f), 15f, TabGroup.CrewmateRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritualist])
                 .SetValueFormat(OptionFormat.Seconds);
-            ShowGhostArrowForSeconds = new FloatOptionItem(Id + 11, "SpiritualistShowGhostArrowForSeconds", new(1f, 60f, 1f), 2f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Spiritualist])
+            ShowGhostArrowForSeconds = new FloatOptionItem(Id + 11, "SpiritualistShowGhostArrowForSeconds", new(1f, 60f, 1f), 2f, TabGroup.CrewmateRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritualist])
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
@@ -63,7 +65,7 @@ namespace EHR.Roles.Crewmate
             ShowGhostArrowUntil = 0;
         }
 
-        public static void OnReportDeadBody(GameData.PlayerInfo target)
+        public static void OnReportDeadBody(NetworkedPlayerInfo target)
         {
             if (target == null)
             {
@@ -102,12 +104,14 @@ namespace EHR.Roles.Crewmate
                 var writer = CustomRpcSender.Create("SpiritualistSendMessage");
                 writer.StartMessage(target.GetClientId());
                 writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
+                    .Write(target.Data.NetId)
                     .Write(GetString("SpiritualistNoticeTitle"))
                     .EndRpc();
                 writer.StartRpc(target.NetId, (byte)RpcCalls.SendChat)
                     .Write(GetString("SpiritualistNoticeMessage"))
                     .EndRpc();
                 writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
+                    .Write(target.Data.NetId)
                     .Write(target.Data.PlayerName)
                     .EndRpc();
                 writer.EndMessage();

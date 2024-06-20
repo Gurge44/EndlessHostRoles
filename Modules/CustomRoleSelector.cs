@@ -15,6 +15,9 @@ internal static class CustomRoleSelector
     public static int AddScientistNum;
     public static int AddEngineerNum;
     public static int AddShapeshifterNum;
+    public static int AddNoisemakerNum;
+    public static int AddTrackerNum;
+    public static int AddPhantomNum;
 
     public static List<CustomRoles> AddonRolesList = [];
 
@@ -564,6 +567,10 @@ internal static class CustomRoleSelector
         AddEngineerNum = 0;
         AddScientistNum = 0;
         AddShapeshifterNum = 0;
+        AddNoisemakerNum = 0;
+        AddTrackerNum = 0;
+        AddPhantomNum = 0;
+
         foreach (var role in RoleResult.Values)
         {
             switch (role.GetVNRole())
@@ -576,6 +583,15 @@ internal static class CustomRoleSelector
                     break;
                 case CustomRoles.Shapeshifter:
                     AddShapeshifterNum++;
+                    break;
+                case CustomRoles.Noisemaker:
+                    AddNoisemakerNum++;
+                    break;
+                case CustomRoles.Tracker:
+                    AddTrackerNum++;
+                    break;
+                case CustomRoles.Phantom:
+                    AddPhantomNum++;
                     break;
             }
         }

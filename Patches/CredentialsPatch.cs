@@ -20,7 +20,7 @@ internal class PingTrackerUpdatePatch
 
     private static void Postfix(PingTracker __instance)
     {
-        __instance.text.alignment = TextAlignmentOptions.TopRight;
+        __instance.text.alignment = TextAlignmentOptions.Center;
         __instance.text.text = Sb.ToString();
 
         long now = Utils.TimeStamp;
@@ -42,16 +42,11 @@ internal class PingTrackerUpdatePatch
         };
         Sb.Append("\r\n").Append($"<color={color}>{GetString("PingText")}: {ping} ms</color>");
 
-        if (Options.NoGameEnd.GetBool()) Sb.Append("\r\n").Append(Utils.ColorString(Color.red, GetString("NoGameEnd")));
-        if (!GameStates.IsModHost) Sb.Append("\r\n").Append(Utils.ColorString(Color.red, GetString("Warning.NoModHost")));
-        if (DebugModeManager.IsDebugMode) Sb.Append("\r\n").Append(Utils.ColorString(Color.green, GetString("DebugMode")));
+        if (Options.NoGameEnd.GetBool()) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.red, GetString("NoGameEnd"))).Append("</size>");
+        if (!GameStates.IsModHost) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.red, GetString("Warning.NoModHost"))).Append("</size>");
+        if (DebugModeManager.IsDebugMode) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.green, GetString("DebugMode"))).Append("</size>");
 
-        if (Main.IsAprilFools || Options.AprilFoolsMode.GetBool()) Sb.Append("\r\n").Append(Utils.ColorString(Color.yellow, "CHEESE"));
-
-        var offsetX = 1.2f;
-        if (HudManager.InstanceExists && HudManager._instance.Chat.chatButton.active) offsetX += 0.8f;
-        if (FriendsListManager.InstanceExists && FriendsListManager._instance.FriendsListButton.Button.active) offsetX += 0.8f;
-        __instance.GetComponent<AspectPosition>().DistanceFromEdge = new(offsetX, 0f, 0f);
+        if (Main.IsAprilFools || Options.AprilFoolsMode.GetBool()) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.yellow, "CHEESE")).Append("</size>");
     }
 }
 
@@ -61,14 +56,14 @@ internal class VersionShowerStartPatch
     private static void Postfix(VersionShower __instance)
     {
         Main.CredentialsText = $"<size=1.5><color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
-        string menuText = $"\r\n<color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}\r\n<color=#a54aff>By</color> <color=#ffff00>Gurge44</color>";
+        const string menuText = $"<color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}\r\n<color=#a54aff>By</color> <color=#ffff00>Gurge44</color>";
 
         if (Main.IsAprilFools) Main.CredentialsText = "<color=#00bfff>Endless Madness</color> v11.45.14 <color=#a54aff>by</color> <color=#ffff00>No one</color>";
 
         var credentials = Object.Instantiate(__instance.text);
         credentials.text = menuText;
         credentials.alignment = TextAlignmentOptions.Right;
-        credentials.transform.position = new(1f, 2.79f, -2f);
+        credentials.transform.position = new(1f, 2.67f, -2f);
         credentials.fontSize = credentials.fontSizeMax = credentials.fontSizeMin = 2f;
 
         ErrorText.Create(__instance.text);
@@ -97,11 +92,10 @@ internal class TitleLogoPatch
 
     private static void Postfix(MainMenuManager __instance)
     {
-
         GameObject.Find("BackgroundTexture")?.SetActive(!MainMenuManagerPatch.ShowedBak);
 
         if (!(ModStamp = GameObject.Find("ModStamp"))) return;
-        ModStamp.transform.localScale = new Vector3(0.3f, 0.3f, 0.3f);
+        ModStamp.transform.localScale = new(0.3f, 0.3f, 0.3f);
 
         if (!Options.IsLoaded)
         {
@@ -133,8 +127,7 @@ internal class TitleLogoPatch
         }
 
         if (!(LeftPanel = GameObject.Find("LeftPanel"))) return;
-        LeftPanel.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
-        static void ResetParent(GameObject obj) => obj.transform.SetParent(LeftPanel.transform.parent);
+        LeftPanel.transform.localScale = new(0.7f, 0.7f, 0.7f);
         LeftPanel.ForEachChild((Il2CppSystem.Action<GameObject>)ResetParent);
         LeftPanel.SetActive(false);
 
@@ -144,30 +137,13 @@ internal class TitleLogoPatch
 
         Dictionary<List<PassiveButton>, (Sprite, Color, Color, Color, Color)> mainButtons = new()
         {
-            {new List<PassiveButton>() {__instance.playButton, __instance.inventoryButton, __instance.shopButton},
-                (standardActiveSprite, new(1f, 0.524f, 0.549f, 0.8f), shade, Color.white, Color.white) },
-            {new List<PassiveButton>() {__instance.newsButton, __instance.myAccountButton, __instance.settingsButton},
-                (minorActiveSprite, new(1f, 0.825f, 0.686f, 0.8f), shade, Color.white, Color.white) },
-            {new List<PassiveButton>() {__instance.creditsButton, __instance.quitButton},
-                (minorActiveSprite, new(0.526f, 1f, 0.792f, 0.8f), shade, Color.white, Color.white) },
+            { [__instance.playButton, __instance.inventoryButton, __instance.shopButton], (standardActiveSprite, new(1f, 0.524f, 0.549f, 0.8f), shade, Color.white, Color.white) },
+            { [__instance.newsButton, __instance.myAccountButton, __instance.settingsButton], (minorActiveSprite, new(1f, 0.825f, 0.686f, 0.8f), shade, Color.white, Color.white) },
+            { [__instance.creditsButton, __instance.quitButton], (minorActiveSprite, new(0.526f, 1f, 0.792f, 0.8f), shade, Color.white, Color.white) },
         };
 
-        void FormatButtonColor(PassiveButton button, Sprite borderType, Color inActiveColor, Color activeColor, Color inActiveTextColor, Color activeTextColor)
-        {
-            button.activeSprites.transform.FindChild("Shine")?.gameObject?.SetActive(false);
-            button.inactiveSprites.transform.FindChild("Shine")?.gameObject?.SetActive(false);
-            var activeRenderer = button.activeSprites.GetComponent<SpriteRenderer>();
-            var inActiveRenderer = button.inactiveSprites.GetComponent<SpriteRenderer>();
-            activeRenderer.sprite = minorActiveSprite;
-            inActiveRenderer.sprite = minorActiveSprite;
-            activeRenderer.color = activeColor.a == 0f ? new Color(inActiveColor.r, inActiveColor.g, inActiveColor.b, 1f) : activeColor;
-            inActiveRenderer.color = inActiveColor;
-            button.activeTextColor = activeTextColor;
-            button.inactiveTextColor = inActiveTextColor;
-        }
-
-        foreach (var kvp in mainButtons)
-            kvp.Key.Do(button => FormatButtonColor(button, kvp.Value.Item1, kvp.Value.Item2, kvp.Value.Item3, kvp.Value.Item4, kvp.Value.Item5));
+        foreach (var kvp in mainButtons) kvp.Key.Do(button => FormatButtonColor(button, kvp.Value.Item2, kvp.Value.Item3, kvp.Value.Item4, kvp.Value.Item5));
+        mainButtons.Keys.First().Do(x => x.buttonText.color = Color.white);
 
         GameObject.Find("Divider")?.SetActive(false);
 
@@ -178,9 +154,9 @@ internal class TitleLogoPatch
         RightPanel.transform.localPosition = RightPanelOp + new Vector3(10f, 0f, 0f);
         RightPanel.GetComponent<SpriteRenderer>().color = new(1f, 0.78f, 0.9f, 1f);
 
-        CloseRightButton = new GameObject("CloseRightPanelButton");
+        CloseRightButton = new("CloseRightPanelButton");
         CloseRightButton.transform.SetParent(RightPanel.transform);
-        CloseRightButton.transform.localPosition = new Vector3(-4.78f, 1.3f, 1f);
+        CloseRightButton.transform.localPosition = new(-4.78f, 1.3f, 1f);
         CloseRightButton.transform.localScale = new(1f, 1f, 1f);
         CloseRightButton.AddComponent<BoxCollider2D>().size = new(0.6f, 1.5f);
         var closeRightSpriteRenderer = CloseRightButton.AddComponent<SpriteRenderer>();
@@ -188,23 +164,40 @@ internal class TitleLogoPatch
         closeRightSpriteRenderer.color = new(1f, 0.78f, 0.9f, 1f);
         var closeRightPassiveButton = CloseRightButton.AddComponent<PassiveButton>();
         closeRightPassiveButton.OnClick = new();
-        closeRightPassiveButton.OnClick.AddListener((System.Action)MainMenuManagerPatch.HideRightPanel);
+        closeRightPassiveButton.OnClick.AddListener((Action)MainMenuManagerPatch.HideRightPanel);
         closeRightPassiveButton.OnMouseOut = new();
-        closeRightPassiveButton.OnMouseOut.AddListener((System.Action)(() => closeRightSpriteRenderer.color = new(1f, 0.78f, 0.9f, 1f)));
+        closeRightPassiveButton.OnMouseOut.AddListener((Action)(() => closeRightSpriteRenderer.color = new(1f, 0.78f, 0.9f, 1f)));
         closeRightPassiveButton.OnMouseOver = new();
-        closeRightPassiveButton.OnMouseOver.AddListener((System.Action)(() => closeRightSpriteRenderer.color = new(1f, 0.68f, 0.99f, 1f)));
+        closeRightPassiveButton.OnMouseOver.AddListener((Action)(() => closeRightSpriteRenderer.color = new(1f, 0.68f, 0.99f, 1f)));
 
         Tint = __instance.screenTint.gameObject;
         var ttap = Tint.GetComponent<AspectPosition>();
         if (ttap) Object.Destroy(ttap);
         Tint.transform.SetParent(RightPanel.transform);
-        Tint.transform.localPosition = new Vector3(-0.0824f, 0.0513f, Tint.transform.localPosition.z);
-        Tint.transform.localScale = new Vector3(1f, 1f, 1f);
-            __instance.howToPlayButton.gameObject.SetActive(false);
-            __instance.howToPlayButton.transform.parent.Find("FreePlayButton").gameObject.SetActive(false);
+        Tint.transform.localPosition = new(-0.0824f, 0.0513f, Tint.transform.localPosition.z);
+        Tint.transform.localScale = new(1f, 1f, 1f);
+        __instance.howToPlayButton.gameObject.SetActive(false);
+        __instance.howToPlayButton.transform.parent.Find("FreePlayButton").gameObject.SetActive(false);
 
         if (!(BottomButtonBounds = GameObject.Find("BottomButtonBounds"))) return;
         BottomButtonBounds.transform.localPosition -= new Vector3(0f, 0.1f, 0f);
+        return;
+
+        static void ResetParent(GameObject obj) => obj.transform.SetParent(LeftPanel.transform.parent);
+
+        void FormatButtonColor(PassiveButton button, Color inActiveColor, Color activeColor, Color inActiveTextColor, Color activeTextColor)
+        {
+            button.activeSprites.transform.FindChild("Shine")?.gameObject.SetActive(false);
+            button.inactiveSprites.transform.FindChild("Shine")?.gameObject.SetActive(false);
+            var activeRenderer = button.activeSprites.GetComponent<SpriteRenderer>();
+            var inActiveRenderer = button.inactiveSprites.GetComponent<SpriteRenderer>();
+            activeRenderer.sprite = minorActiveSprite;
+            inActiveRenderer.sprite = minorActiveSprite;
+            activeRenderer.color = activeColor.a == 0f ? new(inActiveColor.r, inActiveColor.g, inActiveColor.b, 1f) : activeColor;
+            inActiveRenderer.color = inActiveColor;
+            button.activeTextColor = activeTextColor;
+            button.inactiveTextColor = inActiveTextColor;
+        }
     }
 }
 
@@ -260,6 +253,7 @@ class OptionsMenuBehaviourOpenPatch
             __instance.OpenTabGroup(0);
             __instance.UpdateButtons();
             __instance.gameObject.SetActive(true);
+            __instance.MenuButton?.SelectButton(true);
             if (DestroyableSingleton<HudManager>.InstanceExists) ConsoleJoystick.SetMode_MenuAdditive();
             if (!__instance.grabbedControllerButtons)
             {

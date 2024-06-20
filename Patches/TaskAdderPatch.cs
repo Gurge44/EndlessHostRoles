@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using AmongUs.GameOptions;
 using HarmonyLib;
 using Object = UnityEngine.Object;
@@ -34,28 +33,19 @@ class ShowFolderPatch
         float maxHeight = 0f;
         if (CustomRolesFolder != null && CustomRolesFolder.FolderName == taskFolder.FolderName)
         {
-            IList list = Enum.GetValues(typeof(CustomRoles));
+            var list = Enum.GetValues<CustomRoles>();
             foreach (var cRoleID in list)
             {
-                CustomRoles cRole = (CustomRoles)cRoleID;
-                /*if(cRole == CustomRoles.Crewmate ||
-                cRole == CustomRoles.Impostor ||
-                cRole == CustomRoles.Scientist ||
-                cRole == CustomRoles.Engineer ||
-                cRole == CustomRoles.GuardianAngel ||
-                cRole == CustomRoles.Shapeshifter
-                ) continue;*/
-
                 TaskAddButton button = Object.Instantiate(__instance.RoleButton);
-                button.Text.text = Utils.GetRoleName(cRole);
+                button.Text.text = Utils.GetRoleName(cRoleID);
                 __instance.AddFileAsChild(CustomRolesFolder, button, ref xCursor, ref yCursor, ref maxHeight);
                 var roleBehaviour = new RoleBehaviour
                 {
-                    Role = (RoleTypes)cRole + 1000
+                    Role = (RoleTypes)cRoleID + 1000
                 };
                 button.Role = roleBehaviour;
 
-                var roleColor = Utils.GetRoleColor(cRole);
+                var roleColor = Utils.GetRoleColor(cRoleID);
 
                 button.FileImage.color = roleColor;
                 button.RolloverHandler.OutColor = roleColor;

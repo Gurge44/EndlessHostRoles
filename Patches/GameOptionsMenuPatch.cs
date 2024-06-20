@@ -1,9 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using HarmonyLib;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Il2CppSystem.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
@@ -11,27 +10,107 @@ using Object = UnityEngine.Object;
 
 namespace EHR;
 
-[HarmonyPatch(typeof(GameSettingMenu), nameof(GameSettingMenu.InitializeOptions))]
+[HarmonyPatch(typeof(GameSettingMenu), nameof(GameSettingMenu.Start))]
 public static class GameSettingMenuPatch
 {
     public static void Prefix(GameSettingMenu __instance)
     {
         // Unlocks map/impostor amount changing in online (for testing on your custom servers)
-        __instance.HideForOnline = new(0);
+        __instance.GameSettingsTab.HideForOnline = new(0);
     }
 
     // Add dleks to map selection
-    public static void Postfix([HarmonyArgument(0)] Il2CppReferenceArray<Transform> items)
+    public static void Postfix(GameSettingMenu __instance)
     {
-        items.FirstOrDefault(i => i.gameObject.activeSelf && i.name.Equals("MapName", StringComparison.OrdinalIgnoreCase))?
-            .GetComponent<KeyValueOption>()?
-            .Values?
-            // using .Insert will convert managed values and break the struct resulting in crashes
-            .System_Collections_IList_Insert((int)MapNames.Dleks, new KeyValuePair<string, int>(Constants.MapNames[(int)MapNames.Dleks], (int)MapNames.Dleks));
+        var gamepreset = __instance.GamePresetsButton;
+
+        var gamesettings = __instance.GameSettingsButton;
+        __instance.GameSettingsButton.transform.localScale = new(0.5f, 0.5f, 1f);
+        __instance.GameSettingsButton.transform.localPosition = new(gamesettings.transform.localPosition.x, gamepreset.transform.localPosition.y + 0.1f, gamesettings.transform.localPosition.z);
+
+        var rolesettings = __instance.RoleSettingsButton;
+        __instance.RoleSettingsButton.transform.localScale = new(0.5f, 0.5f, 1f);
+        __instance.RoleSettingsButton.transform.localPosition = new(rolesettings.transform.localPosition.x, gamesettings.transform.localPosition.y - 0.4f, rolesettings.transform.localPosition.z);
+
+        GameObject template = gamepreset.gameObject;
+        GameObject targetBox = Object.Instantiate(template, gamepreset.transform);
+        targetBox.name = "System Settings";
+        targetBox.transform.localScale = new(0.59f, 0.59f, 1f);
+        targetBox.transform.localPosition = new(targetBox.transform.localPosition.x + 2.95f, rolesettings.transform.localPosition.y - 0.1f, targetBox.transform.localPosition.z);
+
+        LateTask.New(() =>
+        {
+            targetBox.transform.parent = null;
+            gamepreset.gameObject.SetActive(false);
+            targetBox.transform.parent = __instance.transform.Find("LeftPanel");
+        }, 0.05f, "Remove GamePreset");
+
+        List<string> buttonData =
+        [
+            "TabGroup.SystemSettings",
+            "TabGroup.GameSettings",
+            "TabGroup.TaskSettings"
+        ];
+
+        for (int i = 0; i < buttonData.Count; i++)
+        {
+            string name = GetString(buttonData[i]);
+            int tabNumber = 10 + i;
+
+            targetBox = Object.Instantiate(template, targetBox.transform);
+            targetBox.name = name;
+            targetBox.transform.localScale = new(1f, 1f, 1f);
+
+            PassiveButton button = targetBox.GetComponent<PassiveButton>();
+            button.OnClick.RemoveAllListeners();
+            button.OnClick.AddListener((Action)(() => __instance.ChangeTab(tabNumber, false)));
+            var label = button.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
+            LateTask.New(() => { label.text = name; }, 0.05f, $"Set {name} Button Text");
+
+            template = targetBox.gameObject;
+        }
     }
 }
 
-[HarmonyPatch(typeof(GameOptionsMenu), nameof(GameOptionsMenu.Start))]
+[HarmonyPatch(typeof(GameSettingMenu), nameof(GameSettingMenu.ChangeTab))]
+public class ChangeTabPatch
+{
+    public static void Prefix(ref int tabNum)
+    {
+        if (tabNum == 0) // Disables preset menu in any instances
+            tabNum = 1;
+    }
+
+    public static void Postfix(GameSettingMenu __instance, int tabNum)
+    {
+        switch (tabNum)
+        {
+            case 1 when __instance.GameSettingsTab.isActiveAndEnabled:
+                LateTask.New(() => __instance.MenuDescriptionText.text = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.GameSettingsDescription), 0.05f, "Fix Menu Description Text");
+                break;
+        }
+    }
+}
+
+[HarmonyPatch(typeof(RolesSettingsMenu), nameof(RolesSettingsMenu.Start))]
+public static class RolesSettingsMenuAwakePatch
+{
+    public static void Postfix(RolesSettingsMenu __instance)
+    {
+        Transform mainAreaTransform = __instance.transform.Find("MainArea");
+        RolesSettingsMenu roleTabMenu = mainAreaTransform.Find("ROLES TAB").GetComponent<RolesSettingsMenu>();
+        Logger.Info($"is roleTabMenu null? {roleTabMenu == null}", "Check");
+        if (roleTabMenu == null) return;
+
+
+        var ehrRoleSettings = Object.Instantiate(roleTabMenu, roleTabMenu.transform.parent);
+
+        ehrRoleSettings.name = "EHR Role Settings";
+        ehrRoleSettings.enabled = true;
+    }
+}
+
+[HarmonyPatch(typeof(GameOptionsMenu), nameof(GameOptionsMenu.Awake))]
 [HarmonyPriority(Priority.First)]
 public static class GameOptionsMenuPatch
 {
@@ -81,12 +160,12 @@ public static class GameOptionsMenuPatch
 
         var gameSettingMenu = Object.FindObjectsOfType<GameSettingMenu>().FirstOrDefault();
         if (gameSettingMenu == null) return;
-        System.Collections.Generic.List<GameObject> menus = [gameSettingMenu.RegularGameSettings, gameSettingMenu.RolesSettings.gameObject];
-        System.Collections.Generic.List<SpriteRenderer> highlights = [gameSettingMenu.GameSettingsHightlight, gameSettingMenu.RolesSettingsHightlight];
+        List<GameObject> menus = [gameSettingMenu.GameSettingsTab.gameObject, gameSettingMenu.RoleSettingsTab.gameObject];
+        // System.Collections.Generic.List<SpriteRenderer> highlights = [gameSettingMenu.GameSettingsHightlight, gameSettingMenu.RolesSettingsHightlight];
 
         var roleTab = GameObject.Find("RoleTab");
         var gameTab = GameObject.Find("GameTab");
-        System.Collections.Generic.List<GameObject> tabs = [gameTab, roleTab];
+        List<GameObject> tabs = [gameTab, roleTab];
 
         float delay = 0f;
 
@@ -99,32 +178,32 @@ public static class GameOptionsMenuPatch
                 continue;
             }
 
-            var tohSettings = Object.Instantiate(gameSettings, gameSettings.transform.parent);
-            tohSettings.name = tab + "Tab";
-            var backPanel = tohSettings.transform.FindChild("BackPanel");
+            var ehrSettings = Object.Instantiate(gameSettings, gameSettings.transform.parent);
+            ehrSettings.name = tab + "Tab";
+            var backPanel = ehrSettings.transform.FindChild("BackPanel");
             backPanel.transform.localScale =
-                tohSettings.transform.FindChild("Bottom Gradient").transform.localScale = new(1.6f, 1f, 1f);
+                ehrSettings.transform.FindChild("Bottom Gradient").transform.localScale = new(1.6f, 1f, 1f);
             backPanel.transform.localPosition += new Vector3(0.2f, 0f, 0f);
-            tohSettings.transform.FindChild("Bottom Gradient").transform.localPosition += new Vector3(0.2f, 0f, 0f);
-            tohSettings.transform.FindChild("Background").transform.localScale = new(1.8f, 1f, 1f);
-            tohSettings.transform.FindChild("UI_Scrollbar").transform.localPosition += new Vector3(1.4f, 0f, 0f);
-            tohSettings.transform.FindChild("UI_ScrollbarTrack").transform.localPosition += new Vector3(1.4f, 0f, 0f);
-            tohSettings.transform.FindChild("GameGroup/SliderInner").transform.localPosition += new Vector3(-0.3f, 0f, 0f);
+            ehrSettings.transform.FindChild("Bottom Gradient").transform.localPosition += new Vector3(0.2f, 0f, 0f);
+            ehrSettings.transform.FindChild("Background").transform.localScale = new(1.8f, 1f, 1f);
+            ehrSettings.transform.FindChild("UI_Scrollbar").transform.localPosition += new Vector3(1.4f, 0f, 0f);
+            ehrSettings.transform.FindChild("UI_ScrollbarTrack").transform.localPosition += new Vector3(1.4f, 0f, 0f);
+            ehrSettings.transform.FindChild("GameGroup/SliderInner").transform.localPosition += new Vector3(-0.3f, 0f, 0f);
 
-            var tohMenu = tohSettings.transform.FindChild("GameGroup/SliderInner").GetComponent<GameOptionsMenu>();
+            var ehrMenu = ehrSettings.transform.FindChild("GameGroup/SliderInner").GetComponent<GameOptionsMenu>();
 
-            var scOptions = new System.Collections.Generic.List<OptionBehaviour>();
+            var scOptions = new Il2CppSystem.Collections.Generic.List<OptionBehaviour>();
 
             LateTask.New(() =>
             {
-                tohMenu.GetComponentsInChildren<OptionBehaviour>().Do(x => Object.Destroy(x.gameObject));
+                ehrMenu.GetComponentsInChildren<OptionBehaviour>().Do(x => Object.Destroy(x.gameObject));
 
                 foreach (OptionItem option in optionItems)
                 {
                     if (option.OptionBehaviour == null)
                     {
                         float yoffset = option.IsText ? 100f : 0f;
-                        var stringOption = Object.Instantiate(template, tohMenu.transform);
+                        var stringOption = Object.Instantiate(template, ehrMenu.transform);
                         scOptions.Add(stringOption);
 
                         stringOption.OnValueChanged = new Action<OptionBehaviour>(_ => { });
@@ -165,17 +244,17 @@ public static class GameOptionsMenuPatch
 
             delay += 0.1f;
 
-            tohMenu.Children = scOptions.ToArray();
+            ehrMenu.Children = scOptions;
 
-            tohSettings.gameObject.SetActive(false);
-            menus.Add(tohSettings.gameObject);
+            ehrSettings.gameObject.SetActive(false);
+            menus.Add(ehrSettings.gameObject);
 
-            var tohTab = Object.Instantiate(roleTab, roleTab.transform.parent);
-            var hatButton = tohTab.transform.FindChild("Hat Button");
+            var ehrTab = Object.Instantiate(roleTab, roleTab.transform.parent);
+            var hatButton = ehrTab.transform.FindChild("Hat Button");
             hatButton.FindChild("Icon").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite($"EHR.Resources.Images.TabIcon_{tab}.png", 100f);
-            tabs.Add(tohTab);
-            var tohTabHighlight = hatButton.FindChild("Tab Background").GetComponent<SpriteRenderer>();
-            highlights.Add(tohTabHighlight);
+            tabs.Add(ehrTab);
+            // var ehrTabHighlight = hatButton.FindChild("Tab Background").GetComponent<SpriteRenderer>();
+            // highlights.Add(ehrTabHighlight);
         }
 
         for (var i = 0; i < tabs.Count; i++)
@@ -194,17 +273,17 @@ public static class GameOptionsMenuPatch
                 for (var j = 0; j < menus.Count; j++)
                 {
                     menus[j].SetActive(j == copiedIndex);
-                    highlights[j].enabled = j == copiedIndex;
+                    //highlights[j].enabled = j == copiedIndex;
                 }
             }
         }
     }
 }
 
-[HarmonyPatch(typeof(GameOptionsMenu), nameof(GameOptionsMenu.Update))]
-public class GameOptionsMenuUpdatePatch
+// [HarmonyPatch(typeof(GameOptionsMenu), nameof(GameOptionsMenu.Update))]
+public static class GameOptionsMenuUpdatePatch
 {
-    private static float _timer = 1f;
+    private static float Timer = 1f;
 
     public static void Postfix(GameOptionsMenu __instance)
     {
@@ -227,9 +306,9 @@ public class GameOptionsMenuUpdatePatch
             if (__instance.transform.parent.parent.name != tab + "Tab") continue;
             __instance.transform.FindChild("../../GameGroup/Text").GetComponent<TextMeshPro>().SetText($"<color={tabcolor}>" + GetString("TabGroup." + tab) + "</color>");
 
-            _timer += Time.deltaTime;
-            if (_timer < 0.2f) return;
-            _timer = 0f;
+            Timer += Time.deltaTime;
+            if (Timer < 0.2f) return;
+            Timer = 0f;
 
             var offset = 2.7f;
 
@@ -302,7 +381,7 @@ public class GameOptionsMenuUpdatePatch
     }
 }
 
-[HarmonyPatch(typeof(StringOption), nameof(StringOption.OnEnable))]
+// [HarmonyPatch(typeof(StringOption), nameof(StringOption.Start))]
 public class StringOptionEnablePatch
 {
     public static bool Prefix(StringOption __instance)
@@ -326,7 +405,7 @@ public class StringOptionEnablePatch
     }
 }
 
-[HarmonyPatch(typeof(StringOption), nameof(StringOption.Increase))]
+// [HarmonyPatch(typeof(StringOption), nameof(StringOption.Increase))]
 public class StringOptionIncreasePatch
 {
     public static bool Prefix(StringOption __instance)
@@ -341,7 +420,7 @@ public class StringOptionIncreasePatch
     public static void Postfix( /*StringOption __instance*/) => OptionShower.GetText();
 }
 
-[HarmonyPatch(typeof(StringOption), nameof(StringOption.Decrease))]
+// [HarmonyPatch(typeof(StringOption), nameof(StringOption.Decrease))]
 public class StringOptionDecreasePatch
 {
     public static bool Prefix(StringOption __instance)
@@ -365,31 +444,31 @@ public class RpcSyncSettingsPatch
     }
 }
 
-[HarmonyPatch(typeof(RolesSettingsMenu), nameof(RolesSettingsMenu.Start))]
-public static class RolesSettingsMenuPatch
-{
-    public static void Postfix(RolesSettingsMenu __instance)
-    {
-        foreach (OptionBehaviour ob in __instance.Children)
-        {
-            // ReSharper disable once ConvertSwitchStatementToSwitchExpression
-            switch (ob.Title)
-            {
-                case StringNames.EngineerCooldown:
-                    ob.Cast<NumberOption>().ValidRange = new(0, 180);
-                    break;
-                case StringNames.ShapeshifterCooldown:
-                    ob.Cast<NumberOption>().ValidRange = new(0, 180);
-                    break;
-            }
-        }
-    }
-}
+// [HarmonyPatch(typeof(RolesSettingsMenu), nameof(RolesSettingsMenu.Start))]
+// public static class RolesSettingsMenuPatch
+// {
+//     public static void Postfix(RolesSettingsMenu __instance)
+//     {
+//         foreach (OptionBehaviour ob in __instance.Children)
+//         {
+//             // ReSharper disable once ConvertSwitchStatementToSwitchExpression
+//             switch (ob.Title)
+//             {
+//                 case StringNames.EngineerCooldown:
+//                     ob.Cast<NumberOption>().ValidRange = new(0, 180);
+//                     break;
+//                 case StringNames.ShapeshifterCooldown:
+//                     ob.Cast<NumberOption>().ValidRange = new(0, 180);
+//                     break;
+//             }
+//         }
+//     }
+// }
 
-[HarmonyPatch(typeof(NormalGameOptionsV07), nameof(NormalGameOptionsV07.SetRecommendations))]
+// [HarmonyPatch(typeof(NormalGameOptionsV08), nameof(NormalGameOptionsV08.SetRecommendations))]
 public static class SetRecommendationsPatch
 {
-    public static bool Prefix(NormalGameOptionsV07 __instance, int numPlayers, bool isOnline)
+    public static bool Prefix(NormalGameOptionsV08 __instance, int numPlayers, bool isOnline)
     {
         numPlayers = Mathf.Clamp(numPlayers, 4, 15);
         __instance.PlayerSpeedMod = __instance.MapId == 4 ? 1.5f : 1.25f;
@@ -401,7 +480,7 @@ public static class SetRecommendationsPatch
         __instance.NumShortTasks = 4;
         __instance.NumEmergencyMeetings = 1;
         if (!isOnline)
-            __instance.NumImpostors = NormalGameOptionsV07.RecommendedImpostors[numPlayers];
+            __instance.NumImpostors = NormalGameOptionsV08.RecommendedImpostors[numPlayers];
         __instance.KillDistance = 1;
         __instance.DiscussionTime = 0;
         __instance.VotingTime = 120;

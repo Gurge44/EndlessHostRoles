@@ -74,7 +74,7 @@ class EndGamePatch
 
         Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
 
-        TempData.winners = new();
+        EndGameResult.CachedWinners = new();
 
         var winner = Main.AllPlayerControls.Where(pc => CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId)).ToList();
 
@@ -89,7 +89,7 @@ class EndGamePatch
         {
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw && pc.Is(CustomRoles.GM)) continue;
 
-            TempData.winners.Add(new(pc.Data));
+            EndGameResult.CachedWinners.Add(new(pc.Data));
             Main.WinnerList.Add(pc.PlayerId);
             Main.WinnerNameList.Add(pc.GetRealName());
         }
@@ -147,21 +147,21 @@ class SetEverythingUpPatch
                 }
             }
 
-            List<WinningPlayerData> list = TempData.winners.ToArray().ToList();
+            var list = EndGameResult.CachedWinners.ToArray().ToList();
             for (int i = 0; i < list.Count; i++)
             {
-                WinningPlayerData data = list[i];
+                var data = list[i];
                 int num2 = (i % 2 == 0) ? -1 : 1;
                 int num3 = (i + 1) / 2;
                 float num4 = num3 / (float)num;
                 float num5 = Mathf.Lerp(1f, 0.75f, num4);
                 float num6 = (i == 0) ? -8 : -1;
-                PoolablePlayer poolablePlayer = Object.Instantiate(__instance?.PlayerPrefab, __instance?.transform);
+                var poolablePlayer = Object.Instantiate(__instance?.PlayerPrefab, __instance?.transform);
                 poolablePlayer.transform.localPosition = new Vector3(1f * num2 * num3 * num5, FloatRange.SpreadToEdges(-1.125f, 0f, num3, num), num6 + num3 * 0.01f) * 0.9f;
                 float num7 = Mathf.Lerp(1f, 0.65f, num4) * 0.9f;
                 Vector3 vector = new(num7, num7, 1f);
                 poolablePlayer.transform.localScale = vector;
-                poolablePlayer.UpdateFromPlayerOutfit(data, PlayerMaterial.MaskType.ComplexUI, data.IsDead, true);
+                poolablePlayer.UpdateFromPlayerOutfit(data.Outfit, PlayerMaterial.MaskType.ComplexUI, data.IsDead, true);
                 if (data.IsDead)
                 {
                     poolablePlayer.cosmetics.currentBodySprite.BodySprite.sprite = poolablePlayer.cosmetics.currentBodySprite.GhostSprite;

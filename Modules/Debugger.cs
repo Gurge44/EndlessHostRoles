@@ -55,7 +55,7 @@ class Logger
         if (!IsEnable) return;
         if (DestroyableSingleton<HudManager>._instance)
         {
-            DestroyableSingleton<HudManager>.Instance.Notifier.AddItem(text);
+            DestroyableSingleton<HudManager>.Instance.Notifier.AddDisconnectMessage(text);
             Warn(text, "SendInGame");
         }
     }

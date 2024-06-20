@@ -29,8 +29,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "3.5.1";
-    public const string PluginDisplayVersion = "3.5.1";
+    public const string PluginVersion = "4.0.0";
+    public const string PluginDisplayVersion = "4.0.0";
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
     public const string CrewmateColor = "#8cffff";
@@ -42,7 +42,7 @@ public class Main : BasePlugin
     public const string ModColor = "#00ffff";
     public const bool AllowPublicRoom = true;
     public const string ForkId = "EHR";
-    public const string SupportedAUVersion = "2024.3.5";
+    public const string SupportedAUVersion = "2024.6.18";
     public static readonly Version Version = Version.Parse(PluginVersion);
     public static ManualLogSource Logger;
     public static bool HasArgumentException;
@@ -51,9 +51,11 @@ public class Main : BasePlugin
     public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
     public static bool ChangedRole = false;
     public static OptionBackupData RealOptionsData;
+    public static string HostRealName = string.Empty;
     public static Dictionary<byte, float> KillTimers = [];
     public static Dictionary<byte, PlayerState> PlayerStates = [];
     public static Dictionary<byte, string> AllPlayerNames = [];
+    public static Dictionary<int, string> AllClientRealNames = [];
     public static Dictionary<(byte, byte), string> LastNotifyNames;
     public static Dictionary<byte, Color32> PlayerColors = [];
     public static Dictionary<byte, PlayerState.DeathReason> AfterMeetingDeathPlayers = [];
@@ -126,7 +128,7 @@ public class Main : BasePlugin
 
     private Harmony Harmony { get; } = new(PluginGuid);
 
-    public static NormalGameOptionsV07 NormalOptions => GameOptionsManager.Instance.currentNormalGameOptions;
+    public static NormalGameOptionsV08 NormalOptions => GameOptionsManager.Instance.currentNormalGameOptions;
 
     // Client Options
     public static ConfigEntry<string> HideName { get; private set; }
@@ -201,7 +203,7 @@ public class Main : BasePlugin
     // ReSharper disable once InconsistentNaming
     public static string Get_TName_Snacks => TranslationController.Instance.currentLanguage.languageID is SupportedLangs.SChinese or SupportedLangs.TChinese ? NameSnacksCn.RandomElement() : NameSnacksEn.RandomElement();
 
-    public static GameData.PlayerInfo LastVotedPlayerInfo { get; set; }
+    public static NetworkedPlayerInfo LastVotedPlayerInfo { get; set; }
 
     public static MapNames CurrentMap => (MapNames)NormalOptions.MapId;
 
@@ -380,7 +382,7 @@ public class Main : BasePlugin
                 { CustomRoles.Monarch, "#FFA500" },
                 { CustomRoles.Bloodhound, "#8B0000" },
                 { CustomRoles.Enigma, "#676798" },
-                { CustomRoles.Tracker, "#3CB371" },
+                { CustomRoles.Scout, "#3CB371" },
                 { CustomRoles.CameraMan, "#000930" },
                 { CustomRoles.Merchant, "#D27D2D" },
                 { CustomRoles.Monitor, "#7223DA" },
@@ -476,7 +478,7 @@ public class Main : BasePlugin
                 { CustomRoles.Virus, "#2E8B57" },
                 { CustomRoles.Farseer, "#BA55D3" },
                 { CustomRoles.Pursuer, "#617218" },
-                { CustomRoles.Phantom, "#662962" },
+                { CustomRoles.Phantasm, "#662962" },
                 { CustomRoles.Jinx, "#ed2f91" },
                 { CustomRoles.Maverick, "#781717" },
                 { CustomRoles.Ritualist, "#663399" },
@@ -594,7 +596,7 @@ public class Main : BasePlugin
                 { CustomRoles.Agent, "#ff8f8f" },
                 { CustomRoles.Taskinator, "#561dd1" }
             };
-            Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleColors.TryAdd(x, "#ff1919"));
+            Enum.GetValues<CustomRoles>().Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleColors.TryAdd(x, "#ff1919"));
         }
         catch (ArgumentException ex)
         {
@@ -740,7 +742,7 @@ public enum CustomWinner
     Juggernaut = CustomRoles.Juggernaut,
     Bandit = CustomRoles.Bandit,
     Virus = CustomRoles.Virus,
-    Phantom = CustomRoles.Phantom,
+    Phantom = CustomRoles.Phantasm,
     Jinx = CustomRoles.Jinx,
     Ritualist = CustomRoles.Ritualist,
     Pickpocket = CustomRoles.Pickpocket,
@@ -781,7 +783,7 @@ public enum AdditionalWinners
     Romantic = CustomRoles.Romantic,
     VengefulRomantic = CustomRoles.VengefulRomantic,
     Pursuer = CustomRoles.Pursuer,
-    Phantom = CustomRoles.Phantom,
+    Phantom = CustomRoles.Phantasm,
     Sidekick = CustomRoles.Sidekick,
     Maverick = CustomRoles.Maverick,
     Postman = CustomRoles.Postman,

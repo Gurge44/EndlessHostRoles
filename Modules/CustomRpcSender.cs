@@ -281,6 +281,7 @@ public static class CustomRpcSenderExtensions
     {
         sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetRole, targetClientId)
             .Write((ushort)role)
+            .Write(false)
             .EndRpc();
     }
 

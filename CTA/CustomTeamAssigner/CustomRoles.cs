@@ -7,10 +7,12 @@ public enum CustomRoles
 
     // Impostors (Vanilla)
     Impostor,
+    Phantom,
     Shapeshifter,
 
     // Vanilla Remakes
     ImpostorEHR,
+    PhantomEHR,
     ShapeshifterEHR,
 
     // Impostors
@@ -106,13 +108,17 @@ public enum CustomRoles
     // Crewmates (Vanilla)
     Engineer,
     GuardianAngel,
+    Noisemaker,
     Scientist,
+    Tracker,
 
     // Vanilla Remakes
     CrewmateEHR,
     EngineerEHR,
     GuardianAngelEHR,
+    NoisemakerEHR,
     ScientistEHR,
+    TrackerEHR,
 
     // Crewmates
 
@@ -129,6 +135,7 @@ public enum CustomRoles
     CameraMan,
     CyberStar, // Celebrity
     Chameleon,
+    Clairvoyant,
     Cleanser,
     Convener,
     CopyCat,
@@ -193,6 +200,7 @@ public enum CustomRoles
     Rabbit,
     Randomizer,
     Ricochet,
+    Safeguard,
     SecurityGuard,
     Sentinel,
     Sentry,
@@ -210,7 +218,7 @@ public enum CustomRoles
     TimeMaster,
     ToiletMaster,
     Tornado,
-    Tracker,
+    Scout,
     Transmitter,
     Transporter,
     Tracefinder,
@@ -266,7 +274,7 @@ public enum CustomRoles
     Patroller,
     Pelican,
     Pestilence,
-    Phantom,
+    Phantasm,
     Pickpocket,
     PlagueBearer,
     PlagueDoctor,

@@ -38,7 +38,7 @@ namespace EHR.Roles.AddOns.GhostRoles
                 taskState.CompletedTasksCount = 0;
                 taskState.AllTasksCount = Utils.TotalTaskCount - Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks);
 
-                GameData.Instance.RpcSetTasks(pc.PlayerId, Array.Empty<byte>());
+                pc.Data.RpcSetTasks(Array.Empty<byte>());
                 pc.SyncSettings();
                 pc.RpcResetAbilityCooldown();
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);

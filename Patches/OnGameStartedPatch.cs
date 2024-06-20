@@ -38,31 +38,26 @@ internal class ChangeRoleSettings
         IEnumerator<object> CSG()
         {
             AmongUsClient amongUsClient = __instance;
-            if (DestroyableSingleton<HudManager>.Instance.GameMenu.IsOpen)
-                DestroyableSingleton<HudManager>.Instance.GameMenu.Close();
+            if (DestroyableSingleton<HudManager>.Instance.GameMenu.IsOpen) DestroyableSingleton<HudManager>.Instance.GameMenu.Close();
             DestroyableSingleton<UnityTelemetry>.Instance.Init();
-            amongUsClient.logger.Info("Received game start: " + amongUsClient.AmHost);
+            amongUsClient.logger.Info($"Received game start: {amongUsClient.AmHost}");
             yield return null;
-            while (!DestroyableSingleton<HudManager>.InstanceExists)
-                yield return null;
-            while (PlayerControl.LocalPlayer == null)
-                yield return null;
+            while (!DestroyableSingleton<HudManager>.InstanceExists) yield return null;
+            while (PlayerControl.LocalPlayer == null) yield return null;
             PlayerControl.LocalPlayer.moveable = false;
             PlayerControl.LocalPlayer.MyPhysics.inputHandler.enabled = true;
             PlayerCustomizationMenu objectOfType1 = Object.FindObjectOfType<PlayerCustomizationMenu>();
-            if (objectOfType1)
-                objectOfType1.Close(false);
+            if (objectOfType1 != null) objectOfType1.Close(false);
             GameSettingMenu objectOfType2 = Object.FindObjectOfType<GameSettingMenu>();
-            if (objectOfType2)
-                objectOfType2.Close();
+            if (objectOfType2 != null) objectOfType2.Close();
             if (DestroyableSingleton<GameStartManager>.InstanceExists)
             {
                 // amongUsClient.DisconnectHandlers.Remove((IDisconnectHandler) DestroyableSingleton<GameStartManager>.Instance);
                 Object.Destroy(DestroyableSingleton<GameStartManager>.Instance.gameObject);
             }
 
-            if (DestroyableSingleton<DiscordManager>.InstanceExists)
-                DestroyableSingleton<DiscordManager>.Instance.SetPlayingGame();
+            if (DestroyableSingleton<LobbyInfoPane>.InstanceExists) Object.Destroy(DestroyableSingleton<LobbyInfoPane>.Instance.gameObject);
+            if (DestroyableSingleton<DiscordManager>.InstanceExists) DestroyableSingleton<DiscordManager>.Instance.SetPlayingGame();
             if (!string.IsNullOrEmpty(DataManager.Player.Store.ActiveCosmicube))
             {
                 AmongUsClient.Instance.SetActivePodType(DestroyableSingleton<CosmicubeManager>.Instance.GetCubeDataByID(DataManager.Player.Store.ActiveCosmicube).podId);
@@ -78,13 +73,10 @@ internal class ChangeRoleSettings
             DestroyableSingleton<FriendsListManager>.Instance.ReparentUI();
             // CosmeticsCache.ClearUnusedCosmetics();
             yield return DestroyableSingleton<HudManager>.Instance.CoFadeFullScreen(Color.clear, Color.black, showLoader: true);
-            while (!GameData.Instance)
-                yield return null;
             ++StatsManager.Instance.BanPoints;
             StatsManager.Instance.LastGameStarted = DateTime.UtcNow;
             if (amongUsClient.AmHost)
             {
-                GameData.Instance.SetDirty();
                 yield return amongUsClient.CoStartGameHost();
             }
             else
@@ -110,14 +102,14 @@ internal class ChangeRoleSettings
             }
 
             DestroyableSingleton<FriendsListManager>.Instance.SetRecentlyPlayed(GameData.Instance.AllPlayers);
-            TempData.TimeGameStarted = Time.realtimeSinceStartup;
+            GameData.TimeGameStarted = Time.realtimeSinceStartup;
             int map = Mathf.Clamp(GameOptionsManager.Instance.CurrentGameOptions.MapId, 0, Constants.MapNames.Length - 1);
             string gameName = GameCode.IntToGameName(AmongUsClient.Instance.GameId);
             DestroyableSingleton<DebugAnalytics>.Instance.Analytics.StartGame(PlayerControl.LocalPlayer.Data, GameData.Instance.PlayerCount, GameOptionsManager.Instance.CurrentGameOptions.NumImpostors, AmongUsClient.Instance.NetworkMode, (MapNames)map, GameOptionsManager.Instance.CurrentGameOptions.GameMode, gameName, DestroyableSingleton<ServerManager>.Instance.CurrentRegion.Name, GameOptionsManager.Instance.CurrentGameOptions, GameData.Instance.AllPlayers);
             try
             {
                 DestroyableSingleton<UnityTelemetry>.Instance.StartGame(AmongUsClient.Instance.AmHost, GameData.Instance.PlayerCount, GameOptionsManager.Instance.CurrentGameOptions.NumImpostors, AmongUsClient.Instance.NetworkMode, StatsManager.Instance.GetStat(StringNames.StatsGamesImpostor), StatsManager.Instance.GetStat(StringNames.StatsGamesStarted), StatsManager.Instance.GetStat(StringNames.StatsCrewmateStreak));
-                GameData.PlayerOutfit defaultOutfit = PlayerControl.LocalPlayer.Data.DefaultOutfit;
+                NetworkedPlayerInfo.PlayerOutfit defaultOutfit = PlayerControl.LocalPlayer.Data.DefaultOutfit;
                 DestroyableSingleton<UnityTelemetry>.Instance.StartGameCosmetics(defaultOutfit.ColorId, defaultOutfit.HatId, defaultOutfit.SkinId, defaultOutfit.PetId, defaultOutfit.VisorId, defaultOutfit.NamePlateId);
             }
             catch
@@ -141,6 +133,9 @@ internal class ChangeRoleSettings
                 Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Scientist, 0, 0);
                 Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Engineer, 0, 0);
                 Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Shapeshifter, 0, 0);
+                Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Noisemaker, 0, 0);
+                Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Phantom, 0, 0);
+                Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Tracker, 0, 0);
             }
 
             // Reset previous roles
@@ -240,6 +235,7 @@ internal class ChangeRoleSettings
             Main.PlayerColors = [];
 
             RPC.SyncAllPlayerNames();
+            RPC.SyncAllClientRealNames();
 
             Camouflage.BlockCamouflage = false;
             Camouflage.Init();
@@ -275,7 +271,7 @@ internal class ChangeRoleSettings
                 pc.cosmetics.nameText.text = pc.name;
                 RandomSpawn.CustomNetworkTransformPatch.NumOfTP.Add(pc.PlayerId, 0);
                 var outfit = pc.Data.DefaultOutfit;
-                Camouflage.PlayerSkins[pc.PlayerId] = new GameData.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId, outfit.NamePlateId);
+                Camouflage.PlayerSkins[pc.PlayerId] = new NetworkedPlayerInfo.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId, outfit.NamePlateId);
                 Main.ClientIdList.Add(pc.GetClientId());
             }
 
@@ -343,7 +339,19 @@ internal class ChangeRoleSettings
 [HarmonyPatch(typeof(RoleManager), nameof(RoleManager.SelectRoles))]
 internal class SelectRolesPatch
 {
-    private static Dictionary<CustomRoles, List<byte>> BasisChangingAddons = [];
+    private static readonly Dictionary<CustomRoles, List<byte>> BasisChangingAddons = [];
+
+    private static readonly Dictionary<RoleTypes, int> RoleTypeNums = new()
+    {
+        { RoleTypes.Scientist, AddScientistNum },
+        { RoleTypes.Engineer, AddEngineerNum },
+        { RoleTypes.Shapeshifter, AddShapeshifterNum },
+        { RoleTypes.Noisemaker, AddNoisemakerNum },
+        { RoleTypes.Phantom, AddPhantomNum },
+        { RoleTypes.Tracker, AddTrackerNum }
+    };
+
+    private static RoleOptionsCollectionV08 RoleOpt => Main.NormalOptions.roleOptions;
 
     public static void Prefix()
     {
@@ -374,13 +382,12 @@ internal class SelectRolesPatch
             CalculateVanillaRoleCount();
 
 
-            var roleOpt = Main.NormalOptions.roleOptions;
-            int ScientistNum = Options.DisableVanillaRoles.GetBool() ? 0 : roleOpt.GetNumPerGame(RoleTypes.Scientist);
-            roleOpt.SetRoleRate(RoleTypes.Scientist, ScientistNum + AddScientistNum, AddScientistNum > 0 ? 100 : roleOpt.GetChancePerGame(RoleTypes.Scientist));
-            int EngineerNum = Options.DisableVanillaRoles.GetBool() ? 0 : roleOpt.GetNumPerGame(RoleTypes.Engineer);
-            roleOpt.SetRoleRate(RoleTypes.Engineer, EngineerNum + AddEngineerNum, AddEngineerNum > 0 ? 100 : roleOpt.GetChancePerGame(RoleTypes.Engineer));
-            int ShapeshifterNum = Options.DisableVanillaRoles.GetBool() ? 0 : roleOpt.GetNumPerGame(RoleTypes.Shapeshifter);
-            roleOpt.SetRoleRate(RoleTypes.Shapeshifter, ShapeshifterNum + AddShapeshifterNum, AddShapeshifterNum > 0 ? 100 : roleOpt.GetChancePerGame(RoleTypes.Shapeshifter));
+            foreach (var roleType in RoleTypeNums)
+            {
+                int roleNum = Options.DisableVanillaRoles.GetBool() ? 0 : RoleOpt.GetNumPerGame(roleType.Key);
+                roleNum += roleType.Value;
+                RoleOpt.SetRoleRate(roleType.Key, roleNum, roleType.Value > 0 ? 100 : RoleOpt.GetChancePerGame(roleType.Key));
+            }
 
 
             var rd = IRandom.Instance;
@@ -556,6 +563,9 @@ internal class SelectRolesPatch
                     RoleTypes.Engineer => CustomRoles.Engineer,
                     RoleTypes.GuardianAngel => CustomRoles.GuardianAngel,
                     RoleTypes.Shapeshifter => CustomRoles.Shapeshifter,
+                    RoleTypes.Noisemaker => CustomRoles.Noisemaker,
+                    RoleTypes.Phantom => CustomRoles.Phantom,
+                    RoleTypes.Tracker => CustomRoles.Tracker,
                     _ => CustomRoles.NotAssigned
                 };
                 if (role == CustomRoles.NotAssigned) Logger.SendInGame(string.Format(GetString("Error.InvalidRoleAssignment"), pc?.Data?.PlayerName));
@@ -696,16 +706,14 @@ internal class SelectRolesPatch
                 pc.ResetKillCooldown();
             }
 
-            var roleOpt = Main.NormalOptions.roleOptions;
-            int ScientistNum = Options.DisableVanillaRoles.GetBool() ? 0 : roleOpt.GetNumPerGame(RoleTypes.Scientist);
-            ScientistNum -= AddScientistNum;
-            roleOpt.SetRoleRate(RoleTypes.Scientist, ScientistNum, roleOpt.GetChancePerGame(RoleTypes.Scientist));
-            int EngineerNum = Options.DisableVanillaRoles.GetBool() ? 0 : roleOpt.GetNumPerGame(RoleTypes.Engineer);
-            EngineerNum -= AddEngineerNum;
-            roleOpt.SetRoleRate(RoleTypes.Engineer, EngineerNum, roleOpt.GetChancePerGame(RoleTypes.Engineer));
-            int ShapeshifterNum = Options.DisableVanillaRoles.GetBool() ? 0 : roleOpt.GetNumPerGame(RoleTypes.Shapeshifter);
-            ShapeshifterNum -= AddShapeshifterNum;
-            roleOpt.SetRoleRate(RoleTypes.Shapeshifter, ShapeshifterNum, roleOpt.GetChancePerGame(RoleTypes.Shapeshifter));
+
+            foreach (var roleType in RoleTypeNums)
+            {
+                int roleNum = Options.DisableVanillaRoles.GetBool() ? 0 : RoleOpt.GetNumPerGame(roleType.Key);
+                roleNum -= roleType.Value;
+                RoleOpt.SetRoleRate(roleType.Key, roleNum, RoleOpt.GetChancePerGame(roleType.Key));
+            }
+
 
             switch (Options.CurrentGameMode)
             {
@@ -887,6 +895,7 @@ internal class SelectRolesPatch
                         PLAYER.SetRole(ROLETYPE);
                         sender.Value.AutoStartRpc(PLAYER.NetId, (byte)RpcCalls.SetRole, Utils.GetPlayerById(sender.Key).GetClientId())
                             .Write((ushort)ROLETYPE)
+                            .Write(false)
                             .EndRpc();
                     }
                     catch

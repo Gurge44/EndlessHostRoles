@@ -75,7 +75,7 @@ public class Amnesiac : RoleBase
         return false;
     }
 
-    public override bool CheckReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target, PlayerControl killer)
+    public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
     {
         if (RememberMode.GetValue() == 1)
         {

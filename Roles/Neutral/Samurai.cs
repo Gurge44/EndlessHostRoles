@@ -97,7 +97,7 @@ namespace EHR.Roles.Neutral
             var target = Utils.GetPlayerById(Target.Id);
             if (target == null) return;
 
-            if (Vector2.Distance(target.Pos(), pc.Pos()) > (NormalGameOptionsV07.KillDistances[Mathf.Clamp(pc.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f))
+            if (Vector2.Distance(target.Pos(), pc.Pos()) > (NormalGameOptionsV08.KillDistances[Mathf.Clamp(pc.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f))
             {
                 Target = (byte.MaxValue, 0);
                 pc.RpcCheckAndMurder(target);

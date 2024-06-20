@@ -454,5 +454,5 @@ public static class MeetingStates
     public static bool IsEmergencyMeeting => ReportTarget == null;
     public static bool IsExistDeadBody => DeadBodies.Length > 0;
 
-    public static GameData.PlayerInfo ReportTarget { get; set; }
+    public static NetworkedPlayerInfo ReportTarget { get; set; }
 }

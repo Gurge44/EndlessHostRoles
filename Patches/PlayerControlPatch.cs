@@ -803,9 +803,9 @@ class RpcShapeshiftPatch
 class ReportDeadBodyPatch
 {
     public static Dictionary<byte, bool> CanReport;
-    public static readonly Dictionary<byte, List<GameData.PlayerInfo>> WaitReport = [];
+    public static readonly Dictionary<byte, List<NetworkedPlayerInfo>> WaitReport = [];
 
-    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] GameData.PlayerInfo target)
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] NetworkedPlayerInfo target)
     {
         if (GameStates.IsMeeting) return false;
         if (Options.DisableMeeting.GetBool()) return false;
@@ -920,7 +920,7 @@ class ReportDeadBodyPatch
         return true;
     }
 
-    public static void AfterReportTasks(PlayerControl player, GameData.PlayerInfo target)
+    public static void AfterReportTasks(PlayerControl player, NetworkedPlayerInfo target)
     {
         //====================================================================================
         //    Hereinafter, it is assumed that it is confirmed that the button is pressed.
@@ -1500,8 +1500,8 @@ class FixedUpdatePatch
                     case CustomRoles.EvilTracker:
                         Mark.Append(EvilTracker.GetTargetMark(seer, target));
                         break;
-                    case CustomRoles.Tracker:
-                        Mark.Append(Tracker.GetTargetMark(seer, target));
+                    case CustomRoles.Scout:
+                        Mark.Append(Scout.GetTargetMark(seer, target));
                         break;
                     case CustomRoles.AntiAdminer when GameStates.IsInTask:
                         (Main.PlayerStates[seer.PlayerId].Role as AntiAdminer).OnFixedUpdate(seer);
@@ -2050,7 +2050,7 @@ class PlayerControlSetRolePatch
                 foreach ((PlayerControl seer, RoleTypes role) in ghostRoles)
                 {
                     Logger.Info($"Desync {targetName} => {role} for {seer.GetNameWithRole().RemoveHtmlTags()}", "PlayerControl.RpcSetRole");
-                    target.RpcSetRoleDesync(role, seer.GetClientId());
+                    target.RpcSetRoleDesync(role, false, seer.GetClientId());
                 }
 
                 return false;
@@ -2061,7 +2061,7 @@ class PlayerControlSetRolePatch
     }
 }
 
-[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.SetRole))]
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CoSetRole))]
 class PlayerControlLocalSetRolePatch
 {
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] RoleTypes role)
@@ -2071,10 +2071,13 @@ class PlayerControlLocalSetRolePatch
             var moddedRole = role switch
             {
                 RoleTypes.Impostor => CustomRoles.ImpostorEHR,
+                RoleTypes.Phantom => CustomRoles.PhantomEHR,
                 RoleTypes.Shapeshifter => CustomRoles.ShapeshifterEHR,
                 RoleTypes.Crewmate => CustomRoles.CrewmateEHR,
                 RoleTypes.Engineer => CustomRoles.EngineerEHR,
+                RoleTypes.Noisemaker => CustomRoles.NoisemakerEHR,
                 RoleTypes.Scientist => CustomRoles.ScientistEHR,
+                RoleTypes.Tracker => CustomRoles.TrackerEHR,
                 _ => CustomRoles.NotAssigned
             };
             if (moddedRole != CustomRoles.NotAssigned)

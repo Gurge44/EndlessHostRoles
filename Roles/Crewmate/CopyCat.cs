@@ -135,9 +135,6 @@ public class CopyCat : RoleBase
 
         if (tpc.IsCrewmate() && tpc.GetCustomSubRoles().All(x => x != CustomRoles.Rascal))
         {
-            ////////////           /*add the settings for new role*/            ////////////
-            /* anything that is assigned in onGameStartedPatch.cs comes here */
-
             TempLimit = pc.GetAbilityUseLimit();
 
             pc.RpcSetCustomRole(role);

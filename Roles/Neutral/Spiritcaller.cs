@@ -89,12 +89,14 @@ namespace EHR.Roles.Neutral
                 var writer = CustomRpcSender.Create("SpiritCallerSendMessage");
                 writer.StartMessage(target.GetClientId());
                 writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
+                    .Write(target.Data.NetId)
                     .Write(GetString("SpiritcallerNoticeTitle"))
                     .EndRpc();
                 writer.StartRpc(target.NetId, (byte)RpcCalls.SendChat)
                     .Write(GetString("SpiritcallerNoticeMessage"))
                     .EndRpc();
                 writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
+                    .Write(target.Data.NetId)
                     .Write(target.Data.PlayerName)
                     .EndRpc();
                 writer.EndMessage();

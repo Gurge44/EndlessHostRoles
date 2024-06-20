@@ -188,7 +188,7 @@ namespace EHR.Roles.Neutral
                     }
                     else
                     {
-                        float range = NormalGameOptionsV07.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
+                        float range = NormalGameOptionsV08.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
                         float dis = Vector2.Distance(player.transform.position, ar_target.transform.position);
                         if (dis <= range)
                         {

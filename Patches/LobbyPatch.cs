@@ -1,12 +1,14 @@
 ﻿using HarmonyLib;
+using TMPro;
 using UnityEngine;
 
 namespace EHR;
 
 [HarmonyPatch(typeof(LobbyBehaviour), nameof(LobbyBehaviour.FixedUpdate))]
-public class LobbyFixedUpdatePatch
+public static class LobbyFixedUpdatePatch
 {
     private static GameObject Paint;
+
     public static void Postfix()
     {
         if (Paint == null)
@@ -21,5 +23,17 @@ public class LobbyFixedUpdatePatch
                 renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.LobbyPaint.png", 290f);
             }
         }
+    }
+}
+
+[HarmonyPatch(typeof(HostInfoPanel), nameof(HostInfoPanel.SetUp))]
+public static class HostInfoPanelUpdatePatch
+{
+    private static TextMeshPro HostText;
+
+    public static void Postfix(HostInfoPanel __instance)
+    {
+        if (HostText == null) HostText = __instance.content.transform.FindChild("Name").GetComponent<TextMeshPro>();
+        HostText.text = Main.HostRealName + (AmongUsClient.Instance.AmHost ? Translator.GetString("YouAreHostSuffix") : string.Empty);
     }
 }

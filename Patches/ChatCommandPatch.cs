@@ -631,7 +631,7 @@ internal class ChatCommands
                     canceled = true;
                     subArgs = text.Remove(0, 8);
                     var setRole = FixRoleNameInput(subArgs.Trim());
-                    foreach (CustomRoles rl in Enum.GetValues(typeof(CustomRoles)))
+                    foreach (CustomRoles rl in Enum.GetValues<CustomRoles>())
                     {
                         if (rl.IsVanilla()) continue;
                         var roleName = GetString(rl.ToString()).ToLower().Trim();
@@ -1454,12 +1454,14 @@ internal class ChatUpdatePatch
         var writer = CustomRpcSender.Create("MessagesToSend");
         writer.StartMessage(clientId);
         writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+            .Write(player.Data.NetId)
             .Write(title)
             .EndRpc();
         writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
             .Write(msg)
             .EndRpc();
         writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+            .Write(player.Data.NetId)
             .Write(player.Data.PlayerName)
             .EndRpc();
         writer.EndMessage();

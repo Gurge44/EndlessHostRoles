@@ -133,7 +133,7 @@ public class Vulture : RoleBase
         }
     }
 
-    public override bool CheckReportDeadBody(PlayerControl pc, GameData.PlayerInfo target, PlayerControl killer)
+    public override bool CheckReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target, PlayerControl killer)
     {
         if (pc.GetAbilityUseLimit() <= 0) return true;
         if (Utils.TimeStamp - LastReport < VultureReportCD.GetFloat()) return true;

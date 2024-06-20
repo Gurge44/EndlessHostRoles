@@ -84,7 +84,7 @@ namespace EHR.Roles.Crewmate
             }
         }
 
-        public override bool CheckReportDeadBody(PlayerControl pc, GameData.PlayerInfo target, PlayerControl killer)
+        public override bool CheckReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target, PlayerControl killer)
         {
             if (killer != null)
             {

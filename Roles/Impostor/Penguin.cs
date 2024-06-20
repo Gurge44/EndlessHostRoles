@@ -291,7 +291,7 @@ namespace EHR.Roles.Impostor
                     if (!IsGoose)
                     {
                         AbductVictim.Data.IsDead = true;
-                        GameData.Instance.SetDirty();
+                        GameData.Instance.DirtyAllData();
                     }
 
                     // If the penguin himself is on a ladder, kill him after getting off the ladder.

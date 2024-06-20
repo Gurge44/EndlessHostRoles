@@ -22,6 +22,11 @@ static class ExtendedPlayerControl
 {
     public const MurderResultFlags ResultFlags = MurderResultFlags.Succeeded;
 
+    public static void SetRole(this PlayerControl player, RoleTypes role, bool canOverride = false)
+    {
+        AmongUsClient.Instance.StartCoroutine(player.CoSetRole(role, canOverride));
+    }
+
     public static void RpcSetCustomRole(this PlayerControl player, CustomRoles role, bool replaceAllAddons = false)
     {
         if (role < CustomRoles.NotAssigned)
@@ -80,7 +85,7 @@ static class ExtendedPlayerControl
         return client?.Id ?? -1;
     }
 
-    public static CustomRoles GetCustomRole(this GameData.PlayerInfo player)
+    public static CustomRoles GetCustomRole(this NetworkedPlayerInfo player)
     {
         return player == null || player.Object == null ? CustomRoles.Crewmate : player.Object.GetCustomRole();
     }
@@ -139,7 +144,7 @@ static class ExtendedPlayerControl
         player?.RpcSetName(name);
     }
 
-    public static void RpcSetNamePrivate(this PlayerControl player, string name, bool DontShowOnModdedClient = false, PlayerControl seer = null, bool force = false)
+    public static void RpcSetNamePrivate(this PlayerControl player, string name, PlayerControl seer = null, bool force = false)
     {
         if (player == null || name == null || !AmongUsClient.Instance.AmHost) return;
         if (seer == null) seer = player;
@@ -150,24 +155,31 @@ static class ExtendedPlayerControl
 
         var clientId = seer.GetClientId();
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetName, SendOption.Reliable, clientId);
-        writer.Write(name);
-        writer.Write(DontShowOnModdedClient);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
+        try
+        {
+            writer.Write(player.Data.NetId);
+            writer.Write(name);
+        }
+        finally
+        {
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
     }
 
-    public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId)
+    public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, bool canOverride, int clientId)
     {
         // player: Rename target
 
         if (player == null) return;
         if (AmongUsClient.Instance.ClientId == clientId)
         {
-            player.SetRole(role);
+            player.SetRole(role, canOverride);
             return;
         }
 
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetRole, SendOption.Reliable, clientId);
         writer.Write((ushort)role);
+        writer.Write(canOverride);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -246,6 +258,30 @@ static class ExtendedPlayerControl
         }
 
         if (!fromSetKCD) killer.AddKillTimerToDict(half: true);
+    }
+
+    public static void RpcSpecificVanish(this PlayerControl player, PlayerControl seer)
+    {
+        /*
+         *  Unluckily the vanishing animation cannot be disabled
+         *  For vanila client seer side, the player must be with Phantom Role behavior, or the rpc will do nothing
+         */
+        if (!AmongUsClient.Instance.AmHost) return;
+
+        MessageWriter msg = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.StartVanish, SendOption.None, seer.GetClientId());
+        AmongUsClient.Instance.FinishRpcImmediately(msg);
+    }
+
+    public static void RpcSpecificAppear(this PlayerControl player, PlayerControl seer, bool shouldAnimate)
+    {
+        /*
+         *  For vanila client seer side, the player must be with Phantom Role behavior, or the rpc will do nothing
+         */
+        if (!AmongUsClient.Instance.AmHost) return;
+
+        MessageWriter msg = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.StartAppear, SendOption.None, seer.GetClientId());
+        msg.Write(shouldAnimate);
+        AmongUsClient.Instance.FinishRpcImmediately(msg);
     }
 
     public static void AddKCDAsAbilityCD(this PlayerControl pc) => AddAbilityCD(pc, (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out var KCD) ? KCD : Options.DefaultKillCooldown));
@@ -819,7 +855,7 @@ static class ExtendedPlayerControl
 
     public static bool RpcCheckAndMurder(this PlayerControl killer, PlayerControl target, bool check = false) => CheckMurderPatch.RpcCheckAndMurder(killer, target, check);
 
-    public static void NoCheckStartMeeting(this PlayerControl reporter, GameData.PlayerInfo target, bool force = false)
+    public static void NoCheckStartMeeting(this PlayerControl reporter, NetworkedPlayerInfo target, bool force = false)
     {
         if (Options.DisableMeeting.GetBool() && !force) return;
         ReportDeadBodyPatch.AfterReportTasks(reporter, target);

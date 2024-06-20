@@ -214,7 +214,7 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("EGGuessMax"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("EGGuessMax"));
                             return true;
-                        case CustomRoles.Phantom when !Options.PhantomCanGuess.GetBool():
+                        case CustomRoles.Phantasm when !Options.PhantomCanGuess.GetBool():
                             if (!isUI) Utils.SendMessage(GetString("GuessDisabled"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessDisabled"));
                             return true;
@@ -311,7 +311,7 @@ public static class GuessManager
                             else pc.ShowPopUp(GetString("GuessPestilence"));
                             guesserSuicide = true;
                             break;
-                        case CustomRoles.Phantom when role == CustomRoles.Phantom:
+                        case CustomRoles.Phantasm when role == CustomRoles.Phantasm:
                             if (!isUI) Utils.SendMessage(GetString("GuessPhantom"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessPhantom"));
                             return true;

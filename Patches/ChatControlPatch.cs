@@ -14,9 +14,9 @@ class ChatControllerUpdatePatch
 {
     public static int CurrentHistorySelection = -1;
 
-    private static SpriteRenderer quickChatIcon;
-    private static SpriteRenderer openBanMenuIcon;
-    private static SpriteRenderer openKeyboardIcon;
+    private static SpriteRenderer QuickChatIcon;
+    private static SpriteRenderer OpenBanMenuIcon;
+    private static SpriteRenderer OpenKeyboardIcon;
 
     public static void Prefix()
     {
@@ -35,14 +35,14 @@ class ChatControllerUpdatePatch
             __instance.quickChatField.background.color = new Color32(40, 40, 40, byte.MaxValue);
             __instance.quickChatField.text.color = Color.white;
 
-            if (quickChatIcon == null) quickChatIcon = GameObject.Find("QuickChatIcon")?.transform.GetComponent<SpriteRenderer>();
-            else quickChatIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkQuickChat.png", 100f);
+            if (QuickChatIcon == null) QuickChatIcon = GameObject.Find("QuickChatIcon")?.transform.GetComponent<SpriteRenderer>();
+            else QuickChatIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkQuickChat.png", 100f);
 
-            if (openBanMenuIcon == null) openBanMenuIcon = GameObject.Find("OpenBanMenuIcon")?.transform.GetComponent<SpriteRenderer>();
-            else openBanMenuIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkReport.png", 100f);
+            if (OpenBanMenuIcon == null) OpenBanMenuIcon = GameObject.Find("OpenBanMenuIcon")?.transform.GetComponent<SpriteRenderer>();
+            else OpenBanMenuIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkReport.png", 100f);
 
-            if (openKeyboardIcon == null) openKeyboardIcon = GameObject.Find("OpenKeyboardIcon")?.transform.GetComponent<SpriteRenderer>();
-            else openKeyboardIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkKeyboard.png", 100f);
+            if (OpenKeyboardIcon == null) OpenKeyboardIcon = GameObject.Find("OpenKeyboardIcon")?.transform.GetComponent<SpriteRenderer>();
+            else OpenKeyboardIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkKeyboard.png", 100f);
         }
         else
         {
