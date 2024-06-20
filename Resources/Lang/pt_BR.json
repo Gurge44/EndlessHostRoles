@@ -3650,7 +3650,7 @@
   "Simon": "Mestre",
   "SimonInfo": "Dê ordens aos jogadores",
   "SimonInfoLong": "(Neutros):\\n★Como Mestre, você pode dar ordens aos jogadores (Mestre Mandou).\\n★Clique uma vez em alguém com o botão de matar para marcar esse jogador ou clique duas vezes para matar.\\n★Use o duto para ORDENAR todos os jogadores marcados. Os jogadores com botão de matar serão ordenados a matar, enquanto os tripulantes serão ordenados a completar uma tarefa. Se não seguirem as ordens até à próxima reunião, morrerão.\\n★Você pode sabotar/acariciar seu pet para trocar as ordens. Isso significa que ao trocar as ordens, você trocará se a pessoa TERÁ QUE CUMPRIR, ou NÃO PODERÁ CUMPRIR.",
-  "SimonKill": "Mestre Mandou: <#ffff00>Você NÃO deve usar o seu botão de matar antes da próxima reúnião</color>",
+  "SimonKill": "Mestre Mandou: <#ffff00>Você deve usar o seu botão de matar antes da próxima reúnião</color>",
   "SimonTask": "Mestre Mandou: <#ffff00>Você deve completar uma tarefa antes da próxima reunião</color>",
   "SimonDontKill": "Mestre Mandou: <#ffff00>Você NÃO deve usar o seu botão de matar antes da próxima reúnião</color>",
   "SimonDontTask": "Mestre Mandou: <#ffff00>Você NÃO deve completar nenhuma tarefa antes da próxima reunião</color>",

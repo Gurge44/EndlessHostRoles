@@ -28,7 +28,7 @@ namespace EHR.Roles.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
             ChargeInterval = new IntegerOptionItem(Id + 12, "ChargeInterval", new(1, 20, 1), 5, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chronomancer])
-                .SetValueFormat(OptionFormat.Seconds);
+                .SetValueFormat(OptionFormat.Percent);
             ChargeLossInterval = new IntegerOptionItem(Id + 13, "ChargeLossInterval", new(1, 50, 1), 25, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chronomancer])
                 .SetValueFormat(OptionFormat.Percent);
