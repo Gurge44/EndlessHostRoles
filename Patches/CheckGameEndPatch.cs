@@ -22,7 +22,7 @@ namespace EHR;
 class GameEndChecker
 {
     private const float EndGameDelay = 0.2f;
-    private static GameEndPredicate Predicate;
+    public static GameEndPredicate Predicate;
     public static bool ShouldNotCheck = false;
 
     public static bool Prefix()
@@ -750,5 +750,21 @@ class GameEndChecker
 
             return false;
         }
+    }
+}
+
+[HarmonyPatch(typeof(GameManager), nameof(GameManager.CheckEndGameViaTasks))]
+class CheckGameEndPatch
+{
+    public static bool Prefix(ref bool __result)
+    {
+        if (GameEndChecker.ShouldNotCheck)
+        {
+            __result = false;
+            return false;
+        }
+
+        __result = GameEndChecker.Predicate?.CheckGameEndByTask(out _) ?? false;
+        return false;
     }
 }

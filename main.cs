@@ -123,6 +123,11 @@ public class Main : BasePlugin
 
     // ReSharper disable once StringLiteralTypo
     public static readonly List<string> NameSnacksEn = ["Ice cream", "Milk tea", "Chocolate", "Cake", "Donut", "Coke", "Lemonade", "Candied haws", "Jelly", "Candy", "Milk", "Matcha", "Burning Grass Jelly", "Pineapple Bun", "Pudding", "Coconut Jelly", "Cookies", "Red Bean Toast", "Three Color Dumplings", "Wormwood Dumplings", "Puffs", "Can be Crepe", "Peach Crisp", "Mochi", "Egg Waffle", "Macaron", "Snow Plum Niang", "Fried Yogurt", "Egg Tart", "Muffin", "Sago Dew", "panna cotta", "soufflé", "croissant", "toffee"];
+
+
+    private static (PlayerControl[] PCs, long TimeStamp) CachedPlayerControls = ([], 0);
+
+    private static (PlayerControl[] PCs, long TimeStamp) CachedAlivePlayerControls = ([], 0);
     private static HashAuth DebugKeyAuth { get; set; }
     private static ConfigEntry<string> DebugKeyInput { get; set; }
 
@@ -167,20 +172,25 @@ public class Main : BasePlugin
     public static ConfigEntry<float> LastShapeshifterCooldown { get; private set; }
     public static bool IsFixedCooldown => CustomRoles.Vampire.IsEnable() || CustomRoles.Poisoner.IsEnable();
 
-
     public static PlayerControl[] AllPlayerControls
     {
         get
         {
-            List<PlayerControl> result = [];
+            long now = Utils.TimeStamp;
+            int count = PlayerControl.AllPlayerControls.Count;
+            if (count > 5 && CachedPlayerControls.TimeStamp == now) return CachedPlayerControls.PCs;
+
+            PlayerControl[] result = [];
+            int i = 0;
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var pc in PlayerControl.AllPlayerControls)
             {
                 if (pc == null) continue;
-                result.Add(pc);
+                result[i++] = pc;
             }
 
-            return [.. result];
+            CachedPlayerControls = (result, now);
+            return result;
         }
     }
 
@@ -188,15 +198,21 @@ public class Main : BasePlugin
     {
         get
         {
-            List<PlayerControl> result = [];
+            long now = Utils.TimeStamp;
+            int count = PlayerControl.AllPlayerControls.Count;
+            if (count > 5 && CachedAlivePlayerControls.TimeStamp == now) return CachedAlivePlayerControls.PCs;
+
+            PlayerControl[] result = [];
+            int i = 0;
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var pc in PlayerControl.AllPlayerControls)
             {
                 if (pc == null || !pc.IsAlive() || pc.Data.Disconnected || Pelican.IsEaten(pc.PlayerId)) continue;
-                result.Add(pc);
+                result[i++] = pc;
             }
 
-            return [.. result];
+            CachedAlivePlayerControls = (result, now);
+            return result;
         }
     }
 

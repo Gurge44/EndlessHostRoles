@@ -61,7 +61,7 @@ namespace EHR
         /// <param name="collection">The collection to iterate over</param>
         /// <param name="action">The action to execute for each element</param>
         /// <typeparam name="T">The type of the elements in the collection</typeparam>
-        public static void Do<T>(this IEnumerable<T> collection, Action<T> action)
+        public static IEnumerable<T> Do<T>(this IEnumerable<T> collection, Action<T> action)
         {
             if (collection is List<T> list)
             {
@@ -70,13 +70,15 @@ namespace EHR
                     action(list[i]);
                 }
 
-                return;
+                return collection;
             }
 
             foreach (T element in collection)
             {
                 action(element);
             }
+
+            return collection;
         }
 
         /// <summary>
@@ -87,7 +89,7 @@ namespace EHR
         /// <param name="predicate">The predicate to check for each element</param>
         /// <param name="action">The action to execute for each element that satisfies the predicate</param>
         /// <typeparam name="T">The type of the elements in the collection</typeparam>
-        public static void DoIf<T>(this IEnumerable<T> collection, Func<T, bool> predicate, Action<T> action, bool fast = false)
+        public static IEnumerable<T> DoIf<T>(this IEnumerable<T> collection, Func<T, bool> predicate, Action<T> action, bool fast = false)
         {
             if (fast)
             {
@@ -99,11 +101,11 @@ namespace EHR
                     }
                 }
 
-                return;
+                return collection;
             }
 
             var partitioner = Partitioner.Create(collection.Where(predicate));
-            partitioner.GetDynamicPartitions().Do(action);
+            return partitioner.GetDynamicPartitions().Do(action);
         }
 
         /// <summary>

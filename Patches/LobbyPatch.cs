@@ -34,6 +34,7 @@ public static class HostInfoPanelUpdatePatch
     public static void Postfix(HostInfoPanel __instance)
     {
         if (HostText == null) HostText = __instance.content.transform.FindChild("Name").GetComponent<TextMeshPro>();
-        HostText.text = Main.HostRealName + (AmongUsClient.Instance.AmHost ? Translator.GetString("YouAreHostSuffix") : string.Empty);
+        var text = Main.HostRealName + (AmongUsClient.Instance.AmHost ? Translator.GetString("YouAreHostSuffix") : string.Empty);
+        HostText.text = Utils.ColorString(Palette.PlayerColors[__instance.player.ColorId], text);
     }
 }

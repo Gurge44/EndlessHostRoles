@@ -54,15 +54,16 @@ public class Divinator : RoleBase
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(CheckLimitOpt.GetInt());
 
-        var roles = Enum.GetValues<CustomRoles>()
-            .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.KB_Normal and not CustomRoles.Potato and not CustomRoles.GM and not CustomRoles.Convict && !HnSManager.AllHnSRoles.Contains(x))
-            .Shuffle();
         var players = Main.AllAlivePlayerControls;
-        int parts = (int)Math.Ceiling((double)players.Length / RolesPerCategory);
-        var chunked = roles.Partition(parts).ToArray();
-        AllPlayerRoleList = players
-            .Select((pc, index) => (pc.PlayerId, chunked[index % parts].Append(pc.GetCustomRole()).Shuffle()))
-            .ToDictionary(x => x.PlayerId, x => x.Item2);
+        int rolesNeeded = players.Length * (RolesPerCategory - 1);
+        AllPlayerRoleList = Enum.GetValues<CustomRoles>()
+            .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.KB_Normal and not CustomRoles.Potato and not CustomRoles.GM and not CustomRoles.Convict && !HnSManager.AllHnSRoles.Contains(x))
+            .OrderBy(x => x.IsEnable() ? IRandom.Instance.Next(10) : IRandom.Instance.Next(10, 100))
+            .Take(rolesNeeded)
+            .Chunk(RolesPerCategory - 1)
+            .Zip(players, (Array, Player) => (RoleList: Array.ToList(), Player))
+            .Do(x => x.RoleList.Insert(IRandom.Instance.Next(x.RoleList.Count), x.Player.GetCustomRole()))
+            .ToDictionary(x => x.Player.PlayerId, x => x.RoleList);
     }
 
     public static bool OnVote(PlayerControl player, PlayerControl target)

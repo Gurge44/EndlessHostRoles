@@ -139,12 +139,19 @@ internal class ChangeRoleSettings
             }
 
             // Reset previous roles
-            if (Main.PlayerStates != null)
+            try
             {
-                foreach (var state in Main.PlayerStates.Values)
+                if (Main.PlayerStates != null)
                 {
-                    state.Role.Init();
+                    foreach (var state in Main.PlayerStates.Values)
+                    {
+                        state.Role.Init();
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
             }
 
             Main.PlayerStates = [];
@@ -308,11 +315,18 @@ internal class ChangeRoleSettings
 
             Main.ChangedRole = false;
 
-            SoloKombatManager.Init();
-            FFAManager.Init();
-            MoveAndStopManager.Init();
-            HotPotatoManager.Init();
-            HnSManager.Init();
+            try
+            {
+                SoloKombatManager.Init();
+                FFAManager.Init();
+                MoveAndStopManager.Init();
+                HotPotatoManager.Init();
+                HnSManager.Init();
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
 
             CustomWinnerHolder.Reset();
             AntiBlackout.Reset();
@@ -472,14 +486,22 @@ internal class SelectRolesPatch
                 nimbleList = Main.SetAddOns.Where(x => x.Value.Contains(CustomRoles.Nimble)).Select(x => x.Key).ToHashSet();
             }
 
-            if (Main.SetAddOns.Values.Any(x => x.Contains(CustomRoles.Physicist)))
+            try
             {
-                physicistSpawn = true;
-                var newPhysicistList = Main.SetAddOns.Where(x => x.Value.Contains(CustomRoles.Physicist)).Select(x => x.Key).ToHashSet();
-                if (nimbleList.Count != 1 || physicistList.Count != 1 || nimbleList.First() != newPhysicistList.First())
+                if (Main.SetAddOns.Values.Any(x => x.Contains(CustomRoles.Physicist)))
                 {
-                    physicistList = newPhysicistList;
+                    physicistSpawn = true;
+                    var newPhysicistList = Main.SetAddOns.Where(x => x.Value.Contains(CustomRoles.Physicist)).Select(x => x.Key).ToHashSet();
+                    if (nimbleList.Count != 1 || physicistList.Count != 1 || nimbleList.First() != newPhysicistList.First())
+                    {
+                        physicistList = newPhysicistList;
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+                physicistSpawn = false;
             }
 
             if (nimbleSpawn)
@@ -619,6 +641,7 @@ internal class SelectRolesPatch
             AddonRolesList
                 .Where(x => x.IsEnable())
                 .SelectMany(x => Enumerable.Repeat(x, Math.Clamp(x.GetCount(), 0, aapc.Length)))
+                .Where(x => IRandom.Instance.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(x, out var sc) ? sc.GetFloat() : 0))
                 .Shuffle()
                 .Chunk(aapc.Length)
                 .SelectMany(a => a.Select(x =>
@@ -629,7 +652,7 @@ internal class SelectRolesPatch
                     if (suitablePlayer != null) addonNum[suitablePlayer]++;
                     return (Role: x, SuitablePlayer: suitablePlayer);
                 }))
-                .DoIf(x => x.SuitablePlayer != null && IRandom.Instance.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(x.Role, out var sc) ? sc.GetFloat() : 0), x => Main.PlayerStates[x.SuitablePlayer.PlayerId].SetSubRole(x.Role), fast: true);
+                .DoIf(x => x.SuitablePlayer != null, x => Main.PlayerStates[x.SuitablePlayer.PlayerId].SetSubRole(x.Role), fast: true);
 
 
             foreach (var state in Main.PlayerStates.Values)
@@ -677,11 +700,18 @@ internal class SelectRolesPatch
                 }
             }
 
-            Stressed.Add();
-            Asthmatic.Add();
-            Circumvent.Add();
-            Dynamo.Add();
-            Lovers.Init();
+            try
+            {
+                Stressed.Add();
+                Asthmatic.Add();
+                Circumvent.Add();
+                Dynamo.Add();
+                Lovers.Init();
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
 
             LateTask.New(CustomTeamManager.InitializeCustomTeamPlayers, 7f, log: false);
 
