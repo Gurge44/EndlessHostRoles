@@ -5,7 +5,6 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Roles.Neutral;
 using HarmonyLib;
-using Il2CppSystem.Collections.Generic;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -159,7 +158,7 @@ class CoBeginPatch
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.BeginCrewmate))]
 class BeginCrewmatePatch
 {
-    public static bool Prefix(IntroCutscene __instance, ref List<PlayerControl> teamToDisplay)
+    public static bool Prefix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> teamToDisplay)
     {
         if (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Neutral) && !PlayerControl.LocalPlayer.GetCustomRole().IsMadmate())
         {
@@ -228,7 +227,7 @@ class BeginCrewmatePatch
         return true;
     }
 
-    public static void Postfix(IntroCutscene __instance, ref List<PlayerControl> teamToDisplay)
+    public static void Postfix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> teamToDisplay)
     {
         CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
 
@@ -568,7 +567,7 @@ class BeginCrewmatePatch
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.BeginImpostor))]
 class BeginImpostorPatch
 {
-    public static bool Prefix(IntroCutscene __instance, ref List<PlayerControl> yourTeam)
+    public static bool Prefix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> yourTeam)
     {
         var role = PlayerControl.LocalPlayer.GetCustomRole();
         if (PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) || role.IsMadmate())
@@ -603,7 +602,7 @@ class BeginImpostorPatch
         return true;
     }
 
-    public static void Postfix(IntroCutscene __instance, ref List<PlayerControl> yourTeam)
+    public static void Postfix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> yourTeam)
     {
         BeginCrewmatePatch.Postfix(__instance, ref yourTeam);
     }

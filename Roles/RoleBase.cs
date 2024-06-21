@@ -1,8 +1,10 @@
-﻿using System;
+﻿global using Object = UnityEngine.Object;
+using System;
 using System.Text;
 using AmongUs.GameOptions;
 using EHR.Roles.AddOns.Crewmate;
 using EHR.Roles.AddOns.Impostor;
+
 
 namespace EHR
 {

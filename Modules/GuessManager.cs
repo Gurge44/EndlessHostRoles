@@ -13,7 +13,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using static EHR.Translator;
-using Object = UnityEngine.Object;
+
 
 namespace EHR;
 

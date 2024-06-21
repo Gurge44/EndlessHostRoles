@@ -1,18 +1,16 @@
 ﻿using System;
 using BepInEx.Configuration;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace EHR;
 
 //来源：https://github.com/tukasa0001/TownOfHost/pull/1265
 public class ClientOptionItem
 {
-    public ConfigEntry<bool> Config;
-    public ToggleButtonBehaviour ToggleButton;
-
     public static SpriteRenderer CustomBackground;
     private static int numOptions;
+    public ConfigEntry<bool> Config;
+    public ToggleButtonBehaviour ToggleButton;
 
     private ClientOptionItem(
         string name,

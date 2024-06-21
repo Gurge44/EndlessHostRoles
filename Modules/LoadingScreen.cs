@@ -2,7 +2,6 @@
 using EHR.Patches;
 using Rewired.Utils;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace EHR.Modules
 {

@@ -5,8 +5,7 @@ using EHR.Roles.AddOns.GhostRoles;
 using EHR.Roles.Impostor;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Il2CppSystem.Collections.Generic;
-using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace EHR;
 
@@ -14,7 +13,7 @@ namespace EHR;
 class AddTasksFromListPatch
 {
     public static void Prefix( /*ShipStatus __instance,*/
-        [HarmonyArgument(4)] List<NormalPlayerTask> unusedTasks)
+        [HarmonyArgument(4)] Il2CppSystem.Collections.Generic.List<NormalPlayerTask> unusedTasks)
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
@@ -168,7 +167,7 @@ class RpcSetTasksPatch
             NumLongTasks = 0;
         }
 
-        // Overtime maniac, work overtime~
+        // Workhorse task assignment
         if (pc.Is(CustomRoles.Workhorse))
             (hasCommonTasks, NumLongTasks, NumShortTasks) = Workhorse.TaskData;
 
@@ -191,7 +190,7 @@ class RpcSetTasksPatch
 
         // List containing IDs of assignable tasks
         // Clone of the second argument of the original RpcSetTasks
-        List<byte> TasksList = new();
+        Il2CppSystem.Collections.Generic.List<byte> TasksList = new();
         foreach (var num in taskTypeIds)
         {
             TasksList.Add(num);
@@ -207,18 +206,18 @@ class RpcSetTasksPatch
 
         // HashSet where assigned tasks will be placed
         // Prevent multiple assignments of the same task
-        HashSet<TaskTypes> usedTaskTypes = new();
+        Il2CppSystem.Collections.Generic.HashSet<TaskTypes> usedTaskTypes = new();
         int start2 = 0;
         int start3 = 0;
 
         // List of assignable long tasks
-        List<NormalPlayerTask> LongTasks = new();
+        Il2CppSystem.Collections.Generic.List<NormalPlayerTask> LongTasks = new();
         foreach (var task in ShipStatus.Instance.LongTasks)
             LongTasks.Add(task);
         Shuffle(LongTasks);
 
         // List of assignable short tasks
-        List<NormalPlayerTask> ShortTasks = new();
+        Il2CppSystem.Collections.Generic.List<NormalPlayerTask> ShortTasks = new();
         foreach (var task in ShipStatus.Instance.ShortTasks)
             ShortTasks.Add(task);
         Shuffle(ShortTasks);
@@ -247,7 +246,7 @@ class RpcSetTasksPatch
         }
     }
 
-    private static void Shuffle<T>(List<T> list)
+    private static void Shuffle<T>(Il2CppSystem.Collections.Generic.List<T> list)
     {
         for (int i = 0; i < list.Count - 1; i++)
         {

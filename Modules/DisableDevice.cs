@@ -4,7 +4,6 @@ using System.Linq;
 using EHR.Neutral;
 using HarmonyLib;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace EHR;
 

@@ -6,7 +6,7 @@ using HarmonyLib;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
-using Object = UnityEngine.Object;
+
 
 namespace EHR.Roles.Crewmate;
 

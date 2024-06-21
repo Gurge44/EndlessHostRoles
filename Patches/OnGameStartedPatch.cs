@@ -21,7 +21,7 @@ using UnityEngine;
 using static EHR.Modules.CustomRoleSelector;
 using static EHR.Translator;
 using DateTime = Il2CppSystem.DateTime;
-using Object = UnityEngine.Object;
+
 
 namespace EHR;
 

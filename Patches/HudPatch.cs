@@ -11,7 +11,7 @@ using Il2CppSystem.Text;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
-using Object = UnityEngine.Object;
+
 
 namespace EHR.Patches;
 

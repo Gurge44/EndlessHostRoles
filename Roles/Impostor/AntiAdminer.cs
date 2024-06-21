@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.Roles.Crewmate;
 using EHR.Roles.Neutral;
 using UnityEngine;
+using Monitor = EHR.Roles.Crewmate.Monitor;
 
 namespace EHR.Roles.Impostor;
 

@@ -1,7 +1,6 @@
 using System;
 using AmongUs.GameOptions;
 using HarmonyLib;
-using Object = UnityEngine.Object;
 
 namespace EHR;
 

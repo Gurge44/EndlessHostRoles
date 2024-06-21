@@ -7,7 +7,7 @@ using HarmonyLib;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
-using Object = UnityEngine.Object;
+
 
 namespace EHR;
 

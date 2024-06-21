@@ -2,10 +2,10 @@ using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
 using Hazel;
-using Il2CppSystem;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
+using Math = System.Math;
 
 namespace EHR.Roles.Neutral;
 

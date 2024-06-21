@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using BepInEx.Unity.IL2CPP.Utils;
 using HarmonyLib;
-using TMPro;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -77,6 +76,7 @@ public static class CredentialsPatch
             SponsersData += $"\n\n<size=60%>({GetString("OnlyShowPart")})</size>";
         }
 
+/*
         static void ViewBoosterPatch(MainMenuManager __instance)
         {
             var template = __instance.transform.FindChild("StatsPopup");
@@ -140,6 +140,7 @@ public static class CredentialsPatch
             obj.transform.FindChild("Background").localScale = new(1.5f, 1f, 1f);
             obj.transform.FindChild("CloseButton").localPosition = new(-3.75f, 2.65f, 0);
         }
+*/
 
         public static void Postfix(MainMenuManager __instance)
         {

@@ -10,7 +10,7 @@ using InnerNet;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
-using Object = UnityEngine.Object;
+
 
 namespace EHR;
 

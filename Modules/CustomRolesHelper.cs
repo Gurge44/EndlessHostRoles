@@ -8,6 +8,7 @@ using EHR.Roles.Crewmate;
 using EHR.Roles.Impostor;
 using EHR.Roles.Neutral;
 using UnityEngine;
+using Monitor = EHR.Roles.Crewmate.Monitor;
 
 namespace EHR;
 

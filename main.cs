@@ -180,7 +180,7 @@ public class Main : BasePlugin
             int count = PlayerControl.AllPlayerControls.Count;
             if (count > 5 && CachedPlayerControls.TimeStamp == now) return CachedPlayerControls.PCs;
 
-            PlayerControl[] result = [];
+            var result = new PlayerControl[count];
             int i = 0;
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var pc in PlayerControl.AllPlayerControls)
@@ -202,7 +202,7 @@ public class Main : BasePlugin
             int count = PlayerControl.AllPlayerControls.Count;
             if (count > 5 && CachedAlivePlayerControls.TimeStamp == now) return CachedAlivePlayerControls.PCs;
 
-            PlayerControl[] result = [];
+            var result = new PlayerControl[count];
             int i = 0;
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var pc in PlayerControl.AllPlayerControls)

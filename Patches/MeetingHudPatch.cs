@@ -10,7 +10,7 @@ using EHR.Roles.Neutral;
 using HarmonyLib;
 using UnityEngine;
 using static EHR.Translator;
-using Object = UnityEngine.Object;
+
 
 namespace EHR.Patches;
 

@@ -2,20 +2,23 @@ using System;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace EHR;
 
 [HarmonyPatch]
 public class MainMenuManagerPatch
 {
-    public static MainMenuManager Instance { get; private set; }
-
     public static PassiveButton Template;
     public static PassiveButton UpdateButton;
     private static PassiveButton gitHubButton;
     private static PassiveButton discordButton;
     private static PassiveButton websiteButton;
+
+    private static bool isOnline = false;
+    public static bool ShowedBak = false;
+    private static bool ShowingPanel = false;
+    public static SpriteRenderer MG_Logo;
+    public static MainMenuManager Instance { get; private set; }
 
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.OpenGameModeMenu))]
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.OpenAccountMenu))]
@@ -40,11 +43,12 @@ public class MainMenuManagerPatch
         Instance.OpenGameModeMenu();
     }
 
-    private static bool isOnline = false;
-    public static bool ShowedBak = false;
-    private static bool ShowingPanel = false;
     [HarmonyPatch(typeof(SignInStatusComponent), nameof(SignInStatusComponent.SetOnline)), HarmonyPostfix]
-    public static void SetOnline_Postfix() {LateTask.New(() => { isOnline = true; }, 0.1f, "Set Online Status"); }
+    public static void SetOnline_Postfix()
+    {
+        LateTask.New(() => { isOnline = true; }, 0.1f, "Set Online Status");
+    }
+
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPrefix]
     public static void Start_Prefix(MainMenuManager __instance)
     {
@@ -62,14 +66,15 @@ public class MainMenuManagerPatch
                 Translator.GetString("updateButton"));
             UpdateButton.transform.localScale = Vector3.one;
         }
+
         UpdateButton.gameObject.SetActive(ModUpdater.hasUpdate);
 
         Application.targetFrameRate = Main.UnlockFps.Value ? 9999 : 60;
     }
+
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.LateUpdate)), HarmonyPostfix]
     public static void MainMenuManager_LateUpdate()
     {
-
         if (GameObject.Find("MainUI") == null) ShowingPanel = false;
 
         if (TitleLogoPatch.RightPanel != null)
@@ -77,9 +82,9 @@ public class MainMenuManagerPatch
             var pos1 = TitleLogoPatch.RightPanel.transform.localPosition;
             Vector3 lerp1 = Vector3.Lerp(pos1, TitleLogoPatch.RightPanelOp + new Vector3(ShowingPanel ? 0f : 10f, 0f, 0f), Time.deltaTime * (ShowingPanel ? 3f : 2f));
             if (ShowingPanel
-                ? TitleLogoPatch.RightPanel.transform.localPosition.x > TitleLogoPatch.RightPanelOp.x + 0.03f
-                : TitleLogoPatch.RightPanel.transform.localPosition.x < TitleLogoPatch.RightPanelOp.x + 9f
-                ) TitleLogoPatch.RightPanel.transform.localPosition = lerp1;
+                    ? TitleLogoPatch.RightPanel.transform.localPosition.x > TitleLogoPatch.RightPanelOp.x + 0.03f
+                    : TitleLogoPatch.RightPanel.transform.localPosition.x < TitleLogoPatch.RightPanelOp.x + 9f
+               ) TitleLogoPatch.RightPanel.transform.localPosition = lerp1;
         }
 
         if (ShowedBak || !isOnline) return;
@@ -90,19 +95,19 @@ public class MainMenuManagerPatch
         bak.transform.position = lerp2;
         if (pos2.y > 7f) ShowedBak = true;
     }
-    public static SpriteRenderer MG_Logo;
+
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix, HarmonyPriority(Priority.VeryHigh)]
     public static void Start_Postfix(MainMenuManager __instance)
     {
         Instance = __instance;
 
         SimpleButton.SetBase(__instance.quitButton);
-            var logoObject = new GameObject("titleLogo_MG");
-            var logoTransform = logoObject.transform;
-            MG_Logo = logoObject.AddComponent<SpriteRenderer>();
-            logoTransform.localPosition = new(2f, -0.5f, 1f);
-            logoTransform.localScale *= 1.2f;
-            MG_Logo.sprite = Utils.LoadSprite("EHR.Resources.Images.EHR-Icon.png", 400f);
+        var logoObject = new GameObject("titleLogo_MG");
+        var logoTransform = logoObject.transform;
+        MG_Logo = logoObject.AddComponent<SpriteRenderer>();
+        logoTransform.localPosition = new(2f, -0.5f, 1f);
+        logoTransform.localScale *= 1.2f;
+        MG_Logo.sprite = Utils.LoadSprite("EHR.Resources.Images.EHR-Icon.png", 400f);
 
         // GitHub Button
         if (gitHubButton == null)
@@ -115,6 +120,7 @@ public class MainMenuManagerPatch
                 () => Application.OpenURL("https://github.com/Gurge44/EndlessHostRoles"),
                 Translator.GetString("GitHub")); //"GitHub"
         }
+
         gitHubButton.gameObject.SetActive(true);
 
         // Discord Button
@@ -128,6 +134,7 @@ public class MainMenuManagerPatch
                 () => Application.OpenURL("https://discord.com/invite/m3ayxfumC8"),
                 Translator.GetString("Discord")); //"Discord"
         }
+
         discordButton.gameObject.SetActive(true);
 
         // Website Button
@@ -141,10 +148,12 @@ public class MainMenuManagerPatch
                 () => Application.OpenURL("https://sites.google.com/view/ehr-au"),
                 Translator.GetString("Website")); //"Website"
         }
+
         websiteButton.gameObject.SetActive(true);
 
         Application.targetFrameRate = Main.UnlockFps.Value ? 9999 : 60;
     }
+
     public static PassiveButton CreateButton(string name, Vector3 localPosition, Color32 normalColor, Color32 hoverColor, Action action, string label, Vector2? scale = null)
     {
         var button = Object.Instantiate(Template, Template.transform.parent);
