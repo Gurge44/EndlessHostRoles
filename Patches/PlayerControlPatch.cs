@@ -562,10 +562,6 @@ class MurderPlayerPatch
             CustomWinnerHolder.WinnerIds.Add(target.PlayerId);
         }
 
-        // Record the first death
-        if (Main.FirstDied == int.MaxValue)
-            Main.FirstDied = target.GetClientId();
-
         Postman.CheckAndResetTargets(target, isDeath: true);
 
         if (target.Is(CustomRoles.Trapper) && killer != target)
@@ -1085,6 +1081,9 @@ class FixedUpdatePatch
             {
                 switch (ghostRole.Instance)
                 {
+                    case Warden warden:
+                        warden.Update(__instance);
+                        break;
                     case Haunter haunter:
                         haunter.Update(__instance);
                         break;
@@ -1536,19 +1535,11 @@ class FixedUpdatePatch
                 Mark.Append(Snitch.GetWarningMark(seer, target));
                 Mark.Append(Deathpact.GetDeathpactMark(seer, target));
 
+                if (!Main.HasJustStarted) Main.LoversPlayers.DoIf(x => !x.Is(CustomRoles.Lovers), x => x.RpcSetCustomRole(CustomRoles.Lovers), fast: true);
                 if (Main.LoversPlayers.Any(x => x.PlayerId == target.PlayerId))
                 {
-                    if (!target.Is(CustomRoles.Lovers)) target.RpcSetCustomRole(CustomRoles.Lovers);
-
-                    if (Main.LoversPlayers.Any(x => x.PlayerId == seer.PlayerId))
-                    {
-                        if (!seer.Is(CustomRoles.Lovers)) seer.RpcSetCustomRole(CustomRoles.Lovers);
-                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
-                    }
-                    else if (!seer.IsAlive())
-                    {
-                        Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
-                    }
+                    if (Main.LoversPlayers.Any(x => x.PlayerId == seer.PlayerId)) Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
+                    else if (!seer.IsAlive()) Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
                 }
 
                 if (self)
@@ -1578,7 +1569,7 @@ class FixedUpdatePatch
                 if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
                     Suffix.Append(SoloKombatManager.GetDisplayHealth(target));
 
-                if (MeetingStates.FirstMeeting && Main.FirstDied != int.MaxValue && Main.FirstDied == target.GetClientId() && !self)
+                if (MeetingStates.FirstMeeting && Main.FirstDied != int.MaxValue && Main.FirstDied == target.GetClientId() && !self && Main.ShieldPlayer != int.MaxValue && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
                     Suffix.Append(GetString("DiedR1Warning"));
 
                 // Devourer

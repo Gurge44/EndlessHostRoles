@@ -138,16 +138,11 @@ internal class ChangeRoleSettings
                 Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Tracker, 0, 0);
             }
 
-            // Reset previous roles
+            if (Main.NormalOptions.MapId > 5) Logger.SendInGame(GetString("UnsupportedMap"));
+
             try
             {
-                if (Main.PlayerStates != null)
-                {
-                    foreach (var state in Main.PlayerStates.Values)
-                    {
-                        state.Role.Init();
-                    }
-                }
+                Main.AllRoleClasses.Do(x => x.Init());
             }
             catch (Exception e)
             {

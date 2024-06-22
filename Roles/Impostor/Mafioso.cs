@@ -209,7 +209,7 @@ namespace EHR.Roles.Impostor
                     // ReSharper disable once ConditionIsAlwaysTrueOrFalse ---- Can be null since it's a task that completes later
                     if (target != null && target.IsAlive() && GameStates.IsInTask)
                     {
-                        target.Suicide(realKiller: killer);
+                        target.Suicide(PlayerState.DeathReason.Kill, killer);
                     }
                 }, Delay.GetInt(), "Mafioso Tier 5 Kill Delay");
 

@@ -139,10 +139,11 @@ public class Sheriff : RoleBase
         Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : Number of kills left: {killer.GetAbilityUseLimit()}", "Sheriff");
     }
 
-    public static bool CanBeKilledBySheriff(PlayerControl player)
+    private static bool CanBeKilledBySheriff(PlayerControl player)
     {
         var cRole = player.GetCustomRole();
         var subRole = player.GetCustomSubRoles();
+        if (subRole.Contains(CustomRoles.Rascal)) return true;
         bool CanKill = false;
         foreach (CustomRoles SubRoleTarget in subRole)
         {

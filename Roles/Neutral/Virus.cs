@@ -78,11 +78,10 @@ namespace EHR.Roles.Neutral
             opt.SetVision(ImpostorVision.GetBool());
         }
 
-        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override void OnMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer.GetAbilityUseLimit() < 1) return true;
+            if (killer.GetAbilityUseLimit() < 1) return;
             InfectedBodies.Add(target.PlayerId);
-            return true;
         }
 
         public static void OnKilledBodyReport(PlayerControl target)
@@ -94,15 +93,12 @@ namespace EHR.Roles.Neutral
             if (KillInfectedPlayerAfterMeeting.GetBool())
             {
                 InfectedPlayer.Add(target.PlayerId);
-
                 VirusNotify.Add(target.PlayerId, GetString("VirusNoticeMessage2"));
             }
             else
             {
                 target.RpcSetCustomRole(CustomRoles.Contagious);
-
                 Utils.NotifyRoles(ForceLoop: true);
-
                 VirusNotify.Add(target.PlayerId, GetString("VirusNoticeMessage"));
             }
 

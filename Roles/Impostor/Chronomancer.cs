@@ -113,7 +113,7 @@ namespace EHR.Roles.Impostor
 
                 notify = true;
             }
-            else if (Main.KillTimers[pc.PlayerId] <= 0)
+            else if (Main.KillTimers[pc.PlayerId] <= 0 && !MeetingStates.FirstMeeting)
             {
                 ChargePercent += ChargeInterval.GetInt();
                 if (ChargePercent > 100) ChargePercent = 100;
@@ -148,6 +148,11 @@ namespace EHR.Roles.Impostor
         public override void AfterMeetingTasks()
         {
             OnReportDeadBody();
+        }
+
+        public override void SetButtonTexts(HudManager hud, byte id)
+        {
+            hud.AbilityButton?.ToggleVisible(false);
         }
     }
 }

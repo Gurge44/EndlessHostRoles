@@ -110,7 +110,14 @@ namespace EHR.Roles.AddOns.Common
 
         public static void Init()
         {
-            LovingImpostorRole = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && x.IsImpostor() && x != CustomRoles.LovingImpostor && !x.RoleExist(countDead: true) && !HnSManager.AllHnSRoles.Contains(x)).Shuffle()[0];
+            try
+            {
+                LovingImpostorRole = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && x.IsImpostor() && x != CustomRoles.LovingImpostor && !x.RoleExist(countDead: true) && !HnSManager.AllHnSRoles.Contains(x)).Shuffle()[0];
+            }
+            catch
+            {
+                LovingImpostorRole = CustomRoles.LovingImpostor;
+            }
         }
     }
 }

@@ -175,7 +175,7 @@ public class Romantic : RoleBase
         {
             if (!BetTargetKnowRomantic.GetBool()) return string.Empty;
 
-            return RomanticId == target.PlayerId && PartnerId == seer.PlayerId
+            return target.Is(CustomRoles.Romantic) && RomanticId == target.PlayerId && PartnerId == seer.PlayerId
                 ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), "♥")
                 : string.Empty;
         }

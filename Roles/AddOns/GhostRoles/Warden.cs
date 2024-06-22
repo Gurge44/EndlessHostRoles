@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace EHR.Roles.AddOns.GhostRoles
 {
@@ -8,23 +9,21 @@ namespace EHR.Roles.AddOns.GhostRoles
         private static OptionItem ExtraSpeedDuration;
         private static OptionItem CD;
 
+        private readonly Dictionary<byte, (long StartTimeStamp, float OriginalSpeed)> SpeedList = [];
+
         public Team Team => Team.Crewmate;
         public int Cooldown => CD.GetInt();
 
         public void OnProtect(PlayerControl pc, PlayerControl target)
         {
+            if (SpeedList.ContainsKey(target.PlayerId)) return;
             float speed = Main.AllPlayerSpeed[target.PlayerId];
             float targetSpeed = speed + ExtraSpeed.GetFloat();
             if (Math.Abs(speed - targetSpeed) < 0.1f || speed > targetSpeed) return;
             Main.AllPlayerSpeed[target.PlayerId] += ExtraSpeed.GetFloat();
             target.MarkDirtySettings();
             target.Notify(Translator.GetString("WardenNotify"));
-
-            LateTask.New(() =>
-            {
-                Main.AllPlayerSpeed[target.PlayerId] = speed;
-                target.MarkDirtySettings();
-            }, ExtraSpeedDuration.GetFloat(), "Remove Warden Speed Boost");
+            SpeedList[target.PlayerId] = (Utils.TimeStamp, speed);
         }
 
         public void OnAssign(PlayerControl pc)
@@ -43,6 +42,16 @@ namespace EHR.Roles.AddOns.GhostRoles
             CD = new IntegerOptionItem(649204, "AbilityCooldown", new(0, 60, 1), 30, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Warden])
                 .SetValueFormat(OptionFormat.Seconds);
+        }
+
+        public void Update(PlayerControl pc)
+        {
+            SpeedList.DoIf(x => x.Value.StartTimeStamp + ExtraSpeedDuration.GetInt() <= Utils.TimeStamp, x =>
+            {
+                Main.AllPlayerSpeed[x.Key] = x.Value.OriginalSpeed;
+                pc.MarkDirtySettings();
+                SpeedList.Remove(x.Key);
+            });
         }
     }
 }

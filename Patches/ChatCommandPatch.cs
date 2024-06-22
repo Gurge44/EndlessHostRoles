@@ -345,12 +345,14 @@ internal class ChatCommands
                                 if (args[1] == "remove" && Main.AlwaysSpawnTogetherCombos.TryGetValue(mainRole2, out var list3))
                                 {
                                     list3.Remove(addOn2);
+                                    if (list3.Count == 0) Main.AlwaysSpawnTogetherCombos.Remove(mainRole2);
                                     Utils.SendMessage(string.Format(GetString("ComboRemove"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), localPlayerId);
                                     Utils.SaveComboInfo();
                                 }
                                 else if (Main.NeverSpawnTogetherCombos.TryGetValue(mainRole2, out var list4))
                                 {
                                     list4.Remove(addOn2);
+                                    if (list4.Count == 0) Main.NeverSpawnTogetherCombos.Remove(mainRole2);
                                     Utils.SendMessage(string.Format(GetString("ComboAllow"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), localPlayerId);
                                     Utils.SaveComboInfo();
                                 }
@@ -762,7 +764,7 @@ internal class ChatCommands
                 ChatUpdatePatch.LoversMessage = true;
                 Utils.SendMessage(text, otherLover.PlayerId, title);
                 Utils.SendMessage(text, PlayerControl.LocalPlayer.PlayerId, title);
-                LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max((AmongUsClient.Instance.Ping / 1000f) * 2f, 0.2f), log: false);
+                LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max((AmongUsClient.Instance.Ping / 1000f) * 2f, Main.MessageWait.Value + 0.5f), log: false);
             }
 
             goto Canceled;
@@ -1406,7 +1408,7 @@ internal class ChatCommands
                     ChatUpdatePatch.LoversMessage = true;
                     Utils.SendMessage(text, otherLover.PlayerId, title);
                     Utils.SendMessage(text, player.PlayerId, title);
-                    LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max((AmongUsClient.Instance.Ping / 1000f) * 2f, 0.2f), log: false);
+                    LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max((AmongUsClient.Instance.Ping / 1000f) * 2f, Main.MessageWait.Value + 0.5f), log: false);
                 }, 0.2f, log: false);
             }
         }

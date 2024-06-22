@@ -384,6 +384,7 @@ class CheckForEndVotingPatch
         {
             if (pc == exiledPlayer.Object) continue;
             if (pc.GetCustomRole().IsImpostor()) impnum++;
+            else if (Options.MadmateCountMode.GetValue() == 1 && (pc.GetCustomRole().IsMadmate() || pc.Is(CustomRoles.Madmate))) impnum++;
             else if (pc.IsNeutralKiller()) neutralnum++;
         }
 
@@ -422,11 +423,6 @@ class CheckForEndVotingPatch
                 break;
         }
 
-        if (tiebreaker)
-        {
-            name += $" ({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Brakar), GetString("Brakar"))})";
-        }
-
         if (crole == CustomRoles.Jester)
         {
             name = string.Format(GetString("ExiledJester"), realName, coloredRole);
@@ -447,6 +443,11 @@ class CheckForEndVotingPatch
                 else name = string.Format(GetString("ExiledInnocentTargetInOneLine"), realName, coloredRole);
                 DecidedWinner = true;
             }
+        }
+
+        if (tiebreaker)
+        {
+            name += $" ({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Brakar), GetString("Brakar"))})";
         }
 
         if (DecidedWinner) name += "<size=0>";

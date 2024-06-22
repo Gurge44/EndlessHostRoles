@@ -70,7 +70,12 @@ namespace EHR.Roles.Neutral
 
         public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            opt.SetVision(false);
+            opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision);
+            opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultCrewmateVision);
+        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
@@ -167,7 +172,12 @@ namespace EHR.Roles.Neutral
 
         public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            opt.SetVision(false);
+            opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision);
+            opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultCrewmateVision);
+        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {

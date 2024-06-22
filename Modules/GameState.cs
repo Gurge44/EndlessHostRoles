@@ -51,6 +51,7 @@ public class PlayerState(byte playerId)
         Kamikazed,
         RNG,
         WrongAnswer,
+        Consumed,
 
         etc = -1
     }

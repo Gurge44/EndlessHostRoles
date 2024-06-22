@@ -36,7 +36,7 @@ namespace EHR.Roles.AddOns.Common
                 return true;
             }
 
-            if (tries < MaxTries.GetValue())
+            if (tries <= MaxTries.GetInt())
             {
                 Tries[guesser.PlayerId] = ++tries;
                 LogAndNotify();

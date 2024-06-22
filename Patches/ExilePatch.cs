@@ -185,7 +185,7 @@ class ExileControllerWrapUpPatch
         SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
         Logger.Info("Start task phase", "Phase");
 
-        if (!Lovers.IsChatActivated && Lovers.PrivateChat.GetBool()) return;
+        if (Lovers.IsChatActivated && Lovers.PrivateChat.GetBool()) return;
 
         bool showRemainingKillers = Options.EnableKillerLeftCommand.GetBool() && Options.ShowImpRemainOnEject.GetBool();
         bool appendEjectionNotify = CheckForEndVotingPatch.EjectionText != string.Empty;
