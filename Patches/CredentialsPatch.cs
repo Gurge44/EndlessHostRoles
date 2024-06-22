@@ -14,12 +14,15 @@ namespace EHR;
 [HarmonyPatch(typeof(PingTracker), nameof(PingTracker.Update))]
 internal class PingTrackerUpdatePatch
 {
+    public static PingTracker Instance;
     private static readonly StringBuilder Sb = new();
     private static long LastUpdate;
     private static int Delay => GameStates.IsInTask ? 8 : 1;
 
     private static void Postfix(PingTracker __instance)
     {
+        Instance = __instance;
+
         __instance.text.alignment = TextAlignmentOptions.Center;
         __instance.text.text = Sb.ToString();
 
@@ -219,7 +222,7 @@ internal class ModManagerLateUpdatePatch
         __instance.localCamera = !DestroyableSingleton<HudManager>.InstanceExists ? Camera.main : DestroyableSingleton<HudManager>.Instance.GetComponentInChildren<Camera>();
         if (__instance.localCamera != null)
         {
-            var offsetY = HudManager.InstanceExists ? 1.6f : 0.9f;
+            var offsetY = HudManager.InstanceExists ? 1.1f : 0.9f;
             __instance.ModStamp.transform.position = AspectPosition.ComputeWorldPosition(
                 __instance.localCamera, AspectPosition.EdgeAlignments.RightTop,
                 new(0.4f, offsetY, __instance.localCamera.nearClipPlane + 0.1f));

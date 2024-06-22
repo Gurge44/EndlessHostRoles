@@ -47,11 +47,20 @@ public static class OptionShower
             {
                 sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.GM)}>{Utils.GetRoleName(CustomRoles.GM)}:</color> {(Main.GM.Value ? GetString("RoleRate") : GetString("RoleOff"))}\n\n");
                 sb.Append(GetString("ActiveRolesList")).Append('\n');
+                int count = 4;
                 foreach (var kvp in Options.CustomRoleSpawnChances)
                 {
                     if (kvp.Value.GameMode is CustomGameMode.Standard or CustomGameMode.All && kvp.Value.GetBool())
                     {
-                        sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}\n");
+                        sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}  ×{kvp.Key.GetCount()}\n");
+                        count++;
+
+                        if (count > 44)
+                        {
+                            count = 0;
+                            Pages.Add(sb + "\n\n");
+                            sb.Clear().Append(GetString("ActiveRolesList")).Append('\n');
+                        }
                     }
                 }
 
@@ -67,7 +76,7 @@ public static class OptionShower
                 {
                     if (!kvp.Key.IsEnable() || kvp.Value.IsHiddenOn(Options.CurrentGameMode)) continue;
                     sb.Append('\n');
-                    sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}×{kvp.Key.GetCount()}\n");
+                    sb.Append($"{Utils.ColorString(Utils.GetRoleColor(kvp.Key), Utils.GetRoleName(kvp.Key))}: {kvp.Value.GetString()}  ×{kvp.Key.GetCount()}\n");
                     ShowChildren(kvp.Value, ref sb, Utils.GetRoleColor(kvp.Key).ShadeColor(-0.5f), 1);
                 }
             }
@@ -86,7 +95,7 @@ public static class OptionShower
         string[] tmp = sb.ToString().Split("\n\n");
         foreach (var str in tmp)
         {
-            if (Pages[^1].Count(c => c == '\n') + 1 + str.Count(c => c == '\n') + 1 > 35)
+            if (Pages[^1].Count(c => c == '\n') + 1 + str.Count(c => c == '\n') + 1 > 44)
                 Pages.Add(str + "\n\n");
             else Pages[^1] += str + "\n\n";
         }

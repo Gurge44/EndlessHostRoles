@@ -10,6 +10,7 @@ using static EHR.Translator;
 
 namespace EHR;
 
+/*
 [HarmonyPatch(typeof(GameSettingMenu), nameof(GameSettingMenu.Start))]
 public static class GameSettingMenuPatch
 {
@@ -34,9 +35,6 @@ public static class GameSettingMenuPatch
 
         GameObject template = gamepreset.gameObject;
         GameObject targetBox = Object.Instantiate(template, gamepreset.transform);
-        targetBox.name = "System Settings";
-        targetBox.transform.localScale = new(0.59f, 0.59f, 1f);
-        targetBox.transform.localPosition = new(targetBox.transform.localPosition.x + 2.95f, rolesettings.transform.localPosition.y - 0.1f, targetBox.transform.localPosition.z);
 
         LateTask.New(() =>
         {
@@ -60,6 +58,7 @@ public static class GameSettingMenuPatch
             targetBox = Object.Instantiate(template, targetBox.transform);
             targetBox.name = name;
             targetBox.transform.localScale = new(1f, 1f, 1f);
+            targetBox.transform.localPosition = new(targetBox.transform.localPosition.x, targetBox.transform.localPosition.y - 0.6f, targetBox.transform.localPosition.z);
 
             PassiveButton button = targetBox.GetComponent<PassiveButton>();
             button.OnClick.RemoveAllListeners();
@@ -108,7 +107,7 @@ public static class RolesSettingsMenuAwakePatch
         ehrRoleSettings.name = "EHR Role Settings";
         ehrRoleSettings.enabled = true;
     }
-}
+}*/
 
 [HarmonyPatch(typeof(GameOptionsMenu), nameof(GameOptionsMenu.Awake))]
 [HarmonyPriority(Priority.First)]
@@ -280,7 +279,8 @@ public static class GameOptionsMenuPatch
     }
 }
 
-// [HarmonyPatch(typeof(GameOptionsMenu), nameof(GameOptionsMenu.Update))]
+/*
+[HarmonyPatch(typeof(GameOptionsMenu), nameof(GameOptionsMenu.Update))]
 public static class GameOptionsMenuUpdatePatch
 {
     private static float Timer = 1f;
@@ -381,7 +381,7 @@ public static class GameOptionsMenuUpdatePatch
     }
 }
 
-// [HarmonyPatch(typeof(StringOption), nameof(StringOption.Start))]
+[HarmonyPatch(typeof(StringOption), nameof(StringOption.Start))]
 public class StringOptionEnablePatch
 {
     public static bool Prefix(StringOption __instance)
@@ -405,7 +405,7 @@ public class StringOptionEnablePatch
     }
 }
 
-// [HarmonyPatch(typeof(StringOption), nameof(StringOption.Increase))]
+[HarmonyPatch(typeof(StringOption), nameof(StringOption.Increase))]
 public class StringOptionIncreasePatch
 {
     public static bool Prefix(StringOption __instance)
@@ -417,10 +417,10 @@ public class StringOptionIncreasePatch
         return false;
     }
 
-    public static void Postfix( /*StringOption __instance*/) => OptionShower.GetText();
+    public static void Postfix() => OptionShower.GetText();
 }
 
-// [HarmonyPatch(typeof(StringOption), nameof(StringOption.Decrease))]
+[HarmonyPatch(typeof(StringOption), nameof(StringOption.Decrease))]
 public class StringOptionDecreasePatch
 {
     public static bool Prefix(StringOption __instance)
@@ -432,8 +432,8 @@ public class StringOptionDecreasePatch
         return false;
     }
 
-    public static void Postfix( /*StringOption __instance*/) => OptionShower.GetText();
-}
+    public static void Postfix() => OptionShower.GetText();
+}*/
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSyncSettings))]
 public class RpcSyncSettingsPatch

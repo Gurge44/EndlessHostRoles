@@ -3,6 +3,18 @@ using UnityEngine;
 
 namespace EHR;
 
+[HarmonyPatch(typeof(GameStartManager))]
+class AllMapIconsPatch
+{
+    [HarmonyPatch(nameof(GameStartManager.Start)), HarmonyPostfix]
+    public static void Postfix_AllMapIcons(GameStartManager __instance)
+    {
+        MapIconByName dleksIcon = Object.Instantiate(__instance, __instance.gameObject.transform).AllMapIcons[0];
+        dleksIcon.Name = MapNames.Dleks;
+        __instance.AllMapIcons.Add(dleksIcon);
+    }
+}
+
 [HarmonyPatch(typeof(AmongUsClient._CoStartGameHost_d__32), nameof(AmongUsClient._CoStartGameHost_d__32.MoveNext))]
 public static class DleksPatch
 {

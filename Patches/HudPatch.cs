@@ -20,6 +20,7 @@ class HudManagerPatch
 {
     private static TextMeshPro LowerInfoText;
     private static TextMeshPro OverriddenRolesText;
+    private static TextMeshPro SettingsText;
     private static long LastNullError;
 
     public static bool Prefix(HudManager __instance)
@@ -63,10 +64,21 @@ class HudManagerPatch
 
             if (GameStates.IsLobby)
             {
-                // var POM = GameObject.Find("PlayerOptionsMenu(Clone)");
-                // __instance.GameSettings.text = POM != null ? string.Empty : OptionShower.GetTextNoFresh();
-                // __instance.GameSettings.fontSizeMin =
-                //     __instance.GameSettings.fontSizeMax = 1f;
+                if (PingTrackerUpdatePatch.Instance != null)
+                {
+                    if (SettingsText != null) Object.Destroy(SettingsText.gameObject);
+                    SettingsText = Object.Instantiate(PingTrackerUpdatePatch.Instance.text, __instance.transform, true);
+                    SettingsText.alignment = TextAlignmentOptions.TopLeft;
+                    SettingsText.verticalAlignment = VerticalAlignmentOptions.Top;
+                    SettingsText.transform.localPosition = new(-4.9f, 2.9f, 0);
+                    SettingsText.fontSize = SettingsText.fontSizeMin = SettingsText.fontSizeMax = 1.5f;
+                }
+
+                if (SettingsText != null)
+                {
+                    SettingsText.text = OptionShower.GetTextNoFresh();
+                    SettingsText.enabled = SettingsText.text != string.Empty;
+                }
             }
 
             if (AmongUsClient.Instance.AmHost)

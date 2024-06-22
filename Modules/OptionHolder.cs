@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -779,7 +778,7 @@ public static class Options
             Logger.Info("Options.Load End", "Options");
             GroupOptions();
             GroupAddons();
-            Process.Start(@".\EHR_DATA\SettingsUI.exe");
+            //Process.Start(@".\EHR_DATA\SettingsUI.exe");
 
 #if DEBUG
             // Used for generating the table of roles for the README
