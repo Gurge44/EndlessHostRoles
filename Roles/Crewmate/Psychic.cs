@@ -6,7 +6,7 @@ using EHR.Modules;
 using Hazel;
 using static EHR.Options;
 
-namespace EHR.Roles.Crewmate;
+namespace EHR.Crewmate;
 
 public class Psychic : RoleBase
 {

@@ -5,7 +5,7 @@ using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.AddOns.Crewmate
+namespace EHR.AddOns.Crewmate
 {
     public class Stressed : IAddon
     {

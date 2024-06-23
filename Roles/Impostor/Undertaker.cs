@@ -1,6 +1,6 @@
 ﻿using static EHR.Options;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     internal class Undertaker : ISettingHolder
     {

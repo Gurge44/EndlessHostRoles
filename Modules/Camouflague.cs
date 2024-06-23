@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using AmongUs.Data;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
+using EHR.Impostor;
+using EHR.Neutral;
 
 namespace EHR;
 

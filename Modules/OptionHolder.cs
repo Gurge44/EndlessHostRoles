@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using EHR.AddOns;
 using EHR.Modules;
-using EHR.Roles.AddOns;
 using HarmonyLib;
 using UnityEngine;
 

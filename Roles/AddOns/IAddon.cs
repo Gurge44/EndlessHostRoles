@@ -1,4 +1,4 @@
-﻿namespace EHR.Roles.AddOns
+﻿namespace EHR.AddOns
 {
     internal interface IAddon
     {

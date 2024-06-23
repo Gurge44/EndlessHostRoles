@@ -4,7 +4,7 @@ using System.Linq;
 using AmongUs.Data;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using HarmonyLib;
 using InnerNet;
 using TMPro;

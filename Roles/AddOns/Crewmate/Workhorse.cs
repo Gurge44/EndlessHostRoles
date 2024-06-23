@@ -4,7 +4,7 @@ using AmongUs.GameOptions;
 using UnityEngine;
 using static EHR.Options;
 
-namespace EHR.Roles.AddOns.Crewmate;
+namespace EHR.AddOns.Crewmate;
 
 public class Workhorse : IAddon
 {

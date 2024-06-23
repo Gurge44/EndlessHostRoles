@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EHR.Roles.Impostor;
+using EHR.Impostor;
 using HarmonyLib;
 using UnityEngine;
 

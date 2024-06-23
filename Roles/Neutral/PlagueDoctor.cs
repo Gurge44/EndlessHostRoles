@@ -7,7 +7,7 @@ using EHR.Modules;
 using Hazel;
 using UnityEngine;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     public class PlagueDoctor : RoleBase
     {

@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using EHR.Impostor;
 using EHR.Modules;
-using EHR.Roles.Impostor;
 using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Doppelganger : RoleBase
 {

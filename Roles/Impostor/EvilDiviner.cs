@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using Hazel;
 using static EHR.Options;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     public class EvilDiviner : RoleBase
     {

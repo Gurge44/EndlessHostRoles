@@ -2,13 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.AddOns.Crewmate;
+using EHR.AddOns.GhostRoles;
+using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
-using EHR.Roles.AddOns.Crewmate;
-using EHR.Roles.AddOns.GhostRoles;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
 using InnerNet;
 
 namespace EHR;

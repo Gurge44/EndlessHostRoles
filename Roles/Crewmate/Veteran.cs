@@ -4,7 +4,7 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using static EHR.Options;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class Veteran : RoleBase
     {

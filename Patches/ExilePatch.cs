@@ -1,12 +1,12 @@
 using System;
 using System.Linq;
 using AmongUs.Data;
-using EHR.Roles.AddOns.Common;
-using EHR.Roles.AddOns.Crewmate;
-using EHR.Roles.AddOns.Impostor;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
+using EHR.AddOns.Common;
+using EHR.AddOns.Crewmate;
+using EHR.AddOns.Impostor;
+using EHR.Crewmate;
+using EHR.Impostor;
+using EHR.Neutral;
 using HarmonyLib;
 
 namespace EHR.Patches;

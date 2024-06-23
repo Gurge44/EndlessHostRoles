@@ -4,17 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AmongUs.GameOptions;
+using EHR.AddOns.Common;
+using EHR.AddOns.Crewmate;
+using EHR.AddOns.GhostRoles;
+using EHR.AddOns.Impostor;
 using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
 using EHR.Patches;
-using EHR.Roles.AddOns.Common;
-using EHR.Roles.AddOns.Crewmate;
-using EHR.Roles.AddOns.GhostRoles;
-using EHR.Roles.AddOns.Impostor;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -501,11 +499,17 @@ class CheckMurderPatch
             return false;
         }
 
+        if (killer.Is(CustomRoles.Rookie) && MeetingStates.FirstMeeting)
+        {
+            Notify("RookieKillRoundOne");
+            return false;
+        }
+
         if (!check) killer.Kill(target);
         if (killer.Is(CustomRoles.Doppelganger)) Doppelganger.OnCheckMurderEnd(killer, target);
         return true;
 
-        void Notify(string message) => killer.Notify(ColorString(Color.yellow, GetString("CheckMurderFail") + GetString(message)));
+        void Notify(string message) => killer.Notify(ColorString(Color.yellow, GetString("CheckMurderFail") + GetString(message)), 10f);
     }
 }
 
@@ -594,7 +598,7 @@ class MurderPlayerPatch
         }
 
         Main.PlayerStates[killer.PlayerId].Role.OnMurder(killer, target);
-        
+
         if (Options.CurrentGameMode == CustomGameMode.Speedrun) SpeedrunManager.ResetTimer(killer);
 
         if (killer.Is(CustomRoles.TicketsStealer) && killer.PlayerId != target.PlayerId)
@@ -785,7 +789,7 @@ class ShapeshiftPatch
                 case Adventurer av:
                     Adventurer.OnAnyoneShapeshiftLoop(av, __instance);
                     break;
-                case Roles.Impostor.Sentry st:
+                case EHR.Impostor.Sentry st:
                     st.OnAnyoneShapeshiftLoop(__instance, target);
                     break;
             }
@@ -1734,7 +1738,7 @@ class EnterVentPatch
 
         Drainer.OnAnyoneEnterVent(pc, __instance);
         Analyst.OnAnyoneEnterVent(pc);
-        Roles.Impostor.Sentry.OnAnyoneEnterVent(pc);
+        EHR.Impostor.Sentry.OnAnyoneEnterVent(pc);
 
         switch (pc.GetCustomRole())
         {

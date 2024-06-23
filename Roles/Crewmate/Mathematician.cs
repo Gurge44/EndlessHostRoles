@@ -1,13 +1,15 @@
 ﻿using System;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class Mathematician : RoleBase
     {
-        private static int Id => 643370;
         public static (bool AskedQuestion, int Answer, byte ProtectedPlayerId, byte MathematicianPlayerId) State = (false, int.MaxValue, byte.MaxValue, byte.MaxValue);
-        public static void SetupCustomOption() => Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mathematician);
         public static bool On;
+        private static int Id => 643370;
+
+        public override bool IsEnable => On;
+        public static void SetupCustomOption() => Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mathematician);
 
         public override void Init()
         {
@@ -20,8 +22,6 @@ namespace EHR.Roles.Crewmate
             On = true;
             State = (false, int.MaxValue, byte.MaxValue, byte.MaxValue);
         }
-
-        public override bool IsEnable => On;
 
         public static void Ask(PlayerControl pc, string num1Str, string num2Str)
         {
@@ -41,6 +41,7 @@ namespace EHR.Roles.Crewmate
                 Utils.ThrowException(e);
             }
         }
+
         public static void Reply(PlayerControl pc, string answerStr)
         {
             try

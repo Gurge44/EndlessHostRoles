@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
 using UnityEngine;

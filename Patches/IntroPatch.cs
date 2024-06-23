@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using HarmonyLib;
 using UnityEngine;
 using static EHR.Translator;

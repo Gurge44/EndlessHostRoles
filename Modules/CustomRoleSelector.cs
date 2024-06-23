@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.Roles.AddOns.Common;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
+using EHR.AddOns.Common;
+using EHR.Impostor;
+using EHR.Neutral;
 
 namespace EHR.Modules;
 

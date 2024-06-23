@@ -2,7 +2,7 @@
 using AmongUs.GameOptions;
 using static EHR.Translator;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     public class Escort : RoleBase
     {

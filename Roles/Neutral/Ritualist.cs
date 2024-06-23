@@ -1,6 +1,6 @@
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     public class Ritualist : ISettingHolder
     {

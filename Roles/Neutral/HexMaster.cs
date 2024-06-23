@@ -1,7 +1,7 @@
-using EHR.Roles.Impostor;
+using EHR.Impostor;
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class HexMaster : ISettingHolder
 {

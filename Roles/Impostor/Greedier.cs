@@ -2,10 +2,10 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using Hazel;
 
-namespace EHR.Roles.Impostor;
+namespace EHR.Impostor;
 
 // 来源：https://github.com/Yumenopai/TownOfHost_Y
 public class Greedier : RoleBase // Also used for Imitator as the NK version of this

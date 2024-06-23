@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.AddOns.GhostRoles;
+using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Neutral;
-using EHR.Roles.AddOns.GhostRoles;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;

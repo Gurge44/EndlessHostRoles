@@ -3,7 +3,7 @@ using System.Linq;
 using EHR.Modules;
 using Hazel;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class Rabbit : RoleBase
     {

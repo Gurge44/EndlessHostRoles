@@ -1,7 +1,7 @@
 ﻿using AmongUs.GameOptions;
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Jester : RoleBase
     {

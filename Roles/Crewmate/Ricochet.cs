@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using EHR.Modules;
 using Hazel;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     using static Options;
 

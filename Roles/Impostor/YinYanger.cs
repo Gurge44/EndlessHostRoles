@@ -5,7 +5,7 @@ using UnityEngine;
 using static EHR.Options;
 using static EHR.Utils;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     public class YinYanger : RoleBase
     {

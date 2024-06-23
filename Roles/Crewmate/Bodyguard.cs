@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using static EHR.Options;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class Bodyguard : RoleBase
     {

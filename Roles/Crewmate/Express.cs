@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class Express : RoleBase
     {

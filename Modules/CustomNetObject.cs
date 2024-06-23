@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EHR.Roles.Crewmate;
+using EHR.Crewmate;
 using Hazel;
 using InnerNet;
 using UnityEngine;

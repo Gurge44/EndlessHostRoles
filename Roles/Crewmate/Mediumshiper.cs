@@ -2,7 +2,7 @@
 using System.Linq;
 using static EHR.Translator;
 
-namespace EHR.Roles.Crewmate;
+namespace EHR.Crewmate;
 
 public class Mediumshiper : RoleBase
 {

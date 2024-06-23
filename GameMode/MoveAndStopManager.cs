@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EHR.Roles.AddOns.Common;
+using EHR.AddOns.Common;
 using HarmonyLib;
 using UnityEngine;
 using static EHR.Translator;

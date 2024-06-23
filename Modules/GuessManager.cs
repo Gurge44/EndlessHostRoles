@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using EHR.AddOns.Common;
 using EHR.Crewmate;
 using EHR.Modules;
-using EHR.Roles.AddOns.Common;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
 using TMPro;

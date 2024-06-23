@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using EHR.AddOns.Common;
+using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Modules;
-using EHR.Roles.AddOns.Common;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using HarmonyLib;
 using UnityEngine;
 using static EHR.Translator;
@@ -90,6 +90,9 @@ class CheckForEndVotingPatch
                         {
                             case CustomRoles.Divinator when !Divinator.CancelVote.GetBool():
                                 Divinator.OnVote(pc, voteTarget);
+                                break;
+                            case CustomRoles.Soothsayer when !Soothsayer.CancelVote.GetBool():
+                                Soothsayer.OnVote(pc, voteTarget);
                                 break;
                             case CustomRoles.Oracle when !Oracle.CancelVote.GetBool():
                                 Oracle.OnVote(pc, voteTarget);
@@ -1169,6 +1172,9 @@ class MeetingHudCastVotePatch
                 {
                     case CustomRoles.Divinator when Divinator.CancelVote.GetBool():
                         if (Divinator.OnVote(pc_src, pc_target)) CancelVote();
+                        break;
+                    case CustomRoles.Soothsayer when Soothsayer.CancelVote.GetBool():
+                        if (Soothsayer.OnVote(pc_src, pc_target)) CancelVote();
                         break;
                     case CustomRoles.Oracle when Oracle.CancelVote.GetBool():
                         if (Oracle.OnVote(pc_src, pc_target)) CancelVote();

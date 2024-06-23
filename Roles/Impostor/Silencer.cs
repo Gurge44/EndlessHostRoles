@@ -2,7 +2,7 @@
 using AmongUs.GameOptions;
 using static EHR.Options;
 
-namespace EHR.Roles.Impostor;
+namespace EHR.Impostor;
 
 public class Silencer : RoleBase
 {

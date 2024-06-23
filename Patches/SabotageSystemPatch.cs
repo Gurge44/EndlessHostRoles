@@ -1,6 +1,6 @@
+using EHR.Crewmate;
 using EHR.Modules;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
 

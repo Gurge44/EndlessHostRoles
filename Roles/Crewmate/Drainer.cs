@@ -4,7 +4,7 @@ using AmongUs.GameOptions;
 using HarmonyLib;
 using static EHR.Options;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     public class Drainer : RoleBase
     {

@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Neutral;
+using EHR.Crewmate;
+using EHR.Neutral;
 using Hazel;
 using InnerNet;
 using UnityEngine;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     internal class OverKiller : RoleBase
     {

@@ -1,4 +1,4 @@
-﻿namespace EHR.Roles.Impostor
+﻿namespace EHR.Impostor
 {
     public class Bard : RoleBase
     {

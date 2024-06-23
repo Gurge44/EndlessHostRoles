@@ -6,7 +6,7 @@ using EHR.Modules;
 using Hazel;
 using UnityEngine;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     using static Options;
     using static Translator;

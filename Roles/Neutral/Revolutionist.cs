@@ -5,7 +5,7 @@ using EHR.Modules;
 using UnityEngine;
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Revolutionist : RoleBase
     {

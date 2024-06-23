@@ -10,16 +10,14 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using EHR.AddOns.Common;
+using EHR.AddOns.Crewmate;
+using EHR.AddOns.GhostRoles;
+using EHR.AddOns.Impostor;
 using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
-using EHR.Roles.AddOns.Common;
-using EHR.Roles.AddOns.Crewmate;
-using EHR.Roles.AddOns.GhostRoles;
-using EHR.Roles.AddOns.Impostor;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes;
@@ -643,6 +641,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.Nonplus:
             case CustomRoles.Tremor:
             case CustomRoles.Evolver:
             case CustomRoles.Rogue:
@@ -2501,7 +2500,7 @@ public static class Utils
             CustomRoles.Tornado => Tornado.TornadoCooldown.GetInt(),
             CustomRoles.Sentinel => Sentinel.PatrolCooldown.GetInt(),
             CustomRoles.Druid => Druid.VentCooldown.GetInt(),
-            CustomRoles.Sentry => Roles.Impostor.Sentry.ShowInfoCooldown.GetInt(),
+            CustomRoles.Sentry => EHR.Impostor.Sentry.ShowInfoCooldown.GetInt(),
             CustomRoles.ToiletMaster => ToiletMaster.AbilityCooldown.GetInt(),
             CustomRoles.Sniper => Options.DefaultShapeshiftCooldown.GetInt(),
             CustomRoles.Assassin => Assassin.AssassinateCooldownOpt.GetInt(),
@@ -2518,6 +2517,7 @@ public static class Utils
             CustomRoles.Swiftclaw => Swiftclaw.DashCD.GetInt() + (includeDuration ? Swiftclaw.DashDuration.GetInt() : 0),
             CustomRoles.Parasite => (int)Parasite.SSCD + (includeDuration ? (int)Parasite.SSDur : 0),
             CustomRoles.Tiger => Tiger.EnrageCooldown.GetInt() + (includeDuration ? Tiger.EnrageDuration.GetInt() : 0),
+            CustomRoles.Nonplus => Nonplus.BlindCooldown.GetInt() + (includeDuration ? Nonplus.BlindDuration.GetInt() : 0),
             CustomRoles.Cherokious => Cherokious.KillCooldown.GetInt(),
             _ => -1
         };
@@ -2701,7 +2701,8 @@ public static class Utils
             Vulture.OnPlayerDead(target);
             Scout.OnPlayerDeath(target);
             Adventurer.OnAnyoneDead(target);
-            Roles.Impostor.Sentry.OnAnyoneMurder(target);
+            Soothsayer.OnAnyoneDeath(target.GetRealKiller(), target);
+            EHR.Impostor.Sentry.OnAnyoneMurder(target);
 
             if (QuizMaster.On) QuizMaster.Data.NumPlayersDeadThisRound++;
 

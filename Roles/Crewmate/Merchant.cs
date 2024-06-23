@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class Merchant : RoleBase
     {

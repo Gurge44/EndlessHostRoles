@@ -1,5 +1,5 @@
 ﻿using AmongUs.GameOptions;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
 using InnerNet;

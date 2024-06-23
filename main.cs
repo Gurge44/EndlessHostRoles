@@ -9,7 +9,7 @@ using BepInEx.Configuration;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
 using EHR;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using HarmonyLib;
 using Il2CppInterop.Runtime.Injection;
 using UnityEngine;
@@ -356,6 +356,9 @@ public class Main : BasePlugin
                 { CustomRoles.Transmitter, "#c9a11e" },
                 { CustomRoles.Safeguard, "#4949e3" },
                 { CustomRoles.Clairvoyant, "#d4ffdd" },
+                { CustomRoles.Inquirer, "#7c55f2" },
+                { CustomRoles.Soothsayer, "#4e529c" },
+                { CustomRoles.Telekinetic, "#d6c618" },
                 { CustomRoles.Doppelganger, "#f6f4a3" },
                 { CustomRoles.Nightmare, "#1e1247" },
                 { CustomRoles.Altruist, "#300000" },
@@ -453,6 +456,7 @@ public class Main : BasePlugin
                 { CustomRoles.HexMaster, "#ff00ff" },
                 { CustomRoles.Wraith, "#4B0082" },
                 { CustomRoles.NSerialKiller, "#233fcc" },
+                { CustomRoles.Nonplus, "#09632f" },
                 { CustomRoles.Tremor, "#e942f5" },
                 { CustomRoles.Evolver, "#f2c444" },
                 { CustomRoles.Rogue, "#7a629c" },
@@ -528,6 +532,7 @@ public class Main : BasePlugin
                 { CustomRoles.Energetic, "#ffff00" },
                 { CustomRoles.Dynamo, "#ebe534" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Rookie, "#bf671f" },
                 { CustomRoles.Taskcounter, "#ff1919" },
                 { CustomRoles.Stained, "#e6bf91" },
                 { CustomRoles.Clumsy, "#b8b8b8" },
@@ -599,7 +604,7 @@ public class Main : BasePlugin
                 // Hot Potato
                 { CustomRoles.Potato, "#e8cd46" },
                 // Speedrun
-                { CustomRoles.Runner, "#800080"},
+                { CustomRoles.Runner, "#800080" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },
@@ -732,6 +737,7 @@ public enum CustomWinner
     Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
     SerialKiller = CustomRoles.NSerialKiller,
+    Nonplus = CustomRoles.Nonplus,
     Tremor = CustomRoles.Tremor,
     Evolver = CustomRoles.Evolver,
     Rogue = CustomRoles.Rogue,

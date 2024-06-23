@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     internal class Swiftclaw : RoleBase
     {

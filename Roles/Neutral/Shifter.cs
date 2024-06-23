@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Patches;
-using EHR.Roles.Crewmate;
 
 namespace EHR.Neutral
 {

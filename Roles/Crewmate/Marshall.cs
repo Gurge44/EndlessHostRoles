@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using static EHR.Options;
 
-namespace EHR.Roles.Crewmate;
+namespace EHR.Crewmate;
 
 public class Marshall : RoleBase
 {

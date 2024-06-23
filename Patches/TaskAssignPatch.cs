@@ -1,8 +1,8 @@
 using AmongUs.GameOptions;
+using EHR.AddOns.Crewmate;
+using EHR.AddOns.GhostRoles;
+using EHR.Impostor;
 using EHR.Modules;
-using EHR.Roles.AddOns.Crewmate;
-using EHR.Roles.AddOns.GhostRoles;
-using EHR.Roles.Impostor;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using Random = UnityEngine.Random;

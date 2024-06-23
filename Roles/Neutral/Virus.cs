@@ -5,7 +5,7 @@ using EHR.Patches;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     public class Virus : RoleBase
     {

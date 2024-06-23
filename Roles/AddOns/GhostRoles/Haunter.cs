@@ -4,7 +4,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 
-namespace EHR.Roles.AddOns.GhostRoles
+namespace EHR.AddOns.GhostRoles
 {
     internal class Haunter : IGhostRole, ISettingHolder
     {

@@ -4,7 +4,7 @@ using AmongUs.GameOptions;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Amnesiac : RoleBase
 {

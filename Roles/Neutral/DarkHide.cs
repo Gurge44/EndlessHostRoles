@@ -4,7 +4,7 @@ using EHR.Modules;
 using Hazel;
 using InnerNet;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 // 来源：https://github.com/Yumenopai/TownOfHost_Y
 public class DarkHide : RoleBase

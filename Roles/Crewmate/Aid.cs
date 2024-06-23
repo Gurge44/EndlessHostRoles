@@ -5,7 +5,7 @@ using EHR.Modules;
 using Hazel;
 using UnityEngine;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     public class Aid : RoleBase
     {

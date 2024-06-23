@@ -9,7 +9,7 @@ using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     public class Druid : RoleBase
     {

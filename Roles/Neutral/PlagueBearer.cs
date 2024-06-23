@@ -5,7 +5,7 @@ using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class PlagueBearer : RoleBase
 {

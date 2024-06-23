@@ -1,6 +1,6 @@
 ﻿using EHR.Patches;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Cherokious : RoleBase
     {

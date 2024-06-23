@@ -5,11 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Assets.CoreScripts;
+using EHR.AddOns.Common;
+using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Modules;
-using EHR.Roles.AddOns.Common;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
 using UnityEngine;
@@ -483,6 +483,30 @@ internal class ChatCommands
                     var qm2 = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
                     if (qm2.Target != localPlayerId || !QuizMaster.MessagesToSend.TryGetValue(localPlayerId, out var msg)) break;
                     Utils.SendMessage(msg, localPlayerId, GetString("QuizMaster.QuestionSample.Title"));
+                    break;
+
+                case "/target":
+                    if (!Ventriloquist.On || !PlayerControl.LocalPlayer.IsAlive() || !PlayerControl.LocalPlayer.Is(CustomRoles.Ventriloquist) || PlayerControl.LocalPlayer.GetAbilityUseLimit() < 1) break;
+                    var vl = (Ventriloquist)Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role;
+                    vl.Target = args.Length < 2 ? byte.MaxValue : byte.TryParse(args[1], out var targetId) ? targetId : byte.MaxValue;
+                    ChatManager.SendPreviousMessagesToAll();
+                    break;
+
+                case "/chat":
+                    if (!Ventriloquist.On || !PlayerControl.LocalPlayer.IsAlive() || !PlayerControl.LocalPlayer.Is(CustomRoles.Ventriloquist) || PlayerControl.LocalPlayer.GetAbilityUseLimit() < 1) break;
+                    var vl2 = (Ventriloquist)Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role;
+                    if (vl2.Target == byte.MaxValue) break;
+                    var title = Utils.ColorString(Main.PlayerColors.GetValueOrDefault(vl2.Target, Color.white), Main.AllPlayerNames.GetValueOrDefault(vl2.Target, string.Empty));
+                    Utils.SendMessage(text.Remove(0, 6), title: title);
+                    PlayerControl.LocalPlayer.RpcRemoveAbilityUse();
+                    break;
+
+                case "/check":
+                    if (!PlayerControl.LocalPlayer.IsAlive() || !PlayerControl.LocalPlayer.Is(CustomRoles.Inquirer) || PlayerControl.LocalPlayer.GetAbilityUseLimit() < 1) break;
+                    if (args.Length < 3 || !GuessManager.MsgToPlayerAndRole(text, out byte checkId, out CustomRoles checkRole, out _)) break;
+                    bool hasRole = Utils.GetPlayerById(checkId).GetCustomRole() == checkRole;
+                    if (IRandom.Instance.Next(100) < Inquirer.FailChance.GetInt()) hasRole = !hasRole;
+                    Utils.SendMessage(GetString(hasRole ? "Inquirer.MessageTrue" : "Inquirer.MessageFalse"), PlayerControl.LocalPlayer.PlayerId);
                     break;
 
                 case "/ban":
@@ -1239,6 +1263,27 @@ internal class ChatCommands
                 var qm2 = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
                 if (qm2.Target != player.PlayerId || !QuizMaster.MessagesToSend.TryGetValue(player.PlayerId, out var msg)) break;
                 Utils.SendMessage(msg, player.PlayerId, GetString("QuizMaster.QuestionSample.Title"));
+                break;
+            case "/target":
+                if (!Ventriloquist.On || !player.IsAlive() || !player.Is(CustomRoles.Ventriloquist) || player.GetAbilityUseLimit() < 1) break;
+                var vl = (Ventriloquist)Main.PlayerStates[player.PlayerId].Role;
+                vl.Target = args.Length < 2 ? byte.MaxValue : byte.TryParse(args[1], out var targetId) ? targetId : byte.MaxValue;
+                ChatManager.SendPreviousMessagesToAll();
+                break;
+            case "/chat":
+                if (!Ventriloquist.On || !player.IsAlive() || !player.Is(CustomRoles.Ventriloquist) || player.GetAbilityUseLimit() < 1) break;
+                var vl2 = (Ventriloquist)Main.PlayerStates[player.PlayerId].Role;
+                if (vl2.Target == byte.MaxValue) break;
+                var title = Utils.ColorString(Main.PlayerColors.GetValueOrDefault(vl2.Target, Color.white), Main.AllPlayerNames.GetValueOrDefault(vl2.Target, string.Empty));
+                Utils.SendMessage(text.Remove(0, 6), title: title);
+                player.RpcRemoveAbilityUse();
+                break;
+            case "/check":
+                if (!player.IsAlive() || !player.Is(CustomRoles.Inquirer) || player.GetAbilityUseLimit() < 1) break;
+                if (args.Length < 3 || !GuessManager.MsgToPlayerAndRole(text, out byte checkId, out CustomRoles checkRole, out _)) break;
+                bool hasRole = Utils.GetPlayerById(checkId).GetCustomRole() == checkRole;
+                if (IRandom.Instance.Next(100) < Inquirer.FailChance.GetInt()) hasRole = !hasRole;
+                Utils.SendMessage(GetString(hasRole ? "Inquirer.MessageTrue" : "Inquirer.MessageFalse"), player.PlayerId);
                 break;
             case "/ban":
             case "/kick":

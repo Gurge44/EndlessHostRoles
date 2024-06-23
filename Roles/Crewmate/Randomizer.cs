@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EHR.Impostor;
 using EHR.Modules;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using Hazel;
 using UnityEngine;
-using static EHR.Roles.Crewmate.Randomizer;
+using static EHR.Crewmate.Randomizer;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal static class EffectExtenstions
     {

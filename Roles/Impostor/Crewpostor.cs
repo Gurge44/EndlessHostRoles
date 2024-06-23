@@ -6,7 +6,7 @@ using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     internal class Crewpostor : RoleBase
     {

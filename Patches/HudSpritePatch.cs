@@ -1,8 +1,8 @@
 ﻿using System;
+using EHR.Crewmate;
+using EHR.Impostor;
+using EHR.Neutral;
 using EHR.Patches;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
 using HarmonyLib;
 using UnityEngine;
 

@@ -2,7 +2,7 @@ using AmongUs.GameOptions;
 using UnityEngine;
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Maverick : RoleBase
 {

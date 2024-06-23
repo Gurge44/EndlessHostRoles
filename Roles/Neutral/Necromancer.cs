@@ -4,7 +4,7 @@ using EHR.Modules;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Necromancer : RoleBase
     {

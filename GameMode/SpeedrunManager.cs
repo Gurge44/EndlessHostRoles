@@ -16,26 +16,26 @@ namespace EHR
         public static HashSet<byte> CanKill = [];
 
         private static Dictionary<byte, int> Timers = [];
-        
+
         public static void SetupCustomOption()
         {
             const int id = 69_214_001;
             Color color = Utils.GetRoleColor(CustomRoles.Speedrunner);
-            
+
             TaskFinishWins = new BooleanOptionItem(id, "Speedrun_TaskFinishWins", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Speedrun)
                 .SetColor(color);
-            
+
             TimeStacksUp = new BooleanOptionItem(id + 1, "Speedrun_TimeStacksUp", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Speedrun)
                 .SetColor(color);
-            
+
             TimeLimit = new IntegerOptionItem(id + 2, "Speedrun_TimeLimit", new(1, 90, 1), 20, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Speedrun)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(color);
         }
-        
+
         public static void Init()
         {
             CanKill = [];
@@ -51,12 +51,12 @@ namespace EHR
         public static void OnTaskFinish(PlayerControl pc)
         {
             if (TaskFinishWins.GetBool()) return;
-            
+
             CanKill.Add(pc.PlayerId);
             pc.ChangeRoleBasis(RoleTypes.Impostor);
             pc.Notify(Translator.GetString("Speedrun_CompletedTasks"));
         }
-        
+
         public static string GetTaskBarText()
         {
             return string.Join('\n', Main.PlayerStates
@@ -73,7 +73,7 @@ namespace EHR
             int alive = Main.AllAlivePlayerControls.Length;
             int apc = Main.AllPlayerControls.Length;
             int killers = CanKill.Count;
-            
+
             // ReSharper disable once ConvertIfStatementToReturnStatement
             if (CanKill.Contains(pc.PlayerId)) return string.Format(Translator.GetString("Speedrun_CanKillSuffixInfo"), alive, apc, killers - 1, time);
             return string.Format(Translator.GetString("Speedrun_DoTasksSuffixInfo"), pc.GetTaskState().RemainingTasksCount, alive, apc, killers, time);
@@ -109,17 +109,17 @@ namespace EHR
             reason = GameOverReason.ImpostorByKill;
             return false;
         }
-        
+
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
         class FixedUpdatePatch
         {
             private static long LastUpdate;
-            
+
             public static void Postfix(PlayerControl __instance)
             {
                 if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.Speedrun || Main.HasJustStarted) return;
-                
-                if (Timers[__instance.PlayerId] <= 0) __instance.Suicide();
+
+                if (__instance.IsAlive() && Timers[__instance.PlayerId] <= 0) __instance.Suicide();
 
                 long now = Utils.TimeStamp;
                 if (LastUpdate == now) return;

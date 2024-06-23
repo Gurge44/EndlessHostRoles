@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using EHR.Modules;
 using static EHR.Options;
 
-namespace EHR.Roles.AddOns.Common
+namespace EHR.AddOns.Common
 {
     public class DoubleShot : IAddon
     {

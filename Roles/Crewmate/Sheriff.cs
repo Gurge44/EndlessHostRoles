@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 
-namespace EHR.Roles.Crewmate;
+namespace EHR.Crewmate;
 
 public class Sheriff : RoleBase
 {

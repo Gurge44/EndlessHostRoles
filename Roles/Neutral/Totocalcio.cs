@@ -7,7 +7,7 @@ using static EHR.Options;
 using static EHR.Translator;
 using Math = System.Math;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Totocalcio : RoleBase
 {

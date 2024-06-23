@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AmongUs.GameOptions;
+using EHR.AddOns.Crewmate;
+using EHR.AddOns.Impostor;
+using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Neutral;
-using EHR.Roles.AddOns.Crewmate;
-using EHR.Roles.AddOns.Impostor;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -141,6 +140,7 @@ public enum CustomRPC
     SyncEvolver,
     SyncTremor,
     SyncAid,
+    SyncTelekinetic,
 
     // Other Game Modes
     SyncKBPlayer,
@@ -414,7 +414,7 @@ internal class RPCHandlerPatch
             case CustomRPC.SyncSentry:
             {
                 byte id = reader.ReadByte();
-                if (Main.PlayerStates[id].Role is not Roles.Impostor.Sentry sentry) break;
+                if (Main.PlayerStates[id].Role is not EHR.Impostor.Sentry sentry) break;
                 sentry.MonitoredRoom = Utils.GetPlayerById(id).GetPlainShipRoom();
                 break;
             }
@@ -438,6 +438,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SyncAid:
                 (Main.PlayerStates[reader.ReadByte()].Role as Aid)?.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncTelekinetic:
+                (Main.PlayerStates[reader.ReadByte()].Role as Telekinetic)?.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetBountyTarget:
             {

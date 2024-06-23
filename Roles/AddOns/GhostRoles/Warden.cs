@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace EHR.Roles.AddOns.GhostRoles
+namespace EHR.AddOns.GhostRoles
 {
     internal class Warden : IGhostRole, ISettingHolder
     {

@@ -3,7 +3,7 @@ using System.Text;
 using AmongUs.GameOptions;
 using static EHR.Options;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class SecurityGuard : RoleBase
     {

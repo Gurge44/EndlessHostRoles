@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Modules;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using UnityEngine;
-using Monitor = EHR.Roles.Crewmate.Monitor;
+using Monitor = EHR.Crewmate.Monitor;
 
 namespace EHR;
 
@@ -28,6 +28,7 @@ internal static class CustomRolesHelper
         CustomRoles.Shifter,
         CustomRoles.Evolver,
         CustomRoles.ToiletMaster,
+        CustomRoles.Telekinetic,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -119,6 +120,8 @@ internal static class CustomRolesHelper
             CustomRoles.Dictator => CustomRoles.Crewmate,
             CustomRoles.Inhibitor => CustomRoles.Impostor,
             CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
+            CustomRoles.Augmenter => CustomRoles.Shapeshifter,
+            CustomRoles.Ventriloquist => CustomRoles.Impostor,
             CustomRoles.Echo => CustomRoles.Shapeshifter,
             CustomRoles.Abyssbringer => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Overheat => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
@@ -192,7 +195,10 @@ internal static class CustomRolesHelper
             CustomRoles.Transmitter => CustomRoles.Crewmate,
             CustomRoles.Safeguard => CustomRoles.Crewmate,
             CustomRoles.Clairvoyant => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
+            CustomRoles.Telekinetic => CustomRoles.Engineer,
             CustomRoles.Autocrat => CustomRoles.Crewmate,
+            CustomRoles.Inquirer => CustomRoles.Crewmate,
+            CustomRoles.Soothsayer => CustomRoles.Crewmate,
             CustomRoles.LovingCrewmate => CustomRoles.Crewmate,
             CustomRoles.LovingImpostor => CustomRoles.Impostor,
             CustomRoles.ToiletMaster => CustomRoles.Crewmate,
@@ -383,6 +389,7 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Nonplus => RoleTypes.Impostor,
             CustomRoles.Tremor => RoleTypes.Impostor,
             CustomRoles.Evolver => RoleTypes.Impostor,
             CustomRoles.Rogue => RoleTypes.Impostor,
@@ -497,6 +504,7 @@ internal static class CustomRolesHelper
         CustomRoles.Rogue or
         CustomRoles.Parasite or
         CustomRoles.NSerialKiller or
+        CustomRoles.Nonplus or
         CustomRoles.Tremor or
         CustomRoles.Evolver or
         CustomRoles.Chemist or
@@ -607,6 +615,8 @@ internal static class CustomRolesHelper
         CustomRoles.Underdog or
         CustomRoles.Abyssbringer or
         CustomRoles.Echo or
+        CustomRoles.Ventriloquist or
+        CustomRoles.Augmenter or
         CustomRoles.Inhibitor or
         CustomRoles.Kidnapper or
         CustomRoles.Generator or
@@ -1182,6 +1192,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     NSerialKiller,
+    Nonplus,
     Tremor,
     Evolver,
     Rogue,

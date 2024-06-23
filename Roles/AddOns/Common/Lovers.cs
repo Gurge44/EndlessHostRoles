@@ -2,7 +2,7 @@
 using System.Linq;
 using static EHR.Options;
 
-namespace EHR.Roles.AddOns.Common
+namespace EHR.AddOns.Common
 {
     internal class Lovers : IAddon
     {
