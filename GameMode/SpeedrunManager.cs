@@ -109,7 +109,7 @@ namespace EHR
             reason = GameOverReason.ImpostorByKill;
             return false;
         }
-
+        
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
         class FixedUpdatePatch
         {
