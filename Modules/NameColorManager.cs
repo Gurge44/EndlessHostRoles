@@ -53,6 +53,9 @@ public static class NameColorManager
                 return true;
             case CustomGameMode.HideAndSeek:
                 return HnSManager.KnowTargetRoleColor(seer, target, ref color);
+            case CustomGameMode.Speedrun when SpeedrunManager.CanKill.Contains(target.PlayerId):
+                color = Main.ImpostorColor;
+                return true;
         }
 
         // Global (low priority)

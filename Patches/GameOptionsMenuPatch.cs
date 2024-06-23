@@ -510,6 +510,7 @@ public static class SetRecommendationsPatch
                 __instance.KillCooldown = 0f;
                 __instance.NumEmergencyMeetings = 0;
                 break;
+            case CustomGameMode.Speedrun:
             case CustomGameMode.MoveAndStop:
                 __instance.CrewLightMod = 1.25f;
                 __instance.ImpostorLightMod = 1.25f;

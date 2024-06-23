@@ -407,6 +407,7 @@ class SetHudActivePatch
         {
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
+            case CustomGameMode.Speedrun:
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.KillButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
@@ -697,6 +698,12 @@ class TaskPanelBehaviourPatch
                 case CustomGameMode.HideAndSeek:
 
                     AllText += $"\r\n\r\n{HnSManager.GetTaskBarText()}";
+
+                    break;
+                
+                case CustomGameMode.Speedrun:
+                    
+                    AllText += $"\r\n\r\n{SpeedrunManager.GetTaskBarText()}";
 
                     break;
             }

@@ -159,6 +159,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     }
 
                     break;
+                case CustomGameMode.Speedrun:
                 case CustomGameMode.HotPotato:
                 case CustomGameMode.MoveAndStop:
                     opt.SetVision(true);

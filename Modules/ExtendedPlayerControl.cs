@@ -487,7 +487,7 @@ static class ExtendedPlayerControl
 
     public static string GetNameWithRole(this PlayerControl player, bool forUser = false)
     {
-        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
+        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
     }
 
     public static string GetRoleColorCode(this PlayerControl player)
@@ -588,6 +588,7 @@ static class ExtendedPlayerControl
         if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId)) return true;
         if (Penguin.IsVictim(pc)) return false;
         if (Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.MoveAndStop) return false;
+        if (Options.CurrentGameMode == CustomGameMode.Speedrun && !SpeedrunManager.CanKill.Contains(pc.PlayerId)) return false;
         if (Pelican.IsEaten(pc.PlayerId)) return false;
         if (pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
 
@@ -601,6 +602,8 @@ static class ExtendedPlayerControl
             CustomRoles.Tasker => false,
             // Hot Potato
             CustomRoles.Potato => false,
+            // Speedrun
+            CustomRoles.Runner => SpeedrunManager.CanKill.Contains(pc.PlayerId),
             // Hide And Seek
             CustomRoles.Seeker => true,
             CustomRoles.Hider => false,
@@ -638,6 +641,8 @@ static class ExtendedPlayerControl
             CustomRoles.Tasker => false,
             // Hot Potato
             CustomRoles.Potato => false,
+            // Speedrun
+            CustomRoles.Runner => false,
 
             _ => Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseImpostorVentButton(pc)
         };

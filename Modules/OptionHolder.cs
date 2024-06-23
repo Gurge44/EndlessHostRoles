@@ -22,6 +22,7 @@ public enum CustomGameMode
     MoveAndStop = 0x04,
     HotPotato = 0x05,
     HideAndSeek = 0x06,
+    Speedrun = 0x07,
     All = int.MaxValue
 }
 
@@ -42,7 +43,8 @@ public static class Options
         "FFA",
         "MoveAndStop",
         "HotPotato",
-        "HideAndSeek"
+        "HideAndSeek",
+        "Speedrun"
     ];
 
     private static Dictionary<CustomRoles, int> roleCounts;
@@ -762,6 +764,7 @@ public static class Options
             3 => CustomGameMode.MoveAndStop,
             4 => CustomGameMode.HotPotato,
             5 => CustomGameMode.HideAndSeek,
+            6 => CustomGameMode.Speedrun,
             _ => CustomGameMode.Standard
         };
 
@@ -787,7 +790,7 @@ public static class Options
                 var sb = new System.Text.StringBuilder();
                 var grouped = Enum.GetValues<CustomRoles>().GroupBy(x =>
                 {
-                    if (x is CustomRoles.GM or CustomRoles.Philantropist or CustomRoles.Konan or CustomRoles.KB_Normal or CustomRoles.Killer or CustomRoles.Potato or CustomRoles.Tasker or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict || HnSManager.AllHnSRoles.Contains(x) || x.IsVanilla() || x.ToString().Contains("EHR")) return 4;
+                    if (x is CustomRoles.GM or CustomRoles.Philantropist or CustomRoles.Konan or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict || x.IsForOtherGameMode() || x.IsVanilla() || x.ToString().Contains("EHR")) return 4;
                     if (x.IsAdditionRole()) return 3;
                     if (x.IsImpostor() || x.IsMadmate()) return 0;
                     if (x.IsNeutral()) return 1;
@@ -1247,15 +1250,17 @@ public static class Options
 
         MainLoadingText = "Building Settings for Other Gamemodes";
 
-        //SoloKombat
+        // SoloKombat
         SoloKombatManager.SetupCustomOption();
-        //FFA
+        // FFA
         FFAManager.SetupCustomOption();
-        //Move And Stop
+        // Move And Stop
         MoveAndStopManager.SetupCustomOption();
-        //Hot Potato
+        // Hot Potato
         HotPotatoManager.SetupCustomOption();
-        //Hide And Seek
+        // Speedrun
+        SpeedrunManager.SetupCustomOption();
+        // Hide And Seek
         HnSManager.SetupCustomOption();
 
 

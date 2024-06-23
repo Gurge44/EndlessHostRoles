@@ -56,6 +56,9 @@ internal static class CustomRoleSelector
             case CustomGameMode.HotPotato:
                 AssignRoleToEveryone(CustomRoles.Potato);
                 return;
+            case CustomGameMode.Speedrun:
+                AssignRoleToEveryone(CustomRoles.Runner);
+                return;
             case CustomGameMode.HideAndSeek:
                 HnSManager.AssignRoles();
                 RoleResult = HnSManager.PlayerRoles.ToDictionary(x => Utils.GetPlayerById(x.Key), x => x.Value.Role);

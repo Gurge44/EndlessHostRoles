@@ -598,6 +598,8 @@ public class Main : BasePlugin
                 { CustomRoles.Tasker, "#00ffa5" },
                 // Hot Potato
                 { CustomRoles.Potato, "#e8cd46" },
+                // Speedrun
+                { CustomRoles.Runner, "#800080"},
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },

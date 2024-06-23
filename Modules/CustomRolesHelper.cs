@@ -44,6 +44,13 @@ internal static class CustomRolesHelper
 
     public static bool IsExperimental(this CustomRoles role) => ExperimentalRoleList.Contains(role);
 
+    public static bool IsForOtherGameMode(this CustomRoles role) => HnSManager.AllHnSRoles.Contains(role) || role is
+        CustomRoles.KB_Normal or
+        CustomRoles.Killer or
+        CustomRoles.Tasker or
+        CustomRoles.Potato or
+        CustomRoles.Runner;
+
     public static RoleBase GetRoleClass(this CustomRoles role)
     {
         var roleClass = role switch
@@ -334,6 +341,8 @@ internal static class CustomRolesHelper
             CustomRoles.Tasker => RoleTypes.Crewmate,
             // Hot Potato
             CustomRoles.Potato => RoleTypes.Crewmate,
+            // Speedrun
+            CustomRoles.Runner => RoleTypes.Crewmate,
             // Standard
             CustomRoles.Executioner => Executioner.CRoleChangeRoles[Executioner.ChangeRolesAfterTargetKilled.GetValue()].GetDYRole(),
             CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,

@@ -357,6 +357,7 @@ class GameEndChecker
     public static void SetPredicateToFFA() => Predicate = new FFAGameEndPredicate();
     public static void SetPredicateToMoveAndStop() => Predicate = new MoveAndStopGameEndPredicate();
     public static void SetPredicateToHotPotato() => Predicate = new HotPotatoGameEndPredicate();
+    public static void SetPredicateToSpeedrun() => Predicate = new SpeedrunGameEndPredicate();
     public static void SetPredicateToHideAndSeek() => Predicate = new HideAndSeekGameEndPredicate();
 
     class NormalGameEndPredicate : GameEndPredicate
@@ -683,6 +684,20 @@ class GameEndChecker
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
             return HnSManager.CheckForGameEnd(out reason);
+        }
+    }
+
+    class SpeedrunGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForEndGame(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            return SpeedrunManager.CheckForGameEnd(out reason);
         }
     }
 

@@ -219,6 +219,11 @@ class CheckMurderPatch
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
                 return false;
+            case CustomGameMode.Speedrun when !SpeedrunManager.CanKill.Contains(killer.PlayerId):
+                return false;
+            case CustomGameMode.Speedrun:
+                killer.Kill(target);
+                return false;
             case CustomGameMode.HideAndSeek:
                 HnSManager.OnCheckMurder(killer, target);
                 return false;
@@ -589,6 +594,8 @@ class MurderPlayerPatch
         }
 
         Main.PlayerStates[killer.PlayerId].Role.OnMurder(killer, target);
+        
+        if (Options.CurrentGameMode == CustomGameMode.Speedrun) SpeedrunManager.ResetTimer(killer);
 
         if (killer.Is(CustomRoles.TicketsStealer) && killer.PlayerId != target.PlayerId)
             killer.Notify(string.Format(GetString("TicketsStealerGetTicket"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Options.TicketsPerKill.GetFloat()).ToString("0.0#####")));
@@ -1561,6 +1568,9 @@ class FixedUpdatePatch
                     case CustomGameMode.HotPotato when !seer.IsModClient() && self && seer.IsAlive():
                         Suffix.Append(HotPotatoManager.GetSuffixText(seer.PlayerId));
                         break;
+                    case CustomGameMode.Speedrun when self:
+                        Suffix.Append(SpeedrunManager.GetSuffixText(seer));
+                        break;
                     case CustomGameMode.HideAndSeek:
                         Suffix.Append(HnSManager.GetSuffixText(seer, target));
                         break;
@@ -1792,6 +1802,7 @@ class CoEnterVentPatch
                 return true;
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
+            case CustomGameMode.Speedrun:
                 LateTask.New(() => { __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id); }, 0.5f, log: false);
                 return true;
             case CustomGameMode.HideAndSeek:

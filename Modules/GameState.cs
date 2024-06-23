@@ -317,6 +317,12 @@ public class TaskState
         {
             bool alive = player.IsAlive();
 
+            if (alive && Options.CurrentGameMode == CustomGameMode.Speedrun)
+            {
+                if (CompletedTasksCount + 1 >= AllTasksCount) SpeedrunManager.OnTaskFinish(player);
+                else SpeedrunManager.ResetTimer(player);
+            }
+
             if (player.Is(CustomRoles.Unlucky) && alive)
             {
                 var Ue = IRandom.Instance;

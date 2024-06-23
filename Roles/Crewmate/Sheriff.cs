@@ -66,12 +66,15 @@ public class Sheriff : RoleBase
         UsePet = Options.CreatePetUseSetting(Id + 29, CustomRoles.Sheriff);
     }
 
-    public static void SetUpNeutralOptions(int id)
+    private static void SetUpNeutralOptions(int id)
     {
-        foreach (var neutral in Enum.GetValues<CustomRoles>().Where(x => x.IsNeutral() && x is not CustomRoles.KB_Normal and not CustomRoles.Konan and not CustomRoles.Pestilence and not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.Potato and not CustomRoles.Hider and not CustomRoles.Seeker and not CustomRoles.Fox and not CustomRoles.Troll and not CustomRoles.Jumper and not CustomRoles.Detector and not CustomRoles.Jet and not CustomRoles.Dasher and not CustomRoles.Locator and not CustomRoles.Venter and not CustomRoles.Agent and not CustomRoles.Taskinator and not CustomRoles.GM and not CustomRoles.Convict))
+        foreach (var neutral in Enum.GetValues<CustomRoles>())
         {
-            SetUpKillTargetOption(neutral, id, true, CanKillNeutralsMode);
-            id++;
+            if (neutral.IsNeutral() && neutral is not CustomRoles.Konan and not CustomRoles.Pestilence and not CustomRoles.GM and not CustomRoles.Convict && !neutral.IsForOtherGameMode())
+            {
+                SetUpKillTargetOption(neutral, id, true, CanKillNeutralsMode);
+                id++;
+            }
         }
     }
 

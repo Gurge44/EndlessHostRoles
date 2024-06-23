@@ -28,7 +28,7 @@ namespace EHR.Roles.Impostor
     public class Mafioso : RoleBase
     {
         private const int Id = 642200;
-        private static List<byte> playerIdList = [];
+        private static List<byte> PlayerIdList = [];
 
         private static OptionItem Delay;
         private static OptionItem RewardForKilling;
@@ -47,7 +47,7 @@ namespace EHR.Roles.Impostor
         private int Tier;
         private int XP;
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public static void SetupCustomOption()
         {
@@ -67,7 +67,7 @@ namespace EHR.Roles.Impostor
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             PreviouslyUsedVents = [];
             Tier = 0;
             XP = 0;
@@ -79,7 +79,7 @@ namespace EHR.Roles.Impostor
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             lastUpdate = TimeStamp + 8;
             MafiosoId = playerId;
             PreviouslyUsedVents = [];
@@ -273,9 +273,8 @@ namespace EHR.Roles.Impostor
 
         public override bool OnSabotage(PlayerControl pc)
         {
-            if (Main.PlayerStates[pc.PlayerId].Role is not Mafioso { IsEnable: true } mo) return true;
-            mo.XP += RewardForSabotaging.GetInt();
-            mo.SendRPC();
+            XP += RewardForSabotaging.GetInt();
+            SendRPC();
             return true;
         }
 

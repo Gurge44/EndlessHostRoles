@@ -342,6 +342,9 @@ public enum CustomRoles
     Agent,
     Taskinator,
 
+    // Speedrun
+    Runner,
+
     // GM
     GM,
 

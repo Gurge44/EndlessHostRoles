@@ -68,6 +68,16 @@ class SetUpRoleTextPatch
                     __instance.RoleBlurbText.text = GetString("PotatoInfo");
                     break;
                 }
+                case CustomGameMode.Speedrun:
+                {
+                    var color = Utils.GetRoleColor(CustomRoles.Speedrunner);
+                    __instance.YouAreText.transform.gameObject.SetActive(false);
+                    __instance.RoleText.text = GetString("Runner");
+                    __instance.RoleText.color = color;
+                    __instance.RoleBlurbText.color = color;
+                    __instance.RoleBlurbText.text = GetString("RunnerInfo");
+                    break;
+                }
                 default:
                 {
                     CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
@@ -506,6 +516,15 @@ class BeginCrewmatePatch
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("PotatoInfo");
+                break;
+            }
+            case CustomGameMode.Speedrun:
+            {
+                __instance.TeamTitle.text = GetString("Runner");
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Speedrunner);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Crewmate);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = GetString("RunnerInfo");
                 break;
             }
             case CustomGameMode.HideAndSeek:
