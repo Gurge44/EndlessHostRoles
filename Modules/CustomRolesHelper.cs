@@ -92,7 +92,7 @@ internal static class CustomRolesHelper
             CustomRoles.Mayor => Mayor.MayorHasPortableButton.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Monitor => Monitor.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Vulture => Vulture.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
-            CustomRoles.Opportunist => CustomRoles.Engineer,
+            CustomRoles.Opportunist => Opportunist.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Vindicator => CustomRoles.Impostor,
             CustomRoles.Snitch => CustomRoles.Crewmate,
             CustomRoles.ParityCop => CustomRoles.Crewmate,

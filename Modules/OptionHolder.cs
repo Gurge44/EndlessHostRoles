@@ -224,7 +224,6 @@ public static class Options
     public static OptionItem LuckyProbability;
     public static OptionItem VindicatorAdditionalVote;
     public static OptionItem VindicatorHideVote;
-    public static OptionItem OppoImmuneToAttacksWhenTasksDone;
     public static OptionItem DoctorTaskCompletedBatteryCharge;
     public static OptionItem TrapperBlockMoveTime;
     public static OptionItem DetectiveCanknowKiller;
@@ -249,8 +248,6 @@ public static class Options
     public static OptionItem TimeMasterSkillDuration;
     public static OptionItem TimeMasterMaxUses;
     public static OptionItem VeteranSkillMaxOfUseage;
-    public static OptionItem VentguardMaxGuards;
-    public static OptionItem VentguardBlockDoesNotAffectCrew;
     public static OptionItem BodyguardProtectRadius;
     public static OptionItem BodyguardKillsKiller;
     public static OptionItem WitnessCD;
@@ -2240,14 +2237,12 @@ public static class Options
     // Ability Use Gain With Each Task Completed
     public static OptionItem TimeMasterAbilityUseGainWithEachTaskCompleted;
     public static OptionItem VeteranAbilityUseGainWithEachTaskCompleted;
-    public static OptionItem VentguardAbilityUseGainWithEachTaskCompleted;
     public static OptionItem GrenadierAbilityUseGainWithEachTaskCompleted;
     public static OptionItem LighterAbilityUseGainWithEachTaskCompleted;
     public static OptionItem SecurityGuardAbilityUseGainWithEachTaskCompleted;
     public static OptionItem DovesOfNeaceAbilityUseGainWithEachTaskCompleted;
 
     // Ability Use Gain every 5 seconds
-    public static OptionItem VentguardAbilityChargesWhenFinishedTasks;
     public static OptionItem GrenadierAbilityChargesWhenFinishedTasks;
     public static OptionItem LighterAbilityChargesWhenFinishedTasks;
     public static OptionItem SecurityGuardAbilityChargesWhenFinishedTasks;

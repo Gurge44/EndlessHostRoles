@@ -76,7 +76,7 @@ namespace EHR.Impostor
                             sm.SendRPC();
                             break;
                         case CustomRoles.SwordsMan:
-                            SwordsMan.killed.Add(target.PlayerId);
+                            SwordsMan.Killed.Add(target.PlayerId);
                             SwordsMan.SendRPC(target.PlayerId);
                             break;
                         default:

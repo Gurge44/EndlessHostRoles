@@ -9,7 +9,7 @@ namespace EHR.Neutral
     internal class Necromancer : RoleBase
     {
         public static byte NecromancerId = byte.MaxValue;
-        public static PlayerControl Necromancer_;
+        public static PlayerControl NecromancerPC;
 
         private static OptionItem CD;
         public static OptionItem DKCD;
@@ -46,7 +46,7 @@ namespace EHR.Neutral
         public override void Init()
         {
             NecromancerId = byte.MaxValue;
-            Necromancer_ = null;
+            NecromancerPC = null;
 
             PartiallyRecruitedIds.Clear();
 
@@ -57,7 +57,7 @@ namespace EHR.Neutral
         public override void Add(byte playerId)
         {
             NecromancerId = playerId;
-            Necromancer_ = Utils.GetPlayerById(playerId);
+            NecromancerPC = Utils.GetPlayerById(playerId);
 
             if (!AmongUsClient.Instance.AmHost) return;
             if (!Main.ResetCamPlayerList.Contains(playerId))
@@ -94,6 +94,8 @@ namespace EHR.Neutral
 
                 target.Notify(GetString("RecruitedToDeathknight"));
 
+                new[] { CustomRoles.Damocles, CustomRoles.Stressed }.Do(x => Main.PlayerStates[target.PlayerId].RemoveSubRole(x));
+
                 return false;
             }
 
@@ -122,7 +124,7 @@ namespace EHR.Neutral
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || !IsEnable || Necromancer_.IsAlive() || !Deathknight.Deathknight_.IsAlive()) return;
+            if (!GameStates.IsInTask || !IsEnable || NecromancerPC.IsAlive() || !Deathknight.Deathknight_.IsAlive()) return;
 
             Deathknight.Deathknight_.RpcSetCustomRole(CustomRoles.Necromancer);
             Add(Deathknight.DeathknightId);

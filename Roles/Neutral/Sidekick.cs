@@ -17,6 +17,7 @@ public class Sidekick : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        new[] { CustomRoles.Damocles, CustomRoles.Stressed }.Do(x => Main.PlayerStates[playerId].RemoveSubRole(x));
 
         if (!AmongUsClient.Instance.AmHost) return;
         if (!Main.ResetCamPlayerList.Contains(playerId))

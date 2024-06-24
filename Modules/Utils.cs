@@ -2481,7 +2481,7 @@ public static class Utils
 
         int CD = role switch
         {
-            CustomRoles.Mole => 5,
+            CustomRoles.Mole => Mole.CD.GetInt(),
             CustomRoles.Doormaster => Doormaster.VentCooldown.GetInt(),
             CustomRoles.Tether => Tether.VentCooldown.GetInt(),
             CustomRoles.Mayor when Mayor.MayorHasPortableButton.GetBool() => (int)Math.Round(Options.DefaultKillCooldown),

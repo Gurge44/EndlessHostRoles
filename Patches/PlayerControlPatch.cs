@@ -1003,7 +1003,6 @@ class ReportDeadBodyPatch
         Veteran.VeteranInProtect.Clear();
         Grenadier.GrenadierBlinding.Clear();
         SecurityGuard.BlockSabo.Clear();
-        Ventguard.BlockedVents.Clear();
         Grenadier.MadGrenadierBlinding.Clear();
         Divinator.didVote.Clear();
         Oracle.didVote.Clear();
@@ -1847,16 +1846,20 @@ class CoEnterVentPatch
         if (Ventguard.BlockedVents.Contains(id))
         {
             var pc = __instance.myPlayer;
-            if (!Options.VentguardBlockDoesNotAffectCrew.GetBool() || !pc.IsCrewmate())
+            if (!Ventguard.VentguardBlockDoesNotAffectCrew.GetBool() || !pc.IsCrewmate())
             {
                 LateTask.New(() =>
                 {
                     pc?.Notify(GetString("EnteredBlockedVent"));
                     pc?.MyPhysics?.RpcBootFromVent(id);
                 }, 0.5f, "VentguardBlockedVentBootFromVent");
-                foreach (var ventguard in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Ventguard)).ToArray())
+
+                if (Ventguard.VentguardNotifyOnBlockedVentUse.GetBool())
                 {
-                    ventguard.Notify(GetString("VentguardNotify"));
+                    foreach (var ventguard in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Ventguard)).ToArray())
+                    {
+                        ventguard.Notify(GetString("VentguardNotify"));
+                    }
                 }
 
                 return true;

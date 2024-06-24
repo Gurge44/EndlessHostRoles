@@ -9,6 +9,13 @@ namespace EHR.Crewmate
         public static bool On;
 
         public static List<int> BlockedVents = [];
+
+        public static OptionItem VentguardBlockDoesNotAffectCrew;
+        public static OptionItem VentguardAbilityUseGainWithEachTaskCompleted;
+        public static OptionItem VentguardAbilityChargesWhenFinishedTasks;
+        public static OptionItem VentguardMaxGuards;
+        public static OptionItem VentguardNotifyOnBlockedVentUse;
+        public static OptionItem VentguardBlocksResetOnMeeting;
         public override bool IsEnable => On;
 
         public static void SetupCustomOption()
@@ -20,8 +27,14 @@ namespace EHR.Crewmate
             VentguardAbilityChargesWhenFinishedTasks = new FloatOptionItem(5530, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard])
                 .SetValueFormat(OptionFormat.Times);
-            VentguardMaxGuards = new IntegerOptionItem(5528, "VentguardMaxGuards", new(1, 30, 1), 3, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard]);
-            VentguardBlockDoesNotAffectCrew = new BooleanOptionItem(5529, "VentguardBlockDoesNotAffectCrew", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard]);
+            VentguardMaxGuards = new IntegerOptionItem(5528, "VentguardMaxGuards", new(1, 30, 1), 3, TabGroup.CrewmateRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard]);
+            VentguardBlockDoesNotAffectCrew = new BooleanOptionItem(5529, "VentguardBlockDoesNotAffectCrew", true, TabGroup.CrewmateRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard]);
+            VentguardNotifyOnBlockedVentUse = new BooleanOptionItem(5531, "VentguardNotifyOnBlockedVentUse", true, TabGroup.CrewmateRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard]);
+            VentguardBlocksResetOnMeeting = new BooleanOptionItem(5532, "VentguardBlocksResetOnMeeting", true, TabGroup.CrewmateRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Ventguard]);
         }
 
         public override void Add(byte playerId)
@@ -58,6 +71,12 @@ namespace EHR.Crewmate
             {
                 pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
             }
+        }
+
+        public override void AfterMeetingTasks()
+        {
+            if (VentguardBlocksResetOnMeeting.GetBool())
+                BlockedVents.Clear();
         }
     }
 }
