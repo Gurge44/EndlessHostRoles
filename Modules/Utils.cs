@@ -2412,7 +2412,7 @@ public static class Utils
 
                                 Main.PlayerStates.Values.Do(x => TargetSuffix.Append(x.Role.GetSuffix(seer, target, isMeeting: isForMeeting)));
 
-                                if (MeetingStates.FirstMeeting && Main.FirstDied != int.MaxValue && Main.FirstDied == target.GetClientId() && Main.ShieldPlayer != int.MaxValue && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
+                                if (MeetingStates.FirstMeeting && Main.FirstDied != string.Empty && Main.FirstDied == target.FriendCode && Main.ShieldPlayer != string.Empty && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
                                     TargetSuffix.Append(GetString("DiedR1Warning"));
                             }
 
@@ -2619,8 +2619,8 @@ public static class Utils
         try
         {
             // Record the first death
-            if (Main.FirstDied == int.MaxValue)
-                Main.FirstDied = target.GetClientId();
+            if (Main.FirstDied == string.Empty)
+                Main.FirstDied = target.FriendCode;
 
             switch (target.GetCustomRole())
             {

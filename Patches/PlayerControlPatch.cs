@@ -471,9 +471,9 @@ class CheckMurderPatch
                 break;
         }
 
-        if (Main.ShieldPlayer != int.MaxValue && Main.ShieldPlayer == target.GetClientId() && IsAllAlive)
+        if (Main.ShieldPlayer != string.Empty && Main.ShieldPlayer == target.FriendCode && IsAllAlive)
         {
-            Main.ShieldPlayer = int.MaxValue;
+            Main.ShieldPlayer = string.Empty;
             killer.SetKillCooldown(15f);
             killer.Notify(GetString("TriedToKillLastGameFirstKill"), 10f);
             return false;
@@ -564,7 +564,7 @@ class MurderPlayerPatch
         }
 
         // Let’s see if Youtuber was stabbed first
-        if (Main.FirstDied == int.MaxValue && target.Is(CustomRoles.Youtuber))
+        if (Main.FirstDied == string.Empty && target.Is(CustomRoles.Youtuber))
         {
             CustomSoundsManager.RPCPlayCustomSoundAll("Congrats");
             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Youtuber);
@@ -1582,7 +1582,7 @@ class FixedUpdatePatch
                 if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
                     Suffix.Append(SoloKombatManager.GetDisplayHealth(target));
 
-                if (MeetingStates.FirstMeeting && Main.FirstDied != int.MaxValue && Main.FirstDied == target.GetClientId() && !self && Main.ShieldPlayer != int.MaxValue && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
+                if (MeetingStates.FirstMeeting && Main.FirstDied != string.Empty && Main.FirstDied == target.FriendCode && !self && Main.ShieldPlayer != string.Empty && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
                     Suffix.Append(GetString("DiedR1Warning"));
 
                 // Devourer

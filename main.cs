@@ -98,8 +98,8 @@ public class Main : BasePlugin
     public static float DefaultImpostorVision;
     public static readonly bool IsAprilFools = DateTime.Now.Month == 4 && DateTime.Now.Day is 1;
     public static bool ResetOptions = true;
-    public static int FirstDied = int.MaxValue;
-    public static int ShieldPlayer = int.MaxValue;
+    public static string FirstDied = string.Empty;
+    public static string ShieldPlayer = string.Empty;
 
     public static List<PlayerControl> LoversPlayers = [];
     public static bool IsLoversDead = true;

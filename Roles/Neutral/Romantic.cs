@@ -152,7 +152,7 @@ public class Romantic : RoleBase
             if (Arrows.GetBool())
             {
                 TargetArrow.Add(RomanticId, PartnerId);
-                TargetArrow.Add(PartnerId, RomanticId);
+                if (BetTargetKnowRomantic.GetBool()) TargetArrow.Add(PartnerId, RomanticId);
             }
 
             Logger.Info($"Partner picked： {RomanticPC.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Romantic");

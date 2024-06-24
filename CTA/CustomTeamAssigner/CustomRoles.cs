@@ -21,6 +21,7 @@ public enum CustomRoles
     Hacker, // Anonymous
     AntiAdminer,
     Sans, // Arrogance
+    Augmenter,
     Bard,
     Blackmailer,
     Bomber,
@@ -97,6 +98,7 @@ public enum CustomRoles
     Underdog,
     Undertaker,
     Vampire,
+    Ventriloquist,
     Vindicator,
     Visionary,
     Warlock,
@@ -168,6 +170,7 @@ public enum CustomRoles
     Ignitor,
     Insight,
     ParityCop, // Inspector
+    Inquirer,
     Jailor,
     Judge,
     Needy, // Lazy Guy
@@ -207,12 +210,14 @@ public enum CustomRoles
     Sheriff,
     Shiftguard,
     Snitch,
+    Soothsayer,
     Spiritualist,
     Speedrunner,
     SpeedBooster,
     Spy,
     SuperStar,
     TaskManager,
+    Telekinetic,
     Tether,
     TimeManager,
     TimeMaster,
@@ -270,6 +275,7 @@ public enum CustomRoles
     Medusa,
     Mycologist,
     Necromancer,
+    Nonplus,
     Opportunist,
     Patroller,
     Pelican,
@@ -342,6 +348,9 @@ public enum CustomRoles
     Agent,
     Taskinator,
 
+    // Speedrun
+    Runner,
+
     // GM
     GM,
 
@@ -409,6 +418,7 @@ public enum CustomRoles
     Rascal,
     Reach,
     Recruit,
+    Rookie,
     DualPersonality, // Schizophrenic
     Seer,
     Sleuth,
