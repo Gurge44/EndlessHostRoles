@@ -173,7 +173,7 @@ public abstract class OptionItem
         return IsHidden || (GameMode != CustomGameMode.All && GameMode != mode);
     }
 
-    protected string ApplyFormat(string value)
+    public string ApplyFormat(string value)
     {
         if (ValueFormat == OptionFormat.None) return value;
         return string.Format(Translator.GetString("Format." + ValueFormat), value);
