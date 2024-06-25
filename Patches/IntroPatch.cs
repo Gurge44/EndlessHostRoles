@@ -698,13 +698,14 @@ class IntroCutsceneDestroyPatch
                     {
                         try
                         {
+                            PlayerControl.LocalPlayer.Notify(GetString("GLHF"), 2f);
                             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                             {
                                 if (pc.IsHost()) continue; // Skip the host
                                 try
                                 {
                                     pc.RpcShapeshift(pc, false);
-                                    pc.Notify("Good Luck & Have Fun!", 1f);
+                                    pc.Notify(GetString("GLHF"), 2f);
                                 }
                                 catch (Exception ex)
                                 {
