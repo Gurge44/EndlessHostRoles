@@ -4,6 +4,7 @@ namespace EHR;
 
 public class StringOptionItem(int id, string name, IList<string> selections, int defaultValue, TabGroup tab, bool isSingleValue = false, bool noTranslation = false) : OptionItem(id, name, defaultValue, tab, isSingleValue)
 {
+    public readonly bool noTranslation = noTranslation;
     public readonly IntegerValueRule Rule = (0, selections.Count - 1, 1);
     public readonly IList<string> Selections = selections;
 
