@@ -69,7 +69,7 @@ public class Medic : RoleBase
         AmountOfShields = new IntegerOptionItem(Id + 11, "MedicAmountOfShields", new(1, 14, 1), 1, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
         UsePet = Options.CreatePetUseSetting(Id + 12, CustomRoles.Medic);
-        CD = new FloatOptionItem(Id + 12, "AbilityCooldown", new(0f, 180f, 2.5f), 7.5f, TabGroup.CrewmateRoles)
+        CD = new FloatOptionItem(Id + 13, "AbilityCooldown", new(0f, 180f, 2.5f), 7.5f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic])
             .SetValueFormat(OptionFormat.Seconds);
     }

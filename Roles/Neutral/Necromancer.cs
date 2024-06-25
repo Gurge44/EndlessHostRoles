@@ -109,8 +109,6 @@ namespace EHR.Neutral
                 Utils.NotifyRoles(SpecifySeer: Deathknight.Deathknight_, SpecifyTarget: target);
 
                 killer.SetKillCooldown();
-                target.RpcGuardAndKill(killer);
-                target.RpcGuardAndKill(target);
 
                 Logger.Info($"Partial Recruit: {target.GetRealName()}", "Necromancer");
 

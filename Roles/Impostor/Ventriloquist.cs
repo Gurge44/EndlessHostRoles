@@ -12,7 +12,7 @@
 
         public static void SetupCustomOption()
         {
-            Options.SetupRoleOptions(649600, TabGroup.ImpostorRoles, CustomRoles.Ventriloquist);
+            Options.SetupRoleOptions(649650, TabGroup.ImpostorRoles, CustomRoles.Ventriloquist);
             UseLimit = new IntegerOptionItem(649602, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Ventriloquist])
                 .SetValueFormat(OptionFormat.Times);

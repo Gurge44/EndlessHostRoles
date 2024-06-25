@@ -14,7 +14,7 @@ namespace EHR.Crewmate
 
         public static void SetupCustomOption()
         {
-            const int id = 649400;
+            const int id = 649450;
             const TabGroup tab = TabGroup.CrewmateRoles;
             const CustomRoles role = CustomRoles.Soothsayer;
 

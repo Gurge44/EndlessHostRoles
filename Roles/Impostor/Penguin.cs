@@ -81,7 +81,7 @@ namespace EHR.Impostor
             else
             {
                 AbductTimerLimit = Goose.OptionAbductTimerLimit.GetFloat();
-                MeetingKill = Goose.OptionMeetingKill.GetBool();
+                MeetingKill = false;
                 SpeedDuringDrag = Goose.OptionSpeedDuringDrag.GetFloat();
                 VictimCanUseAbilities = Goose.OptionVictimCanUseAbilities.GetBool();
             }

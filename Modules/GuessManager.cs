@@ -279,7 +279,7 @@ public static class GuessManager
                         return true;
                     }
 
-                    switch (target.GetCustomRole())
+                    switch (role)
                     {
                         case CustomRoles.Crewmate or CustomRoles.CrewmateEHR when Options.VanillaCrewmateCannotBeGuessed.GetBool():
                             if (!isUI) Utils.SendMessage(GetString("GuessVanillaCrewmate"), pc.PlayerId);
@@ -293,7 +293,11 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("GuessDoctor"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessDoctor"));
                             return true;
-                        case CustomRoles.Monarch when role == CustomRoles.Monarch && pc.Is(CustomRoles.Knighted):
+                        case CustomRoles.Marshall when !Marshall.CanBeGuessedOnTaskCompletion.GetBool():
+                            if (!isUI) Utils.SendMessage(GetString("GuessMarshallTask"), pc.PlayerId);
+                            else pc.ShowPopUp(GetString("GuessMarshall"));
+                            return true;
+                        case CustomRoles.Monarch when pc.Is(CustomRoles.Knighted):
                             if (!isUI) Utils.SendMessage(GetString("GuessMonarch"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessMonarch"));
                             return true;
@@ -301,7 +305,7 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("GuessMayor"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessMayor"));
                             return true;
-                        case CustomRoles.Bait when role == CustomRoles.Bait && Options.BaitNotification.GetBool():
+                        case CustomRoles.Bait when Options.BaitNotification.GetBool():
                             if (!isUI) Utils.SendMessage(GetString("GuessNotifiedBait"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessNotifiedBait"));
                             return true;
@@ -310,7 +314,7 @@ public static class GuessManager
                             else pc.ShowPopUp(GetString("GuessPestilence"));
                             guesserSuicide = true;
                             break;
-                        case CustomRoles.Phantasm when role == CustomRoles.Phantasm:
+                        case CustomRoles.Phantasm:
                             if (!isUI) Utils.SendMessage(GetString("GuessPhantom"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessPhantom"));
                             return true;
@@ -430,10 +434,10 @@ public static class GuessManager
 
                     if (pc.PlayerId == target.PlayerId)
                     {
-                        if (DoubleShot.CheckGuess(pc, isUI)) return true;
-
                         if (!isUI) Utils.SendMessage(GetString("LaughToWhoGuessSelf"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromKPD")));
                         else pc.ShowPopUp(Utils.ColorString(Color.cyan, GetString("MessageFromKPD")) + "\n" + GetString("LaughToWhoGuessSelf"));
+
+                        if (DoubleShot.CheckGuess(pc, isUI)) return true;
                         guesserSuicide = true;
                     }
                     else if (pc.Is(CustomRoles.NiceGuesser) && target.Is(CustomRoleTypes.Crewmate) && !Options.GGCanGuessCrew.GetBool() && !pc.Is(CustomRoles.Madmate))

@@ -1411,7 +1411,7 @@ class FixedUpdatePatch
                 // Name Color Manager
                 RealName = RealName.ApplyNameColorData(seer, target, false);
 
-                if (seer.IsCrewmate() && seer.Is(CustomRoles.Madmate) && Marshall.MadmateCanFindMarshall)
+                if (Marshall.CanSeeMarshall(seer))
                 {
                     if (target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished)
                         Mark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★"));

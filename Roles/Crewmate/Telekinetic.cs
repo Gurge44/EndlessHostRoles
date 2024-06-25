@@ -24,7 +24,7 @@ namespace EHR.Crewmate
 
         public static void SetupCustomOption()
         {
-            const int id = 649300;
+            const int id = 649350;
             const TabGroup tab = TabGroup.CrewmateRoles;
             const CustomRoles role = CustomRoles.Telekinetic;
 
