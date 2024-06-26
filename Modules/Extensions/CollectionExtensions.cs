@@ -146,6 +146,25 @@ namespace EHR
             return (list1, list2);
         }
 
+        /// <summary>
+        /// Adds a range of elements to a dictionary
+        /// </summary>
+        /// <param name="dictionary">The dictionary to add elements to</param>
+        /// <param name="other">The dictionary containing the elements to add</param>
+        /// <param name="overrideExistingKeys">Whether to override existing keys in the <paramref name="dictionary"/> with the same keys in the <paramref name="other"/> dictionary. If <c>true</c>, the same keys in the <paramref name="dictionary"/> will be overwritten with the values from the <paramref name="other"/> dictionary. If <c>false</c>, the same keys in the <paramref name="dictionary"/> will be kept and the values from the <paramref name="other"/> dictionary will be ignored</param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        public static void AddRange<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Dictionary<TKey, TValue> other, bool overrideExistingKeys = true)
+        {
+            foreach ((TKey key, TValue value) in other)
+            {
+                if (overrideExistingKeys || !dictionary.ContainsKey(key))
+                {
+                    dictionary[key] = value;
+                }
+            }
+        }
+
         #region Shuffle
 
         /// <summary>

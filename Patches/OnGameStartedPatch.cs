@@ -350,18 +350,22 @@ internal class ChangeRoleSettings
 internal class SelectRolesPatch
 {
     private static readonly Dictionary<CustomRoles, List<byte>> BasisChangingAddons = [];
-
-    private static readonly Dictionary<RoleTypes, int> RoleTypeNums = new()
-    {
-        { RoleTypes.Scientist, AddScientistNum },
-        { RoleTypes.Engineer, AddEngineerNum },
-        { RoleTypes.Shapeshifter, AddShapeshifterNum },
-        { RoleTypes.Noisemaker, AddNoisemakerNum },
-        { RoleTypes.Phantom, AddPhantomNum },
-        { RoleTypes.Tracker, AddTrackerNum }
-    };
+    private static Dictionary<RoleTypes, int> RoleTypeNums = [];
 
     private static RoleOptionsCollectionV08 RoleOpt => Main.NormalOptions.roleOptions;
+
+    public static void UpdateRoleTypeNums()
+    {
+        RoleTypeNums = new()
+        {
+            { RoleTypes.Scientist, AddScientistNum },
+            { RoleTypes.Engineer, AddEngineerNum },
+            { RoleTypes.Shapeshifter, AddShapeshifterNum },
+            { RoleTypes.Noisemaker, AddNoisemakerNum },
+            { RoleTypes.Phantom, AddPhantomNum },
+            { RoleTypes.Tracker, AddTrackerNum }
+        };
+    }
 
     public static void Prefix()
     {
@@ -392,6 +396,7 @@ internal class SelectRolesPatch
             CalculateVanillaRoleCount();
 
 
+            UpdateRoleTypeNums();
             foreach (var roleType in RoleTypeNums)
             {
                 int roleNum = Options.DisableVanillaRoles.GetBool() ? 0 : RoleOpt.GetNumPerGame(roleType.Key);

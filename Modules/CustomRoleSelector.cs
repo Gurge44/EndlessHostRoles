@@ -545,7 +545,9 @@ internal static class CustomRoleSelector
 
         Logger.Info(string.Join(", ", FinalRolesList.Select(x => x.ToString())), "RoleResults");
 
+        var preResult = RoleResult.ToDictionary(x => x.Key, x => x.Value);
         RoleResult = AllPlayers.Zip(FinalRolesList.Shuffle()).ToDictionary(x => x.First, x => x.Second);
+        RoleResult.AddRange(preResult);
 
         if (RoleResult.Count < AllPlayers.Count)
             Logger.Error("Role assignment error: There are players who have not been assigned a role", "CustomRoleSelector");

@@ -51,9 +51,12 @@ public class GameStartManagerPatch
                 GameCountdown.transform.localPosition = new(GameCountdown.transform.localPosition.x + 1f, GameCountdown.transform.localPosition.y, GameCountdown.transform.localPosition.z);
                 GameCountdown.text = string.Empty;
 
-                __instance.GameStartTextParent.GetComponent<SpriteRenderer>().sprite = null;
-                __instance.StartButton.ChangeButtonText(DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.StartLabel));
-                __instance.GameStartText.transform.localPosition = new(__instance.GameStartText.transform.localPosition.x, 2f, __instance.GameStartText.transform.localPosition.z);
+                if (AmongUsClient.Instance.AmHost)
+                {
+                    __instance.GameStartTextParent.GetComponent<SpriteRenderer>().sprite = null;
+                    __instance.StartButton.ChangeButtonText(DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.StartLabel));
+                    __instance.GameStartText.transform.localPosition = new(__instance.GameStartText.transform.localPosition.x, 2f, __instance.GameStartText.transform.localPosition.z);
+                }
 
                 if (AmongUsClient.Instance == null || AmongUsClient.Instance.IsGameStarted || GameStates.IsInGame || __instance.startState == GameStartManager.StartingStates.Starting) return;
 
@@ -94,23 +97,26 @@ public class GameStartManagerPatch
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Update))]
     public class GameStartManagerUpdatePatch
     {
-        public static float exitTimer = -1f;
-        private static float minWait, maxWait;
-        private static int minPlayer;
+        public static float ExitTimer = -1f;
+        private static float MinWait, MaxWait;
+        private static int MinPlayer;
 
         public static bool Prefix(GameStartManager __instance)
         {
             try
             {
-                VanillaUpdate(__instance);
+                if (AmongUsClient.Instance == null) return false;
 
-                if (AmongUsClient.Instance == null || AmongUsClient.Instance.IsGameStarted || GameStates.IsInGame || __instance == null || __instance.startState == GameStartManager.StartingStates.Starting) return false;
+                if (AmongUsClient.Instance.AmHost)
+                    VanillaUpdate(__instance);
 
-                minWait = Options.MinWaitAutoStart.GetFloat();
-                maxWait = Options.MaxWaitAutoStart.GetFloat();
-                minPlayer = Options.PlayerAutoStart.GetInt();
-                minWait = 600f - minWait * 60f;
-                maxWait *= 60f;
+                if (AmongUsClient.Instance.IsGameStarted || GameStates.IsInGame || __instance == null || __instance.startState == GameStartManager.StartingStates.Starting) return false;
+
+                MinWait = Options.MinWaitAutoStart.GetFloat();
+                MaxWait = Options.MaxWaitAutoStart.GetFloat();
+                MinPlayer = Options.PlayerAutoStart.GetInt();
+                MinWait = 600f - MinWait * 60f;
+                MaxWait *= 60f;
                 // Lobby code
                 if (DataManager.Settings != null && DataManager.Settings.Gameplay != null)
                 {
@@ -138,7 +144,7 @@ public class GameStartManagerPatch
                     if (Main.UpdateTime >= 50)
                     {
                         Main.UpdateTime = 0;
-                        if (((GameData.Instance?.PlayerCount >= minPlayer && Timer <= minWait) || Timer <= maxWait) && !GameStates.IsCountDown)
+                        if (((GameData.Instance?.PlayerCount >= MinPlayer && Timer <= MinWait) || Timer <= MaxWait) && !GameStates.IsCountDown)
                         {
                             var invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).ToArray();
 
@@ -236,7 +242,6 @@ public class GameStartManagerPatch
             instance.LobbyInfoPane.gameObject.SetActive(!DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening);
         }
 
-
         public static void Postfix(GameStartManager __instance)
         {
             try
@@ -265,13 +270,13 @@ public class GameStartManagerPatch
                 else
                 {
                     if (MatchVersions(0, true) || Main.VersionCheat.Value)
-                        exitTimer = 0;
+                        ExitTimer = 0;
                     else
                     {
-                        exitTimer += Time.deltaTime;
-                        if (exitTimer >= 5)
+                        ExitTimer += Time.deltaTime;
+                        if (ExitTimer >= 5)
                         {
-                            exitTimer = 0;
+                            ExitTimer = 0;
                             AmongUsClient.Instance.ExitGame(DisconnectReasons.ExitGame);
                             SceneChanger.ChangeScene("MainMenu");
                         }

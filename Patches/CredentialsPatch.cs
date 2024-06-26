@@ -25,6 +25,7 @@ internal class PingTrackerUpdatePatch
 
         __instance.text.alignment = TextAlignmentOptions.Center;
         __instance.text.text = Sb.ToString();
+        if (GameStates.IsInGame) __instance.transform.localPosition += new Vector3(0.1f, 0.3f, 0f);
 
         long now = Utils.TimeStamp;
         if (now + Delay <= LastUpdate) return; // Only update every 2 seconds
@@ -45,11 +46,11 @@ internal class PingTrackerUpdatePatch
         };
         Sb.Append("\r\n").Append($"<color={color}>{GetString("PingText")}: {ping} ms</color>");
 
-        if (Options.NoGameEnd.GetBool()) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.red, GetString("NoGameEnd"))).Append("</size>");
-        if (!GameStates.IsModHost) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.red, GetString("Warning.NoModHost"))).Append("</size>");
-        if (DebugModeManager.IsDebugMode) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.green, GetString("DebugMode"))).Append("</size>");
-
-        if (Main.IsAprilFools || Options.AprilFoolsMode.GetBool()) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.yellow, "CHEESE")).Append("</size>");
+        // if (Options.NoGameEnd.GetBool()) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.red, GetString("NoGameEnd"))).Append("</size>");
+        // if (!GameStates.IsModHost) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.red, GetString("Warning.NoModHost"))).Append("</size>");
+        // if (DebugModeManager.IsDebugMode) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.green, GetString("DebugMode"))).Append("</size>");
+        //
+        // if (Main.IsAprilFools || Options.AprilFoolsMode.GetBool()) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.yellow, "CHEESE")).Append("</size>");
     }
 }
 

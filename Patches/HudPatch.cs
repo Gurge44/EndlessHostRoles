@@ -80,6 +80,7 @@ class HudManagerPatch
                     SettingsText.enabled = SettingsText.text != string.Empty;
                 }
             }
+            else if (SettingsText != null) Object.Destroy(SettingsText.gameObject);
 
             if (AmongUsClient.Instance.AmHost)
             {
@@ -88,7 +89,7 @@ class HudManagerPatch
                     OverriddenRolesText = Object.Instantiate(__instance.KillButton.cooldownTimerText, __instance.transform, true);
                     OverriddenRolesText.alignment = TextAlignmentOptions.Right;
                     OverriddenRolesText.verticalAlignment = VerticalAlignmentOptions.Top;
-                    OverriddenRolesText.transform.localPosition = new(4.9f, 0.8f, 0);
+                    OverriddenRolesText.transform.localPosition = new(2.5f, 2.5f, 0);
                     OverriddenRolesText.overflowMode = TextOverflowModes.Overflow;
                     OverriddenRolesText.enableWordWrapping = false;
                     OverriddenRolesText.color = Color.white;

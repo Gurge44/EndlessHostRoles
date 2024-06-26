@@ -184,7 +184,7 @@ internal class MoveAndStopManager
 
     public static int RoundTime { get; set; }
 
-    private static int StartingGreenTime => (MapNames)Main.NormalOptions.MapId == MapNames.Airship ? 25 : 20;
+    private static int StartingGreenTime => (MapNames)Main.NormalOptions.MapId == MapNames.Airship ? 35 : 30;
 
     private static int ExtraGreenTime => (MapNames)Main.NormalOptions.MapId switch
     {

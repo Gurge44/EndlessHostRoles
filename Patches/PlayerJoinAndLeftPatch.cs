@@ -32,7 +32,7 @@ class OnGameJoinedPatch
 
         if (AmongUsClient.Instance.AmHost)
         {
-            GameStartManagerPatch.GameStartManagerUpdatePatch.exitTimer = -1;
+            GameStartManagerPatch.GameStartManagerUpdatePatch.ExitTimer = -1;
             Main.DoBlockNameChange = false;
             Main.NewLobby = true;
             EAC.DeNum = new();

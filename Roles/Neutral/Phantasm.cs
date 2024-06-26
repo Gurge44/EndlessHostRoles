@@ -2,7 +2,7 @@
 
 namespace EHR.Neutral
 {
-    internal class Phantom : ISettingHolder
+    internal class Phantasm : ISettingHolder
     {
         public void SetupCustomOption()
         {

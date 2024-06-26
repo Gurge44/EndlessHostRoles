@@ -22,7 +22,7 @@ namespace EHR.AddOns.Common
 
         public static void OnFixedUpdate(PlayerControl seer)
         {
-            if (!seer.Is(CustomRoles.Sonar) || !GameStates.IsInTask || seer.inVent) return;
+            if (!seer.Is(CustomRoles.Sonar) || !GameStates.IsInTask || seer.inVent || Main.AllAlivePlayerControls.Length == 1) return;
 
             PlayerControl closest = Main.AllAlivePlayerControls.Where(x => x.PlayerId != seer.PlayerId).MinBy(x => Vector2.Distance(seer.Pos(), x.Pos()));
             if (Target.TryGetValue(seer.PlayerId, out var targetId))
