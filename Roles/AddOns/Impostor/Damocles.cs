@@ -6,7 +6,7 @@ using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.AddOns.Impostor
+namespace EHR.AddOns.Impostor
 {
     public class Damocles : IAddon
     {

@@ -3,9 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using HarmonyLib;
-using Il2CppSystem.Collections.Generic;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -67,6 +66,16 @@ class SetUpRoleTextPatch
                     __instance.RoleText.color = color;
                     __instance.RoleBlurbText.color = color;
                     __instance.RoleBlurbText.text = GetString("PotatoInfo");
+                    break;
+                }
+                case CustomGameMode.Speedrun:
+                {
+                    var color = Utils.GetRoleColor(CustomRoles.Speedrunner);
+                    __instance.YouAreText.transform.gameObject.SetActive(false);
+                    __instance.RoleText.text = GetString("Runner");
+                    __instance.RoleText.color = color;
+                    __instance.RoleBlurbText.color = color;
+                    __instance.RoleBlurbText.text = GetString("RunnerInfo");
                     break;
                 }
                 default:
@@ -159,7 +168,7 @@ class CoBeginPatch
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.BeginCrewmate))]
 class BeginCrewmatePatch
 {
-    public static bool Prefix(IntroCutscene __instance, ref List<PlayerControl> teamToDisplay)
+    public static bool Prefix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> teamToDisplay)
     {
         if (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Neutral) && !PlayerControl.LocalPlayer.GetCustomRole().IsMadmate())
         {
@@ -228,7 +237,7 @@ class BeginCrewmatePatch
         return true;
     }
 
-    public static void Postfix(IntroCutscene __instance, ref List<PlayerControl> teamToDisplay)
+    public static void Postfix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> teamToDisplay)
     {
         CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
 
@@ -321,7 +330,7 @@ class BeginCrewmatePatch
 
                 CustomRoles.EvilTracker or
                     CustomRoles.Tracefinder or
-                    CustomRoles.Tracker or
+                    CustomRoles.Scout or
                     CustomRoles.Bloodhound or
                     CustomRoles.Mortician or
                     CustomRoles.Lighter
@@ -509,6 +518,15 @@ class BeginCrewmatePatch
                 __instance.ImpostorText.text = GetString("PotatoInfo");
                 break;
             }
+            case CustomGameMode.Speedrun:
+            {
+                __instance.TeamTitle.text = GetString("Runner");
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Speedrunner);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Crewmate);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = GetString("RunnerInfo");
+                break;
+            }
             case CustomGameMode.HideAndSeek:
             {
                 __instance.TeamTitle.text = GetString("HideAndSeek");
@@ -568,7 +586,7 @@ class BeginCrewmatePatch
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.BeginImpostor))]
 class BeginImpostorPatch
 {
-    public static bool Prefix(IntroCutscene __instance, ref List<PlayerControl> yourTeam)
+    public static bool Prefix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> yourTeam)
     {
         var role = PlayerControl.LocalPlayer.GetCustomRole();
         if (PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) || role.IsMadmate())
@@ -603,7 +621,7 @@ class BeginImpostorPatch
         return true;
     }
 
-    public static void Postfix(IntroCutscene __instance, ref List<PlayerControl> yourTeam)
+    public static void Postfix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> yourTeam)
     {
         BeginCrewmatePatch.Postfix(__instance, ref yourTeam);
     }
@@ -680,13 +698,14 @@ class IntroCutsceneDestroyPatch
                     {
                         try
                         {
+                            PlayerControl.LocalPlayer.Notify(GetString("GLHF"), 2f);
                             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                             {
                                 if (pc.IsHost()) continue; // Skip the host
                                 try
                                 {
                                     pc.RpcShapeshift(pc, false);
-                                    pc.Notify("Good Luck & Have Fun!", 1f);
+                                    pc.Notify(GetString("GLHF"), 2f);
                                 }
                                 catch (Exception ex)
                                 {

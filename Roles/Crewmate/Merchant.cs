@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class Merchant : RoleBase
     {
@@ -70,7 +70,7 @@ namespace EHR.Roles.Crewmate
             if (!OptionCanSellHelpful.GetBool()) GroupedAddons.Remove(AddonTypes.Helpful);
             if (!OptionCanSellMixed.GetBool()) GroupedAddons.Remove(AddonTypes.Mixed);
 
-            Addons = GroupedAddons.SelectMany(x => x.Value).ToList();
+            Addons = GroupedAddons.Values.Flatten().ToList();
 
             if (OptionSellOnlyEnabledAddons.GetBool()) Addons.RemoveAll(x => x.GetMode() == 0);
 

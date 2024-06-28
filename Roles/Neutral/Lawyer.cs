@@ -5,7 +5,7 @@ using EHR.Modules;
 using Hazel;
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Lawyer : RoleBase
 {
@@ -77,7 +77,7 @@ public class Lawyer : RoleBase
             if (AmongUsClient.Instance.AmHost)
             {
                 List<PlayerControl> targetList = [];
-                targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetCrewmate.GetBool() || !target.Is(CustomRoleTypes.Crewmate) where CanTargetJester.GetBool() || !target.Is(CustomRoles.Jester) where !target.Is(CustomRoleTypes.Neutral) || target.IsNeutralKiller() || target.Is(CustomRoles.Jester) where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where !Utils.GetPlayerById(playerId).Is(CustomRoles.Lovers) || !target.Is(CustomRoles.Lovers) select target);
+                targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetCrewmate.GetBool() || !target.Is(CustomRoleTypes.Crewmate) where CanTargetJester.GetBool() || !target.Is(CustomRoles.Jester) where !target.Is(CustomRoleTypes.Neutral) || target.IsNeutralKiller() || target.Is(CustomRoles.Jester) where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where Main.LoversPlayers.TrueForAll(x => x.PlayerId != playerId) select target);
 
                 if (targetList.Count == 0)
                 {
@@ -174,7 +174,7 @@ public class Lawyer : RoleBase
         lawyer.Notify(text);
     }
 
-    public static bool CheckExileTarget(GameData.PlayerInfo exiled /*, bool DecidedWinner, bool Check = false*/)
+    public static bool CheckExileTarget(NetworkedPlayerInfo exiled /*, bool DecidedWinner, bool Check = false*/)
     {
         return Target.Where(x => x.Value == exiled.PlayerId).Select(kvp => Utils.GetPlayerById(kvp.Key)).Any(lawyer => lawyer != null && !lawyer.Data.Disconnected);
     }

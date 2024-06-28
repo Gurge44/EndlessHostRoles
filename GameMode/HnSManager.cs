@@ -260,7 +260,7 @@ namespace EHR
             return false;
         }
 
-        public static bool HasTasks(GameData.PlayerInfo playerInfo)
+        public static bool HasTasks(NetworkedPlayerInfo playerInfo)
         {
             var role = PlayerRoles[playerInfo.PlayerId];
             return role.Interface.Team == Team.Crewmate || role.Role == CustomRoles.Taskinator;

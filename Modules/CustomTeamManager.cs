@@ -75,7 +75,7 @@ namespace EHR.Modules
 
             foreach ((CustomTeam team, HashSet<byte> players) in CustomTeamPlayerIds)
             {
-                if (!IsSettingEnabledForTeam(team, "Arrows")) continue;
+                if (!IsSettingEnabledForTeam(team, CTAOption.Arrows)) continue;
 
                 foreach (byte player in players)
                 {
@@ -90,7 +90,7 @@ namespace EHR.Modules
 
         public static string GetSuffix(PlayerControl seer)
         {
-            if (seer == null || EnabledCustomTeams.Count == 0 || !IsSettingEnabledForPlayerTeam(seer.PlayerId, "Arrows")) return string.Empty;
+            if (seer == null || EnabledCustomTeams.Count == 0 || !IsSettingEnabledForPlayerTeam(seer.PlayerId, CTAOption.Arrows)) return string.Empty;
             return CustomTeamPlayerIds[GetCustomTeam(seer.PlayerId)].Aggregate(string.Empty, (s, id) => s + Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), TargetArrow.GetArrows(seer, id)));
         }
 
@@ -142,18 +142,17 @@ namespace EHR.Modules
             return team1 != null && team2 != null && team1.Equals(team2);
         }
 
-        public static bool IsSettingEnabledForPlayerTeam(byte id, string settingName)
+        public static bool IsSettingEnabledForPlayerTeam(byte id, CTAOption setting)
         {
             var team = GetCustomTeam(id);
-            return team != null && IsSettingEnabledForTeam(team, settingName);
+            return team != null && IsSettingEnabledForTeam(team, setting);
         }
 
-        public static bool IsSettingEnabledForTeam(CustomTeam team, string settingName)
+        public static bool IsSettingEnabledForTeam(CustomTeam team, CTAOption setting)
         {
             var optionsGroup = CustomTeamOptions.First(x => x.Team.Equals(team));
-            var setting = optionsGroup.GetType().GetFields().FirstOrDefault(x => x.Name.Contains(settingName));
-            if (setting == null) return false;
-            return setting.GetValue(optionsGroup) as bool? ?? false;
+            var values = optionsGroup.AllOptions.ConvertAll(x => x.GetBool());
+            return values[(int)setting];
         }
 
         internal class CustomTeam
@@ -209,5 +208,15 @@ namespace EHR.Modules
             public BooleanOptionItem GuessEachOther { get; set; } = guessEachOther;
             public BooleanOptionItem Arrows { get; set; } = arrows;
         }
+    }
+
+    public enum CTAOption
+    {
+        Enabled,
+        KnowRoles,
+        WinWithOriginalTeam,
+        KillEachOther,
+        GuessEachOther,
+        Arrows
     }
 }

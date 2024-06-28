@@ -1,6 +1,6 @@
 using AmongUs.GameOptions;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class NSerialKiller : RoleBase
 {

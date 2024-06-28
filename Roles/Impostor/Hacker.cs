@@ -3,7 +3,7 @@ using AmongUs.GameOptions;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Impostor;
+namespace EHR.Impostor;
 
 public class Hacker : RoleBase
 {

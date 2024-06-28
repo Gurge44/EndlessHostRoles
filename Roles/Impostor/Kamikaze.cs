@@ -3,7 +3,7 @@ using System.Linq;
 using static EHR.Options;
 using static EHR.Utils;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     internal class Kamikaze : RoleBase
     {
@@ -77,7 +77,7 @@ namespace EHR.Roles.Impostor
                         LateTask.New(() => PlayerIdList.Remove(kkId), 0.001f, log: false);
                         continue;
                     }
-                    
+
                     if (kamikazePc.IsAlive() || kk.MarkedPlayers.Count == 0) continue;
 
                     foreach (var id in kk.MarkedPlayers)

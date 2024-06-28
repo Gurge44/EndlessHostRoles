@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class TaskManager : RoleBase
     {

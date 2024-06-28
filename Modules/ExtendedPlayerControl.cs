@@ -4,12 +4,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using AmongUs.GameOptions;
+using EHR.AddOns.Crewmate;
+using EHR.AddOns.Impostor;
+using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Modules;
-using EHR.Roles.AddOns.Crewmate;
-using EHR.Roles.AddOns.Impostor;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using Hazel;
 using InnerNet;
 using UnityEngine;
@@ -21,6 +21,11 @@ namespace EHR;
 static class ExtendedPlayerControl
 {
     public const MurderResultFlags ResultFlags = MurderResultFlags.Succeeded;
+
+    public static void SetRole(this PlayerControl player, RoleTypes role, bool canOverride = false)
+    {
+        AmongUsClient.Instance.StartCoroutine(player.CoSetRole(role, canOverride));
+    }
 
     public static void RpcSetCustomRole(this PlayerControl player, CustomRoles role, bool replaceAllAddons = false)
     {
@@ -80,7 +85,7 @@ static class ExtendedPlayerControl
         return client?.Id ?? -1;
     }
 
-    public static CustomRoles GetCustomRole(this GameData.PlayerInfo player)
+    public static CustomRoles GetCustomRole(this NetworkedPlayerInfo player)
     {
         return player == null || player.Object == null ? CustomRoles.Crewmate : player.Object.GetCustomRole();
     }
@@ -139,7 +144,7 @@ static class ExtendedPlayerControl
         player?.RpcSetName(name);
     }
 
-    public static void RpcSetNamePrivate(this PlayerControl player, string name, bool DontShowOnModdedClient = false, PlayerControl seer = null, bool force = false)
+    public static void RpcSetNamePrivate(this PlayerControl player, string name, PlayerControl seer = null, bool force = false)
     {
         if (player == null || name == null || !AmongUsClient.Instance.AmHost) return;
         if (seer == null) seer = player;
@@ -150,24 +155,31 @@ static class ExtendedPlayerControl
 
         var clientId = seer.GetClientId();
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetName, SendOption.Reliable, clientId);
-        writer.Write(name);
-        writer.Write(DontShowOnModdedClient);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
+        try
+        {
+            writer.Write(player.Data.NetId);
+            writer.Write(name);
+        }
+        finally
+        {
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
     }
 
-    public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId)
+    public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, bool canOverride, int clientId)
     {
         // player: Rename target
 
         if (player == null) return;
         if (AmongUsClient.Instance.ClientId == clientId)
         {
-            player.SetRole(role);
+            player.SetRole(role, canOverride);
             return;
         }
 
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetRole, SendOption.Reliable, clientId);
         writer.Write((ushort)role);
+        writer.Write(canOverride);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -246,6 +258,30 @@ static class ExtendedPlayerControl
         }
 
         if (!fromSetKCD) killer.AddKillTimerToDict(half: true);
+    }
+
+    public static void RpcSpecificVanish(this PlayerControl player, PlayerControl seer)
+    {
+        /*
+         *  Unluckily the vanishing animation cannot be disabled
+         *  For vanila client seer side, the player must be with Phantom Role behavior, or the rpc will do nothing
+         */
+        if (!AmongUsClient.Instance.AmHost) return;
+
+        MessageWriter msg = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.StartVanish, SendOption.None, seer.GetClientId());
+        AmongUsClient.Instance.FinishRpcImmediately(msg);
+    }
+
+    public static void RpcSpecificAppear(this PlayerControl player, PlayerControl seer, bool shouldAnimate)
+    {
+        /*
+         *  For vanila client seer side, the player must be with Phantom Role behavior, or the rpc will do nothing
+         */
+        if (!AmongUsClient.Instance.AmHost) return;
+
+        MessageWriter msg = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.StartAppear, SendOption.None, seer.GetClientId());
+        msg.Write(shouldAnimate);
+        AmongUsClient.Instance.FinishRpcImmediately(msg);
     }
 
     public static void AddKCDAsAbilityCD(this PlayerControl pc) => AddAbilityCD(pc, (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out var KCD) ? KCD : Options.DefaultKillCooldown));
@@ -451,7 +487,7 @@ static class ExtendedPlayerControl
 
     public static string GetNameWithRole(this PlayerControl player, bool forUser = false)
     {
-        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
+        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
     }
 
     public static string GetRoleColorCode(this PlayerControl player)
@@ -552,6 +588,7 @@ static class ExtendedPlayerControl
         if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId)) return true;
         if (Penguin.IsVictim(pc)) return false;
         if (Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.MoveAndStop) return false;
+        if (Options.CurrentGameMode == CustomGameMode.Speedrun && !SpeedrunManager.CanKill.Contains(pc.PlayerId)) return false;
         if (Pelican.IsEaten(pc.PlayerId)) return false;
         if (pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
 
@@ -565,6 +602,8 @@ static class ExtendedPlayerControl
             CustomRoles.Tasker => false,
             // Hot Potato
             CustomRoles.Potato => false,
+            // Speedrun
+            CustomRoles.Runner => SpeedrunManager.CanKill.Contains(pc.PlayerId),
             // Hide And Seek
             CustomRoles.Seeker => true,
             CustomRoles.Hider => false,
@@ -602,6 +641,8 @@ static class ExtendedPlayerControl
             CustomRoles.Tasker => false,
             // Hot Potato
             CustomRoles.Potato => false,
+            // Speedrun
+            CustomRoles.Runner => false,
 
             _ => Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseImpostorVentButton(pc)
         };
@@ -737,7 +778,7 @@ static class ExtendedPlayerControl
         killer.MarkDirtySettings();
         LateTask.New(() =>
         {
-            Main.AllPlayerSpeed[killer.PlayerId] = Main.AllPlayerSpeed[killer.PlayerId] - Main.MinSpeed + tmpSpeed;
+            Main.AllPlayerSpeed[killer.PlayerId] = tmpSpeed;
             ReportDeadBodyPatch.CanReport[killer.PlayerId] = true;
             killer.MarkDirtySettings();
             RPC.PlaySoundRPC(killer.PlayerId, Sounds.TaskComplete);
@@ -819,7 +860,7 @@ static class ExtendedPlayerControl
 
     public static bool RpcCheckAndMurder(this PlayerControl killer, PlayerControl target, bool check = false) => CheckMurderPatch.RpcCheckAndMurder(killer, target, check);
 
-    public static void NoCheckStartMeeting(this PlayerControl reporter, GameData.PlayerInfo target, bool force = false)
+    public static void NoCheckStartMeeting(this PlayerControl reporter, NetworkedPlayerInfo target, bool force = false)
     {
         if (Options.DisableMeeting.GetBool() && !force) return;
         ReportDeadBodyPatch.AfterReportTasks(reporter, target);
@@ -907,7 +948,9 @@ static class ExtendedPlayerControl
         return Rooms.Where(room => room.roomArea).FirstOrDefault(room => pc.Collider.IsTouching(room.roomArea));
     }
 
+    public static bool IsImpostor(this PlayerControl pc) => !pc.Is(CustomRoles.Bloodlust) && pc.GetCustomRole().IsImpostor();
     public static bool IsCrewmate(this PlayerControl pc) => !pc.Is(CustomRoles.Bloodlust) && pc.GetCustomRole().IsCrewmate();
+
     public static CustomRoleTypes GetCustomRoleTypes(this PlayerControl pc) => pc.Is(CustomRoles.Bloodlust) ? CustomRoleTypes.Neutral : pc.GetCustomRole().GetCustomRoleTypes();
 
     public static RoleTypes GetRoleTypes(this PlayerControl pc) => pc.GetCustomSubRoles() switch

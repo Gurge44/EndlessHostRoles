@@ -4,7 +4,7 @@ using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Enderman : RoleBase
     {

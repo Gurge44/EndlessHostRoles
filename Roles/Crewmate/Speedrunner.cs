@@ -2,7 +2,7 @@
 using EHR.Modules;
 using static EHR.Options;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class Speedrunner : RoleBase
     {

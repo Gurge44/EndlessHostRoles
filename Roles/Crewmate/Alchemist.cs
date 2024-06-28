@@ -3,10 +3,10 @@ using System.Linq;
 using System.Text;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using Hazel;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     using static Options;
     using static Translator;

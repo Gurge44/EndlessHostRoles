@@ -6,7 +6,7 @@ using EHR.Modules;
 using HarmonyLib;
 using Hazel;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Predator : RoleBase
     {

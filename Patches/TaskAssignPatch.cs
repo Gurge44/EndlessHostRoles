@@ -1,12 +1,11 @@
 using AmongUs.GameOptions;
+using EHR.AddOns.Crewmate;
+using EHR.AddOns.GhostRoles;
+using EHR.Impostor;
 using EHR.Modules;
-using EHR.Roles.AddOns.Crewmate;
-using EHR.Roles.AddOns.GhostRoles;
-using EHR.Roles.Impostor;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Il2CppSystem.Collections.Generic;
-using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace EHR;
 
@@ -14,7 +13,7 @@ namespace EHR;
 class AddTasksFromListPatch
 {
     public static void Prefix( /*ShipStatus __instance,*/
-        [HarmonyArgument(4)] List<NormalPlayerTask> unusedTasks)
+        [HarmonyArgument(4)] Il2CppSystem.Collections.Generic.List<NormalPlayerTask> unusedTasks)
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
@@ -111,14 +110,12 @@ class AddTasksFromListPatch
     }
 }
 
-[HarmonyPatch(typeof(GameData), nameof(GameData.RpcSetTasks))]
+[HarmonyPatch(typeof(NetworkedPlayerInfo), nameof(NetworkedPlayerInfo.RpcSetTasks))]
 class RpcSetTasksPatch
 {
     // Patch that overwrites the task just before assigning the task and sending the RPC
     // Do not interfere with vanilla task allocation process itself
-    public static void Prefix( /*GameData __instance,*/
-        [HarmonyArgument(0)] byte playerId,
-        [HarmonyArgument(1)] ref Il2CppStructArray<byte> taskTypeIds)
+    public static void Prefix(NetworkedPlayerInfo __instance, [HarmonyArgument(0)] ref Il2CppStructArray<byte> taskTypeIds)
     {
         // Null measures
         if (Main.RealOptionsData == null)
@@ -127,7 +124,7 @@ class RpcSetTasksPatch
             return;
         }
 
-        var pc = Utils.GetPlayerById(playerId);
+        var pc = __instance.Object;
         if (pc == null) return;
         CustomRoles role = GhostRolesManager.AssignedGhostRoles.TryGetValue(pc.PlayerId, out var gr) && gr.Instance is Specter or Haunter ? gr.Role : pc.GetCustomRole();
 
@@ -168,15 +165,15 @@ class RpcSetTasksPatch
             NumLongTasks = 0;
         }
 
-        // Overtime maniac, work overtime~
+        // Workhorse task assignment
         if (pc.Is(CustomRoles.Workhorse))
             (hasCommonTasks, NumLongTasks, NumShortTasks) = Workhorse.TaskData;
 
         // Capitalism is going to harm people~
-        if (Capitalism.CapitalismAssignTask.ContainsKey(playerId))
+        if (Capitalism.CapitalismAssignTask.ContainsKey(pc.PlayerId))
         {
-            NumShortTasks += Capitalism.CapitalismAssignTask[playerId];
-            Capitalism.CapitalismAssignTask.Remove(playerId);
+            NumShortTasks += Capitalism.CapitalismAssignTask[pc.PlayerId];
+            Capitalism.CapitalismAssignTask.Remove(pc.PlayerId);
         }
 
         if (taskTypeIds.Length == 0) hasCommonTasks = false; // Set common to 0 when redistributing tasks
@@ -191,7 +188,7 @@ class RpcSetTasksPatch
 
         // List containing IDs of assignable tasks
         // Clone of the second argument of the original RpcSetTasks
-        List<byte> TasksList = new();
+        Il2CppSystem.Collections.Generic.List<byte> TasksList = new();
         foreach (var num in taskTypeIds)
         {
             TasksList.Add(num);
@@ -207,23 +204,23 @@ class RpcSetTasksPatch
 
         // HashSet where assigned tasks will be placed
         // Prevent multiple assignments of the same task
-        HashSet<TaskTypes> usedTaskTypes = new();
+        Il2CppSystem.Collections.Generic.HashSet<TaskTypes> usedTaskTypes = new();
         int start2 = 0;
         int start3 = 0;
 
         // List of assignable long tasks
-        List<NormalPlayerTask> LongTasks = new();
+        Il2CppSystem.Collections.Generic.List<NormalPlayerTask> LongTasks = new();
         foreach (var task in ShipStatus.Instance.LongTasks)
             LongTasks.Add(task);
         Shuffle(LongTasks);
 
         // List of assignable short tasks
-        List<NormalPlayerTask> ShortTasks = new();
+        Il2CppSystem.Collections.Generic.List<NormalPlayerTask> ShortTasks = new();
         foreach (var task in ShipStatus.Instance.ShortTasks)
             ShortTasks.Add(task);
         Shuffle(ShortTasks);
 
-        // Use the task assignment function that is actually used on the Among Us side.
+        // Use the task assignment function actually used on the Among Us side.
         ShipStatus.Instance.AddTasksFromList(
             ref start2,
             NumLongTasks,
@@ -247,7 +244,7 @@ class RpcSetTasksPatch
         }
     }
 
-    public static void Shuffle<T>(List<T> list)
+    private static void Shuffle<T>(Il2CppSystem.Collections.Generic.List<T> list)
     {
         for (int i = 0; i < list.Count - 1; i++)
         {

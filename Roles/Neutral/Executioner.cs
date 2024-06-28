@@ -5,7 +5,7 @@ using EHR.Modules;
 using Hazel;
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Executioner : RoleBase
 {
@@ -63,7 +63,7 @@ public class Executioner : RoleBase
         try
         {
             List<PlayerControl> targetList = [];
-            targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetNeutralBenign.GetBool() || !target.IsNeutralBenign() where CanTargetNeutralEvil.GetBool() || !target.IsNeutralEvil() where CanTargetNeutralChaos.GetBool() || !target.IsNeutralChaos() where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where !Utils.GetPlayerById(playerId).Is(CustomRoles.Lovers) || !target.Is(CustomRoles.Lovers) select target);
+            targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetNeutralBenign.GetBool() || !target.IsNeutralBenign() where CanTargetNeutralEvil.GetBool() || !target.IsNeutralEvil() where CanTargetNeutralChaos.GetBool() || !target.IsNeutralChaos() where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where Main.LoversPlayers.TrueForAll(x => x.PlayerId != playerId) select target);
 
             if (targetList.Count == 0)
             {
@@ -147,7 +147,7 @@ public class Executioner : RoleBase
         return GetValue && targetId == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Executioner), "♦") : string.Empty;
     }
 
-    public static bool CheckExileTarget(GameData.PlayerInfo exiled, bool Check = false)
+    public static bool CheckExileTarget(NetworkedPlayerInfo exiled, bool Check = false)
     {
         foreach (var kvp in Target.Where(x => x.Value == exiled.PlayerId))
         {

@@ -173,7 +173,7 @@ public abstract class OptionItem
         return IsHidden || (GameMode != CustomGameMode.All && GameMode != mode);
     }
 
-    protected string ApplyFormat(string value)
+    public string ApplyFormat(string value)
     {
         if (ValueFormat == OptionFormat.None) return value;
         return string.Format(Translator.GetString("Format." + ValueFormat), value);
@@ -288,7 +288,7 @@ public abstract class OptionItem
     private static readonly List<OptionItem> Options = new(1024);
     public static IReadOnlyDictionary<int, OptionItem> FastOptions => FastOpts;
     private static readonly Dictionary<int, OptionItem> FastOpts = new(1024);
-    private static int CurrentPreset { get; set; }
+    public static int CurrentPreset { get; set; }
 
     #endregion
 }

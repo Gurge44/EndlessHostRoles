@@ -2,7 +2,7 @@
 using AmongUs.GameOptions;
 using static EHR.Options;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     public class Gaulois : RoleBase
     {

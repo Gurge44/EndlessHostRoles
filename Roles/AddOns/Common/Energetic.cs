@@ -1,4 +1,4 @@
-﻿namespace EHR.Roles.AddOns.Common
+﻿namespace EHR.AddOns.Common
 {
     public class Energetic : IAddon
     {

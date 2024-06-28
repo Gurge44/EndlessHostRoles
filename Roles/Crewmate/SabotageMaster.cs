@@ -3,7 +3,7 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
 
-namespace EHR.Roles.Crewmate;
+namespace EHR.Crewmate;
 
 public class SabotageMaster : RoleBase
 {
@@ -70,6 +70,12 @@ public class SabotageMaster : RoleBase
     {
         AURoleOptions.EngineerCooldown = 0f;
         AURoleOptions.EngineerInVentMaxTime = 0f;
+    }
+
+    public override string GetProgressText(byte playerId, bool comms)
+    {
+        var limit = SkillLimit.GetInt() - UsedSkillCount;
+        return $"({limit}){base.GetProgressText(playerId, comms)}";
     }
 
     public void SendRPC()

@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Neutral;
+using EHR.Crewmate;
+using EHR.Neutral;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     public class Deathpact : RoleBase
     {
@@ -175,7 +175,7 @@ namespace EHR.Roles.Impostor
 
             foreach (PlayerControl player in dp.PlayersInDeathpact)
             {
-                float range = NormalGameOptionsV07.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
+                float range = NormalGameOptionsV08.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
                 cancelDeathpact = dp.PlayersInDeathpact.Where(a => a.PlayerId != player.PlayerId).Select(otherPlayerInPact => Vector2.Distance(player.transform.position, otherPlayerInPact.transform.position)).Aggregate(cancelDeathpact, (current, dis) => current && (dis <= range));
             }
 

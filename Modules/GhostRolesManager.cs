@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
-using EHR.Roles.AddOns.GhostRoles;
-using EHR.Roles.Neutral;
+using EHR.AddOns.GhostRoles;
+using EHR.Neutral;
 using HarmonyLib;
 
 namespace EHR.Modules
@@ -55,6 +55,7 @@ namespace EHR.Modules
         {
             try
             {
+                if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
                 if (AssignedGhostRoles.Count >= GhostRoles.Count) return false;
                 if (pc.IsAlive() || pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame || pc.Is(CustomRoles.EvilSpirit)) return false;
 

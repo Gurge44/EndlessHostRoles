@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EHR.Impostor;
 using EHR.Modules;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using Hazel;
 using UnityEngine;
-using static EHR.Roles.Crewmate.Randomizer;
+using static EHR.Crewmate.Randomizer;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal static class EffectExtenstions
     {
@@ -562,7 +562,7 @@ namespace EHR.Roles.Crewmate
                     Main.AllPlayerSpeed[pc.PlayerId] = AllPlayerDefaultSpeed[pc.PlayerId];
                     if (sync) pc.MarkDirtySettings();
                     var keys = effects.Keys.AsEnumerable();
-                    keys.DoIf(x => x.IsSpeedChangingEffect(), x => effects.Remove(x));
+                    keys.DoIf(x => x.IsSpeedChangingEffect(), x => effects.Remove(x), fast: false);
                 }
             }
             catch (Exception e)
@@ -580,7 +580,7 @@ namespace EHR.Roles.Crewmate
                 if (CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && effects.Any(x => x.Key.IsVisionChangingEffect()))
                 {
                     var keys = effects.Keys.AsEnumerable();
-                    keys.DoIf(x => x.IsVisionChangingEffect(), x => effects.Remove(x));
+                    keys.DoIf(x => x.IsVisionChangingEffect(), x => effects.Remove(x), fast: false);
                     if (sync) pc.MarkDirtySettings();
                 }
             }

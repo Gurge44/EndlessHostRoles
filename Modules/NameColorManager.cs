@@ -1,10 +1,10 @@
 using System.Linq;
+using EHR.AddOns.Common;
+using EHR.AddOns.GhostRoles;
+using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Modules;
-using EHR.Roles.AddOns.Common;
-using EHR.Roles.AddOns.GhostRoles;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using Hazel;
 
 namespace EHR;
@@ -53,6 +53,9 @@ public static class NameColorManager
                 return true;
             case CustomGameMode.HideAndSeek:
                 return HnSManager.KnowTargetRoleColor(seer, target, ref color);
+            case CustomGameMode.Speedrun when SpeedrunManager.CanKill.Contains(target.PlayerId):
+                color = Main.ImpostorColor;
+                return true;
         }
 
         // Global (low priority)
@@ -71,7 +74,7 @@ public static class NameColorManager
         }
 
         // Custom Teams
-        if (CustomTeamManager.AreInSameCustomTeam(seer.PlayerId, target.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(seer.PlayerId, "KnowRoles")) color = Main.RoleColors[target.GetCustomRole()];
+        if (CustomTeamManager.AreInSameCustomTeam(seer.PlayerId, target.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(seer.PlayerId, CTAOption.KnowRoles)) color = Main.RoleColors[target.GetCustomRole()];
 
         // Add-ons
         if (target.Is(CustomRoles.Glow) && Utils.IsActive(SystemTypes.Electrical)) color = Main.RoleColors[CustomRoles.Glow];
@@ -145,6 +148,7 @@ public static class NameColorManager
             CustomRoles.SoulHunter when SoulHunter.IsSoulHunterTarget(target.PlayerId) => Main.RoleColors[CustomRoles.SoulHunter],
             CustomRoles.Kamikaze when ((Kamikaze)Main.PlayerStates[seer.PlayerId].Role).MarkedPlayers.Contains(target.PlayerId) => Main.RoleColors[CustomRoles.Electric],
             CustomRoles.QuizMaster when ((QuizMaster)Main.PlayerStates[seer.PlayerId].Role).Target == target.PlayerId => "000000",
+            CustomRoles.Augmenter when ((Augmenter)Main.PlayerStates[seer.PlayerId].Role).Target == target.PlayerId => "000000",
             _ => color
         };
 
@@ -199,7 +203,7 @@ public static class NameColorManager
                || seer.Is(CustomRoles.GM)
                || seer.Is(CustomRoles.God)
                || (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor))
-               || (seer.Is(CustomRoles.Traitor) && target.Is(CustomRoleTypes.Impostor))
+               || (seer.Is(CustomRoles.Traitor) && target.Is(Team.Impostor))
                || (seer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Sidekick))
                || (seer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Sidekick))
                || (seer.Is(CustomRoles.Sidekick) && target.Is(CustomRoles.Jackal))

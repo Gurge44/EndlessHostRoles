@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using AmongUs.Data;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
+using EHR.Impostor;
+using EHR.Neutral;
 
 namespace EHR;
 
 static class PlayerOutfitExtension
 {
-    public static GameData.PlayerOutfit Set(this GameData.PlayerOutfit instance, string playerName, int colorId, string hatId, string skinId, string visorId, string petId, string nameplateId)
+    public static NetworkedPlayerInfo.PlayerOutfit Set(this NetworkedPlayerInfo.PlayerOutfit instance, string playerName, int colorId, string hatId, string skinId, string visorId, string petId, string nameplateId)
     {
         instance.PlayerName = playerName;
         instance.ColorId = colorId;
@@ -19,7 +19,7 @@ static class PlayerOutfitExtension
         return instance;
     }
 
-    public static bool Compare(this GameData.PlayerOutfit instance, GameData.PlayerOutfit targetOutfit)
+    public static bool Compare(this NetworkedPlayerInfo.PlayerOutfit instance, NetworkedPlayerInfo.PlayerOutfit targetOutfit)
     {
         return instance.ColorId == targetOutfit.ColorId &&
                instance.HatId == targetOutfit.HatId &&
@@ -28,7 +28,7 @@ static class PlayerOutfitExtension
                instance.PetId == targetOutfit.PetId;
     }
 
-    public static string GetString(this GameData.PlayerOutfit instance)
+    public static string GetString(this NetworkedPlayerInfo.PlayerOutfit instance)
     {
         return $"{instance.PlayerName} Color:{instance.ColorId} {instance.HatId} {instance.SkinId} {instance.VisorId} {instance.PetId}";
     }
@@ -36,31 +36,32 @@ static class PlayerOutfitExtension
 
 public static class Camouflage
 {
-    static GameData.PlayerOutfit CamouflageOutfit = new GameData.PlayerOutfit().Set("", 15, "", "", "", "", ""); // Default
+    static NetworkedPlayerInfo.PlayerOutfit CamouflageOutfit = new NetworkedPlayerInfo.PlayerOutfit().Set("", 15, "", "", "", "", ""); // Default
 
     public static bool IsCamouflage;
     public static bool BlockCamouflage;
-    public static readonly Dictionary<byte, GameData.PlayerOutfit> PlayerSkins = [];
-
+    public static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> PlayerSkins = [];
     public static List<byte> ResetSkinAfterDeathPlayers = [];
+    public static HashSet<byte> WaitingForSkinChange = [];
 
     public static void Init()
     {
         IsCamouflage = false;
-        PlayerSkins.Clear();
+        PlayerSkins = [];
         ResetSkinAfterDeathPlayers = [];
+        WaitingForSkinChange = [];
 
         CamouflageOutfit = Options.KPDCamouflageMode.GetValue() switch
         {
-            0 => new GameData.PlayerOutfit().Set("", 15, "", "", "", "", ""), // Default
-            1 => new GameData.PlayerOutfit().Set("", DataManager.Player.Customization.Color, DataManager.Player.Customization.Hat, DataManager.Player.Customization.Skin, DataManager.Player.Customization.Visor, DataManager.Player.Customization.Pet, ""), // Host
-            2 => new GameData.PlayerOutfit().Set("", 13, "hat_pk05_Plant", "", "visor_BubbleBumVisor", "", ""), // Karpe
-            3 => new GameData.PlayerOutfit().Set("", 13, "hat_rabbitEars", "skin_Bananaskin", "visor_BubbleBumVisor", "pet_Pusheen", ""), // Lauryn
-            4 => new GameData.PlayerOutfit().Set("", 0, "hat_mira_headset_yellow", "skin_SuitB", "visor_lollipopCrew", "pet_EmptyPet", ""), // Moe
-            5 => new GameData.PlayerOutfit().Set("", 17, "hat_pkHW01_Witch", "skin_greedygrampaskin", "visor_Plsno", "pet_Pusheen", ""), // Pyro
-            6 => new GameData.PlayerOutfit().Set("", 7, "hat_crownDouble", "skin_D2Saint14", "visor_anime", "pet_Bush", ""), // ryuk
-            7 => new GameData.PlayerOutfit().Set("", 7, "hat_pk04_Snowman", "", "", "", ""), // Gurge44
-            8 => new GameData.PlayerOutfit().Set("", 17, "hat_baseball_Black", "skin_Scientist-Darkskin", "visor_pusheenSmileVisor", "pet_Pip", ""), // TommyXL
+            0 => new NetworkedPlayerInfo.PlayerOutfit().Set("", 15, "", "", "", "", ""), // Default
+            1 => new NetworkedPlayerInfo.PlayerOutfit().Set("", DataManager.Player.Customization.Color, DataManager.Player.Customization.Hat, DataManager.Player.Customization.Skin, DataManager.Player.Customization.Visor, DataManager.Player.Customization.Pet, ""), // Host
+            2 => new NetworkedPlayerInfo.PlayerOutfit().Set("", 13, "hat_pk05_Plant", "", "visor_BubbleBumVisor", "", ""), // Karpe
+            3 => new NetworkedPlayerInfo.PlayerOutfit().Set("", 13, "hat_rabbitEars", "skin_Bananaskin", "visor_BubbleBumVisor", "pet_Pusheen", ""), // Lauryn
+            4 => new NetworkedPlayerInfo.PlayerOutfit().Set("", 0, "hat_mira_headset_yellow", "skin_SuitB", "visor_lollipopCrew", "pet_EmptyPet", ""), // Moe
+            5 => new NetworkedPlayerInfo.PlayerOutfit().Set("", 17, "hat_pkHW01_Witch", "skin_greedygrampaskin", "visor_Plsno", "pet_Pusheen", ""), // Pyro
+            6 => new NetworkedPlayerInfo.PlayerOutfit().Set("", 7, "hat_crownDouble", "skin_D2Saint14", "visor_anime", "pet_Bush", ""), // ryuk
+            7 => new NetworkedPlayerInfo.PlayerOutfit().Set("", 7, "hat_pk04_Snowman", "", "", "", ""), // Gurge44
+            8 => new NetworkedPlayerInfo.PlayerOutfit().Set("", 17, "hat_baseball_Black", "skin_Scientist-Darkskin", "visor_pusheenSmileVisor", "pet_Pip", ""), // TommyXL
             _ => CamouflageOutfit
         };
 
@@ -83,8 +84,16 @@ public static class Camouflage
 
         if (oldIsCamouflage != IsCamouflage)
         {
+            WaitingForSkinChange = [];
+
             foreach (var pc in Main.AllPlayerControls)
             {
+                if (pc.inVent || pc.walkingToVent || pc.onLadder)
+                {
+                    WaitingForSkinChange.Add(pc.PlayerId);
+                    continue;
+                }
+
                 RpcSetSkin(pc);
 
                 if (!IsCamouflage && !pc.IsAlive())
@@ -114,7 +123,7 @@ public static class Camouflage
                 id = Main.ShapeshiftTarget[id];
             }
 
-            if (!GameEnd && Doppelganger.DoppelPresentSkin.TryGetValue(id, out GameData.PlayerOutfit value)) newOutfit = value;
+            if (!GameEnd && Doppelganger.DoppelPresentSkin.TryGetValue(id, out NetworkedPlayerInfo.PlayerOutfit value)) newOutfit = value;
             else
             {
                 if (GameEnd && Doppelganger.DoppelVictim.TryGetValue(id, out string value1))
@@ -136,29 +145,50 @@ public static class Camouflage
 
         target.SetColor(newOutfit.ColorId);
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetColor)
-            .Write(newOutfit.ColorId)
+            .Write(target.Data.NetId)
+            .Write((byte)newOutfit.ColorId)
             .EndRpc();
 
         target.SetHat(newOutfit.HatId, newOutfit.ColorId);
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetHatStr)
             .Write(newOutfit.HatId)
+            .Write(target.GetNextRpcSequenceId(RpcCalls.SetHatStr))
             .EndRpc();
 
         target.SetSkin(newOutfit.SkinId, newOutfit.ColorId);
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetSkinStr)
             .Write(newOutfit.SkinId)
+            .Write(target.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
             .EndRpc();
 
         target.SetVisor(newOutfit.VisorId, newOutfit.ColorId);
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetVisorStr)
             .Write(newOutfit.VisorId)
+            .Write(target.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
             .EndRpc();
 
         target.SetPet(newOutfit.PetId);
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetPetStr)
             .Write(newOutfit.PetId)
+            .Write(target.GetNextRpcSequenceId(RpcCalls.SetPetStr))
             .EndRpc();
 
         sender.SendMessage();
+    }
+
+    public static void OnFixedUpdate(PlayerControl pc)
+    {
+        if (!WaitingForSkinChange.Contains(pc.PlayerId) || pc.inVent || pc.walkingToVent || pc.onLadder) return;
+
+        RpcSetSkin(pc);
+        WaitingForSkinChange.Remove(pc.PlayerId);
+
+        if (!IsCamouflage && !pc.IsAlive())
+        {
+            PetsPatch.RpcRemovePet(pc);
+        }
+
+        Utils.NotifyRoles(SpecifySeer: pc, NoCache: true);
+        Utils.NotifyRoles(SpecifyTarget: pc, NoCache: true);
     }
 }

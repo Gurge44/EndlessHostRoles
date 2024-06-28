@@ -3,7 +3,7 @@ using AmongUs.GameOptions;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     public class DonutDelivery : RoleBase
     {

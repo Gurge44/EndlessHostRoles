@@ -2,16 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.AddOns.Common;
+using EHR.Crewmate;
 using EHR.Modules;
-using EHR.Roles.AddOns.Common;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using HarmonyLib;
 using Il2CppSystem.Text;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
-using Object = UnityEngine.Object;
+
 
 namespace EHR.Patches;
 
@@ -20,6 +20,7 @@ class HudManagerPatch
 {
     private static TextMeshPro LowerInfoText;
     private static TextMeshPro OverriddenRolesText;
+    private static TextMeshPro SettingsText;
     private static long LastNullError;
 
     public static bool Prefix(HudManager __instance)
@@ -63,11 +64,23 @@ class HudManagerPatch
 
             if (GameStates.IsLobby)
             {
-                var POM = GameObject.Find("PlayerOptionsMenu(Clone)");
-                __instance.GameSettings.text = POM != null ? string.Empty : OptionShower.GetTextNoFresh();
-                __instance.GameSettings.fontSizeMin =
-                    __instance.GameSettings.fontSizeMax = 1f;
+                if (PingTrackerUpdatePatch.Instance != null)
+                {
+                    if (SettingsText != null) Object.Destroy(SettingsText.gameObject);
+                    SettingsText = Object.Instantiate(PingTrackerUpdatePatch.Instance.text, __instance.transform, true);
+                    SettingsText.alignment = TextAlignmentOptions.TopLeft;
+                    SettingsText.verticalAlignment = VerticalAlignmentOptions.Top;
+                    SettingsText.transform.localPosition = new(-4.9f, 2.9f, 0);
+                    SettingsText.fontSize = SettingsText.fontSizeMin = SettingsText.fontSizeMax = 1.5f;
+                }
+
+                if (SettingsText != null)
+                {
+                    SettingsText.text = OptionShower.GetTextNoFresh();
+                    SettingsText.enabled = SettingsText.text != string.Empty;
+                }
             }
+            else if (SettingsText != null) Object.Destroy(SettingsText.gameObject);
 
             if (AmongUsClient.Instance.AmHost)
             {
@@ -76,7 +89,7 @@ class HudManagerPatch
                     OverriddenRolesText = Object.Instantiate(__instance.KillButton.cooldownTimerText, __instance.transform, true);
                     OverriddenRolesText.alignment = TextAlignmentOptions.Right;
                     OverriddenRolesText.verticalAlignment = VerticalAlignmentOptions.Top;
-                    OverriddenRolesText.transform.localPosition = new(4.9f, 0.8f, 0);
+                    OverriddenRolesText.transform.localPosition = new(2.5f, 2.5f, 0);
                     OverriddenRolesText.overflowMode = TextOverflowModes.Overflow;
                     OverriddenRolesText.enableWordWrapping = false;
                     OverriddenRolesText.color = Color.white;
@@ -395,6 +408,7 @@ class SetHudActivePatch
         {
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
+            case CustomGameMode.Speedrun:
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.KillButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
@@ -685,6 +699,12 @@ class TaskPanelBehaviourPatch
                 case CustomGameMode.HideAndSeek:
 
                     AllText += $"\r\n\r\n{HnSManager.GetTaskBarText()}";
+
+                    break;
+
+                case CustomGameMode.Speedrun:
+
+                    AllText += $"\r\n\r\n{SpeedrunManager.GetTaskBarText()}";
 
                     break;
             }

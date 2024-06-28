@@ -4,7 +4,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 
-namespace EHR.Roles.AddOns.GhostRoles
+namespace EHR.AddOns.GhostRoles
 {
     internal class Haunter : IGhostRole, ISettingHolder
     {
@@ -14,6 +14,7 @@ namespace EHR.Roles.AddOns.GhostRoles
         private static OptionItem RevealNeutralKillers;
         private static OptionItem RevealMadmates;
         private static OptionItem NumberOfReveals;
+        private byte HaunterId;
 
         private List<byte> WarnedImps = [];
 
@@ -27,6 +28,7 @@ namespace EHR.Roles.AddOns.GhostRoles
 
         public void OnAssign(PlayerControl pc)
         {
+            HaunterId = pc.PlayerId;
             LateTask.New(() =>
             {
                 var taskState = pc.GetTaskState();
@@ -36,7 +38,7 @@ namespace EHR.Roles.AddOns.GhostRoles
                 taskState.CompletedTasksCount = 0;
                 taskState.AllTasksCount = Utils.TotalTaskCount - Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks);
 
-                GameData.Instance.RpcSetTasks(pc.PlayerId, Array.Empty<byte>());
+                pc.Data.RpcSetTasks(Array.Empty<byte>());
                 pc.SyncSettings();
                 pc.RpcResetAbilityCooldown();
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -122,6 +124,18 @@ namespace EHR.Roles.AddOns.GhostRoles
                 GhostRolesManager.AssignedGhostRoles.Remove(pc.PlayerId);
                 pc.Notify(Translator.GetString("HaunterStoppedSelf"), 7f);
             }
+        }
+
+        public static string GetSuffix(PlayerControl seer)
+        {
+            foreach (var role in GhostRolesManager.AssignedGhostRoles.Values)
+            {
+                if (role.Instance is not Haunter haunter) continue;
+                if (!haunter.WarnedImps.Contains(seer.PlayerId)) continue;
+                return TargetArrow.GetArrows(seer, haunter.HaunterId);
+            }
+
+            return string.Empty;
         }
     }
 }

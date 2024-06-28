@@ -1,18 +1,17 @@
 ﻿using System.Collections.Generic;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class Markseeker : RoleBase
     {
+        private const int Id = 643550;
         public static List<byte> PlayerIdList = [];
         public static bool On;
-        public override bool IsEnable => On;
-
-        private const int Id = 643550;
         public static OptionItem CancelVote;
 
         public byte MarkedId;
         public bool TargetRevealed;
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {

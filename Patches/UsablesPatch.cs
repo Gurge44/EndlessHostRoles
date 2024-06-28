@@ -7,7 +7,7 @@ namespace EHR;
 [HarmonyPatch(typeof(Console), nameof(Console.CanUse))]
 class CanUsePatch
 {
-    public static bool Prefix( /*ref float __result,*/ Console __instance, /*[HarmonyArgument(0)] GameData.PlayerInfo pc,*/ [HarmonyArgument(1)] out bool canUse, [HarmonyArgument(2)] out bool couldUse)
+    public static bool Prefix( /*ref float __result,*/ Console __instance, /*[HarmonyArgument(0)] NetworkedPlayerInfo pc,*/ [HarmonyArgument(1)] out bool canUse, [HarmonyArgument(2)] out bool couldUse)
     {
         canUse = couldUse = false;
         // Even if you return this with false, usable items other than tasks (including sabots) will remain usable (buttons, etc.)
@@ -29,7 +29,7 @@ class EmergencyMinigamePatch
 class CanUseVentPatch
 {
     public static bool Prefix(Vent __instance,
-        [HarmonyArgument(0)] GameData.PlayerInfo pc,
+        [HarmonyArgument(0)] NetworkedPlayerInfo pc,
         [HarmonyArgument(1)] ref bool canUse,
         [HarmonyArgument(2)] ref bool couldUse,
         ref float __result)

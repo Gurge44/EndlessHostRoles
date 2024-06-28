@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Neutral;
+using EHR.Crewmate;
+using EHR.Neutral;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     public class Duellist : RoleBase
     {

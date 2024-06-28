@@ -7,9 +7,9 @@ using HarmonyLib;
 using Hazel;
 using UnityEngine;
 using static EHR.Translator;
-using Object = UnityEngine.Object;
 
-namespace EHR.Roles.Crewmate;
+
+namespace EHR.Crewmate;
 
 public class Judge : RoleBase
 {
@@ -120,7 +120,7 @@ public class Judge : RoleBase
                 var target = Utils.GetPlayerById(targetId);
                 if (target != null)
                 {
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} 审判了 {target.GetNameWithRole().RemoveHtmlTags()}", "Judge");
+                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} trialed {target.GetNameWithRole().RemoveHtmlTags()}", "Judge");
                     bool judgeSuicide;
                     if (pc.GetAbilityUseLimit() < 1 || GlobalUseLimit[pc.PlayerId] < 1)
                     {
@@ -152,13 +152,18 @@ public class Judge : RoleBase
                     else if (target.Is(CustomRoles.Madmate) && CanTrialMadmate.GetBool()) judgeSuicide = false;
                     else if (target.Is(CustomRoles.Charmed) && CanTrialCharmed.GetBool()) judgeSuicide = false;
                     else if (target.IsNeutralKiller() && CanTrialNeutralK.GetBool()) judgeSuicide = false;
-                    else if (target.GetCustomRole().IsCK() && CanTrialCrewKilling.GetBool()) judgeSuicide = false;
-                    else if (target.GetCustomRole().IsNB() && CanTrialNeutralB.GetBool()) judgeSuicide = false;
-                    else if (target.GetCustomRole().IsNE() && CanTrialNeutralE.GetBool()) judgeSuicide = false;
-                    else if (target.GetCustomRole().IsNC() && CanTrialNeutralC.GetBool()) judgeSuicide = false;
-                    else if (target.GetCustomRole().IsImpostor()) judgeSuicide = false;
-                    else if (target.GetCustomRole().IsMadmate() && CanTrialMadmate.GetBool()) judgeSuicide = false;
-                    else judgeSuicide = true;
+                    else
+                    {
+                        var targetRole = target.GetCustomRole();
+                        if (targetRole.IsCK() && CanTrialCrewKilling.GetBool()) judgeSuicide = false;
+                        else if (targetRole.IsNB() && CanTrialNeutralB.GetBool()) judgeSuicide = false;
+                        else if (targetRole.IsNE() && CanTrialNeutralE.GetBool()) judgeSuicide = false;
+                        else if (targetRole.IsNC() && CanTrialNeutralC.GetBool()) judgeSuicide = false;
+                        else if (targetRole.IsNonNK() && !CanTrialNeutralB.GetBool() && !CanTrialNeutralE.GetBool() && !CanTrialNeutralC.GetBool() && !targetRole.IsNB() && !targetRole.IsNC() && !targetRole.IsNE() && CanTrialNeutralK.GetBool()) judgeSuicide = false;
+                        else if (targetRole.IsImpostor()) judgeSuicide = false;
+                        else if (targetRole.IsMadmate() && CanTrialMadmate.GetBool()) judgeSuicide = false;
+                        else judgeSuicide = true;
+                    }
 
                     var dp = judgeSuicide ? pc : target;
 

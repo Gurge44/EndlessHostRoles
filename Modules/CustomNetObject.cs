@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EHR.Roles.Crewmate;
+using EHR.Crewmate;
 using Hazel;
 using InnerNet;
 using UnityEngine;
-using Object = UnityEngine.Object;
+
 
 // Credit: https://github.com/Rabek009/MoreGamemodes/blob/e054eb498094dfca0a365fc6b6fea8d17f9974d7/Modules/CustomObjects
 // Huge thanks to Rabek009 for this code!

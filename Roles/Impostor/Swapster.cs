@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     internal class Swapster : RoleBase
     {

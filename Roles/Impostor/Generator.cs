@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     internal static class GeneratorStatic
     {

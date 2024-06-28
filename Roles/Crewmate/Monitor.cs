@@ -1,4 +1,4 @@
-namespace EHR.Roles.Crewmate;
+namespace EHR.Crewmate;
 
 internal static class Monitor
 {

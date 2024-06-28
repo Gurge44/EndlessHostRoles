@@ -1,4 +1,4 @@
-﻿namespace EHR.Roles.AddOns.Common
+﻿namespace EHR.AddOns.Common
 {
     internal class Sleuth : IAddon
     {

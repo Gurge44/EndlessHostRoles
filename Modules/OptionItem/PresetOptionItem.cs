@@ -2,7 +2,7 @@ namespace EHR;
 
 public class PresetOptionItem(int defaultValue, TabGroup tab) : OptionItem(0, "Preset", defaultValue, tab, true)
 {
-    private readonly IntegerValueRule Rule = (0, NumPresets - 1, 1);
+    public readonly IntegerValueRule Rule = (0, NumPresets - 1, 1);
 
     // Getter
     public override int GetInt() => Rule.GetValueByIndex(CurrentValue);

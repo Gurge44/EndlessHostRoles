@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -62,6 +61,7 @@ internal static class EAC
                 // break;
                 case RpcCalls.SetRole:
                     var role = (RoleTypes)sr.ReadUInt16();
+                    var canOverrideRole = sr.ReadBoolean();
                     if (GameStates.IsLobby && (role is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost))
                     {
                         WarnHost();
@@ -106,36 +106,36 @@ internal static class EAC
                     }
 
                     break;
-                case RpcCalls.SetColor:
-                case RpcCalls.CheckColor:
-                    var color = sr.ReadByte();
-                    if (!GameStates.IsLobby)
-                    {
-                        WarnHost();
-                        Report(pc, "Set color in game");
-                        HandleCheat(pc, "Set color in game");
-                        Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] sets the color in the game and has been rejected", "EAC");
-                        return true;
-                    }
-
-                    if (pc.Data.DefaultOutfit.ColorId != -1 && (Main.AllPlayerControls.Count(x => x.Data.DefaultOutfit.ColorId == color) >= 5 || color > 18))
-                    {
-                        WarnHost();
-                        Report(pc, "Illegal color setting");
-                        AmongUsClient.Instance.KickPlayer(pc.GetClientId(), false);
-                        Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] illegally set the color and has been rejected", "EAC");
-                        return true;
-                    }
-
-                    if (pc.AmOwner)
-                    {
-                        WarnHost();
-                        Report(pc, "Illegal setting of host color");
-                        Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] illegally set the host's color, which has been rejected", "EAC");
-                        return true;
-                    }
-
-                    break;
+                // case RpcCalls.SetColor:
+                // case RpcCalls.CheckColor:
+                //     var color = sr.ReadByte();
+                //     if (!GameStates.IsLobby)
+                //     {
+                //         WarnHost();
+                //         Report(pc, "Set color in game");
+                //         HandleCheat(pc, "Set color in game");
+                //         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] sets the color in the game and has been rejected", "EAC");
+                //         return true;
+                //     }
+                //
+                //     if (pc.Data.DefaultOutfit.ColorId != -1 && (Main.AllPlayerControls.Count(x => x.Data.DefaultOutfit.ColorId == color) >= 5 || color > 18))
+                //     {
+                //         WarnHost();
+                //         Report(pc, "Illegal color setting");
+                //         AmongUsClient.Instance.KickPlayer(pc.GetClientId(), false);
+                //         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] illegally set the color and has been rejected", "EAC");
+                //         return true;
+                //     }
+                //
+                //     if (pc.AmOwner)
+                //     {
+                //         WarnHost();
+                //         Report(pc, "Illegal setting of host color");
+                //         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] illegally set the host's color, which has been rejected", "EAC");
+                //         return true;
+                //     }
+                //
+                //     break;
                 case RpcCalls.CheckMurder:
                     if (GameStates.IsLobby)
                     {

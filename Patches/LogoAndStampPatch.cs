@@ -1,29 +1,22 @@
 ﻿using System.Collections;
 using BepInEx.Unity.IL2CPP.Utils;
 using HarmonyLib;
-using TMPro;
 using UnityEngine;
 using static EHR.Translator;
 
 namespace EHR;
 
-//参考：https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Patches/LogoAndStampPatch.cs
+// Credit：https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Patches/LogoAndStampPatch.cs
 [HarmonyPatch]
 public static class CredentialsPatch
 {
-    public static GenericPopup popup;
-
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start))]
     public static class LogoPatch
     {
-        public static string BoosterData = string.Empty;
-        public static string SponsersData = string.Empty;
-        public static string DevsData = string.Empty;
-        public static string TransData = string.Empty;
-
-        public static GameObject CreditsPopup;
-
-        public static MainMenuManager instance;
+        private static string BoosterData = string.Empty;
+        private static string SponsersData = string.Empty;
+        private static string DevsData = string.Empty;
+        private static string TransData = string.Empty;
 
         static IEnumerator ViewCredentialsCoro(MainMenuManager __instance)
         {
@@ -32,7 +25,7 @@ public static class CredentialsPatch
                 yield return new WaitForSeconds(1f);
                 if (__instance != null)
                 {
-                    ViewBoosterPatch(__instance);
+                    // ViewBoosterPatch(__instance);
                 }
 
                 break;
@@ -83,11 +76,11 @@ public static class CredentialsPatch
             SponsersData += $"\n\n<size=60%>({GetString("OnlyShowPart")})</size>";
         }
 
+/*
         static void ViewBoosterPatch(MainMenuManager __instance)
         {
             var template = __instance.transform.FindChild("StatsPopup");
             var obj = Object.Instantiate(template, template.transform.parent).gameObject;
-            CreditsPopup = obj;
             Object.Destroy(obj.GetComponent<StatsPopup>());
 
             var devtitletext = obj.transform.FindChild("StatNumsText_TMP");
@@ -147,11 +140,11 @@ public static class CredentialsPatch
             obj.transform.FindChild("Background").localScale = new(1.5f, 1f, 1f);
             obj.transform.FindChild("CloseButton").localPosition = new(-3.75f, 2.65f, 0);
         }
+*/
 
         public static void Postfix(MainMenuManager __instance)
         {
             InitCredentialsData();
-            instance = __instance;
             AmongUsClient.Instance.StartCoroutine(ViewCredentialsCoro(__instance));
         }
     }

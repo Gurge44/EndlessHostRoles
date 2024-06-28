@@ -8,7 +8,7 @@ using EHR.Patches;
 using UnityEngine;
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class QuizMaster : RoleBase
     {

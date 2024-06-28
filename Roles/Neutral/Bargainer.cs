@@ -9,7 +9,7 @@ using static EHR.Options;
 
 // ReSharper disable PossibleMultipleEnumeration
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Bargainer : RoleBase
     {

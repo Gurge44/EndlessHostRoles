@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
+using EHR.Impostor;
+using EHR.Neutral;
 using HarmonyLib;
 
 namespace EHR.Patches;

@@ -4,7 +4,7 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Impartial : RoleBase
     {

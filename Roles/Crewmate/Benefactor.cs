@@ -5,7 +5,7 @@ using EHR.Modules;
 using Hazel;
 using static EHR.Translator;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class Benefactor : RoleBase
     {

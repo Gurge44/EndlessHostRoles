@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 
-namespace EHR.Roles.Crewmate;
+namespace EHR.Crewmate;
 
 public class Crusader : RoleBase
 {

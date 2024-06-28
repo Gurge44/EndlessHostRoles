@@ -3,7 +3,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     public class FFF : RoleBase
     {
@@ -92,7 +92,7 @@ namespace EHR.Roles.Neutral
                     ((target.Is(CustomRoles.Madmate) || target.Is(CustomRoles.Gangster)) && CanKillMadmate.GetBool())
                     || ((target.Is(CustomRoles.Charmed) || target.Is(CustomRoles.Succubus)) && CanKillCharmed.GetBool())
                     || ((target.Is(CustomRoles.Undead) || target.Is(CustomRoles.Necromancer) || target.Is(CustomRoles.Deathknight)) && CanKillUndead.GetBool())
-                    || ((target.Is(CustomRoles.Lovers) || target.Is(CustomRoles.Ntr)) && CanKillLovers.GetBool())
+                    || ((Main.LoversPlayers.Any(x => x.PlayerId == target.PlayerId) || target.Is(CustomRoles.Ntr)) && CanKillLovers.GetBool())
                     || ((target.Is(CustomRoles.Romantic) || target.Is(CustomRoles.RuthlessRomantic) || target.Is(CustomRoles.VengefulRomantic)
                          || Romantic.PartnerId == target.PlayerId) && CanKillLovers.GetBool())
                     || ((target.Is(CustomRoles.Sidekick) || target.Is(CustomRoles.Jackal) || target.Is(CustomRoles.Recruit)) && CanKillSidekicks.GetBool())

@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using EHR.Crewmate;
 using EHR.Modules;
-using EHR.Roles.Crewmate;
 using HarmonyLib;
 using Hazel;
 using UnityEngine;
 using static EHR.Translator;
-using Object = UnityEngine.Object;
 
-namespace EHR.Roles.Impostor;
+
+namespace EHR.Impostor;
 
 public class Councillor : RoleBase
 {
@@ -124,7 +124,7 @@ public class Councillor : RoleBase
                     else if (target.Is(CustomRoles.Snitch) && target.AllTasksCompleted()) CouncillorSuicide = true;
                     else if (target.Is(CustomRoles.Guardian) && target.AllTasksCompleted()) CouncillorSuicide = true;
                     else if (target.Is(CustomRoles.Merchant) && Merchant.IsBribedKiller(pc, target)) CouncillorSuicide = true;
-                    else if (target.GetCustomRole().IsImpostor() && CanMurderImpostor.GetBool()) CouncillorSuicide = false;
+                    else if (target.IsImpostor() && CanMurderImpostor.GetBool()) CouncillorSuicide = false;
                     else if (target.IsCrewmate()) CouncillorSuicide = false;
                     else if (target.GetCustomRole().IsNeutral()) CouncillorSuicide = false;
                     else CouncillorSuicide = true;

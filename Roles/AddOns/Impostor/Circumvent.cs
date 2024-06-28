@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace EHR.Roles.AddOns.Impostor
+namespace EHR.AddOns.Impostor
 {
     internal class Circumvent : IAddon
     {

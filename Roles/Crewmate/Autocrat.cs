@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using UnityEngine;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class Autocrat : RoleBase
     {

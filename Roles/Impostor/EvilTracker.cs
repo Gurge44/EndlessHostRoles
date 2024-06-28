@@ -10,7 +10,7 @@ using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Impostor;
+namespace EHR.Impostor;
 
 public class EvilTracker : RoleBase
 {

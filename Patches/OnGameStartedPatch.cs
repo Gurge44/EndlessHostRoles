@@ -6,14 +6,14 @@ using AmongUs.Data;
 using AmongUs.GameOptions;
 using Assets.CoreScripts;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
+using EHR.AddOns.Common;
+using EHR.AddOns.Crewmate;
+using EHR.AddOns.Impostor;
+using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Modules;
+using EHR.Neutral;
 using EHR.Patches;
-using EHR.Roles.AddOns.Common;
-using EHR.Roles.AddOns.Crewmate;
-using EHR.Roles.AddOns.Impostor;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -21,7 +21,7 @@ using UnityEngine;
 using static EHR.Modules.CustomRoleSelector;
 using static EHR.Translator;
 using DateTime = Il2CppSystem.DateTime;
-using Object = UnityEngine.Object;
+
 
 namespace EHR;
 
@@ -38,31 +38,26 @@ internal class ChangeRoleSettings
         IEnumerator<object> CSG()
         {
             AmongUsClient amongUsClient = __instance;
-            if (DestroyableSingleton<HudManager>.Instance.GameMenu.IsOpen)
-                DestroyableSingleton<HudManager>.Instance.GameMenu.Close();
+            if (DestroyableSingleton<HudManager>.Instance.GameMenu.IsOpen) DestroyableSingleton<HudManager>.Instance.GameMenu.Close();
             DestroyableSingleton<UnityTelemetry>.Instance.Init();
-            amongUsClient.logger.Info("Received game start: " + amongUsClient.AmHost);
+            amongUsClient.logger.Info($"Received game start: {amongUsClient.AmHost}");
             yield return null;
-            while (!DestroyableSingleton<HudManager>.InstanceExists)
-                yield return null;
-            while (PlayerControl.LocalPlayer == null)
-                yield return null;
+            while (!DestroyableSingleton<HudManager>.InstanceExists) yield return null;
+            while (PlayerControl.LocalPlayer == null) yield return null;
             PlayerControl.LocalPlayer.moveable = false;
             PlayerControl.LocalPlayer.MyPhysics.inputHandler.enabled = true;
             PlayerCustomizationMenu objectOfType1 = Object.FindObjectOfType<PlayerCustomizationMenu>();
-            if (objectOfType1)
-                objectOfType1.Close(false);
+            if (objectOfType1 != null) objectOfType1.Close(false);
             GameSettingMenu objectOfType2 = Object.FindObjectOfType<GameSettingMenu>();
-            if (objectOfType2)
-                objectOfType2.Close();
+            if (objectOfType2 != null) objectOfType2.Close();
             if (DestroyableSingleton<GameStartManager>.InstanceExists)
             {
                 // amongUsClient.DisconnectHandlers.Remove((IDisconnectHandler) DestroyableSingleton<GameStartManager>.Instance);
                 Object.Destroy(DestroyableSingleton<GameStartManager>.Instance.gameObject);
             }
 
-            if (DestroyableSingleton<DiscordManager>.InstanceExists)
-                DestroyableSingleton<DiscordManager>.Instance.SetPlayingGame();
+            if (DestroyableSingleton<LobbyInfoPane>.InstanceExists) Object.Destroy(DestroyableSingleton<LobbyInfoPane>.Instance.gameObject);
+            if (DestroyableSingleton<DiscordManager>.InstanceExists) DestroyableSingleton<DiscordManager>.Instance.SetPlayingGame();
             if (!string.IsNullOrEmpty(DataManager.Player.Store.ActiveCosmicube))
             {
                 AmongUsClient.Instance.SetActivePodType(DestroyableSingleton<CosmicubeManager>.Instance.GetCubeDataByID(DataManager.Player.Store.ActiveCosmicube).podId);
@@ -78,13 +73,10 @@ internal class ChangeRoleSettings
             DestroyableSingleton<FriendsListManager>.Instance.ReparentUI();
             // CosmeticsCache.ClearUnusedCosmetics();
             yield return DestroyableSingleton<HudManager>.Instance.CoFadeFullScreen(Color.clear, Color.black, showLoader: true);
-            while (!GameData.Instance)
-                yield return null;
             ++StatsManager.Instance.BanPoints;
             StatsManager.Instance.LastGameStarted = DateTime.UtcNow;
             if (amongUsClient.AmHost)
             {
-                GameData.Instance.SetDirty();
                 yield return amongUsClient.CoStartGameHost();
             }
             else
@@ -110,14 +102,14 @@ internal class ChangeRoleSettings
             }
 
             DestroyableSingleton<FriendsListManager>.Instance.SetRecentlyPlayed(GameData.Instance.AllPlayers);
-            TempData.TimeGameStarted = Time.realtimeSinceStartup;
+            GameData.TimeGameStarted = Time.realtimeSinceStartup;
             int map = Mathf.Clamp(GameOptionsManager.Instance.CurrentGameOptions.MapId, 0, Constants.MapNames.Length - 1);
             string gameName = GameCode.IntToGameName(AmongUsClient.Instance.GameId);
             DestroyableSingleton<DebugAnalytics>.Instance.Analytics.StartGame(PlayerControl.LocalPlayer.Data, GameData.Instance.PlayerCount, GameOptionsManager.Instance.CurrentGameOptions.NumImpostors, AmongUsClient.Instance.NetworkMode, (MapNames)map, GameOptionsManager.Instance.CurrentGameOptions.GameMode, gameName, DestroyableSingleton<ServerManager>.Instance.CurrentRegion.Name, GameOptionsManager.Instance.CurrentGameOptions, GameData.Instance.AllPlayers);
             try
             {
                 DestroyableSingleton<UnityTelemetry>.Instance.StartGame(AmongUsClient.Instance.AmHost, GameData.Instance.PlayerCount, GameOptionsManager.Instance.CurrentGameOptions.NumImpostors, AmongUsClient.Instance.NetworkMode, StatsManager.Instance.GetStat(StringNames.StatsGamesImpostor), StatsManager.Instance.GetStat(StringNames.StatsGamesStarted), StatsManager.Instance.GetStat(StringNames.StatsCrewmateStreak));
-                GameData.PlayerOutfit defaultOutfit = PlayerControl.LocalPlayer.Data.DefaultOutfit;
+                NetworkedPlayerInfo.PlayerOutfit defaultOutfit = PlayerControl.LocalPlayer.Data.DefaultOutfit;
                 DestroyableSingleton<UnityTelemetry>.Instance.StartGameCosmetics(defaultOutfit.ColorId, defaultOutfit.HatId, defaultOutfit.SkinId, defaultOutfit.PetId, defaultOutfit.VisorId, defaultOutfit.NamePlateId);
             }
             catch
@@ -141,15 +133,20 @@ internal class ChangeRoleSettings
                 Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Scientist, 0, 0);
                 Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Engineer, 0, 0);
                 Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Shapeshifter, 0, 0);
+                Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Noisemaker, 0, 0);
+                Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Phantom, 0, 0);
+                Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Tracker, 0, 0);
             }
 
-            // Reset previous roles
-            if (Main.PlayerStates != null)
+            if (Main.NormalOptions.MapId > 5) Logger.SendInGame(GetString("UnsupportedMap"));
+
+            try
             {
-                foreach (var state in Main.PlayerStates.Values)
-                {
-                    state.Role.Init();
-                }
+                Main.AllRoleClasses.Do(x => x.Init());
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
             }
 
             Main.PlayerStates = [];
@@ -174,8 +171,8 @@ internal class ChangeRoleSettings
             Main.ClientIdList = [];
             Main.CheckShapeshift = [];
             Main.ShapeshiftTarget = [];
-            Main.ShieldPlayer = Options.ShieldPersonDiedFirst.GetBool() ? Main.FirstDied : int.MaxValue;
-            Main.FirstDied = int.MaxValue;
+            Main.ShieldPlayer = Options.ShieldPersonDiedFirst.GetBool() ? Main.FirstDied : string.Empty;
+            Main.FirstDied = string.Empty;
             Main.MadmateNum = 0;
 
             Mayor.MayorUsedButtonCount = [];
@@ -240,6 +237,7 @@ internal class ChangeRoleSettings
             Main.PlayerColors = [];
 
             RPC.SyncAllPlayerNames();
+            RPC.SyncAllClientRealNames();
 
             Camouflage.BlockCamouflage = false;
             Camouflage.Init();
@@ -275,7 +273,7 @@ internal class ChangeRoleSettings
                 pc.cosmetics.nameText.text = pc.name;
                 RandomSpawn.CustomNetworkTransformPatch.NumOfTP.Add(pc.PlayerId, 0);
                 var outfit = pc.Data.DefaultOutfit;
-                Camouflage.PlayerSkins[pc.PlayerId] = new GameData.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId, outfit.NamePlateId);
+                Camouflage.PlayerSkins[pc.PlayerId] = new NetworkedPlayerInfo.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId, outfit.NamePlateId);
                 Main.ClientIdList.Add(pc.GetClientId());
             }
 
@@ -312,11 +310,19 @@ internal class ChangeRoleSettings
 
             Main.ChangedRole = false;
 
-            SoloKombatManager.Init();
-            FFAManager.Init();
-            MoveAndStopManager.Init();
-            HotPotatoManager.Init();
-            HnSManager.Init();
+            try
+            {
+                SoloKombatManager.Init();
+                FFAManager.Init();
+                MoveAndStopManager.Init();
+                HotPotatoManager.Init();
+                HnSManager.Init();
+                SpeedrunManager.Init();
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
 
             CustomWinnerHolder.Reset();
             AntiBlackout.Reset();
@@ -343,7 +349,23 @@ internal class ChangeRoleSettings
 [HarmonyPatch(typeof(RoleManager), nameof(RoleManager.SelectRoles))]
 internal class SelectRolesPatch
 {
-    private static Dictionary<CustomRoles, List<byte>> BasisChangingAddons = [];
+    private static readonly Dictionary<CustomRoles, List<byte>> BasisChangingAddons = [];
+    private static Dictionary<RoleTypes, int> RoleTypeNums = [];
+
+    private static RoleOptionsCollectionV08 RoleOpt => Main.NormalOptions.roleOptions;
+
+    public static void UpdateRoleTypeNums()
+    {
+        RoleTypeNums = new()
+        {
+            { RoleTypes.Scientist, AddScientistNum },
+            { RoleTypes.Engineer, AddEngineerNum },
+            { RoleTypes.Shapeshifter, AddShapeshifterNum },
+            { RoleTypes.Noisemaker, AddNoisemakerNum },
+            { RoleTypes.Phantom, AddPhantomNum },
+            { RoleTypes.Tracker, AddTrackerNum }
+        };
+    }
 
     public static void Prefix()
     {
@@ -374,13 +396,13 @@ internal class SelectRolesPatch
             CalculateVanillaRoleCount();
 
 
-            var roleOpt = Main.NormalOptions.roleOptions;
-            int ScientistNum = Options.DisableVanillaRoles.GetBool() ? 0 : roleOpt.GetNumPerGame(RoleTypes.Scientist);
-            roleOpt.SetRoleRate(RoleTypes.Scientist, ScientistNum + AddScientistNum, AddScientistNum > 0 ? 100 : roleOpt.GetChancePerGame(RoleTypes.Scientist));
-            int EngineerNum = Options.DisableVanillaRoles.GetBool() ? 0 : roleOpt.GetNumPerGame(RoleTypes.Engineer);
-            roleOpt.SetRoleRate(RoleTypes.Engineer, EngineerNum + AddEngineerNum, AddEngineerNum > 0 ? 100 : roleOpt.GetChancePerGame(RoleTypes.Engineer));
-            int ShapeshifterNum = Options.DisableVanillaRoles.GetBool() ? 0 : roleOpt.GetNumPerGame(RoleTypes.Shapeshifter);
-            roleOpt.SetRoleRate(RoleTypes.Shapeshifter, ShapeshifterNum + AddShapeshifterNum, AddShapeshifterNum > 0 ? 100 : roleOpt.GetChancePerGame(RoleTypes.Shapeshifter));
+            UpdateRoleTypeNums();
+            foreach (var roleType in RoleTypeNums)
+            {
+                int roleNum = Options.DisableVanillaRoles.GetBool() ? 0 : RoleOpt.GetNumPerGame(roleType.Key);
+                roleNum += roleType.Value;
+                RoleOpt.SetRoleRate(roleType.Key, roleNum, roleType.Value > 0 ? 100 : RoleOpt.GetChancePerGame(roleType.Key));
+            }
 
 
             var rd = IRandom.Instance;
@@ -465,14 +487,22 @@ internal class SelectRolesPatch
                 nimbleList = Main.SetAddOns.Where(x => x.Value.Contains(CustomRoles.Nimble)).Select(x => x.Key).ToHashSet();
             }
 
-            if (Main.SetAddOns.Values.Any(x => x.Contains(CustomRoles.Physicist)))
+            try
             {
-                physicistSpawn = true;
-                var newPhysicistList = Main.SetAddOns.Where(x => x.Value.Contains(CustomRoles.Physicist)).Select(x => x.Key).ToHashSet();
-                if (nimbleList.Count != 1 || physicistList.Count != 1 || nimbleList.First() != newPhysicistList.First())
+                if (Main.SetAddOns.Values.Any(x => x.Contains(CustomRoles.Physicist)))
                 {
-                    physicistList = newPhysicistList;
+                    physicistSpawn = true;
+                    var newPhysicistList = Main.SetAddOns.Where(x => x.Value.Contains(CustomRoles.Physicist)).Select(x => x.Key).ToHashSet();
+                    if (nimbleList.Count != 1 || physicistList.Count != 1 || nimbleList.First() != newPhysicistList.First())
+                    {
+                        physicistList = newPhysicistList;
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+                physicistSpawn = false;
             }
 
             if (nimbleSpawn)
@@ -556,6 +586,9 @@ internal class SelectRolesPatch
                     RoleTypes.Engineer => CustomRoles.Engineer,
                     RoleTypes.GuardianAngel => CustomRoles.GuardianAngel,
                     RoleTypes.Shapeshifter => CustomRoles.Shapeshifter,
+                    RoleTypes.Noisemaker => CustomRoles.Noisemaker,
+                    RoleTypes.Phantom => CustomRoles.Phantom,
+                    RoleTypes.Tracker => CustomRoles.Tracker,
                     _ => CustomRoles.NotAssigned
                 };
                 if (role == CustomRoles.NotAssigned) Logger.SendInGame(string.Format(GetString("Error.InvalidRoleAssignment"), pc?.Data?.PlayerName));
@@ -603,24 +636,35 @@ internal class SelectRolesPatch
 
             if (!overrideLovers && CustomRoles.Lovers.IsEnable() && (CustomRoles.FFF.IsEnable() ? -1 : rd.Next(1, 100)) <= Lovers.LoverSpawnChances.GetInt()) AssignLoversRolesFromList();
 
+            // Add-on assignment
             var aapc = Main.AllAlivePlayerControls;
+            var addonNum = aapc.ToDictionary(x => x, _ => 0);
             AddonRolesList
                 .Where(x => x.IsEnable())
                 .SelectMany(x => Enumerable.Repeat(x, Math.Clamp(x.GetCount(), 0, aapc.Length)))
+                .Where(x => IRandom.Instance.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(x, out var sc) ? sc.GetFloat() : 0))
                 .Shuffle()
                 .Chunk(aapc.Length)
-                .Do(c => c.Zip(aapc).DoIf(x => CustomRolesHelper.CheckAddonConflict(x.First, x.Second) && IRandom.Instance.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(x.First, out var sc) ? sc.GetFloat() : 0), x => Main.PlayerStates[x.Second.PlayerId].SetSubRole(x.First)));
+                .SelectMany(a => a.Select(x =>
+                {
+                    var suitablePlayer = aapc
+                        .OrderBy(p => addonNum[p])
+                        .FirstOrDefault(p => CustomRolesHelper.CheckAddonConflict(x, p));
+                    if (suitablePlayer != null) addonNum[suitablePlayer]++;
+                    return (Role: x, SuitablePlayer: suitablePlayer);
+                }))
+                .DoIf(x => x.SuitablePlayer != null, x => Main.PlayerStates[x.SuitablePlayer.PlayerId].SetSubRole(x.Role));
 
 
             foreach (var state in Main.PlayerStates.Values)
             {
-                if (Main.NeverSpawnTogetherCombos.TryGetValue(state.MainRole, out var bannedAddonList))
+                if (Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var neverList) && neverList.TryGetValue(state.MainRole, out var bannedAddonList))
                 {
                     bannedAddonList.ForEach(x => state.RemoveSubRole(x));
                     continue;
                 }
 
-                if (Main.AlwaysSpawnTogetherCombos.TryGetValue(state.MainRole, out var addonList))
+                if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var alwaysList) && alwaysList.TryGetValue(state.MainRole, out var addonList))
                 {
                     addonList.ForEach(x => state.SetSubRole(x));
                 }
@@ -657,10 +701,18 @@ internal class SelectRolesPatch
                 }
             }
 
-            Stressed.Add();
-            Asthmatic.Add();
-            Circumvent.Add();
-            Dynamo.Add();
+            try
+            {
+                Stressed.Add();
+                Asthmatic.Add();
+                Circumvent.Add();
+                Dynamo.Add();
+                Lovers.Init();
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
 
             LateTask.New(CustomTeamManager.InitializeCustomTeamPlayers, 7f, log: false);
 
@@ -685,16 +737,14 @@ internal class SelectRolesPatch
                 pc.ResetKillCooldown();
             }
 
-            var roleOpt = Main.NormalOptions.roleOptions;
-            int ScientistNum = Options.DisableVanillaRoles.GetBool() ? 0 : roleOpt.GetNumPerGame(RoleTypes.Scientist);
-            ScientistNum -= AddScientistNum;
-            roleOpt.SetRoleRate(RoleTypes.Scientist, ScientistNum, roleOpt.GetChancePerGame(RoleTypes.Scientist));
-            int EngineerNum = Options.DisableVanillaRoles.GetBool() ? 0 : roleOpt.GetNumPerGame(RoleTypes.Engineer);
-            EngineerNum -= AddEngineerNum;
-            roleOpt.SetRoleRate(RoleTypes.Engineer, EngineerNum, roleOpt.GetChancePerGame(RoleTypes.Engineer));
-            int ShapeshifterNum = Options.DisableVanillaRoles.GetBool() ? 0 : roleOpt.GetNumPerGame(RoleTypes.Shapeshifter);
-            ShapeshifterNum -= AddShapeshifterNum;
-            roleOpt.SetRoleRate(RoleTypes.Shapeshifter, ShapeshifterNum, roleOpt.GetChancePerGame(RoleTypes.Shapeshifter));
+
+            foreach (var roleType in RoleTypeNums)
+            {
+                int roleNum = Options.DisableVanillaRoles.GetBool() ? 0 : RoleOpt.GetNumPerGame(roleType.Key);
+                roleNum -= roleType.Value;
+                RoleOpt.SetRoleRate(roleType.Key, roleNum, RoleOpt.GetChancePerGame(roleType.Key));
+            }
+
 
             switch (Options.CurrentGameMode)
             {
@@ -713,6 +763,9 @@ internal class SelectRolesPatch
                 case CustomGameMode.HotPotato:
                     GameEndChecker.SetPredicateToHotPotato();
                     break;
+                case CustomGameMode.Speedrun:
+                    GameEndChecker.SetPredicateToSpeedrun();
+                    break;
                 case CustomGameMode.HideAndSeek:
                     GameEndChecker.SetPredicateToHideAndSeek();
                     break;
@@ -725,7 +778,7 @@ internal class SelectRolesPatch
             }
 
             // Add players with unclassified roles to the list of players who require ResetCam.
-            Main.ResetCamPlayerList.AddRange(Main.AllPlayerControls.Where(p => p.GetCustomRole() is CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Sidekick or CustomRoles.KB_Normal or CustomRoles.Killer or CustomRoles.Tasker or CustomRoles.Potato or CustomRoles.Seeker or CustomRoles.Hider or CustomRoles.Fox or CustomRoles.Troll or CustomRoles.Jumper or CustomRoles.Detector or CustomRoles.Jet or CustomRoles.Dasher or CustomRoles.Locator or CustomRoles.Venter or CustomRoles.Agent or CustomRoles.Taskinator or CustomRoles.Innocent || (p.Is(CustomRoles.Witness) && (!Options.UsePets.GetBool() || Options.WitnessUsePet.GetBool()))).Select(p => p.PlayerId));
+            Main.ResetCamPlayerList.AddRange(Main.AllPlayerControls.Where(p => p.GetCustomRole() is CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Sidekick or CustomRoles.Innocent || p.GetCustomRole().IsForOtherGameMode() || (p.Is(CustomRoles.Witness) && (!Options.UsePets.GetBool() || Options.WitnessUsePet.GetBool()))).Select(p => p.PlayerId));
             Utils.CountAlivePlayers(true);
             Utils.SyncAllSettings();
 
@@ -822,7 +875,7 @@ internal class SelectRolesPatch
             return;
         }
 
-        var allPlayers = Main.AllPlayerControls.Where(pc => !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && !pc.Is(CustomRoles.Dictator) && !pc.Is(CustomRoles.God) && !pc.Is(CustomRoles.FFF) && !pc.Is(CustomRoles.Bomber) && !pc.Is(CustomRoles.Nuker) && !pc.Is(CustomRoles.Provocateur) && (!pc.IsCrewmate() || Lovers.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Lovers.NeutralCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsImpostor() || Lovers.ImpCanBeInLove.GetBool())).ToList();
+        var allPlayers = Main.AllPlayerControls.Where(pc => !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && !pc.Is(CustomRoles.Dictator) && !pc.Is(CustomRoles.God) && !pc.Is(CustomRoles.FFF) && !pc.Is(CustomRoles.Bomber) && !pc.Is(CustomRoles.Nuker) && !pc.Is(CustomRoles.Provocateur) && (!pc.IsCrewmate() || Lovers.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Lovers.NeutralCanBeInLove.GetBool()) && (!pc.IsImpostor() || Lovers.ImpCanBeInLove.GetBool())).ToList();
         const CustomRoles role = CustomRoles.Lovers;
         var count = Math.Clamp(RawCount, 0, allPlayers.Count);
         if (RawCount == -1) count = Math.Clamp(role.GetCount(), 0, allPlayers.Count);
@@ -876,6 +929,7 @@ internal class SelectRolesPatch
                         PLAYER.SetRole(ROLETYPE);
                         sender.Value.AutoStartRpc(PLAYER.NetId, (byte)RpcCalls.SetRole, Utils.GetPlayerById(sender.Key).GetClientId())
                             .Write((ushort)ROLETYPE)
+                            .Write(false)
                             .EndRpc();
                     }
                     catch

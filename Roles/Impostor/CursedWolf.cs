@@ -1,7 +1,7 @@
 ﻿using AmongUs.GameOptions;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     internal class CursedWolf : RoleBase
     {

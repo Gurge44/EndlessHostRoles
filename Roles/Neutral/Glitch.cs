@@ -7,7 +7,7 @@ using EHR.Modules;
 using Hazel;
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Glitch : RoleBase
 {

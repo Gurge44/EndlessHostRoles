@@ -4,7 +4,7 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
 
-namespace EHR.Roles.Crewmate;
+namespace EHR.Crewmate;
 
 public class Medic : RoleBase
 {
@@ -22,6 +22,7 @@ public class Medic : RoleBase
     private static OptionItem ShieldBreakIsVisible;
     private static OptionItem ResetCooldown;
     public static OptionItem GuesserIgnoreShield;
+    public static OptionItem JudgingIgnoreShield;
     private static OptionItem AmountOfShields;
     public static OptionItem UsePet;
     public static OptionItem CD;
@@ -63,10 +64,12 @@ public class Medic : RoleBase
             .SetValueFormat(OptionFormat.Seconds);
         GuesserIgnoreShield = new BooleanOptionItem(Id + 9, "MedicShieldedCanBeGuessed", true, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
-        AmountOfShields = new IntegerOptionItem(Id + 10, "MedicAmountOfShields", new(1, 14, 1), 1, TabGroup.CrewmateRoles)
+        JudgingIgnoreShield = new BooleanOptionItem(Id + 10, "MedicShieldedCanBeJudged", true, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
-        UsePet = Options.CreatePetUseSetting(Id + 11, CustomRoles.Medic);
-        CD = new FloatOptionItem(Id + 12, "AbilityCooldown", new(0f, 180f, 2.5f), 7.5f, TabGroup.CrewmateRoles)
+        AmountOfShields = new IntegerOptionItem(Id + 11, "MedicAmountOfShields", new(1, 14, 1), 1, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
+        UsePet = Options.CreatePetUseSetting(Id + 12, CustomRoles.Medic);
+        CD = new FloatOptionItem(Id + 13, "AbilityCooldown", new(0f, 180f, 2.5f), 7.5f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic])
             .SetValueFormat(OptionFormat.Seconds);
     }
@@ -94,8 +97,7 @@ public class Medic : RoleBase
         if (!Utils.DoRPC) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMedicalerProtectList, SendOption.Reliable);
         writer.Write(ProtectList.Count);
-        foreach (byte x in ProtectList.ToArray())
-            writer.Write(x);
+        ProtectList.Do(x => writer.Write(x));
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -103,8 +105,7 @@ public class Medic : RoleBase
     {
         int count = reader.ReadInt32();
         ProtectList = [];
-        for (int i = 0; i < count; i++)
-            ProtectList.Add(reader.ReadByte());
+        for (int i = 0; i < count; i++) ProtectList.Add(reader.ReadByte());
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

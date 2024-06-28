@@ -5,7 +5,7 @@ using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Crewmate;
+namespace EHR.Crewmate;
 
 public class Cleanser : RoleBase
 {

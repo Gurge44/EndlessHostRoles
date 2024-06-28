@@ -6,7 +6,7 @@ using EHR.Modules;
 using Hazel;
 using UnityEngine;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     internal class Commander : RoleBase
     {

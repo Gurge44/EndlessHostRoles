@@ -55,7 +55,7 @@ class Logger
         if (!IsEnable) return;
         if (DestroyableSingleton<HudManager>._instance)
         {
-            DestroyableSingleton<HudManager>.Instance.Notifier.AddItem(text);
+            DestroyableSingleton<HudManager>.Instance.Notifier.AddDisconnectMessage(text);
             Warn(text, "SendInGame");
         }
     }
@@ -79,7 +79,7 @@ class Logger
             string memberName = stack.GetMethod()?.Name;
             log_text = $"[{t}][{className}.{memberName}({Path.GetFileName(fileName)}:{lineNumber})][{tag}]{text}";
             NowDetailedErrorLog.Add(tag);
-            LateTask.New(() => NowDetailedErrorLog.Remove(tag), 5f, log: false);
+            LateTask.New(() => NowDetailedErrorLog.Remove(tag), 3f, log: false);
         }
         else
         {
@@ -100,7 +100,7 @@ class Logger
                 logger.LogError(log_text);
                 break;
             case LogLevel.Error:
-                log_text.Split('\n').Do(x => logger.LogError(x));
+                log_text.Split("\\n").Do(x => logger.LogError(x));
                 break;
             case LogLevel.Fatal:
                 logger.LogFatal(log_text);

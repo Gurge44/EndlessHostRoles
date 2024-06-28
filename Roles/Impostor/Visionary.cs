@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     internal class Visionary : RoleBase
     {
@@ -44,11 +44,6 @@ namespace EHR.Roles.Impostor
         {
             AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
             AURoleOptions.ShapeshifterDuration = 1f;
-        }
-
-        public override void OnMurder(PlayerControl killer, PlayerControl target)
-        {
-            killer.RpcIncreaseAbilityUseLimitBy(VisionaryAbilityUseGainWithEachKill.GetFloat());
         }
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)

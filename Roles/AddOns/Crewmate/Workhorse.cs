@@ -4,7 +4,7 @@ using AmongUs.GameOptions;
 using UnityEngine;
 using static EHR.Options;
 
-namespace EHR.Roles.AddOns.Crewmate;
+namespace EHR.AddOns.Crewmate;
 
 public class Workhorse : IAddon
 {
@@ -87,7 +87,7 @@ public class Workhorse : IAddon
         if (AmongUsClient.Instance.AmHost)
         {
             Add(pc.PlayerId);
-            GameData.Instance.RpcSetTasks(pc.PlayerId, Array.Empty<byte>()); // Redistribute tasks
+            pc.Data.RpcSetTasks(Array.Empty<byte>()); // Redistribute tasks
             pc.SyncSettings();
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }

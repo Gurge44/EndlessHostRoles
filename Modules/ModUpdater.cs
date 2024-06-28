@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 using Twitch;
 using UnityEngine;
 using static EHR.Translator;
-using Object = UnityEngine.Object;
+
 
 namespace EHR;
 

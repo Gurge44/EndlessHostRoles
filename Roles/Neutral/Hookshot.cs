@@ -4,7 +4,7 @@ using Hazel;
 using static EHR.Options;
 using static EHR.Utils;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Hookshot : RoleBase
     {

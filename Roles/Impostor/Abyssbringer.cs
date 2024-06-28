@@ -4,7 +4,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using UnityEngine;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     public class Abyssbringer : RoleBase
     {
@@ -58,9 +58,19 @@ namespace EHR.Roles.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
+            CreateBlackHole(shapeshifter);
+            return false;
+        }
+
+        public override void OnPet(PlayerControl pc)
+        {
+            CreateBlackHole(pc);
+        }
+
+        private void CreateBlackHole(PlayerControl shapeshifter)
+        {
             var pos = shapeshifter.Pos();
             BlackHoles.Add((new(pos), Utils.TimeStamp, pos));
-            return false;
         }
 
         public override void OnFixedUpdate(PlayerControl pc)
@@ -99,7 +109,7 @@ namespace EHR.Roles.Impostor
                         nearestPlayer.RpcExileV2();
 
                         var state = Main.PlayerStates[nearestPlayer.PlayerId];
-                        state.deathReason = PlayerState.DeathReason.Suicide;
+                        state.deathReason = PlayerState.DeathReason.Consumed;
                         state.SetDead();
 
                         if (despawnMode == DespawnMode.After1PlayerEaten)
@@ -113,7 +123,7 @@ namespace EHR.Roles.Impostor
 
                 void RemoveBlackHole()
                 {
-                    BlackHoles.Remove(blackHole);
+                    BlackHoles.RemoveAt(i);
                     blackHole.NetObject.Despawn();
                 }
             }

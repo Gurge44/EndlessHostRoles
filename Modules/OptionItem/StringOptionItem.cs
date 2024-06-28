@@ -4,7 +4,9 @@ namespace EHR;
 
 public class StringOptionItem(int id, string name, IList<string> selections, int defaultValue, TabGroup tab, bool isSingleValue = false, bool noTranslation = false) : OptionItem(id, name, defaultValue, tab, isSingleValue)
 {
-    private readonly IntegerValueRule Rule = (0, selections.Count - 1, 1);
+    public readonly bool noTranslation = noTranslation;
+    public readonly IntegerValueRule Rule = (0, selections.Count - 1, 1);
+    public readonly IList<string> Selections = selections;
 
     // Getter
     public override int GetInt() => Rule.GetValueByIndex(CurrentValue);
@@ -12,13 +14,13 @@ public class StringOptionItem(int id, string name, IList<string> selections, int
 
     public override string GetString()
     {
-        var str = selections[Rule.GetValueByIndex(CurrentValue)];
+        var str = Selections[Rule.GetValueByIndex(CurrentValue)];
         return noTranslation ? str : Translator.GetString(str);
     }
 
     public int GetChance()
     {
-        switch (selections.Count)
+        switch (Selections.Count)
         {
             // For 0% or 100%
             case 2:
@@ -28,7 +30,7 @@ public class StringOptionItem(int id, string name, IList<string> selections, int
                 return CurrentValue;
             // For 0% to 100% or 5% to 100%
             default:
-                var offset = Options.Rates.Length - selections.Count;
+                var offset = Options.Rates.Length - Selections.Count;
                 var index = CurrentValue + offset;
                 var rate = index * 5;
                 return rate;

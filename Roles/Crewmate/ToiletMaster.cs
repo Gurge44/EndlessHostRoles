@@ -141,7 +141,7 @@ namespace EHR.Crewmate
                             break;
                         case Poop.Red:
                             var defaultSpeed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-                            ((List<PlayerControl>)activePoop.Data).DoIf(x => x, x =>
+                            ((List<PlayerControl>)activePoop.Data).DoIf(x => x != null, x =>
                             {
                                 Main.AllPlayerSpeed[x.PlayerId] = defaultSpeed;
                                 x.MarkDirtySettings();
@@ -243,7 +243,7 @@ namespace EHR.Crewmate
             {
                 Toilets.Remove(x.Key);
                 x.Value.NetObject.Despawn();
-            });
+            }, fast: false);
         }
 
         public static bool OnAnyoneCheckMurderStart(PlayerControl killer, PlayerControl target)

@@ -1,5 +1,5 @@
 ﻿using AmongUs.GameOptions;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -12,7 +12,7 @@ namespace EHR.Modules
     {
         public static bool IsChangeInProgress;
 
-        public static void ChangeRoleBasis(this PlayerControl player, RoleTypes targetVNRole)
+        public static void ChangeRoleBasis(this PlayerControl player, RoleTypes targetVNRole, bool canOverride = true)
         {
             if (!AmongUsClient.Instance.AmHost) return;
 
@@ -54,11 +54,11 @@ namespace EHR.Modules
             newplayer.MyPhysics.ResetMoveState();
 
             GameData.Instance.RemovePlayer(player.PlayerId);
-            GameData.Instance.AddPlayer(newplayer);
+            GameData.Instance.AddPlayer(newplayer, newplayer.GetClient());
 
-            newplayer.RpcSetRole(targetVNRole);
+            newplayer.RpcSetRole(targetVNRole, canOverride);
 
-            GameData.Instance.SetDirty();
+            GameData.Instance.DirtyAllData();
             newplayer.ReactorFlash(0.2f);
             newplayer.TP(position);
 

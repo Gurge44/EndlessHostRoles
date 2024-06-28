@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using EHR.Modules;
 using static EHR.Options;
 
-namespace EHR.Roles.AddOns.Common
+namespace EHR.AddOns.Common
 {
     public class DoubleShot : IAddon
     {
@@ -36,7 +36,7 @@ namespace EHR.Roles.AddOns.Common
                 return true;
             }
 
-            if (tries < MaxTries.GetValue())
+            if (tries <= MaxTries.GetInt())
             {
                 Tries[guesser.PlayerId] = ++tries;
                 LogAndNotify();

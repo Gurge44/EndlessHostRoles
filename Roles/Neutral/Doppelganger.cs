@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using EHR.Impostor;
 using EHR.Modules;
-using EHR.Roles.Impostor;
 using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Doppelganger : RoleBase
 {
@@ -19,9 +19,9 @@ public class Doppelganger : RoleBase
     private static OptionItem ResetTimer;
 
     public static Dictionary<byte, string> DoppelVictim = [];
-    public static Dictionary<byte, GameData.PlayerOutfit> DoppelPresentSkin = [];
+    public static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> DoppelPresentSkin = [];
     public static Dictionary<byte, int> TotalSteals = [];
-    public static Dictionary<byte, GameData.PlayerOutfit> DoppelDefaultSkin = [];
+    public static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> DoppelDefaultSkin = [];
 
     private static readonly string[] ResetModes =
     [
@@ -93,8 +93,7 @@ public class Doppelganger : RoleBase
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
-    //overloading
-    public static GameData.PlayerOutfit Set(GameData.PlayerOutfit instance, string playerName, int colorId, string hatId, string skinId, string visorId, string petId, string nameplateId)
+    public static NetworkedPlayerInfo.PlayerOutfit Set(NetworkedPlayerInfo.PlayerOutfit instance, string playerName, int colorId, string hatId, string skinId, string visorId, string petId, string nameplateId)
     {
         instance.PlayerName = playerName;
         instance.ColorId = colorId;
@@ -106,12 +105,13 @@ public class Doppelganger : RoleBase
         return instance;
     }
 
-    static void RpcChangeSkin(PlayerControl pc, GameData.PlayerOutfit newOutfit)
+    static void RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit)
     {
         var sender = CustomRpcSender.Create(name: $"Doppelganger.RpcChangeSkin({pc.Data.PlayerName})");
 
         pc.SetName(newOutfit.PlayerName);
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetName)
+            .Write(pc.Data.NetId)
             .Write(newOutfit.PlayerName)
             .EndRpc();
 
@@ -119,51 +119,57 @@ public class Doppelganger : RoleBase
 
         pc.SetColor(newOutfit.ColorId);
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetColor)
-            .Write(newOutfit.ColorId)
+            .Write(pc.Data.NetId)
+            .Write((byte)newOutfit.ColorId)
             .EndRpc();
 
         pc.SetHat(newOutfit.HatId, newOutfit.ColorId);
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetHatStr)
             .Write(newOutfit.HatId)
+            .Write(pc.GetNextRpcSequenceId(RpcCalls.SetHatStr))
             .EndRpc();
 
         pc.SetSkin(newOutfit.SkinId, newOutfit.ColorId);
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetSkinStr)
             .Write(newOutfit.SkinId)
+            .Write(pc.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
             .EndRpc();
 
         pc.SetVisor(newOutfit.VisorId, newOutfit.ColorId);
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetVisorStr)
             .Write(newOutfit.VisorId)
+            .Write(pc.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
             .EndRpc();
 
         pc.SetPet(newOutfit.PetId);
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetPetStr)
             .Write(newOutfit.PetId)
+            .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
             .EndRpc();
 
         pc.SetNamePlate(newOutfit.NamePlateId);
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetNamePlateStr)
             .Write(newOutfit.NamePlateId)
+            .Write(pc.GetNextRpcSequenceId(RpcCalls.SetNamePlateStr))
             .EndRpc();
 
         sender.SendMessage();
         DoppelPresentSkin[pc.PlayerId] = newOutfit;
     }
 
-    public static bool OnCheckMurderEnd(PlayerControl killer, PlayerControl target)
+    public static void OnCheckMurderEnd(PlayerControl killer, PlayerControl target)
     {
-        if (killer == null || target == null || Camouflage.IsCamouflage || Camouflager.IsActive || Main.PlayerStates[killer.PlayerId].Role is not Doppelganger { IsEnable: true } dg) return true;
+        if (killer == null || target == null || Camouflage.IsCamouflage || Camouflager.IsActive || Main.PlayerStates[killer.PlayerId].Role is not Doppelganger { IsEnable: true } dg) return;
         if (target.IsShifted())
         {
             Logger.Info("Target was shapeshifting", "Doppelganger");
-            return true;
+            return;
         }
 
         if (TotalSteals[killer.PlayerId] >= MaxSteals.GetInt())
         {
             TotalSteals[killer.PlayerId] = MaxSteals.GetInt();
-            return true;
+            return;
         }
 
         TotalSteals[killer.PlayerId]++;
@@ -189,12 +195,12 @@ public class Doppelganger : RoleBase
         RpcChangeSkin(killer, targetSkin);
         Logger.Info("Changed killer skin", "Doppelganger");
 
+        target.Notify(Translator.GetString("DoppelgangerWarning"));
+
         dg.SendRPC(killer.PlayerId);
         Utils.NotifyRoles();
         killer.ResetKillCooldown();
         killer.SetKillCooldown();
-
-        return true;
     }
 
     public override void OnReportDeadBody()

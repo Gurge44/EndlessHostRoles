@@ -2,7 +2,7 @@
 using EHR.Modules;
 using UnityEngine;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     internal class Escapee : RoleBase
     {

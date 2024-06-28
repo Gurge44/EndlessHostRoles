@@ -55,9 +55,8 @@ public static class Zoom
                 Flag.Run(() => { SetZoomSize(reset: true); }, "Zoom");
             }
         }
-        catch (Exception e)
+        catch
         {
-            Utils.ThrowException(e);
         }
     }
 

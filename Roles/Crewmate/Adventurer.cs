@@ -6,7 +6,7 @@ using EHR.Patches;
 using Hazel;
 using UnityEngine;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class Adventurer : RoleBase
     {

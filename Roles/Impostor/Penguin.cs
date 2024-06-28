@@ -4,7 +4,7 @@ using Hazel;
 using UnityEngine;
 using static EHR.Translator;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     public class Penguin : RoleBase
     {
@@ -81,7 +81,7 @@ namespace EHR.Roles.Impostor
             else
             {
                 AbductTimerLimit = Goose.OptionAbductTimerLimit.GetFloat();
-                MeetingKill = Goose.OptionMeetingKill.GetBool();
+                MeetingKill = false;
                 SpeedDuringDrag = Goose.OptionSpeedDuringDrag.GetFloat();
                 VictimCanUseAbilities = Goose.OptionVictimCanUseAbilities.GetBool();
             }
@@ -291,7 +291,7 @@ namespace EHR.Roles.Impostor
                     if (!IsGoose)
                     {
                         AbductVictim.Data.IsDead = true;
-                        GameData.Instance.SetDirty();
+                        GameData.Instance.DirtyAllData();
                     }
 
                     // If the penguin himself is on a ladder, kill him after getting off the ladder.

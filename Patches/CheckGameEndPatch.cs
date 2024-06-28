@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
+using EHR.AddOns.GhostRoles;
+using EHR.Impostor;
 using EHR.Modules;
-using EHR.Roles.AddOns.GhostRoles;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -22,7 +22,7 @@ namespace EHR;
 class GameEndChecker
 {
     private const float EndGameDelay = 0.2f;
-    private static GameEndPredicate Predicate;
+    public static GameEndPredicate Predicate;
     public static bool ShouldNotCheck = false;
 
     public static bool Prefix()
@@ -115,12 +115,12 @@ class GameEndChecker
                             ResetAndSetWinner(CustomWinner.DarkHide);
                             WinnerIds.Add(pc.PlayerId);
                             break;
-                        case CustomRoles.Phantom when pc.GetTaskState().IsTaskFinished && pc.Data.IsDead && Options.PhantomSnatchesWin.GetBool():
+                        case CustomRoles.Phantasm when pc.GetTaskState().IsTaskFinished && pc.Data.IsDead && Options.PhantomSnatchesWin.GetBool():
                             reason = GameOverReason.ImpostorByKill;
                             ResetAndSetWinner(CustomWinner.Phantom);
                             WinnerIds.Add(pc.PlayerId);
                             break;
-                        case CustomRoles.Phantom when !Options.PhantomSnatchesWin.GetBool() && !pc.IsAlive() && pc.GetTaskState().IsTaskFinished:
+                        case CustomRoles.Phantasm when !Options.PhantomSnatchesWin.GetBool() && !pc.IsAlive() && pc.GetTaskState().IsTaskFinished:
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.Phantom);
                             break;
@@ -237,15 +237,13 @@ class GameEndChecker
                         .Where(x => x.Team != null)
                         .GroupBy(x => x.Team)
                         .ToDictionary(x => x.Key, x => x.Select(y => y.Player.PlayerId))
-                        .DoIf(x => !CustomTeamManager.IsSettingEnabledForTeam(x.Key, "WinWithOriginalTeam"), x => WinnerIds.ExceptWith(x.Value));
+                        .DoIf(x => !CustomTeamManager.IsSettingEnabledForTeam(x.Key, CTAOption.WinWithOriginalTeam), x => WinnerIds.ExceptWith(x.Value));
                 }
 
-                if ((WinnerTeam == CustomWinner.Lovers || WinnerIds.Any(x => Main.PlayerStates[x].SubRoles.Contains(CustomRoles.Lovers))) && Main.LoversPlayers.All(x => x.IsAlive()))
+                if ((WinnerTeam == CustomWinner.Lovers || WinnerIds.Any(x => Main.PlayerStates[x].SubRoles.Contains(CustomRoles.Lovers))) && Main.LoversPlayers.All(x => x.IsAlive()) && reason != GameOverReason.HumansByTask)
                 {
                     if (WinnerTeam != CustomWinner.Lovers) AdditionalWinnerTeams.Add(AdditionalWinners.Lovers);
-                    Main.AllPlayerControls
-                        .Where(p => p.Is(CustomRoles.Lovers))
-                        .Do(p => WinnerIds.Add(p.PlayerId));
+                    WinnerIds.UnionWith(Main.LoversPlayers.Select(x => x.PlayerId));
                 }
 
                 if (Options.NeutralWinTogether.GetBool() && WinnerIds.Any(x => GetPlayerById(x) != null && GetPlayerById(x).GetCustomRole().IsNeutral()))
@@ -342,7 +340,7 @@ class GameEndChecker
                 // resuscitation
                 playerInfo.IsDead = false;
                 // transmission
-                GameData.Instance.SetDirtyBit(0b_1u << playerId);
+                playerInfo.SetDirtyBit(0b_1u << playerId);
                 AmongUsClient.Instance.SendAllStreamedObjects();
             }
 
@@ -359,6 +357,7 @@ class GameEndChecker
     public static void SetPredicateToFFA() => Predicate = new FFAGameEndPredicate();
     public static void SetPredicateToMoveAndStop() => Predicate = new MoveAndStopGameEndPredicate();
     public static void SetPredicateToHotPotato() => Predicate = new HotPotatoGameEndPredicate();
+    public static void SetPredicateToSpeedrun() => Predicate = new SpeedrunGameEndPredicate();
     public static void SetPredicateToHideAndSeek() => Predicate = new HideAndSeekGameEndPredicate();
 
     class NormalGameEndPredicate : GameEndPredicate
@@ -378,7 +377,7 @@ class GameEndChecker
 
             if (CustomTeamManager.CheckCustomTeamGameEnd()) return true;
 
-            if (Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.Lovers)) && !Main.LoversPlayers.All(x => x.Is(CustomRoles.LovingCrewmate)))
+            if (Main.AllAlivePlayerControls.All(Main.LoversPlayers.Contains) && !Main.LoversPlayers.All(x => x.Is(Team.Crewmate)))
             {
                 ResetAndSetWinner(CustomWinner.Lovers);
                 return true;
@@ -688,6 +687,20 @@ class GameEndChecker
         }
     }
 
+    class SpeedrunGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForEndGame(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            return SpeedrunManager.CheckForGameEnd(out reason);
+        }
+    }
+
     public abstract class GameEndPredicate
     {
         /// <summary>Checks the game ending condition and stores the value in CustomWinnerHolder. </summary>
@@ -752,5 +765,21 @@ class GameEndChecker
 
             return false;
         }
+    }
+}
+
+[HarmonyPatch(typeof(GameManager), nameof(GameManager.CheckEndGameViaTasks))]
+class CheckGameEndPatch
+{
+    public static bool Prefix(ref bool __result)
+    {
+        if (GameEndChecker.ShouldNotCheck)
+        {
+            __result = false;
+            return false;
+        }
+
+        __result = GameEndChecker.Predicate?.CheckGameEndByTask(out _) ?? false;
+        return false;
     }
 }
