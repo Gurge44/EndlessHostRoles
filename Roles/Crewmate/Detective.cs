@@ -15,12 +15,12 @@ namespace EHR.Crewmate
 
         public static void OnReportDeadBody(PlayerControl player, PlayerControl tpc)
         {
-            string msg = string.Format(Translator.GetString("DetectiveNoticeVictim"), tpc.GetRealName(), tpc.GetDisplayRoleName());
+            string msg = string.Format(Translator.GetString("DetectiveNoticeVictim"), tpc.GetRealName(), tpc.GetCustomRole().ToColoredString());
             if (Options.DetectiveCanknowKiller.GetBool())
             {
                 var realKiller = tpc.GetRealKiller();
                 if (realKiller == null) msg += "；" + Translator.GetString("DetectiveNoticeKillerNotFound");
-                else msg += "；" + string.Format(Translator.GetString("DetectiveNoticeKiller"), realKiller.GetDisplayRoleName());
+                else msg += "；" + string.Format(Translator.GetString("DetectiveNoticeKiller"), realKiller.GetCustomRole().ToColoredString());
             }
 
             DetectiveNotify.Add(player.PlayerId, msg);

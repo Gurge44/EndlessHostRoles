@@ -1,45 +1,8 @@
+using System;
 using AmongUs.GameOptions;
 using HarmonyLib;
 
 namespace EHR.Patches;
-
-// [HarmonyPatch(typeof(RoleOptionSetting), nameof(RoleOptionSetting.UpdateValuesAndText))]
-// class ChanceChangePatch
-// {
-//     public static void Postfix(RoleOptionSetting __instance)
-//     {
-//         string DisableText = $" ({GetString("Disabled")})";
-//         switch (__instance.Role.Role)
-//         {
-//             case RoleTypes.Scientist:
-//                 __instance.TitleText.color = Utils.GetRoleColor(CustomRoles.Scientist);
-//                 break;
-//             case RoleTypes.Engineer:
-//                 __instance.TitleText.color = Utils.GetRoleColor(CustomRoles.Engineer);
-//                 break;
-//             case RoleTypes.GuardianAngel:
-//             {
-//                 var tf = __instance.transform;
-//                 tf.Find("Count Plus_TMP").gameObject.active
-//                     = tf.Find("Chance Minus_TMP").gameObject.active
-//                         = tf.Find("Chance Value_TMP").gameObject.active
-//                             = tf.Find("Chance Plus_TMP").gameObject.active
-//                                 = tf.Find("More Options").gameObject.active
-//                                     = false;
-//
-//                 if (!__instance.TitleText.text.Contains(DisableText))
-//                     __instance.TitleText.text += DisableText;
-//                 __instance.TitleText.color = Utils.GetRoleColor(CustomRoles.GuardianAngel);
-//                 break;
-//             }
-//             case RoleTypes.Shapeshifter:
-//                 __instance.TitleText.color = Utils.GetRoleColor(CustomRoles.Shapeshifter);
-//                 break;
-//         }
-//
-//         __instance.ChanceText.text = DisableText;
-//     }
-// }
 
 [HarmonyPatch(typeof(GameOptionsManager), nameof(GameOptionsManager.SwitchGameMode))]
 class SwitchGameModePatch
@@ -53,5 +16,86 @@ class SwitchGameModePatch
             Harmony.UnpatchAll();
             Main.Instance.Unload();
         }
+    }
+}
+
+[HarmonyPatch(typeof(NormalGameOptionsV08), nameof(NormalGameOptionsV08.SetRecommendations), [typeof(int), typeof(bool), typeof(RulesPresets)])]
+[HarmonyPatch(typeof(NormalGameOptionsV08), nameof(NormalGameOptionsV08.SetRecommendations), [typeof(int), typeof(bool)])]
+class SetRecommendationsPatch
+{
+    public static void Postfix(NormalGameOptionsV08 __instance,
+        [HarmonyArgument(0)] int numPlayers,
+        [HarmonyArgument(1)] bool isOnline)
+    {
+        numPlayers = Math.Clamp(numPlayers, 4, 15);
+        __instance.PlayerSpeedMod = __instance.MapId == 4 ? 1.5f : 1.25f;
+        __instance.CrewLightMod = 0.5f;
+        __instance.ImpostorLightMod = 1.25f;
+        __instance.KillCooldown = 27.5f;
+        __instance.NumCommonTasks = 1;
+        __instance.NumLongTasks = 3;
+        __instance.NumShortTasks = 4;
+        __instance.NumEmergencyMeetings = 1;
+        __instance.NumImpostors = GetRecommendedImpostors();
+        __instance.KillDistance = 1;
+        __instance.DiscussionTime = 0;
+        __instance.VotingTime = 120;
+        __instance.IsDefaults = true;
+        __instance.ConfirmImpostor = false;
+        __instance.VisualTasks = false;
+
+        __instance.roleOptions.SetRoleRate(RoleTypes.Shapeshifter, 0, 0);
+        __instance.roleOptions.SetRoleRate(RoleTypes.Scientist, 0, 0);
+        __instance.roleOptions.SetRoleRate(RoleTypes.GuardianAngel, 0, 0);
+        __instance.roleOptions.SetRoleRate(RoleTypes.Engineer, 0, 0);
+        __instance.roleOptions.SetRoleRecommended(RoleTypes.Shapeshifter);
+        __instance.roleOptions.SetRoleRecommended(RoleTypes.Scientist);
+        __instance.roleOptions.SetRoleRecommended(RoleTypes.GuardianAngel);
+        __instance.roleOptions.SetRoleRecommended(RoleTypes.Engineer);
+
+        switch (Options.CurrentGameMode)
+        {
+            case CustomGameMode.SoloKombat:
+            case CustomGameMode.FFA:
+            case CustomGameMode.HotPotato:
+                __instance.CrewLightMod = __instance.ImpostorLightMod = 1.25f;
+                __instance.NumImpostors = 3;
+                __instance.NumCommonTasks = 0;
+                __instance.NumLongTasks = 0;
+                __instance.NumShortTasks = 0;
+                __instance.KillCooldown = 0f;
+                __instance.NumEmergencyMeetings = 0;
+                break;
+            case CustomGameMode.Speedrun:
+            case CustomGameMode.MoveAndStop:
+                __instance.CrewLightMod = 1.25f;
+                __instance.ImpostorLightMod = 1.25f;
+                __instance.KillCooldown = 60f;
+                __instance.NumCommonTasks = 2;
+                __instance.NumLongTasks = 3;
+                __instance.NumShortTasks = 5;
+                __instance.NumEmergencyMeetings = 0;
+                __instance.VisualTasks = true;
+                break;
+            case CustomGameMode.HideAndSeek:
+                __instance.CrewLightMod = 1.25f;
+                __instance.ImpostorLightMod = 0.5f;
+                __instance.KillCooldown = 10f;
+                __instance.NumCommonTasks = 2;
+                __instance.NumLongTasks = 3;
+                __instance.NumShortTasks = 5;
+                __instance.NumEmergencyMeetings = 0;
+                __instance.VisualTasks = true;
+                break;
+        }
+
+        return;
+
+        int GetRecommendedImpostors() => numPlayers switch
+        {
+            > 13 => 3,
+            > 8 => 2,
+            _ => 1
+        };
     }
 }

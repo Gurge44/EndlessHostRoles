@@ -303,7 +303,10 @@ public static class GameOptionsMenuPatch
         // ReSharper disable Unity.IncorrectScriptableObjectInstantiation
         BaseGameSetting baseGameSetting = item switch
         {
-            BooleanOptionItem => new CheckboxGameSetting { Type = OptionTypes.Checkbox, },
+            BooleanOptionItem => new CheckboxGameSetting
+            {
+                Type = OptionTypes.Checkbox
+            },
             IntegerOptionItem integerOptionItem => new IntGameSetting
             {
                 Type = OptionTypes.Int,
@@ -312,7 +315,7 @@ public static class GameOptionsMenuPatch
                 ValidRange = new(integerOptionItem.Rule.MinValue, integerOptionItem.Rule.MaxValue),
                 ZeroIsInfinity = false,
                 SuffixType = NumberSuffixes.Multiplier,
-                FormatString = string.Empty,
+                FormatString = string.Empty
             },
             FloatOptionItem floatOptionItem => new FloatGameSetting
             {
@@ -322,9 +325,14 @@ public static class GameOptionsMenuPatch
                 ValidRange = new(floatOptionItem.Rule.MinValue, floatOptionItem.Rule.MaxValue),
                 ZeroIsInfinity = false,
                 SuffixType = NumberSuffixes.Multiplier,
-                FormatString = string.Empty,
+                FormatString = string.Empty
             },
-            StringOptionItem stringOptionItem => new StringGameSetting { Type = OptionTypes.String, Values = new StringNames[stringOptionItem.Selections.Count], Index = stringOptionItem.GetInt(), },
+            StringOptionItem stringOptionItem => new StringGameSetting
+            {
+                Type = OptionTypes.String,
+                Values = new StringNames[stringOptionItem.Selections.Count],
+                Index = stringOptionItem.GetInt()
+            },
             PresetOptionItem presetOptionItem => new IntGameSetting
             {
                 Type = OptionTypes.Int,
@@ -333,7 +341,7 @@ public static class GameOptionsMenuPatch
                 ValidRange = new(presetOptionItem.Rule.MinValue, presetOptionItem.Rule.MaxValue),
                 ZeroIsInfinity = false,
                 SuffixType = NumberSuffixes.Multiplier,
-                FormatString = string.Empty,
+                FormatString = string.Empty
             },
             _ => null
         };
@@ -760,6 +768,7 @@ public class GameSettingMenuPatch
 
         if (tabNum < 3) return true;
 
+        TabGroup tabGroup = (TabGroup)(tabNum - 3);
         if ((previewOnly && Controller.currentTouchType == Controller.TouchType.Joystick) || !previewOnly)
         {
             __instance.PresetsTab.gameObject.SetActive(false);
@@ -769,11 +778,11 @@ public class GameSettingMenuPatch
             __instance.GameSettingsButton.SelectButton(false);
             __instance.RoleSettingsButton.SelectButton(false);
 
-            if (ModSettingsTabs.TryGetValue((TabGroup)(tabNum - 3), out settingsTab) && settingsTab != null)
+            if (ModSettingsTabs.TryGetValue(tabGroup, out settingsTab) && settingsTab != null)
             {
                 settingsTab.gameObject.SetActive(true);
                 __instance.MenuDescriptionText.DestroyTranslator();
-                __instance.MenuDescriptionText.text = Translator.GetString($"TabGroup.{(TabGroup)(tabNum - 3)}"); // May not be needed
+                __instance.MenuDescriptionText.text = Translator.GetString($"TabInfo.{tabGroup}");
             }
         }
 
@@ -787,7 +796,7 @@ public class GameSettingMenuPatch
         __instance.ToggleLeftSideDarkener(true);
         __instance.ToggleRightSideDarkener(false);
 
-        if (ModSettingsButtons.TryGetValue((TabGroup)(tabNum - 3), out button) && button != null)
+        if (ModSettingsButtons.TryGetValue(tabGroup, out button) && button != null)
         {
             button.SelectButton(true);
         }
@@ -825,7 +834,7 @@ public class GameSettingMenuPatch
     }
 
     [HarmonyPatch(nameof(GameSettingMenu.Close)), HarmonyPostfix]
-    private static void ClosePostfix(GameSettingMenu __instance)
+    public static void ClosePostfix()
     {
         foreach (var button in ModSettingsButtons.Values)
             Object.Destroy(button);

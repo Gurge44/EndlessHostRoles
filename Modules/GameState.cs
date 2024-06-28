@@ -55,7 +55,9 @@ public class PlayerState(byte playerId)
         etc = -1
     }
 
-    readonly byte PlayerId = playerId;
+    public readonly PlayerControl Player = Utils.GetPlayerById(playerId, fast: false);
+
+    private readonly byte PlayerId = playerId;
     public CountTypes countTypes = CountTypes.OutOfGame;
     public PlainShipRoom LastRoom;
     public CustomRoles MainRole = CustomRoles.NotAssigned;

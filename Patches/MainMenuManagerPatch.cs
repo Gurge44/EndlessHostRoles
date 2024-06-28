@@ -6,19 +6,19 @@ using UnityEngine;
 namespace EHR;
 
 [HarmonyPatch]
-public class MainMenuManagerPatch
+public static class MainMenuManagerPatch
 {
     public static PassiveButton Template;
     public static PassiveButton UpdateButton;
-    private static PassiveButton gitHubButton;
-    private static PassiveButton discordButton;
-    private static PassiveButton websiteButton;
+    private static PassiveButton GitHubButton;
+    private static PassiveButton DiscordButton;
+    private static PassiveButton WebsiteButton;
 
-    private static bool isOnline = false;
-    public static bool ShowedBak = false;
-    private static bool ShowingPanel = false;
-    public static SpriteRenderer MG_Logo;
-    public static MainMenuManager Instance { get; private set; }
+    private static bool IsOnline;
+    public static bool ShowedBak;
+    private static bool ShowingPanel;
+    private static SpriteRenderer MgLogo;
+    private static MainMenuManager Instance { get; set; }
 
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.OpenGameModeMenu))]
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.OpenAccountMenu))]
@@ -33,7 +33,7 @@ public class MainMenuManagerPatch
     public static void HideRightPanel()
     {
         ShowingPanel = false;
-        AccountManager.Instance?.transform?.FindChild("AccountTab/AccountWindow")?.gameObject?.SetActive(false);
+        AccountManager.Instance?.transform.FindChild("AccountTab/AccountWindow")?.gameObject.SetActive(false);
     }
 
     public static void ShowRightPanelImmediately()
@@ -41,12 +41,13 @@ public class MainMenuManagerPatch
         ShowingPanel = true;
         TitleLogoPatch.RightPanel.transform.localPosition = TitleLogoPatch.RightPanelOp;
         Instance.OpenGameModeMenu();
+        Instance.playButton.OnClick.AddListener((UnityEngine.Events.UnityAction)ShowRightPanelImmediately);
     }
 
     [HarmonyPatch(typeof(SignInStatusComponent), nameof(SignInStatusComponent.SetOnline)), HarmonyPostfix]
     public static void SetOnline_Postfix()
     {
-        LateTask.New(() => { isOnline = true; }, 0.1f, "Set Online Status");
+        LateTask.New(() => { IsOnline = true; }, 0.1f, "Set Online Status");
     }
 
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPrefix]
@@ -87,7 +88,7 @@ public class MainMenuManagerPatch
                ) TitleLogoPatch.RightPanel.transform.localPosition = lerp1;
         }
 
-        if (ShowedBak || !isOnline) return;
+        if (ShowedBak || !IsOnline) return;
         var bak = GameObject.Find("BackgroundTexture");
         if (bak == null || !bak.active) return;
         var pos2 = bak.transform.position;
@@ -104,15 +105,15 @@ public class MainMenuManagerPatch
         SimpleButton.SetBase(__instance.quitButton);
         var logoObject = new GameObject("titleLogo_MG");
         var logoTransform = logoObject.transform;
-        MG_Logo = logoObject.AddComponent<SpriteRenderer>();
+        MgLogo = logoObject.AddComponent<SpriteRenderer>();
         logoTransform.localPosition = new(2f, -0.5f, 1f);
         logoTransform.localScale *= 1.2f;
-        MG_Logo.sprite = Utils.LoadSprite("EHR.Resources.Images.EHR-Icon.png", 400f);
+        MgLogo.sprite = Utils.LoadSprite("EHR.Resources.Images.EHR-Icon.png", 400f);
 
         // GitHub Button
-        if (gitHubButton == null)
+        if (GitHubButton == null)
         {
-            gitHubButton = CreateButton(
+            GitHubButton = CreateButton(
                 "GitHubButton",
                 new Vector3(-2.3f, -1.3f, 1f),
                 new Color32(153, 153, 153, byte.MaxValue),
@@ -121,12 +122,12 @@ public class MainMenuManagerPatch
                 Translator.GetString("GitHub")); //"GitHub"
         }
 
-        gitHubButton.gameObject.SetActive(true);
+        GitHubButton.gameObject.SetActive(true);
 
         // Discord Button
-        if (discordButton == null)
+        if (DiscordButton == null)
         {
-            discordButton = CreateButton(
+            DiscordButton = CreateButton(
                 "DiscordButton",
                 new Vector3(-0.5f, -1.3f, 1f),
                 new Color32(88, 101, 242, byte.MaxValue),
@@ -135,12 +136,12 @@ public class MainMenuManagerPatch
                 Translator.GetString("Discord")); //"Discord"
         }
 
-        discordButton.gameObject.SetActive(true);
+        DiscordButton.gameObject.SetActive(true);
 
         // Website Button
-        if (websiteButton == null)
+        if (WebsiteButton == null)
         {
-            websiteButton = CreateButton(
+            WebsiteButton = CreateButton(
                 "WebsiteButton",
                 new Vector3(1.3f, -1.3f, 1f),
                 new Color32(251, 81, 44, byte.MaxValue),
@@ -149,12 +150,12 @@ public class MainMenuManagerPatch
                 Translator.GetString("Website")); //"Website"
         }
 
-        websiteButton.gameObject.SetActive(true);
+        WebsiteButton.gameObject.SetActive(true);
 
         Application.targetFrameRate = Main.UnlockFps.Value ? 9999 : 60;
     }
 
-    public static PassiveButton CreateButton(string name, Vector3 localPosition, Color32 normalColor, Color32 hoverColor, Action action, string label, Vector2? scale = null)
+    private static PassiveButton CreateButton(string name, Vector3 localPosition, Color32 normalColor, Color32 hoverColor, Action action, string label, Vector2? scale = null)
     {
         var button = Object.Instantiate(Template, Template.transform.parent);
         button.name = name;

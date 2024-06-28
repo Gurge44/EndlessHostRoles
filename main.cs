@@ -62,8 +62,8 @@ public class Main : BasePlugin
     public static Dictionary<CustomRoles, string> RoleColors;
     public static Dictionary<byte, CustomRoles> SetRoles = [];
     public static Dictionary<byte, List<CustomRoles>> SetAddOns = [];
-    public static readonly Dictionary<CustomRoles, List<CustomRoles>> AlwaysSpawnTogetherCombos = [];
-    public static readonly Dictionary<CustomRoles, List<CustomRoles>> NeverSpawnTogetherCombos = [];
+    public static readonly Dictionary<int, Dictionary<CustomRoles, List<CustomRoles>>> AlwaysSpawnTogetherCombos = [];
+    public static readonly Dictionary<int, Dictionary<CustomRoles, List<CustomRoles>>> NeverSpawnTogetherCombos = [];
     public static Dictionary<byte, string> LastAddOns = [];
     public static List<RoleBase> AllRoleClasses;
     public static float RefixCooldownDelay;
@@ -124,10 +124,6 @@ public class Main : BasePlugin
     // ReSharper disable once StringLiteralTypo
     public static readonly List<string> NameSnacksEn = ["Ice cream", "Milk tea", "Chocolate", "Cake", "Donut", "Coke", "Lemonade", "Candied haws", "Jelly", "Candy", "Milk", "Matcha", "Burning Grass Jelly", "Pineapple Bun", "Pudding", "Coconut Jelly", "Cookies", "Red Bean Toast", "Three Color Dumplings", "Wormwood Dumplings", "Puffs", "Can be Crepe", "Peach Crisp", "Mochi", "Egg Waffle", "Macaron", "Snow Plum Niang", "Fried Yogurt", "Egg Tart", "Muffin", "Sago Dew", "panna cotta", "soufflé", "croissant", "toffee"];
 
-
-    private static (PlayerControl[] PCs, long TimeStamp) CachedPlayerControls = ([], 0);
-
-    private static (PlayerControl[] PCs, long TimeStamp) CachedAlivePlayerControls = ([], 0);
     private static HashAuth DebugKeyAuth { get; set; }
     private static ConfigEntry<string> DebugKeyInput { get; set; }
 
@@ -176,20 +172,18 @@ public class Main : BasePlugin
     {
         get
         {
-            long now = Utils.TimeStamp;
             int count = PlayerControl.AllPlayerControls.Count;
-            if (count > 5 && CachedPlayerControls.TimeStamp == now) return CachedPlayerControls.PCs;
-
             var result = new PlayerControl[count];
             int i = 0;
-            // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var pc in PlayerControl.AllPlayerControls)
             {
                 if (pc == null) continue;
                 result[i++] = pc;
             }
 
-            CachedPlayerControls = (result, now);
+            if (i == 0) return [];
+
+            Array.Resize(ref result, i);
             return result;
         }
     }
@@ -198,20 +192,18 @@ public class Main : BasePlugin
     {
         get
         {
-            long now = Utils.TimeStamp;
             int count = PlayerControl.AllPlayerControls.Count;
-            if (count > 5 && CachedAlivePlayerControls.TimeStamp == now) return CachedAlivePlayerControls.PCs;
-
             var result = new PlayerControl[count];
             int i = 0;
-            // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var pc in PlayerControl.AllPlayerControls)
             {
                 if (pc == null || !pc.IsAlive() || pc.Data.Disconnected || Pelican.IsEaten(pc.PlayerId)) continue;
                 result[i++] = pc;
             }
 
-            CachedAlivePlayerControls = (result, now);
+            if (i == 0) return [];
+
+            Array.Resize(ref result, i);
             return result;
         }
     }

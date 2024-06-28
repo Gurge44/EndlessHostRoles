@@ -111,7 +111,7 @@ public class Succubus : RoleBase
 
     public static bool CanBeCharmed(PlayerControl pc)
     {
-        return pc != null && (pc.IsCrewmate() || pc.GetCustomRole().IsImpostor() ||
+        return pc != null && (pc.IsCrewmate() || pc.IsImpostor() ||
                               (CanCharmNeutral.GetBool() && (pc.GetCustomRole().IsNeutral() || pc.IsNeutralKiller()))) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Loyal);
     }
 

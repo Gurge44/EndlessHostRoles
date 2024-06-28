@@ -193,7 +193,7 @@ internal class ChatCommands
                 case "/r":
                     canceled = true;
                     subArgs = text.Remove(0, 2);
-                    SendRolesInfo(subArgs, 255, PlayerControl.LocalPlayer.FriendCode.GetDevUser().DeBug);
+                    SendRolesInfo(subArgs, localPlayerId, PlayerControl.LocalPlayer.FriendCode.GetDevUser().DeBug);
                     break;
 
                 case "/up":
@@ -287,24 +287,24 @@ internal class ChatCommands
                     Utils.SendMessage(GetString("PlayerRemovedFromModList"), localPlayerId);
                     break;
 
-                case "/combo": // Format: /combo [add/ban/remove/allow] [main role] [addon]
+                case "/combo": // Format: /combo {add/ban/remove/allow} {main role} {addon} [all]
                     canceled = true;
                     if (args.Length < 4)
                     {
                         if (Main.AlwaysSpawnTogetherCombos.Count == 0 && Main.NeverSpawnTogetherCombos.Count == 0) break;
                         var sb = new StringBuilder();
                         sb.Append("<size=70%>");
-                        if (Main.AlwaysSpawnTogetherCombos.Count > 0)
+                        if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var alwaysList) && alwaysList.Count > 0)
                         {
                             sb.AppendLine(GetString("AlwaysComboListTitle"));
-                            sb.AppendLine(Main.AlwaysSpawnTogetherCombos.Join(x => $"{x.Key.ToColoredString()} \u00a7 {x.Value.Join(r => r.ToColoredString())}", "\n"));
+                            sb.AppendLine(alwaysList.Join(x => $"{x.Key.ToColoredString()} \u00a7 {x.Value.Join(r => r.ToColoredString())}", "\n"));
                             sb.AppendLine();
                         }
 
-                        if (Main.NeverSpawnTogetherCombos.Count > 0)
+                        if (Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var neverList) && neverList.Count > 0)
                         {
                             sb.AppendLine(GetString("NeverComboListTitle"));
-                            sb.AppendLine(Main.NeverSpawnTogetherCombos.Join(x => $"{x.Key.ToColoredString()} \u2194 {x.Value.Join(r => r.ToColoredString())}", "\n"));
+                            sb.AppendLine(neverList.Join(x => $"{x.Key.ToColoredString()} \u2194 {x.Value.Join(r => r.ToColoredString())}", "\n"));
                             sb.AppendLine();
                         }
 
@@ -323,13 +323,37 @@ internal class ChatCommands
                                 if (mainRole.IsAdditionRole() || !addOn.IsAdditionRole() || addOn == CustomRoles.Lovers) break;
                                 if (args[1] == "add")
                                 {
-                                    if (!Main.AlwaysSpawnTogetherCombos.TryGetValue(mainRole, out var list1)) Main.AlwaysSpawnTogetherCombos[mainRole] = [addOn];
+                                    if (!Main.AlwaysSpawnTogetherCombos.ContainsKey(OptionItem.CurrentPreset)) Main.AlwaysSpawnTogetherCombos[OptionItem.CurrentPreset] = [];
+                                    if (!Main.AlwaysSpawnTogetherCombos[OptionItem.CurrentPreset].TryGetValue(mainRole, out var list1)) Main.AlwaysSpawnTogetherCombos[OptionItem.CurrentPreset][mainRole] = [addOn];
                                     else if (!list1.Contains(addOn)) list1.Add(addOn);
+
+                                    if (text.EndsWith(" all"))
+                                    {
+                                        for (var preset = 0; preset < OptionItem.NumPresets; preset++)
+                                        {
+                                            if (preset == OptionItem.CurrentPreset) continue;
+                                            if (!Main.AlwaysSpawnTogetherCombos.ContainsKey(preset)) Main.AlwaysSpawnTogetherCombos[preset] = [];
+                                            if (!Main.AlwaysSpawnTogetherCombos[preset].TryGetValue(mainRole, out var list2)) Main.AlwaysSpawnTogetherCombos[preset][mainRole] = [addOn];
+                                            else if (!list2.Contains(addOn)) list2.Add(addOn);
+                                        }
+                                    }
                                 }
                                 else
                                 {
-                                    if (!Main.NeverSpawnTogetherCombos.TryGetValue(mainRole, out var list2)) Main.NeverSpawnTogetherCombos[mainRole] = [addOn];
+                                    if (!Main.NeverSpawnTogetherCombos.ContainsKey(OptionItem.CurrentPreset)) Main.NeverSpawnTogetherCombos[OptionItem.CurrentPreset] = [];
+                                    if (!Main.NeverSpawnTogetherCombos[OptionItem.CurrentPreset].TryGetValue(mainRole, out var list2)) Main.NeverSpawnTogetherCombos[OptionItem.CurrentPreset][mainRole] = [addOn];
                                     else if (!list2.Contains(addOn)) list2.Add(addOn);
+
+                                    if (text.EndsWith(" all"))
+                                    {
+                                        for (var preset = 0; preset < OptionItem.NumPresets; preset++)
+                                        {
+                                            if (preset == OptionItem.CurrentPreset) continue;
+                                            if (!Main.NeverSpawnTogetherCombos.ContainsKey(preset)) Main.NeverSpawnTogetherCombos[preset] = [];
+                                            if (!Main.NeverSpawnTogetherCombos[preset].TryGetValue(mainRole, out var list3)) Main.NeverSpawnTogetherCombos[preset][mainRole] = [addOn];
+                                            else if (!list3.Contains(addOn)) list3.Add(addOn);
+                                        }
+                                    }
                                 }
 
                                 Utils.SendMessage(string.Format(args[1] == "add" ? GetString("ComboAdd") : GetString("ComboBan"), GetString(mainRole.ToString()), GetString(addOn.ToString())), localPlayerId);
@@ -342,19 +366,52 @@ internal class ChatCommands
                             if (GetRoleByName(args[2], out CustomRoles mainRole2) && GetRoleByName(args[3], out CustomRoles addOn2))
                             {
                                 if (mainRole2.IsAdditionRole() || !addOn2.IsAdditionRole()) break;
-                                if (args[1] == "remove" && Main.AlwaysSpawnTogetherCombos.TryGetValue(mainRole2, out var list3))
+
+                                // If the text ends with " all", remove the combo from all presets
+                                if (text.EndsWith(" all"))
                                 {
-                                    list3.Remove(addOn2);
-                                    if (list3.Count == 0) Main.AlwaysSpawnTogetherCombos.Remove(mainRole2);
+                                    for (var preset = 0; preset < OptionItem.NumPresets; preset++)
+                                    {
+                                        if (Main.AlwaysSpawnTogetherCombos.TryGetValue(preset, out var list1))
+                                        {
+                                            if (list1.TryGetValue(mainRole2, out var list2))
+                                            {
+                                                list2.Remove(addOn2);
+                                                if (list2.Count == 0) list1.Remove(mainRole2);
+                                                if (list1.Count == 0) Main.AlwaysSpawnTogetherCombos.Remove(preset);
+                                            }
+                                        }
+
+                                        if (Main.NeverSpawnTogetherCombos.TryGetValue(preset, out var list3))
+                                        {
+                                            if (list3.TryGetValue(mainRole2, out var list4))
+                                            {
+                                                list4.Remove(addOn2);
+                                                if (list4.Count == 0) list3.Remove(mainRole2);
+                                                if (list3.Count == 0) Main.NeverSpawnTogetherCombos.Remove(preset);
+                                            }
+                                        }
+                                    }
+
                                     Utils.SendMessage(string.Format(GetString("ComboRemove"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), localPlayerId);
                                     Utils.SaveComboInfo();
                                 }
-                                else if (Main.NeverSpawnTogetherCombos.TryGetValue(mainRole2, out var list4))
+                                else
                                 {
-                                    list4.Remove(addOn2);
-                                    if (list4.Count == 0) Main.NeverSpawnTogetherCombos.Remove(mainRole2);
-                                    Utils.SendMessage(string.Format(GetString("ComboAllow"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), localPlayerId);
-                                    Utils.SaveComboInfo();
+                                    if (args[1] == "remove" && Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var alwaysList) && alwaysList.TryGetValue(mainRole2, out var list3))
+                                    {
+                                        list3.Remove(addOn2);
+                                        if (list3.Count == 0) alwaysList.Remove(mainRole2);
+                                        Utils.SendMessage(string.Format(GetString("ComboRemove"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), localPlayerId);
+                                        Utils.SaveComboInfo();
+                                    }
+                                    else if (Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var neverList) && neverList.TryGetValue(mainRole2, out var list4))
+                                    {
+                                        list4.Remove(addOn2);
+                                        if (list4.Count == 0) neverList.Remove(mainRole2);
+                                        Utils.SendMessage(string.Format(GetString("ComboAllow"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), localPlayerId);
+                                        Utils.SaveComboInfo();
+                                    }
                                 }
                             }
 
@@ -382,26 +439,30 @@ internal class ChatCommands
                     if (GameStates.IsInGame)
                     {
                         var sb = new StringBuilder();
+                        var titleSb = new StringBuilder();
                         var settings = new StringBuilder();
                         settings.Append("<size=70%>");
-                        _ = sb.Append(GetString(role.ToString()) + Utils.GetRoleMode(role) + lp.GetRoleInfo(true));
+                        titleSb.Append($"{role.ToColoredString()} {Utils.GetRoleMode(role)}");
+                        sb.Append("<size=90%>");
+                        sb.Append(lp.GetRoleInfo(true).TrimStart());
                         if (Options.CustomRoleSpawnChances.TryGetValue(role, out var opt))
                             Utils.ShowChildrenSettings(opt, ref settings, disableColor: false);
                         settings.Append("</size>");
-                        var txt = sb.ToString();
-                        _ = sb.Clear().Append(txt.RemoveHtmlTags());
-                        if (role.PetActivatedAbility() && sb.Length < 1000) sb.Append("<size=50%>" + GetString("SupportsPetMessage").RemoveHtmlTags() + "</size>");
+                        if (role.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
+                        sb.Replace(role.ToString(), role.ToColoredString());
+                        sb.Replace(role.ToString().ToLower(), role.ToColoredString());
                         sb.Append("<size=70%>");
-                        foreach (CustomRoles subRole in Main.PlayerStates[localPlayerId].SubRoles.ToArray())
+                        foreach (CustomRoles subRole in Main.PlayerStates[localPlayerId].SubRoles)
                         {
-                            _ = sb.Append("\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
+                            sb.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong")}");
+                            sb.Replace(subRole.ToString(), subRole.ToColoredString());
+                            sb.Replace(subRole.ToString().ToLower(), subRole.ToColoredString());
                         }
 
                         Utils.SendMessage("\n", localPlayerId, settings.ToString());
-                        Utils.SendMessage(sb.ToString(), localPlayerId, string.Empty);
+                        Utils.SendMessage(sb.Append("</size>").ToString(), localPlayerId, titleSb.ToString());
                     }
-                    else
-                        Utils.SendMessage((lp.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), localPlayerId);
+                    else Utils.SendMessage((lp.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), localPlayerId);
 
                     break;
 
@@ -1019,8 +1080,8 @@ internal class ChatCommands
 
                 var sb = new StringBuilder();
                 var title = $"<{Main.RoleColors[rl]}>{roleName}</color> {Utils.GetRoleMode(rl)}";
-                _ = sb.Append($"{GetString($"{rl}InfoLong")}");
                 var settings = new StringBuilder();
+                sb.Append(GetString($"{rl}InfoLong").TrimStart());
                 if (Options.CustomRoleSpawnChances.TryGetValue(rl, out StringOptionItem chance)) AddSettings(chance);
 
                 if (rl is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && Options.CustomRoleSpawnChances.TryGetValue(CustomRoles.Lovers, out chance)) AddSettings(chance);
@@ -1028,7 +1089,7 @@ internal class ChatCommands
                 var txt = $"<size=90%>{sb}</size>";
                 sb.Clear().Append(txt);
 
-                if (rl.PetActivatedAbility() && sb.Length < 1000) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
+                if (rl.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
                 Utils.SendMessage(text: "\n", sendTo: playerId, title: settings.ToString());
                 Utils.SendMessage(text: sb.ToString(), sendTo: playerId, title: title);
                 return;
@@ -1126,26 +1187,30 @@ internal class ChatCommands
                 if (GameStates.IsInGame)
                 {
                     var sb = new StringBuilder();
+                    var titleSb = new StringBuilder();
                     var settings = new StringBuilder();
                     settings.Append("<size=70%>");
-                    _ = sb.Append(GetString(role.ToString()) + Utils.GetRoleMode(role) + player.GetRoleInfo(true));
+                    titleSb.Append($"{role.ToColoredString()} {Utils.GetRoleMode(role)}");
+                    sb.Append("<size=90%>");
+                    sb.Append(player.GetRoleInfo(true).TrimStart());
                     if (Options.CustomRoleSpawnChances.TryGetValue(role, out var opt))
                         Utils.ShowChildrenSettings(opt, ref settings, disableColor: false);
                     settings.Append("</size>");
-                    var txt = sb.ToString();
-                    _ = sb.Clear().Append(txt.RemoveHtmlTags());
-                    if (role.PetActivatedAbility() && sb.Length < 1000) sb.Append("<size=50%>" + GetString("SupportsPetMessage").RemoveHtmlTags() + "</size>");
+                    if (role.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
+                    sb.Replace(role.ToString(), role.ToColoredString());
+                    sb.Replace(role.ToString().ToLower(), role.ToColoredString());
                     sb.Append("<size=70%>");
-                    foreach (CustomRoles subRole in Main.PlayerStates[player.PlayerId].SubRoles.ToArray())
+                    foreach (CustomRoles subRole in Main.PlayerStates[player.PlayerId].SubRoles)
                     {
-                        _ = sb.Append("\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
+                        sb.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong")}");
+                        sb.Replace(subRole.ToString(), subRole.ToColoredString());
+                        sb.Replace(subRole.ToString().ToLower(), subRole.ToColoredString());
                     }
 
                     Utils.SendMessage("\n", player.PlayerId, settings.ToString());
-                    Utils.SendMessage(sb.ToString(), player.PlayerId, string.Empty);
+                    Utils.SendMessage(sb.Append("</size>").ToString(), player.PlayerId, titleSb.ToString());
                 }
-                else
-                    Utils.SendMessage(GetString("Message.CanNotUseInLobby"), player.PlayerId);
+                else Utils.SendMessage(GetString("Message.CanNotUseInLobby"), player.PlayerId);
 
                 break;
 

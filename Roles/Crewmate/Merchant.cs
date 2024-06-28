@@ -70,7 +70,7 @@ namespace EHR.Crewmate
             if (!OptionCanSellHelpful.GetBool()) GroupedAddons.Remove(AddonTypes.Helpful);
             if (!OptionCanSellMixed.GetBool()) GroupedAddons.Remove(AddonTypes.Mixed);
 
-            Addons = GroupedAddons.SelectMany(x => x.Value).ToList();
+            Addons = GroupedAddons.Values.Flatten().ToList();
 
             if (OptionSellOnlyEnabledAddons.GetBool()) Addons.RemoveAll(x => x.GetMode() == 0);
 

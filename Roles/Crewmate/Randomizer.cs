@@ -562,7 +562,7 @@ namespace EHR.Crewmate
                     Main.AllPlayerSpeed[pc.PlayerId] = AllPlayerDefaultSpeed[pc.PlayerId];
                     if (sync) pc.MarkDirtySettings();
                     var keys = effects.Keys.AsEnumerable();
-                    keys.DoIf(x => x.IsSpeedChangingEffect(), x => effects.Remove(x));
+                    keys.DoIf(x => x.IsSpeedChangingEffect(), x => effects.Remove(x), fast: false);
                 }
             }
             catch (Exception e)
@@ -580,7 +580,7 @@ namespace EHR.Crewmate
                 if (CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && effects.Any(x => x.Key.IsVisionChangingEffect()))
                 {
                     var keys = effects.Keys.AsEnumerable();
-                    keys.DoIf(x => x.IsVisionChangingEffect(), x => effects.Remove(x));
+                    keys.DoIf(x => x.IsVisionChangingEffect(), x => effects.Remove(x), fast: false);
                     if (sync) pc.MarkDirtySettings();
                 }
             }

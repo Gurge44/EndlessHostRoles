@@ -100,7 +100,7 @@ class Logger
                 logger.LogError(log_text);
                 break;
             case LogLevel.Error:
-                log_text.Split('\n').Do(x => logger.LogError(x));
+                log_text.Split("\\n").Do(x => logger.LogError(x));
                 break;
             case LogLevel.Fatal:
                 logger.LogFatal(log_text);

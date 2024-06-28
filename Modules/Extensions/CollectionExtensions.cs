@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -52,7 +51,7 @@ namespace EHR
         /// <returns>A collection containing all elements of <paramref name="firstCollection"/> and all <paramref name="collections"/></returns>
         public static IEnumerable<T> CombineWith<T>(this IEnumerable<T> firstCollection, params IEnumerable<T>[] collections)
         {
-            return firstCollection.Concat(collections.SelectMany(x => x));
+            return firstCollection.Concat(collections.Flatten());
         }
 
         /// <summary>
@@ -89,10 +88,24 @@ namespace EHR
         /// <param name="predicate">The predicate to check for each element</param>
         /// <param name="action">The action to execute for each element that satisfies the predicate</param>
         /// <typeparam name="T">The type of the elements in the collection</typeparam>
-        public static IEnumerable<T> DoIf<T>(this IEnumerable<T> collection, Func<T, bool> predicate, Action<T> action, bool fast = false)
+        public static void DoIf<T>(this IEnumerable<T> collection, Func<T, bool> predicate, Action<T> action, bool fast = true)
         {
             if (fast)
             {
+                if (collection is List<T> list)
+                {
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        T element = list[i];
+                        if (predicate(element))
+                        {
+                            action(element);
+                        }
+                    }
+
+                    return;
+                }
+
                 foreach (T element in collection)
                 {
                     if (predicate(element))
@@ -101,11 +114,10 @@ namespace EHR
                     }
                 }
 
-                return collection;
+                return;
             }
 
-            var partitioner = Partitioner.Create(collection.Where(predicate));
-            return partitioner.GetDynamicPartitions().Do(action);
+            collection.Where(predicate).ToArray().Do(action);
         }
 
         /// <summary>
@@ -152,8 +164,8 @@ namespace EHR
         /// <param name="dictionary">The dictionary to add elements to</param>
         /// <param name="other">The dictionary containing the elements to add</param>
         /// <param name="overrideExistingKeys">Whether to override existing keys in the <paramref name="dictionary"/> with the same keys in the <paramref name="other"/> dictionary. If <c>true</c>, the same keys in the <paramref name="dictionary"/> will be overwritten with the values from the <paramref name="other"/> dictionary. If <c>false</c>, the same keys in the <paramref name="dictionary"/> will be kept and the values from the <paramref name="other"/> dictionary will be ignored</param>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TValue"></typeparam>
+        /// <typeparam name="TKey">The type of the keys in the dictionaries</typeparam>
+        /// <typeparam name="TValue">The type of the values in the dictionaries</typeparam>
         public static void AddRange<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Dictionary<TKey, TValue> other, bool overrideExistingKeys = true)
         {
             foreach ((TKey key, TValue value) in other)
@@ -163,6 +175,17 @@ namespace EHR
                     dictionary[key] = value;
                 }
             }
+        }
+
+        /// <summary>
+        /// Flattens a collection of collections into a single collection
+        /// </summary>
+        /// <param name="collection">The collection of collections to flatten</param>
+        /// <typeparam name="T">The type of the elements in the collections</typeparam>
+        /// <returns>A single collection containing all elements of the collections in <paramref name="collection"/></returns>
+        public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> collection)
+        {
+            return collection.SelectMany(x => x);
         }
 
         #region Shuffle

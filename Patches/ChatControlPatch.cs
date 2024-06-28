@@ -168,6 +168,7 @@ public static class ChatManager
         {
             case 1 when player.IsAlive(): // Guessing Command & Such
                 Logger.Info("Special Command", "ChatManager");
+                if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId) break;
                 LateTask.New(() =>
                 {
                     if (!ChatCommands.LastSentCommand.ContainsKey(player.PlayerId))
@@ -204,6 +205,7 @@ public static class ChatManager
         ChatUpdatePatch.DoBlockChat = true;
         string msg = Utils.EmptyMessage;
         var totalAlive = Main.AllAlivePlayerControls.Length;
+        if (totalAlive == 0) return;
         var x = Main.AllAlivePlayerControls;
         var r = IRandom.Instance;
 

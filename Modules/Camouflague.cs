@@ -40,15 +40,16 @@ public static class Camouflage
 
     public static bool IsCamouflage;
     public static bool BlockCamouflage;
-    public static readonly Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> PlayerSkins = [];
-
+    public static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> PlayerSkins = [];
     public static List<byte> ResetSkinAfterDeathPlayers = [];
+    public static HashSet<byte> WaitingForSkinChange = [];
 
     public static void Init()
     {
         IsCamouflage = false;
-        PlayerSkins.Clear();
+        PlayerSkins = [];
         ResetSkinAfterDeathPlayers = [];
+        WaitingForSkinChange = [];
 
         CamouflageOutfit = Options.KPDCamouflageMode.GetValue() switch
         {
@@ -83,8 +84,16 @@ public static class Camouflage
 
         if (oldIsCamouflage != IsCamouflage)
         {
+            WaitingForSkinChange = [];
+
             foreach (var pc in Main.AllPlayerControls)
             {
+                if (pc.inVent || pc.walkingToVent || pc.onLadder)
+                {
+                    WaitingForSkinChange.Add(pc.PlayerId);
+                    continue;
+                }
+
                 RpcSetSkin(pc);
 
                 if (!IsCamouflage && !pc.IsAlive())
@@ -137,7 +146,7 @@ public static class Camouflage
         target.SetColor(newOutfit.ColorId);
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetColor)
             .Write(target.Data.NetId)
-            .Write(newOutfit.ColorId)
+            .Write((byte)newOutfit.ColorId)
             .EndRpc();
 
         target.SetHat(newOutfit.HatId, newOutfit.ColorId);
@@ -165,5 +174,21 @@ public static class Camouflage
             .EndRpc();
 
         sender.SendMessage();
+    }
+
+    public static void OnFixedUpdate(PlayerControl pc)
+    {
+        if (!WaitingForSkinChange.Contains(pc.PlayerId) || pc.inVent || pc.walkingToVent || pc.onLadder) return;
+
+        RpcSetSkin(pc);
+        WaitingForSkinChange.Remove(pc.PlayerId);
+
+        if (!IsCamouflage && !pc.IsAlive())
+        {
+            PetsPatch.RpcRemovePet(pc);
+        }
+
+        Utils.NotifyRoles(SpecifySeer: pc, NoCache: true);
+        Utils.NotifyRoles(SpecifyTarget: pc, NoCache: true);
     }
 }

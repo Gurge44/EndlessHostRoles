@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -51,15 +52,13 @@ public static class Utils
     private static readonly StringBuilder TargetSuffix = new();
     private static readonly StringBuilder TargetMark = new(20);
 
-    public static Dictionary<string, Sprite> CachedSprites = [];
+    private static readonly Dictionary<string, Sprite> CachedSprites = [];
+    private static readonly Dictionary<byte, PlayerControl> CachedPlayerIds = [];
+
     public static long TimeStamp => (long)(DateTime.Now.ToUniversalTime() - TimeStampStartTime).TotalSeconds;
-
     public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModClient() && !x.IsHost());
-
     public static int TotalTaskCount => Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
-
     public static string EmptyMessage => "<size=0>.</size>";
-
     public static int AllPlayersCount => Main.PlayerStates.Values.Count(state => state.countTypes != CountTypes.OutOfGame);
     public static int AllAlivePlayersCount => Main.AllAlivePlayerControls.Count(pc => !pc.Is(CountTypes.OutOfGame));
     public static bool IsAllAlive => Main.PlayerStates.Values.All(state => state.countTypes == CountTypes.OutOfGame || !state.IsDead);
@@ -319,12 +318,17 @@ public static class Utils
         {
             try
             {
-                var data = new Il2CppSystem.Collections.Generic.Dictionary<string, Il2CppSystem.Collections.Generic.List<int>>();
+                var data = new Il2CppSystem.Collections.Generic.Dictionary<int, Il2CppSystem.Collections.Generic.Dictionary<string, Il2CppSystem.Collections.Generic.List<int>>>();
                 var dict = path.Contains("Always") ? Main.AlwaysSpawnTogetherCombos : Main.NeverSpawnTogetherCombos;
-                dict.Do(pair =>
+                dict.Do(kvp =>
                 {
-                    data[pair.Key.ToString()] = new();
-                    pair.Value.Do(x => data[pair.Key.ToString()].Add((int)x));
+                    data[kvp.Key] = new();
+                    kvp.Value.Do(pair =>
+                    {
+                        var key = pair.Key.ToString();
+                        data[kvp.Key][key] = new();
+                        pair.Value.Do(x => data[kvp.Key][key].Add((int)x));
+                    });
                 });
                 File.WriteAllText(path, JsonConvert.SerializeObject(data, Formatting.Indented));
             }
@@ -347,16 +351,20 @@ public static class Utils
             try
             {
                 if (!File.Exists(path)) return;
-                var data = JsonConvert.DeserializeObject<Il2CppSystem.Collections.Generic.Dictionary<string, Il2CppSystem.Collections.Generic.List<int>>>(File.ReadAllText(path));
+                var data = JsonConvert.DeserializeObject<Il2CppSystem.Collections.Generic.Dictionary<int, Il2CppSystem.Collections.Generic.Dictionary<string, Il2CppSystem.Collections.Generic.List<int>>>>(File.ReadAllText(path));
                 var dict = path.Contains("Always") ? Main.AlwaysSpawnTogetherCombos : Main.NeverSpawnTogetherCombos;
                 dict.Clear();
-                foreach (var pair in data)
+                foreach (var kvp in data)
                 {
-                    var key = Enum.Parse<CustomRoles>(pair.Key);
-                    dict[key] = [];
-                    foreach (var n in pair.Value)
+                    dict[kvp.Key] = [];
+                    foreach (var pair in kvp.Value)
                     {
-                        dict[key].Add((CustomRoles)n);
+                        var key = Enum.Parse<CustomRoles>(pair.Key);
+                        dict[kvp.Key][key] = [];
+                        foreach (var n in pair.Value)
+                        {
+                            dict[kvp.Key][key].Add((CustomRoles)n);
+                        }
                     }
                 }
             }
@@ -570,7 +578,7 @@ public static class Utils
         killer.RpcIncreaseAbilityUseLimitBy(add);
     }
 
-    public static void ThrowException(Exception ex)
+    public static void ThrowException(Exception ex, [CallerFilePath] string fileName = "", [CallerLineNumber] int lineNumber = 0, [CallerMemberName] string callerMemberName = "")
     {
         try
         {
@@ -580,7 +588,7 @@ public static class Utils
             StackFrame firstFrame = stFrames.FirstOrDefault();
 
             var sb = new StringBuilder();
-            sb.Append($" Exception: {ex.Message}");
+            sb.Append($" Exception: {ex.Message}\n      thrown by {ex.Source}\n      at {ex.TargetSite}\n      in {fileName} at line {lineNumber} in {callerMemberName}\n------ Stack Trace ------");
 
             bool skip = true;
             foreach (StackFrame sf in stFrames)
@@ -598,6 +606,8 @@ public static class Utils
 
                 sb.Append($"\n      at {callerClassName}.{callerMethodName}");
             }
+
+            sb.Append("\n------ End of Stack Trace ------");
 
             Logger.Error(sb.ToString(), firstFrame?.GetMethod()?.ToString(), multiLine: true);
         }
@@ -1889,18 +1899,11 @@ public static class Utils
         return add;
     }
 
-    public static PlayerControl GetPlayerById(int PlayerId)
+    public static PlayerControl GetPlayerById(int PlayerId, bool fast = true)
     {
-        // ReSharper disable once LoopCanBeConvertedToQuery ---- Leave it like this for better performance
-        foreach (var pc in Main.AllPlayerControls)
-        {
-            if (pc.PlayerId == PlayerId)
-            {
-                return pc;
-            }
-        }
-
-        return null;
+        if (PlayerId is > byte.MaxValue or < byte.MinValue) return null;
+        if (fast && GameStates.IsInGame && Main.PlayerStates.TryGetValue((byte)PlayerId, out var state) && state.Player != null) return state.Player;
+        return Main.AllPlayerControls.FirstOrDefault(x => x.PlayerId == PlayerId);
     }
 
     public static NetworkedPlayerInfo GetPlayerInfoById(int PlayerId) => GameData.Instance.AllPlayers.ToArray().FirstOrDefault(info => info.PlayerId == PlayerId);
@@ -2087,7 +2090,7 @@ public static class Utils
 
                 // Combine seer's job title and SelfTaskText with seer's player name and SelfMark
                 string SelfRoleName = GameStates.IsLobby ? string.Empty : $"<size={fontSize}>{seer.GetDisplayRoleName()}{SelfTaskText}</size>";
-                string SelfDeathReason = seer.KnowDeathReason(seer) && !GameStates.IsLobby ? $"\n<size=1.7>({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(seer.PlayerId))})</size>" : string.Empty;
+                string SelfDeathReason = seer.KnowDeathReason(seer) && !GameStates.IsLobby ? $"\n<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(seer.PlayerId))}』</size>" : string.Empty;
                 SelfName = $"{ColorString(GameStates.IsLobby ? Color.white : seer.GetRoleColor(), SeerRealName)}{SelfDeathReason}{SelfMark}";
 
                 if (Options.CurrentGameMode != CustomGameMode.Standard || GameStates.IsLobby) goto GameMode2;
@@ -2563,6 +2566,11 @@ public static class Utils
                 if (Options.UsePets.GetBool()) pc.AddAbilityCD(includeDuration: false);
 
                 Main.PlayerStates[pc.PlayerId].Role.AfterMeetingTasks();
+            }
+            else
+            {
+                if (pc.IsCrewmate() && !pc.GetTaskState().IsTaskFinished)
+                    pc.Notify(GetString("DoYourTasksPlease"), 10f);
             }
 
             if (pc.Is(CustomRoles.Specter) || pc.Is(CustomRoles.Haunter)) pc.RpcResetAbilityCooldown();

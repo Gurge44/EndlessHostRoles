@@ -124,7 +124,7 @@ public class Sheriff : RoleBase
                     || killer.Is(CustomRoles.Contagious)
                     || killer.Is(CustomRoles.Undead)
                 )
-                && ((target.GetCustomRole().IsImpostor() && NonCrewCanKillImp.GetBool()) || (target.IsCrewmate() && NonCrewCanKillCrew.GetBool()) || (target.GetCustomRole().IsNeutral() && NonCrewCanKillNeutral.GetBool()))
+                && ((target.IsImpostor() && NonCrewCanKillImp.GetBool()) || (target.IsCrewmate() && NonCrewCanKillCrew.GetBool()) || (target.GetCustomRole().IsNeutral() && NonCrewCanKillNeutral.GetBool()))
             ))
         {
             SetKillCooldown(killer.PlayerId);

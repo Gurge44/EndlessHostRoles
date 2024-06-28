@@ -948,7 +948,9 @@ static class ExtendedPlayerControl
         return Rooms.Where(room => room.roomArea).FirstOrDefault(room => pc.Collider.IsTouching(room.roomArea));
     }
 
+    public static bool IsImpostor(this PlayerControl pc) => !pc.Is(CustomRoles.Bloodlust) && pc.GetCustomRole().IsImpostor();
     public static bool IsCrewmate(this PlayerControl pc) => !pc.Is(CustomRoles.Bloodlust) && pc.GetCustomRole().IsCrewmate();
+
     public static CustomRoleTypes GetCustomRoleTypes(this PlayerControl pc) => pc.Is(CustomRoles.Bloodlust) ? CustomRoleTypes.Neutral : pc.GetCustomRole().GetCustomRoleTypes();
 
     public static RoleTypes GetRoleTypes(this PlayerControl pc) => pc.GetCustomSubRoles() switch

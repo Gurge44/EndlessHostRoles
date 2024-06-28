@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -209,7 +208,6 @@ public static class Options
     public static OptionItem SidekickCanKillJackal;
     public static OptionItem SidekickCanKillSidekick;
 
-    public static OptionItem VanillaCrewmateCannotBeGuessed;
     public static OptionItem EGCanGuessImp;
     public static OptionItem EGCanGuessAdt;
     public static OptionItem EGCanGuessTime;
@@ -385,14 +383,8 @@ public static class Options
     public static OptionItem DecontaminationTimeOnMiraHQ;
     public static OptionItem DecontaminationTimeOnPolus;
 
-    public static OptionItem ShapeshiftCD;
-    public static OptionItem ShapeshiftDur;
-
     public static OptionItem MafiaShapeshiftCD;
     public static OptionItem MafiaShapeshiftDur;
-
-    public static OptionItem ScientistDur;
-    public static OptionItem ScientistCD;
 
     public static OptionItem DisableTaskWinIfAllCrewsAreDead;
     public static OptionItem DisableTaskWinIfAllCrewsAreConverted;

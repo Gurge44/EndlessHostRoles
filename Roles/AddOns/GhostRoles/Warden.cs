@@ -54,7 +54,7 @@ namespace EHR.AddOns.GhostRoles
                 Main.AllPlayerSpeed[x.Key] = x.Value.OriginalSpeed;
                 pc.MarkDirtySettings();
                 SpeedList.Remove(x.Key);
-            });
+            }, fast: false);
         }
     }
 }

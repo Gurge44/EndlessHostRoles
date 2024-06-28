@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using EHR.Modules;
 using HarmonyLib;
@@ -23,9 +22,9 @@ internal class PingTrackerUpdatePatch
     {
         Instance = __instance;
 
-        __instance.text.alignment = TextAlignmentOptions.Center;
-        __instance.text.text = Sb.ToString();
-        if (GameStates.IsInGame) __instance.transform.localPosition += new Vector3(0.1f, 0.3f, 0f);
+        Instance.text.alignment = TextAlignmentOptions.Center;
+        Instance.text.text = Sb.ToString();
+        if (GameStates.IsInGame) Instance.transform.localPosition += new Vector3(0.1f, 0.3f, 0f);
 
         long now = Utils.TimeStamp;
         if (now + Delay <= LastUpdate) return; // Only update every 2 seconds
@@ -147,7 +146,14 @@ internal class TitleLogoPatch
         };
 
         foreach (var kvp in mainButtons) kvp.Key.Do(button => FormatButtonColor(button, kvp.Value.Item2, kvp.Value.Item3, kvp.Value.Item4, kvp.Value.Item5));
-        mainButtons.Keys.First().Do(x => x.buttonText.color = Color.white);
+
+        try
+        {
+            mainButtons.Keys.Flatten().DoIf(x => x != null, x => x.buttonText.color = Color.white);
+        }
+        catch
+        {
+        }
 
         GameObject.Find("Divider")?.SetActive(false);
 

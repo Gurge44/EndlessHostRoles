@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using HarmonyLib;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -33,7 +34,7 @@ public static class OptionShower
         StringBuilder sb = new();
         Pages =
         [
-            GameOptionsManager.Instance.CurrentGameOptions.ToHudString(GameData.Instance ? GameData.Instance.PlayerCount : 10) + "\n\n"
+            GameOptionsManager.Instance.CurrentGameOptions.ToHudString(GameData.Instance ? GameData.Instance.PlayerCount : 10).Split('\n').SkipLast(8).Join(delimiter: "\n") + "\n\n"
         ];
 
         sb.Append($"{Options.GameMode.GetName()}: {Options.GameMode.GetString()}\n\n");

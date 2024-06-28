@@ -398,7 +398,7 @@ class CheckForEndVotingPatch
                 name = string.Format(GetString("PlayerExiled"), coloredRealName);
                 break;
             case 1:
-                if (player.GetCustomRole().IsImpostor() || player.Is(CustomRoles.Parasite) || player.Is(CustomRoles.Crewpostor) || player.Is(CustomRoles.Refugee) || player.Is(CustomRoles.Convict))
+                if (player.IsImpostor() || player.Is(CustomRoles.Parasite) || player.Is(CustomRoles.Crewpostor) || player.Is(CustomRoles.Refugee) || player.Is(CustomRoles.Convict))
                     name = string.Format(GetString("BelongTo"), coloredRealName, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("TeamImpostor")));
                 else if (player.IsCrewmate())
                     name = string.Format(GetString("IsGood"), coloredRealName);
@@ -1046,7 +1046,7 @@ class MeetingHudUpdatePatch
                         Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}を処刑しました", "Execution");
                         __instance.CheckForEndVoting();
                     }
-                }, fast: true);
+                });
             }
 
             if (!GameStates.IsVoting && __instance.lastSecond < 1)

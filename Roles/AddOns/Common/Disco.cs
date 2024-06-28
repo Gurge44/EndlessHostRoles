@@ -40,7 +40,7 @@ namespace EHR.AddOns.Common
 
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (!pc.Is(CustomRoles.Disco) || !GameStates.IsInTask || pc.IsShifted() || Camouflager.IsActive || (Utils.IsActive(SystemTypes.Comms) && CommsCamouflage.GetBool())) return;
+            if (!pc.Is(CustomRoles.Disco) || !GameStates.IsInTask || pc.IsShifted() || Camouflager.IsActive || (Utils.IsActive(SystemTypes.Comms) && CommsCamouflage.GetBool()) || pc.inVent || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation() || pc.walkingToVent || pc.onLadder || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation()) return;
             long now = Utils.TimeStamp;
             if (LastChange.TryGetValue(pc.PlayerId, out var change) && change + DiscoChangeInterval.GetInt() > now) return;
             ChangeColor(pc);

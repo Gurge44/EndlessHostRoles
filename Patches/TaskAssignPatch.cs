@@ -115,9 +115,7 @@ class RpcSetTasksPatch
 {
     // Patch that overwrites the task just before assigning the task and sending the RPC
     // Do not interfere with vanilla task allocation process itself
-    public static void Prefix(NetworkedPlayerInfo __instance,
-        [HarmonyArgument(0)] byte playerId,
-        [HarmonyArgument(1)] ref Il2CppStructArray<byte> taskTypeIds)
+    public static void Prefix(NetworkedPlayerInfo __instance, [HarmonyArgument(0)] ref Il2CppStructArray<byte> taskTypeIds)
     {
         // Null measures
         if (Main.RealOptionsData == null)
@@ -172,10 +170,10 @@ class RpcSetTasksPatch
             (hasCommonTasks, NumLongTasks, NumShortTasks) = Workhorse.TaskData;
 
         // Capitalism is going to harm people~
-        if (Capitalism.CapitalismAssignTask.ContainsKey(playerId))
+        if (Capitalism.CapitalismAssignTask.ContainsKey(pc.PlayerId))
         {
-            NumShortTasks += Capitalism.CapitalismAssignTask[playerId];
-            Capitalism.CapitalismAssignTask.Remove(playerId);
+            NumShortTasks += Capitalism.CapitalismAssignTask[pc.PlayerId];
+            Capitalism.CapitalismAssignTask.Remove(pc.PlayerId);
         }
 
         if (taskTypeIds.Length == 0) hasCommonTasks = false; // Set common to 0 when redistributing tasks
@@ -222,7 +220,7 @@ class RpcSetTasksPatch
             ShortTasks.Add(task);
         Shuffle(ShortTasks);
 
-        // Use the task assignment function that is actually used on the Among Us side.
+        // Use the task assignment function actually used on the Among Us side.
         ShipStatus.Instance.AddTasksFromList(
             ref start2,
             NumLongTasks,

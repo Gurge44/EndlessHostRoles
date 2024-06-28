@@ -229,7 +229,7 @@ class CloseDoorsPatch
 {
     public static bool Prefix( /*ShipStatus __instance, */ [HarmonyArgument(0)] SystemTypes room)
     {
-        bool allow = !Options.DisableSabotage.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop;
+        bool allow = !Options.DisableSabotage.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun;
 
         if (SecurityGuard.BlockSabo.Count > 0) allow = false;
         if (Options.DisableCloseDoor.GetBool()) allow = false;

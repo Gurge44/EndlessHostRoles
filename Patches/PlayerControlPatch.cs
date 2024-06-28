@@ -1038,6 +1038,11 @@ class ReportDeadBodyPatch
             {
                 Camouflage.RpcSetSkin(pc, RevertToDefault: true);
             }
+
+            if (Main.CurrentMap == MapNames.Fungle && pc.IsMushroomMixupActive())
+            {
+                pc.FixMixedUpOutfit();
+            }
         }
 
         MeetingTimeManager.OnReportDeadBody();
@@ -1153,6 +1158,7 @@ class FixedUpdatePatch
             NameNotifyManager.OnFixedUpdate(player);
             TargetArrow.OnFixedUpdate(player);
             LocateArrow.OnFixedUpdate(player);
+            Camouflage.OnFixedUpdate(player);
 
             if (RPCHandlerPatch.ReportDeadBodyRPCs.Remove(playerId))
                 Logger.Info($"Cleared ReportDeadBodyRPC Count for {player.GetRealName().RemoveHtmlTags()}", "FixedUpdatePatch");
@@ -1423,7 +1429,7 @@ class FixedUpdatePatch
 
                 switch (target.GetCustomRole())
                 {
-                    case CustomRoles.Snitch when seer.GetCustomRole().IsImpostor() && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished:
+                    case CustomRoles.Snitch when seer.IsImpostor() && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished:
                         Mark.Append(ColorString(GetRoleColor(CustomRoles.Impostor), "★"));
                         break;
                     case CustomRoles.Marshall when seer.IsCrewmate() && target.GetTaskState().IsTaskFinished:
@@ -1545,7 +1551,7 @@ class FixedUpdatePatch
                 Mark.Append(Snitch.GetWarningMark(seer, target));
                 Mark.Append(Deathpact.GetDeathpactMark(seer, target));
 
-                if (!Main.HasJustStarted) Main.LoversPlayers.DoIf(x => !x.Is(CustomRoles.Lovers), x => x.RpcSetCustomRole(CustomRoles.Lovers), fast: true);
+                if (!Main.HasJustStarted) Main.LoversPlayers.DoIf(x => !x.Is(CustomRoles.Lovers), x => x.RpcSetCustomRole(CustomRoles.Lovers));
                 if (Main.LoversPlayers.Any(x => x.PlayerId == target.PlayerId))
                 {
                     if (Main.LoversPlayers.Any(x => x.PlayerId == seer.PlayerId)) Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
@@ -1593,7 +1599,7 @@ class FixedUpdatePatch
                 if ((IsActive(SystemTypes.Comms) && Options.CommsCamouflage.GetBool() && (Main.NormalOptions.MapId != 5 || !Options.CommsCamouflageDisableOnFungle.GetBool())) || Camouflager.IsActive)
                     RealName = $"<size=0>{RealName}</size> ";
 
-                string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"\n<size=1.7>({ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))})</size>" : string.Empty;
+                string DeathReason = seer.Data.IsDead && seer.KnowDeathReason(target) ? $"\n<size=1.5>『{ColorString(GetRoleColor(CustomRoles.Doctor), GetVitalText(target.PlayerId))}』</size>" : string.Empty;
 
                 var currentText = target.cosmetics.nameText.text;
                 var changeTo = $"{RealName}{DeathReason}{Mark}\r\n{Suffix}";
@@ -1984,7 +1990,7 @@ public static class PlayerControlCheckUseZiplinePatch
             if (Options.DisableZiplineFromTop.GetBool() && fromTop) return false;
             if (Options.DisableZiplineFromUnder.GetBool() && !fromTop) return false;
 
-            if (__instance.GetCustomRole().IsImpostor() && Options.DisableZiplineForImps.GetBool()) return false;
+            if (__instance.IsImpostor() && Options.DisableZiplineForImps.GetBool()) return false;
             if (__instance.GetCustomRole().IsNeutral() && Options.DisableZiplineForNeutrals.GetBool()) return false;
             if (__instance.IsCrewmate() && Options.DisableZiplineForCrew.GetBool()) return false;
         }

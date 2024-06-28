@@ -232,8 +232,8 @@ internal static class SoloKombatManager
             target.RpcGuardAndKill(colorId: 5);
 
         SendRPCSyncKBPlayer(target.PlayerId);
-        Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
-        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
+        Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
     }
 
     private static void OnPlayerBack(PlayerControl pc)

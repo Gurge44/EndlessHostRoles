@@ -19,8 +19,8 @@ namespace EHR.Modules
                 LoadingAnimation.sprite = Utils.LoadSprite("EHR.Resources.Loading.png", 300f);
 
                 var basePos = LoadingAnimation.transform.position;
-                var x = basePos.x - 9.5f;
-                var y = basePos.y - 3.5f;
+                var x = basePos.x - 9.8f;
+                var y = basePos.y - 4.5f;
                 var z = basePos.z;
                 LoadingAnimation.transform.position = new(x, y, z);
             }
@@ -58,8 +58,8 @@ namespace EHR.Modules
                     var basePos = tempButton.transform.position;
                     Object.Destroy(tempButton);
 
-                    var x = basePos.x - 9.5f;
-                    var y = basePos.y - 3.5f;
+                    var x = basePos.x - 9.8f;
+                    var y = basePos.y - 4.5f;
                     var z = basePos.z;
 
                     if (LoadingAnimation.transform.position != new Vector3(x, y, z)) LoadingAnimation.transform.position = new(x, y, z);

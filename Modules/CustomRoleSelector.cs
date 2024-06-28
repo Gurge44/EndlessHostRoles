@@ -199,17 +199,17 @@ internal static class CustomRoleSelector
 
             if (role.IsImpostor())
             {
-                Roles[RoleAssignType.Impostor].DoIf(x => x.Role == role, x => x.AssignedCount++, fast: true);
+                Roles[RoleAssignType.Impostor].DoIf(x => x.Role == role, x => x.AssignedCount++);
                 readyImpNum++;
             }
             else if (role.IsNK())
             {
-                Roles[RoleAssignType.NeutralKilling].DoIf(x => x.Role == role, x => x.AssignedCount++, fast: true);
+                Roles[RoleAssignType.NeutralKilling].DoIf(x => x.Role == role, x => x.AssignedCount++);
                 readyNeutralKillingNum++;
             }
             else if (role.IsNonNK())
             {
-                Roles[RoleAssignType.NonKillingNeutral].DoIf(x => x.Role == role, x => x.AssignedCount++, fast: true);
+                Roles[RoleAssignType.NonKillingNeutral].DoIf(x => x.Role == role, x => x.AssignedCount++);
                 readyNonNeutralKillingNum++;
             }
 
@@ -218,7 +218,7 @@ internal static class CustomRoleSelector
             Logger.Warn($"Pre-Set Role Assigned: {pc.GetRealName()} => {role}", "CustomRoleSelector");
         }
 
-        Roles.Values.Do(l => l.DoIf(x => x.AssignedCount >= x.MaxCount, x => l.Remove(x)));
+        Roles.Values.Do(l => l.DoIf(x => x.AssignedCount >= x.MaxCount, x => l.Remove(x), fast: false));
 
         RoleAssignInfo[] Imps;
         RoleAssignInfo[] NNKs = [];

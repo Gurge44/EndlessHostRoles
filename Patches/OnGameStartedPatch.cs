@@ -653,18 +653,18 @@ internal class SelectRolesPatch
                     if (suitablePlayer != null) addonNum[suitablePlayer]++;
                     return (Role: x, SuitablePlayer: suitablePlayer);
                 }))
-                .DoIf(x => x.SuitablePlayer != null, x => Main.PlayerStates[x.SuitablePlayer.PlayerId].SetSubRole(x.Role), fast: true);
+                .DoIf(x => x.SuitablePlayer != null, x => Main.PlayerStates[x.SuitablePlayer.PlayerId].SetSubRole(x.Role));
 
 
             foreach (var state in Main.PlayerStates.Values)
             {
-                if (Main.NeverSpawnTogetherCombos.TryGetValue(state.MainRole, out var bannedAddonList))
+                if (Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var neverList) && neverList.TryGetValue(state.MainRole, out var bannedAddonList))
                 {
                     bannedAddonList.ForEach(x => state.RemoveSubRole(x));
                     continue;
                 }
 
-                if (Main.AlwaysSpawnTogetherCombos.TryGetValue(state.MainRole, out var addonList))
+                if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var alwaysList) && alwaysList.TryGetValue(state.MainRole, out var addonList))
                 {
                     addonList.ForEach(x => state.SetSubRole(x));
                 }
@@ -875,7 +875,7 @@ internal class SelectRolesPatch
             return;
         }
 
-        var allPlayers = Main.AllPlayerControls.Where(pc => !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && !pc.Is(CustomRoles.Dictator) && !pc.Is(CustomRoles.God) && !pc.Is(CustomRoles.FFF) && !pc.Is(CustomRoles.Bomber) && !pc.Is(CustomRoles.Nuker) && !pc.Is(CustomRoles.Provocateur) && (!pc.IsCrewmate() || Lovers.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Lovers.NeutralCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsImpostor() || Lovers.ImpCanBeInLove.GetBool())).ToList();
+        var allPlayers = Main.AllPlayerControls.Where(pc => !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && !pc.Is(CustomRoles.Dictator) && !pc.Is(CustomRoles.God) && !pc.Is(CustomRoles.FFF) && !pc.Is(CustomRoles.Bomber) && !pc.Is(CustomRoles.Nuker) && !pc.Is(CustomRoles.Provocateur) && (!pc.IsCrewmate() || Lovers.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Lovers.NeutralCanBeInLove.GetBool()) && (!pc.IsImpostor() || Lovers.ImpCanBeInLove.GetBool())).ToList();
         const CustomRoles role = CustomRoles.Lovers;
         var count = Math.Clamp(RawCount, 0, allPlayers.Count);
         if (RawCount == -1) count = Math.Clamp(role.GetCount(), 0, allPlayers.Count);
