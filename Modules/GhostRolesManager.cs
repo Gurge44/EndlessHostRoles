@@ -37,6 +37,8 @@ namespace EHR.Modules
             AssignedGhostRoles[pc.PlayerId] = (suitableRole, instance);
 
             if (suitableRole == CustomRoles.Haunter) GhostRoles.Remove(suitableRole);
+
+            NotifyAboutGhostRole(pc);
         }
 
         public static void SpecificAssignGhostRole(byte id, CustomRoles role, bool set)
@@ -49,6 +51,28 @@ namespace EHR.Modules
             IGhostRole instance = CreateGhostRoleInstance(role);
             instance.OnAssign(pc);
             AssignedGhostRoles[id] = (role, instance);
+        }
+
+        public static void NotifyAboutGhostRole(PlayerControl pc)
+        {
+            if (!AssignedGhostRoles.TryGetValue(pc.PlayerId, out var ghostRole)) return;
+            pc.Notify($"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{GetMessage(Translator.GetString($"{ghostRole.Role}InfoLong").Split("\n")[1..].Join(delimiter: "\n"))}</size>", 300f);
+            return;
+
+            static string GetMessage(string baseMessage)
+            {
+                var message = baseMessage;
+                for (int i = 50; i < message.Length; i += 50)
+                {
+                    int index = message.LastIndexOf(' ', i);
+                    if (index != -1)
+                    {
+                        message = message.Insert(index + 1, "\n");
+                    }
+                }
+
+                return message;
+            }
         }
 
         public static bool ShouldHaveGhostRole(PlayerControl pc)

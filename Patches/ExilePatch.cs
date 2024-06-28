@@ -217,7 +217,7 @@ class ExileControllerWrapUpPatch
             }, 0.5f, log: false);
         }
 
-        LateTask.New(() => ChatManager.SendPreviousMessagesToAll(), 3f, log: false);
+        LateTask.New(() => ChatManager.SendPreviousMessagesToAll(clear: true), 3f, log: false);
     }
 
     [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]

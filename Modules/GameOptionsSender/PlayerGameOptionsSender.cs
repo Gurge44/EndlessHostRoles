@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
 using EHR.Crewmate;
 using EHR.Impostor;
@@ -352,12 +353,21 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                         opt.SetVision(Options.MadmateHasImpostorVision.GetBool());
                         break;
                     case CustomRoles.Nimble when player.GetRoleTypes() == RoleTypes.Engineer:
-                        AURoleOptions.EngineerCooldown = Options.NimbleCD.GetFloat();
-                        AURoleOptions.EngineerInVentMaxTime = Options.NimbleInVentTime.GetFloat();
+                        AURoleOptions.EngineerCooldown = Nimble.NimbleCD.GetFloat();
+                        AURoleOptions.EngineerInVentMaxTime = Nimble.NimbleInVentTime.GetFloat();
                         break;
                     case CustomRoles.Physicist when player.GetRoleTypes() == RoleTypes.Scientist:
-                        AURoleOptions.ScientistCooldown = Options.PhysicistCD.GetFloat();
-                        AURoleOptions.ScientistBatteryCharge = Options.PhysicistViewDuration.GetFloat();
+                        AURoleOptions.ScientistCooldown = Physicist.PhysicistCD.GetFloat();
+                        AURoleOptions.ScientistBatteryCharge = Physicist.PhysicistViewDuration.GetFloat();
+                        break;
+                    case CustomRoles.Finder when player.GetRoleTypes() == RoleTypes.Tracker:
+                        AURoleOptions.TrackerCooldown = Finder.FinderCD.GetFloat();
+                        AURoleOptions.TrackerDuration = Finder.FinderDuration.GetFloat();
+                        AURoleOptions.TrackerDelay = Finder.FinderDelay.GetFloat();
+                        break;
+                    case CustomRoles.Noisy when player.GetRoleTypes() == RoleTypes.Noisemaker:
+                        AURoleOptions.NoisemakerImpostorAlert = Noisy.NoisyImpostorAlert.GetBool();
+                        AURoleOptions.NoisemakerAlertDuration = Noisy.NoisyAlertDuration.GetFloat();
                         break;
                 }
             }

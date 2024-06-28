@@ -53,7 +53,6 @@ public static class Utils
     private static readonly StringBuilder TargetMark = new(20);
 
     private static readonly Dictionary<string, Sprite> CachedSprites = [];
-    private static readonly Dictionary<byte, PlayerControl> CachedPlayerIds = [];
 
     public static long TimeStamp => (long)(DateTime.Now.ToUniversalTime() - TimeStampStartTime).TotalSeconds;
     public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModClient() && !x.IsHost());
@@ -651,6 +650,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.RouleteGrandeur:
             case CustomRoles.Nonplus:
             case CustomRoles.Tremor:
             case CustomRoles.Evolver:
@@ -2571,6 +2571,8 @@ public static class Utils
             {
                 if (pc.IsCrewmate() && !pc.GetTaskState().IsTaskFinished)
                     pc.Notify(GetString("DoYourTasksPlease"), 10f);
+
+                GhostRolesManager.NotifyAboutGhostRole(pc);
             }
 
             if (pc.Is(CustomRoles.Specter) || pc.Is(CustomRoles.Haunter)) pc.RpcResetAbilityCooldown();

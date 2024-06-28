@@ -83,8 +83,7 @@ public class Wildling : RoleBase
                 KillCooldown = BloodKnight.KillCooldown.GetFloat();
 
                 if (!AmongUsClient.Instance.AmHost) return;
-                if (!Main.ResetCamPlayerList.Contains(playerId))
-                    Main.ResetCamPlayerList.Add(playerId);
+                Main.ResetCamPlayerList.Add(playerId);
                 break;
         }
     }

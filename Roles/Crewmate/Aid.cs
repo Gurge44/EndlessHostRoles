@@ -50,10 +50,6 @@ namespace EHR.Crewmate
             On = true;
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             TargetId = byte.MaxValue;
-
-            if (!AmongUsClient.Instance.AmHost || (Options.UsePets.GetBool() && UsePet.GetBool())) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte playerId) => Main.AllPlayerKillCooldown[playerId] = AidCD.GetInt();

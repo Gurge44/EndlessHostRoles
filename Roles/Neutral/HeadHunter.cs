@@ -62,10 +62,6 @@ public class HeadHunter : RoleBase
         Targets = [];
         LateTask.New(ResetTargets, 8f, log: false);
         KCD = KillCooldown.GetFloat();
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     void SendRPC()

@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using UnityEngine;
 using static EHR.Options;
 
 namespace EHR.Neutral
@@ -56,10 +54,6 @@ namespace EHR.Neutral
             Executed = false;
             SimonId = playerId;
             Utils.SendRPC(CustomRPC.SyncSimon, playerId, 1, DoMode);
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

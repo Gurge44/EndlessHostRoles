@@ -33,10 +33,6 @@ public class Traitor : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void SetButtonTexts(HudManager __instance, byte id) => __instance.SabotageButton.ToggleVisible(CanSabotage.GetBool());

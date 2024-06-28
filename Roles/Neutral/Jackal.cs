@@ -89,10 +89,6 @@ public class Jackal : RoleBase
         On = true;
         PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(1);
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
@@ -124,8 +120,7 @@ public class Jackal : RoleBase
         target.RpcSetCustomRole(targetRoleType == RoleTypes.Shapeshifter ? CustomRoles.Recruit : CustomRoles.Sidekick);
         if (needBasisChange) target.ChangeRoleBasis(RoleTypes.Impostor);
 
-        if (!Main.ResetCamPlayerList.Contains(target.PlayerId))
-            Main.ResetCamPlayerList.Add(target.PlayerId);
+        Main.ResetCamPlayerList.Add(target.PlayerId);
 
         killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), GetString("GangsterSuccessfullyRecruited")));
         target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jackal), GetString("BeRecruitedByJackal")));
@@ -174,10 +169,6 @@ public class Sidekick : RoleBase
     {
         PlayerIdList.Add(playerId);
         new[] { CustomRoles.Damocles, CustomRoles.Stressed }.Do(x => Main.PlayerStates[playerId].RemoveSubRole(x));
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override bool CanUseKillButton(PlayerControl pc) => Jackal.SKCanKill.GetBool();

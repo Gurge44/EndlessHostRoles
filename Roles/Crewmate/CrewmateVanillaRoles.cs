@@ -19,7 +19,7 @@ namespace EHR.Crewmate
         public void SetupCustomOption()
         {
             SetupRoleOptions(5020, Tab, CustomRoles.CrewmateEHR);
-            VanillaCrewmateCannotBeGuessed = new BooleanOptionItem(5021, "VanillaCrewmateCannotBeGuessed", false, Tab)
+            VanillaCrewmateCannotBeGuessed = new BooleanOptionItem(5022, "VanillaCrewmateCannotBeGuessed", false, Tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.CrewmateEHR]);
             SetupRoleOptions(5000, Tab, CustomRoles.EngineerEHR);
             EngineerCD = new FloatOptionItem(5002, "VentCooldown", new(1f, 250f, 1f), 30f, Tab)

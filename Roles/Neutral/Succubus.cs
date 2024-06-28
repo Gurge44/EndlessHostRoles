@@ -62,10 +62,6 @@ public class Succubus : RoleBase
     {
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(CharmMax.GetInt());
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = id.GetAbilityUseLimit() >= 1 ? CharmCooldown.GetFloat() + (CharmMax.GetInt() - id.GetAbilityUseLimit()) * CharmCooldownIncrese.GetFloat() : 300f;

@@ -51,6 +51,7 @@ public class PlayerState(byte playerId)
         RNG,
         WrongAnswer,
         Consumed,
+        BadLuck,
 
         etc = -1
     }

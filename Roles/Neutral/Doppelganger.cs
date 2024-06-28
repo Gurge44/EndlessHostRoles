@@ -67,10 +67,6 @@ public class Doppelganger : RoleBase
         else DoppelVictim[playerId] = pc.Data.PlayerName;
         DoppelDefaultSkin[playerId] = pc.CurrentOutfit;
         StealTimeStamp = 0;
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     void SendRPC(byte playerId)

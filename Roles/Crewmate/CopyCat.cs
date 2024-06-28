@@ -50,10 +50,6 @@ public class CopyCat : RoleBase
         CopyCatPC = Utils.GetPlayerById(playerId);
         CurrentKillCooldown = KillCooldown.GetFloat();
         playerId.SetAbilityUseLimit(MiscopyLimitOpt.GetInt());
-
-        if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CurrentKillCooldown;

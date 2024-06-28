@@ -48,10 +48,6 @@ public class DarkHide : RoleBase
         IsWinKill = false;
 
         DRpcSetKillCount(Utils.GetPlayerById(playerId));
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public static void ReceiveRPC(MessageReader msg)

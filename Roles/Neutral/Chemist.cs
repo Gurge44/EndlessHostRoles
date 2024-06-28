@@ -202,10 +202,6 @@ namespace EHR.Neutral
             Grenades = [];
 
             ItemCounts = Enum.GetValues<Item>().ToDictionary(x => x, _ => 0);
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

@@ -389,6 +389,7 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.RouleteGrandeur => RoleTypes.Impostor,
             CustomRoles.Nonplus => RoleTypes.Impostor,
             CustomRoles.Tremor => RoleTypes.Impostor,
             CustomRoles.Evolver => RoleTypes.Impostor,
@@ -504,6 +505,7 @@ internal static class CustomRolesHelper
         CustomRoles.Rogue or
         CustomRoles.Parasite or
         CustomRoles.NSerialKiller or
+        CustomRoles.RouleteGrandeur or
         CustomRoles.Nonplus or
         CustomRoles.Tremor or
         CustomRoles.Evolver or
@@ -589,11 +591,13 @@ internal static class CustomRolesHelper
 
     public static bool IsImpostor(this CustomRoles role) => role is
         CustomRoles.Impostor or
-        CustomRoles.LovingImpostor or
-        CustomRoles.Godfather or
+        CustomRoles.ImpostorEHR or
+        CustomRoles.Phantom or
+        CustomRoles.PhantomEHR or
         CustomRoles.Shapeshifter or
         CustomRoles.ShapeshifterEHR or
-        CustomRoles.ImpostorEHR or
+        CustomRoles.LovingImpostor or
+        CustomRoles.Godfather or
         CustomRoles.EvilDiviner or
         CustomRoles.Wildling or
         CustomRoles.Silencer or
@@ -908,7 +912,9 @@ internal static class CustomRolesHelper
         CustomRoles.Busy when !pc.GetTaskState().hasTasks => false,
         CustomRoles.Truant when pc.Is(CustomRoles.SoulHunter) => false,
         CustomRoles.Nimble when !pc.IsCrewmate() => false,
-        CustomRoles.Physicist when !pc.IsCrewmate() => false,
+        CustomRoles.Physicist when !pc.IsCrewmate() || pc.GetCustomRole().GetDYRole() == RoleTypes.Impostor => false,
+        CustomRoles.Finder when !pc.IsCrewmate() || pc.GetCustomRole().GetDYRole() == RoleTypes.Impostor => false,
+        CustomRoles.Noisy when !pc.IsCrewmate() || pc.GetCustomRole().GetDYRole() == RoleTypes.Impostor => false,
         CustomRoles.Unreportable when pc.Is(CustomRoles.Bait) => false,
         CustomRoles.Oblivious when pc.Is(CustomRoles.Bloodhound) => false,
         CustomRoles.Oblivious when pc.Is(CustomRoles.Vulture) => false,
@@ -1192,6 +1198,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     NSerialKiller,
+    RouleteGrandeur,
     Nonplus,
     Tremor,
     Evolver,

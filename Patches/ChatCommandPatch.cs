@@ -521,7 +521,7 @@ internal class ChatCommands
 
                 case "/ask":
                     canceled = true;
-                    if (args.Length < 3) break;
+                    if (args.Length < 3 || !PlayerControl.LocalPlayer.Is(CustomRoles.Mathematician)) break;
                     Mathematician.Ask(PlayerControl.LocalPlayer, args[1], args[2]);
                     break;
 
@@ -1309,7 +1309,7 @@ internal class ChatCommands
                 MeetingHud.Instance?.CastVote(player.PlayerId, voteId);
                 break;
             case "/ask":
-                if (args.Length < 3) break;
+                if (args.Length < 3 || !player.Is(CustomRoles.Mathematician)) break;
                 Mathematician.Ask(player, args[1], args[2]);
                 break;
             case "/ans":
@@ -1428,6 +1428,7 @@ internal class ChatCommands
                 break;
 
             case "/lt":
+                if (!GameStates.IsLobby) break;
                 var timer = GameStartManagerPatch.Timer;
                 int minutes = (int)timer / 60;
                 int seconds = (int)timer % 60;

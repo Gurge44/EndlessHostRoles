@@ -617,7 +617,7 @@ internal static class CustomRoleSelector
                 case CustomRoles.Mare when Main.CurrentMap == MapNames.Fungle:
                 case CustomRoles.Madmate when Options.MadmateSpawnMode.GetInt() != 0:
                 case CustomRoles.Lovers or CustomRoles.LastImpostor or CustomRoles.Workhorse or CustomRoles.Undead:
-                case CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust: // Assigned at a different function due to role base change
+                case CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust or CustomRoles.Finder or CustomRoles.Noisy: // Assigned at a different function due to role base change
                     continue;
             }
 
