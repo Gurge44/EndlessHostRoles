@@ -49,9 +49,6 @@ public static class MainMenuManagerPatch
     {
         LateTask.New(() => { IsOnline = true; }, 0.1f, "Set Online Status");
     }
-
-    [HarmonyPatch(typeof(SignInStatusComponent), nameof(SignInStatusComponent.SetOnline)), HarmonyPostfix]
-    public static void SetOnlinePostfix() {LateTask.New(() => { IsOnline = true; }, 0.1f, "Set Online Status"); }
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPrefix]
     public static void Start_Prefix(MainMenuManager __instance)
     {
