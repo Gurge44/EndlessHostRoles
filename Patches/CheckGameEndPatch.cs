@@ -592,12 +592,12 @@ class GameEndChecker
         {
             reason = GameOverReason.ImpostorByKill;
             bool end = WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
-            if (end)
-            {
-                // Set the impostor count to 1 from 0 so the host doesn't get banned after rejoining the lobby
-                GameOptionsManager.Instance.currentNormalGameOptions.NumImpostors = 1;
-                PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(GameOptionsManager.Instance.CurrentGameOptions, AprilFoolsMode.IsAprilFoolsModeToggledOn));
-            }
+            // if (end)
+            // {
+            //     // Set the impostor count to 1 from 0 so the host doesn't get banned after rejoining the lobby
+            //     GameOptionsManager.Instance.currentNormalGameOptions.NumImpostors = 1;
+            //     PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(GameOptionsManager.Instance.CurrentGameOptions, AprilFoolsMode.IsAprilFoolsModeToggledOn));
+            // }
 
             return end;
         }
