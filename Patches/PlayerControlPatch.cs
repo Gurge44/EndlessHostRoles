@@ -150,6 +150,7 @@ class CheckMurderPatch
 
         if (target.Data == null
             || target.inVent
+            || target.walkingToVent
             || target.inMovingPlat
             || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()
             || target.MyPhysics.Animations.IsPlayingAnyLadderAnimation()
