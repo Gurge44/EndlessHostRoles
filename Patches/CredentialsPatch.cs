@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using EHR.Modules;
 using HarmonyLib;
@@ -24,7 +25,6 @@ internal class PingTrackerUpdatePatch
 
         Instance.text.alignment = TextAlignmentOptions.Center;
         Instance.text.text = Sb.ToString();
-        if (GameStates.IsInGame) Instance.transform.localPosition += new Vector3(0.1f, 0.3f, 0f);
 
         long now = Utils.TimeStamp;
         if (now + Delay <= LastUpdate) return; // Only update every 2 seconds
@@ -43,7 +43,9 @@ internal class PingTrackerUpdatePatch
             < 400 => "#ff146e",
             _ => "#ff4500"
         };
-        Sb.Append("\r\n").Append($"<color={color}>{GetString("PingText")}: {ping} ms</color>");
+        Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
+        Sb.Append($"<color={color}>{GetString("PingText")}: {ping} ms</color>");
+        if (GameStates.InGame) Sb.Append("\r\n.");
 
         // if (Options.NoGameEnd.GetBool()) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.red, GetString("NoGameEnd"))).Append("</size>");
         // if (!GameStates.IsModHost) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.red, GetString("Warning.NoModHost"))).Append("</size>");

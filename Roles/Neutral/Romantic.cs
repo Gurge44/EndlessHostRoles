@@ -95,10 +95,6 @@ public class Romantic : RoleBase
         PartnerId = byte.MaxValue;
         Partner = null;
         IsPartnerProtected = false;
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     private static void SendRPC()
@@ -311,10 +307,6 @@ public class VengefulRomantic : RoleBase
     {
         VengefulRomanticId = playerId;
         VengefulRomantic_ = Utils.GetPlayerById(playerId);
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && !HasKilledKiller;
@@ -385,10 +377,6 @@ public class RuthlessRomantic : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc) => Romantic.RuthlessCanVent.GetBool();

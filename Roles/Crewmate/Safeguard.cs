@@ -9,10 +9,11 @@ namespace EHR.Crewmate
 
         private static OptionItem ShieldDuration;
         private static OptionItem MinTasks;
-        private float Timer;
-        public override bool IsEnable => On;
 
+        private float Timer;
         private bool Shielded => Timer > 0;
+
+        public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {

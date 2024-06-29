@@ -51,6 +51,7 @@ public class PlayerState(byte playerId)
         RNG,
         WrongAnswer,
         Consumed,
+        BadLuck,
 
         etc = -1
     }
@@ -321,7 +322,7 @@ public class TaskState
             if (alive && Options.CurrentGameMode == CustomGameMode.Speedrun)
             {
                 if (CompletedTasksCount + 1 >= AllTasksCount) SpeedrunManager.OnTaskFinish(player);
-                else SpeedrunManager.ResetTimer(player);
+                SpeedrunManager.ResetTimer(player);
             }
 
             if (player.Is(CustomRoles.Unlucky) && alive)

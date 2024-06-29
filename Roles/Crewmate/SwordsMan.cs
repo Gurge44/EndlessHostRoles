@@ -48,10 +48,6 @@ public class SwordsMan : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
-
-        if (!AmongUsClient.Instance.AmHost || (Options.UsePets.GetBool() && UsePet.GetBool())) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public static void SendRPC(byte playerId)

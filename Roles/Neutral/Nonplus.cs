@@ -39,6 +39,8 @@
             playerId.SetAbilityUseLimit(UseLimit.GetInt());
         }
 
+        public override bool CanUseImpostorVentButton(PlayerControl pc) => true;
+
         public override void OnPet(PlayerControl pc) => Blind(pc);
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)

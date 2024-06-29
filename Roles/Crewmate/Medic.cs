@@ -86,10 +86,6 @@ public class Medic : RoleBase
     {
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(SkillLimit);
-
-        if (!AmongUsClient.Instance.AmHost || (Options.UsePets.GetBool() && UsePet.GetBool())) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     private static void SendRPCForProtectList()

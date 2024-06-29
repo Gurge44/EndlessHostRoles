@@ -62,10 +62,6 @@ namespace EHR.Crewmate
             }
 
             RandomRole[playerId] = GetRandomCrewRoleString();
-
-            if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)

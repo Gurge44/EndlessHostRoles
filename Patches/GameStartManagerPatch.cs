@@ -412,9 +412,9 @@ public class GameStartRandomMap
 [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.ResetStartState))]
 class ResetStartStatePatch
 {
-    public static void Prefix()
+    public static void Prefix(GameStartManager __instance)
     {
-        if (GameStates.IsCountDown)
+        if (__instance.startState == GameStartManager.StartingStates.Countdown)
         {
             Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
             PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(GameOptionsManager.Instance.CurrentGameOptions, AprilFoolsMode.IsAprilFoolsModeToggledOn));
@@ -439,6 +439,8 @@ public static class GameStartManagerBeginPatch
     {
         public static bool Prefix(GameStartManager __instance)
         {
+            if (!AmongUsClient.Instance.AmHost) return true;
+
             if (__instance.startState == GameStartManager.StartingStates.Countdown)
             {
                 __instance.ResetStartState();

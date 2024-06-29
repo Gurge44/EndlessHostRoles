@@ -64,10 +64,7 @@ namespace EHR.Impostor
             }
 
             if (!AmongUsClient.Instance.AmHost || !IsRitualist) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-            {
-                Main.ResetCamPlayerList.Add(playerId);
-            }
+            Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override bool CanUseImpostorVentButton(PlayerControl pc)

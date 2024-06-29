@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -289,11 +290,6 @@ public static class Options
     public static OptionItem UnderdogKillCooldownWithMorePlayersAlive;
 
     public static OptionItem GodfatherCancelVote;
-
-    public static OptionItem NimbleCD;
-    public static OptionItem NimbleInVentTime;
-    public static OptionItem PhysicistCD;
-    public static OptionItem PhysicistViewDuration;
 
     public static OptionItem GuardSpellTimes;
     public static OptionItem CapitalismSkillCooldown;

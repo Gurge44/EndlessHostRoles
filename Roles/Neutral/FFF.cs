@@ -55,10 +55,6 @@ namespace EHR.Neutral
             PlayerIdList.Add(playerId);
             On = true;
             IsWon = false;
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override bool CanUseImpostorVentButton(PlayerControl pc) => false;

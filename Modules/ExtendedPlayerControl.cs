@@ -958,6 +958,8 @@ static class ExtendedPlayerControl
         { } x when x.Contains(CustomRoles.Bloodlust) => RoleTypes.Impostor,
         { } x when x.Contains(CustomRoles.Nimble) => RoleTypes.Engineer,
         { } x when x.Contains(CustomRoles.Physicist) => RoleTypes.Scientist,
+        { } x when x.Contains(CustomRoles.Finder) => RoleTypes.Tracker,
+        { } x when x.Contains(CustomRoles.Noisy) => RoleTypes.Noisemaker,
         _ => pc.GetCustomRole().GetRoleTypes()
     };
 

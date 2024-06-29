@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
@@ -74,7 +75,7 @@ public class SabotageMaster : RoleBase
 
     public override string GetProgressText(byte playerId, bool comms)
     {
-        var limit = SkillLimit.GetInt() - UsedSkillCount;
+        var limit = Math.Round(SkillLimit.GetInt() - UsedSkillCount, 1);
         return $"({limit}){base.GetProgressText(playerId, comms)}";
     }
 

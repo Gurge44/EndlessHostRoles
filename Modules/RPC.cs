@@ -141,6 +141,7 @@ public enum CustomRPC
     SyncTremor,
     SyncAid,
     SyncTelekinetic,
+    SyncRouleteGrandeur,
 
     // Other Game Modes
     SyncKBPlayer,
@@ -163,8 +164,7 @@ internal class RPCHandlerPatch
 {
     public static readonly Dictionary<byte, int> ReportDeadBodyRPCs = [];
 
-    public static bool TrustedRpc(byte id)
-        => (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.RetributionistRevenge;
+    private static bool TrustedRpc(byte id) => (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.RetributionistRevenge;
 
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
     {
@@ -441,6 +441,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SyncTelekinetic:
                 (Main.PlayerStates[reader.ReadByte()].Role as Telekinetic)?.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncRouleteGrandeur:
+                (Main.PlayerStates[reader.ReadByte()].Role as RouleteGrandeur)?.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetBountyTarget:
             {

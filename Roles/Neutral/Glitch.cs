@@ -82,10 +82,6 @@ public class Glitch : RoleBase
         LastMimic = ts;
 
         LastUpdate = ts;
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

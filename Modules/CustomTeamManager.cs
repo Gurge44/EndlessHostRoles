@@ -52,6 +52,7 @@ namespace EHR.Modules
                 CustomTeamOptionGroup group = new(team, enabled, knowRoles, winWithOriginalTeam, killEachOther, guessEachOther, arrows);
                 group.AllOptions.Skip(1).Do(x => x.SetParent(enabled));
                 group.AllOptions.ForEach(x => x.SetColor(new Color32(215, 227, 84, byte.MaxValue)));
+                group.AllOptions.ForEach(x => x.SetGameMode(CustomGameMode.Standard));
                 if (ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out var color)) enabled.SetColor(color);
                 enabled.RegisterUpdateValueEvent((_, _) => UpdateEnabledTeams());
                 return group;

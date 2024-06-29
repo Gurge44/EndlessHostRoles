@@ -85,8 +85,7 @@ public class Sans : RoleBase
         NowCooldown = DefaultKCD;
 
         if (!AmongUsClient.Instance.AmHost || UsedRole == CustomRoles.Sans) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
+        Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = NowCooldown;
