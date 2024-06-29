@@ -82,6 +82,7 @@ namespace EHR.Neutral
             Utils.SendRPC(CustomRPC.SyncRouleteGrandeur, pc.PlayerId, 1, LastRoll);
 
             string result = new(NoHitIcon, BulletCount);
+            result = $"<#ffffff>{result}</color>";
             HashSet<int> takenSlots = [];
             for (int i = 0; i < Bullets; i++)
             {

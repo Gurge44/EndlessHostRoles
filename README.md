@@ -64,66 +64,66 @@
 | Dictator          | Devourer        | Hex Master        | Egoist         |
 | Doctor            | Disperser       | Hookshot          | Energetic      |
 | Donut Delivery    | Duellist        | Imitator          | Evil Spirit    |
-| Door Master       | Dazzler         | Impartial         | Flash          |
-| Pacifist          | Echo            | Innocent          | Fool           |
-| Drainer           | Escapist        | Jackal            | Giant          |
-| Druid             | Eraser          | Jester            | Glow           |
-| Electric          | Evil Guesser    | Jinx              | Gravestone     |
-| Enigma            | Evil Tracker    | Juggernaut        | Guardian Angel |
-| Escort            | Fireworker      | Lawyer            | Guesser        |
-| Express           | Freezer         | Magician          | Haste          |
-| Investigator      | Gambler         | Vector            | Haunter        |
-| Fortune Teller    | Gangster        | Maverick          | Knighted       |
-| Gaulois           | Generator       | Medusa            | Last Impostor  |
-| Goose             | Godfather       | Mycologist        | Lazy           |
-| Grenadier         | Greedy          | Necromancer       | Lovers         |
-| Guess Manager     | Hangman         | Nonplus           | Loyal          |
-| Guardian          | Hitman          | Opportunist       | Lucky          |
-| Ignitor           | Inhibitor       | Patroller         | Madmate        |
-| Insight           | Kamikaze        | Pelican           | Magnet         |
-| Inspector         | Kidnapper       | Pestilence        | Mare           |
-| Inquirer          | Killing Machine | Specter           | Mimic          |
-| Jailor            | Lightning       | Pickpocket        | Minion         |
-| Judge             | Librarian       | Plaguebearer      | Mischievous    |
-| Lazy Guy          | Lurker          | Infection         | Necroview      |
-| Lighter           | Mafioso         | Poisoner          | Neptune        |
-| Lookout           | Mastermind      | Postman           | Nimble         |
-| Luckey            | Nemesis         | Predator          | Oblivious      |
-| Markseeker        | Mercenary       | Provocateur       | Onbound        |
-| Marshall          | Miner           | Pursuer           | Sleep          |
-| Mathematician     | Morphling       | Pyromaniac        | Phantasm       |
-| Mayor             | Ninja           | Quiz Master       | Physicist      |
-| Mechanic          | Nuker           | Reckless          | Rascal         |
-| Medic             | Nullifier       | Revolutionist     | Reach          |
-| Medium            | Overheat        | Ritualist         | Recruit        |
-| Merchant          | Parasite        | Rogue             | Rookie         |
-| Telecommunication | Penguin         | Romantic          | Schizophrenic  |
-| Mole              | Puppeteer       | Ruthless Romantic | Seer           |
-| Monarch           | Quick Shooter   | Samurai           | Sleuth         |
-| Mortician         | Renegade        | Schrödinger's Cat | Sonar          |
-| Nice Eraser       | Rift Maker      | Serial Killer     | Stained        |
-| Nice Guesser      | Saboteur        | Shifter           | Taskcounter    |
-| Hacker            | Sapper          | Sidekick          | Stealer        |
-| Swapper           | Scavenger       | Simon             | Stressed       |
-| Nightmare         | Silencer        | Soul Hunter       | Swift          |
-| Observer          | Sniper          | Spiritcaller      | Sunglasses     |
-| Oracle            | Soul Catcher    | Sprayer           | Tiebreaker     |
-| Paranoid          | Swapster        | Stalker           | Torch          |
-| Perceiver         | Swiftclaw       | Cultist           | Truant         |
-| Psychic           | Swooper         | Sunnyboy          | Undead         |
-| Rabbit            | Stealth         | Terrorist         | Unlucky        |
-| Randomizer        | Time Thief      | Tiger             | Warden         |
-| Ricochet          | Trapster        | Traitor           | Watcher        |
-| Safeguard         | Trickster       | Tremor            | Workhorse      |
-| Scout             | Twister         | Vengeance         | YouTuber       |
-| Security Guard    | Underdog        | Vengeful Romantic |                |
-| Sentinel          | Undertaker      | Virus             |                |
-| Sentry            | Vampire         | Vulture           |                |
-| Sheriff           | Ventriloquist   | Wraith            |                |
-| Shiftguard        | Vindicator      | Werewolf          |                |
-| Snitch            | Visionary       | Weapon Master     |                |
-| Soothsayer        | Warlock         | Workaholic        |                |
-| Spiritualist      | Wildling        |                   |                |
+| Door Master       | Dazzler         | Impartial         | Finder         |
+| Pacifist          | Echo            | Innocent          | Flash          |
+| Drainer           | Escapist        | Jackal            | Fool           |
+| Druid             | Eraser          | Jester            | Giant          |
+| Electric          | Evil Guesser    | Jinx              | Glow           |
+| Enigma            | Evil Tracker    | Juggernaut        | Gravestone     |
+| Escort            | Fireworker      | Lawyer            | Guardian Angel |
+| Express           | Freezer         | Magician          | Guesser        |
+| Investigator      | Gambler         | Vector            | Haste          |
+| Fortune Teller    | Gangster        | Maverick          | Haunter        |
+| Gaulois           | Generator       | Medusa            | Knighted       |
+| Goose             | Godfather       | Mycologist        | Last Impostor  |
+| Grenadier         | Greedy          | Necromancer       | Lazy           |
+| Guess Manager     | Hangman         | Nonplus           | Lovers         |
+| Guardian          | Hitman          | Opportunist       | Loyal          |
+| Ignitor           | Inhibitor       | Patroller         | Lucky          |
+| Insight           | Kamikaze        | Pelican           | Madmate        |
+| Inspector         | Kidnapper       | Pestilence        | Magnet         |
+| Inquirer          | Killing Machine | Specter           | Mare           |
+| Jailor            | Lightning       | Pickpocket        | Mimic          |
+| Judge             | Librarian       | Plaguebearer      | Minion         |
+| Lazy Guy          | Lurker          | Infection         | Mischievous    |
+| Lighter           | Mafioso         | Poisoner          | Necroview      |
+| Lookout           | Mastermind      | Postman           | Neptune        |
+| Luckey            | Nemesis         | Predator          | Nimble         |
+| Markseeker        | Mercenary       | Provocateur       | Noisy          |
+| Marshall          | Miner           | Pursuer           | Oblivious      |
+| Mathematician     | Morphling       | Pyromaniac        | Onbound        |
+| Mayor             | Ninja           | Quiz Master       | Sleep          |
+| Mechanic          | Nuker           | Reckless          | Phantasm       |
+| Medic             | Nullifier       | Revolutionist     | Physicist      |
+| Medium            | Overheat        | Ritualist         | Rascal         |
+| Merchant          | Parasite        | Rogue             | Reach          |
+| Telecommunication | Penguin         | Romantic          | Recruit        |
+| Mole              | Puppeteer       | Roulette Grandeur | Rookie         |
+| Monarch           | Quick Shooter   | Ruthless Romantic | Schizophrenic  |
+| Mortician         | Renegade        | Samurai           | Seer           |
+| Nice Eraser       | Rift Maker      | Schrödinger's Cat | Sleuth         |
+| Nice Guesser      | Saboteur        | Serial Killer     | Sonar          |
+| Hacker            | Sapper          | Shifter           | Stained        |
+| Swapper           | Scavenger       | Sidekick          | Taskcounter    |
+| Nightmare         | Silencer        | Simon             | Stealer        |
+| Observer          | Sniper          | Soul Hunter       | Stressed       |
+| Oracle            | Soul Catcher    | Spiritcaller      | Swift          |
+| Paranoid          | Swapster        | Sprayer           | Sunglasses     |
+| Perceiver         | Swiftclaw       | Stalker           | Tiebreaker     |
+| Psychic           | Swooper         | Cultist           | Torch          |
+| Rabbit            | Stealth         | Sunnyboy          | Truant         |
+| Randomizer        | Time Thief      | Terrorist         | Undead         |
+| Ricochet          | Trapster        | Tiger             | Unlucky        |
+| Safeguard         | Trickster       | Traitor           | Warden         |
+| Scout             | Twister         | Tremor            | Watcher        |
+| Security Guard    | Underdog        | Vengeance         | Workhorse      |
+| Sentinel          | Undertaker      | Vengeful Romantic | YouTuber       |
+| Sentry            | Vampire         | Virus             |                |
+| Sheriff           | Ventriloquist   | Vulture           |                |
+| Shiftguard        | Vindicator      | Wraith            |                |
+| Snitch            | Visionary       | Werewolf          |                |
+| Soothsayer        | Warlock         | Weapon Master     |                |
+| Spiritualist      | Wildling        | Workaholic        |                |
 | Speedrunner       | Witch           |                   |                |
 | Speed Booster     | Yin Yanger      |                   |                |
 | Spy               | Zombie          |                   |                |

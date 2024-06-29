@@ -514,9 +514,9 @@ internal class SelectRolesPatch
                 {
                     foreach ((CustomRoles otherAddon, (bool otherSpawnFlag, _)) in roleSpawnMapping)
                     {
-                        if (otherAddon != addon && otherSpawnFlag)
+                        if (otherAddon != addon && otherSpawnFlag && BasisChangingAddons.TryGetValue(otherAddon, out var otherList))
                         {
-                            roleList.ExceptWith(BasisChangingAddons[otherAddon]);
+                            roleList.ExceptWith(otherList);
                         }
                     }
 

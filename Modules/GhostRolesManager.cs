@@ -6,6 +6,7 @@ using AmongUs.GameOptions;
 using EHR.AddOns.GhostRoles;
 using EHR.Neutral;
 using HarmonyLib;
+using UnityEngine;
 
 namespace EHR.Modules
 {
@@ -56,10 +57,11 @@ namespace EHR.Modules
         public static void NotifyAboutGhostRole(PlayerControl pc)
         {
             if (!AssignedGhostRoles.TryGetValue(pc.PlayerId, out var ghostRole)) return;
-            pc.Notify($"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{GetMessage(Translator.GetString($"{ghostRole.Role}InfoLong").Split("\n")[1..].Join(delimiter: "\n"))}</size>", 300f);
+            CustomRoles role = ghostRole.Role;
+            pc.Notify($"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{GetMessage(Translator.GetString($"{role}InfoLong").Split("\n")[1..].Join(delimiter: "\n"))}</size>", 300f);
             return;
 
-            static string GetMessage(string baseMessage)
+            string GetMessage(string baseMessage)
             {
                 var message = baseMessage;
                 for (int i = 50; i < message.Length; i += 50)
@@ -71,7 +73,7 @@ namespace EHR.Modules
                     }
                 }
 
-                return message;
+                return Utils.ColorString(Color.white, message.Replace(role.ToString(), role.ToColoredString()));
             }
         }
 
