@@ -344,15 +344,29 @@ public class GameStartRandomMap
             return false;
         }
 
-
-        Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
-        Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
-        Main.NormalOptions.KillCooldown = 0f;
+        if (__instance.startState == GameStartManager.StartingStates.Countdown)
+        {
+            Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
+        }
+        else
+        {
+            Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
+            Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
+            Main.NormalOptions.KillCooldown = 0f;
+        }
 
         var opt = Main.NormalOptions.Cast<IGameOptions>();
         AURoleOptions.SetOpt(opt);
-        Main.LastShapeshifterCooldown.Value = AURoleOptions.ShapeshifterCooldown;
-        AURoleOptions.ShapeshifterCooldown = 0f;
+
+        if (__instance.startState == GameStartManager.StartingStates.Countdown)
+        {
+            AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
+        }
+        else
+        {
+            Main.LastShapeshifterCooldown.Value = AURoleOptions.ShapeshifterCooldown;
+            AURoleOptions.ShapeshifterCooldown = 0f;
+        }
 
         PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(opt, AprilFoolsMode.IsAprilFoolsModeToggledOn));
 
