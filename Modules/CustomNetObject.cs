@@ -14,31 +14,80 @@ namespace EHR
 {
     internal class CustomNetObject
     {
-        public static readonly Dictionary<int, CustomNetObject> AllObjects = [];
-        protected readonly int Id = Enumerable.Range(0, int.MaxValue).First(id => !AllObjects.ContainsKey(id));
-        private PlayerControl PC;
+        public static readonly List<CustomNetObject> AllObjects = [];
+        private static int MaxId = -1;
+        protected int Id;
+        private PlayerControl playerControl;
+        private float PlayerControlTimer;
+        private Vector2 Position;
+        private string Sprite;
+        private CustomObjectTypes Type;
 
         protected void RpcChangeSprite(string sprite)
         {
-            PC.RpcSetName(sprite);
+            Sprite = sprite;
+            LateTask.New(() =>
+            {
+                playerControl.RawSetName(sprite);
+                var name = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName;
+                var colorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId;
+                var hatId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId;
+                var skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
+                var petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
+                var visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
+                CustomRpcSender sender = CustomRpcSender.Create("SetFakeData");
+                MessageWriter writer = sender.stream;
+                sender.StartMessage();
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = "<size=14><br></size>" + sprite;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId = 255;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId = "";
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId = "";
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId = "";
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId = "";
+                writer.StartMessage(1);
+                {
+                    writer.WritePacked(PlayerControl.LocalPlayer.Data.NetId);
+                    PlayerControl.LocalPlayer.Data.Serialize(writer, false);
+                }
+                writer.EndMessage();
+                sender.StartRpc(playerControl.NetId, (byte)RpcCalls.Shapeshift)
+                    .WriteNetObject(PlayerControl.LocalPlayer)
+                    .Write(false)
+                    .EndRpc();
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = name;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId = colorId;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId = hatId;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId = skinId;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId = petId;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId = visorId;
+                writer.StartMessage(1);
+                {
+                    writer.WritePacked(PlayerControl.LocalPlayer.Data.NetId);
+                    PlayerControl.LocalPlayer.Data.Serialize(writer, false);
+                }
+                writer.EndMessage();
+                sender.EndMessage();
+                sender.SendMessage();
+            }, 0f);
         }
 
         public void TP(Vector2 position)
         {
-            PC.NetTransform.RpcSnapTo(position);
+            playerControl.NetTransform.RpcSnapTo(position);
+            Position = position;
         }
 
         public void Despawn()
         {
-            PC.Despawn();
-            LateTask.New(() => AllObjects.Remove(Id), 0.001f, log: false);
+            playerControl.Despawn();
+            AllObjects.Remove(this);
         }
 
         protected void Hide(PlayerControl player)
         {
             if (player.AmOwner)
             {
-                PC.Visible = false;
+                playerControl.Visible = false;
                 return;
             }
 
@@ -47,7 +96,7 @@ namespace EHR
             writer.Write(AmongUsClient.Instance.GameId);
             writer.WritePacked(player.GetClientId());
             writer.StartMessage(5);
-            writer.WritePacked(PC.NetId);
+            writer.WritePacked(playerControl.NetId);
             writer.EndMessage();
             writer.EndMessage();
             AmongUsClient.Instance.SendOrDisconnect(writer);
@@ -56,19 +105,144 @@ namespace EHR
 
         protected virtual void OnFixedUpdate()
         {
+            PlayerControlTimer += Time.fixedDeltaTime;
+            if (PlayerControlTimer > 20f)
+            {
+                PlayerControl oldPlayerControl = playerControl;
+                playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
+                playerControl.PlayerId = 255;
+                playerControl.isNew = false;
+                playerControl.notRealPlayer = true;
+                AmongUsClient.Instance.NetIdCnt += 1U;
+                MessageWriter msg = MessageWriter.Get();
+                msg.StartMessage(5);
+                msg.Write(AmongUsClient.Instance.GameId);
+                AmongUsClient.Instance.WriteSpawnMessage(playerControl, -2, SpawnFlags.None, msg);
+                msg.EndMessage();
+                msg.StartMessage(6);
+                msg.Write(AmongUsClient.Instance.GameId);
+                msg.WritePacked(int.MaxValue);
+                for (uint i = 1; i <= 3; ++i)
+                {
+                    msg.StartMessage(4);
+                    msg.WritePacked(2U);
+                    msg.WritePacked(-2);
+                    msg.Write((byte)SpawnFlags.None);
+                    msg.WritePacked(1);
+                    msg.WritePacked(AmongUsClient.Instance.NetIdCnt - i);
+                    msg.StartMessage(1);
+                    msg.EndMessage();
+                    msg.EndMessage();
+                }
+
+                msg.EndMessage();
+                AmongUsClient.Instance.SendOrDisconnect(msg);
+                msg.Recycle();
+                if (PlayerControl.AllPlayerControls.Contains(playerControl))
+                    PlayerControl.AllPlayerControls.Remove(playerControl);
+                LateTask.New(() =>
+                {
+                    playerControl.NetTransform.RpcSnapTo(Position);
+                    playerControl.RawSetName(Sprite);
+                    var name = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName;
+                    var colorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId;
+                    var hatId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId;
+                    var skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
+                    var petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
+                    var visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
+                    CustomRpcSender sender = CustomRpcSender.Create("SetFakeData");
+                    MessageWriter writer = sender.stream;
+                    sender.StartMessage();
+                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = "<size=14><br></size>" + Sprite;
+                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId = 255;
+                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId = "";
+                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId = "";
+                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId = "";
+                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId = "";
+                    writer.StartMessage(1);
+                    {
+                        writer.WritePacked(PlayerControl.LocalPlayer.Data.NetId);
+                        PlayerControl.LocalPlayer.Data.Serialize(writer, false);
+                    }
+                    writer.EndMessage();
+                    sender.StartRpc(playerControl.NetId, (byte)RpcCalls.Shapeshift)
+                        .WriteNetObject(PlayerControl.LocalPlayer)
+                        .Write(false)
+                        .EndRpc();
+                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = name;
+                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId = colorId;
+                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId = hatId;
+                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId = skinId;
+                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId = petId;
+                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId = visorId;
+                    writer.StartMessage(1);
+                    {
+                        writer.WritePacked(PlayerControl.LocalPlayer.Data.NetId);
+                        PlayerControl.LocalPlayer.Data.Serialize(writer, false);
+                    }
+                    writer.EndMessage();
+                    sender.EndMessage();
+                    sender.SendMessage();
+                }, 0.2f);
+                LateTask.New(() => oldPlayerControl.Despawn(), 0.3f);
+                playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
+                playerControl.cosmetics.colorBlindText.color = Color.clear;
+                foreach (var pc in PlayerControl.AllPlayerControls)
+                {
+                    if (pc.AmOwner) continue;
+                    LateTask.New(() =>
+                    {
+                        CustomRpcSender sender = CustomRpcSender.Create("SetFakeData");
+                        MessageWriter writer = sender.stream;
+                        sender.StartMessage(pc.GetClientId());
+                        writer.StartMessage(1);
+                        {
+                            writer.WritePacked(playerControl.NetId);
+                            writer.Write(pc.PlayerId);
+                        }
+                        writer.EndMessage();
+                        sender.StartRpc(playerControl.NetId, (byte)RpcCalls.MurderPlayer)
+                            .WriteNetObject(playerControl)
+                            .Write((int)MurderResultFlags.FailedError)
+                            .EndRpc();
+                        writer.StartMessage(1);
+                        {
+                            writer.WritePacked(playerControl.NetId);
+                            writer.Write((byte)255);
+                        }
+                        writer.EndMessage();
+                        sender.EndMessage();
+                        sender.SendMessage();
+                    }, 0.1f);
+                }
+
+                if (Type == CustomObjectTypes.TrapArea)
+                {
+                    if (this is TrapArea trapArea)
+                    {
+                        foreach (var pc in PlayerControl.AllPlayerControls)
+                        {
+                            if (!trapArea.VisibleList.Contains(pc.PlayerId))
+                                Hide(pc);
+                        }
+                    }
+                }
+
+                PlayerControlTimer = 0f;
+            }
         }
 
-        protected void CreateNetObject(string sprite, Vector2 position)
+        protected void CreateNetObject(string sprite, Vector2 position, CustomObjectTypes type)
         {
-            PC = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
-            PC.PlayerId = 255;
-            PC.isNew = false;
-            PC.notRealPlayer = true;
+            playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
+            playerControl.PlayerId = 255;
+            playerControl.isNew = false;
+            playerControl.notRealPlayer = true;
             AmongUsClient.Instance.NetIdCnt += 1U;
             MessageWriter msg = MessageWriter.Get();
             msg.StartMessage(5);
             msg.Write(AmongUsClient.Instance.GameId);
-            AmongUsClient.Instance.WriteSpawnMessage(PC, -2, SpawnFlags.None, msg);
+            AmongUsClient.Instance.WriteSpawnMessage(playerControl, -2, SpawnFlags.None, msg);
             msg.EndMessage();
             msg.StartMessage(6);
             msg.Write(AmongUsClient.Instance.GameId);
@@ -89,17 +263,62 @@ namespace EHR
             msg.EndMessage();
             AmongUsClient.Instance.SendOrDisconnect(msg);
             msg.Recycle();
-            if (PlayerControl.AllPlayerControls.Contains(PC))
-                PlayerControl.AllPlayerControls.Remove(PC);
+            if (PlayerControl.AllPlayerControls.Contains(playerControl))
+                PlayerControl.AllPlayerControls.Remove(playerControl);
             LateTask.New(() =>
             {
-                PC.RpcSetName(sprite);
-                PC.NetTransform.RpcSnapTo(position);
-            }, 0.1f, log: false);
-            PC.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
-            PC.cosmetics.colorBlindText.color = Color.clear;
-            AllObjects.Add(Id, this);
-            foreach (var pc in Main.AllPlayerControls)
+                playerControl.NetTransform.RpcSnapTo(position);
+                playerControl.RawSetName(sprite);
+                var name = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName;
+                var colorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId;
+                var hatId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId;
+                var skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
+                var petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
+                var visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
+                CustomRpcSender sender = CustomRpcSender.Create("SetFakeData");
+                MessageWriter writer = sender.stream;
+                sender.StartMessage();
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = "<size=14><br></size>" + sprite;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId = 255;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId = "";
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId = "";
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId = "";
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId = "";
+                writer.StartMessage(1);
+                {
+                    writer.WritePacked(PlayerControl.LocalPlayer.Data.NetId);
+                    PlayerControl.LocalPlayer.Data.Serialize(writer, false);
+                }
+                writer.EndMessage();
+                sender.StartRpc(playerControl.NetId, (byte)RpcCalls.Shapeshift)
+                    .WriteNetObject(PlayerControl.LocalPlayer)
+                    .Write(false)
+                    .EndRpc();
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = name;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId = colorId;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId = hatId;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId = skinId;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId = petId;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId = visorId;
+                writer.StartMessage(1);
+                {
+                    writer.WritePacked(PlayerControl.LocalPlayer.Data.NetId);
+                    PlayerControl.LocalPlayer.Data.Serialize(writer, false);
+                }
+                writer.EndMessage();
+                sender.EndMessage();
+                sender.SendMessage();
+            }, 0.2f);
+            Position = position;
+            PlayerControlTimer = 0f;
+            Type = type;
+            playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
+            playerControl.cosmetics.colorBlindText.color = Color.clear;
+            Sprite = sprite;
+            ++MaxId;
+            Id = MaxId;
+            AllObjects.Add(this);
+            foreach (var pc in PlayerControl.AllPlayerControls)
             {
                 if (pc.AmOwner) continue;
                 LateTask.New(() =>
@@ -109,29 +328,52 @@ namespace EHR
                     sender.StartMessage(pc.GetClientId());
                     writer.StartMessage(1);
                     {
-                        writer.WritePacked(PC.NetId);
+                        writer.WritePacked(playerControl.NetId);
                         writer.Write(pc.PlayerId);
                     }
                     writer.EndMessage();
-                    sender.StartRpc(PC.NetId, (byte)RpcCalls.MurderPlayer)
-                        .WriteNetObject(PC)
+                    sender.StartRpc(playerControl.NetId, (byte)RpcCalls.MurderPlayer)
+                        .WriteNetObject(playerControl)
                         .Write((int)MurderResultFlags.FailedError)
                         .EndRpc();
                     writer.StartMessage(1);
                     {
-                        writer.WritePacked(PC.NetId);
+                        writer.WritePacked(playerControl.NetId);
                         writer.Write((byte)255);
                     }
                     writer.EndMessage();
                     sender.EndMessage();
                     sender.SendMessage();
-                }, 0.1f, log: false);
+                }, 0.1f);
             }
         }
 
-        public static CustomNetObject Get(int id) => AllObjects.GetValueOrDefault(id);
+        public static void FixedUpdate() => AllObjects.ForEach(x => x.OnFixedUpdate());
+        public static CustomNetObject Get(int id) => AllObjects.FirstOrDefault(x => x.Id == id);
 
-        public static void FixedUpdate() => AllObjects.Values.Do(x => x.OnFixedUpdate());
+        public static void Reset()
+        {
+            try
+            {
+                AllObjects.ForEach(x => x.Despawn());
+                AllObjects.Clear();
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
+        }
+    }
+
+    enum CustomObjectTypes
+    {
+        Explosion,
+        TrapArea,
+        TornadoObject,
+        PlayerDetector,
+        AdventurerItem,
+        Toilet,
+        BlackHole
     }
 
     internal sealed class Explosion : CustomNetObject
@@ -148,7 +390,7 @@ namespace EHR
             Duration = duration;
             Timer = -0.1f;
             Frame = 0;
-            CreateNetObject($"<size={Size}><line-height=72%><font=\"VCR SDF\"><br><#0000>███<#ff0000>█<#0000>███<br><#ff0000>█<#0000>█<#ff0000>███<#0000>█<#ff0000>█<br>█<#ff8000>██<#ffff00>█<#ff8000>██<#ffff00>█<br>██<#ff8000>█<#ffff00>█<#ff8000>█<#ffff00>██<br><#ff8000>█<#ffff80>██<#ffff00>█<#ffff80>██<#ff8000>█<br><#0000>█<#ff8000>█<#ffff80>███<#ff8000>█<#0000>█<br>██<#ff8000>███<#0000>██", position);
+            CreateNetObject($"<size={Size}><line-height=72%><font=\"VCR SDF\"><br><#0000>███<#ff0000>█<#0000>███<br><#ff0000>█<#0000>█<#ff0000>███<#0000>█<#ff0000>█<br>█<#ff8000>██<#ffff00>█<#ff8000>██<#ffff00>█<br>██<#ff8000>█<#ffff00>█<#ff8000>█<#ffff00>██<br><#ff8000>█<#ffff80>██<#ffff00>█<#ffff80>██<#ff8000>█<br><#0000>█<#ff8000>█<#ffff80>███<#ff8000>█<#0000>█<br>██<#ff8000>███<#0000>██", position, CustomObjectTypes.Explosion);
         }
 
         protected override void OnFixedUpdate()
@@ -188,17 +430,19 @@ namespace EHR
     internal sealed class TrapArea : CustomNetObject
     {
         private readonly float Size;
+        public readonly List<byte> VisibleList;
         private readonly float WaitDuration;
         private int State;
         private float Timer;
 
-        public TrapArea(float radius, float waitDuration, Vector2 position, IEnumerable<byte> visibleList)
+        public TrapArea(float radius, float waitDuration, Vector2 position, List<byte> visibleList)
         {
+            VisibleList = visibleList;
             Size = radius * 25f;
             Timer = -0.1f;
             WaitDuration = waitDuration;
             State = 0;
-            CreateNetObject($"<size={Size}><font=\"VCR SDF\"><#c7c7c769>●", position);
+            CreateNetObject($"<size={Size}><font=\"VCR SDF\"><#c7c7c769>●", position, CustomObjectTypes.TrapArea);
             Main.AllAlivePlayerControls.ExceptBy(visibleList, x => x.PlayerId).Do(Hide);
         }
 
@@ -227,7 +471,7 @@ namespace EHR
         public TornadoObject(Vector2 position, IEnumerable<byte> visibleList)
         {
             SpawnTimeStamp = Utils.TimeStamp;
-            CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<br><#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<br><#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#636363>\u2588<#636363>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<br><#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#636363>\u2588<#636363>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<br><#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<br><alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>", position);
+            CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<br><#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<br><#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#636363>\u2588<#636363>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<br><#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#636363>\u2588<#636363>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<br><#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<br><alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#8c8c8c>\u2588<#8c8c8c>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<#bababa>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>", position, CustomObjectTypes.TornadoObject);
             Main.AllAlivePlayerControls.ExceptBy(visibleList, x => x.PlayerId).Do(Hide);
         }
 
@@ -260,7 +504,7 @@ namespace EHR
     {
         public PlayerDetector(Vector2 position, List<byte> visibleList, out int id)
         {
-            CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#000000>\u2588<#000000>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#000000>\u2588<#000000>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>", position);
+            CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#000000>\u2588<#000000>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#000000>\u2588<#000000>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<br><alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#33e6b0>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>", position, CustomObjectTypes.PlayerDetector);
             Main.AllAlivePlayerControls.ExceptBy(visibleList, x => x.PlayerId).Do(Hide);
             id = Id;
         }
@@ -274,7 +518,7 @@ namespace EHR
         {
             Resource = resource;
             var data = Adventurer.ResourceDisplayData[resource];
-            CreateNetObject($"<size=300%><font=\"VCR SDF\"><line-height=72%>{Utils.ColorString(data.Color, data.Icon.ToString())}</line-height></font></size>", position);
+            CreateNetObject($"<size=300%><font=\"VCR SDF\"><line-height=72%>{Utils.ColorString(data.Color, data.Icon.ToString())}</line-height></font></size>", position, CustomObjectTypes.AdventurerItem);
             Main.AllAlivePlayerControls.ExceptBy(visibleList, x => x.PlayerId).Do(Hide);
         }
     }
@@ -283,7 +527,7 @@ namespace EHR
     {
         internal Toilet(Vector2 position, IEnumerable<PlayerControl> hideList)
         {
-            CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<alpha=#00>\u2588<br><#e6e6e6>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<br><#e6e6e6>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<br><alpha=#00>\u2588<#e6e6e6>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#d3d4ce>\u2588<#dedede>\u2588<#dedede>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#bfbfbf>\u2588<#454545>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#bfbfbf>\u2588<br><alpha=#00>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#bfbfbf>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#dedede>\u2588<#dedede>\u2588<#dedede>\u2588<#dedede>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#dedede>\u2588<#dedede>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>", position);
+            CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<alpha=#00>\u2588<br><#e6e6e6>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<br><#e6e6e6>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<br><alpha=#00>\u2588<#e6e6e6>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<#d3d4ce>\u2588<#dedede>\u2588<#dedede>\u2588<#d3d4ce>\u2588<#e6e6e6>\u2588<#e6e6e6>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#bfbfbf>\u2588<#454545>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#333333>\u2588<#bfbfbf>\u2588<br><alpha=#00>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#454545>\u2588<#bfbfbf>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<#bfbfbf>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#dedede>\u2588<#dedede>\u2588<#dedede>\u2588<#dedede>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#dedede>\u2588<#dedede>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>", position, CustomObjectTypes.Toilet);
             hideList.Do(Hide);
         }
     }
@@ -292,7 +536,7 @@ namespace EHR
     {
         internal BlackHole(Vector2 position)
         {
-            CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<alpha=#00>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<alpha=#00>\u2588<br><#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<br><#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<br><#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<br><#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<br><alpha=#00>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>", position);
+            CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<alpha=#00>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<alpha=#00>\u2588<br><#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<br><#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<br><#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<br><#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<br><alpha=#00>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>", position, CustomObjectTypes.BlackHole);
         }
     }
 }

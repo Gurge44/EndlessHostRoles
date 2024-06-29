@@ -1,4 +1,5 @@
 ﻿using System;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
 using EHR.Patches;
@@ -54,6 +55,12 @@ namespace EHR.Crewmate
             TelekineticPC = Utils.GetPlayerById(playerId);
             CurrentMode = default;
             Timer = 40;
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            AURoleOptions.EngineerCooldown = 0f;
+            AURoleOptions.EngineerInVentMaxTime = 1f;
         }
 
         public override void OnFixedUpdate(PlayerControl pc)

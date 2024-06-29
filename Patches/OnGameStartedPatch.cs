@@ -210,6 +210,7 @@ internal class ChangeRoleSettings
             Crusader.ForCrusade = [];
             Godfather.GodfatherTarget = byte.MaxValue;
             ChatManager.ResetHistory();
+            CustomNetObject.Reset();
 
             ReportDeadBodyPatch.CanReport = [];
             SabotageMapPatch.TimerTexts = [];

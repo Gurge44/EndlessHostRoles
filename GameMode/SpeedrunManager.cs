@@ -46,6 +46,7 @@ namespace EHR
         {
             if (TimeStacksUp.GetBool()) Timers[pc.PlayerId] += TimeLimit.GetInt();
             else Timers[pc.PlayerId] = TimeLimit.GetInt();
+            Logger.Info($" Timer for {pc.GetRealName()} set to {Timers[pc.PlayerId]}", "Speedrun");
         }
 
         public static void OnTaskFinish(PlayerControl pc)
@@ -107,7 +108,8 @@ namespace EHR
             }
 
             reason = GameOverReason.ImpostorByKill;
-            return false;
+            var keys = new[] { KeyCode.LeftShift, KeyCode.L, KeyCode.Return };
+            return keys.Any(Input.GetKeyDown) && keys.All(Input.GetKey);
         }
 
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]

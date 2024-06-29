@@ -876,7 +876,13 @@ public static class Utils
     public static string GetProgressText(byte playerId, bool comms = false)
     {
         if (!Main.PlayerVersion.ContainsKey(0)) return string.Empty;
-        if (Options.CurrentGameMode == CustomGameMode.MoveAndStop) return GetTaskCount(playerId, comms, moveAndStop: true);
+
+        switch (Options.CurrentGameMode)
+        {
+            case CustomGameMode.MoveAndStop: return GetTaskCount(playerId, comms, moveAndStop: true);
+            case CustomGameMode.Speedrun: return string.Empty;
+        }
+
         var ProgressText = new StringBuilder();
         PlayerControl pc = GetPlayerById(playerId);
         try
