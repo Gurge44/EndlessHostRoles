@@ -9,7 +9,6 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Object = Il2CppSystem.Object;
 
 namespace EHR;
 
@@ -164,7 +163,7 @@ public static class Translator
     }
 
     public static string GetString(StringNames stringName)
-        => DestroyableSingleton<TranslationController>.Instance.GetString(stringName, new Il2CppReferenceArray<Object>(0));
+        => DestroyableSingleton<TranslationController>.Instance.GetString(stringName, new Il2CppReferenceArray<Il2CppSystem.Object>(0));
 
     public static string GetRoleString(string str, bool forUser = true)
     {

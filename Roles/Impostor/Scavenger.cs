@@ -1,9 +1,9 @@
 ﻿using EHR.Modules;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using UnityEngine;
 using static EHR.Options;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     internal class Scavenger : RoleBase
     {

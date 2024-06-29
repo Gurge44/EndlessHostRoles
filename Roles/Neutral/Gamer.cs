@@ -5,7 +5,7 @@ using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Gamer : RoleBase
 {
@@ -57,10 +57,6 @@ public class Gamer : RoleBase
         {
             PlayerHealth[pc.PlayerId] = HealthMax.GetInt();
         }
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using static EHR.Options;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     internal class Capitalism : RoleBase
     {
@@ -64,7 +64,7 @@ namespace EHR.Roles.Impostor
                 taskState.AllTasksCount += amount;
                 CapitalismAddTask.Remove(player.PlayerId);
                 taskState.CompletedTasksCount++;
-                GameData.Instance.RpcSetTasks(player.PlayerId, Array.Empty<byte>()); // Redistribute tasks
+                player.Data.RpcSetTasks(Array.Empty<byte>()); // Redistribute tasks
                 player.SyncSettings();
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 return false;

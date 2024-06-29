@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class Insight : RoleBase
     {

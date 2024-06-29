@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Patches;
-using EHR.Roles.Crewmate;
 
 namespace EHR.Neutral
 {
@@ -54,10 +54,6 @@ namespace EHR.Neutral
 
             if (!TryChangeBasis.GetBool() || playerId == 0)
                 WasShifter.Add(playerId);
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

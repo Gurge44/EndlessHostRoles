@@ -7,7 +7,7 @@ using EHR.Modules;
 using Hazel;
 using UnityEngine;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     public class PlagueDoctor : RoleBase
     {
@@ -82,10 +82,6 @@ namespace EHR.Roles.Neutral
                 InfectInactiveTime += 5f;
 
             playerIdList.Add(playerId);
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;

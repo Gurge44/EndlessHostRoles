@@ -4,7 +4,7 @@ using EHR.Modules;
 using EHR.Patches;
 using Hazel;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Collector : RoleBase
 {

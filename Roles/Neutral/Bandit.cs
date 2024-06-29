@@ -5,7 +5,7 @@ using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Bandit : RoleBase
 {
@@ -56,10 +56,6 @@ public class Bandit : RoleBase
         On = true;
         TotalSteals.Add(playerId, 0);
         Targets[playerId] = [];
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());

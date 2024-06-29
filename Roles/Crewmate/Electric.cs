@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using static EHR.Options;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class Electric : RoleBase
     {

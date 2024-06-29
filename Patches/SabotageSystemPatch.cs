@@ -1,6 +1,6 @@
+using EHR.Crewmate;
 using EHR.Modules;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
 
@@ -160,7 +160,7 @@ public static class MushroomMixupSabotageSystemPatch
     public static void Postfix(MushroomMixupSabotageSystem __instance, bool __state)
     {
         // When Mushroom Mixup Sabotage ends
-        if (__instance.IsActive != __state && GameStates.IsInTask)
+        if (AmongUsClient.Instance.AmHost && __instance.IsActive != __state && GameStates.IsInTask)
         {
             LateTask.New(() =>
             {

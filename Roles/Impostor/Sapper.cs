@@ -2,13 +2,13 @@
 using System.Linq;
 using System.Text;
 using AmongUs.GameOptions;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     public class Sapper : RoleBase
     {

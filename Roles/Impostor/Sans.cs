@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using static EHR.Options;
 
-namespace EHR.Roles.Impostor;
+namespace EHR.Impostor;
 
 public class Sans : RoleBase
 {
@@ -85,8 +85,7 @@ public class Sans : RoleBase
         NowCooldown = DefaultKCD;
 
         if (!AmongUsClient.Instance.AmHost || UsedRole == CustomRoles.Sans) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
+        Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = NowCooldown;

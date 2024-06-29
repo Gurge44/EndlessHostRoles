@@ -1,7 +1,7 @@
 ﻿using AmongUs.GameOptions;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     internal class CursedWolf : RoleBase
     {
@@ -46,8 +46,7 @@ namespace EHR.Roles.Impostor
             }
 
             if (!AmongUsClient.Instance.AmHost || !IsJinx) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
+            Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)

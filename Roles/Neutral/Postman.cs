@@ -5,7 +5,7 @@ using EHR.Modules;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Postman : RoleBase
 {
@@ -51,10 +51,6 @@ public class Postman : RoleBase
         Target = byte.MaxValue;
         IsFinished = false;
         wereTargets = [];
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

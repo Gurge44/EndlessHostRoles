@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.AddOns.Crewmate;
+using EHR.AddOns.GhostRoles;
+using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Neutral;
-using EHR.Roles.AddOns.GhostRoles;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
@@ -18,7 +18,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
     public PlayerControl player = player;
 
     public override IGameOptions BasedGameOptions =>
-        Main.RealOptionsData.Restore(new NormalGameOptionsV07(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
+        Main.RealOptionsData.Restore(new NormalGameOptionsV08(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
 
     public override bool IsDirty { get; protected set; }
 
@@ -61,7 +61,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
     {
         foreach (GameOptionsSender allSender in AllSenders)
         {
-            if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && ((Grenadier.GrenadierBlinding.Count > 0 && (sender.player.GetCustomRole().IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Grenadier.MadGrenadierBlinding.Count > 0 && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate))))
+            if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && ((Grenadier.GrenadierBlinding.Count > 0 && (sender.player.IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Grenadier.MadGrenadierBlinding.Count > 0 && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate))))
             {
                 sender.SetDirty();
             }
@@ -159,6 +159,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     }
 
                     break;
+                case CustomGameMode.Speedrun:
                 case CustomGameMode.HotPotato:
                 case CustomGameMode.MoveAndStop:
                     opt.SetVision(true);
@@ -186,13 +187,30 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 
             switch (role)
             {
+                case CustomRoles.PhantomEHR:
+                    AURoleOptions.PhantomCooldown = ImpostorVanillaRoles.PhantomCooldown.GetFloat();
+                    AURoleOptions.PhantomDuration = ImpostorVanillaRoles.PhantomDuration.GetFloat();
+                    break;
                 case CustomRoles.ShapeshifterEHR:
-                    AURoleOptions.ShapeshifterCooldown = Options.ShapeshiftCD.GetFloat();
-                    AURoleOptions.ShapeshifterDuration = Options.ShapeshiftDur.GetFloat();
+                    AURoleOptions.ShapeshifterCooldown = ImpostorVanillaRoles.ShapeshiftCD.GetFloat();
+                    AURoleOptions.ShapeshifterDuration = ImpostorVanillaRoles.ShapeshiftDur.GetFloat();
+                    break;
+                case CustomRoles.EngineerEHR:
+                    AURoleOptions.EngineerCooldown = CrewmateVanillaRoles.EngineerCD.GetFloat();
+                    AURoleOptions.EngineerInVentMaxTime = CrewmateVanillaRoles.EngineerDur.GetFloat();
+                    break;
+                case CustomRoles.NoisemakerEHR:
+                    AURoleOptions.NoisemakerImpostorAlert = CrewmateVanillaRoles.NoiseMakerImpostorAlert.GetBool();
+                    AURoleOptions.NoisemakerAlertDuration = CrewmateVanillaRoles.NoisemakerAlertDuration.GetFloat();
                     break;
                 case CustomRoles.ScientistEHR:
-                    AURoleOptions.ScientistCooldown = Options.ScientistCD.GetFloat();
-                    AURoleOptions.ScientistBatteryCharge = Options.ScientistDur.GetFloat();
+                    AURoleOptions.ScientistCooldown = CrewmateVanillaRoles.ScientistCD.GetFloat();
+                    AURoleOptions.ScientistBatteryCharge = CrewmateVanillaRoles.ScientistDur.GetFloat();
+                    break;
+                case CustomRoles.TrackerEHR:
+                    AURoleOptions.TrackerCooldown = CrewmateVanillaRoles.TrackerCooldown.GetFloat();
+                    AURoleOptions.TrackerDuration = CrewmateVanillaRoles.TrackerDuration.GetFloat();
+                    AURoleOptions.TrackerDelay = CrewmateVanillaRoles.TrackerDelay.GetFloat();
                     break;
             }
 
@@ -335,12 +353,21 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                         opt.SetVision(Options.MadmateHasImpostorVision.GetBool());
                         break;
                     case CustomRoles.Nimble when player.GetRoleTypes() == RoleTypes.Engineer:
-                        AURoleOptions.EngineerCooldown = Options.NimbleCD.GetFloat();
-                        AURoleOptions.EngineerInVentMaxTime = Options.NimbleInVentTime.GetFloat();
+                        AURoleOptions.EngineerCooldown = Nimble.NimbleCD.GetFloat();
+                        AURoleOptions.EngineerInVentMaxTime = Nimble.NimbleInVentTime.GetFloat();
                         break;
                     case CustomRoles.Physicist when player.GetRoleTypes() == RoleTypes.Scientist:
-                        AURoleOptions.ScientistCooldown = Options.PhysicistCD.GetFloat();
-                        AURoleOptions.ScientistBatteryCharge = Options.PhysicistViewDuration.GetFloat();
+                        AURoleOptions.ScientistCooldown = Physicist.PhysicistCD.GetFloat();
+                        AURoleOptions.ScientistBatteryCharge = Physicist.PhysicistViewDuration.GetFloat();
+                        break;
+                    case CustomRoles.Finder when player.GetRoleTypes() == RoleTypes.Tracker:
+                        AURoleOptions.TrackerCooldown = Finder.FinderCD.GetFloat();
+                        AURoleOptions.TrackerDuration = Finder.FinderDuration.GetFloat();
+                        AURoleOptions.TrackerDelay = Finder.FinderDelay.GetFloat();
+                        break;
+                    case CustomRoles.Noisy when player.GetRoleTypes() == RoleTypes.Noisemaker:
+                        AURoleOptions.NoisemakerImpostorAlert = Noisy.NoisyImpostorAlert.GetBool();
+                        AURoleOptions.NoisemakerAlertDuration = Noisy.NoisyAlertDuration.GetFloat();
                         break;
                 }
             }

@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
+using EHR.Crewmate;
 using EHR.Modules;
-using EHR.Roles.Crewmate;
 using Hazel;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class WeaponMaster : RoleBase
 {
@@ -61,10 +61,6 @@ public class WeaponMaster : RoleBase
 
         Mode = 0;
         shieldUsed = false;
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     void SendRPC()

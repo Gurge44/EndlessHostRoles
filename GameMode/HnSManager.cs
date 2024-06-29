@@ -223,7 +223,7 @@ namespace EHR
             if (result.ContainsValue(CustomRoles.Agent))
             {
                 var agent = result.GetKeyByValue(CustomRoles.Agent).PlayerId;
-                PlayerRoles.DoIf(x => x.Value.Role != CustomRoles.Agent && x.Value.Interface.Team == Team.Impostor, x => TargetArrow.Add(x.Key, agent), fast: true);
+                PlayerRoles.DoIf(x => x.Value.Role != CustomRoles.Agent && x.Value.Interface.Team == Team.Impostor, x => TargetArrow.Add(x.Key, agent));
             }
         }
 
@@ -260,7 +260,7 @@ namespace EHR
             return false;
         }
 
-        public static bool HasTasks(GameData.PlayerInfo playerInfo)
+        public static bool HasTasks(NetworkedPlayerInfo playerInfo)
         {
             var role = PlayerRoles[playerInfo.PlayerId];
             return role.Interface.Team == Team.Crewmate || role.Role == CustomRoles.Taskinator;

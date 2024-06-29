@@ -3,7 +3,7 @@ using AmongUs.GameOptions;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Crewmate;
+namespace EHR.Crewmate;
 
 public class Monarch : RoleBase
 {
@@ -35,10 +35,6 @@ public class Monarch : RoleBase
     {
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(KnightMax.GetInt());
-
-        if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KnightCooldown.GetFloat();

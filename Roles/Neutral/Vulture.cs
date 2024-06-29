@@ -5,7 +5,7 @@ using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Vulture : RoleBase
 {
@@ -133,7 +133,7 @@ public class Vulture : RoleBase
         }
     }
 
-    public override bool CheckReportDeadBody(PlayerControl pc, GameData.PlayerInfo target, PlayerControl killer)
+    public override bool CheckReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target, PlayerControl killer)
     {
         if (pc.GetAbilityUseLimit() <= 0) return true;
         if (Utils.TimeStamp - LastReport < VultureReportCD.GetFloat()) return true;

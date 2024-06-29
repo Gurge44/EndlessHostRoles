@@ -5,7 +5,7 @@ using EHR.Modules;
 using static EHR.Options;
 
 // From: TOH_Y
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Workaholic : RoleBase
     {

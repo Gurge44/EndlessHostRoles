@@ -145,7 +145,7 @@ namespace EHR.Crewmate
                             {
                                 Main.AllPlayerSpeed[x.PlayerId] = defaultSpeed;
                                 x.MarkDirtySettings();
-                            }, fast: true);
+                            });
                             break;
                     }
                 }
@@ -243,7 +243,7 @@ namespace EHR.Crewmate
             {
                 Toilets.Remove(x.Key);
                 x.Value.NetObject.Despawn();
-            });
+            }, fast: false);
         }
 
         public static bool OnAnyoneCheckMurderStart(PlayerControl killer, PlayerControl target)

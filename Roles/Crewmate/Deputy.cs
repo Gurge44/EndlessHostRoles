@@ -3,7 +3,7 @@ using AmongUs.GameOptions;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Crewmate;
+namespace EHR.Crewmate;
 
 public class Deputy : RoleBase
 {
@@ -41,10 +41,6 @@ public class Deputy : RoleBase
     {
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(HandcuffMax.GetInt());
-
-        if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = HandcuffCooldown.GetFloat();

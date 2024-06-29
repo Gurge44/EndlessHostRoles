@@ -1,17 +1,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     public class Devourer : RoleBase
     {
         private const int Id = 3550;
-        private static readonly GameData.PlayerOutfit ConsumedOutfit = new GameData.PlayerOutfit().Set("", 15, "", "", "visor_Crack", "", "");
-        private static Dictionary<byte, GameData.PlayerOutfit> OriginalPlayerSkins = [];
+        private static readonly NetworkedPlayerInfo.PlayerOutfit ConsumedOutfit = new NetworkedPlayerInfo.PlayerOutfit().Set("", 15, "", "", "visor_Crack", "", "");
+        private static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> OriginalPlayerSkins = [];
         public static List<byte> playerIdList = [];
 
         private static OptionItem DefaultKillCooldown;
@@ -109,33 +109,38 @@ namespace EHR.Roles.Impostor
             dv.PlayerSkinsCosumed.Clear();
         }
 
-        private static void SetSkin(PlayerControl target, GameData.PlayerOutfit outfit)
+        private static void SetSkin(PlayerControl target, NetworkedPlayerInfo.PlayerOutfit outfit)
         {
             var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.PlayerName})");
 
             target.SetColor(outfit.ColorId);
             sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetColor)
-                .Write(outfit.ColorId)
+                .Write(target.Data.NetId)
+                .Write((byte)outfit.ColorId)
                 .EndRpc();
 
             target.SetHat(outfit.HatId, outfit.ColorId);
             sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetHatStr)
                 .Write(outfit.HatId)
+                .Write(target.GetNextRpcSequenceId(RpcCalls.SetHatStr))
                 .EndRpc();
 
             target.SetSkin(outfit.SkinId, outfit.ColorId);
             sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetSkinStr)
                 .Write(outfit.SkinId)
+                .Write(target.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
                 .EndRpc();
 
             target.SetVisor(outfit.VisorId, outfit.ColorId);
             sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetVisorStr)
                 .Write(outfit.VisorId)
+                .Write(target.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
                 .EndRpc();
 
             target.SetPet(outfit.PetId);
             sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetPetStr)
                 .Write(outfit.PetId)
+                .Write(target.GetNextRpcSequenceId(RpcCalls.SetPetStr))
                 .EndRpc();
 
             sender.SendMessage();

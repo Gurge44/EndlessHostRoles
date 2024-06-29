@@ -3,7 +3,7 @@ using AmongUs.GameOptions;
 using UnityEngine;
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Samurai : RoleBase
     {
@@ -55,10 +55,6 @@ namespace EHR.Roles.Neutral
             SamuraiPC = Utils.GetPlayerById(playerId);
             Target = (byte.MaxValue, 0);
             Delays = [];
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
@@ -97,7 +93,7 @@ namespace EHR.Roles.Neutral
             var target = Utils.GetPlayerById(Target.Id);
             if (target == null) return;
 
-            if (Vector2.Distance(target.Pos(), pc.Pos()) > (NormalGameOptionsV07.KillDistances[Mathf.Clamp(pc.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f))
+            if (Vector2.Distance(target.Pos(), pc.Pos()) > (NormalGameOptionsV08.KillDistances[Mathf.Clamp(pc.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f))
             {
                 Target = (byte.MaxValue, 0);
                 pc.RpcCheckAndMurder(target);

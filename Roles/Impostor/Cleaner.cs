@@ -1,22 +1,25 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using static EHR.Options;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     internal class Cleaner : RoleBase
     {
-        public static List<byte> CleanerBodies = [];
-
         public static bool On;
+        public static List<byte> CleanerBodies = [];
+        public static OptionItem CleanerKillCooldown;
+        public static OptionItem KillCooldownAfterCleaning;
+        public static OptionItem CannotCleanWhenKCDIsntUp;
+
         private bool CanVent;
-
         private bool HasImpostorVision;
-
         private bool IsMedusa;
         private float KCDAfterClean;
         private float KillCooldown;
+        private bool WaitForKCDUp;
+
         public override bool IsEnable => On;
 
         public static void SetupCustomOption()
@@ -28,6 +31,8 @@ namespace EHR.Roles.Impostor
             KillCooldownAfterCleaning = new FloatOptionItem(2611, "KillCooldownAfterCleaning", new(0f, 180f, 2.5f), 60f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Cleaner])
                 .SetValueFormat(OptionFormat.Seconds);
+            CannotCleanWhenKCDIsntUp = new BooleanOptionItem(2612, "CannotCleanWhenKCDIsntUp", true, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Cleaner]);
         }
 
         public override void Add(byte playerId)
@@ -42,6 +47,7 @@ namespace EHR.Roles.Impostor
                 CanVent = Medusa.CanVent.GetBool();
                 KillCooldown = Medusa.KillCooldown.GetFloat();
                 KCDAfterClean = Medusa.KillCooldownAfterStoneGazing.GetFloat();
+                WaitForKCDUp = Medusa.CannotStoneGazeWhenKCDIsntUp.GetBool();
             }
             else
             {
@@ -49,6 +55,7 @@ namespace EHR.Roles.Impostor
                 CanVent = true;
                 KillCooldown = CleanerKillCooldown.GetFloat();
                 KCDAfterClean = KillCooldownAfterCleaning.GetFloat();
+                WaitForKCDUp = CannotCleanWhenKCDIsntUp.GetBool();
             }
         }
 
@@ -82,9 +89,9 @@ namespace EHR.Roles.Impostor
             else hud.ReportButton?.OverrideText(Translator.GetString("CleanerReportButtonText"));
         }
 
-        public override bool CheckReportDeadBody(PlayerControl cleaner, GameData.PlayerInfo target, PlayerControl killer)
+        public override bool CheckReportDeadBody(PlayerControl cleaner, NetworkedPlayerInfo target, PlayerControl killer)
         {
-            if (Main.KillTimers[cleaner.PlayerId] > 0f) return true;
+            if (WaitForKCDUp && Main.KillTimers[cleaner.PlayerId] > 0f) return true;
 
             CleanerBodies.Remove(target.PlayerId);
             CleanerBodies.Add(target.PlayerId);

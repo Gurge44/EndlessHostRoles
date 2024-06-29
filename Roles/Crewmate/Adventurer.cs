@@ -6,7 +6,7 @@ using EHR.Patches;
 using Hazel;
 using UnityEngine;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class Adventurer : RoleBase
     {
@@ -77,7 +77,7 @@ namespace EHR.Roles.Crewmate
         public HashSet<byte> ShieldedPlayers;
         public override bool IsEnable => On;
 
-        static void HideObject(Resource resource) => CustomNetObject.AllObjects.Values.FirstOrDefault(x => x is AdventurerItem a && a.Resource == resource)?.Despawn();
+        static void HideObject(Resource resource) => CustomNetObject.AllObjects.FirstOrDefault(x => x is AdventurerItem a && a.Resource == resource)?.Despawn();
 
         static OptionItem CreateWeaponEnabledSetting(int id, Weapon weapon) => new BooleanOptionItem(id, $"AdventurerWeaponEnabled.{weapon}", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adventurer]);
 

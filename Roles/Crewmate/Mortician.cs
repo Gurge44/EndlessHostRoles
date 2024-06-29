@@ -2,7 +2,7 @@
 using UnityEngine;
 using static EHR.Options;
 
-namespace EHR.Roles.Crewmate;
+namespace EHR.Crewmate;
 
 public class Mortician : RoleBase
 {
@@ -59,7 +59,7 @@ public class Mortician : RoleBase
         }
     }
 
-    public static void OnReportDeadBody(PlayerControl pc, GameData.PlayerInfo target)
+    public static void OnReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target)
     {
         foreach (byte apc in playerIdList)
         {

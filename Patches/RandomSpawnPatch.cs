@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EHR.Roles.Impostor;
+using EHR.Impostor;
 using HarmonyLib;
 using UnityEngine;
 
@@ -31,11 +31,7 @@ class RandomSpawn
             if (GameStates.IsInTask)
             {
                 var player = Main.AllPlayerControls.FirstOrDefault(p => p.NetTransform == __instance);
-                if (player == null)
-                {
-                    Logger.Warn("Player is null", "RandomSpawn");
-                    return;
-                }
+                if (player == null) return;
 
                 if (player.Is(CustomRoles.GM)) return;
 

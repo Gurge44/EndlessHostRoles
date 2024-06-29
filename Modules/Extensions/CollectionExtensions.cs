@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -52,7 +51,7 @@ namespace EHR
         /// <returns>A collection containing all elements of <paramref name="firstCollection"/> and all <paramref name="collections"/></returns>
         public static IEnumerable<T> CombineWith<T>(this IEnumerable<T> firstCollection, params IEnumerable<T>[] collections)
         {
-            return firstCollection.Concat(collections.SelectMany(x => x));
+            return firstCollection.Concat(collections.Flatten());
         }
 
         /// <summary>
@@ -61,7 +60,7 @@ namespace EHR
         /// <param name="collection">The collection to iterate over</param>
         /// <param name="action">The action to execute for each element</param>
         /// <typeparam name="T">The type of the elements in the collection</typeparam>
-        public static void Do<T>(this IEnumerable<T> collection, Action<T> action)
+        public static IEnumerable<T> Do<T>(this IEnumerable<T> collection, Action<T> action)
         {
             if (collection is List<T> list)
             {
@@ -70,13 +69,15 @@ namespace EHR
                     action(list[i]);
                 }
 
-                return;
+                return collection;
             }
 
             foreach (T element in collection)
             {
                 action(element);
             }
+
+            return collection;
         }
 
         /// <summary>
@@ -87,10 +88,24 @@ namespace EHR
         /// <param name="predicate">The predicate to check for each element</param>
         /// <param name="action">The action to execute for each element that satisfies the predicate</param>
         /// <typeparam name="T">The type of the elements in the collection</typeparam>
-        public static void DoIf<T>(this IEnumerable<T> collection, Func<T, bool> predicate, Action<T> action, bool fast = false)
+        public static void DoIf<T>(this IEnumerable<T> collection, Func<T, bool> predicate, Action<T> action, bool fast = true)
         {
             if (fast)
             {
+                if (collection is List<T> list)
+                {
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        T element = list[i];
+                        if (predicate(element))
+                        {
+                            action(element);
+                        }
+                    }
+
+                    return;
+                }
+
                 foreach (T element in collection)
                 {
                     if (predicate(element))
@@ -102,20 +117,7 @@ namespace EHR
                 return;
             }
 
-            var partitioner = Partitioner.Create(collection.Where(predicate));
-            partitioner.GetDynamicPartitions().Do(action);
-        }
-
-        /// <summary>
-        /// Removes an element from a collection
-        /// </summary>
-        /// <param name="collection">The collection to remove the element from</param>
-        /// <param name="element">The element to remove</param>
-        /// <typeparam name="T">The type of the elements in the collection</typeparam>
-        /// <returns>A collection containing all elements of <paramref name="collection"/> except for <paramref name="element"/></returns>
-        public static IEnumerable<T> Without<T>(this IEnumerable<T> collection, T element)
-        {
-            return collection.Where(x => !x.Equals(element));
+            collection.Where(predicate).ToArray().Do(action);
         }
 
         /// <summary>
@@ -143,6 +145,76 @@ namespace EHR
 
             return (list1, list2);
         }
+
+        /// <summary>
+        /// Adds a range of elements to a dictionary
+        /// </summary>
+        /// <param name="dictionary">The dictionary to add elements to</param>
+        /// <param name="other">The dictionary containing the elements to add</param>
+        /// <param name="overrideExistingKeys">Whether to override existing keys in the <paramref name="dictionary"/> with the same keys in the <paramref name="other"/> dictionary. If <c>true</c>, the same keys in the <paramref name="dictionary"/> will be overwritten with the values from the <paramref name="other"/> dictionary. If <c>false</c>, the same keys in the <paramref name="dictionary"/> will be kept and the values from the <paramref name="other"/> dictionary will be ignored</param>
+        /// <typeparam name="TKey">The type of the keys in the dictionaries</typeparam>
+        /// <typeparam name="TValue">The type of the values in the dictionaries</typeparam>
+        public static void AddRange<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Dictionary<TKey, TValue> other, bool overrideExistingKeys = true)
+        {
+            foreach ((TKey key, TValue value) in other)
+            {
+                if (overrideExistingKeys || !dictionary.ContainsKey(key))
+                {
+                    dictionary[key] = value;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Flattens a collection of collections into a single collection
+        /// </summary>
+        /// <param name="collection">The collection of collections to flatten</param>
+        /// <typeparam name="T">The type of the elements in the collections</typeparam>
+        /// <returns>A single collection containing all elements of the collections in <paramref name="collection"/></returns>
+        public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> collection)
+        {
+            return collection.SelectMany(x => x);
+        }
+
+        #region Without
+
+        /// <summary>
+        /// Removes an element from a collection
+        /// </summary>
+        /// <param name="collection">The collection to remove the element from</param>
+        /// <param name="element">The element to remove</param>
+        /// <typeparam name="T">The type of the elements in the collection</typeparam>
+        /// <returns>A collection containing all elements of <paramref name="collection"/> except for <paramref name="element"/></returns>
+        public static IEnumerable<T> Without<T>(this IEnumerable<T> collection, T element)
+        {
+            return collection.Where(x => !x.Equals(element));
+        }
+
+        /// <summary>
+        /// Removes an element from a collection
+        /// </summary>
+        /// <param name="collection">The collection to remove the element from</param>
+        /// <param name="element">The element to remove</param>
+        /// <typeparam name="T">The type of the elements in the collection</typeparam>
+        /// <returns>A collection containing all elements of <paramref name="collection"/> except for <paramref name="element"/></returns>
+        public static IEnumerable<PlayerControl> Without(this IEnumerable<PlayerControl> collection, PlayerControl element)
+        {
+            return collection.Where(x => x.PlayerId != element.PlayerId);
+        }
+
+        /// <summary>
+        /// Removes an element from a collection
+        /// </summary>
+        /// <param name="collection">The collection to remove the element from</param>
+        /// <param name="element">The element to remove</param>
+        /// <typeparam name="T">The type of the elements in the collection</typeparam>
+        /// <returns>A collection containing all elements of <paramref name="collection"/> except for <paramref name="element"/></returns>
+        public static IEnumerable<PlainShipRoom> Without(this IEnumerable<PlainShipRoom> collection, PlainShipRoom element)
+        {
+            return collection.Where(x => x != element);
+        }
+
+        #endregion
 
         #region Shuffle
 
@@ -259,5 +331,16 @@ namespace EHR
         }
 
         #endregion
+    }
+
+    public static class Loop
+    {
+        public static void Times(int count, Action<int> action)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                action(i);
+            }
+        }
     }
 }

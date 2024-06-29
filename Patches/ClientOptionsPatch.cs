@@ -92,6 +92,7 @@ public static class OptionsMenuBehaviourStartPatch
 
             static void SwitchVanillaButtonToggle()
             {
+                if (PlayerControl.LocalPlayer == null) MainMenuManagerPatch.ShowRightPanelImmediately();
                 Harmony.UnpatchAll();
                 Main.Instance.Unload();
             }

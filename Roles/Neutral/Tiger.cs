@@ -2,7 +2,7 @@
 using EHR.Modules;
 using UnityEngine;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Tiger : RoleBase
     {

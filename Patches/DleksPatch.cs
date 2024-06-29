@@ -3,10 +3,22 @@ using UnityEngine;
 
 namespace EHR;
 
-[HarmonyPatch(typeof(AmongUsClient._CoStartGameHost_d__30), nameof(AmongUsClient._CoStartGameHost_d__30.MoveNext))]
+[HarmonyPatch(typeof(GameStartManager))]
+class AllMapIconsPatch
+{
+    [HarmonyPatch(nameof(GameStartManager.Start)), HarmonyPostfix]
+    public static void Postfix_AllMapIcons(GameStartManager __instance)
+    {
+        MapIconByName dleksIcon = Object.Instantiate(__instance, __instance.gameObject.transform).AllMapIcons[0];
+        dleksIcon.Name = MapNames.Dleks;
+        __instance.AllMapIcons.Add(dleksIcon);
+    }
+}
+
+[HarmonyPatch(typeof(AmongUsClient._CoStartGameHost_d__32), nameof(AmongUsClient._CoStartGameHost_d__32.MoveNext))]
 public static class DleksPatch
 {
-    public static bool Prefix(AmongUsClient._CoStartGameHost_d__30 __instance, ref bool __result)
+    public static bool Prefix(AmongUsClient._CoStartGameHost_d__32 __instance, ref bool __result)
     {
         if (__instance.__1__state != 0)
         {
@@ -112,15 +124,15 @@ class VentUpdateArrowsPatch
     }
 }
 
-[HarmonyPatch(typeof(KeyValueOption), nameof(KeyValueOption.OnEnable))]
+[HarmonyPatch(typeof(StringOption), nameof(StringOption.Start))]
 public static class AutoselectDleksPatch
 {
-    public static void Postfix(KeyValueOption __instance)
+    public static void Postfix(StringOption __instance)
     {
         if (__instance.Title == StringNames.GameMapName)
         {
             // vanilla clamps this to not autoselect dleks
-            __instance.Selected = GameOptionsManager.Instance.CurrentGameOptions.MapId;
+            __instance.Value = GameOptionsManager.Instance.CurrentGameOptions.MapId;
         }
     }
 }

@@ -1,8 +1,10 @@
-﻿using System;
+﻿global using Object = UnityEngine.Object;
+using System;
 using System.Text;
 using AmongUs.GameOptions;
-using EHR.Roles.AddOns.Crewmate;
-using EHR.Roles.AddOns.Impostor;
+using EHR.AddOns.Crewmate;
+using EHR.AddOns.Impostor;
+
 
 namespace EHR
 {
@@ -143,7 +145,7 @@ namespace EHR
         {
         }
 
-        public virtual bool CheckReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target, PlayerControl killer)
+        public virtual bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
         {
             return true;
         }

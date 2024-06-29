@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
+using EHR.Crewmate;
 using EHR.Modules;
-using EHR.Roles.Crewmate;
 using Hazel;
 using UnityEngine;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Pelican : RoleBase
 {
@@ -38,10 +38,6 @@ public class Pelican : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();

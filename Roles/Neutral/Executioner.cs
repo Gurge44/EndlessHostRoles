@@ -5,7 +5,7 @@ using EHR.Modules;
 using Hazel;
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Executioner : RoleBase
 {
@@ -147,7 +147,7 @@ public class Executioner : RoleBase
         return GetValue && targetId == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Executioner), "♦") : string.Empty;
     }
 
-    public static bool CheckExileTarget(GameData.PlayerInfo exiled, bool Check = false)
+    public static bool CheckExileTarget(NetworkedPlayerInfo exiled, bool Check = false)
     {
         foreach (var kvp in Target.Where(x => x.Value == exiled.PlayerId))
         {

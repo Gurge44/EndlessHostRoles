@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using EHR.Roles.Impostor;
+using EHR.Impostor;
 using static EHR.Options;
 
-namespace EHR.Roles.AddOns.Common
+namespace EHR.AddOns.Common
 {
     internal class Disco : IAddon
     {
@@ -31,6 +31,7 @@ namespace EHR.Roles.AddOns.Common
             {
                 var sender = CustomRpcSender.Create(name: $"Disco.ChangeColor({pc.Data.PlayerName})");
                 sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetColor)
+                    .Write(pc.Data.NetId)
                     .Write((byte)colorId)
                     .EndRpc();
                 sender.SendMessage();
@@ -39,7 +40,7 @@ namespace EHR.Roles.AddOns.Common
 
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (!pc.Is(CustomRoles.Disco) || !GameStates.IsInTask || pc.IsShifted() || Camouflager.IsActive || (Utils.IsActive(SystemTypes.Comms) && CommsCamouflage.GetBool())) return;
+            if (!pc.Is(CustomRoles.Disco) || !GameStates.IsInTask || pc.IsShifted() || Camouflager.IsActive || (Utils.IsActive(SystemTypes.Comms) && CommsCamouflage.GetBool()) || pc.inVent || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation() || pc.walkingToVent || pc.onLadder || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation()) return;
             long now = Utils.TimeStamp;
             if (LastChange.TryGetValue(pc.PlayerId, out var change) && change + DiscoChangeInterval.GetInt() > now) return;
             ChangeColor(pc);

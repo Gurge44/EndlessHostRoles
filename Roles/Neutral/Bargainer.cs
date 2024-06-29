@@ -9,7 +9,7 @@ using static EHR.Options;
 
 // ReSharper disable PossibleMultipleEnumeration
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Bargainer : RoleBase
     {
@@ -204,10 +204,6 @@ namespace EHR.Roles.Neutral
             InShop = false;
             SelectedItem = Item.None;
             ActiveItems = [];
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = ActiveItems.Any(x => x.Item == Item.EnergyDrink) ? ReducedKillCooldown.GetFloat() : KillCooldown.GetFloat();

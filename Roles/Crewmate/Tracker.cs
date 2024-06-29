@@ -6,9 +6,9 @@ using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
-    public class Tracker : RoleBase
+    public class Scout : RoleBase
     {
         private const int Id = 8300;
         private static List<byte> playerIdList = [];
@@ -29,21 +29,21 @@ namespace EHR.Roles.Crewmate
 
         public static void SetupCustomOption()
         {
-            SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Tracker);
-            TrackLimitOpt = new IntegerOptionItem(Id + 5, "DivinatorSkillLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Tracker])
+            SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Scout);
+            TrackLimitOpt = new IntegerOptionItem(Id + 5, "DivinatorSkillLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Scout])
                 .SetValueFormat(OptionFormat.Times);
             CanGetColoredArrow = new BooleanOptionItem(Id + 6, "TrackerCanGetArrowColor", true, TabGroup.CrewmateRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Tracker]);
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Scout]);
             OptionCanSeeLastRoomInMeeting = new BooleanOptionItem(Id + 7, "EvilTrackerCanSeeLastRoomInMeeting", true, TabGroup.CrewmateRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Tracker]);
-            HideVote = new BooleanOptionItem(Id + 8, "TrackerHideVote", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Tracker]);
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Scout]);
+            HideVote = new BooleanOptionItem(Id + 8, "TrackerHideVote", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Scout]);
             TrackerAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 9, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Tracker])
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Scout])
                 .SetValueFormat(OptionFormat.Times);
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 3, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
-                .SetParent(CustomRoleSpawnChances[CustomRoles.Tracker])
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Scout])
                 .SetValueFormat(OptionFormat.Times);
-            CancelVote = CreateVoteCancellingUseSetting(Id + 4, CustomRoles.Tracker, TabGroup.CrewmateRoles);
+            CancelVote = CreateVoteCancellingUseSetting(Id + 4, CustomRoles.Scout, TabGroup.CrewmateRoles);
         }
 
         public override void Init()
@@ -115,7 +115,7 @@ namespace EHR.Roles.Crewmate
         {
             if (seer == null || target == null) return string.Empty;
 
-            var roleColor = Utils.GetRoleColor(CustomRoles.Tracker);
+            var roleColor = Utils.GetRoleColor(CustomRoles.Scout);
             string text = Utils.ColorString(roleColor, TargetArrow.GetArrows(seer, target.PlayerId));
             text += Utils.ColorString(roleColor, LocateArrow.GetArrows(seer));
 

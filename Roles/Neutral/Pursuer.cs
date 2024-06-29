@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using EHR.Modules;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Pursuer : RoleBase
 {
@@ -37,10 +37,6 @@ public class Pursuer : RoleBase
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(PursuerSkillLimitTimes.GetInt());
         clientList = [];
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using System.Text;
+using EHR.Crewmate;
 using EHR.Modules;
+using EHR.Neutral;
 using EHR.Patches;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Neutral;
 using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Impostor;
+namespace EHR.Impostor;
 
 public class Witch : RoleBase
 {
@@ -64,8 +64,7 @@ public class Witch : RoleBase
         NowSwitchTrigger = IsHM ? (SwitchTrigger)HexMaster.ModeSwitchAction.GetValue() : (SwitchTrigger)ModeSwitchAction.GetValue();
 
         if (!AmongUsClient.Instance.AmHost || !IsHM) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
+        Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc)

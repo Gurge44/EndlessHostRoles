@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Provocateur : RoleBase
     {

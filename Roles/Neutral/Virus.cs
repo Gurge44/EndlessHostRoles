@@ -5,7 +5,7 @@ using EHR.Patches;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     public class Virus : RoleBase
     {
@@ -59,10 +59,6 @@ namespace EHR.Roles.Neutral
         {
             playerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(InfectMax.GetInt());
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
@@ -78,11 +74,10 @@ namespace EHR.Roles.Neutral
             opt.SetVision(ImpostorVision.GetBool());
         }
 
-        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        public override void OnMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer.GetAbilityUseLimit() < 1) return true;
+            if (killer.GetAbilityUseLimit() < 1) return;
             InfectedBodies.Add(target.PlayerId);
-            return true;
         }
 
         public static void OnKilledBodyReport(PlayerControl target)
@@ -94,15 +89,12 @@ namespace EHR.Roles.Neutral
             if (KillInfectedPlayerAfterMeeting.GetBool())
             {
                 InfectedPlayer.Add(target.PlayerId);
-
                 VirusNotify.Add(target.PlayerId, GetString("VirusNoticeMessage2"));
             }
             else
             {
                 target.RpcSetCustomRole(CustomRoles.Contagious);
-
                 Utils.NotifyRoles(ForceLoop: true);
-
                 VirusNotify.Add(target.PlayerId, GetString("VirusNoticeMessage"));
             }
 

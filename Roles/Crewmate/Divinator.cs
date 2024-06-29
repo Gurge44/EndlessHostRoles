@@ -4,7 +4,7 @@ using System.Linq;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Crewmate;
+namespace EHR.Crewmate;
 
 public class Divinator : RoleBase
 {
@@ -29,12 +29,17 @@ public class Divinator : RoleBase
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Divinator);
-        CheckLimitOpt = new IntegerOptionItem(Id + 10, "DivinatorSkillLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
+        CheckLimitOpt = new IntegerOptionItem(Id + 10, "DivinatorSkillLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
             .SetValueFormat(OptionFormat.Times);
-        AccurateCheckMode = new BooleanOptionItem(Id + 12, "AccurateCheckMode", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
-        ShowSpecificRole = new BooleanOptionItem(Id + 13, "ShowSpecificRole", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
-        HideVote = new BooleanOptionItem(Id + 14, "DivinatorHideVote", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
-        AbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 15, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
+        AccurateCheckMode = new BooleanOptionItem(Id + 12, "AccurateCheckMode", false, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
+        ShowSpecificRole = new BooleanOptionItem(Id + 13, "ShowSpecificRole", false, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
+        HideVote = new BooleanOptionItem(Id + 14, "DivinatorHideVote", false, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
+        AbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 15, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
             .SetValueFormat(OptionFormat.Times);
         AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 16, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
@@ -54,15 +59,18 @@ public class Divinator : RoleBase
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(CheckLimitOpt.GetInt());
 
-        var roles = Enum.GetValues<CustomRoles>()
-            .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.KB_Normal and not CustomRoles.Potato and not CustomRoles.GM and not CustomRoles.Convict && !HnSManager.AllHnSRoles.Contains(x))
-            .Shuffle();
         var players = Main.AllAlivePlayerControls;
-        int parts = (int)Math.Ceiling((double)players.Length / RolesPerCategory);
-        var chunked = roles.Partition(parts).ToArray();
-        AllPlayerRoleList = players
-            .Select((pc, index) => (pc.PlayerId, chunked[index % parts].Append(pc.GetCustomRole()).Shuffle()))
-            .ToDictionary(x => x.PlayerId, x => x.Item2);
+        int rolesNeeded = players.Length * (RolesPerCategory - 1);
+        AllPlayerRoleList = Enum.GetValues<CustomRoles>()
+            .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.GM and not CustomRoles.Convict && !x.IsForOtherGameMode())
+            .OrderBy(x => x.IsEnable() ? IRandom.Instance.Next(10) : IRandom.Instance.Next(10, 100))
+            .Take(rolesNeeded)
+            .Chunk(RolesPerCategory - 1)
+            .Zip(players, (Array, Player) => (RoleList: Array.ToList(), Player))
+            .Do(x => x.RoleList.Insert(IRandom.Instance.Next(x.RoleList.Count), x.Player.GetCustomRole()))
+            .ToDictionary(x => x.Player.PlayerId, x => x.RoleList);
+
+        Logger.Info(string.Join(" ---- ", AllPlayerRoleList.Select(x => $"ID {x.Key}: {string.Join(", ", x.Value)}")), "Divinator Roles");
     }
 
     public static bool OnVote(PlayerControl player, PlayerControl target)

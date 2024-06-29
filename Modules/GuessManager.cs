@@ -2,18 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using EHR.AddOns.Common;
 using EHR.Crewmate;
 using EHR.Modules;
-using EHR.Roles.AddOns.Common;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 using static EHR.Translator;
-using Object = UnityEngine.Object;
+
 
 namespace EHR;
 
@@ -140,7 +139,7 @@ public static class GuessManager
                     return true;
                 }
 
-                if (!pc.Is(CustomRoles.EvilGuesser) && pc.GetCustomRole().IsImpostor() && !Options.ImpostorsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Councillor))
+                if (!pc.Is(CustomRoles.EvilGuesser) && pc.IsImpostor() && !Options.ImpostorsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Councillor))
                 {
                     if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
                     else pc.ShowPopUp(GetString("GuessNotAllowed"));
@@ -214,7 +213,7 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("EGGuessMax"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("EGGuessMax"));
                             return true;
-                        case CustomRoles.Phantom when !Options.PhantomCanGuess.GetBool():
+                        case CustomRoles.Phantasm when !Options.PhantomCanGuess.GetBool():
                             if (!isUI) Utils.SendMessage(GetString("GuessDisabled"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessDisabled"));
                             return true;
@@ -280,9 +279,9 @@ public static class GuessManager
                         return true;
                     }
 
-                    switch (target.GetCustomRole())
+                    switch (role)
                     {
-                        case CustomRoles.Crewmate or CustomRoles.CrewmateEHR when Options.VanillaCrewmateCannotBeGuessed.GetBool():
+                        case CustomRoles.Crewmate or CustomRoles.CrewmateEHR when CrewmateVanillaRoles.VanillaCrewmateCannotBeGuessed.GetBool():
                             if (!isUI) Utils.SendMessage(GetString("GuessVanillaCrewmate"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessVanillaCrewmate"));
                             return true;
@@ -294,7 +293,11 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("GuessDoctor"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessDoctor"));
                             return true;
-                        case CustomRoles.Monarch when role == CustomRoles.Monarch && pc.Is(CustomRoles.Knighted):
+                        case CustomRoles.Marshall when !Marshall.CanBeGuessedOnTaskCompletion.GetBool():
+                            if (!isUI) Utils.SendMessage(GetString("GuessMarshallTask"), pc.PlayerId);
+                            else pc.ShowPopUp(GetString("GuessMarshall"));
+                            return true;
+                        case CustomRoles.Monarch when pc.Is(CustomRoles.Knighted):
                             if (!isUI) Utils.SendMessage(GetString("GuessMonarch"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessMonarch"));
                             return true;
@@ -302,7 +305,7 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("GuessMayor"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessMayor"));
                             return true;
-                        case CustomRoles.Bait when role == CustomRoles.Bait && Options.BaitNotification.GetBool():
+                        case CustomRoles.Bait when Options.BaitNotification.GetBool():
                             if (!isUI) Utils.SendMessage(GetString("GuessNotifiedBait"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessNotifiedBait"));
                             return true;
@@ -311,7 +314,7 @@ public static class GuessManager
                             else pc.ShowPopUp(GetString("GuessPestilence"));
                             guesserSuicide = true;
                             break;
-                        case CustomRoles.Phantom when role == CustomRoles.Phantom:
+                        case CustomRoles.Phantasm:
                             if (!isUI) Utils.SendMessage(GetString("GuessPhantom"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessPhantom"));
                             return true;
@@ -431,10 +434,10 @@ public static class GuessManager
 
                     if (pc.PlayerId == target.PlayerId)
                     {
-                        if (DoubleShot.CheckGuess(pc, isUI)) return true;
-
                         if (!isUI) Utils.SendMessage(GetString("LaughToWhoGuessSelf"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromKPD")));
                         else pc.ShowPopUp(Utils.ColorString(Color.cyan, GetString("MessageFromKPD")) + "\n" + GetString("LaughToWhoGuessSelf"));
+
+                        if (DoubleShot.CheckGuess(pc, isUI)) return true;
                         guesserSuicide = true;
                     }
                     else if (pc.Is(CustomRoles.NiceGuesser) && target.Is(CustomRoleTypes.Crewmate) && !Options.GGCanGuessCrew.GetBool() && !pc.Is(CustomRoles.Madmate))
@@ -580,48 +583,53 @@ public static class GuessManager
     public static void RpcGuesserMurderPlayer(this PlayerControl pc /*, float delay = 0f*/)
     {
         // DEATH STUFF //
-        GameEndChecker.ShouldNotCheck = true;
-        var amOwner = pc.AmOwner;
-        pc.Data.IsDead = true;
-        pc.RpcExileV2();
-        Main.PlayerStates[pc.PlayerId].SetDead();
-        var meetingHud = MeetingHud.Instance;
-        var hudManager = DestroyableSingleton<HudManager>.Instance;
-        SoundManager.Instance.PlaySound(pc.KillSfx, false, 0.8f);
-        if (!Options.DisableKillAnimationOnGuess.GetBool()) hudManager.KillOverlay.ShowKillAnimation(pc.Data, pc.Data);
-        if (amOwner)
+        try
         {
-            hudManager.ShadowQuad.gameObject.SetActive(false);
-            pc.NameText().GetComponent<MeshRenderer>().material.SetInt(Mask, 0);
-            pc.RpcSetScanner(false);
-            ImportantTextTask importantTextTask = new GameObject("_Player").AddComponent<ImportantTextTask>();
-            importantTextTask.transform.SetParent(AmongUsClient.Instance.transform, false);
-            meetingHud.SetForegroundForDead();
-        }
+            GameEndChecker.ShouldNotCheck = true;
+            var amOwner = pc.AmOwner;
+            pc.Data.IsDead = true;
+            pc.RpcExileV2();
+            Main.PlayerStates[pc.PlayerId].SetDead();
+            var meetingHud = MeetingHud.Instance;
+            var hudManager = DestroyableSingleton<HudManager>.Instance;
+            SoundManager.Instance.PlaySound(pc.KillSfx, false, 0.8f);
+            if (!Options.DisableKillAnimationOnGuess.GetBool()) hudManager.KillOverlay.ShowKillAnimation(pc.Data, pc.Data);
+            if (amOwner)
+            {
+                hudManager.ShadowQuad.gameObject.SetActive(false);
+                pc.NameText().GetComponent<MeshRenderer>().material.SetInt(Mask, 0);
+                pc.RpcSetScanner(false);
+                ImportantTextTask importantTextTask = new GameObject("_Player").AddComponent<ImportantTextTask>();
+                importantTextTask.transform.SetParent(AmongUsClient.Instance.transform, false);
+                meetingHud.SetForegroundForDead();
+            }
 
-        PlayerVoteArea voteArea = MeetingHud.Instance.playerStates.First(
-            x => x.TargetPlayerId == pc.PlayerId
-        );
-        if (voteArea.DidVote) voteArea.UnsetVote();
-        voteArea.AmDead = true;
-        voteArea.Overlay.gameObject.SetActive(true);
-        voteArea.Overlay.color = Color.white;
-        voteArea.XMark.gameObject.SetActive(true);
-        voteArea.XMark.transform.localScale = Vector3.one;
-        foreach (var playerVoteArea in meetingHud.playerStates)
+            PlayerVoteArea voteArea = MeetingHud.Instance.playerStates.First(
+                x => x.TargetPlayerId == pc.PlayerId
+            );
+            if (voteArea.DidVote) voteArea.UnsetVote();
+            voteArea.AmDead = true;
+            voteArea.Overlay.gameObject.SetActive(true);
+            voteArea.Overlay.color = Color.white;
+            voteArea.XMark.gameObject.SetActive(true);
+            voteArea.XMark.transform.localScale = Vector3.one;
+            foreach (var playerVoteArea in meetingHud.playerStates)
+            {
+                if (playerVoteArea.VotedFor != pc.PlayerId) continue;
+                playerVoteArea.UnsetVote();
+                var voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
+                if (!voteAreaPlayer.AmOwner) continue;
+                meetingHud.ClearVote();
+            }
+
+            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.GuessKill, SendOption.Reliable);
+            writer.Write(pc.PlayerId);
+            AmongUsClient.Instance.FinishRpcImmediately(writer);
+        }
+        finally
         {
-            if (playerVoteArea.VotedFor != pc.PlayerId) continue;
-            playerVoteArea.UnsetVote();
-            var voteAreaPlayer = Utils.GetPlayerById(playerVoteArea.TargetPlayerId);
-            if (!voteAreaPlayer.AmOwner) continue;
-            meetingHud.ClearVote();
+            GameEndChecker.ShouldNotCheck = false;
         }
-
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.GuessKill, SendOption.Reliable);
-        writer.Write(pc.PlayerId);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-
-        GameEndChecker.ShouldNotCheck = false;
     }
 
     public static void RpcClientGuess(PlayerControl pc)

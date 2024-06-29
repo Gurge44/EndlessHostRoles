@@ -2,15 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using EHR.AddOns.Common;
+using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Modules;
-using EHR.Roles.AddOns.Common;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using HarmonyLib;
 using UnityEngine;
 using static EHR.Translator;
-using Object = UnityEngine.Object;
+
 
 namespace EHR.Patches;
 
@@ -91,6 +91,9 @@ class CheckForEndVotingPatch
                             case CustomRoles.Divinator when !Divinator.CancelVote.GetBool():
                                 Divinator.OnVote(pc, voteTarget);
                                 break;
+                            case CustomRoles.Soothsayer when !Soothsayer.CancelVote.GetBool():
+                                Soothsayer.OnVote(pc, voteTarget);
+                                break;
                             case CustomRoles.Oracle when !Oracle.CancelVote.GetBool():
                                 Oracle.OnVote(pc, voteTarget);
                                 break;
@@ -109,8 +112,8 @@ class CheckForEndVotingPatch
                             case CustomRoles.NiceEraser when !NiceEraser.CancelVote.GetBool():
                                 NiceEraser.OnVote(pc, voteTarget);
                                 break;
-                            case CustomRoles.Tracker when !Tracker.CancelVote.GetBool():
-                                Tracker.OnVote(pc, voteTarget);
+                            case CustomRoles.Scout when !Scout.CancelVote.GetBool():
+                                Scout.OnVote(pc, voteTarget);
                                 break;
                             case CustomRoles.Markseeker when !Markseeker.CancelVote.GetBool():
                                 Markseeker.OnVote(pc, voteTarget);
@@ -129,7 +132,7 @@ class CheckForEndVotingPatch
                 return false;
             }
 
-            GameData.PlayerInfo exiledPlayer = PlayerControl.LocalPlayer.Data;
+            NetworkedPlayerInfo exiledPlayer = PlayerControl.LocalPlayer.Data;
             bool tie = false;
             EjectionText = string.Empty;
 
@@ -183,7 +186,7 @@ class CheckForEndVotingPatch
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Divinator) && Divinator.HideVote.GetBool()) continue;
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Eraser) && Eraser.HideVote.GetBool()) continue;
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.NiceEraser) && NiceEraser.HideVote.GetBool()) continue;
-                if (CheckRole(ps.TargetPlayerId, CustomRoles.Tracker) && Tracker.HideVote.GetBool()) continue;
+                if (CheckRole(ps.TargetPlayerId, CustomRoles.Scout) && Scout.HideVote.GetBool()) continue;
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Oracle) && Oracle.HideVote.GetBool()) continue;
 
                 if (ps.TargetPlayerId == ps.VotedFor && Options.MadmateSpawnMode.GetInt() == 2) continue;
@@ -342,7 +345,7 @@ class CheckForEndVotingPatch
     }
 
     // Reference：https://github.com/music-discussion/TownOfHost-TheOtherRoles
-    private static void ConfirmEjections(GameData.PlayerInfo exiledPlayer, bool tiebreaker)
+    private static void ConfirmEjections(NetworkedPlayerInfo exiledPlayer, bool tiebreaker)
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (exiledPlayer == null) return;
@@ -384,6 +387,7 @@ class CheckForEndVotingPatch
         {
             if (pc == exiledPlayer.Object) continue;
             if (pc.GetCustomRole().IsImpostor()) impnum++;
+            else if (Options.MadmateCountMode.GetValue() == 1 && (pc.GetCustomRole().IsMadmate() || pc.Is(CustomRoles.Madmate))) impnum++;
             else if (pc.IsNeutralKiller()) neutralnum++;
         }
 
@@ -394,7 +398,7 @@ class CheckForEndVotingPatch
                 name = string.Format(GetString("PlayerExiled"), coloredRealName);
                 break;
             case 1:
-                if (player.GetCustomRole().IsImpostor() || player.Is(CustomRoles.Parasite) || player.Is(CustomRoles.Crewpostor) || player.Is(CustomRoles.Refugee) || player.Is(CustomRoles.Convict))
+                if (player.IsImpostor() || player.Is(CustomRoles.Parasite) || player.Is(CustomRoles.Crewpostor) || player.Is(CustomRoles.Refugee) || player.Is(CustomRoles.Convict))
                     name = string.Format(GetString("BelongTo"), coloredRealName, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("TeamImpostor")));
                 else if (player.IsCrewmate())
                     name = string.Format(GetString("IsGood"), coloredRealName);
@@ -422,11 +426,6 @@ class CheckForEndVotingPatch
                 break;
         }
 
-        if (tiebreaker)
-        {
-            name += $" ({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Brakar), GetString("Brakar"))})";
-        }
-
         if (crole == CustomRoles.Jester)
         {
             name = string.Format(GetString("ExiledJester"), realName, coloredRole);
@@ -447,6 +446,11 @@ class CheckForEndVotingPatch
                 else name = string.Format(GetString("ExiledInnocentTargetInOneLine"), realName, coloredRole);
                 DecidedWinner = true;
             }
+        }
+
+        if (tiebreaker)
+        {
+            name += $" ({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Brakar), GetString("Brakar"))})";
         }
 
         if (DecidedWinner) name += "<size=0>";
@@ -501,7 +505,7 @@ class CheckForEndVotingPatch
             Main.DoBlockNameChange = true;
             if (GameStates.IsInGame && player != null && !player.Data.Disconnected)
             {
-                GameData.Instance.UpdateName(player.PlayerId, name);
+                exiledPlayer.UpdateName(name, Utils.GetClientById(exiledPlayer.ClientId));
                 player.RpcSetName(name);
             }
         }, 2.5f, "Change Exiled Player Name");
@@ -509,7 +513,7 @@ class CheckForEndVotingPatch
         {
             if (GameStates.IsInGame && player != null && !player.Data.Disconnected)
             {
-                GameData.Instance.UpdateName(player.PlayerId, realName);
+                exiledPlayer.UpdateName(realName, Utils.GetClientById(exiledPlayer.ClientId));
                 player.RpcSetName(realName);
                 Main.DoBlockNameChange = false;
             }
@@ -839,9 +843,9 @@ class MeetingHudStartPatch
                 roleTextMeeting.enabled = true;
             }
 
-            if (Tracker.IsTrackTarget(PlayerControl.LocalPlayer, pc) && Tracker.CanSeeLastRoomInMeeting)
+            if (Scout.IsTrackTarget(PlayerControl.LocalPlayer, pc) && Scout.CanSeeLastRoomInMeeting)
             {
-                roleTextMeeting.text = Tracker.GetArrowAndLastRoom(PlayerControl.LocalPlayer, pc);
+                roleTextMeeting.text = Scout.GetArrowAndLastRoom(PlayerControl.LocalPlayer, pc);
                 roleTextMeeting.enabled = true;
             }
         }
@@ -964,8 +968,8 @@ class MeetingHudStartPatch
                     sb.Append(Gamer.TargetMark(seer, target));
                     sb.Append(Snitch.GetWarningMark(seer, target));
                     break;
-                case CustomRoles.Tracker:
-                    sb.Append(Tracker.GetTargetMark(seer, target));
+                case CustomRoles.Scout:
+                    sb.Append(Scout.GetTargetMark(seer, target));
                     break;
             }
 
@@ -1042,7 +1046,7 @@ class MeetingHudUpdatePatch
                         Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}を処刑しました", "Execution");
                         __instance.CheckForEndVoting();
                     }
-                }, fast: true);
+                });
             }
 
             if (!GameStates.IsVoting && __instance.lastSecond < 1)
@@ -1169,6 +1173,9 @@ class MeetingHudCastVotePatch
                     case CustomRoles.Divinator when Divinator.CancelVote.GetBool():
                         if (Divinator.OnVote(pc_src, pc_target)) CancelVote();
                         break;
+                    case CustomRoles.Soothsayer when Soothsayer.CancelVote.GetBool():
+                        if (Soothsayer.OnVote(pc_src, pc_target)) CancelVote();
+                        break;
                     case CustomRoles.Oracle when Oracle.CancelVote.GetBool():
                         if (Oracle.OnVote(pc_src, pc_target)) CancelVote();
                         break;
@@ -1187,8 +1194,8 @@ class MeetingHudCastVotePatch
                     case CustomRoles.NiceEraser when NiceEraser.CancelVote.GetBool():
                         if (NiceEraser.OnVote(pc_src, pc_target)) CancelVote();
                         break;
-                    case CustomRoles.Tracker when Tracker.CancelVote.GetBool():
-                        if (Tracker.OnVote(pc_src, pc_target)) CancelVote();
+                    case CustomRoles.Scout when Scout.CancelVote.GetBool():
+                        if (Scout.OnVote(pc_src, pc_target)) CancelVote();
                         break;
                     case CustomRoles.Markseeker when Markseeker.CancelVote.GetBool():
                         if (Markseeker.OnVote(pc_src, pc_target)) CancelVote();

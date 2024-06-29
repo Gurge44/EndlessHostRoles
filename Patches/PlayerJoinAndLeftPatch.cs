@@ -3,9 +3,9 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using EHR.Crewmate;
 using EHR.Modules;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using HarmonyLib;
 using InnerNet;
 using static EHR.Translator;
@@ -32,11 +32,12 @@ class OnGameJoinedPatch
 
         if (AmongUsClient.Instance.AmHost)
         {
-            GameStartManagerPatch.GameStartManagerUpdatePatch.exitTimer = -1;
+            GameStartManagerPatch.GameStartManagerUpdatePatch.ExitTimer = -1;
             Main.DoBlockNameChange = false;
             Main.NewLobby = true;
             EAC.DeNum = new();
             Main.AllPlayerNames = [];
+            Main.AllClientRealNames = [];
 
             if (Main.NormalOptions?.KillCooldown == 0f)
                 Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
@@ -197,12 +198,14 @@ class OnPlayerLeftPatch
                     var writer = CustomRpcSender.Create("MessagesToSend");
                     writer.StartMessage(clientId);
                     writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+                        .Write(player.Data.NetId)
                         .Write(title)
                         .EndRpc();
                     writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
                         .Write(msg)
                         .EndRpc();
                     writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+                        .Write(player.Data.NetId)
                         .Write(player.Data.PlayerName)
                         .EndRpc();
                     writer.EndMessage();
@@ -255,38 +258,17 @@ class OnPlayerLeftPatch
     }
 }
 
-[HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CreatePlayer))]
-class CreatePlayerPatch
+[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.Spawn))]
+class InnerNetClientSpawnPatch
 {
-    public static void Postfix( /*AmongUsClient __instance,*/ [HarmonyArgument(0)] ClientData client)
+    public static void Postfix([HarmonyArgument(1)] int ownerId, [HarmonyArgument(2)] SpawnFlags flags)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || flags != SpawnFlags.IsClientCharacter) return;
 
-        Logger.Msg($"Create player data： ID {client.Character.PlayerId}: {client.PlayerName}", "CreatePlayer");
+        var client = Utils.GetClientById(ownerId);
+        if (client == null) return;
 
-        //规范昵称
-        var name = client.PlayerName;
-        if (Options.FormatNameMode.GetInt() == 2 && client.Id != AmongUsClient.Instance.ClientId)
-            name = Main.Get_TName_Snacks;
-        else
-        {
-            name = name.RemoveHtmlTags().Replace(@"\", string.Empty).Replace("/", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty).Replace("<", string.Empty).Replace(">", string.Empty);
-            if (name.Length > 10) name = name[..10];
-            if (Options.DisableEmojiName.GetBool()) name = Regex.Replace(name, @"\p{Cs}", string.Empty);
-            if (Regex.Replace(Regex.Replace(name, @"\s", string.Empty), @"[\x01-\x1F,\x7F]", string.Empty).Length < 1) name = Main.Get_TName_Snacks;
-        }
-
-        Main.AllPlayerNames[client.Character.PlayerId] = name;
-
-        if (!name.Equals(client.PlayerName))
-        {
-            LateTask.New(() =>
-            {
-                if (client.Character == null) return;
-                Logger.Warn($"Standard nickname：{client.PlayerName} => {name}", "Name Format");
-                client.Character.RpcSetName(name);
-            }, 1f, "Name Format");
-        }
+        Logger.Msg($"Spawn player data: ID {client.Character.PlayerId}: {client.PlayerName}", "CreatePlayer");
 
         LateTask.New(() =>
         {
@@ -363,6 +345,41 @@ class CreatePlayerPatch
                     }
                 }, 1.4f, "DisplayUpWarnning");
             }
+        }
+    }
+}
+
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckName))]
+class PlayerControlCheckNamePatch
+{
+    public static void Postfix(PlayerControl __instance, ref string playerName)
+    {
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsLobby) return;
+
+        if (Main.AllClientRealNames.TryAdd(__instance.OwnerId, playerName))
+            RPC.SyncAllClientRealNames();
+
+        var name = playerName;
+
+        if (Options.FormatNameMode.GetInt() == 2 && __instance.Data.ClientId != AmongUsClient.Instance.ClientId)
+        {
+            name = Main.Get_TName_Snacks;
+        }
+        else
+        {
+            name = name.RemoveHtmlTags().Replace(@"\", string.Empty).Replace("/", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty).Replace("<", string.Empty).Replace(">", string.Empty);
+            if (name.Length > 10) name = name[..10];
+            if (Options.DisableEmojiName.GetBool()) name = Regex.Replace(name, @"\p{Cs}", string.Empty);
+            if (Regex.Replace(Regex.Replace(name, @"\s", string.Empty), @"[\x01-\x1F,\x7F]", string.Empty).Length < 1) name = Main.Get_TName_Snacks;
+        }
+
+        Main.AllPlayerNames[__instance.PlayerId] = name;
+        Logger.Info($"PlayerId: {__instance.PlayerId} - playerName: {playerName} - name: {name}", "Name player");
+
+        if (__instance != null && !name.Equals(playerName))
+        {
+            Logger.Warn($"Standard nickname: {playerName} => {name}", "Name Format");
+            playerName = name;
         }
     }
 }

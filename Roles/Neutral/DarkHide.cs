@@ -4,7 +4,7 @@ using EHR.Modules;
 using Hazel;
 using InnerNet;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 // 来源：https://github.com/Yumenopai/TownOfHost_Y
 public class DarkHide : RoleBase
@@ -48,10 +48,6 @@ public class DarkHide : RoleBase
         IsWinKill = false;
 
         DRpcSetKillCount(Utils.GetPlayerById(playerId));
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public static void ReceiveRPC(MessageReader msg)

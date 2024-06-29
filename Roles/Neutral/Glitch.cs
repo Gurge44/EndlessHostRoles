@@ -7,7 +7,7 @@ using EHR.Modules;
 using Hazel;
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Glitch : RoleBase
 {
@@ -82,10 +82,6 @@ public class Glitch : RoleBase
         LastMimic = ts;
 
         LastUpdate = ts;
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)

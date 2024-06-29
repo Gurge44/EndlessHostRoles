@@ -6,7 +6,7 @@ using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Sprayer : RoleBase
     {
@@ -77,10 +77,6 @@ namespace EHR.Roles.Neutral
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
 
             foreach (var pc in Main.AllAlivePlayerControls) TrappedCount[pc.PlayerId] = 0;
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

@@ -1,9 +1,11 @@
 ﻿using static EHR.Options;
 
-namespace EHR.Roles.AddOns.Common
+namespace EHR.AddOns.Crewmate
 {
     internal class Physicist : IAddon
     {
+        public static OptionItem PhysicistCD;
+        public static OptionItem PhysicistViewDuration;
         public AddonTypes Type => AddonTypes.Helpful;
 
         public void SetupCustomOption()

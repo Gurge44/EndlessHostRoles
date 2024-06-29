@@ -4,7 +4,7 @@ using EHR.Modules;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     public class Spiritcaller : RoleBase
     {
@@ -60,10 +60,6 @@ namespace EHR.Roles.Neutral
             playerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(SpiritMax.GetInt());
             ProtectTimeStamp = 0;
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
@@ -89,12 +85,14 @@ namespace EHR.Roles.Neutral
                 var writer = CustomRpcSender.Create("SpiritCallerSendMessage");
                 writer.StartMessage(target.GetClientId());
                 writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
+                    .Write(target.Data.NetId)
                     .Write(GetString("SpiritcallerNoticeTitle"))
                     .EndRpc();
                 writer.StartRpc(target.NetId, (byte)RpcCalls.SendChat)
                     .Write(GetString("SpiritcallerNoticeMessage"))
                     .EndRpc();
                 writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
+                    .Write(target.Data.NetId)
                     .Write(target.Data.PlayerName)
                     .EndRpc();
                 writer.EndMessage();

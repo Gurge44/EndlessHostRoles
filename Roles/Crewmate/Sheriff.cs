@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 
-namespace EHR.Roles.Crewmate;
+namespace EHR.Crewmate;
 
 public class Sheriff : RoleBase
 {
@@ -66,12 +65,15 @@ public class Sheriff : RoleBase
         UsePet = Options.CreatePetUseSetting(Id + 29, CustomRoles.Sheriff);
     }
 
-    public static void SetUpNeutralOptions(int id)
+    private static void SetUpNeutralOptions(int id)
     {
-        foreach (var neutral in Enum.GetValues(typeof(CustomRoles)).Cast<CustomRoles>().Where(x => x.IsNeutral() && x is not CustomRoles.KB_Normal and not CustomRoles.Konan and not CustomRoles.Pestilence and not CustomRoles.Killer and not CustomRoles.Tasker and not CustomRoles.Potato and not CustomRoles.Hider and not CustomRoles.Seeker and not CustomRoles.Fox and not CustomRoles.Troll and not CustomRoles.Jumper and not CustomRoles.Detector and not CustomRoles.Jet and not CustomRoles.Dasher and not CustomRoles.Locator and not CustomRoles.Venter and not CustomRoles.Agent and not CustomRoles.Taskinator and not CustomRoles.GM and not CustomRoles.Convict))
+        foreach (var neutral in Enum.GetValues<CustomRoles>())
         {
-            SetUpKillTargetOption(neutral, id, true, CanKillNeutralsMode);
-            id++;
+            if (neutral.IsNeutral() && neutral is not CustomRoles.Konan and not CustomRoles.Pestilence and not CustomRoles.GM and not CustomRoles.Convict && !neutral.IsForOtherGameMode())
+            {
+                SetUpKillTargetOption(neutral, id, true, CanKillNeutralsMode);
+                id++;
+            }
         }
     }
 
@@ -95,10 +97,6 @@ public class Sheriff : RoleBase
         playerId.SetAbilityUseLimit(ShotLimitOpt.GetInt());
 
         Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : Shot Limit - {playerId.GetAbilityUseLimit()}", "Sheriff");
-
-        if (!AmongUsClient.Instance.AmHost || (Options.UsePets.GetBool() && UsePet.GetBool())) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanUseKillButton(Utils.GetPlayerById(id)) ? KillCooldown.GetFloat() : 15f;
@@ -122,7 +120,7 @@ public class Sheriff : RoleBase
                     || killer.Is(CustomRoles.Contagious)
                     || killer.Is(CustomRoles.Undead)
                 )
-                && ((target.GetCustomRole().IsImpostor() && NonCrewCanKillImp.GetBool()) || (target.IsCrewmate() && NonCrewCanKillCrew.GetBool()) || (target.GetCustomRole().IsNeutral() && NonCrewCanKillNeutral.GetBool()))
+                && ((target.IsImpostor() && NonCrewCanKillImp.GetBool()) || (target.IsCrewmate() && NonCrewCanKillCrew.GetBool()) || (target.GetCustomRole().IsNeutral() && NonCrewCanKillNeutral.GetBool()))
             ))
         {
             SetKillCooldown(killer.PlayerId);
@@ -139,10 +137,11 @@ public class Sheriff : RoleBase
         Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} : Number of kills left: {killer.GetAbilityUseLimit()}", "Sheriff");
     }
 
-    public static bool CanBeKilledBySheriff(PlayerControl player)
+    private static bool CanBeKilledBySheriff(PlayerControl player)
     {
         var cRole = player.GetCustomRole();
         var subRole = player.GetCustomSubRoles();
+        if (subRole.Contains(CustomRoles.Rascal)) return true;
         bool CanKill = false;
         foreach (CustomRoles SubRoleTarget in subRole)
         {

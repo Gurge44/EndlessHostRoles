@@ -3,7 +3,7 @@ using EHR.Modules;
 using Hazel;
 using static EHR.Options;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     public class Chronomancer : RoleBase
     {
@@ -28,7 +28,7 @@ namespace EHR.Roles.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
             ChargeInterval = new IntegerOptionItem(Id + 12, "ChargeInterval", new(1, 20, 1), 5, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chronomancer])
-                .SetValueFormat(OptionFormat.Seconds);
+                .SetValueFormat(OptionFormat.Percent);
             ChargeLossInterval = new IntegerOptionItem(Id + 13, "ChargeLossInterval", new(1, 50, 1), 25, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chronomancer])
                 .SetValueFormat(OptionFormat.Percent);
@@ -113,7 +113,7 @@ namespace EHR.Roles.Impostor
 
                 notify = true;
             }
-            else if (Main.KillTimers[pc.PlayerId] <= 0)
+            else if (Main.KillTimers[pc.PlayerId] <= 0 && !MeetingStates.FirstMeeting)
             {
                 ChargePercent += ChargeInterval.GetInt();
                 if (ChargePercent > 100) ChargePercent = 100;
@@ -148,6 +148,11 @@ namespace EHR.Roles.Impostor
         public override void AfterMeetingTasks()
         {
             OnReportDeadBody();
+        }
+
+        public override void SetButtonTexts(HudManager hud, byte id)
+        {
+            hud.AbilityButton?.ToggleVisible(false);
         }
     }
 }

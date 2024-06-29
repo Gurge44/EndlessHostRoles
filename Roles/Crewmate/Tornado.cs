@@ -8,7 +8,7 @@ using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class Tornado : RoleBase
     {

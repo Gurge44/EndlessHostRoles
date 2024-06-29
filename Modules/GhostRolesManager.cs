@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
-using EHR.Roles.AddOns.GhostRoles;
-using EHR.Roles.Neutral;
+using EHR.AddOns.GhostRoles;
+using EHR.Neutral;
 using HarmonyLib;
+using UnityEngine;
 
 namespace EHR.Modules
 {
@@ -37,6 +38,8 @@ namespace EHR.Modules
             AssignedGhostRoles[pc.PlayerId] = (suitableRole, instance);
 
             if (suitableRole == CustomRoles.Haunter) GhostRoles.Remove(suitableRole);
+
+            NotifyAboutGhostRole(pc);
         }
 
         public static void SpecificAssignGhostRole(byte id, CustomRoles role, bool set)
@@ -51,10 +54,34 @@ namespace EHR.Modules
             AssignedGhostRoles[id] = (role, instance);
         }
 
+        public static void NotifyAboutGhostRole(PlayerControl pc)
+        {
+            if (!AssignedGhostRoles.TryGetValue(pc.PlayerId, out var ghostRole)) return;
+            CustomRoles role = ghostRole.Role;
+            pc.Notify($"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{GetMessage(Translator.GetString($"{role}InfoLong").Split("\n")[1..].Join(delimiter: "\n"))}</size>", 300f);
+            return;
+
+            string GetMessage(string baseMessage)
+            {
+                var message = baseMessage;
+                for (int i = 50; i < message.Length; i += 50)
+                {
+                    int index = message.LastIndexOf(' ', i);
+                    if (index != -1)
+                    {
+                        message = message.Insert(index + 1, "\n");
+                    }
+                }
+
+                return Utils.ColorString(Color.white, message.Replace(role.ToString(), role.ToColoredString()));
+            }
+        }
+
         public static bool ShouldHaveGhostRole(PlayerControl pc)
         {
             try
             {
+                if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
                 if (AssignedGhostRoles.Count >= GhostRoles.Count) return false;
                 if (pc.IsAlive() || pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame || pc.Is(CustomRoles.EvilSpirit)) return false;
 

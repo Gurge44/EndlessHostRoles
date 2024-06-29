@@ -4,7 +4,7 @@ using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Enderman : RoleBase
     {
@@ -43,10 +43,6 @@ namespace EHR.Roles.Neutral
         {
             EndermanId = playerId;
             MarkedPosition = (Vector2.zero, 0, false);
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

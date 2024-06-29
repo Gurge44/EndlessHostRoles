@@ -3,7 +3,7 @@ using System.Linq;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Crewmate;
+namespace EHR.Crewmate;
 
 public class CopyCat : RoleBase
 {
@@ -50,10 +50,6 @@ public class CopyCat : RoleBase
         CopyCatPC = Utils.GetPlayerById(playerId);
         CurrentKillCooldown = KillCooldown.GetFloat();
         playerId.SetAbilityUseLimit(MiscopyLimitOpt.GetInt());
-
-        if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CurrentKillCooldown;
@@ -135,9 +131,6 @@ public class CopyCat : RoleBase
 
         if (tpc.IsCrewmate() && tpc.GetCustomSubRoles().All(x => x != CustomRoles.Rascal))
         {
-            ////////////           /*add the settings for new role*/            ////////////
-            /* anything that is assigned in onGameStartedPatch.cs comes here */
-
             TempLimit = pc.GetAbilityUseLimit();
 
             pc.RpcSetCustomRole(role);

@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using Hazel;
 using static EHR.Options;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     public class EvilDiviner : RoleBase
     {
@@ -64,10 +64,7 @@ namespace EHR.Roles.Impostor
             }
 
             if (!AmongUsClient.Instance.AmHost || !IsRitualist) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-            {
-                Main.ResetCamPlayerList.Add(playerId);
-            }
+            Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override bool CanUseImpostorVentButton(PlayerControl pc)

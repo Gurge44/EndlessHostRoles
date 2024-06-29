@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using AmongUs.GameOptions;
 using UnityEngine;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     using static Options;
 
@@ -84,6 +84,10 @@ namespace EHR.Roles.Crewmate
                 player.Suicide();
                 SuicideTimer = -10f;
             }
+            else if (Mathf.Approximately(SuicideTimer + 8, TimeLimit.GetFloat()))
+            {
+                player.Notify(Translator.GetString("AddictWarning"), 8f);
+            }
             else
             {
                 SuicideTimer += Time.fixedDeltaTime;
@@ -92,13 +96,10 @@ namespace EHR.Roles.Crewmate
                 {
                     ImmortalTimer += Time.fixedDeltaTime;
                 }
-                else
+                else if (Math.Abs(ImmortalTimer - 420f) > 0.5f && FreezeTimeAfterImmortal.GetFloat() > 0)
                 {
-                    if (Math.Abs(ImmortalTimer - 420f) > 0.5f && FreezeTimeAfterImmortal.GetFloat() > 0)
-                    {
-                        AddictGetDown(player);
-                        ImmortalTimer = 420f;
-                    }
+                    AddictGetDown(player);
+                    ImmortalTimer = 420f;
                 }
             }
         }
@@ -118,6 +119,9 @@ namespace EHR.Roles.Crewmate
 
             Main.AllPlayerSpeed[pc.PlayerId] = SpeedWhileImmortal.GetFloat();
             pc.MarkDirtySettings();
+
+            if (NameNotifyManager.Notice.Remove(pc.PlayerId))
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
         private static void AddictGetDown(PlayerControl addict)

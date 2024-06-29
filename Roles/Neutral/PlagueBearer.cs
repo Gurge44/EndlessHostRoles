@@ -5,7 +5,7 @@ using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class PlagueBearer : RoleBase
 {
@@ -21,7 +21,6 @@ public class PlagueBearer : RoleBase
     public static OptionItem PestilenceHasImpostorVision;
 
     public override bool IsEnable => playerIdList.Count > 0;
-
 
     public static void SetupCustomOption()
     {
@@ -49,10 +48,6 @@ public class PlagueBearer : RoleBase
         playerIdList.Add(playerId);
         PlagueBearerCD.Add(playerId, PlagueBearerCDOpt.GetFloat());
         PlaguedList[playerId] = [];
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = PlagueBearerCD[id];

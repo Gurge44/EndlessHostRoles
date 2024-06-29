@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using AmongUs.GameOptions;
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Pyromaniac : RoleBase
 {
@@ -42,10 +42,6 @@ public class Pyromaniac : RoleBase
     {
         playerIdList.Add(playerId);
         DousedList = [];
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

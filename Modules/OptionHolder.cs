@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using EHR.AddOns;
 using EHR.Modules;
-using EHR.Roles.AddOns;
 using HarmonyLib;
 using UnityEngine;
 
@@ -22,6 +22,7 @@ public enum CustomGameMode
     MoveAndStop = 0x04,
     HotPotato = 0x05,
     HideAndSeek = 0x06,
+    Speedrun = 0x07,
     All = int.MaxValue
 }
 
@@ -42,7 +43,8 @@ public static class Options
         "FFA",
         "MoveAndStop",
         "HotPotato",
-        "HideAndSeek"
+        "HideAndSeek",
+        "Speedrun"
     ];
 
     private static Dictionary<CustomRoles, int> roleCounts;
@@ -207,7 +209,6 @@ public static class Options
     public static OptionItem SidekickCanKillJackal;
     public static OptionItem SidekickCanKillSidekick;
 
-    public static OptionItem VanillaCrewmateCannotBeGuessed;
     public static OptionItem EGCanGuessImp;
     public static OptionItem EGCanGuessAdt;
     public static OptionItem EGCanGuessTime;
@@ -222,7 +223,6 @@ public static class Options
     public static OptionItem LuckyProbability;
     public static OptionItem VindicatorAdditionalVote;
     public static OptionItem VindicatorHideVote;
-    public static OptionItem OppoImmuneToAttacksWhenTasksDone;
     public static OptionItem DoctorTaskCompletedBatteryCharge;
     public static OptionItem TrapperBlockMoveTime;
     public static OptionItem DetectiveCanknowKiller;
@@ -247,8 +247,6 @@ public static class Options
     public static OptionItem TimeMasterSkillDuration;
     public static OptionItem TimeMasterMaxUses;
     public static OptionItem VeteranSkillMaxOfUseage;
-    public static OptionItem VentguardMaxGuards;
-    public static OptionItem VentguardBlockDoesNotAffectCrew;
     public static OptionItem BodyguardProtectRadius;
     public static OptionItem BodyguardKillsKiller;
     public static OptionItem WitnessCD;
@@ -293,13 +291,6 @@ public static class Options
 
     public static OptionItem GodfatherCancelVote;
 
-    public static OptionItem NimbleCD;
-    public static OptionItem NimbleInVentTime;
-    public static OptionItem PhysicistCD;
-    public static OptionItem PhysicistViewDuration;
-
-    public static OptionItem CleanerKillCooldown;
-    public static OptionItem KillCooldownAfterCleaning;
     public static OptionItem GuardSpellTimes;
     public static OptionItem CapitalismSkillCooldown;
     public static OptionItem CapitalismKillCooldown;
@@ -388,14 +379,8 @@ public static class Options
     public static OptionItem DecontaminationTimeOnMiraHQ;
     public static OptionItem DecontaminationTimeOnPolus;
 
-    public static OptionItem ShapeshiftCD;
-    public static OptionItem ShapeshiftDur;
-
     public static OptionItem MafiaShapeshiftCD;
     public static OptionItem MafiaShapeshiftDur;
-
-    public static OptionItem ScientistDur;
-    public static OptionItem ScientistCD;
 
     public static OptionItem DisableTaskWinIfAllCrewsAreDead;
     public static OptionItem DisableTaskWinIfAllCrewsAreConverted;
@@ -762,6 +747,7 @@ public static class Options
             3 => CustomGameMode.MoveAndStop,
             4 => CustomGameMode.HotPotato,
             5 => CustomGameMode.HideAndSeek,
+            6 => CustomGameMode.Speedrun,
             _ => CustomGameMode.Standard
         };
 
@@ -778,6 +764,7 @@ public static class Options
             Logger.Info("Options.Load End", "Options");
             GroupOptions();
             GroupAddons();
+            //Process.Start(@".\EHR_DATA\SettingsUI.exe");
 
 #if DEBUG
             // Used for generating the table of roles for the README
@@ -786,7 +773,7 @@ public static class Options
                 var sb = new System.Text.StringBuilder();
                 var grouped = Enum.GetValues<CustomRoles>().GroupBy(x =>
                 {
-                    if (x is CustomRoles.GM or CustomRoles.Philantropist or CustomRoles.Konan or CustomRoles.KB_Normal or CustomRoles.Killer or CustomRoles.Potato or CustomRoles.Tasker or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict || HnSManager.AllHnSRoles.Contains(x) || x.IsVanilla() || x.ToString().Contains("EHR")) return 4;
+                    if (x is CustomRoles.GM or CustomRoles.Philantropist or CustomRoles.Konan or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict || x.IsForOtherGameMode() || x.IsVanilla() || x.ToString().Contains("EHR")) return 4;
                     if (x.IsAdditionRole()) return 3;
                     if (x.IsImpostor() || x.IsMadmate()) return 0;
                     if (x.IsNeutral()) return 1;
@@ -1246,15 +1233,17 @@ public static class Options
 
         MainLoadingText = "Building Settings for Other Gamemodes";
 
-        //SoloKombat
+        // SoloKombat
         SoloKombatManager.SetupCustomOption();
-        //FFA
+        // FFA
         FFAManager.SetupCustomOption();
-        //Move And Stop
+        // Move And Stop
         MoveAndStopManager.SetupCustomOption();
-        //Hot Potato
+        // Hot Potato
         HotPotatoManager.SetupCustomOption();
-        //Hide And Seek
+        // Speedrun
+        SpeedrunManager.SetupCustomOption();
+        // Hide And Seek
         HnSManager.SetupCustomOption();
 
 
@@ -2234,14 +2223,12 @@ public static class Options
     // Ability Use Gain With Each Task Completed
     public static OptionItem TimeMasterAbilityUseGainWithEachTaskCompleted;
     public static OptionItem VeteranAbilityUseGainWithEachTaskCompleted;
-    public static OptionItem VentguardAbilityUseGainWithEachTaskCompleted;
     public static OptionItem GrenadierAbilityUseGainWithEachTaskCompleted;
     public static OptionItem LighterAbilityUseGainWithEachTaskCompleted;
     public static OptionItem SecurityGuardAbilityUseGainWithEachTaskCompleted;
     public static OptionItem DovesOfNeaceAbilityUseGainWithEachTaskCompleted;
 
     // Ability Use Gain every 5 seconds
-    public static OptionItem VentguardAbilityChargesWhenFinishedTasks;
     public static OptionItem GrenadierAbilityChargesWhenFinishedTasks;
     public static OptionItem LighterAbilityChargesWhenFinishedTasks;
     public static OptionItem SecurityGuardAbilityChargesWhenFinishedTasks;

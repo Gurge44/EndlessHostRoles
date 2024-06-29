@@ -1,10 +1,10 @@
 ﻿using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Impostor;
 using EHR.Modules;
-using EHR.Roles.Impostor;
 using static EHR.Options;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class DovesOfNeace : RoleBase
     {

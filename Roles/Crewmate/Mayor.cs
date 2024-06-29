@@ -2,7 +2,7 @@
 using AmongUs.GameOptions;
 using static EHR.Options;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class Mayor : RoleBase
     {
@@ -42,7 +42,7 @@ namespace EHR.Roles.Crewmate
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             if (!MayorHasPortableButton.GetBool()) return;
-            
+
             if (UsePets.GetBool()) hud.PetButton.buttonLabelText.text = Translator.GetString("MayorVentButtonText");
             else hud.AbilityButton.buttonLabelText.text = Translator.GetString("MayorVentButtonText");
         }

@@ -3,7 +3,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using Hazel;
 
 namespace EHR;
 
@@ -92,25 +91,12 @@ public static class AntiBlackout
     public static void SendGameData([CallerMemberName] string callerMethodName = "")
     {
         Logger.Info($"SendGameData is called from {callerMethodName}");
-        MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-        // {} is for readability.
-        writer.StartMessage(5); //0x05 GameData
-        {
-            writer.Write(AmongUsClient.Instance.GameId);
-            writer.StartMessage(1); //0x01 Data
-            {
-                writer.WritePacked(GameData.Instance.NetId);
-                GameData.Instance.Serialize(writer, true);
-            }
-            writer.EndMessage();
-        }
-        writer.EndMessage();
 
-        AmongUsClient.Instance.SendOrDisconnect(writer);
-        writer.Recycle();
+        GameData.Instance.DirtyAllData();
+        AmongUsClient.Instance.SendAllStreamedObjects();
     }
 
-    public static void OnDisconnect(GameData.PlayerInfo player)
+    public static void OnDisconnect(NetworkedPlayerInfo player)
     {
         // Execution conditions: client is host, IsDead is overwritten, player is disconnected
         if (!AmongUsClient.Instance.AmHost || !IsCached || !player.Disconnected) return;

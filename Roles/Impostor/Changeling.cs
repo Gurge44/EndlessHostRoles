@@ -4,7 +4,7 @@ using System.Linq;
 using EHR.Modules;
 using static EHR.Options;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     internal class Changeling : RoleBase
     {

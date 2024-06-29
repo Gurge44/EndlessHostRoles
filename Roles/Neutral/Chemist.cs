@@ -8,7 +8,7 @@ using Hazel;
 using UnityEngine;
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Chemist : RoleBase
     {
@@ -202,10 +202,6 @@ namespace EHR.Roles.Neutral
             Grenades = [];
 
             ItemCounts = Enum.GetValues<Item>().ToDictionary(x => x, _ => 0);
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
@@ -378,7 +374,7 @@ namespace EHR.Roles.Neutral
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
-        public override bool CheckReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target, PlayerControl killer)
+        public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
         {
             if (BombedBodies.Contains(target.PlayerId))
             {

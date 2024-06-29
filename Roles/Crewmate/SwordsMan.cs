@@ -4,33 +4,37 @@ using EHR.Modules;
 using Hazel;
 using UnityEngine;
 
-namespace EHR.Roles.Crewmate;
+namespace EHR.Crewmate;
 
 public class SwordsMan : RoleBase
 {
     private const int Id = 9000;
-    public static List<byte> playerIdList = [];
-    public static List<byte> killed = [];
-    public static OptionItem CanVent;
+    private static List<byte> PlayerIdList = [];
+    public static List<byte> Killed = [];
+    private static OptionItem CanVent;
+    private static OptionItem KCD;
     public static OptionItem UsePet;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.SwordsMan);
         CanVent = new BooleanOptionItem(Id + 11, "CanVent", false, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SwordsMan]);
+        KCD = new FloatOptionItem(Id + 9, "KillCooldown", new(0f, 120f, 0.5f), 15f, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SwordsMan])
+            .SetValueFormat(OptionFormat.Seconds);
         UsePet = Options.CreatePetUseSetting(Id + 10, CustomRoles.SwordsMan);
     }
 
     public override void Init()
     {
-        killed = [];
-        playerIdList = [];
+        Killed = [];
+        PlayerIdList = [];
     }
 
-    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = IsKilled(id) ? 300f : Options.DefaultKillCooldown;
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = IsKilled(id) ? 300f : KCD.GetFloat();
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
     public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
     public override string GetProgressText(byte id, bool comms) => Utils.ColorString(!IsKilled(id) ? Utils.GetRoleColor(CustomRoles.SwordsMan).ShadeColor(0.25f) : Color.gray, !IsKilled(id) ? "(1)" : "(0)");
@@ -39,15 +43,11 @@ public class SwordsMan : RoleBase
         => !Main.PlayerStates[pc.PlayerId].IsDead
            && !IsKilled(pc.PlayerId);
 
-    public static bool IsKilled(byte playerId) => killed.Contains(playerId);
+    public static bool IsKilled(byte playerId) => Killed.Contains(playerId);
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
-
-        if (!AmongUsClient.Instance.AmHost || (Options.UsePets.GetBool() && UsePet.GetBool())) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
+        PlayerIdList.Add(playerId);
     }
 
     public static void SendRPC(byte playerId)
@@ -61,8 +61,8 @@ public class SwordsMan : RoleBase
     public static void ReceiveRPC(MessageReader reader)
     {
         byte SwordsManId = reader.ReadByte();
-        if (!killed.Contains(SwordsManId))
-            killed.Add(SwordsManId);
+        if (!Killed.Contains(SwordsManId))
+            Killed.Add(SwordsManId);
     }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target) => CanUseKillButton(killer);
@@ -70,7 +70,7 @@ public class SwordsMan : RoleBase
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
         SendRPC(killer.PlayerId);
-        killed.Add(killer.PlayerId);
+        Killed.Add(killer.PlayerId);
         SetKillCooldown(killer.PlayerId);
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
     }

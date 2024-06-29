@@ -2,15 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using EHR.AddOns.GhostRoles;
+using EHR.Crewmate;
 using EHR.Modules;
-using EHR.Roles.AddOns.GhostRoles;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
-using Object = UnityEngine.Object;
+
 
 namespace EHR;
 
@@ -63,7 +63,7 @@ class EndGamePatch
             if (date == DateTime.MinValue) continue;
             var killerId = value.GetRealKiller();
             var gmIsFM = Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop;
-            var gmIsFMHH = gmIsFM || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek;
+            var gmIsFMHH = gmIsFM || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun;
             sb.Append($"\n{date:T} {Main.AllPlayerNames[key]} ({(gmIsFMHH ? string.Empty : Utils.GetDisplayRoleName(key, true))}{(gmIsFM ? string.Empty : Utils.GetSubRolesText(key, summary: true))}) [{Utils.GetVitalText(key)}]");
             if (killerId != byte.MaxValue && killerId != key)
                 sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(gmIsFMHH ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(gmIsFM ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
@@ -74,7 +74,7 @@ class EndGamePatch
 
         Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
 
-        TempData.winners = new();
+        EndGameResult.CachedWinners = new();
 
         var winner = Main.AllPlayerControls.Where(pc => CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId)).ToList();
 
@@ -89,7 +89,7 @@ class EndGamePatch
         {
             if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw && pc.Is(CustomRoles.GM)) continue;
 
-            TempData.winners.Add(new(pc.Data));
+            EndGameResult.CachedWinners.Add(new(pc.Data));
             Main.WinnerList.Add(pc.PlayerId);
             Main.WinnerNameList.Add(pc.GetRealName());
         }
@@ -107,6 +107,7 @@ class EndGamePatch
             /* Send SyncSettings RPC */
         }
 
+        CustomNetObject.Reset();
         Main.LoversPlayers.Clear();
         Bloodmoon.OnMeetingStart();
 
@@ -147,21 +148,21 @@ class SetEverythingUpPatch
                 }
             }
 
-            List<WinningPlayerData> list = TempData.winners.ToArray().ToList();
+            var list = EndGameResult.CachedWinners.ToArray().ToList();
             for (int i = 0; i < list.Count; i++)
             {
-                WinningPlayerData data = list[i];
+                var data = list[i];
                 int num2 = (i % 2 == 0) ? -1 : 1;
                 int num3 = (i + 1) / 2;
                 float num4 = num3 / (float)num;
                 float num5 = Mathf.Lerp(1f, 0.75f, num4);
                 float num6 = (i == 0) ? -8 : -1;
-                PoolablePlayer poolablePlayer = Object.Instantiate(__instance?.PlayerPrefab, __instance?.transform);
+                var poolablePlayer = Object.Instantiate(__instance?.PlayerPrefab, __instance?.transform);
                 poolablePlayer.transform.localPosition = new Vector3(1f * num2 * num3 * num5, FloatRange.SpreadToEdges(-1.125f, 0f, num3, num), num6 + num3 * 0.01f) * 0.9f;
                 float num7 = Mathf.Lerp(1f, 0.65f, num4) * 0.9f;
                 Vector3 vector = new(num7, num7, 1f);
                 poolablePlayer.transform.localScale = vector;
-                poolablePlayer.UpdateFromPlayerOutfit(data, PlayerMaterial.MaskType.ComplexUI, data.IsDead, true);
+                poolablePlayer.UpdateFromPlayerOutfit(data.Outfit, PlayerMaterial.MaskType.ComplexUI, data.IsDead, true);
                 if (data.IsDead)
                 {
                     poolablePlayer.cosmetics.currentBodySprite.BodySprite.sprite = poolablePlayer.cosmetics.currentBodySprite.GhostSprite;
@@ -246,6 +247,14 @@ class SetEverythingUpPatch
             {
                 var winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
                 __instance.BackgroundBar.material.color = new Color32(232, 205, 70, 255);
+                WinnerText.text = Main.AllPlayerNames[winnerId] + " wins!";
+                WinnerText.color = Main.PlayerColors[winnerId];
+                goto EndOfText;
+            }
+            case CustomGameMode.Speedrun:
+            {
+                var winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
+                __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Speedrunner);
                 WinnerText.text = Main.AllPlayerNames[winnerId] + " wins!";
                 WinnerText.color = Main.PlayerColors[winnerId];
                 goto EndOfText;
@@ -404,6 +413,13 @@ class SetEverythingUpPatch
             case CustomGameMode.HotPotato:
             {
                 var list = cloneRoles.OrderByDescending(HotPotatoManager.GetSurvivalTime);
+                foreach (var id in list.Where(EndGamePatch.SummaryText.ContainsKey))
+                    sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id]);
+                break;
+            }
+            case CustomGameMode.Speedrun:
+            {
+                var list = cloneRoles.OrderByDescending(id => Main.PlayerStates[id].TaskState.CompletedTasksCount);
                 foreach (var id in list.Where(EndGamePatch.SummaryText.ContainsKey))
                     sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id]);
                 break;

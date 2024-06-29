@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Crewmate;
 using EHR.Modules;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using UnityEngine;
 using static EHR.Options;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     internal class Puppeteer : RoleBase
     {
@@ -185,7 +185,7 @@ namespace EHR.Roles.Impostor
                     {
                         var min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();
                         PlayerControl target = Utils.GetPlayerById(min.Key);
-                        var KillRange = NormalGameOptionsV07.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
+                        var KillRange = NormalGameOptionsV08.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
                         if (min.Value <= KillRange && player.CanMove && target.CanMove)
                         {
                             if (player.RpcCheckAndMurder(target, true))

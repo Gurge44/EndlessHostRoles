@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Impostor;
 using EHR.Modules;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     public class Farseer : RoleBase
     {
@@ -62,10 +62,6 @@ namespace EHR.Roles.Crewmate
             }
 
             RandomRole[playerId] = GetRandomCrewRoleString();
-
-            if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -125,7 +121,7 @@ namespace EHR.Roles.Crewmate
                     }
                     else
                     {
-                        float range = NormalGameOptionsV07.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
+                        float range = NormalGameOptionsV08.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
                         float dis = Vector2.Distance(player.transform.position, arTarget.transform.position);
                         if (dis <= range)
                         {

@@ -8,9 +8,9 @@ using Hazel;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
-using Object = UnityEngine.Object;
 
-namespace EHR.Roles.Impostor
+
+namespace EHR.Impostor
 {
     internal class Mafia : RoleBase
     {

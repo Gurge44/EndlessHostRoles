@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data;
-using EHR.Roles.Impostor;
+using EHR.Impostor;
 using HarmonyLib;
 using InnerNet;
 using UnityEngine;
@@ -14,9 +14,9 @@ class ChatControllerUpdatePatch
 {
     public static int CurrentHistorySelection = -1;
 
-    private static SpriteRenderer quickChatIcon;
-    private static SpriteRenderer openBanMenuIcon;
-    private static SpriteRenderer openKeyboardIcon;
+    private static SpriteRenderer QuickChatIcon;
+    private static SpriteRenderer OpenBanMenuIcon;
+    private static SpriteRenderer OpenKeyboardIcon;
 
     public static void Prefix()
     {
@@ -35,14 +35,14 @@ class ChatControllerUpdatePatch
             __instance.quickChatField.background.color = new Color32(40, 40, 40, byte.MaxValue);
             __instance.quickChatField.text.color = Color.white;
 
-            if (quickChatIcon == null) quickChatIcon = GameObject.Find("QuickChatIcon")?.transform.GetComponent<SpriteRenderer>();
-            else quickChatIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkQuickChat.png", 100f);
+            if (QuickChatIcon == null) QuickChatIcon = GameObject.Find("QuickChatIcon")?.transform.GetComponent<SpriteRenderer>();
+            else QuickChatIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkQuickChat.png", 100f);
 
-            if (openBanMenuIcon == null) openBanMenuIcon = GameObject.Find("OpenBanMenuIcon")?.transform.GetComponent<SpriteRenderer>();
-            else openBanMenuIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkReport.png", 100f);
+            if (OpenBanMenuIcon == null) OpenBanMenuIcon = GameObject.Find("OpenBanMenuIcon")?.transform.GetComponent<SpriteRenderer>();
+            else OpenBanMenuIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkReport.png", 100f);
 
-            if (openKeyboardIcon == null) openKeyboardIcon = GameObject.Find("OpenKeyboardIcon")?.transform.GetComponent<SpriteRenderer>();
-            else openKeyboardIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkKeyboard.png", 100f);
+            if (OpenKeyboardIcon == null) OpenKeyboardIcon = GameObject.Find("OpenKeyboardIcon")?.transform.GetComponent<SpriteRenderer>();
+            else OpenKeyboardIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkKeyboard.png", 100f);
         }
         else
         {
@@ -159,7 +159,7 @@ public static class ChatManager
         int operate = message switch
         {
             { } str when CheckCommand(ref str, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id|shoot|guess|bet|st|gs|bt|猜|赌|sp|jj|tl|trial|审判|判|审|xp|效颦|效|颦|sw|换票|换|swap", false) || CheckName(ref playername, "系统消息", false) => 1,
-            { } str when CheckCommand(ref str, "up", false) => 2,
+            { } str when CheckCommand(ref str, "up|ask|target|vote|chat|check", false) => 2,
             { } str when CheckCommand(ref str, "r|role|m|myrole|n|now") => 4,
             _ => 3
         };
@@ -168,6 +168,7 @@ public static class ChatManager
         {
             case 1 when player.IsAlive(): // Guessing Command & Such
                 Logger.Info("Special Command", "ChatManager");
+                if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId) break;
                 LateTask.New(() =>
                 {
                     if (!ChatCommands.LastSentCommand.ContainsKey(player.PlayerId))
@@ -178,7 +179,7 @@ public static class ChatManager
                     else Logger.Info("Delayed Guess was not necessary", "ChatManager");
                 }, 0.3f, "Trying Delayed Guess");
                 break;
-            case 2: // /up
+            case 2: // /up and role ability commands
                 Logger.Info($"Command: {message}", "ChatManager");
                 break;
             case 3: // In Lobby & Evertything Else
@@ -204,10 +205,11 @@ public static class ChatManager
         ChatUpdatePatch.DoBlockChat = true;
         string msg = Utils.EmptyMessage;
         var totalAlive = Main.AllAlivePlayerControls.Length;
+        if (totalAlive == 0) return;
         var x = Main.AllAlivePlayerControls;
         var r = IRandom.Instance;
 
-        var filtered = ChatHistory.Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
+        var filtered = ChatHistory.SkipLast(1).Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
 
         for (int i = clear ? 0 : filtered.Length; i < 20; i++)
         {

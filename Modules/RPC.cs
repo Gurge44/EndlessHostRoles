@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AmongUs.GameOptions;
+using EHR.AddOns.Crewmate;
+using EHR.AddOns.Impostor;
+using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Neutral;
-using EHR.Roles.AddOns.Crewmate;
-using EHR.Roles.AddOns.Impostor;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -47,6 +46,7 @@ public enum CustomRPC
     PlayCustomSound,
     SetKillTimer,
     SyncAllPlayerNames,
+    SyncAllClientRealNames,
     SyncNameNotify,
     ShowPopUp,
     KillFlash,
@@ -140,6 +140,8 @@ public enum CustomRPC
     SyncEvolver,
     SyncTremor,
     SyncAid,
+    SyncTelekinetic,
+    SyncRouleteGrandeur,
 
     // Other Game Modes
     SyncKBPlayer,
@@ -162,14 +164,13 @@ internal class RPCHandlerPatch
 {
     public static readonly Dictionary<byte, int> ReportDeadBodyRPCs = [];
 
-    public static bool TrustedRpc(byte id)
-        => (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.RetributionistRevenge;
+    private static bool TrustedRpc(byte id) => (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.RetributionistRevenge;
 
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
     {
         var rpcType = (RpcCalls)callId;
         MessageReader subReader = MessageReader.Get(reader);
-        if (EAC.ReceiveRpc(__instance, callId, reader)) return false;
+        //if (EAC.ReceiveRpc(__instance, callId, reader)) return false;
         Logger.Info($"From ID: {__instance?.Data?.PlayerId} ({(__instance?.Data?.PlayerId == 0 ? "Host" : __instance?.Data?.PlayerName)}) : {callId} ({RPC.GetRpcName(callId)})", "ReceiveRPC");
         if (callId == 11 && __instance != null)
         {
@@ -180,14 +181,16 @@ internal class RPCHandlerPatch
 
         switch (rpcType)
         {
-            case RpcCalls.SetName: //SetNameRPC
+            case RpcCalls.SetName:
+                subReader.ReadUInt32();
                 string name = subReader.ReadString();
                 if (subReader.BytesRemaining > 0 && subReader.ReadBoolean()) return false;
-                Logger.Info("RPC名称修改:" + __instance.GetNameWithRole().RemoveHtmlTags() + " => " + name, "SetName");
+                Logger.Info($"RPC Set Name For Player: {__instance.GetNameWithRole().RemoveHtmlTags()} => {name}", "SetName");
                 break;
-            case RpcCalls.SetRole: //SetNameRPC
+            case RpcCalls.SetRole:
                 var role = (RoleTypes)subReader.ReadUInt16();
-                Logger.Info("RPCSetRole:" + __instance.GetRealName() + " => " + role, "SetRole");
+                var canOverriddenRole = subReader.ReadBoolean();
+                Logger.Info($"RPC Set Role For Player: {__instance.GetRealName()} => {role} CanOverrideRole: {canOverriddenRole}", "SetRole");
                 break;
             case RpcCalls.SendChat:
                 var text = subReader.ReadString();
@@ -345,6 +348,12 @@ internal class RPCHandlerPatch
                 string msg = reader.ReadString();
                 HudManager.Instance.ShowPopUp(msg);
                 break;
+            case CustomRPC.SyncAllClientRealNames:
+                Main.AllClientRealNames.Clear();
+                int num2 = reader.ReadPackedInt32();
+                for (int i = 0; i < num2; i++)
+                    Main.AllClientRealNames.TryAdd(reader.ReadInt32(), reader.ReadString());
+                break;
             case CustomRPC.SetCustomRole:
                 byte CustomRoleTargetId = reader.ReadByte();
                 CustomRoles role = (CustomRoles)reader.ReadPackedInt32();
@@ -405,7 +414,7 @@ internal class RPCHandlerPatch
             case CustomRPC.SyncSentry:
             {
                 byte id = reader.ReadByte();
-                if (Main.PlayerStates[id].Role is not Roles.Impostor.Sentry sentry) break;
+                if (Main.PlayerStates[id].Role is not EHR.Impostor.Sentry sentry) break;
                 sentry.MonitoredRoom = Utils.GetPlayerById(id).GetPlainShipRoom();
                 break;
             }
@@ -429,6 +438,12 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SyncAid:
                 (Main.PlayerStates[reader.ReadByte()].Role as Aid)?.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncTelekinetic:
+                (Main.PlayerStates[reader.ReadByte()].Role as Telekinetic)?.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncRouleteGrandeur:
+                (Main.PlayerStates[reader.ReadByte()].Role as RouleteGrandeur)?.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetBountyTarget:
             {
@@ -792,7 +807,7 @@ internal class RPCHandlerPatch
                 NiceSwapper.ReceiveRPC(reader, __instance);
                 break;
             case CustomRPC.SetTrackerTarget:
-                Tracker.ReceiveRPC(reader);
+                Scout.ReceiveRPC(reader);
                 break;
         }
     }
@@ -884,23 +899,8 @@ internal static class RPC
 
     public static void SendGameData(int clientId = -1)
     {
-        MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-        writer.StartMessage((byte)(clientId == -1 ? 5 : 6)); //0x05 GameData
-        {
-            writer.Write(AmongUsClient.Instance.GameId);
-            if (clientId != -1)
-                writer.WritePacked(clientId);
-            writer.StartMessage(1); //0x01 Data
-            {
-                writer.WritePacked(GameData.Instance.NetId);
-                GameData.Instance.Serialize(writer, true);
-            }
-            writer.EndMessage();
-        }
-        writer.EndMessage();
-
-        AmongUsClient.Instance.SendOrDisconnect(writer);
-        writer.Recycle();
+        GameData.Instance.DirtyAllData();
+        AmongUsClient.Instance.SendAllStreamedObjects();
     }
 
     public static void ShowPopUp(this PlayerControl pc, string msg)
@@ -908,6 +908,20 @@ internal static class RPC
         if (!AmongUsClient.Instance.AmHost) return;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ShowPopUp, SendOption.Reliable, pc.GetClientId());
         writer.Write(msg);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+
+    public static void SyncAllClientRealNames()
+    {
+        if (!AmongUsClient.Instance.AmHost) return;
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAllClientRealNames, SendOption.Reliable, -1);
+        writer.WritePacked(Main.AllClientRealNames.Count);
+        foreach (var name in Main.AllClientRealNames)
+        {
+            writer.Write(name.Key);
+            writer.Write(name.Value);
+        }
+
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 

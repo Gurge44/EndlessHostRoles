@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using EHR.Roles.Crewmate;
+using EHR.Crewmate;
 using static EHR.Options;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     internal class Nullifier : RoleBase
     {
@@ -76,7 +76,7 @@ namespace EHR.Roles.Impostor
                             sm.SendRPC();
                             break;
                         case CustomRoles.SwordsMan:
-                            SwordsMan.killed.Add(target.PlayerId);
+                            SwordsMan.Killed.Add(target.PlayerId);
                             SwordsMan.SendRPC(target.PlayerId);
                             break;
                         default:

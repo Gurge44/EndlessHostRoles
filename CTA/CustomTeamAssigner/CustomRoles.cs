@@ -7,10 +7,12 @@ public enum CustomRoles
 
     // Impostors (Vanilla)
     Impostor,
+    Phantom,
     Shapeshifter,
 
     // Vanilla Remakes
     ImpostorEHR,
+    PhantomEHR,
     ShapeshifterEHR,
 
     // Impostors
@@ -19,6 +21,7 @@ public enum CustomRoles
     Hacker, // Anonymous
     AntiAdminer,
     Sans, // Arrogance
+    Augmenter,
     Bard,
     Blackmailer,
     Bomber,
@@ -95,6 +98,7 @@ public enum CustomRoles
     Underdog,
     Undertaker,
     Vampire,
+    Ventriloquist,
     Vindicator,
     Visionary,
     Warlock,
@@ -106,13 +110,17 @@ public enum CustomRoles
     // Crewmates (Vanilla)
     Engineer,
     GuardianAngel,
+    Noisemaker,
     Scientist,
+    Tracker,
 
     // Vanilla Remakes
     CrewmateEHR,
     EngineerEHR,
     GuardianAngelEHR,
+    NoisemakerEHR,
     ScientistEHR,
+    TrackerEHR,
 
     // Crewmates
 
@@ -129,6 +137,7 @@ public enum CustomRoles
     CameraMan,
     CyberStar, // Celebrity
     Chameleon,
+    Clairvoyant,
     Cleanser,
     Convener,
     CopyCat,
@@ -161,6 +170,7 @@ public enum CustomRoles
     Ignitor,
     Insight,
     ParityCop, // Inspector
+    Inquirer,
     Jailor,
     Judge,
     Needy, // Lazy Guy
@@ -193,24 +203,27 @@ public enum CustomRoles
     Rabbit,
     Randomizer,
     Ricochet,
+    Safeguard,
+    Scout,
     SecurityGuard,
     Sentinel,
     Sentry,
     Sheriff,
     Shiftguard,
     Snitch,
+    Soothsayer,
     Spiritualist,
     Speedrunner,
     SpeedBooster,
     Spy,
     SuperStar,
     TaskManager,
+    Telekinetic,
     Tether,
     TimeManager,
     TimeMaster,
     ToiletMaster,
     Tornado,
-    Tracker,
     Transmitter,
     Transporter,
     Tracefinder,
@@ -262,11 +275,12 @@ public enum CustomRoles
     Medusa,
     Mycologist,
     Necromancer,
+    Nonplus,
     Opportunist,
     Patroller,
     Pelican,
     Pestilence,
-    Phantom,
+    Phantasm,
     Pickpocket,
     PlagueBearer,
     PlagueDoctor,
@@ -282,6 +296,7 @@ public enum CustomRoles
     Ritualist,
     Rogue,
     Romantic,
+    RouleteGrandeur,
     RuthlessRomantic,
     Samurai,
     SchrodingersCat,
@@ -334,6 +349,9 @@ public enum CustomRoles
     Agent,
     Taskinator,
 
+    // Speedrun
+    Runner,
+
     // GM
     GM,
 
@@ -369,6 +387,7 @@ public enum CustomRoles
     Egoist,
     Energetic,
     EvilSpirit,
+    Finder,
     Flashman,
     Fool,
     Giant,
@@ -393,6 +412,7 @@ public enum CustomRoles
     Necroview,
     Ntr, // Neptune
     Nimble,
+    Noisy,
     Oblivious,
     Onbound,
     Sleep,
@@ -401,6 +421,7 @@ public enum CustomRoles
     Rascal,
     Reach,
     Recruit,
+    Rookie,
     DualPersonality, // Schizophrenic
     Seer,
     Sleuth,

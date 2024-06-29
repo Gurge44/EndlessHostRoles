@@ -5,7 +5,7 @@ using EHR.Modules;
 using Hazel;
 using UnityEngine;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Tremor : RoleBase
 {
@@ -58,10 +58,6 @@ public class Tremor : RoleBase
         On = true;
         Timer = TimerStart.GetInt() + 8;
         DoomTimer = 0;
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

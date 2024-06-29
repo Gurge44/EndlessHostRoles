@@ -4,12 +4,12 @@ using EHR.Modules;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Necromancer : RoleBase
     {
         public static byte NecromancerId = byte.MaxValue;
-        public static PlayerControl Necromancer_;
+        public static PlayerControl NecromancerPC;
 
         private static OptionItem CD;
         public static OptionItem DKCD;
@@ -46,7 +46,7 @@ namespace EHR.Roles.Neutral
         public override void Init()
         {
             NecromancerId = byte.MaxValue;
-            Necromancer_ = null;
+            NecromancerPC = null;
 
             PartiallyRecruitedIds.Clear();
 
@@ -57,11 +57,7 @@ namespace EHR.Roles.Neutral
         public override void Add(byte playerId)
         {
             NecromancerId = playerId;
-            Necromancer_ = Utils.GetPlayerById(playerId);
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
+            NecromancerPC = Utils.GetPlayerById(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CD.GetFloat();
@@ -70,7 +66,12 @@ namespace EHR.Roles.Neutral
 
         public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            opt.SetVision(false);
+            opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision);
+            opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultCrewmateVision);
+        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
@@ -89,6 +90,8 @@ namespace EHR.Roles.Neutral
 
                 target.Notify(GetString("RecruitedToDeathknight"));
 
+                new[] { CustomRoles.Damocles, CustomRoles.Stressed }.Do(x => Main.PlayerStates[target.PlayerId].RemoveSubRole(x));
+
                 return false;
             }
 
@@ -102,8 +105,6 @@ namespace EHR.Roles.Neutral
                 Utils.NotifyRoles(SpecifySeer: Deathknight.Deathknight_, SpecifyTarget: target);
 
                 killer.SetKillCooldown();
-                target.RpcGuardAndKill(killer);
-                target.RpcGuardAndKill(target);
 
                 Logger.Info($"Partial Recruit: {target.GetRealName()}", "Necromancer");
 
@@ -117,7 +118,7 @@ namespace EHR.Roles.Neutral
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || !IsEnable || Necromancer_.IsAlive() || !Deathknight.Deathknight_.IsAlive()) return;
+            if (!GameStates.IsInTask || !IsEnable || NecromancerPC.IsAlive() || !Deathknight.Deathknight_.IsAlive()) return;
 
             Deathknight.Deathknight_.RpcSetCustomRole(CustomRoles.Necromancer);
             Add(Deathknight.DeathknightId);
@@ -155,10 +156,6 @@ namespace EHR.Roles.Neutral
             DeathknightId = playerId;
             Deathknight_ = Utils.GetPlayerById(playerId);
             if (!UsePets.GetBool()) Deathknight_.ChangeRoleBasis(RoleTypes.Impostor);
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Necromancer.DKCD.GetFloat();
@@ -167,7 +164,12 @@ namespace EHR.Roles.Neutral
 
         public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
 
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            opt.SetVision(false);
+            opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision);
+            opt.SetFloat(FloatOptionNames.ImpostorLightMod, Main.DefaultCrewmateVision);
+        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {

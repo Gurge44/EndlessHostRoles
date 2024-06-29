@@ -55,7 +55,7 @@ class Logger
         if (!IsEnable) return;
         if (DestroyableSingleton<HudManager>._instance)
         {
-            DestroyableSingleton<HudManager>.Instance.Notifier.AddItem(text);
+            DestroyableSingleton<HudManager>.Instance.Notifier.AddDisconnectMessage(text);
             Warn(text, "SendInGame");
         }
     }
@@ -100,7 +100,7 @@ class Logger
                 logger.LogError(log_text);
                 break;
             case LogLevel.Error:
-                log_text.Split('\n').Do(x => logger.LogError(x));
+                log_text.Split("\\n").Do(x => logger.LogError(x));
                 break;
             case LogLevel.Fatal:
                 logger.LogFatal(log_text);

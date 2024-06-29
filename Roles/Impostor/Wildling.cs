@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using AmongUs.GameOptions;
 using EHR.Modules;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using Hazel;
 using static EHR.Options;
 
-namespace EHR.Roles.Impostor;
+namespace EHR.Impostor;
 
 public class Wildling : RoleBase
 {
@@ -83,8 +83,7 @@ public class Wildling : RoleBase
                 KillCooldown = BloodKnight.KillCooldown.GetFloat();
 
                 if (!AmongUsClient.Instance.AmHost) return;
-                if (!Main.ResetCamPlayerList.Contains(playerId))
-                    Main.ResetCamPlayerList.Add(playerId);
+                Main.ResetCamPlayerList.Add(playerId);
                 break;
         }
     }

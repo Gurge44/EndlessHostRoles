@@ -1,4 +1,4 @@
-﻿namespace EHR.Roles.AddOns.Impostor
+﻿namespace EHR.AddOns.Impostor
 {
     internal class Taskcounter : IAddon
     {

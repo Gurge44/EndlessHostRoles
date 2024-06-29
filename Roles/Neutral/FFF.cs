@@ -3,7 +3,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using static EHR.Options;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     public class FFF : RoleBase
     {
@@ -55,10 +55,6 @@ namespace EHR.Roles.Neutral
             PlayerIdList.Add(playerId);
             On = true;
             IsWon = false;
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override bool CanUseImpostorVentButton(PlayerControl pc) => false;

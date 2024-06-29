@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Amnesiac : RoleBase
 {
@@ -54,10 +55,6 @@ public class Amnesiac : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = id.GetAbilityUseLimit() >= 1 ? RememberCooldown.GetFloat() : 300f;
@@ -75,7 +72,7 @@ public class Amnesiac : RoleBase
         return false;
     }
 
-    public override bool CheckReportDeadBody(PlayerControl reporter, GameData.PlayerInfo target, PlayerControl killer)
+    public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
     {
         if (RememberMode.GetValue() == 1)
         {
@@ -86,45 +83,68 @@ public class Amnesiac : RoleBase
         return true;
     }
 
-    public static void RememberRole(PlayerControl killer, PlayerControl target)
+    public static void RememberRole(PlayerControl amnesiac, PlayerControl target)
     {
         CustomRoles? RememberedRole = null;
-        string killerNotifyString = string.Empty;
 
+        string amneNotifyString = string.Empty;
         CustomRoles targetRole = target.GetCustomRole();
+        int loversAlive = Main.LoversPlayers.Count(x => x.IsAlive());
 
         switch (targetRole)
         {
             case CustomRoles.Jackal:
                 RememberedRole = CustomRoles.Sidekick;
-                killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller"));
+                amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller"));
                 break;
             case CustomRoles.Necromancer:
                 RememberedRole = CustomRoles.Deathknight;
-                killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller"));
+                amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller"));
+                break;
+            case CustomRoles.LovingCrewmate when loversAlive > 0:
+                target.RpcSetCustomRole(CustomRoles.CrewmateEHR);
+                RememberedRole = CustomRoles.LovingCrewmate;
+                Main.LoversPlayers.RemoveAll(x => x.PlayerId == target.PlayerId);
+                Main.LoversPlayers.Add(amnesiac);
+                amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedLover"));
+                break;
+            case CustomRoles.LovingImpostor when loversAlive > 0:
+                target.RpcSetCustomRole(CustomRoles.ImpostorEHR);
+                RememberedRole = CustomRoles.LovingImpostor;
+                Main.LoversPlayers.RemoveAll(x => x.PlayerId == target.PlayerId);
+                Main.LoversPlayers.Add(amnesiac);
+                amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedLover"));
+                break;
+            case CustomRoles.LovingCrewmate:
+                RememberedRole = CustomRoles.Sheriff;
+                amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedCrewmate"));
+                break;
+            case CustomRoles.LovingImpostor:
+                RememberedRole = CustomRoles.Refugee;
+                amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedImpostor"));
                 break;
             default:
                 switch (target.GetTeam())
                 {
                     case Team.Impostor:
                         RememberedRole = CustomRoles.Refugee;
-                        killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedImpostor"));
+                        amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedImpostor"));
                         break;
                     case Team.Crewmate:
                         RememberedRole = !targetRole.IsTaskBasedCrewmate() ? targetRole : CustomRoles.Sheriff;
-                        killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedCrewmate"));
+                        amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedCrewmate"));
                         break;
                     case Team.Neutral:
                         if (targetRole.IsNK())
                         {
                             RememberedRole = targetRole;
-                            killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller"));
+                            amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller"));
                         }
                         else if (targetRole.IsNonNK())
                         {
                             string roleString = AmnesiacIncompatibleNeutralMode[IncompatibleNeutralMode.GetValue()][6..];
                             RememberedRole = (CustomRoles)Enum.Parse(typeof(CustomRoles), roleString);
-                            killerNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString($"Remembered{roleString}"));
+                            amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString($"Remembered{roleString}"));
                         }
 
                         break;
@@ -136,20 +156,20 @@ public class Amnesiac : RoleBase
 
         if (RememberedRole == null)
         {
-            killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
+            amnesiac.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
             return;
         }
 
         var role = (CustomRoles)RememberedRole;
 
-        killer.RpcSetCustomRole(role);
+        amnesiac.RpcSetCustomRole(role);
 
-        killer.Notify(killerNotifyString);
+        amnesiac.Notify(amneNotifyString);
         target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
 
-        killer.SetKillCooldown();
+        amnesiac.SetKillCooldown();
 
-        target.RpcGuardAndKill(killer);
+        target.RpcGuardAndKill(amnesiac);
         target.RpcGuardAndKill(target);
     }
 

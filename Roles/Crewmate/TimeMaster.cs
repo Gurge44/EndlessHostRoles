@@ -4,7 +4,7 @@ using AmongUs.GameOptions;
 using UnityEngine;
 using static EHR.Options;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class TimeMaster : RoleBase
     {

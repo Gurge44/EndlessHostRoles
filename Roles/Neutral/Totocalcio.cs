@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
 using Hazel;
-using Il2CppSystem;
 using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
+using Math = System.Math;
 
-namespace EHR.Roles.Neutral;
+namespace EHR.Neutral;
 
 public class Totocalcio : RoleBase
 {
@@ -59,10 +59,6 @@ public class Totocalcio : RoleBase
         playerIdList.Add(playerId);
         BetTimes = MaxBetTimes.GetInt();
         BetPlayer = byte.MaxValue;
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     void SendRPC(byte playerId)

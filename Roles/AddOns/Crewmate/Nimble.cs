@@ -1,9 +1,11 @@
 ﻿using static EHR.Options;
 
-namespace EHR.Roles.AddOns.Common
+namespace EHR.AddOns.Crewmate
 {
     internal class Nimble : IAddon
     {
+        public static OptionItem NimbleCD;
+        public static OptionItem NimbleInVentTime;
         public AddonTypes Type => AddonTypes.Helpful;
 
         public void SetupCustomOption()

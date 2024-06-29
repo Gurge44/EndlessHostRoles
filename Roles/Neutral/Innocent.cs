@@ -1,6 +1,6 @@
 ﻿using AmongUs.GameOptions;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Innocent : RoleBase
     {

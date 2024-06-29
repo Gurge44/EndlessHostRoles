@@ -2,13 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.AddOns.Crewmate;
+using EHR.AddOns.GhostRoles;
+using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
-using EHR.Roles.AddOns.Crewmate;
-using EHR.Roles.AddOns.GhostRoles;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
 using InnerNet;
 
 namespace EHR;
@@ -51,11 +50,15 @@ public class PlayerState(byte playerId)
         Kamikazed,
         RNG,
         WrongAnswer,
+        Consumed,
+        BadLuck,
 
         etc = -1
     }
 
-    readonly byte PlayerId = playerId;
+    public readonly PlayerControl Player = Utils.GetPlayerById(playerId, fast: false);
+
+    private readonly byte PlayerId = playerId;
     public CountTypes countTypes = CountTypes.OutOfGame;
     public PlainShipRoom LastRoom;
     public CustomRoles MainRole = CustomRoles.NotAssigned;
@@ -316,6 +319,12 @@ public class TaskState
         {
             bool alive = player.IsAlive();
 
+            if (alive && Options.CurrentGameMode == CustomGameMode.Speedrun)
+            {
+                if (CompletedTasksCount + 1 >= AllTasksCount) SpeedrunManager.OnTaskFinish(player);
+                SpeedrunManager.ResetTimer(player);
+            }
+
             if (player.Is(CustomRoles.Unlucky) && alive)
             {
                 var Ue = IRandom.Instance;
@@ -454,5 +463,5 @@ public static class MeetingStates
     public static bool IsEmergencyMeeting => ReportTarget == null;
     public static bool IsExistDeadBody => DeadBodies.Length > 0;
 
-    public static GameData.PlayerInfo ReportTarget { get; set; }
+    public static NetworkedPlayerInfo ReportTarget { get; set; }
 }

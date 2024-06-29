@@ -5,9 +5,9 @@ using HarmonyLib;
 using Hazel;
 using UnityEngine;
 using static EHR.Translator;
-using Object = UnityEngine.Object;
 
-namespace EHR.Roles.Crewmate;
+
+namespace EHR.Crewmate;
 
 public class NiceSwapper : RoleBase
 {
@@ -175,14 +175,14 @@ public class NiceSwapper : RoleBase
             if (x.TargetPlayerId.IsHost()) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, SwapTargets.Item2);
             else MeetingHud.Instance.CastVote(x.TargetPlayerId, SwapTargets.Item2);
             x.VotedFor = SwapTargets.Item2;
-        }, fast: true);
+        });
         playerStates.DoIf(votedFor2.Contains, x =>
         {
             x.UnsetVote();
             if (x.TargetPlayerId.IsHost()) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, SwapTargets.Item1);
             else MeetingHud.Instance.CastVote(x.TargetPlayerId, SwapTargets.Item1);
             x.VotedFor = SwapTargets.Item1;
-        }, fast: true);
+        });
 
         PlayerControl Target1 = Utils.GetPlayerById(SwapTargets.Item1);
         PlayerControl Target2 = Utils.GetPlayerById(SwapTargets.Item2);

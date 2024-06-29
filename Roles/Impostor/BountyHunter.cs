@@ -5,7 +5,7 @@ using Hazel;
 using UnityEngine;
 using static EHR.Translator;
 
-namespace EHR.Roles.Impostor;
+namespace EHR.Impostor;
 
 public class BountyHunter : RoleBase
 {

@@ -4,7 +4,7 @@ using Hazel;
 using static EHR.Options;
 using static EHR.Utils;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Hookshot : RoleBase
     {
@@ -44,10 +44,6 @@ namespace EHR.Roles.Neutral
             HookshotId = playerId;
             ToTargetTP = true;
             MarkedPlayerId = byte.MaxValue;
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

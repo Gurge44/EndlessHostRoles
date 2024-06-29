@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using EHR.Crewmate;
 using EHR.Modules;
-using EHR.Roles.Crewmate;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
 
-namespace EHR.Roles.Impostor
+namespace EHR.Impostor
 {
     public class Mastermind : RoleBase
     {

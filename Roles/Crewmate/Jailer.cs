@@ -5,7 +5,7 @@ using Hazel;
 using static EHR.Options;
 using static EHR.Translator;
 
-namespace EHR.Roles.Crewmate;
+namespace EHR.Crewmate;
 
 public class Jailor : RoleBase
 {
@@ -42,10 +42,6 @@ public class Jailor : RoleBase
         playerIdList.Add(playerId);
         JailorTarget = byte.MaxValue;
         JailorDidVote = false;
-
-        if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);

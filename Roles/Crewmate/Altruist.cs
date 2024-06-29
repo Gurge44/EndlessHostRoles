@@ -1,6 +1,6 @@
 ﻿using AmongUs.GameOptions;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     public static class Altruist
     {

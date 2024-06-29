@@ -7,7 +7,7 @@ using UnityEngine;
 using static EHR.Options;
 using static EHR.Utils;
 
-namespace EHR.Roles.Neutral
+namespace EHR.Neutral
 {
     internal class Bubble : RoleBase
     {
@@ -61,10 +61,6 @@ namespace EHR.Roles.Neutral
         public override void Add(byte playerId)
         {
             BubbleId = playerId;
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

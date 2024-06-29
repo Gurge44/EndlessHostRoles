@@ -4,12 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using AmongUs.GameOptions;
 using Assets.CoreScripts;
+using EHR.AddOns.Common;
+using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Modules;
-using EHR.Roles.AddOns.Common;
-using EHR.Roles.Crewmate;
-using EHR.Roles.Impostor;
-using EHR.Roles.Neutral;
+using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
 using UnityEngine;
@@ -93,6 +94,352 @@ internal class ChatCommands
             string subArgs;
             switch (args[0])
             {
+                case "/cs":
+                case "/changesetting":
+                    canceled = true;
+                    subArgs = args.Length < 2 ? "" : args[1];
+                    switch (subArgs)
+                    {
+                        case "map":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            switch (subArgs)
+                            {
+                                case "theskeld":
+                                    GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 0);
+                                    break;
+                                case "mirahq":
+                                    GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 1);
+                                    break;
+                                case "polus":
+                                    GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 2);
+                                    break;
+                                case "dlekseht":
+                                    GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 3);
+                                    break;
+                                case "airship":
+                                    GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 4);
+                                    break;
+                                case "thefungle":
+                                    GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, 5);
+                                    break;
+                                case "custom":
+                                    subArgs = args.Length < 4 ? "" : args[3];
+                                    GameOptionsManager.Instance.CurrentGameOptions.SetByte(ByteOptionNames.MapId, byte.Parse(subArgs));
+                                    break;
+                            }
+
+                            break;
+                        case "impostors":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.currentNormalGameOptions.SetInt(Int32OptionNames.NumImpostors, int.Parse(subArgs));
+                            AmongUsClient.Instance.StartGame();
+                            break;
+                        case "players":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.SetInt(Int32OptionNames.MaxPlayers, int.Parse(subArgs));
+                            AmongUsClient.Instance.StartGame();
+                            break;
+                        case "recommended":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            switch (subArgs)
+                            {
+                                case "on":
+                                    GameOptionsManager.Instance.CurrentGameOptions.SetBool(BoolOptionNames.IsDefaults, true);
+                                    break;
+                                case "off":
+                                    GameOptionsManager.Instance.CurrentGameOptions.SetBool(BoolOptionNames.IsDefaults, false);
+                                    break;
+                            }
+
+                            break;
+                        case "confirmejects":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            switch (subArgs)
+                            {
+                                case "on":
+                                    GameOptionsManager.Instance.currentNormalGameOptions.SetBool(BoolOptionNames.ConfirmImpostor, true);
+                                    break;
+                                case "off":
+                                    GameOptionsManager.Instance.currentNormalGameOptions.SetBool(BoolOptionNames.ConfirmImpostor, false);
+                                    break;
+                            }
+
+                            break;
+                        case "emergencymeetings":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.currentNormalGameOptions.SetInt(Int32OptionNames.NumEmergencyMeetings, int.Parse(subArgs));
+                            break;
+                        case "anonymousvotes":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            switch (subArgs)
+                            {
+                                case "on":
+                                    GameOptionsManager.Instance.currentNormalGameOptions.SetBool(BoolOptionNames.AnonymousVotes, true);
+                                    break;
+                                case "off":
+                                    GameOptionsManager.Instance.currentNormalGameOptions.SetBool(BoolOptionNames.AnonymousVotes, false);
+                                    break;
+                            }
+
+                            break;
+                        case "emergencycooldown":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.currentNormalGameOptions.SetInt(Int32OptionNames.EmergencyCooldown, int.Parse(subArgs));
+                            break;
+                        case "discussiontime":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.currentNormalGameOptions.SetInt(Int32OptionNames.DiscussionTime, int.Parse(subArgs));
+                            break;
+                        case "votingtime":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.currentNormalGameOptions.SetInt(Int32OptionNames.VotingTime, int.Parse(subArgs));
+                            break;
+                        case "playerspeed":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.currentNormalGameOptions.SetFloat(FloatOptionNames.PlayerSpeedMod, float.Parse(subArgs));
+                            break;
+                        case "crewmatevision":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.currentNormalGameOptions.SetFloat(FloatOptionNames.CrewLightMod, float.Parse(subArgs));
+                            break;
+                        case "impostorvision":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.currentNormalGameOptions.SetFloat(FloatOptionNames.ImpostorLightMod, float.Parse(subArgs));
+                            break;
+                        case "killcooldown":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.currentNormalGameOptions.SetFloat(FloatOptionNames.KillCooldown, float.Parse(subArgs));
+                            break;
+                        case "killdistance":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            switch (subArgs)
+                            {
+                                case "short":
+                                    GameOptionsManager.Instance.currentNormalGameOptions.SetInt(Int32OptionNames.KillDistance, 0);
+                                    break;
+                                case "medium":
+                                    GameOptionsManager.Instance.currentNormalGameOptions.SetInt(Int32OptionNames.KillDistance, 1);
+                                    break;
+                                case "long":
+                                    GameOptionsManager.Instance.currentNormalGameOptions.SetInt(Int32OptionNames.KillDistance, 2);
+                                    break;
+                                case "custom":
+                                    subArgs = args.Length < 4 ? "" : args[3];
+                                    GameOptionsManager.Instance.currentNormalGameOptions.SetInt(Int32OptionNames.KillDistance, int.Parse(subArgs));
+                                    break;
+                            }
+
+                            break;
+                        case "taskbarupdates":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            switch (subArgs)
+                            {
+                                case "always":
+                                    GameOptionsManager.Instance.currentNormalGameOptions.TaskBarMode = AmongUs.GameOptions.TaskBarMode.Normal;
+                                    break;
+                                case "meetings":
+                                    GameOptionsManager.Instance.currentNormalGameOptions.TaskBarMode = AmongUs.GameOptions.TaskBarMode.MeetingOnly;
+                                    break;
+                                case "never":
+                                    GameOptionsManager.Instance.currentNormalGameOptions.TaskBarMode = AmongUs.GameOptions.TaskBarMode.Invisible;
+                                    break;
+                            }
+
+                            break;
+                        case "visualtasks":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            switch (subArgs)
+                            {
+                                case "on":
+                                    GameOptionsManager.Instance.currentNormalGameOptions.SetBool(BoolOptionNames.VisualTasks, true);
+                                    break;
+                                case "off":
+                                    GameOptionsManager.Instance.currentNormalGameOptions.SetBool(BoolOptionNames.VisualTasks, true);
+                                    break;
+                            }
+
+                            break;
+                        case "commontasks":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.SetInt(Int32OptionNames.NumCommonTasks, int.Parse(subArgs));
+                            break;
+                        case "longtasks":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.SetInt(Int32OptionNames.NumLongTasks, int.Parse(subArgs));
+                            break;
+                        case "shorttasks":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.SetInt(Int32OptionNames.NumShortTasks, int.Parse(subArgs));
+                            break;
+                        case "scientistcount":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.SetRoleRate(RoleTypes.Scientist, int.Parse(subArgs), GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetChancePerGame(RoleTypes.Scientist));
+                            break;
+                        case "scientistchance":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.SetRoleRate(RoleTypes.Scientist, GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetNumPerGame(RoleTypes.Scientist), int.Parse(subArgs));
+                            break;
+                        case "vitalsdisplaycooldown":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.SetFloat(FloatOptionNames.ScientistCooldown, float.Parse(subArgs));
+                            break;
+                        case "batteryduration":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.SetFloat(FloatOptionNames.ScientistBatteryCharge, float.Parse(subArgs));
+                            break;
+                        case "engineercount":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.currentNormalGameOptions.RoleOptions.SetRoleRate(RoleTypes.Engineer, int.Parse(subArgs), GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetChancePerGame(RoleTypes.Engineer));
+                            break;
+                        case "engineerchance":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.SetRoleRate(RoleTypes.Engineer, GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetNumPerGame(RoleTypes.Engineer), int.Parse(subArgs));
+                            break;
+                        case "ventusecooldown":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.SetFloat(FloatOptionNames.EngineerCooldown, float.Parse(subArgs));
+                            break;
+                        case "maxtimeinvents":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.SetFloat(FloatOptionNames.EngineerInVentMaxTime, float.Parse(subArgs));
+                            break;
+                        case "guardianangelcount":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.SetRoleRate(RoleTypes.GuardianAngel, int.Parse(subArgs), GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetChancePerGame(RoleTypes.GuardianAngel));
+                            break;
+                        case "guardianangelchance":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.SetRoleRate(RoleTypes.GuardianAngel, GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetNumPerGame(RoleTypes.GuardianAngel), int.Parse(subArgs));
+                            break;
+                        case "protectcooldown":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.SetFloat(FloatOptionNames.GuardianAngelCooldown, float.Parse(subArgs));
+                            break;
+                        case "protectduration":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.SetFloat(FloatOptionNames.ProtectionDurationSeconds, float.Parse(subArgs));
+                            break;
+                        case "protectvisibletoimpostors":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            switch (subArgs)
+                            {
+                                case "on":
+                                    GameOptionsManager.Instance.CurrentGameOptions.SetBool(BoolOptionNames.ImpostorsCanSeeProtect, true);
+                                    break;
+                                case "off":
+                                    GameOptionsManager.Instance.CurrentGameOptions.SetBool(BoolOptionNames.ImpostorsCanSeeProtect, false);
+                                    break;
+                            }
+
+                            break;
+                        case "shapeshiftercount":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.SetRoleRate(RoleTypes.Shapeshifter, int.Parse(subArgs), GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetChancePerGame(RoleTypes.Shapeshifter));
+                            break;
+                        case "shapeshifterchance":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.SetRoleRate(RoleTypes.Shapeshifter, GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetNumPerGame(RoleTypes.Shapeshifter), int.Parse(subArgs));
+                            break;
+                        case "shapeshiftduration":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.SetFloat(FloatOptionNames.ShapeshifterDuration, float.Parse(subArgs));
+                            break;
+                        case "shapeshiftcooldown":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.SetFloat(FloatOptionNames.ShapeshifterCooldown, float.Parse(subArgs));
+                            break;
+                        case "leaveshapeshiftevidence":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            switch (subArgs)
+                            {
+                                case "on":
+                                    GameOptionsManager.Instance.CurrentGameOptions.SetBool(BoolOptionNames.ShapeshifterLeaveSkin, true);
+                                    break;
+                                case "off":
+                                    GameOptionsManager.Instance.CurrentGameOptions.SetBool(BoolOptionNames.ShapeshifterLeaveSkin, false);
+                                    break;
+                            }
+
+                            break;
+                        case "phantomcount":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.SetRoleRate(RoleTypes.Phantom, int.Parse(subArgs), GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetChancePerGame(RoleTypes.Phantom));
+                            break;
+                        case "phantomchance":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.SetRoleRate(RoleTypes.Phantom, GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetNumPerGame(RoleTypes.Phantom), int.Parse(subArgs));
+                            break;
+                        case "invisduration":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.SetFloat(FloatOptionNames.PhantomDuration, float.Parse(subArgs));
+                            break;
+                        case "inviscooldown":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.SetFloat(FloatOptionNames.PhantomCooldown, float.Parse(subArgs));
+                            break;
+                        case "noisemakercount":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.SetRoleRate(RoleTypes.Noisemaker, int.Parse(subArgs), GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetChancePerGame(RoleTypes.Noisemaker));
+                            break;
+                        case "noisemakerchance":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.SetRoleRate(RoleTypes.Noisemaker, GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetNumPerGame(RoleTypes.Noisemaker), int.Parse(subArgs));
+                            break;
+                        case "noisemakerimpostoralert":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            switch (subArgs)
+                            {
+                                case "on":
+                                    GameOptionsManager.Instance.CurrentGameOptions.SetBool(BoolOptionNames.NoisemakerImpostorAlert, true);
+                                    break;
+                                case "off":
+                                    GameOptionsManager.Instance.CurrentGameOptions.SetBool(BoolOptionNames.NoisemakerImpostorAlert, false);
+                                    break;
+                            }
+
+                            break;
+                        case "noisemakeralertduration":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.SetFloat(FloatOptionNames.NoisemakerAlertDuration, int.Parse(subArgs));
+                            break;
+                        case "trackercount":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.SetRoleRate(RoleTypes.Tracker, int.Parse(subArgs), GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetChancePerGame(RoleTypes.Tracker));
+                            break;
+                        case "trackerchance":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.SetRoleRate(RoleTypes.Tracker, GameOptionsManager.Instance.CurrentGameOptions.RoleOptions.GetNumPerGame(RoleTypes.Tracker), int.Parse(subArgs));
+                            break;
+                        case "trackduration":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.SetFloat(FloatOptionNames.TrackerDuration, float.Parse(subArgs));
+                            break;
+                        case "trackcooldown":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.SetFloat(FloatOptionNames.TrackerCooldown, float.Parse(subArgs));
+                            break;
+                        case "trackdelay":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            GameOptionsManager.Instance.CurrentGameOptions.SetFloat(FloatOptionNames.TrackerDelay, float.Parse(subArgs));
+                            break;
+                        case "ghostdotasks":
+                            subArgs = args.Length < 3 ? "" : args[2];
+                            switch (subArgs)
+                            {
+                                case "on":
+                                    GameOptionsManager.Instance.CurrentGameOptions.SetBool(BoolOptionNames.GhostsDoTasks, true);
+                                    break;
+                                case "off":
+                                    GameOptionsManager.Instance.CurrentGameOptions.SetBool(BoolOptionNames.GhostsDoTasks, false);
+                                    break;
+                            }
+
+                            break;
+                    }
+
+                    GameOptionsManager.Instance.GameHostOptions = GameOptionsManager.Instance.CurrentGameOptions;
+                    GameManager.Instance.LogicOptions.SyncOptions();
+                    break;
                 case "/w":
                 case "/win":
                 case "/winner":
@@ -193,7 +540,7 @@ internal class ChatCommands
                 case "/r":
                     canceled = true;
                     subArgs = text.Remove(0, 2);
-                    SendRolesInfo(subArgs, 255, PlayerControl.LocalPlayer.FriendCode.GetDevUser().DeBug);
+                    SendRolesInfo(subArgs, localPlayerId, PlayerControl.LocalPlayer.FriendCode.GetDevUser().DeBug);
                     break;
 
                 case "/up":
@@ -287,24 +634,24 @@ internal class ChatCommands
                     Utils.SendMessage(GetString("PlayerRemovedFromModList"), localPlayerId);
                     break;
 
-                case "/combo": // Format: /combo [add/ban/remove/allow] [main role] [addon]
+                case "/combo": // Format: /combo {add/ban/remove/allow} {main role} {addon} [all]
                     canceled = true;
                     if (args.Length < 4)
                     {
                         if (Main.AlwaysSpawnTogetherCombos.Count == 0 && Main.NeverSpawnTogetherCombos.Count == 0) break;
                         var sb = new StringBuilder();
                         sb.Append("<size=70%>");
-                        if (Main.AlwaysSpawnTogetherCombos.Count > 0)
+                        if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var alwaysList) && alwaysList.Count > 0)
                         {
                             sb.AppendLine(GetString("AlwaysComboListTitle"));
-                            sb.AppendLine(Main.AlwaysSpawnTogetherCombos.Join(x => $"{x.Key.ToColoredString()} \u00a7 {x.Value.Join(r => r.ToColoredString())}", "\n"));
+                            sb.AppendLine(alwaysList.Join(x => $"{x.Key.ToColoredString()} \u00a7 {x.Value.Join(r => r.ToColoredString())}", "\n"));
                             sb.AppendLine();
                         }
 
-                        if (Main.NeverSpawnTogetherCombos.Count > 0)
+                        if (Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var neverList) && neverList.Count > 0)
                         {
                             sb.AppendLine(GetString("NeverComboListTitle"));
-                            sb.AppendLine(Main.NeverSpawnTogetherCombos.Join(x => $"{x.Key.ToColoredString()} \u2194 {x.Value.Join(r => r.ToColoredString())}", "\n"));
+                            sb.AppendLine(neverList.Join(x => $"{x.Key.ToColoredString()} \u2194 {x.Value.Join(r => r.ToColoredString())}", "\n"));
                             sb.AppendLine();
                         }
 
@@ -323,13 +670,37 @@ internal class ChatCommands
                                 if (mainRole.IsAdditionRole() || !addOn.IsAdditionRole() || addOn == CustomRoles.Lovers) break;
                                 if (args[1] == "add")
                                 {
-                                    if (!Main.AlwaysSpawnTogetherCombos.TryGetValue(mainRole, out var list1)) Main.AlwaysSpawnTogetherCombos[mainRole] = [addOn];
+                                    if (!Main.AlwaysSpawnTogetherCombos.ContainsKey(OptionItem.CurrentPreset)) Main.AlwaysSpawnTogetherCombos[OptionItem.CurrentPreset] = [];
+                                    if (!Main.AlwaysSpawnTogetherCombos[OptionItem.CurrentPreset].TryGetValue(mainRole, out var list1)) Main.AlwaysSpawnTogetherCombos[OptionItem.CurrentPreset][mainRole] = [addOn];
                                     else if (!list1.Contains(addOn)) list1.Add(addOn);
+
+                                    if (text.EndsWith(" all"))
+                                    {
+                                        for (var preset = 0; preset < OptionItem.NumPresets; preset++)
+                                        {
+                                            if (preset == OptionItem.CurrentPreset) continue;
+                                            if (!Main.AlwaysSpawnTogetherCombos.ContainsKey(preset)) Main.AlwaysSpawnTogetherCombos[preset] = [];
+                                            if (!Main.AlwaysSpawnTogetherCombos[preset].TryGetValue(mainRole, out var list2)) Main.AlwaysSpawnTogetherCombos[preset][mainRole] = [addOn];
+                                            else if (!list2.Contains(addOn)) list2.Add(addOn);
+                                        }
+                                    }
                                 }
                                 else
                                 {
-                                    if (!Main.NeverSpawnTogetherCombos.TryGetValue(mainRole, out var list2)) Main.NeverSpawnTogetherCombos[mainRole] = [addOn];
+                                    if (!Main.NeverSpawnTogetherCombos.ContainsKey(OptionItem.CurrentPreset)) Main.NeverSpawnTogetherCombos[OptionItem.CurrentPreset] = [];
+                                    if (!Main.NeverSpawnTogetherCombos[OptionItem.CurrentPreset].TryGetValue(mainRole, out var list2)) Main.NeverSpawnTogetherCombos[OptionItem.CurrentPreset][mainRole] = [addOn];
                                     else if (!list2.Contains(addOn)) list2.Add(addOn);
+
+                                    if (text.EndsWith(" all"))
+                                    {
+                                        for (var preset = 0; preset < OptionItem.NumPresets; preset++)
+                                        {
+                                            if (preset == OptionItem.CurrentPreset) continue;
+                                            if (!Main.NeverSpawnTogetherCombos.ContainsKey(preset)) Main.NeverSpawnTogetherCombos[preset] = [];
+                                            if (!Main.NeverSpawnTogetherCombos[preset].TryGetValue(mainRole, out var list3)) Main.NeverSpawnTogetherCombos[preset][mainRole] = [addOn];
+                                            else if (!list3.Contains(addOn)) list3.Add(addOn);
+                                        }
+                                    }
                                 }
 
                                 Utils.SendMessage(string.Format(args[1] == "add" ? GetString("ComboAdd") : GetString("ComboBan"), GetString(mainRole.ToString()), GetString(addOn.ToString())), localPlayerId);
@@ -342,17 +713,52 @@ internal class ChatCommands
                             if (GetRoleByName(args[2], out CustomRoles mainRole2) && GetRoleByName(args[3], out CustomRoles addOn2))
                             {
                                 if (mainRole2.IsAdditionRole() || !addOn2.IsAdditionRole()) break;
-                                if (args[1] == "remove" && Main.AlwaysSpawnTogetherCombos.TryGetValue(mainRole2, out var list3))
+
+                                // If the text ends with " all", remove the combo from all presets
+                                if (text.EndsWith(" all"))
                                 {
-                                    list3.Remove(addOn2);
+                                    for (var preset = 0; preset < OptionItem.NumPresets; preset++)
+                                    {
+                                        if (Main.AlwaysSpawnTogetherCombos.TryGetValue(preset, out var list1))
+                                        {
+                                            if (list1.TryGetValue(mainRole2, out var list2))
+                                            {
+                                                list2.Remove(addOn2);
+                                                if (list2.Count == 0) list1.Remove(mainRole2);
+                                                if (list1.Count == 0) Main.AlwaysSpawnTogetherCombos.Remove(preset);
+                                            }
+                                        }
+
+                                        if (Main.NeverSpawnTogetherCombos.TryGetValue(preset, out var list3))
+                                        {
+                                            if (list3.TryGetValue(mainRole2, out var list4))
+                                            {
+                                                list4.Remove(addOn2);
+                                                if (list4.Count == 0) list3.Remove(mainRole2);
+                                                if (list3.Count == 0) Main.NeverSpawnTogetherCombos.Remove(preset);
+                                            }
+                                        }
+                                    }
+
                                     Utils.SendMessage(string.Format(GetString("ComboRemove"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), localPlayerId);
                                     Utils.SaveComboInfo();
                                 }
-                                else if (Main.NeverSpawnTogetherCombos.TryGetValue(mainRole2, out var list4))
+                                else
                                 {
-                                    list4.Remove(addOn2);
-                                    Utils.SendMessage(string.Format(GetString("ComboAllow"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), localPlayerId);
-                                    Utils.SaveComboInfo();
+                                    if (args[1] == "remove" && Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var alwaysList) && alwaysList.TryGetValue(mainRole2, out var list3))
+                                    {
+                                        list3.Remove(addOn2);
+                                        if (list3.Count == 0) alwaysList.Remove(mainRole2);
+                                        Utils.SendMessage(string.Format(GetString("ComboRemove"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), localPlayerId);
+                                        Utils.SaveComboInfo();
+                                    }
+                                    else if (Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var neverList) && neverList.TryGetValue(mainRole2, out var list4))
+                                    {
+                                        list4.Remove(addOn2);
+                                        if (list4.Count == 0) neverList.Remove(mainRole2);
+                                        Utils.SendMessage(string.Format(GetString("ComboAllow"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), localPlayerId);
+                                        Utils.SaveComboInfo();
+                                    }
                                 }
                             }
 
@@ -380,26 +786,30 @@ internal class ChatCommands
                     if (GameStates.IsInGame)
                     {
                         var sb = new StringBuilder();
+                        var titleSb = new StringBuilder();
                         var settings = new StringBuilder();
                         settings.Append("<size=70%>");
-                        _ = sb.Append(GetString(role.ToString()) + Utils.GetRoleMode(role) + lp.GetRoleInfo(true));
+                        titleSb.Append($"{role.ToColoredString()} {Utils.GetRoleMode(role)}");
+                        sb.Append("<size=90%>");
+                        sb.Append(lp.GetRoleInfo(true).TrimStart());
                         if (Options.CustomRoleSpawnChances.TryGetValue(role, out var opt))
                             Utils.ShowChildrenSettings(opt, ref settings, disableColor: false);
                         settings.Append("</size>");
-                        var txt = sb.ToString();
-                        _ = sb.Clear().Append(txt.RemoveHtmlTags());
-                        if (role.PetActivatedAbility() && sb.Length < 1000) sb.Append("<size=50%>" + GetString("SupportsPetMessage").RemoveHtmlTags() + "</size>");
+                        if (role.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
+                        sb.Replace(role.ToString(), role.ToColoredString());
+                        sb.Replace(role.ToString().ToLower(), role.ToColoredString());
                         sb.Append("<size=70%>");
-                        foreach (CustomRoles subRole in Main.PlayerStates[localPlayerId].SubRoles.ToArray())
+                        foreach (CustomRoles subRole in Main.PlayerStates[localPlayerId].SubRoles)
                         {
-                            _ = sb.Append("\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
+                            sb.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong")}");
+                            sb.Replace(subRole.ToString(), subRole.ToColoredString());
+                            sb.Replace(subRole.ToString().ToLower(), subRole.ToColoredString());
                         }
 
                         Utils.SendMessage("\n", localPlayerId, settings.ToString());
-                        Utils.SendMessage(sb.ToString(), localPlayerId, string.Empty);
+                        Utils.SendMessage(sb.Append("</size>").ToString(), localPlayerId, titleSb.ToString());
                     }
-                    else
-                        Utils.SendMessage((lp.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), localPlayerId);
+                    else Utils.SendMessage((lp.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), localPlayerId);
 
                     break;
 
@@ -458,7 +868,7 @@ internal class ChatCommands
 
                 case "/ask":
                     canceled = true;
-                    if (args.Length < 3) break;
+                    if (args.Length < 3 || !PlayerControl.LocalPlayer.Is(CustomRoles.Mathematician)) break;
                     Mathematician.Ask(PlayerControl.LocalPlayer, args[1], args[2]);
                     break;
 
@@ -470,6 +880,7 @@ internal class ChatCommands
                     break;
 
                 case "/qa":
+                    canceled = true;
                     if (args.Length < 2 || !QuizMaster.On || !PlayerControl.LocalPlayer.IsAlive()) break;
                     var qm = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
                     if (qm.Target != localPlayerId) break;
@@ -477,10 +888,36 @@ internal class ChatCommands
                     break;
 
                 case "/qs":
+                    canceled = true;
                     if (!QuizMaster.On || !PlayerControl.LocalPlayer.IsAlive()) break;
                     var qm2 = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
                     if (qm2.Target != localPlayerId || !QuizMaster.MessagesToSend.TryGetValue(localPlayerId, out var msg)) break;
                     Utils.SendMessage(msg, localPlayerId, GetString("QuizMaster.QuestionSample.Title"));
+                    break;
+
+                case "/target":
+                    canceled = true;
+                    if (!Ventriloquist.On || !PlayerControl.LocalPlayer.IsAlive() || !PlayerControl.LocalPlayer.Is(CustomRoles.Ventriloquist) || PlayerControl.LocalPlayer.GetAbilityUseLimit() < 1) break;
+                    var vl = (Ventriloquist)Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role;
+                    vl.Target = args.Length < 2 ? byte.MaxValue : byte.TryParse(args[1], out var targetId) ? targetId : byte.MaxValue;
+                    break;
+
+                case "/chat":
+                    canceled = true;
+                    if (!Ventriloquist.On || !PlayerControl.LocalPlayer.IsAlive() || !PlayerControl.LocalPlayer.Is(CustomRoles.Ventriloquist) || PlayerControl.LocalPlayer.GetAbilityUseLimit() < 1) break;
+                    var vl2 = (Ventriloquist)Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role;
+                    if (vl2.Target == byte.MaxValue) break;
+                    Utils.GetPlayerById(vl2.Target)?.RpcSendChat(text[6..]);
+                    PlayerControl.LocalPlayer.RpcRemoveAbilityUse();
+                    break;
+
+                case "/check":
+                    canceled = true;
+                    if (!PlayerControl.LocalPlayer.IsAlive() || !PlayerControl.LocalPlayer.Is(CustomRoles.Inquirer)) break;
+                    if (args.Length < 3 || !GuessManager.MsgToPlayerAndRole(text[6..], out byte checkId, out CustomRoles checkRole, out _)) break;
+                    bool hasRole = Utils.GetPlayerById(checkId).Is(checkRole);
+                    if (IRandom.Instance.Next(100) < Inquirer.FailChance.GetInt()) hasRole = !hasRole;
+                    Utils.SendMessage(GetString(hasRole ? "Inquirer.MessageTrue" : "Inquirer.MessageFalse"), PlayerControl.LocalPlayer.PlayerId);
                     break;
 
                 case "/ban":
@@ -631,7 +1068,7 @@ internal class ChatCommands
                     canceled = true;
                     subArgs = text.Remove(0, 8);
                     var setRole = FixRoleNameInput(subArgs.Trim());
-                    foreach (CustomRoles rl in Enum.GetValues(typeof(CustomRoles)))
+                    foreach (CustomRoles rl in Enum.GetValues<CustomRoles>())
                     {
                         if (rl.IsVanilla()) continue;
                         var roleName = GetString(rl.ToString()).ToLower().Trim();
@@ -674,7 +1111,7 @@ internal class ChatCommands
                     else PlayerControl.LocalPlayer.NoCheckStartMeeting(null, true);
                     break;
 
-                case "/cs":
+                case "/csd":
                     canceled = true;
                     subArgs = text.Remove(0, 3);
                     PlayerControl.LocalPlayer.RPCPlayCustomSound(subArgs.Trim());
@@ -762,7 +1199,7 @@ internal class ChatCommands
                 ChatUpdatePatch.LoversMessage = true;
                 Utils.SendMessage(text, otherLover.PlayerId, title);
                 Utils.SendMessage(text, PlayerControl.LocalPlayer.PlayerId, title);
-                LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max((AmongUsClient.Instance.Ping / 1000f) * 2f, 0.2f), log: false);
+                LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max((AmongUsClient.Instance.Ping / 1000f) * 2f, Main.MessageWait.Value + 0.5f), log: false);
             }
 
             goto Canceled;
@@ -993,8 +1430,8 @@ internal class ChatCommands
 
                 var sb = new StringBuilder();
                 var title = $"<{Main.RoleColors[rl]}>{roleName}</color> {Utils.GetRoleMode(rl)}";
-                _ = sb.Append($"{GetString($"{rl}InfoLong")}");
                 var settings = new StringBuilder();
+                sb.Append(GetString($"{rl}InfoLong").TrimStart());
                 if (Options.CustomRoleSpawnChances.TryGetValue(rl, out StringOptionItem chance)) AddSettings(chance);
 
                 if (rl is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && Options.CustomRoleSpawnChances.TryGetValue(CustomRoles.Lovers, out chance)) AddSettings(chance);
@@ -1002,7 +1439,7 @@ internal class ChatCommands
                 var txt = $"<size=90%>{sb}</size>";
                 sb.Clear().Append(txt);
 
-                if (rl.PetActivatedAbility() && sb.Length < 1000) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
+                if (rl.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
                 Utils.SendMessage(text: "\n", sendTo: playerId, title: settings.ToString());
                 Utils.SendMessage(text: sb.ToString(), sendTo: playerId, title: title);
                 return;
@@ -1100,26 +1537,30 @@ internal class ChatCommands
                 if (GameStates.IsInGame)
                 {
                     var sb = new StringBuilder();
+                    var titleSb = new StringBuilder();
                     var settings = new StringBuilder();
                     settings.Append("<size=70%>");
-                    _ = sb.Append(GetString(role.ToString()) + Utils.GetRoleMode(role) + player.GetRoleInfo(true));
+                    titleSb.Append($"{role.ToColoredString()} {Utils.GetRoleMode(role)}");
+                    sb.Append("<size=90%>");
+                    sb.Append(player.GetRoleInfo(true).TrimStart());
                     if (Options.CustomRoleSpawnChances.TryGetValue(role, out var opt))
                         Utils.ShowChildrenSettings(opt, ref settings, disableColor: false);
                     settings.Append("</size>");
-                    var txt = sb.ToString();
-                    _ = sb.Clear().Append(txt.RemoveHtmlTags());
-                    if (role.PetActivatedAbility() && sb.Length < 1000) sb.Append("<size=50%>" + GetString("SupportsPetMessage").RemoveHtmlTags() + "</size>");
+                    if (role.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
+                    sb.Replace(role.ToString(), role.ToColoredString());
+                    sb.Replace(role.ToString().ToLower(), role.ToColoredString());
                     sb.Append("<size=70%>");
-                    foreach (CustomRoles subRole in Main.PlayerStates[player.PlayerId].SubRoles.ToArray())
+                    foreach (CustomRoles subRole in Main.PlayerStates[player.PlayerId].SubRoles)
                     {
-                        _ = sb.Append("\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
+                        sb.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong")}");
+                        sb.Replace(subRole.ToString(), subRole.ToColoredString());
+                        sb.Replace(subRole.ToString().ToLower(), subRole.ToColoredString());
                     }
 
                     Utils.SendMessage("\n", player.PlayerId, settings.ToString());
-                    Utils.SendMessage(sb.ToString(), player.PlayerId, string.Empty);
+                    Utils.SendMessage(sb.Append("</size>").ToString(), player.PlayerId, titleSb.ToString());
                 }
-                else
-                    Utils.SendMessage(GetString("Message.CanNotUseInLobby"), player.PlayerId);
+                else Utils.SendMessage(GetString("Message.CanNotUseInLobby"), player.PlayerId);
 
                 break;
 
@@ -1218,7 +1659,7 @@ internal class ChatCommands
                 MeetingHud.Instance?.CastVote(player.PlayerId, voteId);
                 break;
             case "/ask":
-                if (args.Length < 3) break;
+                if (args.Length < 3 || !player.Is(CustomRoles.Mathematician)) break;
                 Mathematician.Ask(player, args[1], args[2]);
                 break;
             case "/ans":
@@ -1237,6 +1678,28 @@ internal class ChatCommands
                 var qm2 = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
                 if (qm2.Target != player.PlayerId || !QuizMaster.MessagesToSend.TryGetValue(player.PlayerId, out var msg)) break;
                 Utils.SendMessage(msg, player.PlayerId, GetString("QuizMaster.QuestionSample.Title"));
+                break;
+            case "/target":
+                if (!Ventriloquist.On || !player.IsAlive() || !player.Is(CustomRoles.Ventriloquist) || player.GetAbilityUseLimit() < 1) break;
+                var vl = (Ventriloquist)Main.PlayerStates[player.PlayerId].Role;
+                vl.Target = args.Length < 2 ? byte.MaxValue : byte.TryParse(args[1], out var targetId) ? targetId : byte.MaxValue;
+                ChatManager.SendPreviousMessagesToAll();
+                break;
+            case "/chat":
+                if (!Ventriloquist.On || !player.IsAlive() || !player.Is(CustomRoles.Ventriloquist) || player.GetAbilityUseLimit() < 1) break;
+                var vl2 = (Ventriloquist)Main.PlayerStates[player.PlayerId].Role;
+                if (vl2.Target == byte.MaxValue) break;
+                ChatManager.SendPreviousMessagesToAll();
+                LateTask.New(() => Utils.GetPlayerById(vl2.Target)?.RpcSendChat(text[6..]), 0.2f, log: false);
+                player.RpcRemoveAbilityUse();
+                break;
+            case "/check":
+                if (!player.IsAlive() || !player.Is(CustomRoles.Inquirer)) break;
+                if (args.Length < 3 || !GuessManager.MsgToPlayerAndRole(text[6..], out byte checkId, out CustomRoles checkRole, out _)) break;
+                ChatManager.SendPreviousMessagesToAll();
+                bool hasRole = Utils.GetPlayerById(checkId).Is(checkRole);
+                if (IRandom.Instance.Next(100) < Inquirer.FailChance.GetInt()) hasRole = !hasRole;
+                LateTask.New(() => Utils.SendMessage(GetString(hasRole ? "Inquirer.MessageTrue" : "Inquirer.MessageFalse"), player.PlayerId), 0.2f, log: false);
                 break;
             case "/ban":
             case "/kick":
@@ -1316,6 +1779,7 @@ internal class ChatCommands
                 break;
 
             case "/lt":
+                if (!GameStates.IsLobby) break;
                 var timer = GameStartManagerPatch.Timer;
                 int minutes = (int)timer / 60;
                 int seconds = (int)timer % 60;
@@ -1406,7 +1870,7 @@ internal class ChatCommands
                     ChatUpdatePatch.LoversMessage = true;
                     Utils.SendMessage(text, otherLover.PlayerId, title);
                     Utils.SendMessage(text, player.PlayerId, title);
-                    LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max((AmongUsClient.Instance.Ping / 1000f) * 2f, 0.2f), log: false);
+                    LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max((AmongUsClient.Instance.Ping / 1000f) * 2f, Main.MessageWait.Value + 0.5f), log: false);
                 }, 0.2f, log: false);
             }
         }
@@ -1454,12 +1918,14 @@ internal class ChatUpdatePatch
         var writer = CustomRpcSender.Create("MessagesToSend");
         writer.StartMessage(clientId);
         writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+            .Write(player.Data.NetId)
             .Write(title)
             .EndRpc();
         writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
             .Write(msg)
             .EndRpc();
         writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+            .Write(player.Data.NetId)
             .Write(player.Data.PlayerName)
             .EndRpc();
         writer.EndMessage();

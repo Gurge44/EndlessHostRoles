@@ -236,7 +236,7 @@ internal class ControllerManagerUpdatePatch
         if (Input.GetKeyDown(KeyCode.Equals))
         {
             Main.VisibleTasksCount = !Main.VisibleTasksCount;
-            DestroyableSingleton<HudManager>.Instance.Notifier.AddItem($"VisibleTaskCount changed to {Main.VisibleTasksCount}.");
+            DestroyableSingleton<HudManager>.Instance.Notifier.AddDisconnectMessage($"VisibleTaskCount changed to {Main.VisibleTasksCount}.");
         }
 
         if (Input.GetKeyDown(KeyCode.I))

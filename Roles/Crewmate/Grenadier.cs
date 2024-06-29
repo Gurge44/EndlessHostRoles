@@ -5,7 +5,7 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using static EHR.Options;
 
-namespace EHR.Roles.Crewmate
+namespace EHR.Crewmate
 {
     internal class Grenadier : RoleBase
     {
@@ -125,7 +125,7 @@ namespace EHR.Roles.Crewmate
                 {
                     GrenadierBlinding.Remove(pc.PlayerId);
                     GrenadierBlinding.Add(pc.PlayerId, Utils.TimeStamp);
-                    Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => x.GetCustomRole().IsImpostor() || (x.GetCustomRole().IsNeutral() && GrenadierCanAffectNeutral.GetBool())).Do(x => x.RPCPlayCustomSound("FlashBang"));
+                    Main.AllPlayerControls.Where(x => x.IsModClient()).Where(x => x.IsImpostor() || (x.GetCustomRole().IsNeutral() && GrenadierCanAffectNeutral.GetBool())).Do(x => x.RPCPlayCustomSound("FlashBang"));
                 }
 
                 pc.RPCPlayCustomSound("FlashBang");
