@@ -41,7 +41,7 @@ namespace EHR.Modules
 
             ClientData pclient = player.GetClient();
 
-            player.TP(Pelican.GetBlackRoomPS());
+            // player.TP(Pelican.GetBlackRoomPS());
             AmongUsClient.Instance.Despawn(player);
             AmongUsClient.Instance.Spawn(newplayer, player.OwnerId);
             pclient.Character = newplayer;
