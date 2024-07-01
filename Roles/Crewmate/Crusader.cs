@@ -39,10 +39,6 @@ public class Crusader : RoleBase
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(SkillLimitOpt.GetInt());
         CurrentKillCooldown = SkillCooldown.GetFloat();
-
-        if (!AmongUsClient.Instance.AmHost || (Options.UsePets.GetBool() && UsePet.GetBool())) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

@@ -71,7 +71,7 @@ public class Main : BasePlugin
     public static readonly Dictionary<byte, (long START_TIMESTAMP, int TOTALCD)> AbilityCD = [];
     public static Dictionary<byte, float> AbilityUseLimit = [];
     public static List<byte> DontCancelVoteList = [];
-    public static List<byte> ResetCamPlayerList = [];
+    public static HashSet<byte> ResetCamPlayerList = [];
     public static List<byte> WinnerList = [];
     public static List<string> WinnerNameList = [];
     public static List<int> ClientIdList = [];
@@ -297,11 +297,15 @@ public class Main : BasePlugin
                 { CustomRoles.Engineer, "#8cffff" },
                 { CustomRoles.Scientist, "#8cffff" },
                 { CustomRoles.GuardianAngel, "#ffffff" },
+                { CustomRoles.Tracker, "#34ad50" },
+                { CustomRoles.Noisemaker, "#ff4a62" },
                 // Vanilla Remakes
                 { CustomRoles.CrewmateEHR, "#8cffff" },
                 { CustomRoles.EngineerEHR, "#FF6A00" },
                 { CustomRoles.ScientistEHR, "#8ee98e" },
                 { CustomRoles.GuardianAngelEHR, "#77e6d1" },
+                { CustomRoles.TrackerEHR, "#34ad50" },
+                { CustomRoles.NoisemakerEHR, "#ff4a62" },
                 // Crewmates
                 { CustomRoles.Luckey, "#b8d7a3" },
                 { CustomRoles.Needy, "#a4dffe" },
@@ -448,6 +452,7 @@ public class Main : BasePlugin
                 { CustomRoles.HexMaster, "#ff00ff" },
                 { CustomRoles.Wraith, "#4B0082" },
                 { CustomRoles.NSerialKiller, "#233fcc" },
+                { CustomRoles.RouleteGrandeur, "#a88332" },
                 { CustomRoles.Nonplus, "#09632f" },
                 { CustomRoles.Tremor, "#e942f5" },
                 { CustomRoles.Evolver, "#f2c444" },
@@ -540,6 +545,8 @@ public class Main : BasePlugin
                 { CustomRoles.Giant, "#32a852" },
                 { CustomRoles.Nimble, "#feffc7" },
                 { CustomRoles.Physicist, "#87e9ff" },
+                { CustomRoles.Finder, "#32a879" },
+                { CustomRoles.Noisy, "#e34fb2" },
                 { CustomRoles.Torch, "#eee5be" },
                 { CustomRoles.Seer, "#61b26c" },
                 { CustomRoles.Brakar, "#1447af" },
@@ -729,6 +736,7 @@ public enum CustomWinner
     Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
     SerialKiller = CustomRoles.NSerialKiller,
+    RouleteGrandeur = CustomRoles.RouleteGrandeur,
     Nonplus = CustomRoles.Nonplus,
     Tremor = CustomRoles.Tremor,
     Evolver = CustomRoles.Evolver,

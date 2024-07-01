@@ -38,10 +38,6 @@ public class Pelican : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();

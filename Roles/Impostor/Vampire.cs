@@ -55,8 +55,7 @@ public class Vampire : RoleBase
         }
 
         if (!AmongUsClient.Instance.AmHost || !IsPoisoner) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
+        Main.ResetCamPlayerList.Add(playerId);
     }
 
     public static bool IsThisRole(byte playerId) => PlayerIdList.Contains(playerId);

@@ -37,10 +37,6 @@ public class Pursuer : RoleBase
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(PursuerSkillLimitTimes.GetInt());
         clientList = [];
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override bool CanUseKillButton(PlayerControl pc)

@@ -150,6 +150,7 @@ class CheckMurderPatch
 
         if (target.Data == null
             || target.inVent
+            || target.walkingToVent
             || target.inMovingPlat
             || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()
             || target.MyPhysics.Animations.IsPlayingAnyLadderAnimation()
@@ -509,7 +510,7 @@ class CheckMurderPatch
         if (killer.Is(CustomRoles.Doppelganger)) Doppelganger.OnCheckMurderEnd(killer, target);
         return true;
 
-        void Notify(string message) => killer.Notify(ColorString(Color.yellow, GetString("CheckMurderFail") + GetString(message)), 10f);
+        void Notify(string message) => killer.Notify(ColorString(Color.yellow, GetString("CheckMurderFail") + GetString(message)), 15f);
     }
 }
 

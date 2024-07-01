@@ -291,11 +291,6 @@ public static class Options
 
     public static OptionItem GodfatherCancelVote;
 
-    public static OptionItem NimbleCD;
-    public static OptionItem NimbleInVentTime;
-    public static OptionItem PhysicistCD;
-    public static OptionItem PhysicistViewDuration;
-
     public static OptionItem GuardSpellTimes;
     public static OptionItem CapitalismSkillCooldown;
     public static OptionItem CapitalismKillCooldown;

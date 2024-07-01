@@ -67,10 +67,6 @@ namespace EHR.Neutral
             CurrentTarget = (byte.MaxValue, 0, false);
             LastUpdate = 0;
             NormalSpeed = Main.AllPlayerSpeed[playerId];
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = WaitingTimeAfterMeeting.GetFloat() + 1.5f;

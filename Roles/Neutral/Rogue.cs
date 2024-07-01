@@ -59,10 +59,6 @@ namespace EHR.Neutral
             SendRPC();
 
             MorphCooldown = 0;
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = GotRewards.Contains(Reward.DecreasedKillCooldown) ? KillCooldown.GetFloat() / 2f : KillCooldown.GetFloat();

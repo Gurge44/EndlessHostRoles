@@ -107,6 +107,7 @@ class EndGamePatch
             /* Send SyncSettings RPC */
         }
 
+        CustomNetObject.Reset();
         Main.LoversPlayers.Clear();
         Bloodmoon.OnMeetingStart();
 

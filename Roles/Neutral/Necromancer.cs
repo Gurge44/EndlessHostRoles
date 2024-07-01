@@ -58,10 +58,6 @@ namespace EHR.Neutral
         {
             NecromancerId = playerId;
             NecromancerPC = Utils.GetPlayerById(playerId);
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CD.GetFloat();
@@ -160,10 +156,6 @@ namespace EHR.Neutral
             DeathknightId = playerId;
             Deathknight_ = Utils.GetPlayerById(playerId);
             if (!UsePets.GetBool()) Deathknight_.ChangeRoleBasis(RoleTypes.Impostor);
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Necromancer.DKCD.GetFloat();

@@ -36,12 +36,7 @@ namespace EHR.Crewmate
         public override void Add(byte playerId)
         {
             playerIdList.Add(playerId);
-
             playerId.SetAbilityUseLimit(UseLimit.GetInt());
-
-            if (!AmongUsClient.Instance.AmHost || (UsePets.GetBool() && UsePet.GetBool())) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte playerId)

@@ -34,7 +34,8 @@ namespace EHR.Crewmate
                 State.MathematicianPlayerId = pc.PlayerId;
 
                 string question = string.Format(Translator.GetString("MathematicianQuestionString"), num1, num2);
-                Utils.SendMessage(question, title: Translator.GetString("Mathematician"));
+                ChatManager.SendPreviousMessagesToAll();
+                LateTask.New(() => Utils.SendMessage(question, title: Translator.GetString("Mathematician")), 0.2f, log: false);
             }
             catch (Exception e)
             {

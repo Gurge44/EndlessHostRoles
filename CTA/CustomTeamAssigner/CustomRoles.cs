@@ -296,6 +296,7 @@ public enum CustomRoles
     Ritualist,
     Rogue,
     Romantic,
+    RouleteGrandeur,
     RuthlessRomantic,
     Samurai,
     SchrodingersCat,
@@ -386,6 +387,7 @@ public enum CustomRoles
     Egoist,
     Energetic,
     EvilSpirit,
+    Finder,
     Flashman,
     Fool,
     Giant,
@@ -410,6 +412,7 @@ public enum CustomRoles
     Necroview,
     Ntr, // Neptune
     Nimble,
+    Noisy,
     Oblivious,
     Onbound,
     Sleep,

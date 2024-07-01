@@ -1,6 +1,7 @@
 ﻿using System;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using HarmonyLib;
 using Hazel;
 using InnerNet;
 using static EHR.Translator;
@@ -11,7 +12,7 @@ internal static class EAC
 {
     public static int DeNum;
 
-    private static void WarnHost(int denum = 1)
+    public static void WarnHost(int denum = 1)
     {
         DeNum += denum;
         if (ErrorText.Instance)
@@ -93,7 +94,7 @@ internal static class EAC
                     WarnHost();
                     Report(pc, "Bad StartMeeting");
                     HandleCheat(pc, "Bad StartMeeting");
-                    Logger.Fatal($"Illegal setting of the game name of the player [{pc.GetClientId()}:{pc.GetRealName()}] has been rejected", "EAC");
+                    Logger.Fatal($"Illegal StartMeeting RPC sent by [{pc.GetClientId()}:{pc.GetRealName()}], it has been rejected", "EAC");
                     return true;
                 case RpcCalls.ReportDeadBody:
                     if (!GameStates.IsInGame)
@@ -375,5 +376,173 @@ internal static class EAC
                 Logger.SendInGame(msg2);
                 break;
         }
+    }
+}
+
+// https://github.com/0xDrMoe/TownofHost-Enhanced/blob/main/Patches/InnerNetClientPatch.cs
+enum GameDataTag : byte
+{
+    DataFlag = 1,
+    RpcFlag = 2,
+    SpawnFlag = 4,
+    DespawnFlag = 5,
+    SceneChangeFlag = 6,
+    ReadyFlag = 7,
+    ChangeSettingsFlag = 8,
+    ConsoleDeclareClientPlatformFlag = 205,
+    PS4RoomRequest = 206,
+    XboxDeclareXuid = 207,
+}
+
+[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.HandleGameDataInner))]
+internal class GameDataHandlerPatch
+{
+    public static bool Prefix(InnerNetClient __instance, MessageReader reader, int msgNum)
+    {
+        MessageReader subReader = MessageReader.Get(reader);
+        var tag = (GameDataTag)reader.Tag;
+
+        switch (tag)
+        {
+            case GameDataTag.DataFlag:
+            {
+                var netId = reader.ReadPackedUInt32();
+                if (__instance.allObjectsFast.TryGetValue(netId, out var obj))
+                {
+                    if (obj.AmOwner)
+                    {
+                        Logger.Warn($"Received DataFlag for object {netId.ToString()} {obj.name} that we own.", "GameDataHandlerPatch");
+                        EAC.WarnHost();
+                        return false;
+                    }
+
+                    if (AmongUsClient.Instance.AmHost)
+                    {
+                        if (obj == MeetingHud.Instance)
+                        {
+                            Logger.Warn($"Received DataFlag for MeetingHud {netId.ToString()} that we own.", "GameDataHandlerPatch");
+                            EAC.WarnHost();
+                            return false;
+                        }
+
+                        if (obj == VoteBanSystem.Instance)
+                        {
+                            Logger.Warn($"Received DataFlag for VoteBanSystem {netId.ToString()} that we own.", "GameDataHandlerPatch");
+                            EAC.WarnHost();
+                            return false;
+                        }
+
+                        if (obj is NetworkedPlayerInfo)
+                        {
+                            Logger.Warn($"Received DataFlag for NetworkedPlayerInfo {netId.ToString()} that we own.", "GameDataHandlerPatch");
+                            EAC.WarnHost();
+                            return false;
+                        }
+                    }
+                }
+
+                break;
+            }
+
+            case GameDataTag.RpcFlag:
+                break;
+
+            case GameDataTag.SpawnFlag:
+                break;
+
+            case GameDataTag.DespawnFlag:
+                break;
+
+            case GameDataTag.SceneChangeFlag:
+            {
+                // Sender is only allowed to change his own scene.
+                var clientId = reader.ReadPackedInt32();
+                var scene = reader.ReadString();
+
+                var client = Utils.GetClientById(clientId);
+
+                if (client == null)
+                {
+                    Logger.Warn($"Received SceneChangeFlag for unknown client {clientId}.", "GameDataHandlerPatch");
+                    return false;
+                }
+
+                if (string.IsNullOrEmpty(scene))
+                {
+                    Logger.Warn($"Client {client.PlayerName} ({client.Id}) tried to send SceneChangeFlag with null scene.", "GameDataHandlerPatch");
+                    EAC.WarnHost();
+                    return false;
+                }
+
+                if (scene.ToLower() == "tutorial")
+                {
+                    Logger.Warn($"Client {client.PlayerName} ({client.Id}) tried to send SceneChangeFlag to Tutorial.", "GameDataHandlerPatch");
+                    EAC.WarnHost(100);
+
+                    if (GameStates.IsOnlineGame && AmongUsClient.Instance.AmHost)
+                    {
+                        Utils.ErrorEnd("SceneChange Tutorial Hack");
+                    }
+
+                    return false;
+                }
+
+                if (GameStates.IsInGame)
+                {
+                    Logger.Warn($"Client {client.PlayerName} ({client.Id}) tried to send SceneChangeFlag during mid of game.", "GameDataHandlerPatch");
+                    return false;
+                }
+
+                break;
+            }
+
+            case GameDataTag.ReadyFlag:
+            {
+                var clientId = reader.ReadPackedInt32();
+                var client = Utils.GetClientById(clientId);
+
+                if (client == null)
+                {
+                    Logger.Warn($"Received ReadyFlag for unknown client {clientId}.", "GameDataHandlerPatch");
+                    EAC.WarnHost();
+                    return false;
+                }
+
+                if (AmongUsClient.Instance.AmHost)
+                {
+                    if (!StartGameHostPatch.IsStartingAsHost)
+                    {
+                        Logger.Warn($"Received ReadyFlag while game is started from {clientId}.", "GameDataHandlerPatch");
+                        EAC.WarnHost();
+                        return false;
+                    }
+                }
+
+                break;
+            }
+
+            case GameDataTag.ConsoleDeclareClientPlatformFlag:
+                break;
+        }
+
+        return true;
+    }
+}
+
+[HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CoStartGameHost))]
+internal class StartGameHostPatch
+{
+    public static bool IsStartingAsHost;
+
+    public static void Prefix()
+    {
+        if (LobbyBehaviour.Instance != null)
+            IsStartingAsHost = true;
+    }
+
+    public static void Postfix()
+    {
+        if (ShipStatus.Instance != null)
+            IsStartingAsHost = false;
     }
 }

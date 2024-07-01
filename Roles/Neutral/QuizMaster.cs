@@ -125,10 +125,6 @@ namespace EHR.Neutral
             On = true;
             QuizMasters.Add(this);
             QuizMasterId = playerId;
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanKillWithDoubleClick.GetBool() ? KillCooldown.GetFloat() : MarkCooldown.GetFloat();

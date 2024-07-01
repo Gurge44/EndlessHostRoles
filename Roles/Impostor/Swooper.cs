@@ -100,8 +100,7 @@ public class Swooper : RoleBase
         }
 
         if (!AmongUsClient.Instance.AmHost || UsedRole == CustomRoles.Swooper) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
+        Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

@@ -330,7 +330,7 @@ internal class MoveAndStopManager
 
             var pc = __instance;
 
-            if (AllPlayerTimers.TryGetValue(pc.PlayerId, out var data))
+            if (AllPlayerTimers.TryGetValue(pc.PlayerId, out MoveAndStopPlayerData data))
             {
                 Vector2 previousPosition = new(data.PositionX, data.PositionY);
 

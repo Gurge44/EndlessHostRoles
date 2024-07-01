@@ -210,6 +210,7 @@ internal class ChangeRoleSettings
             Crusader.ForCrusade = [];
             Godfather.GodfatherTarget = byte.MaxValue;
             ChatManager.ResetHistory();
+            CustomNetObject.Reset();
 
             ReportDeadBodyPatch.CanReport = [];
             SabotageMapPatch.TimerTexts = [];
@@ -217,7 +218,7 @@ internal class ChangeRoleSettings
             Options.UsedButtonCount = 0;
 
             GameOptionsManager.Instance.currentNormalGameOptions.ConfirmImpostor = false;
-            if (Options.CurrentGameMode == CustomGameMode.MoveAndStop) GameOptionsManager.Instance.currentNormalGameOptions.NumImpostors = 0;
+            // if (Options.CurrentGameMode == CustomGameMode.MoveAndStop) GameOptionsManager.Instance.currentNormalGameOptions.NumImpostors = 0;
             Main.RealOptionsData = new(GameOptionsManager.Instance.CurrentGameOptions);
 
             Main.IntroDestroyed = false;
@@ -449,21 +450,23 @@ internal class SelectRolesPatch
         {
             var rd = IRandom.Instance;
 
-            BasisChangingAddons.Remove(CustomRoles.Nimble);
-            BasisChangingAddons.Remove(CustomRoles.Physicist);
+            new[] { CustomRoles.Nimble, CustomRoles.Physicist, CustomRoles.Finder, CustomRoles.Noisy }.Do(x => BasisChangingAddons.Remove(x));
 
             bool physicistSpawn = rd.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Physicist, out var option1) ? option1.GetFloat() : 0) && CustomRoles.Physicist.IsEnable();
             bool nimbleSpawn = rd.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Nimble, out var option2) ? option2.GetFloat() : 0) && CustomRoles.Nimble.IsEnable();
+            bool finderSpawn = rd.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Finder, out var option3) ? option3.GetFloat() : 0) && CustomRoles.Finder.IsEnable();
+            bool noisySpawn = rd.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Noisy, out var option4) ? option4.GetFloat() : 0) && CustomRoles.Noisy.IsEnable();
 
             if (Options.EveryoneCanVent.GetBool())
             {
                 nimbleSpawn = false;
                 physicistSpawn = false;
+                finderSpawn = false;
+                noisySpawn = false;
             }
 
-            HashSet<byte> nimbleList = [];
-            HashSet<byte> physicistList = [];
-            if (nimbleSpawn || physicistSpawn)
+            HashSet<byte> nimbleList = [], physicistList = [];
+            if (nimbleSpawn || physicistSpawn || finderSpawn || noisySpawn)
             {
                 foreach ((PlayerControl PLAYER, RoleTypes _) in RpcSetRoleReplacer.StoragedData)
                 {
@@ -478,42 +481,47 @@ internal class SelectRolesPatch
                 }
             }
 
-            if (nimbleList.Count == 0) nimbleSpawn = false;
-            if (physicistList.Count == 0) physicistSpawn = false;
+            HashSet<byte> finderList = physicistList.ToHashSet(), noisyList = physicistList.ToHashSet();
 
-            if (Main.SetAddOns.Values.Any(x => x.Contains(CustomRoles.Nimble)))
+            var roleSpawnMapping = new Dictionary<CustomRoles, (bool SpawnFlag, HashSet<byte> RoleList)>
             {
-                nimbleSpawn = true;
-                nimbleList = Main.SetAddOns.Where(x => x.Value.Contains(CustomRoles.Nimble)).Select(x => x.Key).ToHashSet();
-            }
+                { CustomRoles.Nimble, (nimbleSpawn, nimbleList) },
+                { CustomRoles.Physicist, (physicistSpawn, physicistList) },
+                { CustomRoles.Finder, (finderSpawn, finderList) },
+                { CustomRoles.Noisy, (noisySpawn, noisyList) }
+            };
 
-            try
+            for (int i = 0; i < roleSpawnMapping.Count; i++)
             {
-                if (Main.SetAddOns.Values.Any(x => x.Contains(CustomRoles.Physicist)))
+                (CustomRoles addon, (bool SpawnFlag, HashSet<byte> RoleList) value) = roleSpawnMapping.ElementAt(i);
+                if (value.RoleList.Count == 0) value.SpawnFlag = false;
+                if (Main.SetAddOns.Values.Any(x => x.Contains(addon)))
                 {
-                    physicistSpawn = true;
-                    var newPhysicistList = Main.SetAddOns.Where(x => x.Value.Contains(CustomRoles.Physicist)).Select(x => x.Key).ToHashSet();
-                    if (nimbleList.Count != 1 || physicistList.Count != 1 || nimbleList.First() != newPhysicistList.First())
+                    value.SpawnFlag = true;
+                    var newRoleList = Main.SetAddOns.Where(x => x.Value.Contains(addon)).Select(x => x.Key).ToHashSet();
+                    if (value.RoleList.Count != 1 || value.RoleList.First() != newRoleList.First())
                     {
-                        physicistList = newPhysicistList;
+                        value.RoleList = newRoleList;
                     }
+
+                    roleSpawnMapping[addon] = value;
                 }
             }
-            catch (Exception e)
-            {
-                Utils.ThrowException(e);
-                physicistSpawn = false;
-            }
 
-            if (nimbleSpawn)
+            foreach ((CustomRoles addon, (bool spawnFlag, HashSet<byte> roleList)) in roleSpawnMapping)
             {
-                BasisChangingAddons[CustomRoles.Nimble] = nimbleList.Shuffle().Take(CustomRoles.Nimble.GetCount()).ToList();
-            }
+                if (spawnFlag)
+                {
+                    foreach ((CustomRoles otherAddon, (bool otherSpawnFlag, _)) in roleSpawnMapping)
+                    {
+                        if (otherAddon != addon && otherSpawnFlag && BasisChangingAddons.TryGetValue(otherAddon, out var otherList))
+                        {
+                            roleList.ExceptWith(otherList);
+                        }
+                    }
 
-            if (physicistSpawn)
-            {
-                if (nimbleSpawn) physicistList.ExceptWith(BasisChangingAddons[CustomRoles.Nimble]);
-                BasisChangingAddons[CustomRoles.Physicist] = physicistList.Shuffle().Take(CustomRoles.Physicist.GetCount()).ToList();
+                    BasisChangingAddons[addon] = roleList.Shuffle().Take(addon.GetCount()).ToList();
+                }
             }
 
             List<(PlayerControl, RoleTypes)> newList = [];
@@ -545,6 +553,22 @@ internal class SelectRolesPatch
                     {
                         roleType = RoleTypes.Scientist;
                         Logger.Warn($"{PLAYER.GetRealName()} was assigned Physicist, their role basis was changed to Scientist", "Physicist");
+                    }
+                }
+                else if (IsBasisChangingPlayer(PLAYER.PlayerId, CustomRoles.Finder))
+                {
+                    if (roleType == RoleTypes.Crewmate)
+                    {
+                        roleType = RoleTypes.Tracker;
+                        Logger.Warn($"{PLAYER.GetRealName()} was assigned Finder, their role basis was changed to Tracker", "Finder");
+                    }
+                }
+                else if (IsBasisChangingPlayer(PLAYER.PlayerId, CustomRoles.Noisy))
+                {
+                    if (roleType == RoleTypes.Crewmate)
+                    {
+                        roleType = RoleTypes.Noisemaker;
+                        Logger.Warn($"{PLAYER.GetRealName()} was assigned Noisy, their role basis was changed to Noisemaker", "Noisy");
                     }
                 }
 
@@ -626,7 +650,7 @@ internal class SelectRolesPatch
                 {
                     foreach (var role in item.Value)
                     {
-                        if (role is CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust) continue;
+                        if (role is CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust or CustomRoles.Finder or CustomRoles.Noisy) continue;
                         state.SetSubRole(role);
                         if (overrideLovers && role == CustomRoles.Lovers) Main.LoversPlayers.Add(Utils.GetPlayerById(item.Key));
                         if (role.IsGhostRole()) GhostRolesManager.SpecificAssignGhostRole(item.Key, role, true);
@@ -778,7 +802,7 @@ internal class SelectRolesPatch
             }
 
             // Add players with unclassified roles to the list of players who require ResetCam.
-            Main.ResetCamPlayerList.AddRange(Main.AllPlayerControls.Where(p => p.GetCustomRole() is CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Sidekick or CustomRoles.Innocent || p.GetCustomRole().IsForOtherGameMode() || (p.Is(CustomRoles.Witness) && (!Options.UsePets.GetBool() || Options.WitnessUsePet.GetBool()))).Select(p => p.PlayerId));
+            Main.ResetCamPlayerList.UnionWith(Main.PlayerStates.Where(p => (p.Value.MainRole.IsDesyncRole() && !p.Value.MainRole.UsesPetInsteadOfKill()) || p.Value.SubRoles.Contains(CustomRoles.Bloodlust)).Select(p => p.Key));
             Utils.CountAlivePlayers(true);
             Utils.SyncAllSettings();
 

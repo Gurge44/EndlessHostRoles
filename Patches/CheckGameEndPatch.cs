@@ -591,7 +591,15 @@ class GameEndChecker
         public override bool CheckForEndGame(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
-            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+            bool end = WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+            // if (end)
+            // {
+            //     // Set the impostor count to 1 from 0 so the host doesn't get banned after rejoining the lobby
+            //     GameOptionsManager.Instance.currentNormalGameOptions.NumImpostors = 1;
+            //     PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(GameOptionsManager.Instance.CurrentGameOptions, AprilFoolsMode.IsAprilFoolsModeToggledOn));
+            // }
+
+            return end;
         }
 
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
@@ -600,7 +608,7 @@ class GameEndChecker
 
             if (MoveAndStopManager.RoundTime <= 0)
             {
-                var winner = Main.GM.Value && Main.AllPlayerControls.Length == 1 ? PlayerControl.LocalPlayer : Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => MoveAndStopManager.GetRankOfScore(x.PlayerId)).ThenBy(x => x.IsAlive()).First();
+                var winner = Main.GM.Value && Main.AllPlayerControls.Length == 1 ? PlayerControl.LocalPlayer : Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => MoveAndStopManager.GetRankOfScore(x.PlayerId)).ThenByDescending(x => x.IsAlive()).First();
 
                 byte winnerId = winner.PlayerId;
 

@@ -46,8 +46,7 @@ namespace EHR.Impostor
             }
 
             if (!AmongUsClient.Instance.AmHost || !IsJinx) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
+            Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)

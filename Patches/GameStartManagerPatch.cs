@@ -344,15 +344,29 @@ public class GameStartRandomMap
             return false;
         }
 
-
-        Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
-        Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
-        Main.NormalOptions.KillCooldown = 0f;
+        if (__instance.startState == GameStartManager.StartingStates.Countdown)
+        {
+            Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
+        }
+        else
+        {
+            Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
+            Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
+            Main.NormalOptions.KillCooldown = 0f;
+        }
 
         var opt = Main.NormalOptions.Cast<IGameOptions>();
         AURoleOptions.SetOpt(opt);
-        Main.LastShapeshifterCooldown.Value = AURoleOptions.ShapeshifterCooldown;
-        AURoleOptions.ShapeshifterCooldown = 0f;
+
+        if (__instance.startState == GameStartManager.StartingStates.Countdown)
+        {
+            AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
+        }
+        else
+        {
+            Main.LastShapeshifterCooldown.Value = AURoleOptions.ShapeshifterCooldown;
+            AURoleOptions.ShapeshifterCooldown = 0f;
+        }
 
         PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(opt, AprilFoolsMode.IsAprilFoolsModeToggledOn));
 
@@ -412,9 +426,9 @@ public class GameStartRandomMap
 [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.ResetStartState))]
 class ResetStartStatePatch
 {
-    public static void Prefix()
+    public static void Prefix(GameStartManager __instance)
     {
-        if (GameStates.IsCountDown)
+        if (__instance.startState == GameStartManager.StartingStates.Countdown)
         {
             Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
             PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(GameOptionsManager.Instance.CurrentGameOptions, AprilFoolsMode.IsAprilFoolsModeToggledOn));
@@ -439,6 +453,8 @@ public static class GameStartManagerBeginPatch
     {
         public static bool Prefix(GameStartManager __instance)
         {
+            if (!AmongUsClient.Instance.AmHost) return true;
+
             if (__instance.startState == GameStartManager.StartingStates.Countdown)
             {
                 __instance.ResetStartState();

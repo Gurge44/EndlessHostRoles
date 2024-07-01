@@ -22,7 +22,6 @@ public class PlagueBearer : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-
     public static void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.PlagueBearer);
@@ -49,10 +48,6 @@ public class PlagueBearer : RoleBase
         playerIdList.Add(playerId);
         PlagueBearerCD.Add(playerId, PlagueBearerCDOpt.GetFloat());
         PlaguedList[playerId] = [];
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = PlagueBearerCD[id];

@@ -152,6 +152,7 @@ internal static class CustomRoleSelector
         foreach (var type in Roles.Keys.ToArray())
         {
             Roles[type] = Roles[type]
+                .Shuffle()
                 .OrderBy(x => x.SpawnChance != 100)
                 .DistinctBy(x => x.Role)
                 .Take(GetTakeAmount())
@@ -617,7 +618,7 @@ internal static class CustomRoleSelector
                 case CustomRoles.Mare when Main.CurrentMap == MapNames.Fungle:
                 case CustomRoles.Madmate when Options.MadmateSpawnMode.GetInt() != 0:
                 case CustomRoles.Lovers or CustomRoles.LastImpostor or CustomRoles.Workhorse or CustomRoles.Undead:
-                case CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust: // Assigned at a different function due to role base change
+                case CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust or CustomRoles.Finder or CustomRoles.Noisy: // Assigned at a different function due to role base change
                     continue;
             }
 

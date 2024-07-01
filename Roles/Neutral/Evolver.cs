@@ -56,10 +56,6 @@ namespace EHR.Neutral
                 Math.Clamp(opts.GetInt(Int32OptionNames.KillDistance), 0, 2),
                 false, 0, false, 0, false
             );
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Stats.KillCooldown;

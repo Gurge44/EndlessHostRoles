@@ -55,10 +55,6 @@ namespace EHR.Neutral
             SamuraiPC = Utils.GetPlayerById(playerId);
             Target = (byte.MaxValue, 0);
             Delays = [];
-
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!Main.ResetCamPlayerList.Contains(playerId))
-                Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

@@ -74,7 +74,7 @@ namespace EHR.Crewmate
 
             if (OptionSellOnlyEnabledAddons.GetBool()) Addons.RemoveAll(x => x.GetMode() == 0);
 
-            Addons.RemoveAll(x => x is CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust);
+            Addons.RemoveAll(x => x is CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust or CustomRoles.Finder or CustomRoles.Noisy);
         }
 
         public override void Add(byte playerId)

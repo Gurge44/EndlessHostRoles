@@ -61,10 +61,6 @@ public class WeaponMaster : RoleBase
 
         Mode = 0;
         shieldUsed = false;
-
-        if (!AmongUsClient.Instance.AmHost) return;
-        if (!Main.ResetCamPlayerList.Contains(playerId))
-            Main.ResetCamPlayerList.Add(playerId);
     }
 
     void SendRPC()
