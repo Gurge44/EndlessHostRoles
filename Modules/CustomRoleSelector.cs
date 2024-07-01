@@ -152,6 +152,7 @@ internal static class CustomRoleSelector
         foreach (var type in Roles.Keys.ToArray())
         {
             Roles[type] = Roles[type]
+                .Shuffle()
                 .OrderBy(x => x.SpawnChance != 100)
                 .DistinctBy(x => x.Role)
                 .Take(GetTakeAmount())
