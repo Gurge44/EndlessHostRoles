@@ -35,6 +35,7 @@ public static class DevManager
         DevUserList.Add(new(code: "keyscreech#2151", color: "null", tag: "<color=#D3A4FF>美術</color><color=#5A5AAD>NotKomi</color>", isUp: false, isDev: true, deBug: false, upName: null)); //Endrmen40409
 
         // Up
+        DevUserList.Add(new(code: "primether#5348", color: "null", tag: "<color=#FF0000>YouTuber</color>/<color=#8800FF>Streamer</color>", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "AnonWorks"));
         DevUserList.Add(new(code: "truantwarm#9165", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "萧暮不姓萧"));
         DevUserList.Add(new(code: "drilldinky#1386", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "爱玩AU的河豚"));
         DevUserList.Add(new(code: "farardour#6818", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "-提米SaMa-"));
