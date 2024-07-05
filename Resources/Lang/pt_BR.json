@@ -2102,7 +2102,7 @@
   "ComboRemove": "{0} e {1} não aparecerão mais juntos.",
   "ComboBan": "{0} e {1} nunca aparecerão juntos.",
   "ComboAllow": "{0} e {1} podem agora aparecer juntos.",
-  "ComboUsage": "\n<b><u>Usage Format:</u></b>\n/combo {add/ban/remove/allow} {main role} {addon} [all]\n\n<size=60%>By default, the combo is added to the current preset. If you want it to be added for all presets, type 'all' at the end.\nExample: /combo add Niceguesser Doubleshot all</size>",
+  "ComboUsage": "\n<b><u>Formato de uso:</u></b>\n/combo {add/ban/remove/allow} {main role} {addon} [all]\n\n<size=60%>por padrão, o combo é adicionado à predefinição atual. Se você quiser que seja adicionado para todas as predefinições, digite 'all' no final.\nExemplo: /combo add Justiceiro Tiro Duplo all</size>",
   "ERR-000-000-0": "Sem Erro",
   "ERR-000-900-0": "Erro de Teste Lv. 0",
   "ERR-000-910-1": "Erro de Teste Lv. 1",
