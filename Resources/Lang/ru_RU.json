@@ -1348,7 +1348,7 @@
   "LIRoleForOtherImps": "Другие <#ff1919>Предатели</color> видят <#ff9ace>Loving</color> <#ff1919>Impostor</color> как",
   "PrivateChat": "У Lovers есть приватный чат <#ffff00>(ЭКСПЕРИМЕНТАЛЬНО)</color>",
   "GuessAbility": "''Lovers'' можно угадать",
-  "Untouched": "Зависит от друг. настр.",
+  "Untouched": "По умолчанию",
   "GuessLovers": "<color=#ff9ace>Lovers</color> нельзя угадать из-за настроек",
   "VanillaCrewmateCannotBeGuessed": "Ванильная роль Crewmate не может быть угадана",
   "GuessVanillaCrewmate": "Настройки игры не позволяют гадать ванильную роль Crewmate",
