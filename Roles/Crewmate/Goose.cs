@@ -8,6 +8,7 @@
         public static OptionItem OptionSpeedDuringDrag;
         public static OptionItem OptionVictimCanUseAbilities;
         public static OptionItem CanBeGuessed;
+        public static OptionItem Cooldown;
 
         public void SetupCustomOption()
         {
@@ -22,6 +23,9 @@
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Goose]);
             CanBeGuessed = new BooleanOptionItem(Id + 15, "CanBeGuessed", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Goose]);
+            Cooldown = new FloatOptionItem(Id + 16, "AbilityCooldown", new(0f, 180f, 0.5f), 15f, TabGroup.CrewmateRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Goose])
+                .SetValueFormat(OptionFormat.Seconds);
         }
     }
 }

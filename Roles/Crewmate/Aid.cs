@@ -3,7 +3,6 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using UnityEngine;
 
 namespace EHR.Crewmate
 {
@@ -132,7 +131,7 @@ namespace EHR.Crewmate
             {
                 var duration = AidDur.GetInt();
                 var now = Utils.TimeStamp;
-                var formatted = ShieldedPlayers.Select(x => string.Format(Translator.GetString("AidCounterTarget"), Utils.ColorString(Main.PlayerColors.GetValueOrDefault(x.Key, Color.white), Main.AllPlayerNames.GetValueOrDefault(x.Key, "Someone")), duration - (now - x.Value)));
+                var formatted = ShieldedPlayers.Select(x => string.Format(Translator.GetString("AidCounterTarget"), x.Key.ColoredPlayerName(), duration - (now - x.Value)));
                 return string.Join("\n", formatted);
             }
 

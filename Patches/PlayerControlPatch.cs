@@ -150,7 +150,6 @@ class CheckMurderPatch
 
         if (target.Data == null
             || target.inVent
-            || target.walkingToVent
             || target.inMovingPlat
             || target.MyPhysics.Animations.IsPlayingEnterVentAnimation()
             || target.MyPhysics.Animations.IsPlayingAnyLadderAnimation()
@@ -309,6 +308,12 @@ class CheckMurderPatch
         if (CustomTeamManager.AreInSameCustomTeam(killer.PlayerId, target.PlayerId) && !CustomTeamManager.IsSettingEnabledForPlayerTeam(killer.PlayerId, CTAOption.KillEachOther))
         {
             Notify("SameCTATeam");
+            return false;
+        }
+
+        if (AFKDetector.ShieldedPlayers.Contains(target.PlayerId))
+        {
+            Notify("AFKShielded");
             return false;
         }
 
@@ -1040,7 +1045,7 @@ class ReportDeadBodyPatch
                 Camouflage.RpcSetSkin(pc, RevertToDefault: true);
             }
 
-            if (Main.CurrentMap == MapNames.Fungle && pc.IsMushroomMixupActive())
+            if (Main.CurrentMap == MapNames.Fungle && (pc.IsMushroomMixupActive() || IsActive(SystemTypes.MushroomMixupSabotage)))
             {
                 pc.FixMixedUpOutfit();
             }
@@ -1159,7 +1164,12 @@ class FixedUpdatePatch
             NameNotifyManager.OnFixedUpdate(player);
             TargetArrow.OnFixedUpdate(player);
             LocateArrow.OnFixedUpdate(player);
-            Camouflage.OnFixedUpdate(player);
+
+            if (AmongUsClient.Instance.AmHost)
+            {
+                Camouflage.OnFixedUpdate(player);
+                AFKDetector.OnFixedUpdate(player);
+            }
 
             if (RPCHandlerPatch.ReportDeadBodyRPCs.Remove(playerId))
                 Logger.Info($"Cleared ReportDeadBodyRPC Count for {player.GetRealName().RemoveHtmlTags()}", "FixedUpdatePatch");
@@ -1427,6 +1437,8 @@ class FixedUpdatePatch
                 Main.PlayerStates.Values.Do(x => Suffix.Append(x.Role.GetSuffix(seer, target, isMeeting: GameStates.IsMeeting)));
 
                 if (self) Suffix.Append(CustomTeamManager.GetSuffix(seer));
+
+                Suffix.Append(AFKDetector.GetSuffix(seer, target));
 
                 switch (target.GetCustomRole())
                 {
@@ -2140,5 +2152,20 @@ class CmdCheckAppearPatch
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
 
         return false;
+    }
+}
+
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.AssertWithTimeout))]
+class AssertWithTimeoutPatch
+{
+    public static bool Prefix() => false;
+}
+
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckName))]
+class CmdCheckNameVersionCheckPatch
+{
+    public static void Postfix(PlayerControl __instance)
+    {
+        RPC.RpcVersionCheck();
     }
 }

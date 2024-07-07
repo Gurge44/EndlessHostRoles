@@ -785,17 +785,7 @@ internal static class CustomRolesHelper
         CustomRoles.Undead or
         CustomRoles.Egoist;
 
-    public static bool IsImpOnlyAddon(this CustomRoles role) => role is
-        CustomRoles.Mare or
-        CustomRoles.LastImpostor or
-        CustomRoles.Mare or
-        CustomRoles.Mimic or
-        CustomRoles.Damocles or
-        CustomRoles.DeadlyQuota or
-        CustomRoles.Circumvent or
-        CustomRoles.TicketsStealer or
-        CustomRoles.Taskcounter or
-        CustomRoles.Swift;
+    public static bool IsImpOnlyAddon(this CustomRoles role) => Options.GroupedAddons[AddonTypes.ImpOnly].Contains(role);
 
     public static bool IsTaskBasedCrewmate(this CustomRoles role) => role is
         CustomRoles.Snitch or
@@ -825,7 +815,7 @@ internal static class CustomRolesHelper
     public static bool IsNoAnimationShifter(this CustomRoles role) => role is
         CustomRoles.Echo;
 
-    public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc) => role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out var bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out var o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && role switch
+    public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc) => role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out var bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out var o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && (!role.IsImpOnlyAddon() || pc.IsImpostor()) && role switch
     {
         CustomRoles.Rookie when !pc.CanUseKillButton() => false,
         CustomRoles.Energetic when !Options.UsePets.GetBool() => false,
@@ -840,7 +830,6 @@ internal static class CustomRolesHelper
         CustomRoles.Stressed when !pc.IsCrewmate() || pc.GetCustomRole().IsTasklessCrewmate() => false,
         CustomRoles.Lazy when pc.GetCustomRole().IsNeutral() || pc.IsImpostor() || (pc.GetCustomRole().IsTasklessCrewmate() && !Options.TasklessCrewCanBeLazy.GetBool()) || (pc.GetCustomRole().IsTaskBasedCrewmate() && !Options.TaskBasedCrewCanBeLazy.GetBool()) => false,
         CustomRoles.TicketsStealer or CustomRoles.Swift or CustomRoles.DeadlyQuota or CustomRoles.Damocles or CustomRoles.Mare when pc.Is(CustomRoles.Bomber) || pc.Is(CustomRoles.Nuker) || pc.Is(CustomRoles.BoobyTrap) || pc.Is(CustomRoles.Capitalism) => false,
-        CustomRoles.TicketsStealer or CustomRoles.Mimic or CustomRoles.Swift or CustomRoles.DeadlyQuota or CustomRoles.Circumvent or CustomRoles.Damocles or CustomRoles.Taskcounter or CustomRoles.Mare when !pc.IsImpostor() => false,
         CustomRoles.Torch when !pc.IsCrewmate() || pc.Is(CustomRoles.Bewilder) || pc.Is(CustomRoles.Sunglasses) || pc.Is(CustomRoles.GuardianAngelEHR) => false,
         CustomRoles.Bewilder when pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.GuardianAngelEHR) || pc.Is(CustomRoles.Sunglasses) => false,
         CustomRoles.Sunglasses when pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.GuardianAngelEHR) || pc.Is(CustomRoles.Bewilder) => false,
@@ -968,7 +957,6 @@ internal static class CustomRolesHelper
         CustomRoles.Charmed or
         CustomRoles.Recruit or
         CustomRoles.Contagious or
-        CustomRoles.Sidekick or
         CustomRoles.Undead or
         CustomRoles.Lovers;
 

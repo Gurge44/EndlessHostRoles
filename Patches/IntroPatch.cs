@@ -418,24 +418,28 @@ class BeginCrewmatePatch
                     CustomRoles.Disperser
                     => ShipStatus.Instance.VentMoveSounds.FirstOrDefault(),
 
-                _ => PlayerControl.LocalPlayer.GetCustomRoleTypes() switch
-                {
-                    CustomRoleTypes.Impostor => GetIntroSound(RoleTypes.Impostor),
-                    CustomRoleTypes.Crewmate => GetIntroSound(RoleTypes.Crewmate),
-                    CustomRoleTypes.Neutral => GetIntroSound(RoleTypes.Shapeshifter),
-                    _ => GetIntroSound(RoleTypes.Crewmate)
-                }
+                CustomRoles.Tracker
+                    or CustomRoles.EvilTracker
+                    => GetIntroSound(RoleTypes.Tracker),
+
+                CustomRoles.Noisemaker
+                    or CustomRoles.NoisemakerEHR
+                    => GetIntroSound(RoleTypes.Noisemaker),
+
+                CustomRoles.Phantom
+                    or CustomRoles.PhantomEHR
+                    => GetIntroSound(RoleTypes.Phantom),
+
+                CustomRoles.Shapeshifter
+                    or CustomRoles.ShapeshifterEHR
+                    => GetIntroSound(RoleTypes.Shapeshifter),
+
+                _ => GetAudioClipFromCustomRoleType()
             };
         }
         catch (Exception ex)
         {
-            PlayerControl.LocalPlayer.Data.Role.IntroSound = PlayerControl.LocalPlayer.GetCustomRoleTypes() switch
-            {
-                CustomRoleTypes.Impostor => GetIntroSound(RoleTypes.Impostor),
-                CustomRoleTypes.Crewmate => GetIntroSound(RoleTypes.Crewmate),
-                CustomRoleTypes.Neutral => GetIntroSound(RoleTypes.Shapeshifter),
-                _ => GetIntroSound(RoleTypes.Crewmate)
-            };
+            PlayerControl.LocalPlayer.Data.Role.IntroSound = GetAudioClipFromCustomRoleType();
             Logger.Warn($"Could not set intro sound\n{ex}", "IntroSound");
         }
 
@@ -554,6 +558,17 @@ class BeginCrewmatePatch
             __instance.ImpostorText.text = "请远离无知的玩家";
             __instance.TeamTitle.color = Color.magenta;
             StartFadeIntro(__instance, Color.magenta, Color.magenta);
+        }
+
+        AudioClip GetAudioClipFromCustomRoleType()
+        {
+            return PlayerControl.LocalPlayer.GetCustomRoleTypes() switch
+            {
+                CustomRoleTypes.Impostor => GetIntroSound(RoleTypes.Impostor),
+                CustomRoleTypes.Crewmate => GetIntroSound(RoleTypes.Crewmate),
+                CustomRoleTypes.Neutral => GetIntroSound(RoleTypes.Shapeshifter),
+                _ => GetIntroSound(RoleTypes.Crewmate)
+            };
         }
     }
 
@@ -743,7 +758,7 @@ class IntroCutsceneDestroyPatch
                     5 => new RandomSpawn.FungleSpawnMap(),
                     _ => null
                 };
-                if (map != null) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
+                if (map != null && AmongUsClient.Instance.AmHost) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
             }
 
             if (Main.ResetCamPlayerList.Contains(PlayerControl.LocalPlayer.PlayerId))

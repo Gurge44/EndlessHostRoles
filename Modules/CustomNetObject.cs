@@ -348,7 +348,7 @@ namespace EHR
             }
         }
 
-        public static void FixedUpdate() => AllObjects.ForEach(x => x.OnFixedUpdate());
+        public static void FixedUpdate() => AllObjects.ToArray().Do(x => x.OnFixedUpdate());
         public static CustomNetObject Get(int id) => AllObjects.FirstOrDefault(x => x.Id == id);
 
         public static void Reset()
@@ -395,6 +395,8 @@ namespace EHR
 
         protected override void OnFixedUpdate()
         {
+            base.OnFixedUpdate();
+
             Timer += Time.deltaTime;
             if (Timer >= Duration / 5f && Frame == 0)
             {
@@ -448,6 +450,8 @@ namespace EHR
 
         protected override void OnFixedUpdate()
         {
+            base.OnFixedUpdate();
+
             Timer += Time.deltaTime;
             if (Timer >= WaitDuration * 0.75f && State == 0)
             {
@@ -477,6 +481,8 @@ namespace EHR
 
         protected override void OnFixedUpdate()
         {
+            base.OnFixedUpdate();
+
             try
             {
                 if (Gone) return;

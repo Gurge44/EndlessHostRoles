@@ -153,17 +153,16 @@ static class ExtendedPlayerControl
         Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
         Logger.Info($"Set:{player.Data?.PlayerName}:{name} for {seer.GetNameWithRole().RemoveHtmlTags()}", "RpcSetNamePrivate");
 
+        if (seer == null || player == null) return;
+
         var clientId = seer.GetClientId();
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetName, SendOption.Reliable, clientId);
-        try
-        {
-            writer.Write(player.Data.NetId);
-            writer.Write(name);
-        }
-        finally
-        {
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
+
+        var sender = CustomRpcSender.Create(name: "SetNamePrivate");
+        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, clientId)
+            .Write(seer.Data.NetId)
+            .Write(name)
+            .EndRpc();
+        sender.SendMessage();
     }
 
     public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, bool canOverride, int clientId)

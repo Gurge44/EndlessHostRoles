@@ -270,6 +270,12 @@ internal class RPCHandlerPatch
                     Version version = Version.Parse(reader.ReadString());
                     string tag = reader.ReadString();
                     string forkId = reader.ReadString();
+
+                    if (!Main.PlayerVersion.ContainsKey(__instance.PlayerId))
+                    {
+                        RPC.RpcVersionCheck();
+                    }
+
                     Main.PlayerVersion[__instance.PlayerId] = new(version, tag, forkId);
 
                     if (Main.VersionCheat.Value && __instance.IsHost()) RPC.RpcVersionCheck();
@@ -278,7 +284,7 @@ internal class RPCHandlerPatch
                         Main.PlayerVersion[__instance.PlayerId] = Main.PlayerVersion[0];
 
                     // Kick Unmached Player Start
-                    if (AmongUsClient.Instance.AmHost && tag != $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" && forkId != Main.ForkId)
+                    if (AmongUsClient.Instance.AmHost && tag != $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" && forkId != Main.ForkId && !Main.VersionCheat.Value)
                     {
                         LateTask.New(() =>
                         {

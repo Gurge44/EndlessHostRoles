@@ -209,8 +209,9 @@ internal class ChangeRoleSettings
             Provocateur.Provoked = [];
             Crusader.ForCrusade = [];
             Godfather.GodfatherTarget = byte.MaxValue;
-            ChatManager.ResetHistory();
-            CustomNetObject.Reset();
+            Crewpostor.TasksDone = [];
+            Express.SpeedNormal = [];
+            Express.SpeedUp = [];
 
             ReportDeadBodyPatch.CanReport = [];
             SabotageMapPatch.TimerTexts = [];
@@ -224,6 +225,8 @@ internal class ChangeRoleSettings
             Main.IntroDestroyed = false;
 
             RandomSpawn.CustomNetworkTransformPatch.NumOfTP = [];
+
+            AFKDetector.ShieldedPlayers.Clear();
 
             MeetingTimeManager.Init();
             Main.DefaultCrewmateVision = Main.RealOptionsData.GetFloat(FloatOptionNames.CrewLightMod);
@@ -305,10 +308,6 @@ internal class ChangeRoleSettings
                 Logger.Exception(ex, "Init Roles");
             }
 
-            Crewpostor.TasksDone = [];
-            Express.SpeedNormal = [];
-            Express.SpeedUp = [];
-
             Main.ChangedRole = false;
 
             try
@@ -332,6 +331,8 @@ internal class ChangeRoleSettings
             DoorsReset.Initialize();
             GhostRolesManager.Initialize();
             RoleBlockManager.Reset();
+            ChatManager.ResetHistory();
+            CustomNetObject.Reset();
 
             IRandom.SetInstanceById(Options.RoleAssigningAlgorithm.GetValue());
 
@@ -406,18 +407,26 @@ internal class SelectRolesPatch
             }
 
 
-            var rd = IRandom.Instance;
-            BasisChangingAddons.Remove(CustomRoles.Bloodlust);
-            bool bloodlustSpawn = rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Bloodlust, out var option3) ? option3.GetFloat() : 0) && CustomRoles.Bloodlust.IsEnable();
-            HashSet<byte> bloodlustList = RoleResult.Where(x => x.Value.IsCrewmate() && !x.Value.IsTaskBasedCrewmate()).Select(x => x.Key.PlayerId).ToHashSet();
-            if (bloodlustList.Count == 0) bloodlustSpawn = false;
-            if (Main.SetAddOns.Values.Any(x => x.Contains(CustomRoles.Bloodlust)))
-            {
-                bloodlustSpawn = true;
-                bloodlustList = Main.SetAddOns.Where(x => x.Value.Contains(CustomRoles.Bloodlust)).Select(x => x.Key).ToHashSet();
-            }
+            BasisChangingAddons.Clear();
 
-            if (bloodlustSpawn) BasisChangingAddons[CustomRoles.Bloodlust] = bloodlustList.Shuffle().Take(CustomRoles.Bloodlust.GetCount()).ToList();
+            try
+            {
+                var rd = IRandom.Instance;
+                bool bloodlustSpawn = rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Bloodlust, out var option3) ? option3.GetFloat() : 0) && CustomRoles.Bloodlust.IsEnable();
+                HashSet<byte> bloodlustList = RoleResult.Where(x => x.Value.IsCrewmate() && !x.Value.IsTaskBasedCrewmate() && (Options.UsePets.GetBool() || x.Value.GetRoleTypes() != RoleTypes.Impostor)).Select(x => x.Key.PlayerId).ToHashSet();
+                if (bloodlustList.Count == 0) bloodlustSpawn = false;
+                if (Main.SetAddOns.Values.Any(x => x.Contains(CustomRoles.Bloodlust)))
+                {
+                    bloodlustSpawn = true;
+                    bloodlustList = Main.SetAddOns.Where(x => x.Value.Contains(CustomRoles.Bloodlust)).Select(x => x.Key).ToHashSet();
+                }
+
+                if (bloodlustSpawn) BasisChangingAddons[CustomRoles.Bloodlust] = bloodlustList.Shuffle().Take(CustomRoles.Bloodlust.GetCount()).ToList();
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
 
 
             Dictionary<(byte, byte), RoleTypes> rolesMap = [];
@@ -449,8 +458,6 @@ internal class SelectRolesPatch
         try
         {
             var rd = IRandom.Instance;
-
-            new[] { CustomRoles.Nimble, CustomRoles.Physicist, CustomRoles.Finder, CustomRoles.Noisy }.Do(x => BasisChangingAddons.Remove(x));
 
             bool physicistSpawn = rd.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Physicist, out var option1) ? option1.GetFloat() : 0) && CustomRoles.Physicist.IsEnable();
             bool nimbleSpawn = rd.Next(100) < (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Nimble, out var option2) ? option2.GetFloat() : 0) && CustomRoles.Nimble.IsEnable();
@@ -664,19 +671,19 @@ internal class SelectRolesPatch
             var aapc = Main.AllAlivePlayerControls;
             var addonNum = aapc.ToDictionary(x => x, _ => 0);
             AddonRolesList
+                .Except(BasisChangingAddons.Keys)
                 .Where(x => x.IsEnable())
                 .SelectMany(x => Enumerable.Repeat(x, Math.Clamp(x.GetCount(), 0, aapc.Length)))
                 .Where(x => IRandom.Instance.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(x, out var sc) ? sc.GetFloat() : 0))
                 .Shuffle()
-                .Chunk(aapc.Length)
-                .SelectMany(a => a.Select(x =>
+                .Select(x =>
                 {
                     var suitablePlayer = aapc
                         .OrderBy(p => addonNum[p])
                         .FirstOrDefault(p => CustomRolesHelper.CheckAddonConflict(x, p));
                     if (suitablePlayer != null) addonNum[suitablePlayer]++;
                     return (Role: x, SuitablePlayer: suitablePlayer);
-                }))
+                })
                 .DoIf(x => x.SuitablePlayer != null, x => Main.PlayerStates[x.SuitablePlayer.PlayerId].SetSubRole(x.Role));
 
 
@@ -863,12 +870,25 @@ internal class SelectRolesPatch
     {
         foreach (PlayerControl seer in Main.AllPlayerControls)
         {
-            var sender = senders[seer.PlayerId];
             foreach (PlayerControl target in Main.AllPlayerControls)
             {
-                if (rolesMap.TryGetValue((seer.PlayerId, target.PlayerId), out var role))
+                try
                 {
-                    sender.RpcSetRole(seer, role, target.GetClientId());
+                    if (rolesMap.TryGetValue((seer.PlayerId, target.PlayerId), out var role))
+                    {
+                        // Change Scientist to Noisemaker when the role is desync and target have the Noisemaker role << Thanks: TommyXL
+                        if (role is RoleTypes.Scientist && RoleResult.Any(x => x.Key.PlayerId == seer.PlayerId && x.Value is CustomRoles.NoisemakerEHR or CustomRoles.Noisemaker))
+                        {
+                            Logger.Info($"seer: {seer.PlayerId}, target: {target.PlayerId}, {role} => {RoleTypes.Noisemaker}", "OverrideRoleForDesync");
+                            role = RoleTypes.Noisemaker;
+                        }
+
+                        var sender = senders[seer.PlayerId];
+                        sender.RpcSetRole(seer, role, target.GetClientId());
+                    }
+                }
+                catch
+                {
                 }
             }
         }

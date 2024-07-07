@@ -14,6 +14,7 @@ namespace EHR.AddOns.GhostRoles
 
         public Team Team => Team.Crewmate;
         public int Cooldown => CD.GetInt();
+        public bool ChangeToGA => true;
 
         public void OnProtect(PlayerControl pc, PlayerControl target)
         {

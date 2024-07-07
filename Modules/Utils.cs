@@ -317,7 +317,7 @@ public static class Utils
         {
             try
             {
-                var data = new Il2CppSystem.Collections.Generic.Dictionary<int, Il2CppSystem.Collections.Generic.Dictionary<string, Il2CppSystem.Collections.Generic.List<int>>>();
+                var data = new Il2CppSystem.Collections.Generic.Dictionary<int, Il2CppSystem.Collections.Generic.Dictionary<string, Il2CppSystem.Collections.Generic.List<string>>>();
                 var dict = path.Contains("Always") ? Main.AlwaysSpawnTogetherCombos : Main.NeverSpawnTogetherCombos;
                 dict.Do(kvp =>
                 {
@@ -326,7 +326,7 @@ public static class Utils
                     {
                         var key = pair.Key.ToString();
                         data[kvp.Key][key] = new();
-                        pair.Value.Do(x => data[kvp.Key][key].Add((int)x));
+                        pair.Value.Do(x => data[kvp.Key][key].Add(x.ToString()));
                     });
                 });
                 File.WriteAllText(path, JsonConvert.SerializeObject(data, Formatting.Indented));
@@ -350,7 +350,7 @@ public static class Utils
             try
             {
                 if (!File.Exists(path)) return;
-                var data = JsonConvert.DeserializeObject<Il2CppSystem.Collections.Generic.Dictionary<int, Il2CppSystem.Collections.Generic.Dictionary<string, Il2CppSystem.Collections.Generic.List<int>>>>(File.ReadAllText(path));
+                var data = JsonConvert.DeserializeObject<Il2CppSystem.Collections.Generic.Dictionary<int, Il2CppSystem.Collections.Generic.Dictionary<string, Il2CppSystem.Collections.Generic.List<string>>>>(File.ReadAllText(path));
                 var dict = path.Contains("Always") ? Main.AlwaysSpawnTogetherCombos : Main.NeverSpawnTogetherCombos;
                 dict.Clear();
                 foreach (var kvp in data)
@@ -362,7 +362,7 @@ public static class Utils
                         dict[kvp.Key][key] = [];
                         foreach (var n in pair.Value)
                         {
-                            dict[kvp.Key][key].Add((CustomRoles)n);
+                            dict[kvp.Key][key].Add(Enum.Parse<CustomRoles>(n));
                         }
                     }
                 }
@@ -733,6 +733,7 @@ public static class Utils
             case CustomRoles.Gaulois when !Options.UsePets.GetBool() || !Gaulois.UsePet.GetBool():
             case CustomRoles.Analyst when !Options.UsePets.GetBool() || !Analyst.UsePet.GetBool():
             case CustomRoles.Witness when !Options.UsePets.GetBool() || !Options.WitnessUsePet.GetBool():
+            case CustomRoles.Goose:
             case CustomRoles.Pursuer:
             case CustomRoles.Spiritcaller:
             case CustomRoles.PlagueBearer:
@@ -1905,6 +1906,8 @@ public static class Utils
         return add;
     }
 
+    public static string ColoredPlayerName(this byte id) => ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), Main.AllPlayerNames.GetValueOrDefault(id, $"Someone (ID {id})"));
+
     public static PlayerControl GetPlayerById(int PlayerId, bool fast = true)
     {
         if (PlayerId is > byte.MaxValue or < byte.MinValue) return null;
@@ -1919,7 +1922,7 @@ public static class Utils
         //if (Options.DeepLowLoad.GetBool()) await Task.Run(() => { DoNotifyRoles(isForMeeting, SpecifySeer, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting); });
         /*else */
 
-        if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModClient()) || !AmongUsClient.Instance.AmHost || Main.AllPlayerControls == null || GameStates.IsMeeting || GameStates.IsLobby)) return;
+        if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModClient()) || !AmongUsClient.Instance.AmHost || Main.AllPlayerControls == null || (GameStates.IsMeeting && !isForMeeting) || GameStates.IsLobby)) return;
 
         await DoNotifyRoles(isForMeeting, SpecifySeer, SpecifyTarget, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup);
     }
@@ -2423,6 +2426,8 @@ public static class Utils
 
                                 if (MeetingStates.FirstMeeting && Main.FirstDied != string.Empty && Main.FirstDied == target.FriendCode && Main.ShieldPlayer != string.Empty && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
                                     TargetSuffix.Append(GetString("DiedR1Warning"));
+
+                                TargetSuffix.Append(AFKDetector.GetSuffix(seer, target));
                             }
 
                             string TargetDeathReason = string.Empty;
@@ -2548,8 +2553,8 @@ public static class Utils
         }
 
         Lovers.IsChatActivated = false;
-
         Main.ProcessShapeshifts = true;
+        AFKDetector.NumAFK = 0;
 
         foreach (var pc in Main.AllPlayerControls)
         {
@@ -2571,11 +2576,14 @@ public static class Utils
 
                 if (Options.UsePets.GetBool()) pc.AddAbilityCD(includeDuration: false);
 
+                AFKDetector.RecordPosition(pc);
+
                 Main.PlayerStates[pc.PlayerId].Role.AfterMeetingTasks();
             }
             else
             {
-                if (pc.IsCrewmate() && !pc.GetTaskState().IsTaskFinished)
+                TaskState taskState = pc.GetTaskState();
+                if (pc.IsCrewmate() && !taskState.IsTaskFinished && taskState.hasTasks)
                     pc.Notify(GetString("DoYourTasksPlease"), 10f);
 
                 GhostRolesManager.NotifyAboutGhostRole(pc);

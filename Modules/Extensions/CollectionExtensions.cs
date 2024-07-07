@@ -60,7 +60,7 @@ namespace EHR
         /// <param name="collection">The collection to iterate over</param>
         /// <param name="action">The action to execute for each element</param>
         /// <typeparam name="T">The type of the elements in the collection</typeparam>
-        public static IEnumerable<T> Do<T>(this IEnumerable<T> collection, Action<T> action)
+        public static void Do<T>(this IEnumerable<T> collection, Action<T> action)
         {
             if (collection is List<T> list)
             {
@@ -69,15 +69,13 @@ namespace EHR
                     action(list[i]);
                 }
 
-                return collection;
+                return;
             }
 
             foreach (T element in collection)
             {
                 action(element);
             }
-
-            return collection;
         }
 
         /// <summary>

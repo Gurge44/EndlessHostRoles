@@ -48,7 +48,7 @@ class EndGamePatch
 
             SummaryText[id] = Utils.SummaryTexts(id, disableColor: false);
             if (state.SubRoles.Count == 0) continue;
-            Main.LastAddOns[id] = $"<size=70%>{Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), Main.AllPlayerNames.GetValueOrDefault(id, $"ID {id}"))}: {state.SubRoles.Join(x => x.ToColoredString())}</size>";
+            Main.LastAddOns[id] = $"<size=70%>{id.ColoredPlayerName()}: {state.SubRoles.Join(x => x.ToColoredString())}</size>";
         }
 
         if (Options.DumpLogAfterGameEnd.GetBool())
@@ -110,6 +110,7 @@ class EndGamePatch
         CustomNetObject.Reset();
         Main.LoversPlayers.Clear();
         Bloodmoon.OnMeetingStart();
+        AFKDetector.ExemptedPlayers.Clear();
 
         foreach (var state in Main.PlayerStates.Values)
         {

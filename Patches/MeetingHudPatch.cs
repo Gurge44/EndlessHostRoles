@@ -892,33 +892,7 @@ class MeetingHudStartPatch
             // Name Color Manager
             pva.NameText.text = pva.NameText.text.ApplyNameColorData(seer, target, true);
 
-
             var seerRole = seer.GetCustomRole();
-
-            // Guesser Mode //
-            if (((Options.GuesserMode.GetBool() && !seer.Data.IsDead && !target.Data.IsDead &&
-                  ((Options.CrewmatesCanGuess.GetBool() && seer.IsCrewmate() && !seer.Is(CustomRoles.Judge) && !seer.Is(CustomRoles.NiceSwapper) && !seer.Is(CustomRoles.Lookout) && !seer.Is(CustomRoles.ParityCop)) ||
-                   (Options.ImpostorsCanGuess.GetBool() && seerRole.IsImpostor() && !seer.Is(CustomRoles.Councillor)) ||
-                   (Options.NeutralKillersCanGuess.GetBool() && seer.IsNeutralKiller()) ||
-                   (Options.PassiveNeutralsCanGuess.GetBool() && seerRole.IsNonNK() && !seer.Is(CustomRoles.Doomsayer)))) ||
-
-                 // Other Roles and Add-ons that can see player IDs //
-                 (seer.Data.IsDead && !target.Data.IsDead && seerRole is CustomRoles.Mafia) ||
-                 (!seer.Data.IsDead && !target.Data.IsDead &&
-                  (seer.Is(CustomRoles.Guesser) ||
-                   seerRole is
-                       CustomRoles.Judge or
-                       CustomRoles.NiceSwapper or
-                       CustomRoles.Lookout or
-                       CustomRoles.ParityCop or
-                       CustomRoles.Councillor or
-                       CustomRoles.Doomsayer or
-                       CustomRoles.EvilGuesser or
-                       CustomRoles.NiceGuesser
-                  ))))
-            {
-                pva.NameText.text = $"{Utils.ColorString(Utils.GetRoleColor(seerRole), target.PlayerId.ToString())} {pva.NameText.text}";
-            }
 
             if (seer.KnowDeathReason(target))
                 sb.Append($"({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), Utils.GetVitalText(target.PlayerId))})");

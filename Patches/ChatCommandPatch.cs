@@ -778,6 +778,13 @@ internal class ChatCommands
 
                     break;
 
+                case "/afkexempt":
+                    canceled = true;
+                    if (args.Length < 2 || !byte.TryParse(args[1], out var afkId)) break;
+                    AFKDetector.ExemptedPlayers.Add(afkId);
+                    Utils.SendMessage("\n", localPlayerId, string.Format(GetString("PlayerExemptedFromAFK"), afkId.ColoredPlayerName()));
+                    break;
+
                 case "/m":
                 case "/myrole":
                     canceled = true;
@@ -806,7 +813,7 @@ internal class ChatCommands
                             sb.Replace(subRole.ToString().ToLower(), subRole.ToColoredString());
                         }
 
-                        Utils.SendMessage("\n", localPlayerId, settings.ToString());
+                        if (settings.Length > 0) Utils.SendMessage("\n", localPlayerId, settings.ToString());
                         Utils.SendMessage(sb.Append("</size>").ToString(), localPlayerId, titleSb.ToString());
                     }
                     else Utils.SendMessage((lp.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), localPlayerId);
@@ -1440,7 +1447,7 @@ internal class ChatCommands
                 sb.Clear().Append(txt);
 
                 if (rl.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
-                Utils.SendMessage(text: "\n", sendTo: playerId, title: settings.ToString());
+                if (settings.Length > 0) Utils.SendMessage(text: "\n", sendTo: playerId, title: settings.ToString());
                 Utils.SendMessage(text: sb.ToString(), sendTo: playerId, title: title);
                 return;
 
@@ -1557,7 +1564,7 @@ internal class ChatCommands
                         sb.Replace(subRole.ToString().ToLower(), subRole.ToColoredString());
                     }
 
-                    Utils.SendMessage("\n", player.PlayerId, settings.ToString());
+                    if (settings.Length > 0) Utils.SendMessage("\n", player.PlayerId, settings.ToString());
                     Utils.SendMessage(sb.Append("</size>").ToString(), player.PlayerId, titleSb.ToString());
                 }
                 else Utils.SendMessage(GetString("Message.CanNotUseInLobby"), player.PlayerId);

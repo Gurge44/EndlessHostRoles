@@ -75,7 +75,7 @@ class ExternalRpcPetPatch
 
         Logger.Info($"Player {pc.GetNameWithRole().RemoveHtmlTags()} petted their pet", "PetActionTrigger");
 
-        LateTask.New(() => { OnPetUse(pc); }, 0.2f, $"OnPetUse: {pc.GetNameWithRole().RemoveHtmlTags()}", false);
+        LateTask.New(() => OnPetUse(pc), 0.2f, $"OnPetUse: {pc.GetNameWithRole().RemoveHtmlTags()}", false);
     }
 
     public static void OnPetUse(PlayerControl pc)
@@ -109,7 +109,7 @@ class ExternalRpcPetPatch
         if (target != null) hasKillTarget = true;
         if (!pc.CanUseKillButton()) hasKillTarget = false;
 
-        if (pc.GetCustomRole().UsesPetInsteadOfKill() && hasKillTarget && pc.Data.RoleType != RoleTypes.Impostor)
+        if (pc.GetCustomRole().UsesPetInsteadOfKill() && hasKillTarget && (pc.Data.RoleType != RoleTypes.Impostor || pc.GetCustomRole() is CustomRoles.Necromancer or CustomRoles.Deathknight))
         {
             pc.AddKCDAsAbilityCD();
             if (Main.PlayerStates[pc.PlayerId].Role.OnCheckMurder(pc, target))
