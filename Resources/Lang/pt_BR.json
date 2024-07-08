@@ -2098,6 +2098,7 @@
   "Warning.MismatchedVersion": "<b>{0}</b> tem uma versão diferente de <b>{1}</b>",
   "Warning.AutoExitAtMismatchedVersion": "O anfitrião não possui ou tem uma versão diferente de {0}\\nVocê será expulso em {1}",
   "Warning.OneMinuteLeft": "<#ffff00>O Lobby irá fechar em 1 Minuto!</color>",
+  "Commands.NoAccess": "You don't have access to this command",
   "UnsupportedVersion": "Versão não suportada do Among Us.\\nPor favor atualize o Among Us",
   "Error.MeetingException": "Erro: {0}\\r\\nPor favor, use SHIFT + M + ENTER para encerrar a reunião",
   "Error.InvalidRoleAssignment": "Erro: Função inválida encontrada para um jogador durante a atribuição de função {0}",
