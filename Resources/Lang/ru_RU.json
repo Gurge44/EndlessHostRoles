@@ -2098,7 +2098,7 @@
   "Warning.MismatchedVersion": "Версия EHR у <b>{0}</b> не соответствует версии у хоста <b>{1}</b>",
   "Warning.AutoExitAtMismatchedVersion": "У хоста нету/есть другая версия {0}\\nВы будете кикнуты через {1}",
   "Warning.OneMinuteLeft": "<#ffff00>Через 1 минуту лобби будет закрыто!</color>",
-  "Commands.NoAccess": "You don't have access to this command",
+  "Commands.NoAccess": "У вас нет доступа к этой команде",
   "UnsupportedVersion": "Неподдерживаемая версия Among Us.\\nПожалуйста, обновите игру",
   "Error.MeetingException": "Ошибка: {0}\\r\\nПожалуйста, используйте SHIFT + M + ENTER, чтобы принудительно завершить собрание",
   "Error.InvalidRoleAssignment": "Ошибка: игроку была назначена сломанная роль ({0})",
