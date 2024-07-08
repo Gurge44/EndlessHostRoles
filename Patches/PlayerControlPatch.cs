@@ -1164,6 +1164,7 @@ class FixedUpdatePatch
             NameNotifyManager.OnFixedUpdate(player);
             TargetArrow.OnFixedUpdate(player);
             LocateArrow.OnFixedUpdate(player);
+            TextBoxTMPSetTextPatch.Update();
 
             if (AmongUsClient.Instance.AmHost)
             {

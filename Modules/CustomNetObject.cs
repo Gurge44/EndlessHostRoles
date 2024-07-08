@@ -355,7 +355,7 @@ namespace EHR
         {
             try
             {
-                AllObjects.ForEach(x => x.Despawn());
+                AllObjects.ToArray().Do(x => x.Despawn());
                 AllObjects.Clear();
             }
             catch (Exception e)

@@ -16,6 +16,8 @@ using Hazel;
 using UnityEngine;
 using static EHR.Translator;
 
+// ReSharper disable InconsistentNaming
+
 
 namespace EHR;
 
@@ -120,7 +122,7 @@ internal static class ChatCommands
             new(["vote"], "{id}", GetString("CommandDescription.Vote"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, VoteCommand, true, [GetString("CommandArgs.Vote.Id")]),
             new(["ask"], "{number1} {number2}", GetString("CommandDescription.Ask"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AskCommand, true, [GetString("CommandArgs.Ask.Number1"), GetString("CommandArgs.Ask.Number2")]),
             new(["ans", "answer"], "{number}", GetString("CommandDescription.Answer"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AnswerCommand, true, [GetString("CommandArgs.Answer.Number")]),
-            new(["qa"], "", GetString("CommandDescription.QA"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, QACommand, true),
+            new(["qa"], "{letter}", GetString("CommandDescription.QA"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, QACommand, true, [GetString("CommandArgs.QA.Letter")]),
             new(["qs"], "", GetString("CommandDescription.QS"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, QSCommand, true),
             new(["target"], "{id}", GetString("CommandDescription.Target"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, TargetCommand, true, [GetString("CommandArgs.Target.Id")]),
             new(["chat"], "{message}", GetString("CommandDescription.Chat"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ChatCommand, true, [GetString("CommandArgs.Chat.Message")]),
@@ -178,6 +180,8 @@ internal static class ChatCommands
             if (text[..3] == "/up")
                 args[0] = "/up";
 
+        // TODO: Make these also show up in the autocomplete (TextBoxPatch.cs)
+
         if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (Judge.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (NiceSwapper.SwapMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
@@ -203,11 +207,7 @@ internal static class ChatCommands
             break;
         }
 
-        if (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) && PlayerControl.LocalPlayer.IsAlive())
-        {
-            ChatManager.SendPreviousMessagesToAll();
-            goto Canceled;
-        }
+        if (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
 
         if (GameStates.IsInGame && ((PlayerControl.LocalPlayer.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting)))
         {
@@ -1320,6 +1320,9 @@ internal static class ChatCommands
                         break;
                 }
 
+                break;
+            default:
+                Utils.SendMessage(GetString("Commands.ChangeSettingHelp"), player.PlayerId);
                 break;
         }
 

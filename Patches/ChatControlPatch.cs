@@ -30,8 +30,11 @@ class ChatControllerUpdatePatch
         if (Main.DarkTheme.Value)
         {
             __instance.freeChatField.background.color = new Color32(40, 40, 40, byte.MaxValue);
-            __instance.freeChatField.textArea.compoText.Color(Color.white);
-            __instance.freeChatField.textArea.outputText.color = Color.white;
+            if (!TextBoxTMPSetTextPatch.IsInvalidCommand)
+            {
+                __instance.freeChatField.textArea.compoText.Color(Color.white);
+                __instance.freeChatField.textArea.outputText.color = Color.white;
+            }
 
             __instance.quickChatField.background.color = new Color32(40, 40, 40, byte.MaxValue);
             __instance.quickChatField.text.color = Color.white;
@@ -57,8 +60,6 @@ class ChatControllerUpdatePatch
         {
             TextBoxTMPSetTextPatch.OnTabPress(__instance);
         }
-
-        TextBoxTMPSetTextPatch.Update();
 
         if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.C))
             ClipboardHelper.PutClipboardString(__instance.freeChatField.textArea.text);

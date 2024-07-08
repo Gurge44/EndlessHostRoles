@@ -12,6 +12,8 @@ class TextBoxTMPSetTextPatch
     private static TextMeshPro PlaceHolderText;
     private static TextMeshPro CommandInfoText;
 
+    public static bool IsInvalidCommand;
+
     public static bool Prefix(TextBoxTMP __instance, [HarmonyArgument(0)] string input, [HarmonyArgument(1)] string inputCompo = "")
     {
         bool flag = false;
@@ -72,13 +74,13 @@ class TextBoxTMPSetTextPatch
         return false;
     }
 
-    public static void Postfix(TextBoxTMP __instance, [HarmonyArgument(0)] string input)
+    public static void Postfix(TextBoxTMP __instance)
     {
-        input = input.Trim();
+        string input = __instance.outputText.text.Trim().Replace("\b", "");
         if (!input.StartsWith('/') || input.Length < 2)
         {
-            PlaceHolderText?.gameObject.SetActive(false);
-            CommandInfoText?.gameObject.SetActive(false);
+            Destroy();
+            IsInvalidCommand = false;
             return;
         }
 
@@ -95,6 +97,7 @@ class TextBoxTMPSetTextPatch
 
                 if (check == inputCheck)
                 {
+                    highestMatchRate = 1;
                     command = cmd;
                     exactMatch = true;
                     break;
@@ -119,7 +122,16 @@ class TextBoxTMPSetTextPatch
             if (exactMatch) break;
         }
 
-        if (command == null) return;
+        if (command == null || highestMatchRate < 0.5)
+        {
+            Destroy();
+            IsInvalidCommand = true;
+            __instance.compoText.Color(Color.red);
+            __instance.outputText.color = Color.red;
+            return;
+        }
+
+        IsInvalidCommand = false;
 
         if (PlaceHolderText == null)
         {
@@ -141,6 +153,7 @@ class TextBoxTMPSetTextPatch
             CommandInfoText.enableWordWrapping = false;
             CommandInfoText.color = Color.white;
             CommandInfoText.fontSize = CommandInfoText.fontSizeMax = CommandInfoText.fontSizeMin = 1.8f;
+            CommandInfoText.sortingOrder = 100;
         }
 
         var text = "/" + (exactMatch ? input.TrimStart('/') : command.CommandForms.MaxBy(x => x.Length));
@@ -158,13 +171,29 @@ class TextBoxTMPSetTextPatch
                 if (command.ArgsDescriptions.Length <= i) break;
                 bool current = spaces - 1 == i;
                 if (current) info += "<#ffff44>";
-                info += $"\n       - <b>{args[i]}</b>: {command.ArgsDescriptions[spaces + i]}";
+                info += $"\n       - <b>{args[spaces > i ? i : i + spaces]}</b>: {command.ArgsDescriptions[i]}";
                 if (current) info += "</color>";
             }
         }
 
         PlaceHolderText.text = text;
         CommandInfoText.text = info;
+        return;
+
+        void Destroy()
+        {
+            if (PlaceHolderText != null)
+            {
+                Object.Destroy(PlaceHolderText);
+                PlaceHolderText = null;
+            }
+
+            if (CommandInfoText != null)
+            {
+                Object.Destroy(CommandInfoText);
+                CommandInfoText = null;
+            }
+        }
     }
 
     public static void OnTabPress(ChatController __instance)
