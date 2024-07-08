@@ -819,7 +819,7 @@ public static class Utils
 
     public static bool IsRoleTextEnabled(PlayerControl __instance)
     {
-        if (__instance.AmOwner || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun || (Options.CurrentGameMode == CustomGameMode.HideAndSeek && HnSManager.IsRoleTextEnabled(PlayerControl.LocalPlayer, __instance)) || Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool() || PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) return true;
+        if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun || (Options.CurrentGameMode == CustomGameMode.HideAndSeek && HnSManager.IsRoleTextEnabled(PlayerControl.LocalPlayer, __instance)) || Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool() || PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) return true;
 
         switch (__instance.GetCustomRole())
         {
@@ -846,7 +846,7 @@ public static class Utils
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Crewpostor) && Options.AlliesKnowCrewpostor.GetBool() ||
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool() ||
                __instance.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosImp.GetBool() ||
-               Main.LoversPlayers.TrueForAll(x => x.PlayerId == __instance.PlayerId || x.PlayerId == PlayerControl.LocalPlayer.PlayerId) && Lovers.LoverKnowRoles.GetBool() ||
+               Main.LoversPlayers.TrueForAll(x => x.PlayerId == __instance.PlayerId || x.PlayerId == PlayerControl.LocalPlayer.PlayerId) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool() ||
                CustomTeamManager.AreInSameCustomTeam(__instance.PlayerId, PlayerControl.LocalPlayer.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(__instance.PlayerId, CTAOption.KnowRoles) ||
                Main.PlayerStates.Values.Any(x => x.Role.KnowRole(PlayerControl.LocalPlayer, __instance)) ||
                PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) ||
@@ -2249,7 +2249,7 @@ public static class Utils
                                 (seer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) ||
                                 (seer.Is(CustomRoles.Mimic) && target.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) ||
                                 (target.Is(CustomRoles.Gravestone) && target.Data.IsDead) ||
-                                (Main.LoversPlayers.TrueForAll(x => x.PlayerId == seer.PlayerId || x.PlayerId == target.PlayerId) && Lovers.LoverKnowRoles.GetBool()) ||
+                                (Main.LoversPlayers.TrueForAll(x => x.PlayerId == seer.PlayerId || x.PlayerId == target.PlayerId) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool()) ||
                                 (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool()) ||
                                 (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoleTypes.Impostor) && Options.MadmateKnowWhosImp.GetBool()) ||
                                 (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Madmate) && Options.ImpKnowWhosMadmate.GetBool()) ||
@@ -2555,6 +2555,7 @@ public static class Utils
         Lovers.IsChatActivated = false;
         Main.ProcessShapeshifts = true;
         AFKDetector.NumAFK = 0;
+        AFKDetector.PlayerData.Clear();
 
         foreach (var pc in Main.AllPlayerControls)
         {

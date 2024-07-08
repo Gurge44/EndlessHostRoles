@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data;
 using EHR.Impostor;
+using EHR.Patches;
 using HarmonyLib;
 using InnerNet;
 using UnityEngine;
@@ -51,6 +52,13 @@ class ChatControllerUpdatePatch
 
         if (!__instance.freeChatField.textArea.hasFocus) return;
         __instance.freeChatField.textArea.characterLimit = AmongUsClient.Instance.AmHost ? 2000 : 300;
+
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            TextBoxTMPSetTextPatch.OnTabPress(__instance);
+        }
+
+        TextBoxTMPSetTextPatch.Update();
 
         if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.C))
             ClipboardHelper.PutClipboardString(__instance.freeChatField.textArea.text);

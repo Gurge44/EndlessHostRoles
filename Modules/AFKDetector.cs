@@ -10,7 +10,7 @@ namespace EHR.Modules
         private static OptionItem EnableDetector;
         private static OptionItem ConsequenceOption;
 
-        private static readonly Dictionary<byte, Data> PlayerData = [];
+        public static readonly Dictionary<byte, Data> PlayerData = [];
         public static readonly HashSet<byte> ExemptedPlayers = [];
         public static readonly HashSet<byte> ShieldedPlayers = [];
         public static int NumAFK;
@@ -29,7 +29,7 @@ namespace EHR.Modules
 
         public static void RecordPosition(PlayerControl pc)
         {
-            if (!EnableDetector.GetBool() || ExemptedPlayers.Contains(pc.PlayerId)) return;
+            if (!EnableDetector.GetBool() || !GameStates.IsInTask || pc == null || ExemptedPlayers.Contains(pc.PlayerId)) return;
 
             PlayerData[pc.PlayerId] = new()
             {
@@ -40,7 +40,7 @@ namespace EHR.Modules
 
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (!EnableDetector.GetBool() || !PlayerData.TryGetValue(pc.PlayerId, out var data)) return;
+            if (!EnableDetector.GetBool() || !GameStates.IsInTask || pc == null || !PlayerData.TryGetValue(pc.PlayerId, out var data)) return;
 
             if (Vector2.Distance(pc.Pos(), data.LastPosition) > 0.1f)
             {
@@ -123,7 +123,7 @@ namespace EHR.Modules
             Kick
         }
 
-        class Data
+        public class Data
         {
             public enum Phase
             {

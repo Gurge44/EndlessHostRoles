@@ -171,6 +171,7 @@ internal class ChangeRoleSettings
             Main.ClientIdList = [];
             Main.CheckShapeshift = [];
             Main.ShapeshiftTarget = [];
+            Main.LoversPlayers = [];
             Main.ShieldPlayer = Options.ShieldPersonDiedFirst.GetBool() ? Main.FirstDied : string.Empty;
             Main.FirstDied = string.Empty;
             Main.MadmateNum = 0;

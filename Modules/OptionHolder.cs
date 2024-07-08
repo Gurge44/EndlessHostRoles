@@ -758,6 +758,7 @@ public static class Options
         AddSteamID.AddSteamAppIdFile();
         Utils.LoadComboInfo();
         Main.LoadRoleClasses();
+        ChatCommands.LoadCommands();
         taskOptionsLoad = Task.Run(Load);
         taskOptionsLoad.ContinueWith(_ =>
         {
@@ -2070,6 +2071,9 @@ public static class Options
         GhostCanSeeDeathReason = new BooleanOptionItem(24500, "GhostCanSeeDeathReason", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(217, 218, 255, byte.MaxValue));
+
+
+        AFKDetector.SetupCustomOption();
 
 
         new TextOptionItem(100027, "MenuTitle.CTA", TabGroup.GameSettings)

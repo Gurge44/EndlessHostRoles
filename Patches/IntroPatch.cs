@@ -19,7 +19,7 @@ class SetUpRoleTextPatch
     {
         if (!GameStates.IsModHost) return;
 
-        // After showing team for non-modded clients update player names.
+        // After showing team for non-modded clients, update player names.
         IsInIntro = false;
         Utils.DoNotifyRoles(NoCache: true);
 

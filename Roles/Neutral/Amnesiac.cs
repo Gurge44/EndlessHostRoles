@@ -175,7 +175,6 @@ public class Amnesiac : RoleBase
 
     public override bool KnowRole(PlayerControl player, PlayerControl target)
     {
-        if (player.IsNeutralKiller() && target.IsNeutralKiller() && player.GetCustomRole() == target.GetCustomRole()) return true;
         if (player.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) return true;
         return player.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Refugee);
     }
