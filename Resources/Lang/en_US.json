@@ -2100,6 +2100,7 @@
   "Warning.MismatchedVersion": "<b>{0}</b> has a different version than <b>{1}</b>",
   "Warning.AutoExitAtMismatchedVersion": "The host has no or a different version of {0}\\nYou will be kicked in {1}",
   "Warning.OneMinuteLeft": "<#ffff00>The lobby will close in 1 minute!</color>",
+  "Commands.NoAccess": "You don't have access to this command",
   "UnsupportedVersion": "Unsupported Among Us version.\\nPlease update Among Us.",
   "Error.MeetingException": "Error: {0}\\r\\nPlease use SHIFT+M+ENTER to end the meeting",
   "Error.InvalidRoleAssignment": "Error: Invalid role found for a player during role assignment({0})",
