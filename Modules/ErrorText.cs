@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
@@ -19,6 +20,8 @@ public class ErrorText : MonoBehaviour
     private readonly List<ErrorData> AllErrors = [];
     private Camera _camera;
     private Camera _camera1;
+
+    public static bool HasHint => Instance.AllErrors.Any(err => err.Code == ErrorCode.LoadingHint);
 
     public void Update()
     {
@@ -59,6 +62,12 @@ public class ErrorText : MonoBehaviour
         Text.alignment = TextAlignmentOptions.Top;
     }
 
+    public static void RemoveHint()
+    {
+        Instance.AllErrors.RemoveAll(err => err.Code == ErrorCode.LoadingHint);
+        Instance.UpdateText();
+    }
+
     public void AddError(ErrorCode code)
     {
         var error = new ErrorData(code);
@@ -79,9 +88,11 @@ public class ErrorText : MonoBehaviour
         {
             string text = string.Empty;
             int maxLevel = 0;
+            bool hint = false;
             foreach (ErrorData err in AllErrors)
             {
-                text += $"{err}: {err.Message}\n";
+                if (err.Code == ErrorCode.LoadingHint) hint = true;
+                text += hint ? LoadingScreen.GetHint() : $"{err}: {err.Message}\n";
                 if (maxLevel < err.ErrorLevel) maxLevel = err.ErrorLevel;
             }
 
@@ -91,7 +102,7 @@ public class ErrorText : MonoBehaviour
             }
             else
             {
-                if (!HnSFlag)
+                if (!HnSFlag && !hint)
                     text += $"{GetString($"ErrorLevel{maxLevel}")}";
                 if (CheatDetected)
                     text = SBDetected ? GetString("EAC.CheatDetected.HighLevel") : GetString("EAC.CheatDetected.LowLevel");
@@ -187,13 +198,13 @@ public class ErrorText : MonoBehaviour
 public enum ErrorCode
 {
     //xxxyyyz: ERR-xxx-yyy-z
-    //  xxx: エラー大まかなの種類 (HUD関連, 追放処理関連など)
-    //  yyy: エラーの詳細な種類 (BoutyHunterの処理, SerialKillerの処理など)
-    //  z:   深刻度
-    //    0: 処置不要 (非表示)
-    //    1: 正常に動作しなければ廃村 (一定時間で非表示)
-    //    2: 廃村を推奨 (廃村で非表示)
-    //    3: ユーザー側では対処不能 (消さない)
+    // xxx: General type of error (HUD-related, banishment-related, etc.)
+    // yyy: Detailed type of error (BoutyHunter processing, SerialKiller processing, etc.)
+    // z: Severity
+    //      0: No action required (hide)
+    //      1: Abandon village if not working properly (hide after a certain period of time)
+    //      2: Abandon village recommended (hide as abandoned village)
+    //      3: Unable to handle on user side (do not delete)
     // ==========
     // 001 Main
     Main_DictionaryError = 0010003, // 001-000-3 Main Dictionary Error
@@ -210,5 +221,8 @@ public enum ErrorCode
     TestError3 = 0009303, // 000-930-3 Test Error 3
     HnsUnload = 000_804_1, // 000-804-1 Unloaded By HnS
     CheatDetected = 000_666_2, // 000-666-2 疑似存在作弊玩家
-    SBDetected = 000_666_1 // 000-666-1 傻逼外挂司马东西
+    SBDetected = 000_666_1, // 000-666-1 傻逼外挂司马东西
+
+    // ==========
+    LoadingHint = 000_999_3 // 000-999-3 Loading Hint
 }

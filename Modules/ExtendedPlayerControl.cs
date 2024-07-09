@@ -24,7 +24,7 @@ static class ExtendedPlayerControl
 
     public static void SetRole(this PlayerControl player, RoleTypes role, bool canOverride = false)
     {
-        AmongUsClient.Instance.StartCoroutine(player.CoSetRole(role, canOverride));
+        player.StartCoroutine(player.CoSetRole(role, canOverride));
     }
 
     public static void RpcSetCustomRole(this PlayerControl player, CustomRoles role, bool replaceAllAddons = false)
@@ -450,7 +450,7 @@ static class ExtendedPlayerControl
     public static void SyncSettings(this PlayerControl player)
     {
         PlayerGameOptionsSender.SetDirty(player.PlayerId);
-        GameOptionsSender.SendAllGameOptions();
+        Main.Instance.StartCoroutine(GameOptionsSender.SendAllGameOptions());
     }
 
     public static TaskState GetTaskState(this PlayerControl player) => Main.PlayerStates.TryGetValue(player.PlayerId, out var state) ? state.TaskState : new();
@@ -890,6 +890,7 @@ static class ExtendedPlayerControl
     public static bool IsNeutralEvil(this PlayerControl player) => player.GetCustomRole().IsNE();
     public static bool IsNeutralChaos(this PlayerControl player) => player.GetCustomRole().IsNC();
     public static bool IsSnitchTarget(this PlayerControl player) => player.Is(CustomRoles.Bloodlust) || player.GetCustomRole().IsSnitchTarget();
+    public static bool IsMadmate(this PlayerControl player) => player.Is(CustomRoles.Madmate) || player.GetCustomRole().IsMadmate();
 
     public static bool HasGhostRole(this PlayerControl player) => GhostRolesManager.AssignedGhostRoles.ContainsKey(player.PlayerId) || Main.PlayerStates.TryGetValue(player.PlayerId, out var state) && state.SubRoles.Any(x => x.IsGhostRole());
 
@@ -980,7 +981,7 @@ static class ExtendedPlayerControl
 
     public static Team GetTeam(this PlayerControl target)
     {
-        if (target.Is(CustomRoles.Bloodlust)) return Team.Neutral;
+        if (target.Is(CustomRoles.Bloodlust) || target.GetCustomSubRoles().Any(x => x.IsConverted())) return Team.Neutral;
         var role = target.GetCustomRole();
         if (role.IsImpostorTeamV3()) return Team.Impostor;
         if (role.IsNeutralTeamV2()) return Team.Neutral;

@@ -239,7 +239,7 @@ class SetEverythingUpPatch
             case CustomGameMode.MoveAndStop:
             {
                 var winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
-                __instance.BackgroundBar.material.color = new Color32(0, 255, 160, 255);
+                __instance.BackgroundBar.material.color = new Color32(0, 255, 165, 255);
                 WinnerText.text = Main.AllPlayerNames[winnerId] + " wins!";
                 WinnerText.color = Main.PlayerColors[winnerId];
                 goto EndOfText;

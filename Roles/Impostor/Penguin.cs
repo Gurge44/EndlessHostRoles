@@ -303,7 +303,10 @@ namespace EHR.Impostor
                     if (!IsGoose)
                     {
                         AbductVictim.Data.IsDead = true;
-                        GameData.Instance.DirtyAllData();
+                        foreach (var innerNetObject in GameData.Instance.AllPlayers)
+                        {
+                            innerNetObject.SetDirtyBit(uint.MaxValue);
+                        }
                     }
 
                     // If the penguin himself is on a ladder, kill him after getting off the ladder.

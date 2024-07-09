@@ -161,9 +161,10 @@ class TextBoxTMPSetTextPatch
 
         if (exactMatch && command.Arguments.Length > 0)
         {
-            int spaces = input.Count(x => x == ' ');
+            bool poll = command.CommandForms.Contains("poll");
+            int spaces = poll ? input.SkipWhile(x => x != '?').Count(x => x == ' ') + 1 : input.Count(x => x == ' ');
             var preText = $"{text} {command.Arguments}";
-            text += " " + command.Arguments.Split(' ').Skip(spaces).Join(delimiter: " ");
+            if (!poll) text += " " + command.Arguments.Split(' ').Skip(spaces).Join(delimiter: " ");
 
             var args = preText.Split(' ')[1..];
             for (int i = 0; i < args.Length; i++)
@@ -171,13 +172,16 @@ class TextBoxTMPSetTextPatch
                 if (command.ArgsDescriptions.Length <= i) break;
                 bool current = spaces - 1 == i;
                 if (current) info += "<#ffff44>";
-                info += $"\n       - <b>{args[spaces > i ? i : i + spaces]}</b>: {command.ArgsDescriptions[i]}";
+                int skip = poll ? input.TakeWhile(x => x != '?').Count(x => x == ' ') - 1 : 0;
+                var arg = poll ? i == 0 ? args[..++skip].Join(delimiter: " ") : args[spaces - 1 < i ? skip + i + spaces : skip + i] : args[spaces > i ? i : i + spaces];
+                info += $"\n       - <b>{arg}</b>: {command.ArgsDescriptions[i]}";
                 if (current) info += "</color>";
             }
         }
 
         PlaceHolderText.text = text;
         CommandInfoText.text = info;
+
         return;
 
         void Destroy()

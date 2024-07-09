@@ -1,5 +1,4 @@
 ﻿using AmongUs.GameOptions;
-using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -58,7 +57,11 @@ namespace EHR.Modules
 
             newplayer.RpcSetRole(targetVNRole, canOverride);
 
-            GameData.Instance.DirtyAllData();
+            foreach (var innerNetObject in GameData.Instance.AllPlayers)
+            {
+                innerNetObject.SetDirtyBit(uint.MaxValue);
+            }
+
             newplayer.ReactorFlash(0.2f);
             newplayer.TP(position);
 

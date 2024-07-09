@@ -507,7 +507,7 @@ class BeginCrewmatePatch
             case CustomGameMode.MoveAndStop:
             {
                 __instance.TeamTitle.text = GetString("MoveAndStop");
-                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(0, 255, 160, byte.MaxValue);
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(0, 255, 165, byte.MaxValue);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("TaskerInfo");

@@ -17,10 +17,10 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 {
     public PlayerControl player = player;
 
-    public override IGameOptions BasedGameOptions =>
+    public virtual IGameOptions BasedGameOptions =>
         Main.RealOptionsData.Restore(new NormalGameOptionsV08(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
 
-    public override bool IsDirty { get; protected set; }
+    protected override bool IsDirty { get; set; }
 
     public static void SetDirty(byte playerId)
     {
@@ -82,7 +82,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 
     public void SetDirty() => IsDirty = true;
 
-    public override void SendGameOptions()
+    protected override void SendGameOptions()
     {
         if (player.AmOwner)
         {

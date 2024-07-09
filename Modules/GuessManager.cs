@@ -742,7 +742,7 @@ public static class GuessManager
             background.color = Palette.Purple;
             background.sortingOrder = 99;
             panelTransform.SetAsFirstSibling();
-            panelTransform.localPosition = new(-1.2f, -0.6f, 0f);
+            panelTransform.localPosition = new(-1.21f, -0.05f, 0f);
             var levelLabel = panelTransform.FindChild("LevelLabel").GetComponents<TextMeshPro>()[0];
             levelLabel.DestroyTranslator();
             levelLabel.text = "ID";

@@ -32,10 +32,10 @@ internal class ChangeRoleSettings
     {
         if (!GameStates.IsLocalGame) return true;
 
-        __instance.StartCoroutine(CSG().WrapToIl2Cpp());
+        __instance.StartCoroutine(CoStartGame().WrapToIl2Cpp());
         return false;
 
-        IEnumerator<object> CSG()
+        IEnumerator<object> CoStartGame()
         {
             AmongUsClient amongUsClient = __instance;
             if (DestroyableSingleton<HudManager>.Instance.GameMenu.IsOpen) DestroyableSingleton<HudManager>.Instance.GameMenu.Close();

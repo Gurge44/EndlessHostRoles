@@ -905,7 +905,11 @@ internal static class RPC
 
     public static void SendGameData(int clientId = -1)
     {
-        GameData.Instance.DirtyAllData();
+        foreach (var innerNetObject in GameData.Instance.AllPlayers)
+        {
+            innerNetObject.SetDirtyBit(uint.MaxValue);
+        }
+
         AmongUsClient.Instance.SendAllStreamedObjects();
     }
 

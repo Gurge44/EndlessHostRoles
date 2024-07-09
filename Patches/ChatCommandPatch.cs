@@ -87,6 +87,11 @@ internal static class ChatCommands
     public static readonly Dictionary<byte, long> LastSentCommand = [];
     public static HashSet<Command> AllCommands = [];
 
+    private static readonly Dictionary<char, int> PollVotes = [];
+    private static readonly Dictionary<char, string> PollAnswers = [];
+    private static readonly List<byte> PollVoted = [];
+    private static float PollTimer = 60f;
+
     public static void LoadCommands()
     {
         AllCommands =
@@ -106,7 +111,7 @@ internal static class ChatCommands
             new(["up"], "{role}", GetString("CommandDescription.Up"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, UpCommand, true, [GetString("CommandArgs.Up.Role")]),
             new(["setrole"], "{id} {role}", GetString("CommandDescription.SetRole"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, SetRoleCommand, true, [GetString("CommandArgs.SetRole.Id"), GetString("CommandArgs.SetRole.Role")]),
             new(["h", "help"], "", GetString("CommandDescription.Help"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, HelpCommand, true),
-            new(["kcount"], "", GetString("CommandDescription.KCount"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, KCountCommand, true),
+            new(["kcount", "gamestate", "gstate", "gs"], "", GetString("CommandDescription.KCount"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, KCountCommand, true),
             new(["addmod"], "{id}", GetString("CommandDescription.AddMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddModCommand, true, [GetString("CommandArgs.AddMod.Id")]),
             new(["deletemod"], "{id}", GetString("CommandDescription.DeleteMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteModCommand, true, [GetString("CommandArgs.DeleteMod.Id")]),
             new(["combo"], "{mode} {role} {addon} [all]", GetString("CommandDescription.Combo"), Command.UsageLevels.Host, Command.UsageTimes.Always, ComboCommand, true, [GetString("CommandArgs.Combo.Mode"), GetString("CommandArgs.Combo.Role"), GetString("CommandArgs.Combo.Addon"), GetString("CommandArgs.Combo.All")]),
@@ -132,14 +137,24 @@ internal static class ChatCommands
             new(["kill"], "{id}", GetString("CommandDescription.Kill"), Command.UsageLevels.Host, Command.UsageTimes.Always, KillCommand, true, [GetString("CommandArgs.Kill.Id")]),
             new(["colour", "color"], "{color}", GetString("CommandDescription.Colour"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ColorCommand, true, [GetString("CommandArgs.Colour.Color")]),
             new(["xf"], "", GetString("CommandDescription.XF"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, XFCommand, true),
-            new(["id"], "", GetString("CommandDescription.ID"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, IDCommand, true),
+            new(["id", "guesslist"], "", GetString("CommandDescription.ID"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, IDCommand, true),
             new(["changerole"], "{role}", GetString("CommandDescription.ChangeRole"), Command.UsageLevels.Host, Command.UsageTimes.InGame, ChangeRoleCommand, true),
             new(["end"], "", GetString("CommandDescription.End"), Command.UsageLevels.Host, Command.UsageTimes.InGame, EndCommand, true),
             new(["cosid"], "", GetString("CommandDescription.CosID"), Command.UsageLevels.Modded, Command.UsageTimes.Always, CosIDCommand, true),
             new(["mt", "hy"], "", GetString("CommandDescription.MTHY"), Command.UsageLevels.Host, Command.UsageTimes.InGame, MTHYCommand, true),
             new(["csd"], "{sound}", GetString("CommandDescription.CSD"), Command.UsageLevels.Modded, Command.UsageTimes.Always, CSDCommand, true),
             new(["sd"], "{sound}", GetString("CommandDescription.SD"), Command.UsageLevels.Modded, Command.UsageTimes.Always, SDCommand, true, [GetString("CommandArgs.SD.Sound")]),
-            new(["gno"], "{number}", GetString("CommandDescription.GNO"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeathOrLobby, GNOCommand, true, [GetString("CommandArgs.GNO.Number")])
+            new(["gno"], "{number}", GetString("CommandDescription.GNO"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeathOrLobby, GNOCommand, true, [GetString("CommandArgs.GNO.Number")]),
+            new(["poll"], "{question} {answerA} {answerB} [answerC] [answerD]", GetString("CommandDescription.Poll"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, PollCommand, true, [GetString("CommandArgs.Poll.Question"), GetString("CommandArgs.Poll.AnswerA"), GetString("CommandArgs.Poll.AnswerB"), GetString("CommandArgs.Poll.AnswerC"), GetString("CommandArgs.Poll.AnswerD")]),
+            new(["pv"], "{vote}", GetString("CommandDescription.PV"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, PVCommand, true, [GetString("CommandArgs.PV.Vote")]),
+
+            // Commands with action handled elsewhere
+            new(["shoot", "guess", "bet", "st", "gs", "bt"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
+            new(["sp", "jj", "tl", "trial"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Trial.Id")]),
+            new(["sw", "swap", "st"], "{id}", GetString("CommandDescription.Swap"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Swap.Id")]),
+            new(["compare", "cp", "cmp"], "{id1} {id2}", GetString("CommandDescription.Compare"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Compare.Id1"), GetString("CommandArgs.Compare.Id2")]),
+            new(["ms", "mediumship", "medium"], "{answer}", GetString("CommandDescription.Medium"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Medium.Answer")]),
+            new(["rv"], "{id}", GetString("CommandDescription.Revenge"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Revenge.Id")]),
         ];
     }
 
@@ -179,8 +194,6 @@ internal static class ChatCommands
         if (text.Length >= 4)
             if (text[..3] == "/up")
                 args[0] = "/up";
-
-        // TODO: Make these also show up in the autocomplete (TextBoxPatch.cs)
 
         if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (Judge.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
@@ -237,6 +250,105 @@ internal static class ChatCommands
         }
 
         return !canceled;
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------------------------------------
+
+    private static void PollCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        PollVotes.Clear();
+        PollAnswers.Clear();
+        PollVoted.Clear();
+        PollTimer = 120f;
+
+        if (!args.Any(x => x.Contains('?')))
+        {
+            Utils.SendMessage(GetString("PollUsage"), player.PlayerId);
+            return;
+        }
+
+        var splitIndex = Array.IndexOf(args, args.First(x => x.Contains('?'))) + 1;
+        string title = string.Join(" ", args.Take(splitIndex).Skip(1));
+        var answers = args.Skip(splitIndex).ToArray();
+
+        string msg = "";
+        for (int i = 0; i < Math.Clamp(answers.Length, 2, 5); i++)
+        {
+            char choiceLetter = (char)(i + 65);
+            msg += Utils.ColorString(RandomColor(), $"{char.ToUpper(choiceLetter)}) {answers[i]}\n");
+            PollVotes[choiceLetter] = 0;
+            PollAnswers[choiceLetter] = $"<size=45%>〖 {answers[i]} 〗</size>";
+        }
+
+        msg += $"\n{GetString("Poll.Begin")}\n<size=55%><i>{GetString("Poll.TimeInfo")}</i></size>";
+        Utils.SendMessage(msg, title: title);
+
+        Main.Instance.StartCoroutine(StartPollCountdown());
+        return;
+
+        static System.Collections.IEnumerator StartPollCountdown()
+        {
+            if (PollVotes.Count == 0) yield break;
+            bool playervoted = (Main.AllPlayerControls.Length - 1) > PollVotes.Values.Sum();
+
+            while (playervoted && PollTimer > 0f)
+            {
+                playervoted = (Main.AllPlayerControls.Length - 1) > PollVotes.Values.Sum();
+                PollTimer -= Time.deltaTime;
+                yield return null;
+            }
+
+            DetermineResults();
+        }
+
+        static void DetermineResults()
+        {
+            int maxVotes = PollVotes.Values.Max();
+            var winners = PollVotes.Where(x => x.Value == maxVotes).ToArray();
+            string msg = winners.Length == 1
+                ? string.Format(GetString("Poll.Winner"), winners[0].Key, PollAnswers[winners[0].Key], winners[0].Value) +
+                  PollVotes.Where(x => x.Key != winners[0].Key).Aggregate("", (s, t) => s + $"{t.Key} / {t.Value} {PollAnswers[t.Key]}\n")
+                : string.Format(GetString("Poll.Tie"), string.Join(" & ", winners.Select(x => $"{x.Key}{PollAnswers[x.Key]}")), maxVotes);
+
+            Utils.SendMessage(msg, title: Utils.ColorString(new(0, 255, 165, 255), GetString("PollResultTitle")));
+
+            PollVotes.Clear();
+            PollAnswers.Clear();
+            PollVoted.Clear();
+        }
+
+        static Color32 RandomColor()
+        {
+            var colors = IRandom.Sequence(3, 0, 160).Select(x => (byte)x).ToArray();
+            return new(colors[0], colors[1], colors[2], 255);
+        }
+    }
+
+    private static void PVCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        if (PollVotes.Count == 0)
+        {
+            Utils.SendMessage(GetString("Poll.Inactive"), player.PlayerId);
+            return;
+        }
+
+        if (PollVoted.Contains(player.PlayerId))
+        {
+            Utils.SendMessage(GetString("Poll.AlreadyVoted"), player.PlayerId);
+            return;
+        }
+
+        if (args.Length != 2 || !char.TryParse(args[1], out char vote) || !PollVotes.ContainsKey(char.ToUpper(vote)))
+        {
+            Utils.SendMessage(GetString("Poll.VotingInfo"), player.PlayerId);
+            return;
+        }
+
+        vote = char.ToUpper(vote);
+
+        PollVoted.Add(player.PlayerId);
+        PollVotes[vote]++;
+        Utils.SendMessage(string.Format(GetString("Poll.YouVoted"), vote, PollVotes[vote]), player.PlayerId);
     }
 
     private static void HelpCommand(ChatController __instance, PlayerControl player, string text, string[] args)
@@ -815,7 +927,7 @@ internal static class ChatCommands
     private static void KCountCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool()) return;
-        Utils.SendMessage(Utils.GetRemainingKillers(), player.PlayerId);
+        Utils.SendMessage(Utils.GetGameStateData(), player.PlayerId);
     }
 
     private static void SetRoleCommand(ChatController __instance, PlayerControl player, string text, string[] args)
@@ -1602,7 +1714,6 @@ internal static class ChatCommands
         if (text.StartsWith("\n")) text = text[1..];
 
         string[] args = text.Split(' ');
-        string subArgs;
 
         if (GuessManager.GuesserMsg(player, text) ||
             Judge.TrialMsg(player, text) ||
@@ -1731,7 +1842,7 @@ internal class UpdateCharCountPatch
     public static void Postfix(FreeChatInputField __instance)
     {
         int length = __instance.textArea.text.Length;
-        __instance.charCountText.SetText(length <= 0 ? "Thank you for using EHR!" : $"{length}/{__instance.textArea.characterLimit}");
+        __instance.charCountText.SetText(length <= 0 ? GetString("ThankYouForUsingEHR") : $"{length}/{__instance.textArea.characterLimit}");
         __instance.charCountText.enableWordWrapping = false;
         if (length < (AmongUsClient.Instance.AmHost ? 1700 : 250))
             __instance.charCountText.color = Color.black;

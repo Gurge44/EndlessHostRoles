@@ -1,5 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
 using EHR.Modules;
 using HarmonyLib;
+using Hazel;
 using InnerNet;
 using TMPro;
 using UnityEngine;
@@ -10,15 +13,8 @@ namespace EHR;
 [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.MakePublic))]
 internal class MakePublicPatch
 {
-    public static bool Prefix( /*GameStartManager __instance*/)
+    public static bool Prefix()
     {
-        // if (!Main.AllowPublicRoom)
-        // {
-        //     var message = GetString("DisabledByProgram");
-        //     Logger.Info(message, "MakePublicPatch");
-        //     Logger.SendInGame(message);
-        //     return false;
-        // }
         if (ModUpdater.isBroken || (ModUpdater.hasUpdate && ModUpdater.forceUpdate) || !VersionChecker.IsSupported)
         {
             var message = string.Empty;
@@ -35,6 +31,7 @@ internal class MakePublicPatch
 }
 
 [HarmonyPatch(typeof(MMOnlineManager), nameof(MMOnlineManager.Start))]
+// ReSharper disable once InconsistentNaming
 internal class MMOnlineManagerStartPatch
 {
     public static void Postfix()
@@ -43,8 +40,8 @@ internal class MMOnlineManagerStartPatch
         var obj = GameObject.Find("FindGameButton");
         if (obj)
         {
-            obj?.SetActive(false);
-            var textObj = Object.Instantiate(obj?.transform.FindChild("Text_TMP").GetComponent<TextMeshPro>());
+            obj.SetActive(false);
+            var textObj = Object.Instantiate(obj.transform.FindChild("Text_TMP").GetComponent<TextMeshPro>());
             textObj.transform.position = new(1f, -0.3f, 0);
             textObj.name = "CanNotJoinPublic";
             var message = ModUpdater.isBroken
@@ -60,33 +57,20 @@ internal class SplashLogoAnimatorPatch
 {
     public static void Prefix(SplashManager __instance)
     {
-        //if (DebugModeManager.AmDebugger)
-        //{
         __instance.sceneChanger.AllowFinishLoadingScene();
         __instance.startedSceneLoad = true;
-        //}
     }
 }
 
 [HarmonyPatch(typeof(EOSManager), nameof(EOSManager.IsAllowedOnline))]
 internal class RunLoginPatch
 {
-    public static int ClickCount = 0;
+    public const int ClickCount = 0;
 
     public static void Prefix(ref bool canOnline)
     {
-#if DEBUG
-        switch (ClickCount)
-        {
-            case < 10:
-                canOnline = true;
-                break;
-            case >= 10:
-                ModUpdater.forceUpdate = false;
-                break;
-        }
-
-#endif
+        if (DebugModeManager.AmDebugger)
+            canOnline = true;
     }
 }
 
@@ -154,6 +138,81 @@ internal class InnerNetObjectSerializePatch
     public static void Prefix()
     {
         if (AmongUsClient.Instance.AmHost)
-            GameOptionsSender.SendAllGameOptions();
+            Main.Instance.StartCoroutine(GameOptionsSender.SendAllGameOptions());
     }
+}
+
+public class InnerNetClientPatch
+{
+    [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.SendInitialData))]
+    [HarmonyPrefix]
+    public static bool SendInitialDataPrefix(InnerNetClient __instance, int clientId)
+    {
+        if (!Constants.IsVersionModded()) return true;
+        // We make sure other stuff like PlayerControl and LobbyBehavior is spawned properly
+        // Then we spawn the networked data for new clients
+        MessageWriter messageWriter = MessageWriter.Get(SendOption.Reliable);
+        messageWriter.StartMessage(6);
+        messageWriter.Write(__instance.GameId);
+        messageWriter.WritePacked(clientId);
+        Il2CppSystem.Collections.Generic.List<InnerNetObject> obj = __instance.allObjects;
+        lock (obj)
+        {
+            HashSet<GameObject> hashSet = [];
+            for (int i = 0; i < __instance.allObjects.Count; i++)
+            {
+                InnerNetObject innerNetObject = __instance.allObjects[i];
+                if (innerNetObject && (innerNetObject.OwnerId != -4 || __instance.AmModdedHost) && hashSet.Add(innerNetObject.gameObject))
+                {
+                    GameManager gameManager = innerNetObject as GameManager;
+                    if (gameManager != null)
+                    {
+                        __instance.SendGameManager(clientId, gameManager);
+                    }
+                    else
+                    {
+                        if (innerNetObject is not NetworkedPlayerInfo)
+                            __instance.WriteSpawnMessage(innerNetObject, innerNetObject.OwnerId, innerNetObject.SpawnFlags, messageWriter);
+                    }
+                }
+            }
+
+            messageWriter.EndMessage();
+            __instance.SendOrDisconnect(messageWriter);
+            messageWriter.Recycle();
+        }
+
+        DelaySpawnPlayerInfo(__instance, clientId);
+        return false;
+    }
+
+    private static void DelaySpawnPlayerInfo(InnerNetClient __instance, int clientId)
+    {
+        var players = GameData.Instance.AllPlayers.ToArray();
+
+        // We send 5 players at a time to prevent too large packets
+        foreach (var batch in players.Chunk(5))
+        {
+            MessageWriter messageWriter = MessageWriter.Get(SendOption.Reliable);
+            messageWriter.StartMessage(6);
+            messageWriter.Write(__instance.GameId);
+            messageWriter.WritePacked(clientId);
+
+            batch.DoIf(p => p != null && p.ClientId != clientId && !p.Disconnected, p => __instance.WriteSpawnMessage(p, p.OwnerId, p.SpawnFlags, messageWriter));
+
+            messageWriter.EndMessage();
+            __instance.SendOrDisconnect(messageWriter);
+            messageWriter.Recycle();
+        }
+    }
+}
+
+[HarmonyPatch(typeof(GameData), nameof(GameData.DirtyAllData))]
+internal class DirtyAllDataPatch
+{
+    // Currently this function only occurs in CreatePlayer.
+    // It's believed to lag the host, delay the PlayerControl spawn mesasge, blackout new clients
+    // and send huge packets to all clients while there's completely no need to run this.
+    // Temporarily disable it until Innersloth gets a better fix.
+    public static bool Prefix() => false;
 }

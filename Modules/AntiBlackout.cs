@@ -92,7 +92,11 @@ public static class AntiBlackout
     {
         Logger.Info($"SendGameData is called from {callerMethodName}");
 
-        GameData.Instance.DirtyAllData();
+        foreach (var innerNetObject in GameData.Instance.AllPlayers)
+        {
+            innerNetObject.SetDirtyBit(uint.MaxValue);
+        }
+
         AmongUsClient.Instance.SendAllStreamedObjects();
     }
 

@@ -8,6 +8,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR;
 using EHR.Neutral;
 using HarmonyLib;
@@ -123,6 +124,7 @@ public class Main : BasePlugin
 
     // ReSharper disable once StringLiteralTypo
     public static readonly List<string> NameSnacksEn = ["Ice cream", "Milk tea", "Chocolate", "Cake", "Donut", "Coke", "Lemonade", "Candied haws", "Jelly", "Candy", "Milk", "Matcha", "Burning Grass Jelly", "Pineapple Bun", "Pudding", "Coconut Jelly", "Cookies", "Red Bean Toast", "Three Color Dumplings", "Wormwood Dumplings", "Puffs", "Can be Crepe", "Peach Crisp", "Mochi", "Egg Waffle", "Macaron", "Snow Plum Niang", "Fried Yogurt", "Egg Tart", "Muffin", "Sago Dew", "panna cotta", "soufflé", "croissant", "toffee"];
+    public Coroutines coroutines;
 
     private static HashAuth DebugKeyAuth { get; set; }
     private static ConfigEntry<string> DebugKeyInput { get; set; }
@@ -239,6 +241,7 @@ public class Main : BasePlugin
         LongMode = Config.Bind("Client Options", "LongMode", false);
 
         Logger = BepInEx.Logging.Logger.CreateLogSource("EHR");
+        coroutines = AddComponent<Coroutines>();
         EHR.Logger.Enable();
         EHR.Logger.Disable("NotifyRoles");
         EHR.Logger.Disable("SwitchSystem");
@@ -678,6 +681,31 @@ public class Main : BasePlugin
             Utils.ThrowException(e);
         }
     }
+
+    public void StartCoroutine(System.Collections.IEnumerator coroutine)
+    {
+        if (coroutine == null)
+        {
+            return;
+        }
+
+        coroutines.StartCoroutine(coroutine.WrapToIl2Cpp());
+    }
+
+    public void StopCoroutine(System.Collections.IEnumerator coroutine)
+    {
+        if (coroutine == null)
+        {
+            return;
+        }
+
+        coroutines.StopCoroutine(coroutine.WrapToIl2Cpp());
+    }
+
+    public void StopAllCoroutines()
+    {
+        coroutines.StopAllCoroutines();
+    }
 }
 
 [Flags]
@@ -843,4 +871,8 @@ public enum TieMode
     Default,
     All,
     Random
+}
+
+public class Coroutines : MonoBehaviour
+{
 }

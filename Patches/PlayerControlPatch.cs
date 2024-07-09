@@ -1129,13 +1129,10 @@ class FixedUpdatePatch
 
         if (Options.LowLoadMode.GetBool())
         {
-            BufferTime.TryAdd(id, 10);
+            BufferTime.TryAdd(id, Options.DeepLowLoad.GetBool() ? 30 : 10);
             BufferTime[id]--;
-            if (BufferTime[id] % 2 == 1 && Options.DeepLowLoad.GetBool()) return;
         }
 
-        //if (Options.DeepLowLoad.GetBool()) await Task.Run(() => { DoPostfix(__instance); });
-        /*else */
         try
         {
             await DoPostfix(__instance);
@@ -1150,6 +1147,7 @@ class FixedUpdatePatch
     {
         var player = __instance;
         var playerId = player.PlayerId;
+        var localPlayer = player.PlayerId == PlayerControl.LocalPlayer.PlayerId; // Updates that are independent of the player are only executed for the local player.
 
         bool lowLoad = false;
         if (Options.LowLoadMode.GetBool())
@@ -1158,13 +1156,17 @@ class FixedUpdatePatch
             else BufferTime[playerId] = 10;
         }
 
-        if (!lowLoad)
+        if (localPlayer)
         {
             Zoom.OnFixedUpdate();
+            TextBoxTMPSetTextPatch.Update();
+        }
+
+        if (!lowLoad)
+        {
             NameNotifyManager.OnFixedUpdate(player);
             TargetArrow.OnFixedUpdate(player);
             LocateArrow.OnFixedUpdate(player);
-            TextBoxTMPSetTextPatch.Update();
 
             if (AmongUsClient.Instance.AmHost)
             {
@@ -1176,6 +1178,8 @@ class FixedUpdatePatch
                 Logger.Info($"Cleared ReportDeadBodyRPC Count for {player.GetRealName().RemoveHtmlTags()}", "FixedUpdatePatch");
         }
 
+        bool inTask = GameStates.IsInTask;
+        bool alive = player.IsAlive();
         if (AmongUsClient.Instance.AmHost)
         {
             if (GameStates.IsLobby && ((ModUpdater.hasUpdate && ModUpdater.forceUpdate) || ModUpdater.isBroken || !Main.AllowPublicRoom) && AmongUsClient.Instance.IsGamePublic)
@@ -1211,7 +1215,13 @@ class FixedUpdatePatch
                     Main.KillTimers[playerId] -= Time.fixedDeltaTime;
                 }
 
-                CustomNetObject.FixedUpdate();
+                if (localPlayer)
+                {
+                    CustomNetObject.FixedUpdate();
+
+                    if (QuizMaster.On && inTask && !lowLoad && QuizMaster.AllSabotages.Any(IsActive))
+                        QuizMaster.Data.LastSabotage = QuizMaster.AllSabotages.FirstOrDefault(IsActive);
+                }
 
                 if (!lowLoad && player.IsModClient() && player.Is(CustomRoles.Haste)) player.ForceKillTimerContinue = true;
 
@@ -1222,7 +1232,7 @@ class FixedUpdatePatch
                     s.Role.OnFixedUpdate(player);
                 }
 
-                if (GameStates.IsInTask && player.Is(CustomRoles.PlagueBearer) && PlagueBearer.IsPlaguedAll(player))
+                if (inTask && player.Is(CustomRoles.PlagueBearer) && PlagueBearer.IsPlaguedAll(player))
                 {
                     player.RpcSetCustomRole(CustomRoles.Pestilence);
                     player.Notify(GetString("PlagueBearerToPestilence"));
@@ -1233,25 +1243,17 @@ class FixedUpdatePatch
                     PlagueBearer.playerIdList.Remove(playerId);
                 }
 
-                if (QuizMaster.On && GameStates.IsInTask && !lowLoad && QuizMaster.AllSabotages.Any(IsActive))
+                bool checkPos = inTask && player != null && alive && !Pelican.IsEaten(player.PlayerId);
+                if (checkPos) Asthmatic.OnCheckPlayerPosition(player);
+                foreach (var state in Main.PlayerStates.Values)
                 {
-                    QuizMaster.Data.LastSabotage = QuizMaster.AllSabotages.FirstOrDefault(IsActive);
-                }
-
-                if (GameStates.IsInTask && player != null && player.IsAlive() && !Pelican.IsEaten(player.PlayerId))
-                {
-                    foreach (var state in Main.PlayerStates.Values)
+                    if (state.Role.IsEnable)
                     {
-                        if (state.Role.IsEnable)
-                        {
-                            state.Role.OnCheckPlayerPosition(player);
-                        }
+                        if (checkPos) state.Role.OnCheckPlayerPosition(player);
                     }
-
-                    Asthmatic.OnCheckPlayerPosition(player);
                 }
 
-                if (Main.PlayerStates.TryGetValue(playerId, out var playerState) && GameStates.IsInTask && player.IsAlive())
+                if (Main.PlayerStates.TryGetValue(playerId, out var playerState) && inTask && alive)
                 {
                     var subRoles = playerState.SubRoles;
                     if (subRoles.Contains(CustomRoles.Dynamo)) Dynamo.OnFixedUpdate(player);
@@ -1268,11 +1270,11 @@ class FixedUpdatePatch
                 }
 
                 long now = TimeStamp;
-                if (!lowLoad && Options.UsePets.GetBool() && GameStates.IsInTask && (!LastUpdate.TryGetValue(playerId, out var lastPetNotify) || lastPetNotify < now))
+                if (!lowLoad && Options.UsePets.GetBool() && inTask && (!LastUpdate.TryGetValue(playerId, out var lastPetNotify) || lastPetNotify < now))
                 {
                     if (Main.AbilityCD.TryGetValue(playerId, out var timer))
                     {
-                        if (timer.START_TIMESTAMP + timer.TOTALCD < TimeStamp || !player.IsAlive())
+                        if (timer.START_TIMESTAMP + timer.TOTALCD < TimeStamp || !alive)
                         {
                             Main.AbilityCD.Remove(playerId);
                         }
@@ -1302,7 +1304,7 @@ class FixedUpdatePatch
 
             // Ability Use Gain every 5 seconds
 
-            if (GameStates.IsInTask && player.IsAlive() && Main.PlayerStates.TryGetValue(playerId, out var state) && state.TaskState.IsTaskFinished && LastAddAbilityTime + 5 < now)
+            if (inTask && alive && Main.PlayerStates.TryGetValue(playerId, out var state) && state.TaskState.IsTaskFinished && LastAddAbilityTime + 5 < now)
             {
                 LastAddAbilityTime = now;
 
@@ -1310,10 +1312,10 @@ class FixedUpdatePatch
             }
 
             if (Witness.AllKillers.TryGetValue(playerId, out var ktime) && ktime + Options.WitnessTime.GetInt() < now) Witness.AllKillers.Remove(playerId);
-            if (GameStates.IsInTask && player.IsAlive() && Options.LadderDeath.GetBool()) FallFromLadder.FixedUpdate(player);
+            if (inTask && alive && Options.LadderDeath.GetBool()) FallFromLadder.FixedUpdate(player);
             if (GameStates.IsInGame) LoversSuicide();
 
-            if (GameStates.IsInTask && player == PlayerControl.LocalPlayer && Options.DisableDevices.GetBool())
+            if (inTask && player == PlayerControl.LocalPlayer && Options.DisableDevices.GetBool())
             {
                 DisableDevice.FixedUpdate();
             }
@@ -1331,7 +1333,7 @@ class FixedUpdatePatch
                 ApplySuffix(__instance);
         }
 
-        if (__instance.AmOwner && GameStates.IsInTask && ((Main.ChangedRole && __instance.PlayerId == PlayerControl.LocalPlayer.PlayerId && AmongUsClient.Instance.AmHost) || (!__instance.Is(CustomRoleTypes.Impostor) || Shifter.WasShifter.Contains(__instance.PlayerId)) && __instance.CanUseKillButton() && !__instance.Data.IsDead))
+        if (__instance.AmOwner && inTask && ((Main.ChangedRole && __instance.PlayerId == PlayerControl.LocalPlayer.PlayerId && AmongUsClient.Instance.AmHost) || (!__instance.Is(CustomRoleTypes.Impostor) || Shifter.WasShifter.Contains(__instance.PlayerId)) && __instance.CanUseKillButton() && !__instance.Data.IsDead))
         {
             var players = __instance.GetPlayersInAbilityRangeSorted();
             PlayerControl closest = players.Count == 0 ? null : players[0];
@@ -1401,7 +1403,7 @@ class FixedUpdatePatch
 
                 string RealName = target.GetRealName();
 
-                if (target.AmOwner && GameStates.IsInTask)
+                if (target.AmOwner && inTask)
                 {
                     if (target.Is(CustomRoles.Arsonist) && target.IsDouseDone())
                         RealName = ColorString(GetRoleColor(CustomRoles.Arsonist), GetString("EnterVentToWin"));
@@ -1532,7 +1534,7 @@ class FixedUpdatePatch
                     case CustomRoles.Scout:
                         Mark.Append(Scout.GetTargetMark(seer, target));
                         break;
-                    case CustomRoles.AntiAdminer when GameStates.IsInTask:
+                    case CustomRoles.AntiAdminer when inTask:
                         (Main.PlayerStates[seer.PlayerId].Role as AntiAdminer).OnFixedUpdate(seer);
                         if (target.AmOwner)
                         {

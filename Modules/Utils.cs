@@ -2482,7 +2482,42 @@ public static class Utils
     public static void SyncAllSettings()
     {
         PlayerGameOptionsSender.SetDirtyToAll();
-        GameOptionsSender.SendAllGameOptions();
+        Main.Instance.StartCoroutine(GameOptionsSender.SendAllGameOptions());
+    }
+
+    public static string GetGameStateData()
+    {
+        var nums = Enum.GetValues<Options.GameStateInfo>().ToDictionary(x => x, _ => 0);
+
+        if (CustomRoles.Romantic.RoleExist(countDead: true)) nums[Options.GameStateInfo.RomanticState] = 1;
+        if (Romantic.HasPickedPartner) nums[Options.GameStateInfo.RomanticState] = 2;
+
+        foreach (var pc in Main.AllAlivePlayerControls)
+        {
+            if (pc.IsMadmate()) nums[Options.GameStateInfo.MadmateCount]++;
+            else if (pc.IsNeutralKiller()) nums[Options.GameStateInfo.NKCount]++;
+            else if (pc.IsCrewmate()) nums[Options.GameStateInfo.CrewCount]++;
+            else if (pc.Is(Team.Impostor)) nums[Options.GameStateInfo.ImpCount]++;
+            else if (pc.Is(Team.Neutral)) nums[Options.GameStateInfo.NNKCount]++;
+            if (pc.GetCustomSubRoles().Any(x => x.IsConverted())) nums[Options.GameStateInfo.ConvertedCount]++;
+            if (Main.LoversPlayers.Any(x => x.PlayerId == pc.PlayerId)) nums[Options.GameStateInfo.LoversState]++;
+            if (pc.Is(CustomRoles.Romantic)) nums[Options.GameStateInfo.RomanticState] *= 3;
+            if (Romantic.PartnerId == pc.PlayerId) nums[Options.GameStateInfo.RomanticState] *= 4;
+        }
+
+        // All possible results of RomanticState from the above code:
+        // 0: Romantic doesn't exist
+        // 1: Romantic exists but hasn't picked a partner
+        // 2: Romantic exists and has picked a partner
+        // 3: Romantic exists, is alive, but hasn't picked a partner
+        // 6: Romantic exists, has picked a partner who is dead, but Romantic is alive
+        // 8: Romantic exists, has picked a partner who is alive, but Romantic is dead
+        // 24: Romantic exists, has picked a partner who is alive, and Romantic is alive
+
+        var sb = new StringBuilder();
+        var states = nums.ToDictionary(x => x.Key, x => x.Key == Options.GameStateInfo.RomanticState ? GetString($"GSRomanticState.{x.Value}") : (object)x.Value);
+        states.DoIf(x => Options.GameStateSettings[x.Key].GetBool(), x => sb.AppendLine(string.Format(GetString($"GSInfo.{x.Key}"), x.Value)));
+        return sb.ToString().TrimEnd();
     }
 
     public static void AddAbilityCD(CustomRoles role, byte playerId, bool includeDuration = true)
