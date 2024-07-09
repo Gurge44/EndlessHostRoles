@@ -111,7 +111,7 @@ internal static class ChatCommands
             new(["up"], "{role}", GetString("CommandDescription.Up"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, UpCommand, true, [GetString("CommandArgs.Up.Role")]),
             new(["setrole", "сетроль"], "{id} {role}", GetString("CommandDescription.SetRole"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, SetRoleCommand, true, [GetString("CommandArgs.SetRole.Id"), GetString("CommandArgs.SetRole.Role")]),
             new(["h", "help", "хэлп", "хелп", "помощь"], "", GetString("CommandDescription.Help"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, HelpCommand, true),
-            new(["kcount", "gamestate", "gstate", "gs", "кубийц"], "", GetString("CommandDescription.KCount"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, KCountCommand, true),
+            new(["kcount", "gamestate", "gstate", "кубийц"], "", GetString("CommandDescription.KCount"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, KCountCommand, true),
             new(["addmod", "добмодера"], "{id}", GetString("CommandDescription.AddMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddModCommand, true, [GetString("CommandArgs.AddMod.Id")]),
             new(["deletemod", "убрмодера", "удмодера"], "{id}", GetString("CommandDescription.DeleteMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteModCommand, true, [GetString("CommandArgs.DeleteMod.Id")]),
             new(["combo", "комбо"], "{mode} {role} {addon} [all]", GetString("CommandDescription.Combo"), Command.UsageLevels.Host, Command.UsageTimes.Always, ComboCommand, true, [GetString("CommandArgs.Combo.Mode"), GetString("CommandArgs.Combo.Role"), GetString("CommandArgs.Combo.Addon"), GetString("CommandArgs.Combo.All")]),
@@ -147,7 +147,7 @@ internal static class ChatCommands
             new(["gno", "гно"], "{number}", GetString("CommandDescription.GNO"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeathOrLobby, GNOCommand, true, [GetString("CommandArgs.GNO.Number")]),
             new(["poll"], "{question} {answerA} {answerB} [answerC] [answerD]", GetString("CommandDescription.Poll"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, PollCommand, true, [GetString("CommandArgs.Poll.Question"), GetString("CommandArgs.Poll.AnswerA"), GetString("CommandArgs.Poll.AnswerB"), GetString("CommandArgs.Poll.AnswerC"), GetString("CommandArgs.Poll.AnswerD")]),
             new(["pv"], "{vote}", GetString("CommandDescription.PV"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, PVCommand, true, [GetString("CommandArgs.PV.Vote")]),
-            
+
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "st", "gs", "bt"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
             new(["sp", "jj", "tl", "trial"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Trial.Id")]),

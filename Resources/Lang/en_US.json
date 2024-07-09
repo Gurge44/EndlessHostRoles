@@ -1699,7 +1699,7 @@
   "KickCommandKickedRole": "Their role was",
   "ModeratorTag": "<#8000ff>Moderator</color>",
   "EnableAFKDetector": "Enable AFK Detector",
-  "AFKWarning": "<#ffff00>Please move to avoid being marked as AFK</color> <#ffffff>({0})</color>",
+  "AFKWarning": "<#ffff00><size=90%>Please move to avoid being marked as AFK</color> <#ffffff>({0})</size></color>",
   "AFKSuffix": "<#ffa500>(AFK)</color>",
   "AFKConsequence": "Consequence for AFK players",
   "AFKConsequence.Nothing": "Nothing",

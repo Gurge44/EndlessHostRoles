@@ -31,11 +31,14 @@ namespace EHR.Modules
         {
             if (!EnableDetector.GetBool() || !GameStates.IsInTask || pc == null || ExemptedPlayers.Contains(pc.PlayerId)) return;
 
-            PlayerData[pc.PlayerId] = new()
+            LateTask.New(() =>
             {
-                LastPosition = pc.Pos(),
-                Timer = 10f + (pc.Is(CustomRoles.Truant) ? Options.TruantWaitingTime.GetFloat() : 0f)
-            };
+                PlayerData[pc.PlayerId] = new()
+                {
+                    LastPosition = pc.Pos(),
+                    Timer = 10f + (pc.Is(CustomRoles.Truant) ? Options.TruantWaitingTime.GetFloat() : 0f)
+                };
+            }, 2f, log: false);
         }
 
         public static void OnFixedUpdate(PlayerControl pc)
@@ -83,7 +86,7 @@ namespace EHR.Modules
 
         public static string GetSuffix(PlayerControl seer, PlayerControl target)
         {
-            if (seer.IsAlive() && PlayerData.TryGetValue(seer.PlayerId, out var seerData) && seerData.CurrentPhase > Data.Phase.Detection)
+            if (seer.PlayerId == target.PlayerId && seer.IsAlive() && PlayerData.TryGetValue(seer.PlayerId, out var seerData) && seerData.CurrentPhase > Data.Phase.Detection)
                 return seerData.CurrentPhase == Data.Phase.Warning ? string.Format(Translator.GetString("AFKWarning"), (int)Math.Round(seerData.Timer)) : Translator.GetString("AFKSuffix");
 
             if (target.IsAlive() && PlayerData.TryGetValue(target.PlayerId, out var targetData) && targetData.CurrentPhase > Data.Phase.Detection)

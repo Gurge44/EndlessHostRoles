@@ -1171,7 +1171,6 @@ class FixedUpdatePatch
             if (AmongUsClient.Instance.AmHost)
             {
                 Camouflage.OnFixedUpdate(player);
-                AFKDetector.OnFixedUpdate(player);
             }
 
             if (RPCHandlerPatch.ReportDeadBodyRPCs.Remove(playerId))
@@ -1218,6 +1217,7 @@ class FixedUpdatePatch
                 if (localPlayer)
                 {
                     CustomNetObject.FixedUpdate();
+                    AFKDetector.OnFixedUpdate(player);
 
                     if (QuizMaster.On && inTask && !lowLoad && QuizMaster.AllSabotages.Any(IsActive))
                         QuizMaster.Data.LastSabotage = QuizMaster.AllSabotages.FirstOrDefault(IsActive);
@@ -1250,6 +1250,7 @@ class FixedUpdatePatch
                     if (state.Role.IsEnable)
                     {
                         if (checkPos) state.Role.OnCheckPlayerPosition(player);
+                        state.Role.OnGlobalFixedUpdate(player, lowLoad);
                     }
                 }
 
@@ -1284,14 +1285,6 @@ class FixedUpdatePatch
                     }
                 }
 
-                foreach (var state in Main.PlayerStates.Values)
-                {
-                    if (state.Role.IsEnable)
-                    {
-                        state.Role.OnGlobalFixedUpdate(player, lowLoad);
-                    }
-                }
-
                 if (!lowLoad) Randomizer.OnFixedUpdateForPlayers(player);
 
                 RoleBlockManager.OnFixedUpdate(player);
@@ -1313,14 +1306,14 @@ class FixedUpdatePatch
 
             if (Witness.AllKillers.TryGetValue(playerId, out var ktime) && ktime + Options.WitnessTime.GetInt() < now) Witness.AllKillers.Remove(playerId);
             if (inTask && alive && Options.LadderDeath.GetBool()) FallFromLadder.FixedUpdate(player);
-            if (GameStates.IsInGame) LoversSuicide();
+            if (localPlayer && GameStates.IsInGame) LoversSuicide();
 
-            if (inTask && player == PlayerControl.LocalPlayer && Options.DisableDevices.GetBool())
+            if (inTask && localPlayer && Options.DisableDevices.GetBool())
             {
                 DisableDevice.FixedUpdate();
             }
 
-            if (GameStates.IsInGame && Main.RefixCooldownDelay <= 0)
+            if (localPlayer && GameStates.IsInGame && Main.RefixCooldownDelay <= 0)
             {
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
@@ -1333,7 +1326,7 @@ class FixedUpdatePatch
                 ApplySuffix(__instance);
         }
 
-        if (__instance.AmOwner && inTask && ((Main.ChangedRole && __instance.PlayerId == PlayerControl.LocalPlayer.PlayerId && AmongUsClient.Instance.AmHost) || (!__instance.Is(CustomRoleTypes.Impostor) || Shifter.WasShifter.Contains(__instance.PlayerId)) && __instance.CanUseKillButton() && !__instance.Data.IsDead))
+        if (__instance.AmOwner && inTask && ((Main.ChangedRole && localPlayer && AmongUsClient.Instance.AmHost) || (!__instance.Is(CustomRoleTypes.Impostor) || Shifter.WasShifter.Contains(__instance.PlayerId)) && __instance.CanUseKillButton() && !__instance.Data.IsDead))
         {
             var players = __instance.GetPlayersInAbilityRangeSorted();
             PlayerControl closest = players.Count == 0 ? null : players[0];
@@ -1355,7 +1348,7 @@ class FixedUpdatePatch
                         __instance.cosmetics.nameText.text = ver.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" ? $"<color=#87cefa>{__instance.name}</color>" : $"<color=#ffff00><size=1.2>{ver.tag}</size>\n{__instance?.name}</color>";
                     else __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.2>v{ver.version}</size>\n{__instance?.name}</color>";
                 }
-                else __instance.cosmetics.nameText.text = __instance?.Data?.PlayerName;
+                else __instance.cosmetics.nameText.text = $"<#ffff44><size=1.2>{__instance.GetClient().PlatformData.Platform} | {__instance.FriendCode} | {__instance.GetClient().GetHashedPuid()}</size></color>\n{__instance?.Data?.PlayerName}";
             }
 
             if (GameStates.IsInGame)
