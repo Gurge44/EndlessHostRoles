@@ -3671,7 +3671,7 @@
   "AidTargetKnowsAboutShield": "Защищённые знают о защите",
   "AidCounterSelf": "<#00ffa5>У вас есть щит на </color>{0}с",
   "AidCounterTarget": "{0} <#00ffa5>защищён на </color>{1}с",
-  "MinTasksToActivateAbility": "Мин. тасков для активации стрелок",
+  "MinTasksToActivateAbility": "Мин. тасков для активации способности",
   "GuessManagerRole": "Guess Manager",
   "GuessManagerRoleInfo": "Получай дополнительную информацию об угадываниях",
   "GuessManagerRoleInfoLong": "(Член Экипажа):\\nКак Guess Manager, вы узнаёте роль угаданных игроков (в том числе тех, кто ошибся), а также было ли это угадывание или кто-то ошибся.",
