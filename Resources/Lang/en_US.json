@@ -1017,7 +1017,7 @@
   "AutoPlayAgainCountdown": "Delay before Auto Re-Entering Lobby",
   "RemovePetsAtDeadPlayers": "Remove pets from dead players",
   "SeeEjectedRolesInMeeting": "See ejected roles in meetings",
-  "EnableKillerLeftCommand": "Enable use of /gs command",
+  "EnableKillerLeftCommand": "Enable use of /gs (formerly /kcount) command",
   "GameStateCommand.ShowImpCount": "Show amount of alive <#ff1919>Impostors</color>",
   "GameStateCommand.ShowMadmateCount": "Show amount of alive <#ff1919>Madmates</color>",
   "GameStateCommand.ShowConvertedCount": "Show amount of alive <#ffab1b>Converted</color> Players (excluding <#ff1919>Madmates</color>)",
@@ -1027,7 +1027,7 @@
   "GameStateCommand.ShowRomanticState": "Show <#ff1493>Romantic</color> pair state",
   "GameStateCommand.ShowLoversState": "Show <#ff9ace>Lovers</color> pair state",
   "GameStateCommand.ShowTasks": "Show amount of completed tasks",
-  "MinPlayersForGameStateCommand": "Disable using when this amount of players alive"
+  "MinPlayersForGameStateCommand": "Minimum alive players to use this command",
   "DoorsResetMode": "Mode",
   "AllClosed": "Close All",
   "AllOpen": "Open All",
