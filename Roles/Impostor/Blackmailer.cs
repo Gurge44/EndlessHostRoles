@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using EHR.Patches;
 
 namespace EHR.Impostor
 {
@@ -40,6 +41,9 @@ namespace EHR.Impostor
         public static void OnCheckForEndVoting()
         {
             if (!On) return;
+
+            CheckForEndVotingPatch.RunRoleCode = false;
+
             var bmState = Main.PlayerStates.FirstOrDefault(x => x.Value.MainRole == CustomRoles.Blackmailer);
             if (bmState.Value.Role is not Blackmailer { IsEnable: true } bm || bm.BlackmailedPlayerId == byte.MaxValue) return;
 
@@ -54,6 +58,8 @@ namespace EHR.Impostor
                 else MeetingHud.Instance.CastVote(x.TargetPlayerId, bmVotedFor);
                 x.VotedFor = bmVotedFor;
             });
+
+            CheckForEndVotingPatch.RunRoleCode = true;
         }
     }
 }

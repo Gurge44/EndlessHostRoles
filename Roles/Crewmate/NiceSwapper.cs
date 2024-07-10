@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using EHR.Modules;
+using EHR.Patches;
 using HarmonyLib;
 using Hazel;
 using UnityEngine;
@@ -166,6 +167,8 @@ public class NiceSwapper : RoleBase
     {
         if (SwapTargets.Item1 == byte.MaxValue || SwapTargets.Item2 == byte.MaxValue) return;
 
+        CheckForEndVotingPatch.RunRoleCode = false;
+
         var playerStates = MeetingHud.Instance.playerStates;
         var votedFor2 = playerStates.Where(x => x.VotedFor == SwapTargets.Item2).ToList();
 
@@ -189,6 +192,8 @@ public class NiceSwapper : RoleBase
         if (Target1 == null || Target2 == null) return;
 
         Utils.SendMessage(string.Format(GetString("SwapVote"), Target1.GetRealName(), Target2.GetRealName()), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceSwapper), GetString("SwapTitle")));
+
+        CheckForEndVotingPatch.RunRoleCode = true;
     }
 
     private static bool CheckCommand(ref string msg, string command, bool exact = true)

@@ -252,7 +252,8 @@ class HudManagerPatch
                         LowerInfoText.enabled = false;
                     }
 
-                    if (player.CanUseKillButton() && !role.UsesPetInsteadOfKill())
+                    bool allowedRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight;
+                    if (player.CanUseKillButton() && (allowedRole || !role.UsesPetInsteadOfKill()))
                     {
                         __instance.KillButton?.ToggleVisible(player.IsAlive() && GameStates.IsInTask);
                         player.Data.Role.CanUseKillButton = true;

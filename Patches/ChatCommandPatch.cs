@@ -52,12 +52,15 @@ class Command(string[] commandForms, string arguments, string description, Comma
 
     public bool IsThisCommand(string text)
     {
+        if (!text.StartsWith('/')) return false;
         text = text.ToLower().Trim().TrimStart('/');
         return CommandForms.Any(text.Split(' ')[0].Equals);
     }
 
     public bool CanUseCommand(PlayerControl pc)
     {
+        if (UsageLevel == UsageLevels.Everyone && UsageTime == UsageTimes.Always) return true;
+
         switch (UsageLevel)
         {
             case UsageLevels.Host when !pc.IsHost():
@@ -111,7 +114,7 @@ internal static class ChatCommands
             new(["up"], "{role}", GetString("CommandDescription.Up"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, UpCommand, true, [GetString("CommandArgs.Up.Role")]),
             new(["setrole", "сетроль"], "{id} {role}", GetString("CommandDescription.SetRole"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, SetRoleCommand, true, [GetString("CommandArgs.SetRole.Id"), GetString("CommandArgs.SetRole.Role")]),
             new(["h", "help", "хэлп", "хелп", "помощь"], "", GetString("CommandDescription.Help"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, HelpCommand, true),
-            new(["kcount", "gamestate", "gstate", "кубийц"], "", GetString("CommandDescription.KCount"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, KCountCommand, true),
+            new(["kcount", "gamestate", "gstate", "gs", "кубийц"], "", GetString("CommandDescription.KCount"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, KCountCommand, true),
             new(["addmod", "добмодера"], "{id}", GetString("CommandDescription.AddMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddModCommand, true, [GetString("CommandArgs.AddMod.Id")]),
             new(["deletemod", "убрмодера", "удмодера"], "{id}", GetString("CommandDescription.DeleteMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteModCommand, true, [GetString("CommandArgs.DeleteMod.Id")]),
             new(["combo", "комбо"], "{mode} {role} {addon} [all]", GetString("CommandDescription.Combo"), Command.UsageLevels.Host, Command.UsageTimes.Always, ComboCommand, true, [GetString("CommandArgs.Combo.Mode"), GetString("CommandArgs.Combo.Role"), GetString("CommandArgs.Combo.Addon"), GetString("CommandArgs.Combo.All")]),
@@ -149,7 +152,7 @@ internal static class ChatCommands
             new(["pv"], "{vote}", GetString("CommandDescription.PV"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, PVCommand, true, [GetString("CommandArgs.PV.Vote")]),
 
             // Commands with action handled elsewhere
-            new(["shoot", "guess", "bet", "st", "gs", "bt"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
+            new(["shoot", "guess", "bet", "st", "bt"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
             new(["sp", "jj", "tl", "trial"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Trial.Id")]),
             new(["sw", "swap", "st"], "{id}", GetString("CommandDescription.Swap"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Swap.Id")]),
             new(["compare", "cp", "cmp"], "{id1} {id2}", GetString("CommandDescription.Compare"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Compare.Id1"), GetString("CommandArgs.Compare.Id2")]),
@@ -205,19 +208,22 @@ internal static class ChatCommands
 
         Main.IsChatCommand = false;
 
-        foreach (var command in AllCommands)
+        if (text.StartsWith('/'))
         {
-            if (!command.IsThisCommand(text)) continue;
-            Main.IsChatCommand = true;
-            if (!command.CanUseCommand(PlayerControl.LocalPlayer))
+            foreach (var command in AllCommands)
             {
-                Utils.SendMessage(GetString("Commands.NoAccess"), PlayerControl.LocalPlayer.PlayerId);
-                goto Canceled;
-            }
+                if (!command.IsThisCommand(text)) continue;
+                Main.IsChatCommand = true;
+                if (!command.CanUseCommand(PlayerControl.LocalPlayer))
+                {
+                    Utils.SendMessage(GetString("Commands.NoAccess"), PlayerControl.LocalPlayer.PlayerId);
+                    goto Canceled;
+                }
 
-            command.Action(__instance, PlayerControl.LocalPlayer, text, args);
-            if (command.IsCanceled) goto Canceled;
-            break;
+                command.Action(__instance, PlayerControl.LocalPlayer, text, args);
+                if (command.IsCanceled) goto Canceled;
+                break;
+            }
         }
 
         if (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
@@ -926,7 +932,7 @@ internal static class ChatCommands
 
     private static void KCountCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool()) return;
+        if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool() || Main.AllAlivePlayerControls.Length < Options.MinPlayersForGameStateCommand.GetInt()) return;
         Utils.SendMessage(Utils.GetGameStateData(), player.PlayerId);
     }
 
@@ -1702,7 +1708,7 @@ internal static class ChatCommands
     public static void OnReceiveChat(PlayerControl player, string text, out bool canceled)
     {
         canceled = false;
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || player.IsHost()) return;
         long now = Utils.TimeStamp;
         if (LastSentCommand.TryGetValue(player.PlayerId, out var ts) && ts + 2 >= now)
         {
@@ -1710,7 +1716,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (!player.IsHost()) ChatManager.SendMessage(player, text);
+        ChatManager.SendMessage(player, text);
         if (text.StartsWith("\n")) text = text[1..];
 
         string[] args = text.Split(' ');
@@ -1734,20 +1740,23 @@ internal static class ChatCommands
 
         bool isCommand = false;
 
-        foreach (var command in AllCommands)
+        if (text.StartsWith('/'))
         {
-            if (!command.IsThisCommand(text)) continue;
-            isCommand = true;
-            if (!command.CanUseCommand(player))
+            foreach (var command in AllCommands)
             {
-                Utils.SendMessage(GetString("Commands.NoAccess"), player.PlayerId);
-                canceled = true;
+                if (!command.IsThisCommand(text)) continue;
+                isCommand = true;
+                if (!command.CanUseCommand(player))
+                {
+                    Utils.SendMessage(GetString("Commands.NoAccess"), player.PlayerId);
+                    canceled = true;
+                    break;
+                }
+
+                command.Action(null, player, text, args);
+                if (command.IsCanceled) canceled = true;
                 break;
             }
-
-            command.Action(null, player, text, args);
-            if (command.IsCanceled) canceled = true;
-            break;
         }
 
         if (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive() && !player.IsHost())

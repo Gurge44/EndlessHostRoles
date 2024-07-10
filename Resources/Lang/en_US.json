@@ -3336,6 +3336,8 @@
   "LobbyCloseTimer": "Lobby Closing Timer: {0}",
   "HorseMode": "Horse Mode",
   "LongMode": "Long Mode",
+  "ShowPlayerInfoInLobby": "Show Player Info in Lobby",
+  "PetsForceEnabled": "The Speedrun game mode requires pets to be enabled, so they are forced on. You can disable it for future games under Game Modifiers.",
   "CustomTeamHelp": "You are in the {0}! ({1})\\nWork with your team members to win together!",
   "NoPetActionMsg1": "You just ate a cookie",
   "NoPetActionMsg2": "You look around",

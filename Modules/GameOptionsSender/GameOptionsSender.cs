@@ -96,7 +96,7 @@ public abstract class GameOptionsSender
 
     public static readonly List<GameOptionsSender> AllSenders = new(15) { new NormalGameOptionsSender() };
 
-    public static System.Collections.IEnumerator SendAllGameOptions()
+    public static System.Collections.IEnumerator SendAllGameOptionsAsync()
     {
         AllSenders.RemoveAll(s => s == null || !s.AmValid());
         foreach (GameOptionsSender sender in AllSenders)
@@ -107,6 +107,16 @@ public abstract class GameOptionsSender
                 yield return null;
             }
 
+            sender.IsDirty = false;
+        }
+    }
+
+    public static void SendAllGameOptions()
+    {
+        AllSenders.RemoveAll(s => s == null || !s.AmValid());
+        foreach (GameOptionsSender sender in AllSenders)
+        {
+            if (sender.IsDirty) sender.SendGameOptions();
             sender.IsDirty = false;
         }
     }

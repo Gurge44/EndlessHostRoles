@@ -450,7 +450,7 @@ static class ExtendedPlayerControl
     public static void SyncSettings(this PlayerControl player)
     {
         PlayerGameOptionsSender.SetDirty(player.PlayerId);
-        Main.Instance.StartCoroutine(GameOptionsSender.SendAllGameOptions());
+        GameOptionsSender.SendAllGameOptions();
     }
 
     public static TaskState GetTaskState(this PlayerControl player) => Main.PlayerStates.TryGetValue(player.PlayerId, out var state) ? state.TaskState : new();
@@ -624,11 +624,11 @@ static class ExtendedPlayerControl
     public static bool CanUseImpostorVentButton(this PlayerControl pc)
     {
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Penguin.IsVictim(pc)) return false;
-        if (CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId)) return true;
         if (pc.GetRoleTypes() == RoleTypes.Engineer) return false;
+        if (CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId)) return true;
 
         if (pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool()) return true;
-        if (pc.Is(CustomRoles.Bloodlust)) return true;
+        if (pc.Is(CustomRoles.Bloodlust) || pc.Is(CustomRoles.Refugee)) return true;
 
         return pc.GetCustomRole() switch
         {

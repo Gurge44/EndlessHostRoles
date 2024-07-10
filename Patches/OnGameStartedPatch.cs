@@ -241,6 +241,12 @@ internal class ChangeRoleSettings
             Revolutionist.CurrentDrawTarget = byte.MaxValue;
             Main.PlayerColors = [];
 
+            if (Options.CurrentGameMode == CustomGameMode.Speedrun && !Options.UsePets.GetBool())
+            {
+                Options.UsePets.SetValue(1);
+                PlayerControl.LocalPlayer.ShowPopUp(GetString("PetsForceEnabled"));
+            }
+
             RPC.SyncAllPlayerNames();
             RPC.SyncAllClientRealNames();
 
@@ -434,7 +440,7 @@ internal class SelectRolesPatch
 
             // Register Desync Impostor Roles
             foreach (var kv in RoleResult.Where(x => x.Value.IsDesyncRole() || IsBloodlustPlayer(x.Key.PlayerId)))
-                AssignDesyncRole(kv.Value, kv.Key, senders, rolesMap, BaseRole: IsBloodlustPlayer(kv.Key.PlayerId) ? RoleTypes.Impostor : kv.Value.GetDYRole());
+                AssignDesyncRole(kv.Value, kv.Key, senders, rolesMap, BaseRole: IsBloodlustPlayer(kv.Key.PlayerId) || (Options.CurrentGameMode == CustomGameMode.Speedrun && SpeedrunManager.CanKill.Contains(kv.Key.PlayerId)) ? RoleTypes.Impostor : kv.Value.GetDYRole());
 
 
             MakeDesyncSender(senders, rolesMap);

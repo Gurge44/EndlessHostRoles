@@ -107,7 +107,7 @@ class TextBoxTMPSetTextPatch
                 for (int i = 0; i < inputCheck.Length; i++)
                 {
                     if (i >= check.Length) break;
-                    if (inputCheck[i] == check[i]) matchNum++;
+                    if (inputCheck[i].Equals(check[i])) matchNum++;
                     else break;
                 }
 
@@ -122,7 +122,7 @@ class TextBoxTMPSetTextPatch
             if (exactMatch) break;
         }
 
-        if (command == null || highestMatchRate < 0.5)
+        if (command == null || highestMatchRate < 1)
         {
             Destroy();
             IsInvalidCommand = true;

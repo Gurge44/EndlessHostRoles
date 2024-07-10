@@ -18,6 +18,7 @@ namespace EHR.Patches;
 class CheckForEndVotingPatch
 {
     public static string EjectionText = string.Empty;
+    public static bool RunRoleCode = true;
 
     public static bool Prefix(MeetingHud __instance)
     {
@@ -231,8 +232,11 @@ class CheckForEndVotingPatch
                 }
             }
 
-            Blackmailer.OnCheckForEndVoting();
-            NiceSwapper.OnCheckForEndVoting();
+            if (RunRoleCode)
+            {
+                Blackmailer.OnCheckForEndVoting();
+                NiceSwapper.OnCheckForEndVoting();
+            }
 
             states = [.. statesList];
 

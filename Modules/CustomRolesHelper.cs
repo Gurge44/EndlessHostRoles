@@ -29,6 +29,8 @@ internal static class CustomRolesHelper
         CustomRoles.Evolver,
         CustomRoles.ToiletMaster,
         CustomRoles.Telekinetic,
+        CustomRoles.Necromancer,
+        CustomRoles.Deathknight,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -758,6 +760,9 @@ internal static class CustomRolesHelper
         CustomRoles.Refugee => true,
         CustomRoles.Necromancer => true,
         CustomRoles.Deathknight => true,
+
+        // Speedrun
+        CustomRoles.Runner => true,
 
         _ => false
     };

@@ -18,6 +18,7 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem DarkTheme;
     private static ClientOptionItem HorseMode;
     private static ClientOptionItem LongMode;
+    private static ClientOptionItem ShowPlayerInfoInLobby;
 #if DEBUG
     private static ClientOptionItem VersionCheat;
     private static ClientOptionItem GodMode;
@@ -141,6 +142,11 @@ public static class OptionsMenuBehaviourStartPatch
                     }
                 }
             }
+        }
+
+        if (ShowPlayerInfoInLobby == null || ShowPlayerInfoInLobby.ToggleButton == null)
+        {
+            ShowPlayerInfoInLobby = ClientOptionItem.Create("ShowPlayerInfoInLobby", Main.ShowPlayerInfoInLobby, __instance);
         }
 
 #if DEBUG

@@ -75,6 +75,7 @@ public class Workhorse : IAddon
     public static bool OnCompleteTask(PlayerControl pc)
     {
         if (!CustomRoles.Workhorse.IsEnable() || PlayerIdList.Count >= CustomRoles.Workhorse.GetCount()) return false;
+        if (CurrentGameMode != CustomGameMode.Standard) return false;
         if (pc.Is(CustomRoles.Snitch) && !OptionSnitchCanBeWorkhorse.GetBool()) return false;
         if (!IsAssignTarget(pc)) return false;
         if (IRandom.Instance.Next(100) >= SpawnChance.GetInt()) return false;
