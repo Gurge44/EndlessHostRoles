@@ -1017,7 +1017,7 @@
   "AutoPlayAgainCountdown": "Задрежка перед авто-перезаходом",
   "RemovePetsAtDeadPlayers": "Убрать питомцев у мёртвых игроков",
   "SeeEjectedRolesInMeeting": "Показ выброшенных ролей на собраниях",
-  "EnableKillerLeftCommand": "Enable use of /gs (formerly /kcount) command",
+  "EnableKillerLeftCommand": "Включить команду /gs (ранее /kcount)",
   "GameStateCommand.ShowImpCount": "Show amount of alive <#ff1919>Impostors</color>",
   "GameStateCommand.ShowMadmateCount": "Show amount of alive <#ff1919>Madmates</color>",
   "GameStateCommand.ShowConvertedCount": "Show amount of alive <#ffab1b>Converted</color> Players (excluding <#ff1919>Madmates</color>)",
