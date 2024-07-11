@@ -82,7 +82,7 @@ public static class GameOptionsMenuPatch
 
                     if (enabled) num -= 0.63f;
                 }
-                else if (option.IsHeader && enabled) num -= 0.3f;
+                else if (option.IsHeader && enabled) num -= 0.25f;
 
                 if (option is TextOptionItem) continue;
 
@@ -168,10 +168,10 @@ public static class GameOptionsMenuPatch
                 var enabled = !option.IsHiddenOn(Options.CurrentGameMode) && (option.Parent == null || (!option.Parent.IsHiddenOn(Options.CurrentGameMode) && option.Parent.GetBool()));
 
                 if (option is TextOptionItem) num -= 0.63f;
-                else
+                else if (enabled)
                 {
-                    if (option.IsHeader && enabled) num -= 0.3f;
-                    if (enabled) num -= 0.45f;
+                    if (option.IsHeader) num -= 0.25f;
+                    num -= 0.45f;
                 }
             }
 
@@ -283,7 +283,7 @@ public static class GameOptionsMenuPatch
                 categoryHeaderMasked.gameObject.SetActive(enabled);
                 if (enabled) num -= 0.63f;
             }
-            else if (option.IsHeader && enabled) num -= 0.3f;
+            else if (option.IsHeader && enabled) num -= 0.25f;
 
             if (ModGameOptionsMenu.BehaviourList.TryGetValue(index, out var optionBehaviour))
             {
@@ -564,6 +564,15 @@ public static class StringOptionPatch
                 __instance.TitleText.fontWeight = FontWeight.Black;
                 __instance.TitleText.outlineColor = new(255, 255, 255, 255);
                 __instance.TitleText.outlineWidth = 0.04f;
+                var i = name.IndexOf('#');
+                if (ColorUtility.TryParseHtmlString(name[i..(i + 7)], out var color))
+                {
+                    __instance.LabelBackground.color = color;
+                    __instance.TitleText.color = Color.white;
+                    name = name.RemoveHtmlTags();
+                }
+
+                name = $"<size=3.5>{name}</size>";
             }
 
             __instance.TitleText.text = name;

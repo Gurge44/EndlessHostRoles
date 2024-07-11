@@ -71,7 +71,7 @@ public class ErrorText : MonoBehaviour
     public void AddError(ErrorCode code)
     {
         var error = new ErrorData(code);
-        if (0 < error.ErrorLevel)
+        if (0 < error.ErrorLevel && code != ErrorCode.LoadingHint)
             Logger.Error($"Error: {error}: {error.Message}", "ErrorText");
 
         if (AllErrors.All(e => e.Code != code))

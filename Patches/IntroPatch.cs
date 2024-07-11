@@ -560,6 +560,8 @@ class BeginCrewmatePatch
             StartFadeIntro(__instance, Color.magenta, Color.magenta);
         }
 
+        return;
+
         AudioClip GetAudioClipFromCustomRoleType()
         {
             return PlayerControl.LocalPlayer.GetCustomRoleTypes() switch
@@ -572,7 +574,7 @@ class BeginCrewmatePatch
         }
     }
 
-    public static AudioClip GetIntroSound(RoleTypes roleType)
+    private static AudioClip GetIntroSound(RoleTypes roleType)
     {
         return RoleManager.Instance.AllRoles.FirstOrDefault(role => role.Role == roleType)?.IntroSound;
     }
@@ -765,6 +767,11 @@ class IntroCutsceneDestroyPatch
             {
                 PlayerControl.LocalPlayer.Data.Role.AffectedByLightAffectors = false;
             }
+        }
+
+        if (AFKDetector.ActivateOnStart.GetBool())
+        {
+            LateTask.New(() => Main.AllAlivePlayerControls.Do(AFKDetector.RecordPosition), 1f, log: false);
         }
 
         Logger.Info("OnDestroy", "IntroCutscene");

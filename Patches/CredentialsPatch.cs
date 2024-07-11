@@ -84,8 +84,10 @@ internal class VersionShowerStartPatch
 internal class TitleLogoPatch
 {
     public static GameObject ModStamp;
+
     public static GameObject Ambience;
-    public static GameObject LoadingHint;
+
+    // public static GameObject LoadingHint;
     public static GameObject LeftPanel;
     public static GameObject RightPanel;
     public static GameObject CloseRightButton;

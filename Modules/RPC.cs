@@ -142,6 +142,7 @@ public enum CustomRPC
     SyncAid,
     SyncTelekinetic,
     SyncRouleteGrandeur,
+    SyncAdrenaline,
 
     // Other Game Modes
     SyncKBPlayer,
@@ -450,6 +451,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SyncRouleteGrandeur:
                 (Main.PlayerStates[reader.ReadByte()].Role as RouleteGrandeur)?.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncAdrenaline:
+                (Main.PlayerStates[reader.ReadByte()].Role as Adrenaline)?.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetBountyTarget:
             {

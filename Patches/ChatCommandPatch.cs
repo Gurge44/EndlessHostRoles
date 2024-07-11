@@ -191,13 +191,6 @@ internal static class ChatCommands
 
         ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
 
-        if (text.Length >= 3)
-            if (text[..2] == "/r" && text[..3] != "/rn")
-                args[0] = "/r";
-        if (text.Length >= 4)
-            if (text[..3] == "/up")
-                args[0] = "/up";
-
         if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (Judge.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
         if (NiceSwapper.SwapMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
@@ -259,6 +252,33 @@ internal static class ChatCommands
     }
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
+
+    private static void HMCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        if (args.Length < 2 || !int.TryParse(args[1], out int id) || id is > 3 or < 1) return;
+        Main.Instance.StartCoroutine(SendOnMeeting());
+        return;
+
+        System.Collections.IEnumerator SendOnMeeting()
+        {
+            bool meeting = GameStates.IsMeeting;
+            while (!GameStates.IsMeeting) yield return null;
+            if (!meeting) yield return new WaitForSeconds(7f);
+
+            var killer = player.GetRealKiller();
+            if (killer == null) yield break;
+
+            Team team = player.GetTeam();
+            string message = id switch
+            {
+                1 => string.Format(GetString("MessengerMessage.1"), GetString(Main.PlayerStates[killer.PlayerId].LastRoom.RoomId.ToString())),
+                2 => string.Format(GetString("MessengerMessage.2"), killer.GetCustomRole().ToColoredString()),
+                _ => string.Format(GetString("MessengerMessage.3"), Utils.ColorString(team.GetTeamColor(), GetString($"{team}")))
+            };
+
+            Utils.SendMessage(message, title: string.Format(GetString("MessengerTitle"), player.PlayerId.ColoredPlayerName()));
+        }
+    }
 
     private static void PollCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
@@ -1078,7 +1098,7 @@ internal static class ChatCommands
                 }
 
                 var name = args.Skip(1).Join(delimiter: " ");
-                if (name.Length is > 10 or < 1)
+                if (name.Length is > 50 or < 1)
                 {
                     Utils.SendMessage(GetString("Message.AllowNameLength"), player.PlayerId);
                     return;

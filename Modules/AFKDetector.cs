@@ -9,6 +9,8 @@ namespace EHR.Modules
     {
         private static OptionItem EnableDetector;
         private static OptionItem ConsequenceOption;
+        private static OptionItem MinPlayersToActivate;
+        public static OptionItem ActivateOnStart;
 
         public static readonly Dictionary<byte, Data> PlayerData = [];
         public static readonly HashSet<byte> ExemptedPlayers = [];
@@ -25,25 +27,28 @@ namespace EHR.Modules
             ConsequenceOption = new StringOptionItem(91, "AFKConsequence", Enum.GetNames<Consequence>().Select(x => $"AFKConsequence.{x}").ToArray(), 0, TabGroup.GameSettings)
                 .SetParent(EnableDetector)
                 .SetColor(new Color32(0, 255, 165, 255));
+            MinPlayersToActivate = new IntegerOptionItem(92, "AFKMinPlayersToActivate", new(3, 15, 1), 7, TabGroup.GameSettings)
+                .SetParent(EnableDetector)
+                .SetColor(new Color32(0, 255, 165, 255));
+            ActivateOnStart = new BooleanOptionItem(93, "AFKActivateOnStart", false, TabGroup.GameSettings)
+                .SetParent(EnableDetector)
+                .SetColor(new Color32(0, 255, 165, 255));
         }
 
         public static void RecordPosition(PlayerControl pc)
         {
             if (!EnableDetector.GetBool() || !GameStates.IsInTask || pc == null || ExemptedPlayers.Contains(pc.PlayerId)) return;
 
-            LateTask.New(() =>
+            PlayerData[pc.PlayerId] = new()
             {
-                PlayerData[pc.PlayerId] = new()
-                {
-                    LastPosition = pc.Pos(),
-                    Timer = 10f + (pc.Is(CustomRoles.Truant) ? Options.TruantWaitingTime.GetFloat() : 0f)
-                };
-            }, 2f, log: false);
+                LastPosition = pc.Pos(),
+                Timer = 10f + (pc.Is(CustomRoles.Truant) ? Options.TruantWaitingTime.GetFloat() : 0f)
+            };
         }
 
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (!EnableDetector.GetBool() || !GameStates.IsInTask || pc == null || !PlayerData.TryGetValue(pc.PlayerId, out var data)) return;
+            if (!EnableDetector.GetBool() || !GameStates.IsInTask || Main.AllAlivePlayerControls.Length < MinPlayersToActivate.GetInt() || pc == null || !PlayerData.TryGetValue(pc.PlayerId, out var data)) return;
 
             if (Vector2.Distance(pc.Pos(), data.LastPosition) > 0.1f)
             {

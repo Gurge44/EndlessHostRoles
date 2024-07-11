@@ -2705,6 +2705,12 @@ public static class Utils
             if (QuizMaster.On) QuizMaster.Data.NumPlayersDeadThisRound++;
 
             FixedUpdatePatch.LoversSuicide(target.PlayerId, onMeeting);
+
+            if (!target.HasGhostRole())
+            {
+                Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                target.MarkDirtySettings();
+            }
         }
         catch (Exception ex)
         {

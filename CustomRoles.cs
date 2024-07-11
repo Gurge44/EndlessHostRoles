@@ -125,6 +125,7 @@ public enum CustomRoles
     // Crewmates
 
     Addict,
+    Adrenaline,
     Adventurer,
     Aid,
     Alchemist,
@@ -406,6 +407,7 @@ public enum CustomRoles
     Madmate,
     Magnet,
     Mare,
+    Messenger,
     Mimic,
     Minion, // Ghost role
     Mischievous,

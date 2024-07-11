@@ -151,6 +151,7 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> HorseMode { get; private set; }
     public static ConfigEntry<bool> LongMode { get; private set; }
     public static ConfigEntry<bool> ShowPlayerInfoInLobby { get; private set; }
+    public static ConfigEntry<bool> LobbyMusic { get; private set; }
 
     // Preset Name Options
     public static ConfigEntry<string> Preset1 { get; private set; }
@@ -241,6 +242,7 @@ public class Main : BasePlugin
         HorseMode = Config.Bind("Client Options", "HorseMode", false);
         LongMode = Config.Bind("Client Options", "LongMode", false);
         ShowPlayerInfoInLobby = Config.Bind("Client Options", "ShowPlayerInfoInLobby", false);
+        LobbyMusic = Config.Bind("Client Options", "LobbyMusic", false);
 
         Logger = BepInEx.Logging.Logger.CreateLogSource("EHR");
         coroutines = AddComponent<Coroutines>();
@@ -355,6 +357,7 @@ public class Main : BasePlugin
                 { CustomRoles.Convener, "#34eb7a" },
                 { CustomRoles.Mathematician, "#eb3474" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Adrenaline, "#ffff00" },
                 { CustomRoles.Safeguard, "#4949e3" },
                 { CustomRoles.Clairvoyant, "#d4ffdd" },
                 { CustomRoles.Inquirer, "#7c55f2" },
@@ -532,6 +535,7 @@ public class Main : BasePlugin
                 { CustomRoles.Watcher, "#800080" },
                 { CustomRoles.Sleuth, "#30221c" },
                 { CustomRoles.Energetic, "#ffff00" },
+                { CustomRoles.Messenger, "#28b573" },
                 { CustomRoles.Dynamo, "#ebe534" },
                 { CustomRoles.AntiTP, "#fcba03" },
                 { CustomRoles.Rookie, "#bf671f" },

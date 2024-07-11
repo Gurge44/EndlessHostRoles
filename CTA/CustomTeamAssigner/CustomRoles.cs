@@ -406,6 +406,7 @@ public enum CustomRoles
     Madmate,
     Magnet,
     Mare,
+    Messenger,
     Mimic,
     Minion, // Ghost role
     Mischievous,
