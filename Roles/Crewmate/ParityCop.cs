@@ -259,14 +259,12 @@ public class ParityCop : RoleBase
 
         switch (firstRoleClass)
         {
-            case Executioner when Executioner.Target[first.PlayerId] == second.PlayerId: return true;
             case Lawyer when Lawyer.Target[first.PlayerId] == second.PlayerId: return true;
             case Totocalcio tc when tc.BetPlayer == second.PlayerId: return true;
         }
 
         switch (secondRoleClass)
         {
-            case Executioner when Executioner.Target[second.PlayerId] == first.PlayerId: return true;
             case Lawyer when Lawyer.Target[second.PlayerId] == first.PlayerId: return true;
             case Totocalcio tc when tc.BetPlayer == first.PlayerId: return true;
         }

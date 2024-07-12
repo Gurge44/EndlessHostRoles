@@ -1721,6 +1721,7 @@ public static class Utils
             var pc = ListToChooseFrom.RandomElement();
             pc.RpcSetCustomRole(CustomRoles.Refugee);
             pc.SetKillCooldown();
+            Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Madmate);
             Logger.Warn($"{pc.GetRealName()} is now a Refugee since all Impostors are dead", "Add Refugee");
         }
         else Logger.Msg("No Player to change to Refugee.", "Add Refugee");

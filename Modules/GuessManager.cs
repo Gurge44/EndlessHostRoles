@@ -733,6 +733,7 @@ public static class GuessManager
 
     private static void CreateIDLabels(MeetingHud __instance)
     {
+        const int max = 100;
         foreach (var pva in __instance.playerStates)
         {
             var levelDisplay = pva.transform.FindChild("PlayerLevel").gameObject;
@@ -740,16 +741,16 @@ public static class GuessManager
             var panelTransform = panel.transform;
             var background = panel.GetComponent<SpriteRenderer>();
             background.color = Palette.Purple;
-            background.sortingOrder = 99;
+            background.sortingOrder = max - 1;
             panelTransform.SetAsFirstSibling();
             panelTransform.localPosition = new(-1.21f, -0.05f, 0f);
             var levelLabel = panelTransform.FindChild("LevelLabel").GetComponents<TextMeshPro>()[0];
             levelLabel.DestroyTranslator();
             levelLabel.text = "ID";
-            levelLabel.sortingOrder = 100;
+            levelLabel.sortingOrder = max;
             var levelNumber = panelTransform.FindChild("LevelNumber").GetComponent<TextMeshPro>();
             levelNumber.text = pva.TargetPlayerId.ToString();
-            levelNumber.sortingOrder = 100;
+            levelNumber.sortingOrder = max;
         }
     }
 
