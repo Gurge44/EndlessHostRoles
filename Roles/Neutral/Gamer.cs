@@ -128,7 +128,7 @@ public class Gamer : RoleBase
 
     public static string TargetMark(PlayerControl seer, PlayerControl target)
     {
-        if (!seer.IsAlive()) return string.Empty;
+        if (!seer.IsAlive() || !playerIdList.Contains(seer.PlayerId)) return string.Empty;
         if (seer.PlayerId == target.PlayerId)
         {
             var GetValue = GamerHealth.TryGetValue(target.PlayerId, out var value);

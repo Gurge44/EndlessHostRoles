@@ -246,7 +246,7 @@ class GameEndChecker
                     WinnerIds.UnionWith(Main.LoversPlayers.Select(x => x.PlayerId));
                 }
 
-                if (Options.NeutralWinTogether.GetBool() && WinnerIds.Any(x => GetPlayerById(x) != null && GetPlayerById(x).GetCustomRole().IsNeutral()))
+                if (Options.NeutralWinTogether.GetBool() && WinnerIds.Select(x => GetPlayerById(x)).Any(x => x != null && x.GetCustomRole().IsNeutral() && !x.IsMadmate()))
                 {
                     foreach (PlayerControl pc in Main.AllPlayerControls)
                     {
