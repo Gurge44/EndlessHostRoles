@@ -133,8 +133,8 @@ namespace EHR.Impostor
 
         public override string GetSuffix(PlayerControl pc, PlayerControl _, bool hud = false, bool m = false)
         {
-            if (!hud || Main.PlayerStates[pc.PlayerId].Role is not Chronomancer cm) return string.Empty;
-            return cm.ChargePercent > 0 ? string.Format(Translator.GetString("ChronomancerPercent"), cm.ChargePercent) : string.Empty;
+            if (!hud || pc.PlayerId != ChronomancerId) return string.Empty;
+            return ChargePercent > 0 ? string.Format(Translator.GetString("ChronomancerPercent"), ChargePercent) : string.Empty;
         }
 
         public override void OnReportDeadBody()

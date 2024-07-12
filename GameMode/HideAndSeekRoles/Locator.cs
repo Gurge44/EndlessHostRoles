@@ -11,6 +11,7 @@ namespace EHR.GameMode.HideAndSeekRoles
         public static OptionItem HidersKnowTheyAreLocated;
         public static OptionItem Vision;
         public static OptionItem Speed;
+        private byte LocatorId;
 
         private LocateStatus Status;
 
@@ -54,6 +55,7 @@ namespace EHR.GameMode.HideAndSeekRoles
         {
             On = true;
             Status = new();
+            LocatorId = playerId;
         }
 
         public override void Init()
@@ -90,7 +92,7 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || isHUD || !seer.Is(CustomRoles.Locator)) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || isHUD || seer.PlayerId != LocatorId) return string.Empty;
             return Status.TargetId == byte.MaxValue ? string.Empty : TargetArrow.GetArrows(seer, Status.TargetId);
         }
 

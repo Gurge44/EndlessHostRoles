@@ -16,6 +16,7 @@ public class Tracefinder : RoleBase
     private static OptionItem ArrowDelayMax;
 
     public static bool On;
+    byte TracefinderId;
 
     public override bool IsEnable => playerIdList.Count > 0;
 
@@ -45,6 +46,7 @@ public class Tracefinder : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        TracefinderId = playerId;
         On = true;
     }
 
@@ -88,7 +90,7 @@ public class Tracefinder : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
     {
-        if (!seer.Is(CustomRoles.Tracefinder)) return string.Empty;
+        if (seer.PlayerId != TracefinderId) return string.Empty;
         if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
         return Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
     }

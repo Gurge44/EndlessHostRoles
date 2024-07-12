@@ -23,6 +23,7 @@ public class Tremor : RoleBase
     int DoomTimer;
     long LastUpdate = Utils.TimeStamp;
     int Timer;
+    byte TremorId;
 
     public override bool IsEnable => On;
     public bool IsDoom => Timer <= 0;
@@ -58,6 +59,7 @@ public class Tremor : RoleBase
         On = true;
         Timer = TimerStart.GetInt() + 8;
         DoomTimer = 0;
+        TremorId = playerId;
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
@@ -73,7 +75,7 @@ public class Tremor : RoleBase
         if (!IsDoom && LastUpdate != Utils.TimeStamp)
         {
             Timer--;
-            Utils.SendRPC(CustomRPC.SyncTremor, pc.PlayerId, Timer);
+            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, Timer);
             LastUpdate = Utils.TimeStamp;
         }
 
@@ -101,7 +103,7 @@ public class Tremor : RoleBase
             LastUpdate = Utils.TimeStamp;
 
             DoomTimer--;
-            Utils.SendRPC(CustomRPC.SyncTremor, pc.PlayerId, DoomTimer);
+            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, DoomTimer);
 
             if (DoomTimer <= 0) pc.Suicide();
         }
@@ -110,7 +112,7 @@ public class Tremor : RoleBase
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
         Timer = Math.Max(Timer - TimerDecrease.GetInt(), 0);
-        Utils.SendRPC(CustomRPC.SyncTremor, killer.PlayerId, Timer);
+        Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, Timer);
     }
 
     public void ReceiveRPC(MessageReader reader)
@@ -122,7 +124,7 @@ public class Tremor : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (!seer.Is(CustomRoles.Tremor) || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || meeting) return string.Empty;
+        if (seer.PlayerId != TremorId || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || meeting) return string.Empty;
         var color = IsDoom ? Color.yellow : Color.cyan;
         var text = IsDoom ? DoomTimer.ToString() : Timer.ToString();
         if (hud) text = $"<size=130%><b>{text}</b></size>";

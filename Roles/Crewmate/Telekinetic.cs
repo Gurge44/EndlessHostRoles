@@ -171,7 +171,7 @@ namespace EHR.Crewmate
             SendRPC();
         }
 
-        void SendRPC() => Utils.SendRPC(CustomRPC.SyncTelekinetic, TelekineticPC.PlayerId, Timer, (int)CurrentMode);
+        void SendRPC() => Utils.SendRPC(CustomRPC.SyncRoleData, TelekineticPC.PlayerId, Timer, (int)CurrentMode);
 
         public void ReceiveRPC(MessageReader reader)
         {

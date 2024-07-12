@@ -17,6 +17,7 @@ namespace EHR.Crewmate
         public static OptionItem UseLimitOpt;
         public static OptionItem UsePet;
         private static bool On;
+        byte AidId;
 
         public byte TargetId;
         public override bool IsEnable => On;
@@ -49,6 +50,7 @@ namespace EHR.Crewmate
             On = true;
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             TargetId = byte.MaxValue;
+            AidId = playerId;
         }
 
         public override void SetKillCooldown(byte playerId) => Main.AllPlayerKillCooldown[playerId] = AidCD.GetInt();
@@ -77,7 +79,7 @@ namespace EHR.Crewmate
                 if (x.Value + AidDur.GetInt() <= Utils.TimeStamp || !GameStates.IsInTask)
                 {
                     ShieldedPlayers.Remove(x.Key);
-                    Utils.SendRPC(CustomRPC.SyncAid, pc.PlayerId, 1, x.Key);
+                    Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, x.Key);
                     change = true;
                 }
             }
@@ -95,7 +97,7 @@ namespace EHR.Crewmate
             {
                 pc.RpcRemoveAbilityUse();
                 ShieldedPlayers[TargetId] = Utils.TimeStamp;
-                Utils.SendRPC(CustomRPC.SyncAid, pc.PlayerId, 0, TargetId);
+                Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 0, TargetId);
                 var target = Utils.GetPlayerById(TargetId);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
@@ -127,7 +129,7 @@ namespace EHR.Crewmate
                 return string.Format(Translator.GetString("AidCounterSelf"), timeLeft);
             }
 
-            if (seer.Is(CustomRoles.Aid))
+            if (seer.PlayerId == AidId)
             {
                 var duration = AidDur.GetInt();
                 var now = Utils.TimeStamp;

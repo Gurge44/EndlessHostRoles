@@ -78,7 +78,7 @@ namespace EHR.Neutral
             if (GotRewards.Contains(Reward.Morph) && MorphCooldown <= 0)
             {
                 MorphCooldown = 15 + (int)Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown);
-                Utils.SendRPC(CustomRPC.SyncRogue, pc.PlayerId, 2, MorphCooldown);
+                Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, MorphCooldown);
                 var target = Main.AllAlivePlayerControls.Except([pc]).Shuffle()[0];
                 pc.RpcShapeshift(target, !Options.DisableAllShapeshiftAnimations.GetBool());
                 return false;
@@ -149,7 +149,7 @@ namespace EHR.Neutral
             if (MorphCooldown > 0)
             {
                 MorphCooldown--;
-                Utils.SendRPC(CustomRPC.SyncRogue, pc.PlayerId, 2, MorphCooldown);
+                Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, MorphCooldown);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
                 if (pc.IsShifted() && MorphCooldown <= Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown))
@@ -260,7 +260,7 @@ namespace EHR.Neutral
             }
         }
 
-        void SendRPC() => Utils.SendRPC(CustomRPC.SyncRogue, RoguePC.PlayerId, 1, (int)CurrentTask.Objective, (int)CurrentTask.Reward, CurrentTask.IsCompleted, AllTasksCompleted, DataType(), CurrentTask.Data);
+        void SendRPC() => Utils.SendRPC(CustomRPC.SyncRoleData, RoguePC.PlayerId, 1, (int)CurrentTask.Objective, (int)CurrentTask.Reward, CurrentTask.IsCompleted, AllTasksCompleted, DataType(), CurrentTask.Data);
 
         int DataType() => CurrentTask.Data switch
         {

@@ -55,7 +55,7 @@ namespace EHR.Impostor
             AURoleOptions.ShapeshifterDuration = 1f;
         }
 
-        void SendRPC() => Utils.SendRPC(CustomRPC.SyncCommander, CommanderId, 1, (int)CurrentMode, IsWhistling, MarkedPlayer);
+        void SendRPC() => Utils.SendRPC(CustomRPC.SyncRoleData, CommanderId, 1, (int)CurrentMode, IsWhistling, MarkedPlayer);
 
         public void ReceiveRPC(MessageReader reader)
         {
@@ -191,7 +191,7 @@ namespace EHR.Impostor
             if (target == null) return;
 
             DontKillMarks.Add(target.PlayerId);
-            Utils.SendRPC(CustomRPC.SyncCommander, CommanderId, 2, target.PlayerId);
+            Utils.SendRPC(CustomRPC.SyncRoleData, CommanderId, 2, target.PlayerId);
             Utils.NotifyRoles(SpecifyTarget: target);
         }
 
@@ -218,7 +218,7 @@ namespace EHR.Impostor
             MarkedPlayer = byte.MaxValue;
             DontKillMarks = [];
             SendRPC();
-            Utils.SendRPC(CustomRPC.SyncCommander, CommanderId, 3);
+            Utils.SendRPC(CustomRPC.SyncRoleData, CommanderId, 3);
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)

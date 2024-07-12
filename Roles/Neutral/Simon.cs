@@ -55,7 +55,7 @@ namespace EHR.Neutral
             DoMode = true;
             Executed = false;
             SimonId = playerId;
-            Utils.SendRPC(CustomRPC.SyncSimon, playerId, 1, DoMode);
+            Utils.SendRPC(CustomRPC.SyncRoleData, playerId, 1, DoMode);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
@@ -70,7 +70,7 @@ namespace EHR.Neutral
             return killer.CheckDoubleTrigger(target, () =>
             {
                 MarkedPlayers[target.PlayerId] = (DoMode, Main.PlayerStates[target.PlayerId].Role.CanUseKillButton(target) ? Instruction.Kill : target.GetTaskState().hasTasks ? Instruction.Task : Instruction.None);
-                Utils.SendRPC(CustomRPC.SyncSimon, killer.PlayerId, 3, target.PlayerId, DoMode, (int)MarkedPlayers[target.PlayerId].Instruction);
+                Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, 3, target.PlayerId, DoMode, (int)MarkedPlayers[target.PlayerId].Instruction);
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             });
         }
@@ -81,7 +81,7 @@ namespace EHR.Neutral
 
             int size = MarkedPlayers.Count;
             MarkedPlayers.Where(x => x.Value.Instruction == Instruction.None).ToList().ForEach(x => MarkedPlayers.Remove(x.Key));
-            if (size != MarkedPlayers.Count) Utils.SendRPC(CustomRPC.SyncSimon, physics.myPlayer.PlayerId, 2);
+            if (size != MarkedPlayers.Count) Utils.SendRPC(CustomRPC.SyncRoleData, physics.myPlayer.PlayerId, 2);
 
             Executed = true;
             foreach (var kvp in MarkedPlayers)
@@ -109,7 +109,7 @@ namespace EHR.Neutral
         public override void OnPet(PlayerControl pc)
         {
             DoMode = !DoMode;
-            Utils.SendRPC(CustomRPC.SyncSimon, pc.PlayerId, 1, DoMode);
+            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, DoMode);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
@@ -134,7 +134,7 @@ namespace EHR.Neutral
             }
 
             MarkedPlayers.Clear();
-            Utils.SendRPC(CustomRPC.SyncSimon, SimonId, 5);
+            Utils.SendRPC(CustomRPC.SyncRoleData, SimonId, 5);
         }
 
         public void ReceiveRPC(MessageReader reader)
@@ -182,7 +182,7 @@ namespace EHR.Neutral
                     if (value.DoAction) pc.Notify(Utils.ColorString(Color.green, "\u2713"));
                     else pc.Suicide();
                     simon.MarkedPlayers.Remove(pc.PlayerId);
-                    Utils.SendRPC(CustomRPC.SyncSimon, simon.SimonId, 4, pc.PlayerId);
+                    Utils.SendRPC(CustomRPC.SyncRoleData, simon.SimonId, 4, pc.PlayerId);
                 }
             }
         }

@@ -24,6 +24,7 @@ namespace EHR.Crewmate
         public static OptionItem SpeedDuration;
         public static OptionItem VisionDuration;
         public static OptionItem InvisDuration;
+
         private byte AlchemistId;
         public bool FixNextSabo;
         private long InvisTime = -10;
@@ -298,17 +299,17 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl pc, PlayerControl tar, bool hud = false, bool m = false)
         {
-            if (!hud || pc == null || pc.PlayerId != tar.PlayerId || !GameStates.IsInTask || Main.PlayerStates[pc.PlayerId].Role is not Alchemist { IsEnable: true } am) return string.Empty;
+            if (!hud || pc == null || pc.PlayerId != tar.PlayerId || !GameStates.IsInTask || pc.PlayerId != AlchemistId) return string.Empty;
             var str = new StringBuilder();
-            if (am.IsInvis)
+            if (IsInvis)
             {
-                var remainTime = am.InvisTime + (long)InvisDuration.GetFloat() - Utils.TimeStamp;
+                var remainTime = InvisTime + (long)InvisDuration.GetFloat() - Utils.TimeStamp;
                 str.Append(string.Format(GetString("ChameleonInvisStateCountdown"), remainTime + 1));
             }
             else
             {
                 var preText = $"<color=#00ffa5>{GetString("PotionInStore")}:</color>";
-                switch (am.PotionID)
+                switch (PotionID)
                 {
                     case 1: // Shield
                         str.Append($"{preText} <b><color=#00ff97>{GetString("ShieldPotion")}</color></b>");
@@ -336,7 +337,7 @@ namespace EHR.Crewmate
                         break;
                 }
 
-                if (am.FixNextSabo) str.Append($"\n<b><color=#3333ff>{GetString("QuickFixPotionWaitForUse")}</color></b>");
+                if (FixNextSabo) str.Append($"\n<b><color=#3333ff>{GetString("QuickFixPotionWaitForUse")}</color></b>");
             }
 
             return str.ToString();

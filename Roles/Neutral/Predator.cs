@@ -75,7 +75,7 @@ namespace EHR.Neutral
 
                 Logger.Info($"Predator Roles: {RolesToKill.Join()}", "Predator");
 
-                var w = Utils.CreateRPC(CustomRPC.SyncPredator);
+                var w = Utils.CreateRPC(CustomRPC.SyncRoleData);
                 w.WritePacked(1);
                 w.WritePacked(RolesToKill.Count);
                 foreach (var role in RolesToKill)
@@ -84,7 +84,7 @@ namespace EHR.Neutral
                 }
 
                 Utils.EndRPC(w);
-                Utils.SendRPC(CustomRPC.SyncPredator, playerId, 2, IsWon);
+                Utils.SendRPC(CustomRPC.SyncRoleData, playerId, 2, IsWon);
             }, 3f, "Select Predator Roles");
         }
 

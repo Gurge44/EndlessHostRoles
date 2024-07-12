@@ -56,6 +56,7 @@ public enum CustomRPC
     Arrow,
 
     // Roles
+    SyncRoleData,
     SetDrawPlayer,
     SyncHeadHunter,
     SyncRabbit,
@@ -124,25 +125,11 @@ public enum CustomRPC
     RpcPassBomb,
     SetAlchemistTimer,
     SyncPostman,
-    SyncRandomizer,
     SyncChangeling,
-    SyncCommander,
     SyncTiger,
-    SyncPredator,
-    SyncImpartial,
-    SyncAdventurer,
     SyncSentry,
     SyncBargainer,
     SyncOverheat,
-    SyncChemist,
-    SyncSimon,
-    SyncRogue,
-    SyncEvolver,
-    SyncTremor,
-    SyncAid,
-    SyncTelekinetic,
-    SyncRouleteGrandeur,
-    SyncAdrenaline,
 
     // Other Game Modes
     SyncKBPlayer,
@@ -385,6 +372,13 @@ internal class RPCHandlerPatch
                 if (reader.ReadBoolean()) TargetArrow.ReceiveRPC(reader);
                 else LocateArrow.ReceiveRPC(reader);
                 break;
+            case CustomRPC.SyncRoleData:
+            {
+                byte id = reader.ReadByte();
+                RoleBase r = Main.PlayerStates[id].Role;
+                r.GetType().GetMethod("ReceiveRPC")?.Invoke(r, [reader]);
+                break;
+            }
             case CustomRPC.SyncPostman:
             {
                 byte id = reader.ReadByte();
@@ -395,28 +389,13 @@ internal class RPCHandlerPatch
                 pm.IsFinished = isFinished;
                 break;
             }
-            case CustomRPC.SyncRandomizer:
-                (Main.PlayerStates[reader.ReadByte()].Role as Randomizer)?.ReceiveRPC(reader);
-                break;
             case CustomRPC.SyncChangeling:
                 if (Main.PlayerStates[reader.ReadByte()].Role is not Changeling changeling) break;
                 changeling.CurrentRole = (CustomRoles)reader.ReadPackedInt32();
                 break;
-            case CustomRPC.SyncCommander:
-                (Main.PlayerStates[reader.ReadByte()].Role as Commander)?.ReceiveRPC(reader);
-                break;
             case CustomRPC.SyncTiger:
                 if (Main.PlayerStates[reader.ReadByte()].Role is not Tiger tiger) break;
                 tiger.EnrageTimer = reader.ReadSingle();
-                break;
-            case CustomRPC.SyncPredator:
-                (Main.PlayerStates[reader.ReadByte()].Role as Predator)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncImpartial:
-                (Main.PlayerStates[reader.ReadByte()].Role as Impartial)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncAdventurer:
-                (Main.PlayerStates[reader.ReadByte()].Role as Adventurer)?.ReceiveRPC(reader);
                 break;
             case CustomRPC.SyncSentry:
             {
@@ -427,33 +406,6 @@ internal class RPCHandlerPatch
             }
             case CustomRPC.SyncOverheat:
                 ((Overheat)Main.PlayerStates[reader.ReadByte()].Role).Temperature = reader.ReadPackedInt32();
-                break;
-            case CustomRPC.SyncChemist:
-                (Main.PlayerStates[reader.ReadByte()].Role as Chemist)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncSimon:
-                (Main.PlayerStates[reader.ReadByte()].Role as Simon)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncRogue:
-                (Main.PlayerStates[reader.ReadByte()].Role as Rogue)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncEvolver:
-                (Main.PlayerStates[reader.ReadByte()].Role as Evolver)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncTremor:
-                (Main.PlayerStates[reader.ReadByte()].Role as Tremor)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncAid:
-                (Main.PlayerStates[reader.ReadByte()].Role as Aid)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncTelekinetic:
-                (Main.PlayerStates[reader.ReadByte()].Role as Telekinetic)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncRouleteGrandeur:
-                (Main.PlayerStates[reader.ReadByte()].Role as RouleteGrandeur)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncAdrenaline:
-                (Main.PlayerStates[reader.ReadByte()].Role as Adrenaline)?.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetBountyTarget:
             {

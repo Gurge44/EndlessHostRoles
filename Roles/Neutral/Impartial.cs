@@ -76,7 +76,7 @@ namespace EHR.Neutral
             NeutralKillCount = (0, r.Next(NeutralMinOpt.GetInt(), NeutralMaxOpt.GetInt() + 1));
             CrewKillCount = (0, r.Next(CrewMinOpt.GetInt(), CrewMaxOpt.GetInt() + 1));
 
-            LateTask.New(() => { Utils.SendRPC(CustomRPC.SyncImpartial, playerId, 1, ImpKillCount.Killed, ImpKillCount.Limit, NeutralKillCount.Killed, NeutralKillCount.Limit, CrewKillCount.Killed, CrewKillCount.Limit); }, 5f, log: false);
+            LateTask.New(() => { Utils.SendRPC(CustomRPC.SyncRoleData, playerId, 1, ImpKillCount.Killed, ImpKillCount.Limit, NeutralKillCount.Killed, NeutralKillCount.Limit, CrewKillCount.Killed, CrewKillCount.Limit); }, 5f, log: false);
         }
 
         public override void Init()
@@ -126,15 +126,15 @@ namespace EHR.Neutral
             {
                 case Team.Impostor:
                     ImpKillCount.Killed++;
-                    Utils.SendRPC(CustomRPC.SyncImpartial, killer.PlayerId, 2);
+                    Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, 2);
                     break;
                 case Team.Neutral:
                     NeutralKillCount.Killed++;
-                    Utils.SendRPC(CustomRPC.SyncImpartial, killer.PlayerId, 3);
+                    Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, 3);
                     break;
                 case Team.Crewmate:
                     CrewKillCount.Killed++;
-                    Utils.SendRPC(CustomRPC.SyncImpartial, killer.PlayerId, 4);
+                    Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, 4);
                     break;
             }
         }

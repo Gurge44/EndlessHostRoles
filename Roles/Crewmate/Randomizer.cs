@@ -218,7 +218,7 @@ namespace EHR.Crewmate
                         break;
                     case Effect.TimeBomb:
                         Bombs.TryAdd(PickRandomPlayer().Pos(), (Utils.TimeStamp, IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration)));
-                        Utils.SendRPC(CustomRPC.SyncRandomizer, randomizer.PlayerId, 1, Bombs.Last().Key, Bombs.Last().Value.PlaceTimeStamp, Bombs.Last().Value.ExplosionDelay);
+                        Utils.SendRPC(CustomRPC.SyncRoleData, randomizer.PlayerId, 1, Bombs.Last().Key, Bombs.Last().Value.PlaceTimeStamp, Bombs.Last().Value.ExplosionDelay);
                         break;
                     case Effect.Tornado:
                         Tornado.SpawnTornado(PickRandomPlayer());
@@ -451,6 +451,8 @@ namespace EHR.Crewmate
         private static long LastDeathEffect;
 
         public static bool Exists;
+
+        byte RandomizerId;
         private static int Id => 643490;
 
         private static string RNGString => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Randomizer), Translator.GetString("RNGHasSpoken"));
@@ -514,6 +516,7 @@ namespace EHR.Crewmate
             Exists = true;
             PlayerIdList.Add(playerId);
             AllPlayerDefaultSpeed = Main.AllPlayerSpeed.ToDictionary(x => x.Key, x => x.Value);
+            RandomizerId = playerId;
         }
 
         public static PlayerControl PickRandomPlayer()
@@ -617,7 +620,7 @@ namespace EHR.Crewmate
             LastDeathEffect = Utils.TimeStamp;
             Rifts.Clear();
             Bombs.Clear();
-            Utils.SendRPC(CustomRPC.SyncRandomizer, PlayerIdList.First(), 3);
+            Utils.SendRPC(CustomRPC.SyncRoleData, PlayerIdList.First(), 3);
             foreach (var pc in Main.AllPlayerControls)
             {
                 RevertSpeedChangesForPlayer(pc, false);
@@ -652,7 +655,7 @@ namespace EHR.Crewmate
                         }
 
                         Bombs.Remove(bomb.Key);
-                        Utils.SendRPC(CustomRPC.SyncRandomizer, randomizer.PlayerId, 2, bomb.Key);
+                        Utils.SendRPC(CustomRPC.SyncRoleData, randomizer.PlayerId, 2, bomb.Key);
                     }
                 }
             }
