@@ -8,6 +8,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using BepInEx.Unity.IL2CPP;
+using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR;
 using EHR.Neutral;
 using HarmonyLib;
@@ -29,8 +30,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "4.0.0";
-    public const string PluginDisplayVersion = "4.0.0";
+    public const string PluginVersion = "4.1.0";
+    public const string PluginDisplayVersion = "4.1.0";
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
     public const string CrewmateColor = "#8cffff";
@@ -123,6 +124,7 @@ public class Main : BasePlugin
 
     // ReSharper disable once StringLiteralTypo
     public static readonly List<string> NameSnacksEn = ["Ice cream", "Milk tea", "Chocolate", "Cake", "Donut", "Coke", "Lemonade", "Candied haws", "Jelly", "Candy", "Milk", "Matcha", "Burning Grass Jelly", "Pineapple Bun", "Pudding", "Coconut Jelly", "Cookies", "Red Bean Toast", "Three Color Dumplings", "Wormwood Dumplings", "Puffs", "Can be Crepe", "Peach Crisp", "Mochi", "Egg Waffle", "Macaron", "Snow Plum Niang", "Fried Yogurt", "Egg Tart", "Muffin", "Sago Dew", "panna cotta", "soufflé", "croissant", "toffee"];
+    public Coroutines coroutines;
 
     private static HashAuth DebugKeyAuth { get; set; }
     private static ConfigEntry<string> DebugKeyInput { get; set; }
@@ -148,6 +150,8 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> DarkTheme { get; private set; }
     public static ConfigEntry<bool> HorseMode { get; private set; }
     public static ConfigEntry<bool> LongMode { get; private set; }
+    public static ConfigEntry<bool> ShowPlayerInfoInLobby { get; private set; }
+    public static ConfigEntry<bool> LobbyMusic { get; private set; }
 
     // Preset Name Options
     public static ConfigEntry<string> Preset1 { get; private set; }
@@ -234,11 +238,14 @@ public class Main : BasePlugin
         SwitchVanilla = Config.Bind("Client Options", "SwitchVanilla", false);
         VersionCheat = Config.Bind("Client Options", "VersionCheat", false);
         GodMode = Config.Bind("Client Options", "GodMode", false);
-        DarkTheme = Config.Bind("Client Options", "DarkTheme", false);
+        DarkTheme = Config.Bind("Client Options", "DarkTheme", true);
         HorseMode = Config.Bind("Client Options", "HorseMode", false);
         LongMode = Config.Bind("Client Options", "LongMode", false);
+        ShowPlayerInfoInLobby = Config.Bind("Client Options", "ShowPlayerInfoInLobby", false);
+        LobbyMusic = Config.Bind("Client Options", "LobbyMusic", false);
 
         Logger = BepInEx.Logging.Logger.CreateLogSource("EHR");
+        coroutines = AddComponent<Coroutines>();
         EHR.Logger.Enable();
         EHR.Logger.Disable("NotifyRoles");
         EHR.Logger.Disable("SwitchSystem");
@@ -350,6 +357,7 @@ public class Main : BasePlugin
                 { CustomRoles.Convener, "#34eb7a" },
                 { CustomRoles.Mathematician, "#eb3474" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Adrenaline, "#ffff00" },
                 { CustomRoles.Safeguard, "#4949e3" },
                 { CustomRoles.Clairvoyant, "#d4ffdd" },
                 { CustomRoles.Inquirer, "#7c55f2" },
@@ -527,6 +535,7 @@ public class Main : BasePlugin
                 { CustomRoles.Watcher, "#800080" },
                 { CustomRoles.Sleuth, "#30221c" },
                 { CustomRoles.Energetic, "#ffff00" },
+                { CustomRoles.Messenger, "#28b573" },
                 { CustomRoles.Dynamo, "#ebe534" },
                 { CustomRoles.AntiTP, "#fcba03" },
                 { CustomRoles.Rookie, "#bf671f" },
@@ -677,6 +686,31 @@ public class Main : BasePlugin
         {
             Utils.ThrowException(e);
         }
+    }
+
+    public void StartCoroutine(System.Collections.IEnumerator coroutine)
+    {
+        if (coroutine == null)
+        {
+            return;
+        }
+
+        coroutines.StartCoroutine(coroutine.WrapToIl2Cpp());
+    }
+
+    public void StopCoroutine(System.Collections.IEnumerator coroutine)
+    {
+        if (coroutine == null)
+        {
+            return;
+        }
+
+        coroutines.StopCoroutine(coroutine.WrapToIl2Cpp());
+    }
+
+    public void StopAllCoroutines()
+    {
+        coroutines.StopAllCoroutines();
     }
 }
 
@@ -843,4 +877,8 @@ public enum TieMode
     Default,
     All,
     Random
+}
+
+public class Coroutines : MonoBehaviour
+{
 }

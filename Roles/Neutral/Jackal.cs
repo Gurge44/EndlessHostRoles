@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.Modules;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -114,11 +113,11 @@ public class Jackal : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer.GetAbilityUseLimit() < 1 || !CanBeSidekick(target, out var needBasisChange, out var targetRoleType)) return true;
+        if (killer.GetAbilityUseLimit() < 1 || !CanBeSidekick(target, out var needBasisChange, out var targetRoleType) || needBasisChange) return true;
 
         killer.RpcRemoveAbilityUse();
         target.RpcSetCustomRole(targetRoleType == RoleTypes.Shapeshifter ? CustomRoles.Recruit : CustomRoles.Sidekick);
-        if (needBasisChange) target.ChangeRoleBasis(RoleTypes.Impostor);
+        // if (needBasisChange) target.ChangeRoleBasis(RoleTypes.Impostor);
 
         Main.ResetCamPlayerList.Add(target.PlayerId);
 

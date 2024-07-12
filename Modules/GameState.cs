@@ -32,6 +32,7 @@ public class PlayerState(byte playerId)
         Execution,
         Disconnected,
         Fall,
+        AFK,
 
         // EHR
         Gambled,

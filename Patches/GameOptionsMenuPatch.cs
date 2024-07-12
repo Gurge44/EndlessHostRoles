@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
+using EHR.Patches;
 using HarmonyLib;
 using Il2CppSystem.Collections.Generic;
 using TMPro;
@@ -81,7 +82,7 @@ public static class GameOptionsMenuPatch
 
                     if (enabled) num -= 0.63f;
                 }
-                else if (option.IsHeader && enabled) num -= 0.3f;
+                else if (option.IsHeader && enabled) num -= 0.25f;
 
                 if (option is TextOptionItem) continue;
 
@@ -167,10 +168,10 @@ public static class GameOptionsMenuPatch
                 var enabled = !option.IsHiddenOn(Options.CurrentGameMode) && (option.Parent == null || (!option.Parent.IsHiddenOn(Options.CurrentGameMode) && option.Parent.GetBool()));
 
                 if (option is TextOptionItem) num -= 0.63f;
-                else
+                else if (enabled)
                 {
-                    if (option.IsHeader && enabled) num -= 0.3f;
-                    if (enabled) num -= 0.45f;
+                    if (option.IsHeader) num -= 0.25f;
+                    num -= 0.45f;
                 }
             }
 
@@ -282,7 +283,7 @@ public static class GameOptionsMenuPatch
                 categoryHeaderMasked.gameObject.SetActive(enabled);
                 if (enabled) num -= 0.63f;
             }
-            else if (option.IsHeader && enabled) num -= 0.3f;
+            else if (option.IsHeader && enabled) num -= 0.25f;
 
             if (ModGameOptionsMenu.BehaviourList.TryGetValue(index, out var optionBehaviour))
             {
@@ -300,52 +301,58 @@ public static class GameOptionsMenuPatch
 
     private static BaseGameSetting GetSetting(OptionItem item)
     {
-        // ReSharper disable Unity.IncorrectScriptableObjectInstantiation
-        BaseGameSetting baseGameSetting = item switch
+        BaseGameSetting baseGameSetting;
+        switch (item)
         {
-            BooleanOptionItem => new CheckboxGameSetting
-            {
-                Type = OptionTypes.Checkbox
-            },
-            IntegerOptionItem integerOptionItem => new IntGameSetting
-            {
-                Type = OptionTypes.Int,
-                Value = integerOptionItem.GetInt(),
-                Increment = integerOptionItem.Rule.Step,
-                ValidRange = new(integerOptionItem.Rule.MinValue, integerOptionItem.Rule.MaxValue),
-                ZeroIsInfinity = false,
-                SuffixType = NumberSuffixes.Multiplier,
-                FormatString = string.Empty
-            },
-            FloatOptionItem floatOptionItem => new FloatGameSetting
-            {
-                Type = OptionTypes.Float,
-                Value = floatOptionItem.GetFloat(),
-                Increment = floatOptionItem.Rule.Step,
-                ValidRange = new(floatOptionItem.Rule.MinValue, floatOptionItem.Rule.MaxValue),
-                ZeroIsInfinity = false,
-                SuffixType = NumberSuffixes.Multiplier,
-                FormatString = string.Empty
-            },
-            StringOptionItem stringOptionItem => new StringGameSetting
-            {
-                Type = OptionTypes.String,
-                Values = new StringNames[stringOptionItem.Selections.Count],
-                Index = stringOptionItem.GetInt()
-            },
-            PresetOptionItem presetOptionItem => new IntGameSetting
-            {
-                Type = OptionTypes.Int,
-                Value = presetOptionItem.GetInt(),
-                Increment = presetOptionItem.Rule.Step,
-                ValidRange = new(presetOptionItem.Rule.MinValue, presetOptionItem.Rule.MaxValue),
-                ZeroIsInfinity = false,
-                SuffixType = NumberSuffixes.Multiplier,
-                FormatString = string.Empty
-            },
-            _ => null
-        };
-        // ReSharper restore Unity.IncorrectScriptableObjectInstantiation
+            case BooleanOptionItem:
+                var checkboxGameSetting = ScriptableObject.CreateInstance<CheckboxGameSetting>();
+                checkboxGameSetting.Type = OptionTypes.Checkbox;
+                baseGameSetting = checkboxGameSetting;
+                break;
+            case IntegerOptionItem integerOptionItem:
+                var intGameSetting = ScriptableObject.CreateInstance<IntGameSetting>();
+                intGameSetting.Type = OptionTypes.Int;
+                intGameSetting.Value = integerOptionItem.GetInt();
+                intGameSetting.Increment = integerOptionItem.Rule.Step;
+                intGameSetting.ValidRange = new(integerOptionItem.Rule.MinValue, integerOptionItem.Rule.MaxValue);
+                intGameSetting.ZeroIsInfinity = false;
+                intGameSetting.SuffixType = NumberSuffixes.Multiplier;
+                intGameSetting.FormatString = string.Empty;
+                baseGameSetting = intGameSetting;
+                break;
+            case FloatOptionItem floatOptionItem:
+                var floatGameSetting = ScriptableObject.CreateInstance<FloatGameSetting>();
+                floatGameSetting.Type = OptionTypes.Float;
+                floatGameSetting.Value = floatOptionItem.GetFloat();
+                floatGameSetting.Increment = floatOptionItem.Rule.Step;
+                floatGameSetting.ValidRange = new(floatOptionItem.Rule.MinValue, floatOptionItem.Rule.MaxValue);
+                floatGameSetting.ZeroIsInfinity = false;
+                floatGameSetting.SuffixType = NumberSuffixes.Multiplier;
+                floatGameSetting.FormatString = string.Empty;
+                baseGameSetting = floatGameSetting;
+                break;
+            case StringOptionItem stringOptionItem:
+                var stringGameSetting = ScriptableObject.CreateInstance<StringGameSetting>();
+                stringGameSetting.Type = OptionTypes.String;
+                stringGameSetting.Values = new StringNames[stringOptionItem.Selections.Count];
+                stringGameSetting.Index = stringOptionItem.GetInt();
+                baseGameSetting = stringGameSetting;
+                break;
+            case PresetOptionItem presetOptionItem:
+                var presetIntGameSetting = ScriptableObject.CreateInstance<IntGameSetting>();
+                presetIntGameSetting.Type = OptionTypes.Int;
+                presetIntGameSetting.Value = presetOptionItem.GetInt();
+                presetIntGameSetting.Increment = presetOptionItem.Rule.Step;
+                presetIntGameSetting.ValidRange = new(presetOptionItem.Rule.MinValue, presetOptionItem.Rule.MaxValue);
+                presetIntGameSetting.ZeroIsInfinity = false;
+                presetIntGameSetting.SuffixType = NumberSuffixes.Multiplier;
+                presetIntGameSetting.FormatString = string.Empty;
+                baseGameSetting = presetIntGameSetting;
+                break;
+            default:
+                baseGameSetting = null;
+                break;
+        }
 
         if (baseGameSetting != null)
         {
@@ -426,8 +433,10 @@ public static class NumberOptionPatch
                 __instance.Increment = 0.05f;
                 __instance.Value = (float)Math.Round(__instance.Value, 2);
                 break;
-            case StringNames.GameNumImpostors when DebugModeManager.IsDebugMode:
-                __instance.ValidRange.min = 0;
+            case StringNames.GameNumImpostors:
+                __instance.ValidRange = new(1, Crowded.MaxImpostors);
+                __instance.Value = (float)Math.Round(__instance.Value, 2);
+                if (DebugModeManager.AmDebugger) __instance.ValidRange.min = 0;
                 break;
         }
 
@@ -555,6 +564,15 @@ public static class StringOptionPatch
                 __instance.TitleText.fontWeight = FontWeight.Black;
                 __instance.TitleText.outlineColor = new(255, 255, 255, 255);
                 __instance.TitleText.outlineWidth = 0.04f;
+                var i = name.IndexOf('#');
+                if (ColorUtility.TryParseHtmlString(name[i..(i + 7)], out var color))
+                {
+                    __instance.LabelBackground.color = color;
+                    __instance.TitleText.color = Color.white;
+                    name = name.RemoveHtmlTags();
+                }
+
+                name = $"<size=3.5>{name}</size>";
             }
 
             __instance.TitleText.text = name;

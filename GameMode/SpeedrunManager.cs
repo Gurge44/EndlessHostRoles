@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
-using EHR.Modules;
 using HarmonyLib;
 using UnityEngine;
 
@@ -54,7 +52,7 @@ namespace EHR
             if (TaskFinishWins.GetBool()) return;
 
             CanKill.Add(pc.PlayerId);
-            pc.ChangeRoleBasis(RoleTypes.Impostor);
+            // pc.ChangeRoleBasis(RoleTypes.Impostor);
             pc.Notify(Translator.GetString("Speedrun_CompletedTasks"));
         }
 

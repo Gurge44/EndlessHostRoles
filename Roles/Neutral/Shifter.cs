@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿/*using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Crewmate;
@@ -33,8 +33,10 @@ namespace EHR.Neutral
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
             HasImpostorVision = new BooleanOptionItem(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
-            TryChangeBasis = new BooleanOptionItem(Id + 5, "TryChangeBasis", true, TabGroup.NeutralRoles)
+            TryChangeBasis = new BooleanOptionItem(Id + 5, "TryChangeBasis", false, TabGroup.NeutralRoles)
+                .SetHidden(true)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
+            TryChangeBasis.SetValue(0);
         }
 
         public override void Init()
@@ -133,3 +135,5 @@ namespace EHR.Neutral
         }
     }
 }
+*/
+

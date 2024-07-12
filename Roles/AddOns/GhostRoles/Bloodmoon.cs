@@ -11,6 +11,7 @@ namespace EHR.AddOns.GhostRoles
         private static readonly Dictionary<byte, long> ScheduledDeaths = [];
         public Team Team => Team.Impostor | Team.Neutral;
         public int Cooldown => Duration.GetInt() + CD.GetInt();
+        public bool ChangeToGA => true;
 
         public void OnAssign(PlayerControl pc)
         {

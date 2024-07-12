@@ -41,28 +41,35 @@ namespace EHR.Impostor
 
         public static List<CustomRoles> GetAvailableRoles(bool check = false)
         {
-            CustomRoles[] allRoles = Enum.GetValues<CustomRoles>();
-
-            IEnumerable<CustomRoles> result = AvailableRoles.GetValue() switch
+            try
             {
-                0 => allRoles,
-                1 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Impostor or CustomRoles.ImpostorEHR),
-                2 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR),
-                3 => allRoles.Where(x => x.GetMode() != 0),
-                4 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Impostor or CustomRoles.ImpostorEHR && x.GetMode() != 0),
-                5 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR && x.GetMode() != 0),
-                _ => allRoles
-            };
+                CustomRoles[] allRoles = Enum.GetValues<CustomRoles>();
 
-            if (!CanPickPartnerRole.GetBool() && !check)
-            {
-                result = result.Where(x => !CustomRoleSelector.RoleResult.ContainsValue(x));
+                IEnumerable<CustomRoles> result = AvailableRoles.GetValue() switch
+                {
+                    0 => allRoles,
+                    1 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Impostor or CustomRoles.ImpostorEHR),
+                    2 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR),
+                    3 => allRoles.Where(x => x.GetMode() != 0),
+                    4 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Impostor or CustomRoles.ImpostorEHR && x.GetMode() != 0),
+                    5 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR && x.GetMode() != 0),
+                    _ => allRoles
+                };
+
+                if (!CanPickPartnerRole.GetBool() && !check)
+                {
+                    result = result.Where(x => !CustomRoleSelector.RoleResult.ContainsValue(x));
+                }
+
+                var rolesList = result.ToList();
+                rolesList.Remove(CustomRoles.Changeling);
+                rolesList.RemoveAll(x => !x.IsImpostor() || x.IsVanilla() || x.IsAdditionRole());
+                return rolesList;
             }
-
-            var rolesList = result.ToList();
-            rolesList.Remove(CustomRoles.Changeling);
-            rolesList.RemoveAll(x => !x.IsImpostor() || x.IsVanilla() || x.IsAdditionRole());
-            return rolesList;
+            catch
+            {
+                return [];
+            }
         }
 
         public override void Add(byte playerId)

@@ -164,6 +164,8 @@ public class Vulture : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
+        if (!pc.IsAlive()) return;
+
         var playerId = pc.PlayerId;
         if (BodyReportCount >= NumberOfReportsToWin.GetInt() && GameStates.IsInTask)
         {
@@ -173,7 +175,7 @@ public class Vulture : RoleBase
             return;
         }
 
-        if (ChangeRoleWhenCantWin.GetBool() && Main.AllAlivePlayerControls.Length <= (NumberOfReportsToWin.GetInt() - BodyReportCount))
+        if (ChangeRoleWhenCantWin.GetBool() && Main.AllAlivePlayerControls.Length - 1 <= (NumberOfReportsToWin.GetInt() - BodyReportCount))
         {
             var role = ChangeRoles[ChangeRole.GetValue()];
             pc.RpcSetCustomRole(role);

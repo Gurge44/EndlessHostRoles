@@ -31,15 +31,16 @@ namespace EHR.Modules
             var suitableRole = GetSuitableGhostRole(pc);
             Logger.Warn($"Assigning Ghost Role: {pc.GetNameWithRole()} => {suitableRole}", "GhostRolesManager");
 
-            pc.RpcSetCustomRole(suitableRole);
-            pc.RpcSetRole(RoleTypes.GuardianAngel);
             IGhostRole instance = CreateGhostRoleInstance(suitableRole);
+            pc.RpcSetCustomRole(suitableRole);
+            if (instance.ChangeToGA) pc.RpcSetRole(RoleTypes.GuardianAngel);
             instance.OnAssign(pc);
+            Main.ResetCamPlayerList.Add(pc.PlayerId);
             AssignedGhostRoles[pc.PlayerId] = (suitableRole, instance);
 
             if (suitableRole == CustomRoles.Haunter) GhostRoles.Remove(suitableRole);
 
-            NotifyAboutGhostRole(pc);
+            NotifyAboutGhostRole(pc, true);
         }
 
         public static void SpecificAssignGhostRole(byte id, CustomRoles role, bool set)
@@ -47,21 +48,28 @@ namespace EHR.Modules
             if (AssignedGhostRoles.Any(x => x.Key == id || x.Value.Role == role)) return;
 
             var pc = Utils.GetPlayerById(id);
-            if (set) pc.RpcSetRole(RoleTypes.GuardianAngel);
 
             IGhostRole instance = CreateGhostRoleInstance(role);
+            if (set && instance.ChangeToGA) pc.RpcSetRole(RoleTypes.GuardianAngel);
             instance.OnAssign(pc);
+            Main.ResetCamPlayerList.Add(pc.PlayerId);
             AssignedGhostRoles[id] = (role, instance);
         }
 
-        public static void NotifyAboutGhostRole(PlayerControl pc)
+        public static void NotifyAboutGhostRole(PlayerControl pc, bool first = false)
         {
             if (!AssignedGhostRoles.TryGetValue(pc.PlayerId, out var ghostRole)) return;
+            if (!first && pc.IsModClient()) return;
+
             CustomRoles role = ghostRole.Role;
-            pc.Notify($"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{GetMessage(Translator.GetString($"{role}InfoLong").Split("\n")[1..].Join(delimiter: "\n"))}</size>", 300f);
+            var info = GetMessage(Translator.GetString($"{role}InfoLong").Split("\n")[1..].Join(delimiter: "\n"));
+            var text = $"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{info.Message}</size>";
+            var notifyText = $"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{info.Split}</size>";
+            Utils.SendMessage(title: text, sendTo: pc.PlayerId, text: "\n");
+            pc.Notify(notifyText, 5 * text.Count(x => x == '\n'));
             return;
 
-            string GetMessage(string baseMessage)
+            (string Split, string Message) GetMessage(string baseMessage)
             {
                 var message = baseMessage;
                 for (int i = 50; i < message.Length; i += 50)
@@ -73,7 +81,9 @@ namespace EHR.Modules
                     }
                 }
 
-                return Utils.ColorString(Color.white, message.Replace(role.ToString(), role.ToColoredString()));
+                return (ApplyFormat(message), ApplyFormat(baseMessage));
+
+                string ApplyFormat(string m) => Utils.ColorString(Color.white, m.Replace(role.ToString(), role.ToColoredString()));
             }
         }
 

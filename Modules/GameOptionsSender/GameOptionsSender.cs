@@ -11,11 +11,10 @@ namespace EHR.Modules;
 
 public abstract class GameOptionsSender
 {
-    public abstract IGameOptions BasedGameOptions { get; }
-    public abstract bool IsDirty { get; protected set; }
+    protected abstract bool IsDirty { get; set; }
 
 
-    public virtual void SendGameOptions()
+    protected virtual void SendGameOptions()
     {
         var opt = BuildGameOptions();
 
@@ -96,6 +95,21 @@ public abstract class GameOptionsSender
     #region Static
 
     public static readonly List<GameOptionsSender> AllSenders = new(15) { new NormalGameOptionsSender() };
+
+    public static System.Collections.IEnumerator SendAllGameOptionsAsync()
+    {
+        AllSenders.RemoveAll(s => s == null || !s.AmValid());
+        foreach (GameOptionsSender sender in AllSenders)
+        {
+            if (sender.IsDirty)
+            {
+                sender.SendGameOptions();
+                yield return null;
+            }
+
+            sender.IsDirty = false;
+        }
+    }
 
     public static void SendAllGameOptions()
     {

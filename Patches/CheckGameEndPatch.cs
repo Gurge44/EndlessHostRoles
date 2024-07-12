@@ -591,15 +591,7 @@ class GameEndChecker
         public override bool CheckForEndGame(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
-            bool end = WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
-            // if (end)
-            // {
-            //     // Set the impostor count to 1 from 0 so the host doesn't get banned after rejoining the lobby
-            //     GameOptionsManager.Instance.currentNormalGameOptions.NumImpostors = 1;
-            //     PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(GameOptionsManager.Instance.CurrentGameOptions, AprilFoolsMode.IsAprilFoolsModeToggledOn));
-            // }
-
-            return end;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
         }
 
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
@@ -674,7 +666,7 @@ class GameEndChecker
                 case 0:
                     ResetAndSetWinner(CustomWinner.Error);
                     Logger.Warn("No players alive. Force ending the game", "HotPotato");
-                    return false;
+                    return true;
                 default:
                     return false;
             }

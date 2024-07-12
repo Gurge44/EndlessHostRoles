@@ -6,9 +6,9 @@ namespace EHR.Modules;
 public class NormalGameOptionsSender : GameOptionsSender
 {
     private LogicOptions _logicOptions;
-    public override IGameOptions BasedGameOptions => GameOptionsManager.Instance.CurrentGameOptions;
+    public virtual IGameOptions BasedGameOptions => GameOptionsManager.Instance.CurrentGameOptions;
 
-    public override bool IsDirty
+    protected override bool IsDirty
     {
         get
         {
@@ -29,7 +29,7 @@ public class NormalGameOptionsSender : GameOptionsSender
                 return _logicOptions is { IsDirty: true };
             }
         }
-        protected set { _logicOptions?.ClearDirtyFlag(); }
+        set { _logicOptions?.ClearDirtyFlag(); }
     }
 
     protected override IGameOptions BuildGameOptions()

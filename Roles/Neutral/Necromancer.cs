@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
-using EHR.Modules;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -155,7 +154,7 @@ namespace EHR.Neutral
         {
             DeathknightId = playerId;
             Deathknight_ = Utils.GetPlayerById(playerId);
-            if (!UsePets.GetBool()) Deathknight_.ChangeRoleBasis(RoleTypes.Impostor);
+            // if (!UsePets.GetBool()) Deathknight_.ChangeRoleBasis(RoleTypes.Impostor);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Necromancer.DKCD.GetFloat();

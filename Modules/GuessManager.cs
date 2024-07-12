@@ -578,8 +578,6 @@ public static class GuessManager
         return true;
     }
 
-    private static TextMeshPro NameText(this PlayerControl p) => p.cosmetics.nameText;
-
     public static void RpcGuesserMurderPlayer(this PlayerControl pc /*, float delay = 0f*/)
     {
         // DEATH STUFF //
@@ -597,7 +595,7 @@ public static class GuessManager
             if (amOwner)
             {
                 hudManager.ShadowQuad.gameObject.SetActive(false);
-                pc.NameText().GetComponent<MeshRenderer>().material.SetInt(Mask, 0);
+                pc.cosmetics.nameText.GetComponent<MeshRenderer>().material.SetInt(Mask, 0);
                 pc.RpcSetScanner(false);
                 ImportantTextTask importantTextTask = new GameObject("_Player").AddComponent<ImportantTextTask>();
                 importantTextTask.transform.SetParent(AmongUsClient.Instance.transform, false);
@@ -642,7 +640,7 @@ public static class GuessManager
         if (amOwner)
         {
             hudManager.ShadowQuad.gameObject.SetActive(false);
-            pc.NameText().GetComponent<MeshRenderer>().material.SetInt(Mask, 0);
+            pc.cosmetics.nameText.GetComponent<MeshRenderer>().material.SetInt(Mask, 0);
             pc.RpcSetScanner(false);
             ImportantTextTask importantTextTask = new GameObject("_Player").AddComponent<ImportantTextTask>();
             importantTextTask.transform.SetParent(AmongUsClient.Instance.transform, false);
@@ -730,6 +728,28 @@ public static class GuessManager
             button.OnClick.RemoveAllListeners();
             var pva1 = pva;
             button.OnClick.AddListener((Action)(() => GuesserOnClick(pva1.TargetPlayerId, __instance)));
+        }
+    }
+
+    private static void CreateIDLabels(MeetingHud __instance)
+    {
+        foreach (var pva in __instance.playerStates)
+        {
+            var levelDisplay = pva.transform.FindChild("PlayerLevel").gameObject;
+            var panel = Object.Instantiate(levelDisplay, pva.transform, true);
+            var panelTransform = panel.transform;
+            var background = panel.GetComponent<SpriteRenderer>();
+            background.color = Palette.Purple;
+            background.sortingOrder = 99;
+            panelTransform.SetAsFirstSibling();
+            panelTransform.localPosition = new(-1.21f, -0.05f, 0f);
+            var levelLabel = panelTransform.FindChild("LevelLabel").GetComponents<TextMeshPro>()[0];
+            levelLabel.DestroyTranslator();
+            levelLabel.text = "ID";
+            levelLabel.sortingOrder = 100;
+            var levelNumber = panelTransform.FindChild("LevelNumber").GetComponent<TextMeshPro>();
+            levelNumber.text = pva.TargetPlayerId.ToString();
+            levelNumber.sortingOrder = 100;
         }
     }
 
@@ -1154,6 +1174,8 @@ public static class GuessManager
                 if (alive && lp.Is(CustomRoles.Guesser))
                     CreateGuesserButton(__instance);
             }
+
+            CreateIDLabels(__instance);
         }
     }
 

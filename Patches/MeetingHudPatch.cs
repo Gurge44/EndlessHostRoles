@@ -18,6 +18,7 @@ namespace EHR.Patches;
 class CheckForEndVotingPatch
 {
     public static string EjectionText = string.Empty;
+    public static bool RunRoleCode = true;
 
     public static bool Prefix(MeetingHud __instance)
     {
@@ -191,37 +192,33 @@ class CheckForEndVotingPatch
 
                 if (ps.TargetPlayerId == ps.VotedFor && Options.MadmateSpawnMode.GetInt() == 2) continue;
 
-                statesList.Add(new()
-                {
-                    VoterId = ps.TargetPlayerId,
-                    VotedForId = ps.VotedFor
-                });
+                AddVote();
 
-                if (CheckRole(ps.TargetPlayerId, CustomRoles.Mayor) && !Mayor.MayorHideVote.GetBool())
+                if (Main.PlayerStates[ps.TargetPlayerId].Role is Adventurer { IsEnable: true } av && av.ActiveWeapons.Contains(Adventurer.Weapon.Proxy)) AddVote();
+                if (CheckRole(ps.TargetPlayerId, CustomRoles.Mayor) && !Mayor.MayorHideVote.GetBool()) Loop.Times(Mayor.MayorAdditionalVote.GetInt(), _ => AddVote());
+                if (CheckRole(ps.TargetPlayerId, CustomRoles.Vindicator) && !Options.VindicatorHideVote.GetBool()) Loop.Times(Options.VindicatorAdditionalVote.GetInt(), _ => AddVote());
+                if (CheckRole(ps.TargetPlayerId, CustomRoles.Knighted)) AddVote();
+                if (CheckRole(ps.TargetPlayerId, CustomRoles.DualPersonality) && Options.DualVotes.GetBool())
                 {
-                    for (var i2 = 0; i2 < Mayor.MayorAdditionalVote.GetFloat(); i2++)
-                    {
-                        statesList.Add(new()
-                        {
-                            VoterId = ps.TargetPlayerId,
-                            VotedForId = ps.VotedFor
-                        });
-                    }
+                    int count = statesList.Count(x => x.VoterId == ps.TargetPlayerId && x.VotedForId == ps.VotedFor);
+                    Loop.Times(count, _ => AddVote());
                 }
 
-                if (CheckRole(ps.TargetPlayerId, CustomRoles.Vindicator) && !Options.VindicatorHideVote.GetBool())
+                if (CheckRole(ps.TargetPlayerId, CustomRoles.TicketsStealer))
                 {
-                    for (var i2 = 0; i2 < Options.VindicatorAdditionalVote.GetFloat(); i2++)
-                    {
-                        statesList.Add(new()
-                        {
-                            VoterId = ps.TargetPlayerId,
-                            VotedForId = ps.VotedFor
-                        });
-                    }
+                    int count = (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Options.TicketsPerKill.GetFloat());
+                    Loop.Times(count, _ => AddVote());
                 }
 
-                if (Main.PlayerStates[ps.TargetPlayerId].Role is Adventurer { IsEnable: true } av && av.ActiveWeapons.Contains(Adventurer.Weapon.Proxy))
+                if (CheckRole(ps.TargetPlayerId, CustomRoles.Pickpocket))
+                {
+                    int count = (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Pickpocket.VotesPerKill.GetFloat());
+                    Loop.Times(count, _ => AddVote());
+                }
+
+                continue;
+
+                void AddVote()
                 {
                     statesList.Add(new()
                     {
@@ -231,8 +228,11 @@ class CheckForEndVotingPatch
                 }
             }
 
-            Blackmailer.OnCheckForEndVoting();
-            NiceSwapper.OnCheckForEndVoting();
+            if (RunRoleCode)
+            {
+                Blackmailer.OnCheckForEndVoting();
+                NiceSwapper.OnCheckForEndVoting();
+            }
 
             states = [.. statesList];
 
@@ -245,14 +245,14 @@ class CheckForEndVotingPatch
                 voteLog.Info($"{data.Key} ({Utils.GetVoteName(data.Key)}): {data.Value} votes");
                 if (data.Value > max)
                 {
-                    voteLog.Info(data.Key + " has higher votes (" + data.Value + ")");
+                    voteLog.Info($"{data.Key} has higher votes ({data.Value})");
                     exileId = data.Key;
                     max = data.Value;
                     tie = false;
                 }
                 else if (data.Value == max)
                 {
-                    voteLog.Info(data.Key + " and " + exileId + "have the same number of votes (" + data.Value + ")");
+                    voteLog.Info($"{data.Key} and {exileId} have the same number of votes ({data.Value})");
                     exileId = byte.MaxValue;
                     tie = true;
                 }
@@ -260,7 +260,7 @@ class CheckForEndVotingPatch
                 voteLog.Info($"expelID: {exileId}, maximum: {max} votes");
             }
 
-            voteLog.Info($"Decide to evict player: {exileId} ({Utils.GetVoteName(exileId)})");
+            voteLog.Info($"Decided to eject: {exileId} ({Utils.GetVoteName(exileId)})");
 
             bool braked = false;
             if (tie)
@@ -522,8 +522,8 @@ class CheckForEndVotingPatch
 
     public static bool CheckRole(byte id, CustomRoles role)
     {
-        var player = Main.AllPlayerControls.FirstOrDefault(pc => pc.PlayerId == id);
-        return player != null && player.Is(role);
+        var s = Main.PlayerStates[id];
+        return role.IsAdditionRole() ? s.SubRoles.Contains(role) : s.MainRole == role;
     }
 
     public static void TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason deathReason, params byte[] playerIds)
@@ -594,40 +594,14 @@ static class ExtendedMeetingHud
                     Collector.CollectorVotes(target, ps);
                 }
 
-                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Mayor)
-                    && ps.TargetPlayerId != ps.VotedFor
-                   ) VoteNum += Mayor.MayorAdditionalVote.GetInt();
-                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Knighted)
-                    && ps.TargetPlayerId != ps.VotedFor
-                   ) VoteNum += 1;
-                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Glitch)
-                    && ps.TargetPlayerId != ps.VotedFor
-                    && !Glitch.CanVote.GetBool()
-                   ) VoteNum = 0;
-                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Vindicator)
-                    && ps.TargetPlayerId != ps.VotedFor
-                   ) VoteNum += Options.VindicatorAdditionalVote.GetInt();
-                if (Options.DualVotes.GetBool())
-                {
-                    if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.DualPersonality)
-                        && ps.TargetPlayerId != ps.VotedFor
-                       ) VoteNum += VoteNum;
-                }
-
-                if (Main.PlayerStates[ps.TargetPlayerId].Role is Adventurer { IsEnable: true } av && av.ActiveWeapons.Contains(Adventurer.Weapon.Proxy))
-                {
-                    VoteNum++;
-                }
-
-                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.TicketsStealer))
-                {
-                    var ps1 = ps;
-                    VoteNum += (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == ps1.TargetPlayerId) * Options.TicketsPerKill.GetFloat());
-                }
-
-                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Pickpocket))
-                    VoteNum += (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Pickpocket.VotesPerKill.GetFloat());
-
+                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Mayor)) VoteNum += Mayor.MayorAdditionalVote.GetInt();
+                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Knighted)) VoteNum += 1;
+                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Glitch) && !Glitch.CanVote.GetBool()) VoteNum = 0;
+                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Vindicator)) VoteNum += Options.VindicatorAdditionalVote.GetInt();
+                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.DualPersonality) && Options.DualVotes.GetBool()) VoteNum += VoteNum;
+                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.TicketsStealer)) VoteNum += (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Options.TicketsPerKill.GetFloat());
+                if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Pickpocket)) VoteNum += (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Pickpocket.VotesPerKill.GetFloat());
+                if (Main.PlayerStates[ps.TargetPlayerId].Role is Adventurer { IsEnable: true } av && av.ActiveWeapons.Contains(Adventurer.Weapon.Proxy)) VoteNum++;
                 if (ps.TargetPlayerId == ps.VotedFor && Options.MadmateSpawnMode.GetInt() == 2) VoteNum = 0;
 
                 dic[ps.VotedFor] = !dic.TryGetValue(ps.VotedFor, out int num) ? VoteNum : num + VoteNum;
@@ -809,7 +783,7 @@ class MeetingHudStartPatch
                 (Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) ||
                 (PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && pc.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) ||
                 (pc.Is(CustomRoles.Gravestone) && Main.VisibleTasksCount && pc.Data.IsDead) ||
-                (Main.LoversPlayers.TrueForAll(x => x.PlayerId == pc.PlayerId || x.PlayerId == PlayerControl.LocalPlayer.PlayerId) && Lovers.LoverKnowRoles.GetBool()) ||
+                (Main.LoversPlayers.TrueForAll(x => x.PlayerId == pc.PlayerId || x.PlayerId == PlayerControl.LocalPlayer.PlayerId) && Main.LoversPlayers.Count == 2 && Lovers.LoverKnowRoles.GetBool()) ||
                 (pc.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowAlliesRole.GetBool()) ||
                 (pc.Is(CustomRoleTypes.Impostor) && PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosImp.GetBool()) ||
                 (pc.Is(CustomRoles.Madmate) && PlayerControl.LocalPlayer.Is(CustomRoleTypes.Impostor) && Options.ImpKnowWhosMadmate.GetBool()) ||
@@ -892,33 +866,7 @@ class MeetingHudStartPatch
             // Name Color Manager
             pva.NameText.text = pva.NameText.text.ApplyNameColorData(seer, target, true);
 
-
             var seerRole = seer.GetCustomRole();
-
-            // Guesser Mode //
-            if (((Options.GuesserMode.GetBool() && !seer.Data.IsDead && !target.Data.IsDead &&
-                  ((Options.CrewmatesCanGuess.GetBool() && seer.IsCrewmate() && !seer.Is(CustomRoles.Judge) && !seer.Is(CustomRoles.NiceSwapper) && !seer.Is(CustomRoles.Lookout) && !seer.Is(CustomRoles.ParityCop)) ||
-                   (Options.ImpostorsCanGuess.GetBool() && seerRole.IsImpostor() && !seer.Is(CustomRoles.Councillor)) ||
-                   (Options.NeutralKillersCanGuess.GetBool() && seer.IsNeutralKiller()) ||
-                   (Options.PassiveNeutralsCanGuess.GetBool() && seerRole.IsNonNK() && !seer.Is(CustomRoles.Doomsayer)))) ||
-
-                 // Other Roles and Add-ons that can see player IDs //
-                 (seer.Data.IsDead && !target.Data.IsDead && seerRole is CustomRoles.Mafia) ||
-                 (!seer.Data.IsDead && !target.Data.IsDead &&
-                  (seer.Is(CustomRoles.Guesser) ||
-                   seerRole is
-                       CustomRoles.Judge or
-                       CustomRoles.NiceSwapper or
-                       CustomRoles.Lookout or
-                       CustomRoles.ParityCop or
-                       CustomRoles.Councillor or
-                       CustomRoles.Doomsayer or
-                       CustomRoles.EvilGuesser or
-                       CustomRoles.NiceGuesser
-                  ))))
-            {
-                pva.NameText.text = $"{Utils.ColorString(Utils.GetRoleColor(seerRole), target.PlayerId.ToString())} {pva.NameText.text}";
-            }
 
             if (seer.KnowDeathReason(target))
                 sb.Append($"({Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doctor), Utils.GetVitalText(target.PlayerId))})");

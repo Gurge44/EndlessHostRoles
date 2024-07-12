@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AmongUs.Data;
@@ -7,6 +8,7 @@ using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
+using Hazel;
 using InnerNet;
 using static EHR.Translator;
 
@@ -83,7 +85,34 @@ class OnPlayerJoinedPatch
 {
     public static void Postfix( /*AmongUsClient __instance,*/ [HarmonyArgument(0)] ClientData client)
     {
-        Logger.Info($"{client.PlayerName} (ClientID: {client.Id} / FriendCode: {client.FriendCode}) joined the lobby", "Session");
+        Logger.Info($"{client.PlayerName} (ClientID: {client.Id} / FriendCode: {client.FriendCode} / Hashed PUID: {client.GetHashedPuid()}) joined the lobby", "Session");
+
+        LateTask.New(() =>
+        {
+            try
+            {
+                if (AmongUsClient.Instance.AmHost)
+                {
+                    if (!client.Character.Data.Disconnected && client.Character.Data.IsIncomplete)
+                    {
+                        Logger.SendInGame(GetString("Error.InvalidColor") + $" {client.Id}/{client.PlayerName}");
+                        AmongUsClient.Instance.KickPlayer(client.Id, false);
+                        Logger.Info($"Kicked client {client.Id}/{client.PlayerName} because PlayerControl is not spawned in time.", "OnPlayerJoinedPatchPostfix");
+                        return;
+                    }
+
+                    if (!Main.PlayerVersion.TryGetValue(client.Character.PlayerId, out _))
+                    {
+                        var retry = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.None, client.Id);
+                        AmongUsClient.Instance.FinishRpcImmediately(retry);
+                    }
+                }
+            }
+            catch
+            {
+            }
+        }, 3f, "green bean kick late task", false);
+
         if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && !GameStates.IsLocalGame)
         {
             if (!BanManager.TempBanWhiteList.Contains(client.GetHashedPuid()))
@@ -101,7 +130,7 @@ class OnPlayerJoinedPatch
             Logger.Info(msg, "Android Kick");
         }
 
-        if (AmongUsClient.Instance.AmHost && client.PlayerName.Contains("Silasticm", StringComparison.OrdinalIgnoreCase))
+        if (AmongUsClient.Instance.AmHost && (client.PlayerName.EndsWith("cm", StringComparison.OrdinalIgnoreCase) || client.PlayerName.EndsWith("sm", StringComparison.OrdinalIgnoreCase)) && (client.PlayerName.Length == 4 || client.PlayerName.Count(x => x is 'i' or 'I') >= 2))
         {
             AmongUsClient.Instance.KickPlayer(client.Id, false);
             Logger.SendInGame("They were probably hacking tbh");
@@ -176,7 +205,7 @@ class OnPlayerLeftPatch
 
             if (Main.HostClientId == __instance.ClientId)
             {
-                var clientId = -1;
+                const int clientId = -1;
                 var player = PlayerControl.LocalPlayer;
                 var title = "<color=#aaaaff>" + GetString("DefaultSystemMessageTitle") + "</color>";
                 var name = player?.Data?.PlayerName;
@@ -238,6 +267,22 @@ class OnPlayerLeftPatch
                 Main.SayStartTimes.Remove(__instance.ClientId);
                 Main.SayBanwordsTimes.Remove(__instance.ClientId);
                 Main.PlayerVersion.Remove(data?.Character?.PlayerId ?? byte.MaxValue);
+                Main.MessagesToSend.RemoveAll(x => x.RECEIVER_ID == data?.Character.PlayerId);
+
+                if (data != null && data.Character != null)
+                {
+                    var netid = data.Character.NetId;
+                    LateTask.New(() =>
+                    {
+                        if (GameStates.IsOnlineGame)
+                        {
+                            MessageWriter messageWriter = AmongUsClient.Instance.Streams[1];
+                            messageWriter.StartMessage(5);
+                            messageWriter.WritePacked(netid);
+                            messageWriter.EndMessage();
+                        }
+                    }, 2.5f, "Repeat Despawn", false);
+                }
             }
 
             Utils.CountAlivePlayers(true);

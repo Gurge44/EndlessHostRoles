@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using EHR.Modules;
 using HarmonyLib;
@@ -85,8 +84,10 @@ internal class VersionShowerStartPatch
 internal class TitleLogoPatch
 {
     public static GameObject ModStamp;
+
     public static GameObject Ambience;
-    public static GameObject LoadingHint;
+
+    // public static GameObject LoadingHint;
     public static GameObject LeftPanel;
     public static GameObject RightPanel;
     public static GameObject CloseRightButton;
@@ -102,28 +103,28 @@ internal class TitleLogoPatch
         if (!(ModStamp = GameObject.Find("ModStamp"))) return;
         ModStamp.transform.localScale = new(0.3f, 0.3f, 0.3f);
 
-        if (!Options.IsLoaded)
-        {
-            LoadingHint = new("LoadingHint")
-            {
-                transform =
-                {
-                    position = Vector3.down
-                }
-            };
-            var loadingHintText = LoadingHint.AddComponent<TextMeshPro>();
-            loadingHintText.text = GetString("Loading");
-            loadingHintText.alignment = TextAlignmentOptions.Center;
-            loadingHintText.fontSize = 5f;
-            __instance.playButton.transform.gameObject.SetActive(false);
-        }
+        // if (!Options.IsLoaded)
+        // {
+        //     LoadingHint = new("LoadingHint")
+        //     {
+        //         transform =
+        //         {
+        //             position = Vector3.down
+        //         }
+        //     };
+        //     var loadingHintText = LoadingHint.AddComponent<TextMeshPro>();
+        //     loadingHintText.text = GetString("Loading");
+        //     loadingHintText.alignment = TextAlignmentOptions.Center;
+        //     loadingHintText.fontSize = 5f;
+        //     __instance.playButton.transform.gameObject.SetActive(false);
+        // }
 
         Ambience = GameObject.Find("Ambience");
         if (Ambience != null)
         {
             try
             {
-                if (Options.IsLoaded) __instance.playButton.transform.gameObject.SetActive(true);
+                __instance.playButton.transform.gameObject.SetActive(true);
             }
             catch (Exception ex)
             {

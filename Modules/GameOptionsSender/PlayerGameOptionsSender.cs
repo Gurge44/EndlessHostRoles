@@ -11,32 +11,37 @@ using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using InnerNet;
 using Mathf = UnityEngine.Mathf;
 
+// ReSharper disable ForCanBeConvertedToForeach
+
 namespace EHR.Modules;
 
 public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 {
     public PlayerControl player = player;
 
-    public override IGameOptions BasedGameOptions =>
+    public virtual IGameOptions BasedGameOptions =>
         Main.RealOptionsData.Restore(new NormalGameOptionsV08(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
 
-    public override bool IsDirty { get; protected set; }
+    protected override bool IsDirty { get; set; }
 
     public static void SetDirty(byte playerId)
     {
-        foreach (GameOptionsSender allSender in AllSenders)
+        for (int index = 0; index < AllSenders.Count; index++)
         {
+            GameOptionsSender allSender = AllSenders[index];
             if (allSender is PlayerGameOptionsSender sender && sender.player.PlayerId == playerId)
             {
                 sender.SetDirty();
+                break; // Only one sender can have the same player id
             }
         }
     }
 
     public static void SetDirtyToAll()
     {
-        foreach (GameOptionsSender allSender in AllSenders)
+        for (int index = 0; index < AllSenders.Count; index++)
         {
+            GameOptionsSender allSender = AllSenders[index];
             if (allSender is PlayerGameOptionsSender sender)
             {
                 sender.SetDirty();
@@ -47,8 +52,9 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
     // For lights call/fix
     public static void SetDirtyToAllV2()
     {
-        foreach (GameOptionsSender allSender in AllSenders)
+        for (int index = 0; index < AllSenders.Count; index++)
         {
+            GameOptionsSender allSender = AllSenders[index];
             if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && (sender.player.GetCustomRole().NeedUpdateOnLights() || sender.player.Is(CustomRoles.Torch) || sender.player.Is(CustomRoles.Mare)))
             {
                 sender.SetDirty();
@@ -59,8 +65,9 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
     // For Grenadier blidning/restoring
     public static void SetDirtyToAllV3()
     {
-        foreach (GameOptionsSender allSender in AllSenders)
+        for (int index = 0; index < AllSenders.Count; index++)
         {
+            GameOptionsSender allSender = AllSenders[index];
             if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && ((Grenadier.GrenadierBlinding.Count > 0 && (sender.player.IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Grenadier.MadGrenadierBlinding.Count > 0 && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate))))
             {
                 sender.SetDirty();
@@ -71,8 +78,9 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
     // For players with kill buttons
     public static void SetDirtyToAllV4()
     {
-        foreach (GameOptionsSender allSender in AllSenders)
+        for (int index = 0; index < AllSenders.Count; index++)
         {
+            GameOptionsSender allSender = AllSenders[index];
             if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && sender.player.CanUseKillButton())
             {
                 sender.SetDirty();
@@ -82,7 +90,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 
     public void SetDirty() => IsDirty = true;
 
-    public override void SendGameOptions()
+    protected override void SendGameOptions()
     {
         if (player.AmOwner)
         {
@@ -214,7 +222,11 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     break;
             }
 
-            if (Shifter.WasShifter.Contains(player.PlayerId) && role.IsImpostor()) opt.SetVision(true);
+            // When impostor alert is off, and the player is a desync crewmate, set impostor alert as true
+            if (role.IsDesyncRole() && role.IsCrewmate() && !CrewmateVanillaRoles.NoiseMakerImpostorAlert.GetBool()) AURoleOptions.NoisemakerImpostorAlert = true;
+            else AURoleOptions.NoisemakerImpostorAlert = CrewmateVanillaRoles.NoiseMakerImpostorAlert.GetBool();
+
+            // if (Shifter.WasShifter.Contains(player.PlayerId) && role.IsImpostor()) opt.SetVision(true);
 
             Main.PlayerStates[player.PlayerId].Role.ApplyGameOptions(opt, player.PlayerId);
 

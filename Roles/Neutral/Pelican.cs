@@ -42,11 +42,7 @@ public class Pelican : RoleBase
 
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
     public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
-
-    public override void SetKillCooldown(byte id)
-    {
-        Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    }
+    public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
 
     private static void SyncEatenList( /*byte playerId*/)
     {
@@ -149,7 +145,7 @@ public class Pelican : RoleBase
 
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: pc);
-        Logger.Info($"{pc.GetRealName()} 吞掉了 {target.GetRealName()}", "Pelican");
+        Logger.Info($"{pc.GetRealName()} ate {target.GetRealName()}", "Pelican");
     }
 
     public override void OnReportDeadBody()
@@ -168,7 +164,7 @@ public class Pelican : RoleBase
                 Main.PlayerStates[tar].deathReason = PlayerState.DeathReason.Eaten;
                 Main.PlayerStates[tar].SetDead();
                 Utils.AfterPlayerDeathTasks(target, true);
-                Logger.Info($"{killer.GetRealName()} 消化了 {target.GetRealName()}", "Pelican");
+                Logger.Info($"{killer.GetRealName()} killed {target.GetRealName()}", "Pelican");
             }
         }
 

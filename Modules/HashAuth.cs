@@ -5,58 +5,55 @@ namespace EHR;
 
 public class HashAuth(string hashValue, string salt = null, HashAlgorithm algorithm = null)
 {
-    public readonly string HashValue = hashValue;
-
-    private readonly string salt = salt;
     private readonly HashAlgorithm algorithm = algorithm ?? SHA256.Create();
 
     public bool CheckString(string value)
     {
         var hash = CalculateHash(value);
-        return HashValue == hash;
+        return hashValue == hash;
     }
-    public string CalculateHash(string source)
-        => CalculateHash(source, salt, algorithm);
 
-    public static string CalculateHash(string source, string salt = null, HashAlgorithm algorithm = null)
+    private string CalculateHash(string source) => CalculateHash(source, salt, algorithm);
+
+    private static string CalculateHash(string source, string salt = null, HashAlgorithm algorithm = null)
     {
-        // 0.algorithmの初期化
+        // 0. Initialize algorithm
         algorithm ??= SHA256.Create();
 
-        // 1.saltの適用
+        // 1. Apply salt
         if (salt != null) source += salt;
 
-        // 2.sourceをbyte配列に変換
+        // 2. Convert source to a byte array
         var sourceBytes = Encoding.UTF8.GetBytes(source);
 
-        // 3.sourceBytesをハッシュ化
+        // 3. Hash sourceBytes
         var hashBytes = algorithm.ComputeHash(sourceBytes);
 
-        // 4.hashBytesを文字列化
+        // 4. Convert hashBytes to a string
         var sb = new StringBuilder();
         foreach (byte b in hashBytes)
         {
-            sb.Append(b.ToString("x2")); //1byteずつ2桁の16進法表記に変換する
+            sb.Append(b.ToString("x2")); // Convert each byte to 2-digit hexadecimal notation
         }
 
         return sb.ToString();
     }
 
-    // Hash値確認用 Hash化してからインスタンスを生成
-    // あくまでHash値の確認と動作テストを同時に行うためのものです。確認後は使用しないでください。
+    // To check the hash value, create an instance after hashing
+    // This is only for checking the hash value and testing the operation at the same time. Do not use after checking.
     public static HashAuth CreateByUnhashedValue(string value, string salt = null)
     {
-        // 1.ハッシュ値計算
+        // 1. Calculate hash value
         var algorithm = SHA256.Create();
         string hashValue = CalculateHash(value, salt, algorithm);
 
-        // 2.ハッシュ値のログ出力
-        //  salt有: ハッシュ値算出結果:<value> => <hashValue> (salt: <saltValue>)
-        //  salt無: ハッシュ値算出結果:<value> => <hashValue>
-        Logger.Info($"ハッシュ値算出結果: {value} => {hashValue} {(salt == null ? string.Empty : $"(salt: {salt})")}", "HashAuth");
-        Logger.Warn("以上の値をソースコード上にペーストしてください。", "HashAuth");
+        // 2. Log output of hash value
+        // With salt: Hash value calculation result: <value> => <hashValue> (salt: <saltValue>)
+        // Without salt: Hash value calculation result: <value> => <hashValue>
+        Logger.Info($"Hash value calculation result: {value} => {hashValue} {(salt == null ? string.Empty : $"(salt: {salt})")}", "HashAuth");
+        Logger.Warn("Please paste the above values into the source code.", "HashAuth");
 
-        // 3.HashAuthインスタンスの生成・リターン
+        // 3. Create and return a HashAuth instance
         return new(hashValue, salt, algorithm);
     }
 }

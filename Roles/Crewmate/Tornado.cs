@@ -24,6 +24,7 @@ namespace EHR.Crewmate
         private static readonly Dictionary<(Vector2 LOCATION, string ROOM_NAME), long> Tornados = [];
         private static long LastNotify = TimeStamp;
         private static bool CanUseMap;
+        private PlayerControl TornadoPC;
         private static int Id => 64420;
 
         public override bool IsEnable => PlayerIdList.Count > 0 || Randomizer.Exists;
@@ -76,6 +77,7 @@ namespace EHR.Crewmate
 
         public override void Add(byte playerId)
         {
+            TornadoPC = GetPlayerById(playerId);
             PlayerIdList.Add(playerId);
         }
 
@@ -157,6 +159,7 @@ namespace EHR.Crewmate
                     {
                         Tornados.Remove(tornado.Key);
                         SendRPCAddTornado(false, tornado.Key.LOCATION, tornado.Key.ROOM_NAME);
+                        NotifyRoles(SpecifySeer: TornadoPC, SpecifyTarget: TornadoPC);
                     }
                 }
             }

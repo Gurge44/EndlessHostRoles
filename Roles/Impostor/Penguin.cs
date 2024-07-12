@@ -1,4 +1,5 @@
-﻿using EHR.Crewmate;
+﻿using AmongUs.GameOptions;
+using EHR.Crewmate;
 using EHR.Modules;
 using Hazel;
 using UnityEngine;
@@ -14,21 +15,24 @@ namespace EHR.Impostor
         private static OptionItem OptionMeetingKill;
         private static OptionItem OptionSpeedDuringDrag;
         private static OptionItem OptionVictimCanUseAbilities;
+
         private float AbductTimer;
         private float AbductTimerLimit;
 
         private PlayerControl AbductVictim;
+        private float Cooldown;
 
-        int Count = 0;
+        private int Count;
         private float DefaultSpeed;
 
         private bool IsGoose;
         private long LastNotify;
         private bool MeetingKill;
-        private PlayerControl Penguin_;
 
+        private PlayerControl Penguin_;
         private byte PenguinId = byte.MaxValue;
         private float SpeedDuringDrag;
+
         private bool stopCount;
         private bool VictimCanUseAbilities;
 
@@ -77,6 +81,7 @@ namespace EHR.Impostor
                 MeetingKill = OptionMeetingKill.GetBool();
                 SpeedDuringDrag = OptionSpeedDuringDrag.GetFloat();
                 VictimCanUseAbilities = OptionVictimCanUseAbilities.GetBool();
+                Cooldown = Options.DefaultKillCooldown;
             }
             else
             {
@@ -84,9 +89,10 @@ namespace EHR.Impostor
                 MeetingKill = false;
                 SpeedDuringDrag = Goose.OptionSpeedDuringDrag.GetFloat();
                 VictimCanUseAbilities = Goose.OptionVictimCanUseAbilities.GetBool();
+                Cooldown = Goose.Cooldown.GetFloat();
             }
 
-            LateTask.New(() => { DefaultSpeed = Main.AllPlayerSpeed[playerId]; }, 9f, log: false);
+            LateTask.New(() => DefaultSpeed = Main.AllPlayerSpeed[playerId], 9f, log: false);
 
             PenguinId = playerId;
             Penguin_ = Utils.GetPlayerById(playerId);
@@ -96,9 +102,15 @@ namespace EHR.Impostor
             LastNotify = 0;
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => AbductVictim == null;
+        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Cooldown;
+        public override bool CanUseImpostorVentButton(PlayerControl pc) => AbductVictim == null && !IsGoose;
         public override bool CanUseKillButton(PlayerControl pc) => pc.IsAlive();
+        public override bool CanUseSabotage(PlayerControl pc) => !IsGoose && pc.IsAlive();
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            if (IsGoose) opt.SetVision(false);
+        }
 
         void SendRPC()
         {
@@ -190,7 +202,7 @@ namespace EHR.Impostor
             }
             else
             {
-                if (!killer.RpcCheckAndMurder(target, check: true)) return false;
+                if (!IsGoose && !killer.RpcCheckAndMurder(target, check: true)) return false;
                 doKill = false;
                 AddVictim(target);
             }
@@ -291,7 +303,10 @@ namespace EHR.Impostor
                     if (!IsGoose)
                     {
                         AbductVictim.Data.IsDead = true;
-                        GameData.Instance.DirtyAllData();
+                        foreach (var innerNetObject in GameData.Instance.AllPlayers)
+                        {
+                            innerNetObject.SetDirtyBit(uint.MaxValue);
+                        }
                     }
 
                     // If the penguin himself is on a ladder, kill him after getting off the ladder.

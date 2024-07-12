@@ -205,8 +205,8 @@ public class Swooper : RoleBase
         LateTask.New(() =>
         {
             float limit = pc.GetAbilityUseLimit();
-            bool naN = float.IsNaN(limit);
-            if (CanGoInvis && (naN || limit >= 1))
+            bool wraith = UsedRole == CustomRoles.Wraith;
+            if (CanGoInvis && (wraith || limit >= 1))
             {
                 ventedId = ventId;
 
@@ -215,7 +215,7 @@ public class Swooper : RoleBase
                 AmongUsClient.Instance.FinishRpcImmediately(writer);
 
                 InvisTime = Utils.TimeStamp;
-                if (!naN) pc.RpcRemoveAbilityUse();
+                if (!wraith) pc.RpcRemoveAbilityUse();
                 SendRPC();
                 pc.Notify(GetString("SwooperInvisState"), Duration);
             }
@@ -229,7 +229,7 @@ public class Swooper : RoleBase
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
-        if (!IsInvis) return;
+        if (!IsInvis || InvisTime == Utils.TimeStamp) return;
 
         InvisTime = -10;
         lastTime = Utils.TimeStamp;

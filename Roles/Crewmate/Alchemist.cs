@@ -212,7 +212,7 @@ namespace EHR.Crewmate
                         player.Notify(GetString("AlchemistVisionOut"));
                     }, VisionDuration.GetFloat(), "Alchemist Vision");
                     break;
-                case 10:
+                case 10 when !player.Is(CustomRoles.Nimble):
                     if (!isPet) player.MyPhysics.RpcBootFromVent(ventId);
                     player.Notify(GetString("AlchemistNoPotion"));
                     break;
@@ -425,10 +425,8 @@ namespace EHR.Crewmate
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            if (UsePets.GetBool())
-                hud.PetButton?.OverrideText(GetString("AlchemistVentButtonText"));
-            else
-                hud.AbilityButton?.OverrideText(GetString("AlchemistVentButtonText"));
+            if (UsePets.GetBool()) hud.PetButton?.OverrideText(GetString("AlchemistVentButtonText"));
+            else hud.AbilityButton?.OverrideText(GetString("AlchemistVentButtonText"));
         }
     }
 }

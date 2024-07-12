@@ -48,7 +48,7 @@ class EndGamePatch
 
             SummaryText[id] = Utils.SummaryTexts(id, disableColor: false);
             if (state.SubRoles.Count == 0) continue;
-            Main.LastAddOns[id] = $"<size=70%>{Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), Main.AllPlayerNames.GetValueOrDefault(id, $"ID {id}"))}: {state.SubRoles.Join(x => x.ToColoredString())}</size>";
+            Main.LastAddOns[id] = $"<size=70%>{id.ColoredPlayerName()}: {state.SubRoles.Join(x => x.ToColoredString())}</size>";
         }
 
         if (Options.DumpLogAfterGameEnd.GetBool())
@@ -110,6 +110,7 @@ class EndGamePatch
         CustomNetObject.Reset();
         Main.LoversPlayers.Clear();
         Bloodmoon.OnMeetingStart();
+        AFKDetector.ExemptedPlayers.Clear();
 
         foreach (var state in Main.PlayerStates.Values)
         {
@@ -238,7 +239,7 @@ class SetEverythingUpPatch
             case CustomGameMode.MoveAndStop:
             {
                 var winnerId = CustomWinnerHolder.WinnerIds.FirstOrDefault();
-                __instance.BackgroundBar.material.color = new Color32(0, 255, 160, 255);
+                __instance.BackgroundBar.material.color = new Color32(0, 255, 165, 255);
                 WinnerText.text = Main.AllPlayerNames[winnerId] + " wins!";
                 WinnerText.color = Main.PlayerColors[winnerId];
                 goto EndOfText;

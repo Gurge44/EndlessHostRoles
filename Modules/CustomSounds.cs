@@ -66,5 +66,5 @@ public static class CustomSoundsManager
     [DllImport("winmm.dll", CharSet = CharSet.Unicode)]
     private static extern bool PlaySound(string Filename, int Mod, int Flags);
 
-    private static void StartPlay(string path) => PlaySound($"{path}", 0, 1); // The third parameter, replace 1 with 9, and play continuously
+    public static void StartPlay(string path) => PlaySound($"{path}", 0, 1); // The third parameter, replace 1 with 9, and play continuously
 }

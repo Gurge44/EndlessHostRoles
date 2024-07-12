@@ -24,7 +24,7 @@ static class ExtendedPlayerControl
 
     public static void SetRole(this PlayerControl player, RoleTypes role, bool canOverride = false)
     {
-        AmongUsClient.Instance.StartCoroutine(player.CoSetRole(role, canOverride));
+        player.StartCoroutine(player.CoSetRole(role, canOverride));
     }
 
     public static void RpcSetCustomRole(this PlayerControl player, CustomRoles role, bool replaceAllAddons = false)
@@ -153,17 +153,16 @@ static class ExtendedPlayerControl
         Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
         Logger.Info($"Set:{player.Data?.PlayerName}:{name} for {seer.GetNameWithRole().RemoveHtmlTags()}", "RpcSetNamePrivate");
 
+        if (seer == null || player == null) return;
+
         var clientId = seer.GetClientId();
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetName, SendOption.Reliable, clientId);
-        try
-        {
-            writer.Write(player.Data.NetId);
-            writer.Write(name);
-        }
-        finally
-        {
-            AmongUsClient.Instance.FinishRpcImmediately(writer);
-        }
+
+        var sender = CustomRpcSender.Create(name: "SetNamePrivate");
+        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, clientId)
+            .Write(seer.Data.NetId)
+            .Write(name)
+            .EndRpc();
+        sender.SendMessage();
     }
 
     public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, bool canOverride, int clientId)
@@ -625,11 +624,11 @@ static class ExtendedPlayerControl
     public static bool CanUseImpostorVentButton(this PlayerControl pc)
     {
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Penguin.IsVictim(pc)) return false;
-        if (CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId)) return true;
         if (pc.GetRoleTypes() == RoleTypes.Engineer) return false;
+        if (CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId)) return true;
 
         if (pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool()) return true;
-        if (pc.Is(CustomRoles.Bloodlust)) return true;
+        if (pc.Is(CustomRoles.Bloodlust) || pc.Is(CustomRoles.Refugee)) return true;
 
         return pc.GetCustomRole() switch
         {
@@ -891,6 +890,7 @@ static class ExtendedPlayerControl
     public static bool IsNeutralEvil(this PlayerControl player) => player.GetCustomRole().IsNE();
     public static bool IsNeutralChaos(this PlayerControl player) => player.GetCustomRole().IsNC();
     public static bool IsSnitchTarget(this PlayerControl player) => player.Is(CustomRoles.Bloodlust) || player.GetCustomRole().IsSnitchTarget();
+    public static bool IsMadmate(this PlayerControl player) => player.Is(CustomRoles.Madmate) || player.GetCustomRole().IsMadmate();
 
     public static bool HasGhostRole(this PlayerControl player) => GhostRolesManager.AssignedGhostRoles.ContainsKey(player.PlayerId) || Main.PlayerStates.TryGetValue(player.PlayerId, out var state) && state.SubRoles.Any(x => x.IsGhostRole());
 
@@ -981,7 +981,9 @@ static class ExtendedPlayerControl
 
     public static Team GetTeam(this PlayerControl target)
     {
-        if (target.Is(CustomRoles.Bloodlust)) return Team.Neutral;
+        var subRoles = target.GetCustomSubRoles();
+        if (target.Is(CustomRoles.Bloodlust) || subRoles.Any(x => x.IsConverted())) return Team.Neutral;
+        if (subRoles.Contains(CustomRoles.Madmate)) return Team.Impostor;
         var role = target.GetCustomRole();
         if (role.IsImpostorTeamV3()) return Team.Impostor;
         if (role.IsNeutralTeamV2()) return Team.Neutral;

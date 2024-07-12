@@ -63,7 +63,7 @@ public class Councillor : RoleBase
         int operate = 0; // 1:ID 2:Kill
         msg = msg.ToLower().TrimStart().TrimEnd();
         if (CheckCommond(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id")) operate = 1;
-        else if (CheckCommond(ref msg, "shoot|guess|bet|st|gs|bt|猜|赌|sp|jj|tl|Murder|审判|判|审", false)) operate = 2;
+        else if (CheckCommond(ref msg, "shoot|guess|bet|st|gs|bt|猜|赌|sp|jj|tl|审判|判|审", false)) operate = 2;
         else return false;
 
         if (!pc.IsAlive())

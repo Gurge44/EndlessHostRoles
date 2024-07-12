@@ -19,7 +19,7 @@ class SetUpRoleTextPatch
     {
         if (!GameStates.IsModHost) return;
 
-        // After showing team for non-modded clients update player names.
+        // After showing team for non-modded clients, update player names.
         IsInIntro = false;
         Utils.DoNotifyRoles(NoCache: true);
 
@@ -418,24 +418,28 @@ class BeginCrewmatePatch
                     CustomRoles.Disperser
                     => ShipStatus.Instance.VentMoveSounds.FirstOrDefault(),
 
-                _ => PlayerControl.LocalPlayer.GetCustomRoleTypes() switch
-                {
-                    CustomRoleTypes.Impostor => GetIntroSound(RoleTypes.Impostor),
-                    CustomRoleTypes.Crewmate => GetIntroSound(RoleTypes.Crewmate),
-                    CustomRoleTypes.Neutral => GetIntroSound(RoleTypes.Shapeshifter),
-                    _ => GetIntroSound(RoleTypes.Crewmate)
-                }
+                CustomRoles.Tracker
+                    or CustomRoles.EvilTracker
+                    => GetIntroSound(RoleTypes.Tracker),
+
+                CustomRoles.Noisemaker
+                    or CustomRoles.NoisemakerEHR
+                    => GetIntroSound(RoleTypes.Noisemaker),
+
+                CustomRoles.Phantom
+                    or CustomRoles.PhantomEHR
+                    => GetIntroSound(RoleTypes.Phantom),
+
+                CustomRoles.Shapeshifter
+                    or CustomRoles.ShapeshifterEHR
+                    => GetIntroSound(RoleTypes.Shapeshifter),
+
+                _ => GetAudioClipFromCustomRoleType()
             };
         }
         catch (Exception ex)
         {
-            PlayerControl.LocalPlayer.Data.Role.IntroSound = PlayerControl.LocalPlayer.GetCustomRoleTypes() switch
-            {
-                CustomRoleTypes.Impostor => GetIntroSound(RoleTypes.Impostor),
-                CustomRoleTypes.Crewmate => GetIntroSound(RoleTypes.Crewmate),
-                CustomRoleTypes.Neutral => GetIntroSound(RoleTypes.Shapeshifter),
-                _ => GetIntroSound(RoleTypes.Crewmate)
-            };
+            PlayerControl.LocalPlayer.Data.Role.IntroSound = GetAudioClipFromCustomRoleType();
             Logger.Warn($"Could not set intro sound\n{ex}", "IntroSound");
         }
 
@@ -503,7 +507,7 @@ class BeginCrewmatePatch
             case CustomGameMode.MoveAndStop:
             {
                 __instance.TeamTitle.text = GetString("MoveAndStop");
-                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(0, 255, 160, byte.MaxValue);
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(0, 255, 165, byte.MaxValue);
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Shapeshifter);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("TaskerInfo");
@@ -555,9 +559,22 @@ class BeginCrewmatePatch
             __instance.TeamTitle.color = Color.magenta;
             StartFadeIntro(__instance, Color.magenta, Color.magenta);
         }
+
+        return;
+
+        AudioClip GetAudioClipFromCustomRoleType()
+        {
+            return PlayerControl.LocalPlayer.GetCustomRoleTypes() switch
+            {
+                CustomRoleTypes.Impostor => GetIntroSound(RoleTypes.Impostor),
+                CustomRoleTypes.Crewmate => GetIntroSound(RoleTypes.Crewmate),
+                CustomRoleTypes.Neutral => GetIntroSound(RoleTypes.Shapeshifter),
+                _ => GetIntroSound(RoleTypes.Crewmate)
+            };
+        }
     }
 
-    public static AudioClip GetIntroSound(RoleTypes roleType)
+    private static AudioClip GetIntroSound(RoleTypes roleType)
     {
         return RoleManager.Instance.AllRoles.FirstOrDefault(role => role.Role == roleType)?.IntroSound;
     }
@@ -743,13 +760,18 @@ class IntroCutsceneDestroyPatch
                     5 => new RandomSpawn.FungleSpawnMap(),
                     _ => null
                 };
-                if (map != null) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
+                if (map != null && AmongUsClient.Instance.AmHost) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
             }
 
             if (Main.ResetCamPlayerList.Contains(PlayerControl.LocalPlayer.PlayerId))
             {
                 PlayerControl.LocalPlayer.Data.Role.AffectedByLightAffectors = false;
             }
+        }
+
+        if (AFKDetector.ActivateOnStart.GetBool())
+        {
+            LateTask.New(() => Main.AllAlivePlayerControls.Do(AFKDetector.RecordPosition), 1f, log: false);
         }
 
         Logger.Info("OnDestroy", "IntroCutscene");

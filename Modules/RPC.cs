@@ -142,6 +142,7 @@ public enum CustomRPC
     SyncAid,
     SyncTelekinetic,
     SyncRouleteGrandeur,
+    SyncAdrenaline,
 
     // Other Game Modes
     SyncKBPlayer,
@@ -270,6 +271,12 @@ internal class RPCHandlerPatch
                     Version version = Version.Parse(reader.ReadString());
                     string tag = reader.ReadString();
                     string forkId = reader.ReadString();
+
+                    if (!Main.PlayerVersion.ContainsKey(__instance.PlayerId))
+                    {
+                        RPC.RpcVersionCheck();
+                    }
+
                     Main.PlayerVersion[__instance.PlayerId] = new(version, tag, forkId);
 
                     if (Main.VersionCheat.Value && __instance.IsHost()) RPC.RpcVersionCheck();
@@ -278,7 +285,7 @@ internal class RPCHandlerPatch
                         Main.PlayerVersion[__instance.PlayerId] = Main.PlayerVersion[0];
 
                     // Kick Unmached Player Start
-                    if (AmongUsClient.Instance.AmHost && tag != $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" && forkId != Main.ForkId)
+                    if (AmongUsClient.Instance.AmHost && tag != $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" && forkId != Main.ForkId && !Main.VersionCheat.Value)
                     {
                         LateTask.New(() =>
                         {
@@ -444,6 +451,9 @@ internal class RPCHandlerPatch
                 break;
             case CustomRPC.SyncRouleteGrandeur:
                 (Main.PlayerStates[reader.ReadByte()].Role as RouleteGrandeur)?.ReceiveRPC(reader);
+                break;
+            case CustomRPC.SyncAdrenaline:
+                (Main.PlayerStates[reader.ReadByte()].Role as Adrenaline)?.ReceiveRPC(reader);
                 break;
             case CustomRPC.SetBountyTarget:
             {
@@ -899,7 +909,11 @@ internal static class RPC
 
     public static void SendGameData(int clientId = -1)
     {
-        GameData.Instance.DirtyAllData();
+        foreach (var innerNetObject in GameData.Instance.AllPlayers)
+        {
+            innerNetObject.SetDirtyBit(uint.MaxValue);
+        }
+
         AmongUsClient.Instance.SendAllStreamedObjects();
     }
 

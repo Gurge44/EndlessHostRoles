@@ -61,14 +61,15 @@ public class Divinator : RoleBase
 
         var players = Main.AllAlivePlayerControls;
         int rolesNeeded = players.Length * (RolesPerCategory - 1);
-        AllPlayerRoleList = Enum.GetValues<CustomRoles>()
+        var roleList = Enum.GetValues<CustomRoles>()
             .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.GM and not CustomRoles.Convict && !x.IsForOtherGameMode())
             .OrderBy(x => x.IsEnable() ? IRandom.Instance.Next(10) : IRandom.Instance.Next(10, 100))
             .Take(rolesNeeded)
             .Chunk(RolesPerCategory - 1)
             .Zip(players, (Array, Player) => (RoleList: Array.ToList(), Player))
-            .Do(x => x.RoleList.Insert(IRandom.Instance.Next(x.RoleList.Count), x.Player.GetCustomRole()))
-            .ToDictionary(x => x.Player.PlayerId, x => x.RoleList);
+            .ToArray();
+        roleList.Do(x => x.RoleList.Insert(IRandom.Instance.Next(x.RoleList.Count), x.Player.GetCustomRole()));
+        AllPlayerRoleList = roleList.ToDictionary(x => x.Player.PlayerId, x => x.RoleList);
 
         Logger.Info(string.Join(" ---- ", AllPlayerRoleList.Select(x => $"ID {x.Key}: {string.Join(", ", x.Value)}")), "Divinator Roles");
     }

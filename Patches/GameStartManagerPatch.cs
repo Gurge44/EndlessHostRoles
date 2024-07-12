@@ -136,7 +136,7 @@ public class GameStartManagerPatch
                     }
                 }
 
-                if (AmongUsClient.Instance == null || GameData.Instance == null || !AmongUsClient.Instance.AmHost || !GameData.Instance) return false;
+                if (AmongUsClient.Instance == null || GameData.Instance == null || !AmongUsClient.Instance.AmHost || !GameData.Instance) return true;
 
                 if (Main.AutoStart != null && Main.AutoStart.Value)
                 {

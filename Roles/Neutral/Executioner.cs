@@ -60,26 +60,30 @@ public class Executioner : RoleBase
     {
         playerIdList.Add(playerId);
 
-        try
+        LateTask.New(() =>
         {
-            List<PlayerControl> targetList = [];
-            targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetNeutralBenign.GetBool() || !target.IsNeutralBenign() where CanTargetNeutralEvil.GetBool() || !target.IsNeutralEvil() where CanTargetNeutralChaos.GetBool() || !target.IsNeutralChaos() where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where Main.LoversPlayers.TrueForAll(x => x.PlayerId != playerId) select target);
-
-            if (targetList.Count == 0)
+            try
             {
-                ChangeRole(Utils.GetPlayerById(playerId));
-                return;
-            }
+                List<PlayerControl> targetList = [];
+                targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetNeutralBenign.GetBool() || !target.IsNeutralBenign() where CanTargetNeutralEvil.GetBool() || !target.IsNeutralEvil() where CanTargetNeutralChaos.GetBool() || !target.IsNeutralChaos() where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where Main.LoversPlayers.TrueForAll(x => x.PlayerId != playerId) select target);
+                if (!CanTargetNeutralBenign.GetBool() && !CanTargetNeutralChaos.GetBool() && !CanTargetNeutralEvil.GetBool() && !CanTargetNeutralKiller.GetBool()) targetList.RemoveAll(x => x.GetCustomRole().IsNeutral() || x.Is(CustomRoles.Bloodlust));
 
-            var SelectedTarget = targetList.RandomElement();
-            Target[playerId] = SelectedTarget.PlayerId;
-            SendRPC(playerId, SelectedTarget.PlayerId, "SetTarget");
-            Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}'s target: {SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Executioner");
-        }
-        catch (Exception ex)
-        {
-            Logger.Error(ex.ToString(), "Executioner.Add");
-        }
+                if (targetList.Count == 0)
+                {
+                    ChangeRole(Utils.GetPlayerById(playerId));
+                    return;
+                }
+
+                var SelectedTarget = targetList.RandomElement();
+                Target[playerId] = SelectedTarget.PlayerId;
+                SendRPC(playerId, SelectedTarget.PlayerId, "SetTarget");
+                Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()}'s target: {SelectedTarget.GetNameWithRole().RemoveHtmlTags()}", "Executioner");
+            }
+            catch (Exception ex)
+            {
+                Logger.Error(ex.ToString(), "Executioner.Add");
+            }
+        }, 3f, log: false);
     }
 
     public static void SendRPC(byte executionerId, byte targetId = 0x73, string Progress = "")

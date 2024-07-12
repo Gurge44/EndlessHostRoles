@@ -47,7 +47,7 @@ public class Mediumshiper : RoleBase
     public static void OnReportDeadBody(NetworkedPlayerInfo target)
     {
         ContactPlayer = [];
-        if (target == null) return;
+        if (target == null || target.Object == null) return;
         foreach (var pc in Main.AllAlivePlayerControls.Where(x => playerIdList.Contains(x.PlayerId) && x.PlayerId != target.PlayerId).ToArray())
         {
             if (pc.GetAbilityUseLimit() < 1) continue;

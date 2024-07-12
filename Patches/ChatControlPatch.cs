@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.Data;
 using EHR.Impostor;
+using EHR.Patches;
 using HarmonyLib;
 using InnerNet;
 using UnityEngine;
@@ -29,8 +30,11 @@ class ChatControllerUpdatePatch
         if (Main.DarkTheme.Value)
         {
             __instance.freeChatField.background.color = new Color32(40, 40, 40, byte.MaxValue);
-            __instance.freeChatField.textArea.compoText.Color(Color.white);
-            __instance.freeChatField.textArea.outputText.color = Color.white;
+            if (!TextBoxTMPSetTextPatch.IsInvalidCommand)
+            {
+                __instance.freeChatField.textArea.compoText.Color(Color.white);
+                __instance.freeChatField.textArea.outputText.color = Color.white;
+            }
 
             __instance.quickChatField.background.color = new Color32(40, 40, 40, byte.MaxValue);
             __instance.quickChatField.text.color = Color.white;
@@ -51,6 +55,11 @@ class ChatControllerUpdatePatch
 
         if (!__instance.freeChatField.textArea.hasFocus) return;
         __instance.freeChatField.textArea.characterLimit = AmongUsClient.Instance.AmHost ? 2000 : 300;
+
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            TextBoxTMPSetTextPatch.OnTabPress(__instance);
+        }
 
         if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.C))
             ClipboardHelper.PutClipboardString(__instance.freeChatField.textArea.text);

@@ -61,8 +61,8 @@ namespace EHR.Impostor
             if (!AmongUsClient.Instance.AmHost) return false;
             if (!GameStates.IsInGame || pc == null) return false;
             if (!pc.Is(CustomRoles.Mafia)) return false;
-            msg = msg.Trim().ToLower();
-            if (msg.Length < 3 || msg[..3] != "/rv") return false;
+            msg = msg.Trim().ToLower().Replace(" ", string.Empty);
+            if (msg.Length < 3 || !msg.StartsWith("/rv")) return false;
             if (MafiaCanKillNum.GetInt() < 1)
             {
                 if (!isUI) Utils.SendMessage(GetString("MafiaKillDisable"), pc.PlayerId);
