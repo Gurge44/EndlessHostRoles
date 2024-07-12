@@ -15,10 +15,10 @@ namespace EHR.Crewmate
         private static OptionItem ShieldDuration;
         private static OptionItem SpeedDuration;
         private static OptionItem IncreasedSpeed;
+
         private Mode CurrentMode;
         private long LastUpdate;
         private bool Shielded;
-
         private PlayerControl TelekineticPC;
         private int Timer;
         public override bool IsEnable => On;

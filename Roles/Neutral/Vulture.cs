@@ -164,6 +164,8 @@ public class Vulture : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
+        if (!pc.IsAlive()) return;
+
         var playerId = pc.PlayerId;
         if (BodyReportCount >= NumberOfReportsToWin.GetInt() && GameStates.IsInTask)
         {

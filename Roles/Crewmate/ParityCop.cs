@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
+using EHR.Neutral;
 using HarmonyLib;
 using UnityEngine;
 using static EHR.Options;
@@ -126,9 +127,10 @@ public class ParityCop : RoleBase
                 {
                     Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} checked {target1.GetNameWithRole().RemoveHtmlTags()} and {target2.GetNameWithRole().RemoveHtmlTags()}", "ParityCop");
 
-                    if (pc.GetAbilityUseLimit() < 1 || RoundCheckLimit[pc.PlayerId] < 1)
+                    bool outOfUses = pc.GetAbilityUseLimit() < 1;
+                    if (outOfUses || RoundCheckLimit[pc.PlayerId] < 1)
                     {
-                        if (pc.GetAbilityUseLimit() < 1)
+                        if (outOfUses)
                         {
                             LateTask.New(() =>
                             {
@@ -172,9 +174,7 @@ public class ParityCop : RoleBase
                         return true;
                     }
 
-                    if (((target1.Is(Team.Impostor) || target1.GetCustomSubRoles().Any(role => role.IsImpostorTeamV3())) && (target2.Is(Team.Impostor) || target2.GetCustomSubRoles().Any(role => role.IsImpostorTeamV3()))) ||
-                        ((target1.Is(Team.Neutral) || target1.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2())) && (target2.Is(Team.Neutral) || target2.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2()))) ||
-                        (target1.Is(Team.Crewmate) && (target1.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || (target1.GetCustomSubRoles().Count == 0)) && target2.Is(Team.Crewmate) && (target2.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || target2.GetCustomSubRoles().Count == 0)))
+                    if (AreInSameTeam(target1, target2))
                     {
                         LateTask.New(() =>
                         {
@@ -243,6 +243,42 @@ public class ParityCop : RoleBase
         return true;
     }
 
+    static bool AreInSameTeam(PlayerControl first, PlayerControl second)
+    {
+        var firstRole = first.GetCustomRole();
+        var secondRole = second.GetCustomRole();
+
+        var firstRoleClass = Main.PlayerStates[first.PlayerId].Role;
+        var secondRoleClass = Main.PlayerStates[second.PlayerId].Role;
+
+        var firstSubRoles = first.GetCustomSubRoles();
+        var secondSubRoles = second.GetCustomSubRoles();
+
+        var firstTeam = first.GetTeam();
+        var secondTeam = second.GetTeam();
+
+        switch (firstRoleClass)
+        {
+            case Executioner when Executioner.Target[first.PlayerId] == second.PlayerId: return true;
+            case Lawyer when Lawyer.Target[first.PlayerId] == second.PlayerId: return true;
+            case Totocalcio tc when tc.BetPlayer == second.PlayerId: return true;
+        }
+
+        switch (secondRoleClass)
+        {
+            case Executioner when Executioner.Target[second.PlayerId] == first.PlayerId: return true;
+            case Lawyer when Lawyer.Target[second.PlayerId] == first.PlayerId: return true;
+            case Totocalcio tc when tc.BetPlayer == first.PlayerId: return true;
+        }
+
+        if (CustomTeamManager.AreInSameCustomTeam(first.PlayerId, second.PlayerId)) return true;
+        if (firstSubRoles.Contains(CustomRoles.Bloodlust) || secondSubRoles.Contains(CustomRoles.Bloodlust)) return false;
+        if (first.IsNeutralKiller() && second.IsNeutralKiller()) return true;
+        if (firstRole.IsNeutral() && secondRole.IsNeutral()) return false;
+
+        return firstTeam == secondTeam;
+    }
+
     private static bool MsgToPlayerAndRole(string msg, out byte id1, out byte id2, out string error)
     {
         if (msg.StartsWith("/")) msg = msg.Replace("/", string.Empty);
@@ -262,7 +298,6 @@ public class ParityCop : RoleBase
         id1 = Convert.ToByte(num1);
         id2 = Convert.ToByte(num2);
 
-        //判断选择的玩家是否合理
         PlayerControl target1 = Utils.GetPlayerById(id1);
         PlayerControl target2 = Utils.GetPlayerById(id2);
         if (target1 == null || target1.Data.IsDead || target2 == null || target2.Data.IsDead)

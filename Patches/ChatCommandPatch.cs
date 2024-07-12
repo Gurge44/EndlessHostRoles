@@ -114,13 +114,13 @@ internal static class ChatCommands
             new(["up"], "{role}", GetString("CommandDescription.Up"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, UpCommand, true, [GetString("CommandArgs.Up.Role")]),
             new(["setrole", "сетроль"], "{id} {role}", GetString("CommandDescription.SetRole"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, SetRoleCommand, true, [GetString("CommandArgs.SetRole.Id"), GetString("CommandArgs.SetRole.Role")]),
             new(["h", "help", "хэлп", "хелп", "помощь"], "", GetString("CommandDescription.Help"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, HelpCommand, true),
-            new(["kcount", "gamestate", "gstate", "gs", "кубийц", "гс", "статигры"], "", GetString("CommandDescription.KCount"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, KCountCommand, true),
+            new(["kcount", "gamestate", "gstate", "gs", "кубийц", "гс", "статигры"], "", GetString("CommandDescription.KCount"), Command.UsageLevels.Everyone, Command.UsageTimes.InGame, KCountCommand, true),
             new(["addmod", "добмодера"], "{id}", GetString("CommandDescription.AddMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddModCommand, true, [GetString("CommandArgs.AddMod.Id")]),
             new(["deletemod", "убрмодера", "удмодера"], "{id}", GetString("CommandDescription.DeleteMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteModCommand, true, [GetString("CommandArgs.DeleteMod.Id")]),
             new(["combo", "комбо"], "{mode} {role} {addon} [all]", GetString("CommandDescription.Combo"), Command.UsageLevels.Host, Command.UsageTimes.Always, ComboCommand, true, [GetString("CommandArgs.Combo.Mode"), GetString("CommandArgs.Combo.Role"), GetString("CommandArgs.Combo.Addon"), GetString("CommandArgs.Combo.All")]),
             new(["eff", "effect", "эффект"], "{effect}", GetString("CommandDescription.Effect"), Command.UsageLevels.Host, Command.UsageTimes.InGame, EffectCommand, true, [GetString("CommandArgs.Effect.Effect")]),
             new(["afkexempt", "освафк", "афкосв"], "{id}", GetString("CommandDescription.AFKExempt"), Command.UsageLevels.Host, Command.UsageTimes.Always, AFKExemptCommand, true, [GetString("CommandArgs.AFKExempt.Id")]),
-            new(["m", "myrole", "м", "мояроль"], "", GetString("CommandDescription.MyRole"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, MyRoleCommand, true),
+            new(["m", "myrole", "м", "мояроль"], "", GetString("CommandDescription.MyRole"), Command.UsageLevels.Everyone, Command.UsageTimes.InGame, MyRoleCommand, true),
             new(["tpout", "тпаут"], "", GetString("CommandDescription.TPOut"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, TPOutCommand, true),
             new(["tpin", "тпин"], "", GetString("CommandDescription.TPIn"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, TPInCommand, true),
             new(["t", "template", "т", "темплейт"], "{tag}", GetString("CommandDescription.Template"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, TemplateCommand, true, [GetString("CommandArgs.Template.Tag")]),
@@ -150,6 +150,7 @@ internal static class ChatCommands
             new(["gno", "гно"], "{number}", GetString("CommandDescription.GNO"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeathOrLobby, GNOCommand, true, [GetString("CommandArgs.GNO.Number")]),
             new(["poll", "опрос"], "{question} {answerA} {answerB} [answerC] [answerD]", GetString("CommandDescription.Poll"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, PollCommand, true, [GetString("CommandArgs.Poll.Question"), GetString("CommandArgs.Poll.AnswerA"), GetString("CommandArgs.Poll.AnswerB"), GetString("CommandArgs.Poll.AnswerC"), GetString("CommandArgs.Poll.AnswerD")]),
             new(["pv", "проголосовать"], "{vote}", GetString("CommandDescription.PV"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, PVCommand, true, [GetString("CommandArgs.PV.Vote")]),
+            new(["hm", "мс", "мессенджер"], "{id}", GetString("CommandDescription.HM"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, HMCommand, true, [GetString("CommandArgs.HM.Id")]),
 
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "st", "bt", "угадать", "бт"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -157,7 +158,7 @@ internal static class ChatCommands
             new(["sw", "swap", "st", "свап", "свапнуть"], "{id}", GetString("CommandDescription.Swap"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Swap.Id")]),
             new(["compare", "cp", "cmp", "сравнить", "ср"], "{id1} {id2}", GetString("CommandDescription.Compare"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Compare.Id1"), GetString("CommandArgs.Compare.Id2")]),
             new(["ms", "mediumship", "medium", "медиум"], "{answer}", GetString("CommandDescription.Medium"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Medium.Answer")]),
-            new(["rv", "месть", "отомстить"], "{id}", GetString("CommandDescription.Revenge"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Revenge.Id")])
+            new(["rv", "месть", "отомстить"], "{id}", GetString("CommandDescription.Revenge"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, (_, _, _, _) => { }, true, [GetString("CommandArgs.Revenge.Id")])
         ];
     }
 
@@ -732,8 +733,16 @@ internal static class ChatCommands
 
     private static void TemplateCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        if (args.Length > 1) TemplateManager.SendTemplate(args[1]);
-        else HudManager.Instance.Chat.AddChat(player, (player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + $"{GetString("ForExample")}:\n{args[0]} test");
+        if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+        {
+            if (args.Length > 1) TemplateManager.SendTemplate(args[1]);
+            else HudManager.Instance.Chat.AddChat(player, (player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + $"{GetString("ForExample")}:\n{args[0]} test");
+        }
+        else
+        {
+            if (args.Length > 1) TemplateManager.SendTemplate(args[1], player.PlayerId);
+            else Utils.SendMessage($"{GetString("ForExample")}:\n{args[0]} test", player.PlayerId);
+        }
     }
 
     private static void TPInCommand(ChatController __instance, PlayerControl player, string text, string[] args)
@@ -1608,6 +1617,7 @@ internal static class ChatCommands
             "持槍" or "持械" or "手长" => GetString("Reach"),
             "monarch" => GetString("Monarch"),
             "sch" => GetString("SchrodingersCat"),
+            "glitch" or "Glitch" => GetString("Glitch"),
             _ => text
         };
     }

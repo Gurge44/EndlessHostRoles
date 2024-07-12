@@ -981,7 +981,9 @@ static class ExtendedPlayerControl
 
     public static Team GetTeam(this PlayerControl target)
     {
-        if (target.Is(CustomRoles.Bloodlust) || target.GetCustomSubRoles().Any(x => x.IsConverted())) return Team.Neutral;
+        var subRoles = target.GetCustomSubRoles();
+        if (target.Is(CustomRoles.Bloodlust) || subRoles.Any(x => x.IsConverted())) return Team.Neutral;
+        if (subRoles.Contains(CustomRoles.Madmate)) return Team.Impostor;
         var role = target.GetCustomRole();
         if (role.IsImpostorTeamV3()) return Team.Impostor;
         if (role.IsNeutralTeamV2()) return Team.Neutral;

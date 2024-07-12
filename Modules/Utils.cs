@@ -636,7 +636,7 @@ public static class Utils
             case CustomGameMode.HideAndSeek: return HnSManager.HasTasks(p);
         }
 
-        if (Shifter.ForceDisableTasks(p.PlayerId)) return false;
+        // if (Shifter.ForceDisableTasks(p.PlayerId)) return false;
 
         var role = States.MainRole;
         switch (role)
@@ -2518,7 +2518,7 @@ public static class Utils
 
     public static void AfterMeetingTasks()
     {
-        if (!Lovers.IsChatActivated && Lovers.PrivateChat.GetBool() && !GameStates.IsEnded)
+        if (!Lovers.IsChatActivated && Lovers.PrivateChat.GetBool() && !GameStates.IsEnded && Options.CurrentGameMode == CustomGameMode.Standard)
         {
             LateTask.New(SetChatVisible, 0.5f, log: false);
             Lovers.IsChatActivated = true;
@@ -2998,41 +2998,6 @@ public static class Utils
         return new(R, G, B, color.a);
     }
 
-    ///// <summary>
-    ///// 乱数の簡易的なヒストグラムを取得する関数
-    ///// <params name="nums">生成した乱数を格納したint配列</params>
-    ///// <params name="scale">ヒストグラムの倍率 大量の乱数を扱う場合、この値を下げることをお勧めします。</params>
-    ///// </summary>
-    //public static string WriteRandomHistgram(int[] nums, float scale = 1.0f)
-    //{
-    //    int[] countData = new int[nums.Max() + 1];
-    //    foreach (int num in nums)
-    //    {
-    //        if (0 <= num) countData[num]++;
-    //    }
-    //    StringBuilder sb = new();
-    //    for (int i = 0; i < countData.Length; i++)
-    //    {
-    //        // 倍率適用
-    //        countData[i] = (int)(countData[i] * scale);
-
-    //        // 行タイトル
-    //        sb.AppendFormat("{0:D2}", i).Append(" : ");
-
-    //        // ヒストグラム部分
-    //        for (int j = 0; j < countData[i]; j++)
-    //            sb.Append('|');
-
-    //        // 改行
-    //        sb.Append('\n');
-    //    }
-
-    //    // その他の情報
-    //    sb.Append("最大数 - 最小数: ").Append(countData.Max() - countData.Min());
-
-    //    return sb.ToString();
-    //}
-
     public static void SetChatVisible()
     {
         if (!GameStates.IsInGame) return;
@@ -3049,7 +3014,20 @@ public static class Utils
         return casted != null;
     }
 
-    public static int PlayersCount(CountTypes countTypes) => Main.PlayerStates.Values.Count(state => state.countTypes == countTypes);
-    public static int AlivePlayersCount(CountTypes countTypes) => Main.AllAlivePlayerControls.Count(pc => pc.Is(countTypes));
+    public static int PlayersCount(CountTypes countTypes)
+    {
+        int count = 0;
+        foreach (var state in Main.PlayerStates.Values)
+        {
+            var ct = CustomTeamManager.GetCustomTeam(state.Player.PlayerId);
+            if (ct != null && !CustomTeamManager.IsSettingEnabledForTeam(ct, CTAOption.WinWithOriginalTeam)) continue;
+            if (state.countTypes == countTypes) count++;
+        }
+
+        return count;
+    }
+
+    public static int AlivePlayersCount(CountTypes countTypes) => (from pc in Main.AllAlivePlayerControls let ct = CustomTeamManager.GetCustomTeam(pc.PlayerId) where ct == null || CustomTeamManager.IsSettingEnabledForTeam(ct, CTAOption.WinWithOriginalTeam) select pc).Count(pc => pc.Is(countTypes));
+
     public static bool IsPlayerModClient(this byte id) => Main.PlayerVersion.ContainsKey(id);
 }

@@ -684,6 +684,7 @@ internal class SelectRolesPatch
                 .SelectMany(x => Enumerable.Repeat(x, Math.Clamp(x.GetCount(), 0, aapc.Length)))
                 .Where(x => IRandom.Instance.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(x, out var sc) ? sc.GetFloat() : 0))
                 .Shuffle()
+                .OrderByDescending(x => Options.CustomAdtRoleSpawnRate.TryGetValue(x, out var sc) && sc.GetInt() == 100)
                 .Select(x =>
                 {
                     var suitablePlayer = aapc

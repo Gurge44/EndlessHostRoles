@@ -11,7 +11,6 @@ namespace EHR.Neutral
         public static List<byte> PlayerIdList = [];
         public static bool On;
 
-        public static OptionItem CanVent;
         public static OptionItem ChooseConverted;
         public static OptionItem MisFireKillTarget;
 
@@ -20,9 +19,22 @@ namespace EHR.Neutral
         public static OptionItem CanKillCharmed;
         public static OptionItem CanKillSidekicks;
         public static OptionItem CanKillEgoists;
-        public static OptionItem CanKillInfected;
         public static OptionItem CanKillContagious;
         public static OptionItem CanKillUndead;
+
+        public static OptionItem ChangeRoleWhenCantWin;
+        public static OptionItem ChangeRole;
+
+        private static readonly CustomRoles[] ChangeRoles =
+        [
+            CustomRoles.Amnesiac,
+            CustomRoles.Pursuer,
+            CustomRoles.Maverick,
+            CustomRoles.Totocalcio,
+            CustomRoles.Opportunist,
+            CustomRoles.Crewmate,
+            CustomRoles.Jester
+        ];
 
         public bool IsWon;
 
@@ -38,9 +50,10 @@ namespace EHR.Neutral
             CanKillLovers = new BooleanOptionItem(Id + 15, "FFFCanKillLovers", true, TabGroup.NeutralRoles).SetParent(ChooseConverted);
             CanKillSidekicks = new BooleanOptionItem(Id + 16, "FFFCanKillSidekick", true, TabGroup.NeutralRoles).SetParent(ChooseConverted);
             CanKillEgoists = new BooleanOptionItem(Id + 17, "FFFCanKillEgoist", true, TabGroup.NeutralRoles).SetParent(ChooseConverted);
-            CanKillInfected = new BooleanOptionItem(Id + 18, "FFFCanKillInfected", true, TabGroup.NeutralRoles).SetParent(ChooseConverted);
             CanKillContagious = new BooleanOptionItem(Id + 19, "FFFCanKillContagious", true, TabGroup.NeutralRoles).SetParent(ChooseConverted);
             CanKillUndead = new BooleanOptionItem(Id + 21, "FFFCanKillUndead", true, TabGroup.NeutralRoles).SetParent(ChooseConverted);
+            ChangeRoleWhenCantWin = new BooleanOptionItem(Id + 18, "VultureChangeRoleWhenCantWin", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.FFF]);
+            ChangeRole = new StringOptionItem(Id + 20, "VultureChangeRole", ChangeRoles.Select(x => x.ToColoredString()).ToArray(), 0, TabGroup.NeutralRoles, noTranslation: true).SetParent(ChangeRoleWhenCantWin);
         }
 
         public override void Init()
@@ -133,6 +146,17 @@ namespace EHR.Neutral
 
                 _ => false
             };
+        }
+
+        public override void OnFixedUpdate(PlayerControl pc)
+        {
+            if (!pc.IsAlive()) return;
+
+            if (ChangeRoleWhenCantWin.GetBool() && !IsWon && Main.AllAlivePlayerControls.All(x => Main.LoversPlayers.All(l => l.PlayerId != x.PlayerId) && !x.GetCustomRole().IsRecruitingRole() && !x.GetCustomSubRoles().Any(p => p.IsConverted())))
+            {
+                var role = ChangeRoles[ChangeRole.GetValue()];
+                pc.RpcSetCustomRole(role);
+            }
         }
 
         public override void SetButtonTexts(HudManager hud, byte id)

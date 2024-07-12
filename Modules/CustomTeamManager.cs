@@ -91,7 +91,7 @@ namespace EHR.Modules
 
         public static string GetSuffix(PlayerControl seer)
         {
-            if (seer == null || EnabledCustomTeams.Count == 0 || !IsSettingEnabledForPlayerTeam(seer.PlayerId, CTAOption.Arrows)) return string.Empty;
+            if (seer == null || EnabledCustomTeams.Count == 0 || Main.HasJustStarted || !IsSettingEnabledForPlayerTeam(seer.PlayerId, CTAOption.Arrows)) return string.Empty;
             return CustomTeamPlayerIds[GetCustomTeam(seer.PlayerId)].Aggregate(string.Empty, (s, id) => s + Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), TargetArrow.GetArrows(seer, id)));
         }
 

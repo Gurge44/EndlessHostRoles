@@ -974,7 +974,7 @@ internal static class CustomRolesHelper
         ((role is CustomRoles.Doctor) && Options.DoctorVisibleToEveryone.GetBool()) ||
         ((role is CustomRoles.Bait) && Options.BaitNotification.GetBool() && ParityCop.ParityCheckBaitCountType.GetBool());
 
-    public static bool IsImpostorTeamV3(this CustomRoles role) => role.IsImpostor() || role.IsMadmate();
+    public static bool IsImpostorTeamV3(this CustomRoles role) => role.IsImpostor() || role.IsMadmate() || role == CustomRoles.Madmate;
 
     public static bool IsVanilla(this CustomRoles role) => role is
         CustomRoles.Crewmate or
