@@ -213,7 +213,7 @@ internal class ChangeRoleSettings
             Crewpostor.TasksDone = [];
             Express.SpeedNormal = [];
             Express.SpeedUp = [];
-            Messenger.Messages = [];
+            Messenger.Sent = [];
 
             ReportDeadBodyPatch.CanReport = [];
             SabotageMapPatch.TimerTexts = [];

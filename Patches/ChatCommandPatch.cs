@@ -267,7 +267,7 @@ internal static class ChatCommands
             if (!meeting) yield return new WaitForSeconds(7f);
 
             var killer = player.GetRealKiller();
-            if (killer == null) yield break;
+            if (killer == null && id != 3) yield break;
 
             Team team = player.GetTeam();
             string message = id switch
@@ -278,6 +278,7 @@ internal static class ChatCommands
             };
 
             Utils.SendMessage(message, title: string.Format(GetString("MessengerTitle"), player.PlayerId.ColoredPlayerName()));
+            Messenger.Sent.Add(player.PlayerId);
         }
     }
 

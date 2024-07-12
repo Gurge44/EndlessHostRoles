@@ -97,6 +97,7 @@ public static class DevManager
         DevUserList.Add(new(code: "pithfierce#5073", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "OrigeTv"));
         DevUserList.Add(new(code: "cannylink#0564", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "SpicyPoops"));
         DevUserList.Add(new(code: "ghostapt#7243", color: "#a48d6b", tag: "AUME", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "MasterKy"));
+        DevUserList.Add(new(code: "planegame#5847", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "Kopp56 PRO"));
 
         // Sponsor
         DevUserList.Add(new(code: "recentduct#6068", color: "#FF00FF", tag: "高冷男模法师", isUp: false, isDev: false, colorCmd: false, deBug: true, upName: null));

@@ -4,7 +4,7 @@ namespace EHR.AddOns.Common
 {
     public class Messenger : IAddon
     {
-        public static Dictionary<byte, (int MessageNum, bool Sent)> Messages = [];
+        public static HashSet<byte> Sent = [];
         public AddonTypes Type => AddonTypes.Helpful;
 
         public void SetupCustomOption()
