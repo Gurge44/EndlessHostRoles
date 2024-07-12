@@ -733,7 +733,7 @@ public static class GuessManager
 
     private static void CreateIDLabels(MeetingHud __instance)
     {
-        const int max = 100;
+        const int max = 2;
         foreach (var pva in __instance.playerStates)
         {
             var levelDisplay = pva.transform.FindChild("PlayerLevel").gameObject;

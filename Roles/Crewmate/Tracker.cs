@@ -59,6 +59,7 @@ namespace EHR.Crewmate
             playerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(TrackLimitOpt.GetInt());
             TrackerTarget.Add(playerId, []);
+            TrackerId = playerId;
         }
 
         public static void SendRPC(byte trackerId = byte.MaxValue, byte targetId = byte.MaxValue)

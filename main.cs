@@ -530,7 +530,6 @@ public class Main : BasePlugin
                 { CustomRoles.LastImpostor, "#ff1919" },
                 { CustomRoles.Lovers, "#ff9ace" },
                 { CustomRoles.Bloodlust, "#630000" },
-                { CustomRoles.Ntr, "#00a4ff" },
                 { CustomRoles.Madmate, "#ff1919" },
                 { CustomRoles.Watcher, "#800080" },
                 { CustomRoles.Sleuth, "#30221c" },

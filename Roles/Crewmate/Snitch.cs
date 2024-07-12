@@ -57,6 +57,7 @@ public class Snitch : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
+        SnitchId = playerId;
 
         EnableTargetArrow = OptionEnableTargetArrow.GetBool();
         CanGetColoredArrow = OptionCanGetColoredArrow.GetBool();

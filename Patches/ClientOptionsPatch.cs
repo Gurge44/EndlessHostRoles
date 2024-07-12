@@ -148,7 +148,7 @@ public static class OptionsMenuBehaviourStartPatch
 
         if (LobbyMusic == null || LobbyMusic.ToggleButton == null)
         {
-            LobbyMusic = ClientOptionItem.Create("LobbyMusic", Main.LobbyMusic, __instance);
+            LobbyMusic = ClientOptionItem.Create("LobbyMusic", Main.LobbyMusic, __instance, LobbyMusicButtonToggle);
 
             void LobbyMusicButtonToggle()
             {

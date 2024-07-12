@@ -412,7 +412,6 @@ public enum CustomRoles
     Minion, // Ghost role
     Mischievous,
     Necroview,
-    Ntr, // Neptune
     Nimble,
     Noisy,
     Oblivious,
