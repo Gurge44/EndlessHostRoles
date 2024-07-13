@@ -1713,7 +1713,7 @@
   "KickCommandKickMod": "Você não tem permissão para expulsar outros moderadores.",
   "KickCommandKicked": "foi expulso do jogo por",
   "KickCommandKickedRole": "Sua função era",
-  "ModeratorTag": "Moderador",
+  "ModeratorTag": "<color=#8000ff>Moderador</color>",
   "EnableAFKDetector": "Habilitar Detector de AFK",
   "AFKWarning": "<#ffff00><size=90%>Por favor se mova para evitar ser marcado como AFK</color> <#ffffff>({0})</size></color>",
   "AFKSuffix": "<#ffa500>(AFK)</color>",
