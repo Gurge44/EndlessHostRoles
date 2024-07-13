@@ -3146,7 +3146,7 @@
   "EnteredBlockedVent": "<color=#ffff00>Ventguard заблокировал этот люк</color>",
   "VentguardNotify": "Кто-то пытается использовать заблокированный люк",
   "VentguardVentButtonText": "Блок",
-  "VentguardMaxGuards": "Максимум блокировок на раунд",
+  "VentguardMaxGuards": "Максимум блокировок",
   "VentguardBlockDoesNotAffectCrew": "<color=#8cffff>Члены Экипажа</color> могут использовать заблокированные люки",
   "VentguardNotifyOnBlockedVentUse": "Уведомлять о попытках использовать заблокированный люк",
   "VentguardBlocksResetOnMeeting": "Сбрасывать блокировку люков после собраний",
