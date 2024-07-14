@@ -1828,7 +1828,7 @@
   "DeadlyQuota": "Deadly Quota",
   "DeadlyQuotaInfo": "Пока не убьёшь достаточно, не выиграешь",
   "DeadlyQuotaInfoLong": "(Атрибут Предателей):\\nDeadly Quota требует от своего носителя убить определённое количество игроков (или больше), чтобы быть способным выиграть. Если убийств будет недостаточно, носитель атрибута проиграет даже тогда, когда должен был выиграть.",
-  "DQNumOfKillsNeeded": "Требуемое кол-во убийств",
+  "DQNumOfKillsNeeded": "Кол-во убийств",
   "Prefix.DeadlyQuota": "Deadly Quota",
   "Circumvent": "Circumvent",
   "CircumventInfo": "Ты не можешь использовать люки",
