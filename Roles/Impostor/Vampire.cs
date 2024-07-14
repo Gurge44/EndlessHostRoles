@@ -12,12 +12,15 @@ public class Vampire : RoleBase
 {
     private const int Id = 4500;
     private static readonly List<byte> PlayerIdList = [];
-    private static OptionItem OptionKillDelay;
     private static readonly Dictionary<byte, BittenInfo> BittenPlayers = [];
+
+    private static OptionItem Cooldown;
+    private static OptionItem OptionKillDelay;
+    private static OptionItem OptionCanKillNormally;
+    private bool CanKillNormally;
     private bool CanVent;
 
     private bool IsPoisoner;
-
     private float KillCooldown;
     private float KillDelay;
 
@@ -26,8 +29,14 @@ public class Vampire : RoleBase
     public static void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Vampire);
-        OptionKillDelay = new FloatOptionItem(Id + 10, "VampireKillDelay", new(1f, 30f, 1f), 3f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Vampire])
+        Cooldown = new FloatOptionItem(Id + 9, "VampireKillCooldown", new(1f, 30f, 1f), 30f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Vampire])
             .SetValueFormat(OptionFormat.Seconds);
+        OptionKillDelay = new FloatOptionItem(Id + 10, "VampireKillDelay", new(1f, 30f, 1f), 3f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Vampire])
+            .SetValueFormat(OptionFormat.Seconds);
+        OptionCanKillNormally = new BooleanOptionItem(Id + 11, "CanKillNormally", true, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Vampire]);
     }
 
     public override void Init()
@@ -43,15 +52,17 @@ public class Vampire : RoleBase
         IsPoisoner = Main.PlayerStates[playerId].MainRole == CustomRoles.Poisoner;
         if (!IsPoisoner)
         {
-            KillCooldown = Options.DefaultKillCooldown;
+            KillCooldown = Cooldown.GetFloat();
             KillDelay = OptionKillDelay.GetFloat();
             CanVent = true;
+            CanKillNormally = OptionCanKillNormally.GetBool();
         }
         else
         {
             KillCooldown = Poisoner.KillCooldown.GetFloat();
             KillDelay = Poisoner.OptionKillDelay.GetFloat();
             CanVent = Poisoner.CanVent.GetBool();
+            CanKillNormally = Poisoner.CanKillNormally.GetBool();
         }
 
         if (!AmongUsClient.Instance.AmHost || !IsPoisoner) return;
@@ -76,24 +87,25 @@ public class Vampire : RoleBase
         if (target.Is(CustomRoles.Bait)) return true;
         if (target.Is(CustomRoles.Pestilence)) return true;
         if (target.Is(CustomRoles.Guardian) && target.AllTasksCompleted()) return true;
-        if (target.Is(CustomRoles.Opportunist) && target.AllTasksCompleted() && Opportunist.OppoImmuneToAttacksWhenTasksDone.GetBool()) return false;
+        if (target.Is(CustomRoles.Opportunist) && target.AllTasksCompleted() && Opportunist.OppoImmuneToAttacksWhenTasksDone.GetBool()) return true;
         if (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.ContainsKey(target.PlayerId)) return true;
-        if (Medic.ProtectList.Contains(target.PlayerId)) return false;
+        if (Medic.ProtectList.Contains(target.PlayerId)) return true;
 
-        killer.SetKillCooldown();
-        LateTask.New(() =>
-        {
-            if (GameStates.IsInTask)
-                killer.SetKillCooldown();
-        }, OptionKillDelay.GetFloat(), "VampireKillCooldown");
-        killer.RPCPlayCustomSound("Bite");
+        if (CanKillNormally) return killer.CheckDoubleTrigger(target, Bite);
 
-        if (!BittenPlayers.ContainsKey(target.PlayerId))
-        {
-            BittenPlayers.Add(target.PlayerId, new(killer.PlayerId, 0f));
-        }
-
+        Bite();
         return false;
+
+        void Bite()
+        {
+            killer.SetKillCooldown(KillCooldown + KillDelay);
+            killer.RPCPlayCustomSound("Bite");
+
+            if (!BittenPlayers.ContainsKey(target.PlayerId))
+            {
+                BittenPlayers.Add(target.PlayerId, new(killer.PlayerId, 0f));
+            }
+        }
     }
 
     public override void OnFixedUpdate(PlayerControl vampire)

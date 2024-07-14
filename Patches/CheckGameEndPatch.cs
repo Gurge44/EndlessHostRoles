@@ -377,7 +377,7 @@ class GameEndChecker
 
             if (CustomTeamManager.CheckCustomTeamGameEnd()) return true;
 
-            if (Main.AllAlivePlayerControls.All(Main.LoversPlayers.Contains) && !Main.LoversPlayers.All(x => x.Is(Team.Crewmate)))
+            if (Main.AllAlivePlayerControls.All(x => Main.LoversPlayers.Any(l => l.PlayerId == x.PlayerId)) && !Main.LoversPlayers.All(x => x.Is(Team.Crewmate)))
             {
                 ResetAndSetWinner(CustomWinner.Lovers);
                 return true;

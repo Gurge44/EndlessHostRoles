@@ -997,6 +997,11 @@ class MeetingHudUpdatePatch
                 });
             }
 
+            if (DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening)
+            {
+                GuessManager.DestroyIDLabels();
+            }
+
             if (!GameStates.IsVoting && __instance.lastSecond < 1)
             {
                 if (GameObject.Find("ShootButton") != null) ClearShootButton(__instance, true);

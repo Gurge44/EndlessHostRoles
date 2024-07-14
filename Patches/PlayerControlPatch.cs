@@ -1561,6 +1561,7 @@ class FixedUpdatePatch
                 Mark.Append(Snitch.GetWarningMark(seer, target));
                 Mark.Append(Deathpact.GetDeathpactMark(seer, target));
 
+                Main.LoversPlayers.ToArray().DoIf(x => x == null, x => Main.LoversPlayers.Remove(x));
                 if (!Main.HasJustStarted) Main.LoversPlayers.DoIf(x => !x.Is(CustomRoles.Lovers), x => x.RpcSetCustomRole(CustomRoles.Lovers));
                 if (Main.LoversPlayers.Any(x => x.PlayerId == target.PlayerId))
                 {

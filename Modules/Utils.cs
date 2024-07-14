@@ -2519,12 +2519,15 @@ public static class Utils
 
     public static void AfterMeetingTasks()
     {
-        if (!Lovers.IsChatActivated && Lovers.PrivateChat.GetBool() && !GameStates.IsEnded && Options.CurrentGameMode == CustomGameMode.Standard)
+        bool loversChat = Lovers.PrivateChat.GetBool();
+        if (!Lovers.IsChatActivated && loversChat && !GameStates.IsEnded && Options.CurrentGameMode == CustomGameMode.Standard)
         {
-            LateTask.New(SetChatVisible, 0.5f, log: false);
+            LateTask.New(SetChatVisibleForAll, 0.5f, log: false);
             Lovers.IsChatActivated = true;
             return;
         }
+
+        if (loversChat) GameEndChecker.Prefix();
 
         Lovers.IsChatActivated = false;
         Main.ProcessShapeshifts = true;
@@ -2999,7 +3002,7 @@ public static class Utils
         return new(R, G, B, color.a);
     }
 
-    public static void SetChatVisible()
+    public static void SetChatVisibleForAll()
     {
         if (!GameStates.IsInGame) return;
         MeetingHud.Instance = Object.Instantiate(HudManager.Instance.MeetingPrefab);

@@ -29,6 +29,8 @@ public static class GuessManager
     public static TextMeshPro TextTemplate;
     private static readonly int Mask = Shader.PropertyToID("_Mask");
 
+    private static List<GameObject> IDPanels = [];
+
     public static string GetFormatString()
     {
         string text = GetString("PlayerIdList");
@@ -731,8 +733,9 @@ public static class GuessManager
         }
     }
 
-    private static void CreateIDLabels(MeetingHud __instance)
+    public static void CreateIDLabels(MeetingHud __instance)
     {
+        DestroyIDLabels();
         const int max = 2;
         foreach (var pva in __instance.playerStates)
         {
@@ -751,7 +754,14 @@ public static class GuessManager
             var levelNumber = panelTransform.FindChild("LevelNumber").GetComponent<TextMeshPro>();
             levelNumber.text = pva.TargetPlayerId.ToString();
             levelNumber.sortingOrder = max;
+            IDPanels.Add(panel);
         }
+    }
+
+    public static void DestroyIDLabels()
+    {
+        IDPanels.ForEach(Object.Destroy);
+        IDPanels = [];
     }
 
     static void GuesserSelectRole(CustomRoleTypes Role, bool SetPage = true)

@@ -686,7 +686,7 @@ class IntroCutsceneDestroyPatch
                 CustomGameMode.HotPotato => HotPotatoManager.IsChatDuringGame,
                 _ => false
             };
-            if (chat) Utils.SetChatVisible();
+            if (chat) Utils.SetChatVisibleForAll();
 
             // LateTask.New(() => Main.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 

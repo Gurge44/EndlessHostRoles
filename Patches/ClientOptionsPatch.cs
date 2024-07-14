@@ -183,5 +183,8 @@ public static class OptionsMenuBehaviourClosePatch
     public static void Postfix()
     {
         ClientOptionItem.CustomBackground?.gameObject.SetActive(false);
+
+        if (GameStates.InGame && GameStates.IsVoting && !DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening)
+            GuessManager.CreateIDLabels(MeetingHud.Instance);
     }
 }

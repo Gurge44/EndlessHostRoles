@@ -32,7 +32,7 @@ public static class GameStartManagerUpdatePatch
 
 public class GameStartManagerPatch
 {
-    public static float Timer { get; private set; } = 600f;
+    public static float Timer { get; set; } = 600f;
 
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Start))]
     public class GameStartManagerStartPatch

@@ -279,4 +279,10 @@ class OptionsMenuBehaviourOpenPatch
 
         return false;
     }
+
+    public static void Postfix()
+    {
+        if (GameStates.InGame && GameStates.IsMeeting)
+            GuessManager.DestroyIDLabels();
+    }
 }

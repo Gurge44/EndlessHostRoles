@@ -40,6 +40,8 @@ public enum CustomRPC
     SetCurrentDousingTarget,
     SetEvilTrackerTarget,
     SetRealKiller,
+    ShowChat,
+    SyncLobbyTimer,
 
     // EHR
     AntiBlackout,
@@ -581,14 +583,27 @@ internal class RPCHandlerPatch
                     float timer = reader.ReadSingle();
                     (Main.PlayerStates[id].Role as Penguin)?.ReceiveRPC(timer);
                 }
-            }
+
                 break;
+            }
             case CustomRPC.SetRealKiller:
             {
                 byte targetId = reader.ReadByte();
                 byte killerId = reader.ReadByte();
                 RPC.SetRealKiller(targetId, killerId);
+                break;
             }
+            case CustomRPC.ShowChat:
+                var clientId = reader.ReadPackedUInt32();
+                var show = reader.ReadBoolean();
+                if (AmongUsClient.Instance.ClientId == clientId)
+                {
+                    HudManager.Instance.Chat.SetVisible(show);
+                }
+
+                break;
+            case CustomRPC.SyncLobbyTimer:
+                GameStartManagerPatch.Timer = reader.ReadPackedInt32();
                 break;
             case CustomRPC.SetGamerHealth:
                 Gamer.ReceiveRPC(reader);

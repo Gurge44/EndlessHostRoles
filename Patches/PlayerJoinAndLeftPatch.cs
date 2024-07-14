@@ -167,12 +167,13 @@ class OnPlayerLeftPatch
 
                 if (data.Character.Is(CustomRoles.Lovers) && !data.Character.Data.IsDead)
                 {
-                    foreach (var lovers in Main.LoversPlayers.ToArray())
+                    foreach (var lovers in Main.LoversPlayers)
                     {
                         Main.IsLoversDead = true;
-                        Main.LoversPlayers.Remove(lovers);
                         Main.PlayerStates[lovers.PlayerId].RemoveSubRole(CustomRoles.Lovers);
                     }
+
+                    Main.LoversPlayers.RemoveAll(x => x.PlayerId == data.Character.PlayerId);
                 }
 
                 switch (data.Character.GetCustomRole())
@@ -321,6 +322,29 @@ class InnerNetClientSpawnPatch
             OptionItem.SyncAllOptions(client.Id);
         }, 3f, "Sync All Options For New Player");
 
+        if (GameStates.IsOnlineGame)
+        {
+            LateTask.New(() =>
+            {
+                if (client.Character != null && LobbyBehaviour.Instance != null)
+                {
+                    if (!client.Character.IsHost() && !client.Character.IsModClient())
+                    {
+                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(LobbyBehaviour.Instance.NetId, (byte)RpcCalls.LobbyTimeExpiring, SendOption.None, client.Id);
+                        writer.WritePacked((int)GameStartManagerPatch.Timer);
+                        writer.Write(false);
+                        AmongUsClient.Instance.FinishRpcImmediately(writer);
+                    }
+                    else if (!client.Character.IsHost() && client.Character.IsModClient())
+                    {
+                        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncLobbyTimer, SendOption.Reliable, client.Id);
+                        writer.WritePacked((int)GameStartManagerPatch.Timer);
+                        AmongUsClient.Instance.FinishRpcImmediately(writer);
+                    }
+                }
+            }, 3f, "Send RPC or Sync Lobby Timer");
+        }
+
         Main.GuessNumber[client.Character.PlayerId] = [-1, 7];
 
         LateTask.New(() =>
@@ -420,11 +444,21 @@ class PlayerControlCheckNamePatch
 
         Main.AllPlayerNames[__instance.PlayerId] = name;
         Logger.Info($"PlayerId: {__instance.PlayerId} - playerName: {playerName} - name: {name}", "Name player");
+        RPC.SyncAllPlayerNames();
 
         if (__instance != null && !name.Equals(playerName))
         {
             Logger.Warn($"Standard nickname: {playerName} => {name}", "Name Format");
             playerName = name;
         }
+
+        LateTask.New(() =>
+        {
+            if (__instance != null && !__instance.Data.Disconnected && !__instance.IsModClient())
+            {
+                var sender = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, __instance.OwnerId);
+                AmongUsClient.Instance.FinishRpcImmediately(sender);
+            }
+        }, 0.6f, "Retry Version Check", false);
     }
 }
