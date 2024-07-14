@@ -1286,6 +1286,8 @@
   "DeadCrewCantSabotage": "<color=#8cffff>Tripulantes</color> não podem sabotar após morrerem",
   "DeadNeutralCantSabotage": "<color=#ffab1b>Neutros</color> não podem sabotar após morrerem",
   "VampireKillDelay": "Atraso na Mordida",
+  "VampireKillCooldown": "Bite Cooldown",
+  "CanKillNormally": "Can Kill Normally (using double click)",
   "MareAddSpeedInLightsOut": "Velocidade adicional durante a escuridão",
   "MareKillCooldownInLightsOut": "Recarga de abate durante a escuridão",
   "KillCooldownNormally": "Recarga de abate sem sabotagem",
