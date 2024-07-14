@@ -61,6 +61,8 @@ namespace EHR.Neutral
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
+            if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool())
+                AURoleOptions.PhantomCooldown = 1f;
             var room = Utils.GetPlayerById(id)?.GetPlainShipRoom();
             if (room == null) return;
             opt.SetVision(room == RoomBoosts[Boost.Vision]);
@@ -113,6 +115,12 @@ namespace EHR.Neutral
         {
             var s = RoomBoosts.Select(x => $"{Translator.GetString(x.Value.RoomId.ToString())} \u21e8 {Translator.GetString($"PatrollerBoost.{x.Key}")}");
             pc.Notify(string.Join('\n', s));
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            OnPet(pc);
+            return false;
         }
 
         enum Boost

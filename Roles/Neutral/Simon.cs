@@ -59,9 +59,15 @@ namespace EHR.Neutral
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => pc.IsAlive();
-        public override bool CanUseSabotage(PlayerControl pc) => true;
+        public override bool CanUseSabotage(PlayerControl pc) => !(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool());
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
+        {
+            opt.SetVision(HasImpostorVision.GetBool());
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+                AURoleOptions.PhantomCooldown = 1f;
+        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
@@ -114,6 +120,12 @@ namespace EHR.Neutral
         }
 
         public override bool OnSabotage(PlayerControl pc)
+        {
+            OnPet(pc);
+            return false;
+        }
+
+        public override bool OnVanish(PlayerControl pc)
         {
             OnPet(pc);
             return false;

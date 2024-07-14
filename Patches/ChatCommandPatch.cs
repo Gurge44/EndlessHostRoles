@@ -452,8 +452,7 @@ internal static class ChatCommands
 
     private static void CSDCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        string subArgs;
-        subArgs = text.Remove(0, 3);
+        string subArgs = text.Remove(0, 3);
         player.RPCPlayCustomSound(subArgs.Trim());
     }
 
@@ -491,7 +490,7 @@ internal static class ChatCommands
             var roleName = GetString(rl.ToString()).ToLower().Trim();
             if (setRole.Contains(roleName))
             {
-                if (!rl.IsAdditionRole()) player.RpcSetRole(rl.GetRoleTypes());
+                if (!rl.IsAdditionRole()) player.SetRole(rl.GetRoleTypes());
                 player.RpcSetCustomRole(rl);
 
                 if (rl.IsGhostRole()) GhostRolesManager.SpecificAssignGhostRole(player.PlayerId, rl, true);
@@ -968,8 +967,7 @@ internal static class ChatCommands
 
     private static void SetRoleCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        string subArgs;
-        subArgs = text.Remove(0, 8);
+        string subArgs = text.Remove(0, 8);
         if (!player.FriendCode.GetDevUser().IsUp) return;
         if (!Options.EnableUpMode.GetBool())
         {
@@ -1014,15 +1012,13 @@ internal static class ChatCommands
 
     private static void RCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        string subArgs;
-        subArgs = text.Remove(0, 2);
+        string subArgs = text.Remove(0, 2);
         SendRolesInfo(subArgs, player.PlayerId, player.FriendCode.GetDevUser().DeBug);
     }
 
     private static void DisconnectCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        string subArgs;
-        subArgs = args.Length < 2 ? string.Empty : args[1];
+        string subArgs = args.Length < 2 ? string.Empty : args[1];
         switch (subArgs)
         {
             case "crew":
@@ -1045,28 +1041,26 @@ internal static class ChatCommands
 
     private static void NowCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        string subArgs;
-        subArgs = args.Length < 2 ? string.Empty : args[1];
+        string subArgs = args.Length < 2 ? string.Empty : args[1];
         switch (subArgs)
         {
             case "r":
             case "roles":
-                Utils.ShowActiveRoles();
+                Utils.ShowActiveRoles(player.PlayerId);
                 break;
             case "a":
             case "all":
-                Utils.ShowAllActiveSettings();
+                Utils.ShowAllActiveSettings(player.PlayerId);
                 break;
             default:
-                Utils.ShowActiveSettings();
+                Utils.ShowActiveSettings(player.PlayerId);
                 break;
         }
     }
 
     private static void LevelCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        string subArgs;
-        subArgs = args.Length < 2 ? string.Empty : args[1];
+        string subArgs = args.Length < 2 ? string.Empty : args[1];
         Utils.SendMessage(string.Format(GetString("Message.SetLevel"), subArgs), player.PlayerId);
         _ = int.TryParse(subArgs, out int input);
         if (input is < 1 or > 999)
@@ -1122,10 +1116,10 @@ internal static class ChatCommands
 
     private static void LastResultCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        Utils.ShowKillLog();
-        Utils.ShowLastAddOns();
-        Utils.ShowLastRoles();
-        Utils.ShowLastResult();
+        Utils.ShowKillLog(player.PlayerId);
+        Utils.ShowLastAddOns(player.PlayerId);
+        Utils.ShowLastRoles(player.PlayerId);
+        Utils.ShowLastResult(player.PlayerId);
     }
 
     private static void WinnerCommand(ChatController __instance, PlayerControl player, string text, string[] args)

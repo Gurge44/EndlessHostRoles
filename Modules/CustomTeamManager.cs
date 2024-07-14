@@ -66,6 +66,7 @@ namespace EHR.Modules
 
         public static void InitializeCustomTeamPlayers()
         {
+            UpdateEnabledTeams();
             if (EnabledCustomTeams.Count == 0) return;
 
             CustomTeamPlayerIds = Main.PlayerStates

@@ -411,6 +411,9 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 AURoleOptions.ShapeshifterDuration = 1f;
             }
 
+            if (Options.UsePhantomBasis.GetBool() && role.InvisActivatedAbility())
+                AURoleOptions.PhantomDuration = 1f;
+
             // ===================================================================================================================
 
             AURoleOptions.EngineerCooldown = Mathf.Max(0.01f, AURoleOptions.EngineerCooldown);

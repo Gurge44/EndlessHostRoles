@@ -66,11 +66,15 @@ namespace EHR.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool()) return;
             try
             {
-                AURoleOptions.ShapeshifterCooldown = IsNuker ? NukeCooldown.GetFloat() : BombCooldown.GetFloat();
-                AURoleOptions.ShapeshifterDuration = 2f;
+                if (UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = IsNuker ? NukeCooldown.GetFloat() : BombCooldown.GetFloat();
+                else
+                {
+                    if (UsePets.GetBool()) return;
+                    AURoleOptions.ShapeshifterCooldown = IsNuker ? NukeCooldown.GetFloat() : BombCooldown.GetFloat();
+                    AURoleOptions.ShapeshifterDuration = 2f;
+                }
             }
             catch
             {
@@ -93,6 +97,12 @@ namespace EHR.Impostor
             if (!shapeshifting) return true;
             Bomb(shapeshifter);
 
+            return false;
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            Bomb(pc);
             return false;
         }
 

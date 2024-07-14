@@ -97,18 +97,19 @@ public class PlayerState(byte playerId)
 
     public void SetMainRole(CustomRoles role)
     {
-        countTypes = role switch
+        countTypes = role.GetCountTypes();
+
+        if (SubRoles.Contains(CustomRoles.Recruit))
         {
-            CustomRoles.DarkHide => !DarkHide.SnatchesWin.GetBool() ? CountTypes.DarkHide : CountTypes.Crew,
-            CustomRoles.Arsonist => Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Arsonist : CountTypes.Crew,
-            _ when SubRoles.Contains(CustomRoles.Recruit) => Jackal.SidekickCountMode.GetValue() switch
+            countTypes = Jackal.SidekickCountMode.GetValue() switch
             {
                 0 => CountTypes.Jackal,
                 1 => CountTypes.OutOfGame,
                 _ => role.GetCountTypes()
-            },
-            _ => role.GetCountTypes()
-        };
+            };
+        }
+
+        ;
 
         Role = role.GetRoleClass();
 
@@ -121,7 +122,7 @@ public class PlayerState(byte playerId)
 
         Role.Add(PlayerId);
 
-        Logger.Info($"ID {PlayerId} ({Utils.GetPlayerById(PlayerId)?.GetRealName()}) => {role}", "SetMainRole");
+        Logger.Info($"ID {PlayerId} ({Utils.GetPlayerById(PlayerId)?.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetMainRole");
 
         if (!AmongUsClient.Instance.AmHost) return;
 

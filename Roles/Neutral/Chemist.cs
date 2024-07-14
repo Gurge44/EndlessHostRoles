@@ -205,9 +205,15 @@ namespace EHR.Neutral
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => pc.IsAlive();
         public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive();
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
+        {
+            opt.SetVision(HasImpostorVision.GetBool());
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+                AURoleOptions.PhantomCooldown = 1f;
+        }
 
         static ItemType GetItemType(Item item) => item switch
         {
@@ -466,13 +472,27 @@ namespace EHR.Neutral
         {
             if (SortedAvailableProcesses.Count == 0) return false;
 
+            Cycle(pc);
+
+            return false;
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            if (SortedAvailableProcesses.Count == 0) return false;
+
+            Cycle(pc);
+
+            return false;
+        }
+
+        private void Cycle(PlayerControl pc)
+        {
             var index = SortedAvailableProcesses.IndexOf(SelectedProcess);
             SelectedProcess = SortedAvailableProcesses[(index + 1) % SortedAvailableProcesses.Count];
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 2, SelectedProcess);
 
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-
-            return false;
         }
 
         public override void OnPet(PlayerControl pc)

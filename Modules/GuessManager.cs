@@ -235,6 +235,10 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("GuessKnighted"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessKnighted"));
                             return true;
+                        case CustomRoles.Executioner when Executioner.Target[pc.PlayerId] == target.PlayerId && Executioner.KnowTargetRole.GetBool() && !Executioner.CanGuessTarget.GetBool():
+                            if (!isUI) Utils.SendMessage(GetString("GuessDisabled"), pc.PlayerId);
+                            else pc.ShowPopUp(GetString("GuessDisabled"));
+                            return true;
                         case CustomRoles.Doomsayer:
                             if (Doomsayer.CantGuess)
                             {

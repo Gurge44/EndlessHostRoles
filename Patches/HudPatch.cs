@@ -511,6 +511,26 @@ class MapBehaviourShowPatch
     }
 }
 
+[HarmonyPatch(typeof(MapTaskOverlay), nameof(MapTaskOverlay.Show))]
+class MapTaskOverlayShowPatch
+{
+    public static void Postfix()
+    {
+        if (GameStates.IsMeeting)
+            GuessManager.DestroyIDLabels();
+    }
+}
+
+[HarmonyPatch(typeof(MapTaskOverlay), nameof(MapTaskOverlay.Hide))]
+class MapTaskOverlayHidePatch
+{
+    public static void Postfix()
+    {
+        if (GameStates.IsMeeting && !DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening)
+            GuessManager.CreateIDLabels(MeetingHud.Instance);
+    }
+}
+
 [HarmonyPatch(typeof(InfectedOverlay), nameof(InfectedOverlay.Update))]
 class SabotageMapPatch
 {

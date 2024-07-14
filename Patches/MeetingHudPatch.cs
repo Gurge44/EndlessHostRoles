@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AmongUs.GameOptions;
 using EHR.AddOns.Common;
 using EHR.Crewmate;
 using EHR.Impostor;
@@ -860,6 +861,12 @@ class MeetingHudStartPatch
             PlayerControl seer = PlayerControl.LocalPlayer;
             PlayerControl target = Utils.GetPlayerById(pva.TargetPlayerId);
             if (target == null) continue;
+
+            if (seer.GetCustomRole().GetDYRole() is RoleTypes.Shapeshifter or RoleTypes.Phantom)
+            {
+                target.cosmetics.SetNameColor(Color.white);
+                pva.NameText.color = Color.white;
+            }
 
             var sb = new StringBuilder();
 

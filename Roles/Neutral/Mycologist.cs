@@ -15,7 +15,8 @@ namespace EHR.Neutral
         [
             "VentButtonText", // 0
             "SabotageButtonText", // 1
-            "PetButtonText" // 2
+            "PetButtonText", // 2
+            "AbilityButtonText.Phantom" // 3
         ];
 
         private static OptionItem KillCooldown;
@@ -67,7 +68,13 @@ namespace EHR.Neutral
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
+        {
+            opt.SetVision(HasImpostorVision.GetBool());
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+                AURoleOptions.PhantomCooldown = CD.GetInt();
+        }
 
         void SendRPC()
         {
@@ -117,6 +124,16 @@ namespace EHR.Neutral
             {
                 SpreadSpores();
             }
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            if (SpreadAction.GetValue() == 3)
+            {
+                SpreadSpores();
+            }
+
+            return false;
         }
 
         void SpreadSpores()

@@ -734,6 +734,17 @@ internal class SelectRolesPatch
                 {
                     if (pc.Data.Role.Role == RoleTypes.Shapeshifter)
                         Main.CheckShapeshift.Add(pc.PlayerId, false);
+
+                    if (pc.GetCustomRole().GetDYRole() is RoleTypes.Shapeshifter or RoleTypes.Phantom)
+                    {
+                        foreach (var target in Main.AllPlayerControls)
+                        {
+                            target.Data.Role.CanBeKilled = true;
+
+                            target.cosmetics.SetNameColor(Color.white);
+                            target.Data.Role.NameColor = Color.white;
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -863,13 +874,21 @@ internal class SelectRolesPatch
             rolesMap[(player.PlayerId, target.PlayerId)] = player.PlayerId != target.PlayerId ? othersRole : selfRole;
         }
 
-        // Other's point of view
+        // Others' point of view
         foreach (var seer in Main.AllPlayerControls.Where(x => player.PlayerId != x.PlayerId))
             rolesMap[(seer.PlayerId, player.PlayerId)] = othersRole;
 
         RpcSetRoleReplacer.OverriddenSenderList.Add(senders[player.PlayerId]);
-        // Host perspective determines role
+        // Host perspective determines the role
         player.SetRole(othersRole);
+
+        // Override RoleType for host
+        if (player.PlayerId == hostId && BaseRole == RoleTypes.Shapeshifter)
+        {
+            DestroyableSingleton<RoleManager>.Instance.SetRole(player, BaseRole);
+            DestroyableSingleton<RoleBehaviour>.Instance.CanBeKilled = true;
+        }
+
         player.Data.IsDead = true;
 
         Logger.Info($"Register Modded Role：{player.Data?.PlayerName} => {role}", "AssignRoles");
@@ -906,6 +925,7 @@ internal class SelectRolesPatch
     private static void AssignCustomRole(CustomRoles role, PlayerControl player)
     {
         if (player == null) return;
+        Main.PlayerStates[player.PlayerId].countTypes = role.GetCountTypes();
         Main.PlayerStates[player.PlayerId].SetMainRole(role);
         Logger.Info($"Register Modded Role：{player.Data?.PlayerName} => {role}", "AssignRoles");
     }

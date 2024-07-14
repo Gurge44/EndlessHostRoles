@@ -35,8 +35,12 @@ namespace EHR.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
-            AURoleOptions.ShapeshifterCooldown = CamouflageCooldown.GetFloat();
-            AURoleOptions.ShapeshifterDuration = CamouflageDuration.GetFloat();
+            if (Options.UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = CamouflageCooldown.GetFloat();
+            else
+            {
+                AURoleOptions.ShapeshifterCooldown = CamouflageCooldown.GetFloat();
+                AURoleOptions.ShapeshifterDuration = CamouflageDuration.GetFloat();
+            }
         }
 
         public override void Init()

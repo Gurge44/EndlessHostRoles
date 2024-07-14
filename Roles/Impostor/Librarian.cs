@@ -65,8 +65,12 @@ namespace EHR.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
-            AURoleOptions.ShapeshifterDuration = SSDur.GetFloat();
-            AURoleOptions.ShapeshifterCooldown = SSCD.GetFloat();
+            if (UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = SSCD.GetFloat();
+            else
+            {
+                AURoleOptions.ShapeshifterCooldown = SSCD.GetFloat();
+                AURoleOptions.ShapeshifterDuration = SSDur.GetFloat();
+            }
         }
 
         private static void SendRPC(byte playerId, bool isInSilenceMode)
@@ -123,18 +127,31 @@ namespace EHR.Impostor
             if (!IsEnable) return false;
             if (pc == null) return false;
 
-            byte id = pc.PlayerId;
-
-            IsInSilencingMode = (!IsInSilencingMode.SILENCING, TimeStamp);
-            SendRPC(id, IsInSilencingMode.SILENCING);
+            ChangeSilencingMode(pc);
 
             return !shapeshifting || ShowSSAnimation.GetBool();
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            if (!IsEnable) return false;
+            if (pc == null) return false;
+
+            ChangeSilencingMode(pc);
+
+            return false;
+        }
+
+        private void ChangeSilencingMode(PlayerControl pc)
+        {
+            IsInSilencingMode = (!IsInSilencingMode.SILENCING, TimeStamp);
+            SendRPC(pc.PlayerId, IsInSilencingMode.SILENCING);
         }
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
             if (!IsEnable) return;
-            if (ShowSSAnimation.GetBool()) return;
+            if (ShowSSAnimation.GetBool() && !UsePhantomBasis.GetBool()) return;
 
             if (IsInSilencingMode.SILENCING && IsInSilencingMode.LAST_CHANGE + SSDur.GetInt() < TimeStamp)
             {

@@ -2153,6 +2153,18 @@ class CmdCheckAppearPatch
     }
 }
 
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckVanish))]
+class CheckVanishPatch
+{
+    public static bool Prefix(PlayerControl __instance)
+    {
+        Logger.Info($" {__instance.GetNameWithRole()}", "CheckVanish");
+        bool allow = Main.PlayerStates[__instance.PlayerId].Role.OnVanish(__instance);
+        if (!allow) __instance.RpcResetAbilityCooldown();
+        return allow;
+    }
+}
+
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.AssertWithTimeout))]
 class AssertWithTimeoutPatch
 {

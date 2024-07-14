@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 
 namespace EHR.Impostor
 {
@@ -38,7 +39,24 @@ namespace EHR.Impostor
             On = true;
         }
 
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            if (Options.UsePhantomBasis.GetBool())
+                AURoleOptions.PhantomCooldown = DashCD.GetFloat();
+        }
+
         public override void OnPet(PlayerControl pc)
+        {
+            Dash(pc);
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            Dash(pc);
+            return false;
+        }
+
+        private static void Dash(PlayerControl pc)
         {
             if (pc == null || DashStart.ContainsKey(pc.PlayerId)) return;
 

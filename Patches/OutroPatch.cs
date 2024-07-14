@@ -76,11 +76,11 @@ class EndGamePatch
 
         EndGameResult.CachedWinners = new();
 
-        var winner = Main.AllPlayerControls.Where(pc => CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId)).ToList();
+        var winner = Main.AllPlayerControls.Where(pc => CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId)).ToHashSet();
 
         foreach (var team in CustomWinnerHolder.WinnerRoles)
         {
-            winner.AddRange(Main.AllPlayerControls.Where(p => p.Is(team) && !winner.Contains(p)));
+            winner.UnionWith(Main.AllPlayerControls.Where(p => p.Is(team) && !winner.Contains(p)));
         }
 
         Main.WinnerNameList = [];

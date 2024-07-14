@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using AmongUs.GameOptions;
-using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
 using Hazel;
@@ -89,8 +88,12 @@ internal class Assassin : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
-        if (UsePets.GetBool()) return;
-        AURoleOptions.ShapeshifterCooldown = AssassinateCooldown;
+        if (UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = AssassinateCooldown;
+        else
+        {
+            if (UsePets.GetBool()) return;
+            AURoleOptions.ShapeshifterCooldown = AssassinateCooldown;
+        }
     }
 
     public override bool CanUseKillButton(PlayerControl pc)
@@ -125,12 +128,26 @@ internal class Assassin : RoleBase
 
     public override bool OnShapeshift(PlayerControl pc, PlayerControl t, bool shapeshifting)
     {
-        if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId) || Medic.ProtectList.Contains(pc.PlayerId)) return false;
+        if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
         if (!shapeshifting)
         {
             return true;
         }
 
+        Take(pc);
+
+        return false;
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        if (pc == null || !pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
+        Take(pc);
+        return false;
+    }
+
+    private void Take(PlayerControl pc)
+    {
         if (MarkedPlayer != byte.MaxValue)
         {
             var target = Utils.GetPlayerById(MarkedPlayer);
@@ -147,10 +164,8 @@ internal class Assassin : RoleBase
                     pc.SyncSettings();
                     pc.SetKillCooldown(DefaultKillCooldown);
                 }
-            }, UsePets.GetBool() ? 0.1f : 0.2f, "Assassin Assassinate");
+            }, UsePets.GetBool() ? 0.1f : 1.2f, "Assassin Assassinate");
         }
-
-        return false;
     }
 
     public override void SetButtonTexts(HudManager __instance, byte playerId)

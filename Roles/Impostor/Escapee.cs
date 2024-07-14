@@ -38,14 +38,24 @@ namespace EHR.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
-            if (Options.UsePets.GetBool()) return;
-            AURoleOptions.ShapeshifterCooldown = Options.EscapeeSSCD.GetFloat();
-            AURoleOptions.ShapeshifterDuration = 1f;
+            if (Options.UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = Options.EscapeeSSCD.GetFloat();
+            else
+            {
+                if (Options.UsePets.GetBool()) return;
+                AURoleOptions.ShapeshifterCooldown = Options.EscapeeSSCD.GetFloat();
+                AURoleOptions.ShapeshifterDuration = 1f;
+            }
         }
 
         public override void OnPet(PlayerControl pc)
         {
             TeleportOrMark(pc);
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            TeleportOrMark(pc);
+            return false;
         }
 
         private void TeleportOrMark(PlayerControl pc)

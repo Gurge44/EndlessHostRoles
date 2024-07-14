@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR.Patches;
 using HarmonyLib;
@@ -558,20 +557,16 @@ public static class StringOptionPatch
         {
             var item = OptionItem.AllOptions[index];
             var name = item.GetName();
-            if (Enum.GetValues<CustomRoles>().Any(x => Translator.GetString($"{x}") == name.RemoveHtmlTags()))
+            if (Enum.GetValues<CustomRoles>().Any(x => Translator.GetString($"{x}") == name.RemoveHtmlTags(), out var role))
             {
-                name = $"<size=3.5>{name}</size>";
+                if (Options.UsePets.GetBool() && role.PetActivatedAbility()) name += Translator.GetString("SupportsPetIndicator");
+                if (!Options.UsePets.GetBool() && role.OnlySpawnsWithPets()) name += Translator.GetString("RequiresPetIndicator");
                 __instance.TitleText.fontWeight = FontWeight.Black;
                 __instance.TitleText.outlineColor = new(255, 255, 255, 255);
                 __instance.TitleText.outlineWidth = 0.04f;
-                var i = name.IndexOf('#');
-                if (ColorUtility.TryParseHtmlString(name[i..(i + 7)], out var color))
-                {
-                    __instance.LabelBackground.color = color;
-                    __instance.TitleText.color = Color.white;
-                    name = name.RemoveHtmlTags();
-                }
-
+                __instance.LabelBackground.color = Utils.GetRoleColor(role);
+                __instance.TitleText.color = Color.white;
+                name = name.RemoveHtmlTags();
                 name = $"<size=3.5>{name}</size>";
             }
 

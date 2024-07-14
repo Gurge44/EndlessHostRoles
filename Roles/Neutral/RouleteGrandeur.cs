@@ -54,9 +54,15 @@ namespace EHR.Neutral
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KCD;
-        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => true;
-        public override bool CanUseSabotage(PlayerControl pc) => true;
+        public override bool CanUseSabotage(PlayerControl pc) => !(Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool());
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
+        {
+            opt.SetVision(HasImpostorVision.GetBool());
+            if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool())
+                AURoleOptions.PhantomCooldown = 1f;
+        }
 
         public override void OnExitVent(PlayerControl pc, Vent vent)
         {
@@ -74,6 +80,12 @@ namespace EHR.Neutral
         public override void OnPet(PlayerControl pc)
         {
             Roll(pc);
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            Roll(pc);
+            return false;
         }
 
         void Roll(PlayerControl pc)

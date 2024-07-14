@@ -84,12 +84,14 @@ public class WeaponMaster : RoleBase
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
-    public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive();
+    public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive() && !(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool());
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         opt.SetInt(Int32OptionNames.KillDistance, Mode == 2 ? 2 : 0);
         opt.SetVision(HasImpostorVision.GetBool());
+        if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+            AURoleOptions.PhantomCooldown = 1f;
     }
 
     public override bool CanUseKillButton(PlayerControl pc) => Mode != 3;
@@ -100,6 +102,12 @@ public class WeaponMaster : RoleBase
     }
 
     public override bool OnSabotage(PlayerControl pc)
+    {
+        SwitchMode();
+        return false;
+    }
+
+    public override bool OnVanish(PlayerControl pc)
     {
         SwitchMode();
         return false;

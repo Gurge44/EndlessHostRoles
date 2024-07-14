@@ -86,6 +86,7 @@ internal static class CustomRolesHelper
         if (role.IsGhostRole()) return CustomRoles.GuardianAngel;
         if (role.IsVanilla()) return role;
         if (checkDesyncRole && role.GetDYRole() == RoleTypes.Impostor) return CustomRoles.Impostor;
+        if (Options.UsePhantomBasis.GetBool() && role.InvisActivatedAbility()) return CustomRoles.Phantom;
         bool UsePets = Options.UsePets.GetBool();
         return role switch
         {
@@ -339,6 +340,7 @@ internal static class CustomRolesHelper
 
     public static RoleTypes GetDYRole(this CustomRoles role, bool load = false)
     {
+        if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool() && !role.IsImpostor() && role.InvisActivatedAbility()) return RoleTypes.Phantom;
         bool UsePets = !load && Options.UsePets.GetBool();
         return role switch
         {
@@ -821,6 +823,39 @@ internal static class CustomRolesHelper
     public static bool IsNoAnimationShifter(this CustomRoles role) => role is
         CustomRoles.Echo;
 
+    public static bool InvisActivatedAbility(this CustomRoles role) => role is
+        CustomRoles.Warlock or
+        CustomRoles.Swiftclaw or
+        CustomRoles.Undertaker or
+        CustomRoles.Abyssbringer or
+        CustomRoles.Bomber or
+        CustomRoles.Nuker or
+        CustomRoles.Camouflager or
+        CustomRoles.Disperser or
+        CustomRoles.Escapee or
+        CustomRoles.FireWorks or
+        CustomRoles.Librarian or
+        CustomRoles.Miner or
+        CustomRoles.RiftMaker or
+        CustomRoles.Assassin or
+        CustomRoles.QuickShooter or
+        CustomRoles.Sapper or
+        CustomRoles.Sniper or
+        CustomRoles.Twister or
+        CustomRoles.RouleteGrandeur or
+        CustomRoles.Enderman or
+        CustomRoles.Hookshot or
+        CustomRoles.Mycologist or
+        CustomRoles.Magician or
+        CustomRoles.Sprayer or
+        CustomRoles.Werewolf or
+        CustomRoles.WeaponMaster or
+        CustomRoles.Tiger or
+        CustomRoles.Bargainer or
+        CustomRoles.Chemist or
+        CustomRoles.Simon or
+        CustomRoles.Patroller;
+
     public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc) => role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out var bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out var o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && (!role.IsImpOnlyAddon() || pc.IsImpostor()) && role switch
     {
         CustomRoles.Rookie when !pc.CanUseKillButton() => false,
@@ -1060,6 +1095,8 @@ internal static class CustomRolesHelper
         CustomRoles.DarkHide when DarkHide.SnatchesWin.GetBool() => CountTypes.Crew,
         CustomRoles.Arsonist when !Options.ArsonistKeepsGameGoing.GetBool() => CountTypes.Crew,
         CustomRoles.SchrodingersCat => SchrodingersCat.WinsWithCrewIfNotAttacked.GetBool() ? CountTypes.Crew : CountTypes.OutOfGame,
+        CustomRoles.DarkHide => !DarkHide.SnatchesWin.GetBool() ? CountTypes.DarkHide : CountTypes.Crew,
+        CustomRoles.Arsonist => Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Arsonist : CountTypes.Crew,
         CustomRoles.Shifter => CountTypes.OutOfGame,
 
         _ => Enum.TryParse(role.ToString(), true, out CountTypes type)

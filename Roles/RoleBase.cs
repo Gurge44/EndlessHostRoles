@@ -141,6 +141,11 @@ namespace EHR
             return true;
         }
 
+        public virtual bool OnVanish(PlayerControl pc)
+        {
+            return true;
+        }
+
         public virtual void OnReportDeadBody()
         {
         }
