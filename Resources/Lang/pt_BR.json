@@ -2645,7 +2645,7 @@
   "OneNeutralRemain": "\\n1 <color=#ffab1b>Neutros Assassinos</color> restantes",
   "IsGood": "{0} era um <color=#8cffff>carinha legal</color> :c",
   "BelongTo": "{0} faz parte de {1}",
-  "GG": "GG! Não restam mais assassinos.",
+  "GG": "GG! Não restam mais assassinos. <color=#8cffff>Tripulantes</color> vencem!",
   "IWonderWhatsLeft": "Os <#ff1919>Impostores</color> estão mortos, mas talvez ainda faltem os <#ffab1b>Neutros</color>.",
   "SubText.Bloodlust": "Com um segredo....",
   "GameOverReason.HumansByVote": "Todos os Impostores e Neutros Assassinos foram ejetados ou Mortos",
