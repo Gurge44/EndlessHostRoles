@@ -967,7 +967,7 @@
   "FormatNameModes.Color": "Цвет",
   "FormatNameModes.Snacks": "Рандомно",
   "DisableEmojiName": "Выключить эмодзи в никнеймах",
-  "FixFirstKillCooldown": "Изменить откат убийства в начале",
+  "FixFirstKillCooldown": "Откат убийства в начале равен откату в ванильных настройках",
   "StartingKillCooldown": "Начальный откат убийства",
   "GhostCanSeeOtherRoles": "Призраки видят роли",
   "GhostCanSeeOtherVotes": "Призраки видят цвета голосов",
