@@ -132,7 +132,7 @@ public static class Utils
     // ReSharper disable once InconsistentNaming
     public static bool TPtoRndVent(CustomNetworkTransform nt, bool log = true)
     {
-        var vents = Object.FindObjectsOfType<Vent>();
+        var vents = ShipStatus.Instance.AllVents;
         var vent = vents.RandomElement();
 
         Logger.Info($"{nt.myPlayer.GetNameWithRole().RemoveHtmlTags()} => {vent.transform.position} (vent)", "TP");
@@ -1644,47 +1644,25 @@ public static class Utils
         return !isHost && color == 18 ? byte.MaxValue : color is < 0 or > 18 ? byte.MaxValue : Convert.ToByte(color);
     }
 
-    public static void ShowHelpToClient(byte ID)
-    {
-        SendMessage(
-            GetString("CommandList")
-            + $"\n  ○ /n {GetString("Command.now")}"
-            + $"\n  ○ /r {GetString("Command.roles")}"
-            + $"\n  ○ /m {GetString("Command.myrole")}"
-            + $"\n  ○ /xf {GetString("Command.solvecover")}"
-            + $"\n  ○ /l {GetString("Command.lastresult")}"
-            + $"\n  ○ /win {GetString("Command.winner")}"
-            + "\n\n" + GetString("CommandOtherList")
-            + $"\n  ○ /color {GetString("Command.color")}"
-            + $"\n  ○ /qt {GetString("Command.quit")}"
-            , ID);
-    }
-
     public static void ShowHelp(byte ID)
     {
-        SendMessage(
-            GetString("CommandList")
-            + $"\n  ○ /n {GetString("Command.now")}"
-            + $"\n  ○ /r {GetString("Command.roles")}"
-            + $"\n  ○ /m {GetString("Command.myrole")}"
-            + $"\n  ○ /l {GetString("Command.lastresult")}"
-            + $"\n  ○ /win {GetString("Command.winner")}"
-            + "\n\n" + GetString("CommandOtherList")
-            + $"\n  ○ /color {GetString("Command.color")}"
-            + $"\n  ○ /rn {GetString("Command.rename")}"
-            + $"\n  ○ /qt {GetString("Command.quit")}"
-            + "\n\n" + GetString("CommandHostList")
-            + $"\n  ○ /s {GetString("Command.say")}"
-            + $"\n  ○ /rn {GetString("Command.rename")}"
-            + $"\n  ○ /xf {GetString("Command.solvecover")}"
-            + $"\n  ○ /mw {GetString("Command.mw")}"
-            + $"\n  ○ /kill {GetString("Command.kill")}"
-            + $"\n  ○ /exe {GetString("Command.exe")}"
-            + $"\n  ○ /level {GetString("Command.level")}"
-            + $"\n  ○ /id {GetString("Command.idlist")}"
-            + $"\n  ○ /qq {GetString("Command.qq")}"
-            + $"\n  ○ /dump {GetString("Command.dump")}"
-            , ID);
+        var player = GetPlayerById(ID);
+        SendMessage(ChatCommands.AllCommands.Where(x => x.CanUseCommand(player)).Aggregate("<size=70%>", (s, c) => s + $"\n<b>{c.CommandForms.MinBy(f => f.Length)}{(c.Arguments.Length == 0 ? string.Empty : $" {c.Arguments.Split(' ').Select((x, i) => ColorString(GetColor(i), x).Join(delimiter: " "))}")}</b> \u2192 {c.Description}"), ID, title: GetString("CommandList"));
+        return;
+
+        Color GetColor(int i) => i switch
+        {
+            0 => Palette.Purple,
+            1 => Palette.Orange,
+            2 => Palette.Brown,
+            3 => Color.blue,
+            4 => Color.red,
+            5 => Color.cyan,
+            6 => Color.magenta,
+            7 => Color.green,
+
+            _ => Color.yellow
+        };
     }
 
     public static void CheckTerroristWin(NetworkedPlayerInfo Terrorist)
@@ -1748,7 +1726,7 @@ public static class Utils
     public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        if (title == "") title = "<color=#aaaaff>" + GetString("DefaultSystemMessageTitle") + "</color>";
+        if (title == "") title = "<color=#8b32a8>" + GetString("DefaultSystemMessageTitle") + "</color>";
         text = text.Replace("color=", string.Empty);
 
         if (text.Length >= 1200 && !noSplit)
@@ -3011,27 +2989,24 @@ public static class Utils
         MeetingHud.Instance.RpcClose();
     }
 
-    public static bool TryCast<T>(this Il2CppObjectBase obj, out T casted)
-        where T : Il2CppObjectBase
+    public static bool TryCast<T>(this Il2CppObjectBase obj, out T casted) where T : Il2CppObjectBase
     {
         casted = obj.TryCast<T>();
         return casted != null;
     }
 
-    public static int PlayersCount(CountTypes countTypes)
+    private static int PlayersCount(CountTypes countTypes)
     {
         int count = 0;
         foreach (var state in Main.PlayerStates.Values)
         {
-            var ct = CustomTeamManager.GetCustomTeam(state.Player.PlayerId);
-            if (ct != null && !CustomTeamManager.IsSettingEnabledForTeam(ct, CTAOption.WinWithOriginalTeam)) continue;
             if (state.countTypes == countTypes) count++;
         }
 
         return count;
     }
 
-    public static int AlivePlayersCount(CountTypes countTypes) => (from pc in Main.AllAlivePlayerControls let ct = CustomTeamManager.GetCustomTeam(pc.PlayerId) where ct == null || CustomTeamManager.IsSettingEnabledForTeam(ct, CTAOption.WinWithOriginalTeam) select pc).Count(pc => pc.Is(countTypes));
+    public static int AlivePlayersCount(CountTypes countTypes) => Main.AllAlivePlayerControls.Count(pc => pc.Is(countTypes));
 
     public static bool IsPlayerModClient(this byte id) => Main.PlayerVersion.ContainsKey(id);
 }

@@ -17,8 +17,8 @@ namespace EHR.Modules;
 
 public enum CustomRPC
 {
-    VersionCheck = 60,
-    RequestRetryVersionCheck = 61,
+    VersionCheck = 78,
+    RequestRetryVersionCheck = 79,
     SyncCustomSettings = 80,
     SetDeathReason,
     EndGame,
@@ -160,7 +160,7 @@ internal class RPCHandlerPatch
     {
         var rpcType = (RpcCalls)callId;
         MessageReader subReader = MessageReader.Get(reader);
-        //if (EAC.ReceiveRpc(__instance, callId, reader)) return false;
+        if (EAC.ReceiveRpc(__instance, callId, reader)) return false;
         Logger.Info($"From ID: {__instance?.Data?.PlayerId} ({(__instance?.Data?.PlayerId == 0 ? "Host" : __instance?.Data?.PlayerName)}) : {callId} ({RPC.GetRpcName(callId)})", "ReceiveRPC");
         if (callId == 11 && __instance != null)
         {
@@ -223,13 +223,8 @@ internal class RPCHandlerPatch
 
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
     {
-        if (AmongUsClient.Instance.AmHost) return;
         var rpcType = (CustomRPC)callId;
-
-        // Finish this later
-        // Main.PlayerStates.Values
-        //     .Where(x => "Sync" + x.Role.GetType().Name == rpcType.ToString())
-        //     .Do(x => x.Role.GetType().GetMethod("ReceiveRPC")?.Invoke(reader));
+        if (AmongUsClient.Instance.AmHost && rpcType != CustomRPC.VersionCheck) return;
 
         switch (rpcType)
         {
@@ -291,7 +286,7 @@ internal class RPCHandlerPatch
                 }
                 catch
                 {
-                    Logger.Warn($"{__instance?.Data?.PlayerName}({__instance?.PlayerId}): バージョン情報が無効です", "RpcVersionCheck");
+                    Logger.Warn($"{__instance?.Data?.PlayerName}({__instance?.PlayerId}): error during version check", "RpcVersionCheck");
                     LateTask.New(() =>
                     {
                         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, __instance.GetClientId());
@@ -322,7 +317,7 @@ internal class RPCHandlerPatch
                 Logger.Msg($"StartAmount: {startAmount} - LastAmount: {lastAmount} ({startAmount}/{lastAmount}) :--: ListOptionsCount: {countOptions} - AllOptions: {countAllOptions} ({countOptions}/{countAllOptions})", "SyncCustomSettings");
 
                 // Sync Settings
-                foreach (var option in listOptions.ToArray())
+                foreach (var option in listOptions)
                 {
                     option.SetValue(reader.ReadPackedInt32());
                 }
@@ -1134,8 +1129,27 @@ internal static class RPC
     }
 }
 
+[HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.HandleRpc))]
+internal static class PlayerPhysicsRPCHandlerPatch
+{
+    public static bool Prefix(PlayerPhysics __instance, byte callId, MessageReader reader)
+    {
+        if (EAC.PlayerPhysicsRpcCheck(__instance, callId, reader)) return false;
+
+        var player = __instance.myPlayer;
+        if (!player)
+        {
+            Logger.Warn("Received Physics RPC without a player", "PlayerPhysics_ReceiveRPC");
+            return false;
+        }
+
+        Logger.Info($"{player.PlayerId}({(__instance.IsHost() ? "Host" : player.Data.PlayerName)}):{callId}({RPC.GetRpcName(callId)})", "PlayerPhysics_ReceiveRPC");
+        return true;
+    }
+}
+
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.StartRpc))]
-internal class StartRpcPatch
+internal static class StartRpcPatch
 {
     public static void Prefix( /*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId)
     {
@@ -1144,7 +1158,7 @@ internal class StartRpcPatch
 }
 
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.StartRpcImmediately))]
-internal class StartRpcImmediatelyPatch
+internal static class StartRpcImmediatelyPatch
 {
     public static void Prefix( /*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(3)] int targetClientId = -1)
     {

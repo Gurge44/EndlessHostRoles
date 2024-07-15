@@ -60,7 +60,7 @@ public class PlayerState(byte playerId)
     public readonly PlayerControl Player = Utils.GetPlayerById(playerId, fast: false);
 
     private readonly byte PlayerId = playerId;
-    public CountTypes countTypes = CountTypes.OutOfGame;
+    public CountTypes countTypes = CountTypes.Crew;
     public PlainShipRoom LastRoom;
     public CustomRoles MainRole = CustomRoles.NotAssigned;
     public (DateTime TIMESTAMP, byte ID) RealKiller = (DateTime.MinValue, byte.MaxValue);
@@ -78,23 +78,6 @@ public class PlayerState(byte playerId)
     public bool IsSuicide => deathReason == DeathReason.Suicide;
     public TaskState TaskState => taskState;
 
-    public CustomRoles GetCustomRole()
-    {
-        var RoleInfo = Utils.GetPlayerInfoById(PlayerId);
-        return RoleInfo.Role == null
-            ? MainRole
-            : RoleInfo.Role.Role switch
-            {
-                RoleTypes.Crewmate => CustomRoles.Crewmate,
-                RoleTypes.Engineer => CustomRoles.Engineer,
-                RoleTypes.Scientist => CustomRoles.Scientist,
-                RoleTypes.GuardianAngel => CustomRoles.GuardianAngel,
-                RoleTypes.Impostor => CustomRoles.Impostor,
-                RoleTypes.Shapeshifter => CustomRoles.Shapeshifter,
-                _ => CustomRoles.Crewmate
-            };
-    }
-
     public void SetMainRole(CustomRoles role)
     {
         countTypes = role.GetCountTypes();
@@ -108,8 +91,6 @@ public class PlayerState(byte playerId)
                 _ => role.GetCountTypes()
             };
         }
-
-        ;
 
         Role = role.GetRoleClass();
 

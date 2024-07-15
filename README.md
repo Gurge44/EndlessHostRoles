@@ -1,9 +1,9 @@
 <h1 align="center">Endless Host Roles</h1>
-<h4 align="center">Previously known as TOHE+</h4>
+<h5 align="center">Previously known as TOHE+</h5>
 
 <br>
 
-<img align="left" alt="Cover" src="Resources/Images/EHR-BG.png" width="50%" height="250" />
+<img align="left" alt="Cover" src="Resources/Images/EHR-Icon.png" width="50%" height="250" />
 
 <p align="right">
 

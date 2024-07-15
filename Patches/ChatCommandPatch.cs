@@ -57,7 +57,7 @@ class Command(string[] commandForms, string arguments, string description, Comma
         return CommandForms.Any(text.Split(' ')[0].Equals);
     }
 
-    public bool CanUseCommand(PlayerControl pc)
+    public bool CanUseCommand(PlayerControl pc, bool checkTime = true)
     {
         if (UsageLevel == UsageLevels.Everyone && UsageTime == UsageTimes.Always) return true;
 
@@ -68,6 +68,8 @@ class Command(string[] commandForms, string arguments, string description, Comma
             case UsageLevels.HostOrModerator when !pc.IsHost() && !ChatCommands.IsPlayerModerator(pc.FriendCode):
                 return false;
         }
+
+        if (!checkTime) return true;
 
         switch (UsageTime)
         {
@@ -108,7 +110,7 @@ internal static class ChatCommands
             new(["rn", "rename", "рн", "ренейм", "переименовать"], "{name}", GetString("CommandDescription.Rename"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, RenameCommand, true, [GetString("CommandArgs.Rename.Name")]),
             new(["hn", "hidename", "хн", "спрник"], "", GetString("CommandDescription.HideName"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, HideNameCommand, true),
             new(["level", "лвл", "уровень"], "{level}", GetString("CommandDescription.Level"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, LevelCommand, true, [GetString("CommandArgs.Level.Level")]),
-            new(["n", "now", "н"], "/n", GetString("CommandDescription.Now"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, NowCommand, true),
+            new(["n", "now", "н"], "", GetString("CommandDescription.Now"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, NowCommand, true),
             new(["dis", "disconnect", "дис"], "{team}", GetString("CommandDescription.Disconnect"), Command.UsageLevels.Host, Command.UsageTimes.InGame, DisconnectCommand, true, [GetString("CommandArgs.Disconnect.Team")]),
             new(["r", "р"], "{role}", GetString("CommandDescription.R"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RCommand, true, [GetString("CommandArgs.R.Role")]),
             new(["up"], "{role}", GetString("CommandDescription.Up"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, UpCommand, true, [GetString("CommandArgs.Up.Role")]),
@@ -135,7 +137,7 @@ internal static class ChatCommands
             new(["target", "цель"], "{id}", GetString("CommandDescription.Target"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, TargetCommand, true, [GetString("CommandArgs.Target.Id")]),
             new(["chat", "сообщение"], "{message}", GetString("CommandDescription.Chat"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ChatCommand, true, [GetString("CommandArgs.Chat.Message")]),
             new(["check", "проверить"], "{id} {role}", GetString("CommandDescription.Check"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, CheckCommand, true, [GetString("CommandArgs.Check.Id"), GetString("CommandArgs.Check.Role")]),
-            new(["ban", "kick", "бан", "кик", "забанить", "кикнуть"], "{id}", GetString("CommandDescription.Ban"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, BanKickCommand, true, [GetString("CommandArgs.Ban.Id")]), //HyperAtill: Did I do everything right there? Or I need to add something else so game knows the differences between /ban and /kick
+            new(["ban", "kick", "бан", "кик", "забанить", "кикнуть"], "{id}", GetString("CommandDescription.Ban"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, BanKickCommand, true, [GetString("CommandArgs.Ban.Id")]),
             new(["exe", "выкинуть"], "{id}", GetString("CommandDescription.Exe"), Command.UsageLevels.Host, Command.UsageTimes.Always, ExeCommand, true, [GetString("CommandArgs.Exe.Id")]),
             new(["kill", "убить"], "{id}", GetString("CommandDescription.Kill"), Command.UsageLevels.Host, Command.UsageTimes.Always, KillCommand, true, [GetString("CommandArgs.Kill.Id")]),
             new(["colour", "color", "цвет"], "{color}", GetString("CommandDescription.Colour"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ColorCommand, true, [GetString("CommandArgs.Colour.Color")]),

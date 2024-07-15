@@ -557,7 +557,7 @@ public static class StringOptionPatch
         {
             var item = OptionItem.AllOptions[index];
             var name = item.GetName();
-            if (Enum.GetValues<CustomRoles>().Any(x => Translator.GetString($"{x}") == name.RemoveHtmlTags(), out var role))
+            if (Enum.GetValues<CustomRoles>().Find(x => Translator.GetString($"{x}") == name.RemoveHtmlTags(), out var role))
             {
                 if (Options.UsePets.GetBool() && role.PetActivatedAbility()) name += Translator.GetString("SupportsPetIndicator");
                 if (!Options.UsePets.GetBool() && role.OnlySpawnsWithPets()) name += Translator.GetString("RequiresPetIndicator");
