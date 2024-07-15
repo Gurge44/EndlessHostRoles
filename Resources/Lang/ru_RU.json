@@ -2309,7 +2309,7 @@
   "ERR-000-804-1": "EHR не поддерживает ванильные прятки. Мод выключился.",
   "ERR-001-000-3": "Дублирование ключей происходит в основном словаре.",
   "DeathCommand": "<#ffffff>Ты был убит игроком </color>{0}<#ffffff>\\nРоль этого игрока - </color>{1}",
-  "DefaultSystemMessageTitle": "➡ SYSTEM MESSAGE ⬅",
+  "DefaultSystemMessageTitle": "<#eb0c38>СИСТЕМА</color>",
   "MessageFromTheHost": "★ Сообщение от хоста ★",
   "SayTitle": "★ Сообщение от модератора ★",
   "MessageFromEAC": "[★ EAC ★]",
