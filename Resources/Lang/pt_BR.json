@@ -2626,7 +2626,7 @@
   "PVP.RCO": "Recuperando",
   "Loading": "Carregando...",
   "LoadingWithPercentage": "<b><color=#ffff00>{0}%</color></b>\\n<size=2>{1}</size>\\n<size=1>{2}</size>",
-  "CountdownText": "<color=#00ffa5>Voltando para o lobby em</color> <b>{0}</b> segundos",
+  "CountdownText": "<color=#00ffa5>Voltando para o lobby em</color> <b>{0}</b> segundo(s)",
   "EAC.CheatDetected.HighLevel": "Aviso: EAC detectou altos níveis de trapaças.",
   "EAC.CheatDetected.LowLevel": "Aviso: EAC detectou baixo nível de trapaças. Um dos jogadores está hackeando.",
   "DisableVoteBan": "Desativar Expulsão por votos (impedir que hackers acabem banido todos)",
