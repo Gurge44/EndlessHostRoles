@@ -2094,7 +2094,7 @@
   "Message.SetLevel": "Ваш игровой уровень установлен на: {0}",
   "Message.SetColor": "Ваш цвет установлен на: {0}",
   "Message.AllowLevelRange": "Игровой уровень может быть установлен в диапазоне от 0 до 100",
-  "Message.AllowNameLength": "Никнейм может быть в длину от 1 до 25 символов",
+  "Message.AllowNameLength": "Никнейм может быть в длину от 1 до 50 символов",
   "Message.OnlyCanUseInLobby": "Эту команду можно использовать только в лобби",
   "Message.CanNotUseInLobby": "Эту команду можно использовать только во время игры",
   "Message.CanNotUseByHost": "Хост не может использовать эту команду",
