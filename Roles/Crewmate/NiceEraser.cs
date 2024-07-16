@@ -37,7 +37,7 @@ internal class NiceEraser : RoleBase
         playerId.SetAbilityUseLimit(EraseLimitOpt.GetInt());
     }
 
-    public static bool OnVote(PlayerControl player, PlayerControl target)
+    public override bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null) return false;
         if (didVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;

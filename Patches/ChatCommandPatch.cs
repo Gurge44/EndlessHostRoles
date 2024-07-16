@@ -1476,7 +1476,7 @@ internal static class ChatCommands
 
     private static void VersionCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        string version_text = Main.PlayerVersion.OrderBy(pair => pair.Key).Aggregate(string.Empty, (current, kvp) => current + $"{kvp.Key}:{Main.AllPlayerNames[kvp.Key]}:{kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n");
+        string version_text = Main.PlayerVersion.OrderBy(pair => pair.Key).Aggregate(string.Empty, (current, kvp) => current + $"{kvp.Key}:{Main.AllPlayerNames[Utils.GetClientById(kvp.Key).Character.PlayerId]}:{kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n");
         if (version_text != string.Empty) HudManager.Instance.Chat.AddChat(player, (player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + version_text);
     }
 

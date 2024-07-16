@@ -929,7 +929,7 @@ static class ExtendedPlayerControl
         reporter.RpcStartMeeting(target);
     }
 
-    public static bool IsModClient(this PlayerControl player) => Main.PlayerVersion.ContainsKey(player.PlayerId);
+    public static bool IsModClient(this PlayerControl player) => Main.PlayerVersion.ContainsKey(player.GetClientId());
 
     public static List<PlayerControl> GetPlayersInAbilityRangeSorted(this PlayerControl player, bool ignoreColliders = false) => GetPlayersInAbilityRangeSorted(player, _ => true, ignoreColliders);
 

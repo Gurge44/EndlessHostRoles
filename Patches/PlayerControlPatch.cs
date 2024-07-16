@@ -254,7 +254,23 @@ class CheckMurderPatch
 
         if (Pursuer.OnClientMurder(killer)) return false;
 
-        if (killer.PlayerId != target.PlayerId && !Main.PlayerStates[killer.PlayerId].Role.OnCheckMurder(killer, target)) return false;
+        if (killer.PlayerId != target.PlayerId)
+        {
+            switch (killer.Is(CustomRoles.Bloodlust))
+            {
+                case false when !CheckMurder():
+                    return false;
+                case true when killer.GetCustomRole().GetDYRole() == RoleTypes.Impostor:
+                    if (killer.CheckDoubleTrigger(target, () =>
+                        {
+                            if (CheckMurder()) killer.RpcCheckAndMurder(target);
+                        }))
+                        killer.RpcCheckAndMurder(target);
+                    return false;
+            }
+
+            bool CheckMurder() => Main.PlayerStates[killer.PlayerId].Role.OnCheckMurder(killer, target);
+        }
 
         if (!killer.RpcCheckAndMurder(target, true))
             return false;
@@ -289,7 +305,7 @@ class CheckMurderPatch
         if (killer.Is(CustomRoles.Magnet) && !target.Is(CustomRoles.Pestilence))
         {
             target.TP(killer);
-            LateTask.New(() => { killer.RpcCheckAndMurder(target); }, 0.1f, log: false);
+            LateTask.New(() => killer.RpcCheckAndMurder(target), 0.1f, log: false);
             return false;
         }
 
@@ -357,6 +373,12 @@ class CheckMurderPatch
             !ToiletMaster.OnAnyoneCheckMurder(killer, target))
         {
             Notify("SomeSortOfProtection");
+            return false;
+        }
+
+        if (!Socialite.OnAnyoneCheckMurder(killer, target))
+        {
+            Notify("SocialiteTarget");
             return false;
         }
 
@@ -1341,7 +1363,7 @@ class FixedUpdatePatch
         {
             if (GameStates.IsLobby)
             {
-                if (Main.PlayerVersion.TryGetValue(playerId, out var ver))
+                if (Main.PlayerVersion.TryGetValue(player.GetClientId(), out var ver))
                 {
                     if (Main.ForkId != ver.forkId)
                         __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.2>{ver.forkId}</size>\n{__instance?.name}</color>";
@@ -2177,5 +2199,29 @@ class CmdCheckNameVersionCheckPatch
     public static void Postfix(PlayerControl __instance)
     {
         RPC.RpcVersionCheck();
+    }
+}
+
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.MixUpOutfit))]
+public static class PlayerControlMixupOutfitPatch
+{
+    public static void Postfix(PlayerControl __instance)
+    {
+        if (!__instance.IsAlive()) return;
+
+        if (PlayerControl.LocalPlayer.Data.Role.IsImpostor && // Has Impostor role behavior
+            !PlayerControl.LocalPlayer.Is(Team.Impostor) && // Not an actual Impostor
+            PlayerControl.LocalPlayer.GetCustomRole().GetDYRole() == RoleTypes.Impostor) // Has Desynced Impostor role
+            __instance.cosmetics.ToggleNameVisible(false);
+    }
+}
+
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixMixedUpOutfit))]
+public static class PlayerControlFixMixedUpOutfitPatch
+{
+    public static void Postfix(PlayerControl __instance)
+    {
+        if (!__instance.IsAlive()) return;
+        __instance.cosmetics.ToggleNameVisible(true);
     }
 }

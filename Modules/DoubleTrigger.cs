@@ -36,19 +36,22 @@ static class DoubleTrigger
                 // If the second target is off target, single action on the first opponent.
                 return false;
             }
+
             Logger.Info($"{killer.name} - Do Double Action", "DoubleTrigger");
             FirstTriggerTimer.Remove(killer.PlayerId);
             FirstTriggerTarget.Remove(killer.PlayerId);
             if (doAction) FirstTriggerAction.Remove(killer.PlayerId);
             return true;
         }
-        // Ignore kill interval during single action
+
+        // Ignore the kill interval during single action
         CheckMurderPatch.TimeSinceLastKill.Remove(killer.PlayerId);
         FirstTriggerTimer.Add(killer.PlayerId, 1f);
         FirstTriggerTarget.Add(killer.PlayerId, target.PlayerId);
         if (doAction) FirstTriggerAction.Add(killer.PlayerId, firstAction);
         return false;
     }
+
     public static void OnFixedUpdate(PlayerControl player)
     {
         if (!GameStates.IsInTask)

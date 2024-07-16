@@ -676,15 +676,14 @@ internal class SelectRolesPatch
             if (!overrideLovers && CustomRoles.Lovers.IsEnable() && (CustomRoles.FFF.IsEnable() ? -1 : rd.Next(1, 100)) <= Lovers.LoverSpawnChances.GetInt()) AssignLoversRolesFromList();
 
             // Add-on assignment
-            var aapc = Main.AllAlivePlayerControls;
+            var aapc = Main.AllAlivePlayerControls.Shuffle();
             var addonNum = aapc.ToDictionary(x => x, _ => 0);
             AddonRolesList
                 .Except(BasisChangingAddons.Keys)
                 .Where(x => x.IsEnable())
                 .SelectMany(x => Enumerable.Repeat(x, Math.Clamp(x.GetCount(), 0, aapc.Length)))
                 .Where(x => IRandom.Instance.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(x, out var sc) ? sc.GetFloat() : 0))
-                .Shuffle()
-                .OrderByDescending(x => Options.CustomAdtRoleSpawnRate.TryGetValue(x, out var sc) && sc.GetInt() == 100)
+                .OrderBy(x => Options.CustomAdtRoleSpawnRate.TryGetValue(x, out var sc) && sc.GetInt() == 100 ? IRandom.Instance.Next(100) : IRandom.Instance.Next(100, 1000))
                 .Select(x =>
                 {
                     var suitablePlayer = aapc

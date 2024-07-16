@@ -89,9 +89,7 @@ public static class GuessManager
         if (ConfirmIncludeMsg(msg, "珊瑚|珊瑚|coral")) return 17;
         return byte.MaxValue;
     }
-*/
 
-/*
     private static bool ConfirmIncludeMsg(string msg, string key)
     {
         var keys = key.Split('|');
@@ -134,33 +132,20 @@ public static class GuessManager
                     return true;
                 }
 
-                if (!pc.Is(CustomRoles.NiceGuesser) && pc.IsCrewmate() && !Options.CrewmatesCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Judge) && !pc.Is(CustomRoles.NiceSwapper))
+                if (pc.Is(CustomRoles.Lyncher) && Lyncher.GuessMode.GetValue() == 2) goto SkipCheck;
+
+                if ((!pc.Is(CustomRoles.NiceGuesser) && pc.IsCrewmate() && !Options.CrewmatesCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Judge) && !pc.Is(CustomRoles.NiceSwapper)) ||
+                    (!pc.Is(CustomRoles.EvilGuesser) && pc.IsImpostor() && !Options.ImpostorsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Councillor)) ||
+                    (pc.IsNeutralKiller() && !Options.NeutralKillersCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser)) ||
+                    (pc.GetCustomRole().IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Doomsayer)) ||
+                    (pc.Is(CustomRoles.Lyncher) && Lyncher.GuessMode.GetValue() == 0))
                 {
                     if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
                     else pc.ShowPopUp(GetString("GuessNotAllowed"));
                     return true;
                 }
 
-                if (!pc.Is(CustomRoles.EvilGuesser) && pc.IsImpostor() && !Options.ImpostorsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Councillor))
-                {
-                    if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
-                    else pc.ShowPopUp(GetString("GuessNotAllowed"));
-                    return true;
-                }
-
-                if (pc.IsNeutralKiller() && !Options.NeutralKillersCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser))
-                {
-                    if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
-                    else pc.ShowPopUp(GetString("GuessNotAllowed"));
-                    return true;
-                }
-
-                if (pc.GetCustomRole().IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Doomsayer))
-                {
-                    if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
-                    else pc.ShowPopUp(GetString("GuessNotAllowed"));
-                    return true;
-                }
+                SkipCheck:
 
                 if ((pc.Is(CustomRoles.NiceGuesser) && Options.GGTryHideMsg.GetBool()) ||
                     (pc.Is(CustomRoles.EvilGuesser) && Options.EGTryHideMsg.GetBool()) ||

@@ -35,12 +35,12 @@ namespace EHR.Crewmate
             Target = byte.MaxValue;
         }
 
-        public static bool OnVote(PlayerControl player, PlayerControl target)
+        public override bool OnVote(PlayerControl player, PlayerControl target)
         {
-            if (player == null || target == null || player.PlayerId == target.PlayerId || Main.PlayerStates[player.PlayerId].Role is not Soothsayer ss) return false;
-            if (ss.Target != byte.MaxValue || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
+            if (player == null || target == null || player.PlayerId == target.PlayerId) return false;
+            if (Target != byte.MaxValue || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
 
-            ss.Target = target.PlayerId;
+            Target = target.PlayerId;
 
             Main.DontCancelVoteList.Add(player.PlayerId);
             return true;

@@ -312,7 +312,7 @@ public class GameStartManagerPatch
 
         private static bool MatchVersions(byte playerId, bool acceptVanilla = false)
         {
-            if (!Main.PlayerVersion.TryGetValue(playerId, out var version)) return acceptVanilla;
+            if (!Main.PlayerVersion.TryGetValue(Utils.GetPlayerById(playerId).GetClientId(), out var version)) return acceptVanilla;
             return Main.ForkId == version.forkId
                    && Main.Version.CompareTo(version.version) == 0
                    && version.tag == $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})";
@@ -428,6 +428,8 @@ class ResetStartStatePatch
 {
     public static void Prefix(GameStartManager __instance)
     {
+        SoundManager.Instance.StopSound(__instance.gameStartSound);
+
         if (__instance.startState == GameStartManager.StartingStates.Countdown)
         {
             Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;

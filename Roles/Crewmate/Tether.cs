@@ -109,15 +109,15 @@ namespace EHR.Crewmate
             AURoleOptions.EngineerInVentMaxTime = 1f;
         }
 
-        public static bool OnVote(PlayerControl pc, PlayerControl target)
+        public override bool OnVote(PlayerControl pc, PlayerControl target)
         {
-            if (pc == null || target == null || Main.PlayerStates[pc.PlayerId].Role is not Tether th || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
+            if (pc == null || target == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
 
             if (pc.GetAbilityUseLimit() >= 1)
             {
                 pc.RpcRemoveAbilityUse();
-                th.Target = target.PlayerId;
-                th.SendRPCSyncTarget();
+                Target = target.PlayerId;
+                SendRPCSyncTarget();
                 Main.DontCancelVoteList.Add(pc.PlayerId);
                 return true;
             }

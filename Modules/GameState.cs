@@ -431,6 +431,21 @@ public static class GameStates
 
     public static bool IsCountDown => GameStartManager.InstanceExists && GameStartManager.Instance.startState == GameStartManager.StartingStates.Countdown;
 
+    public static bool IsVanillaServer
+    {
+        get
+        {
+            if (!IsOnlineGame) return false;
+
+            const string domain = "among.us";
+
+            // From Reactor.gg
+            return ServerManager.Instance.CurrentRegion?.TryCast<StaticHttpRegionInfo>() is { } regionInfo &&
+                   regionInfo.PingServer.EndsWith(domain, StringComparison.Ordinal) &&
+                   regionInfo.Servers.All(serverInfo => serverInfo.Ip.EndsWith(domain, StringComparison.Ordinal));
+        }
+    }
+
     /**********TOP ZOOM.cs***********/
     public static bool IsShip => ShipStatus.Instance != null;
     public static bool IsCanMove => PlayerControl.LocalPlayer?.CanMove is true;

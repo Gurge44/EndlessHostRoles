@@ -155,6 +155,11 @@ public static class OptionsMenuBehaviourStartPatch
                 if (!Main.LobbyMusic.Value && GameStates.IsLobby)
                 {
                     SoundManager.Instance.StopAllSound();
+                    LateTask.New(() =>
+                    {
+                        Main.LobbyMusic.Value = true;
+                        LobbyMusic.UpdateToggle();
+                    }, 5f, log: false);
                 }
             }
         }

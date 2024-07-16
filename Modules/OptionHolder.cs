@@ -1637,7 +1637,7 @@ public static class Options
             {
                 if ((((OptionItem)o)!).GetBool()) UsePets.SetValue(0);
             });
-        UsePhantomBasisForNKs = new BooleanOptionItem(23854, "UsePhantomBasisForNKs", false, TabGroup.TaskSettings)
+        UsePhantomBasisForNKs = new BooleanOptionItem(23864, "UsePhantomBasisForNKs", false, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetParent(UsePhantomBasis)
             .SetColor(new Color32(255, 255, 44, byte.MaxValue));

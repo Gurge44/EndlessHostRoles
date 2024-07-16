@@ -251,13 +251,9 @@ class GameEndChecker
                     WinnerIds.UnionWith(Main.LoversPlayers.Select(x => x.PlayerId));
                 }
 
-                if (Options.NeutralWinTogether.GetBool() && WinnerIds.Select(x => GetPlayerById(x)).Any(x => x != null && x.GetCustomRole().IsNeutral() && !x.IsMadmate()))
+                if (Options.NeutralWinTogether.GetBool() && (WinnerRoles.Any(x => x.IsNeutral()) || WinnerIds.Select(x => GetPlayerById(x)).Any(x => x != null && x.GetCustomRole().IsNeutral() && !x.IsMadmate())))
                 {
-                    foreach (PlayerControl pc in Main.AllPlayerControls)
-                    {
-                        if (pc.GetCustomRole().IsNeutral())
-                            WinnerIds.Add(pc.PlayerId);
-                    }
+                    WinnerIds.UnionWith(Main.AllPlayerControls.Where(x => x.GetCustomRole().IsNeutral()).Select(x => x.PlayerId));
                 }
                 else if (Options.NeutralRoleWinTogether.GetBool())
                 {
@@ -270,6 +266,11 @@ class GameEndChecker
                             if (!WinnerIds.Contains(tar.PlayerId) && tar.GetCustomRole() == pc.GetCustomRole())
                                 WinnerIds.Add(tar.PlayerId);
                         }
+                    }
+
+                    foreach (var role in WinnerRoles)
+                    {
+                        WinnerIds.UnionWith(Main.AllPlayerControls.Where(x => x.GetCustomRole() == role).Select(x => x.PlayerId));
                     }
                 }
 

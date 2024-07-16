@@ -127,7 +127,7 @@ class SetEverythingUpPatch
 
     public static void Postfix(EndGameManager __instance)
     {
-        if (!Main.PlayerVersion.ContainsKey(0)) return;
+        if (!Main.PlayerVersion.ContainsKey(Main.HostClientId)) return;
         //#######################################
         //      ==Victory faction display==
         //#######################################

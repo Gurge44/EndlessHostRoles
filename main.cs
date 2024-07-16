@@ -30,8 +30,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "4.1.0";
-    public const string PluginDisplayVersion = "4.1.0";
+    public const string PluginVersion = "4.2.0";
+    public const string PluginDisplayVersion = "4.2.0";
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
     public const string CrewmateColor = "#8cffff";
@@ -49,7 +49,7 @@ public class Main : BasePlugin
     public static bool HasArgumentException;
     public static string CredentialsText;
 
-    public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
+    public static Dictionary<int, PlayerVersion> PlayerVersion = [];
     public static bool ChangedRole = false;
     public static OptionBackupData RealOptionsData;
     public static string HostRealName = string.Empty;
@@ -357,6 +357,8 @@ public class Main : BasePlugin
                 { CustomRoles.Convener, "#34eb7a" },
                 { CustomRoles.Mathematician, "#eb3474" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Lyncher, "#14ba7d" },
+                { CustomRoles.Socialite, "#32a8a8" },
                 { CustomRoles.Adrenaline, "#ffff00" },
                 { CustomRoles.Safeguard, "#4949e3" },
                 { CustomRoles.Clairvoyant, "#d4ffdd" },

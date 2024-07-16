@@ -81,15 +81,15 @@ namespace EHR.Crewmate
             return true;
         }
 
-        public static bool OnVote(PlayerControl pc, PlayerControl target)
+        public override bool OnVote(PlayerControl pc, PlayerControl target)
         {
-            if (target == null || pc == null || pc.PlayerId == target.PlayerId || Main.PlayerStates[pc.PlayerId].Role is not Ricochet rc || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
+            if (target == null || pc == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
 
             if (pc.GetAbilityUseLimit() >= 1)
             {
                 pc.RpcRemoveAbilityUse();
-                rc.ProtectAgainst = target.PlayerId;
-                rc.SendRPCSyncTarget(rc.ProtectAgainst);
+                ProtectAgainst = target.PlayerId;
+                SendRPCSyncTarget(ProtectAgainst);
                 Main.DontCancelVoteList.Add(pc.PlayerId);
                 return true;
             }

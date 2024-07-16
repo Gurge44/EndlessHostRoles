@@ -83,7 +83,7 @@ namespace EHR.Crewmate
 
         public static string GetTargetMark(PlayerControl seer, PlayerControl target) => !(seer == null || target == null) && TrackerTarget.ContainsKey(seer.PlayerId) && TrackerTarget[seer.PlayerId].Contains(target.PlayerId) ? Utils.ColorString(seer.GetRoleColor(), "◀") : string.Empty;
 
-        public static bool OnVote(PlayerControl player, PlayerControl target)
+        public override bool OnVote(PlayerControl player, PlayerControl target)
         {
             if (player == null || target == null || player.GetAbilityUseLimit() < 1f || player.PlayerId == target.PlayerId || TrackerTarget[player.PlayerId].Contains(target.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
 

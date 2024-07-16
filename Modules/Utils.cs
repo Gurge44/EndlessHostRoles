@@ -546,6 +546,9 @@ public static class Utils
                 case long l:
                     w.Write(l.ToString());
                     break;
+                case char c:
+                    w.Write(c.ToString());
+                    break;
                 case Vector2 v:
                     w.Write(v);
                     break;
@@ -728,6 +731,7 @@ public static class Utils
             case CustomRoles.Virus:
             case CustomRoles.Farseer when !Options.UsePets.GetBool() || !Farseer.UsePet.GetBool():
             case CustomRoles.Aid when !Options.UsePets.GetBool() || !Aid.UsePet.GetBool():
+            case CustomRoles.Socialite when !Options.UsePets.GetBool() || !Socialite.UsePet.GetBool():
             case CustomRoles.Escort when !Options.UsePets.GetBool() || !Escort.UsePet.GetBool():
             case CustomRoles.DonutDelivery when !Options.UsePets.GetBool() || !DonutDelivery.UsePet.GetBool():
             case CustomRoles.Gaulois when !Options.UsePets.GetBool() || !Gaulois.UsePet.GetBool():
@@ -861,7 +865,7 @@ public static class Utils
 
     public static string GetProgressText(PlayerControl pc)
     {
-        if (!Main.PlayerVersion.ContainsKey(0)) return string.Empty;
+        if (!Main.PlayerVersion.ContainsKey(Main.HostClientId)) return string.Empty;
         var taskState = pc.GetTaskState();
         var Comms = false;
         if (taskState.hasTasks)
@@ -876,7 +880,7 @@ public static class Utils
 
     public static string GetProgressText(byte playerId, bool comms = false)
     {
-        if (!Main.PlayerVersion.ContainsKey(0)) return string.Empty;
+        if (!Main.PlayerVersion.ContainsKey(Main.HostClientId)) return string.Empty;
 
         switch (Options.CurrentGameMode)
         {
@@ -1425,221 +1429,29 @@ public static class Utils
             color = -1;
         }
 
-        switch (text)
+        color = text switch
         {
-            case "0":
-            case "红":
-            case "紅":
-            case "red":
-            case "Red":
-            case "крас":
-            case "Крас":
-            case "красн":
-            case "Красн":
-            case "красный":
-            case "Красный":
-                color = 0;
-                break;
-            case "1":
-            case "蓝":
-            case "藍":
-            case "深蓝":
-            case "blue":
-            case "Blue":
-            case "син":
-            case "Син":
-            case "синий":
-            case "Синий":
-                color = 1;
-                break;
-            case "2":
-            case "绿":
-            case "綠":
-            case "深绿":
-            case "green":
-            case "Green":
-            case "Зел":
-            case "зел":
-            case "Зелёный":
-            case "Зеленый":
-            case "зелёный":
-            case "зеленый":
-                color = 2;
-                break;
-            case "3":
-            case "粉红":
-            case "pink":
-            case "Pink":
-            case "Роз":
-            case "роз":
-            case "Розовый":
-            case "розовый":
-                color = 3;
-                break;
-            case "4":
-            case "橘":
-            case "orange":
-            case "Orange":
-            case "оранж":
-            case "Оранж":
-            case "оранжевый":
-            case "Оранжевый":
-                color = 4;
-                break;
-            case "5":
-            case "黄":
-            case "黃":
-            case "yellow":
-            case "Yellow":
-            case "Жёлт":
-            case "Желт":
-            case "жёлт":
-            case "желт":
-            case "Жёлтый":
-            case "Желтый":
-            case "жёлтый":
-            case "желтый":
-                color = 5;
-                break;
-            case "6":
-            case "黑":
-            case "black":
-            case "Black":
-            case "Чёрный":
-            case "Черный":
-            case "чёрный":
-            case "черный":
-                color = 6;
-                break;
-            case "7":
-            case "白":
-            case "white":
-            case "White":
-            case "Белый":
-            case "белый":
-                color = 7;
-                break;
-            case "8":
-            case "紫":
-            case "purple":
-            case "Purple":
-            case "Фиол":
-            case "фиол":
-            case "Фиолетовый":
-            case "фиолетовый":
-                color = 8;
-                break;
-            case "9":
-            case "棕":
-            case "brown":
-            case "Brown":
-            case "Корич":
-            case "корич":
-            case "Коричневый":
-            case "коричевый":
-                color = 9;
-                break;
-            case "10":
-            case "青":
-            case "cyan":
-            case "Cyan":
-            case "Голуб":
-            case "голуб":
-            case "Голубой":
-            case "голубой":
-                color = 10;
-                break;
-            case "11":
-            case "黄绿":
-            case "黃綠":
-            case "浅绿":
-            case "lime":
-            case "Lime":
-            case "Лайм":
-            case "лайм":
-            case "Лаймовый":
-            case "лаймовый":
-                color = 11;
-                break;
-            case "12":
-            case "红褐":
-            case "紅褐":
-            case "深红":
-            case "maroon":
-            case "Maroon":
-            case "Борд":
-            case "борд":
-            case "Бордовый":
-            case "бордовый":
-                color = 12;
-                break;
-            case "13":
-            case "玫红":
-            case "玫紅":
-            case "浅粉":
-            case "rose":
-            case "Rose":
-            case "Светло роз":
-            case "светло роз":
-            case "Светло розовый":
-            case "светло розовый":
-            case "Сирень":
-            case "сирень":
-            case "Сиреневый":
-            case "сиреневый":
-                color = 13;
-                break;
-            case "14":
-            case "焦黄":
-            case "焦黃":
-            case "淡黄":
-            case "banana":
-            case "Banana":
-            case "Банан":
-            case "банан":
-            case "Банановый":
-            case "банановый":
-                color = 14;
-                break;
-            case "15":
-            case "灰":
-            case "gray":
-            case "Gray":
-            case "Сер":
-            case "сер":
-            case "Серый":
-            case "серый":
-                color = 15;
-                break;
-            case "16":
-            case "茶":
-            case "tan":
-            case "Tan":
-            case "Загар":
-            case "загар":
-            case "Загаровый":
-            case "загаровый":
-                color = 16;
-                break;
-            case "17":
-            case "珊瑚":
-            case "coral":
-            case "Coral":
-            case "Корал":
-            case "корал":
-            case "Коралл":
-            case "коралл":
-            case "Коралловый":
-            case "коралловый":
-                color = 17;
-                break;
-
-            case "18":
-            case "隐藏":
-            case "?":
-                color = 18;
-                break;
-        }
+            "0" or "红" or "紅" or "red" or "Red" or "крас" or "Крас" or "красн" or "Красн" or "красный" or "Красный" => 0,
+            "1" or "蓝" or "藍" or "深蓝" or "blue" or "Blue" or "син" or "Син" or "синий" or "Синий" => 1,
+            "2" or "绿" or "綠" or "深绿" or "green" or "Green" or "Зел" or "зел" or "Зелёный" or "Зеленый" or "зелёный" or "зеленый" => 2,
+            "3" or "粉红" or "pink" or "Pink" or "Роз" or "роз" or "Розовый" or "розовый" => 3,
+            "4" or "橘" or "orange" or "Orange" or "оранж" or "Оранж" or "оранжевый" or "Оранжевый" => 4,
+            "5" or "黄" or "黃" or "yellow" or "Yellow" or "Жёлт" or "Желт" or "жёлт" or "желт" or "Жёлтый" or "Желтый" or "жёлтый" or "желтый" => 5,
+            "6" or "黑" or "black" or "Black" or "Чёрный" or "Черный" or "чёрный" or "черный" => 6,
+            "7" or "白" or "white" or "White" or "Белый" or "белый" => 7,
+            "8" or "紫" or "purple" or "Purple" or "Фиол" or "фиол" or "Фиолетовый" or "фиолетовый" => 8,
+            "9" or "棕" or "brown" or "Brown" or "Корич" or "корич" or "Коричневый" or "коричевый" => 9,
+            "10" or "青" or "cyan" or "Cyan" or "Голуб" or "голуб" or "Голубой" or "голубой" => 10,
+            "11" or "黄绿" or "黃綠" or "浅绿" or "lime" or "Lime" or "Лайм" or "лайм" or "Лаймовый" or "лаймовый" => 11,
+            "12" or "红褐" or "紅褐" or "深红" or "maroon" or "Maroon" or "Борд" or "борд" or "Бордовый" or "бордовый" => 12,
+            "13" or "玫红" or "玫紅" or "浅粉" or "rose" or "Rose" or "Светло роз" or "светло роз" or "Светло розовый" or "светло розовый" or "Сирень" or "сирень" or "Сиреневый" or "сиреневый" => 13,
+            "14" or "焦黄" or "焦黃" or "淡黄" or "banana" or "Banana" or "Банан" or "банан" or "Банановый" or "банановый" => 14,
+            "15" or "灰" or "gray" or "Gray" or "Сер" or "сер" or "Серый" or "серый" => 15,
+            "16" or "茶" or "tan" or "Tan" or "Загар" or "загар" or "Загаровый" or "загаровый" => 16,
+            "17" or "珊瑚" or "coral" or "Coral" or "Корал" or "корал" or "Коралл" or "коралл" or "Коралловый" or "коралловый" => 17,
+            "18" or "隐藏" or "?" => 18,
+            _ => color
+        };
 
         return !isHost && color == 18 ? byte.MaxValue : color is < 0 or > 18 ? byte.MaxValue : Convert.ToByte(color);
     }
@@ -1647,19 +1459,19 @@ public static class Utils
     public static void ShowHelp(byte ID)
     {
         var player = GetPlayerById(ID);
-        SendMessage(ChatCommands.AllCommands.Where(x => x.CanUseCommand(player)).Aggregate("<size=70%>", (s, c) => s + $"\n<b>{c.CommandForms.MinBy(f => f.Length)}{(c.Arguments.Length == 0 ? string.Empty : $" {c.Arguments.Split(' ').Select((x, i) => ColorString(GetColor(i), x).Join(delimiter: " "))}")}</b> \u2192 {c.Description}"), ID, title: GetString("CommandList"));
+        SendMessage(ChatCommands.AllCommands.Where(x => x.CanUseCommand(player)).Aggregate("<size=70%>", (s, c) => s + $"\n<b>/{c.CommandForms.Where(f => f.All(char.IsAscii)).MinBy(f => f.Length)}{(c.Arguments.Length == 0 ? string.Empty : $" {c.Arguments.Split(' ').Select((x, i) => ColorString(GetColor(i), x)).Join(delimiter: " ")}")}</b> \u2192 {c.Description}"), ID, title: GetString("CommandList"));
         return;
 
         Color GetColor(int i) => i switch
         {
-            0 => Palette.Purple,
-            1 => Palette.Orange,
-            2 => Palette.Brown,
-            3 => Color.blue,
-            4 => Color.red,
+            0 => Palette.Orange,
+            1 => Color.magenta,
+            2 => Color.blue,
+            3 => Color.red,
+            4 => Palette.Brown,
             5 => Color.cyan,
-            6 => Color.magenta,
-            7 => Color.green,
+            6 => Color.green,
+            7 => Palette.Purple,
 
             _ => Color.yellow
         };
@@ -1743,7 +1555,15 @@ public static class Utils
 
                 if (shortenedText.Length >= 1200) shortenedText.Chunk(1200).Do(x => SendMessage(new(x), sendTo, title, true));
                 else SendMessage(shortenedText, sendTo, title, true);
+
+                var sentText = shortenedText;
                 shortenedText = line + "\n";
+
+                if (sentText.Contains("<size") && !sentText.Contains("</size>"))
+                {
+                    var sizeTag = Regex.Match(sentText, @"<size=\d+\.?\d*%?>").Value;
+                    shortenedText = sizeTag + shortenedText;
+                }
             }
 
             if (shortenedText.Length > 0) SendMessage(shortenedText, sendTo, title, true);
@@ -2727,6 +2547,9 @@ public static class Utils
             sb.Append($"All: {AllAlivePlayersCount}/{AllPlayersCount}");
             Logger.Info(sb.ToString(), "CountAlivePlayers");
         }
+
+        if (AmongUsClient.Instance.AmHost && !Main.HasJustStarted)
+            GameEndChecker.Prefix();
     }
 
     public static string GetVoteName(byte num)
@@ -2995,6 +2818,52 @@ public static class Utils
         return casted != null;
     }
 
+    public static string GetRegionName(IRegionInfo region = null)
+    {
+        region ??= ServerManager.Instance.CurrentRegion;
+
+        string name = region.Name;
+
+        if (AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
+        {
+            name = "Local Games";
+            return name;
+        }
+
+        if (region.PingServer.EndsWith("among.us", StringComparison.Ordinal))
+        {
+            // Official server
+            name = name switch
+            {
+                "North America" => "NA",
+                "Europe" => "EU",
+                "Asia" => "AS",
+                _ => name
+            };
+
+            return name;
+        }
+
+        var Ip = region.Servers.FirstOrDefault()?.Ip ?? string.Empty;
+
+        if (Ip.Contains("aumods.us", StringComparison.Ordinal) || Ip.Contains("duikbo.at", StringComparison.Ordinal))
+        {
+            // Official Modded Server
+            if (Ip.Contains("au-eu")) name = "MEU";
+            else if (Ip.Contains("au-as")) name = "MAS";
+            else if (Ip.Contains("www.")) name = "MNA";
+
+            return name;
+        }
+
+        if (name.Contains("nikocat233", StringComparison.OrdinalIgnoreCase))
+        {
+            name = name.Replace("nikocat233", "Niko233", StringComparison.OrdinalIgnoreCase);
+        }
+
+        return name;
+    }
+
     private static int PlayersCount(CountTypes countTypes)
     {
         int count = 0;
@@ -3008,5 +2877,5 @@ public static class Utils
 
     public static int AlivePlayersCount(CountTypes countTypes) => Main.AllAlivePlayerControls.Count(pc => pc.Is(countTypes));
 
-    public static bool IsPlayerModClient(this byte id) => Main.PlayerVersion.ContainsKey(id);
+    public static bool IsPlayerModClient(this byte id) => Main.PlayerVersion.ContainsKey(GetPlayerById(id).GetClientId());
 }

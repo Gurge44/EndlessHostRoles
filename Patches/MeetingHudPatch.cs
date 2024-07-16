@@ -86,45 +86,8 @@ class CheckForEndVotingPatch
                 if (pva.DidVote && pva.VotedFor < 253 && !pc.Data.IsDead)
                 {
                     var voteTarget = Utils.GetPlayerById(pva.VotedFor);
-                    if (voteTarget != null)
-                    {
-                        switch (pc.GetCustomRole())
-                        {
-                            case CustomRoles.Divinator when !Divinator.CancelVote.GetBool():
-                                Divinator.OnVote(pc, voteTarget);
-                                break;
-                            case CustomRoles.Soothsayer when !Soothsayer.CancelVote.GetBool():
-                                Soothsayer.OnVote(pc, voteTarget);
-                                break;
-                            case CustomRoles.Oracle when !Oracle.CancelVote.GetBool():
-                                Oracle.OnVote(pc, voteTarget);
-                                break;
-                            case CustomRoles.Eraser when !Eraser.CancelVote.GetBool():
-                                Eraser.OnVote(pc, voteTarget);
-                                break;
-                            case CustomRoles.Tether when !Tether.CancelVote.GetBool():
-                                Tether.OnVote(pc, voteTarget);
-                                break;
-                            case CustomRoles.Ricochet when !Ricochet.CancelVote.GetBool():
-                                Ricochet.OnVote(pc, voteTarget);
-                                break;
-                            case CustomRoles.Cleanser when !Cleanser.CancelVote.GetBool():
-                                Cleanser.OnVote(pc, voteTarget);
-                                break;
-                            case CustomRoles.NiceEraser when !NiceEraser.CancelVote.GetBool():
-                                NiceEraser.OnVote(pc, voteTarget);
-                                break;
-                            case CustomRoles.Scout when !Scout.CancelVote.GetBool():
-                                Scout.OnVote(pc, voteTarget);
-                                break;
-                            case CustomRoles.Markseeker when !Markseeker.CancelVote.GetBool():
-                                Markseeker.OnVote(pc, voteTarget);
-                                break;
-                            case CustomRoles.Godfather when !Options.GodfatherCancelVote.GetBool():
-                                Godfather.GodfatherTarget = voteTarget.PlayerId;
-                                break;
-                        }
-                    }
+                    if (voteTarget != null && !pc.GetCustomRole().CancelsVote())
+                        Main.PlayerStates[pc.PlayerId].Role.OnVote(pc, voteTarget);
                     else if (pc.Is(CustomRoles.Godfather)) Godfather.GodfatherTarget = byte.MaxValue;
                 }
             }
@@ -1124,59 +1087,15 @@ class MeetingHudCastVotePatch
 
         bool isVoteCanceled = false;
 
-        if (!Main.DontCancelVoteList.Contains(srcPlayerId))
+        if (!Main.DontCancelVoteList.Contains(srcPlayerId) && !isSkip && pc_src.GetCustomRole().CancelsVote() && Main.PlayerStates[srcPlayerId].Role.OnVote(pc_src, pc_target))
         {
-            if (!isSkip)
-            {
-                switch (pc_src.GetCustomRole())
-                {
-                    case CustomRoles.Divinator when Divinator.CancelVote.GetBool():
-                        if (Divinator.OnVote(pc_src, pc_target)) CancelVote();
-                        break;
-                    case CustomRoles.Soothsayer when Soothsayer.CancelVote.GetBool():
-                        if (Soothsayer.OnVote(pc_src, pc_target)) CancelVote();
-                        break;
-                    case CustomRoles.Oracle when Oracle.CancelVote.GetBool():
-                        if (Oracle.OnVote(pc_src, pc_target)) CancelVote();
-                        break;
-                    case CustomRoles.Eraser when Eraser.CancelVote.GetBool():
-                        if (Eraser.OnVote(pc_src, pc_target)) CancelVote();
-                        break;
-                    case CustomRoles.Tether when Tether.CancelVote.GetBool():
-                        if (Tether.OnVote(pc_src, pc_target)) CancelVote();
-                        break;
-                    case CustomRoles.Ricochet when Ricochet.CancelVote.GetBool():
-                        if (Ricochet.OnVote(pc_src, pc_target)) CancelVote();
-                        break;
-                    case CustomRoles.Cleanser when Cleanser.CancelVote.GetBool():
-                        if (Cleanser.OnVote(pc_src, pc_target)) CancelVote();
-                        break;
-                    case CustomRoles.NiceEraser when NiceEraser.CancelVote.GetBool():
-                        if (NiceEraser.OnVote(pc_src, pc_target)) CancelVote();
-                        break;
-                    case CustomRoles.Scout when Scout.CancelVote.GetBool():
-                        if (Scout.OnVote(pc_src, pc_target)) CancelVote();
-                        break;
-                    case CustomRoles.Markseeker when Markseeker.CancelVote.GetBool():
-                        if (Markseeker.OnVote(pc_src, pc_target)) CancelVote();
-                        break;
-                    case CustomRoles.Godfather when Options.GodfatherCancelVote.GetBool():
-                        Godfather.GodfatherTarget = pc_target.PlayerId;
-                        CancelVote();
-                        break;
-                }
-            }
+            ShouldCancelVoteList.TryAdd(srcPlayerId, (__instance, pva_src, pc_src));
+            isVoteCanceled = true;
         }
 
         Logger.Info($"{pc_src.GetNameWithRole().RemoveHtmlTags()} => {(isSkip ? "Skip" : pc_target.GetNameWithRole().RemoveHtmlTags())}{(isVoteCanceled ? " (Canceled)" : string.Empty)}", "Vote");
 
         return isSkip || !isVoteCanceled; // return false to use the vote as a trigger; skips and invalid votes are never canceled
-
-        void CancelVote()
-        {
-            ShouldCancelVoteList.TryAdd(srcPlayerId, (__instance, pva_src, pc_src));
-            isVoteCanceled = true;
-        }
     }
 
     public static void Postfix([HarmonyArgument(0)] byte srcPlayerId)

@@ -89,6 +89,12 @@ public class Gamer : RoleBase
 
         if (PlayerHealth[target.PlayerId] - Damage.GetInt() < 1)
         {
+            if (target.Is(CustomRoles.Pestilence))
+            {
+                target.Kill(killer);
+                return false;
+            }
+
             PlayerHealth.Remove(target.PlayerId);
             killer.Kill(target);
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);

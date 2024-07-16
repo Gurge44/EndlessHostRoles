@@ -146,6 +146,11 @@ namespace EHR
             return true;
         }
 
+        public virtual bool OnVote(PlayerControl voter, PlayerControl target)
+        {
+            return false;
+        }
+
         public virtual void OnReportDeadBody()
         {
         }

@@ -196,6 +196,7 @@ internal static class CustomRolesHelper
             CustomRoles.GuessManagerRole => CustomRoles.Crewmate,
             CustomRoles.Altruist => CustomRoles.Crewmate,
             CustomRoles.Transmitter => CustomRoles.Crewmate,
+            CustomRoles.Lyncher => CustomRoles.Crewmate,
             CustomRoles.Adrenaline => CustomRoles.Crewmate,
             CustomRoles.Safeguard => CustomRoles.Crewmate,
             CustomRoles.Clairvoyant => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
@@ -217,6 +218,7 @@ internal static class CustomRolesHelper
             CustomRoles.Tether => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Doormaster => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Aid => UsePets && Aid.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
+            CustomRoles.Socialite => UsePets && Socialite.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
             CustomRoles.Escort => UsePets && Escort.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
             CustomRoles.DonutDelivery => UsePets && DonutDelivery.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
             CustomRoles.Gaulois => UsePets && Gaulois.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
@@ -340,7 +342,7 @@ internal static class CustomRolesHelper
 
     public static RoleTypes GetDYRole(this CustomRoles role, bool load = false)
     {
-        if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool() && !role.IsImpostor() && role.InvisActivatedAbility()) return RoleTypes.Phantom;
+        if (!load && Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool() && !role.IsImpostor() && role.InvisActivatedAbility()) return RoleTypes.Phantom;
         bool UsePets = !load && Options.UsePets.GetBool();
         return role switch
         {
@@ -372,6 +374,7 @@ internal static class CustomRolesHelper
             CustomRoles.Innocent => RoleTypes.Impostor,
             CustomRoles.Pelican => RoleTypes.Impostor,
             CustomRoles.Aid => UsePets && Aid.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
+            CustomRoles.Socialite => UsePets && Socialite.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Escort => UsePets && Escort.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.DonutDelivery => UsePets && DonutDelivery.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Gaulois => UsePets && Gaulois.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
@@ -722,6 +725,7 @@ internal static class CustomRolesHelper
         CustomRoles.CopyCat or
         CustomRoles.Crusader or
         CustomRoles.Aid or
+        CustomRoles.Socialite or
         CustomRoles.Escort or
         CustomRoles.DonutDelivery or
         CustomRoles.Gaulois or
@@ -746,6 +750,7 @@ internal static class CustomRolesHelper
     {
         CustomRoles.Gaulois when Gaulois.UsePet.GetBool() => true,
         CustomRoles.Aid when Aid.UsePet.GetBool() => true,
+        CustomRoles.Socialite when Socialite.UsePet.GetBool() => true,
         CustomRoles.Escort when Escort.UsePet.GetBool() => true,
         CustomRoles.DonutDelivery when DonutDelivery.UsePet.GetBool() => true,
         CustomRoles.Analyst when Analyst.UsePet.GetBool() => true,
@@ -766,6 +771,24 @@ internal static class CustomRolesHelper
 
         // Speedrun
         CustomRoles.Runner => true,
+
+        _ => false
+    };
+
+    public static bool CancelsVote(this CustomRoles role) => role switch
+    {
+        CustomRoles.Divinator when Divinator.CancelVote.GetBool() => true,
+        CustomRoles.Soothsayer when Soothsayer.CancelVote.GetBool() => true,
+        CustomRoles.Oracle when Oracle.CancelVote.GetBool() => true,
+        CustomRoles.Eraser when Eraser.CancelVote.GetBool() => true,
+        CustomRoles.Tether when Tether.CancelVote.GetBool() => true,
+        CustomRoles.Ricochet when Ricochet.CancelVote.GetBool() => true,
+        CustomRoles.Cleanser when Cleanser.CancelVote.GetBool() => true,
+        CustomRoles.NiceEraser when NiceEraser.CancelVote.GetBool() => true,
+        CustomRoles.Scout when Scout.CancelVote.GetBool() => true,
+        CustomRoles.Markseeker when Markseeker.CancelVote.GetBool() => true,
+        CustomRoles.Godfather when Options.GodfatherCancelVote.GetBool() => true,
+        CustomRoles.Socialite when Socialite.CancelVote.GetBool() => true,
 
         _ => false
     };
@@ -804,6 +827,7 @@ internal static class CustomRolesHelper
         CustomRoles.Merchant or
         CustomRoles.Mayor or
         CustomRoles.Insight or
+        CustomRoles.Lyncher or
         CustomRoles.Transporter;
 
     public static bool IsNotKnightable(this CustomRoles role) => role is

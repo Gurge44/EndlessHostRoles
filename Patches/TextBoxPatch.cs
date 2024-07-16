@@ -88,10 +88,13 @@ class TextBoxTMPSetTextPatch
         double highestMatchRate = 0;
         string inputCheck = input.Split(' ')[0];
         bool exactMatch = false;
+        bool english = TranslationController.Instance.currentLanguage.languageID == SupportedLangs.English;
         foreach (var cmd in ChatCommands.AllCommands)
         {
             foreach (var form in cmd.CommandForms)
             {
+                if (english && !form.All(char.IsAscii)) continue;
+
                 var check = "/" + form;
                 if (check.Length < inputCheck.Length) continue;
 
