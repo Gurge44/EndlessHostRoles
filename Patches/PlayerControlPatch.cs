@@ -1231,7 +1231,7 @@ class FixedUpdatePatch
                 }
             }
 
-            if (!lowLoad && player.Is(CustomRoles.Spurt) && Main.AllPlayerSpeed[player.PlayerId] != Spurt.StartingSpeed[player.PlayerId]
+            if (player.Is(CustomRoles.Spurt) && Main.AllPlayerSpeed[player.PlayerId] != Spurt.StartingSpeed[player.PlayerId]
                 && !GameStates.IsInTask && !GameStates.IsMeeting) // fix stupid bug
             {
                 Main.AllPlayerSpeed[player.PlayerId] = Spurt.StartingSpeed[player.PlayerId];
