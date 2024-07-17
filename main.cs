@@ -562,6 +562,7 @@ public class Main : BasePlugin
                 { CustomRoles.Brakar, "#1447af" },
                 { CustomRoles.Oblivious, "#424242" },
                 { CustomRoles.Bewilder, "#c894f5" },
+                { CustomRoles.Spurt, "#c9e8f5" },
                 { CustomRoles.Sunglasses, "#E7C12B" },
                 { CustomRoles.Workhorse, "#00ffff" },
                 { CustomRoles.Undead, "#ed9abd" },

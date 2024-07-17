@@ -418,6 +418,7 @@ public enum CustomRoles
     Noisy,
     Oblivious,
     Onbound,
+    Spurt,
     Sleep,
     Specter, // Ghost role
     Physicist,

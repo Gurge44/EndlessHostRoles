@@ -1281,6 +1281,7 @@ class FixedUpdatePatch
                 {
                     var subRoles = playerState.SubRoles;
                     if (subRoles.Contains(CustomRoles.Dynamo)) Dynamo.OnFixedUpdate(player);
+                    if (subRoles.Contains(CustomRoles.Spurt)) Spurt.OnFixedUpdate(player);
                     if (!lowLoad)
                     {
                         if (subRoles.Contains(CustomRoles.Damocles)) Damocles.Update(player);
