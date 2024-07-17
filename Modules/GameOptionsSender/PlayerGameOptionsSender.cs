@@ -259,6 +259,8 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                     break;
             }
 
+            Chef.ApplyGameOptionsForOthers(opt, player.PlayerId);
+
             if (Sprayer.LowerVisionList.Contains(player.PlayerId))
             {
                 opt.SetVision(false);

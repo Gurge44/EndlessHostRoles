@@ -627,6 +627,8 @@ class MurderPlayerPatch
 
         Main.PlayerStates[killer.PlayerId].Role.OnMurder(killer, target);
 
+        Chef.SpitOutFood(killer);
+
         if (Options.CurrentGameMode == CustomGameMode.Speedrun) SpeedrunManager.ResetTimer(killer);
 
         if (killer.Is(CustomRoles.TicketsStealer) && killer.PlayerId != target.PlayerId)
@@ -1805,6 +1807,8 @@ class EnterVentPatch
         {
             Damocles.OnEnterVent(pc.PlayerId, __instance.Id);
         }
+
+        Chef.SpitOutFood(pc);
 
         Main.PlayerStates[pc.PlayerId].Role.OnEnterVent(pc, __instance);
     }

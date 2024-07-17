@@ -299,9 +299,9 @@ public class Main : BasePlugin
             {
                 // Vanilla
                 { CustomRoles.Crewmate, "#8cffff" },
-                { CustomRoles.Engineer, "#8cffff" },
-                { CustomRoles.Scientist, "#8cffff" },
-                { CustomRoles.GuardianAngel, "#ffffff" },
+                { CustomRoles.Engineer, "#FF6A00" },
+                { CustomRoles.Scientist, "#8ee98e" },
+                { CustomRoles.GuardianAngel, "#77e6d1" },
                 { CustomRoles.Tracker, "#34ad50" },
                 { CustomRoles.Noisemaker, "#ff4a62" },
                 // Vanilla Remakes
@@ -355,6 +355,7 @@ public class Main : BasePlugin
                 { CustomRoles.Convener, "#34eb7a" },
                 { CustomRoles.Mathematician, "#eb3474" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Chef, "#d6d6ff" },
                 { CustomRoles.Lyncher, "#14ba7d" },
                 { CustomRoles.Socialite, "#32a8a8" },
                 { CustomRoles.Adrenaline, "#ffff00" },

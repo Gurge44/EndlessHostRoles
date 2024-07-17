@@ -196,6 +196,7 @@ internal static class CustomRolesHelper
             CustomRoles.GuessManagerRole => CustomRoles.Crewmate,
             CustomRoles.Altruist => CustomRoles.Crewmate,
             CustomRoles.Transmitter => CustomRoles.Crewmate,
+            CustomRoles.Chef => CustomRoles.Crewmate,
             CustomRoles.Lyncher => CustomRoles.Crewmate,
             CustomRoles.Adrenaline => CustomRoles.Crewmate,
             CustomRoles.Safeguard => CustomRoles.Crewmate,
