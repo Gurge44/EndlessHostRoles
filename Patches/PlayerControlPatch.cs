@@ -1232,6 +1232,13 @@ class FixedUpdatePatch
                 }
             }
 
+            if (player.Is(CustomRoles.Spurt) && Main.AllPlayerSpeed[player.PlayerId] != Spurt.StartingSpeed[player.PlayerId]
+                && !GameStates.IsInTask && !GameStates.IsMeeting) // fix stupid bug
+            {
+                Main.AllPlayerSpeed[player.PlayerId] = Spurt.StartingSpeed[player.PlayerId];
+                player.MarkDirtySettings();
+            }
+
             if (!GameStates.IsLobby)
             {
                 if (!Main.KillTimers.TryAdd(playerId, 10f) && ((!player.inVent && !player.MyPhysics.Animations.IsPlayingEnterVentAnimation()) || player.Is(CustomRoles.Haste)) && Main.KillTimers[playerId] > 0)
@@ -1282,6 +1289,7 @@ class FixedUpdatePatch
                 {
                     var subRoles = playerState.SubRoles;
                     if (subRoles.Contains(CustomRoles.Dynamo)) Dynamo.OnFixedUpdate(player);
+                    if (subRoles.Contains(CustomRoles.Spurt)) Spurt.OnFixedUpdate(player);
                     if (!lowLoad)
                     {
                         if (subRoles.Contains(CustomRoles.Damocles)) Damocles.Update(player);

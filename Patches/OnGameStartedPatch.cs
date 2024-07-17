@@ -757,6 +757,7 @@ internal class SelectRolesPatch
                 Asthmatic.Add();
                 Circumvent.Add();
                 Dynamo.Add();
+                Spurt.Add();
                 Lovers.Init();
             }
             catch (Exception e)

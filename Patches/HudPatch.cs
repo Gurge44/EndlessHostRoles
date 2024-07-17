@@ -233,6 +233,7 @@ class HudManagerPatch
                         CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + state.SubRoles switch
                         {
                             { } s when s.Contains(CustomRoles.Asthmatic) => Asthmatic.GetSuffixText(player.PlayerId),
+                            { } s when s.Contains(CustomRoles.Spurt) => Spurt.GetSuffix(player, true),
                             _ => string.Empty
                         },
                         _ => string.Empty
