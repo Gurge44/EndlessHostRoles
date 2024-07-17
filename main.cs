@@ -49,7 +49,7 @@ public class Main : BasePlugin
     public static bool HasArgumentException;
     public static string CredentialsText;
 
-    public static Dictionary<int, PlayerVersion> PlayerVersion = [];
+    public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
     public static bool ChangedRole = false;
     public static OptionBackupData RealOptionsData;
     public static string HostRealName = string.Empty;
@@ -145,7 +145,6 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> EnableCustomButton { get; private set; }
     public static ConfigEntry<bool> EnableCustomSoundEffect { get; private set; }
     public static ConfigEntry<bool> SwitchVanilla { get; private set; }
-    public static ConfigEntry<bool> VersionCheat { get; private set; }
     public static ConfigEntry<bool> GodMode { get; private set; }
     public static ConfigEntry<bool> DarkTheme { get; private set; }
     public static ConfigEntry<bool> HorseMode { get; private set; }
@@ -236,7 +235,6 @@ public class Main : BasePlugin
         EnableCustomButton = Config.Bind("Client Options", "EnableCustomButton", true);
         EnableCustomSoundEffect = Config.Bind("Client Options", "EnableCustomSoundEffect", true);
         SwitchVanilla = Config.Bind("Client Options", "SwitchVanilla", false);
-        VersionCheat = Config.Bind("Client Options", "VersionCheat", false);
         GodMode = Config.Bind("Client Options", "GodMode", false);
         DarkTheme = Config.Bind("Client Options", "DarkTheme", true);
         HorseMode = Config.Bind("Client Options", "HorseMode", false);

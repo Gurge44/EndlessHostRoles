@@ -25,7 +25,6 @@ class EndGamePatch
         GameStates.InGame = false;
 
         Logger.Info("-----------Game over-----------", "Phase");
-        if (!GameStates.IsModHost) return;
 
         Main.SetRoles = [];
         Main.SetAddOns = [];
@@ -99,13 +98,6 @@ class EndGamePatch
         Farseer.IsRevealed = [];
 
         Main.VisibleTasksCount = false;
-        if (AmongUsClient.Instance.AmHost)
-        {
-            Main.RealOptionsData.Restore(GameOptionsManager.Instance.CurrentGameOptions);
-            GameOptionsSender.AllSenders.Clear();
-            GameOptionsSender.AllSenders.Add(new NormalGameOptionsSender());
-            /* Send SyncSettings RPC */
-        }
 
         CustomNetObject.Reset();
         Main.LoversPlayers.Clear();
@@ -115,6 +107,13 @@ class EndGamePatch
         foreach (var state in Main.PlayerStates.Values)
         {
             state.Role.Init();
+        }
+
+        if (AmongUsClient.Instance.AmHost)
+        {
+            Main.RealOptionsData.Restore(GameOptionsManager.Instance.CurrentGameOptions);
+            GameOptionsSender.AllSenders.Clear();
+            GameOptionsSender.AllSenders.Add(new NormalGameOptionsSender());
         }
     }
 }
@@ -127,7 +126,6 @@ class SetEverythingUpPatch
 
     public static void Postfix(EndGameManager __instance)
     {
-        if (!Main.PlayerVersion.ContainsKey(Main.HostClientId)) return;
         //#######################################
         //      ==Victory faction display==
         //#######################################
@@ -140,7 +138,7 @@ class SetEverythingUpPatch
             if (Options.CurrentGameMode is not CustomGameMode.Standard) goto End;
             int num = Mathf.CeilToInt(7.5f);
 
-            var pbs = __instance?.transform?.GetComponentsInChildren<PoolablePlayer>();
+            var pbs = __instance?.transform.GetComponentsInChildren<PoolablePlayer>();
             if (pbs != null)
             {
                 foreach (PoolablePlayer pb in pbs)

@@ -724,7 +724,6 @@ class MeetingHudStartPatch
     public static void Postfix(MeetingHud __instance)
     {
         SoundManager.Instance.ChangeAmbienceVolume(0f);
-        if (!GameStates.IsModHost) return;
 
         GuessManager.TextTemplate = Object.Instantiate(__instance.playerStates[0].NameText);
         GuessManager.TextTemplate.enabled = false;

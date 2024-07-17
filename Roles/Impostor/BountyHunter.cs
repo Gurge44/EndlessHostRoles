@@ -131,10 +131,10 @@ public class BountyHunter : RoleBase
                 if (tempTimer != Timer && Timer <= 15 && !player.IsModClient()) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
             }
 
-            if (Main.PlayerStates[targetId].IsDead)
+            if (Utils.GetPlayerById(targetId)?.IsAlive() == false)
             {
                 ResetTarget(player);
-                Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}のターゲットが無効だったため、ターゲットを更新しました", "BountyHunter");
+                Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}'s target was reset because the previous target died", "BountyHunter");
                 Utils.NotifyRoles(SpecifySeer: player);
             }
         }

@@ -865,7 +865,6 @@ public static class Utils
 
     public static string GetProgressText(PlayerControl pc)
     {
-        if (!Main.PlayerVersion.ContainsKey(Main.HostClientId)) return string.Empty;
         var taskState = pc.GetTaskState();
         var Comms = false;
         if (taskState.hasTasks)
@@ -880,8 +879,6 @@ public static class Utils
 
     public static string GetProgressText(byte playerId, bool comms = false)
     {
-        if (!Main.PlayerVersion.ContainsKey(Main.HostClientId)) return string.Empty;
-
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.MoveAndStop: return GetTaskCount(playerId, comms, moveAndStop: true);
@@ -1255,11 +1252,18 @@ public static class Utils
         sb.Append("<#ffffff><u>Role Summary:</u></color><size=70%>");
 
         List<byte> cloneRoles = [.. Main.PlayerStates.Keys];
-        foreach (byte id in Main.WinnerList.ToArray())
+        foreach (byte id in Main.WinnerList)
         {
-            if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
-            sb.Append("\n<#c4aa02>\u2605</color> ").Append(EndGamePatch.SummaryText[id] /*.RemoveHtmlTags()*/);
-            cloneRoles.Remove(id);
+            try
+            {
+                if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
+                sb.Append("\n<#c4aa02>\u2605</color> ").Append(EndGamePatch.SummaryText[id] /*.RemoveHtmlTags()*/);
+                cloneRoles.Remove(id);
+            }
+            catch (Exception ex)
+            {
+                ThrowException(ex);
+            }
         }
 
         switch (Options.CurrentGameMode)
@@ -1271,7 +1275,14 @@ public static class Utils
                 list.Sort();
                 foreach ((int, byte) id in list)
                 {
-                    sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id.Item2]);
+                    try
+                    {
+                        sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id.Item2]);
+                    }
+                    catch (Exception ex)
+                    {
+                        ThrowException(ex);
+                    }
                 }
 
                 break;
@@ -1282,7 +1293,14 @@ public static class Utils
                 list2.Sort();
                 foreach ((int, byte) id in list2)
                 {
-                    sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id.Item2]);
+                    try
+                    {
+                        sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id.Item2]);
+                    }
+                    catch (Exception ex)
+                    {
+                        ThrowException(ex);
+                    }
                 }
 
                 break;
@@ -1293,7 +1311,14 @@ public static class Utils
                 list3.Sort();
                 foreach ((int, byte) id in list3)
                 {
-                    sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id.Item2]);
+                    try
+                    {
+                        sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id.Item2]);
+                    }
+                    catch (Exception ex)
+                    {
+                        ThrowException(ex);
+                    }
                 }
 
                 break;
@@ -1302,15 +1327,29 @@ public static class Utils
             case CustomGameMode.HideAndSeek:
                 foreach (byte id in cloneRoles)
                 {
-                    sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id]);
+                    try
+                    {
+                        sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id]);
+                    }
+                    catch (Exception ex)
+                    {
+                        ThrowException(ex);
+                    }
                 }
 
                 break;
             default:
                 foreach (byte id in cloneRoles)
                 {
-                    if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
-                    sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id]);
+                    try
+                    {
+                        if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
+                        sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id]);
+                    }
+                    catch (Exception ex)
+                    {
+                        ThrowException(ex);
+                    }
                 }
 
                 break;
@@ -1539,6 +1578,13 @@ public static class Utils
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (title == "") title = "<color=#8b32a8>" + GetString("DefaultSystemMessageTitle") + "</color>";
+        if (title.Contains('\u2605'))
+        {
+            if (title.Contains('<') && title.Contains('>') && title.Contains('#'))
+                title = $"{title[..(title.IndexOf('>') + 1)]}\u27a1{title.Replace("\u2605", "")[..(title.LastIndexOf('<') - 2)]}\u2b05";
+            else title = "\u27a1" + title.Replace("\u2605", "") + "\u2b05";
+        }
+
         text = text.Replace("color=", string.Empty);
 
         if (text.Length >= 1200 && !noSplit)
@@ -2634,8 +2680,8 @@ public static class Utils
         if (taskState.hasTasks)
         {
             var info = GetPlayerInfoById(id);
-            var TaskCompleteColor = HasTasks(info) ? Color.green : Color.cyan; //タスク完了後の色
-            var NonCompleteColor = HasTasks(info) ? Color.yellow : Color.white; //カウントされない人外は白色
+            var TaskCompleteColor = HasTasks(info) ? Color.green : Color.cyan;
+            var NonCompleteColor = HasTasks(info) ? Color.yellow : Color.white;
 
             if (Workhorse.IsThisRole(id))
                 NonCompleteColor = Workhorse.RoleColor;
@@ -2877,5 +2923,5 @@ public static class Utils
 
     public static int AlivePlayersCount(CountTypes countTypes) => Main.AllAlivePlayerControls.Count(pc => pc.Is(countTypes));
 
-    public static bool IsPlayerModClient(this byte id) => Main.PlayerVersion.ContainsKey(GetPlayerById(id).GetClientId());
+    public static bool IsPlayerModClient(this byte id) => Main.PlayerVersion.ContainsKey(id);
 }

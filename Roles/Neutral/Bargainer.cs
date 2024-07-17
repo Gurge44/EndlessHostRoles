@@ -191,6 +191,8 @@ namespace EHR.Neutral
                     Costs[kvp.Key] = kvp.Value.Cost.GetInt();
                 }
             }
+
+            Costs[Item.None] = 0;
         }
 
         public override void Add(byte playerId)

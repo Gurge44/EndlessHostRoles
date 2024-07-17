@@ -90,6 +90,7 @@ public class Executioner : RoleBase
 
     public static void SendRPC(byte executionerId, byte targetId = 0x73, string Progress = "")
     {
+        if (!AmongUsClient.Instance.AmHost || !Utils.DoRPC) return;
         MessageWriter writer;
         switch (Progress)
         {

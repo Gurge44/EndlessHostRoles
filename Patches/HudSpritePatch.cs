@@ -31,7 +31,7 @@ public static class HudSpritePatch
         try
         {
             var player = PlayerControl.LocalPlayer;
-            if (player == null || !GameStates.IsModHost) return;
+            if (player == null) return;
             if (!SetHudActivePatch.IsActive || !player.IsAlive()) return;
             if (!AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed)
             {

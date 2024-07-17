@@ -256,20 +256,15 @@ internal class RPCHandlerPatch
                     string tag = reader.ReadString();
                     string forkId = reader.ReadString();
 
-                    if (!Main.PlayerVersion.ContainsKey(__instance.GetClientId()))
+                    if (!Main.PlayerVersion.ContainsKey(__instance.PlayerId))
                     {
                         RPC.RpcVersionCheck();
                     }
 
-                    Main.PlayerVersion[__instance.GetClientId()] = new(version, tag, forkId);
-
-                    if (Main.VersionCheat.Value && __instance.IsHost()) RPC.RpcVersionCheck();
-
-                    if (Main.VersionCheat.Value && AmongUsClient.Instance.AmHost)
-                        Main.PlayerVersion[__instance.GetClientId()] = Main.PlayerVersion[0];
+                    Main.PlayerVersion[__instance.PlayerId] = new(version, tag, forkId);
 
                     // Kick Unmached Player Start
-                    if (AmongUsClient.Instance.AmHost && tag != $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" && forkId != Main.ForkId && !Main.VersionCheat.Value)
+                    if (AmongUsClient.Instance.AmHost && tag != $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" && forkId != Main.ForkId)
                     {
                         LateTask.New(() =>
                         {
@@ -793,7 +788,7 @@ internal static class RPC
         if (targetId != -1)
         {
             var client = Utils.GetClientById(targetId);
-            if (client == null || client.Character == null || !Main.PlayerVersion.ContainsKey(client.Id)) return;
+            if (client == null || client.Character == null || !Main.PlayerVersion.ContainsKey(client.Character.PlayerId)) return;
         }
 
         if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1 || (AmongUsClient.Instance.AmHost == false && PlayerControl.LocalPlayer == null)) return;
@@ -811,7 +806,7 @@ internal static class RPC
         if (targetId != -1)
         {
             var client = Utils.GetClientById(targetId);
-            if (client == null || client.Character == null || !Main.PlayerVersion.ContainsKey(client.Id)) return;
+            if (client == null || client.Character == null || !Main.PlayerVersion.ContainsKey(client.Character.PlayerId)) return;
         }
 
         if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1 || (AmongUsClient.Instance.AmHost == false && PlayerControl.LocalPlayer == null)) return;
@@ -908,17 +903,16 @@ internal static class RPC
     public static async void RpcVersionCheck()
     {
         while (PlayerControl.LocalPlayer == null) await Task.Delay(500);
-        if (Main.PlayerVersion.ContainsKey(Main.HostClientId) || !Main.VersionCheat.Value)
-        {
-            bool cheating = Main.VersionCheat.Value;
-            MessageWriter writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.VersionCheck);
-            writer.Write(cheating ? Main.PlayerVersion[Main.HostClientId].version.ToString() : Main.PluginVersion);
-            writer.Write(cheating ? Main.PlayerVersion[Main.HostClientId].tag : $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})");
-            writer.Write(cheating ? Main.PlayerVersion[Main.HostClientId].forkId : Main.ForkId);
-            writer.EndMessage();
-        }
+        MessageWriter writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.VersionCheck);
+        writer.Write(Main.PluginVersion);
+        writer.Write($"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})");
+        writer.Write(Main.ForkId);
+        writer.EndMessage();
 
-        Main.PlayerVersion[PlayerControl.LocalPlayer.GetClientId()] = new(Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
+        Main.PlayerVersion[PlayerControl.LocalPlayer.PlayerId] = new(Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
+
+        if (GameStates.IsModHost)
+            Main.HostClientId = Utils.GetPlayerById(0)?.GetClientId() ?? -1;
     }
 
     public static void SendDeathReason(byte playerId, PlayerState.DeathReason deathReason)

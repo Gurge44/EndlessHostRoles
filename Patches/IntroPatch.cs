@@ -17,8 +17,6 @@ class SetUpRoleTextPatch
 
     public static void Postfix(IntroCutscene __instance)
     {
-        if (!GameStates.IsModHost) return;
-
         // After showing team for non-modded clients, update player names.
         IsInIntro = false;
         Utils.DoNotifyRoles(NoCache: true);
@@ -130,7 +128,7 @@ class CoBeginPatch
             {
                 var text = pc.AmOwner ? "[*]" : "   ";
                 text += $"{pc.PlayerId,-2}:{pc.Data?.PlayerName?.PadRightV2(20)}:{pc.GetClient()?.PlatformData?.Platform.ToString().Replace("Standalone", string.Empty),-11}";
-                if (Main.PlayerVersion.TryGetValue(pc.GetClientId(), out PlayerVersion pv))
+                if (Main.PlayerVersion.TryGetValue(pc.PlayerId, out PlayerVersion pv))
                     text += $":Mod({pv.forkId}/{pv.version}:{pv.tag})";
                 else
                     text += ":Vanilla";

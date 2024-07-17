@@ -40,7 +40,6 @@ class HudManagerPatch
         {
             LoadingScreen.Update();
 
-            if (!GameStates.IsModHost) return;
             var player = PlayerControl.LocalPlayer;
             if (player == null) return;
 
@@ -393,7 +392,6 @@ class SetHudActivePatch
     public static void Postfix(HudManager __instance, [HarmonyArgument(2)] bool isActive)
     {
         __instance?.ReportButton?.ToggleVisible(!GameStates.IsLobby && isActive);
-        if (!GameStates.IsModHost) return;
         if (__instance == null)
         {
             Logger.Fatal("HudManager __instance ended up being null", "SetHudActivePatch.Postfix");
@@ -574,7 +572,6 @@ class TaskPanelBehaviourPatch
 {
     public static void Postfix(TaskPanelBehaviour __instance)
     {
-        if (!GameStates.IsModHost) return;
         PlayerControl player = PlayerControl.LocalPlayer;
 
         var taskText = __instance.taskText.text;
@@ -582,7 +579,7 @@ class TaskPanelBehaviourPatch
 
         if (!player.GetCustomRole().IsVanilla())
         {
-            var RoleWithInfo = $"<size=80%>{player.GetDisplayRoleName()}:\r\n{player.GetRoleInfo()}</size>";
+            var RoleWithInfo = $"<size=80%>{player.GetCustomRole().ToColoredString()}:\r\n{player.GetRoleInfo()}</size>";
             if (Options.CurrentGameMode == CustomGameMode.MoveAndStop) RoleWithInfo = $"{GetString("TaskerInfo")}\r\n";
 
             var AllText = Utils.ColorString(player.GetRoleColor(), RoleWithInfo);
@@ -590,6 +587,16 @@ class TaskPanelBehaviourPatch
             switch (Options.CurrentGameMode)
             {
                 case CustomGameMode.Standard:
+
+                    var subRoles = player.GetCustomSubRoles();
+                    if (subRoles.Count > 0)
+                    {
+                        const int max = 3;
+                        var s = subRoles.Take(max).Select(x => Utils.ColorString(Utils.GetRoleColor(x), $"\r\n\r\n{x.ToColoredString()}:\r\n{GetString($"{x}Info")}"));
+                        AllText += s.Aggregate("<size=70%>", (current, next) => current + next) + "</size>";
+                        int chunk = subRoles.Any(x => x.ToString().Contains(' ')) ? 3 : 4;
+                        if (subRoles.Count > max) AllText += $"\r\n<size=70%>....\r\n({subRoles.Skip(max).Chunk(chunk).Select(x => x.Join(r => r.ToColoredString())).Join(delimiter: ",\r\n")})</size>";
+                    }
 
                     var lines = taskText.Split("\r\n</color>\n")[0].Split("\r\n\n")[0].Split("\r\n");
                     StringBuilder sb = new();
@@ -604,16 +611,16 @@ class TaskPanelBehaviourPatch
                     {
                         var text = sb.ToString().TrimEnd('\n').TrimEnd('\r');
                         if (!Utils.HasTasks(player.Data, false) && sb.ToString().Count(s => s == '\n') >= 2)
-                            text = $"{Utils.ColorString(Utils.GetRoleColor(player.GetCustomRole()).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}";
-                        AllText += $"\r\n\r\n<size=70%>{text}</size>";
+                            text = $"<size=55%>{Utils.ColorString(Utils.GetRoleColor(player.GetCustomRole()).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}</size>";
+                        AllText += $"\r\n\r\n<size=65%>{text}</size>";
                     }
 
                     if (MeetingStates.FirstMeeting)
                     {
-                        AllText += $"\r\n\r\n</color><size=65%>{GetString("PressF1ShowMainRoleDes")}";
-                        if (Main.PlayerStates.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var ps) && ps.SubRoles.Count > 0)
+                        AllText += $"\r\n\r\n</color><size=60%>{GetString("PressF1ShowMainRoleDes")}";
+                        if (subRoles.Count > 0)
                             AllText += $"\r\n{GetString("PressF2ShowAddRoleDes")}";
-                        AllText += "</size>";
+                        AllText += $"\r\n{GetString("PressF3ShowRoleSettings")}</size>";
                     }
 
                     break;
@@ -750,6 +757,37 @@ class TaskPanelBehaviourPatch
 
         if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             __instance.taskText.text = RepairSender.GetText();
+    }
+}
+
+[HarmonyPatch(typeof(DialogueBox), nameof(DialogueBox.Show))]
+static class DialogueBoxShowPatch
+{
+    public static bool Prefix(DialogueBox __instance, [HarmonyArgument(0)] string dialogue)
+    {
+        __instance.target.text = dialogue;
+        if (Minigame.Instance != null)
+            Minigame.Instance.Close();
+        if (Minigame.Instance != null)
+            Minigame.Instance.Close();
+        __instance.gameObject.SetActive(true);
+        return false;
+    }
+
+    public static void Postfix()
+    {
+        if (GameStates.IsMeeting)
+            GuessManager.DestroyIDLabels();
+    }
+}
+
+[HarmonyPatch(typeof(DialogueBox), nameof(DialogueBox.Hide))]
+static class DialogueBoxHidePatch
+{
+    public static void Postfix()
+    {
+        if (GameStates.IsMeeting && !DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening)
+            GuessManager.CreateIDLabels(MeetingHud.Instance);
     }
 }
 

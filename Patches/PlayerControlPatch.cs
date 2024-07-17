@@ -94,7 +94,7 @@ class CmdCheckMurderPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
-        if (AmongUsClient.Instance.AmHost && GameStates.IsModHost)
+        if (AmongUsClient.Instance.AmHost)
         {
             __instance.CheckMurder(target);
         }
@@ -1099,7 +1099,6 @@ class FixedUpdatePatch
     public static async void Postfix(PlayerControl __instance)
     {
         if (__instance == null || __instance.PlayerId == 255) return;
-        if (!GameStates.IsModHost) return;
 
         byte id = __instance.PlayerId;
         if (AmongUsClient.Instance.AmHost && GameStates.IsInTask && ReportDeadBodyPatch.CanReport[id] && ReportDeadBodyPatch.WaitReport[id].Count > 0)
@@ -1363,7 +1362,7 @@ class FixedUpdatePatch
         {
             if (GameStates.IsLobby)
             {
-                if (Main.PlayerVersion.TryGetValue(player.GetClientId(), out var ver))
+                if (Main.PlayerVersion.TryGetValue(player.PlayerId, out var ver))
                 {
                     if (Main.ForkId != ver.forkId)
                         __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.2>{ver.forkId}</size>\n{__instance?.name}</color>";
@@ -2211,7 +2210,7 @@ public static class PlayerControlMixupOutfitPatch
 
         if (PlayerControl.LocalPlayer.Data.Role.IsImpostor && // Has Impostor role behavior
             !PlayerControl.LocalPlayer.Is(Team.Impostor) && // Not an actual Impostor
-            PlayerControl.LocalPlayer.GetCustomRole().GetDYRole() == RoleTypes.Impostor) // Has Desynced Impostor role
+            PlayerControl.LocalPlayer.GetCustomRole().GetDYRole() is RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom) // Has Desynced Impostor role
             __instance.cosmetics.ToggleNameVisible(false);
     }
 }

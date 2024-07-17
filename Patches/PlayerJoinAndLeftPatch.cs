@@ -24,11 +24,8 @@ class OnGameJoinedPatch
         Logger.Info($"{__instance.GameId} joined lobby", "OnGameJoined");
         if (AmongUsClient.Instance.AmHost) Main.HostClientId = PlayerControl.LocalPlayer.GetClientId();
         Main.PlayerVersion = [];
-        if (!Main.VersionCheat.Value) RPC.RpcVersionCheck();
+        RPC.RpcVersionCheck();
         SoundManager.Instance?.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
-
-        if (GameStates.IsModHost)
-            Main.HostClientId = Utils.GetPlayerById(0)?.GetClientId() ?? -1;
 
         ChatUpdatePatch.DoBlockChat = false;
         GameStates.InGame = false;
@@ -118,7 +115,7 @@ static class OnPlayerJoinedPatch
                         return;
                     }
 
-                    if (!Main.PlayerVersion.ContainsKey(client.Id))
+                    if (!Main.PlayerVersion.ContainsKey(client.Character.PlayerId))
                     {
                         var retry = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.None, client.Id);
                         AmongUsClient.Instance.FinishRpcImmediately(retry);
@@ -284,7 +281,7 @@ class OnPlayerLeftPatch
             {
                 Main.SayStartTimes.Remove(__instance.ClientId);
                 Main.SayBanwordsTimes.Remove(__instance.ClientId);
-                Main.PlayerVersion.Remove(data?.Id ?? byte.MaxValue);
+                Main.PlayerVersion.Remove(data?.Character?.PlayerId ?? byte.MaxValue);
                 Main.MessagesToSend.RemoveAll(x => x.RECEIVER_ID == data?.Character.PlayerId);
 
                 if (data != null && data.Character != null)
@@ -375,12 +372,6 @@ class InnerNetClientSpawnPatch
 
         if (client != null && client.Character != null) Main.GuessNumber[client.Character.PlayerId] = [-1, 7];
 
-        LateTask.New(() =>
-        {
-            if (client?.Character == null) return;
-            if (Main.OverrideWelcomeMsg != string.Empty) Utils.SendMessage(Main.OverrideWelcomeMsg, client.Character.PlayerId);
-            else TemplateManager.SendTemplate("welcome", client.Character.PlayerId, true);
-        }, 3f, "Welcome Message");
         if (Main.OverrideWelcomeMsg == string.Empty && Main.PlayerStates.Count > 0 && client != null && Main.ClientIdList.Contains(client.Id))
         {
             if (Options.AutoDisplayKillLog.GetBool())

@@ -31,6 +31,8 @@ internal class PingTrackerUpdatePatch
 
         Sb.Clear();
 
+        if (GameStates.IsLobby) Sb.Append("\r\n");
+
         Sb.Append(Main.CredentialsText);
 
         var ping = AmongUsClient.Instance.Ping;

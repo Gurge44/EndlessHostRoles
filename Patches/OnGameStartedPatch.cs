@@ -221,7 +221,6 @@ internal class ChangeRoleSettings
             Options.UsedButtonCount = 0;
 
             GameOptionsManager.Instance.currentNormalGameOptions.ConfirmImpostor = false;
-            // if (Options.CurrentGameMode == CustomGameMode.MoveAndStop) GameOptionsManager.Instance.currentNormalGameOptions.NumImpostors = 0;
             Main.RealOptionsData = new(GameOptionsManager.Instance.CurrentGameOptions);
 
             Main.IntroDestroyed = false;
@@ -677,6 +676,7 @@ internal class SelectRolesPatch
 
             // Add-on assignment
             var aapc = Main.AllAlivePlayerControls.Shuffle();
+            if (Main.GM.Value) aapc = aapc.Where(x => x.PlayerId != 0).ToArray();
             var addonNum = aapc.ToDictionary(x => x, _ => 0);
             AddonRolesList
                 .Except(BasisChangingAddons.Keys)

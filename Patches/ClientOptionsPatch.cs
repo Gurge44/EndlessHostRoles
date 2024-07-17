@@ -30,7 +30,6 @@ public static class OptionsMenuBehaviourStartPatch
         if (Main.ResetOptions || !DebugModeManager.AmDebugger)
         {
             Main.ResetOptions = false;
-            Main.VersionCheat.Value = false;
             Main.GodMode.Value = false;
         }
 
@@ -165,11 +164,6 @@ public static class OptionsMenuBehaviourStartPatch
         }
 
 #if DEBUG
-        if ((VersionCheat == null || VersionCheat.ToggleButton == null) && DebugModeManager.AmDebugger)
-        {
-            VersionCheat = ClientOptionItem.Create("VersionCheat", Main.VersionCheat, __instance);
-        }
-
         if ((GodMode == null || GodMode.ToggleButton == null) && DebugModeManager.AmDebugger)
         {
             GodMode = ClientOptionItem.Create("GodMode", Main.GodMode, __instance);
@@ -177,7 +171,6 @@ public static class OptionsMenuBehaviourStartPatch
 #endif
     }
 #if DEBUG
-    private static ClientOptionItem VersionCheat;
     private static ClientOptionItem GodMode;
 #endif
 }

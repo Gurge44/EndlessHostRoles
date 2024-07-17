@@ -42,7 +42,12 @@ namespace EHR
             return collection[IRandom.Instance.Next(collection.Count)];
         }
 
-        // Make an overload for non-list collections
+        /// <summary>
+        /// Returns a random element from a collection
+        /// </summary>
+        /// <param name="collection">The collection</param>
+        /// <typeparam name="T">The type of the collection</typeparam>
+        /// <returns>A random element from the collection, or the default value of <typeparamref name="T"/> if the collection is empty</returns>
         public static T RandomElement<T>(this IEnumerable<T> collection)
         {
             if (collection is IList<T> list) return list.RandomElement();
