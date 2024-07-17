@@ -2169,7 +2169,7 @@
   "CommandDescription.MTHY": "Созывает/заканчивает собрание",
   "CommandDescription.CSD": "Проигрывает кастомный звук",
   "CommandDescription.SD": "Проигрывает звук из игры",
-  "CommandDescription.GNO": "Игра \"Угадай число\"",
+  "CommandDescription.GNO": "Игра ''Угадай число''",
   "CommandDescription.Guess": "Угадать игрока",
   "CommandDescription.Trial": "Засудить игрока как Judge/Councillor",
   "CommandDescription.Swap": "Свапнуть голоса как Swapper",
