@@ -232,6 +232,8 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Undead);
                 break;
         }
+
+        Logger.Info($" ID {PlayerId} ({Player?.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetSubRole");
     }
 
     public void RemoveSubRole(CustomRoles role)

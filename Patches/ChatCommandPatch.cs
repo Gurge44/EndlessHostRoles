@@ -297,10 +297,10 @@ internal static class ChatCommands
         }
 
         var splitIndex = Array.IndexOf(args, args.First(x => x.Contains('?'))) + 1;
-        string title = string.Join(" ", args.Take(splitIndex).Skip(1));
+        var title = string.Join(" ", args.Take(splitIndex).Skip(1));
         var answers = args.Skip(splitIndex).ToArray();
 
-        string msg = "";
+        string msg = title + "\n";
         for (int i = 0; i < Math.Clamp(answers.Length, 2, 5); i++)
         {
             char choiceLetter = (char)(i + 65);
@@ -310,7 +310,7 @@ internal static class ChatCommands
         }
 
         msg += $"\n{GetString("Poll.Begin")}\n<size=55%><i>{GetString("Poll.TimeInfo")}</i></size>";
-        Utils.SendMessage(msg, title: title);
+        Utils.SendMessage(msg, title: GetString("Poll.Title"));
 
         Main.Instance.StartCoroutine(StartPollCountdown());
         return;
