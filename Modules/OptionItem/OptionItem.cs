@@ -56,7 +56,6 @@ public abstract class OptionItem
         }
         else
         {
-            Logger.Error($"Duplicate of {FastOptions[id].Name}", "Optionitem");
             Logger.Error($"Duplicate ID: {id} ({name})", "OptionItem");
         }
     }
