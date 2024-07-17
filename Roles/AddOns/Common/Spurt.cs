@@ -82,6 +82,7 @@ namespace EHR.AddOns.Common
 
             if (DisplaysCharge.GetBool() && !player.IsModClient() && LastNum[player.PlayerId] != DetermineCharge(player))
             {
+                LastNum[player.PlayerId] = DetermineCharge(player);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
             }
 
