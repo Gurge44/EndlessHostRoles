@@ -80,7 +80,7 @@ namespace EHR.AddOns.Common
             float ChargeBy = Mathf.Clamp(Modulator.GetFloat() / 20 * 1.5f, 0.05f, 0.6f);
             float Decreaseby = Mathf.Clamp(Modulator.GetFloat() / 20 * 0.5f, 0.01f, 0.3f);
 
-            if (DisplaysCharge.GetBool() && player.IsModClient() && LastNum[player.PlayerId] != DetermineCharge(player))
+            if (DisplaysCharge.GetBool() && !player.IsModClient() && LastNum[player.PlayerId] != DetermineCharge(player))
             {
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
             }
