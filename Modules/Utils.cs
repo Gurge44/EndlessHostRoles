@@ -1838,6 +1838,8 @@ public static class Utils
 
                     Main.PlayerStates.Values.Do(x => SelfSuffix.Append(x.Role.GetSuffix(seer, seer, isMeeting: isForMeeting)));
 
+                    SelfSuffix.Append(Spurt.GetSuffix(seer));
+
                     SelfSuffix.Append(CustomTeamManager.GetSuffix(seer));
 
                     if (!isForMeeting)
@@ -2536,6 +2538,10 @@ public static class Utils
                 Lawyer.ChangeRoleByTarget(target);
             if (target.Is(CustomRoles.Stained))
                 Stained.OnDeath(target, target.GetRealKiller());
+            if (target.Is(CustomRoles.Spurt))
+            {
+                Spurt.DeathTask(target);
+            }
 
             Postman.CheckAndResetTargets(target, isDeath: true);
             Hitman.CheckAndResetTargets();
@@ -2553,7 +2559,6 @@ public static class Utils
             if (QuizMaster.On) QuizMaster.Data.NumPlayersDeadThisRound++;
 
             FixedUpdatePatch.LoversSuicide(target.PlayerId, onMeeting);
-
             if (!target.HasGhostRole())
             {
                 Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
