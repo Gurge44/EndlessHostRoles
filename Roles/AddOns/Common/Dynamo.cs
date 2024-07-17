@@ -18,7 +18,7 @@ namespace EHR.AddOns.Common
 
         public void SetupCustomOption()
         {
-            const int id = 19391000;
+            const int id = 19391;
             Options.SetupAdtRoleOptions(id, CustomRoles.Dynamo, canSetNum: true, teamSpawnOptions: true);
             IncreaseSpeedBy = new FloatOptionItem(id + 6, "Dynamo.IncreaseSpeedBy", new(0.1f, 1f, 0.1f), 0.1f, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dynamo])
