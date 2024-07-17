@@ -53,7 +53,7 @@ namespace EHR.AddOns.Common
         public static void OnFixedUpdate(PlayerControl player)
         {
             var pos = player.Pos();
-            bool moving = Vector2.Distance(pos, LastPos[player.PlayerId]) > 0f;
+            bool moving = Vector2.Distance(pos, LastPos[player.PlayerId]) > 0f; // Is on a tight rope so it dosen't spam markdritysetting if player isn't moving
             LastPos[player.PlayerId] = pos;
 
             float ChargeBy = Mathf.Clamp(Modulator.GetFloat() / 20 * 1.5f, 0.1f, 0.6f);
