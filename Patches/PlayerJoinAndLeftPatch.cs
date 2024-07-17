@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AmongUs.Data;
 using AmongUs.GameOptions;
+using EHR.AddOns.Common;
 using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
@@ -11,6 +12,7 @@ using HarmonyLib;
 using Hazel;
 using InnerNet;
 using UnityEngine;
+using UnityEngine.TextCore;
 using static EHR.Translator;
 
 namespace EHR;
@@ -339,6 +341,7 @@ class InnerNetClientSpawnPatch
         }
         else
         {
+
             LateTask.New(() => { OptionItem.SyncAllOptions(client.Id); }, 3f, "Sync All Options For New Player");
 
             LateTask.New(() =>

@@ -12,9 +12,11 @@ namespace EHR.AddOns.Common
         private static OptionItem MinSpeed;
         private static OptionItem Modulator;
         private static OptionItem MaxSpeed;
+        private static OptionItem DisplaysCharge;
 
-        private static Dictionary<byte, Vector2> LastPos = [];
-        private static Dictionary<byte, float> StartingSpeed = [];
+        private static readonly Dictionary<byte, Vector2> LastPos = [];
+        public static readonly Dictionary<byte, float> StartingSpeed = [];
+        private static Dictionary<byte, int> LastNum = [];
 
         public void SetupCustomOption()
         {
@@ -23,12 +25,14 @@ namespace EHR.AddOns.Common
             MinSpeed = new FloatOptionItem(id + 6, "SpurtMinSpeed", new(0f, 3f, 0.25f), 0.75f, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spurt])
                 .SetValueFormat(OptionFormat.Multiplier);
-            MaxSpeed = new FloatOptionItem(id + 7, "SpurtMaxSpeed", new(1.5f, 3f, 0.25f), 3f, TabGroup.Addons)
+            MaxSpeed = new FloatOptionItem(id + 7 , "SpurtMaxSpeed", new(1.5f, 3f, 0.25f), 3f, TabGroup.Addons)
                .SetParent(CustomRoleSpawnChances[CustomRoles.Spurt])
                .SetValueFormat(OptionFormat.Multiplier);
             Modulator = new FloatOptionItem(id + 8, "SpurtModule", new(0.25f, 3f, 0.25f), 1.25f, TabGroup.Addons)
               .SetParent(CustomRoleSpawnChances[CustomRoles.Spurt])
               .SetValueFormat(OptionFormat.Multiplier);
+            DisplaysCharge = new BooleanOptionItem(id + 9, "EnableSpurtCharge", false, TabGroup.Addons)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Spurt]);
         }
         public static void Add()
         {
@@ -38,6 +42,7 @@ namespace EHR.AddOns.Common
                 if (pc.Is(CustomRoles.Spurt))
                 {
                     LastPos[pc.PlayerId] = pc.Pos();
+                    LastNum[pc.PlayerId] = 0;
                     StartingSpeed[pc.PlayerId] = speed;
                 }
             }
@@ -50,26 +55,45 @@ namespace EHR.AddOns.Common
             Main.AllPlayerSpeed[player.PlayerId] = StartingSpeed[player.PlayerId];
             player.MarkDirtySettings();
         }
+        private static int DetermineCharge(PlayerControl player)
+        {
+            if (MinSpeed.GetFloat() == MaxSpeed.GetFloat())
+                return 100;
+
+            return (int)((Main.AllPlayerSpeed[player.PlayerId] - MinSpeed.GetFloat()) / (MaxSpeed.GetFloat() - MinSpeed.GetFloat()) * 100);
+        }
+        public static string GetSuffix(PlayerControl player, bool isforhud = false)
+        {
+            if (!player.Is(CustomRoles.Spurt) || !DisplaysCharge.GetBool() || GameStates.IsMeeting)
+                return string.Empty;
+
+            int fontsize = isforhud ? 100 : 55;
+
+            return $"<size={fontsize}%>{string.Format(Translator.GetString("SpurtSuffix"), DetermineCharge(player))}</size>";
+        }
         public static void OnFixedUpdate(PlayerControl player)
         {
             var pos = player.Pos();
             bool moving = Vector2.Distance(pos, LastPos[player.PlayerId]) > 0f; // Is on a tight rope so it dosen't spam markdritysetting if player isn't moving
             LastPos[player.PlayerId] = pos;
 
-            float ChargeBy = Mathf.Clamp(Modulator.GetFloat() / 20 * 1.5f, 0.1f, 0.6f);
+            float ChargeBy = Mathf.Clamp(Modulator.GetFloat() / 20 * 1.5f, 0.05f, 0.6f);
             float Decreaseby = Mathf.Clamp(Modulator.GetFloat() / 20 * 0.5f, 0.01f, 0.3f);
+
+            if (DisplaysCharge.GetBool() && LastNum[player.PlayerId] != DetermineCharge(player))
+            {
+                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+            }
 
             if (!moving)
             {
                 Main.AllPlayerSpeed[player.PlayerId] += Mathf.Clamp(ChargeBy, 0f, MaxSpeed.GetFloat() - Main.AllPlayerSpeed[player.PlayerId]);
 
-                Logger.Info($": {Main.AllPlayerSpeed[player.PlayerId]}", "CURRENTSPEEDT_IMOVING");
                 return;
             }
 
             Main.AllPlayerSpeed[player.PlayerId] -= Mathf.Clamp(Decreaseby, 0f, Main.AllPlayerSpeed[player.PlayerId] - MinSpeed.GetFloat());
             player.MarkDirtySettings();
-            Logger.Info($": {Main.AllPlayerSpeed[player.PlayerId]}", "CURRENTSPEEDT_MOVING");
         }
     }
 }

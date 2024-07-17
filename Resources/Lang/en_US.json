@@ -3985,6 +3985,8 @@
   "SpurtMinSpeed": "Min Speed",
   "SpurtMaxSpeed": "Max Speed",
   "SpurtModule": "Speed Modulator",
+  "EnableSpurtCharge": "Display The Charge",
+  "SpurtSuffix": "« <color=#c9e8f5>Spurt</color>: {0}% »",
   "Nimble": "Nimble",
   "NimbleInfo": "Grants Vent Access",
   "NimbleInfoLong": "\\nGrants Vent Access for Crewmate Roles.",

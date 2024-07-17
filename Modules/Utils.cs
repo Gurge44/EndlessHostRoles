@@ -1792,6 +1792,8 @@ public static class Utils
 
                     Main.PlayerStates.Values.Do(x => SelfSuffix.Append(x.Role.GetSuffix(seer, seer, isMeeting: isForMeeting)));
 
+                    SelfSuffix.Append(Spurt.GetSuffix(seer));
+
                     SelfSuffix.Append(CustomTeamManager.GetSuffix(seer));
 
                     if (!isForMeeting)
