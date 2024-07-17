@@ -288,8 +288,8 @@ class SetEverythingUpPatch
         switch (CustomWinnerHolder.WinnerTeam)
         {
             case CustomWinner.Crewmate:
-                CustomWinnerColor = Utils.GetRoleColorCode(CustomRoles.Engineer);
-                __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Engineer);
+                CustomWinnerColor = Utils.GetRoleColorCode(CustomRoles.Crewmate);
+                __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Crewmate);
                 break;
             case CustomWinner.Impostor:
                 CustomWinnerColor = Utils.GetRoleColorCode(CustomRoles.Impostor);

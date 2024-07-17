@@ -138,6 +138,7 @@ public enum CustomRoles
     CameraMan,
     CyberStar, // Celebrity
     Chameleon,
+    Chef,
     Clairvoyant,
     Cleanser,
     Convener,

@@ -41,9 +41,10 @@ namespace EHR.Modules
             if (ToldHints.Count == HintCount) ToldHints.Clear();
             do index = IRandom.Instance.Next(HintCount);
             while (!ToldHints.Add(index));
-            if (IRandom.Instance.Next(20) == 0) index = IRandom.Instance.Next(40, 40 + JokeHintCount);
+            bool joke = IRandom.Instance.Next(20) == 0;
+            if (joke) index = IRandom.Instance.Next(40, 40 + JokeHintCount);
             string text = Translator.GetString($"LoadingHint.{index}");
-            text = text.Insert(0, "<color=#00ffa5>");
+            text = text.Insert(0, joke ? "<color=#ffff00>" : "<color=#00ffa5>");
             text = text.Insert(text.IndexOf('\n'), "</color><#ffffff>");
             text += "</color>";
             return text;

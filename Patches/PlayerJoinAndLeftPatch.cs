@@ -22,7 +22,7 @@ class OnGameJoinedPatch
     {
         while (!Options.IsLoaded) Task.Delay(1);
         Logger.Info($"{__instance.GameId} joined lobby", "OnGameJoined");
-        if (AmongUsClient.Instance.AmHost) Main.HostClientId = PlayerControl.LocalPlayer.GetClientId();
+        if (AmongUsClient.Instance.AmHost) Main.HostClientId = __instance.ClientId;
         Main.PlayerVersion = [];
         RPC.RpcVersionCheck();
         SoundManager.Instance?.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
@@ -218,44 +218,44 @@ class OnPlayerLeftPatch
                 PlayerGameOptionsSender.RemoveSender(data.Character);
             }
 
-            if (Main.HostClientId == __instance.ClientId)
-            {
-                const int clientId = -1;
-                var player = PlayerControl.LocalPlayer;
-                var title = "<color=#aaaaff>" + GetString("DefaultSystemMessageTitle") + "</color>";
-                var name = player?.Data?.PlayerName;
-                var msg = string.Empty;
-                if (GameStates.IsInGame)
-                {
-                    Utils.ErrorEnd("Host Left the Game");
-                    msg = GetString("Message.HostLeftGameInGame");
-                }
-                else if (GameStates.IsLobby)
-                    msg = GetString("Message.HostLeftGameInLobby");
-
-                player?.SetName(title);
-                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
-                player?.SetName(name);
-
-                if (player != null && player.Data != null)
-                {
-                    var writer = CustomRpcSender.Create("MessagesToSend");
-                    writer.StartMessage(clientId);
-                    writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
-                        .Write(player.Data.NetId)
-                        .Write(title)
-                        .EndRpc();
-                    writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
-                        .Write(msg)
-                        .EndRpc();
-                    writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
-                        .Write(player.Data.NetId)
-                        .Write(player.Data.PlayerName)
-                        .EndRpc();
-                    writer.EndMessage();
-                    writer.SendMessage();
-                }
-            }
+            // if (Main.HostClientId == __instance.ClientId)
+            // {
+            //     const int clientId = -1;
+            //     var player = PlayerControl.LocalPlayer;
+            //     var title = "<color=#aaaaff>" + GetString("DefaultSystemMessageTitle") + "</color>";
+            //     var name = player?.Data?.PlayerName;
+            //     var msg = string.Empty;
+            //     if (GameStates.IsInGame)
+            //     {
+            //         Utils.ErrorEnd("Host Left the Game");
+            //         msg = GetString("Message.HostLeftGameInGame");
+            //     }
+            //     else if (GameStates.IsLobby)
+            //         msg = GetString("Message.HostLeftGameInLobby");
+            //
+            //     player?.SetName(title);
+            //     DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
+            //     player?.SetName(name);
+            //
+            //     if (player != null && player.Data != null)
+            //     {
+            //         var writer = CustomRpcSender.Create("MessagesToSend");
+            //         writer.StartMessage(clientId);
+            //         writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+            //             .Write(player.Data.NetId)
+            //             .Write(title)
+            //             .EndRpc();
+            //         writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+            //             .Write(msg)
+            //             .EndRpc();
+            //         writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+            //             .Write(player.Data.NetId)
+            //             .Write(player.Data.PlayerName)
+            //             .EndRpc();
+            //         writer.EndMessage();
+            //         writer.SendMessage();
+            //     }
+            // }
 
             // Additional description of the reason for disconnection
             switch (reason)
