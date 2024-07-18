@@ -89,7 +89,7 @@ internal class ControllerManagerUpdatePatch
                 var sb = new StringBuilder();
                 if (Options.CustomRoleSpawnChances.TryGetValue(role, out var soi))
                     Utils.ShowChildrenSettings(soi, ref sb, command: true, disableColor: false);
-                HudManager.Instance.ShowPopUp(sb.ToString());
+                HudManager.Instance.ShowPopUp(sb.ToString().Trim());
             }
             catch (Exception ex)
             {

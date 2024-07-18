@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using AmongUs.GameOptions;
-using EHR.AddOns.Common;
 using EHR.AddOns.GhostRoles;
 using EHR.Crewmate;
 using EHR.Modules;
@@ -116,6 +114,9 @@ class EndGamePatch
             Main.RealOptionsData.Restore(GameOptionsManager.Instance.CurrentGameOptions);
             GameOptionsSender.AllSenders.Clear();
             GameOptionsSender.AllSenders.Add(new NormalGameOptionsSender());
+
+            if (Options.CurrentGameMode == CustomGameMode.MoveAndStop)
+                Main.AllPlayerControls.Do(x => MoveAndStopManager.HasPlayed.Add(x.FriendCode));
         }
     }
 }
