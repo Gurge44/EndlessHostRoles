@@ -149,7 +149,14 @@ class MoveAndStopPlayerData(Counter leftCounter, Counter middleCounter, Counter 
         var arrowRow = $"{LeftCounter.ColoredArrow}   {MiddleCounter.ColoredArrow}   {RightCounter.ColoredArrow}";
         var counterRow = $"{leftTimer}  {middleTimer}  {rightTimer}";
 
-        return $"{counterRow}\n{arrowRow}";
+        var text = $"{counterRow}\n{arrowRow}";
+
+        if (MoveAndStopManager.HasJustStarted)
+        {
+            text += $"\n\n{GetString("MoveAndStop_Tutorial")}";
+        }
+
+        return text;
     }
 
     public void UpdateCounters()
@@ -179,12 +186,15 @@ internal class MoveAndStopManager
     private static OptionItem MoveAndStop_MiddleCounterRedMax;
     private static OptionItem MoveAndStop_ExtraGreenTimeOnAirhip;
     private static OptionItem MoveAndStop_ExtraGreenTimeOnFungle;
+    private static OptionItem MoveAndStop_EnableTutorial;
 
     private static IRandom Random => IRandom.Instance;
 
     public static int RoundTime { get; set; }
 
-    private static int StartingGreenTime => (MapNames)Main.NormalOptions.MapId == MapNames.Airship ? 35 : 30;
+    public static bool HasJustStarted => MoveAndStop_GameTime.GetInt() - RoundTime < 30;
+
+    private static int StartingGreenTime => (MapNames)Main.NormalOptions.MapId == MapNames.Airship ? MoveAndStop_EnableTutorial.GetBool() ? 60 : 40 : MoveAndStop_EnableTutorial.GetBool() ? 50 : 30;
 
     private static int ExtraGreenTime => (MapNames)Main.NormalOptions.MapId switch
     {
@@ -259,6 +269,10 @@ internal class MoveAndStopManager
         MoveAndStop_MiddleCounterRedMax = CreateSetting(68_213_013, "Middle", true, false);
         MoveAndStop_ExtraGreenTimeOnAirhip = CreateExtraTimeSetting(68_213_014, "Airship", 20);
         MoveAndStop_ExtraGreenTimeOnFungle = CreateExtraTimeSetting(68_213_015, "Fungle", 10);
+        MoveAndStop_EnableTutorial = new BooleanOptionItem(68_213_016, "MoveAndStop_EnableTutorial", true, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.MoveAndStop)
+            .SetHeader(true)
+            .SetColor(new Color32(0, 255, 255, byte.MaxValue));
     }
 
     public static void Init()
