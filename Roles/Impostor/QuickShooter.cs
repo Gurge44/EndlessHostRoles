@@ -72,7 +72,7 @@ internal class QuickShooter : RoleBase
 
     public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
     {
-        if (Main.KillTimers[pc.PlayerId] <= 0 && shapeshifting)
+        if (Main.KillTimers[pc.PlayerId] <= 0 && (shapeshifting || Options.UseUnshiftTrigger.GetBool()))
         {
             Store(pc);
         }

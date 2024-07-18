@@ -5,6 +5,7 @@ using System.Linq;
 using AmongUs.GameOptions;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR.AddOns.GhostRoles;
+using EHR.Crewmate;
 using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
@@ -389,8 +390,10 @@ class GameEndChecker
                 return true;
             }
 
+            var sheriffCount = AlivePlayersCount(CountTypes.Sheriff);
+
             int Imp = AlivePlayersCount(CountTypes.Impostor);
-            int Crew = AlivePlayersCount(CountTypes.Crew);
+            int Crew = AlivePlayersCount(CountTypes.Crew) + sheriffCount;
 
             Dictionary<(CustomRoles? ROLE, CustomWinner WINNER), int> roleCounts = [];
 
@@ -463,6 +466,9 @@ class GameEndChecker
             {
                 // There are multiple types of NKs alive, game must continue
                 case > 1:
+                    return false;
+                // If the Sheriff keeps the game going, the game must continue
+                case 1 when Sheriff.KeepsGameGoing.GetBool() && sheriffCount > 0:
                     return false;
                 // There is only one type of NK alive, they've won
                 case 1:

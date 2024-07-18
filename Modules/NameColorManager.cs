@@ -151,6 +151,7 @@ public static class NameColorManager
             CustomRoles.Augmenter when ((Augmenter)Main.PlayerStates[seer.PlayerId].Role).Target == target.PlayerId => "000000",
             CustomRoles.Socialite when ((Socialite)Main.PlayerStates[seer.PlayerId].Role).GuestList.Contains(target.PlayerId) => "000000",
             CustomRoles.Socialite when ((Socialite)Main.PlayerStates[seer.PlayerId].Role).MarkedPlayerId == target.PlayerId => Main.RoleColors[seerRole],
+            CustomRoles.Beehive when ((Beehive)Main.PlayerStates[seer.PlayerId].Role).StungPlayers.ContainsKey(target.PlayerId) => "000000",
             _ => color
         };
 

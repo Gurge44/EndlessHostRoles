@@ -217,6 +217,8 @@ namespace EHR.Neutral
             opt.SetVision(HasImpostorVision.GetBool());
             if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
                 AURoleOptions.PhantomCooldown = 1f;
+            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
+                AURoleOptions.ShapeshifterCooldown = 1f;
         }
 
         void Update() => BargainerId.SetAbilityUseLimit(Money);
@@ -262,6 +264,13 @@ namespace EHR.Neutral
         public override bool OnVanish(PlayerControl pc)
         {
             CycleItem(pc);
+            return false;
+        }
+
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+            CycleItem(shapeshifter);
             return false;
         }
 

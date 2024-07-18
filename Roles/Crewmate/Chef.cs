@@ -155,7 +155,7 @@ namespace EHR.Crewmate
 
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
         {
-            if (lowLoad) return;
+            if (lowLoad || !pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
 
             if (ActiveEvents.TryGetValue(pc.PlayerId, out var events))
                 events.ToArray().Do(x => x.Update());
@@ -184,6 +184,13 @@ namespace EHR.Crewmate
 
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }
+        }
+
+        public override void OnReportDeadBody()
+        {
+            ActiveEvents.Clear();
+            RottenFood.Keys.Do(x => Utils.GetPlayerById(x).Suicide());
+            RottenFood.Clear();
         }
 
         public static void SpitOutFood(PlayerControl pc)

@@ -129,10 +129,7 @@ internal class Assassin : RoleBase
     public override bool OnShapeshift(PlayerControl pc, PlayerControl t, bool shapeshifting)
     {
         if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
-        if (!shapeshifting)
-        {
-            return true;
-        }
+        if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
 
         Take(pc);
 
@@ -154,17 +151,14 @@ internal class Assassin : RoleBase
             if (IsUndertaker) target.TP(pc);
             else pc.TP(target);
 
-            LateTask.New(() =>
+            if (!(target == null || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask) && pc.RpcCheckAndMurder(target))
             {
-                if (!(target == null || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask) && pc.RpcCheckAndMurder(target))
-                {
-                    MarkedPlayer = byte.MaxValue;
-                    SendRPC(pc.PlayerId);
-                    pc.ResetKillCooldown();
-                    pc.SyncSettings();
-                    pc.SetKillCooldown(DefaultKillCooldown);
-                }
-            }, UsePets.GetBool() ? 0.1f : 1.2f, "Assassin Assassinate");
+                MarkedPlayer = byte.MaxValue;
+                SendRPC(pc.PlayerId);
+                pc.ResetKillCooldown();
+                pc.SyncSettings();
+                pc.SetKillCooldown(DefaultKillCooldown);
+            }
         }
     }
 

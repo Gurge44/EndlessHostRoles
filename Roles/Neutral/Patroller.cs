@@ -63,6 +63,8 @@ namespace EHR.Neutral
         {
             if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool())
                 AURoleOptions.PhantomCooldown = 1f;
+            if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool())
+                AURoleOptions.ShapeshifterCooldown = 1f;
             var room = Utils.GetPlayerById(id)?.GetPlainShipRoom();
             if (room == null) return;
             opt.SetVision(room == RoomBoosts[Boost.Vision]);
@@ -120,6 +122,13 @@ namespace EHR.Neutral
         public override bool OnVanish(PlayerControl pc)
         {
             OnPet(pc);
+            return false;
+        }
+
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
+            OnPet(shapeshifter);
             return false;
         }
 

@@ -171,7 +171,7 @@ public class Sniper : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        return Snipe(shapeshifter, shapeshifting);
+        return Options.UseUnshiftTrigger.GetBool() ? Snipe(shapeshifter, !IsAim) : Snipe(shapeshifter, shapeshifting);
     }
 
     public override void OnPet(PlayerControl pc)

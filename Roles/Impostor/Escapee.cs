@@ -75,7 +75,7 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (shapeshifting)
+            if (shapeshifting || Options.UseUnshiftTrigger.GetBool())
             {
                 TeleportOrMark(shapeshifter);
             }

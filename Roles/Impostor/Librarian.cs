@@ -129,7 +129,7 @@ namespace EHR.Impostor
 
             ChangeSilencingMode(pc);
 
-            return !shapeshifting || ShowSSAnimation.GetBool();
+            return (!shapeshifting && !UseUnshiftTrigger.GetBool()) || ShowSSAnimation.GetBool();
         }
 
         public override bool OnVanish(PlayerControl pc)
@@ -151,7 +151,7 @@ namespace EHR.Impostor
         public override void OnFixedUpdate(PlayerControl pc)
         {
             if (!IsEnable) return;
-            if (ShowSSAnimation.GetBool() && !UsePhantomBasis.GetBool()) return;
+            if (ShowSSAnimation.GetBool() && !UsePhantomBasis.GetBool() && !UseUnshiftTrigger.GetBool()) return;
 
             if (IsInSilencingMode.SILENCING && IsInSilencingMode.LAST_CHANGE + SSDur.GetInt() < TimeStamp)
             {

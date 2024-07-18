@@ -423,15 +423,17 @@ internal class SelectRolesPatch
                 HashSet<byte> bloodlustList = RoleResult.Where(x => x.Value.IsCrewmate() && !x.Value.IsTaskBasedCrewmate()).Select(x => x.Key.PlayerId).ToHashSet();
                 if (bloodlustList.Count == 0) bloodlustSpawn = false;
 
-                if (Main.AlwaysSpawnTogetherCombos[OptionItem.CurrentPreset].Values.Any(l => l.Contains(CustomRoles.Bloodlust)))
+                if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var combos) && combos.Values.Any(l => l.Contains(CustomRoles.Bloodlust)))
                 {
-                    var roles = Main.AlwaysSpawnTogetherCombos[OptionItem.CurrentPreset].Where(x => x.Value.Contains(CustomRoles.Bloodlust)).Select(x => x.Key).ToHashSet();
+                    var roles = combos.Where(x => x.Value.Contains(CustomRoles.Bloodlust)).Select(x => x.Key).ToHashSet();
                     var players = RoleResult.Where(x => roles.Contains(x.Value) && x.Value.IsCrewmate() && !x.Value.IsTaskBasedCrewmate()).Select(x => x.Key.PlayerId).ToHashSet();
                     if (players.Count > 0)
                     {
                         bloodlustList = players;
                         bloodlustSpawn = true;
                     }
+
+                    combos.Do(x => x.Value.Remove(CustomRoles.Bloodlust));
                 }
 
                 if (Main.SetAddOns.Values.Any(x => x.Contains(CustomRoles.Bloodlust)))
@@ -522,9 +524,9 @@ internal class SelectRolesPatch
                 (CustomRoles addon, (bool SpawnFlag, HashSet<byte> RoleList) value) = roleSpawnMapping.ElementAt(i);
                 if (value.RoleList.Count == 0) value.SpawnFlag = false;
 
-                if (Main.AlwaysSpawnTogetherCombos[OptionItem.CurrentPreset].Values.Any(l => l.Contains(addon)))
+                if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var combos) && combos.Values.Any(l => l.Contains(addon)))
                 {
-                    var roles = Main.AlwaysSpawnTogetherCombos[OptionItem.CurrentPreset].Where(x => x.Value.Contains(addon)).Select(x => x.Key).ToHashSet();
+                    var roles = combos.Where(x => x.Value.Contains(addon)).Select(x => x.Key).ToHashSet();
                     var players = RoleResult.Where(x => roles.Contains(x.Value) && x.Value.IsCrewmate() && (addon == CustomRoles.Nimble || x.Value.GetRoleTypes() == RoleTypes.Crewmate) && !IsBasisChangingPlayer(x.Key.PlayerId, CustomRoles.Bloodlust)).Select(x => x.Key.PlayerId).ToHashSet();
                     if (players.Count > 0)
                     {
@@ -532,6 +534,8 @@ internal class SelectRolesPatch
                         value.SpawnFlag = true;
                         roleSpawnMapping[addon] = value;
                     }
+
+                    combos.Do(x => x.Value.Remove(addon));
                 }
 
                 if (Main.SetAddOns.Values.Any(x => x.Contains(addon)))
@@ -725,7 +729,6 @@ internal class SelectRolesPatch
                 if (Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var neverList) && neverList.TryGetValue(state.MainRole, out var bannedAddonList))
                 {
                     bannedAddonList.ForEach(x => state.RemoveSubRole(x));
-                    continue;
                 }
 
                 if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var alwaysList) && alwaysList.TryGetValue(state.MainRole, out var addonList))

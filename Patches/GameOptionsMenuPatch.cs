@@ -795,7 +795,7 @@ public class GameSettingMenuPatch
             {
                 settingsTab.gameObject.SetActive(true);
                 __instance.MenuDescriptionText.DestroyTranslator();
-                __instance.MenuDescriptionText.text = Translator.GetString($"TabInfo.{tabGroup}");
+                __instance.MenuDescriptionText.text = Translator.GetString("TabInfoTip");
             }
         }
 

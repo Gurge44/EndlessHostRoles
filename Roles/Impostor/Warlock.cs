@@ -168,7 +168,7 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting) return true;
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
 
             Curse(shapeshifter);
 

@@ -413,8 +413,11 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
                 AURoleOptions.ShapeshifterDuration = 1f;
             }
 
-            if (Options.UsePhantomBasis.GetBool() && role.InvisActivatedAbility())
+            if (Options.UsePhantomBasis.GetBool() && role.SimpleAbilityTrigger())
                 AURoleOptions.PhantomDuration = 1f;
+
+            if (Options.UseUnshiftTrigger.GetBool() && role.SimpleAbilityTrigger())
+                AURoleOptions.ShapeshifterDuration = 0f;
 
             // ===================================================================================================================
 

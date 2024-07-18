@@ -55,6 +55,8 @@ namespace EHR.Neutral
             opt.SetVision(HasImpostorVision.GetBool());
             if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
                 AURoleOptions.PhantomCooldown = 1f;
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+                AURoleOptions.ShapeshifterCooldown = 1f;
         }
 
         void SendRPC()
@@ -88,6 +90,13 @@ namespace EHR.Neutral
 
         public override bool OnVanish(PlayerControl pc)
         {
+            ExecuteAction();
+            return false;
+        }
+
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
             ExecuteAction();
             return false;
         }

@@ -43,6 +43,8 @@ namespace EHR.Impostor
         {
             if (Options.UsePhantomBasis.GetBool())
                 AURoleOptions.PhantomCooldown = DashCD.GetFloat();
+            if (Options.UseUnshiftTrigger.GetBool())
+                AURoleOptions.ShapeshifterCooldown = DashCD.GetFloat();
         }
 
         public override void OnPet(PlayerControl pc)
@@ -53,6 +55,13 @@ namespace EHR.Impostor
         public override bool OnVanish(PlayerControl pc)
         {
             Dash(pc);
+            return false;
+        }
+
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
+            Dash(shapeshifter);
             return false;
         }
 

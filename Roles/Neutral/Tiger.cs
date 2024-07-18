@@ -95,6 +95,19 @@ namespace EHR.Neutral
             return false;
         }
 
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
+
+            if (CooldownTimer <= 0f)
+            {
+                StartEnraging();
+                CooldownTimer = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
+            }
+
+            return false;
+        }
+
         void StartEnraging()
         {
             EnrageTimer = EnrageDuration.GetFloat();

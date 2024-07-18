@@ -213,6 +213,8 @@ namespace EHR.Neutral
             opt.SetVision(HasImpostorVision.GetBool());
             if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
                 AURoleOptions.PhantomCooldown = 1f;
+            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
+                AURoleOptions.ShapeshifterCooldown = 1f;
         }
 
         static ItemType GetItemType(Item item) => item switch
@@ -482,6 +484,16 @@ namespace EHR.Neutral
             if (SortedAvailableProcesses.Count == 0) return false;
 
             Cycle(pc);
+
+            return false;
+        }
+
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+            if (SortedAvailableProcesses.Count == 0) return false;
+
+            Cycle(shapeshifter);
 
             return false;
         }

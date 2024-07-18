@@ -22,19 +22,6 @@ public class Lawyer : RoleBase
 
     public static Dictionary<byte, byte> Target = [];
 
-    public static readonly string[] ChangeRoles =
-    [
-        "Role.Crewmate",
-        "Role.Jester",
-        "Role.Opportunist",
-        "Role.Convict",
-        "Role.Celebrity",
-        "Role.Bodyguard",
-        "Role.Dictator",
-        "Role.Mayor",
-        "Role.Doctor"
-    ];
-
     public static readonly CustomRoles[] CRoleChangeRoles =
     [
         CustomRoles.CrewmateEHR,
@@ -45,7 +32,8 @@ public class Lawyer : RoleBase
         CustomRoles.Bodyguard,
         CustomRoles.Dictator,
         CustomRoles.Mayor,
-        CustomRoles.Doctor
+        CustomRoles.Doctor,
+        CustomRoles.Amnesiac
     ];
 
     public override bool IsEnable => playerIdList.Count > 0;
@@ -59,7 +47,7 @@ public class Lawyer : RoleBase
         CanTargetJester = new BooleanOptionItem(Id + 13, "LawyerCanTargetJester", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
         KnowTargetRole = new BooleanOptionItem(Id + 14, "KnowTargetRole", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
         TargetKnowsLawyer = new BooleanOptionItem(Id + 15, "TargetKnowsLawyer", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
-        ChangeRolesAfterTargetKilled = new StringOptionItem(Id + 16, "LawyerChangeRolesAfterTargetKilled", ChangeRoles, 2, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
+        ChangeRolesAfterTargetKilled = new StringOptionItem(Id + 16, "LawyerChangeRolesAfterTargetKilled", CRoleChangeRoles.Select(x => x.ToColoredString()).ToArray(), 2, TabGroup.NeutralRoles, noTranslation: true).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
     }
 
     public override void Init()

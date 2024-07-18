@@ -88,6 +88,8 @@ namespace EHR.Neutral
             opt.SetVision(HasImpostorVision.GetBool());
             if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
                 AURoleOptions.PhantomCooldown = CD.GetInt();
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+                AURoleOptions.ShapeshifterCooldown = CD.GetInt();
         }
 
         public override bool OnSabotage(PlayerControl pc)
@@ -103,6 +105,13 @@ namespace EHR.Neutral
 
         public override bool OnVanish(PlayerControl pc)
         {
+            PlaceTrap();
+            return false;
+        }
+
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
             PlaceTrap();
             return false;
         }

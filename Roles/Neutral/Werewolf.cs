@@ -71,6 +71,8 @@ public class Werewolf : RoleBase
         opt.SetVision(HasImpostorVision.GetBool());
         if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
             AURoleOptions.PhantomCooldown = 1f;
+        if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+            AURoleOptions.ShapeshifterCooldown = 1f;
     }
 
     void SendRPC()
@@ -157,6 +159,13 @@ public class Werewolf : RoleBase
     public override bool OnVanish(PlayerControl pc)
     {
         Rampage(pc);
+        return false;
+    }
+
+    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+    {
+        if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+        Rampage(shapeshifter);
         return false;
     }
 

@@ -123,7 +123,7 @@ namespace EHR.Impostor
         public override bool OnShapeshift(PlayerControl player, PlayerControl target, bool shapeshifting)
         {
             if (player == null) return false;
-            if (!shapeshifting) return true;
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
             if (Marks.Count >= 2) return false;
 
             Mark(player);

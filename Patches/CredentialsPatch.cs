@@ -46,6 +46,8 @@ internal class PingTrackerUpdatePatch
         };
         Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
         Sb.Append($"<color={color}>{GetString("PingText")}: {ping} ms</color>");
+        Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
+        Sb.Append(string.Format(GetString("Server"), Utils.GetRegionName()));
         if (GameStates.InGame) Sb.Append("\r\n.");
 
         // if (Options.NoGameEnd.GetBool()) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.red, GetString("NoGameEnd"))).Append("</size>");

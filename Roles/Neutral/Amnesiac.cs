@@ -10,7 +10,7 @@ namespace EHR.Neutral;
 public class Amnesiac : RoleBase
 {
     private const int Id = 35000;
-    private static List<byte> playerIdList = [];
+    private static List<Amnesiac> Instances = [];
 
     public static OptionItem RememberCooldown;
     public static OptionItem IncompatibleNeutralMode;
@@ -31,7 +31,9 @@ public class Amnesiac : RoleBase
         "AmnesiacRM.ByReportingBody"
     ];
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    private byte AmnesiacId;
+
+    public override bool IsEnable => Instances.Count > 0;
 
     public static void SetupCustomOption()
     {
@@ -49,18 +51,32 @@ public class Amnesiac : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        Instances = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        Instances.Add(this);
+        AmnesiacId = playerId;
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = RememberCooldown.GetFloat();
     public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && RememberMode.GetValue() == 0;
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
     public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
+
+    public static void OnAnyoneDeath(PlayerControl target)
+    {
+        if (RememberMode.GetValue() == 1)
+        {
+            foreach (Amnesiac instance in Instances)
+            {
+                LocateArrow.Add(instance.AmnesiacId, target.Pos());
+                var amne = Utils.GetPlayerById(instance.AmnesiacId);
+                Utils.NotifyRoles(SpecifySeer: amne, SpecifyTarget: amne);
+            }
+        }
+    }
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
@@ -173,6 +189,11 @@ public class Amnesiac : RoleBase
         target.RpcGuardAndKill(target);
     }
 
+    public override void OnReportDeadBody()
+    {
+        LocateArrow.RemoveAllTarget(AmnesiacId);
+    }
+
     public override bool KnowRole(PlayerControl player, PlayerControl target)
     {
         if (player.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) return true;
@@ -183,5 +204,11 @@ public class Amnesiac : RoleBase
     {
         ActionButton amneButton = RememberMode.GetValue() == 0 ? hud.KillButton : hud.ReportButton;
         amneButton?.OverrideText(GetString("RememberButtonText"));
+    }
+
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+    {
+        if (seer.PlayerId != target.PlayerId || seer.PlayerId != AmnesiacId || isMeeting || isHUD) return string.Empty;
+        return LocateArrow.GetArrows(seer);
     }
 }

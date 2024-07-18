@@ -4,7 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using Il2CppInterop.Runtime.InteropTypes;
-using StringComparison = Il2CppSystem.StringComparison;
 
 namespace EHR;
 
@@ -32,7 +31,7 @@ public static class ServerAddManager
         // regionInfos.Add(CreateHttp("35.247.251.253", "Modded SA (MSA)", 22023, false));
         regionInfos.Where(x => !ServerManager.AvailableRegions.Contains(x)).Do(ServerManager.AddOrUpdateRegion);
 
-        ServerManager.CurrentRegion = ServerManager.AvailableRegions.FirstOrDefault(x => x.Name.Contains("Europe", StringComparison.OrdinalIgnoreCase)) ?? ServerManager.AvailableRegions.FirstOrDefault() ?? regionInfos.First();
+        ServerManager.AvailableRegions = ServerManager.AvailableRegions.OrderByDescending(ServerManager.DefaultRegions.Contains).ToArray();
     }
 
     private static IRegionInfo CreateHttp(string ip, string name, ushort port, bool ishttps)
