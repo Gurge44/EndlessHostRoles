@@ -2554,7 +2554,7 @@
   "Disabled": "Disabled",
   "FailToTrack": "Failed To Track",
   "CanGuessTarget": "Can Guess their Target",
-  "UsePhantomBasis": "Use Phantom Basis for some roles",
+  "UsePhantomBasis": "Use Phantom Basis for some roles (DEPRECATED, use Unshift Trigger ^^)",
   "UsePhantomBasisForNKs": "Even for <#ffab1b>Neutral</color> <#ff1919>Killing</color> (Desynced) roles <#ffff00>(EXPERIMENTAL)</color>",
   "UseUnshiftTrigger": "Use Unshift Button as Ability Trigger",
   "UseUnshiftTriggerForNKs": "Even for <#ffab1b>Neutral</color> <#ff1919>Killing</color> (Desynced) roles <#ffff00>(EXPERIMENTAL)</color>",
