@@ -261,12 +261,16 @@ public class ParityCop : RoleBase
         {
             case Lawyer when Lawyer.Target[first.PlayerId] == second.PlayerId: return true;
             case Totocalcio tc when tc.BetPlayer == second.PlayerId: return true;
+            case Romantic when Romantic.HasPickedPartner && Romantic.PartnerId == second.PlayerId: return true;
+            case Necromancer when secondRoleClass is Deathknight: return true;
         }
 
         switch (secondRoleClass)
         {
             case Lawyer when Lawyer.Target[second.PlayerId] == first.PlayerId: return true;
             case Totocalcio tc when tc.BetPlayer == first.PlayerId: return true;
+            case Romantic when Romantic.HasPickedPartner && Romantic.PartnerId == first.PlayerId: return true;
+            case Necromancer when firstRoleClass is Deathknight: return true;
         }
 
         if (CustomTeamManager.AreInSameCustomTeam(first.PlayerId, second.PlayerId)) return true;

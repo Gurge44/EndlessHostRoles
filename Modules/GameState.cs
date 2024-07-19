@@ -92,6 +92,8 @@ public class PlayerState(byte playerId)
             };
         }
 
+        SubRoles.ForEach(SetAddonCountTypes);
+
         Role = role.GetRoleClass();
 
         if (!role.RoleExist(countDead: true))
@@ -137,6 +139,13 @@ public class PlayerState(byte playerId)
         if (!SubRoles.Contains(role))
             SubRoles.Add(role);
 
+        SetAddonCountTypes(role);
+
+        Logger.Info($" ID {PlayerId} ({Player?.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetSubRole");
+    }
+
+    private void SetAddonCountTypes(CustomRoles role)
+    {
         switch (role)
         {
             case CustomRoles.Bloodlust:
@@ -232,8 +241,6 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Undead);
                 break;
         }
-
-        Logger.Info($" ID {PlayerId} ({Player?.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetSubRole");
     }
 
     public void RemoveSubRole(CustomRoles role)

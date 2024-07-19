@@ -410,7 +410,7 @@ static class ExtendedPlayerControl
         {
             if (Math.Abs(time - (-1f)) < 0.5f) player.AddKCDAsAbilityCD();
             else player.AddAbilityCD((int)Math.Round(time));
-            return;
+            if (player.GetCustomRole() is not CustomRoles.Necromancer and not CustomRoles.Deathknight) return;
         }
 
         if (!player.CanUseKillButton()) return;
