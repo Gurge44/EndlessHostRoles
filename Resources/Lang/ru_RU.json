@@ -3721,7 +3721,7 @@
   "CL.EnabledSS": "Вкл Shapeshifter-осн.",
   "CanPickPartnerRole": "Может стать ролью, которая есть у тиммейта",
   "CanKillBeforeRoleChange": "Может убивать до выбора роли",
-  "AvailableRoles": "Доступные для становления роли:",
+  "AvailableRoles": "Доступные для становления роли",
   "ChangelingCurrentRole": "Роль на выбор: {0}",
   "Doormaster": "Door Master",
   "DoormasterInfo": "Открывай двери в любой момент",
