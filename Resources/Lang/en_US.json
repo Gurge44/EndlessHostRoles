@@ -689,7 +689,7 @@
   "DictatorInfoLong": "(Crewmates):\\nDictator can end the meeting by voting someone out, which will also result in their own death.",
   "DetectiveInfoLong": "(Crewmate):\\nAfter reporting the body, the Detective receives a clue about the victim's role. The host may reveal the murderer's role to the Detective based on settings. Note: Detective won't be Oblivious.",
   "UndercoverInfoLong": "(Crewmates):\\nThe Impostors knows who Undercover is and sees him as a teammate, but Undercover himself does not know who the Impostors are.",
-  "NiceGuesserInfoLong": "(Crewmates):\\nNice Guesser can guess a player's role during the meeting. Correct guess results in killing the target, while a wrong one leads to suicide. Use the command /bt [player id] [role] to guess. You can see player ids before their names or use the /id command. Vigilante can also guess crewmate when becoming madmate.",
+  "NiceGuesserInfoLong": "(Crewmates):\\nNice Guesser can guess a player's role during the meeting. Correct guess results in killing the target, while a wrong one leads to suicide. Use the command /bt [player id] [role] to guess. You can see player ids before their names or use the /id command.",
   "SwordsManInfoLong": "(Crewmates):\\nVigilante can kill once, and has no tasks.",
   "TransporterInfoLong": "(Crewmates):\\nTransporter swaps two random players; ignored if not enough players. Vent players aren't selected.",
   "TimeManagerInfoLong": "(Crewmates):\\nTime Manager increases meeting time. If it dies, the meeting time returns to normal. If it becomes Madmate, skill changes to reducing meeting time.",
