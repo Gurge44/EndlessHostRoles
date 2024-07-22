@@ -8,6 +8,7 @@ using EHR.Modules;
 using HarmonyLib;
 using UnityEngine;
 
+// ReSharper disable AccessToModifiedClosure
 // ReSharper disable InconsistentNaming
 
 namespace EHR;
@@ -2260,8 +2261,6 @@ public static class Options
 
         private OverrideTasksData(int idStart, TabGroup tab, CustomRoles role)
         {
-            IdStart = idStart;
-            Role = role;
             Dictionary<string, string> replacementDic = new() { { "%role%", role.ToColoredString() } };
             DoOverride = new BooleanOptionItem(idStart++, "doOverride", false, tab)
                 .SetParent(CustomRoleSpawnChances[role])
@@ -2283,9 +2282,6 @@ public static class Options
             if (!AllData.ContainsKey(role)) AllData.Add(role, this);
             else Logger.Warn("OverrideTasksData created for duplicate CustomRoles", "OverrideTasksData");
         }
-
-        public CustomRoles Role { get; private set; }
-        public int IdStart { get; private set; }
 
         public static OverrideTasksData Create(int idStart, TabGroup tab, CustomRoles role) => new(idStart, tab, role);
     }

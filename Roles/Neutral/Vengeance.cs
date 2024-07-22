@@ -88,7 +88,7 @@ public class Vengeance : RoleBase
             return;
         }
 
-        if ((seconds <= 0 || GameStates.IsMeeting) && player.IsAlive())
+        if (seconds <= 0 || GameStates.IsMeeting)
         {
             player.Kill(player);
             return;

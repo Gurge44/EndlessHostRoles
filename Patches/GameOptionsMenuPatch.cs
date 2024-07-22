@@ -360,6 +360,19 @@ public static class GameOptionsMenuPatch
 
         return baseGameSetting;
     }
+
+    public static void ReloadUI(bool preset = false)
+    {
+        GameSettingMenu.Instance?.Close();
+        LateTask.New(() =>
+        {
+            if (GameStates.IsLobby) GameObject.Find("Host Buttons")?.transform.FindChild("Edit")?.GetComponent<PassiveButton>()?.ReceiveClickDown();
+        }, 0.1f, log: false);
+        LateTask.New(() =>
+        {
+            if (GameStates.IsLobby) GameSettingMenu.Instance?.ChangeTab(preset ? 3 : 4, Controller.currentTouchType == Controller.TouchType.Joystick);
+        }, 0.28f, log: false);
+    }
 }
 
 [HarmonyPatch(typeof(ToggleOption))]
@@ -466,6 +479,7 @@ public static class NumberOptionPatch
                     break;
                 case PresetOptionItem presetOptionItem:
                     presetOptionItem.SetValue(presetOptionItem.Rule.GetNearestIndex(__instance.GetInt()));
+                    GameOptionsMenuPatch.ReloadUI(preset: true);
                     break;
             }
 
@@ -584,6 +598,7 @@ public static class StringOptionPatch
         {
             var item = OptionItem.AllOptions[index];
             item.SetValue(__instance.GetInt());
+            if (item.Name == "GameMode") GameOptionsMenuPatch.ReloadUI();
             return false;
         }
 

@@ -230,14 +230,20 @@ class HudManagerPatch
                         CustomGameMode.MoveAndStop when player.IsHost() => MoveAndStopManager.HUDText,
                         CustomGameMode.HotPotato when player.IsHost() => HotPotatoManager.GetSuffixText(player.PlayerId),
                         CustomGameMode.HideAndSeek when player.IsHost() => HnSManager.GetSuffixText(player, player, isHUD: true),
-                        CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + state.SubRoles switch
-                        {
-                            { } s when s.Contains(CustomRoles.Asthmatic) => Asthmatic.GetSuffixText(player.PlayerId),
-                            { } s when s.Contains(CustomRoles.Spurt) => Spurt.GetSuffix(player, true),
-                            _ => string.Empty
-                        },
+                        CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
                         _ => string.Empty
                     };
+
+                    string GetAddonSuffixes()
+                    {
+                        var suffixes = state.SubRoles.Select(subRole => subRole switch
+                        {
+                            CustomRoles.Asthmatic => Asthmatic.GetSuffixText(player.PlayerId),
+                            CustomRoles.Spurt => Spurt.GetSuffix(player, true),
+                            _ => string.Empty
+                        });
+                        return string.Join(string.Empty, suffixes);
+                    }
 
                     string CD_HUDText = !Options.UsePets.GetBool() || !Main.AbilityCD.TryGetValue(player.PlayerId, out var CD)
                         ? string.Empty

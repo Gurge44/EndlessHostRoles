@@ -1125,7 +1125,8 @@ internal static class PlayerPhysicsRPCHandlerPatch
 {
     public static bool Prefix(PlayerPhysics __instance, byte callId, MessageReader reader)
     {
-        if (EAC.PlayerPhysicsRpcCheck(__instance, callId, reader)) return false;
+        bool host = __instance.IsHost();
+        if (!host && EAC.PlayerPhysicsRpcCheck(__instance, callId, reader)) return false;
 
         var player = __instance.myPlayer;
         if (!player)
@@ -1134,7 +1135,7 @@ internal static class PlayerPhysicsRPCHandlerPatch
             return false;
         }
 
-        Logger.Info($"{player.PlayerId}({(__instance.IsHost() ? "Host" : player.Data.PlayerName)}):{callId}({RPC.GetRpcName(callId)})", "PlayerPhysics_ReceiveRPC");
+        Logger.Info($"{player.PlayerId}({(host ? "Host" : player.Data.PlayerName)}):{callId}({RPC.GetRpcName(callId)})", "PlayerPhysics_ReceiveRPC");
         return true;
     }
 }

@@ -537,6 +537,12 @@ internal static class ChatCommands
             return;
         }
 
+        if (!player.IsHost() && !Options.PlayerCanSetColor.GetBool())
+        {
+            Utils.SendMessage(GetString("DisableUseCommand"), player.PlayerId);
+            return;
+        }
+
         string subArgs = args.Length < 2 ? string.Empty : args[1];
         var color = Utils.MsgToColor(subArgs, true);
         if (color == byte.MaxValue)

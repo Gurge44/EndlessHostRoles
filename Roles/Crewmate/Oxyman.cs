@@ -70,7 +70,14 @@ namespace EHR.Crewmate
         public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
         {
             var pc = physics.myPlayer;
+            var previousLevel = GetCurrentLevel();
+
             OxygenLevel += IncrementByVenting.GetValue();
+            if (OxygenLevel > 100) OxygenLevel = 100;
+
+            var nowLevel = GetCurrentLevel();
+            if (nowLevel != previousLevel) ApplyLevelEffect(pc, nowLevel);
+
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, OxygenLevel);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
@@ -99,30 +106,35 @@ namespace EHR.Crewmate
 
             if (nowLevel != previousLevel)
             {
-                switch (nowLevel)
-                {
-                    case Level.Blind:
-                        Main.PlayerStates[pc.PlayerId].IsBlackOut = true;
-                        Main.AllPlayerSpeed[pc.PlayerId] = DecreasedSpeed.GetFloat();
-                        pc.MarkDirtySettings();
-                        break;
-                    case Level.Slow:
-                        Main.PlayerStates[pc.PlayerId].IsBlackOut = false;
-                        Main.AllPlayerSpeed[pc.PlayerId] = DecreasedSpeed.GetFloat();
-                        pc.MarkDirtySettings();
-                        break;
-                    case Level.None:
-                        Main.PlayerStates[pc.PlayerId].IsBlackOut = false;
-                        Main.AllPlayerSpeed[pc.PlayerId] = StartingSpeed;
-                        pc.MarkDirtySettings();
-                        break;
-                    case Level.Invulnerable:
-                    case Level.Fast:
-                        Main.PlayerStates[pc.PlayerId].IsBlackOut = false;
-                        Main.AllPlayerSpeed[pc.PlayerId] = IncreasedSpeed.GetFloat();
-                        pc.MarkDirtySettings();
-                        break;
-                }
+                ApplyLevelEffect(pc, nowLevel);
+            }
+        }
+
+        private void ApplyLevelEffect(PlayerControl pc, Level nowLevel)
+        {
+            switch (nowLevel)
+            {
+                case Level.Blind:
+                    Main.PlayerStates[pc.PlayerId].IsBlackOut = true;
+                    Main.AllPlayerSpeed[pc.PlayerId] = DecreasedSpeed.GetFloat();
+                    pc.MarkDirtySettings();
+                    break;
+                case Level.Slow:
+                    Main.PlayerStates[pc.PlayerId].IsBlackOut = false;
+                    Main.AllPlayerSpeed[pc.PlayerId] = DecreasedSpeed.GetFloat();
+                    pc.MarkDirtySettings();
+                    break;
+                case Level.None:
+                    Main.PlayerStates[pc.PlayerId].IsBlackOut = false;
+                    Main.AllPlayerSpeed[pc.PlayerId] = StartingSpeed;
+                    pc.MarkDirtySettings();
+                    break;
+                case Level.Invulnerable:
+                case Level.Fast:
+                    Main.PlayerStates[pc.PlayerId].IsBlackOut = false;
+                    Main.AllPlayerSpeed[pc.PlayerId] = IncreasedSpeed.GetFloat();
+                    pc.MarkDirtySettings();
+                    break;
             }
         }
 

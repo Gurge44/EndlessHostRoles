@@ -21,6 +21,8 @@ class SetUpRoleTextPatch
         IsInIntro = false;
         Utils.DoNotifyRoles(NoCache: true);
 
+        var lp = PlayerControl.LocalPlayer;
+
         LateTask.New(() =>
         {
             switch (Options.CurrentGameMode)
@@ -28,12 +30,12 @@ class SetUpRoleTextPatch
                 case CustomGameMode.SoloKombat:
                 {
                     var color = ColorUtility.TryParseHtmlString("#f55252", out var c) ? c : new(255, 255, 255, 255);
-                    CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
+                    CustomRoles role = lp.GetCustomRole();
                     __instance.YouAreText.color = color;
                     __instance.RoleText.text = Utils.GetRoleName(role);
                     __instance.RoleText.color = Utils.GetRoleColor(role);
                     __instance.RoleBlurbText.color = color;
-                    __instance.RoleBlurbText.text = PlayerControl.LocalPlayer.GetRoleInfo();
+                    __instance.RoleBlurbText.text = lp.GetRoleInfo();
                     break;
                 }
                 case CustomGameMode.FFA:
@@ -78,27 +80,36 @@ class SetUpRoleTextPatch
                 }
                 default:
                 {
-                    CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
+                    CustomRoles role = lp.GetCustomRole();
                     if (!role.IsVanilla())
                     {
                         __instance.YouAreText.color = Utils.GetRoleColor(role);
                         __instance.RoleText.text = Utils.GetRoleName(role);
                         __instance.RoleText.color = Utils.GetRoleColor(role);
                         __instance.RoleBlurbText.color = Utils.GetRoleColor(role);
-                        __instance.RoleBlurbText.text = "<size=50%>" + PlayerControl.LocalPlayer.GetRoleInfo() + "</size>";
+                        __instance.RoleBlurbText.text = "<size=50%>" + lp.GetRoleInfo() + "</size>";
                     }
 
-                    foreach (CustomRoles subRole in Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SubRoles)
+                    foreach (CustomRoles subRole in Main.PlayerStates[lp.PlayerId].SubRoles)
                     {
                         if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && subRole == CustomRoles.Lovers) continue;
                         __instance.RoleBlurbText.text += "\n<size=30%>" + Utils.ColorString(Utils.GetRoleColor(subRole), GetString($"{subRole}Info"));
                     }
 
-                    __instance.RoleText.text += Utils.GetSubRolesText(PlayerControl.LocalPlayer.PlayerId, false, true);
+                    __instance.RoleText.text += Utils.GetSubRolesText(lp.PlayerId, false, true);
                     break;
                 }
             }
-        }, 0.01f, "Override Role Text");
+        }, 0.0001f, "Override Role Text");
+
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            LateTask.New(() =>
+            {
+                if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || lp == null) return;
+                lp.SetName(Main.AllPlayerNames[lp.PlayerId]);
+            }, 1f, "Reset Name For Modded Client");
+        }
     }
 }
 
@@ -107,32 +118,30 @@ class CoBeginPatch
 {
     public static void Prefix()
     {
-        var logger = Logger.Handler("Info");
-        logger.Info("------------Display Names------------");
+        var sb = new System.Text.StringBuilder();
+        sb.Append("------------Display Names------------\n");
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
-            logger.Info($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc.name.PadRightV2(20)}:{pc.cosmetics.nameText.text} ({Palette.ColorNames[pc.Data.DefaultOutfit.ColorId].ToString().Replace("Color", string.Empty)})");
+            sb.Append($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc.name.PadRightV2(20)}:{pc.cosmetics.nameText.text} ({Palette.ColorNames[pc.Data.DefaultOutfit.ColorId].ToString().Replace("Color", string.Empty)})\n");
             pc.cosmetics.nameText.text = pc.name;
         }
 
-        logger.Info("------------Roles------------");
+        sb.Append("------------Roles------------\n");
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
-            logger.Info($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc.Data?.PlayerName?.PadRightV2(20)}:{pc.GetAllRoleName().RemoveHtmlTags().Replace("\n", " + ")}");
+            sb.Append($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc.Data?.PlayerName?.PadRightV2(20)}:{pc.GetAllRoleName().RemoveHtmlTags().Replace("\n", " + ")}\n");
         }
 
-        logger.Info("------------Platforms------------");
+        sb.Append("------------Platforms------------\n");
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
             try
             {
                 var text = pc.AmOwner ? "[*]" : "   ";
                 text += $"{pc.PlayerId,-2}:{pc.Data?.PlayerName?.PadRightV2(20)}:{pc.GetClient()?.PlatformData?.Platform.ToString().Replace("Standalone", string.Empty),-11}";
-                if (Main.PlayerVersion.TryGetValue(pc.PlayerId, out PlayerVersion pv))
-                    text += $":Mod({pv.forkId}/{pv.version}:{pv.tag})";
-                else
-                    text += ":Vanilla";
-                logger.Info(text);
+                if (Main.PlayerVersion.TryGetValue(pc.PlayerId, out PlayerVersion pv)) text += $":Mod({pv.forkId}/{pv.version}:{pv.tag})";
+                else text += ":Vanilla";
+                sb.Append(text + "\n");
             }
             catch (Exception ex)
             {
@@ -140,24 +149,29 @@ class CoBeginPatch
             }
         }
 
-        logger.Info("------------Vanilla Settings------------");
+        sb.Append("------------Vanilla Settings------------\n");
         var tmp = GameOptionsManager.Instance.CurrentGameOptions.ToHudString(GameData.Instance ? GameData.Instance.PlayerCount : 10).Split("\r\n").Skip(1);
-        foreach (var t in tmp) logger.Info(t);
-        logger.Info("------------Modded Settings------------");
+        foreach (var t in tmp) sb.Append(t + "\n");
+        sb.Append("------------Modded Settings------------\n");
         foreach (OptionItem o in OptionItem.AllOptions)
         {
             if (!o.IsHiddenOn(Options.CurrentGameMode) && (o.Parent?.GetBool() ?? !o.GetString().Equals("0%")))
-                logger.Info($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}");
+                sb.Append($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}\n");
         }
 
-        logger.Info("-------------Other Information-------------");
-        logger.Info($"Number of players: {Main.AllPlayerControls.Length}");
-        logger.Info($"Map: {Main.CurrentMap}");
+        sb.Append("-------------Other Information-------------\n");
+        sb.Append($"Number of players: {Main.AllPlayerControls.Length}\n");
+        sb.Append($"Map: {Main.CurrentMap}");
+
+        Logger.Info("\n" + sb, "GameInfo", multiLine: true);
+
         Main.AllPlayerControls.Do(x => Main.PlayerStates[x.PlayerId].InitTask(x));
         GameData.Instance.RecomputeTaskCounts();
         TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
 
-        Utils.NotifyRoles(ForceLoop: true);
+        RPC.RpcVersionCheck();
+
+        Utils.NotifyRoles(NoCache: true);
 
         GameStates.InGame = true;
     }
@@ -752,6 +766,7 @@ class IntroCutsceneDestroyPatch
                             var target = Main.AllAlivePlayerControls.Without(pc).RandomElement();
                             var outfit = pc.Data.DefaultOutfit;
                             pc.RpcShapeshift(target, false);
+                            Main.CheckShapeshift[pc.PlayerId] = false;
                             Utils.RpcChangeSkin(pc, outfit);
                             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, NoCache: true);
                         }
