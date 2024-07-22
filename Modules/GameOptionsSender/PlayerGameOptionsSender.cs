@@ -15,11 +15,11 @@ using Mathf = UnityEngine.Mathf;
 
 namespace EHR.Modules;
 
-public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
+public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
 {
-    public PlayerControl player = player;
+    private PlayerControl player = player;
 
-    public virtual IGameOptions BasedGameOptions =>
+    private static IGameOptions BasedGameOptions =>
         Main.RealOptionsData.Restore(new NormalGameOptionsV08(new UnityLogger().Cast<ILogger>()).Cast<IGameOptions>());
 
     protected override bool IsDirty { get; set; }
@@ -88,7 +88,7 @@ public class PlayerGameOptionsSender(PlayerControl player) : GameOptionsSender
         }
     }
 
-    public void SetDirty() => IsDirty = true;
+    private void SetDirty() => IsDirty = true;
 
     protected override void SendGameOptions()
     {

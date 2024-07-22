@@ -710,7 +710,7 @@ internal static class ChatCommands
     private static void SayCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         if (args.Length > 1)
-            Utils.SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString("MessageFromTheHost")}</color>");
+            Utils.SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString(player.IsHost() ? "MessageFromTheHost" : "SayTitle")}</color>");
     }
 
     private static void DeathCommand(ChatController __instance, PlayerControl player, string text, string[] args)

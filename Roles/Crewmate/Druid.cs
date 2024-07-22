@@ -130,11 +130,11 @@ namespace EHR.Crewmate
 
             if (isPet)
             {
-                (Vector2 LOCATION, string ROOM_NAME) = pc.GetPositionInfo();
-                Triggers.TryAdd(LOCATION, ROOM_NAME);
-                SendRPCAddTrigger(true, pc.PlayerId, LOCATION, ROOM_NAME);
-                _ = new PlayerDetector(LOCATION, [pc.PlayerId], out int id);
-                TriggerIds.TryAdd(LOCATION, id);
+                (Vector2 location, string roomName) = pc.GetPositionInfo();
+                Triggers.TryAdd(location, roomName);
+                SendRPCAddTrigger(true, pc.PlayerId, location, roomName);
+                _ = new PlayerDetector(location, [pc.PlayerId], out int id);
+                TriggerIds.TryAdd(location, id);
             }
             else
             {
@@ -167,11 +167,11 @@ namespace EHR.Crewmate
             {
                 var id = pc.PlayerId;
                 TriggerDelay = 0;
-                (Vector2 LOCATION, string ROOM_NAME) = pc.GetPositionInfo();
-                Triggers.TryAdd(LOCATION, ROOM_NAME);
-                SendRPCAddTrigger(true, id, LOCATION, ROOM_NAME);
-                _ = new PlayerDetector(LOCATION, [pc.PlayerId], out int oid);
-                TriggerIds.TryAdd(LOCATION, oid);
+                (Vector2 location, string roomName) = pc.GetPositionInfo();
+                Triggers.TryAdd(location, roomName);
+                SendRPCAddTrigger(true, id, location, roomName);
+                _ = new PlayerDetector(location, [pc.PlayerId], out int oid);
+                TriggerIds.TryAdd(location, oid);
                 return;
             }
 

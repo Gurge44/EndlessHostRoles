@@ -172,7 +172,7 @@ public class ParityCop : RoleBase
                         return true;
                     }
 
-                    if (((target1.Is(Team.Impostor) || target1.GetCustomSubRoles().Any(role => role.IsImpostorTeamV3())) && (target2.Is(Team.Impostor) || target2.GetCustomSubRoles().Any(role => role.IsImpostorTeamV3()))) ||
+                    if (((target1.Is(Team.Impostor) || target1.GetCustomSubRoles().Any(role => role.IsImpostorTeamV2())) && (target2.Is(Team.Impostor) || target2.GetCustomSubRoles().Any(role => role.IsImpostorTeamV2()))) ||
                         ((target1.Is(Team.Neutral) || target1.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2())) && (target2.Is(Team.Neutral) || target2.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2()))) ||
                         (target1.Is(Team.Crewmate) && (target1.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || (target1.GetCustomSubRoles().Count == 0)) && target2.Is(Team.Crewmate) && (target2.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || target2.GetCustomSubRoles().Count == 0)))
                     {
@@ -215,11 +215,11 @@ public class ParityCop : RoleBase
                         if (ParityCheckRevealTargetTeam.GetBool() && pc.AllTasksCompleted())
                         {
                             string roleT1 = string.Empty, roleT2 = string.Empty;
-                            if (target1.Is(Team.Impostor) || target1.GetCustomSubRoles().Any(role => role.IsImpostorTeamV3())) roleT1 = "Impostor";
+                            if (target1.Is(Team.Impostor) || target1.GetCustomSubRoles().Any(role => role.IsImpostorTeamV2())) roleT1 = "Impostor";
                             else if (target1.Is(Team.Neutral) || target1.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2())) roleT1 = "Neutral";
                             else if (target1.Is(Team.Crewmate) && (target1.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || (target1.GetCustomSubRoles().Count == 0)))
 
-                                if (target2.Is(Team.Impostor) || target2.GetCustomSubRoles().Any(role => role.IsImpostorTeamV3())) roleT2 = "Impostor";
+                                if (target2.Is(Team.Impostor) || target2.GetCustomSubRoles().Any(role => role.IsImpostorTeamV2())) roleT2 = "Impostor";
                                 else if (target2.Is(Team.Neutral) || target2.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2())) roleT2 = "Neutral";
                                 else if (target2.Is(Team.Crewmate) && (target2.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || target2.GetCustomSubRoles().Count == 0)) roleT2 = "Crewmate";
 

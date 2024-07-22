@@ -930,14 +930,14 @@ internal static class CustomRolesHelper
 
     public static Team GetTeam(this CustomRoles role)
     {
-        if (role.IsImpostorTeamV3()) return Team.Impostor;
+        if (role.IsImpostorTeamV2()) return Team.Impostor;
         if (role.IsNeutralTeamV2()) return Team.Neutral;
         return role.IsCrewmateTeamV2() ? Team.Crewmate : Team.None;
     }
 
     public static bool Is(this CustomRoles role, Team team) => team switch
     {
-        Team.Impostor => role.IsImpostorTeamV3(),
+        Team.Impostor => role.IsImpostorTeamV2(),
         Team.Neutral => role.IsNeutralTeamV2(),
         Team.Crewmate => role.IsCrewmateTeamV2(),
         Team.None => role.GetCountTypes() is CountTypes.OutOfGame or CountTypes.None || role == CustomRoles.GM,
@@ -955,7 +955,7 @@ internal static class CustomRolesHelper
     public static bool IsImpostorTeam(this CustomRoles role) => role.IsImpostor() || role == CustomRoles.Madmate;
     public static bool IsCrewmate(this CustomRoles role) => !role.IsImpostor() && !role.IsNeutral() && !role.IsMadmate();
 
-    private static bool IsImpostorTeamV2(this CustomRoles role) => (role.IsImpostorTeam() && role != CustomRoles.Trickster && !role.IsConverted()) || role == CustomRoles.Rascal;
+    private static bool IsImpostorTeamV2(this CustomRoles role) => (role.IsImpostorTeam() && role != CustomRoles.Trickster && !role.IsConverted()) || role == CustomRoles.Rascal || role.IsMadmate();
     public static bool IsNeutralTeamV2(this CustomRoles role) => role.IsConverted() || (role.IsNeutral() && role != CustomRoles.Madmate);
     public static bool IsCrewmateTeamV2(this CustomRoles role) => (!role.IsImpostorTeamV2() && !role.IsNeutralTeamV2()) || (role == CustomRoles.Trickster && !role.IsConverted());
 
@@ -974,7 +974,6 @@ internal static class CustomRolesHelper
         ((role is CustomRoles.Doctor) && Options.DoctorVisibleToEveryone.GetBool()) ||
         ((role is CustomRoles.Bait) && Options.BaitNotification.GetBool() && ParityCop.ParityCheckBaitCountType.GetBool());
 
-    public static bool IsImpostorTeamV3(this CustomRoles role) => role.IsImpostor() || role.IsMadmate();
 
     public static bool IsVanilla(this CustomRoles role) => role is
         CustomRoles.Crewmate or
