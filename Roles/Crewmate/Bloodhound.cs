@@ -20,6 +20,7 @@ namespace EHR.Crewmate
         public static OptionItem NotifyKiller;
         public static OptionItem BloodhoundAbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
+        private byte BloodhoundId;
 
         private List<byte> BloodhoundTargets = [];
 
@@ -57,6 +58,7 @@ namespace EHR.Crewmate
             PlayerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             BloodhoundTargets = [];
+            BloodhoundId = playerId;
         }
 
         public override void OnReportDeadBody()
@@ -127,7 +129,7 @@ namespace EHR.Crewmate
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
         {
             if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
-            if (GameStates.IsMeeting) return string.Empty;
+            if (GameStates.IsMeeting || seer.PlayerId != BloodhoundId) return string.Empty;
             if (Main.PlayerStates[seer.PlayerId].Role is not Bloodhound bh) return string.Empty;
 
             return bh.BloodhoundTargets.Count > 0 ? bh.BloodhoundTargets.Select(targetId => TargetArrow.GetArrows(seer, targetId)).Aggregate(string.Empty, (current, arrow) => current + Utils.ColorString(seer.GetRoleColor(), arrow)) : Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));

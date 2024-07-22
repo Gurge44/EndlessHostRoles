@@ -60,6 +60,67 @@ static class ExtendedPlayerControl
         }
     }
 
+    public static void SetChatVisible(this PlayerControl player) // Credit: NikoCat233 | Unused for now
+    {
+        if (!GameStates.IsInGame || !AmongUsClient.Instance.AmHost || GameStates.IsMeeting) return;
+
+        if (player.AmOwner)
+        {
+            HudManager.Instance.Chat.SetVisible(true);
+            return;
+        }
+
+        if (player.IsModClient())
+        {
+            var modsend = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ShowChat, SendOption.Reliable, player.OwnerId);
+            modsend.WritePacked(player.OwnerId);
+            modsend.Write(true);
+            AmongUsClient.Instance.FinishRpcImmediately(modsend);
+            return;
+        }
+
+        var customNetId = AmongUsClient.Instance.NetIdCnt++;
+        var vanillasend = MessageWriter.Get(SendOption.Reliable);
+        vanillasend.StartMessage(6);
+        vanillasend.Write(AmongUsClient.Instance.GameId);
+        vanillasend.Write(player.OwnerId);
+
+        vanillasend.StartMessage((byte)GameDataTag.SpawnFlag);
+        vanillasend.WritePacked(1); // 1 Meeting Hud Spawn id
+        vanillasend.WritePacked(-2); // Owned by host
+        vanillasend.Write((byte)SpawnFlags.None);
+        vanillasend.WritePacked(1);
+        vanillasend.WritePacked(customNetId);
+
+        vanillasend.StartMessage(1);
+        vanillasend.WritePacked(0);
+        vanillasend.EndMessage();
+
+        vanillasend.EndMessage();
+        vanillasend.EndMessage();
+
+        vanillasend.StartMessage(6);
+        vanillasend.Write(AmongUsClient.Instance.GameId);
+        vanillasend.Write(player.OwnerId);
+        vanillasend.StartMessage((byte)GameDataTag.RpcFlag);
+        vanillasend.WritePacked(customNetId);
+        vanillasend.Write((byte)RpcCalls.CloseMeeting);
+        vanillasend.EndMessage();
+        vanillasend.EndMessage();
+
+        //vanillasend.StartMessage(6);
+        //vanillasend.Write(AmongUsClient.Instance.GameId);
+        //vanillasend.Write(player.OwnerId);
+        //vanillasend.StartMessage((byte)GameDataTag.DespawnFlag);
+        //vanillasend.WritePacked(customNetId);
+        //vanillasend.EndMessage();
+        //vanillasend.EndMessage();
+        // Despawn here dont show chat button somehow
+
+        AmongUsClient.Instance.SendOrDisconnect(vanillasend);
+        vanillasend.Recycle();
+    }
+
     public static void RpcExile(this PlayerControl player)
     {
         RPC.ExileAsync(player);
@@ -69,8 +130,7 @@ static class ExtendedPlayerControl
     {
         try
         {
-            var client = AmongUsClient.Instance.allClients.ToArray().FirstOrDefault(cd => cd.Character.PlayerId == player.PlayerId);
-            return client;
+            return AmongUsClient.Instance.allClients.ToArray().FirstOrDefault(cd => cd.Character.PlayerId == player.PlayerId);
         }
         catch
         {
@@ -250,7 +310,7 @@ static class ExtendedPlayerControl
         // Other Clients
         if (!killer.IsHost())
         {
-            var writer = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable);
+            var writer = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.Reliable, killer.GetClientId());
             writer.WriteNetObject(target);
             writer.Write((int)MurderResultFlags.FailedProtected);
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -350,7 +410,7 @@ static class ExtendedPlayerControl
         {
             if (Math.Abs(time - (-1f)) < 0.5f) player.AddKCDAsAbilityCD();
             else player.AddAbilityCD((int)Math.Round(time));
-            return;
+            if (player.GetCustomRole() is not CustomRoles.Necromancer and not CustomRoles.Deathknight) return;
         }
 
         if (!player.CanUseKillButton()) return;
@@ -986,7 +1046,9 @@ static class ExtendedPlayerControl
 
     public static Team GetTeam(this PlayerControl target)
     {
-        if (target.Is(CustomRoles.Bloodlust) || target.GetCustomSubRoles().Any(x => x.IsConverted())) return Team.Neutral;
+        var subRoles = target.GetCustomSubRoles();
+        if (target.Is(CustomRoles.Bloodlust) || subRoles.Any(x => x.IsConverted())) return Team.Neutral;
+        if (subRoles.Contains(CustomRoles.Madmate)) return Team.Impostor;
         var role = target.GetCustomRole();
         if (role.IsImpostorTeamV2()) return Team.Impostor;
         if (role.IsNeutralTeamV2()) return Team.Neutral;

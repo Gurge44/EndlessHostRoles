@@ -47,7 +47,7 @@ namespace EHR.Crewmate
             On = true;
             AdrenalineId = playerId;
             Timer = 0;
-            Utils.SendRPC(CustomRPC.SyncAdrenaline, playerId, Timer);
+            Utils.SendRPC(CustomRPC.SyncRoleData, playerId, Timer);
             DefaultSpeed = Main.AllPlayerSpeed[playerId];
             playerId.SetAbilityUseLimit(MaxSurvives.GetInt());
         }
@@ -58,7 +58,7 @@ namespace EHR.Crewmate
 
             target.RpcRemoveAbilityUse();
             Timer = Time.GetInt();
-            Utils.SendRPC(CustomRPC.SyncAdrenaline, target.PlayerId, Timer);
+            Utils.SendRPC(CustomRPC.SyncRoleData, target.PlayerId, Timer);
             Main.AllPlayerSpeed[target.PlayerId] += SpeedIncreaseDuringTimer.GetFloat();
             target.MarkDirtySettings();
             return false;
@@ -88,7 +88,7 @@ namespace EHR.Crewmate
                 pc.Suicide();
             }
 
-            Utils.SendRPC(CustomRPC.SyncAdrenaline, pc.PlayerId, Timer);
+            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, Timer);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 

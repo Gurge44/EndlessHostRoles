@@ -171,12 +171,18 @@ public class Sniper : RoleBase
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        return Snipe(shapeshifter, shapeshifting);
+        return Options.UseUnshiftTrigger.GetBool() ? Snipe(shapeshifter, !IsAim) : Snipe(shapeshifter, shapeshifting);
     }
 
     public override void OnPet(PlayerControl pc)
     {
-        Snipe(pc, !IsAim);
+        Snipe(pc, !IsAim, true);
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        Snipe(pc, !IsAim, true);
+        return false;
     }
 
     bool Snipe(PlayerControl sniper, bool shapeshifting, bool isPet = false)
@@ -257,21 +263,25 @@ public class Sniper : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        if (Options.UsePets.GetBool()) return;
-        try
+        if (Options.UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = bulletCount > 0 ? Options.DefaultKillCooldown : 255f;
+        else
         {
-            if (bulletCount > 0)
+            if (Options.UsePets.GetBool()) return;
+            try
             {
-                AURoleOptions.ShapeshifterDuration = ShapeshiftDuration.GetFloat();
+                if (bulletCount > 0)
+                {
+                    AURoleOptions.ShapeshifterDuration = ShapeshiftDuration.GetFloat();
+                }
+                else
+                {
+                    AURoleOptions.ShapeshifterDuration = 1f;
+                    AURoleOptions.ShapeshifterCooldown = 255f;
+                }
             }
-            else
+            catch
             {
-                AURoleOptions.ShapeshifterDuration = 1f;
-                AURoleOptions.ShapeshifterCooldown = 255f;
             }
-        }
-        catch
-        {
         }
     }
 

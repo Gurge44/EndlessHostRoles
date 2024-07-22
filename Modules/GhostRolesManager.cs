@@ -62,12 +62,14 @@ namespace EHR.Modules
             if (!first && pc.IsModClient()) return;
 
             CustomRoles role = ghostRole.Role;
-            var text = $"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{GetMessage(Translator.GetString($"{role}InfoLong").Split("\n")[1..].Join(delimiter: "\n"))}</size>";
+            var info = GetMessage(Translator.GetString($"{role}InfoLong").Split("\n")[1..].Join(delimiter: "\n"));
+            var text = $"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{info.Message}</size>";
+            var notifyText = $"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{info.Split}</size>";
             Utils.SendMessage(title: text, sendTo: pc.PlayerId, text: "\n");
-            pc.Notify(text, 5 * text.Count(x => x == '\n'));
+            pc.Notify(notifyText, 5 * text.Count(x => x == '\n'));
             return;
 
-            string GetMessage(string baseMessage)
+            (string Split, string Message) GetMessage(string baseMessage)
             {
                 var message = baseMessage;
                 for (int i = 50; i < message.Length; i += 50)
@@ -79,7 +81,9 @@ namespace EHR.Modules
                     }
                 }
 
-                return Utils.ColorString(Color.white, message.Replace(role.ToString(), role.ToColoredString()));
+                return (ApplyFormat(message), ApplyFormat(baseMessage));
+
+                string ApplyFormat(string m) => Utils.ColorString(Color.white, m.Replace(role.ToString(), role.ToColoredString()));
             }
         }
 

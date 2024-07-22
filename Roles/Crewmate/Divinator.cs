@@ -74,7 +74,7 @@ public class Divinator : RoleBase
         Logger.Info(string.Join(" ---- ", AllPlayerRoleList.Select(x => $"ID {x.Key}: {string.Join(", ", x.Value)}")), "Divinator Roles");
     }
 
-    public static bool OnVote(PlayerControl player, PlayerControl target)
+    public override bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null) return false;
         if (didVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;

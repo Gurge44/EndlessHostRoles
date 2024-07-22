@@ -28,9 +28,13 @@ namespace EHR.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (Options.UsePets.GetBool()) return;
-            AURoleOptions.ShapeshifterCooldown = Options.MinerSSCD.GetFloat();
-            AURoleOptions.ShapeshifterDuration = 1f;
+            if (Options.UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = Options.MinerSSCD.GetFloat();
+            else
+            {
+                if (Options.UsePets.GetBool()) return;
+                AURoleOptions.ShapeshifterCooldown = Options.MinerSSCD.GetFloat();
+                AURoleOptions.ShapeshifterDuration = 1f;
+            }
         }
 
         public override void SetButtonTexts(HudManager hud, byte id)
@@ -46,9 +50,15 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting) return true;
+            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
             TeleportToVent(shapeshifter);
 
+            return false;
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            TeleportToVent(pc);
             return false;
         }
 

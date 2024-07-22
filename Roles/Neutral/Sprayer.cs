@@ -80,9 +80,17 @@ namespace EHR.Neutral
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
-        public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive();
+        public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive() && !(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool());
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
+        {
+            opt.SetVision(HasImpostorVision.GetBool());
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+                AURoleOptions.PhantomCooldown = CD.GetInt();
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+                AURoleOptions.ShapeshifterCooldown = CD.GetInt();
+        }
 
         public override bool OnSabotage(PlayerControl pc)
         {
@@ -93,6 +101,19 @@ namespace EHR.Neutral
         public override void OnPet(PlayerControl pc)
         {
             PlaceTrap();
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            PlaceTrap();
+            return false;
+        }
+
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+            PlaceTrap();
+            return false;
         }
 
         void PlaceTrap()

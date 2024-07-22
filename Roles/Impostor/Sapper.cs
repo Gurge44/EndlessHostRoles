@@ -47,8 +47,12 @@ namespace EHR.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
-            AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
-            AURoleOptions.ShapeshifterDuration = 1f;
+            if (UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = ShapeshiftCooldown.GetFloat();
+            else
+            {
+                AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
+                AURoleOptions.ShapeshifterDuration = 1f;
+            }
         }
 
         public override void SetKillCooldown(byte id)
@@ -58,6 +62,7 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
             return PlaceBomb(shapeshifter);
         }
 
@@ -76,7 +81,12 @@ namespace EHR.Impostor
             PlaceBomb(pc);
         }
 
-        public static bool PlaceBomb(PlayerControl pc)
+        public override bool OnVanish(PlayerControl pc)
+        {
+            return PlaceBomb(pc);
+        }
+
+        static bool PlaceBomb(PlayerControl pc)
         {
             if (pc == null) return false;
             if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;

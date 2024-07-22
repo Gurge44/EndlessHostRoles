@@ -80,7 +80,7 @@ internal class Eraser : RoleBase
         return true;
     }
 
-    public static bool OnVote(PlayerControl player, PlayerControl target)
+    public override bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null || EraseMethod.GetInt() == 0) return false;
         if (didVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;

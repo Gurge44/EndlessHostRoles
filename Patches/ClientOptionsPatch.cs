@@ -30,7 +30,6 @@ public static class OptionsMenuBehaviourStartPatch
         if (Main.ResetOptions || !DebugModeManager.AmDebugger)
         {
             Main.ResetOptions = false;
-            Main.VersionCheat.Value = false;
             Main.GodMode.Value = false;
         }
 
@@ -148,23 +147,23 @@ public static class OptionsMenuBehaviourStartPatch
 
         if (LobbyMusic == null || LobbyMusic.ToggleButton == null)
         {
-            LobbyMusic = ClientOptionItem.Create("LobbyMusic", Main.LobbyMusic, __instance);
+            LobbyMusic = ClientOptionItem.Create("LobbyMusic", Main.LobbyMusic, __instance, LobbyMusicButtonToggle);
 
             void LobbyMusicButtonToggle()
             {
                 if (!Main.LobbyMusic.Value && GameStates.IsLobby)
                 {
                     SoundManager.Instance.StopAllSound();
+                    LateTask.New(() =>
+                    {
+                        Main.LobbyMusic.Value = true;
+                        LobbyMusic.UpdateToggle();
+                    }, 5f, log: false);
                 }
             }
         }
 
 #if DEBUG
-        if ((VersionCheat == null || VersionCheat.ToggleButton == null) && DebugModeManager.AmDebugger)
-        {
-            VersionCheat = ClientOptionItem.Create("VersionCheat", Main.VersionCheat, __instance);
-        }
-
         if ((GodMode == null || GodMode.ToggleButton == null) && DebugModeManager.AmDebugger)
         {
             GodMode = ClientOptionItem.Create("GodMode", Main.GodMode, __instance);
@@ -172,7 +171,6 @@ public static class OptionsMenuBehaviourStartPatch
 #endif
     }
 #if DEBUG
-    private static ClientOptionItem VersionCheat;
     private static ClientOptionItem GodMode;
 #endif
 }
@@ -183,5 +181,8 @@ public static class OptionsMenuBehaviourClosePatch
     public static void Postfix()
     {
         ClientOptionItem.CustomBackground?.gameObject.SetActive(false);
+
+        if (GameStates.InGame && GameStates.IsVoting && !DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening)
+            GuessManager.CreateIDLabels(MeetingHud.Instance);
     }
 }

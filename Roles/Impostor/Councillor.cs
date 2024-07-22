@@ -91,8 +91,8 @@ public class Councillor : RoleBase
                 var target = Utils.GetPlayerById(targetId);
                 if (target != null)
                 {
-                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} 审判了 {target.GetNameWithRole().RemoveHtmlTags()}", "Councillor");
-                    bool CouncillorSuicide;
+                    Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} murdered {target.GetNameWithRole().RemoveHtmlTags()}", "Councillor");
+                    bool CouncillorSuicide = true;
                     if (pc.GetAbilityUseLimit() < 1)
                     {
                         if (!isUI) Utils.SendMessage(GetString("CouncillorMurderMax"), pc.PlayerId);
@@ -107,27 +107,23 @@ public class Councillor : RoleBase
                         return true;
                     }
 
+                    bool NoSuicide = false;
+
                     if (pc.PlayerId == targetId)
                     {
                         if (!isUI) Utils.SendMessage(GetString("LaughToWhoMurderSelf"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromKPD")));
                         else pc.ShowPopUp(Utils.ColorString(Color.cyan, GetString("MessageFromKPD")) + "\n" + GetString("LaughToWhoMurderSelf"));
-                        CouncillorSuicide = true;
                     }
-                    else if (target.Is(CustomRoles.Madmate) && CanMurderMadmate.GetBool()) CouncillorSuicide = false;
-                    else if (target.Is(CustomRoles.Parasite) && CanMurderMadmate.GetBool()) CouncillorSuicide = false;
-                    else if (target.Is(CustomRoles.Refugee) && CanMurderMadmate.GetBool()) CouncillorSuicide = false;
-                    else if (target.Is(CustomRoles.Convict) && CanMurderMadmate.GetBool()) CouncillorSuicide = false;
-                    else if (target.Is(CustomRoles.Crewpostor) && CanMurderMadmate.GetBool()) CouncillorSuicide = false;
-                    else if (target.Is(CustomRoles.SuperStar)) CouncillorSuicide = true;
-                    else if (target.Is(CustomRoles.Pestilence)) CouncillorSuicide = true;
-                    else if (target.Is(CustomRoles.Marshall) && target.AllTasksCompleted()) CouncillorSuicide = true;
-                    else if (target.Is(CustomRoles.Snitch) && target.AllTasksCompleted()) CouncillorSuicide = true;
-                    else if (target.Is(CustomRoles.Guardian) && target.AllTasksCompleted()) CouncillorSuicide = true;
-                    else if (target.Is(CustomRoles.Merchant) && Merchant.IsBribedKiller(pc, target)) CouncillorSuicide = true;
+                    else if (target.IsMadmate() && CanMurderMadmate.GetBool()) CouncillorSuicide = false;
+                    else if (target.Is(CustomRoles.SuperStar)) NoSuicide = true;
+                    else if (target.Is(CustomRoles.Snitch) && target.AllTasksCompleted()) NoSuicide = true;
+                    else if (target.Is(CustomRoles.Guardian) && target.AllTasksCompleted()) NoSuicide = true;
+                    else if (target.Is(CustomRoles.Merchant) && Merchant.IsBribedKiller(pc, target)) NoSuicide = true;
                     else if (target.IsImpostor() && CanMurderImpostor.GetBool()) CouncillorSuicide = false;
                     else if (target.IsCrewmate()) CouncillorSuicide = false;
-                    else if (target.GetCustomRole().IsNeutral()) CouncillorSuicide = false;
-                    else CouncillorSuicide = true;
+                    else if (target.GetCustomRole().IsNeutral() && !target.Is(CustomRoles.Pestilence)) CouncillorSuicide = false;
+
+                    if (NoSuicide) return true;
 
                     var dp = CouncillorSuicide ? pc : target;
 

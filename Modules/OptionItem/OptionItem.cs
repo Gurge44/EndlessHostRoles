@@ -153,8 +153,8 @@ public abstract class OptionItem
 
     public virtual bool GetBool() => Name switch
     {
-        "Bargainer.LensOfTruth.DurationSwitch" => GetValue() == 3,
-        "BlackHoleDespawnMode" => GetValue() == 1,
+        "Bargainer.LensOfTruth.DurationSwitch" => GetValue() == 3 && (Parent == null || Parent.GetBool()),
+        "BlackHoleDespawnMode" => GetValue() == 1 && (Parent == null || Parent.GetBool()),
         _ => CurrentValue != 0 && (Parent == null || Parent.GetBool())
     };
 

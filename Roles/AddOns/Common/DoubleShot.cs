@@ -36,7 +36,7 @@ namespace EHR.AddOns.Common
                 return true;
             }
 
-            if (tries <= MaxTries.GetInt())
+            if (tries < MaxTries.GetInt())
             {
                 Tries[guesser.PlayerId] = ++tries;
                 LogAndNotify();
@@ -48,7 +48,7 @@ namespace EHR.AddOns.Common
 
             void LogAndNotify()
             {
-                Logger.Msg($"{guesser.PlayerId} : {Tries[guesser.PlayerId]}", "GuesserDoubleShotTries");
+                Logger.Msg($"{guesser.PlayerId} : {tries}", "GuesserDoubleShotTries");
 
                 if (!isUI) Utils.SendMessage(Translator.GetString("GuessDoubleShot"), guesser.PlayerId);
                 else guesser.ShowPopUp(Translator.GetString("GuessDoubleShot"));

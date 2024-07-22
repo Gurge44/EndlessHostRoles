@@ -655,6 +655,10 @@ public static class Options
 
     public static OptionItem UsePets;
     public static OptionItem PetToAssignToEveryone;
+    public static OptionItem UseUnshiftTrigger;
+    public static OptionItem UseUnshiftTriggerForNKs;
+    public static OptionItem UsePhantomBasis;
+    public static OptionItem UsePhantomBasisForNKs;
     public static OptionItem UseVoteCancelling;
     public static OptionItem EnableUpMode;
     public static OptionItem AutoKickStart;
@@ -1620,9 +1624,26 @@ public static class Options
             .SetHeader(true)
             .SetColor(new Color32(60, 0, 255, byte.MaxValue));
         PetToAssignToEveryone = new StringOptionItem(23854, "PetToAssign", PetToAssign, 24, TabGroup.TaskSettings)
-            .SetGameMode(CustomGameMode.Standard)
             .SetParent(UsePets)
             .SetColor(new Color32(60, 0, 255, byte.MaxValue));
+
+        UseUnshiftTrigger = new BooleanOptionItem(23871, "UseUnshiftTrigger", false, TabGroup.TaskSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true)
+            .SetColor(new Color32(255, 44, 44, byte.MaxValue));
+        UseUnshiftTriggerForNKs = new BooleanOptionItem(23872, "UseUnshiftTriggerForNKs", false, TabGroup.TaskSettings)
+            .SetParent(UseUnshiftTrigger)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetColor(new Color32(255, 44, 44, byte.MaxValue));
+
+        UsePhantomBasis = new BooleanOptionItem(23851, "UsePhantomBasis", false, TabGroup.TaskSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetHeader(true)
+            .SetColor(new Color32(255, 255, 44, byte.MaxValue));
+        UsePhantomBasisForNKs = new BooleanOptionItem(23864, "UsePhantomBasisForNKs", false, TabGroup.TaskSettings)
+            .SetGameMode(CustomGameMode.Standard)
+            .SetParent(UsePhantomBasis)
+            .SetColor(new Color32(255, 255, 44, byte.MaxValue));
 
         UseVoteCancelling = new BooleanOptionItem(23852, "UseVoteCancelling", false, TabGroup.TaskSettings)
             .SetGameMode(CustomGameMode.Standard)

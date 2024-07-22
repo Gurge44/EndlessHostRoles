@@ -184,7 +184,7 @@ namespace EHR.Crewmate
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (hud) return GetHUDText(seer);
-            if (seer == null || seer.IsModClient() || seer.PlayerId != target.PlayerId || !seer.Is(CustomRoles.Druid)) return string.Empty;
+            if (seer == null || seer.IsModClient() || seer.PlayerId != target.PlayerId || seer.PlayerId != DruidPC.PlayerId) return string.Empty;
 
             if (Triggers.Count == 0) return string.Empty;
 

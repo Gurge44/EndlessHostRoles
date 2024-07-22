@@ -27,6 +27,7 @@ namespace EHR.Impostor
 
         private static List<CustomRoles> Roles = [];
         public static bool On;
+        byte ChangelingId;
 
         public CustomRoles CurrentRole;
         public override bool IsEnable => On;
@@ -75,6 +76,7 @@ namespace EHR.Impostor
         public override void Add(byte playerId)
         {
             On = true;
+            ChangelingId = playerId;
             ChangedRole[playerId] = false;
             try
             {
@@ -130,6 +132,6 @@ namespace EHR.Impostor
             return false;
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl _, bool h = false, bool m = false) => seer.PlayerId != _.PlayerId || Main.PlayerStates[seer.PlayerId].Role is not Changeling { IsEnable: true } cl ? string.Empty : string.Format(Translator.GetString("ChangelingCurrentRole"), Utils.ColorString(Utils.GetRoleColor(cl.CurrentRole), Translator.GetString($"{cl.CurrentRole}")));
+        public override string GetSuffix(PlayerControl seer, PlayerControl _, bool h = false, bool m = false) => seer.PlayerId != _.PlayerId || ChangelingId != seer.PlayerId ? string.Empty : string.Format(Translator.GetString("ChangelingCurrentRole"), CurrentRole.ToColoredString());
     }
 }

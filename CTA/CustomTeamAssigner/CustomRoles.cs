@@ -125,6 +125,7 @@ public enum CustomRoles
     // Crewmates
 
     Addict,
+    Adrenaline,
     Adventurer,
     Aid,
     Alchemist,
@@ -137,6 +138,7 @@ public enum CustomRoles
     CameraMan,
     CyberStar, // Celebrity
     Chameleon,
+    Chef,
     Clairvoyant,
     Cleanser,
     Convener,
@@ -177,6 +179,7 @@ public enum CustomRoles
     Lighter,
     Lookout,
     Luckey,
+    Lyncher,
     Markseeker,
     Marshall,
     Mathematician,
@@ -196,12 +199,14 @@ public enum CustomRoles
     Nightmare,
     Observer,
     Oracle,
+    Oxyman,
     Paranoia,
     Perceiver,
     Philantropist,
     Psychic,
     Rabbit,
     Randomizer,
+    Rhapsode,
     Ricochet,
     Safeguard,
     Scout,
@@ -211,6 +216,7 @@ public enum CustomRoles
     Sheriff,
     Shiftguard,
     Snitch,
+    Socialite,
     Soothsayer,
     Spiritualist,
     Speedrunner,
@@ -240,6 +246,7 @@ public enum CustomRoles
     Arsonist,
     Bandit,
     Bargainer,
+    Beehive,
     BloodKnight,
     Bubble,
     Chemist,
@@ -411,11 +418,11 @@ public enum CustomRoles
     Minion, // Ghost role
     Mischievous,
     Necroview,
-    Ntr, // Neptune
     Nimble,
     Noisy,
     Oblivious,
     Onbound,
+    Spurt,
     Sleep,
     Specter, // Ghost role
     Physicist,

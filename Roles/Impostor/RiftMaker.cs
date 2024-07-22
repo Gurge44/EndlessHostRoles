@@ -50,10 +50,14 @@ namespace EHR.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool()) return;
-            AURoleOptions.ShapeshifterDuration = 1f;
-            AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
-            AURoleOptions.ShapeshifterLeaveSkin = true;
+            if (UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = ShapeshiftCooldown.GetFloat();
+            else
+            {
+                if (UsePets.GetBool()) return;
+                AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
+                AURoleOptions.ShapeshifterDuration = 1f;
+                AURoleOptions.ShapeshifterLeaveSkin = true;
+            }
         }
 
         public override void OnFixedUpdate(PlayerControl player)
@@ -119,14 +123,29 @@ namespace EHR.Impostor
         public override bool OnShapeshift(PlayerControl player, PlayerControl target, bool shapeshifting)
         {
             if (player == null) return false;
-            if (!shapeshifting) return true;
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
             if (Marks.Count >= 2) return false;
 
+            Mark(player);
+
+            return false;
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            if (pc == null) return false;
+            if (Marks.Count >= 2) return false;
+
+            Mark(pc);
+
+            return false;
+        }
+
+        private void Mark(PlayerControl player)
+        {
             Marks.Add(player.transform.position);
             if (Marks.Count == 2) LastTP = TimeStamp;
             player.Notify(GetString("MarkDone"));
-
-            return false;
         }
 
         public override string GetProgressText(byte playerId, bool comms) => $" <color=#777777>-</color> {(Marks.Count == 2 ? "<color=#00ff00>" : "<color=#777777>")}{Marks.Count}/2</color>";

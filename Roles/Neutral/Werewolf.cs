@@ -63,9 +63,17 @@ public class Werewolf : RoleBase
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanRampage || IsRampaging || pc.inVent;
     public override bool CanUseKillButton(PlayerControl pc) => IsRampaging;
+
+    public override void ApplyGameOptions(IGameOptions opt, byte id)
+    {
+        opt.SetVision(HasImpostorVision.GetBool());
+        if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+            AURoleOptions.PhantomCooldown = 1f;
+        if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+            AURoleOptions.ShapeshifterCooldown = 1f;
+    }
 
     void SendRPC()
     {
@@ -140,7 +148,29 @@ public class Werewolf : RoleBase
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         if (pc == null) return;
+        Rampage(pc);
+    }
 
+    public override void OnPet(PlayerControl pc)
+    {
+        Rampage(pc);
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        Rampage(pc);
+        return false;
+    }
+
+    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+    {
+        if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+        Rampage(shapeshifter);
+        return false;
+    }
+
+    private void Rampage(PlayerControl pc)
+    {
         if (!AmongUsClient.Instance.AmHost || IsRampaging) return;
         LateTask.New(() =>
         {

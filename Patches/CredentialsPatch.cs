@@ -31,6 +31,8 @@ internal class PingTrackerUpdatePatch
 
         Sb.Clear();
 
+        if (GameStates.IsLobby) Sb.Append("\r\n");
+
         Sb.Append(Main.CredentialsText);
 
         var ping = AmongUsClient.Instance.Ping;
@@ -44,6 +46,8 @@ internal class PingTrackerUpdatePatch
         };
         Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
         Sb.Append($"<color={color}>{GetString("PingText")}: {ping} ms</color>");
+        Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
+        Sb.Append(string.Format(GetString("Server"), Utils.GetRegionName()));
         if (GameStates.InGame) Sb.Append("\r\n.");
 
         // if (Options.NoGameEnd.GetBool()) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.red, GetString("NoGameEnd"))).Append("</size>");
@@ -278,5 +282,11 @@ class OptionsMenuBehaviourOpenPatch
         }
 
         return false;
+    }
+
+    public static void Postfix()
+    {
+        if (GameStates.InGame && GameStates.IsMeeting)
+            GuessManager.DestroyIDLabels();
     }
 }

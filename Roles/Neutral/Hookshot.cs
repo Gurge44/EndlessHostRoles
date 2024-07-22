@@ -48,8 +48,16 @@ namespace EHR.Neutral
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
-        public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive();
-        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+        public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive() && !(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool());
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
+        {
+            opt.SetVision(HasImpostorVision.GetBool());
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+                AURoleOptions.PhantomCooldown = 1f;
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+                AURoleOptions.ShapeshifterCooldown = 1f;
+        }
 
         void SendRPC()
         {
@@ -76,6 +84,19 @@ namespace EHR.Neutral
 
         public override bool OnSabotage(PlayerControl pc)
         {
+            ExecuteAction();
+            return false;
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            ExecuteAction();
+            return false;
+        }
+
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
             ExecuteAction();
             return false;
         }
@@ -126,6 +147,6 @@ namespace EHR.Neutral
             SendRPC();
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false) => Main.PlayerStates[seer.PlayerId].Role is Hookshot hs && seer.PlayerId == target.PlayerId ? $"<#00ffa5>{Translator.GetString("Mode")}:</color> <#ffffff>{(hs.ToTargetTP ? Translator.GetString("HookshotTpToTarget") : Translator.GetString("HookshotPullTarget"))}</color>" : string.Empty;
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false) => seer.PlayerId == target.PlayerId && seer.PlayerId == HookshotId ? $"<#00ffa5>{Translator.GetString("Mode")}:</color> <#ffffff>{(ToTargetTP ? Translator.GetString("HookshotTpToTarget") : Translator.GetString("HookshotPullTarget"))}</color>" : string.Empty;
     }
 }

@@ -32,7 +32,7 @@ public static class GameStartManagerUpdatePatch
 
 public class GameStartManagerPatch
 {
-    public static float Timer { get; private set; } = 600f;
+    public static float Timer { get; set; } = 600f;
 
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Start))]
     public class GameStartManagerStartPatch
@@ -48,7 +48,6 @@ public class GameStartManagerPatch
 
                 var temp = __instance.PlayerCounter;
                 GameCountdown = Object.Instantiate(temp, __instance.StartButton.transform);
-                GameCountdown.transform.localPosition = new(GameCountdown.transform.localPosition.x + 1f, GameCountdown.transform.localPosition.y, GameCountdown.transform.localPosition.z);
                 GameCountdown.text = string.Empty;
 
                 if (AmongUsClient.Instance.AmHost)
@@ -269,7 +268,7 @@ public class GameStartManagerPatch
                 }
                 else
                 {
-                    if (MatchVersions(0, true) || Main.VersionCheat.Value)
+                    if (MatchVersions(0, true))
                         ExitTimer = 0;
                     else
                     {
@@ -291,15 +290,27 @@ public class GameStartManagerPatch
                 Timer = Mathf.Max(0f, Timer -= Time.deltaTime);
                 int minutes = (int)Timer / 60;
                 int seconds = (int)Timer % 60;
-                string suffix = $" ({minutes:00}:{seconds:00})";
+                string suffix = $"{minutes:00}:{seconds:00}";
                 if (Timer <= 60) suffix = Utils.ColorString(Color.red, suffix);
 
                 if (Mathf.Approximately(Timer, 60f) && AmongUsClient.Instance.AmHost)
                     PlayerControl.LocalPlayer.ShowPopUp(GetString("Warning.OneMinuteLeft"));
 
-                GameStartManagerStartPatch.GameCountdown.text = suffix;
-                GameStartManagerStartPatch.GameCountdown.fontSize = 3f;
-                GameStartManagerStartPatch.GameCountdown.autoSizeTextContainer = false;
+                TextMeshPro tmp = GameStartManagerStartPatch.GameCountdown;
+
+                if (tmp.text == string.Empty)
+                {
+                    tmp.name = "LobbyTimer";
+                    tmp.fontSize = tmp.fontSizeMin = tmp.fontSizeMax = 3f;
+                    tmp.autoSizeTextContainer = true;
+                    tmp.alignment = TextAlignmentOptions.Center;
+                    tmp.outlineColor = Color.black;
+                    tmp.outlineWidth = 0.4f;
+                    tmp.transform.localPosition += new Vector3(-0.8f, -0.42f, 0f);
+                    tmp.transform.localScale = new(0.5f, 0.5f, 1f);
+                }
+
+                tmp.text = suffix;
             }
             catch (NullReferenceException)
             {
@@ -428,6 +439,8 @@ class ResetStartStatePatch
 {
     public static void Prefix(GameStartManager __instance)
     {
+        SoundManager.Instance.StopSound(__instance.gameStartSound);
+
         if (__instance.startState == GameStartManager.StartingStates.Countdown)
         {
             Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;

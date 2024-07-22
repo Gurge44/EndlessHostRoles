@@ -15,10 +15,10 @@ namespace EHR.Crewmate
         private static OptionItem ShieldDuration;
         private static OptionItem SpeedDuration;
         private static OptionItem IncreasedSpeed;
+
         private Mode CurrentMode;
         private long LastUpdate;
         private bool Shielded;
-
         private PlayerControl TelekineticPC;
         private int Timer;
         public override bool IsEnable => On;
@@ -171,7 +171,7 @@ namespace EHR.Crewmate
             SendRPC();
         }
 
-        void SendRPC() => Utils.SendRPC(CustomRPC.SyncTelekinetic, TelekineticPC.PlayerId, Timer, (int)CurrentMode);
+        void SendRPC() => Utils.SendRPC(CustomRPC.SyncRoleData, TelekineticPC.PlayerId, Timer, (int)CurrentMode);
 
         public void ReceiveRPC(MessageReader reader)
         {

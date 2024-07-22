@@ -45,8 +45,12 @@ namespace EHR.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
-            AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
-            AURoleOptions.ShapeshifterDuration = 1f;
+            if (UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = ShapeshiftCooldown.GetFloat();
+            else
+            {
+                AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
+                AURoleOptions.ShapeshifterDuration = 1f;
+            }
         }
 
         public override void OnPet(PlayerControl pc)
@@ -57,7 +61,12 @@ namespace EHR.Impostor
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
             TwistPlayers(shapeshifter, shapeshifting);
+            return false;
+        }
 
+        public override bool OnVanish(PlayerControl pc)
+        {
+            TwistPlayers(pc, true);
             return false;
         }
 

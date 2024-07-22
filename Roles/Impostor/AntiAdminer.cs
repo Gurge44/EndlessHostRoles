@@ -25,6 +25,7 @@ internal class AntiAdminer : RoleBase
     public static bool IsDoorLogWatch;
     public static bool IsCameraWatch;
     public static List<byte> PlayersNearDevices = [];
+    byte AntiAdminerId;
 
     private int Count;
     private long ExtraAbilityStartTimeStamp;
@@ -62,6 +63,7 @@ internal class AntiAdminer : RoleBase
         playerIdList.Add(playerId);
         IsMonitor = Main.PlayerStates[playerId].MainRole == CustomRoles.Monitor;
         ExtraAbilityStartTimeStamp = 0;
+        AntiAdminerId = playerId;
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
@@ -304,7 +306,7 @@ internal class AntiAdminer : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl _, bool h = false, bool m = false)
     {
-        if (Main.PlayerStates[seer.PlayerId].Role is AntiAdminer self && seer.PlayerId == _.PlayerId)
+        if (Main.PlayerStates[seer.PlayerId].Role is AntiAdminer self && seer.PlayerId == _.PlayerId && self.AntiAdminerId == seer.PlayerId)
         {
             return self.ExtraAbilityStartTimeStamp > 0
                 ? $"<#ffffff>▩ {Delay.GetInt() - (Utils.TimeStamp - self.ExtraAbilityStartTimeStamp):N0}</color>"

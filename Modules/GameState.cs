@@ -60,7 +60,7 @@ public class PlayerState(byte playerId)
     public readonly PlayerControl Player = Utils.GetPlayerById(playerId, fast: false);
 
     private readonly byte PlayerId = playerId;
-    public CountTypes countTypes = CountTypes.OutOfGame;
+    public CountTypes countTypes = CountTypes.Crew;
     public PlainShipRoom LastRoom;
     public CustomRoles MainRole = CustomRoles.NotAssigned;
     public (DateTime TIMESTAMP, byte ID) RealKiller = (DateTime.MinValue, byte.MaxValue);
@@ -78,37 +78,21 @@ public class PlayerState(byte playerId)
     public bool IsSuicide => deathReason == DeathReason.Suicide;
     public TaskState TaskState => taskState;
 
-    public CustomRoles GetCustomRole()
-    {
-        var RoleInfo = Utils.GetPlayerInfoById(PlayerId);
-        return RoleInfo.Role == null
-            ? MainRole
-            : RoleInfo.Role.Role switch
-            {
-                RoleTypes.Crewmate => CustomRoles.Crewmate,
-                RoleTypes.Engineer => CustomRoles.Engineer,
-                RoleTypes.Scientist => CustomRoles.Scientist,
-                RoleTypes.GuardianAngel => CustomRoles.GuardianAngel,
-                RoleTypes.Impostor => CustomRoles.Impostor,
-                RoleTypes.Shapeshifter => CustomRoles.Shapeshifter,
-                _ => CustomRoles.Crewmate
-            };
-    }
-
     public void SetMainRole(CustomRoles role)
     {
-        countTypes = role switch
+        countTypes = role.GetCountTypes();
+
+        if (SubRoles.Contains(CustomRoles.Recruit))
         {
-            CustomRoles.DarkHide => !DarkHide.SnatchesWin.GetBool() ? CountTypes.DarkHide : CountTypes.Crew,
-            CustomRoles.Arsonist => Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Arsonist : CountTypes.Crew,
-            _ when SubRoles.Contains(CustomRoles.Recruit) => Jackal.SidekickCountMode.GetValue() switch
+            countTypes = Jackal.SidekickCountMode.GetValue() switch
             {
                 0 => CountTypes.Jackal,
                 1 => CountTypes.OutOfGame,
                 _ => role.GetCountTypes()
-            },
-            _ => role.GetCountTypes()
-        };
+            };
+        }
+
+        SubRoles.ForEach(SetAddonCountTypes);
 
         Role = role.GetRoleClass();
 
@@ -121,7 +105,7 @@ public class PlayerState(byte playerId)
 
         Role.Add(PlayerId);
 
-        Logger.Info($"ID {PlayerId} ({Utils.GetPlayerById(PlayerId)?.GetRealName()}) => {role}", "SetMainRole");
+        Logger.Info($"ID {PlayerId} ({Utils.GetPlayerById(PlayerId)?.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetMainRole");
 
         if (!AmongUsClient.Instance.AmHost) return;
 
@@ -155,6 +139,13 @@ public class PlayerState(byte playerId)
         if (!SubRoles.Contains(role))
             SubRoles.Add(role);
 
+        SetAddonCountTypes(role);
+
+        Logger.Info($" ID {PlayerId} ({Player?.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetSubRole");
+    }
+
+    private void SetAddonCountTypes(CustomRoles role)
+    {
         switch (role)
         {
             case CustomRoles.Bloodlust:
@@ -256,7 +247,7 @@ public class PlayerState(byte playerId)
     {
         SubRoles.Remove(role);
 
-        if (role is CustomRoles.Flashman or CustomRoles.Dynamo)
+        if (role is CustomRoles.Flashman or CustomRoles.Dynamo or CustomRoles.Spurt)
         {
             Main.AllPlayerSpeed[PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
             PlayerGameOptionsSender.SetDirty(PlayerId);
@@ -448,6 +439,21 @@ public static class GameStates
     public static bool IsVoting => IsMeeting && MeetingHud.Instance.state is MeetingHud.VoteStates.Voted or MeetingHud.VoteStates.NotVoted;
 
     public static bool IsCountDown => GameStartManager.InstanceExists && GameStartManager.Instance.startState == GameStartManager.StartingStates.Countdown;
+
+    public static bool IsVanillaServer
+    {
+        get
+        {
+            if (!IsOnlineGame) return false;
+
+            const string domain = "among.us";
+
+            // From Reactor.gg
+            return ServerManager.Instance.CurrentRegion?.TryCast<StaticHttpRegionInfo>() is { } regionInfo &&
+                   regionInfo.PingServer.EndsWith(domain, StringComparison.Ordinal) &&
+                   regionInfo.Servers.All(serverInfo => serverInfo.Ip.EndsWith(domain, StringComparison.Ordinal));
+        }
+    }
 
     /**********TOP ZOOM.cs***********/
     public static bool IsShip => ShipStatus.Instance != null;

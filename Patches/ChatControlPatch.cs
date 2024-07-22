@@ -210,7 +210,7 @@ public static class ChatManager
 
     public static void SendPreviousMessagesToAll(bool clear = false)
     {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return;
+        if (!AmongUsClient.Instance.AmHost) return;
         ChatUpdatePatch.DoBlockChat = true;
         string msg = Utils.EmptyMessage;
         var totalAlive = Main.AllAlivePlayerControls.Length;
@@ -246,6 +246,8 @@ public static class ChatManager
                 SendRPC(senderPlayer, senderMessage);
             }
         }
+
+        ChatUpdatePatch.SendLastMessages();
 
         ChatUpdatePatch.DoBlockChat = false;
     }

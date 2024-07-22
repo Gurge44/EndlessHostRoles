@@ -191,6 +191,8 @@ namespace EHR.Neutral
                     Costs[kvp.Key] = kvp.Value.Cost.GetInt();
                 }
             }
+
+            Costs[Item.None] = 0;
         }
 
         public override void Add(byte playerId)
@@ -207,9 +209,17 @@ namespace EHR.Neutral
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = ActiveItems.Any(x => x.Item == Item.EnergyDrink) ? ReducedKillCooldown.GetFloat() : KillCooldown.GetFloat();
-        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
         public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive();
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
+        {
+            opt.SetVision(HasImpostorVision.GetBool());
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+                AURoleOptions.PhantomCooldown = 1f;
+            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
+                AURoleOptions.ShapeshifterCooldown = 1f;
+        }
 
         void Update() => BargainerId.SetAbilityUseLimit(Money);
 
@@ -226,9 +236,7 @@ namespace EHR.Neutral
         {
             if (InShop)
             {
-                var list = OrderedItems.ToList();
-                SelectedItem = list[(list.IndexOf(SelectedItem) + 1) % list.Count];
-                Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 2, (int)SelectedItem);
+                CycleItem(pc);
                 return false;
             }
 
@@ -239,6 +247,31 @@ namespace EHR.Neutral
             }
 
             return true;
+        }
+
+        private void CycleItem(PlayerControl pc)
+        {
+            var list = OrderedItems.ToList();
+            SelectedItem = list[(list.IndexOf(SelectedItem) + 1) % list.Count];
+            Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 2, (int)SelectedItem);
+        }
+
+        public override void OnPet(PlayerControl pc)
+        {
+            CycleItem(pc);
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            CycleItem(pc);
+            return false;
+        }
+
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+            CycleItem(shapeshifter);
+            return false;
         }
 
         public override void AfterMeetingTasks()

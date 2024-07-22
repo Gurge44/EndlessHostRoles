@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
-using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes;
-using StringComparison = Il2CppSystem.StringComparison;
 
 namespace EHR;
 
@@ -26,13 +24,14 @@ public static class ServerAddManager
             regionInfos.Add((CreateHttp("45yun.cn", "小猫[成都]", 2267, false)));
             regionInfos.Add((CreateHttp("mau.kaifuxia.top", "新梦初[上海]", 25000, false)));
         }
+
         regionInfos.Add(CreateHttp("au-as.duikbo.at", "Modded Asia (MAS)", 443, true));
         regionInfos.Add(CreateHttp("www.aumods.us", "Modded NA (MNA)", 443, true));
         regionInfos.Add(CreateHttp("au-eu.duikbo.at", "Modded EU (MEU)", 443, true));
-        regionInfos.Add(CreateHttp("35.247.251.253", "Modded SA (MSA)", 22023, false));
+        // regionInfos.Add(CreateHttp("35.247.251.253", "Modded SA (MSA)", 22023, false));
         regionInfos.Where(x => !ServerManager.AvailableRegions.Contains(x)).Do(ServerManager.AddOrUpdateRegion);
-        
-        ServerManager.CurrentRegion = ServerManager.AvailableRegions.FirstOrDefault(x => x.Name.Contains("Europe", StringComparison.OrdinalIgnoreCase)) ?? ServerManager.AvailableRegions.FirstOrDefault() ?? regionInfos.First();
+
+        ServerManager.AvailableRegions = ServerManager.AvailableRegions.OrderByDescending(ServerManager.DefaultRegions.Contains).ToArray();
     }
 
     private static IRegionInfo CreateHttp(string ip, string name, ushort port, bool ishttps)
@@ -41,6 +40,12 @@ public static class ServerAddManager
         ServerInfo serverInfo = new(name, serverIp, port, false);
         ServerInfo[] ServerInfo = [serverInfo];
         return new StaticHttpRegionInfo(name, (StringNames)1003, ip, ServerInfo).CastFast<IRegionInfo>();
+    }
+
+    private static T CastFast<T>(this Il2CppObjectBase obj) where T : Il2CppObjectBase
+    {
+        if (obj is T casted) return casted;
+        return CastHelper<T>.Cast(obj.Pointer);
     }
 
     private static class CastHelper<T> where T : Il2CppObjectBase
@@ -55,11 +60,5 @@ public static class ServerAddManager
             var lambda = Expression.Lambda<Func<IntPtr, T>>(create, ptr);
             Cast = lambda.Compile();
         }
-    }
-
-    private static T CastFast<T>(this Il2CppObjectBase obj) where T : Il2CppObjectBase
-    {
-        if (obj is T casted) return casted;
-        return CastHelper<T>.Cast(obj.Pointer);
     }
 }

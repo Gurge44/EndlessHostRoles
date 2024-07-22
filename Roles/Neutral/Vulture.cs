@@ -36,6 +36,7 @@ public class Vulture : RoleBase
 
     private int BodyReportCount;
     private long LastReport;
+    byte VultureId;
 
     public override bool IsEnable => playerIdList.Count > 0;
 
@@ -80,6 +81,7 @@ public class Vulture : RoleBase
                 Utils.GetPlayerById(playerId).Notify(GetString("VultureCooldownUp"));
             }
         }, VultureReportCD.GetFloat() + 8f, "Vulture CD");
+        VultureId = playerId;
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
@@ -157,13 +159,15 @@ public class Vulture : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
     {
-        if (!seer.Is(CustomRoles.Vulture)) return string.Empty;
+        if (seer.PlayerId != VultureId) return string.Empty;
         if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
         return GameStates.IsMeeting ? string.Empty : Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
     }
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
+        if (!pc.IsAlive()) return;
+
         var playerId = pc.PlayerId;
         if (BodyReportCount >= NumberOfReportsToWin.GetInt() && GameStates.IsInTask)
         {

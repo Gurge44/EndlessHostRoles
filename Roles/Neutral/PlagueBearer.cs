@@ -138,6 +138,13 @@ public class Pestilence : RoleBase
         opt.SetVision(PlagueBearer.PestilenceHasImpostorVision.GetBool());
     }
 
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    {
+        if (base.OnCheckMurder(killer, target))
+            killer.Kill(target);
+        return false;
+    }
+
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
     {
         if (killer == null || target == null) return false;

@@ -169,6 +169,15 @@ public static class MushroomMixupSabotageSystemPatch
                 {
                     // Reset Ability Cooldown To Default For Alive Players
                     pc.RpcResetAbilityCooldown();
+
+                    // Redo Unshift Trigger due to mushroom mixup breaking it
+                    if (pc.GetCustomRole().SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool()))
+                    {
+                        var target = Main.AllAlivePlayerControls.Without(pc).RandomElement();
+                        var outfit = pc.Data.DefaultOutfit;
+                        pc.RpcShapeshift(target, false);
+                        Utils.RpcChangeSkin(pc, outfit);
+                    }
                 }
             }, 1.2f, "Reset Ability Cooldown Arter Mushroom Mixup");
 

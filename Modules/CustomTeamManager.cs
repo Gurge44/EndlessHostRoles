@@ -66,6 +66,7 @@ namespace EHR.Modules
 
         public static void InitializeCustomTeamPlayers()
         {
+            UpdateEnabledTeams();
             if (EnabledCustomTeams.Count == 0) return;
 
             CustomTeamPlayerIds = Main.PlayerStates
@@ -91,7 +92,7 @@ namespace EHR.Modules
 
         public static string GetSuffix(PlayerControl seer)
         {
-            if (seer == null || EnabledCustomTeams.Count == 0 || !IsSettingEnabledForPlayerTeam(seer.PlayerId, CTAOption.Arrows)) return string.Empty;
+            if (seer == null || EnabledCustomTeams.Count == 0 || Main.HasJustStarted || !IsSettingEnabledForPlayerTeam(seer.PlayerId, CTAOption.Arrows)) return string.Empty;
             return CustomTeamPlayerIds[GetCustomTeam(seer.PlayerId)].Aggregate(string.Empty, (s, id) => s + Utils.ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), TargetArrow.GetArrows(seer, id)));
         }
 
@@ -131,7 +132,16 @@ namespace EHR.Modules
             return false;
         }
 
-        public static CustomTeam GetCustomTeam(byte id) => EnabledCustomTeams.FirstOrDefault(x => x.TeamMembers.Contains(Main.PlayerStates[id].MainRole));
+        public static CustomTeam GetCustomTeam(byte id)
+        {
+            foreach (var team in EnabledCustomTeams)
+            {
+                if (team.TeamMembers.Contains(Main.PlayerStates[id].MainRole))
+                    return team;
+            }
+
+            return null;
+        }
 
         public static bool AreInSameCustomTeam(byte id1, byte id2)
         {

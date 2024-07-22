@@ -52,12 +52,17 @@ namespace EHR.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            AURoleOptions.ShapeshifterCooldown = BlackHolePlaceCooldown.GetInt();
-            AURoleOptions.ShapeshifterDuration = 1f;
+            if (Options.UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = BlackHolePlaceCooldown.GetInt();
+            else
+            {
+                AURoleOptions.ShapeshifterCooldown = BlackHolePlaceCooldown.GetInt();
+                AURoleOptions.ShapeshifterDuration = 1f;
+            }
         }
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
+            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
             CreateBlackHole(shapeshifter);
             return false;
         }
@@ -65,6 +70,12 @@ namespace EHR.Impostor
         public override void OnPet(PlayerControl pc)
         {
             CreateBlackHole(pc);
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            CreateBlackHole(pc);
+            return false;
         }
 
         private void CreateBlackHole(PlayerControl shapeshifter)

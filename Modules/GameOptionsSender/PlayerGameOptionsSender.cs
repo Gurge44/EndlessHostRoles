@@ -226,7 +226,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             if (role.IsDesyncRole() && role.IsCrewmate() && !CrewmateVanillaRoles.NoiseMakerImpostorAlert.GetBool()) AURoleOptions.NoisemakerImpostorAlert = true;
             else AURoleOptions.NoisemakerImpostorAlert = CrewmateVanillaRoles.NoiseMakerImpostorAlert.GetBool();
 
-            if (Shifter.WasShifter.Contains(player.PlayerId) && role.IsImpostor()) opt.SetVision(true);
+            // if (Shifter.WasShifter.Contains(player.PlayerId) && role.IsImpostor()) opt.SetVision(true);
 
             Main.PlayerStates[player.PlayerId].Role.ApplyGameOptions(opt, player.PlayerId);
 
@@ -258,6 +258,8 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     opt.SetBool(BoolOptionNames.AnonymousVotes, false);
                     break;
             }
+
+            Chef.ApplyGameOptionsForOthers(opt, player.PlayerId);
 
             if (Sprayer.LowerVisionList.Contains(player.PlayerId))
             {
@@ -410,6 +412,12 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 AURoleOptions.ShapeshifterCooldown = 300f;
                 AURoleOptions.ShapeshifterDuration = 1f;
             }
+
+            if (Options.UsePhantomBasis.GetBool() && role.SimpleAbilityTrigger())
+                AURoleOptions.PhantomDuration = 1f;
+
+            if (Options.UseUnshiftTrigger.GetBool() && role.SimpleAbilityTrigger())
+                AURoleOptions.ShapeshifterDuration = 0f;
 
             // ===================================================================================================================
 

@@ -69,11 +69,15 @@ namespace EHR.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool()) return;
             try
             {
-                AURoleOptions.ShapeshifterCooldown = IsCursed ? 1f : DefaultKillCooldown;
-                AURoleOptions.ShapeshifterDuration = 1f;
+                if (UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = IsCursed ? 1f : DefaultKillCooldown;
+                else
+                {
+                    if (UsePets.GetBool()) return;
+                    AURoleOptions.ShapeshifterCooldown = IsCursed ? 1f : DefaultKillCooldown;
+                    AURoleOptions.ShapeshifterDuration = 1f;
+                }
             }
             catch
             {
@@ -164,10 +168,16 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting) return true;
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
 
             Curse(shapeshifter);
 
+            return false;
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            Curse(pc);
             return false;
         }
 

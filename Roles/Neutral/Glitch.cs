@@ -286,7 +286,7 @@ public class Glitch : RoleBase
 
     public override string GetSuffix(PlayerControl player, PlayerControl _, bool hud = false, bool m = false)
     {
-        if (!hud || player == null || !player.IsAlive()) return string.Empty;
+        if (!hud || player == null || !player.IsAlive() || m) return string.Empty;
         if (Main.PlayerStates[player.PlayerId].Role is not Glitch gc) return string.Empty;
 
         var sb = new StringBuilder();

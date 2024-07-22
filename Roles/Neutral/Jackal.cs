@@ -19,6 +19,7 @@ public class Jackal : RoleBase
     public static OptionItem ResetKillCooldownWhenSbGetKilled;
     private static OptionItem ResetKillCooldownOn;
     private static OptionItem CanRecruitImpostors;
+    private static OptionItem CanRecruitMadmates;
     public static OptionItem SidekickCountMode;
     public static OptionItem SKCanKill;
     public static OptionItem KillCooldownSK;
@@ -54,26 +55,28 @@ public class Jackal : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
         CanRecruitImpostors = new BooleanOptionItem(Id + 10, "JackalCanRecruitImpostors", true, TabGroup.NeutralRoles)
             .SetParent(SKOpts);
-        JackalCanKillSidekick = new BooleanOptionItem(Id + 11, "JackalCanKillSidekick", false, TabGroup.NeutralRoles)
+        CanRecruitMadmates = new BooleanOptionItem(Id + 11, "JackalCanRecruitMadmates", true, TabGroup.NeutralRoles)
+            .SetParent(CanRecruitImpostors);
+        JackalCanKillSidekick = new BooleanOptionItem(Id + 12, "JackalCanKillSidekick", false, TabGroup.NeutralRoles)
             .SetParent(SKOpts);
-        SKCanKill = new BooleanOptionItem(Id + 12, "SKCanKill", true, TabGroup.NeutralRoles)
+        SKCanKill = new BooleanOptionItem(Id + 13, "SKCanKill", true, TabGroup.NeutralRoles)
             .SetParent(SKOpts);
-        KillCooldownSK = new FloatOptionItem(Id + 13, "KillCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.NeutralRoles)
+        KillCooldownSK = new FloatOptionItem(Id + 14, "KillCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.NeutralRoles)
             .SetParent(SKCanKill)
             .SetValueFormat(OptionFormat.Seconds);
-        SidekickCanKillJackal = new BooleanOptionItem(Id + 14, "SidekickCanKillJackal", false, TabGroup.NeutralRoles)
+        SidekickCanKillJackal = new BooleanOptionItem(Id + 15, "SidekickCanKillJackal", false, TabGroup.NeutralRoles)
             .SetParent(SKCanKill);
-        SidekickCanKillSidekick = new BooleanOptionItem(Id + 15, "SidekickCanKillSidekick", false, TabGroup.NeutralRoles)
+        SidekickCanKillSidekick = new BooleanOptionItem(Id + 16, "SidekickCanKillSidekick", false, TabGroup.NeutralRoles)
             .SetParent(SKCanKill);
-        CanVentSK = new BooleanOptionItem(Id + 16, "CanVent", true, TabGroup.NeutralRoles)
+        CanVentSK = new BooleanOptionItem(Id + 17, "CanVent", true, TabGroup.NeutralRoles)
             .SetParent(SKOpts);
-        CanSabotageSK = new BooleanOptionItem(Id + 17, "CanSabotage", true, TabGroup.NeutralRoles)
+        CanSabotageSK = new BooleanOptionItem(Id + 18, "CanSabotage", true, TabGroup.NeutralRoles)
             .SetParent(SKOpts);
-        SKPromotesToJackal = new BooleanOptionItem(Id + 18, "SKPromotesToJackal", true, TabGroup.NeutralRoles)
+        SKPromotesToJackal = new BooleanOptionItem(Id + 19, "SKPromotesToJackal", true, TabGroup.NeutralRoles)
             .SetParent(SKOpts);
-        PromotedSKCanRecruit = new BooleanOptionItem(Id + 19, "PromotedSKCanRecruit", true, TabGroup.NeutralRoles)
+        PromotedSKCanRecruit = new BooleanOptionItem(Id + 20, "PromotedSKCanRecruit", true, TabGroup.NeutralRoles)
             .SetParent(SKPromotesToJackal);
-        SidekickCountMode = new StringOptionItem(Id + 20, "SidekickCountMode", Options.SidekickCountMode, 0, TabGroup.NeutralRoles)
+        SidekickCountMode = new StringOptionItem(Id + 21, "SidekickCountMode", Options.SidekickCountMode, 0, TabGroup.NeutralRoles)
             .SetParent(SKOpts);
     }
 
@@ -139,7 +142,8 @@ public class Jackal : RoleBase
     {
         targetRoleType = pc.GetRoleTypes();
         needBasisChange = targetRoleType is not RoleTypes.Impostor and not RoleTypes.Shapeshifter;
-        if (!CanRecruitImpostors.GetBool() && pc.Is(Team.Impostor)) return false;
+        if (!CanRecruitImpostors.GetBool() && pc.Is(CustomRoleTypes.Impostor)) return false;
+        if (!CanRecruitMadmates.GetBool() && pc.IsMadmate()) return false;
         return pc != null && !pc.Is(CustomRoles.Sidekick) && !pc.Is(CustomRoles.Recruit) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Rascal) && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Contagious) && pc.GetCustomRole().IsAbleToBeSidekicked();
     }
 

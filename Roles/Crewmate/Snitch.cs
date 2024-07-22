@@ -28,6 +28,7 @@ public class Snitch : RoleBase
 
     private static readonly HashSet<byte> TargetList = [];
     private static readonly Dictionary<byte, Color> TargetColorlist = [];
+    byte SnitchId;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -56,6 +57,7 @@ public class Snitch : RoleBase
     public override void Add(byte playerId)
     {
         PlayerIdList.Add(playerId);
+        SnitchId = playerId;
 
         EnableTargetArrow = OptionEnableTargetArrow.GetBool();
         CanGetColoredArrow = OptionCanGetColoredArrow.GetBool();
@@ -146,7 +148,7 @@ public class Snitch : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
     {
         if (seer.Is(CustomRoles.Madmate)) return string.Empty;
-        if (!EnableTargetArrow || GameStates.IsMeeting) return string.Empty;
+        if (!EnableTargetArrow || GameStates.IsMeeting || seer.PlayerId != SnitchId) return string.Empty;
         if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
         var arrows = string.Empty;
         foreach (var targetId in TargetList)

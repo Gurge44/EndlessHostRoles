@@ -17,8 +17,6 @@ class SetUpRoleTextPatch
 
     public static void Postfix(IntroCutscene __instance)
     {
-        if (!GameStates.IsModHost) return;
-
         // After showing team for non-modded clients, update player names.
         IsInIntro = false;
         Utils.DoNotifyRoles(NoCache: true);
@@ -686,7 +684,7 @@ class IntroCutsceneDestroyPatch
                 CustomGameMode.HotPotato => HotPotatoManager.IsChatDuringGame,
                 _ => false
             };
-            if (chat) Utils.SetChatVisible();
+            if (chat) Utils.SetChatVisibleForAll();
 
             // LateTask.New(() => Main.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 
@@ -741,6 +739,24 @@ class IntroCutsceneDestroyPatch
                 }
 
                 LateTask.New(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
+            }
+
+            if (Options.UseUnshiftTrigger.GetBool())
+            {
+                LateTask.New(() =>
+                {
+                    foreach (var pc in Main.AllAlivePlayerControls)
+                    {
+                        if (pc.GetCustomRole().SimpleAbilityTrigger() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool()))
+                        {
+                            var target = Main.AllAlivePlayerControls.Without(pc).RandomElement();
+                            var outfit = pc.Data.DefaultOutfit;
+                            pc.RpcShapeshift(target, false);
+                            Utils.RpcChangeSkin(pc, outfit);
+                            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, NoCache: true);
+                        }
+                    }
+                }, 2f, "UnshiftTrigger SS");
             }
 
             if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))

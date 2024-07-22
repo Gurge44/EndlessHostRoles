@@ -102,9 +102,17 @@ public class Magician : RoleBase
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
-    public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive();
+    public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive() && !(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool());
+
+    public override void ApplyGameOptions(IGameOptions opt, byte id)
+    {
+        opt.SetVision(HasImpostorVision.GetBool());
+        if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+            AURoleOptions.PhantomCooldown = 1f;
+        if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+            AURoleOptions.ShapeshifterCooldown = 1f;
+    }
 
     public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
@@ -117,7 +125,7 @@ public class Magician : RoleBase
         sb.Append("\n\n");
         sb.AppendLine(ColorString(GetRoleColor(CustomRoles.Magician), $"Card name: <color=#ffffff>{GetString($"Magician-GetIdToName-{CardId}")}</color>"));
         sb.AppendLine(ColorString(GetRoleColor(CustomRoles.Magician), $"Description: <color=#ffffff>{GetString($"Magician-GetIdToDesc-{CardId}")}</color>"));
-        sb.AppendLine(ColorString(GetRoleColor(CustomRoles.Magician), $"Trigger by: <color=#ffffff>{(UsePets.GetBool() ? "Pet button" : "Sabotage")}</color>"));
+        sb.AppendLine(ColorString(GetRoleColor(CustomRoles.Magician), $"Trigger by: <color=#ffffff>{(UsePets.GetBool() ? "Pet button" : UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool() ? "Vanish button" : UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool() ? "Shapeshift button" : "Sabotage")}</color>"));
 
         killer.Notify(sb.ToString(), 15f);
     }
@@ -130,6 +138,20 @@ public class Magician : RoleBase
     public override bool OnSabotage(PlayerControl pc)
     {
         UseCard(pc);
+        return false;
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        UseCard(pc);
+        return false;
+    }
+
+    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+    {
+        if (shapeshifter == null) return false;
+        if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return false;
+        UseCard(shapeshifter);
         return false;
     }
 

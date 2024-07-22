@@ -1,5 +1,4 @@
-﻿using System;
-using AmongUs.GameOptions;
+﻿using System.Linq;
 using EHR.Modules;
 using HarmonyLib;
 using Hazel;
@@ -35,7 +34,7 @@ internal static class EAC
         {
             MessageReader sr = MessageReader.Get(reader);
             var rpc = (RpcCalls)callId;
-            switch (rpc)
+            /*switch (rpc)
             {
                 //case RpcCalls.SetName:
                 // string name = sr.ReadString();
@@ -173,7 +172,7 @@ internal static class EAC
                     HandleCheat(pc, "Directly Shapeshift");
                     Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] directly shapeshifted and has been rejected", "EAC");
                     return true;
-            }
+            }*/
 
             switch (callId)
             {
@@ -227,7 +226,7 @@ internal static class EAC
                     }
 
                     break;
-                case 7:
+                /*case 7:
                 case 8:
                     if (!GameStates.IsLobby)
                     {
@@ -304,7 +303,7 @@ internal static class EAC
                         return true;
                     }
 
-                    break;
+                    break;*/
             }
         }
         catch
@@ -313,6 +312,109 @@ internal static class EAC
 
         WarnHost(-1);
         return false;
+    }
+
+    public static bool PlayerPhysicsRpcCheck(PlayerPhysics __instance, byte callId, MessageReader reader) // Credit: NikoCat233
+    {
+        if (!AmongUsClient.Instance.AmHost) return false;
+
+        var rpcType = (RpcCalls)callId;
+        MessageReader subReader = MessageReader.Get(reader);
+
+        var player = __instance.myPlayer;
+
+        if (!player)
+        {
+            Logger.Warn("Received Physics RPC without a player", "EAC_PlayerPhysics");
+            return true;
+        }
+
+        if (GameStates.IsLobby && rpcType is not RpcCalls.Pet and not RpcCalls.CancelPet)
+        {
+            WarnHost();
+            Report(player, $"Physics {rpcType} in lobby (can be spoofed by others)");
+            HandleCheat(player, $"Physics {rpcType} in lobby (can be spoofed by others)");
+            Logger.Fatal($"【{player.GetClientId()}:{player.GetRealName()}】 attempted to {rpcType} in lobby.", "EAC_physics");
+            return true;
+        }
+
+        switch (rpcType)
+        {
+            case RpcCalls.EnterVent:
+            case RpcCalls.ExitVent:
+                int ventid = subReader.ReadPackedInt32();
+                if (!HasVent(ventid))
+                {
+                    if (AmongUsClient.Instance.AmHost)
+                    {
+                        WarnHost();
+                        Report(player, "Vent null vent (can be spoofed by others)");
+                        HandleCheat(player, "Vent null vent (can be spoofed by others)");
+                        Logger.Fatal($"【{player.GetClientId()}:{player.GetRealName()}】 attempted to enter an unexisting vent. {ventid}", "EAC_physics");
+                    }
+                    else
+                    {
+                        // Not sure whether host will send null vent to a player huh
+                        Logger.Warn($"【{player.GetClientId()}:{player.GetRealName()}】 attempted to enter an unexisting vent. {ventid}", "EAC_physics");
+                        if (rpcType is RpcCalls.ExitVent)
+                        {
+                            player.Visible = true;
+                            player.inVent = false;
+                            player.moveable = true;
+                            player.NetTransform.SetPaused(false);
+                        }
+                    }
+
+                    return true;
+                }
+
+                break;
+
+            case RpcCalls.BootFromVent:
+                // BootFromVent can only be sent by host
+                WarnHost();
+                Report(player, "Got boot from vent from clients, can be spoofed");
+                HandleCheat(player, "Got boot from vent from clients, can be spoofed");
+                Logger.Fatal($"【{player.GetClientId()}:{player.GetRealName()}】 sent boot from vent, can be spoofed.", "EAC_physics");
+                break;
+
+            case RpcCalls.ClimbLadder:
+                int ladderId = subReader.ReadPackedInt32();
+                if (!HasLadder(ladderId))
+                {
+                    if (AmongUsClient.Instance.AmHost)
+                    {
+                        WarnHost();
+                        Report(player, "climb null ladder (can be spoofed by others)");
+                        HandleCheat(player, "climb null ladder (can be spoofed by others)");
+                        Logger.Fatal($"【{player.GetClientId()}:{player.GetRealName()}】 attempted to climb an unexisting ladder.", "EAC_physics");
+                    }
+
+                    return true;
+                }
+
+                if (player.AmOwner)
+                {
+                    Logger.Fatal("Got climb ladder for myself, this is impossible", "EAC_physics");
+                    return true;
+                }
+
+                break;
+
+            case RpcCalls.Pet:
+                if (player.AmOwner)
+                {
+                    Logger.Fatal("Got pet pet for myself, this is impossible", "EAC_physics");
+                    return true;
+                }
+
+                break;
+        }
+
+        return false;
+
+        bool HasLadder(int ladderId) => ShipStatus.Instance.Ladders.Any(l => l.Id == ladderId);
+        bool HasVent(int ventId) => ShipStatus.Instance.AllVents.Any(v => v.Id == ventId);
     }
 
     private static void Report(PlayerControl pc, string reason)

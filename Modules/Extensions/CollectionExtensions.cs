@@ -43,6 +43,18 @@ namespace EHR
         }
 
         /// <summary>
+        /// Returns a random element from a collection
+        /// </summary>
+        /// <param name="collection">The collection</param>
+        /// <typeparam name="T">The type of the collection</typeparam>
+        /// <returns>A random element from the collection, or the default value of <typeparamref name="T"/> if the collection is empty</returns>
+        public static T RandomElement<T>(this IEnumerable<T> collection)
+        {
+            if (collection is IList<T> list) return list.RandomElement();
+            return collection.ToList().RandomElement();
+        }
+
+        /// <summary>
         /// Combines multiple collections into a single collection
         /// </summary>
         /// <param name="firstCollection">The collection to start with</param>
@@ -172,6 +184,45 @@ namespace EHR
         public static IEnumerable<T> Flatten<T>(this IEnumerable<IEnumerable<T>> collection)
         {
             return collection.SelectMany(x => x);
+        }
+
+        /// <summary>
+        /// Determines whether a collection contains any elements that satisfy a predicate and returns the first element that satisfies the predicate
+        /// </summary>
+        /// <param name="collection">The collection to search</param>
+        /// <param name="predicate">The predicate to check for each element</param>
+        /// <param name="element">The first element that satisfies the predicate, or the default value of <typeparamref name="T"/> if no elements satisfy the predicate</param>
+        /// <typeparam name="T">The type of the elements in the collection</typeparam>
+        /// <returns><c>true</c> if the collection contains any elements that satisfy the predicate, <c>false</c> otherwise</returns>
+        public static bool Find<T>(this IEnumerable<T> collection, Func<T, bool> predicate, out T element)
+        {
+            if (collection is List<T> list)
+            {
+                for (int i = 0; i < list.Count; i++)
+                {
+                    T item = list[i];
+                    if (predicate(item))
+                    {
+                        element = item;
+                        return true;
+                    }
+                }
+
+                element = default;
+                return false;
+            }
+
+            foreach (T item in collection)
+            {
+                if (predicate(item))
+                {
+                    element = item;
+                    return true;
+                }
+            }
+
+            element = default;
+            return false;
         }
 
         #region Without

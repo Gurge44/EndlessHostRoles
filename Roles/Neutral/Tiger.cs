@@ -15,6 +15,7 @@ namespace EHR.Neutral
         public static OptionItem CanVent;
 
         public static bool On;
+        private float CooldownTimer;
 
         private int Count;
 
@@ -44,6 +45,7 @@ namespace EHR.Neutral
         {
             On = true;
             EnrageTimer = float.NaN;
+            CooldownTimer = 0f;
         }
 
         public override void Init()
@@ -63,15 +65,15 @@ namespace EHR.Neutral
 
         public override bool CanUseSabotage(PlayerControl pc)
         {
-            return pc.IsAlive();
+            return pc.IsAlive() && !(Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool());
         }
 
         public override bool OnSabotage(PlayerControl pc)
         {
-            if (!pc.HasAbilityCD())
+            if (CooldownTimer <= 0f)
             {
                 StartEnraging();
-                pc.AddAbilityCD();
+                CooldownTimer = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
             }
 
             return false;
@@ -82,6 +84,30 @@ namespace EHR.Neutral
             StartEnraging();
         }
 
+        public override bool OnVanish(PlayerControl pc)
+        {
+            if (CooldownTimer <= 0f)
+            {
+                StartEnraging();
+                CooldownTimer = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
+            }
+
+            return false;
+        }
+
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
+
+            if (CooldownTimer <= 0f)
+            {
+                StartEnraging();
+                CooldownTimer = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
+            }
+
+            return false;
+        }
+
         void StartEnraging()
         {
             EnrageTimer = EnrageDuration.GetFloat();
@@ -89,6 +115,11 @@ namespace EHR.Neutral
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
+            if (CooldownTimer > 0f)
+            {
+                CooldownTimer -= Time.fixedDeltaTime;
+            }
+
             if (float.IsNaN(EnrageTimer)) return;
 
             EnrageTimer -= Time.fixedDeltaTime;

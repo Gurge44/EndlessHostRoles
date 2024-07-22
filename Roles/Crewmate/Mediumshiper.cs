@@ -65,7 +65,7 @@ public class Mediumshiper : RoleBase
         if (OnlyReceiveMsgFromCrew.GetBool() && !pc.IsCrewmate()) return false;
         if (pc.IsAlive()) return false;
         msg = msg.ToLower().Trim();
-        if (!CheckCommond(ref msg, "通灵|ms|mediumship|medium", false)) return false;
+        if (!CheckCommand(ref msg, "通灵|ms|mediumship|medium", false)) return false;
 
         bool ans;
         if (msg.Contains('n') || msg.Contains(GetString("No")) || msg.Contains('错') || msg.Contains("不是")) ans = false;
@@ -84,7 +84,7 @@ public class Mediumshiper : RoleBase
         return true;
     }
 
-    public static bool CheckCommond(ref string msg, string command, bool exact = true)
+    private static bool CheckCommand(ref string msg, string command, bool exact = true)
     {
         var comList = command.Split('|');
         foreach (string str in comList)

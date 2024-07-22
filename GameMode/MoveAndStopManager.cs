@@ -179,12 +179,17 @@ internal class MoveAndStopManager
     private static OptionItem MoveAndStop_MiddleCounterRedMax;
     private static OptionItem MoveAndStop_ExtraGreenTimeOnAirhip;
     private static OptionItem MoveAndStop_ExtraGreenTimeOnFungle;
+    private static OptionItem MoveAndStop_EnableTutorial;
+
+    public static readonly HashSet<string> HasPlayed = [];
 
     private static IRandom Random => IRandom.Instance;
 
     public static int RoundTime { get; set; }
 
-    private static int StartingGreenTime => (MapNames)Main.NormalOptions.MapId == MapNames.Airship ? 35 : 30;
+    public static bool HasJustStarted => MoveAndStop_GameTime.GetInt() - RoundTime < 30;
+
+    public static bool Tutorial => MoveAndStop_EnableTutorial.GetBool();
 
     private static int ExtraGreenTime => (MapNames)Main.NormalOptions.MapId switch
     {
@@ -199,6 +204,7 @@ internal class MoveAndStopManager
     private static int DefaultMaxValue => 30;
 
     public static string HUDText => string.Format(GetString("KBTimeRemain"), RoundTime.ToString());
+    private static int StartingGreenTime(PlayerControl pc) => (MapNames)Main.NormalOptions.MapId == MapNames.Airship ? Tutorial && !HasPlayed.Contains(pc.FriendCode) ? 60 : 40 : Tutorial && !HasPlayed.Contains(pc.FriendCode) ? 50 : 30;
 
     public static int RandomRedTime(char direction) => direction switch
     {
@@ -259,6 +265,10 @@ internal class MoveAndStopManager
         MoveAndStop_MiddleCounterRedMax = CreateSetting(68_213_013, "Middle", true, false);
         MoveAndStop_ExtraGreenTimeOnAirhip = CreateExtraTimeSetting(68_213_014, "Airship", 20);
         MoveAndStop_ExtraGreenTimeOnFungle = CreateExtraTimeSetting(68_213_015, "Fungle", 10);
+        MoveAndStop_EnableTutorial = new BooleanOptionItem(68_213_016, "MoveAndStop_EnableTutorial", true, TabGroup.GameSettings)
+            .SetGameMode(CustomGameMode.MoveAndStop)
+            .SetHeader(true)
+            .SetColor(new Color32(0, 255, 255, byte.MaxValue));
     }
 
     public static void Init()
@@ -278,9 +288,9 @@ internal class MoveAndStopManager
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
             AllPlayerTimers.TryAdd(pc.PlayerId, new(
-                new(StartingGreenTime, RandomRedTime('←'), now, '←', false),
-                new(StartingGreenTime, RandomRedTime('●'), now, '●', false),
-                new(StartingGreenTime, RandomRedTime('→'), now, '→', false),
+                new(StartingGreenTime(pc), RandomRedTime('←'), now, '←', false),
+                new(StartingGreenTime(pc), RandomRedTime('●'), now, '●', false),
+                new(StartingGreenTime(pc), RandomRedTime('→'), now, '→', false),
                 pc.Pos().x, pc.Pos().y));
 
             float limit;
@@ -314,7 +324,19 @@ internal class MoveAndStopManager
         }
     }
 
-    public static string GetSuffixText(PlayerControl pc) => !pc.IsAlive() ? string.Empty : AllPlayerTimers.TryGetValue(pc.PlayerId, out var timers) ? timers.ToString() : string.Empty;
+    public static string GetSuffixText(PlayerControl pc)
+    {
+        if (!pc.IsAlive() || !AllPlayerTimers.TryGetValue(pc.PlayerId, out var timers)) return string.Empty;
+
+        var text = timers.ToString();
+
+        if (HasJustStarted && Tutorial && !HasPlayed.Contains(pc.FriendCode))
+        {
+            text += $"\n\n{GetString("MoveAndStop_Tutorial")}";
+        }
+
+        return text;
+    }
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
     class FixedUpdatePatch

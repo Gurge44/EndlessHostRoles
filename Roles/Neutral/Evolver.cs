@@ -109,8 +109,8 @@ namespace EHR.Neutral
             ChooseTimer = 15;
 
             SendRPC();
-            Utils.SendRPC(CustomRPC.SyncEvolver, EvolverPC.PlayerId, 2, SelectedUpgradeIndex);
-            Utils.SendRPC(CustomRPC.SyncEvolver, EvolverPC.PlayerId, 3, ChooseTimer);
+            Utils.SendRPC(CustomRPC.SyncRoleData, EvolverPC.PlayerId, 2, SelectedUpgradeIndex);
+            Utils.SendRPC(CustomRPC.SyncRoleData, EvolverPC.PlayerId, 3, ChooseTimer);
         }
 
         IEnumerable<Upgrade> GetBannedUpgradeList()
@@ -132,7 +132,7 @@ namespace EHR.Neutral
             LastUpdate = Utils.TimeStamp;
 
             ChooseTimer--;
-            Utils.SendRPC(CustomRPC.SyncEvolver, EvolverPC.PlayerId, 3, ChooseTimer);
+            Utils.SendRPC(CustomRPC.SyncRoleData, EvolverPC.PlayerId, 3, ChooseTimer);
 
             if (ChooseTimer == 0) ApplySelectedUpgradeAndReset();
 
@@ -187,7 +187,7 @@ namespace EHR.Neutral
 
             Upgrades = [];
             SelectedUpgradeIndex = -1;
-            Utils.SendRPC(CustomRPC.SyncEvolver, EvolverPC.PlayerId, 2, SelectedUpgradeIndex);
+            Utils.SendRPC(CustomRPC.SyncRoleData, EvolverPC.PlayerId, 2, SelectedUpgradeIndex);
         }
 
         void EnsureStatLimits()
@@ -210,13 +210,13 @@ namespace EHR.Neutral
             SelectedUpgradeIndex = (SelectedUpgradeIndex + 1) % Upgrades.Count;
             ChooseTimer = 8;
 
-            Utils.SendRPC(CustomRPC.SyncEvolver, EvolverPC.PlayerId, 2, SelectedUpgradeIndex);
-            Utils.SendRPC(CustomRPC.SyncEvolver, EvolverPC.PlayerId, 3, ChooseTimer);
+            Utils.SendRPC(CustomRPC.SyncRoleData, EvolverPC.PlayerId, 2, SelectedUpgradeIndex);
+            Utils.SendRPC(CustomRPC.SyncRoleData, EvolverPC.PlayerId, 3, ChooseTimer);
         }
 
         void SendRPC()
         {
-            var w = Utils.CreateRPC(CustomRPC.SyncEvolver);
+            var w = Utils.CreateRPC(CustomRPC.SyncRoleData);
             w.Write(EvolverPC.PlayerId);
             w.Write(1);
             w.Write(Upgrades.Count);
@@ -245,7 +245,7 @@ namespace EHR.Neutral
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || (seer.IsModClient() && !isHUD) || isMeeting || ChooseTimer == 0 || Upgrades.Count == 0 || SelectedUpgradeIndex == -1) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != EvolverPC.PlayerId || (seer.IsModClient() && !isHUD) || isMeeting || ChooseTimer == 0 || Upgrades.Count == 0 || SelectedUpgradeIndex == -1) return string.Empty;
             return string.Format(Translator.GetString("EvolverSuffix"), ChooseTimer, Translator.GetString($"EvolverUpgrade.{Upgrades[SelectedUpgradeIndex]}"), string.Join(", ", Upgrades.ConvertAll(x => Translator.GetString($"EvolverUpgrade.{x}"))));
         }
 

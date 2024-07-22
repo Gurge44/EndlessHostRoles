@@ -45,25 +45,45 @@ public class Disperser : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
-        if (UsePets.GetBool()) return;
-        AURoleOptions.ShapeshifterCooldown = DisperserShapeshiftCooldown.GetFloat();
-        AURoleOptions.ShapeshifterDuration = DisperserShapeshiftDuration.GetFloat();
+        if (UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = DisperserShapeshiftCooldown.GetFloat();
+        else
+        {
+            if (UsePets.GetBool()) return;
+            AURoleOptions.ShapeshifterCooldown = DisperserShapeshiftCooldown.GetFloat();
+            AURoleOptions.ShapeshifterDuration = DisperserShapeshiftDuration.GetFloat();
+        }
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (shapeshifter == null || !shapeshifting) return false;
+        if (shapeshifter == null || (!shapeshifting && !UseUnshiftTrigger.GetBool())) return false;
         if (shapeshifter.GetAbilityUseLimit() < 1)
         {
             shapeshifter.SetKillCooldown(DisperserShapeshiftDuration.GetFloat() + 1f);
             return false;
         }
 
-        shapeshifter.RpcRemoveAbilityUse();
+        Disperse(shapeshifter);
+
+        return false;
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        if (pc == null || pc.GetAbilityUseLimit() < 1) return false;
+
+        Disperse(pc);
+
+        return false;
+    }
+
+    private static void Disperse(PlayerControl player)
+    {
+        player.RpcRemoveAbilityUse();
 
         foreach (var pc in PlayerControl.AllPlayerControls)
         {
-            if (shapeshifter.PlayerId == pc.PlayerId || pc.Data.IsDead || pc.onLadder || pc.inVent || GameStates.IsMeeting)
+            if (player.PlayerId == pc.PlayerId || pc.Data.IsDead || pc.onLadder || pc.inVent || GameStates.IsMeeting)
             {
                 if (!pc.Is(CustomRoles.Disperser))
                     pc.Notify(ColorString(GetRoleColor(CustomRoles.Disperser), string.Format(GetString("ErrorTeleport"), pc.GetRealName())));
@@ -75,8 +95,6 @@ public class Disperser : RoleBase
             pc.TPtoRndVent();
             pc.Notify(ColorString(GetRoleColor(CustomRoles.Disperser), string.Format(GetString("TeleportedInRndVentByDisperser"), pc.GetRealName())));
         }
-
-        return false;
     }
 
     public override void SetButtonTexts(HudManager __instance, byte id)

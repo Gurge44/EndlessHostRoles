@@ -173,7 +173,7 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl s, PlayerControl t, bool h = false, bool m = false)
         {
-            if (s.PlayerId != t.PlayerId || !IsEnable || (s.IsModClient() && !h)) return string.Empty;
+            if (s.PlayerId != t.PlayerId || !IsEnable || (s.IsModClient() && !h) || s.PlayerId != TornadoPC.PlayerId) return string.Empty;
             return string.Join(h ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.ROOM_NAME)} {GetFormattedVectorText(x.Key.LOCATION)} ({(int)(TornadoDuration.GetInt() - (TimeStamp - x.Value) + 1)}s)"));
         }
     }

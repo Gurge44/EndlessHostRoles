@@ -149,6 +149,9 @@ public static class NameColorManager
             CustomRoles.Kamikaze when ((Kamikaze)Main.PlayerStates[seer.PlayerId].Role).MarkedPlayers.Contains(target.PlayerId) => Main.RoleColors[CustomRoles.Electric],
             CustomRoles.QuizMaster when ((QuizMaster)Main.PlayerStates[seer.PlayerId].Role).Target == target.PlayerId => "000000",
             CustomRoles.Augmenter when ((Augmenter)Main.PlayerStates[seer.PlayerId].Role).Target == target.PlayerId => "000000",
+            CustomRoles.Socialite when ((Socialite)Main.PlayerStates[seer.PlayerId].Role).GuestList.Contains(target.PlayerId) => "000000",
+            CustomRoles.Socialite when ((Socialite)Main.PlayerStates[seer.PlayerId].Role).MarkedPlayerId == target.PlayerId => Main.RoleColors[seerRole],
+            CustomRoles.Beehive when ((Beehive)Main.PlayerStates[seer.PlayerId].Role).StungPlayers.ContainsKey(target.PlayerId) => "000000",
             _ => color
         };
 
