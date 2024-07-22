@@ -82,8 +82,6 @@ namespace EHR.AddOns.Common
             bool moving = Vector2.Distance(pos, LastPos[player.PlayerId]) > 0f || player.MyPhysics.Animations.IsPlayingRunAnimation(); 
             LastPos[player.PlayerId] = pos;
 
-             
-
             float modulator = Modulator.GetFloat();
             float ChargeBy = Mathf.Clamp(modulator / 20 * 1.5f, 0.05f, 0.6f);
             float Decreaseby = Mathf.Clamp(modulator / 20 * 0.5f, 0.01f, 0.3f);
