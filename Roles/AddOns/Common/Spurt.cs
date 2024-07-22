@@ -79,7 +79,7 @@ namespace EHR.AddOns.Common
         public static void OnFixedUpdate(PlayerControl player)
         {
             var pos = player.Pos();
-            bool moving = Vector2.Distance(pos, LastPos[player.PlayerId]) > 0.1f || player.MyPhysics.Animations.IsPlayingRunAnimation(); 
+            bool moving = Vector2.Distance(pos, LastPos[player.PlayerId]) > 0f || player.MyPhysics.Animations.IsPlayingRunAnimation(); 
             LastPos[player.PlayerId] = pos;
 
              
