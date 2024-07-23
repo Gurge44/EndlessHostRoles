@@ -13,7 +13,6 @@ public abstract class GameOptionsSender
 {
     protected abstract bool IsDirty { get; set; }
 
-
     protected virtual void SendGameOptions()
     {
         var opt = BuildGameOptions();
@@ -56,7 +55,7 @@ public abstract class GameOptionsSender
         }
     }
 
-    protected virtual void SendOptionsArray(Il2CppStructArray<byte> optionArray, byte LogicOptionsIndex, int targetClientId)
+    protected static void SendOptionsArray(Il2CppStructArray<byte> optionArray, byte LogicOptionsIndex, int targetClientId)
     {
         try
         {
@@ -99,7 +98,7 @@ public abstract class GameOptionsSender
     public static System.Collections.IEnumerator SendAllGameOptionsAsync()
     {
         AllSenders.RemoveAll(s => s == null || !s.AmValid());
-        foreach (GameOptionsSender sender in AllSenders)
+        foreach (GameOptionsSender sender in AllSenders.ToArray())
         {
             if (sender.IsDirty)
             {
@@ -114,8 +113,10 @@ public abstract class GameOptionsSender
     public static void SendAllGameOptions()
     {
         AllSenders.RemoveAll(s => s == null || !s.AmValid());
-        foreach (GameOptionsSender sender in AllSenders)
+        // ReSharper disable once ForCanBeConvertedToForeach
+        for (int index = 0; index < AllSenders.Count; index++)
         {
+            GameOptionsSender sender = AllSenders[index];
             if (sender.IsDirty) sender.SendGameOptions();
             sender.IsDirty = false;
         }

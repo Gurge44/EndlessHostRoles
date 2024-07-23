@@ -93,11 +93,7 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!IsEnable) return;
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!IsEnable || !AmongUsClient.Instance.AmHost) return;
 
             // when you're darkening someone
             if (DarkenedPlayers != null)

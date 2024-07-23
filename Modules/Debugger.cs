@@ -90,11 +90,17 @@ class Logger
 
         switch (level)
         {
-            case LogLevel.Info:
+            case LogLevel.Info when !multiLine:
                 logger.LogInfo(log_text);
                 break;
-            case LogLevel.Warning:
+            case LogLevel.Info:
+                log_text.Split("\\n").Do(x => logger.LogInfo(x));
+                break;
+            case LogLevel.Warning when !multiLine:
                 logger.LogWarning(log_text);
+                break;
+            case LogLevel.Warning:
+                log_text.Split("\\n").Do(x => logger.LogWarning(x));
                 break;
             case LogLevel.Error when !multiLine:
                 logger.LogError(log_text);
@@ -102,14 +108,23 @@ class Logger
             case LogLevel.Error:
                 log_text.Split("\\n").Do(x => logger.LogError(x));
                 break;
-            case LogLevel.Fatal:
+            case LogLevel.Fatal when !multiLine:
                 logger.LogFatal(log_text);
                 break;
-            case LogLevel.Message:
+            case LogLevel.Fatal:
+                log_text.Split("\\n").Do(x => logger.LogFatal(x));
+                break;
+            case LogLevel.Message when !multiLine:
                 logger.LogMessage(log_text);
                 break;
-            case LogLevel.Debug:
+            case LogLevel.Message:
+                log_text.Split("\\n").Do(x => logger.LogMessage(x));
+                break;
+            case LogLevel.Debug when !multiLine:
                 logger.LogFatal(log_text);
+                break;
+            case LogLevel.Debug:
+                log_text.Split("\\n").Do(x => logger.LogFatal(x));
                 break;
             default:
                 logger.LogWarning("Error: Invalid LogLevel");
@@ -118,25 +133,25 @@ class Logger
         }
     }
 
-    public static void Test(object content, string tag = "======= Test =======", bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "") =>
-        SendToFile(content.ToString(), LogLevel.Debug, tag, escapeCRLF, lineNumber, fileName);
+    public static void Test(object content, string tag = "======= Test =======", bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "", bool multiLine = false) =>
+        SendToFile(content.ToString(), LogLevel.Debug, tag, escapeCRLF, lineNumber, fileName, multiLine);
 
-    public static void Info(string text, string tag, bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "") =>
-        SendToFile(text, LogLevel.Info, tag, escapeCRLF, lineNumber, fileName);
+    public static void Info(string text, string tag, bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "", bool multiLine = false) =>
+        SendToFile(text, LogLevel.Info, tag, escapeCRLF, lineNumber, fileName, multiLine);
 
-    public static void Warn(string text, string tag, bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "") =>
-        SendToFile(text, LogLevel.Warning, tag, escapeCRLF, lineNumber, fileName);
+    public static void Warn(string text, string tag, bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "", bool multiLine = false) =>
+        SendToFile(text, LogLevel.Warning, tag, escapeCRLF, lineNumber, fileName, multiLine);
 
     public static void Error(string text, string tag, bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "", bool multiLine = false) =>
         SendToFile(text, LogLevel.Error, tag, escapeCRLF, lineNumber, fileName, multiLine);
 
-    public static void Fatal(string text, string tag, bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "") =>
-        SendToFile(text, LogLevel.Fatal, tag, escapeCRLF, lineNumber, fileName);
+    public static void Fatal(string text, string tag, bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "", bool multiLine = false) =>
+        SendToFile(text, LogLevel.Fatal, tag, escapeCRLF, lineNumber, fileName, multiLine);
 
-    public static void Msg(string text, string tag, bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "") =>
-        SendToFile(text, LogLevel.Message, tag, escapeCRLF, lineNumber, fileName);
+    public static void Msg(string text, string tag, bool escapeCRLF = true, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "", bool multiLine = false) =>
+        SendToFile(text, LogLevel.Message, tag, escapeCRLF, lineNumber, fileName, multiLine);
 
-    public static void Exception(Exception ex, string tag, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "") =>
+    public static void Exception(Exception ex, string tag, [CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "", bool multiLine = false) =>
         SendToFile(ex.ToString(), LogLevel.Error, tag, false, lineNumber, fileName);
 
     public static void CurrentMethod([CallerLineNumber] int lineNumber = 0, [CallerFilePath] string fileName = "")

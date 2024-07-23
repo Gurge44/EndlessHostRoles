@@ -157,7 +157,6 @@ static class OnPlayerJoinedPatch
         }
 
         BanManager.CheckBanPlayer(client);
-        BanManager.CheckDenyNamePlayer(client);
         RPC.RpcVersionCheck();
 
         if (AmongUsClient.Instance.AmHost)
@@ -344,6 +343,13 @@ class InnerNetClientSpawnPatch
                 else TemplateManager.SendTemplate("welcome", client.Character.PlayerId, true);
             }, 3f, "Welcome Message");
 
+            LateTask.New(() =>
+            {
+                if (client.Character == null) return;
+                var sender = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, client.Character.OwnerId);
+                AmongUsClient.Instance.FinishRpcImmediately(sender);
+            }, 3f, "RPC Request Retry Version Check");
+
             if (GameStates.IsOnlineGame)
             {
                 LateTask.New(() =>
@@ -443,6 +449,8 @@ class PlayerControlCheckNamePatch
     public static void Postfix(PlayerControl __instance, ref string playerName)
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsLobby) return;
+
+        if (BanManager.CheckDenyNamePlayer(__instance, playerName)) return;
 
         if (Main.AllClientRealNames.TryAdd(__instance.OwnerId, playerName))
             RPC.SyncAllClientRealNames();

@@ -3,10 +3,10 @@ using AmongUs.GameOptions;
 
 namespace EHR.Modules;
 
-public class NormalGameOptionsSender : GameOptionsSender
+public sealed class NormalGameOptionsSender : GameOptionsSender
 {
     private LogicOptions _logicOptions;
-    public virtual IGameOptions BasedGameOptions => GameOptionsManager.Instance.CurrentGameOptions;
+    private static IGameOptions BasedGameOptions => GameOptionsManager.Instance.CurrentGameOptions;
 
     protected override bool IsDirty
     {
@@ -32,6 +32,5 @@ public class NormalGameOptionsSender : GameOptionsSender
         set { _logicOptions?.ClearDirtyFlag(); }
     }
 
-    protected override IGameOptions BuildGameOptions()
-        => BasedGameOptions;
+    protected override IGameOptions BuildGameOptions() => BasedGameOptions;
 }

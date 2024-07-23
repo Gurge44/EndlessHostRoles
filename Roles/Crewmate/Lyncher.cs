@@ -77,7 +77,9 @@ namespace EHR.Crewmate
             {
                 RevealLetter();
                 TasksCompleted = 0;
+                Utils.NotifyRoles(SpecifySeer: pc);
             }
+            else Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
             Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 1, TasksCompleted);
         }
@@ -111,7 +113,7 @@ namespace EHR.Crewmate
 
             return (seer.PlayerId == target.PlayerId) switch
             {
-                false when KnownCharacters.All(x => x.Value.Count > 0) && KnownCharacters.TryGetValue(target.PlayerId, out var chars) => string.Join(' ', chars),
+                false when KnownCharacters.TryGetValue(target.PlayerId, out var chars) && chars.Count > 0 => string.Join(' ', chars),
                 true when (!seer.IsModClient() || isHUD) => string.Format(Translator.GetString("Lyncher.Suffix"), TaskNum.GetInt() - TasksCompleted),
                 _ => string.Empty
             };

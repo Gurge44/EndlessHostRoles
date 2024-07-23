@@ -1542,7 +1542,7 @@ public static class Utils
 
     public static void CheckAndSpawnAdditionalRefugee(NetworkedPlayerInfo deadPlayer)
     {
-        if (Options.CurrentGameMode != CustomGameMode.Standard || deadPlayer == null || deadPlayer.Object.Is(CustomRoles.Refugee) || !Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() || Main.AllAlivePlayerControls.Length < Options.SpawnAdditionalRefugeeMinAlivePlayers.GetInt() || CustomRoles.Refugee.RoleExist(countDead: true) || Main.AllAlivePlayerControls == null || Main.AllAlivePlayerControls.Length == 0 || Main.AllAlivePlayerControls.Any(x => x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && !Options.SpawnAdditionalRefugeeWhenNKAlive.GetBool())))) return;
+        if (Options.CurrentGameMode != CustomGameMode.Standard || deadPlayer == null || deadPlayer.Object.Is(CustomRoles.Refugee) || Main.HasJustStarted || !GameStates.InGame || !Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() || Main.AllAlivePlayerControls.Length < Options.SpawnAdditionalRefugeeMinAlivePlayers.GetInt() || CustomRoles.Refugee.RoleExist(countDead: true) || Main.AllAlivePlayerControls == null || Main.AllAlivePlayerControls.Length == 0 || Main.AllAlivePlayerControls.Any(x => x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && !Options.SpawnAdditionalRefugeeWhenNKAlive.GetBool())))) return;
 
         PlayerControl[] ListToChooseFrom = Options.UsePets.GetBool() ? Main.AllAlivePlayerControls.Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate) && !x.Is(CustomRoles.Loyal)).ToArray() : Main.AllAlivePlayerControls.Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate) && x.GetCustomRole().GetRoleTypes() == RoleTypes.Impostor && !x.Is(CustomRoles.Loyal)).ToArray();
 
@@ -2461,6 +2461,7 @@ public static class Utils
                     var target = Main.AllAlivePlayerControls.Without(pc).RandomElement();
                     var outfit = pc.Data.DefaultOutfit;
                     pc.RpcShapeshift(target, false);
+                    Main.CheckShapeshift[pc.PlayerId] = false;
                     RpcChangeSkin(pc, outfit);
                 }
 

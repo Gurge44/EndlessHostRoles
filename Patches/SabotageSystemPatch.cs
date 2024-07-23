@@ -176,6 +176,7 @@ public static class MushroomMixupSabotageSystemPatch
                         var target = Main.AllAlivePlayerControls.Without(pc).RandomElement();
                         var outfit = pc.Data.DefaultOutfit;
                         pc.RpcShapeshift(target, false);
+                        Main.CheckShapeshift[pc.PlayerId] = false;
                         Utils.RpcChangeSkin(pc, outfit);
                     }
                 }

@@ -88,9 +88,9 @@ namespace EHR.Impostor
 
         public static void IsDead(PlayerControl target)
         {
-            if (!target.Data.IsDead || GameStates.IsMeeting) return;
+            if (!target.IsAlive() || GameStates.IsMeeting) return;
 
-            if (target.Is(CustomRoles.Camouflager) && target.Data.IsDead)
+            if (target.Is(CustomRoles.Camouflager))
             {
                 IsActive = false;
                 Camouflage.CheckCamouflage();

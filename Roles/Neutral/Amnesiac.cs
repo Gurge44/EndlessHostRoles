@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -17,12 +16,12 @@ public class Amnesiac : RoleBase
     private static OptionItem CanVent;
     public static OptionItem RememberMode;
 
-    public static readonly string[] AmnesiacIncompatibleNeutralMode =
+    public static readonly CustomRoles[] AmnesiacIncompatibleNeutralMode =
     [
-        "Role.Amnesiac", // 0
-        "Role.Pursuer", // 1
-        "Role.Follower", // 2
-        "Role.Maverick" // 3
+        CustomRoles.Amnesiac,
+        CustomRoles.Pursuer,
+        CustomRoles.Totocalcio,
+        CustomRoles.Maverick
     ];
 
     private static readonly string[] RememberModes =
@@ -43,7 +42,7 @@ public class Amnesiac : RoleBase
         RememberCooldown = new FloatOptionItem(Id + 10, "RememberCooldown", new(0f, 180f, 0.5f), 5f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac])
             .SetValueFormat(OptionFormat.Seconds);
-        IncompatibleNeutralMode = new StringOptionItem(Id + 12, "IncompatibleNeutralMode", AmnesiacIncompatibleNeutralMode, 0, TabGroup.NeutralRoles)
+        IncompatibleNeutralMode = new StringOptionItem(Id + 12, "IncompatibleNeutralMode", AmnesiacIncompatibleNeutralMode.Select(x => x.ToColoredString()).ToArray(), 0, TabGroup.NeutralRoles, noTranslation: true)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
         CanVent = new BooleanOptionItem(Id + 13, "CanVent", false, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
@@ -158,9 +157,8 @@ public class Amnesiac : RoleBase
                         }
                         else if (targetRole.IsNonNK())
                         {
-                            string roleString = AmnesiacIncompatibleNeutralMode[IncompatibleNeutralMode.GetValue()][6..];
-                            RememberedRole = (CustomRoles)Enum.Parse(typeof(CustomRoles), roleString);
-                            amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString($"Remembered{roleString}"));
+                            RememberedRole = AmnesiacIncompatibleNeutralMode[IncompatibleNeutralMode.GetValue()];
+                            amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString($"Remembered{RememberedRole}"));
                         }
 
                         break;

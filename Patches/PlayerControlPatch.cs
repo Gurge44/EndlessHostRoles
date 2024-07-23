@@ -729,12 +729,6 @@ class ShapeshiftPatch
 
         var shapeshifting = shapeshifter.PlayerId != target.PlayerId;
 
-        if (Main.CheckShapeshift.TryGetValue(shapeshifter.PlayerId, out var last) && last == shapeshifting)
-        {
-            // Don't know how you would get here but ok
-            return true;
-        }
-
         if (AmongUsClient.Instance.AmHost && shapeshifting && !Rhapsode.CheckAbilityUse(shapeshifter)) return false;
 
         Main.CheckShapeshift[shapeshifter.PlayerId] = shapeshifting;
@@ -806,6 +800,7 @@ class ShapeshiftPatch
             var rndTarget = Main.AllAlivePlayerControls.Without(shapeshifter).RandomElement();
             var outfit = shapeshifter.Data.DefaultOutfit;
             shapeshifter.RpcShapeshift(rndTarget, false);
+            Main.CheckShapeshift[shapeshifter.PlayerId] = false;
             RpcChangeSkin(shapeshifter, outfit);
             NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter, NoCache: true);
         }

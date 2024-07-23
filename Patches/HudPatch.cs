@@ -230,14 +230,20 @@ class HudManagerPatch
                         CustomGameMode.MoveAndStop when player.IsHost() => MoveAndStopManager.HUDText,
                         CustomGameMode.HotPotato when player.IsHost() => HotPotatoManager.GetSuffixText(player.PlayerId),
                         CustomGameMode.HideAndSeek when player.IsHost() => HnSManager.GetSuffixText(player, player, isHUD: true),
-                        CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + state.SubRoles switch
-                        {
-                            { } s when s.Contains(CustomRoles.Asthmatic) => Asthmatic.GetSuffixText(player.PlayerId),
-                            { } s when s.Contains(CustomRoles.Spurt) => Spurt.GetSuffix(player, true),
-                            _ => string.Empty
-                        },
+                        CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
                         _ => string.Empty
                     };
+
+                    string GetAddonSuffixes()
+                    {
+                        var suffixes = state.SubRoles.Select(subRole => subRole switch
+                        {
+                            CustomRoles.Asthmatic => Asthmatic.GetSuffixText(player.PlayerId),
+                            CustomRoles.Spurt => Spurt.GetSuffix(player, true),
+                            _ => string.Empty
+                        });
+                        return string.Join(string.Empty, suffixes);
+                    }
 
                     string CD_HUDText = !Options.UsePets.GetBool() || !Main.AbilityCD.TryGetValue(player.PlayerId, out var CD)
                         ? string.Empty
@@ -264,9 +270,12 @@ class HudManagerPatch
                         __instance.KillButton?.ToggleVisible(false);
                     }
 
-                    bool CanUseVent = (player.CanUseImpostorVentButton() || player.inVent) && GameStates.IsInTask;
+                    bool CanUseVent = (player.CanUseImpostorVentButton() || (player.inVent && player.GetRoleTypes() != RoleTypes.Engineer)) && GameStates.IsInTask;
                     __instance.ImpostorVentButton?.ToggleVisible(CanUseVent);
                     player.Data.Role.CanVent = CanUseVent;
+
+                    if (usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer)
+                        __instance.AbilityButton.SetEnabled();
                 }
                 else
                 {
@@ -441,7 +450,6 @@ class SetHudActivePatch
             case CustomRoles.Farseer:
             case CustomRoles.Crusader:
                 __instance.SabotageButton?.ToggleVisible(false);
-                __instance.AbilityButton?.ToggleVisible(false);
                 __instance.ImpostorVentButton?.ToggleVisible(false);
                 break;
 

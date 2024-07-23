@@ -537,6 +537,12 @@ internal static class ChatCommands
             return;
         }
 
+        if (!player.IsHost() && !Options.PlayerCanSetColor.GetBool())
+        {
+            Utils.SendMessage(GetString("DisableUseCommand"), player.PlayerId);
+            return;
+        }
+
         string subArgs = args.Length < 2 ? string.Empty : args[1];
         var color = Utils.MsgToColor(subArgs, true);
         if (color == byte.MaxValue)
@@ -712,7 +718,7 @@ internal static class ChatCommands
     private static void SayCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         if (args.Length > 1)
-            Utils.SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString("MessageFromTheHost")}</color>");
+            Utils.SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString(player.IsHost() ? "MessageFromTheHost" : "SayTitle")}</color>");
     }
 
     private static void DeathCommand(ChatController __instance, PlayerControl player, string text, string[] args)

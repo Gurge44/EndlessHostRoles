@@ -134,7 +134,7 @@ public class Romantic : RoleBase
         if (!HasPickedPartner)
         {
             PartnerId = target.PlayerId;
-            Partner = Utils.GetPlayerById(PartnerId);
+            Partner = target;
 
             SendRPC();
 

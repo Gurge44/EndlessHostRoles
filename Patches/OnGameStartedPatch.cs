@@ -350,7 +350,7 @@ internal class ChangeRoleSettings
         catch (Exception ex)
         {
             Utils.ErrorEnd("Change Role Setting Postfix");
-            Logger.Fatal(ex.ToString(), "Change Role Setting Postfix");
+            Utils.ThrowException(ex);
         }
     }
 }
@@ -462,7 +462,7 @@ internal class SelectRolesPatch
         catch (Exception e)
         {
             Utils.ErrorEnd("Select Role Prefix");
-            Logger.Fatal(e.Message, "Select Role Prefix");
+            Utils.ThrowException(e);
         }
 
         return;
@@ -877,7 +877,7 @@ internal class SelectRolesPatch
         catch (Exception ex)
         {
             Utils.ErrorEnd("Select Role Postfix");
-            Logger.Fatal(ex.ToString(), "Select Role Postfix");
+            Utils.ThrowException(ex);
         }
 
         return;

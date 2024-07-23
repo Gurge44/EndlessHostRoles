@@ -615,7 +615,7 @@ internal static class CustomRoleSelector
             if (!role.IsAdditionRole() || role.IsGhostRole()) continue;
             switch (role)
             {
-                case CustomRoles.Mare when Main.CurrentMap == MapNames.Fungle:
+                case CustomRoles.Mare or CustomRoles.Glow or CustomRoles.Sleep when Main.CurrentMap == MapNames.Fungle:
                 case CustomRoles.Madmate when Options.MadmateSpawnMode.GetInt() != 0:
                 case CustomRoles.Lovers or CustomRoles.LastImpostor or CustomRoles.Workhorse or CustomRoles.Undead:
                 case CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust or CustomRoles.Finder or CustomRoles.Noisy: // Assigned at a different function due to role base change

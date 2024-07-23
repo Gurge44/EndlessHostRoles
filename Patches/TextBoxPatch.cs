@@ -212,8 +212,15 @@ class TextBoxTMPSetTextPatch
 
     public static void Update()
     {
-        PlaceHolderText?.gameObject.SetActive(HudManager.Instance.Chat.IsOpenOrOpening);
-        CommandInfoText?.gameObject.SetActive(HudManager.Instance.Chat.IsOpenOrOpening);
+        try
+        {
+            bool open = HudManager.Instance?.Chat?.IsOpenOrOpening ?? false;
+            PlaceHolderText?.gameObject.SetActive(open);
+            CommandInfoText?.gameObject.SetActive(open);
+        }
+        catch
+        {
+        }
     }
 }
 

@@ -122,8 +122,8 @@ namespace EHR.Crewmate
             var info = pc.GetPositionInfo();
             var now = TimeStamp;
             Tornados.TryAdd(info, now);
-            SendRPCAddTornado(true, info.LOCATION, info.ROOM_NAME, now);
-            _ = new TornadoObject(info.LOCATION, [pc.PlayerId]);
+            SendRPCAddTornado(true, info.Location, info.RoomName, now);
+            _ = new TornadoObject(info.Location, [pc.PlayerId]);
         }
 
         public override void OnCheckPlayerPosition(PlayerControl pc)
