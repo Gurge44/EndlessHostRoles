@@ -155,7 +155,7 @@ public static class NameColorManager
             _ => color
         };
 
-        // Check if the target can see the seer's role color
+        // Check if the role color can be seen based on the target's role
         color = targetRole switch
         {
             CustomRoles.Jackal when seer.Is(CustomRoles.Recruit) => Main.RoleColors[CustomRoles.Jackal],
@@ -166,6 +166,7 @@ public static class NameColorManager
             CustomRoles.Necromancer or CustomRoles.Deathknight when seer.Is(CustomRoles.Undead) => Main.RoleColors[targetRole],
             CustomRoles.Succubus when seer.Is(CustomRoles.Charmed) => Main.RoleColors[CustomRoles.Succubus],
             CustomRoles.Crewpostor when seer.Is(CustomRoleTypes.Impostor) && Options.AlliesKnowCrewpostor.GetBool() => Main.RoleColors[CustomRoles.Madmate],
+            CustomRoles.President when ((President)Main.PlayerStates[target.PlayerId].Role).IsRevealed => Main.RoleColors[CustomRoles.President],
             _ => color
         };
 

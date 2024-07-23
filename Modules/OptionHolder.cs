@@ -687,6 +687,7 @@ public static class Options
     public static OptionItem NoLimitAddonsNumMax;
     public static OptionItem BewilderVision;
     public static OptionItem SunglassesVision;
+
     public static OptionItem MadmateSpawnMode;
     public static OptionItem MadmateCountMode;
     public static OptionItem SheriffCanBeMadmate;
@@ -694,10 +695,10 @@ public static class Options
     public static OptionItem NGuesserCanBeMadmate;
     public static OptionItem SnitchCanBeMadmate;
     public static OptionItem JudgeCanBeMadmate;
-
     public static OptionItem MarshallCanBeMadmate;
-
     public static OptionItem FarseerCanBeMadmate;
+    public static OptionItem PresidentCanBeMadmate;
+
     public static OptionItem MadSnitchTasks;
     public static OptionItem FlashmanSpeed;
     public static OptionItem GiantSpeed;

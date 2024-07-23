@@ -14,11 +14,11 @@ namespace EHR.AddOns.GhostRoles
         private static OptionItem RevealNeutralKillers;
         private static OptionItem RevealMadmates;
         private static OptionItem NumberOfReveals;
+
         private byte HaunterId;
-
         private List<byte> WarnedImps = [];
+        private long WarnTimeStamp;
 
-        private long WarnTimeStamp = 0;
         public Team Team => Team.Crewmate | Team.Neutral;
         public int Cooldown => 900;
         public bool ChangeToGA => false;
@@ -78,8 +78,8 @@ namespace EHR.AddOns.GhostRoles
             foreach (var imp in filtered)
             {
                 TargetArrow.Add(imp.PlayerId, pc.PlayerId);
-                imp.Notify(Translator.GetString("Haunter1TaskLeft"), 300f);
                 WarnedImps.Add(imp.PlayerId);
+                imp.Notify(Translator.GetString("Haunter1TaskLeft"), 300f);
             }
 
             WarnTimeStamp = Utils.TimeStamp;

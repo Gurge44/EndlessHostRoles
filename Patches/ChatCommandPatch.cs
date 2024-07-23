@@ -151,8 +151,9 @@ internal static class ChatCommands
             new(["sd", "взвук"], "{sound}", GetString("CommandDescription.SD"), Command.UsageLevels.Modded, Command.UsageTimes.Always, SDCommand, true, [GetString("CommandArgs.SD.Sound")]),
             new(["gno", "гно"], "{number}", GetString("CommandDescription.GNO"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeathOrLobby, GNOCommand, true, [GetString("CommandArgs.GNO.Number")]),
             new(["poll", "опрос"], "{question} {answerA} {answerB} [answerC] [answerD]", GetString("CommandDescription.Poll"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, PollCommand, true, [GetString("CommandArgs.Poll.Question"), GetString("CommandArgs.Poll.AnswerA"), GetString("CommandArgs.Poll.AnswerB"), GetString("CommandArgs.Poll.AnswerC"), GetString("CommandArgs.Poll.AnswerD")]),
-            new(["pv", "проголосовать"], "{vote}", GetString("CommandDescription.PV"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, PVCommand, true, [GetString("CommandArgs.PV.Vote")]),
+            new(["pv", "проголосовать"], "{vote}", GetString("CommandDescription.PV"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, PVCommand, false, [GetString("CommandArgs.PV.Vote")]),
             new(["hm", "мс", "мессенджер"], "{id}", GetString("CommandDescription.HM"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, HMCommand, true, [GetString("CommandArgs.HM.Id")]),
+            new(["decree", "постановление"], "{number}", GetString("CommandDescription.Decree"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DecreeCommand, true, [GetString("CommandArgs.Decree.Number")]),
 
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "st", "bt", "угадать", "бт"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -254,6 +255,21 @@ internal static class ChatCommands
     }
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
+
+    private static void DecreeCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        if (!player.Is(CustomRoles.President)) return;
+
+        ChatManager.SendPreviousMessagesToAll();
+
+        if (args.Length < 2)
+        {
+            Utils.SendMessage(President.GetHelpMessage(), player.PlayerId);
+            return;
+        }
+
+        President.UseDecree(player, args[1]);
+    }
 
     private static void HMCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {

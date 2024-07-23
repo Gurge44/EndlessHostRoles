@@ -321,6 +321,10 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("GuessSuperStar"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessSuperStar"));
                             return true;
+                        case CustomRoles.President when Main.PlayerStates[target.PlayerId].Role is President { IsRevealed: true }:
+                            if (!isUI) Utils.SendMessage(GetString("GuessPresident"), pc.PlayerId);
+                            else pc.ShowPopUp(GetString("GuessPresident"));
+                            return true;
                         case CustomRoles.DonutDelivery when DonutDelivery.IsUnguessable(pc, target):
                         case CustomRoles.Shifter:
                         case CustomRoles.Goose when !Goose.CanBeGuessed.GetBool():

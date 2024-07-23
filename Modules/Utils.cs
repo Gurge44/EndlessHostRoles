@@ -809,14 +809,14 @@ public static class Utils
                    (pc.Is(CustomRoles.Judge) && !Options.JudgeCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.Marshall) && !Options.MarshallCanBeMadmate.GetBool()) ||
                    (pc.Is(CustomRoles.Farseer) && !Options.FarseerCanBeMadmate.GetBool()) ||
+                   (pc.Is(CustomRoles.President) && !Options.PresidentCanBeMadmate.GetBool()) ||
                    pc.Is(CustomRoles.NiceSwapper) ||
+                   pc.Is(CustomRoles.Speedrunner) ||
                    pc.Is(CustomRoles.Needy) ||
                    pc.Is(CustomRoles.Lazy) ||
                    pc.Is(CustomRoles.Loyal) ||
                    pc.Is(CustomRoles.SuperStar) ||
                    pc.Is(CustomRoles.CyberStar) ||
-                   pc.Is(CustomRoles.Demolitionist) ||
-                   pc.Is(CustomRoles.NiceEraser) ||
                    pc.Is(CustomRoles.Egoist) ||
                    pc.Is(CustomRoles.DualPersonality)
                );
@@ -2806,12 +2806,12 @@ public static class Utils
                 : summary;
     }
 
-    public static string GetRemainingKillers(bool notify = false, bool forClairvoyant = false)
+    public static string GetRemainingKillers(bool notify = false)
     {
         int impnum = 0;
         int neutralnum = 0;
-        bool impShow = forClairvoyant || Options.ShowImpRemainOnEject.GetBool();
-        bool nkShow = forClairvoyant || Options.ShowNKRemainOnEject.GetBool();
+        bool impShow = Options.ShowImpRemainOnEject.GetBool();
+        bool nkShow = Options.ShowNKRemainOnEject.GetBool();
 
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {

@@ -23,6 +23,8 @@ namespace EHR.AddOns.Impostor
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
             FarseerCanBeMadmate = new BooleanOptionItem(15816, "FarseerCanBeMadmate", false, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
+            PresidentCanBeMadmate = new BooleanOptionItem(15817, "PresidentCanBeMadmate", false, TabGroup.Addons)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
             SnitchCanBeMadmate = new BooleanOptionItem(15818, "SnitchCanBeMadmate", false, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
             MadSnitchTasks = new IntegerOptionItem(15819, "MadSnitchTasks", new(0, 90, 1), 3, TabGroup.Addons)

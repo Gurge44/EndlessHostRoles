@@ -1135,7 +1135,7 @@ class FixedUpdatePatch
 
         if (AmongUsClient.Instance.AmHost)
         {
-            if (GhostRolesManager.AssignedGhostRoles.TryGetValue(__instance.PlayerId, out var ghostRole))
+            if (GhostRolesManager.AssignedGhostRoles.TryGetValue(id, out var ghostRole))
             {
                 switch (ghostRole.Instance)
                 {

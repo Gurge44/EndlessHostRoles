@@ -16,9 +16,9 @@ public class Gangster : RoleBase
     public static OptionItem JudgeCanBeMadmate;
     public static OptionItem MarshallCanBeMadmate;
     public static OptionItem FarseerCanBeMadmate;
+    public static OptionItem PresidentCanBeMadmate;
 
     public override bool IsEnable => playerIdList.Count > 0;
-    //public static OptionItem RetributionistCanBeMadmate;
 
     public static void SetupCustomOption()
     {
@@ -34,7 +34,7 @@ public class Gangster : RoleBase
         JudgeCanBeMadmate = new BooleanOptionItem(Id + 17, "GanJudgeCanBeMadmate", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
         MarshallCanBeMadmate = new BooleanOptionItem(Id + 18, "GanMarshallCanBeMadmate", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
         FarseerCanBeMadmate = new BooleanOptionItem(Id + 19, "GanFarseerCanBeMadmate", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
-        //RetributionistCanBeMadmate = new BooleanOptionItem(Id + 20, "GanRetributionistCanBeMadmate", false, TabGroup.ImpostorRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
+        PresidentCanBeMadmate = new BooleanOptionItem(Id + 20, "GanPresidentCanBeMadmate", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster]);
     }
 
     public override void Init()
@@ -80,7 +80,7 @@ public class Gangster : RoleBase
             target.RpcGuardAndKill(killer);
             target.RpcGuardAndKill(target);
 
-            Logger.Info($"SetRole:{target?.Data?.PlayerName} = {target.GetCustomRole()} + {convertedAddon}", "Assign " + convertedAddon);
+            Logger.Info($"SetRole: {target?.Data?.PlayerName} = {target.GetCustomRole()} + {convertedAddon}", $"Assign {convertedAddon}");
             if (killer.GetAbilityUseLimit() <= 0) HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
             return false;
         }
@@ -99,7 +99,9 @@ public class Gangster : RoleBase
             (pc.Is(CustomRoles.Judge) && !JudgeCanBeMadmate.GetBool()) ||
             (pc.Is(CustomRoles.Marshall) && !MarshallCanBeMadmate.GetBool()) ||
             (pc.Is(CustomRoles.Farseer) && !FarseerCanBeMadmate.GetBool()) ||
+            (pc.Is(CustomRoles.President) && !PresidentCanBeMadmate.GetBool()) ||
             pc.Is(CustomRoles.NiceSwapper) ||
+            pc.Is(CustomRoles.Speedrunner) ||
             pc.Is(CustomRoles.Snitch) ||
             pc.Is(CustomRoles.Needy) ||
             pc.Is(CustomRoles.Lazy) ||
