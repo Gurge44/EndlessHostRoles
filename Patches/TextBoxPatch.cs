@@ -159,7 +159,7 @@ class TextBoxTMPSetTextPatch
             CommandInfoText.sortingOrder = 100;
         }
 
-        var text = "/" + (exactMatch ? input.TrimStart('/') : command.CommandForms.MaxBy(x => x.Length));
+        var text = "/" + (exactMatch ? input.TrimStart('/') : command.CommandForms.Where(x => x.All(char.IsAscii)).MaxBy(x => x.Length));
         var info = $"<b>{command.Description}</b>";
 
         if (exactMatch && command.Arguments.Length > 0)

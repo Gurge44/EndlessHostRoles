@@ -195,7 +195,6 @@ namespace EHR.Crewmate
             if (role.GetDYRole() == RoleTypes.Impostor && target.GetRoleTypes() != RoleTypes.Impostor) role = CustomRoles.NiceGuesser;
             target.RpcSetCustomRole(role);
             Utils.SendMessage("\n", target.PlayerId, Translator.GetString("President.Recruit.TargetNotifyMessage"));
-            Utils.NotifyRoles(SpecifyTarget: target, isForMeeting: true, NoCache: true);
             Main.DontCancelVoteList.Add(voter.PlayerId);
             return true;
         }

@@ -583,31 +583,45 @@ class MeetingHudStartPatch
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        List<(string MESSAGE, byte TARGET_ID, string TITLE)> msgToSend = [];
+        List<(string Message, byte TargetID, string Title)> msgToSend = [];
 
         if (Options.SendRoleDescriptionFirstMeeting.GetBool() && MeetingStates.FirstMeeting)
         {
-            foreach (var pc in Main.AllAlivePlayerControls.Where(x => !x.IsModClient()).ToArray())
+            foreach (var pc in Main.AllAlivePlayerControls)
             {
+                if (pc.IsModClient()) continue;
                 var role = pc.GetCustomRole();
                 var sb = new StringBuilder();
-                sb.Append(GetString(role.ToString()) + Utils.GetRoleMode(role) + pc.GetRoleInfo(true));
+                var titleSb = new StringBuilder();
+                var settings = new StringBuilder();
+                settings.Append("<size=70%>");
+                titleSb.Append($"{role.ToColoredString()} {Utils.GetRoleMode(role)}");
+                sb.Append("<size=90%>");
+                sb.Append(pc.GetRoleInfo(true).TrimStart());
                 if (Options.CustomRoleSpawnChances.TryGetValue(role, out var opt))
-                    Utils.ShowChildrenSettings(opt, ref sb, command: true);
-                var txt = sb.ToString();
-                sb.Clear().Append(txt.RemoveHtmlTags());
-                foreach (var subRole in Main.PlayerStates[pc.PlayerId].SubRoles)
+                    Utils.ShowChildrenSettings(opt, ref settings, disableColor: false);
+                settings.Append("</size>");
+                if (role.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
+                var searchStr = GetString(role.ToString());
+                sb.Replace(searchStr, role.ToColoredString());
+                sb.Replace(searchStr.ToLower(), role.ToColoredString());
+                sb.Append("<size=70%>");
+                foreach (CustomRoles subRole in Main.PlayerStates[pc.PlayerId].SubRoles)
                 {
-                    sb.Append("\n\n" + GetString($"{subRole}") + Utils.GetRoleMode(subRole) + GetString($"{subRole}InfoLong"));
+                    sb.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong")}");
+                    var searchSubStr = GetString(subRole.ToString());
+                    sb.Replace(searchSubStr, subRole.ToColoredString());
+                    sb.Replace(searchSubStr.ToLower(), subRole.ToColoredString());
                 }
 
-                AddMsg(sb.ToString(), pc.PlayerId);
+                if (settings.Length > 0) AddMsg("\n", pc.PlayerId, settings.ToString());
+                AddMsg(sb.Append("</size>").ToString(), pc.PlayerId, titleSb.ToString());
             }
         }
 
         if (msgToSend.Count > 0)
         {
-            LateTask.New(() => { msgToSend.Do(x => Utils.SendMessage(x.MESSAGE, x.TARGET_ID, x.TITLE)); }, 3f, "Skill Description First Meeting");
+            LateTask.New(() => { msgToSend.Do(x => Utils.SendMessage(x.Message, x.TargetID, x.Title)); }, 3f, "Skill Description First Meeting");
         }
 
         if (Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.GetCount() > 0)
@@ -696,7 +710,7 @@ class MeetingHudStartPatch
 
         if (msgToSend.Count > 0)
         {
-            LateTask.New(() => { msgToSend.Do(x => Utils.SendMessage(x.MESSAGE, x.TARGET_ID, x.TITLE)); }, 6f, "Meeting Start Notify");
+            LateTask.New(() => { msgToSend.Do(x => Utils.SendMessage(x.Message, x.TargetID, x.Title)); }, 6f, "Meeting Start Notify");
         }
 
         Main.CyberStarDead.Clear();

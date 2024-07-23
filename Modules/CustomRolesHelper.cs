@@ -798,6 +798,8 @@ internal static class CustomRolesHelper
         CustomRoles.Godfather when Options.GodfatherCancelVote.GetBool() => true,
         CustomRoles.Socialite when Socialite.CancelVote.GetBool() => true,
 
+        CustomRoles.President => true,
+
         _ => false
     };
 

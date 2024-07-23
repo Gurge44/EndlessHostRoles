@@ -1110,6 +1110,7 @@ class FixedUpdatePatch
     private static readonly Dictionary<byte, int> DeadBufferTime = [];
     private static readonly Dictionary<byte, long> LastUpdate = [];
     private static long LastAddAbilityTime;
+    private static bool ChatOpen;
 
     public static async void Postfix(PlayerControl __instance)
     {
@@ -1153,6 +1154,21 @@ class FixedUpdatePatch
             else if (!Main.HasJustStarted && GameStates.IsInTask && GhostRolesManager.ShouldHaveGhostRole(__instance))
             {
                 GhostRolesManager.AssignGhostRole(__instance);
+            }
+        }
+
+        if (GameStates.IsMeeting)
+        {
+            switch (ChatOpen)
+            {
+                case false when DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening:
+                    ChatOpen = true;
+                    break;
+                case true when DestroyableSingleton<HudManager>.Instance.Chat.IsClosedOrClosing:
+                    ChatOpen = false;
+                    if (GameStates.IsVoting)
+                        GuessManager.CreateIDLabels(MeetingHud.Instance);
+                    break;
             }
         }
 

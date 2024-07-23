@@ -1499,7 +1499,7 @@ public static class Utils
     public static void ShowHelp(byte ID)
     {
         var player = GetPlayerById(ID);
-        SendMessage(ChatCommands.AllCommands.Where(x => x.CanUseCommand(player)).Aggregate("<size=70%>", (s, c) => s + $"\n<b>/{c.CommandForms.Where(f => f.All(char.IsAscii)).MinBy(f => f.Length)}{(c.Arguments.Length == 0 ? string.Empty : $" {c.Arguments.Split(' ').Select((x, i) => ColorString(GetColor(i), x)).Join(delimiter: " ")}")}</b> \u2192 {c.Description}"), ID, title: GetString("CommandList"));
+        SendMessage(ChatCommands.AllCommands.Where(x => x.CanUseCommand(player, checkTime: false)).Aggregate("<size=70%>", (s, c) => s + $"\n<b>/{c.CommandForms.Where(f => f.All(char.IsAscii)).MinBy(f => f.Length)}{(c.Arguments.Length == 0 ? string.Empty : $" {c.Arguments.Split(' ').Select((x, i) => ColorString(GetColor(i), x)).Join(delimiter: " ")}")}</b> \u2192 {c.Description}"), ID, title: GetString("CommandList"));
         return;
 
         Color GetColor(int i) => i switch
@@ -2945,7 +2945,7 @@ public static class Utils
 
         if (AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
         {
-            name = "Local Games";
+            name = "Local Game";
             return name;
         }
 

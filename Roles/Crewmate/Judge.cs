@@ -160,6 +160,8 @@ public class Judge : RoleBase
                         else judgeSuicide = true;
                     }
 
+                    if (pc.GetCustomSubRoles().Any(x => x.IsConverted()) && !target.Is(CustomRoles.Pestilence)) judgeSuicide = false;
+
                     var dp = judgeSuicide ? pc : target;
 
                     string Name = dp.GetRealName();

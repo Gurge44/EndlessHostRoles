@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using EHR.AddOns.Common;
 using EHR.Crewmate;
+using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
@@ -325,6 +326,11 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("GuessPresident"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessPresident"));
                             return true;
+                        case CustomRoles.Eraser when Eraser.ErasedPlayers.Contains(target.PlayerId) && pc.Is(CustomRoles.Eraser):
+                        case CustomRoles.NiceEraser when NiceEraser.ErasedPlayers.Contains(target.PlayerId) && pc.Is(CustomRoles.NiceEraser):
+                            if (!isUI) Utils.SendMessage(GetString("GuessErased"), pc.PlayerId);
+                            else pc.ShowPopUp(GetString("GuessErased"));
+                            return true;
                         case CustomRoles.DonutDelivery when DonutDelivery.IsUnguessable(pc, target):
                         case CustomRoles.Shifter:
                         case CustomRoles.Goose when !Goose.CanBeGuessed.GetBool():
@@ -562,7 +568,17 @@ public static class GuessManager
 
                         if (pc.Is(CustomRoles.Doomsayer) && pc.PlayerId != dp.PlayerId)
                         {
-                            LateTask.New(() => { Utils.SendMessage(string.Format(GetString("DoomsayerGuessCountMsg"), Doomsayer.GuessingToWin[pc.PlayerId]), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doomsayer), GetString("DoomsayerGuessCountTitle"))); }, 0.7f, "Doomsayer Guess Msg 2");
+                            LateTask.New(() => Utils.SendMessage(string.Format(GetString("DoomsayerGuessCountMsg"), Doomsayer.GuessingToWin[pc.PlayerId]), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Doomsayer), GetString("DoomsayerGuessCountTitle"))), 0.7f, "Doomsayer Guess Msg 2");
+                        }
+
+                        if (pc.Is(CustomRoles.TicketsStealer) && pc.PlayerId != dp.PlayerId)
+                        {
+                            LateTask.New(() => Utils.SendMessage(string.Format(GetString("TicketsStealerGetTicket"), (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == pc.PlayerId) * Options.TicketsPerKill.GetFloat()))), 0.7f, log: false);
+                        }
+
+                        if (pc.Is(CustomRoles.Pickpocket) && pc.PlayerId != dp.PlayerId)
+                        {
+                            LateTask.New(() => Utils.SendMessage(string.Format(GetString("PickpocketGetVote"), (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == pc.PlayerId) * Pickpocket.VotesPerKill.GetFloat()))), 0.7f, log: false);
                         }
                     }, 0.2f, "Guesser Kill");
                 }
@@ -730,6 +746,7 @@ public static class GuessManager
     public static void CreateIDLabels(MeetingHud __instance)
     {
         DestroyIDLabels();
+        if (__instance == null) return;
         const int max = 2;
         foreach (var pva in __instance.playerStates)
         {

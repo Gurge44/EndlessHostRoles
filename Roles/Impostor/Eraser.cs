@@ -28,6 +28,7 @@ internal class Eraser : RoleBase
 
     private static List<byte> didVote = [];
     private static List<byte> PlayerToErase = [];
+    public static List<byte> ErasedPlayers = [];
 
     public override bool IsEnable => playerIdList.Count > 0;
 
@@ -45,6 +46,7 @@ internal class Eraser : RoleBase
     public override void Init()
     {
         playerIdList = [];
+        ErasedPlayers = [];
     }
 
     public override void Add(byte playerId)
@@ -128,6 +130,7 @@ internal class Eraser : RoleBase
             player.Notify(GetString("LostRoleByEraser"));
             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} lost their role", "Eraser");
             player.MarkDirtySettings();
+            ErasedPlayers.Add(pc);
         }
 
         PlayerToErase = [];

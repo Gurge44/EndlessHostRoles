@@ -260,7 +260,8 @@ internal static class ChatCommands
     {
         if (!player.Is(CustomRoles.President)) return;
 
-        ChatManager.SendPreviousMessagesToAll();
+        if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId)
+            ChatManager.SendPreviousMessagesToAll();
 
         if (args.Length < 2)
         {
@@ -726,9 +727,10 @@ internal static class ChatCommands
     {
         if (text.Length < 6 || !GameStates.IsMeeting) return;
         string toVote = text[6..].Replace(" ", string.Empty);
-        if (!byte.TryParse(toVote, out var voteId)) return;
+        if (!byte.TryParse(toVote, out var voteId) || MeetingHud.Instance?.playerStates?.FirstOrDefault(x => x.TargetPlayerId == player.PlayerId)?.DidVote == true) return;
         if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
-        MeetingHud.Instance?.CastVote(player.PlayerId, voteId);
+        if (!player.IsHost()) MeetingHud.Instance?.CastVote(player.PlayerId, voteId);
+        else MeetingHud.Instance?.CmdCastVote(player.PlayerId, voteId);
     }
 
     private static void SayCommand(ChatController __instance, PlayerControl player, string text, string[] args)
@@ -796,14 +798,16 @@ internal static class ChatCommands
                 Utils.ShowChildrenSettings(opt, ref settings, disableColor: false);
             settings.Append("</size>");
             if (role.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
-            sb.Replace(role.ToString(), role.ToColoredString());
-            sb.Replace(role.ToString().ToLower(), role.ToColoredString());
+            var searchStr = GetString(role.ToString());
+            sb.Replace(searchStr, role.ToColoredString());
+            sb.Replace(searchStr.ToLower(), role.ToColoredString());
             sb.Append("<size=70%>");
             foreach (CustomRoles subRole in Main.PlayerStates[player.PlayerId].SubRoles)
             {
                 sb.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong")}");
-                sb.Replace(subRole.ToString(), subRole.ToColoredString());
-                sb.Replace(subRole.ToString().ToLower(), subRole.ToColoredString());
+                var searchSubStr = GetString(subRole.ToString());
+                sb.Replace(searchSubStr, subRole.ToColoredString());
+                sb.Replace(searchSubStr.ToLower(), subRole.ToColoredString());
             }
 
             if (settings.Length > 0) Utils.SendMessage("\n", player.PlayerId, settings.ToString());
