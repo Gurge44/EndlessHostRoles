@@ -270,9 +270,12 @@ class HudManagerPatch
                         __instance.KillButton?.ToggleVisible(false);
                     }
 
-                    bool CanUseVent = (player.CanUseImpostorVentButton() || player.inVent) && GameStates.IsInTask;
+                    bool CanUseVent = (player.CanUseImpostorVentButton() || (player.inVent && player.GetRoleTypes() != RoleTypes.Engineer)) && GameStates.IsInTask;
                     __instance.ImpostorVentButton?.ToggleVisible(CanUseVent);
                     player.Data.Role.CanVent = CanUseVent;
+
+                    if (usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer)
+                        __instance.AbilityButton.SetEnabled();
                 }
                 else
                 {
@@ -447,7 +450,6 @@ class SetHudActivePatch
             case CustomRoles.Farseer:
             case CustomRoles.Crusader:
                 __instance.SabotageButton?.ToggleVisible(false);
-                __instance.AbilityButton?.ToggleVisible(false);
                 __instance.ImpostorVentButton?.ToggleVisible(false);
                 break;
 

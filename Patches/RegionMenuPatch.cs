@@ -1,7 +1,7 @@
 ﻿using HarmonyLib;
 using UnityEngine;
 
-namespace TOHE.Patches;
+namespace EHR.Patches;
 
 // Credits : KARPED1EM from https://github.com/KARPED1EM/TownOfNext/blob/TONX/TONX/Patches/RegionMenuPatch.cs
 [HarmonyPatch(typeof(RegionMenu))]

@@ -244,7 +244,6 @@ namespace EHR
         /// </summary>
         /// <param name="collection">The collection to remove the element from</param>
         /// <param name="element">The element to remove</param>
-        /// <typeparam name="T">The type of the elements in the collection</typeparam>
         /// <returns>A collection containing all elements of <paramref name="collection"/> except for <paramref name="element"/></returns>
         public static IEnumerable<PlayerControl> Without(this IEnumerable<PlayerControl> collection, PlayerControl element)
         {
@@ -256,7 +255,6 @@ namespace EHR
         /// </summary>
         /// <param name="collection">The collection to remove the element from</param>
         /// <param name="element">The element to remove</param>
-        /// <typeparam name="T">The type of the elements in the collection</typeparam>
         /// <returns>A collection containing all elements of <paramref name="collection"/> except for <paramref name="element"/></returns>
         public static IEnumerable<PlainShipRoom> Without(this IEnumerable<PlainShipRoom> collection, PlainShipRoom element)
         {

@@ -112,7 +112,7 @@ public static class BanManager
 
         try
         {
-            Directory.CreateDirectory("TOHE-DATA");
+            Directory.CreateDirectory("EHR_DATA");
             if (!File.Exists(DenyNameListPath)) File.Create(DenyNameListPath).Close();
             using StreamReader sr = new(DenyNameListPath);
             while (sr.ReadLine() is { } line)

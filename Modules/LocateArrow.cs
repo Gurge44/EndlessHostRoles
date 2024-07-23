@@ -56,6 +56,7 @@ static class LocateArrow
         {
             LocateArrows[arrowInfo] = "・";
             Utils.SendRPC(CustomRPC.Arrow, false, 1, seer, locate);
+            Logger.Info($"New locate arrow: {seer} => {locate}", "LocateArrow");
         }
     }
 
@@ -74,6 +75,7 @@ static class LocateArrow
         }
 
         Utils.SendRPC(CustomRPC.Arrow, false, 2, seer, locate);
+        Logger.Info($"Removed locate arrow: {seer} => {locate}", "LocateArrow");
     }
 
     /// <summary>
@@ -89,6 +91,7 @@ static class LocateArrow
         }
 
         Utils.SendRPC(CustomRPC.Arrow, false, 3, seer);
+        Logger.Info($"Removed all locate arrows for: {seer}", "LocateArrow");
     }
 
     /// <summary>

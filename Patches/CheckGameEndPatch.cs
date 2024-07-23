@@ -51,7 +51,7 @@ class GameEndChecker
         if (WinnerTeam != CustomWinner.Default)
         {
             NameNotifyManager.Reset();
-            NotifyRoles(ForceLoop: true);
+            NotifyRoles(NoCache: true);
 
             Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, ForceRevert: true, RevertToDefault: true, GameEnd: true));
 
@@ -67,12 +67,12 @@ class GameEndChecker
             {
                 case CustomWinner.Crewmate:
                     WinnerIds.UnionWith(Main.AllPlayerControls
-                        .Where(pc => pc.Is(CustomRoleTypes.Crewmate) && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Recruit) && !pc.Is(CustomRoles.Contagious) && !pc.Is(CustomRoles.EvilSpirit))
+                        .Where(pc => pc.Is(CustomRoleTypes.Crewmate) && !pc.IsMadmate() && !pc.GetCustomSubRoles().Any(x => x.IsConverted()) && !pc.Is(CustomRoles.EvilSpirit))
                         .Select(pc => pc.PlayerId));
                     break;
                 case CustomWinner.Impostor:
                     WinnerIds.UnionWith(Main.AllPlayerControls
-                        .Where(pc => ((pc.Is(CustomRoleTypes.Impostor) && (!pc.Is(CustomRoles.DeadlyQuota) || Main.PlayerStates.Count(x => x.Value.GetRealKiller() == pc.PlayerId) >= Options.DQNumOfKillsNeeded.GetInt())) || pc.Is(CustomRoles.Madmate) || pc.Is(CustomRoles.Crewpostor) || pc.Is(CustomRoles.Refugee)) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Recruit) && !pc.Is(CustomRoles.Contagious) && !pc.Is(CustomRoles.EvilSpirit))
+                        .Where(pc => ((pc.Is(CustomRoleTypes.Impostor) && (!pc.Is(CustomRoles.DeadlyQuota) || Main.PlayerStates.Count(x => x.Value.GetRealKiller() == pc.PlayerId) >= Options.DQNumOfKillsNeeded.GetInt())) || pc.IsMadmate()) && !pc.GetCustomSubRoles().Any(x => x.IsConverted()) && !pc.Is(CustomRoles.EvilSpirit))
                         .Select(pc => pc.PlayerId));
                     break;
                 case CustomWinner.Succubus:
@@ -206,13 +206,17 @@ class GameEndChecker
                             break;
                         // If there's only 1 impostor alive, and all alive impostors are Egoists, the Egoist wins alone
                         case 1 when imps.All(x => x.Is(CustomRoles.Egoist)):
-                        {
-                            var pc = imps.FirstOrDefault();
+                            var pc = imps[0];
                             reason = GameOverReason.ImpostorByKill;
                             ResetAndSetWinner(CustomWinner.Egoist);
                             WinnerIds.Add(pc.PlayerId);
+                            if (Romantic.RomanticId == pc.PlayerId && Romantic.HasPickedPartner)
+                            {
+                                AdditionalWinnerTeams.Add(AdditionalWinners.Romantic);
+                                WinnerIds.Add(Romantic.PartnerId);
+                            }
+
                             break;
-                        }
                     }
                 }
 

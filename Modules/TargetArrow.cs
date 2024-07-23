@@ -56,6 +56,7 @@ static class TargetArrow
         {
             TargetArrows[arrowInfo] = "・";
             Utils.SendRPC(CustomRPC.Arrow, true, 1, seer, target);
+            Logger.Info($"New target arrow: {seer} => {target}", "TargetArrow");
         }
     }
 
@@ -74,6 +75,7 @@ static class TargetArrow
         }
 
         Utils.SendRPC(CustomRPC.Arrow, true, 2, seer, target);
+        Logger.Info($"Removed target arrow: {seer} => {target}", "TargetArrow");
     }
 
     /// <summary>
@@ -89,6 +91,7 @@ static class TargetArrow
         }
 
         Utils.SendRPC(CustomRPC.Arrow, true, 3, seer);
+        Logger.Info($"Removed all target arrows for {seer}", "TargetArrow");
     }
 
     /// <summary>

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EHR.Modules;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -22,7 +23,7 @@ public class Divinator : RoleBase
 
     public static List<byte> didVote = [];
 
-    private static Dictionary<byte, List<CustomRoles>> AllPlayerRoleList = [];
+    private static Dictionary<byte, HashSet<CustomRoles>> AllPlayerRoleList = [];
 
     public override bool IsEnable => playerIdList.Count > 0;
 
@@ -59,19 +60,22 @@ public class Divinator : RoleBase
         playerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(CheckLimitOpt.GetInt());
 
-        var players = Main.AllAlivePlayerControls;
-        int rolesNeeded = players.Length * (RolesPerCategory - 1);
-        var roleList = Enum.GetValues<CustomRoles>()
-            .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.GM and not CustomRoles.Convict && !x.IsForOtherGameMode())
-            .OrderBy(x => x.IsEnable() ? IRandom.Instance.Next(10) : IRandom.Instance.Next(10, 100))
-            .Take(rolesNeeded)
-            .Chunk(RolesPerCategory - 1)
-            .Zip(players, (Array, Player) => (RoleList: Array.ToList(), Player))
-            .ToArray();
-        roleList.Do(x => x.RoleList.Insert(IRandom.Instance.Next(x.RoleList.Count), x.Player.GetCustomRole()));
-        AllPlayerRoleList = roleList.ToDictionary(x => x.Player.PlayerId, x => x.RoleList);
+        LateTask.New(() =>
+        {
+            var players = Main.AllAlivePlayerControls;
+            int rolesNeeded = players.Length * (RolesPerCategory - 1);
+            var roleList = Enum.GetValues<CustomRoles>()
+                .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.GM and not CustomRoles.Convict && !x.IsForOtherGameMode() && !CustomRoleSelector.RoleResult.ContainsValue(x))
+                .OrderBy(x => x.IsEnable() ? IRandom.Instance.Next(10) : IRandom.Instance.Next(10, 100))
+                .Take(rolesNeeded)
+                .Chunk(RolesPerCategory - 1)
+                .Zip(players, (Array, Player) => (RoleList: Array.ToList(), Player))
+                .ToArray();
+            roleList.Do(x => x.RoleList.Insert(IRandom.Instance.Next(x.RoleList.Count), x.Player.GetCustomRole()));
+            AllPlayerRoleList = roleList.ToDictionary(x => x.Player.PlayerId, x => x.RoleList.ToHashSet());
 
-        Logger.Info(string.Join(" ---- ", AllPlayerRoleList.Select(x => $"ID {x.Key}: {string.Join(", ", x.Value)}")), "Divinator Roles");
+            Logger.Info(string.Join(" ---- ", AllPlayerRoleList.Select(x => $"ID {x.Key}: {string.Join(", ", x.Value)}")), "Divinator Roles");
+        }, 3f, log: false);
     }
 
     public override bool OnVote(PlayerControl player, PlayerControl target)
@@ -98,11 +102,11 @@ public class Divinator : RoleBase
 
         if ((player.AllTasksCompleted() || AccurateCheckMode.GetBool()) && ShowSpecificRole.GetBool())
         {
-            msg = string.Format(GetString("DivinatorCheck.TaskDone"), target.GetRealName(), GetString(target.GetCustomRole().ToString()));
+            msg = string.Format(GetString("DivinatorCheck.TaskDone"), target.GetRealName(), target.GetCustomRole().ToColoredString());
         }
         else
         {
-            string roles = string.Join(", ", AllPlayerRoleList[target.PlayerId].Select(x => GetString(x.ToString())));
+            string roles = string.Join(", ", AllPlayerRoleList[target.PlayerId].Select(x => x.ToColoredString()));
             msg = string.Format(GetString("DivinatorCheckResult"), target.GetRealName(), roles);
         }
 
