@@ -143,7 +143,7 @@ internal class InnerNetObjectSerializePatch
     }
 }
 
-public class InnerNetClientPatch
+public static class InnerNetClientPatch
 {
     private static byte Timer;
 
@@ -314,7 +314,7 @@ public class InnerNetClientPatch
 internal class DirtyAllDataPatch
 {
     // Currently, this function only occurs in CreatePlayer.
-    // It's believed to lag the host, delay the PlayerControl spawn mesasge, blackout new clients
+    // It's believed to lag the host, delay the PlayerControl spawn message, blackout new clients
     // and send huge packets to all clients while there's completely no need to run this.
     // Temporarily disable it until Innersloth gets a better fix.
     public static bool Prefix() => false;
@@ -339,13 +339,13 @@ internal class AuthTimeoutPatch
         return false;
     }
 
-    // If you don't patch this, you still need to wait for 5s
+    // If you don't patch this, you still need to wait for 5s.
     // I have no idea why this is happening
     [HarmonyPatch(typeof(AmongUsClient._CoJoinOnlinePublicGame_d__1), nameof(AmongUsClient._CoJoinOnlinePublicGame_d__1.MoveNext))]
     [HarmonyPrefix]
     public static void EnableUdpMatchmakingPrefix(AmongUsClient._CoJoinOnlinePublicGame_d__1 __instance)
     {
-        // Skip to state 1 which just calls CoJoinOnlineGameDirect
+        // Skip to state 1, which just calls CoJoinOnlineGameDirect
         if (__instance.__1__state == 0 && !ServerManager.Instance.IsHttp)
         {
             __instance.__1__state = 1;

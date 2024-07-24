@@ -342,6 +342,8 @@ namespace EHR.Crewmate
                 int start = length - rd.Next(0, 2);
                 int end = length + rd.Next(0, 2);
 
+                if (start == end) return GetStage3Clue(length);
+
                 start = start < 0 ? 0 : start;
                 end = end > 10 ? 10 : end;
 

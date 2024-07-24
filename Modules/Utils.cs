@@ -2881,7 +2881,7 @@ public static class Utils
         }
         catch
         {
-            Logger.Error($"读入Texture失败：{path}", "LoadImage");
+            Logger.Error($"Error loading texture from: {path}", "LoadImage");
         }
 
         return null;

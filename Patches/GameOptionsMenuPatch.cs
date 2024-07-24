@@ -16,7 +16,6 @@ public static class ModGameOptionsMenu
     public static Dictionary<OptionBehaviour, int> OptionList = new();
     public static Dictionary<int, OptionBehaviour> BehaviourList = new();
     public static Dictionary<int, CategoryHeaderMasked> CategoryHeaderList = new();
-    public static readonly System.Collections.Generic.Dictionary<OptionBehaviour, CustomRoles> HelpIcons = [];
 }
 
 [HarmonyPatch(typeof(GameOptionsMenu))]
@@ -364,7 +363,7 @@ public static class GameOptionsMenuPatch
         return baseGameSetting;
     }
 
-    public static void ReloadUI(bool preset = false)
+    public static void ReloadUI(int index)
     {
         GameSettingMenu.Instance?.Close();
         LateTask.New(() =>
@@ -373,7 +372,7 @@ public static class GameOptionsMenuPatch
         }, 0.1f, log: false);
         LateTask.New(() =>
         {
-            if (GameStates.IsLobby) GameSettingMenu.Instance?.ChangeTab(preset ? 3 : 4, Controller.currentTouchType == Controller.TouchType.Joystick);
+            if (GameStates.IsLobby) GameSettingMenu.Instance?.ChangeTab(index, Controller.currentTouchType == Controller.TouchType.Joystick);
         }, 0.28f, log: false);
     }
 }
@@ -482,7 +481,7 @@ public static class NumberOptionPatch
                     break;
                 case PresetOptionItem presetOptionItem:
                     presetOptionItem.SetValue(presetOptionItem.Rule.GetNearestIndex(__instance.GetInt()));
-                    GameOptionsMenuPatch.ReloadUI(preset: true);
+                    GameOptionsMenuPatch.ReloadUI(3);
                     break;
             }
 
@@ -608,7 +607,6 @@ public static class StringOptionPatch
         icon.FindChild("ActiveSprite").GetComponent<SpriteRenderer>().color = Color.gray;
         icon.localPosition += new Vector3(-0.8f, 0f, 0f);
         icon.SetAsLastSibling();
-        ModGameOptionsMenu.HelpIcons[option] = role;
     }
 
     [HarmonyPatch(nameof(StringOption.UpdateValue)), HarmonyPrefix]
@@ -618,7 +616,7 @@ public static class StringOptionPatch
         {
             var item = OptionItem.AllOptions[index];
             item.SetValue(__instance.GetInt());
-            if (item.Name == "GameMode") GameOptionsMenuPatch.ReloadUI();
+            if (item.Name == "GameMode") GameOptionsMenuPatch.ReloadUI(4);
             return false;
         }
 

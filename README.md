@@ -353,6 +353,12 @@
 > - Reference: Custom Net Objects
 >
 
+### :star: [Reactor](https://github.com/NuclearPowered/Reactor) :
+
+>
+> - Reference: Disable the 5s timeout on custom servers
+>
+
 ### Endless Host Roles (EHR), with Endless Possibilities, brought to you by the Endless Network.
 
 ##### Developers:
