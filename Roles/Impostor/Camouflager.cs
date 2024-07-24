@@ -72,7 +72,7 @@ namespace EHR.Impostor
             IsActive = true;
             Camouflage.CheckCamouflage();
 
-            return true;
+            return !Options.UseUnshiftTrigger.GetBool();
         }
 
         public override void OnReportDeadBody()

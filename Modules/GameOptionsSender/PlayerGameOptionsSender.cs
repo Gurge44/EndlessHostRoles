@@ -260,7 +260,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             }
 
             Chef.ApplyGameOptionsForOthers(opt, player.PlayerId);
-            President.OnAnyoneApplyGameOptions(opt, player.PlayerId);
+            President.OnAnyoneApplyGameOptions(opt);
 
             if (Sprayer.LowerVisionList.Contains(player.PlayerId))
             {

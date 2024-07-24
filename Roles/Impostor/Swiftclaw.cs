@@ -95,7 +95,8 @@ namespace EHR.Impostor
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            hud.PetButton?.OverrideText(Translator.GetString("SwiftclawKillButtonText"));
+            ActionButton button = Options.UseUnshiftTrigger.GetBool() ? hud.AbilityButton : hud.KillButton;
+            button?.OverrideText(Translator.GetString("SwiftclawKillButtonText"));
         }
     }
 }

@@ -16,7 +16,7 @@ internal static class CustomRolesHelper
 {
     public static bool CanCheck = false;
 
-    public static readonly List<CustomRoles> OnlySpawnsWithPetsRoleList =
+    private static readonly List<CustomRoles> OnlySpawnsWithPetsRoleList =
     [
         CustomRoles.Tunneler,
         CustomRoles.Tornado,
@@ -40,12 +40,12 @@ internal static class CustomRolesHelper
         CustomRoles.Dasher
     ];
 
-    public static readonly List<CustomRoles> ExperimentalRoleList =
-    [
-        CustomRoles.Shifter
-    ];
-
-    public static bool IsExperimental(this CustomRoles role) => ExperimentalRoleList.Contains(role);
+    // private static readonly List<CustomRoles> ExperimentalRoleList =
+    // [
+    //     CustomRoles.Shifter
+    // ];
+    //
+    // public static bool IsExperimental(this CustomRoles role) => ExperimentalRoleList.Contains(role);
 
     public static bool IsForOtherGameMode(this CustomRoles role) => HnSManager.AllHnSRoles.Contains(role) || role is
         CustomRoles.KB_Normal or
@@ -803,7 +803,7 @@ internal static class CustomRolesHelper
         _ => false
     };
 
-    public static bool OnlySpawnsWithPets(this CustomRoles role) => OnlySpawnsWithPetsRoleList.Contains(role);
+    public static bool OnlySpawnsWithPets(this CustomRoles role) => !(Options.UseUnshiftTrigger.GetBool() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool()) && role.SimpleAbilityTrigger()) && OnlySpawnsWithPetsRoleList.Contains(role);
 
     public static bool NeedUpdateOnLights(this CustomRoles role) => (!role.UsesPetInsteadOfKill()) && (role.GetDYRole() != RoleTypes.GuardianAngel || role is
         CustomRoles.Convict or

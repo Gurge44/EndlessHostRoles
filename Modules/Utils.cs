@@ -1606,9 +1606,9 @@ public static class Utils
                 var sentText = shortenedText;
                 shortenedText = line + "\n";
 
-                if (sentText.Contains("<size") && !sentText.Contains("</size>"))
+                if (Regex.Matches(sentText, "<size").Count > Regex.Matches(sentText, "</size>").Count)
                 {
-                    var sizeTag = Regex.Match(sentText, @"<size=\d+\.?\d*%?>").Value;
+                    var sizeTag = Regex.Matches(sentText, @"<size=\d+\.?\d*%?>")[^1].Value;
                     shortenedText = sizeTag + shortenedText;
                 }
             }
@@ -2403,7 +2403,7 @@ public static class Utils
             CustomRoles.QuickShooter => QuickShooter.ShapeshiftCooldown.GetInt(),
             CustomRoles.Disperser => Disperser.DisperserShapeshiftCooldown.GetInt(),
             CustomRoles.Twister => Twister.ShapeshiftCooldown.GetInt(),
-            CustomRoles.Warlock => Warlock.IsCursed ? -1 : (int)Options.DefaultKillCooldown,
+            CustomRoles.Warlock => Warlock.IsCursed ? -1 : Warlock.ShapeshiftCooldown.GetInt(),
             CustomRoles.Swiftclaw => Swiftclaw.DashCD.GetInt() + (includeDuration ? Swiftclaw.DashDuration.GetInt() : 0),
             CustomRoles.Parasite => (int)Parasite.SSCD + (includeDuration ? (int)Parasite.SSDur : 0),
             CustomRoles.Tiger => Tiger.EnrageCooldown.GetInt() + (includeDuration ? Tiger.EnrageDuration.GetInt() : 0),

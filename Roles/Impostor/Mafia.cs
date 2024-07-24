@@ -188,10 +188,10 @@ namespace EHR.Impostor
                 targetBox.name = "ShootButton";
                 targetBox.transform.localPosition = new(-0.95f, 0.03f, -1.31f);
                 SpriteRenderer renderer = targetBox.GetComponent<SpriteRenderer>();
-                renderer.sprite = CustomButton.Get("TargetIcon");
+                renderer.sprite = CustomButton.Get("MeetingKillButton");
                 PassiveButton button = targetBox.GetComponent<PassiveButton>();
                 button.OnClick.RemoveAllListeners();
-                button.OnClick.AddListener((Action)(() => MafiaOnClick(pva.TargetPlayerId /*, __instance*/)));
+                button.OnClick.AddListener((Action)(() => MafiaOnClick(pva.TargetPlayerId)));
             }
         }
 

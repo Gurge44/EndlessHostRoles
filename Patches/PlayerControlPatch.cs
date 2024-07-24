@@ -803,6 +803,7 @@ class ShapeshiftPatch
             Main.CheckShapeshift[shapeshifter.PlayerId] = false;
             RpcChangeSkin(shapeshifter, outfit);
             NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter, NoCache: true);
+            shapeshifter.RpcResetAbilityCooldown();
         }
 
         return isSSneeded || (!shouldCancel && !forceCancel) || (!shapeshifting && !shouldAlwaysCancel && !unshiftTrigger);
@@ -819,7 +820,7 @@ class ShapeshiftPatch
         {
             if (pc.Is(CustomRoles.Shiftguard))
             {
-                pc.Notify(shapeshifting ? GetString("ShiftguardNotifySS") : "ShiftguardNotifyUnshift");
+                pc.Notify(shapeshifting ? GetString("ShiftguardNotifySS") : GetString("ShiftguardNotifyUnshift"));
             }
 
             switch (Main.PlayerStates[pc.PlayerId].Role)

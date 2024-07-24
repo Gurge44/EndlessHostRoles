@@ -263,13 +263,16 @@ internal static class ChatCommands
         if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId)
             ChatManager.SendPreviousMessagesToAll();
 
-        if (args.Length < 2)
+        LateTask.New(() =>
         {
-            Utils.SendMessage(President.GetHelpMessage(), player.PlayerId);
-            return;
-        }
+            if (args.Length < 2)
+            {
+                Utils.SendMessage(President.GetHelpMessage(), player.PlayerId);
+                return;
+            }
 
-        President.UseDecree(player, args[1]);
+            President.UseDecree(player, args[1]);
+        }, 0.2f, log: false);
     }
 
     private static void HMCommand(ChatController __instance, PlayerControl player, string text, string[] args)

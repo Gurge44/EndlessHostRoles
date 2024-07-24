@@ -109,7 +109,7 @@ namespace EHR.Crewmate
             }
         }
 
-        public static void OnAnyoneApplyGameOptions(IGameOptions opt, byte id)
+        public static void OnAnyoneApplyGameOptions(IGameOptions opt)
         {
             if (Instances.Any(x => x.IsDeclassification))
                 opt.SetBool(BoolOptionNames.AnonymousVotes, false);
@@ -118,7 +118,11 @@ namespace EHR.Crewmate
         public static void UseDecree(PlayerControl pc, string message)
         {
             var president = Instances.FirstOrDefault(x => x.PresidentId == pc.PlayerId);
-            if (president == null || president.Used) return;
+            if (president == null || president.Used)
+            {
+                Utils.SendMessage(Translator.GetString("President.DecreeAlreadyChosenThisMeetingMessage"), pc.PlayerId);
+                return;
+            }
 
             if (!int.TryParse(message, out var num) || num > 5)
             {
@@ -127,24 +131,32 @@ namespace EHR.Crewmate
             }
 
             var decree = (Decree)num;
-            if (!decree.IsEnabled() || president.UsedDecrees.Contains(decree)) return;
+            if (!decree.IsEnabled() || president.UsedDecrees.Contains(decree))
+            {
+                Utils.SendMessage(Translator.GetString("President.DecreeAlreadyUsedMessage"), pc.PlayerId);
+                return;
+            }
 
             switch (decree)
             {
                 case Decree.Reveal:
                     if (DecreeSettings[decree][1].GetBool()) pc.RpcSetCustomRole(CustomRoles.Loyal);
                     if (!DecreeSettings[decree][2].GetBool() && pc.GetCustomSubRoles().Any(x => x.IsConverted())) return;
+                    Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")));
                     break;
                 case Decree.Finish:
                     MeetingHud.Instance?.RpcClose();
+                    Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")));
                     break;
                 case Decree.Declassification:
                     president.IsDeclassification = true;
                     Utils.SyncAllSettings();
+                    Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")));
                     break;
                 case Decree.GovernmentSupport:
                     foreach (var player in Main.AllPlayerControls)
                     {
+                        if (!player.IsCrewmate()) continue;
                         switch (Main.PlayerStates[player.PlayerId].Role)
                         {
                             case SabotageMaster sm:
@@ -159,6 +171,7 @@ namespace EHR.Crewmate
                         }
                     }
 
+                    Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")));
                     break;
                 case Decree.Investigation:
                     Utils.SendMessage("\n", pc.PlayerId, Utils.GetRemainingKillers());

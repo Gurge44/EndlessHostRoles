@@ -88,7 +88,7 @@ public static class Camouflage
 
             foreach (var pc in Main.AllPlayerControls)
             {
-                if (pc.inVent || pc.walkingToVent || pc.onLadder)
+                if (pc.inVent || pc.walkingToVent || pc.onLadder || pc.inMovingPlat)
                 {
                     WaitingForSkinChange.Add(pc.PlayerId);
                     continue;
@@ -178,7 +178,7 @@ public static class Camouflage
 
     public static void OnFixedUpdate(PlayerControl pc)
     {
-        if (!WaitingForSkinChange.Contains(pc.PlayerId) || pc.inVent || pc.walkingToVent || pc.onLadder) return;
+        if (!WaitingForSkinChange.Contains(pc.PlayerId) || pc.inVent || pc.walkingToVent || pc.onLadder || pc.inMovingPlat) return;
 
         RpcSetSkin(pc);
         WaitingForSkinChange.Remove(pc.PlayerId);
