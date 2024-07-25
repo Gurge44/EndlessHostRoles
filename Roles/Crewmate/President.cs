@@ -124,6 +124,8 @@ namespace EHR.Crewmate
                 return;
             }
 
+            if (Utils.GetPlayerById(president.PresidentId)) return;
+
             if (!int.TryParse(message, out var num) || num > 5)
             {
                 Utils.SendMessage(GetHelpMessage(), pc.PlayerId);
@@ -174,7 +176,7 @@ namespace EHR.Crewmate
                     Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")));
                     break;
                 case Decree.Investigation:
-                    Utils.SendMessage("\n", pc.PlayerId, Utils.GetRemainingKillers());
+                    Utils.SendMessage("\n", pc.PlayerId, Utils.GetRemainingKillers(president: true));
                     break;
                 case Decree.GovernmentRecruiting:
                     if (MeetingHud.Instance?.playerStates?.FirstOrDefault(x => x.TargetPlayerId == pc.PlayerId)?.DidVote == true) return;

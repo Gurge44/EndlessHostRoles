@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Linq;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
 using EHR.Patches;
 using HarmonyLib;
@@ -52,7 +54,7 @@ public static class GameOptionsMenuPatch
         __instance.StartCoroutine(CoRoutine().WrapToIl2Cpp());
         return false;
 
-        System.Collections.IEnumerator CoRoutine()
+        IEnumerator CoRoutine()
         {
             var modTab = (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
 
@@ -112,6 +114,11 @@ public static class GameOptionsMenuPatch
 
                         OptionBehaviourSetSizeAndPosition(optionBehaviour, option, baseGameSetting.Type);
 
+                        if (option.Name == "GameMode" && !ModGameOptionsMenu.OptionList.ContainsValue(index))
+                        {
+                            GameSettingMenuPatch.GameModeBehaviour = (StringOption)optionBehaviour;
+                        }
+
                         optionBehaviour.SetClickMask(__instance.ButtonClickMask);
                         optionBehaviour.SetUpFromData(baseGameSetting, 20);
                         ModGameOptionsMenu.OptionList.TryAdd(optionBehaviour, index);
@@ -124,6 +131,11 @@ public static class GameOptionsMenuPatch
                         optionBehaviour.transform.localPosition = new(posX, num, posZ);
 
                         OptionBehaviourSetSizeAndPosition(optionBehaviour, option, baseGameSetting.Type);
+
+                        if (option.Name == "Preset" && !ModGameOptionsMenu.OptionList.ContainsValue(index))
+                        {
+                            GameSettingMenuPatch.PresetBehaviour = (NumberOption)optionBehaviour;
+                        }
 
                         optionBehaviour.SetClickMask(__instance.ButtonClickMask);
                         optionBehaviour.SetUpFromData(baseGameSetting, 20);
@@ -142,6 +154,8 @@ public static class GameOptionsMenuPatch
                 optionBehaviour.gameObject.SetActive(enabled);
                 optionBehaviour.OnValueChanged = new Action<OptionBehaviour>(__instance.ValueChanged);
                 __instance.Children.Add(optionBehaviour);
+
+                option.OptionBehaviour = optionBehaviour;
 
                 if (enabled) num -= 0.45f;
 
@@ -372,7 +386,11 @@ public static class GameOptionsMenuPatch
         }, 0.1f, log: false);
         LateTask.New(() =>
         {
-            if (GameStates.IsLobby) GameSettingMenu.Instance?.ChangeTab(index, Controller.currentTouchType == Controller.TouchType.Joystick);
+            if (GameStates.IsLobby)
+            {
+                GameSettingMenu.Instance?.ChangeTab(index, Controller.currentTouchType == Controller.TouchType.Joystick);
+                ModGameOptionsMenu.TabIndex = index;
+            }
         }, 0.28f, log: false);
     }
 }
@@ -388,6 +406,7 @@ public static class ToggleOptionPatch
             var item = OptionItem.AllOptions[index];
             __instance.TitleText.text = item.GetName();
             __instance.CheckMark.enabled = item.GetBool();
+            item.OptionBehaviour = __instance;
             return false;
         }
 
@@ -458,6 +477,7 @@ public static class NumberOptionPatch
         {
             var item = OptionItem.AllOptions[index];
             __instance.TitleText.text = item.GetName();
+            item.OptionBehaviour = __instance;
             return false;
         }
 
@@ -481,7 +501,7 @@ public static class NumberOptionPatch
                     break;
                 case PresetOptionItem presetOptionItem:
                     presetOptionItem.SetValue(presetOptionItem.Rule.GetNearestIndex(__instance.GetInt()));
-                    GameOptionsMenuPatch.ReloadUI(3);
+                    GameOptionsMenuPatch.ReloadUI(ModGameOptionsMenu.TabIndex);
                     break;
             }
 
@@ -573,6 +593,7 @@ public static class StringOptionPatch
         {
             var item = OptionItem.AllOptions[index];
             var name = item.GetName();
+            item.OptionBehaviour = __instance;
             string name1 = name;
             if (Enum.GetValues<CustomRoles>().Find(x => Translator.GetString($"{x}") == name1.RemoveHtmlTags(), out var role))
             {
@@ -616,7 +637,7 @@ public static class StringOptionPatch
         {
             var item = OptionItem.AllOptions[index];
             item.SetValue(__instance.GetInt());
-            if (item.Name == "GameMode") GameOptionsMenuPatch.ReloadUI(4);
+            if (item.Name == "GameMode") GameOptionsMenuPatch.ReloadUI(ModGameOptionsMenu.TabIndex);
             return false;
         }
 
@@ -672,7 +693,16 @@ public static class StringOptionPatch
             {
                 var roleName = role.IsVanilla() ? role + "EHR" : role.ToString();
                 var str = Translator.GetString($"{roleName}InfoLong");
-                var infoLong = str[(str.IndexOf('\n') + 1)..(str.Split("\n\n")[0].Length)];
+                string infoLong;
+                try
+                {
+                    infoLong = HnSManager.AllHnSRoles.Contains(role) ? str : str[(str.IndexOf('\n') + 1)..(str.Split("\n\n")[0].Length)];
+                }
+                catch
+                {
+                    infoLong = str;
+                }
+
                 var info = $"<size=70%>{role.ToColoredString()}: {infoLong}</size>";
                 GameSettingMenu.Instance.MenuDescriptionText.text = info;
                 return false;
@@ -703,8 +733,16 @@ public class GameSettingMenuPatch
     private static GameOptionsMenu TemplateGameOptionsMenu;
     private static PassiveButton TemplateGameSettingsButton;
 
-    static System.Collections.Generic.Dictionary<TabGroup, PassiveButton> ModSettingsButtons = [];
-    static System.Collections.Generic.Dictionary<TabGroup, GameOptionsMenu> ModSettingsTabs = [];
+    private static System.Collections.Generic.Dictionary<TabGroup, PassiveButton> ModSettingsButtons = [];
+    private static System.Collections.Generic.Dictionary<TabGroup, GameOptionsMenu> ModSettingsTabs = [];
+
+    public static NumberOption PresetBehaviour;
+    public static StringOption GameModeBehaviour;
+
+    public static FreeChatInputField InputField;
+    private static System.Collections.Generic.List<OptionItem> HiddenBySearch = [];
+    public static System.Collections.Generic.List<OptionItem> SearchWinners = [];
+    private static bool ShouldReveal;
 
     [HarmonyPatch(nameof(GameSettingMenu.Start)), HarmonyPrefix]
     [HarmonyPriority(Priority.First)]
@@ -743,7 +781,7 @@ public class GameSettingMenuPatch
             button.activeSprites.GetComponent<SpriteRenderer>().color = color;
             button.selectedSprites.GetComponent<SpriteRenderer>().color = color;
 
-            Vector3 offset = new(0.0f, 0.4f * (((int)tab + 1) / 2), 0.0f);
+            Vector3 offset = new(0f, 0.4f * (((int)tab + 1) / 2), 0f);
             button.transform.localPosition = ((((int)tab + 1) % 2 == 0) ? ButtonPositionLeft : ButtonPositionRight) - offset;
             button.transform.localScale = ButtonSize;
 
@@ -775,6 +813,166 @@ public class GameSettingMenuPatch
                 __instance.ControllerSelectable.Add(button);
             }
         }
+
+        if (ShouldReveal)
+        {
+            HiddenBySearch.Do(x => x.SetHidden(false));
+            SearchWinners.Clear();
+            HiddenBySearch.Clear();
+        }
+
+        SetupExtendedUI(__instance);
+    }
+
+    // Thanks: Drakos for the preset button and search bar code (https://github.com/0xDrMoe/TownofHost-Enhanced/pull/1115)
+    private static void SetupExtendedUI(GameSettingMenu __instance)
+    {
+        var ParentLeftPanel = __instance.GamePresetsButton.transform.parent;
+        var preset = Object.Instantiate(GameObject.Find("ModeValue"), ParentLeftPanel);
+
+        preset.transform.localPosition = new(-1.83f, 0.1f, -2f);
+        preset.transform.localScale = new(0.65f, 0.63f, 1f);
+        var renderer = preset.GetComponentInChildren<SpriteRenderer>();
+        renderer.color = Color.white;
+        renderer.sprite = null;
+
+        var presetTmp = preset.GetComponentInChildren<TextMeshPro>();
+        presetTmp.DestroyTranslator();
+        presetTmp.text = Translator.GetString($"Preset_{OptionItem.CurrentPreset + 1}");
+        presetTmp.fontSizeMax = 2.45f;
+        presetTmp.fontSizeMin = 2.45f;
+
+
+        var TempMinus = GameObject.Find("MinusButton").gameObject;
+        var GMinus = Object.Instantiate(__instance.GamePresetsButton.gameObject, preset.transform);
+        GMinus.gameObject.SetActive(true);
+        GMinus.transform.localScale = new(0.08f, 0.4f, 1f);
+
+        var MLabel = GMinus.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
+        MLabel.alignment = TextAlignmentOptions.Center;
+        MLabel.DestroyTranslator();
+        MLabel.text = "-";
+        MLabel.transform.localPosition = new(MLabel.transform.localPosition.x, MLabel.transform.localPosition.y + 0.26f, MLabel.transform.localPosition.z);
+        MLabel.color = Color.white;
+        MLabel.SetFaceColor(new Color(255f, 255f, 255f));
+        MLabel.transform.localScale = new(12f, 4f, 1f);
+
+        var Minus = GMinus.GetComponent<PassiveButton>();
+        Minus.OnClick.RemoveAllListeners();
+        Minus.OnClick.AddListener((Action)(() =>
+        {
+            if (PresetBehaviour == null) __instance.ChangeTab(3, false);
+            PresetBehaviour.Decrease();
+        }));
+        Minus.activeTextColor = Minus.inactiveTextColor = Minus.disabledTextColor = Minus.selectedTextColor = Color.white;
+
+        Minus.transform.localPosition = new(-2f, -3.37f, -4f);
+        Minus.inactiveSprites.GetComponent<SpriteRenderer>().sprite = TempMinus.GetComponentInChildren<SpriteRenderer>().sprite;
+        Minus.activeSprites.GetComponent<SpriteRenderer>().sprite = TempMinus.GetComponentInChildren<SpriteRenderer>().sprite;
+        Minus.selectedSprites.GetComponent<SpriteRenderer>().sprite = TempMinus.GetComponentInChildren<SpriteRenderer>().sprite;
+
+        Minus.inactiveSprites.GetComponent<SpriteRenderer>().color = new Color32(55, 59, 60, 255);
+        Minus.activeSprites.GetComponent<SpriteRenderer>().color = new Color32(0, 255, 165, 255);
+        Minus.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(0, 165, 255, 255);
+
+
+        var PlusFab = Object.Instantiate(GMinus, preset.transform);
+        var PLuLabel = PlusFab.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
+        PLuLabel.alignment = TextAlignmentOptions.Center;
+        PLuLabel.DestroyTranslator();
+        PLuLabel.text = "+";
+        PLuLabel.color = Color.white;
+        PLuLabel.transform.localPosition = new(PLuLabel.transform.localPosition.x, PLuLabel.transform.localPosition.y + 0.26f, PLuLabel.transform.localPosition.z);
+        PLuLabel.transform.localScale = new(18f, 4f, 1f);
+
+        var plus = PlusFab.GetComponent<PassiveButton>();
+        plus.OnClick.RemoveAllListeners();
+        plus.OnClick.AddListener((Action)(() =>
+        {
+            if (PresetBehaviour == null) __instance.ChangeTab(3, false);
+            PresetBehaviour.Increase();
+        }));
+        plus.activeTextColor = plus.inactiveTextColor = plus.disabledTextColor = plus.selectedTextColor = Color.white;
+        plus.transform.localPosition = new(-0.4f, -3.37f, -4f);
+
+
+        var GameSettingsLabel = __instance.GameSettingsButton.transform.parent.parent.FindChild("GameSettingsLabel").GetComponent<TextMeshPro>();
+        GameSettingsLabel.DestroyTranslator();
+        GameSettingsLabel.text = Translator.GetString($"Mode{Options.CurrentGameMode}").Split(':')[1].TrimStart(' ');
+        var GameSettingsLabelPos = GameSettingsLabel.transform.localPosition;
+
+        var gmCycler = Object.Instantiate(GMinus, GameSettingsLabel.transform, true);
+        gmCycler.transform.localScale = new(0.25f, 0.7f, 1f);
+        gmCycler.transform.localPosition = new(GameSettingsLabelPos.x + 0.8f, GameSettingsLabelPos.y - 2.9f, GameSettingsLabelPos.z);
+        var gmTmp = gmCycler.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
+        gmTmp.alignment = TextAlignmentOptions.Center;
+        gmTmp.DestroyTranslator();
+        gmTmp.text = "\u21c4";
+        gmTmp.color = Color.white;
+        gmTmp.transform.localPosition = new(GameSettingsLabelPos.x + 3.35f, GameSettingsLabelPos.y - 1.52f, GameSettingsLabelPos.z);
+        gmTmp.transform.localScale = new(4f, 1.5f, 1f);
+
+        var cycle = gmCycler.GetComponent<PassiveButton>();
+        cycle.OnClick.RemoveAllListeners();
+        cycle.OnClick.AddListener((Action)(() =>
+        {
+            if (GameModeBehaviour == null) __instance.ChangeTab(4, false);
+            GameModeBehaviour.Increase();
+        }));
+        cycle.activeTextColor = cycle.inactiveTextColor = cycle.disabledTextColor = cycle.selectedTextColor = Color.white;
+        cycle.transform.localPosition = new(1.15f, 0.08f, 1f);
+
+
+        var FreeChatField = DestroyableSingleton<ChatController>.Instance.freeChatField;
+        var TextField = Object.Instantiate(FreeChatField, ParentLeftPanel.parent);
+        TextField.transform.localScale = new(0.3f, 0.59f, 1);
+        TextField.transform.localPosition = new(-0.8f, -2.57f, -5f);
+        TextField.textArea.outputText.transform.localScale = new(3.5f, 2f, 1f);
+        TextField.textArea.outputText.font = PLuLabel.font;
+
+        InputField = TextField;
+
+        var button = TextField.transform.FindChild("ChatSendButton");
+
+        Object.Destroy(button.FindChild("Normal").FindChild("Icon").GetComponent<SpriteRenderer>());
+        Object.Destroy(button.FindChild("Hover").FindChild("Icon").GetComponent<SpriteRenderer>());
+        Object.Destroy(button.FindChild("Disabled").FindChild("Icon").GetComponent<SpriteRenderer>());
+        Object.Destroy(button.transform.FindChild("Text").GetComponent<TextMeshPro>());
+
+        button.FindChild("Normal").FindChild("Background").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.SearchIconActive.png", 100f);
+        button.FindChild("Hover").FindChild("Background").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.SearchIconHover.png", 100f);
+        button.FindChild("Disabled").FindChild("Background").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.SearchIcon.png", 100f);
+
+        PassiveButton passiveButton = button.GetComponent<PassiveButton>();
+
+        passiveButton.OnClick = new();
+        passiveButton.OnClick.AddListener((Action)(() => SearchForOptions(TextField)));
+        return;
+
+
+        static void SearchForOptions(FreeChatInputField textField)
+        {
+            if (ModGameOptionsMenu.TabIndex < 3) return;
+
+            HiddenBySearch.Do(x => x.SetHidden(false));
+            SearchWinners.Clear();
+            string text = textField.textArea.text.Trim().ToLower();
+            var Result = OptionItem.AllOptions.Where(x => x.Parent == null && !x.IsHiddenOn(Options.CurrentGameMode) && !Translator.GetString($"{x.Name}").Contains(text, StringComparison.OrdinalIgnoreCase) && x.Tab == (TabGroup)(ModGameOptionsMenu.TabIndex - 3)).ToList();
+            HiddenBySearch = Result;
+            SearchWinners = OptionItem.AllOptions.Where(x => x.Parent == null && !x.IsHiddenOn(Options.CurrentGameMode) && x.Tab == (TabGroup)(ModGameOptionsMenu.TabIndex - 3) && !Result.Contains(x)).ToList();
+            if (SearchWinners.Count == 0)
+            {
+                HiddenBySearch.Clear();
+                Logger.SendInGame(Translator.GetString("SearchNoResult"));
+                return;
+            }
+
+            Result.ForEach(x => x.SetHidden(true));
+
+            ShouldReveal = false;
+            GameOptionsMenuPatch.ReloadUI(ModGameOptionsMenu.TabIndex);
+            LateTask.New(() => ShouldReveal = true, 0.38f);
+        }
     }
 
     private static void SetDefaultButton(GameSettingMenu __instance)
@@ -783,12 +981,17 @@ public class GameSettingMenuPatch
 
         var gameSettingButton = __instance.GameSettingsButton;
         gameSettingButton.transform.localPosition = new(-3f, -0.4f, 0f);
+
         var textLabel = gameSettingButton.GetComponentInChildren<TextMeshPro>();
-        // textLabel.DestroyTranslator();
-        // textLabel.text = "";
+        textLabel.DestroyTranslator();
         textLabel.text = Translator.GetString("TabGroup.VanillaSettings");
-        gameSettingButton.activeTextColor = gameSettingButton.inactiveTextColor = Color.black;
-        gameSettingButton.selectedTextColor = Color.blue;
+
+        gameSettingButton.activeTextColor = gameSettingButton.inactiveTextColor = Color.white;
+        gameSettingButton.selectedTextColor = Color.gray;
+
+        gameSettingButton.inactiveSprites.GetComponent<SpriteRenderer>().color = Color.black;
+        gameSettingButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.gray;
+        gameSettingButton.selectedSprites.GetComponent<SpriteRenderer>().color = Color.black;
 
         gameSettingButton.transform.localPosition = ButtonPositionLeft;
         gameSettingButton.transform.localScale = ButtonSize;
@@ -825,6 +1028,13 @@ public class GameSettingMenuPatch
                     button.SelectButton(false);
                 }
             }
+        }
+
+        if (ShouldReveal)
+        {
+            HiddenBySearch.Do(x => x.SetHidden(false));
+            HiddenBySearch.Clear();
+            SearchWinners.Clear();
         }
 
         if (tabNum < 3) return true;
@@ -886,7 +1096,7 @@ public class GameSettingMenuPatch
         DestroyableSingleton<HudManager>.Instance.menuNavigationPrompts.SetActive(false);
         if (Controller.currentTouchType != Controller.TouchType.Joystick)
         {
-            __instance.ChangeTab(1, Controller.currentTouchType == Controller.TouchType.Joystick);
+            __instance.ChangeTab(1, false);
         }
 
         __instance.StartCoroutine(__instance.CoSelectDefault());
@@ -901,6 +1111,39 @@ public class GameSettingMenuPatch
         foreach (var tab in ModSettingsTabs.Values) Object.Destroy(tab);
         ModSettingsButtons = [];
         ModSettingsTabs = [];
+    }
+}
+
+[HarmonyPatch(typeof(FreeChatInputField), nameof(FreeChatInputField.UpdateCharCount))]
+public static class FixInputChatField
+{
+    public static bool Prefix(FreeChatInputField __instance)
+    {
+        if (GameSettingMenuPatch.InputField != null && __instance == GameSettingMenuPatch.InputField)
+        {
+            Vector2 size = __instance.Background.size;
+            size.y = Math.Max(0.62f, __instance.textArea.TextHeight + 0.2f);
+            __instance.Background.size = size;
+            return false;
+        }
+
+        return true;
+    }
+}
+
+[HarmonyPatch(typeof(ChatController), nameof(ChatController.Update))]
+public static class FixDarkThemeForSearchBar
+{
+    public static void Postfix()
+    {
+        if (!GameSettingMenu.Instance) return;
+        var field = GameSettingMenuPatch.InputField;
+        if (field != null)
+        {
+            field.background.color = new Color32(40, 40, 40, byte.MaxValue);
+            field.textArea.compoText.Color(Color.white);
+            field.textArea.outputText.color = Color.white;
+        }
     }
 }
 

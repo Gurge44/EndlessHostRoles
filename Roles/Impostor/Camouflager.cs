@@ -9,7 +9,7 @@ namespace EHR.Impostor
         public static OptionItem CamouflageCooldown;
         private static OptionItem CamouflageDuration;
         private static OptionItem CamoLimitOpt;
-        public static OptionItem CamoAbilityUseGainWithEachKill;
+        public static OptionItem AbilityUseGainWithEachKill;
         public static OptionItem DoesntSpawnOnFungle;
 
         public static bool IsActive;
@@ -26,7 +26,7 @@ namespace EHR.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
             CamoLimitOpt = new IntegerOptionItem(Id + 4, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
                 .SetValueFormat(OptionFormat.Times);
-            CamoAbilityUseGainWithEachKill = new FloatOptionItem(Id + 5, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles)
+            AbilityUseGainWithEachKill = new FloatOptionItem(Id + 5, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
                 .SetValueFormat(OptionFormat.Times);
             DoesntSpawnOnFungle = new BooleanOptionItem(Id + 6, "DoesntSpawnOnFungle", false, TabGroup.ImpostorRoles)

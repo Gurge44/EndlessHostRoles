@@ -67,7 +67,7 @@ namespace EHR.Neutral
             opt.SetVision(HasImpostorVision.GetBool());
             if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
                 AURoleOptions.PhantomCooldown = 1f;
-            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
                 AURoleOptions.ShapeshifterCooldown = 1f;
         }
 

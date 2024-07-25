@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
@@ -902,17 +901,22 @@ internal static class RPC
 
     public static async void RpcVersionCheck()
     {
-        while (PlayerControl.LocalPlayer == null) await Task.Delay(500);
-        MessageWriter writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.VersionCheck);
-        writer.Write(Main.PluginVersion);
-        writer.Write($"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})");
-        writer.Write(Main.ForkId);
-        writer.EndMessage();
+        Main.Instance.StartCoroutine(VersionCheck());
 
-        Main.PlayerVersion[PlayerControl.LocalPlayer.PlayerId] = new(Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
+        System.Collections.IEnumerator VersionCheck()
+        {
+            while (PlayerControl.LocalPlayer == null) yield return null;
+            MessageWriter writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.VersionCheck);
+            writer.Write(Main.PluginVersion);
+            writer.Write($"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})");
+            writer.Write(Main.ForkId);
+            writer.EndMessage();
 
-        if (GameStates.IsModHost)
-            Main.HostClientId = Utils.GetPlayerById(0)?.GetClientId() ?? -1;
+            Main.PlayerVersion[PlayerControl.LocalPlayer.PlayerId] = new(Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
+
+            if (GameStates.IsModHost)
+                Main.HostClientId = Utils.GetPlayerById(0)?.GetClientId() ?? -1;
+        }
     }
 
     public static void SendDeathReason(byte playerId, PlayerState.DeathReason deathReason)

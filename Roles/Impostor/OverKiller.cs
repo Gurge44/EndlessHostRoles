@@ -13,11 +13,15 @@ namespace EHR.Impostor
         public static bool On;
 
         public static List<byte> OverDeadPlayerList = [];
+        private static OptionItem KillCooldown;
         public override bool IsEnable => On;
 
         public static void SetupCustomOption()
         {
             Options.SetupRoleOptions(16900, TabGroup.ImpostorRoles, CustomRoles.OverKiller);
+            KillCooldown = new FloatOptionItem(16902, "KillCooldown", new(0f, 180f, 0.5f), 20f, TabGroup.ImpostorRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.OverKiller])
+                .SetValueFormat(OptionFormat.Seconds);
         }
 
         public override void Add(byte playerId)
@@ -37,7 +41,7 @@ namespace EHR.Impostor
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = 0;
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using static EHR.Options;
 
 namespace EHR.Impostor
@@ -51,7 +50,6 @@ namespace EHR.Impostor
                 CapitalismAssignTask.TryAdd(target.PlayerId, 0);
                 CapitalismAssignTask[target.PlayerId]++;
                 Logger.Info($"{killer.GetRealName()} added a task for：{target.GetRealName()}", "Capitalism Add Task");
-                //killer.RpcGuardAndKill(killer);
                 killer.SetKillCooldown(CapitalismSkillCooldown.GetFloat());
             });
         }
@@ -64,7 +62,7 @@ namespace EHR.Impostor
                 taskState.AllTasksCount += amount;
                 CapitalismAddTask.Remove(player.PlayerId);
                 taskState.CompletedTasksCount++;
-                player.Data.RpcSetTasks(Array.Empty<byte>()); // Redistribute tasks
+                player.Data.RpcSetTasks(new(0)); // Redistribute tasks
                 player.SyncSettings();
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 return false;

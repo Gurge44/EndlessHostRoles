@@ -672,6 +672,7 @@ class IntroCutsceneDestroyPatch
                     pc.RpcResetAbilityCooldown();
                     if (pc.GetCustomRole().UsesPetInsteadOfKill()) pc.AddAbilityCD(10);
                     else pc.AddAbilityCD(includeDuration: false);
+                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, NoCache: true);
                 }
 
                 if (Options.StartingKillCooldown.GetInt() is not 10 and > 0)

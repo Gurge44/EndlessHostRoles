@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using UnityEngine;
@@ -88,7 +87,7 @@ public class Workhorse : IAddon
         if (AmongUsClient.Instance.AmHost)
         {
             Add(pc.PlayerId);
-            pc.Data.RpcSetTasks(Array.Empty<byte>()); // Redistribute tasks
+            pc.Data.RpcSetTasks(new(0)); // Redistribute tasks
             pc.SyncSettings();
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }

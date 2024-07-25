@@ -59,11 +59,17 @@ public class Werewolf : RoleBase
 
         RampageTime = -10;
         lastTime = -10;
-        CD = 0;
+        CD = StartingKillCooldown.GetInt();
+
+        LateTask.New(() =>
+        {
+            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
+                Utils.GetPlayerById(playerId).RpcResetAbilityCooldown();
+        }, 9f, log: false);
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanRampage || IsRampaging || pc.inVent;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => (CanRampage && (!UseUnshiftTrigger.GetBool() || UseUnshiftTriggerForNKs.GetBool())) || IsRampaging || pc.inVent;
     public override bool CanUseKillButton(PlayerControl pc) => IsRampaging;
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
@@ -71,7 +77,7 @@ public class Werewolf : RoleBase
         opt.SetVision(HasImpostorVision.GetBool());
         if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
             AURoleOptions.PhantomCooldown = 1f;
-        if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+        if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
             AURoleOptions.ShapeshifterCooldown = 1f;
     }
 
@@ -100,7 +106,7 @@ public class Werewolf : RoleBase
 
     public override void OnFixedUpdate(PlayerControl player)
     {
-        if (!GameStates.IsInTask || !IsEnable || player == null) return;
+        if (!GameStates.IsInTask || !IsEnable || Main.HasJustStarted || player == null) return;
 
         var now = Utils.TimeStamp;
 
@@ -116,7 +122,7 @@ public class Werewolf : RoleBase
             if (lastTime + (long)RampageCD.GetFloat() < now)
             {
                 lastTime = -10;
-                if (!player.IsModClient()) player.Notify(GetString("WWCanRampage"));
+                if (!player.IsModClient()) player.Notify(GetString(UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool() ? "WWCanRampageUnshift" : "WWCanRampage"));
                 SendRPC();
                 CD = 0;
             }
@@ -199,7 +205,7 @@ public class Werewolf : RoleBase
         }
         else
         {
-            str.Append(GetString("WWCanRampage"));
+            str.Append(GetString(UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool() ? "WWCanRampageUnshift" : "WWCanRampage"));
         }
 
         return str.ToString();

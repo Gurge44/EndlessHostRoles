@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using EHR.AddOns;
@@ -907,10 +906,10 @@ public static class Options
         int defaultPresetNumber = OptionSaver.GetDefaultPresetNumber();
         _ = new PresetOptionItem(defaultPresetNumber, TabGroup.SystemSettings)
             .SetColor(new Color32(255, 235, 4, byte.MaxValue))
-            .SetHeader(true);
+            .SetHidden(true);
 
         GameMode = new StringOptionItem(1, "GameMode", GameModes, 0, TabGroup.GameSettings)
-            .SetHeader(true);
+            .SetHidden(true);
 
         #region Settings
 

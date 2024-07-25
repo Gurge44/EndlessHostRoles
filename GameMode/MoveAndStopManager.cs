@@ -68,7 +68,7 @@ public class Counter(int totalGreenTime, int totalRedTime, long startTimeStamp, 
             if (Timer is <= 19 and >= 10 && !IsYellow) result = $" {result}";
             if (Timer % 10 == 1 && !IsYellow) result = result.Insert(result.Length - 9, " ");
 
-            return $"<font=\"DIGITAL-7 SDF\"><size=130%>{result}</size></font>";
+            return $"<font=\"DIGITAL-7 SDF\" material=\"DIGITAL-7 Black Outline\"><size=130%>{result}</size></font>";
         }
     }
 

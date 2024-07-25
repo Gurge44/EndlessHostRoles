@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using UnityEngine;
@@ -13,9 +14,11 @@ namespace EHR.Neutral
         private static OptionItem Distance;
         private static OptionItem Time;
         private static OptionItem StingCooldown;
+        private static OptionItem StungPlayersDieOnMeeting;
         private static OptionItem KillCooldown;
         private static OptionItem CanVent;
         private static OptionItem HasImpostorVision;
+
         private byte BeehiveId;
         public Dictionary<byte, (long TimeStamp, Vector2 InitialPosition)> StungPlayers = [];
 
@@ -33,6 +36,8 @@ namespace EHR.Neutral
             StingCooldown = new FloatOptionItem(++id, "Beehive.StingCooldown", new(0f, 180f, 0.5f), 5f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Beehive])
                 .SetValueFormat(OptionFormat.Seconds);
+            StungPlayersDieOnMeeting = new BooleanOptionItem(++id, "Beehive.StungPlayersDieOnMeeting", true, TabGroup.NeutralRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Beehive]);
             KillCooldown = new FloatOptionItem(++id, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Beehive])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -89,6 +94,18 @@ namespace EHR.Neutral
 
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }
+        }
+
+        public override void OnReportDeadBody()
+        {
+            if (StungPlayersDieOnMeeting.GetBool())
+            {
+                StungPlayers.Keys.Select(x => Utils.GetPlayerById(x)).DoIf(
+                    x => x != null && x.IsAlive(),
+                    x => x.Suicide(realKiller: Utils.GetPlayerById(BeehiveId)));
+            }
+
+            StungPlayers.Clear();
         }
 
         public void ReceiveRPC(Hazel.MessageReader reader)

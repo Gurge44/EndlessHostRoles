@@ -1,5 +1,4 @@
-﻿using System;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 
 namespace EHR.AddOns.GhostRoles
 {
@@ -25,7 +24,7 @@ namespace EHR.AddOns.GhostRoles
                 taskState.CompletedTasksCount = 0;
                 taskState.AllTasksCount = Utils.TotalTaskCount - Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks);
 
-                pc.Data.RpcSetTasks(Array.Empty<byte>());
+                pc.Data.RpcSetTasks(new(0));
                 pc.SyncSettings();
                 pc.RpcResetAbilityCooldown();
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);

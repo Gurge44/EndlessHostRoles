@@ -63,7 +63,7 @@ namespace EHR.Neutral
         {
             if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool())
                 AURoleOptions.PhantomCooldown = 1f;
-            if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool())
+            if (Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool())
                 AURoleOptions.ShapeshifterCooldown = 1f;
             var room = Utils.GetPlayerById(id)?.GetPlainShipRoom();
             if (room == null) return;

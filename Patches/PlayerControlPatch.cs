@@ -400,6 +400,12 @@ class CheckMurderPatch
             return false;
         }
 
+        if (!Bodyguard.OnAnyoneCheckMurder(killer, target))
+        {
+            Notify("BodyguardProtected");
+            return false;
+        }
+
         if (Echo.On)
         {
             foreach (Echo echo in Echo.Instances)
@@ -1113,7 +1119,7 @@ class FixedUpdatePatch
     private static long LastAddAbilityTime;
     private static bool ChatOpen;
 
-    public static async void Postfix(PlayerControl __instance)
+    public static void Postfix(PlayerControl __instance)
     {
         if (__instance == null || __instance.PlayerId == 255) return;
 
@@ -1189,7 +1195,7 @@ class FixedUpdatePatch
 
         try
         {
-            await DoPostfix(__instance);
+            DoPostfix(__instance);
         }
         catch (Exception ex)
         {

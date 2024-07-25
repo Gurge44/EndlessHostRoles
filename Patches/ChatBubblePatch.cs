@@ -5,7 +5,7 @@ using UnityEngine;
 namespace EHR.Patches;
 
 [HarmonyPatch(typeof(ChatBubble), nameof(ChatBubble.SetRight))]
-class ChatBubbleSetRightPatch
+static class ChatBubbleSetRightPatch
 {
     public static void Postfix(ChatBubble __instance)
     {
@@ -14,7 +14,7 @@ class ChatBubbleSetRightPatch
 }
 
 [HarmonyPatch(typeof(ChatBubble), nameof(ChatBubble.SetName))]
-class ChatBubbleSetNamePatch
+static class ChatBubbleSetNamePatch
 {
     public static void Postfix(ChatBubble __instance, [HarmonyArgument(2)] bool voted)
     {
@@ -31,6 +31,8 @@ class ChatBubbleSetNamePatch
         {
             __instance.Background.color = Color.black;
             __instance.TextArea.color = Color.white;
+            if (!__instance.playerInfo.Object.IsAlive())
+                __instance.Background.color = new(0f, 0f, 0f, 0.7f);
         }
     }
 }

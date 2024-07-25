@@ -38,8 +38,8 @@ namespace EHR.Impostor
             SSCD = new FloatOptionItem(Id + 7, "ShapeshiftCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(ShowSSAnimation)
                 .SetValueFormat(OptionFormat.Seconds);
-            SSDur = new FloatOptionItem(Id + 8, "ShapeshiftDuration", new(2.5f, 60f, 2.5f), 10f, TabGroup.ImpostorRoles)
-                .SetParent(ShowSSAnimation)
+            SSDur = new FloatOptionItem(Id + 8, "LibrarianSilenceDuration", new(2.5f, 60f, 2.5f), 10f, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Librarian])
                 .SetValueFormat(OptionFormat.Seconds);
             CanKillWhileShifted = new BooleanOptionItem(Id + 9, "CanKillWhileShifted", false, TabGroup.ImpostorRoles)
                 .SetParent(ShowSSAnimation);
@@ -98,12 +98,13 @@ namespace EHR.Impostor
             PlayerControl librarian = null;
             float silenceRadius = Radius.GetFloat();
 
-            foreach (var id in playerIdList.ToArray())
+            foreach (var id in playerIdList)
             {
                 if (Main.PlayerStates[id].Role is not Librarian lr) continue;
                 if (!lr.IsInSilencingMode.SILENCING) continue;
 
                 var pc = GetPlayerById(id);
+                if (pc == null || !pc.IsAlive()) continue;
                 if (Vector2.Distance(pc.Pos(), reporter.Pos()) <= silenceRadius)
                 {
                     librarian = pc;
@@ -115,8 +116,14 @@ namespace EHR.Impostor
             reporter.SetRealKiller(librarian);
             if (librarian.RpcCheckAndMurder(reporter))
             {
+                Logger.Info(" Counter kill (report during and in range of silence)", "Librarian");
                 sssh.Add(librarian.PlayerId);
-                LateTask.New(() => { sssh.Remove(librarian.PlayerId); }, NameDuration.GetInt(), "Librarian sssh text");
+                NotifyRoles(SpecifyTarget: librarian);
+                LateTask.New(() =>
+                {
+                    sssh.Remove(librarian.PlayerId);
+                    NotifyRoles(SpecifyTarget: librarian);
+                }, NameDuration.GetInt(), "Librarian sssh text");
             }
 
             return false;
@@ -146,6 +153,7 @@ namespace EHR.Impostor
         {
             IsInSilencingMode = (!IsInSilencingMode.SILENCING, TimeStamp);
             SendRPC(pc.PlayerId, IsInSilencingMode.SILENCING);
+            NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
         public override void OnFixedUpdate(PlayerControl pc)

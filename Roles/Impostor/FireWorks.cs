@@ -124,7 +124,7 @@ public class FireWorks : RoleBase
     public override bool OnShapeshift(PlayerControl pc, PlayerControl _, bool shapeshifting)
     {
         Logger.Info("FireWorks ShapeShift", "FireWorks");
-        if (pc == null || pc.Data.IsDead || !shapeshifting || Pelican.IsEaten(pc.PlayerId)) return false;
+        if (pc == null || pc.Data.IsDead || (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) || Pelican.IsEaten(pc.PlayerId)) return false;
         UseAbility(pc);
 
         return false;

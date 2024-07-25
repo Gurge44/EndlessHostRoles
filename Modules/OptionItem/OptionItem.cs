@@ -170,7 +170,27 @@ public abstract class OptionItem
 
     public virtual bool IsHiddenOn(CustomGameMode mode)
     {
-        return IsHidden || (GameMode != CustomGameMode.All && GameMode != mode);
+        return IsHidden || CheckSearchHidden() || (GameMode != CustomGameMode.All && GameMode != mode);
+    }
+
+    private bool CheckSearchHidden()
+    {
+        if (!GameSettingMenuPatch.SearchWinners.Any())
+            return false;
+
+        var LastParent = this.Id;
+
+        for (var i = 0; i < 5; i++)
+        {
+            if (AllOptions.First(x => x.Id == LastParent).Parent == null) break;
+            LastParent = AllOptions.First(x => x.Id == LastParent).Parent.Id;
+        }
+
+        if (!GameSettingMenuPatch.SearchWinners.Contains(AllOptions.First(x => x.Id == LastParent)))
+            return true;
+
+
+        return false;
     }
 
     public string ApplyFormat(string value)
