@@ -4061,7 +4061,7 @@
   "SpurtMaxSpeed": "Максимальная скорость",
   "SpurtModule": "Модулятор скорости",
   "EnableSpurtCharge": "Отобразить заряд",
-  "SpurtSuffix": "\\n« <color=#c9e8f5>Spurt</color>: {0}% »",
+  "SpurtSuffix": "\\n« <color=#c9e8f5>Рывок</color>: {0}% »",
   "Nimble": "Nimble",
   "NimbleInfo": "У вас есть доступ к люкам",
   "NimbleInfoLong": "(Атрибут Членов Экипажа):\\nДаёт возможность прыгать в люки игрокам, чья роль базирована на Crewmate/Impostor.",
