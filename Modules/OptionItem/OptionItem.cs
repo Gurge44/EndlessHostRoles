@@ -177,7 +177,6 @@ public abstract class OptionItem
     {
         var LastParent = this.Id;
 
-
         for (var i = 0; i < 5; i++)
         {
             if (AllOptions.First(x => x.Id == LastParent).Parent == null) break;
