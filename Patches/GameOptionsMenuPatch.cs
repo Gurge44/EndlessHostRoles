@@ -821,8 +821,6 @@ public class GameSettingMenuPatch
             setTab.name = "tab_" + tab;
             setTab.gameObject.SetActive(false);
 
-            Logger.Info($"{tab}/{setTab.name}", "SettingTabs");
-
             ModSettingsTabs.Add(tab, setTab);
         }
 
