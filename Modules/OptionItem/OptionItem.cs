@@ -186,7 +186,7 @@ public abstract class OptionItem
         return this.IsHidden || this.Parent?.IsHidden == true || AllOptions.First(x => x.Id == LastParent).IsHidden;
     }
 
-    public string ApplyFormat(string value)
+    protected string ApplyFormat(string value)
     {
         if (ValueFormat == OptionFormat.None) return value;
         return string.Format(Translator.GetString("Format." + ValueFormat), value);

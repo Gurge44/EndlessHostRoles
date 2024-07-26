@@ -979,9 +979,12 @@ static class ExtendedPlayerControl
     public static bool HasGhostRole(this PlayerControl player) => GhostRolesManager.AssignedGhostRoles.ContainsKey(player.PlayerId) || Main.PlayerStates.TryGetValue(player.PlayerId, out var state) && state.SubRoles.Any(x => x.IsGhostRole());
 
     public static bool KnowDeathReason(this PlayerControl seer, PlayerControl target)
-        => ((seer.Is(CustomRoles.Doctor) || seer.Is(CustomRoles.Autopsy)
-                                         || (seer.Data.IsDead && Options.GhostCanSeeDeathReason.GetBool()))
-            && target.Data.IsDead) || (target.Is(CustomRoles.Gravestone) && target.Data.IsDead);
+        => (seer.Is(CustomRoles.Doctor)
+            || seer.Is(CustomRoles.Autopsy)
+            || Options.EveryoneSeesDeathReasons.GetBool()
+            || target.Is(CustomRoles.Gravestone)
+            || (seer.Data.IsDead && Options.GhostCanSeeDeathReason.GetBool()))
+           && target.Data.IsDead;
 
     public static string GetRoleInfo(this PlayerControl player, bool InfoLong = false)
     {

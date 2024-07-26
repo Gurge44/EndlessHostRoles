@@ -175,6 +175,7 @@ public static class Options
     public static OptionItem EnableKillerLeftCommand;
 
     public static OptionItem SeeEjectedRolesInMeeting;
+    public static OptionItem EveryoneSeesDeathReasons;
 
     public static OptionItem DisableShieldAnimations;
     public static OptionItem DisableShapeshiftAnimations;
@@ -2034,6 +2035,9 @@ public static class Options
             .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
         SeeEjectedRolesInMeeting = new BooleanOptionItem(44439, "SeeEjectedRolesInMeeting", true, TabGroup.GameSettings)
+            .SetColor(new Color32(147, 241, 240, byte.MaxValue));
+
+        EveryoneSeesDeathReasons = new BooleanOptionItem(44440, "EveryoneSeesDeathReasons", false, TabGroup.GameSettings)
             .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
         LoadingPercentage = 94;
