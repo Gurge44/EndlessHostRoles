@@ -391,7 +391,7 @@ public static class GameOptionsMenuPatch
                 GameSettingMenu.Instance?.ChangeTab(index, Controller.currentTouchType == Controller.TouchType.Joystick);
                 ModGameOptionsMenu.TabIndex = index;
             }
-        }, 0.28f, log: false);
+        }, 0.38f, log: false);
     }
 }
 
@@ -741,7 +741,7 @@ public class GameSettingMenuPatch
 
     public static FreeChatInputField InputField;
     private static System.Collections.Generic.List<OptionItem> HiddenBySearch = [];
-    public static System.Collections.Generic.List<OptionItem> SearchWinners = [];
+     //public static System.Collections.Generic.List<OptionItem> SearchWinners = [];
     private static bool ShouldReveal;
 
     [HarmonyPatch(nameof(GameSettingMenu.Start)), HarmonyPrefix]
@@ -817,7 +817,6 @@ public class GameSettingMenuPatch
         if (ShouldReveal)
         {
             HiddenBySearch.Do(x => x.SetHidden(false));
-            SearchWinners.Clear();
             HiddenBySearch.Clear();
         }
 
@@ -955,11 +954,10 @@ public class GameSettingMenuPatch
             if (ModGameOptionsMenu.TabIndex < 3) return;
 
             HiddenBySearch.Do(x => x.SetHidden(false));
-            SearchWinners.Clear();
             string text = textField.textArea.text.Trim().ToLower();
             var Result = OptionItem.AllOptions.Where(x => x.Parent == null && !x.IsHiddenOn(Options.CurrentGameMode) && !Translator.GetString($"{x.Name}").Contains(text, StringComparison.OrdinalIgnoreCase) && x.Tab == (TabGroup)(ModGameOptionsMenu.TabIndex - 3)).ToList();
             HiddenBySearch = Result;
-            SearchWinners = OptionItem.AllOptions.Where(x => x.Parent == null && !x.IsHiddenOn(Options.CurrentGameMode) && x.Tab == (TabGroup)(ModGameOptionsMenu.TabIndex - 3) && !Result.Contains(x)).ToList();
+            var SearchWinners = OptionItem.AllOptions.Where(x => x.Parent == null && !x.IsHiddenOn(Options.CurrentGameMode) && x.Tab == (TabGroup)(ModGameOptionsMenu.TabIndex - 3) && !Result.Contains(x)).ToList();
             if (SearchWinners.Count == 0)
             {
                 HiddenBySearch.Clear();
@@ -971,7 +969,7 @@ public class GameSettingMenuPatch
 
             ShouldReveal = false;
             GameOptionsMenuPatch.ReloadUI(ModGameOptionsMenu.TabIndex);
-            LateTask.New(() => ShouldReveal = true, 0.38f);
+            LateTask.New(() => ShouldReveal = true, 0.48f);
         }
     }
 
@@ -1034,7 +1032,6 @@ public class GameSettingMenuPatch
         {
             HiddenBySearch.Do(x => x.SetHidden(false));
             HiddenBySearch.Clear();
-            SearchWinners.Clear();
         }
 
         if (tabNum < 3) return true;
