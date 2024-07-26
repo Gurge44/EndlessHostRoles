@@ -24,6 +24,7 @@ public static class ModGameOptionsMenu
 public static class GameOptionsMenuPatch
 {
     public static GameOptionsMenu Instance;
+
     [HarmonyPatch(nameof(GameOptionsMenu.Initialize)), HarmonyPrefix]
     private static bool InitializePrefix(GameOptionsMenu __instance)
     {
@@ -640,6 +641,23 @@ public static class StringOptionPatch
             var item = OptionItem.AllOptions[index];
             item.SetValue(__instance.GetInt());
             if (item.Name == "GameMode") GameOptionsMenuPatch.ReloadUI(ModGameOptionsMenu.TabIndex);
+
+            var name = item.GetName();
+            string name1 = name;
+            if (Enum.GetValues<CustomRoles>().Find(x => Translator.GetString($"{x}") == name1.RemoveHtmlTags(), out var role))
+            {
+                name = name.RemoveHtmlTags();
+                if (Options.UsePets.GetBool() && role.PetActivatedAbility()) name += Translator.GetString("SupportsPetIndicator");
+                if (!Options.UsePets.GetBool() && role.OnlySpawnsWithPets()) name += Translator.GetString("RequiresPetIndicator");
+                __instance.TitleText.fontWeight = FontWeight.Black;
+                __instance.TitleText.outlineColor = new(255, 255, 255, 255);
+                __instance.TitleText.outlineWidth = 0.04f;
+                __instance.LabelBackground.color = Utils.GetRoleColor(role);
+                __instance.TitleText.color = Color.white;
+                name = $"<size=3.5>{name}</size>";
+            }
+
+            __instance.TitleText.text = name;
             return false;
         }
 
@@ -1007,7 +1025,7 @@ public class GameSettingMenuPatch
             HiddenBySearch.Clear();
         }
 
-        ModGameOptionsMenu.TabIndex = tabNum;
+        if (!previewOnly || tabNum != 1) ModGameOptionsMenu.TabIndex = tabNum;
 
         GameOptionsMenu settingsTab;
         PassiveButton button;
@@ -1030,7 +1048,7 @@ public class GameSettingMenuPatch
                 }
             }
         }
-      
+
         if (tabNum < 3) return true;
 
         TabGroup tabGroup = (TabGroup)(tabNum - 3);

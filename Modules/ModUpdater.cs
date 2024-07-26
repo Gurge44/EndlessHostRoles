@@ -17,16 +17,15 @@ namespace EHR;
 public class ModUpdater
 {
     private const string URLGithub = "https://api.github.com/repos/Gurge44/EndlessHostRoles";
-    public static bool hasUpdate;
-    public static bool hasOutdate;
-    public static bool forceUpdate = false;
-    public static bool isBroken;
-    public static bool isChecked;
-    public static Version latestVersion;
-    public static string latestTitle;
-    public static string downloadUrl;
-    public static string notice = null;
-    public static GenericPopup InfoPopup;
+    public static bool HasUpdate;
+    private static bool HasOutdate;
+    public static bool ForceUpdate = false;
+    public static bool IsBroken;
+    private static bool IsChecked;
+    private static Version LatestVersion;
+    private static string LatestTitle;
+    public static string DownloadUrl;
+    private static GenericPopup InfoPopup;
 
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPrefix]
     [HarmonyPriority(2)]
@@ -37,14 +36,14 @@ public class ModUpdater
         InfoPopup = Object.Instantiate(TwitchManager.Instance.TwitchPopup);
         InfoPopup.name = "InfoPopup";
         InfoPopup.TextAreaTMP.GetComponent<RectTransform>().sizeDelta = new(2.5f, 2f);
-        if (!isChecked)
+        if (!IsChecked)
         {
             bool done = CheckReleaseFromGithub(Main.BetaBuildUrl.Value != "").GetAwaiter().GetResult();
             Logger.Warn("done: " + done, "CheckRelease");
-            Logger.Info("hasupdate: " + hasUpdate, "CheckRelease");
-            Logger.Info("forceupdate: " + forceUpdate, "CheckRelease");
-            Logger.Info("downloadUrl: " + downloadUrl, "CheckRelease");
-            Logger.Info("latestVersionl: " + latestVersion, "CheckRelease");
+            Logger.Info("hasupdate: " + HasUpdate, "CheckRelease");
+            Logger.Info("forceupdate: " + ForceUpdate, "CheckRelease");
+            Logger.Info("downloadUrl: " + DownloadUrl, "CheckRelease");
+            Logger.Info("latestVersionl: " + LatestVersion, "CheckRelease");
         }
     }
 
@@ -90,47 +89,47 @@ public class ModUpdater
             JObject data = JObject.Parse(result);
             if (beta)
             {
-                latestTitle = data["name"].ToString();
-                downloadUrl = data["url"].ToString();
-                hasUpdate = latestTitle != ThisAssembly.Git.Commit;
+                LatestTitle = data["name"].ToString();
+                DownloadUrl = data["url"].ToString();
+                HasUpdate = LatestTitle != ThisAssembly.Git.Commit;
             }
             else
             {
-                latestVersion = new(data["tag_name"]?.ToString().TrimStart('v') ?? string.Empty);
-                latestTitle = $"Ver. {latestVersion}";
+                LatestVersion = new(data["tag_name"]?.ToString().TrimStart('v') ?? string.Empty);
+                LatestTitle = $"Ver. {LatestVersion}";
                 JArray assets = data["assets"].Cast<JArray>();
                 for (int i = 0; i < assets.Count; i++)
                 {
-                    if (assets[i]["name"].ToString() == $"EHR.v{latestVersion}.zip")
+                    if (assets[i]["name"].ToString() == $"EHR.v{LatestVersion}.zip")
                     {
-                        downloadUrl = assets[i]["browser_download_url"].ToString();
+                        DownloadUrl = assets[i]["browser_download_url"].ToString();
                         break;
                     }
                 }
 
-                hasUpdate = latestVersion.CompareTo(Main.Version) > 0;
-                hasOutdate = latestVersion.CompareTo(Main.Version) < 0;
+                HasUpdate = LatestVersion.CompareTo(Main.Version) > 0;
+                HasOutdate = LatestVersion.CompareTo(Main.Version) < 0;
             }
 
-            Logger.Info("hasupdate: " + hasUpdate, "GitHub");
-            Logger.Info("hasoutdate: " + hasOutdate, "GitHub");
-            Logger.Info("forceupdate: " + forceUpdate, "GitHub");
-            Logger.Info("downloadUrl: " + downloadUrl, "GitHub");
-            Logger.Info("latestVersionl: " + latestVersion, "GitHub");
-            Logger.Info("latestTitle: " + latestTitle, "GitHub");
+            Logger.Info("hasupdate: " + HasUpdate, "GitHub");
+            Logger.Info("hasoutdate: " + HasOutdate, "GitHub");
+            Logger.Info("forceupdate: " + ForceUpdate, "GitHub");
+            Logger.Info("downloadUrl: " + DownloadUrl, "GitHub");
+            Logger.Info("latestVersionl: " + LatestVersion, "GitHub");
+            Logger.Info("latestTitle: " + LatestTitle, "GitHub");
 
-            if (string.IsNullOrEmpty(downloadUrl))
+            if (string.IsNullOrEmpty(DownloadUrl))
             {
                 Logger.Error("No Download URL", "CheckRelease");
                 return false;
             }
 
-            isChecked = true;
-            isBroken = false;
+            IsChecked = true;
+            IsBroken = false;
         }
         catch (Exception ex)
         {
-            isBroken = true;
+            IsBroken = true;
             Logger.Error($"Error while checking release from GitHub:\n{ex}", "CheckRelease", false);
             return false;
         }

@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
@@ -554,23 +553,23 @@ class BeginCrewmatePatch
             }
         }
 
-        if (Input.GetKey(KeyCode.RightShift))
-        {
-            __instance.TeamTitle.text = "明天就跑路啦";
-            __instance.ImpostorText.gameObject.SetActive(true);
-            __instance.ImpostorText.text = "嘿嘿嘿嘿嘿嘿";
-            __instance.TeamTitle.color = Color.cyan;
-            StartFadeIntro(__instance, Color.cyan, Color.yellow);
-        }
-
-        if (Input.GetKey(KeyCode.RightControl))
-        {
-            __instance.TeamTitle.text = "警告";
-            __instance.ImpostorText.gameObject.SetActive(true);
-            __instance.ImpostorText.text = "请远离无知的玩家";
-            __instance.TeamTitle.color = Color.magenta;
-            StartFadeIntro(__instance, Color.magenta, Color.magenta);
-        }
+        // if (Input.GetKey(KeyCode.RightShift))
+        // {
+        //     __instance.TeamTitle.text = "明天就跑路啦";
+        //     __instance.ImpostorText.gameObject.SetActive(true);
+        //     __instance.ImpostorText.text = "嘿嘿嘿嘿嘿嘿";
+        //     __instance.TeamTitle.color = Color.cyan;
+        //     StartFadeIntro(__instance, Color.cyan, Color.yellow);
+        // }
+        //
+        // if (Input.GetKey(KeyCode.RightControl))
+        // {
+        //     __instance.TeamTitle.text = "警告";
+        //     __instance.ImpostorText.gameObject.SetActive(true);
+        //     __instance.ImpostorText.text = "请远离无知的玩家";
+        //     __instance.TeamTitle.color = Color.magenta;
+        //     StartFadeIntro(__instance, Color.magenta, Color.magenta);
+        // }
 
         return;
 
@@ -591,6 +590,7 @@ class BeginCrewmatePatch
         return RoleManager.Instance.AllRoles.FirstOrDefault(role => role.Role == roleType)?.IntroSound;
     }
 
+/*
     private static async void StartFadeIntro(IntroCutscene __instance, Color start, Color end)
     {
         await Task.Delay(1000);
@@ -610,6 +610,7 @@ class BeginCrewmatePatch
             __instance.BackgroundBar.material.color = LerpingColor;
         }
     }
+*/
 }
 
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.BeginImpostor))]

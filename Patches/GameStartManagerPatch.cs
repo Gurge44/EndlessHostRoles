@@ -70,7 +70,7 @@ public class GameStartManagerPatch
 
                 if (!AmongUsClient.Instance.AmHost) return;
 
-                if (ModUpdater.isBroken || (ModUpdater.hasUpdate && ModUpdater.forceUpdate) || !Main.AllowPublicRoom)
+                if (ModUpdater.IsBroken || (ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || !Main.AllowPublicRoom)
                 {
                     // __instance.MakePublicButton.color = Palette.DisabledClear;
                     // __instance.privatePublicText.color = Palette.DisabledClear;

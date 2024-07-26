@@ -899,11 +899,12 @@ internal static class RPC
         player.Exiled();
     }
 
-    public static async void RpcVersionCheck()
+    public static void RpcVersionCheck()
     {
         Main.Instance.StartCoroutine(VersionCheck());
+        return;
 
-        System.Collections.IEnumerator VersionCheck()
+        static System.Collections.IEnumerator VersionCheck()
         {
             while (PlayerControl.LocalPlayer == null) yield return null;
             MessageWriter writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.VersionCheck);

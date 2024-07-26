@@ -49,6 +49,7 @@ public static class MainMenuManagerPatch
     {
         LateTask.New(() => { IsOnline = true; }, 0.1f, "Set Online Status");
     }
+
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPrefix]
     public static void Start_Prefix(MainMenuManager __instance)
     {
@@ -62,12 +63,12 @@ public static class MainMenuManagerPatch
                 new(4.2f, -1.3f, 1f),
                 new(255, 165, 0, byte.MaxValue),
                 new(255, 200, 0, byte.MaxValue),
-                () => ModUpdater.StartUpdate(ModUpdater.downloadUrl, true),
+                () => ModUpdater.StartUpdate(ModUpdater.DownloadUrl, true),
                 Translator.GetString("updateButton"));
             UpdateButton.transform.localScale = Vector3.one;
         }
 
-        UpdateButton.gameObject.SetActive(ModUpdater.hasUpdate);
+        UpdateButton.gameObject.SetActive(ModUpdater.HasUpdate);
 
         Application.targetFrameRate = Main.UnlockFps.Value ? 9999 : 60;
     }

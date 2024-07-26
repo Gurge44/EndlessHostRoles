@@ -16,12 +16,12 @@ internal class MakePublicPatch
 {
     public static bool Prefix()
     {
-        if (ModUpdater.isBroken || (ModUpdater.hasUpdate && ModUpdater.forceUpdate) || !VersionChecker.IsSupported)
+        if (ModUpdater.IsBroken || (ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || !VersionChecker.IsSupported)
         {
             var message = string.Empty;
             if (!VersionChecker.IsSupported) message = GetString("UnsupportedVersion");
-            if (ModUpdater.isBroken) message = GetString("ModBrokenMessage");
-            if (ModUpdater.hasUpdate) message = GetString("CanNotJoinPublicRoomNoLatest");
+            if (ModUpdater.IsBroken) message = GetString("ModBrokenMessage");
+            if (ModUpdater.HasUpdate) message = GetString("CanNotJoinPublicRoomNoLatest");
             Logger.Info(message, "MakePublicPatch");
             Logger.SendInGame(message);
             return false;
@@ -37,7 +37,7 @@ internal class MMOnlineManagerStartPatch
 {
     public static void Postfix()
     {
-        if (!((ModUpdater.hasUpdate && ModUpdater.forceUpdate) || ModUpdater.isBroken)) return;
+        if (!((ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || ModUpdater.IsBroken)) return;
         var obj = GameObject.Find("FindGameButton");
         if (obj)
         {
@@ -45,7 +45,7 @@ internal class MMOnlineManagerStartPatch
             var textObj = Object.Instantiate(obj.transform.FindChild("Text_TMP").GetComponent<TextMeshPro>());
             textObj.transform.position = new(1f, -0.3f, 0);
             textObj.name = "CanNotJoinPublic";
-            var message = ModUpdater.isBroken
+            var message = ModUpdater.IsBroken
                 ? $"<size=2>{Utils.ColorString(Color.red, GetString("ModBrokenMessage"))}</size>"
                 : $"<size=2>{Utils.ColorString(Color.red, GetString("CanNotJoinPublicRoomNoLatest"))}</size>";
             LateTask.New(() => { textObj.text = message; }, 0.01f, "CanNotJoinPublic");
