@@ -2204,6 +2204,8 @@
   "CommandArgs.Exe.Id": "ID игрока",
   "CommandArgs.Kill.Id": "ID игрока",
   "CommandArgs.Colour.Color": "Цвет",
+  "CommandArgs.ChangeRole.Role": "The role to change to",
+  "CommandArgs.CSD.Sound": "Звук",
   "CommandArgs.SD.Sound": "Звук",
   "CommandArgs.GNO.Number": "Число",
   "CommandArgs.Guess.Id": "ID игрока",
