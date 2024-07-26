@@ -919,6 +919,13 @@ public class GameSettingMenuPatch
         var GameSettingsLabel = __instance.GameSettingsButton.transform.parent.parent.FindChild("GameSettingsLabel").GetComponent<TextMeshPro>();
         GameSettingsLabel.DestroyTranslator();
         GameSettingsLabel.text = Translator.GetString($"Mode{Options.CurrentGameMode}").Split(':').Last().TrimStart(' ');
+        var IsRussian = DestroyableSingleton<TranslationController>.Instance.currentLanguage.languageID == SupportedLangs.Russian;
+        if (IsRussian)
+        {
+            
+            GameSettingsLabel.transform.localScale = new(0.7f, 0.7f, 1f);
+            GameSettingsLabel.transform.localPosition = new Vector3(-3.77f, 1.62f, -4);
+        }
         var GameSettingsLabelPos = GameSettingsLabel.transform.localPosition;
 
         var gmCycler = Object.Instantiate(GMinus, GameSettingsLabel.transform, true);
@@ -939,8 +946,9 @@ public class GameSettingMenuPatch
             if (GameModeBehaviour == null) __instance.ChangeTab(4, false);
             GameModeBehaviour.Increase();
         }));
+        var Offset = !IsRussian ? 1.15f : 2f;
         cycle.activeTextColor = cycle.inactiveTextColor = cycle.disabledTextColor = cycle.selectedTextColor = Color.white;
-        cycle.transform.localPosition = new(1.15f, 0.08f, 1f);
+        cycle.transform.localPosition = new(Offset, 0.08f, 1f);
 
 
         var FreeChatField = DestroyableSingleton<ChatController>.Instance.freeChatField;
@@ -963,7 +971,7 @@ public class GameSettingMenuPatch
         button.FindChild("Hover").FindChild("Background").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.SearchIconHover.png", 100f);
         button.FindChild("Disabled").FindChild("Background").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.SearchIcon.png", 100f);
 
-        if (DestroyableSingleton<TranslationController>.Instance.currentLanguage.languageID == SupportedLangs.Russian)
+        if (IsRussian)
         {
             Vector3 FixedScale = new(0.7f, 1f, 1f);
             button.FindChild("Normal").FindChild("Background").transform.localScale = FixedScale;
