@@ -2204,6 +2204,8 @@
   "CommandArgs.Exe.Id": "The player's ID to execute",
   "CommandArgs.Kill.Id": "The player's ID to kill",
   "CommandArgs.Colour.Color": "The color to set (ex. red, blue, yellow)",
+  "CommandArgs.ChangeRole.Role": "The role to change to",
+  "CommandArgs.CSD.Sound": "The sound to play",
   "CommandArgs.SD.Sound": "The sound to play",
   "CommandArgs.GNO.Number": "The number to guess",
   "CommandArgs.Guess.Id": "The player's ID to guess",
