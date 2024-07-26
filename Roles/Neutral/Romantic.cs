@@ -237,9 +237,9 @@ public class Romantic : RoleBase
             return;
         }
 
-        if ((partnerRole.IsNonNK() && partnerRole is not CustomRoles.Romantic and not CustomRoles.VengefulRomantic and not CustomRoles.RuthlessRomantic) || killer == null || Main.PlayerStates[PartnerId].IsSuicide) // If Partner is NNK or died by themselves, Romantic becomes Ruthless Romantic
+        if ((partnerRole.IsNonNK() && partnerRole is not CustomRoles.Romantic and not CustomRoles.VengefulRomantic and not CustomRoles.RuthlessRomantic) || killer == null || !killer.IsAlive() || Main.PlayerStates[PartnerId].IsSuicide) // If Partner is NNK or died by themselves, Romantic becomes Ruthless Romantic
         {
-            Logger.Info($"NNK Romantic Partner Died ({partnerRole.IsNonNK()}) / Partner killer is null ({killer == null}) / Partner commited Suicide ({Main.PlayerStates[PartnerId].IsSuicide}) => Changing {RomanticPC.GetNameWithRole().RemoveHtmlTags()} to Ruthless Romantic", "Romantic");
+            Logger.Info($"NNK Romantic Partner Died ({partnerRole.IsNonNK()}) / Partner killer is null ({killer == null}) / Partner killer is dead ({!killer.IsAlive()}) / Partner commited Suicide ({Main.PlayerStates[PartnerId].IsSuicide}) => Changing {RomanticPC.GetNameWithRole().RemoveHtmlTags()} to Ruthless Romantic", "Romantic");
             RomanticPC.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
         }
         else if (ConvertingRolesAndAddons.TryGetValue(partnerRole, out var convertedRole))
@@ -248,12 +248,12 @@ public class Romantic : RoleBase
             if (convertedRole.IsAdditionRole()) RomanticPC.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
             Logger.Info($"Converting Romantic Partner Died ({Partner.GetNameWithRole()}) => Romantic becomes their ally ({RomanticPC.GetNameWithRole()})", "Romantic");
         }
-        else if (Partner.Is(Team.Impostor)) // If Partner is Imp, Romantic joins imp team as Refugee
+        else if (Partner.Is(Team.Impostor)) // If Partner is Imp, Romantic joins the imp team as Refugee
         {
             Logger.Info($"Impostor Romantic Partner Died => Changing {RomanticPC.GetNameWithRole()} to Refugee", "Romantic");
             RomanticPC.RpcSetCustomRole(CustomRoles.Refugee);
         }
-        else if (Partner.HasKillButton() || partnerRole.IsNK() || partnerRole.IsTasklessCrewmate()) // If Partner has a kill button (NK or CK), Romantic becomes the role they were
+        else if (Partner.HasKillButton() || partnerRole.IsNK() || partnerRole.IsTasklessCrewmate()) // If the Partner has a kill button (NK or CK), Romantic becomes the role they were
         {
             try
             {

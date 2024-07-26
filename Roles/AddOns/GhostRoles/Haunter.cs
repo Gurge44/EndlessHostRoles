@@ -20,7 +20,6 @@ namespace EHR.AddOns.GhostRoles
 
         public Team Team => Team.Crewmate | Team.Neutral;
         public int Cooldown => 900;
-        public bool ChangeToGA => false;
 
         public void OnProtect(PlayerControl pc, PlayerControl target)
         {

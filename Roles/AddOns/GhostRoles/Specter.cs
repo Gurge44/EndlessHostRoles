@@ -10,7 +10,6 @@ namespace EHR.AddOns.GhostRoles
         public bool IsWon;
         public Team Team => Team.Neutral;
         public int Cooldown => 900;
-        public bool ChangeToGA => false;
 
         public void OnAssign(PlayerControl pc)
         {
