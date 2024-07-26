@@ -1139,7 +1139,7 @@ internal static class CustomRolesHelper
 
         _ => Enum.TryParse(role.ToString(), true, out CountTypes type)
             ? type
-            : role.Is(Team.Impostor)
+            : role.Is(Team.Impostor) || role == CustomRoles.Trickster
                 ? CountTypes.Impostor
                 : CountTypes.Crew
     };

@@ -898,7 +898,7 @@ public class GameSettingMenuPatch
 
         var GameSettingsLabel = __instance.GameSettingsButton.transform.parent.parent.FindChild("GameSettingsLabel").GetComponent<TextMeshPro>();
         GameSettingsLabel.DestroyTranslator();
-        GameSettingsLabel.text = Translator.GetString($"Mode{Options.CurrentGameMode}").Split(':')[1].TrimStart(' ');
+        GameSettingsLabel.text = Translator.GetString($"Mode{Options.CurrentGameMode}").Split(':').Last().TrimStart(' ');
         var GameSettingsLabelPos = GameSettingsLabel.transform.localPosition;
 
         var gmCycler = Object.Instantiate(GMinus, GameSettingsLabel.transform, true);
