@@ -19,6 +19,8 @@ internal class ControllerManagerUpdatePatch
     private static List<string> AddDes = [];
     private static int AddonIndex = -1;
 
+    private static bool IsResetting;
+
     public static void Postfix( /*ControllerManager __instance*/)
     {
         if (GameStates.IsLobby)
@@ -173,9 +175,22 @@ internal class ControllerManagerUpdatePatch
             Utils.ShowActiveSettings();
         }
 
-        if (GetKeysDown(KeyCode.Delete, KeyCode.LeftControl, KeyCode.LeftShift))
+        if (GetKeysDown(KeyCode.Delete, KeyCode.LeftControl, KeyCode.LeftShift) && !IsResetting)
         {
-            OptionItem.AllOptions.Where(x => x.Id > 0).Do(x => x.SetValue(x.DefaultValue));
+            IsResetting = true;
+            Main.Instance.StartCoroutine(Reset());
+
+            System.Collections.IEnumerator Reset()
+            {
+                for (int index = 0; index < OptionItem.AllOptions.Count; index++)
+                {
+                    var option = OptionItem.AllOptions[index];
+                    if (option.Id > 0) option.SetValue(option.DefaultValue);
+                    if (index % 100 == 0) yield return null;
+                }
+
+                IsResetting = false;
+            }
         }
 
         if (GetKeysDown(KeyCode.Return, KeyCode.E, KeyCode.LeftShift) && GameStates.IsInGame)
