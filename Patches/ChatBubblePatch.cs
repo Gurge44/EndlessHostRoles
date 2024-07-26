@@ -1,5 +1,6 @@
 using AmongUs.GameOptions;
 using HarmonyLib;
+using TMPro;
 using UnityEngine;
 
 namespace EHR.Patches;
@@ -34,5 +35,25 @@ static class ChatBubbleSetNamePatch
             if (!__instance.playerInfo.Object.IsAlive())
                 __instance.Background.color = new(0f, 0f, 0f, 0.7f);
         }
+    }
+}
+
+//Thanks https://github.com/NuclearPowered/Reactor/blob/master/Reactor/Patches/Fixes/CursorPosPatch.cs
+
+/// <summary>
+/// "Fixes" an issue where empty TextBoxes have wrong cursor positions.
+/// </summary>
+[HarmonyPatch(typeof(TextMeshProExtensions), nameof(TextMeshProExtensions.CursorPos))]
+internal static class CursorPosPatch
+{
+    public static bool Prefix(TextMeshPro self, ref Vector2 __result)
+    {
+        if (self.textInfo == null || self.textInfo.lineCount == 0 || self.textInfo.lineInfo[0].characterCount <= 0)
+        {
+            __result = self.GetTextInfo(" ").lineInfo[0].lineExtents.max;
+            return false;
+        }
+
+        return true;
     }
 }

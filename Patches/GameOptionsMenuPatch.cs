@@ -821,6 +821,8 @@ public class GameSettingMenuPatch
             setTab.name = "tab_" + tab;
             setTab.gameObject.SetActive(false);
 
+            Logger.Info($"{tab}/{setTab.name}", "SettingTabs");
+
             ModSettingsTabs.Add(tab, setTab);
         }
 
@@ -853,8 +855,12 @@ public class GameSettingMenuPatch
         var presetTmp = preset.GetComponentInChildren<TextMeshPro>();
         presetTmp.DestroyTranslator();
         presetTmp.text = Translator.GetString($"Preset_{OptionItem.CurrentPreset + 1}");
-        presetTmp.fontSizeMax = 2.45f;
-        presetTmp.fontSizeMin = 2.45f;
+        float size = DestroyableSingleton<TranslationController>.Instance.currentLanguage.languageID switch
+        {
+            SupportedLangs.Russian => 1.45f,
+            _ => 2.45f,
+        };
+        (presetTmp.fontSizeMax, presetTmp.fontSizeMin) = (size, size);
 
 
         var TempMinus = GameObject.Find("MinusButton").gameObject;
@@ -957,6 +963,15 @@ public class GameSettingMenuPatch
         button.FindChild("Hover").FindChild("Background").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.SearchIconHover.png", 100f);
         button.FindChild("Disabled").FindChild("Background").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.SearchIcon.png", 100f);
 
+        if (DestroyableSingleton<TranslationController>.Instance.currentLanguage.languageID == SupportedLangs.Russian)
+        {
+            Vector3 FixedScale = new(0.7f, 1f, 1f);
+            button.FindChild("Normal").FindChild("Background").transform.localScale = FixedScale;
+            button.FindChild("Hover").FindChild("Background").transform.localScale = FixedScale;
+            button.FindChild("Disabled").FindChild("Background").transform.localScale = FixedScale;
+        }
+
+
         PassiveButton passiveButton = button.GetComponent<PassiveButton>();
 
         passiveButton.OnClick = new();
@@ -973,7 +988,8 @@ public class GameSettingMenuPatch
             var Result = OptionItem.AllOptions.Where(x => x.Parent == null && !x.IsHiddenOn(Options.CurrentGameMode) && !Translator.GetString($"{x.Name}").Contains(text, StringComparison.OrdinalIgnoreCase) && x.Tab == (TabGroup)(ModGameOptionsMenu.TabIndex - 3)).ToList();
             HiddenBySearch = Result;
             var SearchWinners = OptionItem.AllOptions.Where(x => x.Parent == null && !x.IsHiddenOn(Options.CurrentGameMode) && x.Tab == (TabGroup)(ModGameOptionsMenu.TabIndex - 3) && !Result.Contains(x)).ToList();
-            if (SearchWinners.Count == 0)
+
+            if (SearchWinners.Count == 0 || !ModSettingsTabs.TryGetValue((TabGroup)(ModGameOptionsMenu.TabIndex - 3), out var GameSettings) || GameSettings == null)
             {
                 HiddenBySearch.Clear();
                 Logger.SendInGame(Translator.GetString("SearchNoResult"));
@@ -982,7 +998,7 @@ public class GameSettingMenuPatch
 
             Result.ForEach(x => x.SetHidden(true));
 
-            GameOptionsMenuPatch.ReCreateSettings(GameOptionsMenuPatch.Instance);
+            GameOptionsMenuPatch.ReCreateSettings(GameSettings);
             textField.Clear();
         }
     }
@@ -1021,7 +1037,9 @@ public class GameSettingMenuPatch
         if (HiddenBySearch.Any())
         {
             HiddenBySearch.Do(x => x.SetHidden(false));
-            GameOptionsMenuPatch.ReCreateSettings(GameOptionsMenuPatch.Instance);
+            if (ModSettingsTabs.TryGetValue((TabGroup)(ModGameOptionsMenu.TabIndex - 3), out var GameSettings) && GameSettings != null)
+                GameOptionsMenuPatch.ReCreateSettings(GameSettings);
+
             HiddenBySearch.Clear();
         }
 
