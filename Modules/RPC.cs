@@ -240,6 +240,7 @@ internal class RPCHandlerPatch
                         GameManager.Instance.LogicFlow.CheckEndCriteria();
                         RPC.ForceEndGame(CustomWinner.Error);
                     }, 5.5f, "Anti-Black End Game");
+                    LateTask.New(() => ChatUpdatePatch.DoBlockChat = false, 6f, log: false);
                 }
                 else if (GameStates.IsOnlineGame)
                 {

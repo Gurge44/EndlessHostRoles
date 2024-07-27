@@ -420,7 +420,8 @@ internal class SelectRolesPatch
             {
                 var rd = IRandom.Instance;
                 bool bloodlustSpawn = rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Bloodlust, out var option3) ? option3.GetFloat() : 0) && CustomRoles.Bloodlust.IsEnable();
-                HashSet<byte> bloodlustList = RoleResult.Where(x => x.Value.IsCrewmate() && !x.Value.IsTaskBasedCrewmate()).Select(x => x.Key.PlayerId).ToHashSet();
+                bool hasBanned = Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var banned);
+                HashSet<byte> bloodlustList = RoleResult.Where(x => x.Value.IsCrewmate() && !x.Value.IsTaskBasedCrewmate() && (!hasBanned || banned == null || !banned.Any(b => b.Key == x.Value && b.Value.Contains(CustomRoles.Bloodlust)))).Select(x => x.Key.PlayerId).ToHashSet();
                 if (bloodlustList.Count == 0) bloodlustSpawn = false;
 
                 if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var combos) && combos.Values.Any(l => l.Contains(CustomRoles.Bloodlust)))
@@ -432,8 +433,6 @@ internal class SelectRolesPatch
                         bloodlustList = players;
                         bloodlustSpawn = true;
                     }
-
-                    combos.Do(x => x.Value.Remove(CustomRoles.Bloodlust));
                 }
 
                 if (Main.SetAddOns.Values.Any(x => x.Contains(CustomRoles.Bloodlust)))
@@ -493,23 +492,32 @@ internal class SelectRolesPatch
                 noisySpawn = false;
             }
 
-            HashSet<byte> nimbleList = [], physicistList = [];
+            HashSet<byte> nimbleList = [], physicistList = [], finderList = [], noisyList = [];
+            var hasBanned = Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var banned);
             if (nimbleSpawn || physicistSpawn || finderSpawn || noisySpawn)
             {
                 foreach ((PlayerControl PLAYER, RoleTypes _) in RpcSetRoleReplacer.StoragedData)
                 {
                     if (IsBasisChangingPlayer(PLAYER.PlayerId, CustomRoles.Bloodlust)) continue;
                     var kp = RoleResult.FirstOrDefault(x => x.Key.PlayerId == PLAYER.PlayerId);
+
+                    bool nimbleBanned = hasBanned && banned.Any(x => x.Key == kp.Value && x.Value.Contains(CustomRoles.Nimble));
+                    bool physicistBanned = hasBanned && banned.Any(x => x.Key == kp.Value && x.Value.Contains(CustomRoles.Physicist));
+                    bool finderBanned = hasBanned && banned.Any(x => x.Key == kp.Value && x.Value.Contains(CustomRoles.Finder));
+                    bool noisyBanned = hasBanned && banned.Any(x => x.Key == kp.Value && x.Value.Contains(CustomRoles.Noisy));
+
                     if (kp.Value.IsCrewmate())
                     {
-                        nimbleList.Add(PLAYER.PlayerId);
+                        if (!nimbleBanned) nimbleList.Add(PLAYER.PlayerId);
                         if (kp.Value.GetRoleTypes() == RoleTypes.Crewmate)
-                            physicistList.Add(PLAYER.PlayerId);
+                        {
+                            if (!physicistBanned) physicistList.Add(PLAYER.PlayerId);
+                            if (!finderBanned) finderList.Add(PLAYER.PlayerId);
+                            if (!noisyBanned) noisyList.Add(PLAYER.PlayerId);
+                        }
                     }
                 }
             }
-
-            HashSet<byte> finderList = physicistList.ToHashSet(), noisyList = physicistList.ToHashSet();
 
             var roleSpawnMapping = new Dictionary<CustomRoles, (bool SpawnFlag, HashSet<byte> RoleList)>
             {
@@ -534,8 +542,6 @@ internal class SelectRolesPatch
                         value.SpawnFlag = true;
                         roleSpawnMapping[addon] = value;
                     }
-
-                    combos.Do(x => x.Value.Remove(addon));
                 }
 
                 if (Main.SetAddOns.Values.Any(x => x.Contains(addon)))

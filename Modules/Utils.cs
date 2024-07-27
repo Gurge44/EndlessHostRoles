@@ -77,6 +77,7 @@ public static class Utils
                 GameManager.Instance.LogicFlow.CheckEndCriteria();
                 RPC.ForceEndGame(CustomWinner.Error);
             }, 5.5f, "Anti-Black End Game");
+            LateTask.New(() => ChatUpdatePatch.DoBlockChat = false, 6f, log: false);
         }
         else
         {
@@ -1628,7 +1629,10 @@ public static class Utils
             Logger.Info(" Message sent", "SendMessage");
         }
 
-        Main.MessagesToSend.Add((text.RemoveHtmlTagsTemplate(), sendTo, title));
+        text = text.RemoveHtmlTagsTemplate();
+
+        if (sendTo == byte.MaxValue) Main.MessagesToSend.Add((text, sendTo, title));
+        else ChatUpdatePatch.SendMessage(Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer, text, sendTo, title);
     }
 
     public static void ApplySuffix(PlayerControl player)
@@ -2425,6 +2429,9 @@ public static class Utils
             CD = (int)Math.Round(CD * 0.75f);
 
         Main.AbilityCD[playerId] = (TimeStamp, CD);
+
+        if (Options.UseUnshiftTrigger.GetBool() && role.SimpleAbilityTrigger() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool()))
+            GetPlayerById(playerId)?.RpcResetAbilityCooldown();
     }
 
     public static void AfterMeetingTasks()

@@ -107,6 +107,11 @@ namespace EHR.Crewmate
             LateTask.New(() => physics.RpcBootFromVent(ventId), 0.5f, log: false);
         }
 
+        public override void OnReportDeadBody()
+        {
+            ShieldedPlayers.Clear();
+        }
+
         public void ReceiveRPC(MessageReader reader)
         {
             switch (reader.ReadPackedInt32())

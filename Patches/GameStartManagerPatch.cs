@@ -5,6 +5,7 @@ using AmongUs.Data;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
+using EHR.Patches;
 using HarmonyLib;
 using InnerNet;
 using TMPro;
@@ -162,7 +163,26 @@ public class GameStartManagerPatch
                             if (Options.RandomMapsMode.GetBool())
                             {
                                 Main.NormalOptions.MapId = GameStartRandomMap.SelectRandomMap();
+                                CreateOptionsPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
                             }
+                            else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
+
+                            if (Main.CurrentMap == MapNames.Dleks)
+                            {
+                                IGameOptions opt = Main.NormalOptions.Cast<IGameOptions>();
+
+                                Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
+                                Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
+                                Main.NormalOptions.KillCooldown = 0f;
+                                AURoleOptions.SetOpt(opt);
+                                Main.LastShapeshifterCooldown.Value = AURoleOptions.ShapeshifterCooldown;
+                                AURoleOptions.ShapeshifterCooldown = 0f;
+                                AURoleOptions.ImpostorsCanSeeProtect = false;
+
+                                PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(opt, AprilFoolsMode.IsAprilFoolsModeToggledOn));
+                            }
+
+                            RPC.RpcVersionCheck();
 
                             GameStartManager.Instance.startState = GameStartManager.StartingStates.Countdown;
                             GameStartManager.Instance.countDownTimer = Options.AutoStartTimer.GetInt();
@@ -391,6 +411,11 @@ public class GameStartRandomMap
         if (Options.RandomMapsMode.GetBool())
         {
             Main.NormalOptions.MapId = SelectRandomMap();
+            CreateOptionsPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
+        }
+        else if (CreateOptionsPickerPatch.SetDleks)
+        {
+            Main.NormalOptions.MapId = 3;
         }
 
         return continueStart;

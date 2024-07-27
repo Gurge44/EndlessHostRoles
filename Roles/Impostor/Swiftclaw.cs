@@ -42,9 +42,9 @@ namespace EHR.Impostor
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             if (Options.UsePhantomBasis.GetBool())
-                AURoleOptions.PhantomCooldown = DashCD.GetFloat();
+                AURoleOptions.PhantomCooldown = DashCD.GetFloat() + DashDuration.GetFloat();
             if (Options.UseUnshiftTrigger.GetBool())
-                AURoleOptions.ShapeshifterCooldown = DashCD.GetFloat();
+                AURoleOptions.ShapeshifterCooldown = DashCD.GetFloat() + DashDuration.GetFloat();
         }
 
         public override void OnPet(PlayerControl pc)

@@ -158,12 +158,7 @@ public static class ChatManager
         string playername = player.GetNameWithRole();
         message = message.ToLower().TrimStart().TrimEnd();
 
-        if (!player.IsAlive() || !AmongUsClient.Instance.AmHost) return;
-
-        if (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive())
-        {
-            return;
-        }
+        if (!player.IsAlive() || !AmongUsClient.Instance.AmHost || (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive())) return;
 
         int operate = message switch
         {
@@ -212,44 +207,50 @@ public static class ChatManager
     {
         if (!AmongUsClient.Instance.AmHost) return;
         ChatUpdatePatch.DoBlockChat = true;
-        string msg = Utils.EmptyMessage;
-        var totalAlive = Main.AllAlivePlayerControls.Length;
-        if (totalAlive == 0) return;
-        var x = Main.AllAlivePlayerControls;
-        var r = IRandom.Instance;
-
-        var filtered = ChatHistory.SkipLast(1).Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
-
-        for (int i = clear ? 0 : filtered.Length; i < 20; i++)
+        Logger.Info($" clear: {clear}", "ChatManager.SendPreviousMessagesToAll");
+        try
         {
-            var player = x[r.Next(0, totalAlive)];
-            DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
-            SendRPC(player, msg);
-        }
+            string msg = Utils.EmptyMessage;
+            var totalAlive = Main.AllAlivePlayerControls.Length;
+            if (totalAlive == 0) return;
+            var x = Main.AllAlivePlayerControls;
+            var r = IRandom.Instance;
 
-        if (!clear)
-        {
-            foreach (string str in filtered)
+            var filtered = ChatHistory.SkipLast(1).Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
+
+            for (int i = clear ? 0 : filtered.Length; i < 20; i++)
             {
-                var entryParts = str.Split(':');
-                var senderId = entryParts[0].Trim();
-                var senderMessage = entryParts[1].Trim();
-                for (int j = 2; j < entryParts.Length; j++)
-                {
-                    senderMessage += ':' + entryParts[j].Trim();
-                }
-
-                var senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
-                if (senderPlayer == null) continue;
-
-                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
-                SendRPC(senderPlayer, senderMessage);
+                var player = x[r.Next(0, totalAlive)];
+                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
+                SendRPC(player, msg);
             }
+
+            if (!clear)
+            {
+                foreach (string str in filtered)
+                {
+                    var entryParts = str.Split(':');
+                    var senderId = entryParts[0].Trim();
+                    var senderMessage = entryParts[1].Trim();
+                    for (int j = 2; j < entryParts.Length; j++)
+                    {
+                        senderMessage += ':' + entryParts[j].Trim();
+                    }
+
+                    var senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
+                    if (senderPlayer == null) continue;
+
+                    DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
+                    SendRPC(senderPlayer, senderMessage);
+                }
+            }
+
+            ChatUpdatePatch.SendLastMessages();
         }
-
-        ChatUpdatePatch.SendLastMessages();
-
-        ChatUpdatePatch.DoBlockChat = false;
+        finally
+        {
+            ChatUpdatePatch.DoBlockChat = false;
+        }
     }
 
     private static void SendRPC(InnerNetObject senderPlayer, string senderMessage)

@@ -124,7 +124,7 @@ namespace EHR.Crewmate
                 return;
             }
 
-            if (Utils.GetPlayerById(president.PresidentId)) return;
+            if (!Utils.GetPlayerById(president.PresidentId).IsAlive()) return;
 
             if (!int.TryParse(message, out var num) || num > 5)
             {

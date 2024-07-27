@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using UnityEngine;
 
@@ -66,6 +67,14 @@ namespace EHR.Neutral
         public override bool CanUseSabotage(PlayerControl pc)
         {
             return pc.IsAlive() && !(Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool());
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool())
+                AURoleOptions.PhantomCooldown = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
+            if (Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool())
+                AURoleOptions.ShapeshifterCooldown = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
         }
 
         public override bool OnSabotage(PlayerControl pc)

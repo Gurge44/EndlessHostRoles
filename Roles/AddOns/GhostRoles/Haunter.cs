@@ -13,6 +13,14 @@ namespace EHR.AddOns.GhostRoles
         private static OptionItem RevealNeutralKillers;
         private static OptionItem RevealMadmates;
         private static OptionItem NumberOfReveals;
+        public static OptionItem CanWinWithCrewmates;
+
+        private static readonly string[] WinWithCrewOpts =
+        [
+            "RoleOff",
+            "WWCO.IfFinishedTasks",
+            "RoleOn"
+        ];
 
         private byte HaunterId;
         private List<byte> WarnedImps = [];
@@ -55,7 +63,9 @@ namespace EHR.AddOns.GhostRoles
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
             NumberOfReveals = new IntegerOptionItem(649305, "Haunter.NumberOfReveals", new(1, 10, 1), 1, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
-            Options.OverrideTasksData.Create(649306, TabGroup.OtherRoles, CustomRoles.Haunter);
+            CanWinWithCrewmates = new StringOptionItem(649306, "Haunter.CanWinWithCrewmates", WinWithCrewOpts, 1, TabGroup.OtherRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
+            Options.OverrideTasksData.Create(649307, TabGroup.OtherRoles, CustomRoles.Haunter);
         }
 
         public void OnOneTaskLeft(PlayerControl pc)
@@ -135,6 +145,16 @@ namespace EHR.AddOns.GhostRoles
             }
 
             return string.Empty;
+        }
+
+        public static bool CanWinWithCrew(PlayerControl pc)
+        {
+            return CanWinWithCrewmates.GetValue() switch
+            {
+                0 => false,
+                1 => pc.GetTaskState().IsTaskFinished,
+                _ => true
+            };
         }
     }
 }

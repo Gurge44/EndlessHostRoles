@@ -755,6 +755,12 @@ internal static class ChatCommands
     {
         if (!GameStates.IsInGame) return;
         var killer = player.GetRealKiller();
+        if (killer == null)
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("DeathCommandFail"));
+            return;
+        }
+
         Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathCommand"), Utils.ColorString(Main.PlayerColors.TryGetValue(killer.PlayerId, out var kColor) ? kColor : Color.white, killer.GetRealName()), (killer.Is(CustomRoles.Bloodlust) ? CustomRoles.Bloodlust.ToColoredString() : string.Empty) + killer.GetCustomRole().ToColoredString()));
     }
 
@@ -1900,7 +1906,7 @@ internal class ChatUpdatePatch
         }
     }
 
-    private static void SendMessage(PlayerControl player, string msg, byte sendTo, string title)
+    internal static void SendMessage(PlayerControl player, string msg, byte sendTo, string title)
     {
         int clientId = sendTo == byte.MaxValue ? -1 : Utils.GetPlayerById(sendTo).GetClientId();
 

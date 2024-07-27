@@ -780,7 +780,7 @@ class ShapeshiftPatch
         // Forced rewriting in case the name cannot be corrected due to the timing of canceling the transformation being off.
         if (!shapeshifting && !shapeshifter.Is(CustomRoles.Glitch) && isSSneeded)
         {
-            LateTask.New(() => { NotifyRoles(NoCache: true); }, 1.2f, "ShapeShiftNotify");
+            LateTask.New(() => NotifyRoles(NoCache: true), 1.2f, "ShapeShiftNotify");
         }
 
         if (!(shapeshifting && doSSwithoutAnim) && !isSSneeded && !Swapster.FirstSwapTarget.ContainsKey(shapeshifter.PlayerId))
@@ -809,7 +809,7 @@ class ShapeshiftPatch
             Main.CheckShapeshift[shapeshifter.PlayerId] = false;
             RpcChangeSkin(shapeshifter, outfit);
             NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter, NoCache: true);
-            shapeshifter.RpcResetAbilityCooldown();
+            shapeshifter.AddAbilityCD();
         }
 
         return isSSneeded || (!shouldCancel && !forceCancel) || (!shapeshifting && !shouldAlwaysCancel && !unshiftTrigger);
