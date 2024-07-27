@@ -610,7 +610,7 @@
   "CrewmateEHRInfoLong": "(船员职业):\\n作为一个船员,你的使命便是干掉内鬼&中立，或者完成任务你也就赢了.",
   "NoisemakerEHRInfoLong": "(船员职业):\\n作为大嗓门, 当你死时,所有人会看到警报和一个指向你鸡腿的箭头.",
   "TrackerEHRInfoLong": "(船员职业):\\n作为追踪者, 绑定一个人之后可以在地图上查看他的行踪.",
-  "PhantomEHRInfoLong": "(Crewmates):\\nAs the Phantom, you can go invisible for a short period of time. During this time, you can't be seen by Crewmates.",
+  "PhantomEHRInfoLong": "(内鬼职业):\\n作为幻象师，你可以短暂隐身，船员看不见你.",
   "BountyHunterInfoLong": "(Impostors):\\nIf you successfully eliminate your assigned target, your next kill cooldown will be reduced, but if you eliminate anyone else, your next kill cooldown will be lengthened; the target will switch after a predetermined time.",
   "FireWorksInfoLong": "(Impostors):\\nAs a Fireworker, you can plant up to three firework bombs using shapeshift/by petting your pet. If you're the last impostor standing, you can use shapeshift/pet to detonate the bombs and cause area damage. But be careful, the bombs can also harm you. If the bombs eliminate all surviving players, it's a victory for the impostors.",
   "SerialKillerInfoLong": "(Impostors):\\nYou have a shorter kill cooldown than other impostors, but you will die if you don't kill before the end of your shapeshift cooldown.",
