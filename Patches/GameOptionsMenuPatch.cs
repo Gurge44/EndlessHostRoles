@@ -853,8 +853,10 @@ public class GameSettingMenuPatch
         var presetTmp = preset.GetComponentInChildren<TextMeshPro>();
         presetTmp.DestroyTranslator();
         presetTmp.text = Translator.GetString($"Preset_{OptionItem.CurrentPreset + 1}");
-        presetTmp.fontSizeMax = 2.45f;
-        presetTmp.fontSizeMin = 2.45f;
+
+        var IsRussian = DestroyableSingleton<TranslationController>.Instance.currentLanguage.languageID == SupportedLangs.Russian;
+        float size = !IsRussian ? 2.45f : 1.45f;
+        presetTmp.fontSizeMax = presetTmp.fontSizeMin = size;
 
 
         var TempMinus = GameObject.Find("MinusButton").gameObject;
@@ -913,9 +915,16 @@ public class GameSettingMenuPatch
         var GameSettingsLabel = __instance.GameSettingsButton.transform.parent.parent.FindChild("GameSettingsLabel").GetComponent<TextMeshPro>();
         GameSettingsLabel.DestroyTranslator();
         GameSettingsLabel.text = Translator.GetString($"Mode{Options.CurrentGameMode}").Split(':').Last().TrimStart(' ');
+        if (IsRussian)
+        {
+            
+            GameSettingsLabel.transform.localScale = new(0.7f, 0.7f, 1f);
+            GameSettingsLabel.transform.localPosition = new Vector3(-3.77f, 1.62f, -4);
+        }
         var GameSettingsLabelPos = GameSettingsLabel.transform.localPosition;
 
         var gmCycler = Object.Instantiate(GMinus, GameSettingsLabel.transform, true);
+
         gmCycler.transform.localScale = new(0.25f, 0.7f, 1f);
         gmCycler.transform.localPosition = new(GameSettingsLabelPos.x + 0.8f, GameSettingsLabelPos.y - 2.9f, GameSettingsLabelPos.z);
         var gmTmp = gmCycler.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
@@ -923,7 +932,8 @@ public class GameSettingMenuPatch
         gmTmp.DestroyTranslator();
         gmTmp.text = "\u21c4";
         gmTmp.color = Color.white;
-        gmTmp.transform.localPosition = new(GameSettingsLabelPos.x + 3.35f, GameSettingsLabelPos.y - 1.52f, GameSettingsLabelPos.z);
+        var Offset2 = !IsRussian ? 3.35f : 3.65f;
+        gmTmp.transform.localPosition = new(GameSettingsLabelPos.x + Offset2, GameSettingsLabelPos.y - 1.52f, GameSettingsLabelPos.z);
         gmTmp.transform.localScale = new(4f, 1.5f, 1f);
 
         var cycle = gmCycler.GetComponent<PassiveButton>();
@@ -933,8 +943,9 @@ public class GameSettingMenuPatch
             if (GameModeBehaviour == null) __instance.ChangeTab(4, false);
             GameModeBehaviour.Increase();
         }));
+        var Offset = !IsRussian ? 1.15f : 2.25f;
         cycle.activeTextColor = cycle.inactiveTextColor = cycle.disabledTextColor = cycle.selectedTextColor = Color.white;
-        cycle.transform.localPosition = new(1.15f, 0.08f, 1f);
+        cycle.transform.localPosition = new(Offset, 0.08f, 1f);
 
 
         var FreeChatField = DestroyableSingleton<ChatController>.Instance.freeChatField;
@@ -957,6 +968,15 @@ public class GameSettingMenuPatch
         button.FindChild("Hover").FindChild("Background").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.SearchIconHover.png", 100f);
         button.FindChild("Disabled").FindChild("Background").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.SearchIcon.png", 100f);
 
+        if (IsRussian)
+        {
+            Vector3 FixedScale = new(0.7f, 1f, 1f);
+            button.FindChild("Normal").FindChild("Background").transform.localScale = FixedScale;
+            button.FindChild("Hover").FindChild("Background").transform.localScale = FixedScale;
+            button.FindChild("Disabled").FindChild("Background").transform.localScale = FixedScale;
+        }
+
+
         PassiveButton passiveButton = button.GetComponent<PassiveButton>();
 
         passiveButton.OnClick = new();
@@ -973,7 +993,8 @@ public class GameSettingMenuPatch
             var Result = OptionItem.AllOptions.Where(x => x.Parent == null && !x.IsHiddenOn(Options.CurrentGameMode) && !Translator.GetString($"{x.Name}").Contains(text, StringComparison.OrdinalIgnoreCase) && x.Tab == (TabGroup)(ModGameOptionsMenu.TabIndex - 3)).ToList();
             HiddenBySearch = Result;
             var SearchWinners = OptionItem.AllOptions.Where(x => x.Parent == null && !x.IsHiddenOn(Options.CurrentGameMode) && x.Tab == (TabGroup)(ModGameOptionsMenu.TabIndex - 3) && !Result.Contains(x)).ToList();
-            if (SearchWinners.Count == 0)
+
+            if (SearchWinners.Count == 0 || !ModSettingsTabs.TryGetValue((TabGroup)(ModGameOptionsMenu.TabIndex - 3), out var GameSettings) || GameSettings == null)
             {
                 HiddenBySearch.Clear();
                 Logger.SendInGame(Translator.GetString("SearchNoResult"));
@@ -982,7 +1003,7 @@ public class GameSettingMenuPatch
 
             Result.ForEach(x => x.SetHidden(true));
 
-            GameOptionsMenuPatch.ReCreateSettings(GameOptionsMenuPatch.Instance);
+            GameOptionsMenuPatch.ReCreateSettings(GameSettings);
             textField.Clear();
         }
     }
@@ -1021,7 +1042,9 @@ public class GameSettingMenuPatch
         if (HiddenBySearch.Any())
         {
             HiddenBySearch.Do(x => x.SetHidden(false));
-            GameOptionsMenuPatch.ReCreateSettings(GameOptionsMenuPatch.Instance);
+            if (ModSettingsTabs.TryGetValue((TabGroup)(ModGameOptionsMenu.TabIndex - 3), out var GameSettings) && GameSettings != null)
+                GameOptionsMenuPatch.ReCreateSettings(GameSettings);
+
             HiddenBySearch.Clear();
         }
 
