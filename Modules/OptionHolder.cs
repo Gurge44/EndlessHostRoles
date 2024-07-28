@@ -676,6 +676,7 @@ public static class Options
     public static OptionItem KickLowLevelPlayer;
     public static OptionItem ApplyBanList;
     public static OptionItem ApplyModeratorList;
+    public static OptionItem ApplyVIPList;
     public static OptionItem AutoWarnStopWords;
 
     public static OptionItem DIYGameSettings;
@@ -1162,7 +1163,8 @@ public static class Options
         KickPlayerFriendCodeNotExist = new BooleanOptionItem(19302, "KickPlayerFriendCodeNotExist", false, TabGroup.SystemSettings, true);
         ApplyDenyNameList = new BooleanOptionItem(19303, "ApplyDenyNameList", true, TabGroup.SystemSettings, true);
         ApplyBanList = new BooleanOptionItem(19304, "ApplyBanList", true, TabGroup.SystemSettings, true);
-        ApplyModeratorList = new BooleanOptionItem(19305, "ApplyModeratorList", false, TabGroup.SystemSettings);
+        ApplyModeratorList = new BooleanOptionItem(19305, "ApplyModeratorList", true, TabGroup.SystemSettings);
+        ApplyVIPList = new BooleanOptionItem(19306, "ApplyVIPList", true, TabGroup.SystemSettings);
 
         LoadingPercentage = 61;
 
