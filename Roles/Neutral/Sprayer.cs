@@ -22,7 +22,7 @@ namespace EHR.Neutral
         private static OptionItem EffectDuration;
         private static OptionItem MaxTrappedTimes;
 
-        private static readonly List<Vector2> Traps = [];
+        private static readonly Dictionary<Vector2, SprayedArea> Traps = [];
         private static readonly Dictionary<byte, int> TrappedCount = [];
         public static readonly List<byte> LowerVisionList = [];
         private static readonly Dictionary<byte, long> LastUpdate = [];
@@ -120,7 +120,8 @@ namespace EHR.Neutral
         {
             if (!IsEnable || SprayerId.GetAbilityUseLimit() <= 0 || Sprayer_.HasAbilityCD()) return;
 
-            Traps.Add(Sprayer_.Pos());
+            Vector2 pos = Sprayer_.Pos();
+            Traps[pos] = new(pos, [SprayerId]);
             Sprayer_.RpcRemoveAbilityUse();
 
             if (SprayerId.GetAbilityUseLimit() > 0) Sprayer_.AddAbilityCD(CD.GetInt());
@@ -142,7 +143,7 @@ namespace EHR.Neutral
 
             foreach (var trap in Traps)
             {
-                if (Vector2.Distance(pc.Pos(), trap) <= 2f)
+                if (Vector2.Distance(pc.Pos(), trap.Key) <= 2f)
                 {
                     byte playerId = pc.PlayerId;
                     var tempSpeed = Main.AllPlayerSpeed[playerId];
@@ -170,6 +171,7 @@ namespace EHR.Neutral
 
         public override void OnReportDeadBody()
         {
+            Traps.Values.Do(x => x.Despawn());
             Traps.Clear();
         }
 
