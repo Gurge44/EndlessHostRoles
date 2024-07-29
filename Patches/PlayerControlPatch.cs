@@ -1021,7 +1021,7 @@ class ReportDeadBodyPatch
             if (QuizMaster.On)
             {
                 QuizMaster.Data.LastReporterName = player.GetRealName();
-                QuizMaster.Data.LastReportedPlayer = (Main.PlayerColors[target.PlayerId], target.GetPlayerColorString(), target.Object);
+                QuizMaster.Data.LastReportedPlayer = (Palette.GetColorName(target.DefaultOutfit.ColorId), target.Object);
                 if (MeetingStates.FirstMeeting) QuizMaster.Data.FirstReportedBodyPlayerName = target.Object.GetRealName();
             }
         }
@@ -1990,18 +1990,12 @@ class CoEnterVentPatch
     }
 }
 
-//[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.SetName))]
-//class SetNamePatch
-//{
-//    public static void Postfix(/*PlayerControl __instance, [HarmonyArgument(0)] string name*/)
-//    {
-//    }
-//}
 [HarmonyPatch(typeof(GameData), nameof(GameData.CompleteTask))]
 class GameDataCompleteTaskPatch
 {
     public static void Postfix(PlayerControl pc /*, uint taskId*/)
     {
+        if (GameStates.IsMeeting) return;
         Logger.Info($"TaskComplete: {pc.GetNameWithRole().RemoveHtmlTags()}", "CompleteTask");
         Main.PlayerStates[pc.PlayerId].UpdateTask(pc);
         NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -2013,11 +2007,13 @@ class PlayerControlCompleteTaskPatch
 {
     public static bool Prefix(PlayerControl __instance)
     {
+        if (GameStates.IsMeeting) return false;
         return !Workhorse.OnCompleteTask(__instance) && Capitalism.AddTaskForPlayer(__instance); // Cancel task win
     }
 
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] uint idx)
     {
+        if (GameStates.IsMeeting) return;
         if (__instance != null && __instance.IsAlive()) Benefactor.OnTaskComplete(__instance, __instance.myTasks[(Index)Convert.ToInt32(idx)] as PlayerTask);
 
         if (__instance == null) return;
@@ -2032,8 +2028,7 @@ class PlayerControlCompleteTaskPatch
             NotifyRoles(SpecifySeer: __instance, ForceLoop: true);
         }
 
-        if (isTaskFinish &&
-            __instance.GetCustomRole() is CustomRoles.Doctor or CustomRoles.Sunnyboy or CustomRoles.SpeedBooster)
+        if (isTaskFinish && __instance.GetCustomRole() is CustomRoles.Doctor or CustomRoles.Sunnyboy or CustomRoles.SpeedBooster)
         {
             // Execute CustomSyncAllSettings at the end of the task only for matches with sunnyboy, speed booster, or doctor.
             MarkEveryoneDirtySettings();

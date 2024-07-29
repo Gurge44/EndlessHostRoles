@@ -60,7 +60,7 @@ class CanUseVentPatch
             // true for classic and for vanilla HnS
             GameManager.Instance.LogicUsables.CanUse(usableVent, playerControl) &&
             // CanUse(usableVent) && Ignore because the decision is based on custom role, not vanilla role
-            // there is no vent task in the target vent or you are in the target vent now
+            // there is no vent task in the target vent, or you are in the target vent now
             (!playerControl.MustCleanVent(__instance.Id) || (playerControl.inVent && Vent.currentVent == __instance)) &&
             playerControl.IsAlive() &&
             (playerControl.CanMove || playerControl.inVent);

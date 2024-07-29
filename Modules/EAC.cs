@@ -65,10 +65,23 @@ internal static class EAC
                     break;
                 case RpcCalls.ReportDeadBody:
                     sr.ReadByte();
+
+                    if (GameStates.IsMeeting && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating && !pc.IsHost())
+                    {
+                        WarnHost();
+                        Report(pc, "Report dead body in meeting");
+                        HandleCheat(pc, "Report dead body in meeting");
+                        Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] attempted to report a body in a meeting, rejected", "EAC");
+                        return true;
+                    }
+
                     if (!GameStates.IsInGame)
                     {
-                        Report(pc, "Try to Report body out of game B (May be false)");
+                        WarnHost();
+                        Report(pc, "Try to Report body out of game B");
+                        HandleCheat(pc, "Try to Report body out of game B");
                         Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] attempted to report a body that may have been illegally killed, but was rejected", "EAC");
+                        return true;
                     }
 
                     break;
@@ -150,6 +163,11 @@ internal static class EAC
                     Report(pc, "Directly Send ChatNote");
                     HandleCheat(pc, "Directly Send ChatNote");
                     Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] directly sent ChatNote, which has been rejected", "EAC");
+                    return true;
+                case RpcCalls.CompleteTask when GameStates.IsMeeting && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating && !pc.IsHost():
+                    Report(pc, "Complete Task in Meeting");
+                    HandleCheat(pc, "Complete Task in Meeting");
+                    Logger.Fatal($"Player [{pc.GetClientId()}:{pc.GetRealName()}] completed a task in a meeting, which has been rejected", "EAC");
                     return true;
             }
 
@@ -436,6 +454,76 @@ internal static class EAC
                 Logger.Warn(msg2, "EAC");
                 Logger.SendInGame(msg2);
                 break;
+        }
+    }
+
+    internal static bool CheckInvalidSabotage(SystemTypes systemType, PlayerControl player, byte amount)
+    {
+        if (player.IsHost()) return false;
+        if ((GameStates.IsMeeting && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance)
+        {
+            WarnHost();
+            Report(player, "Bad Sabotage D : In Meeting");
+            HandleCheat(player, "Bad Sabotage D : In Meeting");
+            Logger.Fatal($"Player [{player.GetClientId()}:{player.GetRealName()}] Bad Sabotage D, rejected", "EAC");
+            return true;
+        }
+
+        var Mapid = Main.NormalOptions.MapId;
+        switch (systemType)
+        {
+            case SystemTypes.LifeSupp:
+                if (Mapid != 0 && Mapid != 1 && Mapid != 3) goto Cheat;
+                if (amount != 64 && amount != 65) goto Cheat;
+                break;
+            case SystemTypes.Comms:
+                switch (amount)
+                {
+                    case 0:
+                        if (Mapid is 1 or 5) goto Cheat;
+                        break;
+                    case 64:
+                    case 65:
+                    case 32:
+                    case 33:
+                    case 16:
+                    case 17:
+                        if (Mapid is not (1 or 5)) goto Cheat;
+                        break;
+                    default:
+                        goto Cheat;
+                }
+
+                break;
+            case SystemTypes.Electrical:
+                if (Mapid == 5) goto Cheat;
+                if (amount >= 5) goto Cheat;
+                break;
+            case SystemTypes.Laboratory:
+                if (Mapid != 2) goto Cheat;
+                if (amount is not (64 or 65 or 32 or 33)) goto Cheat;
+                break;
+            case SystemTypes.Reactor:
+                if (Mapid is 2 or 4) goto Cheat;
+                if (amount is not (64 or 65 or 32 or 33)) goto Cheat;
+                break;
+            case SystemTypes.HeliSabotage:
+                if (Mapid != 4) goto Cheat;
+                if (amount is not (64 or 65 or 16 or 17 or 32 or 33)) goto Cheat;
+                break;
+            case SystemTypes.MushroomMixupSabotage:
+                goto Cheat;
+        }
+
+        return false;
+
+        Cheat:
+        {
+            WarnHost();
+            Report(player, "Bad Sabotage C : Hack send RPC");
+            HandleCheat(player, "Bad Sabotage C");
+            Logger.Fatal($"Player [{player.GetClientId()}:{player.GetRealName()}] Bad Sabotage C, rejected", "EAC");
+            return true;
         }
     }
 }

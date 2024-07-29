@@ -40,7 +40,16 @@ public static class MessageReaderUpdateSystemPatch
     {
         try
         {
-            RepairSystemPatch.Prefix(__instance, systemType, player, MessageReader.Get(reader).ReadByte());
+            if (systemType is SystemTypes.Ventilation or SystemTypes.Security or SystemTypes.Decontamination or SystemTypes.Decontamination2 or SystemTypes.Decontamination3) return true;
+
+            var amount = MessageReader.Get(reader).ReadByte();
+            if (EAC.CheckInvalidSabotage(systemType, player, amount))
+            {
+                Logger.Info("EAC patched Sabotage RPC", "MessageReaderUpdateSystemPatch");
+                return false;
+            }
+
+            return RepairSystemPatch.Prefix(__instance, systemType, player, amount);
         }
         catch
         {
@@ -53,6 +62,7 @@ public static class MessageReaderUpdateSystemPatch
     {
         try
         {
+            if (systemType is SystemTypes.Ventilation or SystemTypes.Security or SystemTypes.Decontamination or SystemTypes.Decontamination2 or SystemTypes.Decontamination3) return;
             RepairSystemPatch.Postfix( /*__instance,*/ systemType, player, MessageReader.Get(reader).ReadByte());
         }
         catch

@@ -333,6 +333,7 @@ public static class GuessManager
                             return true;
                         case CustomRoles.DonutDelivery when DonutDelivery.IsUnguessable(pc, target):
                         case CustomRoles.Shifter:
+                        case CustomRoles.Car:
                         case CustomRoles.Goose when !Goose.CanBeGuessed.GetBool():
                         case CustomRoles.Disco:
                         case CustomRoles.Glow:

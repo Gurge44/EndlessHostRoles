@@ -94,6 +94,8 @@ namespace EHR.Neutral
 
         public override void OnMurder(PlayerControl killer, PlayerControl target)
         {
+            if (MeetingStates.FirstMeeting || CurrentTask.Data == null) return;
+
             switch (CurrentTask.Objective)
             {
                 case Objective.KillSpecificPlayer when target.PlayerId == (byte)CurrentTask.Data:
@@ -180,7 +182,7 @@ namespace EHR.Neutral
             CurrentTask.IsCompleted = true;
             SendRPC();
 
-            if (chatMessage) LateTask.New(() => { Utils.SendMessage("\n", RoguePC.PlayerId, Translator.GetString("Rogue.TaskCompleted")); }, 8f, log: false);
+            if (chatMessage) LateTask.New(() => Utils.SendMessage("\n", RoguePC.PlayerId, Translator.GetString("Rogue.TaskCompleted")), 8f, log: false);
             else Utils.NotifyRoles(SpecifySeer: RoguePC, SpecifyTarget: RoguePC);
         }
 
@@ -227,7 +229,7 @@ namespace EHR.Neutral
                 object data = objective switch
                 {
                     Objective.KillInSpecificRoom => Translator.GetString(ShipStatus.Instance.AllRooms.RandomElement().RoomId.ToString()),
-                    Objective.KillSpecificPlayer => Main.AllAlivePlayerControls.Select(x => x.PlayerId).Except([RoguePC.PlayerId]).Shuffle()[0],
+                    Objective.KillSpecificPlayer => Main.AllAlivePlayerControls.Select(x => x.PlayerId).Without(RoguePC.PlayerId).Shuffle()[0],
                     Objective.VentXTimes => IRandom.Instance.Next(2, 20),
                     Objective.KillXTimes => IRandom.Instance.Next(2, 5),
                     _ => null
