@@ -136,6 +136,7 @@ public enum CustomRoles
     Benefactor,
     Bodyguard,
     CameraMan,
+    Car,
     CyberStar, // Celebrity
     Chameleon,
     Chef,
