@@ -50,7 +50,7 @@ namespace EHR.Crewmate
                     if (bodyguard.BodyguardPC.IsMadmate() && killer.Is(Team.Impostor))
                     {
                         Logger.Info($"{bodyguard.BodyguardPC.GetRealName()} is a madmate, so they chose to ignore the murder scene", "Bodyguard");
-                        return true;
+                        continue;
                     }
 
                     if (BodyguardKillsKiller.GetBool() && bodyguard.BodyguardPC.RpcCheckAndMurder(killer, check: true)) bodyguard.BodyguardPC.Kill(killer);
