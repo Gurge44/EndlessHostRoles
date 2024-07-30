@@ -19,7 +19,7 @@ internal static class SoloKombatManager
     public static Dictionary<byte, float> PlayerDF = [];
 
     private static Dictionary<byte, float> OriginalSpeed = [];
-    private static Dictionary<byte, int> KBScore = [];
+    public static Dictionary<byte, int> KBScore = [];
     public static int RoundTime;
 
     private static readonly Dictionary<byte, (string TEXT, long TIMESTAMP)> NameNotify = [];
@@ -219,7 +219,7 @@ internal static class SoloKombatManager
 
         if (!target.SoloAlive())
         {
-            OnPlyaerDead(target);
+            OnPlayerDead(target);
             OnPlayerKill(killer);
         }
 
@@ -254,25 +254,21 @@ internal static class SoloKombatManager
 
     private static void PlayerRandomSpwan(PlayerControl pc)
     {
-        SpawnMap map;
-        switch (Main.NormalOptions.MapId)
+        SpawnMap map = Main.CurrentMap switch
         {
-            case 0:
-                map = new SkeldSpawnMap();
-                map.RandomTeleport(pc);
-                break;
-            case 1:
-                map = new MiraHQSpawnMap();
-                map.RandomTeleport(pc);
-                break;
-            case 2:
-                map = new PolusSpawnMap();
-                map.RandomTeleport(pc);
-                break;
-        }
+            MapNames.Skeld => new SkeldSpawnMap(),
+            MapNames.Mira => new MiraHQSpawnMap(),
+            MapNames.Polus => new PolusSpawnMap(),
+            MapNames.Airship => new AirshipSpawnMap(),
+            MapNames.Fungle => new FungleSpawnMap(),
+            MapNames.Dleks => new DleksSpawnMap(),
+            _ => null
+        };
+
+        map?.RandomTeleport(pc);
     }
 
-    private static void OnPlyaerDead(PlayerControl target)
+    private static void OnPlayerDead(PlayerControl target)
     {
         OriginalSpeed.Remove(target.PlayerId);
         OriginalSpeed.Add(target.PlayerId, Main.AllPlayerSpeed[target.PlayerId]);
@@ -296,7 +292,7 @@ internal static class SoloKombatManager
         float addRate = IRandom.Instance.Next(3, 5 + GetRankOfScore(killer.PlayerId)) / 100f;
         addRate *= KB_KillBonusMultiplier.GetFloat();
         float addin;
-        switch (IRandom.Instance.Next(0, 3))
+        switch (IRandom.Instance.Next(0, 4))
         {
             case 0:
                 addin = PlayerHPMax[killer.PlayerId] * addRate;
@@ -312,6 +308,11 @@ internal static class SoloKombatManager
                 addin = PlayerATK[killer.PlayerId] * addRate;
                 PlayerATK[killer.PlayerId] += addin;
                 AddNameNotify(killer, string.Format(Translator.GetString("KB_Buff_ATK"), addin.ToString("0.0#####")));
+                break;
+            case 3:
+                addin = Math.Max(PlayerDF[killer.PlayerId], 1f) * addRate;
+                PlayerDF[killer.PlayerId] += addin;
+                AddNameNotify(killer, string.Format(Translator.GetString("KB_Buff_DF"), addin.ToString("0.0#####")));
                 break;
         }
     }

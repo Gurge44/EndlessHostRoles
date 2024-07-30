@@ -376,6 +376,7 @@ public static class SabotageSystemTypeRepairDamagePatch
         }
 
         if (player.Is(Team.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
+        if (!player.Is(Team.Impostor) && !player.IsAlive()) return false;
         bool allow = player.GetCustomRole() switch
         {
             CustomRoles.Jackal when Jackal.CanSabotage.GetBool() => true,

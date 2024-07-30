@@ -345,6 +345,7 @@ public class Main : BasePlugin
                 { CustomRoles.Detour, "#ffd35c" },
                 { CustomRoles.Gaulois, "#42d1f5" },
                 { CustomRoles.Druid, "#ffb694" },
+                { CustomRoles.Catcher, "#aaf2cf" },
                 { CustomRoles.Autocrat, "#e2ed64" },
                 { CustomRoles.LovingCrewmate, "#ff9ace" },
                 { CustomRoles.LovingImpostor, "#ff9ace" },
@@ -727,6 +728,13 @@ public enum Team
     Impostor = 1,
     Neutral = 2,
     Crewmate = 4
+
+    /*
+     * Impostor | Neutral = 3
+     * Impostor | Crewmate = 5
+     * Neutral | Crewmate = 6
+     * Impostor | Neutral | Crewmate = 7
+     */
 }
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression

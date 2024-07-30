@@ -389,8 +389,8 @@
 - Dx (PT-BR)
 - PH_Gaming (PT-BR)
 - Tomix (PT-BR)
-- aviiiv (PT-BR)
 - HyperAtill (RU)
+- ABoringCat (ZH-CN)
 
 # License for the Custom Team Assigner application
 

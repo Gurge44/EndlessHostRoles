@@ -644,42 +644,16 @@ class TaskPanelBehaviourPatch
                     AllText += $"\r\n{GetString("PVP.RCO")}: {SoloKombatManager.PlayerHPReco[lpc.PlayerId]}";
                     AllText += "\r\n";
 
-                    Dictionary<byte, string> SummaryText = [];
-                    foreach (var id in Main.PlayerStates.Keys)
-                    {
-                        string name = Main.AllPlayerNames[id].RemoveHtmlTags().Replace("\r\n", string.Empty);
-                        string summary = $"{Utils.GetProgressText(id)}  {Utils.ColorString(Main.PlayerColors[id], name)}";
-                        if (Utils.GetProgressText(id).Trim() == string.Empty) continue;
-                        SummaryText[id] = summary;
-                    }
+                    AllText += Main.PlayerStates.Keys.OrderBy(SoloKombatManager.GetRankOfScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{SoloKombatManager.GetRankOfScore(x)}. {x.ColoredPlayerName()} -{string.Format(GetString("KillCount"), SoloKombatManager.KBScore.GetValueOrDefault(x, 0))}");
 
-                    List<(int, byte)> list = [];
-                    foreach (var id in Main.PlayerStates.Keys) list.Add((SoloKombatManager.GetRankOfScore(id), id));
-                    list.Sort();
-                    AllText = list.Where(x => SummaryText.ContainsKey(x.Item2)).Aggregate(AllText, (current, id) => current + "\r\n" + SummaryText[id.Item2]);
-
-                    AllText = $"<size=70%>{AllText}</size>";
-
+                    AllText += "</size>";
                     break;
 
                 case CustomGameMode.FFA:
 
-                    Dictionary<byte, string> SummaryText2 = [];
-                    foreach (var id in Main.PlayerStates.Keys)
-                    {
-                        string name = Main.AllPlayerNames[id].RemoveHtmlTags().Replace("\r\n", string.Empty);
-                        string summary = $"{Utils.GetProgressText(id)}  {Utils.ColorString(Main.PlayerColors[id], name)}";
-                        if (Utils.GetProgressText(id).Trim() == string.Empty) continue;
-                        SummaryText2[id] = summary;
-                    }
+                    AllText += Main.PlayerStates.Keys.OrderBy(FFAManager.GetRankOfScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{FFAManager.GetRankOfScore(x)}. {x.ColoredPlayerName()} -{string.Format(GetString("KillCount"), FFAManager.KillCount.GetValueOrDefault(x, 0))}");
 
-                    List<(int, byte)> list2 = [];
-                    foreach (var id in Main.PlayerStates.Keys) list2.Add((FFAManager.GetRankOfScore(id), id));
-                    list2.Sort();
-                    AllText = list2.Where(x => SummaryText2.ContainsKey(x.Item2)).Aggregate(AllText, (current, id) => current + "\r\n" + SummaryText2[id.Item2]);
-
-                    AllText = $"<size=70%>{AllText}</size>";
-
+                    AllText += "</size>";
                     break;
 
                 case CustomGameMode.MoveAndStop:

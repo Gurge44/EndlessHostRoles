@@ -541,6 +541,7 @@ public static class Options
     public static OptionItem DisableAirshipViewingDeckLightsPanel;
     public static OptionItem DisableAirshipGapRoomLightsPanel;
     public static OptionItem DisableAirshipCargoLightsPanel;
+    public static OptionItem NKWinsBySabotageIfNoImpAlive;
 
     // Guesser Mode
     public static OptionItem GuesserMode;
@@ -1085,7 +1086,8 @@ public static class Options
                 var categorySuffix = roleClasses.Key switch
                 {
                     RoleOptionType.Neutral_Killing => "NK",
-                    RoleOptionType.Neutral_NonKilling => "NNK",
+                    RoleOptionType.Neutral_Evil => "NNK",
+                    RoleOptionType.Neutral_Benign => "NNK",
                     _ => string.Empty
                 };
                 new TextOptionItem(titleId, $"ROT.Basic{categorySuffix}", tab)
@@ -1519,6 +1521,10 @@ public static class Options
             .SetGameMode(CustomGameMode.Standard);
         DisableAirshipCargoLightsPanel = new BooleanOptionItem(22512, "DisableAirshipCargoLightsPanel", false, TabGroup.GameSettings)
             .SetParent(LightsOutSpecialSettings)
+            .SetGameMode(CustomGameMode.Standard);
+
+        NKWinsBySabotageIfNoImpAlive = new BooleanOptionItem(22520, "NKWinsBySabotageIfNoImpAlive", false, TabGroup.GameSettings)
+            .SetColor(new Color32(243, 96, 96, byte.MaxValue))
             .SetGameMode(CustomGameMode.Standard);
 
         LoadingPercentage = 73;

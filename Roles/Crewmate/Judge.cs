@@ -28,7 +28,6 @@ public class Judge : RoleBase
     private static OptionItem CanTrialNeutralB;
     private static OptionItem CanTrialNeutralK;
     private static OptionItem CanTrialNeutralE;
-    private static OptionItem CanTrialNeutralC;
     public static OptionItem JudgeAbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
 
@@ -46,7 +45,6 @@ public class Judge : RoleBase
         CanTrialCrewKilling = new BooleanOptionItem(Id + 13, "JudgeCanTrialnCrewKilling", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
         CanTrialNeutralB = new BooleanOptionItem(Id + 14, "JudgeCanTrialNeutralB", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
         CanTrialNeutralE = new BooleanOptionItem(Id + 17, "JudgeCanTrialNeutralE", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
-        CanTrialNeutralC = new BooleanOptionItem(Id + 18, "JudgeCanTrialNeutralC", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
         CanTrialNeutralK = new BooleanOptionItem(Id + 15, "JudgeCanTrialNeutralK", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
         TryHideMsg = new BooleanOptionItem(Id + 11, "JudgeTryHideMsg", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetColor(Color.green);
         JudgeAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 19, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.3f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetValueFormat(OptionFormat.Times);
@@ -152,8 +150,7 @@ public class Judge : RoleBase
                         if (targetRole.IsCK() && CanTrialCrewKilling.GetBool()) judgeSuicide = false;
                         else if (targetRole.IsNB() && CanTrialNeutralB.GetBool()) judgeSuicide = false;
                         else if (targetRole.IsNE() && CanTrialNeutralE.GetBool()) judgeSuicide = false;
-                        else if (targetRole.IsNC() && CanTrialNeutralC.GetBool()) judgeSuicide = false;
-                        else if (targetRole.IsNonNK() && !CanTrialNeutralB.GetBool() && !CanTrialNeutralE.GetBool() && !CanTrialNeutralC.GetBool() && !targetRole.IsNB() && !targetRole.IsNC() && !targetRole.IsNE() && CanTrialNeutralK.GetBool()) judgeSuicide = false;
+                        else if (targetRole.IsNonNK() && !CanTrialNeutralB.GetBool() && !CanTrialNeutralE.GetBool() && !targetRole.IsNB() && !targetRole.IsNE() && CanTrialNeutralK.GetBool()) judgeSuicide = false;
                         else if (targetRole.IsImpostor()) judgeSuicide = false;
                         else if (targetRole.IsMadmate() && CanTrialMadmate.GetBool()) judgeSuicide = false;
                         else if (targetRole is CustomRoles.Necromancer or CustomRoles.Deathknight && CanTrialNeutralK.GetBool()) judgeSuicide = false;

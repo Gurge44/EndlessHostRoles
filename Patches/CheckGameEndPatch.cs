@@ -55,12 +55,14 @@ class GameEndChecker
 
             Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, ForceRevert: true, RevertToDefault: true, GameEnd: true));
 
-            if (reason == GameOverReason.ImpostorBySabotage && (CustomRoles.Jackal.RoleExist() || CustomRoles.Sidekick.RoleExist()) && Jackal.CanWinBySabotageWhenNoImpAlive.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.GetCustomRole().IsImpostorTeam()))
+            if (reason == GameOverReason.ImpostorBySabotage && Options.NKWinsBySabotageIfNoImpAlive.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.IsImpostor()) && Main.AllAlivePlayerControls.Count(x => x.IsNeutralKiller()) == 1)
             {
-                reason = GameOverReason.ImpostorByKill;
-                WinnerIds.Clear();
-                ResetAndSetWinner(CustomWinner.Jackal);
-                WinnerRoles.Add(CustomRoles.Jackal);
+                var winner = Main.AllAlivePlayerControls.First(x => x.IsNeutralKiller());
+                var winnerRole = winner.GetCustomRole();
+
+                ResetAndSetWinner((CustomWinner)winnerRole);
+                WinnerRoles.Add(winnerRole);
+                WinnerIds.Add(winner.PlayerId);
             }
 
             switch (WinnerTeam)

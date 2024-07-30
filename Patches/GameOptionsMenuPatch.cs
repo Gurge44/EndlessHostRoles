@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Linq;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
+using EHR.Modules;
 using EHR.Patches;
 using HarmonyLib;
 using Il2CppSystem.Collections.Generic;
@@ -603,6 +604,7 @@ public static class StringOptionPatch
                 name = name.RemoveHtmlTags();
                 if (Options.UsePets.GetBool() && role.PetActivatedAbility()) name += Translator.GetString("SupportsPetIndicator");
                 if (!Options.UsePets.GetBool() && role.OnlySpawnsWithPets()) name += Translator.GetString("RequiresPetIndicator");
+                name += GetGhostRoleTeam();
                 __instance.TitleText.fontWeight = FontWeight.Black;
                 __instance.TitleText.outlineColor = new(255, 255, 255, 255);
                 __instance.TitleText.outlineWidth = 0.04f;
@@ -610,6 +612,23 @@ public static class StringOptionPatch
                 __instance.TitleText.color = Color.white;
                 name = $"<size=3.5>{name}</size>";
                 SetupHelpIcon(role, __instance);
+
+                string GetGhostRoleTeam()
+                {
+                    var instance = GhostRolesManager.CreateGhostRoleInstance(role);
+                    if (instance == null) return string.Empty;
+                    var team = instance.Team;
+                    if ((int)team is 1 or 2 or 4) return Utils.ColorString(team.GetTeamColor(), Translator.GetString($"{team}"));
+                    Team[] teams = (int)team switch
+                    {
+                        3 => [Team.Impostor, Team.Neutral],
+                        5 => [Team.Impostor, Team.Crewmate],
+                        6 => [Team.Neutral, Team.Crewmate],
+                        7 => [Team.Impostor, Team.Neutral, Team.Crewmate],
+                        _ => []
+                    };
+                    return $"<size=2>{string.Join('/', teams.Select(x => Utils.ColorString(x.GetTeamColor(), Translator.GetString($"ShortTeamName.{x}"))))}</size>";
+                }
             }
 
             __instance.TitleText.text = name;
@@ -917,10 +936,10 @@ public class GameSettingMenuPatch
         GameSettingsLabel.text = Translator.GetString($"Mode{Options.CurrentGameMode}").Split(':').Last().TrimStart(' ');
         if (IsRussian)
         {
-            
             GameSettingsLabel.transform.localScale = new(0.7f, 0.7f, 1f);
             GameSettingsLabel.transform.localPosition = new Vector3(-3.77f, 1.62f, -4);
         }
+
         var GameSettingsLabelPos = GameSettingsLabel.transform.localPosition;
 
         var gmCycler = Object.Instantiate(GMinus, GameSettingsLabel.transform, true);

@@ -36,6 +36,8 @@ namespace EHR.Crewmate
 
         public static bool OnAnyoneCheckMurder(PlayerControl killer, PlayerControl target)
         {
+            if (killer.IsCrewmate()) return true;
+
             if (killer.PlayerId != target.PlayerId)
             {
                 foreach (var bodyguard in Instances)

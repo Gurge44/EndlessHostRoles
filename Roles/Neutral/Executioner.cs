@@ -16,7 +16,6 @@ public class Executioner : RoleBase
     private static OptionItem CanTargetNeutralKiller;
     private static OptionItem CanTargetNeutralBenign;
     private static OptionItem CanTargetNeutralEvil;
-    private static OptionItem CanTargetNeutralChaos;
     public static OptionItem KnowTargetRole;
     public static OptionItem CanGuessTarget;
     public static OptionItem ChangeRolesAfterTargetKilled;
@@ -46,7 +45,6 @@ public class Executioner : RoleBase
         CanTargetNeutralKiller = new BooleanOptionItem(Id + 12, "ExecutionerCanTargetNeutralKiller", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Executioner]);
         CanTargetNeutralBenign = new BooleanOptionItem(Id + 14, "CanTargetNeutralBenign", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Executioner]);
         CanTargetNeutralEvil = new BooleanOptionItem(Id + 15, "CanTargetNeutralEvil", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Executioner]);
-        CanTargetNeutralChaos = new BooleanOptionItem(Id + 16, "CanTargetNeutralChaos", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Executioner]);
         KnowTargetRole = new BooleanOptionItem(Id + 13, "KnowTargetRole", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Executioner]);
         CanGuessTarget = new BooleanOptionItem(Id + 17, "CanGuessTarget", false, TabGroup.NeutralRoles).SetParent(KnowTargetRole);
         ChangeRolesAfterTargetKilled = new StringOptionItem(Id + 11, "ExecutionerChangeRolesAfterTargetKilled", CRoleChangeRoles.Select(x => x.ToColoredString()).ToArray(), 1, TabGroup.NeutralRoles, noTranslation: true).SetParent(CustomRoleSpawnChances[CustomRoles.Executioner]);
@@ -67,8 +65,8 @@ public class Executioner : RoleBase
             try
             {
                 List<PlayerControl> targetList = [];
-                targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetNeutralBenign.GetBool() || !target.IsNeutralBenign() where CanTargetNeutralEvil.GetBool() || !target.IsNeutralEvil() where CanTargetNeutralChaos.GetBool() || !target.IsNeutralChaos() where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where Main.LoversPlayers.TrueForAll(x => x.PlayerId != playerId) select target);
-                if (!CanTargetNeutralBenign.GetBool() && !CanTargetNeutralChaos.GetBool() && !CanTargetNeutralEvil.GetBool() && !CanTargetNeutralKiller.GetBool()) targetList.RemoveAll(x => x.GetCustomRole().IsNeutral() || x.Is(CustomRoles.Bloodlust));
+                targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetNeutralBenign.GetBool() || !target.IsNeutralBenign() where CanTargetNeutralEvil.GetBool() || !target.IsNeutralEvil() where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where Main.LoversPlayers.TrueForAll(x => x.PlayerId != playerId) select target);
+                if (!CanTargetNeutralBenign.GetBool() && !CanTargetNeutralEvil.GetBool() && !CanTargetNeutralKiller.GetBool()) targetList.RemoveAll(x => x.GetCustomRole().IsNeutral() || x.Is(CustomRoles.Bloodlust));
 
                 if (targetList.Count == 0)
                 {

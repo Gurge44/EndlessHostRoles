@@ -14,7 +14,6 @@ public class Jackal : RoleBase
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
     public static OptionItem CanSabotage;
-    public static OptionItem CanWinBySabotageWhenNoImpAlive;
     public static OptionItem HasImpostorVision;
     public static OptionItem ResetKillCooldownWhenSbGetKilled;
     private static OptionItem ResetKillCooldownOn;
@@ -42,8 +41,6 @@ public class Jackal : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
         CanSabotage = new BooleanOptionItem(Id + 4, "CanSabotage", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
-        CanWinBySabotageWhenNoImpAlive = new BooleanOptionItem(Id + 5, "JackalCanWinBySabotageWhenNoImpAlive", true, TabGroup.NeutralRoles)
-            .SetParent(CanSabotage);
         HasImpostorVision = new BooleanOptionItem(Id + 6, "ImpostorVision", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
         ResetKillCooldownWhenSbGetKilled = new BooleanOptionItem(Id + 7, "ResetKillCooldownWhenPlayerGetKilled", false, TabGroup.NeutralRoles)
