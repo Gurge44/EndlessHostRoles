@@ -829,10 +829,6 @@ public class GameSettingMenuPatch
             ModSettingsButtons.Add(tab, button);
         }
 
-        ModGameOptionsMenu.OptionList = new();
-        ModGameOptionsMenu.BehaviourList = new();
-        ModGameOptionsMenu.CategoryHeaderList = new();
-
         ModSettingsTabs = [];
         foreach (var tab in Enum.GetValues<TabGroup>())
         {
@@ -1145,6 +1141,10 @@ public class GameSettingMenuPatch
         }
 
         SetDefaultButton(__instance);
+
+        ModGameOptionsMenu.OptionList = new();
+        ModGameOptionsMenu.BehaviourList = new();
+        ModGameOptionsMenu.CategoryHeaderList = new();
 
         ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, __instance.ControllerSelectable);
         DestroyableSingleton<HudManager>.Instance.menuNavigationPrompts.SetActive(false);
