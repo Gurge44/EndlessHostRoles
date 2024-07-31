@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using EHR.Neutral;
 using UnityEngine;
 
@@ -144,6 +145,7 @@ namespace EHR.Crewmate
             StartingSpeed = Main.AllPlayerSpeed[playerId];
             DrunkPlayers = [];
             playerId.SetAbilityUseLimit(StartingMoney.GetInt());
+            Utils.SendRPC(CustomRPC.SyncRoleData, DadId, 1, Shop.Id);
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -186,7 +188,11 @@ namespace EHR.Crewmate
 
                     LateTask.New(() => pc.RpcSendChat(msg), delay, $"Dad - DrunkRoleNotify - {pc.GetNameWithRole()}");
                 }
+
+                DrunkPlayers = [];
             }
+
+            Utils.SendRPC(CustomRPC.SyncRoleData, DadId, 2, Arrows);
         }
 
         public override void AfterMeetingTasks()
@@ -229,6 +235,7 @@ namespace EHR.Crewmate
                     Arrows = LocateArrow.GetArrows(physics.myPlayer);
                     LocateArrow.RemoveAllTarget(DadId);
                     Utils.NotifyRoles(SpecifySeer: physics.myPlayer, SpecifyTarget: physics.myPlayer);
+                    Utils.SendRPC(CustomRPC.SyncRoleData, DadId, 2, Arrows);
                     break;
                 case Ability.Sleep when Alcohol >= 15:
                     Main.AllPlayerSpeed[DadId] = Main.MinSpeed;
@@ -250,6 +257,7 @@ namespace EHR.Crewmate
             }
 
             Alcohol -= AbilityAlcoholDecreaseOptions[SelectedAbility].GetInt();
+            NotifyIfNecessary(physics.myPlayer);
         }
 
         public override void OnExitVent(PlayerControl pc, Vent vent)
@@ -265,6 +273,7 @@ namespace EHR.Crewmate
             }
 
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            Utils.SendRPC(CustomRPC.SyncRoleData, DadId, 3, Alcohol);
         }
 
         public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
@@ -371,6 +380,25 @@ namespace EHR.Crewmate
             if (force || Alcohol <= ShowWarningWhenAlcoholIsBelow.GetInt())
             {
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            }
+
+            Utils.SendRPC(CustomRPC.SyncRoleData, DadId, 3, Alcohol);
+        }
+
+        public void ReceiveRPC(Hazel.MessageReader reader)
+        {
+            switch (reader.ReadPackedInt32())
+            {
+                case 1:
+                    int id = reader.ReadPackedInt32();
+                    Shop = ShipStatus.Instance.AllVents.FirstOrDefault(x => x.Id == id);
+                    break;
+                case 2:
+                    Arrows = reader.ReadString();
+                    break;
+                case 3:
+                    Alcohol = reader.ReadPackedInt32();
+                    break;
             }
         }
 
