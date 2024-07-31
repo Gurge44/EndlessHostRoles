@@ -746,6 +746,7 @@ public static class Utils
             case CustomRoles.Doomsayer:
                 hasTasks = false;
                 break;
+            case CustomRoles.Dad when ((Dad)States.Role).DoneTasks:
             case CustomRoles.Workaholic:
             case CustomRoles.Terrorist:
             case CustomRoles.Sunnyboy:
@@ -2662,6 +2663,7 @@ public static class Utils
             Adventurer.OnAnyoneDead(target);
             Soothsayer.OnAnyoneDeath(target.GetRealKiller(), target);
             Amnesiac.OnAnyoneDeath(target);
+            Dad.OnAnyoneDeath(target);
             EHR.Impostor.Sentry.OnAnyoneMurder(target);
 
             if (QuizMaster.On) QuizMaster.Data.NumPlayersDeadThisRound++;

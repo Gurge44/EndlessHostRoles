@@ -50,13 +50,11 @@ class CheckForEndVotingPatch
                         pc.RpcSetCustomRole(CustomRoles.Madmate);
                         ExtendedPlayerControl.RpcSetCustomRole(pc.PlayerId, CustomRoles.Madmate);
                         Utils.NotifyRoles(isForMeeting: true, SpecifySeer: pc, NoCache: true);
-                        Logger.Info("Set role: " + pc?.Data?.PlayerName + " => " + pc.GetCustomRole() + " + " + CustomRoles.Madmate, "Assign " + CustomRoles.Madmate);
+                        Logger.Info($"Set role: {pc.Data?.PlayerName} => {pc.GetCustomRole()} + {CustomRoles.Madmate}", $"Assign {CustomRoles.Madmate}");
                     }
                 }
 
-                // hypnotist hypnosis
-
-                if (pc.Is(CustomRoles.Dictator) && pva.DidVote && pc.PlayerId != pva.VotedFor && pva.VotedFor < 253 && !pc.Data.IsDead)
+                if (pc.Is(CustomRoles.Dictator) && pva.DidVote && pc.PlayerId != pva.VotedFor && pva.VotedFor < 253 && pc.Data?.IsDead == false)
                 {
                     var voteTarget = Utils.GetPlayerById(pva.VotedFor);
                     TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Suicide, pc.PlayerId);
@@ -83,7 +81,7 @@ class CheckForEndVotingPatch
                     return true;
                 }
 
-                if (pva.DidVote && pva.VotedFor < 253 && !pc.Data.IsDead)
+                if (pva.DidVote && pva.VotedFor < 253 && pc.Data?.IsDead == false)
                 {
                     var voteTarget = Utils.GetPlayerById(pva.VotedFor);
                     if (voteTarget != null && !pc.GetCustomRole().CancelsVote())
@@ -109,10 +107,10 @@ class CheckForEndVotingPatch
                 if (voter == null || voter.Data == null || voter.Data.Disconnected) continue;
                 if (Options.VoteMode.GetBool())
                 {
-                    if (ps.VotedFor == 253 && !voter.Data.IsDead && //スキップ
-                        !(Options.WhenSkipVoteIgnoreFirstMeeting.GetBool() && MeetingStates.FirstMeeting) && //初手会議を除く
-                        !(Options.WhenSkipVoteIgnoreNoDeadBody.GetBool() && !MeetingStates.IsExistDeadBody) && //死体がない時を除く
-                        !(Options.WhenSkipVoteIgnoreEmergency.GetBool() && MeetingStates.IsEmergencyMeeting) //緊急ボタンを除く
+                    if (ps.VotedFor == 253 && !voter.Data.IsDead &&
+                        !(Options.WhenSkipVoteIgnoreFirstMeeting.GetBool() && MeetingStates.FirstMeeting) &&
+                        !(Options.WhenSkipVoteIgnoreNoDeadBody.GetBool() && !MeetingStates.IsExistDeadBody) &&
+                        !(Options.WhenSkipVoteIgnoreEmergency.GetBool() && MeetingStates.IsEmergencyMeeting)
                        )
                     {
                         switch (Options.GetWhenSkipVote())
@@ -128,7 +126,7 @@ class CheckForEndVotingPatch
                         }
                     }
 
-                    if (ps.VotedFor == 254 && !voter.Data.IsDead) //無投票
+                    if (ps.VotedFor == 254 && !voter.Data.IsDead)
                     {
                         switch (Options.GetWhenNonVote())
                         {
@@ -210,6 +208,7 @@ class CheckForEndVotingPatch
                 if (data.Value > max)
                 {
                     voteLog.Info($"{data.Key} has higher votes ({data.Value})");
+                    if (Dad.OnVotedOut(data.Key)) continue;
                     exileId = data.Key;
                     max = data.Value;
                     tie = false;
@@ -566,6 +565,7 @@ static class ExtendedMeetingHud
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.TicketsStealer)) VoteNum += (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Options.TicketsPerKill.GetFloat());
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Pickpocket)) VoteNum += (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Pickpocket.VotesPerKill.GetFloat());
                 if (Main.PlayerStates[ps.TargetPlayerId].Role is Adventurer { IsEnable: true } av && av.ActiveWeapons.Contains(Adventurer.Weapon.Proxy)) VoteNum++;
+                if (Main.PlayerStates[ps.TargetPlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk)) VoteNum = 0;
                 if (ps.TargetPlayerId == ps.VotedFor && Options.MadmateSpawnMode.GetInt() == 2) VoteNum = 0;
 
                 dic[ps.VotedFor] = !dic.TryGetValue(ps.VotedFor, out int num) ? VoteNum : num + VoteNum;

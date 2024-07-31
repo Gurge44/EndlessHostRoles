@@ -763,7 +763,7 @@ class IntroCutsceneDestroyPatch
                 {
                     foreach (var pc in Main.AllAlivePlayerControls)
                     {
-                        if (pc.GetCustomRole().SimpleAbilityTrigger() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool()))
+                        if (pc.GetCustomRole().SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool()))
                         {
                             var target = Main.AllAlivePlayerControls.Without(pc).RandomElement();
                             var outfit = pc.Data.DefaultOutfit;
@@ -800,11 +800,13 @@ class IntroCutsceneDestroyPatch
             {
                 PlayerControl.LocalPlayer.Data.Role.AffectedByLightAffectors = false;
             }
-        }
 
-        if (AFKDetector.ActivateOnStart.GetBool())
-        {
-            LateTask.New(() => Main.AllAlivePlayerControls.Do(AFKDetector.RecordPosition), 1f, log: false);
+            if (AFKDetector.ActivateOnStart.GetBool())
+            {
+                LateTask.New(() => Main.AllAlivePlayerControls.Do(AFKDetector.RecordPosition), 1f, log: false);
+            }
+
+            LateTask.New(() => Utils.NotifyRoles(NoCache: true), 3f, log: false);
         }
 
         Logger.Info("OnDestroy", "IntroCutscene");

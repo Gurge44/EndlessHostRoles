@@ -149,6 +149,7 @@ public enum CustomRoles
     LovingCrewmate,
     LovingImpostor,
     Crusader,
+    Dad,
     Demolitionist,
     Deputy,
     Detective,

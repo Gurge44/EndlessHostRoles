@@ -228,6 +228,7 @@ class CheckMurderPatch
         }
 
         if (ToiletMaster.OnAnyoneCheckMurderStart(killer, target)) return false;
+        if (Dad.OnAnyoneCheckMurderStart(target)) return false;
 
         Simon.RemoveTarget(killer, Simon.Instruction.Kill);
 

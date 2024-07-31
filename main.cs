@@ -340,6 +340,7 @@ public class Main : BasePlugin
                 { CustomRoles.Electric, "#fbff00" },
                 { CustomRoles.Philantropist, "#e3b384" },
                 { CustomRoles.Tornado, "#303030" },
+                { CustomRoles.Dad, "#037bfc" },
                 { CustomRoles.Insight, "#26ff38" },
                 { CustomRoles.Tunneler, "#543232" },
                 { CustomRoles.Detour, "#ffd35c" },
