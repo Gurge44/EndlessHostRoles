@@ -4336,6 +4336,7 @@
   "BlackHoleDespawnMode": "Black Hole Despawn Mode",
   "BlackHoleDespawnTime": "Time After Black Hole Despawns",
   "Abyssbringer.Suffix": "<size=80%><#00ffa5>Number of players consumed by</color> {0} <#00ffa5>active black holes:</color></size><size=70%>\\n",
+  "Abyssbringer.Suffix.BlackHole": "<#00ffa5>{0}:</color> {0}</size>",
   "After1PlayerEaten": "After 1 Player Was Eaten",
   "BlackHoleMovesTowardsNearestPlayer": "Black Hole Moves Towards Nearest Player",
   "BlackHoleMoveSpeed": "Black Hole Moving Speed",
