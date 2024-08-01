@@ -1670,6 +1670,7 @@
   "HexesLookLikeSpells": "<color=#ff00ff>Hexes</color> appear as <color=#ff1919>spells</color>",
   "AddictWarning": "<#ffff00>You must vent soon or you'll suicide!</color>",
   "DoppelgangerWarning": "<#ffff00>The Doppelganger swapped skins with you!</color>",
+  "TriedToKillLastGameFirstKill": "Your target was the first to die in the last game.\\nLet them play!",
   "CheckMurderFail": "<#ff0000>The murder was canceled due to the following reason:\\n</color>",
   "SameCTATeam": "The player you attacked is in the same custom team as you",
   "AFKShielded": "According to the Host's settings, AFK players cannot be killed",
