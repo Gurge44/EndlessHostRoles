@@ -1671,6 +1671,7 @@
   "AddictWarning": "<#ffff00>You must vent soon or you'll suicide!</color>",
   "DoppelgangerWarning": "<#ffff00>The Doppelganger swapped skins with you!</color>",
   "CheckMurderFail": "<#ff0000>The murder was canceled due to the following reason:\\n</color>",
+  "TriedToKillLastGameFirstKill": "Your target was the first to die in the last game.\\nLet them play!",
   "SameCTATeam": "The player you attacked is in the same custom team as you",
   "AFKShielded": "According to the Host's settings, AFK players cannot be killed",
   "JackalSidekick": "This Jackal/Sidekick/Recruit interaction is not allowed",

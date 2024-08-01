@@ -100,7 +100,8 @@ namespace EHR.AddOns.Impostor
 
         public static bool CanUseImpostorVentButton(PlayerControl pc)
         {
-            return !pc.Is(CustomRoles.Circumvent) && pc.inVent || (!Limits.TryGetValue(pc.PlayerId, out var limit) && VentPreventionMode.GetValue() != 0) || limit > 0;
+            if (!pc.Is(CustomRoles.Circumvent)) return true;
+            return pc.inVent || (!Limits.TryGetValue(pc.PlayerId, out var limit) && VentPreventionMode.GetValue() != 0) || limit > 0;
         }
     }
 }
