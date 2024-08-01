@@ -18,7 +18,7 @@ public class Maverick : RoleBase
 
     public override bool IsEnable => MaverickId != byte.MaxValue;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Maverick);
         KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 35f, TabGroup.NeutralRoles)

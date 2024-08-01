@@ -969,8 +969,8 @@ static class ExtendedPlayerControl
     }
 
     public static bool IsNeutralKiller(this PlayerControl player) => player.Is(CustomRoles.Bloodlust) || player.GetCustomRole().IsNK();
-    public static bool IsNeutralBenign(this PlayerControl player) => player.GetCustomRole().IsNB();
-    public static bool IsNeutralEvil(this PlayerControl player) => player.GetCustomRole().IsNE();
+    public static bool IsNeutralBenign(this PlayerControl player) => player.GetCustomRole().GetNeutralRoleCategory() == RoleOptionType.Neutral_Benign;
+    public static bool IsNeutralEvil(this PlayerControl player) => player.GetCustomRole().GetNeutralRoleCategory() == RoleOptionType.Neutral_Evil;
     public static bool IsSnitchTarget(this PlayerControl player) => player.Is(CustomRoles.Bloodlust) || player.GetCustomRole().IsSnitchTarget();
     public static bool IsMadmate(this PlayerControl player) => player.Is(CustomRoles.Madmate) || player.GetCustomRole().IsMadmate();
 
@@ -1074,6 +1074,8 @@ static class ExtendedPlayerControl
         if (role.IsNeutralTeamV2()) return Team.Neutral;
         return role.IsCrewmateTeamV2() ? Team.Crewmate : Team.None;
     }
+
+    public static bool IsConverted(this PlayerControl target) => target.GetCustomSubRoles().Any(x => x.IsConverted());
 
     public static bool IsAlive(this PlayerControl target)
     {

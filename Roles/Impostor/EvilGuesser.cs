@@ -3,9 +3,11 @@ using static EHR.Options;
 
 namespace EHR.Impostor
 {
-    internal class EvilGuesser : ISettingHolder
+    internal class EvilGuesser : RoleBase
     {
-        public void SetupCustomOption()
+        public override bool IsEnable => false;
+
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(1200, TabGroup.ImpostorRoles, CustomRoles.EvilGuesser);
             EGCanGuessTime = new IntegerOptionItem(1205, "GuesserCanGuessTimes", new(1, 15, 1), 15, TabGroup.ImpostorRoles)
@@ -19,5 +21,8 @@ namespace EHR.Impostor
                 .SetParent(CustomRoleSpawnChances[CustomRoles.EvilGuesser])
                 .SetColor(Color.green);
         }
+
+        public override void Init() => throw new System.NotImplementedException();
+        public override void Add(byte playerId) => throw new System.NotImplementedException();
     }
 }

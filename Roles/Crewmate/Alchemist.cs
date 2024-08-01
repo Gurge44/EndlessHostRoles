@@ -40,7 +40,7 @@ namespace EHR.Crewmate
         public override bool IsEnable => playerIdList.Count > 0;
         bool IsInvis => InvisTime != -10;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Alchemist);
             VentCooldown = new FloatOptionItem(Id + 11, "VentCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])

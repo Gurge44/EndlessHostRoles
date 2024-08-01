@@ -6,5 +6,6 @@
         public int Cooldown { get; }
         public void OnProtect(PlayerControl pc, PlayerControl target);
         public void OnAssign(PlayerControl pc);
+        public void SetupCustomOption();
     }
 }

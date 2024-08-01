@@ -56,7 +56,7 @@ namespace EHR.Crewmate
 
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             int id = 648450;
             const TabGroup tab = TabGroup.CrewmateRoles;
@@ -222,7 +222,7 @@ namespace EHR.Crewmate
                 case Ability.GoForMilk when Alcohol >= 0:
                     LateTask.New(() => physics.RpcBootFromVent(ventId), 0.5f, log: false);
                     LateTask.New(() => physics.myPlayer.TP(Pelican.GetBlackRoomPS()), 1f, log: false);
-                    Main.AllAlivePlayerControls.Do(x => x.Notify(Translator.GetString("Dad.GoForMilkNotify")));
+                    Main.AllAlivePlayerControls.Do(x => x.Notify(Translator.GetString("Dad.GoForMilkNotify"), 10f));
                     UsingAbilities.Add(SelectedAbility);
                     break;
                 case Ability.SuperVision when Alcohol >= 5:
@@ -296,7 +296,7 @@ namespace EHR.Crewmate
             Count = 0;
 
             var pos = pc.Pos();
-            if (UsingAbilities.Contains(Ability.Rage) && Main.AllAlivePlayerControls.Find(x => Vector2.Distance(pos, x.Pos()) < 1.3f, out var target) && pc.RpcCheckAndMurder(target))
+            if (UsingAbilities.Contains(Ability.Rage) && Main.AllAlivePlayerControls.FindFirst(x => Vector2.Distance(pos, x.Pos()) < 1.3f, out var target) && pc.RpcCheckAndMurder(target))
                 UsingAbilities.Remove(Ability.Rage);
 
             bool notify = Vector2.Distance(pc.Pos(), Shop.transform.position) < 2f;
@@ -425,6 +425,14 @@ namespace EHR.Crewmate
                 if (sb.Length > 0) sb.Append('\n');
                 sb.Append(Arrows);
             }
+
+            if (sb.Length > 0) sb.Append("\n\n<size=70%>");
+            sb.Append(string.Format(Translator.GetString("Dad.SelectedAbilitySuffix"), Translator.GetString($"Dad.Ability.{SelectedAbility}")));
+            sb.Append('\n');
+            sb.Append(Translator.GetString($"Dad.{SelectedAbility}.Description"));
+            sb.Append('\n');
+            sb.Append(string.Format(Translator.GetString("Dad.ShopLocation"), Shop.name));
+            sb.Append("</size>");
 
             return sb.ToString();
         }

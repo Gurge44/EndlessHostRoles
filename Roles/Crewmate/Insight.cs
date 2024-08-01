@@ -11,7 +11,7 @@ namespace EHR.Crewmate
         private List<CustomRoles> RolesKnownThisRound = [];
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(5650, TabGroup.CrewmateRoles, CustomRoles.Insight);
             Options.OverrideTasksData.Create(5653, TabGroup.CrewmateRoles, CustomRoles.Insight);

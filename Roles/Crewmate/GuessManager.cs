@@ -9,7 +9,7 @@ namespace EHR.Crewmate
 
         public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void SetupCustomOption() => Options.SetupRoleOptions(642640, TabGroup.CrewmateRoles, CustomRoles.GuessManagerRole);
+        public override void SetupCustomOption() => Options.SetupRoleOptions(642640, TabGroup.CrewmateRoles, CustomRoles.GuessManagerRole);
         public override void Init() => playerIdList = [];
         public override void Add(byte playerId) => playerIdList.Add(playerId);
 

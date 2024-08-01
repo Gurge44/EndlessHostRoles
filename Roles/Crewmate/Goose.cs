@@ -1,6 +1,6 @@
 ﻿namespace EHR.Crewmate
 {
-    public class Goose : ISettingHolder
+    public class Goose : RoleBase
     {
         private const int Id = 641820;
 
@@ -10,7 +10,9 @@
         public static OptionItem CanBeGuessed;
         public static OptionItem Cooldown;
 
-        public void SetupCustomOption()
+        public override bool IsEnable => false;
+
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Goose);
             OptionAbductTimerLimit = new FloatOptionItem(Id + 11, "PenguinAbductTimerLimit", new(1f, 20f, 1f), 10f, TabGroup.CrewmateRoles)
@@ -27,5 +29,8 @@
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Goose])
                 .SetValueFormat(OptionFormat.Seconds);
         }
+
+        public override void Init() => throw new System.NotImplementedException();
+        public override void Add(byte playerId) => throw new System.NotImplementedException();
     }
 }

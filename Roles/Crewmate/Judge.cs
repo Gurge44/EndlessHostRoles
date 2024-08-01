@@ -35,7 +35,7 @@ public class Judge : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Judge);
         TrialLimitPerMeeting = new FloatOptionItem(Id + 10, "TrialLimitPerMeeting", new(0f, 15f, 1f), 1f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetValueFormat(OptionFormat.Times);
@@ -142,15 +142,15 @@ public class Judge : RoleBase
                     else if (target.Is(CustomRoles.Pestilence)) judgeSuicide = true;
                     else if (target.Is(CustomRoles.Trickster)) judgeSuicide = true;
                     else if (target.Is(CustomRoles.Madmate) && CanTrialMadmate.GetBool()) judgeSuicide = false;
-                    else if (target.GetCustomSubRoles().Any(x => x.IsConverted()) && CanTrialConverted.GetBool()) judgeSuicide = false;
+                    else if (target.IsConverted() && CanTrialConverted.GetBool()) judgeSuicide = false;
                     else if (target.IsNeutralKiller() && CanTrialNeutralK.GetBool()) judgeSuicide = false;
                     else
                     {
                         var targetRole = target.GetCustomRole();
-                        if (targetRole.IsCK() && CanTrialCrewKilling.GetBool()) judgeSuicide = false;
-                        else if (targetRole.IsNB() && CanTrialNeutralB.GetBool()) judgeSuicide = false;
-                        else if (targetRole.IsNE() && CanTrialNeutralE.GetBool()) judgeSuicide = false;
-                        else if (targetRole.IsNonNK() && !CanTrialNeutralB.GetBool() && !CanTrialNeutralE.GetBool() && !targetRole.IsNB() && !targetRole.IsNE() && CanTrialNeutralK.GetBool()) judgeSuicide = false;
+                        if (targetRole.GetCrewmateRoleCategory() == RoleOptionType.Crewmate_Killing && CanTrialCrewKilling.GetBool()) judgeSuicide = false;
+                        else if (targetRole.GetNeutralRoleCategory() == RoleOptionType.Neutral_Benign && CanTrialNeutralB.GetBool()) judgeSuicide = false;
+                        else if (targetRole.GetNeutralRoleCategory() == RoleOptionType.Neutral_Evil && CanTrialNeutralE.GetBool()) judgeSuicide = false;
+                        else if (targetRole.IsNonNK() && !CanTrialNeutralB.GetBool() && !CanTrialNeutralE.GetBool() && targetRole.GetNeutralRoleCategory() is not RoleOptionType.Neutral_Benign and not RoleOptionType.Neutral_Evil && CanTrialNeutralK.GetBool()) judgeSuicide = false;
                         else if (targetRole.IsImpostor()) judgeSuicide = false;
                         else if (targetRole.IsMadmate() && CanTrialMadmate.GetBool()) judgeSuicide = false;
                         else if (targetRole is CustomRoles.Necromancer or CustomRoles.Deathknight && CanTrialNeutralK.GetBool()) judgeSuicide = false;

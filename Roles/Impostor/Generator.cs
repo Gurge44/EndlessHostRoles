@@ -43,7 +43,7 @@ namespace EHR.Impostor
             private long LastUpdate;
             public override bool IsEnable => On;
 
-            public static void SetupCustomOption()
+            public override void SetupCustomOption()
             {
                 const int id = 11385;
                 Options.SetupRoleOptions(id, TabGroup.ImpostorRoles, CustomRoles.Generator);

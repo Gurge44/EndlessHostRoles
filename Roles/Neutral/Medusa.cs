@@ -2,7 +2,7 @@ using static EHR.Options;
 
 namespace EHR.Neutral;
 
-public class Medusa : ISettingHolder
+public class Medusa : RoleBase
 {
     private const int Id = 12400;
 
@@ -12,7 +12,9 @@ public class Medusa : ISettingHolder
     public static OptionItem HasImpostorVision;
     public static OptionItem CannotStoneGazeWhenKCDIsntUp;
 
-    public void SetupCustomOption()
+    public override bool IsEnable => false;
+
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Medusa);
         KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
@@ -28,4 +30,7 @@ public class Medusa : ISettingHolder
         CannotStoneGazeWhenKCDIsntUp = new BooleanOptionItem(Id + 12, "CannotStoneGazeWhenKCDIsntUp", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Medusa]);
     }
+
+    public override void Init() => throw new System.NotImplementedException();
+    public override void Add(byte playerId) => throw new System.NotImplementedException();
 }

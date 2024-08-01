@@ -10,7 +10,7 @@ namespace EHR.Neutral
         public static Options.OverrideTasksData Tasks;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             const int id = 13860;
             Options.SetupRoleOptions(id, TabGroup.NeutralRoles, CustomRoles.Cherokious);

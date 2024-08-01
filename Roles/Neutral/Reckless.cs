@@ -2,7 +2,7 @@ using static EHR.Options;
 
 namespace EHR.Neutral;
 
-public class Reckless : ISettingHolder
+public class Reckless : RoleBase
 {
     private const int Id = 640500;
 
@@ -12,7 +12,9 @@ public class Reckless : ISettingHolder
     public static OptionItem HasImpostorVision;
     public static OptionItem CanVent;
 
-    public void SetupCustomOption()
+    public override bool IsEnable => false;
+
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Reckless);
         DefaultKillCooldown = new FloatOptionItem(Id + 10, "SansDefaultKillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Reckless])
@@ -24,4 +26,7 @@ public class Reckless : ISettingHolder
         HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Reckless]);
         CanVent = new BooleanOptionItem(Id + 14, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Reckless]);
     }
+
+    public override void Init() => throw new System.NotImplementedException();
+    public override void Add(byte playerId) => throw new System.NotImplementedException();
 }

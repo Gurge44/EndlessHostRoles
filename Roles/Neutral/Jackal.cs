@@ -31,7 +31,7 @@ public class Jackal : RoleBase
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Jackal);
         KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
@@ -91,13 +91,12 @@ public class Jackal : RoleBase
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    private static bool CanRecruit(byte id) => id.GetAbilityUseLimit() > 0;
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
     public override bool CanUseSabotage(PlayerControl pc) => CanSabotage.GetBool() && pc.IsAlive();
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        hud.KillButton.OverrideText(CanRecruit(id) ? $"{GetString("GangsterButtonText")}" : $"{GetString("KillButtonText")}");
+        hud.KillButton.OverrideText(id.GetAbilityUseLimit() > 0 ? $"{GetString("GangsterButtonText")}" : $"{GetString("KillButtonText")}");
         hud.SabotageButton.ToggleVisible(CanSabotage.GetBool());
     }
 
@@ -127,11 +126,11 @@ public class Jackal : RoleBase
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
 
-        killer.ResetKillCooldown();
+        killer.SetKillCooldown(3f);
         target.RpcGuardAndKill(killer);
         target.RpcGuardAndKill(target);
 
-        Logger.Info($" {target.Data?.PlayerName} = {target.GetCustomRole()} + {CustomRoles.Sidekick}", "Assign " + CustomRoles.Sidekick);
+        Logger.Info($" {target.Data?.PlayerName} = {target.GetCustomRole()} + {CustomRoles.Sidekick}", $"Assign {CustomRoles.Sidekick}");
         return false;
     }
 
@@ -159,6 +158,10 @@ public class Sidekick : RoleBase
     private static List<byte> PlayerIdList = [];
 
     public override bool IsEnable => PlayerIdList.Count > 0;
+
+    public override void SetupCustomOption()
+    {
+    }
 
     public override void Init()
     {

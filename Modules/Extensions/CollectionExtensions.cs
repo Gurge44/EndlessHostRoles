@@ -194,7 +194,7 @@ namespace EHR
         /// <param name="element">The first element that satisfies the predicate, or the default value of <typeparamref name="T"/> if no elements satisfy the predicate</param>
         /// <typeparam name="T">The type of the elements in the collection</typeparam>
         /// <returns><c>true</c> if the collection contains any elements that satisfy the predicate, <c>false</c> otherwise</returns>
-        public static bool Find<T>(this IEnumerable<T> collection, Func<T, bool> predicate, out T element)
+        public static bool FindFirst<T>(this IEnumerable<T> collection, Func<T, bool> predicate, out T element)
         {
             if (collection is List<T> list)
             {

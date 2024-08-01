@@ -5,7 +5,7 @@ using EHR.Modules;
 
 namespace EHR.AddOns.GhostRoles
 {
-    internal class Haunter : IGhostRole, ISettingHolder
+    internal class Haunter : IGhostRole
     {
         public static HashSet<byte> AllHauntedPlayers = [];
 

@@ -11,7 +11,7 @@ namespace EHR.Crewmate
         public static Dictionary<Options.GameStateInfo, OptionItem> Settings = [];
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(644970, TabGroup.CrewmateRoles, CustomRoles.Clairvoyant);
 

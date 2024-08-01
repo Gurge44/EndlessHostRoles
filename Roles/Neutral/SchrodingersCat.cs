@@ -7,7 +7,7 @@
         public static OptionItem WinsWithCrewIfNotAttacked;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             const int id = 13840;
             Options.SetupRoleOptions(id, TabGroup.NeutralRoles, CustomRoles.SchrodingersCat);

@@ -26,7 +26,7 @@ namespace EHR.Crewmate
 
         public override bool IsEnable => PlayerIdList.Count > 0;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Bloodhound);
             ArrowsPointingToDeadBody = new BooleanOptionItem(Id + 10, "BloodhoundArrowsPointingToDeadBody", false, TabGroup.CrewmateRoles)

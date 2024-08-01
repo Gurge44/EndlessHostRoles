@@ -83,7 +83,7 @@ namespace EHR.Neutral
 
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             int id = 14870;
             const TabGroup tab = TabGroup.NeutralRoles;

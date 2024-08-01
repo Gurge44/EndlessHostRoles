@@ -599,12 +599,13 @@ public static class StringOptionPatch
             var name = item.GetName();
             item.OptionBehaviour = __instance;
             string name1 = name;
-            if (Enum.GetValues<CustomRoles>().Find(x => Translator.GetString($"{x}") == name1.RemoveHtmlTags(), out var role))
+            if (Enum.GetValues<CustomRoles>().FindFirst(x => Translator.GetString($"{x}") == name1.RemoveHtmlTags(), out var role))
             {
+                if (role.ToString().Contains("GuardianAngel")) role = CustomRoles.GA;
                 name = name.RemoveHtmlTags();
                 if (Options.UsePets.GetBool() && role.PetActivatedAbility()) name += Translator.GetString("SupportsPetIndicator");
                 if (!Options.UsePets.GetBool() && role.OnlySpawnsWithPets()) name += Translator.GetString("RequiresPetIndicator");
-                name += GetGhostRoleTeam();
+                if (role.IsGhostRole()) name += GetGhostRoleTeam(role);
                 __instance.TitleText.fontWeight = FontWeight.Black;
                 __instance.TitleText.outlineColor = new(255, 255, 255, 255);
                 __instance.TitleText.outlineWidth = 0.04f;
@@ -612,23 +613,6 @@ public static class StringOptionPatch
                 __instance.TitleText.color = Color.white;
                 name = $"<size=3.5>{name}</size>";
                 SetupHelpIcon(role, __instance);
-
-                string GetGhostRoleTeam()
-                {
-                    var instance = GhostRolesManager.CreateGhostRoleInstance(role);
-                    if (instance == null) return string.Empty;
-                    var team = instance.Team;
-                    if ((int)team is 1 or 2 or 4) return Utils.ColorString(team.GetTeamColor(), Translator.GetString($"{team}"));
-                    Team[] teams = (int)team switch
-                    {
-                        3 => [Team.Impostor, Team.Neutral],
-                        5 => [Team.Impostor, Team.Crewmate],
-                        6 => [Team.Neutral, Team.Crewmate],
-                        7 => [Team.Impostor, Team.Neutral, Team.Crewmate],
-                        _ => []
-                    };
-                    return $"<size=2>{string.Join('/', teams.Select(x => Utils.ColorString(x.GetTeamColor(), Translator.GetString($"ShortTeamName.{x}"))))}</size>";
-                }
             }
 
             __instance.TitleText.text = name;
@@ -652,6 +636,25 @@ public static class StringOptionPatch
         icon.SetAsLastSibling();
     }
 
+    private static string GetGhostRoleTeam(CustomRoles role)
+    {
+        var instance = GhostRolesManager.CreateGhostRoleInstance(role);
+        if (instance == null) return string.Empty;
+        var team = instance.Team;
+        if ((int)team is 1 or 2 or 4) return $"    <size=2>{GetColoredShortTeamName(team)}</size>";
+        Team[] teams = (int)team switch
+        {
+            3 => [Team.Impostor, Team.Neutral],
+            5 => [Team.Impostor, Team.Crewmate],
+            6 => [Team.Neutral, Team.Crewmate],
+            7 => [Team.Impostor, Team.Neutral, Team.Crewmate],
+            _ => []
+        };
+        return $"    <size=2>{string.Join('/', teams.Select(GetColoredShortTeamName))}</size>";
+
+        string GetColoredShortTeamName(Team t) => Utils.ColorString(t.GetTeamColor(), Translator.GetString($"ShortTeamName.{t}").ToUpper());
+    }
+
     [HarmonyPatch(nameof(StringOption.UpdateValue)), HarmonyPrefix]
     private static bool UpdateValuePrefix(StringOption __instance)
     {
@@ -663,7 +666,7 @@ public static class StringOptionPatch
 
             var name = item.GetName();
             string name1 = name;
-            if (Enum.GetValues<CustomRoles>().Find(x => Translator.GetString($"{x}") == name1.RemoveHtmlTags(), out var role))
+            if (Enum.GetValues<CustomRoles>().FindFirst(x => Translator.GetString($"{x}") == name1.RemoveHtmlTags(), out var role))
             {
                 name = name.RemoveHtmlTags();
                 if (Options.UsePets.GetBool() && role.PetActivatedAbility()) name += Translator.GetString("SupportsPetIndicator");
@@ -728,7 +731,7 @@ public static class StringOptionPatch
         {
             var item = OptionItem.AllOptions[index];
             var name = item.GetName();
-            if (Enum.GetValues<CustomRoles>().Find(x => Translator.GetString($"{x}") == name.RemoveHtmlTags(), out var role))
+            if (Enum.GetValues<CustomRoles>().FindFirst(x => Translator.GetString($"{x}") == name.RemoveHtmlTags(), out var role))
             {
                 var roleName = role.IsVanilla() ? role + "EHR" : role.ToString();
                 var str = Translator.GetString($"{roleName}InfoLong");
@@ -966,7 +969,7 @@ public class GameSettingMenuPatch
         var FreeChatField = DestroyableSingleton<ChatController>.Instance.freeChatField;
         var TextField = Object.Instantiate(FreeChatField, ParentLeftPanel.parent);
         TextField.transform.localScale = new(0.3f, 0.59f, 1);
-        TextField.transform.localPosition = new(-0.8f, -2.57f, -5f);
+        TextField.transform.localPosition = new(-0.7f, -2.5f, -5f);
         TextField.textArea.outputText.transform.localScale = new(3.5f, 2f, 1f);
         TextField.textArea.outputText.font = PLuLabel.font;
 

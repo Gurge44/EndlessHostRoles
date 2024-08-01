@@ -16,7 +16,7 @@ public class Collector : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Collector);
         CollectorCollectAmount = new IntegerOptionItem(Id + 13, "CollectorCollectAmount", new(1, 60, 1), 30, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Collector])

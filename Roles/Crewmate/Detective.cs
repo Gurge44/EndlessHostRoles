@@ -2,16 +2,21 @@
 
 namespace EHR.Crewmate
 {
-    internal class Detective : ISettingHolder
+    internal class Detective : RoleBase
     {
         public static Dictionary<byte, string> DetectiveNotify = [];
 
-        public void SetupCustomOption()
+        public override bool IsEnable => false;
+
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(6600, TabGroup.CrewmateRoles, CustomRoles.Detective);
             Options.DetectiveCanknowKiller = new BooleanOptionItem(6610, "DetectiveCanknowKiller", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Detective]);
         }
+
+        public override void Init() => throw new System.NotImplementedException();
+        public override void Add(byte playerId) => throw new System.NotImplementedException();
 
         public static void OnReportDeadBody(PlayerControl player, PlayerControl tpc)
         {

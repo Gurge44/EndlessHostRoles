@@ -21,7 +21,7 @@ namespace EHR.Impostor
 
         public override bool IsEnable => YinYangerId != byte.MaxValue;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.YinYanger);
             YinYangCD = new FloatOptionItem(Id + 5, "YinYangCD", new(0f, 60f, 2.5f), 12.5f, TabGroup.ImpostorRoles)

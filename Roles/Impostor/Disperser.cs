@@ -18,7 +18,7 @@ public class Disperser : RoleBase
     public static bool On;
     public override bool IsEnable => On;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Disperser);
         DisperserShapeshiftCooldown = new FloatOptionItem(Id + 5, "ShapeshiftCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles)

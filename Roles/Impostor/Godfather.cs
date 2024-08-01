@@ -6,7 +6,7 @@
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(648400, TabGroup.ImpostorRoles, CustomRoles.Godfather);
             Options.GodfatherCancelVote = Options.CreateVoteCancellingUseSetting(648402, CustomRoles.Godfather, TabGroup.ImpostorRoles);

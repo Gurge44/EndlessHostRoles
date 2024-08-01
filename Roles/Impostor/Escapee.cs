@@ -10,7 +10,7 @@ namespace EHR.Impostor
         public Vector2? EscapeeLocation;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(3600, TabGroup.ImpostorRoles, CustomRoles.Escapee);
             Options.EscapeeSSCD = new FloatOptionItem(3611, "ShapeshiftCooldown", new(1f, 180f, 1f), 5f, TabGroup.ImpostorRoles)

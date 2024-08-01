@@ -20,7 +20,7 @@
             return !target.AllTasksCompleted();
         }
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(9200, TabGroup.CrewmateRoles, CustomRoles.Guardian);
             Options.OverrideTasksData.Create(9210, TabGroup.CrewmateRoles, CustomRoles.Guardian);

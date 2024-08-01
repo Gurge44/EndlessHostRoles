@@ -24,7 +24,7 @@ namespace EHR.Neutral
 
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             int id = 647350;
             Options.SetupRoleOptions(id++, TabGroup.NeutralRoles, CustomRoles.Beehive);

@@ -37,7 +37,7 @@ namespace EHR.Crewmate
         static ToiletVisibilityOptions ToiletVisible => (ToiletVisibilityOptions)ToiletVisibility.GetValue();
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             int id = 644700;
             const TabGroup tab = TabGroup.CrewmateRoles;

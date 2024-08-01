@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EHR.AddOns.GhostRoles
 {
-    internal class Warden : IGhostRole, ISettingHolder
+    internal class Warden : IGhostRole
     {
         private static OptionItem ExtraSpeed;
         private static OptionItem ExtraSpeedDuration;

@@ -29,7 +29,7 @@ namespace EHR.Crewmate
 
         public override bool IsEnable => PlayerIdList.Count > 0 || Randomizer.Exists;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Tornado);
             TornadoCooldown = new IntegerOptionItem(Id + 2, "TornadoCooldown", new(1, 90, 1), 15, TabGroup.CrewmateRoles)

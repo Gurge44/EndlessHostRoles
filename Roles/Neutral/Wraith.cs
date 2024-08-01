@@ -2,7 +2,7 @@
 
 namespace EHR.Neutral;
 
-public class Wraith : ISettingHolder
+public class Wraith : RoleBase
 {
     private const int Id = 13300;
 
@@ -10,7 +10,9 @@ public class Wraith : ISettingHolder
     public static OptionItem WraithDuration;
     public static OptionItem WraithVentNormallyOnCooldown;
 
-    public void SetupCustomOption()
+    public override bool IsEnable => false;
+
+    public override void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Wraith);
         WraithCooldown = new FloatOptionItem(Id + 2, "WraithCooldown", new(0f, 60f, 0.5f), 20f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wraith])
@@ -19,4 +21,7 @@ public class Wraith : ISettingHolder
             .SetValueFormat(OptionFormat.Seconds);
         WraithVentNormallyOnCooldown = new BooleanOptionItem(Id + 4, "WraithVentNormallyOnCooldown", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wraith]);
     }
+
+    public override void Init() => throw new System.NotImplementedException();
+    public override void Add(byte playerId) => throw new System.NotImplementedException();
 }

@@ -38,7 +38,7 @@ public class FireWorks : RoleBase
 
     public override bool IsEnable => On;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.FireWorks);
         FireWorksCountOpt = new IntegerOptionItem(Id + 10, "FireWorksMaxCount", new(1, 10, 1), 3, TabGroup.ImpostorRoles)

@@ -20,7 +20,7 @@ namespace EHR.Crewmate
 
         public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Drainer);
             VentCD = new IntegerOptionItem(Id + 10, "VentCooldown", new(1, 60, 1), 30, TabGroup.CrewmateRoles)

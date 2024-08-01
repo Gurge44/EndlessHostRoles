@@ -27,7 +27,7 @@ namespace EHR.Neutral
 
         public override bool IsEnable => NecromancerId != byte.MaxValue;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Necromancer);
             CD = new FloatOptionItem(Id + 2, "NecromancerCD", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
@@ -143,6 +143,10 @@ namespace EHR.Neutral
         public static PlayerControl Deathknight_;
 
         public override bool IsEnable => DeathknightId != byte.MaxValue;
+
+        public override void SetupCustomOption()
+        {
+        }
 
         public override void Init()
         {

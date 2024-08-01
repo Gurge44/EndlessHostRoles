@@ -29,7 +29,7 @@ public class Succubus : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Succubus);
         CharmCooldown = new FloatOptionItem(Id + 10, "SuccubusCharmCooldown", new(0f, 60f, 0.5f), 30f, TabGroup.NeutralRoles)

@@ -22,7 +22,7 @@ namespace EHR.Neutral
 
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             const int id = 16880;
             SetupRoleOptions(id, TabGroup.NeutralRoles, CustomRoles.Samurai);

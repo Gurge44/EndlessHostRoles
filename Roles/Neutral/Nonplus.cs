@@ -10,7 +10,7 @@
         public static OptionItem NonplusAbilityUseGainWithEachKill;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             const int id = 649500;
             const TabGroup tab = TabGroup.NeutralRoles;

@@ -20,7 +20,7 @@ namespace EHR.Impostor
         private static OptionItem AbilityUseLimit;
         public static OptionItem AbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
-        private static readonly Dictionary<SimpleRoleOptionType, OptionItem> TeamsCanSeeInfo = [];
+        private static readonly Dictionary<SimpleTeam, OptionItem> TeamsCanSeeInfo = [];
 
         private static Vector2[] AvailableDevices = [];
 
@@ -36,7 +36,7 @@ namespace EHR.Impostor
         private HashSet<byte> UsingDevice = [];
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             int id = 11370;
             Options.SetupRoleOptions(id++, TabGroup.CrewmateRoles, CustomRoles.Sentry);
@@ -54,7 +54,7 @@ namespace EHR.Impostor
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
             AdditionalDevicesForInfoView = new StringOptionItem(++id, "Sentry.AdditionalDevicesForInfoView", Enum.GetNames<AdditionalDevicesStrings>(), 0, TabGroup.CrewmateRoles)
                 .SetParent(UsableDevicesForInfoView);
-            Enum.GetValues<SimpleRoleOptionType>().Do(x =>
+            Enum.GetValues<SimpleTeam>().Do(x =>
             {
                 TeamsCanSeeInfo[x] = new BooleanOptionItem(++id, "Sentry.TeamsCanSeeInfo." + x, true, TabGroup.CrewmateRoles)
                     .SetParent(UsableDevicesForInfoView);
@@ -284,12 +284,12 @@ namespace EHR.Impostor
 
         static bool CheckTeam(PlayerControl pc)
         {
-            SimpleRoleOptionType team = pc.GetTeam() switch
+            SimpleTeam team = pc.GetTeam() switch
             {
-                Team.Crewmate => SimpleRoleOptionType.Crewmate,
-                Team.Impostor => SimpleRoleOptionType.Impostor,
-                Team.Neutral => pc.IsNeutralKiller() ? SimpleRoleOptionType.NK : SimpleRoleOptionType.NNK,
-                _ => SimpleRoleOptionType.Crewmate
+                Team.Crewmate => SimpleTeam.Crewmate,
+                Team.Impostor => SimpleTeam.Impostor,
+                Team.Neutral => pc.IsNeutralKiller() ? SimpleTeam.NK : SimpleTeam.NNK,
+                _ => SimpleTeam.Crewmate
             };
             return TeamsCanSeeInfo[team].GetBool();
         }
@@ -318,6 +318,14 @@ namespace EHR.Impostor
             DoorLog,
             Binoculars,
             DoorLogAndBinoculars
+        }
+
+        enum SimpleTeam
+        {
+            Crewmate,
+            Impostor,
+            NK,
+            NNK
         }
     }
 }

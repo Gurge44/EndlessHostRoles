@@ -13,7 +13,7 @@ namespace EHR.Impostor
         private bool IsNuker;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(2400, TabGroup.ImpostorRoles, CustomRoles.Bomber);
             BomberRadius = new FloatOptionItem(2018, "BomberRadius", new(0.5f, 5f, 0.5f), 2f, TabGroup.ImpostorRoles)

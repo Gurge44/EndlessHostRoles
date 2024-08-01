@@ -17,7 +17,7 @@ namespace EHR.Crewmate
 
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(5647, TabGroup.CrewmateRoles, CustomRoles.Car);
             PropelDistance = new FloatOptionItem(5649, "Car.PropelDistance", new(1f, 20f, 0.5f), 5f, TabGroup.CrewmateRoles)
@@ -67,7 +67,7 @@ namespace EHR.Crewmate
 
             LastPosition = pos;
 
-            if (Main.AllAlivePlayerControls.Without(pc).Find(x => Vector2.Distance(pos, x.Pos()) < 1.2f, out var target) && CurrentlyPropelling.Add(target.PlayerId))
+            if (Main.AllAlivePlayerControls.Without(pc).FindFirst(x => Vector2.Distance(pos, x.Pos()) < 1.2f, out var target) && CurrentlyPropelling.Add(target.PlayerId))
                 Main.Instance.StartCoroutine(Propel(pc, target, direction));
         }
 

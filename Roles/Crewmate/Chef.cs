@@ -32,7 +32,7 @@ namespace EHR.Crewmate
 
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             int id = 648750;
             Options.SetupRoleOptions(id++, TabGroup.CrewmateRoles, CustomRoles.Chef);

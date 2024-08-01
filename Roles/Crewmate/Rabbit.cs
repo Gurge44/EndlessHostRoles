@@ -14,7 +14,7 @@ namespace EHR.Crewmate
         private static int Id => 643330;
         public override bool IsEnable => RabbitStates.Count > 0;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Rabbit);
             OptionTaskTrigger = new IntegerOptionItem(Id + 2, "RabbitMinTasks", new(0, 90, 1), 3, TabGroup.CrewmateRoles)

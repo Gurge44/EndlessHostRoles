@@ -18,7 +18,7 @@ namespace EHR.Crewmate
         public static OptionItem VentguardBlocksResetOnMeeting;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupSingleRoleOptions(5525, TabGroup.CrewmateRoles, CustomRoles.Ventguard);
             VentguardAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(5527, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)

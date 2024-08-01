@@ -15,7 +15,7 @@ namespace EHR.Impostor
         public List<byte> RevealedPlayerIds = [];
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(16150, TabGroup.ImpostorRoles, CustomRoles.Visionary);
             UseLimit = new IntegerOptionItem(16152, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles)

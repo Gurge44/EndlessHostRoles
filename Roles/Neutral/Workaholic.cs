@@ -21,7 +21,7 @@ namespace EHR.Neutral
         public static OptionItem WorkaholicSpeed;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(11700, TabGroup.NeutralRoles, CustomRoles.Workaholic);
             WorkaholicCannotWinAtDeath = new BooleanOptionItem(11710, "WorkaholicCannotWinAtDeath", true, TabGroup.NeutralRoles)

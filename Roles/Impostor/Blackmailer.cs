@@ -10,7 +10,7 @@ namespace EHR.Impostor
         public byte BlackmailedPlayerId;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption() => Options.SetupSingleRoleOptions(12190, TabGroup.ImpostorRoles, CustomRoles.Blackmailer);
+        public override void SetupCustomOption() => Options.SetupSingleRoleOptions(12190, TabGroup.ImpostorRoles, CustomRoles.Blackmailer);
 
         public override void Add(byte playerId)
         {

@@ -5,7 +5,7 @@
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(5800, TabGroup.CrewmateRoles, CustomRoles.Luckey);
             Options.LuckeyProbability = new IntegerOptionItem(5900, "LuckeyProbability", new(0, 100, 5), 50, TabGroup.CrewmateRoles)

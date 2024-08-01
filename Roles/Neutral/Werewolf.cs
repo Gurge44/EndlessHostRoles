@@ -31,7 +31,7 @@ public class Werewolf : RoleBase
     bool CanRampage => GameStates.IsInTask && RampageTime == -10 && lastTime == -10;
     bool IsRampaging => RampageTime != -10;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Werewolf);
         KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf])

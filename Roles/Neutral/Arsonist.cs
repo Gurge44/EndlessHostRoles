@@ -16,7 +16,7 @@ namespace EHR.Neutral
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(10400, TabGroup.NeutralRoles, CustomRoles.Arsonist);
             ArsonistDouseTime = new FloatOptionItem(10410, "ArsonistDouseTime", new(0f, 90f, 0.5f), 3f, TabGroup.NeutralRoles)

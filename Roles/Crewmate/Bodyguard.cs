@@ -24,7 +24,7 @@ namespace EHR.Crewmate
             BodyguardPC = Utils.GetPlayerById(playerId);
         }
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(8400, TabGroup.CrewmateRoles, CustomRoles.Bodyguard);
             BodyguardProtectRadius = new FloatOptionItem(8410, "BodyguardProtectRadius", new(0.5f, 5f, 0.5f), 1.5f, TabGroup.CrewmateRoles)

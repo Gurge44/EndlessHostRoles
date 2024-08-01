@@ -5,6 +5,8 @@
         public static bool On;
         public override bool IsEnable => On;
 
+        public override void SetupCustomOption() => Options.SetupRoleOptions(649198, TabGroup.CrewmateRoles, CustomRoles.SpeedBooster);
+
         public override void Add(byte playerId)
         {
             On = true;

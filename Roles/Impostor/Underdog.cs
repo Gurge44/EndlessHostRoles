@@ -7,7 +7,7 @@ namespace EHR.Impostor
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(10025, TabGroup.ImpostorRoles, CustomRoles.Underdog);
             UnderdogMaximumPlayersNeededToKill = new IntegerOptionItem(10030, "UnderdogMaximumPlayersNeededToKill", new(1, 15, 1), 5, TabGroup.ImpostorRoles)

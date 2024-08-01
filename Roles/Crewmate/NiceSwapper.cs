@@ -26,7 +26,7 @@ public class NiceSwapper : RoleBase
 
     public override bool IsEnable => NiceSwapperId != byte.MaxValue;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.NiceSwapper);
         SwapMax = new IntegerOptionItem(Id + 3, "NiceSwapperMax", new(0, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceSwapper])

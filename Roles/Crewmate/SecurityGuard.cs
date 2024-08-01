@@ -12,7 +12,7 @@ namespace EHR.Crewmate
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(6860, TabGroup.CrewmateRoles, CustomRoles.SecurityGuard);
             SecurityGuardSkillCooldown = new FloatOptionItem(6862, "SecurityGuardSkillCooldown", new(0f, 180f, 1f), 15f, TabGroup.CrewmateRoles)

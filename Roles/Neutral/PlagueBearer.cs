@@ -22,7 +22,7 @@ public class PlagueBearer : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.PlagueBearer);
         PlagueBearerCDOpt = new FloatOptionItem(Id + 10, "PlagueBearerCD", new(0f, 180f, 0.5f), 17.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer])
@@ -119,6 +119,10 @@ public class Pestilence : RoleBase
 {
     public static bool On;
     public override bool IsEnable => On;
+
+    public override void SetupCustomOption()
+    {
+    }
 
     public override void Add(byte playerId)
     {

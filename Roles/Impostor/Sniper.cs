@@ -39,7 +39,7 @@ public class Sniper : RoleBase
     public byte snipeTarget;
     public override bool IsEnable => On;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Sniper);
         SniperBulletCount = new IntegerOptionItem(Id + 10, "SniperBulletCount", new(1, 10, 1), 2, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper])

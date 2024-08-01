@@ -7,7 +7,7 @@ namespace EHR.Crewmate
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(5600, TabGroup.CrewmateRoles, CustomRoles.Doctor);
             Options.DoctorTaskCompletedBatteryCharge = new FloatOptionItem(5610, "DoctorTaskCompletedBatteryCharge", new(0f, 250f, 1f), 50f, TabGroup.CrewmateRoles)

@@ -2,7 +2,7 @@
 
 namespace EHR.AddOns.GhostRoles
 {
-    internal class GA : IGhostRole, ISettingHolder
+    internal class GA : IGhostRole
     {
         private static OptionItem ProtectDuration;
         private static OptionItem CD;

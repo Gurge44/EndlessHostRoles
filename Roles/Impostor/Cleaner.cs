@@ -22,7 +22,7 @@ namespace EHR.Impostor
 
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(2600, TabGroup.ImpostorRoles, CustomRoles.Cleaner);
             CleanerKillCooldown = new FloatOptionItem(2610, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)

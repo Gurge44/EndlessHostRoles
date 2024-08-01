@@ -32,7 +32,7 @@ namespace EHR.Impostor
 
         public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Deathpact);
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])

@@ -17,7 +17,7 @@ namespace EHR.Crewmate
             On = false;
         }
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(9150, TabGroup.CrewmateRoles, CustomRoles.Lookout);
         }

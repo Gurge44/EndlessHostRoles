@@ -19,7 +19,7 @@ namespace EHR.Impostor
         private List<(BlackHole NetObject, long PlaceTimeStamp, Vector2 Position)> BlackHoles = [];
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             int id = 649800;
             const TabGroup tab = TabGroup.ImpostorRoles;

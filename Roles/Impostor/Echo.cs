@@ -13,7 +13,7 @@ namespace EHR.Impostor
         public PlayerControl EchoPC;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             int id = 647600;
             const TabGroup tab = TabGroup.ImpostorRoles;

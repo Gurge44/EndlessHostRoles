@@ -23,7 +23,7 @@ namespace EHR.Crewmate
             On = false;
         }
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(9170, TabGroup.CrewmateRoles, CustomRoles.Speedrunner);
             SpeedrunnerNotifyKillers = new BooleanOptionItem(9178, "SpeedrunnerNotifyKillers", true, TabGroup.CrewmateRoles)

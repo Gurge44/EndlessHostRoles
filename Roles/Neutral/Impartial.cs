@@ -38,7 +38,7 @@ namespace EHR.Neutral
             }
         }
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             const int id = 10490;
             Options.SetupRoleOptions(id, TabGroup.NeutralRoles, CustomRoles.Impartial);

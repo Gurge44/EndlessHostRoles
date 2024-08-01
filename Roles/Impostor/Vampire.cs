@@ -26,7 +26,7 @@ public class Vampire : RoleBase
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Vampire);
         Cooldown = new FloatOptionItem(Id + 9, "VampireKillCooldown", new(1f, 30f, 1f), 30f, TabGroup.ImpostorRoles)

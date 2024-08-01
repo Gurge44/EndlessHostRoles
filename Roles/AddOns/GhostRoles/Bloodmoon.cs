@@ -2,7 +2,7 @@
 
 namespace EHR.AddOns.GhostRoles
 {
-    internal class Bloodmoon : IGhostRole, ISettingHolder
+    internal class Bloodmoon : IGhostRole
     {
         private static OptionItem CD;
         private static OptionItem Duration;

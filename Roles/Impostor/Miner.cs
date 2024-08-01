@@ -8,7 +8,7 @@ namespace EHR.Impostor
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(3800, TabGroup.ImpostorRoles, CustomRoles.Miner);
             Options.MinerSSCD = new FloatOptionItem(3811, "ShapeshiftCooldown", new(1f, 180f, 1f), 15f, TabGroup.ImpostorRoles)

@@ -24,7 +24,7 @@ public class Psychic : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Psychic);
         CanSeeNum = new IntegerOptionItem(Id + 2, "PsychicCanSeeNum", new(1, 10, 1), 3, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Psychic])
@@ -93,9 +93,9 @@ public class Psychic : RoleBase
 
         List<PlayerControl> BadListPc = Main.AllAlivePlayerControls.Where(x =>
             (x.Is(CustomRoleTypes.Impostor) && !x.Is(CustomRoles.Trickster)) || x.Is(CustomRoles.Madmate) || x.Is(CustomRoles.Rascal) || x.Is(CustomRoles.Recruit) || x.Is(CustomRoles.Charmed) || x.Is(CustomRoles.Contagious) ||
-            (x.GetCustomRole().IsCK() && CkshowEvil.GetBool()) ||
-            (x.GetCustomRole().IsNE() && NEshowEvil.GetBool()) ||
-            (x.GetCustomRole().IsNB() && NBshowEvil.GetBool())
+            (x.GetCustomRole().GetCrewmateRoleCategory() == RoleOptionType.Crewmate_Killing && CkshowEvil.GetBool()) ||
+            (x.GetCustomRole().GetNeutralRoleCategory() == RoleOptionType.Neutral_Evil && NEshowEvil.GetBool()) ||
+            (x.GetCustomRole().GetNeutralRoleCategory() == RoleOptionType.Neutral_Benign && NBshowEvil.GetBool())
         ).ToList();
 
         List<byte> BadList = [];

@@ -15,7 +15,7 @@ namespace EHR.Crewmate
         public override void Add(byte playerId) => On = true;
         public override void Init() => On = false;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mole);
             CD = new FloatOptionItem(Id + 2, "AbilityCooldown", new(0f, 120f, 0.5f), 15f, TabGroup.CrewmateRoles)

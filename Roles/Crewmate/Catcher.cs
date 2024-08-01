@@ -25,7 +25,7 @@ namespace EHR.Crewmate
 
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             int id = 648650;
             const TabGroup tab = TabGroup.CrewmateRoles;

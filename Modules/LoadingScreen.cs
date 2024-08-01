@@ -56,7 +56,7 @@ namespace EHR.Modules
         {
             try
             {
-                if (HintHideTimer <= 1f)
+                if (HintHideTimer <= 15f)
                     HintHideTimer += Time.deltaTime;
 
                 var lp = PlayerControl.LocalPlayer;
@@ -92,10 +92,10 @@ namespace EHR.Modules
                 {
                     case false when ErrorText.HasHint:
                         ErrorText.RemoveHint();
-                        HintHideTimer = 0f;
                         return;
                     case true when !ErrorText.HasHint:
-                        if (HintHideTimer > 1f) NewHint();
+                        if (HintHideTimer > 15f) NewHint();
+                        HintHideTimer = 0f;
                         ErrorText.Instance.AddError(ErrorCode.LoadingHint);
                         break;
                 }

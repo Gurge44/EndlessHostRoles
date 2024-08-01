@@ -3,7 +3,7 @@
 namespace EHR.AddOns.GhostRoles
 {
     // TOU-R Phantom
-    internal class Specter : IGhostRole, ISettingHolder
+    internal class Specter : IGhostRole
     {
         private static OptionItem SnatchWin;
 

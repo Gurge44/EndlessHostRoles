@@ -2,7 +2,7 @@
 
 namespace EHR.AddOns.GhostRoles
 {
-    internal class Minion : IGhostRole, ISettingHolder
+    internal class Minion : IGhostRole
     {
         public static HashSet<byte> BlindPlayers = [];
 

@@ -7,7 +7,7 @@
         public byte Target;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(649700, TabGroup.ImpostorRoles, CustomRoles.Augmenter);
         }

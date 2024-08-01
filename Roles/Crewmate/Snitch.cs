@@ -32,7 +32,7 @@ public class Snitch : RoleBase
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Snitch);
         OptionEnableTargetArrow = new BooleanOptionItem(Id + 10, "SnitchEnableTargetArrow", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Snitch]);

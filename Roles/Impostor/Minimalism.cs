@@ -10,7 +10,7 @@ namespace EHR.Impostor
         public static OptionItem BypassShields;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(16300, TabGroup.ImpostorRoles, CustomRoles.Minimalism);
             MNKillCooldown = new FloatOptionItem(16310, "KillCooldown", new(2.5f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles)

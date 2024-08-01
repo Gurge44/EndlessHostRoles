@@ -7,7 +7,7 @@ namespace EHR.Neutral
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(10800, TabGroup.NeutralRoles, CustomRoles.Innocent);
             Options.InnocentCanWinByImp = new BooleanOptionItem(10810, "InnocentCanWinByImp", false, TabGroup.NeutralRoles)

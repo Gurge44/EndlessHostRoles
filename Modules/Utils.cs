@@ -1777,6 +1777,8 @@ public static class Utils
 
     public static string ColoredPlayerName(this byte id) => ColorString(Main.PlayerColors.GetValueOrDefault(id, Color.white), Main.AllPlayerNames.GetValueOrDefault(id, GetPlayerById(id)?.GetRealName() ?? $"Someone (ID {id})"));
 
+    public static PlayerControl GetPlayer(this byte id) => GetPlayerById(id);
+
     public static PlayerControl GetPlayerById(int PlayerId, bool fast = true)
     {
         if (PlayerId is > byte.MaxValue or < byte.MinValue) return null;

@@ -41,7 +41,7 @@ public class Swooper : RoleBase
     bool CanGoInvis => GameStates.IsInTask && InvisTime == -10 && lastTime == -10;
     bool IsInvis => InvisTime != -10;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Swooper);
         SwooperCooldown = new FloatOptionItem(Id + 2, "SwooperCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])

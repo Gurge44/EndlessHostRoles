@@ -14,7 +14,7 @@ namespace EHR.Impostor
         private float KillCooldown;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(1000, TabGroup.ImpostorRoles, CustomRoles.CursedWolf); //TOH_Y
             Options.GuardSpellTimes = new IntegerOptionItem(1010, "GuardSpellTimes", new(1, 15, 1), 3, TabGroup.ImpostorRoles)

@@ -2,7 +2,7 @@ using static EHR.Options;
 
 namespace EHR.Crewmate;
 
-public class Chameleon : ISettingHolder
+public class Chameleon : RoleBase
 {
     private const int Id = 6300;
 
@@ -12,7 +12,9 @@ public class Chameleon : ISettingHolder
     public static OptionItem ChameleonAbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
 
-    public void SetupCustomOption()
+    public override bool IsEnable => false;
+
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Chameleon);
         ChameleonCooldown = new FloatOptionItem(Id + 2, "ChameleonCooldown", new(1f, 60f, 1f), 20f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Chameleon])
@@ -28,4 +30,7 @@ public class Chameleon : ISettingHolder
             .SetParent(CustomRoleSpawnChances[CustomRoles.Chameleon])
             .SetValueFormat(OptionFormat.Times);
     }
+
+    public override void Init() => throw new System.NotImplementedException();
+    public override void Add(byte playerId) => throw new System.NotImplementedException();
 }

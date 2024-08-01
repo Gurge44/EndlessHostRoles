@@ -15,7 +15,7 @@ public class Morphling : RoleBase
     public override bool IsEnable => playerIdList.Count > 0;
 
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Morphling);
         KillCooldown = new FloatOptionItem(Id + 14, "KillCooldown", new(0f, 60f, 2.5f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Morphling])

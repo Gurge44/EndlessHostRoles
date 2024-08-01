@@ -45,7 +45,7 @@ public class Romantic : RoleBase
 
     public override bool IsEnable => RomanticId != byte.MaxValue;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Romantic);
         BetCooldown = new FloatOptionItem(Id + 10, "RomanticBetCooldown", new(0f, 60f, 1f), 7f, TabGroup.NeutralRoles)
@@ -295,6 +295,10 @@ public class VengefulRomantic : RoleBase
 
     public override bool IsEnable => VengefulRomanticId != byte.MaxValue;
 
+    public override void SetupCustomOption()
+    {
+    }
+
     public override void Init()
     {
         VengefulRomanticId = byte.MaxValue;
@@ -368,6 +372,10 @@ public class RuthlessRomantic : RoleBase
     public static List<byte> playerIdList = [];
 
     public override bool IsEnable => playerIdList.Count > 0;
+
+    public override void SetupCustomOption()
+    {
+    }
 
     public override void Init()
     {

@@ -14,7 +14,7 @@ namespace EHR.Crewmate
         public static Dictionary<byte, long> TimeMasterInProtect = [];
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(8950, TabGroup.CrewmateRoles, CustomRoles.TimeMaster);
             TimeMasterSkillCooldown = new FloatOptionItem(8960, "TimeMasterSkillCooldown", new(0f, 180f, 1f), 20f, TabGroup.CrewmateRoles)

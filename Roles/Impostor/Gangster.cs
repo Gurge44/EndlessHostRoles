@@ -20,7 +20,7 @@ public class Gangster : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Gangster);
         KillCooldown = new FloatOptionItem(Id + 10, "GangsterRecruitCooldown", new(0f, 60f, 2.5f), 7.5f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster])
@@ -61,7 +61,7 @@ public class Gangster : RoleBase
         if (killer.GetAbilityUseLimit() < 1) return true;
         if (CanBeMadmate(target))
         {
-            if (!killer.GetCustomSubRoles().Find(x => x.IsConverted(), out var convertedAddon))
+            if (!killer.GetCustomSubRoles().FindFirst(x => x.IsConverted(), out var convertedAddon))
             {
                 convertedAddon = CustomRoles.Madmate;
             }

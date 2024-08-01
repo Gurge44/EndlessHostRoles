@@ -21,7 +21,7 @@ namespace EHR.Impostor
 
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             const int id = 12332;
             Options.SetupRoleOptions(id, TabGroup.ImpostorRoles, CustomRoles.Overheat);

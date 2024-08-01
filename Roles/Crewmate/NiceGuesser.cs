@@ -3,9 +3,11 @@ using static EHR.Options;
 
 namespace EHR.Crewmate
 {
-    internal class NiceGuesser : ISettingHolder
+    internal class NiceGuesser : RoleBase
     {
-        public void SetupCustomOption()
+        public override bool IsEnable => false;
+
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(8600, TabGroup.CrewmateRoles, CustomRoles.NiceGuesser);
             GGCanGuessTime = new IntegerOptionItem(8610, "GuesserCanGuessTimes", new(0, 15, 1), 15, TabGroup.CrewmateRoles)
@@ -19,5 +21,8 @@ namespace EHR.Crewmate
                 .SetParent(CustomRoleSpawnChances[CustomRoles.NiceGuesser])
                 .SetColor(Color.green);
         }
+
+        public override void Init() => throw new System.NotImplementedException();
+        public override void Add(byte playerId) => throw new System.NotImplementedException();
     }
 }

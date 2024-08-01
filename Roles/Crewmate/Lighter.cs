@@ -11,7 +11,7 @@ namespace EHR.Crewmate
         private bool IsAbilityActive;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupSingleRoleOptions(6850, TabGroup.CrewmateRoles, CustomRoles.Lighter);
             LighterSkillCooldown = new FloatOptionItem(6852, "LighterSkillCooldown", new(0f, 180f, 1f), 25f, TabGroup.CrewmateRoles)

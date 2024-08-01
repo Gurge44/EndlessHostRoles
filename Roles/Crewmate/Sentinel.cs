@@ -134,7 +134,7 @@ namespace EHR.Crewmate
 
         public override bool IsEnable => PatrolStates.Count > 0 || Randomizer.Exists;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Sentinel);
             PatrolCooldown = CreateCDSetting(Id + 2, TabGroup.CrewmateRoles, CustomRoles.Sentinel);

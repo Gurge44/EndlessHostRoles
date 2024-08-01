@@ -9,7 +9,7 @@ namespace EHR.Impostor
         private byte InhibitorId;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(1500, TabGroup.ImpostorRoles, CustomRoles.Inhibitor);
             InhibitorCD = new FloatOptionItem(1510, "KillCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.ImpostorRoles)

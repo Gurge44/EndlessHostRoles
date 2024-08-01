@@ -31,7 +31,7 @@ public class Bandit : RoleBase
 
     public override bool IsEnable => On;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Bandit);
         MaxSteals = new IntegerOptionItem(Id + 10, "BanditMaxSteals", new(1, 20, 1), 3, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);

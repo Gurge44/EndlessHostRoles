@@ -18,7 +18,7 @@ namespace EHR.Crewmate
         private int Timer;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             int id = 648300;
             Options.SetupRoleOptions(id++, TabGroup.CrewmateRoles, CustomRoles.Adrenaline);

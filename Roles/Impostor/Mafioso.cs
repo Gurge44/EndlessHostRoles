@@ -49,7 +49,7 @@ namespace EHR.Impostor
 
         public override bool IsEnable => PlayerIdList.Count > 0;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Mafioso);
             Delay = new IntegerOptionItem(Id + 10, "MafiosoDelay", new(1, 10, 1), 3, TabGroup.ImpostorRoles)

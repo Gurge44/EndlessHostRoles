@@ -10,7 +10,7 @@
         public byte Target;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(649650, TabGroup.ImpostorRoles, CustomRoles.Ventriloquist);
             UseLimit = new IntegerOptionItem(649652, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles)

@@ -34,7 +34,7 @@ namespace EHR.Impostor
         private static OptionItem PuppetDiesAlongWithVictim;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(3900, TabGroup.ImpostorRoles, CustomRoles.Puppeteer);
             PuppeteerCD = new FloatOptionItem(3911, "PuppeteerCD", new(2.5f, 60f, 2.5f), 22.5f, TabGroup.ImpostorRoles)

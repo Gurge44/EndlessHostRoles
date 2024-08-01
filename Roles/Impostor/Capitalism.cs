@@ -10,7 +10,7 @@ namespace EHR.Impostor
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(16600, TabGroup.ImpostorRoles, CustomRoles.Capitalism);
             CapitalismSkillCooldown = new FloatOptionItem(16610, "CapitalismSkillCooldown", new(0f, 60f, 1f), 10f, TabGroup.ImpostorRoles)

@@ -49,7 +49,7 @@ namespace EHR.Crewmate
 
         public bool IsRevealed => UsedDecrees.Contains(Decree.Reveal);
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             int id = 647850;
             const TabGroup tab = TabGroup.CrewmateRoles;
@@ -142,7 +142,7 @@ namespace EHR.Crewmate
             switch (decree)
             {
                 case Decree.Reveal:
-                    if (DecreeSettings[decree][1].GetBool()) pc.RpcSetCustomRole(CustomRoles.Loyal);
+                    if (!DecreeSettings[decree][1].GetBool()) pc.RpcSetCustomRole(CustomRoles.Loyal);
                     if (!DecreeSettings[decree][2].GetBool() && pc.GetCustomSubRoles().Any(x => x.IsConverted())) return;
                     Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")));
                     break;
@@ -204,7 +204,8 @@ namespace EHR.Crewmate
 
         public override bool OnVote(PlayerControl voter, PlayerControl target)
         {
-            if (voter.PlayerId != PresidentId || !IsRecruiting || !target.Is(CustomRoleTypes.Crewmate) || target.GetCustomSubRoles().Any(x => x.IsConverted()) || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
+            if (voter.PlayerId != PresidentId || !IsRecruiting || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
+            if (!target.Is(CustomRoleTypes.Crewmate) || target.IsConverted()) return true;
 
             CustomRoles role = GovernmentRecruitRoles[DecreeSettings[Decree.GovernmentRecruiting][1].GetValue()];
             if (role.GetDYRole() == RoleTypes.Impostor && target.GetRoleTypes() != RoleTypes.Impostor) role = CustomRoles.NiceGuesser;
