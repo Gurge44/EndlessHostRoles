@@ -153,9 +153,9 @@
 
 ## VIP and Moderator perks
 
-:heavy_check_mark: - Can always use the command
-:x: - Can never use the command
-:question: - Host setting determines
+:heavy_check_mark: - Can always use the command<br>
+:x: - Can never use the command<br>
+:question: - Host setting determines<br>
 
 | Feature   | Regular Players | VIP                | Moderator          |
 |-----------|-----------------|--------------------|--------------------|
