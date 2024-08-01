@@ -151,6 +151,20 @@
 | Vigilante         |                 |                   |                |
 | Witness           |                 |                   |                |
 
+## VIP and Moderator perks
+
+:heavy_check_mark: - Can always use the command
+:x: - Can never use the command
+:question: - Host setting determines
+
+| Feature   | Regular Players | VIP                | Moderator          |
+|-----------|-----------------|--------------------|--------------------|
+| /color    | :question:      | :heavy_check_mark: | :question:         |
+| /rename   | :question:      | :heavy_check_mark: | :question:         |
+| /kick     | :x:             | :x:                | :heavy_check_mark: |
+| /ban      | :x:             | :x:                | :heavy_check_mark: |
+| Lobby tag | :x:             | :heavy_check_mark: | :heavy_check_mark: |
+
 ## Main Features
 
 - Note: The goal with this branch is to improve the existing stuff over adding new roles. If some of the stuff you see

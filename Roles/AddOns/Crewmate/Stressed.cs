@@ -111,7 +111,8 @@ namespace EHR.AddOns.Crewmate
             if (pc == null || !LastUpdates.TryGetValue(pc.PlayerId, out var x) || x >= now || !Timers.ContainsKey(pc.PlayerId) || !IsEnable || !GameStates.IsInTask || !pc.Is(CustomRoles.Stressed)) return;
             LastUpdates[pc.PlayerId] = now;
 
-            if (pc.GetTaskState().IsTaskFinished || !pc.IsAlive())
+            TaskState ts = pc.GetTaskState();
+            if (ts.IsTaskFinished || !ts.hasTasks || !pc.IsAlive())
             {
                 Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Stressed);
                 Timers.Remove(pc.PlayerId);

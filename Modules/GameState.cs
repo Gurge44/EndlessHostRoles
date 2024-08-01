@@ -150,6 +150,7 @@ public class PlayerState(byte playerId)
         {
             case CustomRoles.Bloodlust:
                 countTypes = CountTypes.Bloodlust;
+                SubRoles.Remove(CustomRoles.Stressed);
                 break;
             case CustomRoles.Madmate:
                 TaskState.hasTasks = false;
@@ -167,6 +168,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Undead);
+                SubRoles.Remove(CustomRoles.Stressed);
                 break;
             case CustomRoles.Charmed:
                 TaskState.hasTasks = false;
@@ -184,6 +186,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Undead);
+                SubRoles.Remove(CustomRoles.Stressed);
                 break;
             case CustomRoles.Undead:
                 TaskState.hasTasks = false;
@@ -201,6 +204,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Charmed);
+                SubRoles.Remove(CustomRoles.Stressed);
                 break;
             case CustomRoles.LastImpostor:
                 SubRoles.Remove(CustomRoles.Mare);
@@ -239,6 +243,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Undead);
+                SubRoles.Remove(CustomRoles.Stressed);
                 break;
         }
     }
