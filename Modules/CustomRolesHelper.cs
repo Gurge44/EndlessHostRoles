@@ -630,7 +630,7 @@ internal static class CustomRolesHelper
 
     public static bool IsNeutral(this CustomRoles role, bool check = false) => role.IsNK(check: check) || role.IsNonNK(check: check);
 
-    public static bool IsAbleToBeSidekicked(this CustomRoles role) => !role.IsImpostor() && !role.IsRecruitingRole() && role is not
+    public static bool IsAbleToBeSidekicked(this CustomRoles role) => !role.IsRecruitingRole() && role is not
         CustomRoles.Deathknight and not
         CustomRoles.Gangster;
 

@@ -1057,7 +1057,7 @@ static class ExtendedPlayerControl
 
     public static bool Is(this PlayerControl target, Team team) => team switch
     {
-        Team.Impostor => target.GetCustomRole().IsImpostorTeamV2() && !target.Is(CustomRoles.Bloodlust),
+        Team.Impostor => (target.IsMadmate() || target.GetCustomRole().IsImpostorTeamV2()) && !target.Is(CustomRoles.Bloodlust),
         Team.Neutral => target.GetCustomRole().IsNeutralTeamV2() || target.Is(CustomRoles.Bloodlust),
         Team.Crewmate => target.GetCustomRole().IsCrewmateTeamV2(),
         Team.None => target.Is(CustomRoles.GM) || target.Is(CountTypes.None) || target.Is(CountTypes.OutOfGame),

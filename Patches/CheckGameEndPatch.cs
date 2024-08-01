@@ -210,14 +210,9 @@ class GameEndChecker
                         case 1 when imps.All(x => x.Is(CustomRoles.Egoist)):
                             var pc = imps[0];
                             reason = GameOverReason.ImpostorByKill;
-                            ResetAndSetWinner(CustomWinner.Egoist);
+                            WinnerTeam = CustomWinner.Egoist;
+                            WinnerIds.RemoveWhere(x => Main.PlayerStates[x].MainRole.IsImpostor() || x.GetPlayer().IsMadmate());
                             WinnerIds.Add(pc.PlayerId);
-                            if (Romantic.RomanticId == pc.PlayerId && Romantic.HasPickedPartner)
-                            {
-                                AdditionalWinnerTeams.Add(AdditionalWinners.Romantic);
-                                WinnerIds.Add(Romantic.PartnerId);
-                            }
-
                             break;
                     }
                 }
@@ -423,10 +418,8 @@ class GameEndChecker
                 {
                     if (!x.Is(CustomRoles.DualPersonality)) continue;
 
-                    CustomRoles role = x.GetCustomRole();
-
-                    if (role.Is(Team.Crewmate)) Crew++;
-                    if (role.Is(Team.Impostor)) Imp++;
+                    if (x.Is(Team.Impostor)) Imp++;
+                    else if (x.Is(Team.Crewmate)) Crew++;
 
                     if (x.Is(CustomRoles.Charmed)) roleCounts[(null, CustomWinner.Succubus)]++;
                     if (x.Is(CustomRoles.Undead)) roleCounts[(null, CustomWinner.Necromancer)]++;

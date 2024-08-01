@@ -165,7 +165,9 @@ class TextBoxTMPSetTextPatch
         if (exactMatch && command.Arguments.Length > 0)
         {
             bool poll = command.CommandForms.Contains("poll");
+            bool say = command.CommandForms.Contains("say");
             int spaces = poll ? input.SkipWhile(x => x != '?').Count(x => x == ' ') + 1 : input.Count(x => x == ' ');
+            if (say) spaces = Math.Min(spaces, 1);
             var preText = $"{text} {command.Arguments}";
             if (!poll) text += " " + command.Arguments.Split(' ').Skip(spaces).Join(delimiter: " ");
 
@@ -223,8 +225,6 @@ class TextBoxTMPSetTextPatch
         }
     }
 }
-
-
 
 //Thanks https://github.com/NuclearPowered/Reactor/blob/master/Reactor/Patches/Fixes/CursorPosPatch.cs
 

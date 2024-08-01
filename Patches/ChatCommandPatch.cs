@@ -248,7 +248,7 @@ internal static class ChatCommands
             }
         }
 
-        if ((Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) || Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk)) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
+        if (GameStates.InGame && (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) || Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk)) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
 
         if (GameStates.IsInGame && (PlayerControl.LocalPlayer.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting))
         {
@@ -1879,7 +1879,7 @@ internal static class ChatCommands
             }
         }
 
-        if ((Silencer.ForSilencer.Contains(player.PlayerId) || Main.PlayerStates[player.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk)) && player.IsAlive())
+        if (GameStates.InGame && (Silencer.ForSilencer.Contains(player.PlayerId) || Main.PlayerStates[player.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk)) && player.IsAlive())
         {
             ChatManager.SendPreviousMessagesToAll();
             canceled = true;

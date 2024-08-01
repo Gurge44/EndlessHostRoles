@@ -112,7 +112,7 @@ public class Jackal : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer.GetAbilityUseLimit() < 1 || !CanBeSidekick(target, out var needBasisChange, out var targetRoleType) || needBasisChange) return true;
+        if (killer.GetAbilityUseLimit() < 1 || !CanBeSidekick(target, out var needBasisChange, out var targetRoleType) || (needBasisChange && SKCanKill.GetBool() && !UsePets.GetBool())) return true;
 
         killer.RpcRemoveAbilityUse();
         target.RpcSetCustomRole(targetRoleType == RoleTypes.Shapeshifter ? CustomRoles.Recruit : CustomRoles.Sidekick);
@@ -140,7 +140,7 @@ public class Jackal : RoleBase
         needBasisChange = targetRoleType is not RoleTypes.Impostor and not RoleTypes.Shapeshifter;
         if (!CanRecruitImpostors.GetBool() && pc.Is(CustomRoleTypes.Impostor)) return false;
         if (!CanRecruitMadmates.GetBool() && pc.IsMadmate()) return false;
-        return pc != null && !pc.Is(CustomRoles.Sidekick) && !pc.Is(CustomRoles.Recruit) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Rascal) && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Contagious) && pc.GetCustomRole().IsAbleToBeSidekicked();
+        return pc != null && !pc.Is(CustomRoles.Sidekick) && !pc.Is(CustomRoles.Recruit) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Rascal) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Contagious) && pc.GetCustomRole().IsAbleToBeSidekicked();
     }
 
     public override void OnFixedUpdate(PlayerControl pc)
