@@ -1670,6 +1670,7 @@
   "HexesLookLikeSpells": "<color=#663399>Mestres Feiticeiros</color> aparecem como <color=#ff1919>magia</color>",
   "AddictWarning": "<#ffff00>Você deve usar os dutos em breve ou irá suicidar!</color>",
   "DoppelgangerWarning": "<#ff00>O Sósia de trocou corpo com você!</color>",
+  "TriedToKillLastGameFirstKill": "Your target was the first to die in the last game.\\nLet them play!",
   "CheckMurderFail": "<#ff0000>O assassinato foi cancelado pelo seguinte motivo:\\n</color>",
   "SameCTATeam": "O jogador que você atacou está no mesmo time personalizado que você",
   "AFKShielded": "De acordo com as configurações do Anfitrião, jogadores AFK não podem ser mortos",
