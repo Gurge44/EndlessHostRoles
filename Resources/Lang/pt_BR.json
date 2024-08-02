@@ -1285,7 +1285,7 @@
   "VampireKillDelay": "Atraso na Mordida",
   "VampireKillCooldown": "Recarga para morder",
   "CanKillNormally": "Pode matar normalmente (usando clique duplo)",
-  "ChanceOfSeeingAllAlignmentsOnStart": "Chance Of Seeing All Alignments On Game Start",
+  "ChanceOfSeeingAllAlignmentsOnStart": "Chance de ver todos os Times no início do jogo",
   "MareAddSpeedInLightsOut": "Velocidade adicional durante a escuridão",
   "MareKillCooldownInLightsOut": "Recarga de abate durante a escuridão",
   "KillCooldownNormally": "Recarga de abate sem sabotagem",
