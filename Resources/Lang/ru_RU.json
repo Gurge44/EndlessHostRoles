@@ -1285,6 +1285,7 @@
   "VampireKillDelay": "Задержка убийства",
   "VampireKillCooldown": "Откат укуса",
   "CanKillNormally": "Может убивать обычным способом (двойным нажатием)",
+  "ChanceOfSeeingAllAlignmentsOnStart": "Chance Of Seeing All Alignments On Game Start",
   "MareAddSpeedInLightsOut": "Дополнительное ускорение при саботаже света",
   "MareKillCooldownInLightsOut": "Откат убийства при саботаже света",
   "KillCooldownNormally": "Откат убийства без саботажа",
