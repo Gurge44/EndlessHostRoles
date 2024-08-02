@@ -1285,6 +1285,7 @@
   "VampireKillDelay": "Bite Kill Delay",
   "VampireKillCooldown": "Bite Cooldown",
   "CanKillNormally": "Can Kill Normally (using double click)",
+  "ChanceOfSeeingAllAlignmentsOnStart": "Chance Of Seeing All Alignments On Game Start"
   "MareAddSpeedInLightsOut": "Additional Speed During Lights Out",
   "MareKillCooldownInLightsOut": "Kill Cooldown During Lights Out",
   "KillCooldownNormally": "Kill Cooldown Without Sabotage",
