@@ -1285,6 +1285,7 @@
   "VampireKillDelay": "吸血目标延迟死亡时间",
   "VampireKillCooldown": "冷却时间",
   "CanKillNormally": "正常击杀(双击)",
+  "ChanceOfSeeingAllAlignmentsOnStart": "Chance Of Seeing All Alignments On Game Start",
   "MareAddSpeedInLightsOut": "熄灯时的额外速度",
   "MareKillCooldownInLightsOut": "熄灯时的击杀冷却时间",
   "KillCooldownNormally": "在不破坏的情况下击杀冷却时间",
