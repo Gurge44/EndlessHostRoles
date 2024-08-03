@@ -27,6 +27,11 @@ public class Reckless : RoleBase
         CanVent = new BooleanOptionItem(Id + 14, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Reckless]);
     }
 
-    public override void Init() => throw new System.NotImplementedException();
-    public override void Add(byte playerId) => throw new System.NotImplementedException();
+    public override void Init()
+    {
+    }
+
+    public override void Add(byte playerId)
+    {
+    }
 }

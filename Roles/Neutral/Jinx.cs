@@ -27,6 +27,11 @@ public class Jinx : RoleBase
         KillAttacker = new BooleanOptionItem(Id + 12, "killAttacker", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jinx]);
     }
 
-    public override void Init() => throw new System.NotImplementedException();
-    public override void Add(byte playerId) => throw new System.NotImplementedException();
+    public override void Init()
+    {
+    }
+
+    public override void Add(byte playerId)
+    {
+    }
 }

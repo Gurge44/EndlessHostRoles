@@ -26,6 +26,11 @@ public class Imitator : RoleBase
         HasImpostorVision = new BooleanOptionItem(Id + 14, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Imitator]);
     }
 
-    public override void Init() => throw new System.NotImplementedException();
-    public override void Add(byte playerId) => throw new System.NotImplementedException();
+    public override void Init()
+    {
+    }
+
+    public override void Add(byte playerId)
+    {
+    }
 }

@@ -17,8 +17,13 @@ namespace EHR.Crewmate
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Demolitionist]);
         }
 
-        public override void Init() => throw new System.NotImplementedException();
-        public override void Add(byte playerId) => throw new System.NotImplementedException();
+        public override void Init()
+        {
+        }
+
+        public override void Add(byte playerId)
+        {
+        }
 
         public static void OnDeath(PlayerControl killer, PlayerControl target)
         {

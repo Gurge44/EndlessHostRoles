@@ -22,6 +22,11 @@ public class Wraith : RoleBase
         WraithVentNormallyOnCooldown = new BooleanOptionItem(Id + 4, "WraithVentNormallyOnCooldown", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wraith]);
     }
 
-    public override void Init() => throw new System.NotImplementedException();
-    public override void Add(byte playerId) => throw new System.NotImplementedException();
+    public override void Init()
+    {
+    }
+
+    public override void Add(byte playerId)
+    {
+    }
 }

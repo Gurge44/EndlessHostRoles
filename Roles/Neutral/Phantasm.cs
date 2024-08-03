@@ -18,7 +18,12 @@ namespace EHR.Neutral
             OverrideTasksData.Create(11413, TabGroup.NeutralRoles, CustomRoles.Phantasm);
         }
 
-        public override void Init() => throw new System.NotImplementedException();
-        public override void Add(byte playerId) => throw new System.NotImplementedException();
+        public override void Init()
+        {
+        }
+
+        public override void Add(byte playerId)
+        {
+        }
     }
 }

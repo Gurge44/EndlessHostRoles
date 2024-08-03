@@ -24,7 +24,12 @@ namespace EHR.Neutral
             HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Ritualist]);
         }
 
-        public override void Init() => throw new System.NotImplementedException();
-        public override void Add(byte playerId) => throw new System.NotImplementedException();
+        public override void Init()
+        {
+        }
+
+        public override void Add(byte playerId)
+        {
+        }
     }
 }

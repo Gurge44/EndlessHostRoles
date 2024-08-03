@@ -15,8 +15,13 @@ namespace EHR.Crewmate
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Detective]);
         }
 
-        public override void Init() => throw new System.NotImplementedException();
-        public override void Add(byte playerId) => throw new System.NotImplementedException();
+        public override void Init()
+        {
+        }
+
+        public override void Add(byte playerId)
+        {
+        }
 
         public static void OnReportDeadBody(PlayerControl player, PlayerControl tpc)
         {

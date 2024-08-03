@@ -53,25 +53,6 @@ public static class ReactorSystemTypePatch
                 return;
         }
     }
-
-    public static void Postfix()
-    {
-        if (GameStates.IsMeeting)
-        {
-            if (Main.CurrentMap == MapNames.Polus)
-            {
-                ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Laboratory, 67);
-                ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Laboratory, 66);
-            }
-            else
-            {
-                ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Reactor, 16);
-                ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Reactor, 17);
-            }
-
-            Logger.Fatal("Sabotage in meeting - fix was attempted", "SabotageSystemPatch");
-        }
-    }
 }
 
 [HarmonyPatch(typeof(HeliSabotageSystem), nameof(HeliSabotageSystem.Deteriorate))]
@@ -100,17 +81,6 @@ public static class HeliSabotageSystemPatch
         SetDurationForReactorSabotage = false;
 
         __instance.Countdown = Options.AirshipReactorTimeLimit.GetFloat();
-    }
-
-    public static void Postfix()
-    {
-        if (GameStates.IsMeeting)
-        {
-            ShipStatus.Instance.RpcUpdateSystem(SystemTypes.HeliSabotage, 16);
-            ShipStatus.Instance.RpcUpdateSystem(SystemTypes.HeliSabotage, 17);
-
-            Logger.Fatal("Sabotage in meeting - fix was attempted", "SabotageSystemPatch");
-        }
     }
 }
 
@@ -149,17 +119,6 @@ public static class LifeSuppSystemTypePatch
                 return;
             default:
                 return;
-        }
-    }
-
-    public static void Postfix()
-    {
-        if (GameStates.IsMeeting)
-        {
-            ShipStatus.Instance.RpcUpdateSystem(SystemTypes.LifeSupp, 67);
-            ShipStatus.Instance.RpcUpdateSystem(SystemTypes.LifeSupp, 66);
-
-            Logger.Fatal("Sabotage in meeting - fix was attempted", "SabotageSystemPatch");
         }
     }
 }

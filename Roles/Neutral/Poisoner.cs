@@ -25,6 +25,11 @@ public class Poisoner : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Poisoner]);
     }
 
-    public override void Init() => throw new System.NotImplementedException();
-    public override void Add(byte playerId) => throw new System.NotImplementedException();
+    public override void Init()
+    {
+    }
+
+    public override void Add(byte playerId)
+    {
+    }
 }

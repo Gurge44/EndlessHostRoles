@@ -786,15 +786,16 @@ public static class Utils
                 case CustomRoles.Bloodlust:
                     hasTasks = false;
                     break;
-                default:
-                    if (subRole.IsGhostRole()) hasTasks = true;
+                case CustomRoles.Specter:
+                case CustomRoles.Haunter:
+                    hasTasks = !ForRecompute;
                     break;
             }
         }
 
         if (CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == p.PlayerId) && ForRecompute && (!Options.UsePets.GetBool() || CopyCat.UsePet.GetBool())) hasTasks = false;
 
-        hasTasks |= role.UsesPetInsteadOfKill();
+        hasTasks |= role.UsesPetInsteadOfKill() && role is not (CustomRoles.Refugee or CustomRoles.Necromancer or CustomRoles.Deathknight);
 
         return hasTasks;
     }
