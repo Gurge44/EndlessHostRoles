@@ -4337,7 +4337,7 @@
   "BlackHoleDespawnMode": "Modo de desaparecimento do buraco negro",
   "BlackHoleDespawnTime": "Tempo após desabafos de furos pretos",
   "Abyssbringer.Suffix": "<size=80%><#00ffa5>Número de Jogadores consumidos por </color> {0} <#00ffa5>buracos negros ativos:</color></size><size=70%>\\n",
-  "Abyssbringer.Suffix.BlackHole": "<#00ffa5>{0}:</color> {0}</size>",
+  "Abyssbringer.Suffix.BlackHole": "<#00ffa5>{0}:</color> {1}</size>",
   "After1PlayerEaten": "Após 1 jogador ser comido",
   "BlackHoleMovesTowardsNearestPlayer": "Buracos negros se movem na direção do jogador mais próximo",
   "BlackHoleMoveSpeed": "Velocidade de movimento do buraco negro",
