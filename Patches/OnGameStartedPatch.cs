@@ -711,11 +711,11 @@ internal class SelectRolesPatch
 
             // Add-on assignment
             var aapc = Main.AllAlivePlayerControls.Shuffle();
-            if (Main.GM.Value) aapc = aapc.Where(x => x.PlayerId != 0).ToArray();
+            if (Main.GM.Value) aapc = aapc.Where(x => !x.IsHost()).ToArray();
             var addonNum = aapc.ToDictionary(x => x, _ => 0);
             AddonRolesList
                 .Except(BasisChangingAddons.Keys)
-                .Where(x => x.IsEnable())
+                .Where(x => x.IsEnable() && aapc.Any(p => CustomRolesHelper.CheckAddonConflict(x, p)))
                 .SelectMany(x => Enumerable.Repeat(x, Math.Clamp(x.GetCount(), 0, aapc.Length)))
                 .Where(x => IRandom.Instance.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(x, out var sc) ? sc.GetFloat() : 0))
                 .OrderBy(x => Options.CustomAdtRoleSpawnRate.TryGetValue(x, out var sc) && sc.GetInt() == 100 ? IRandom.Instance.Next(100) : IRandom.Instance.Next(100, 1000))
@@ -741,6 +741,8 @@ internal class SelectRolesPatch
                 {
                     addonList.ForEach(x => state.SetSubRole(x));
                 }
+
+                if (state.MainRole.IsImpostor()) state.SubRoles.RemoveAll(x => x.IsImpOnlyAddon());
             }
 
             foreach (var pair in Main.PlayerStates)

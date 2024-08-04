@@ -278,9 +278,10 @@ namespace EHR.Impostor
             if (KCD > 0f) KCD -= Time.fixedDeltaTime;
             if (CurseCD > 0f) CurseCD -= Time.fixedDeltaTime;
 
-            if (!pc.IsModClient() && (Math.Abs(KCD - beforeKCD) > 0.5f || Math.Abs(beforeCCD - CurseCD) > 0.5f) && LastNotify != Utils.TimeStamp)
+            var now = Utils.TimeStamp;
+            if ((Math.Abs(KCD - beforeKCD) > 0.01f || Math.Abs(beforeCCD - CurseCD) > 0.01f) && LastNotify != now)
             {
-                LastNotify = Utils.TimeStamp;
+                LastNotify = now;
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }
         }

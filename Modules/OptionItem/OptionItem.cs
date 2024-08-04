@@ -113,12 +113,15 @@ public abstract class OptionItem
 
     public OptionItem SetParent(OptionItem parent) => Do(i =>
     {
-        foreach (var role in EHR.Options.CustomRoleSpawnChances.Where(x => x.Value.Name == parent.Name))
+        foreach (var role in EHR.Options.CustomRoleSpawnChances)
         {
-            var roleName = Translator.GetString(Enum.GetName(typeof(CustomRoles), role.Key));
-            ReplacementDictionary ??= [];
-            ReplacementDictionary.TryAdd(roleName, Utils.ColorString(Utils.GetRoleColor(role.Key), roleName));
-            break;
+            if (role.Value.Name == parent.Name)
+            {
+                var roleName = Translator.GetString(Enum.GetName(typeof(CustomRoles), role.Key));
+                ReplacementDictionary ??= [];
+                ReplacementDictionary.TryAdd(roleName, Utils.ColorString(Utils.GetRoleColor(role.Key), roleName));
+                break;
+            }
         }
 
         i.Parent = parent;
@@ -151,11 +154,12 @@ public abstract class OptionItem
         return disableColor ? Translator.GetString(Name, ReplacementDictionary, console) : Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary));
     }
 
-    public virtual bool GetBool() => Name switch
+    public virtual bool GetBool() => (Parent == null || Parent.GetBool()) && Name switch
     {
-        "Bargainer.LensOfTruth.DurationSwitch" => GetValue() == 3 && (Parent == null || Parent.GetBool()),
-        "BlackHoleDespawnMode" => GetValue() == 1 && (Parent == null || Parent.GetBool()),
-        _ => CurrentValue != 0 && (Parent == null || Parent.GetBool())
+        "LoverDieConsequence" => GetValue() == 1,
+        "Bargainer.LensOfTruth.DurationSwitch" => GetValue() == 3,
+        "BlackHoleDespawnMode" => GetValue() == 1,
+        _ => CurrentValue != 0
     };
 
     public virtual int GetInt() => CurrentValue;

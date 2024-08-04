@@ -424,7 +424,7 @@ class CheckForEndVotingPatch
             if (!Options.ShowNKRemainOnEject.GetBool()) neutralnum = 0;
             switch (impnum, neutralnum)
             {
-                case (0, 0) when actualNeutralnum == 0: // Crewmates win
+                case (0, 0) when actualNeutralnum == 0 && !Main.AllAlivePlayerControls.Any(x => x.IsConverted()): // Crewmates win
                     name += GetString("GG");
                     break;
                 case (0, 0) when actualNeutralnum > 0:

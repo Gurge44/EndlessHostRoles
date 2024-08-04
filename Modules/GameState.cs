@@ -53,6 +53,7 @@ public class PlayerState(byte playerId)
         WrongAnswer,
         Consumed,
         BadLuck,
+        Asthma,
 
         etc = -1
     }
@@ -171,6 +172,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Undead);
                 SubRoles.Remove(CustomRoles.Stressed);
+                Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Charmed:
                 TaskState.hasTasks = false;
@@ -189,6 +191,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Undead);
                 SubRoles.Remove(CustomRoles.Stressed);
+                Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Undead:
                 TaskState.hasTasks = false;
@@ -207,6 +210,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Charmed);
                 SubRoles.Remove(CustomRoles.Stressed);
+                Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.LastImpostor:
                 SubRoles.Remove(CustomRoles.Mare);
@@ -228,6 +232,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Undead);
+                Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Contagious:
                 TaskState.hasTasks = false;
@@ -246,6 +251,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Undead);
                 SubRoles.Remove(CustomRoles.Stressed);
+                Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
         }
     }

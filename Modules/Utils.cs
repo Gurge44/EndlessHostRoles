@@ -1228,6 +1228,7 @@ public static class Utils
                 case "DisableAirshipDevices" when Main.CurrentMap != MapNames.Airship:
                 case "PolusReactorTimeLimit" when Main.CurrentMap != MapNames.Polus:
                 case "AirshipReactorTimeLimit" when Main.CurrentMap != MapNames.Airship:
+                case "ImpCanBeRole" or "CrewCanBeRole" or "NeutralCanBeRole":
                     continue;
             }
 
@@ -2388,8 +2389,8 @@ public static class Utils
 
         // All possible results of RomanticState from the above code:
         // 0: Romantic doesn't exist
-        // 1: Romantic exists but hasn't picked a partner
-        // 2: Romantic exists and has picked a partner
+        // 1: Romantic exists but hasn't picked a partner (and is dead)
+        // 2: Romantic exists and has picked a partner (but both of them are dead)
         // 3: Romantic exists, is alive, but hasn't picked a partner
         // 6: Romantic exists, has picked a partner who is dead, but Romantic is alive
         // 8: Romantic exists, has picked a partner who is alive, but Romantic is dead

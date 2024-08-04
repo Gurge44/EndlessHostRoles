@@ -13,10 +13,23 @@ public static class PetsPatch
             return;
         }
 
-        var outfit = player.Data.Outfits[PlayerOutfitType.Default];
-        if (outfit.PetId == string.Empty || outfit.PetId == "") outfit.PetId = petId;
+        foreach (var kvp in player.Data.Outfits)
+        {
+            if (kvp.Value.PetId == "")
+            {
+                kvp.Value.PetId = petId;
+            }
+        }
+
+        var sender = CustomRpcSender.Create(name: $"Set Pet to {petId} for {player.GetNameWithRole()}");
+        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetPetStr)
+            .Write(petId)
+            .EndRpc();
+        sender.SendMessage();
+
         RPC.SendGameData(player.GetClientId());
     }
+
     public static void RpcRemovePet(PlayerControl pc)
     {
         if (pc == null || !pc.Data.IsDead) return;

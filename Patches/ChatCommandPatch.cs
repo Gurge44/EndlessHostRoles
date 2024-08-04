@@ -116,7 +116,7 @@ internal static class ChatCommands
             new(["up"], "{role}", GetString("CommandDescription.Up"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, UpCommand, true, [GetString("CommandArgs.Up.Role")]),
             new(["setrole", "сетроль"], "{id} {role}", GetString("CommandDescription.SetRole"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, SetRoleCommand, true, [GetString("CommandArgs.SetRole.Id"), GetString("CommandArgs.SetRole.Role")]),
             new(["h", "help", "хэлп", "хелп", "помощь"], "", GetString("CommandDescription.Help"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, HelpCommand, true),
-            new(["kcount", "kc", "gamestate", "gstate", "gs", "кубийц", "гс", "статигры"], "", GetString("CommandDescription.KCount"), Command.UsageLevels.Everyone, Command.UsageTimes.InGame, KCountCommand, true),
+            new(["gamestate", "gstate", "gs", "kcount", "kc", "кубийц", "гс", "статигры"], "", GetString("CommandDescription.KCount"), Command.UsageLevels.Everyone, Command.UsageTimes.InGame, KCountCommand, true),
             new(["addmod", "добмодера"], "{id}", GetString("CommandDescription.AddMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddModCommand, true, [GetString("CommandArgs.AddMod.Id")]),
             new(["deletemod", "убрмодера", "удмодера"], "{id}", GetString("CommandDescription.DeleteMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteModCommand, true, [GetString("CommandArgs.DeleteMod.Id")]),
             new(["combo", "комбо"], "{mode} {role} {addon} [all]", GetString("CommandDescription.Combo"), Command.UsageLevels.Host, Command.UsageTimes.Always, ComboCommand, true, [GetString("CommandArgs.Combo.Mode"), GetString("CommandArgs.Combo.Role"), GetString("CommandArgs.Combo.Addon"), GetString("CommandArgs.Combo.All")]),
@@ -158,8 +158,8 @@ internal static class ChatCommands
             new(["deletevip", "удалитьвип"], "{id}", GetString("CommandDescription.DeleteVIP"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteVIPCommand, true, [GetString("CommandArgs.DeleteVIP.Id")]),
 
             // Commands with action handled elsewhere
-            new(["shoot", "guess", "bet", "st", "bt", "угадать", "бт"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
-            new(["sp", "jj", "tl", "trial", "суд", "засудить"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Trial.Id")]),
+            new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
+            new(["tl", "sp", "jj", "trial", "суд", "засудить"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Trial.Id")]),
             new(["sw", "swap", "st", "свап", "свапнуть"], "{id}", GetString("CommandDescription.Swap"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Swap.Id")]),
             new(["compare", "cp", "cmp", "сравнить", "ср"], "{id1} {id2}", GetString("CommandDescription.Compare"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Compare.Id1"), GetString("CommandArgs.Compare.Id2")]),
             new(["ms", "mediumship", "medium", "медиум"], "{answer}", GetString("CommandDescription.Medium"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Medium.Answer")]),

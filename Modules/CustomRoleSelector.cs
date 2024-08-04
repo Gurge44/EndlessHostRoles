@@ -214,6 +214,7 @@ internal static class CustomRoleSelector
                 Roles[RoleAssignType.NonKillingNeutral].DoIf(x => x.Role == role, x => x.AssignedCount++);
                 readyNonNeutralKillingNum++;
             }
+            else Roles[RoleAssignType.Crewmate].DoIf(x => x.Role == role, x => x.AssignedCount++);
 
             readyRoleNum++;
 

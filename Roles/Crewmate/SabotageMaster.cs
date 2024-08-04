@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -76,7 +77,8 @@ public class SabotageMaster : RoleBase
     public override string GetProgressText(byte playerId, bool comms)
     {
         var limit = Math.Round(SkillLimit.GetInt() - UsedSkillCount, 1);
-        return $"({limit}){base.GetProgressText(playerId, comms)}";
+        var colored = Utils.ColorString(Utils.GetRoleColor(CustomRoles.SabotageMaster), limit.ToString(CultureInfo.CurrentCulture));
+        return $"({colored}){base.GetProgressText(playerId, comms)}";
     }
 
     public void SendRPC()

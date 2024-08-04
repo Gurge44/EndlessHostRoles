@@ -162,10 +162,6 @@ internal class TitleLogoPatch
         {
         }
 
-        __instance.settingsButton.buttonText.text = GetString("MainMenu.SettingsButton");
-        __instance.inventoryButton.buttonText.text = GetString("MainMenu.InventoryButton");
-        __instance.creditsButton.buttonText.text = GetString("MainMenu.CreditsButton");
-
         GameObject.Find("Divider")?.SetActive(false);
 
         if (!(RightPanel = GameObject.Find("RightPanel"))) return;
@@ -202,6 +198,11 @@ internal class TitleLogoPatch
 
         if (!(BottomButtonBounds = GameObject.Find("BottomButtonBounds"))) return;
         BottomButtonBounds.transform.localPosition -= new Vector3(0f, 0.1f, 0f);
+
+        __instance.settingsButton.buttonText.text = GetString("MainMenu.SettingsButton");
+        __instance.inventoryButton.buttonText.text = GetString("MainMenu.InventoryButton");
+        __instance.creditsButton.buttonText.text = GetString("MainMenu.CreditsButton");
+
         return;
 
         static void ResetParent(GameObject obj) => obj.transform.SetParent(LeftPanel.transform.parent);

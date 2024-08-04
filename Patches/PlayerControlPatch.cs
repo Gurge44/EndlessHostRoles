@@ -1033,6 +1033,20 @@ class ReportDeadBodyPatch
             QuizMaster.Data.NumMeetings++;
         }
 
+        if (Main.LoversPlayers.Any(x => x.IsAlive()) && Main.IsLoversDead && Lovers.LoverDieConsequence.GetValue() == 1)
+        {
+            var aliveLover = Main.LoversPlayers.First(x => x.IsAlive());
+            switch (Lovers.LoverSuicideTime.GetValue())
+            {
+                case 1:
+                    aliveLover.Suicide(PlayerState.DeathReason.FollowingSuicide);
+                    break;
+                case 2:
+                    CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.FollowingSuicide, aliveLover.PlayerId);
+                    break;
+            }
+        }
+
         Enigma.OnReportDeadBody(player, target);
         Mediumshiper.OnReportDeadBody(target);
         Mortician.OnReportDeadBody(player, target);
@@ -1743,10 +1757,19 @@ class FixedUpdatePatch
 
     public static void LoversSuicide(byte deathId = 0x7f, bool isExiled = false)
     {
-        if (!Lovers.LoverSuicide.GetBool() || Main.IsLoversDead || !Main.LoversPlayers.Any(player => player.Data.IsDead && player.PlayerId == deathId)) return;
+        if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || !Main.LoversPlayers.Any(player => player.Data.IsDead && player.PlayerId == deathId)) return;
 
         Main.IsLoversDead = true;
         var partnerPlayer = Main.LoversPlayers.First(player => player.PlayerId != deathId && !player.Data.IsDead);
+
+        if (Lovers.LoverDieConsequence.GetValue() == 2)
+        {
+            partnerPlayer.MarkDirtySettings();
+            deathId.GetPlayer()?.MarkDirtySettings();
+            return;
+        }
+
+        if (Lovers.LoverSuicideTime.GetValue() != 0 && !isExiled) return;
 
         if (isExiled) CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.FollowingSuicide, partnerPlayer.PlayerId);
         else partnerPlayer.Suicide(PlayerState.DeathReason.FollowingSuicide);
