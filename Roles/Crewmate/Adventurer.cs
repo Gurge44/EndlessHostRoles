@@ -362,6 +362,7 @@ namespace EHR.Crewmate
 
         public override bool KnowRole(PlayerControl seer, PlayerControl target)
         {
+            if (base.KnowRole(seer, target)) return true;
             return RevealedPlayers.Contains(target.PlayerId);
         }
 

@@ -119,6 +119,7 @@ namespace EHR.Impostor
 
         public override bool KnowRole(PlayerControl seer, PlayerControl target)
         {
+            if (base.KnowRole(seer, target)) return true;
             return Main.PlayerStates[seer.PlayerId].Role is EvilDiviner ed && ed.DivinationTarget.Contains(target.PlayerId);
         }
     }

@@ -184,6 +184,7 @@ namespace EHR
 
         public virtual bool KnowRole(PlayerControl seer, PlayerControl target)
         {
+            if (Options.NeutralsKnowEachOther.GetBool() && seer.Is(Team.Neutral) && target.Is(Team.Neutral)) return true;
             var seerRole = seer.GetCustomRole();
             return seerRole.IsNK() && seerRole == target.GetCustomRole() && seer.GetTeam() == target.GetTeam();
         }

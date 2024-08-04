@@ -21,6 +21,7 @@ namespace EHR.Crewmate
         ];
 
         private static Dictionary<byte, List<char>> AllRoleNames = [];
+
         private Dictionary<byte, List<char>> KnownCharacters = [];
         private byte LyncherId;
         private int TasksCompleted;
@@ -46,11 +47,7 @@ namespace EHR.Crewmate
             On = false;
             AllRoleNames = [];
             KnownCharacters = [];
-            LateTask.New(() =>
-            {
-                AllRoleNames = Main.PlayerStates.ToDictionary(x => x.Key, x => Translator.GetString($"{x.Value.MainRole}").ToUpper().Shuffle());
-                KnownCharacters = AllRoleNames.ToDictionary(x => x.Key, _ => new List<char>());
-            }, 3f, log: false);
+            LateTask.New(() => AllRoleNames = Main.PlayerStates.ToDictionary(x => x.Key, x => Translator.GetString($"{x.Value.MainRole}").ToUpper().Shuffle()), 3f, log: false);
         }
 
         public override void Add(byte playerId)
@@ -59,6 +56,7 @@ namespace EHR.Crewmate
             LyncherId = playerId;
             TasksCompleted = 0;
             Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 1, TasksCompleted);
+            LateTask.New(() => KnownCharacters = AllRoleNames.ToDictionary(x => x.Key, _ => new List<char>()), 4f, log: false);
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)

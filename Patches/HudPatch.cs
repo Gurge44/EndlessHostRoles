@@ -589,7 +589,7 @@ class TaskPanelBehaviourPatch
         if (!player.GetCustomRole().IsVanilla())
         {
             var RoleWithInfo = $"<size=80%>{player.GetCustomRole().ToColoredString()}:\r\n{player.GetRoleInfo()}</size>";
-            if (Options.CurrentGameMode == CustomGameMode.MoveAndStop) RoleWithInfo = $"{GetString("TaskerInfo")}\r\n";
+            if (Options.CurrentGameMode == CustomGameMode.MoveAndStop) RoleWithInfo = $"<size=60%>{GetString("TaskerInfo")}</size>\r\n";
 
             var AllText = Utils.ColorString(player.GetRoleColor(), RoleWithInfo);
 
@@ -603,7 +603,7 @@ class TaskPanelBehaviourPatch
                         const int max = 3;
                         var s = subRoles.Take(max).Select(x => Utils.ColorString(Utils.GetRoleColor(x), $"\r\n\r\n{x.ToColoredString()}:\r\n{GetString($"{x}Info")}"));
                         AllText += s.Aggregate("<size=70%>", (current, next) => current + next) + "</size>";
-                        int chunk = subRoles.Any(x => x.ToString().Contains(' ')) ? 3 : 4;
+                        int chunk = subRoles.Any(x => GetString(x.ToString()).Contains(' ')) ? 3 : 4;
                         if (subRoles.Count > max) AllText += $"\r\n<size=70%>....\r\n({subRoles.Skip(max).Chunk(chunk).Select(x => x.Join(r => r.ToColoredString())).Join(delimiter: ",\r\n")})</size>";
                     }
 
@@ -699,7 +699,7 @@ class TaskPanelBehaviourPatch
                 case CustomGameMode.HotPotato:
 
                     List<string> SummaryText4 = [];
-                    SummaryText4.AddRange(from id in Main.PlayerStates.Keys let pc = Utils.GetPlayerById(id) let name = pc.GetRealName().RemoveHtmlTags().Replace("\r\n", string.Empty) let alive = pc.IsAlive() select $"{(!alive ? "<size=70%><#777777>" : "<size=80%>")}{HotPotatoManager.GetIndicator(id)}{Utils.ColorString(Main.PlayerColors[id], name)}{(!alive ? $"</color>  <#ff0000>{GetString("Dead")}</color></size>" : "</size>")}");
+                    SummaryText4.AddRange(from id in Main.PlayerStates.Keys let pc = Utils.GetPlayerById(id) let name = pc.GetRealName().RemoveHtmlTags().Replace("\r\n", string.Empty) let alive = pc.IsAlive() select $"{(!alive ? "<size=80%><#777777>" : "<size=80%>")}{HotPotatoManager.GetIndicator(id)}{Utils.ColorString(Main.PlayerColors[id], name)}{(!alive ? $"</color>  <#ff0000>{GetString("Dead")}</color></size>" : "</size>")}");
 
                     AllText += $"\r\n\r\n{string.Join('\n', SummaryText4)}";
 

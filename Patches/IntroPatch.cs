@@ -18,7 +18,7 @@ class SetUpRoleTextPatch
     {
         // After showing team for non-modded clients, update player names.
         IsInIntro = false;
-        Utils.DoNotifyRoles(NoCache: true);
+        _ = Utils.DoNotifyRoles(NoCache: true);
 
         var lp = PlayerControl.LocalPlayer;
 
@@ -269,6 +269,10 @@ class BeginCrewmatePatch
             byte otherLoverId = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).PlayerId;
             __instance.ImpostorText.gameObject.SetActive(true);
             __instance.ImpostorText.text = string.Format(GetString($"SubText.{role}"), Utils.ColorString(Main.PlayerColors.TryGetValue(otherLoverId, out var color) ? color : Color.white, Main.AllPlayerNames[otherLoverId]));
+        }
+        else if (PlayerControl.LocalPlayer.Is(CustomRoles.Lovers))
+        {
+            __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Lovers);
         }
         else
         {

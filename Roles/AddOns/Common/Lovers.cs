@@ -14,6 +14,7 @@ namespace EHR.AddOns.Common
         public static OptionItem ImpCanBeInLove;
         public static OptionItem CrewCanBeInLove;
         public static OptionItem NeutralCanBeInLove;
+        public static OptionItem CrewLoversWinWithCrew;
         public static OptionItem LegacyLovers;
         public static OptionItem LovingImpostorSpawnChance;
         public static OptionItem LovingImpostorRoleForOtherImps;
@@ -72,6 +73,10 @@ namespace EHR.AddOns.Common
                 .SetGameMode(customGameMode);
 
             NeutralCanBeInLove = new BooleanOptionItem(id + 7, "NeutralCanBeInLove", true, TabGroup.Addons)
+                .SetParent(spawnOption)
+                .SetGameMode(customGameMode);
+
+            CrewLoversWinWithCrew = new BooleanOptionItem(id + 8, "CrewLoversWinWithCrew", true, TabGroup.Addons)
                 .SetParent(spawnOption)
                 .SetGameMode(customGameMode);
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using BepInEx.Unity.IL2CPP.Utils.Collections;
+using EHR.AddOns.Common;
 using EHR.AddOns.GhostRoles;
 using EHR.Crewmate;
 using EHR.Impostor;
@@ -385,7 +386,7 @@ class GameEndChecker
 
             if (CustomTeamManager.CheckCustomTeamGameEnd()) return true;
 
-            if (Main.AllAlivePlayerControls.All(x => Main.LoversPlayers.Any(l => l.PlayerId == x.PlayerId)) && !Main.LoversPlayers.All(x => x.Is(Team.Crewmate)))
+            if (Main.AllAlivePlayerControls.All(x => Main.LoversPlayers.Any(l => l.PlayerId == x.PlayerId)) && (!Main.LoversPlayers.All(x => x.Is(Team.Crewmate)) || !Lovers.CrewLoversWinWithCrew.GetBool()))
             {
                 ResetAndSetWinner(CustomWinner.Lovers);
                 return true;

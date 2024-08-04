@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using EHR.AddOns;
@@ -209,6 +208,7 @@ public static class Options
     public static OptionItem NeutralKillingRolesMaxPlayer;
     public static OptionItem NeutralRoleWinTogether;
     public static OptionItem NeutralWinTogether;
+    public static OptionItem NeutralsKnowEachOther;
 
     public static OptionItem DefaultShapeshiftCooldown;
     public static OptionItem DeadImpCantSabotage;
@@ -977,6 +977,8 @@ public static class Options
             .SetHeader(true);
         NeutralWinTogether = new BooleanOptionItem(209, "NeutralWinTogether", false, TabGroup.NeutralRoles)
             .SetParent(NeutralRoleWinTogether)
+            .SetGameMode(CustomGameMode.Standard);
+        NeutralsKnowEachOther = new BooleanOptionItem(212, "NeutralsKnowEachOther", false, TabGroup.NeutralRoles)
             .SetGameMode(CustomGameMode.Standard);
 
         NameDisplayAddons = new BooleanOptionItem(210, "NameDisplayAddons", true, TabGroup.Addons)

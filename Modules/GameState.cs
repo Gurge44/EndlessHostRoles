@@ -121,6 +121,8 @@ public class PlayerState(byte playerId)
                 HudManager.Instance.SetHudActive(true);
                 RemoveDisableDevicesPatch.UpdateDisableDevices();
             }
+
+            if (!role.Is(Team.Impostor)) SubRoles.ToArray().DoIf(x => x.IsImpOnlyAddon(), RemoveSubRole);
         }
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);

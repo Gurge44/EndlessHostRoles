@@ -124,7 +124,7 @@ namespace EHR.Crewmate
 
         public override void OnCheckPlayerPosition(PlayerControl pc)
         {
-            if (CaughtRoles.ContainsKey(pc.PlayerId)) return;
+            if (CaughtRoles.ContainsKey(pc.PlayerId) || pc.PlayerId == CatcherId) return;
 
             var pos = pc.Pos();
             var range = CatchRange.GetFloat();
@@ -134,6 +134,7 @@ namespace EHR.Crewmate
 
         public override void OnReportDeadBody()
         {
+            if (Traps.Count == 0) return;
             LateTask.New(() =>
             {
                 if (CaughtRoles.Count >= MinPlayersTrappedToShowInfo.GetInt())

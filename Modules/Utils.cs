@@ -451,6 +451,8 @@ public static class Utils
         string RoleText = GetRoleName(isHnsAgentOverride ? CustomRoles.Hider : targetMainRole);
         Color RoleColor = GetRoleColor(loversShowDifferentRole ? CustomRoles.Impostor : targetMainRole);
 
+        if (seerMainRole == CustomRoles.LovingImpostor && self) RoleColor = GetRoleColor(CustomRoles.LovingImpostor);
+
         if (LastImpostor.currentId == targetId)
             RoleText = GetRoleString("Last-") + RoleText;
 
@@ -1802,8 +1804,8 @@ public static class Utils
 
     public static System.Collections.IEnumerator DoNotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
     {
-        PlayerControl[] seerList = SpecifySeer != null ? [SpecifySeer] : Main.AllPlayerControls.ToArray();
-        PlayerControl[] targetList = SpecifyTarget != null ? [SpecifyTarget] : Main.AllPlayerControls.ToArray();
+        PlayerControl[] seerList = SpecifySeer != null ? [SpecifySeer] : Main.AllPlayerControls;
+        PlayerControl[] targetList = SpecifyTarget != null ? [SpecifyTarget] : Main.AllPlayerControls;
 
         StringBuilder seerLogInfo = new();
         StringBuilder targetLogInfo = new();
@@ -1811,6 +1813,7 @@ public static class Utils
         // seer: Players who can see changes made here
         // target: Players subject to changes that seer can see
         int i = 0;
+        bool instant = SetUpRoleTextPatch.IsInIntro || isForMeeting || CamouflageIsForMeeting || GuesserIsForMeeting || MushroomMixup;
         foreach (PlayerControl seer in seerList)
         {
             try
@@ -2280,7 +2283,7 @@ public static class Utils
             }
 
             i++;
-            if (i % 3 == 0) yield return null;
+            if (i % 3 == 0 && !instant) yield return null;
         }
 
         Logger.Info($" Seers: {seerLogInfo.ToString().TrimEnd(',', ' ')} ---- Targets: {targetLogInfo.ToString().TrimEnd(',', ' ')}", "NR");

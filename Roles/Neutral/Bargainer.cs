@@ -401,6 +401,7 @@ namespace EHR.Neutral
 
         public override bool KnowRole(PlayerControl seer, PlayerControl target)
         {
+            if (base.KnowRole(seer, target)) return true;
             return Main.PlayerStates[seer.PlayerId].Role is Bargainer bg && bg.ActiveItems.Any(x => x.Target == target.PlayerId);
         }
 

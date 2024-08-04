@@ -26,6 +26,7 @@ public class Romantic : RoleBase
     private static OptionItem KnowTargetRole;
     private static OptionItem BetTargetKnowRomantic;
     private static OptionItem Arrows;
+    private static OptionItem PartnerHasArrows;
     public static OptionItem VengefulKCD;
     public static OptionItem VengefulCanVent;
     public static OptionItem VengefulHasImpVision;
@@ -63,19 +64,21 @@ public class Romantic : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
         Arrows = new BooleanOptionItem(Id + 15, "RomanticArrows", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        VengefulKCD = new FloatOptionItem(Id + 16, "VengefulKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles)
+        PartnerHasArrows = new BooleanOptionItem(Id + 16, "RomanticPartnerHasArrows", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+        VengefulKCD = new FloatOptionItem(Id + 17, "VengefulKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
-        VengefulCanVent = new BooleanOptionItem(Id + 17, "VengefulCanVent", true, TabGroup.NeutralRoles)
+        VengefulCanVent = new BooleanOptionItem(Id + 18, "VengefulCanVent", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        VengefulHasImpVision = new BooleanOptionItem(Id + 18, "VengefulHasImpVision", true, TabGroup.NeutralRoles)
+        VengefulHasImpVision = new BooleanOptionItem(Id + 19, "VengefulHasImpVision", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        RuthlessKCD = new FloatOptionItem(Id + 19, "RuthlessKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles)
+        RuthlessKCD = new FloatOptionItem(Id + 20, "RuthlessKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
-        RuthlessCanVent = new BooleanOptionItem(Id + 20, "RuthlessCanVent", true, TabGroup.NeutralRoles)
+        RuthlessCanVent = new BooleanOptionItem(Id + 21, "RuthlessCanVent", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        RuthlessHasImpVision = new BooleanOptionItem(Id + 21, "RuthlessHasImpVision", true, TabGroup.NeutralRoles)
+        RuthlessHasImpVision = new BooleanOptionItem(Id + 22, "RuthlessHasImpVision", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
     }
 
@@ -123,6 +126,7 @@ public class Romantic : RoleBase
 
     public override bool KnowRole(PlayerControl player, PlayerControl target)
     {
+        if (base.KnowRole(player, target)) return true;
         if (!KnowTargetRole.GetBool()) return false;
         return (player.Is(CustomRoles.Romantic) && PartnerId == target.PlayerId) || (BetTargetKnowRomantic.GetBool() && target.Is(CustomRoles.Romantic) && player.PlayerId == PartnerId);
     }
@@ -148,7 +152,7 @@ public class Romantic : RoleBase
             if (Arrows.GetBool())
             {
                 TargetArrow.Add(RomanticId, PartnerId);
-                if (BetTargetKnowRomantic.GetBool()) TargetArrow.Add(PartnerId, RomanticId);
+                if (PartnerHasArrows.GetBool() && BetTargetKnowRomantic.GetBool()) TargetArrow.Add(PartnerId, RomanticId);
             }
 
             Logger.Info($"Partner picked： {RomanticPC.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Romantic");

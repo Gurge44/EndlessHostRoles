@@ -128,6 +128,7 @@ namespace EHR.Neutral
 
         public override bool KnowRole(PlayerControl player, PlayerControl target)
         {
+            if (base.KnowRole(player, target)) return true;
             if (player.Is(CustomRoles.Undead) && (target.Is(CustomRoles.Necromancer) || target.Is(CustomRoles.Deathknight))) return true;
             if (KnowTargetRole.GetBool() && (player.Is(CustomRoles.Necromancer) || player.Is(CustomRoles.Deathknight)) && target.Is(CustomRoles.Undead)) return true;
             if (player.Is(CustomRoles.Deathknight) && target.Is(CustomRoles.Necromancer)) return true;

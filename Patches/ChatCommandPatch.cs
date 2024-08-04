@@ -1056,7 +1056,7 @@ internal static class ChatCommands
     private static void KCountCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool() || Main.AllAlivePlayerControls.Length < Options.MinPlayersForGameStateCommand.GetInt()) return;
-        Utils.SendMessage(Utils.GetGameStateData(), player.PlayerId);
+        Utils.SendMessage("\n", player.PlayerId, Utils.GetGameStateData());
     }
 
     private static void SetRoleCommand(ChatController __instance, PlayerControl player, string text, string[] args)

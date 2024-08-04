@@ -101,6 +101,7 @@ public class Totocalcio : RoleBase
 
     public override bool KnowRole(PlayerControl player, PlayerControl target)
     {
+        if (base.KnowRole(player, target)) return true;
         if (!KnowTargetRole.GetBool()) return false;
         return player.Is(CustomRoles.Totocalcio) && BetPlayer == target.PlayerId;
     }

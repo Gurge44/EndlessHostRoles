@@ -162,6 +162,10 @@ internal class TitleLogoPatch
         {
         }
 
+        __instance.settingsButton.buttonText.text = GetString("MainMenu.SettingsButton");
+        __instance.inventoryButton.buttonText.text = GetString("MainMenu.InventoryButton");
+        __instance.creditsButton.buttonText.text = GetString("MainMenu.CreditsButton");
+
         GameObject.Find("Divider")?.SetActive(false);
 
         if (!(RightPanel = GameObject.Find("RightPanel"))) return;

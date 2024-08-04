@@ -28,7 +28,7 @@ namespace EHR
                 .SetGameMode(CustomGameMode.HotPotato)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new Color32(232, 205, 70, byte.MaxValue));
-            HolderSpeed = new FloatOptionItem(69_213_002, "HotPotato_HolderSpeed", new(0.1f, 5f, 0.1f), 1.5f, TabGroup.GameSettings)
+            HolderSpeed = new FloatOptionItem(69_213_002, "HotPotato_HolderSpeed", new(0.1f, 5f, 0.1f), 2f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HotPotato)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new Color32(232, 205, 70, byte.MaxValue));
@@ -45,7 +45,7 @@ namespace EHR
         {
             FixedUpdatePatch.Return = true;
 
-            HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 20, 1);
+            HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 25, 1);
             SurvivalTimes = [];
             foreach (var pc in Main.AllPlayerControls) SurvivalTimes[pc.PlayerId] = 0;
 
@@ -58,8 +58,8 @@ namespace EHR
             HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 5, 1);
         }
 
-        public static int GetSurvivalTime(byte id) => SurvivalTimes.GetValueOrDefault(id, 0);
-        public static string GetIndicator(byte id) => HotPotatoState.HolderID == id ? " ★ " : string.Empty;
+        public static int GetSurvivalTime(byte id) => SurvivalTimes.GetValueOrDefault(id, 1);
+        public static string GetIndicator(byte id) => HotPotatoState.HolderID == id ? "  \u2668  " : string.Empty;
         public static string GetSuffixText(byte id) => $"{(HotPotatoState.HolderID == id ? $"{Translator.GetString("HotPotato_HoldingNotify")}\n" : string.Empty)}{Translator.GetString("HotPotato_TimeLeftSuffix")}{HotPotatoState.TimeLeft}s";
 
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
@@ -99,8 +99,9 @@ namespace EHR
                 PlayerControl[] aapc = Main.AllAlivePlayerControls;
                 if (HotPotatoState.HolderID != __instance.PlayerId || !aapc.Any(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || aapc.Length == 2) && Vector2.Distance(x.Pos(), Holder.Pos()) <= Range.GetFloat())) return;
 
+                float wait = aapc.Length <= 2 ? 0.4f : 0.1f;
                 UpdateDelay += UnityEngine.Time.fixedDeltaTime;
-                if (UpdateDelay < 0.3f) return;
+                if (UpdateDelay < wait) return;
                 UpdateDelay = 0;
 
                 var Target = aapc.OrderBy(x => Vector2.Distance(x.Pos(), Holder.Pos())).FirstOrDefault(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || aapc.Length == 2));

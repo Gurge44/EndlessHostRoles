@@ -53,6 +53,7 @@ namespace EHR.Neutral
         public override void Init()
         {
             playerIdList = [];
+            InfectedPlayer = [];
         }
 
         public override void Add(byte playerId)
@@ -136,22 +137,18 @@ namespace EHR.Neutral
             }
 
             CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Infected, [.. infectedIdList]);
-            RemoveInfectedPlayer(virus);
-        }
-
-        public static void RemoveInfectedPlayer(PlayerControl virus)
-        {
             InfectedPlayer.Clear();
         }
 
         public override bool KnowRole(PlayerControl player, PlayerControl target)
         {
+            if (base.KnowRole(player, target)) return true;
             if (player.Is(CustomRoles.Contagious) && target.Is(CustomRoles.Virus)) return true;
             if (KnowTargetRole.GetBool() && player.Is(CustomRoles.Virus) && target.Is(CustomRoles.Contagious)) return true;
             return TargetKnowOtherTarget.GetBool() && player.Is(CustomRoles.Contagious) && target.Is(CustomRoles.Contagious);
         }
 
-        public static bool CanBeInfected(PlayerControl pc)
+        private static bool CanBeInfected(PlayerControl pc)
         {
             return !pc.Is(CustomRoles.Virus) && !pc.Is(CustomRoles.Contagious) && !pc.Is(CustomRoles.Loyal);
         }

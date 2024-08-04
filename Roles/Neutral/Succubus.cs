@@ -100,6 +100,7 @@ public class Succubus : RoleBase
 
     public override bool KnowRole(PlayerControl player, PlayerControl target)
     {
+        if (base.KnowRole(player, target)) return true;
         if (player.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Succubus)) return true;
         if (KnowTargetRole.GetBool() && player.Is(CustomRoles.Succubus) && target.Is(CustomRoles.Charmed)) return true;
         return TargetKnowOtherTarget.GetBool() && player.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Charmed);
