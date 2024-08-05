@@ -56,6 +56,8 @@ public static class NameColorManager
             case CustomGameMode.Speedrun when SpeedrunManager.CanKill.Contains(target.PlayerId):
                 color = Main.ImpostorColor;
                 return true;
+            case CustomGameMode.CaptureTheFlag:
+                return CTFManager.KnowTargetRoleColor(seer, target, ref color);
         }
 
         var seerRoleClass = Main.PlayerStates[seer.PlayerId].Role;

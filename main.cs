@@ -621,6 +621,8 @@ public class Main : BasePlugin
                 { CustomRoles.Potato, "#e8cd46" },
                 // Speedrun
                 { CustomRoles.Runner, "#800080" },
+                // Capture The Flag
+                { CustomRoles.CTFPlayer, "#1313c2" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },

@@ -20,6 +20,9 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem LongMode;
     private static ClientOptionItem ShowPlayerInfoInLobby;
     private static ClientOptionItem LobbyMusic;
+#if DEBUG
+    private static ClientOptionItem GodMode;
+#endif
 
     public static void Postfix(OptionsMenuBehaviour __instance)
     {
@@ -44,7 +47,7 @@ public static class OptionsMenuBehaviourStartPatch
 
             static void UnlockFPSButtonToggle()
             {
-                Application.targetFrameRate = Main.UnlockFps.Value ? 165 : 60;
+                Application.targetFrameRate = Main.UnlockFps.Value ? 120 : 60;
                 Logger.SendInGame(string.Format(Translator.GetString("FPSSetTo"), Application.targetFrameRate));
             }
         }
@@ -170,9 +173,6 @@ public static class OptionsMenuBehaviourStartPatch
         }
 #endif
     }
-#if DEBUG
-    private static ClientOptionItem GodMode;
-#endif
 }
 
 [HarmonyPatch(typeof(OptionsMenuBehaviour), nameof(OptionsMenuBehaviour.Close))]

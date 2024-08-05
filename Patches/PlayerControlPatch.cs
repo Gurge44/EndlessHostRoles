@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using AmongUs.GameOptions;
 using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
@@ -224,6 +223,9 @@ class CheckMurderPatch
                 return false;
             case CustomGameMode.HideAndSeek:
                 HnSManager.OnCheckMurder(killer, target);
+                return false;
+            case CustomGameMode.CaptureTheFlag:
+                CTFManager.OnCheckMurder(killer, target);
                 return false;
         }
 
@@ -1218,7 +1220,7 @@ class FixedUpdatePatch
         }
     }
 
-    public static Task DoPostfix(PlayerControl __instance)
+    public static void DoPostfix(PlayerControl __instance)
     {
         var player = __instance;
         var playerId = player.PlayerId;
@@ -1471,6 +1473,13 @@ class FixedUpdatePatch
                 var seer = PlayerControl.LocalPlayer;
                 var target = __instance;
 
+                if (target.Is(CustomRoles.Car))
+                {
+                    target.cosmetics.nameText.text = Car.Name;
+                    RoleText.enabled = false;
+                    return;
+                }
+
                 bool self = seer.PlayerId == target.PlayerId;
 
                 Mark.Clear();
@@ -1675,6 +1684,9 @@ class FixedUpdatePatch
                     case CustomGameMode.HideAndSeek:
                         Suffix.Append(HnSManager.GetSuffixText(seer, target));
                         break;
+                    case CustomGameMode.CaptureTheFlag:
+                        Suffix.Append(CTFManager.GetSuffixText(seer, target));
+                        break;
                 }
 
                 if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
@@ -1732,8 +1744,6 @@ class FixedUpdatePatch
                 RoleText.transform.SetLocalY(0.2f);
             }
         }
-
-        return Task.CompletedTask;
     }
 
     public static void AddExtraAbilityUsesOnFinishedTasks(PlayerControl player)

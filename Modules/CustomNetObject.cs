@@ -17,9 +17,9 @@ namespace EHR
         public static readonly List<CustomNetObject> AllObjects = [];
         private static int MaxId = -1;
         protected int Id;
-        private PlayerControl playerControl;
+        public PlayerControl playerControl;
         private float PlayerControlTimer;
-        private Vector2 Position;
+        public Vector2 Position;
         private string Sprite;
 
         protected void RpcChangeSprite(string sprite)
@@ -219,7 +219,7 @@ namespace EHR
                 {
                     foreach (var pc in PlayerControl.AllPlayerControls)
                     {
-                        if (!trapArea.VisibleList.Contains(pc.PlayerId))
+                        if (trapArea.VisibleList.Contains(pc.PlayerId))
                             Show(pc);
                     }
                 }
@@ -312,6 +312,7 @@ namespace EHR
             Sprite = sprite;
             ++MaxId;
             Id = MaxId;
+            if (MaxId > 10000) MaxId = 0;
             AllObjects.Add(this);
             foreach (var pc in PlayerControl.AllPlayerControls)
             {
@@ -546,6 +547,24 @@ namespace EHR
         {
             CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<alpha=#00>\u2588<#ccffda>\u2588<#ccffda>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<alpha=#00>\u2588<br><#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<br><#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<br><alpha=#00>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<#ccffda>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#ccffda>\u2588<#ccffda>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>", position);
             Show(catcher);
+        }
+    }
+
+    internal sealed class YellowFlag : CustomNetObject
+    {
+        public YellowFlag(Vector2 position)
+        {
+            CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=72%><#000000>\u2588<#ffff00>\u2588<#ffff00>\u2588<#ffff00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><#000000>\u2588<#ffff00>\u2588<#ffff00>\u2588<#ffff00>\u2588<#ffff00>\u2588<#ffff00>\u2588<br><#000000>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#ffff00>\u2588<#ffff00>\u2588<#ffff00>\u2588<br><#000000>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><#000000>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><#000000>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>", position);
+            Main.AllPlayerControls.Do(Show);
+        }
+    }
+
+    internal sealed class BlueFlag : CustomNetObject
+    {
+        public BlueFlag(Vector2 position)
+        {
+            CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=72%><#000000>\u2588<#0000ff>\u2588<#0000ff>\u2588<#0000ff>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><#000000>\u2588<#0000ff>\u2588<#0000ff>\u2588<#0000ff>\u2588<#0000ff>\u2588<#0000ff>\u2588<br><#000000>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#0000ff>\u2588<#0000ff>\u2588<#0000ff>\u2588<br><#000000>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><#000000>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><#000000>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>", position);
+            Main.AllPlayerControls.Do(Show);
         }
     }
 }

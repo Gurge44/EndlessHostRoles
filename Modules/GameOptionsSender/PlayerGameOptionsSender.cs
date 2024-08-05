@@ -167,6 +167,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     }
 
                     break;
+                case CustomGameMode.CaptureTheFlag:
                 case CustomGameMode.Speedrun:
                 case CustomGameMode.HotPotato:
                 case CustomGameMode.MoveAndStop:

@@ -363,6 +363,9 @@ public enum CustomRoles
     // Speedrun
     Runner,
 
+    // Capture The Flag
+    CTFPlayer,
+
     // GM
     GM,
 

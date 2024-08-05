@@ -23,6 +23,7 @@ public enum CustomGameMode
     HotPotato = 0x05,
     HideAndSeek = 0x06,
     Speedrun = 0x07,
+    CaptureTheFlag = 0x08,
     All = int.MaxValue
 }
 
@@ -55,7 +56,8 @@ public static class Options
         "MoveAndStop",
         "HotPotato",
         "HideAndSeek",
-        "Speedrun"
+        "Speedrun",
+        "CaptureTheFlag"
     ];
 
     private static Dictionary<CustomRoles, int> roleCounts;
@@ -773,6 +775,7 @@ public static class Options
             4 => CustomGameMode.HotPotato,
             5 => CustomGameMode.HideAndSeek,
             6 => CustomGameMode.Speedrun,
+            7 => CustomGameMode.CaptureTheFlag,
             _ => CustomGameMode.Standard
         };
 
@@ -802,7 +805,7 @@ public static class Options
             var sb = new System.Text.StringBuilder();
             var grouped = Enum.GetValues<CustomRoles>().GroupBy(x =>
             {
-                if (x is CustomRoles.GM or CustomRoles.Philantropist or CustomRoles.Konan or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict || x.IsForOtherGameMode() || x.IsVanilla() || x.ToString().Contains("EHR")) return 4;
+                if (x is CustomRoles.GM or CustomRoles.Philantropist or CustomRoles.Konan or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict || x.IsForOtherGameMode() || x.IsVanilla() || x.ToString().Contains("EHR") || HnSManager.AllHnSRoles.Contains(x)) return 4;
                 if (x.IsAdditionRole()) return 3;
                 if (x.IsImpostor() || x.IsMadmate()) return 0;
                 if (x.IsNeutral()) return 1;
@@ -827,8 +830,8 @@ public static class Options
             }
 
             const string path = "./roles.txt";
-            if (!File.Exists(path)) File.Create(path).Close();
-            File.WriteAllText(path, sb.ToString());
+            if (!System.IO.File.Exists(path)) System.IO.File.Create(path).Close();
+            System.IO.File.WriteAllText(path, sb.ToString());
         }
         catch (Exception e)
         {
@@ -1259,6 +1262,8 @@ public static class Options
         SpeedrunManager.SetupCustomOption();
         // Hide And Seek
         HnSManager.SetupCustomOption();
+        // Capture The Flag
+        CTFManager.SetupCustomOption();
 
         yield return null;
 

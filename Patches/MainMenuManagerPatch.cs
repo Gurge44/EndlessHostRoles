@@ -70,7 +70,7 @@ public static class MainMenuManagerPatch
 
         UpdateButton.gameObject.SetActive(ModUpdater.HasUpdate);
 
-        Application.targetFrameRate = Main.UnlockFps.Value ? 9999 : 60;
+        Application.targetFrameRate = Main.UnlockFps.Value ? 120 : 60;
     }
 
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.LateUpdate)), HarmonyPostfix]
@@ -152,7 +152,7 @@ public static class MainMenuManagerPatch
 
         WebsiteButton.gameObject.SetActive(true);
 
-        Application.targetFrameRate = Main.UnlockFps.Value ? 9999 : 60;
+        Application.targetFrameRate = Main.UnlockFps.Value ? 120 : 60;
     }
 
     private static PassiveButton CreateButton(string name, Vector3 localPosition, Color32 normalColor, Color32 hoverColor, Action action, string label, Vector2? scale = null)

@@ -368,6 +368,7 @@ class GameEndChecker
     public static void SetPredicateToHotPotato() => Predicate = new HotPotatoGameEndPredicate();
     public static void SetPredicateToSpeedrun() => Predicate = new SpeedrunGameEndPredicate();
     public static void SetPredicateToHideAndSeek() => Predicate = new HideAndSeekGameEndPredicate();
+    public static void SetPredicateToCaptureTheFlag() => Predicate = new CaptureTheFlagGameEndPredicate();
 
     class NormalGameEndPredicate : GameEndPredicate
     {
@@ -710,6 +711,20 @@ class GameEndChecker
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
             return SpeedrunManager.CheckForGameEnd(out reason);
+        }
+    }
+
+    class CaptureTheFlagGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForEndGame(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            return CTFManager.CheckForGameEnd(out reason);
         }
     }
 

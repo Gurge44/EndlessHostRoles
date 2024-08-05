@@ -932,11 +932,13 @@ public class GameSettingMenuPatch
 
         var GameSettingsLabel = __instance.GameSettingsButton.transform.parent.parent.FindChild("GameSettingsLabel").GetComponent<TextMeshPro>();
         GameSettingsLabel.DestroyTranslator();
-        GameSettingsLabel.text = Translator.GetString($"Mode{Options.CurrentGameMode}").Split(':').Last().TrimStart(' ');
+        var gameModeText = Translator.GetString($"Mode{Options.CurrentGameMode}").Split(':').Last().TrimStart(' ');
+        if (gameModeText.Length >= 15) gameModeText = $"<size=70%>{gameModeText}</size>";
+        GameSettingsLabel.text = gameModeText;
         if (IsRussian)
         {
             GameSettingsLabel.transform.localScale = new(0.7f, 0.7f, 1f);
-            GameSettingsLabel.transform.localPosition = new Vector3(-3.77f, 1.62f, -4);
+            GameSettingsLabel.transform.localPosition = new(-3.77f, 1.62f, -4);
         }
 
         var GameSettingsLabelPos = GameSettingsLabel.transform.localPosition;

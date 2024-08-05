@@ -815,6 +815,9 @@ internal class SelectRolesPatch
                 case CustomGameMode.HideAndSeek:
                     HnSManager.StartSeekerBlindTime();
                     break;
+                case CustomGameMode.CaptureTheFlag:
+                    CTFManager.OnGameStart();
+                    break;
             }
 
             HudManager.Instance.SetHudActive(true);
@@ -855,6 +858,9 @@ internal class SelectRolesPatch
                     break;
                 case CustomGameMode.HideAndSeek:
                     GameEndChecker.SetPredicateToHideAndSeek();
+                    break;
+                case CustomGameMode.CaptureTheFlag:
+                    GameEndChecker.SetPredicateToCaptureTheFlag();
                     break;
             }
 

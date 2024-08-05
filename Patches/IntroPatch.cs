@@ -77,6 +77,16 @@ class SetUpRoleTextPatch
                     __instance.RoleBlurbText.text = GetString("RunnerInfo");
                     break;
                 }
+                case CustomGameMode.CaptureTheFlag:
+                {
+                    var color = ColorUtility.TryParseHtmlString("#1313c2", out var c) ? c : new(255, 255, 255, 255);
+                    __instance.YouAreText.transform.gameObject.SetActive(false);
+                    __instance.RoleText.text = GetString("CTFPlayer");
+                    __instance.RoleText.color = color;
+                    __instance.RoleBlurbText.color = color;
+                    __instance.RoleBlurbText.text = GetString("CTFPlayerInfo");
+                    break;
+                }
                 default:
                 {
                     CustomRoles role = lp.GetCustomRole();
@@ -181,7 +191,8 @@ class BeginCrewmatePatch
 {
     public static bool Prefix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> teamToDisplay)
     {
-        if (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Neutral) && !PlayerControl.LocalPlayer.GetCustomRole().IsMadmate())
+        CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
+        if (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Neutral) && !role.IsMadmate())
         {
             teamToDisplay = new();
             teamToDisplay.Add(PlayerControl.LocalPlayer);
@@ -197,7 +208,7 @@ class BeginCrewmatePatch
                     break;
             }
         }
-        else if (PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) || PlayerControl.LocalPlayer.GetCustomRole().IsMadmate())
+        else if (PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) || role.IsMadmate())
         {
             teamToDisplay = new();
             teamToDisplay.Add(PlayerControl.LocalPlayer);
@@ -206,13 +217,13 @@ class BeginCrewmatePatch
             return false;
         }
 
-        if (PlayerControl.LocalPlayer.GetCustomRole() == CustomRoles.LovingCrewmate)
+        if (role == CustomRoles.LovingCrewmate || PlayerControl.LocalPlayer.Is(CustomRoles.Lovers))
         {
             teamToDisplay = new();
             teamToDisplay.Add(PlayerControl.LocalPlayer);
             teamToDisplay.Add(Main.LoversPlayers.FirstOrDefault(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId));
         }
-        else if (PlayerControl.LocalPlayer.GetCustomRole() == CustomRoles.LovingImpostor)
+        else if (role == CustomRoles.LovingImpostor)
         {
             teamToDisplay.Add(Main.LoversPlayers.FirstOrDefault(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId));
         }
@@ -553,6 +564,15 @@ class BeginCrewmatePatch
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("SubText.HideAndSeek");
+                break;
+            }
+            case CustomGameMode.CaptureTheFlag:
+            {
+                __instance.TeamTitle.text = $"<size=70%>{GetString("CTFPlayer")}</size>";
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(19, 19, 194, byte.MaxValue);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Engineer);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = GetString("CTFPlayerInfo");
                 break;
             }
         }

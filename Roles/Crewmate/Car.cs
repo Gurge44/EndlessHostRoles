@@ -93,8 +93,9 @@ namespace EHR.Crewmate
 
             var distance = PropelDistance.GetFloat();
             var collider = target.Collider;
-            for (var newPos = target.Pos(); Vector2.Distance(pos, newPos) < distance && !PhysicsHelpers.AnythingBetween(collider, collider.bounds.center, newPos, Constants.ShipOnlyMask, false) && GameStates.IsInTask; newPos += addVector)
+            for (var newPos = target.Pos(); Vector2.Distance(pos, newPos) < distance && GameStates.IsInTask; newPos += addVector)
             {
+                if (PhysicsHelpers.AnythingBetween(collider, collider.bounds.center, newPos, Constants.ShipOnlyMask, false)) break;
                 target.TP(newPos, log: false);
                 yield return new WaitForSeconds(0.05f);
             }

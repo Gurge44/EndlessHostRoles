@@ -19,15 +19,19 @@ class LocalPetPatch
 
     public static bool Prefix(PlayerControl __instance)
     {
-        if (!Options.UsePets.GetBool()) return true;
+        if (!Options.UsePets.GetBool() && Options.CurrentGameMode != CustomGameMode.CaptureTheFlag) return true;
         if (!(AmongUsClient.Instance.AmHost && AmongUsClient.Instance.AmClient)) return true;
         if (GameStates.IsLobby || !__instance.IsAlive()) return true;
 
         if (__instance.petting) return true;
         __instance.petting = true;
 
+        if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag) goto Skip;
+
         if (!LastProcess.ContainsKey(__instance.PlayerId)) LastProcess.TryAdd(__instance.PlayerId, Utils.TimeStamp - 2);
         if (LastProcess[__instance.PlayerId] + 1 >= Utils.TimeStamp) return true;
+
+        Skip:
 
         ExternalRpcPetPatch.Prefix(__instance.MyPhysics, (byte)RpcCalls.Pet);
 
@@ -50,7 +54,7 @@ class ExternalRpcPetPatch
 
     public static void Prefix(PlayerPhysics __instance, [HarmonyArgument(0)] byte callID)
     {
-        if (GameStates.IsLobby || !Options.UsePets.GetBool() || !AmongUsClient.Instance.AmHost || (RpcCalls)callID != RpcCalls.Pet) return;
+        if (GameStates.IsLobby || (!Options.UsePets.GetBool() && Options.CurrentGameMode != CustomGameMode.CaptureTheFlag) || !AmongUsClient.Instance.AmHost || (RpcCalls)callID != RpcCalls.Pet) return;
 
         var pc = __instance.myPlayer;
         var physics = __instance;
@@ -68,6 +72,12 @@ class ExternalRpcPetPatch
             && GameStates.IsInTask
             && pc.GetCustomRole().PetActivatedAbility())
             physics.CancelPet();
+
+        if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag)
+        {
+            CTFManager.OnPet(pc);
+            return;
+        }
 
         if (!LastProcess.ContainsKey(pc.PlayerId)) LastProcess.TryAdd(pc.PlayerId, Utils.TimeStamp - 2);
         if (LastProcess[pc.PlayerId] + 1 >= Utils.TimeStamp) return;

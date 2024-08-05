@@ -11,7 +11,7 @@ namespace EHR.Impostor
     {
         public static bool On;
 
-        private static OptionItem BlackHolePlaceCooldown;
+        public static OptionItem BlackHolePlaceCooldown;
         private static OptionItem BlackHoleDespawnMode;
         private static OptionItem BlackHoleDespawnTime;
         private static OptionItem BlackHoleMovesTowardsNearestPlayer;

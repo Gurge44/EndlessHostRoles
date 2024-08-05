@@ -58,6 +58,7 @@ class SetRecommendationsPatch
             case CustomGameMode.SoloKombat:
             case CustomGameMode.FFA:
             case CustomGameMode.HotPotato:
+            case CustomGameMode.CaptureTheFlag:
                 __instance.CrewLightMod = __instance.ImpostorLightMod = 1.25f;
                 __instance.NumImpostors = 3;
                 __instance.NumCommonTasks = 0;
@@ -65,6 +66,7 @@ class SetRecommendationsPatch
                 __instance.NumShortTasks = 0;
                 __instance.KillCooldown = 0f;
                 __instance.NumEmergencyMeetings = 0;
+                __instance.KillDistance = 0;
                 break;
             case CustomGameMode.Speedrun:
             case CustomGameMode.MoveAndStop:

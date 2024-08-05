@@ -53,7 +53,8 @@ internal static class CustomRolesHelper
         CustomRoles.Killer or
         CustomRoles.Tasker or
         CustomRoles.Potato or
-        CustomRoles.Runner;
+        CustomRoles.Runner or
+        CustomRoles.CTFPlayer;
 
     public static RoleBase GetRoleClass(this CustomRoles role)
     {
@@ -366,6 +367,8 @@ internal static class CustomRolesHelper
             CustomRoles.Potato => RoleTypes.Crewmate,
             // Speedrun
             CustomRoles.Runner => RoleTypes.Crewmate,
+            // Capture The Flag
+            CustomRoles.CTFPlayer => RoleTypes.Impostor,
             // Standard
             CustomRoles.Executioner => Executioner.CRoleChangeRoles[Executioner.ChangeRolesAfterTargetKilled.GetValue()].GetDYRole(),
             CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
@@ -659,6 +662,7 @@ internal static class CustomRolesHelper
 
     public static bool PetActivatedAbility(this CustomRoles role)
     {
+        if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag) return true;
         if (!Options.UsePets.GetBool()) return false;
         if (role.UsesPetInsteadOfKill()) return true;
 
@@ -1037,7 +1041,8 @@ internal static class CustomRolesHelper
     public static CountTypes GetCountTypes(this CustomRoles role) => role switch
     {
         CustomRoles.GM => CountTypes.OutOfGame,
-        CustomRoles.Sidekick => CountTypes.Jackal,
+        CustomRoles.Sidekick when Jackal.SidekickCountMode.GetValue() == 0 => CountTypes.Jackal,
+        CustomRoles.Sidekick when Jackal.SidekickCountMode.GetValue() == 1 => CountTypes.OutOfGame,
         CustomRoles.Deathknight => CountTypes.Necromancer,
         CustomRoles.Parasite => CountTypes.Impostor,
         CustomRoles.Crewpostor => CountTypes.Impostor,

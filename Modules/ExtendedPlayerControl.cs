@@ -546,7 +546,7 @@ static class ExtendedPlayerControl
 
     public static string GetNameWithRole(this PlayerControl player, bool forUser = false)
     {
-        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
+        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
     }
 
     public static string GetRoleColorCode(this PlayerControl player)
@@ -656,16 +656,18 @@ static class ExtendedPlayerControl
     public static bool CanUseKillButton(this PlayerControl pc)
     {
         if (!pc.IsAlive()) return false;
-        if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId)) return true;
-        if (Penguin.IsVictim(pc)) return false;
 
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.HotPotato or CustomGameMode.MoveAndStop:
             case CustomGameMode.Speedrun when !SpeedrunManager.CanKill.Contains(pc.PlayerId):
                 return false;
+            case CustomGameMode.CaptureTheFlag:
+                return true;
         }
 
+        if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId)) return true;
+        if (Penguin.IsVictim(pc)) return false;
         if (Pelican.IsEaten(pc.PlayerId)) return false;
         if (pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
         if (pc.Is(CustomRoles.Bloodlust)) return true;
@@ -721,6 +723,8 @@ static class ExtendedPlayerControl
             CustomRoles.Potato => false,
             // Speedrun
             CustomRoles.Runner => false,
+            // Capture The Flag
+            CustomRoles.CTFPlayer => false,
 
             _ => Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseImpostorVentButton(pc)
         };
