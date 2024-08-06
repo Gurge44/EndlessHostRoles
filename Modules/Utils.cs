@@ -680,6 +680,7 @@ public static class Utils
             case CustomRoles.SchrodingersCat:
             case CustomRoles.Shifter:
             case CustomRoles.Impartial:
+            case CustomRoles.Backstabber:
             case CustomRoles.Predator:
             case CustomRoles.Reckless:
             case CustomRoles.WeaponMaster:
@@ -1797,16 +1798,11 @@ public static class Utils
 
     public static void NotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
     {
-        //if (Options.DeepLowLoad.GetBool()) await Task.Run(() => { DoNotifyRoles(isForMeeting, SpecifySeer, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting); });
-        /*else */
-
         if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModClient()) || !AmongUsClient.Instance.AmHost || Main.AllPlayerControls == null || (GameStates.IsMeeting && !isForMeeting) || GameStates.IsLobby)) return;
-
-        if (SetUpRoleTextPatch.IsInIntro || isForMeeting || CamouflageIsForMeeting || GuesserIsForMeeting || MushroomMixup) _ = DoNotifyRoles(isForMeeting, SpecifySeer, SpecifyTarget, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup);
-        else Main.Instance.StartCoroutine(DoNotifyRoles(false, SpecifySeer, SpecifyTarget, NoCache, ForceLoop));
+        DoNotifyRoles(isForMeeting, SpecifySeer, SpecifyTarget, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup);
     }
 
-    public static System.Collections.IEnumerator DoNotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
+    public static void DoNotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
     {
         PlayerControl[] seerList = SpecifySeer != null ? [SpecifySeer] : Main.AllPlayerControls;
         PlayerControl[] targetList = SpecifyTarget != null ? [SpecifyTarget] : Main.AllPlayerControls;
@@ -1816,8 +1812,6 @@ public static class Utils
 
         // seer: Players who can see changes made here
         // target: Players subject to changes that seer can see
-        int i = 0;
-        bool instant = SetUpRoleTextPatch.IsInIntro || isForMeeting || CamouflageIsForMeeting || GuesserIsForMeeting || MushroomMixup;
         foreach (PlayerControl seer in seerList)
         {
             try
@@ -2293,12 +2287,13 @@ public static class Utils
             {
                 Logger.Error($"Error for {seer.GetNameWithRole()}: {ex}", "NR");
             }
-
-            i++;
-            if (i % 3 == 0 && !instant) yield return null;
         }
 
-        Logger.Info($" Seers: {seerLogInfo.ToString().TrimEnd(',', ' ')} ---- Targets: {targetLogInfo.ToString().TrimEnd(',', ' ')}", "NR");
+        string seers = seerLogInfo.ToString().TrimEnd(',', ' ');
+        string targets = targetLogInfo.ToString().TrimEnd(',', ' ');
+        if (seers.Length == 0) seers = "\u2205";
+        if (targets.Length == 0) targets = "\u2205";
+        Logger.Info($" Seers: {seers} ---- Targets: {targets}", "NR");
     }
 
     public static void MarkEveryoneDirtySettings()

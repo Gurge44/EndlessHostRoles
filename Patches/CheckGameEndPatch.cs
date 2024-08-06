@@ -177,6 +177,10 @@ class GameEndChecker
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.Impartial);
                             break;
+                        case CustomRoles.Backstabber when (Main.PlayerStates[pc.PlayerId].Role as Backstabber).CheckWin():
+                            WinnerIds.Add(pc.PlayerId);
+                            AdditionalWinnerTeams.Add(AdditionalWinners.Backstabber);
+                            break;
                         case CustomRoles.Predator when (Main.PlayerStates[pc.PlayerId].Role as Predator).IsWon:
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.Predator);
@@ -405,7 +409,7 @@ class GameEndChecker
                 if ((!role.IsNK() && role != CustomRoles.Bloodlust) || role.IsMadmate() || role is CustomRoles.Sidekick) continue;
 
                 var countTypes = role.GetCountTypes();
-                if (countTypes is CountTypes.Crew or CountTypes.Impostor or CountTypes.None or CountTypes.OutOfGame) continue;
+                if (countTypes is CountTypes.Crew or CountTypes.Impostor or CountTypes.None or CountTypes.OutOfGame or CountTypes.CustomTeam) continue;
 
                 CustomRoles? keyRole = role.IsRecruitingRole() ? null : role;
                 CustomWinner keyWinner = (CustomWinner)role;

@@ -1,4 +1,4 @@
-﻿using AmongUs.GameOptions;
+﻿/*using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -98,4 +98,5 @@ namespace EHR.Modules
             }
         }
     }
-}
+}*/
+

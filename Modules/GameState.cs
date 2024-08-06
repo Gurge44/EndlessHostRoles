@@ -64,7 +64,7 @@ public class PlayerState(byte playerId)
     public CountTypes countTypes = CountTypes.Crew;
     public PlainShipRoom LastRoom;
     public CustomRoles MainRole = CustomRoles.NotAssigned;
-    public (DateTime TIMESTAMP, byte ID) RealKiller = (DateTime.MinValue, byte.MaxValue);
+    public (DateTime TimeStamp, byte ID) RealKiller = (DateTime.MinValue, byte.MaxValue);
     public RoleBase Role = new VanillaRole();
     public List<CustomRoles> SubRoles = [];
     public Dictionary<byte, string> TargetColorData = [];
@@ -92,6 +92,9 @@ public class PlayerState(byte playerId)
                 _ => role.GetCountTypes()
             };
         }
+
+        if (CustomTeamManager.GetCustomTeam(PlayerId) != null && !CustomTeamManager.IsSettingEnabledForPlayerTeam(PlayerId, CTAOption.WinWithOriginalTeam))
+            countTypes = CountTypes.CustomTeam;
 
         SubRoles.ForEach(SetAddonCountTypes);
 
@@ -283,7 +286,7 @@ public class PlayerState(byte playerId)
     public void InitTask(PlayerControl player) => taskState.Init(player);
     public void UpdateTask(PlayerControl player) => taskState.Update(player);
 
-    public byte GetRealKiller() => IsDead && RealKiller.TIMESTAMP != DateTime.MinValue ? RealKiller.ID : byte.MaxValue;
+    public byte GetRealKiller() => IsDead && RealKiller.TimeStamp != DateTime.MinValue ? RealKiller.ID : byte.MaxValue;
     public int GetKillCount(bool ExcludeSelfKill = false) => Main.PlayerStates.Values.Where(state => !(ExcludeSelfKill && state.PlayerId == PlayerId) && state.GetRealKiller() == PlayerId).ToArray().Length;
 }
 

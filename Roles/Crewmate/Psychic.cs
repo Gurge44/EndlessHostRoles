@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Impostor;
 using EHR.Modules;
 using Hazel;
 using static EHR.Options;
@@ -92,7 +93,7 @@ public class Psychic : RoleBase
         if (!IsEnable || !AmongUsClient.Instance.AmHost) return;
 
         List<PlayerControl> BadListPc = Main.AllAlivePlayerControls.Where(x =>
-            (x.Is(CustomRoleTypes.Impostor) && !x.Is(CustomRoles.Trickster)) || x.Is(CustomRoles.Madmate) || x.Is(CustomRoles.Rascal) || x.Is(CustomRoles.Recruit) || x.Is(CustomRoles.Charmed) || x.Is(CustomRoles.Contagious) ||
+            (x.Is(CustomRoleTypes.Impostor) && !x.Is(CustomRoles.Trickster)) || x.Is(CustomRoles.Madmate) || x.Is(CustomRoles.Rascal) || Framer.FramedPlayers.Contains(x.PlayerId) || x.IsConverted() ||
             (x.GetCustomRole().GetCrewmateRoleCategory() == RoleOptionType.Crewmate_Killing && CkshowEvil.GetBool()) ||
             (x.GetCustomRole().GetNeutralRoleCategory() == RoleOptionType.Neutral_Evil && NEshowEvil.GetBool()) ||
             (x.GetCustomRole().GetNeutralRoleCategory() == RoleOptionType.Neutral_Benign && NBshowEvil.GetBool())

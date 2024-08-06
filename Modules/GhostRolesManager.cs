@@ -93,7 +93,7 @@ namespace EHR.Modules
             {
                 if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
                 if (AssignedGhostRoles.Count >= GhostRoles.Count) return false;
-                if (pc.IsAlive() || pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame || pc.Is(CustomRoles.EvilSpirit)) return false;
+                if (pc.IsAlive() || pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame || pc.Is(CustomRoles.EvilSpirit) || pc.Is(CustomRoles.Backstabber)) return false;
 
                 var suitableRole = GetSuitableGhostRole(pc);
                 return suitableRole switch

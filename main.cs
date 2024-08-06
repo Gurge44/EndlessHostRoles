@@ -180,7 +180,7 @@ public class Main : BasePlugin
             int i = 0;
             foreach (var pc in PlayerControl.AllPlayerControls)
             {
-                if (pc == null) continue;
+                if (pc == null || pc.PlayerId == 255) continue;
                 result[i++] = pc;
             }
 
@@ -200,7 +200,7 @@ public class Main : BasePlugin
             int i = 0;
             foreach (var pc in PlayerControl.AllPlayerControls)
             {
-                if (pc == null || !pc.IsAlive() || pc.Data.Disconnected || Pelican.IsEaten(pc.PlayerId)) continue;
+                if (pc == null || pc.PlayerId == 255 || !pc.IsAlive() || pc.Data.Disconnected || Pelican.IsEaten(pc.PlayerId)) continue;
                 result[i++] = pc;
             }
 
@@ -491,6 +491,7 @@ public class Main : BasePlugin
                 { CustomRoles.SchrodingersCat, "#616161" },
                 { CustomRoles.Shifter, "#777777" },
                 { CustomRoles.Impartial, "#4287f5" },
+                { CustomRoles.Backstabber, "#fcba03" },
                 { CustomRoles.Predator, "#c73906" },
                 { CustomRoles.Reckless, "#6e000d" },
                 { CustomRoles.Magician, "#BF5FFF" },
@@ -864,6 +865,7 @@ public enum AdditionalWinners
     Maverick = CustomRoles.Maverick,
     Postman = CustomRoles.Postman,
     Impartial = CustomRoles.Impartial,
+    Backstabber = CustomRoles.Backstabber,
     Predator = CustomRoles.Predator,
     SoulHunter = CustomRoles.SoulHunter,
     SchrodingersCat = CustomRoles.SchrodingersCat

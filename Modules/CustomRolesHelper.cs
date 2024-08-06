@@ -144,6 +144,7 @@ internal static class CustomRolesHelper
             CustomRoles.YinYanger => CustomRoles.Impostor,
             CustomRoles.Duellist => CustomRoles.Shapeshifter,
             CustomRoles.Consort => CustomRoles.Impostor,
+            CustomRoles.Framer => CustomRoles.Impostor,
             CustomRoles.Mafioso => CustomRoles.Impostor,
             CustomRoles.Chronomancer => CustomRoles.Impostor,
             CustomRoles.Nullifier => CustomRoles.Impostor,
@@ -434,6 +435,7 @@ internal static class CustomRolesHelper
             CustomRoles.SchrodingersCat => RoleTypes.Impostor,
             CustomRoles.Shifter => RoleTypes.Impostor,
             CustomRoles.Impartial => RoleTypes.Impostor,
+            CustomRoles.Backstabber => RoleTypes.Impostor,
             CustomRoles.Predator => RoleTypes.Impostor,
             CustomRoles.Reckless => RoleTypes.Impostor,
             CustomRoles.Magician => RoleTypes.Impostor,
@@ -583,6 +585,7 @@ internal static class CustomRolesHelper
         CustomRoles.Duellist or
         CustomRoles.YinYanger or
         CustomRoles.Consort or
+        CustomRoles.Framer or
         CustomRoles.Mafioso or
         CustomRoles.Nullifier or
         CustomRoles.Chronomancer or
@@ -1062,6 +1065,20 @@ internal static class CustomRolesHelper
                 : CountTypes.Crew
     };
 
+    public static Color GetTeamColor(this Team team) => ColorUtility.TryParseHtmlString(team switch
+    {
+        Team.Crewmate => Main.CrewmateColor,
+        Team.Neutral => Main.NeutralColor,
+        Team.Impostor => Main.ImpostorColor,
+        _ => string.Empty
+    }, out var color)
+        ? color
+        : Color.clear;
+
+    public static string ToColoredString(this CustomRoles role) => Utils.ColorString(Utils.GetRoleColor(role), Translator.GetString($"{role}"));
+
+    #region OptionsAndCategories
+
     public static RoleOptionType GetRoleOptionType(this CustomRoles role)
     {
         if (role.IsImpostor()) return role.GetImpostorRoleCategory();
@@ -1115,18 +1132,6 @@ internal static class CustomRolesHelper
         _ => Palette.CrewmateBlue
     };
 
-    public static Color GetTeamColor(this Team team) => ColorUtility.TryParseHtmlString(team switch
-    {
-        Team.Crewmate => Main.CrewmateColor,
-        Team.Neutral => Main.NeutralColor,
-        Team.Impostor => Main.ImpostorColor,
-        _ => string.Empty
-    }, out var color)
-        ? color
-        : Color.clear;
-
-    public static string ToColoredString(this CustomRoles role) => Utils.ColorString(Utils.GetRoleColor(role), Translator.GetString($"{role}"));
-
     public static RoleOptionType GetNeutralRoleCategory(this CustomRoles role) => role switch
     {
         CustomRoles.Opportunist => RoleOptionType.Neutral_Benign,
@@ -1139,6 +1144,7 @@ internal static class CustomRolesHelper
         CustomRoles.FFF => RoleOptionType.Neutral_Benign,
         CustomRoles.Revolutionist => RoleOptionType.Neutral_Benign,
         CustomRoles.Impartial => RoleOptionType.Neutral_Benign,
+        CustomRoles.Backstabber => RoleOptionType.Neutral_Benign,
         CustomRoles.Shifter => RoleOptionType.Neutral_Benign,
         CustomRoles.Sunnyboy => RoleOptionType.Neutral_Benign,
         CustomRoles.Maverick => RoleOptionType.Neutral_Benign,
@@ -1201,6 +1207,7 @@ internal static class CustomRolesHelper
         CustomRoles.Cleaner => RoleOptionType.Impostor_Support,
         CustomRoles.Commander => RoleOptionType.Impostor_Support,
         CustomRoles.Consort => RoleOptionType.Impostor_Support,
+        CustomRoles.Framer => RoleOptionType.Impostor_Support,
         CustomRoles.Deathpact => RoleOptionType.Impostor_Support,
         CustomRoles.Devourer => RoleOptionType.Impostor_Support,
         CustomRoles.Disperser => RoleOptionType.Impostor_Support,
@@ -1372,6 +1379,8 @@ internal static class CustomRolesHelper
         CustomRoles.Tunneler => RoleOptionType.Crewmate_Miscellaneous,
         _ => role.IsImpostor() ? RoleOptionType.Impostor_Miscellaneous : RoleOptionType.Neutral_Benign
     };
+
+    #endregion
 }
 
 #pragma warning disable IDE0079
@@ -1425,6 +1434,7 @@ public enum CountTypes
     None,
     Crew,
     Impostor,
+    CustomTeam,
     Bloodlust,
     Jackal,
     Doppelganger,

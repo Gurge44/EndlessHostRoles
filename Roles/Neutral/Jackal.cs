@@ -28,6 +28,7 @@ public class Jackal : RoleBase
     private static OptionItem PromotedSKCanRecruit;
 
     public static bool On;
+    private byte SidekickId;
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
@@ -88,6 +89,7 @@ public class Jackal : RoleBase
         On = true;
         PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(1);
+        SidekickId = byte.MaxValue;
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
@@ -117,6 +119,7 @@ public class Jackal : RoleBase
         killer.RpcRemoveAbilityUse();
         target.RpcSetCustomRole(targetRoleType == RoleTypes.Shapeshifter ? CustomRoles.Recruit : CustomRoles.Sidekick);
         // if (needBasisChange) target.ChangeRoleBasis(RoleTypes.Impostor);
+        SidekickId = target.PlayerId;
 
         Main.ResetCamPlayerList.Add(target.PlayerId);
 
@@ -146,8 +149,8 @@ public class Jackal : RoleBase
     public override void OnFixedUpdate(PlayerControl pc)
     {
         if (!SKPromotesToJackal.GetBool() || pc.IsAlive()) return;
-        var sk = Main.AllPlayerControls.FirstOrDefault(x => x.Is(CustomRoles.Sidekick));
-        if (sk == null) return;
+        var sk = SidekickId.GetPlayer();
+        if (sk == null || !sk.Is(CustomRoles.Sidekick)) return;
         sk.RpcSetCustomRole(CustomRoles.Jackal);
         if (!PromotedSKCanRecruit.GetBool()) sk.SetAbilityUseLimit(0);
     }

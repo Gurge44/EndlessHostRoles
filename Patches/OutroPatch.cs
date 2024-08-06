@@ -56,9 +56,9 @@ class EndGamePatch
         }
 
         var sb = new StringBuilder(GetString("KillLog") + ":");
-        foreach ((byte key, PlayerState value) in Main.PlayerStates.OrderBy(x => x.Value.RealKiller.TIMESTAMP.Ticks))
+        foreach ((byte key, PlayerState value) in Main.PlayerStates.OrderBy(x => x.Value.RealKiller.TimeStamp.Ticks))
         {
-            var date = value.RealKiller.TIMESTAMP;
+            var date = value.RealKiller.TimeStamp;
             if (date == DateTime.MinValue) continue;
             var killerId = value.GetRealKiller();
             var gmIsFM = Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop;

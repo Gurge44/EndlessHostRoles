@@ -18,7 +18,7 @@ class SetUpRoleTextPatch
     {
         // After showing team for non-modded clients, update player names.
         IsInIntro = false;
-        _ = Utils.DoNotifyRoles(NoCache: true);
+        Utils.DoNotifyRoles(NoCache: true);
 
         var lp = PlayerControl.LocalPlayer;
 

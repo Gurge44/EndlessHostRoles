@@ -1115,7 +1115,7 @@ internal static class RPC
     public static void SetRealKiller(byte targetId, byte killerId)
     {
         var state = Main.PlayerStates[targetId];
-        state.RealKiller.TIMESTAMP = DateTime.Now;
+        state.RealKiller.TimeStamp = DateTime.Now;
         state.RealKiller.ID = killerId;
 
         if (!AmongUsClient.Instance.AmHost) return;

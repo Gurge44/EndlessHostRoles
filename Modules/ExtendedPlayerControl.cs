@@ -975,7 +975,7 @@ static class ExtendedPlayerControl
     public static bool IsNeutralKiller(this PlayerControl player) => player.Is(CustomRoles.Bloodlust) || player.GetCustomRole().IsNK();
     public static bool IsNeutralBenign(this PlayerControl player) => player.GetCustomRole().GetNeutralRoleCategory() == RoleOptionType.Neutral_Benign;
     public static bool IsNeutralEvil(this PlayerControl player) => player.GetCustomRole().GetNeutralRoleCategory() == RoleOptionType.Neutral_Evil;
-    public static bool IsSnitchTarget(this PlayerControl player) => player.Is(CustomRoles.Bloodlust) || player.GetCustomRole().IsSnitchTarget();
+    public static bool IsSnitchTarget(this PlayerControl player) => player.Is(CustomRoles.Bloodlust) || Framer.FramedPlayers.Contains(player.PlayerId) || player.GetCustomRole().IsSnitchTarget();
     public static bool IsMadmate(this PlayerControl player) => player.Is(CustomRoles.Madmate) || player.GetCustomRole().IsMadmate();
 
     public static bool HasGhostRole(this PlayerControl player) => GhostRolesManager.AssignedGhostRoles.ContainsKey(player.PlayerId) || Main.PlayerStates.TryGetValue(player.PlayerId, out var state) && state.SubRoles.Any(x => x.IsGhostRole());
@@ -1019,7 +1019,7 @@ static class ExtendedPlayerControl
         }
 
         var State = Main.PlayerStates[target.PlayerId];
-        if (State.RealKiller.TIMESTAMP != DateTime.MinValue && NotOverRide) return; // Do not overwrite if value already exists
+        if (State.RealKiller.TimeStamp != DateTime.MinValue && NotOverRide) return; // Do not overwrite if value already exists
         byte killerId = killer == null ? byte.MaxValue : killer.PlayerId;
         RPC.SetRealKiller(target.PlayerId, killerId);
     }
@@ -1061,7 +1061,7 @@ static class ExtendedPlayerControl
 
     public static bool Is(this PlayerControl target, Team team) => team switch
     {
-        Team.Impostor => (target.IsMadmate() || target.GetCustomRole().IsImpostorTeamV2()) && !target.Is(CustomRoles.Bloodlust),
+        Team.Impostor => (target.IsMadmate() || target.GetCustomRole().IsImpostorTeamV2() || Framer.FramedPlayers.Contains(target.PlayerId)) && !target.Is(CustomRoles.Bloodlust),
         Team.Neutral => target.GetCustomRole().IsNeutralTeamV2() || target.Is(CustomRoles.Bloodlust),
         Team.Crewmate => target.GetCustomRole().IsCrewmateTeamV2(),
         Team.None => target.Is(CustomRoles.GM) || target.Is(CountTypes.None) || target.Is(CountTypes.OutOfGame),
@@ -1070,6 +1070,7 @@ static class ExtendedPlayerControl
 
     public static Team GetTeam(this PlayerControl target)
     {
+        if (Framer.FramedPlayers.Contains(target.PlayerId)) return Team.Impostor;
         var subRoles = target.GetCustomSubRoles();
         if (target.Is(CustomRoles.Bloodlust) || subRoles.Any(x => x.IsConverted())) return Team.Neutral;
         if (subRoles.Contains(CustomRoles.Madmate)) return Team.Impostor;
