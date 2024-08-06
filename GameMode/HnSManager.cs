@@ -334,6 +334,7 @@ namespace EHR
             // If there are 0 players alive, the game is over and only foxes win
             if (alivePlayers.Length == 0)
             {
+                reason = GameOverReason.HumansDisconnect;
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                 AddFoxesToWinners();
                 return true;
@@ -342,6 +343,7 @@ namespace EHR
             // If there are no crew roles left, the game is over and only impostors win
             if (alivePlayers.All(x => PlayerRoles[x.PlayerId].Interface.Team != Team.Crewmate))
             {
+                reason = GameOverReason.HideAndSeek_ByKills;
                 SetWinners(CustomWinner.Seeker, Team.Impostor);
                 return true;
             }
@@ -349,6 +351,7 @@ namespace EHR
             // If time is up or there are no impostors in the game, the game is over and crewmates win
             if (TimeLeft <= 0 || PlayerRoles.Values.All(x => x.Interface.Team != Team.Impostor))
             {
+                reason = TimeLeft <= 0 ? GameOverReason.HideAndSeek_ByTimer : GameOverReason.ImpostorDisconnect;
                 SetWinners(CustomWinner.Hider, Team.Crewmate);
                 return true;
             }

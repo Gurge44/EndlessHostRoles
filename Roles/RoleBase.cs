@@ -75,7 +75,7 @@ namespace EHR
 
         public virtual void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
-            if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && HnSManager.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate)
+            if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && HnSManager.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
             {
                 int time = GameMode.HideAndSeekRoles.Hider.TimeDecreaseOnTaskComplete.GetInt();
                 HnSManager.TimeLeft -= time;

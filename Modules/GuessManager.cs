@@ -322,6 +322,10 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("GuessSuperStar"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessSuperStar"));
                             return true;
+                        case CustomRoles.Backstabber when target.Is(CustomRoles.Backstabber) && Backstabber.RevealAfterKilling.GetBool() && target.GetAbilityUseLimit() == 0f:
+                            if (!isUI) Utils.SendMessage(GetString("GuessBackstabber"), pc.PlayerId);
+                            else pc.ShowPopUp(GetString("GuessBackstabber"));
+                            return true;
                         case CustomRoles.President when Main.PlayerStates[target.PlayerId].Role is President { IsRevealed: true }:
                             if (!isUI) Utils.SendMessage(GetString("GuessPresident"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessPresident"));

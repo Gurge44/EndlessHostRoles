@@ -9,6 +9,8 @@ namespace EHR.Neutral
         private static OptionItem KillCooldown;
         private static OptionItem CanVent;
         private static OptionItem HasImpostorVision;
+        public static OptionItem RevealAfterKilling;
+
         private WinningTeam Team;
 
         public override bool IsEnable => On;
@@ -23,6 +25,8 @@ namespace EHR.Neutral
             CanVent = new BooleanOptionItem(++id, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Backstabber]);
             HasImpostorVision = new BooleanOptionItem(++id, "ImpostorVision", true, TabGroup.NeutralRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Backstabber]);
+            RevealAfterKilling = new BooleanOptionItem(++id, "Backstabber.RevealAfterKilling", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Backstabber]);
         }
 
@@ -58,6 +62,11 @@ namespace EHR.Neutral
 
             killer.RpcRemoveAbilityUse();
             killer.Notify(string.Format(Translator.GetString("Backstabber.MurderNotify"), Utils.ColorString(targetTeam.GetTeamColor(), Translator.GetString(targetTeam.ToString())), Translator.GetString($"BackstabberTeam.{Team}")), 10f);
+        }
+
+        public override bool KnowRole(PlayerControl seer, PlayerControl target)
+        {
+            return target.Is(CustomRoles.Backstabber) && RevealAfterKilling.GetBool() && target.GetAbilityUseLimit() == 0f;
         }
 
         public bool CheckWin()
