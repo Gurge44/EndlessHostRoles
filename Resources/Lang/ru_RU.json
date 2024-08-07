@@ -4392,7 +4392,7 @@
   "After1PlayerEaten": "После засасывания 1 игрока",
   "BlackHoleMovesTowardsNearestPlayer": "Чёрная дыра движется к ближайшему игроку",
   "BlackHoleMoveSpeed": "Скорость движения чёрной дыры",
-  "BlackHoleRadius": "Black Hole Consuming Radius",
+  "BlackHoleRadius": "Радиус засасывания чёрной дырой",
   "Sleep": "Sleep",
   "SleepInfo": "Вы засыпаете во время саботажа света",
   "SleepInfoLong": "(Атрибут):\\nВо время саботажа света вы засыпаете. Вы не сможете двигаться и ваше зрение будет равно нулю. Если кто-то с атрибутом Glow пройдёт мимо вас, то атрибут Sleep полностью исчезнет.",
