@@ -233,6 +233,7 @@ namespace EHR
 
         public static void OnPet(PlayerControl pc)
         {
+            if (!ValidTag) return;
             Logger.Info($"{pc.GetRealName()} petted their pet", "CTF.OnPet");
             // If the player is near the enemy's flag, pick it up
             var pos = pc.Pos();
@@ -326,8 +327,9 @@ namespace EHR
 
                 if (AlertTeamMembersOfFlagTaken.GetBool())
                 {
-                    var enemyPlayers = TeamData[team.GetOppositeTeam()].Players;
-                    enemyPlayers.Select(x => x.GetPlayer()).DoIf(x => x != null, x => x.Notify("CTF_FlagTaken"));
+                    TeamData[team].Players
+                        .Select(x => x.GetPlayer())
+                        .DoIf(x => x != null, x => x.Notify(Translator.GetString("CTF_FlagTaken")));
                 }
             }
 
@@ -347,7 +349,7 @@ namespace EHR
         {
             public static void Postfix(PlayerControl __instance)
             {
-                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.Speedrun || Main.HasJustStarted || !__instance.IsHost()) return;
+                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.CaptureTheFlag || Main.HasJustStarted || !__instance.IsHost()) return;
 
                 TeamData.Values.Do(x => x.Update());
             }

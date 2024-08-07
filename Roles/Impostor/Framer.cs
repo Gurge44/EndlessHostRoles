@@ -8,7 +8,7 @@ namespace EHR.Impostor
         public static readonly HashSet<byte> FramedPlayers = [];
 
         private static OptionItem AbilityUseLimit;
-        private static OptionItem FramerAbilityUseGainWithEachKill;
+        public static OptionItem FramerAbilityUseGainWithEachKill;
 
         public override bool IsEnable => On;
 

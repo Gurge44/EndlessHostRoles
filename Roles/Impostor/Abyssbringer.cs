@@ -16,6 +16,7 @@ namespace EHR.Impostor
         private static OptionItem BlackHoleDespawnTime;
         private static OptionItem BlackHoleMovesTowardsNearestPlayer;
         private static OptionItem BlackHoleMoveSpeed;
+        private static OptionItem BlackHoleRadius;
         private byte AbyssbringerId;
 
         private List<BlackHoleData> BlackHoles = [];
@@ -39,6 +40,9 @@ namespace EHR.Impostor
                 .SetParent(Options.CustomRoleSpawnChances[role]);
             BlackHoleMoveSpeed = new FloatOptionItem(++id, "BlackHoleMoveSpeed", new(0.25f, 10f, 0.25f), 1f, tab)
                 .SetParent(BlackHoleMovesTowardsNearestPlayer);
+            BlackHoleRadius = new FloatOptionItem(++id, "BlackHoleRadius", new(0.1f, 5f, 0.1f), 1.2f, tab)
+                .SetParent(Options.CustomRoleSpawnChances[role])
+                .SetValueFormat(OptionFormat.Multiplier);
         }
 
         public override void Add(byte playerId)
@@ -122,7 +126,7 @@ namespace EHR.Impostor
                         blackHole.Position = newPosition;
                     }
 
-                    if (Vector2.Distance(pos, blackHole.Position) < 1f)
+                    if (Vector2.Distance(pos, blackHole.Position) <= BlackHoleRadius.GetFloat())
                     {
                         nearestPlayer.RpcExileV2();
                         blackHole.PlayersConsumed++;

@@ -17,7 +17,7 @@ namespace EHR.Neutral
 
         public override void SetupCustomOption()
         {
-            int id = 649100;
+            int id = 649150;
             Options.SetupRoleOptions(id++, TabGroup.NeutralRoles, CustomRoles.Backstabber);
             KillCooldown = new FloatOptionItem(++id, "KillCooldown", new(0f, 180f, 0.5f), 15f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Backstabber])

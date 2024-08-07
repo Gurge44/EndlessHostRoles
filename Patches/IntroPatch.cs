@@ -694,6 +694,7 @@ class IntroCutsceneDestroyPatch
             {
                 foreach (var pc in Main.AllAlivePlayerControls)
                 {
+                    pc.SyncSettings();
                     pc.RpcResetAbilityCooldown();
                     if (pc.GetCustomRole().UsesPetInsteadOfKill()) pc.AddAbilityCD(10);
                     else pc.AddAbilityCD(includeDuration: false);

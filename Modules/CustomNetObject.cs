@@ -4,6 +4,7 @@ using System.Linq;
 using EHR.Crewmate;
 using Hazel;
 using InnerNet;
+using TMPro;
 using UnityEngine;
 
 
@@ -17,6 +18,7 @@ namespace EHR
         public static readonly List<CustomNetObject> AllObjects = [];
         private static int MaxId = -1;
         protected int Id;
+        private TextMeshPro ModdedClientText;
         public PlayerControl playerControl;
         private float PlayerControlTimer;
         public Vector2 Position;
@@ -74,6 +76,7 @@ namespace EHR
         public void TP(Vector2 position)
         {
             playerControl.NetTransform.RpcSnapTo(position);
+            ModdedClientText.transform.localPosition = position + new Vector2(0f, 0.5f);
             Position = position;
         }
 
@@ -81,6 +84,7 @@ namespace EHR
         {
             Logger.Info($" Despawn Custom Net Object {this.GetType().Name} (ID {Id})", "CNO.Despawn");
             playerControl.Despawn();
+            Object.Destroy(ModdedClientText);
             AllObjects.Remove(this);
         }
 
@@ -90,6 +94,7 @@ namespace EHR
             if (player.AmOwner)
             {
                 playerControl.Visible = false;
+                ModdedClientText.enabled = false;
                 return;
             }
 
@@ -236,6 +241,8 @@ namespace EHR
         protected void CreateNetObject(string sprite, Vector2 position)
         {
             Logger.Info($" Create Custom Net Object {this.GetType().Name} (ID {Id}) at {position}", "CNO.CreateNetObject");
+            ModdedClientText = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab.cosmetics.nameText, position + new Vector2(0f, 0.5f), Quaternion.identity);
+            ModdedClientText.text = sprite;
             playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
             playerControl.PlayerId = 255;
             playerControl.isNew = false;
