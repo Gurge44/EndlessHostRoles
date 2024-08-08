@@ -21,9 +21,9 @@ public class Councillor : RoleBase
     private static OptionItem TryHideMsg;
     private static OptionItem CanMurderMadmate;
     private static OptionItem CanMurderImpostor;
-    public static OptionItem KillCooldown;
+    private static OptionItem KillCooldown;
     public static OptionItem CouncillorAbilityUseGainWithEachKill;
-    private static Dictionary<byte, int> MeetingKillLimit;
+    private static Dictionary<byte, int> MeetingKillLimit = [];
     private byte CouncillorId;
 
     public override bool IsEnable => playerIdList.Count > 0;
@@ -55,6 +55,7 @@ public class Councillor : RoleBase
     public override void Init()
     {
         playerIdList = [];
+        MeetingKillLimit = [];
     }
 
     public override void Add(byte playerId)
