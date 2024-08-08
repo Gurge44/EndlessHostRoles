@@ -1653,6 +1653,7 @@
   "KnowTargetRole": "Знает роль цели",
   "TargetKnowsLawyer": "Цель знает своего <color=#008080>Lawyer</color>'а",
   "YourLawyerIsNotify": "{0} - ваш <color=#008080>Lawyer</color>. Он играет за вас и победит, если вы победите.",
+  "ShowLongInfo": "Show Long Role Descriptions instead of Short ones",
   "InfectiousBiteCooldownIncrese": "Увеличить откат при заражении",
   "InfectiousBiteMax": "Макс. кол-во заражений",
   "InfectiousKnowTargetRole": "<color=#7B8968>Infectious</color> знает роли <color=#7B8968>Infected</color> игроков",
