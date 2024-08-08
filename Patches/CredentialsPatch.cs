@@ -202,6 +202,7 @@ internal class TitleLogoPatch
         __instance.settingsButton.buttonText.text = GetString("MainMenu.SettingsButton");
         __instance.inventoryButton.buttonText.text = GetString("MainMenu.InventoryButton");
         __instance.creditsButton.buttonText.text = GetString("MainMenu.CreditsButton");
+        __instance.quitButton.buttonText.text = GetString("MainMenu.QuitButton");
 
         return;
 
