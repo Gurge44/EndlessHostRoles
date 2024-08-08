@@ -4387,6 +4387,7 @@
   "MainMenu.SettingsButton": "Configurações",
   "MainMenu.InventoryButton": "Inventário",
   "MainMenu.CreditsButton": "Créditos",
+  "MainMenu.QuitButton": "Quit",
   "Abyssbringer": "Vácuo",
   "AbyssbringerInfo": "Posicione buracos negros pelo mapa",
   "AbyssbringerInfoLong": "(Impostores):\\\\nComo Vácuo, você pode posicionar buracos negros pelo mapa. Buracos negros vão sugar e matar jogadores que colidirem com eles.",
