@@ -4387,6 +4387,7 @@
   "MainMenu.SettingsButton": "设置",
   "MainMenu.InventoryButton": "Inventory",
   "MainMenu.CreditsButton": "Credits",
+  "MainMenu.QuitButton": "Quit",
   "Abyssbringer": "Abyssbringer",
   "AbyssbringerInfo": "Place Black Holes",
   "AbyssbringerInfoLong": "(Impostors):\\nAs the Abyssbringer, you can place black holes. Black holes will suck in players and kill them when colliding with them.",
