@@ -237,7 +237,8 @@ namespace EHR.Crewmate
             if (LastUpdate >= now) return;
             LastUpdate = now;
 
-            int duration = ToiletDuration.GetInt();
+            //int duration = ToiletDuration.GetInt();
+            int duration = 50000;
             int maxUses = ToiletMaxUses.GetInt();
             Toilets.DoIf(x => x.Value.PlaceTimeStamp + duration <= now || x.Value.Uses >= maxUses, x =>
             {

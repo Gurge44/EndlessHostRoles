@@ -131,6 +131,7 @@ public enum CustomRPC
     SyncSentry,
     SyncBargainer,
     SyncOverheat,
+    FixModdedClientCNO,
 
     // Other Game Modes
     SyncKBPlayer,
@@ -371,6 +372,13 @@ internal class RPCHandlerPatch
                 r.GetType().GetMethod("ReceiveRPC")?.Invoke(r, [reader]);
                 break;
             }
+            case CustomRPC.FixModdedClientCNO:
+                var CNO = reader.ReadNetObject<PlayerControl>();
+                CNO.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
+                break;
+
+
+
             case CustomRPC.SyncPostman:
             {
                 byte id = reader.ReadByte();

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EHR.Crewmate;
+using EHR.Modules;
 using Hazel;
 using InnerNet;
 using TMPro;
@@ -193,8 +194,8 @@ namespace EHR
                     sender.SendMessage();
                 }, 0.2f);
                 LateTask.New(() => oldPlayerControl.Despawn(), 0.3f);
-                playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
-                playerControl.cosmetics.colorBlindText.color = Color.clear;
+               // playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
+                //playerControl.cosmetics.colorBlindText.color = Color.clear;
                 foreach (var pc in Main.AllPlayerControls)
                 {
                     if (pc.AmOwner) continue;
@@ -221,6 +222,11 @@ namespace EHR
                         writer.EndMessage();
                         sender.EndMessage();
                         sender.SendMessage();
+
+                        MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO, SendOption.Reliable);
+                        writer2.WriteNetObject(playerControl);
+                        AmongUsClient.Instance.FinishRpcImmediately(writer2);
+                        playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
                     }, 0.1f);
                 }
 
@@ -241,8 +247,8 @@ namespace EHR
         protected void CreateNetObject(string sprite, Vector2 position)
         {
             Logger.Info($" Create Custom Net Object {this.GetType().Name} (ID {Id}) at {position}", "CNO.CreateNetObject");
-            ModdedClientText = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab.cosmetics.nameText, position + new Vector2(0f, 0.5f), Quaternion.identity);
-            ModdedClientText.text = sprite;
+           // ModdedClientText = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab.cosmetics.nameText, position + new Vector2(0f, 0.5f), Quaternion.identity);
+           // ModdedClientText.text = sprite;
             playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
             playerControl.PlayerId = 255;
             playerControl.isNew = false;
@@ -320,8 +326,8 @@ namespace EHR
             }, 0.2f);
             Position = position;
             PlayerControlTimer = 0f;
-            playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
-            playerControl.cosmetics.colorBlindText.color = Color.clear;
+            //playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
+           // playerControl.cosmetics.colorBlindText.color = Color.clear;
             Sprite = sprite;
             ++MaxId;
             Id = MaxId;
@@ -353,6 +359,12 @@ namespace EHR
                     writer.EndMessage();
                     sender.EndMessage();
                     sender.SendMessage();
+
+                    MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO, SendOption.Reliable);
+                    writer2.WriteNetObject(playerControl);
+                    AmongUsClient.Instance.FinishRpcImmediately(writer2);
+                    playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
+
                 }, 0.1f);
             }
         }
