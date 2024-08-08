@@ -3934,7 +3934,7 @@
   "Speedrun_TimeStacksUp": "Tempo Restante Adicionado ao Próximo Limite de Tempo (o tempo se acumula)",
   "Speedrun_TimeLimit": "Limite de Tempo para Fazer uma Tarefa ou Matar",
   "Speedrun_CanKillSuffixInfo": "<#00ffa5>Tempo:</color> <#ffffff>{3}s</color>\\n<size=80%><#ffff00>Jogadores vivos: <#ffab1b>{0}</color>/{1}</color>\\n<#ff1919>Mate todos para vencer</color>\\n<size=70%><#888888>Além de você, <#ffffff>{2}</color> jogadores podem matar</color></size></size>",
-  "Speedrun_DoTasksSuffixInfo": "<#00ffa5>Tempo:</color> <#ffffff>{4}s</color>\\n<size=70%><#888888>Jogadores vivos: <#ffffff>{1}</color>/{2}</color>\\n<size=80%><#ffff00>Tarefas restantes: {0}</color>\\n<#00ffa5>Termine suas tarefas</color>\\n<size=70%>< #ffab1b><#ffffff>{3}</color> jogadores podem matar</color></size></size></size>",
+  "Speedrun_DoTasksSuffixInfo": "<#00ffa5>Tempo:</color> <#ffffff>{4}s</color>\\n<size=70%><#888888>Jogadores vivos: <#ffffff>{1}</color>/{2}</color>\\n<size=80%><#ffff00>Tarefas restantes: {0}</color>\\n<#00ffa5>Termine suas tarefas</color>\\n<size=70%><#ffab1b><#ffffff>{3}</color> jogadores podem matar</color></size></size></size>",
   "Speedrun_CompletedTasks": "<#00ff00>Você terminou suas tarefas!</color>",
   "Runner": "SpeedRunner",
   "RunnerInfo": "TAREFAS E MATE TODOS OS PRIMEIROS PARA GANHAR",
