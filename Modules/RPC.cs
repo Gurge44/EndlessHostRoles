@@ -55,6 +55,7 @@ public enum CustomRPC
     RemoveAbilityUseLimit,
     RemoveSubRole,
     Arrow,
+    CustomNetObject,
 
     // Roles
     SyncRoleData,
@@ -363,6 +364,9 @@ internal class RPCHandlerPatch
             case CustomRPC.Arrow:
                 if (reader.ReadBoolean()) TargetArrow.ReceiveRPC(reader);
                 else LocateArrow.ReceiveRPC(reader);
+                break;
+            case CustomRPC.CustomNetObject:
+                CustomNetObject.ReceiveRPC(reader);
                 break;
             case CustomRPC.SyncRoleData:
             {
