@@ -373,8 +373,14 @@ internal class RPCHandlerPatch
                 break;
             }
             case CustomRPC.FixModdedClientCNO:
+                Logger.Info("FIx CNO text for modded client", "Fix CNO TEXT");
                 var CNO = reader.ReadNetObject<PlayerControl>();
-                CNO.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
+                Logger.Info($"Is player null? {CNO == null}", "Fix CNO TEXT");
+                var obj = CNO.transform.FindChild("Names").FindChild("NameText_TMP");
+                obj.gameObject.SetActive(true);
+                obj.gameObject.active = true;
+                Logger.Info($"{CNO.transform.FindChild("Names").FindChild("NameText_TMP") == null}", "Is NameText Null?");
+                LateTask.New(() => { Logger.Info($"{CNO.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.activeSelf}", "Is It Active? Fix Cno TEXT Modded"); }, 1f);
                 break;
 
 

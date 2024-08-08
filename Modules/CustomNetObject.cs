@@ -226,7 +226,8 @@ namespace EHR
                         MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO, SendOption.Reliable);
                         writer2.WriteNetObject(playerControl);
                         AmongUsClient.Instance.FinishRpcImmediately(writer2);
-                        playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
+                       playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
+                       LateTask.New(() => { Logger.Info($"{playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.activeSelf}", "Is It Active? Fix Cno TEXT HOST"); }, 1f);
                     }, 0.1f);
                 }
 
@@ -364,6 +365,7 @@ namespace EHR
                     writer2.WriteNetObject(playerControl);
                     AmongUsClient.Instance.FinishRpcImmediately(writer2);
                     playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
+                    LateTask.New(() => { Logger.Info($"{playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.activeSelf}", "Is It Active? Fix Cno TEXT HOST"); }, 1f);
 
                 }, 0.1f);
             }
