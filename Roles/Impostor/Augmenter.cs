@@ -33,11 +33,13 @@
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             var newTarget = Utils.GetPlayerById(Target);
-            if (newTarget == null || !killer.RpcCheckAndMurder(newTarget, check: true)) return true;
+            if (newTarget == null || !newTarget.IsAlive() || !killer.RpcCheckAndMurder(newTarget, check: true)) return true;
 
             var pos = newTarget.Pos();
             newTarget.TP(target);
             target.TP(pos);
+
+            Target = byte.MaxValue;
 
             LateTask.New(() => killer.Kill(newTarget), 0.2f, "AugmenterKill");
 

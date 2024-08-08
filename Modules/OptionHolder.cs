@@ -654,6 +654,7 @@ public static class Options
     public static OptionItem FormatNameMode;
     public static OptionItem DisableEmojiName;
     public static OptionItem ChangeNameToRoleInfo;
+    public static OptionItem ShowLongInfo;
     public static OptionItem SendRoleDescriptionFirstMeeting;
     public static OptionItem RoleAssigningAlgorithm;
     public static OptionItem EndWhenPlayerBug;
@@ -1223,6 +1224,8 @@ public static class Options
         FormatNameMode = new StringOptionItem(19403, "FormatNameMode", FormatNameModes, 0, TabGroup.SystemSettings);
         DisableEmojiName = new BooleanOptionItem(19404, "DisableEmojiName", true, TabGroup.SystemSettings);
         ChangeNameToRoleInfo = new BooleanOptionItem(19405, "ChangeNameToRoleInfo", true, TabGroup.SystemSettings);
+        ShowLongInfo = new BooleanOptionItem(19410, "ShowLongInfo", false, TabGroup.SystemSettings)
+            .SetParent(ChangeNameToRoleInfo);
         SendRoleDescriptionFirstMeeting = new BooleanOptionItem(19406, "SendRoleDescriptionFirstMeeting", true, TabGroup.SystemSettings);
         NoGameEnd = new BooleanOptionItem(19407, "NoGameEnd", false, TabGroup.SystemSettings)
             .SetColor(Color.red);

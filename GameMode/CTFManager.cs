@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
+using EHR.Modules;
 using HarmonyLib;
 using UnityEngine;
 
@@ -9,8 +11,12 @@ namespace EHR
     public static class CTFManager
     {
         private static OptionItem AlertTeamMembersOfFlagTaken;
+        private static OptionItem ArrowToEnemyFlagCarrier;
+        private static OptionItem AlertTeamMembersOfEnemyFlagTaken;
+        private static OptionItem ArrowToOwnFlagCarrier;
         private static OptionItem TaggedPlayersGet;
         private static OptionItem WhenFlagCarrierGetsTagged;
+        private static OptionItem SpeedReductionForFlagCarrier;
 
         private static readonly string[] TaggedPlayersGetOptions =
         [
@@ -30,6 +36,7 @@ namespace EHR
         private static Dictionary<CTFTeam, CTFTeamData> TeamData = [];
         private static Dictionary<byte, CTFPlayerData> PlayerData = [];
         private static bool ValidTag;
+        public static bool IsDeathPossible => TaggedPlayersGet.GetValue() == 1;
 
         private static NetworkedPlayerInfo.PlayerOutfit YellowOutfit => new NetworkedPlayerInfo.PlayerOutfit().Set("", 5, "", "", "", "pet_coaltonpet", "");
         private static NetworkedPlayerInfo.PlayerOutfit BlueOutfit => new NetworkedPlayerInfo.PlayerOutfit().Set("", 1, "", "", "", "pet_coaltonpet", "");
@@ -65,12 +72,31 @@ namespace EHR
                 .SetGameMode(CustomGameMode.CaptureTheFlag)
                 .SetColor(color);
 
-            TaggedPlayersGet = new StringOptionItem(id + 1, "CTF_TaggedPlayersGet", TaggedPlayersGetOptions, 0, TabGroup.GameSettings)
+            ArrowToEnemyFlagCarrier = new BooleanOptionItem(id + 1, "CTF_ArrowToEnemyFlagCarrier", true, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.CaptureTheFlag)
+                .SetParent(AlertTeamMembersOfFlagTaken)
+                .SetColor(color);
+
+            AlertTeamMembersOfEnemyFlagTaken = new BooleanOptionItem(id + 2, "CTF_AlertTeamMembersOfEnemyFlagTaken", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.CaptureTheFlag)
                 .SetColor(color);
 
-            WhenFlagCarrierGetsTagged = new StringOptionItem(id + 2, "CTF_WhenFlagCarrierGetsTagged", WhenFlagCarrierGetsTaggedOptions, 0, TabGroup.GameSettings)
+            ArrowToOwnFlagCarrier = new BooleanOptionItem(id + 3, "CTF_ArrowToOwnFlagCarrier", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.CaptureTheFlag)
+                .SetParent(AlertTeamMembersOfEnemyFlagTaken)
+                .SetColor(color);
+
+            TaggedPlayersGet = new StringOptionItem(id + 4, "CTF_TaggedPlayersGet", TaggedPlayersGetOptions, 0, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.CaptureTheFlag)
+                .SetColor(color);
+
+            WhenFlagCarrierGetsTagged = new StringOptionItem(id + 5, "CTF_WhenFlagCarrierGetsTagged", WhenFlagCarrierGetsTaggedOptions, 0, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.CaptureTheFlag)
+                .SetColor(color);
+
+            SpeedReductionForFlagCarrier = new FloatOptionItem(id + 6, "CTF_SpeedReductionForFlagCarrier", new(0f, 1f, 0.05f), 0.25f, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.CaptureTheFlag)
+                .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(color);
         }
 
@@ -84,7 +110,9 @@ namespace EHR
         public static string GetSuffixText(PlayerControl seer, PlayerControl target)
         {
             if (seer.PlayerId != target.PlayerId) return string.Empty;
-            return $"<size=1.4>{GetStatistics(target.PlayerId).Replace(" - ", "\n")}</size>";
+            var arrows = TargetArrow.GetAllArrows(seer);
+            arrows = arrows.Length > 0 ? $"{arrows}\n" : string.Empty;
+            return $"{arrows}<size=1.4>{GetStatistics(target.PlayerId).Replace(" - ", "\n")}</size>";
         }
 
         public static string GetStatistics(byte id)
@@ -93,15 +121,7 @@ namespace EHR
             return string.Format(Translator.GetString("CTF_PlayerStats"), Math.Round(stats.FlagTime, 1), stats.TagCount);
         }
 
-        public static int GetFlagTime(byte id)
-        {
-            return (int)Math.Round(PlayerData[id].FlagTime);
-        }
-
-        public static int GetTagCount(byte id)
-        {
-            return PlayerData[id].TagCount;
-        }
+        public static int GetFlagTime(byte id) => (int)Math.Round(PlayerData[id].FlagTime);
 
         public static bool CheckForGameEnd(out GameOverReason reason)
         {
@@ -145,43 +165,46 @@ namespace EHR
             // Check if the current game mode is Capture The Flag
             if (Options.CurrentGameMode != CustomGameMode.CaptureTheFlag) return;
 
-            // Assign players to teams
-            List<PlayerControl> players = Main.AllAlivePlayerControls.ToList();
-            int blueCount = players.Count / 2;
-            int yellowCount = players.Count - blueCount;
-            HashSet<byte> bluePlayers = [];
-            HashSet<byte> yellowPlayers = [];
-
-            for (int i = 0; i < blueCount; i++)
-            {
-                PlayerControl player = players.RandomElement();
-                players.Remove(player);
-                PlayerTeams[player.PlayerId] = CTFTeam.Blue;
-                bluePlayers.Add(player.PlayerId);
-                Utils.RpcChangeSkin(player, BlueOutfit);
-            }
-
-            foreach (PlayerControl player in players)
-            {
-                PlayerTeams[player.PlayerId] = CTFTeam.Yellow;
-                yellowPlayers.Add(player.PlayerId);
-                Utils.RpcChangeSkin(player, YellowOutfit);
-            }
-
-            // Create flags
-            var blueFlagBase = BlueFlagBase;
-            var yellowFlagBase = YellowFlagBase;
-
-            CustomNetObject blueFlag = new BlueFlag(blueFlagBase.Position);
-            CustomNetObject yellowFlag = new YellowFlag(yellowFlagBase.Position);
-
-            // Create team data
-            TeamData[CTFTeam.Blue] = new(CTFTeam.Blue, blueFlag, bluePlayers, byte.MaxValue);
-            TeamData[CTFTeam.Yellow] = new(CTFTeam.Yellow, yellowFlag, yellowPlayers, byte.MaxValue);
-
-            // Teleport players to their respective bases
             LateTask.New(() =>
             {
+                // Assign players to teams
+                List<PlayerControl> players = Main.AllAlivePlayerControls.ToList();
+                int blueCount = players.Count / 2;
+                HashSet<byte> bluePlayers = [];
+                HashSet<byte> yellowPlayers = [];
+                var blueOutfit = BlueOutfit;
+                var yellowOutfit = YellowOutfit;
+
+                for (int i = 0; i < blueCount; i++)
+                {
+                    PlayerControl player = players.FirstOrDefault(p => p.Data.DefaultOutfit.ColorId == 1) ?? players.FirstOrDefault(x => x.Data.DefaultOutfit.ColorId != 5) ?? players.RandomElement();
+                    players.Remove(player);
+                    PlayerTeams[player.PlayerId] = CTFTeam.Blue;
+                    bluePlayers.Add(player.PlayerId);
+                    blueOutfit.PlayerName = player.GetRealName();
+                    Utils.RpcChangeSkin(player, blueOutfit);
+                }
+
+                foreach (PlayerControl player in players)
+                {
+                    PlayerTeams[player.PlayerId] = CTFTeam.Yellow;
+                    yellowPlayers.Add(player.PlayerId);
+                    yellowOutfit.PlayerName = player.GetRealName();
+                    Utils.RpcChangeSkin(player, yellowOutfit);
+                }
+
+                // Create flags
+                var blueFlagBase = BlueFlagBase;
+                var yellowFlagBase = YellowFlagBase;
+
+                CustomNetObject blueFlag = new BlueFlag(blueFlagBase.Position);
+                CustomNetObject yellowFlag = new YellowFlag(yellowFlagBase.Position);
+
+                // Create team data
+                TeamData[CTFTeam.Blue] = new(CTFTeam.Blue, blueFlag, bluePlayers, byte.MaxValue);
+                TeamData[CTFTeam.Yellow] = new(CTFTeam.Yellow, yellowFlag, yellowPlayers, byte.MaxValue);
+
+                // Teleport players to their respective bases
                 foreach (var pc in Main.AllAlivePlayerControls)
                 {
                     if (PlayerTeams.TryGetValue(pc.PlayerId, out var team))
@@ -206,24 +229,31 @@ namespace EHR
 
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!ValidTag) return;
+            var targetTeam = PlayerTeams[target.PlayerId];
+            if (!ValidTag || PlayerTeams[killer.PlayerId] == targetTeam || TeamData.Values.Any(x => x.FlagCarrier == killer.PlayerId)) return;
+
+            killer.SetKillCooldown();
 
             if (TeamData.FindFirst(x => x.Value.FlagCarrier == target.PlayerId, out var kvp))
             {
                 kvp.Value.DropFlag();
                 if (WhenFlagCarrierGetsTagged.GetValue() == 1)
                 {
-                    kvp.Value.Flag.TP(kvp.Key.GetOppositeTeam().GetFlagBase().Position);
+                    kvp.Value.Flag.TP(kvp.Key.GetFlagBase().Position);
                 }
             }
 
             switch (TaggedPlayersGet.GetValue())
             {
                 case 0:
-                    target.TP(PlayerTeams[target.PlayerId].GetFlagBase().Position);
+                    target.TP(targetTeam.GetFlagBase().Position);
+                    Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                    target.MarkDirtySettings();
                     break;
                 case 1:
                     target.Suicide();
+                    var notify = string.Format(Translator.GetString("CTF_TeamMemberFallen"), target.PlayerId.ColoredPlayerName());
+                    TeamData[targetTeam].Players.Select(x => x.GetPlayer()).DoIf(x => x != null, x => x.Notify(notify));
                     break;
             }
 
@@ -290,7 +320,7 @@ namespace EHR
         class CTFTeamData(CTFTeam team, CustomNetObject flag, HashSet<byte> players, byte flagCarrier)
         {
             public CustomNetObject Flag { get; } = flag;
-            private HashSet<byte> Players { get; } = players;
+            public HashSet<byte> Players { get; } = players;
             public byte FlagCarrier { get; private set; } = flagCarrier;
 
             public void SetAsWinner()
@@ -325,15 +355,41 @@ namespace EHR
                 FlagCarrier = id;
                 Update();
 
+                Main.AllPlayerSpeed[id] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) - SpeedReductionForFlagCarrier.GetFloat();
+                PlayerGameOptionsSender.SetDirty(id);
+
                 if (AlertTeamMembersOfFlagTaken.GetBool())
                 {
+                    var arrow = ArrowToEnemyFlagCarrier.GetBool();
                     TeamData[team].Players
                         .Select(x => x.GetPlayer())
-                        .DoIf(x => x != null, x => x.Notify(Translator.GetString("CTF_FlagTaken")));
+                        .DoIf(x => x != null, x =>
+                        {
+                            if (arrow) TargetArrow.Add(x.PlayerId, id);
+                            x.Notify(Utils.ColorString(Color.yellow, Translator.GetString("CTF_FlagTaken")));
+                        });
+                }
+
+                if (AlertTeamMembersOfEnemyFlagTaken.GetBool())
+                {
+                    var arrow = ArrowToOwnFlagCarrier.GetBool();
+                    TeamData[team.GetOppositeTeam()].Players
+                        .Select(x => x.GetPlayer())
+                        .DoIf(x => x != null, x =>
+                        {
+                            if (arrow) TargetArrow.Add(x.PlayerId, id);
+                            x.Notify(Translator.GetString("CTF_EnemyFlagTaken"));
+                        });
                 }
             }
 
-            public void DropFlag() => FlagCarrier = byte.MaxValue;
+            public void DropFlag()
+            {
+                if (ArrowToEnemyFlagCarrier.GetBool() || ArrowToOwnFlagCarrier.GetBool())
+                    TeamData.Values.SelectMany(x => x.Players).Do(x => TargetArrow.Remove(x, FlagCarrier));
+                FlagCarrier = byte.MaxValue;
+                Utils.NotifyRoles();
+            }
 
             public bool IsNearFlag(Vector2 pos) => Vector2.Distance(Flag.Position, pos) < 1f;
         }

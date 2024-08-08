@@ -11,8 +11,9 @@ public class Amnesiac : RoleBase
     private const int Id = 35000;
     private static List<Amnesiac> Instances = [];
 
-    public static OptionItem RememberCooldown;
-    public static OptionItem IncompatibleNeutralMode;
+    private static OptionItem RememberCooldown;
+    private static OptionItem CanRememberCrewPower;
+    private static OptionItem IncompatibleNeutralMode;
     private static OptionItem CanVent;
     public static OptionItem RememberMode;
 
@@ -42,6 +43,8 @@ public class Amnesiac : RoleBase
         RememberCooldown = new FloatOptionItem(Id + 10, "RememberCooldown", new(0f, 180f, 0.5f), 5f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac])
             .SetValueFormat(OptionFormat.Seconds);
+        CanRememberCrewPower = new BooleanOptionItem(Id + 11, "CanRememberCrewPower", false, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
         IncompatibleNeutralMode = new StringOptionItem(Id + 12, "IncompatibleNeutralMode", AmnesiacIncompatibleNeutralMode.Select(x => x.ToColoredString()).ToArray(), 0, TabGroup.NeutralRoles, noTranslation: true)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
         CanVent = new BooleanOptionItem(Id + 13, "CanVent", false, TabGroup.NeutralRoles)
@@ -146,7 +149,7 @@ public class Amnesiac : RoleBase
                         amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedImpostor"));
                         break;
                     case Team.Crewmate:
-                        RememberedRole = !targetRole.IsTaskBasedCrewmate() ? targetRole : CustomRoles.Sheriff;
+                        RememberedRole = !targetRole.IsTaskBasedCrewmate() && (CanRememberCrewPower.GetBool() || targetRole.GetCrewmateRoleCategory() != RoleOptionType.Crewmate_Power) ? targetRole : CustomRoles.Sheriff;
                         amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedCrewmate"));
                         break;
                     case Team.Neutral:

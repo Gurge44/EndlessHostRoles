@@ -31,7 +31,7 @@ static class ChatBubbleSetNamePatch
         {
             __instance.Background.color = Color.black;
             __instance.TextArea.color = Color.white;
-            if (!__instance.playerInfo.Object.IsAlive())
+            if (!__instance.playerInfo.Object.IsAlive() && GameStates.InGame)
                 __instance.Background.color = new(0f, 0f, 0f, 0.7f);
         }
     }

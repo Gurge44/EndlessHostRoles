@@ -1925,6 +1925,7 @@ class CoEnterVentPatch
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
             case CustomGameMode.Speedrun:
+            case CustomGameMode.CaptureTheFlag:
                 LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, log: false);
                 return true;
             case CustomGameMode.HideAndSeek:

@@ -16,25 +16,36 @@ public class Councillor : RoleBase
 {
     private const int Id = 900;
     private static List<byte> playerIdList = [];
+    private static OptionItem MurderLimitPerGame;
     private static OptionItem MurderLimitPerMeeting;
     private static OptionItem TryHideMsg;
     private static OptionItem CanMurderMadmate;
     private static OptionItem CanMurderImpostor;
     public static OptionItem KillCooldown;
     public static OptionItem CouncillorAbilityUseGainWithEachKill;
+    private static Dictionary<byte, int> MeetingKillLimit;
+    private byte CouncillorId;
 
     public override bool IsEnable => playerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Councillor);
-        KillCooldown = new FloatOptionItem(Id + 15, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
+        KillCooldown = new FloatOptionItem(Id + 15, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
             .SetValueFormat(OptionFormat.Seconds);
-        MurderLimitPerMeeting = new IntegerOptionItem(Id + 10, "MurderLimitPerMeeting", new(0, 15, 1), 0, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
+        MurderLimitPerGame = new IntegerOptionItem(Id + 10, "AbilityUseLimit", new(0, 15, 1), 0, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
             .SetValueFormat(OptionFormat.Times);
-        CanMurderMadmate = new BooleanOptionItem(Id + 12, "CouncillorCanMurderMadmate", true, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor]);
-        CanMurderImpostor = new BooleanOptionItem(Id + 16, "CouncillorCanMurderImpostor", true, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor]);
-        TryHideMsg = new BooleanOptionItem(Id + 11, "CouncillorTryHideMsg", true, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
+        MurderLimitPerMeeting = new IntegerOptionItem(Id + 14, "MurderLimitPerMeeting", new(0, 5, 1), 1, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
+            .SetValueFormat(OptionFormat.Times);
+        CanMurderMadmate = new BooleanOptionItem(Id + 12, "CouncillorCanMurderMadmate", true, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor]);
+        CanMurderImpostor = new BooleanOptionItem(Id + 16, "CouncillorCanMurderImpostor", true, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor]);
+        TryHideMsg = new BooleanOptionItem(Id + 11, "CouncillorTryHideMsg", true, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
             .SetColor(Color.green);
         CouncillorAbilityUseGainWithEachKill = new FloatOptionItem(Id + 17, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.2f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Councillor])
@@ -49,7 +60,14 @@ public class Councillor : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
-        playerId.SetAbilityUseLimit(MurderLimitPerMeeting.GetInt());
+        CouncillorId = playerId;
+        MeetingKillLimit[playerId] = MurderLimitPerMeeting.GetInt();
+        playerId.SetAbilityUseLimit(MurderLimitPerGame.GetInt());
+    }
+
+    public override void AfterMeetingTasks()
+    {
+        MeetingKillLimit[CouncillorId] = MurderLimitPerMeeting.GetInt();
     }
 
     public static bool MurderMsg(PlayerControl pc, string msg, bool isUI = false)
@@ -60,7 +78,7 @@ public class Councillor : RoleBase
         if (!GameStates.IsInGame || pc == null) return false;
         if (!pc.Is(CustomRoles.Councillor)) return false;
 
-        int operate = 0; // 1:ID 2:Kill
+        int operate; // 1:ID 2:Kill
         msg = msg.ToLower().TrimStart().TrimEnd();
         if (CheckCommond(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id")) operate = 1;
         else if (CheckCommond(ref msg, "shoot|guess|bet|st|gs|bt|猜|赌|sp|jj|tl|审判|判|审", false)) operate = 2;
@@ -100,6 +118,13 @@ public class Councillor : RoleBase
                         return true;
                     }
 
+                    if (MeetingKillLimit[pc.PlayerId] < 1)
+                    {
+                        if (!isUI) Utils.SendMessage(GetString("CouncillorMurderMaxMeeting"), pc.PlayerId);
+                        else pc.ShowPopUp(GetString("CouncillorMurderMaxMeeting"));
+                        return true;
+                    }
+
                     if (Jailor.playerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == targetId))
                     {
                         if (!isUI) Utils.SendMessage(GetString("CanNotTrialJailed"), pc.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
@@ -130,6 +155,7 @@ public class Councillor : RoleBase
                     string Name = dp.GetRealName();
 
                     pc.RpcRemoveAbilityUse();
+                    MeetingKillLimit[pc.PlayerId]--;
 
                     LateTask.New(() =>
                     {
@@ -141,7 +167,7 @@ public class Councillor : RoleBase
 
                         Utils.NotifyRoles(isForMeeting: false, NoCache: true);
 
-                        LateTask.New(() => { Utils.SendMessage(string.Format(GetString("MurderKill"), Name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("MurderKillTitle"))); }, 0.6f, "Guess Msg");
+                        LateTask.New(() => Utils.SendMessage(string.Format(GetString("MurderKill"), Name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("MurderKillTitle"))), 0.6f, "Guess Msg");
                     }, 0.2f, "Murder Kill");
                 }
 
@@ -161,7 +187,7 @@ public class Councillor : RoleBase
         string result = string.Empty;
         for (int i = 0; i < mc.Count; i++)
         {
-            result += mc[i]; //匹配结果是完整的数字，此处可以不做拼接的
+            result += mc[i];
         }
 
         if (int.TryParse(result, out int num))
@@ -170,15 +196,11 @@ public class Councillor : RoleBase
         }
         else
         {
-            //并不是玩家编号，判断是否颜色
-            //byte color = GetColorFromMsg(msg);
-            //好吧我不知道怎么取某位玩家的颜色，等会了的时候再来把这里补上
             id = byte.MaxValue;
             error = GetString("MurderHelp");
             return false;
         }
 
-        //判断选择的玩家是否合理
         PlayerControl target = Utils.GetPlayerById(id);
         if (target == null || target.Data.IsDead)
         {

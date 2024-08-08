@@ -675,14 +675,14 @@ internal static class ChatCommands
     private static void BanKickCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         // Check if the kick command is enabled in the settings
-        if (Options.ApplyModeratorList.GetValue() == 0)
+        if (Options.ApplyModeratorList.GetValue() == 0 && !player.IsHost())
         {
             Utils.SendMessage(GetString("KickCommandDisabled"), player.PlayerId);
             return;
         }
 
         // Check if the player has the necessary privileges to use the command
-        if (!IsPlayerModerator(player.FriendCode))
+        if (!IsPlayerModerator(player.FriendCode) && !player.IsHost())
         {
             Utils.SendMessage(GetString("KickCommandNoAccess"), player.PlayerId);
             return;
@@ -721,7 +721,7 @@ internal static class ChatCommands
         string textToSend = $"{kickedPlayerName} {GetString("KickCommandKicked")}";
         if (GameStates.IsInGame)
         {
-            textToSend += $"{GetString("KickCommandKickedRole")} {GetString(kickedPlayer.GetCustomRole().ToString())}";
+            textToSend += $"{GetString("KickCommandKickedRole")} {kickedPlayer.GetCustomRole().ToColoredString()}";
         }
 
         Utils.SendMessage(textToSend);

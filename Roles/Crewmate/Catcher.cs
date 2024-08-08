@@ -135,6 +135,7 @@ namespace EHR.Crewmate
         public override void OnReportDeadBody()
         {
             if (Traps.Count == 0) return;
+            Traps = [];
 
             var catcher = CatcherId.GetPlayer();
             if (catcher == null || !catcher.IsAlive()) return;

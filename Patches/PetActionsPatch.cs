@@ -26,7 +26,8 @@ class LocalPetPatch
         if (__instance.petting) return true;
         __instance.petting = true;
 
-        if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag) goto Skip;
+        bool ctf = Options.CurrentGameMode == CustomGameMode.CaptureTheFlag;
+        if (ctf) goto Skip;
 
         if (!LastProcess.ContainsKey(__instance.PlayerId)) LastProcess.TryAdd(__instance.PlayerId, Utils.TimeStamp - 2);
         if (LastProcess[__instance.PlayerId] + 1 >= Utils.TimeStamp) return true;
@@ -36,7 +37,7 @@ class LocalPetPatch
         ExternalRpcPetPatch.Prefix(__instance.MyPhysics, (byte)RpcCalls.Pet);
 
         LastProcess[__instance.PlayerId] = Utils.TimeStamp;
-        return !__instance.GetCustomRole().PetActivatedAbility();
+        return ctf || !__instance.GetCustomRole().PetActivatedAbility();
     }
 
     public static void Postfix(PlayerControl __instance)

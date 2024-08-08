@@ -1966,14 +1966,27 @@ public static class Utils
                         }
                         else
                         {
+                            var longInfo = seer.GetRoleInfo(InfoLong: true).Split(@"\n\n")[0];
+                            bool showLongInfo = Options.ShowLongInfo.GetBool();
+                            if (showLongInfo)
+                            {
+                                for (int i = 50; i < longInfo.Length; i += 50)
+                                {
+                                    int index = longInfo.LastIndexOf(' ', i);
+                                    if (index != -1) longInfo = longInfo.Insert(index + 1, "\n");
+                                }
+                            }
+
+                            var mHelp = "\n" + GetString("MyRoleCommandHelp");
+
                             SeerRealName = !Options.ChangeNameToRoleInfo.GetBool()
                                 ? SeerRealName
                                 : seerTeam switch
                                 {
-                                    Team.Impostor when seerRole.IsMadmate() || seer.Is(CustomRoles.Madmate) => $"<font=\"DIN_Pro_Bold_700 SDF\"><size=200%><color=#ff1919>{GetString("YouAreMadmate")}</size></color></font>\n<size=90%>{seer.GetRoleInfo()}</size>",
-                                    Team.Impostor => $"\n<size=90%>{seer.GetRoleInfo()}</size>",
-                                    Team.Crewmate => $"<font=\"DIN_Pro_Bold_700 SDF\"><size=200%><color=#8cffff>{GetString("YouAreCrewmate")}</size></color></font>\n<size=90%>{seer.GetRoleInfo()}</size>",
-                                    Team.Neutral => $"<font=\"DIN_Pro_Bold_700 SDF\"><size=200%><color=#ffab1b>{GetString("YouAreNeutral")}</size></color></font>\n<size=90%>{seer.GetRoleInfo()}</size>",
+                                    Team.Impostor when seer.IsMadmate() => $"<font=\"DIN_Pro_Bold_700 SDF\"><size=200%><color=#ff1919>{GetString("YouAreMadmate")}</size></color></font>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Impostor => $"\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Crewmate => $"<font=\"DIN_Pro_Bold_700 SDF\"><size=200%><color=#8cffff>{GetString("YouAreCrewmate")}</size></color></font>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Neutral => $"<font=\"DIN_Pro_Bold_700 SDF\"><size=200%><color=#ffab1b>{GetString("YouAreNeutral")}</size></color></font>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
                                     _ => SeerRealName
                                 };
                         }
@@ -2854,7 +2867,8 @@ public static class Utils
                 summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>Survived: <#ffffff>{(time == 0 ? "Until The End</color>" : $"{time}</color>s")}</color>  ({GetVitalText(id, true)})";
                 break;
             case CustomGameMode.CaptureTheFlag:
-                summary = $"{ColorString(Main.PlayerColors[id], name)} - {CTFManager.GetStatistics(id)}  ({GetVitalText(id, true)})";
+                summary = $"{ColorString(Main.PlayerColors[id], name)}: {CTFManager.GetStatistics(id)}";
+                if (CTFManager.IsDeathPossible) summary += $"  ({GetVitalText(id, true)})";
                 break;
         }
 
