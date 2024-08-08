@@ -1653,6 +1653,7 @@
   "KnowTargetRole": "Conhece a função do alvo",
   "TargetKnowsLawyer": "O alvo conhece seu <color=#008080>Advogado</color>",
   "YourLawyerIsNotify": "O seu <color=#008080>Advogado</color> é {0}. Eles ganham se você vencer.",
+  "ShowLongInfo": "Show Long Role Descriptions instead of Short ones",
   "InfectiousBiteCooldownIncrese": "Aumentar o tempo de recarga a cada infecção",
   "InfectiousBiteMax": "Máximo de Infecções",
   "InfectiousKnowTargetRole": "Saber a função do jogador <color=#7B8968>Infectado</color>",
