@@ -1652,6 +1652,7 @@
   "InfectiousBiteCooldown": "感染者冷却",
   "KnowTargetRole": "了解目标的身份",
   "TargetKnowsLawyer": "目标知道他的<color=#008080>律师</color>",
+  "YourLawyerIsNotify": "Your <color=#008080>Lawyer</color> is {0}. They win if you win.",
   "InfectiousBiteCooldownIncrese": "每次使用感染冷却增加",
   "InfectiousBiteMax": "最大感染数",
   "InfectiousKnowTargetRole": "知道<color=#7B8968>被感染</color>玩家身份",
