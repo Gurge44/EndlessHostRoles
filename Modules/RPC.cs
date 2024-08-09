@@ -56,6 +56,7 @@ public enum CustomRPC
     RemoveAbilityUseLimit,
     RemoveSubRole,
     Arrow,
+    FixModdedClientCNO,
 
     // Roles
     SyncRoleData,
@@ -132,7 +133,6 @@ public enum CustomRPC
     SyncSentry,
     SyncBargainer,
     SyncOverheat,
-    FixModdedClientCNO,
 
     // Other Game Modes
     SyncKBPlayer,
