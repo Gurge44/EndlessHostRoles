@@ -2622,7 +2622,7 @@
   "HostKillSelfByCommand": "房主选择自杀（使用了自杀指令）",
   "SyncCustomSettingsRPC": "已同步RPC",
   "EHRVisitorCount": "截至今日，EHR已经被使用 <color={0}>{1}</color>次 啦~",
-  "Mode": "门的重置",
+  "Mode": "模式",
   "Target": "目标",
   "PlayerInfo": "Player Info",
   "NoInfoExists": "No Info Exists",
