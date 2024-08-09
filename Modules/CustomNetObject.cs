@@ -19,7 +19,6 @@ namespace EHR
         public static readonly List<CustomNetObject> AllObjects = [];
         private static int MaxId = -1;
         protected int Id;
-        private TextMeshPro ModdedClientText;
         public PlayerControl playerControl;
         private float PlayerControlTimer;
         public Vector2 Position;
@@ -77,7 +76,6 @@ namespace EHR
         public void TP(Vector2 position)
         {
             playerControl.NetTransform.RpcSnapTo(position);
-            ModdedClientText.transform.localPosition = position + new Vector2(0f, 0.5f);
             Position = position;
         }
 
@@ -85,7 +83,6 @@ namespace EHR
         {
             Logger.Info($" Despawn Custom Net Object {this.GetType().Name} (ID {Id})", "CNO.Despawn");
             playerControl.Despawn();
-            Object.Destroy(ModdedClientText);
             AllObjects.Remove(this);
         }
 
@@ -95,7 +92,6 @@ namespace EHR
             if (player.AmOwner)
             {
                 playerControl.Visible = false;
-                ModdedClientText.enabled = false;
                 return;
             }
 
@@ -223,24 +219,31 @@ namespace EHR
                         sender.EndMessage();
                         sender.SendMessage();
 
-                        MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO, SendOption.Reliable);
-                        writer2.WriteNetObject(playerControl);
-                        AmongUsClient.Instance.FinishRpcImmediately(writer2);
-                       playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
-                       LateTask.New(() => { Logger.Info($"{playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.activeSelf}", "Is It Active? Fix Cno TEXT HOST"); }, 1f);
+                   
                     }, 0.1f);
                 }
 
-/*
-                if (this is TrapArea trapArea)
-                {
-                    foreach (var pc in PlayerControl.AllPlayerControls)
-                    {
-                        if (!trapArea.VisibleList.Contains(pc.PlayerId))
-                            Hide(pc);
-                    }
-                }
-*/
+                LateTask.New(() => { // Fix for host
+                    playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
+                }, 0.1f);
+                LateTask.New(() => { // Fix for Modded
+                    CustomRpcSender sender = CustomRpcSender.Create("FixModdedClientCNOText", sendOption: SendOption.Reliable);
+                    sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO)
+                        .WriteNetObject(playerControl)
+                        .EndRpc();
+                    sender.SendMessage();
+                }, 0.4f);
+
+                /*
+                                if (this is TrapArea trapArea)
+                                {
+                                    foreach (var pc in PlayerControl.AllPlayerControls)
+                                    {
+                                        if (!trapArea.VisibleList.Contains(pc.PlayerId))
+                                            Hide(pc);
+                                    }
+                                }
+                */
                 PlayerControlTimer = 0f;
             }
         }
@@ -361,14 +364,20 @@ namespace EHR
                     sender.EndMessage();
                     sender.SendMessage();
 
-                    MessageWriter writer2 = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO, SendOption.Reliable);
-                    writer2.WriteNetObject(playerControl);
-                    AmongUsClient.Instance.FinishRpcImmediately(writer2);
-                    playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
-                    LateTask.New(() => { Logger.Info($"{playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.activeSelf}", "Is It Active? Fix Cno TEXT HOST"); }, 1f);
-
+                    
+                   
                 }, 0.1f);
             }
+            LateTask.New(() => { // Fix for host
+                playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
+            }, 0.1f);
+            LateTask.New(() => { // Fix for Modded
+                CustomRpcSender sender = CustomRpcSender.Create("FixModdedClientCNOText", sendOption: SendOption.Reliable);
+                sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO)
+                    .WriteNetObject(playerControl)
+                    .EndRpc();
+                sender.SendMessage();
+            }, 0.4f);
         }
 
         public static void FixedUpdate() => AllObjects.ToArray().Do(x => x.OnFixedUpdate());
