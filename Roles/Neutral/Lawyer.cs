@@ -36,6 +36,8 @@ public class Lawyer : RoleBase
         CustomRoles.Amnesiac
     ];
 
+    private byte LawyerId;
+
     public override bool IsEnable => playerIdList.Count > 0;
 
     public override void SetupCustomOption()
@@ -59,6 +61,7 @@ public class Lawyer : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        LawyerId = playerId;
 
         try
         {
@@ -166,5 +169,11 @@ public class Lawyer : RoleBase
     public static bool CheckExileTarget(NetworkedPlayerInfo exiled /*, bool DecidedWinner, bool Check = false*/)
     {
         return Target.Where(x => x.Value == exiled.PlayerId).Select(kvp => Utils.GetPlayerById(kvp.Key)).Any(lawyer => lawyer != null && !lawyer.Data.Disconnected);
+    }
+
+    public override void OnReportDeadBody()
+    {
+        if (MeetingStates.FirstMeeting && TargetKnowsLawyer.GetBool())
+            LateTask.New(() => Utils.SendMessage("\n", Target[LawyerId], string.Format(Translator.GetString("YourLawyerIsNotify"), LawyerId.ColoredPlayerName())), 10f, log: false);
     }
 }

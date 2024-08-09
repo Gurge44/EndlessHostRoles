@@ -95,6 +95,8 @@ namespace EHR
                 return;
             }
 
+            Utils.SendRPC(CustomRPC.CustomNetObject, 4, Id, player.PlayerId);
+
             MessageWriter writer = MessageWriter.Get();
             writer.StartMessage(6);
             writer.Write(AmongUsClient.Instance.GameId);
@@ -393,6 +395,63 @@ namespace EHR
             catch (Exception e)
             {
                 Utils.ThrowException(e);
+            }
+        }
+
+        public static void ReceiveRPC(MessageReader reader)
+        {
+            switch (reader.ReadPackedInt32())
+            {
+                case 1:
+                {
+                    string sprite = reader.ReadString();
+                    Vector2 position = reader.ReadVector2();
+                    int id = reader.ReadPackedInt32();
+                    var obj = new CustomNetObject
+                    {
+                        ModdedClientText = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab.cosmetics.nameText, position + new Vector2(0f, 0.5f), Quaternion.identity),
+                        Id = id,
+                        Sprite = sprite,
+                        Position = position
+                    };
+                    obj.ModdedClientText.text = sprite;
+                    AllObjects.Add(obj);
+                    break;
+                }
+                case 2:
+                {
+                    int id = reader.ReadPackedInt32();
+                    var obj = Get(id);
+                    if (obj != null)
+                    {
+                        Object.Destroy(obj.ModdedClientText);
+                        AllObjects.Remove(obj);
+                    }
+
+                    break;
+                }
+                case 3:
+                {
+                    int id = reader.ReadPackedInt32();
+                    Vector2 position = reader.ReadVector2();
+                    var obj = Get(id);
+                    if (obj != null)
+                    {
+                        obj.ModdedClientText.transform.localPosition = position + new Vector2(0f, 0.5f);
+                        obj.Position = position;
+                    }
+
+                    break;
+                }
+                case 4:
+                {
+                    int id = reader.ReadPackedInt32();
+                    byte playerId = reader.ReadByte();
+                    var obj = Get(id);
+                    if (obj != null && playerId == PlayerControl.LocalPlayer.PlayerId)
+                        obj.ModdedClientText.enabled = false;
+                    break;
+                }
             }
         }
     }

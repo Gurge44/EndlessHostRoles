@@ -77,7 +77,7 @@ public class SabotageMaster : RoleBase
     public override string GetProgressText(byte playerId, bool comms)
     {
         var limit = Math.Round(SkillLimit.GetInt() - UsedSkillCount, 1);
-        var colored = Utils.ColorString(Utils.GetRoleColor(CustomRoles.SabotageMaster), limit.ToString(CultureInfo.CurrentCulture));
+        var colored = Utils.ColorString(Utils.GetRoleColor(CustomRoles.SabotageMaster).ShadeColor(0.25f), limit.ToString(CultureInfo.CurrentCulture));
         return $"({colored}){base.GetProgressText(playerId, comms)}";
     }
 
