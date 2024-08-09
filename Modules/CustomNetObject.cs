@@ -219,8 +219,6 @@ namespace EHR
                         writer.EndMessage();
                         sender.EndMessage();
                         sender.SendMessage();
-
-                   
                     }, 0.1f);
                 }
 
@@ -362,9 +360,6 @@ namespace EHR
                     writer.EndMessage();
                     sender.EndMessage();
                     sender.SendMessage();
-
-                    
-                   
                 }, 0.1f);
             }
             LateTask.New(() => { // Fix for host
