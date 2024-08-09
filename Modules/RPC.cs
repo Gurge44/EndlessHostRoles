@@ -378,8 +378,6 @@ internal class RPCHandlerPatch
                 CNO.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true); 
                 break;
 
-
-
             case CustomRPC.SyncPostman:
             {
                 byte id = reader.ReadByte();

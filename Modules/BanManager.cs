@@ -138,7 +138,7 @@ public static class BanManager
 
     public static void CheckBanPlayer(ClientData player)
     {
-        if (!AmongUsClient.Instance.AmHost || !Options.ApplyBanList.GetBool() || true) return;
+        if (!AmongUsClient.Instance.AmHost || !Options.ApplyBanList.GetBool()) return;
 
         string friendcode = player?.FriendCode;
         if (friendcode?.Length < 7) // #1234 is 5 chars, and it's impossible for a friend code to only have 3
