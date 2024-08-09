@@ -10,7 +10,6 @@ using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
-using UnityEngine;
 using static EHR.Translator;
 
 namespace EHR.Modules;
