@@ -556,6 +556,9 @@ public static class Utils
                 case Vector3 v:
                     w.Write(v);
                     break;
+                case PlayerControl pc:
+                    w.WriteNetObject(pc);
+                    break;
                 default:
                     try
                     {

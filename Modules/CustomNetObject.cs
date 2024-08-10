@@ -160,7 +160,7 @@ namespace EHR
                     MessageWriter writer = sender.stream;
                     sender.StartMessage();
                     PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = "<size=14><br></size>" + Sprite;
-                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId = 255;
+                    PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId = 4;
                     PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId = "";
                     PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId = "";
                     PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId = "";
@@ -226,11 +226,7 @@ namespace EHR
                     playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
                 }, 0.1f);
                 LateTask.New(() => { // Fix for Modded
-                    CustomRpcSender sender = CustomRpcSender.Create("FixModdedClientCNOText", sendOption: SendOption.Reliable);
-                    sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO)
-                        .WriteNetObject(playerControl)
-                        .EndRpc();
-                    sender.SendMessage();
+                    Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl);
                 }, 0.4f);
 
                 /*
@@ -295,7 +291,7 @@ namespace EHR
                 MessageWriter writer = sender.stream;
                 sender.StartMessage();
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName = "<size=14><br></size>" + sprite;
-                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId = 255;
+                PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId = 4;
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId = "";
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId = "";
                 PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId = "";
@@ -366,11 +362,7 @@ namespace EHR
                 playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
             }, 0.1f);
             LateTask.New(() => { // Fix for Modded
-                CustomRpcSender sender = CustomRpcSender.Create("FixModdedClientCNOText", sendOption: SendOption.Reliable);
-                sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO)
-                    .WriteNetObject(playerControl)
-                    .EndRpc();
-                sender.SendMessage();
+                Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl);
             }, 0.4f);
         }
 
