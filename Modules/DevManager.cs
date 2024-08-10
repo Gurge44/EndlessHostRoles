@@ -31,6 +31,8 @@ public static class DevManager
             new(code: "actorour#0029", color: "#ffc0cb", tag: "TOHE/TONX Developer", isUp: true, isDev: true, deBug: true, colorCmd: true, upName: "KARPED1EM"),
             new(code: "pinklaze#1776", color: "#30548e", tag: "#Dev", isUp: true, isDev: true, deBug: true, colorCmd: false, upName: "NCSIMON"),
             new(code: "keepchirpy#6354", color: "#1FF3C6", tag: "Переводчик", isUp: true, isDev: false, deBug: false, colorCmd: true, upName: "TommyXL"), //Tommy-XL
+            new(code: "motelchief#4112", color: "#eb57af", tag: "<alpha=#CC>Twilight Raven<alpha=#FF>", isUp: true, isDev: true, deBug: true, colorCmd: true, upName: "Drakos"), //Drakos
+            new(code: "eagergaol#1562", color: "#5534eb", tag: "Drakos Alt", isUp: true, isDev: true, deBug: true, colorCmd: true, upName: "Drakos"), //Drakos Steam Alt
             new(code: "taskunsold#2701", color: "null", tag: "<color=#426798>Tem</color><color=#f6e509>mie</color>", isUp: false, isDev: true, deBug: false, colorCmd: false, upName: null), //Tem
             new(code: "timedapper#9496", color: "#48FFFF", tag: "#Dev", isUp: false, isDev: true, deBug: false, colorCmd: false, upName: null), //阿龍
             new(code: "sofaagile#3120", color: "null", tag: "null", isUp: false, isDev: true, deBug: true, colorCmd: false, upName: null), //天寸
