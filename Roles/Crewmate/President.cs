@@ -209,7 +209,7 @@ namespace EHR.Crewmate
             if (!target.Is(CustomRoleTypes.Crewmate) || target.IsConverted()) return true;
 
             CustomRoles role = GovernmentRecruitRoles[DecreeSettings[Decree.GovernmentRecruiting][1].GetValue()];
-            if (role.GetDYRole() == RoleTypes.Impostor && target.GetRoleTypes() != RoleTypes.Impostor) role = CustomRoles.NiceGuesser;
+            if (role.IsDesyncRole() && target.GetRoleTypes() != role.GetDYRole()) role = CustomRoles.NiceGuesser;
             target.RpcSetCustomRole(role);
             Utils.SendMessage("\n", target.PlayerId, Translator.GetString("President.Recruit.TargetNotifyMessage"));
             Main.DontCancelVoteList.Add(voter.PlayerId);

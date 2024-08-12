@@ -15,7 +15,7 @@ public static class AntiBlackout
     ///<summary>
     ///Whether to override the ejection process
     ///</summary>
-    public static bool OverrideExiledPlayer => IsRequired && (IsSingleImpostor || Diff_CrewImp == 1);
+    public static bool OverrideExiledPlayer => IsRequired && (IsSingleImpostor || Diff_CrewImp == 1 || Main.AliveImpostorCount == 1);
 
     ///<summary>
     ///Is there only one impostor?
@@ -25,7 +25,7 @@ public static class AntiBlackout
     ///<summary>
     ///Whether processing within AntiBlackout is required
     ///</summary>
-    public static bool IsRequired => Options.NoGameEnd.GetBool() || Main.AllPlayerControls.Any(x => x.GetCustomRole().GetCountTypes() is not CountTypes.Crew and not CountTypes.Impostor and not CountTypes.OutOfGame);
+    public static bool IsRequired => Options.NoGameEnd.GetBool() || Main.AllPlayerControls.Any(x => x.GetCountTypes() is not CountTypes.Crew and not CountTypes.Impostor and not CountTypes.OutOfGame);
 
     //|| Pirate.IsEnable;
     ///<summary>
@@ -110,6 +110,7 @@ public static class AntiBlackout
             AmongUsClient.Instance.SendOrDisconnect(writer);
             writer.Recycle();
         }
+
         AmongUsClient.Instance.SendAllStreamedObjects();
     }
 

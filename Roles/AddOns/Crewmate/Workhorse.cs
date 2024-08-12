@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using AmongUs.GameOptions;
 using UnityEngine;
 using static EHR.Options;
 
@@ -61,7 +60,7 @@ public class Workhorse : IAddon
     {
         if (!pc.IsAlive() || IsThisRole(pc.PlayerId)) return false;
         if (pc.Is(CustomRoles.Needy) || pc.Is(CustomRoles.Lazy) || pc.Is(CustomRoles.Bloodlust)) return false;
-        if (pc.GetCustomRole().GetDYRole() == RoleTypes.Impostor || pc.GetCustomRole().GetVNRole() is CustomRoles.Impostor or CustomRoles.Shapeshifter) return false;
+        if (pc.GetCustomRole().GetVNRole(checkDesyncRole: true) is CustomRoles.Impostor or CustomRoles.Shapeshifter) return false;
 
         var taskState = pc.GetTaskState();
         if (taskState.CompletedTasksCount + 1 < taskState.AllTasksCount) return false;

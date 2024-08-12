@@ -11,21 +11,16 @@ using HarmonyLib;
 
 namespace EHR.Patches;
 
-class ExileControllerWrapUpPatch
+static class ExileControllerWrapUpPatch
 {
-    private static NetworkedPlayerInfo antiBlackout_LastExiled;
-
-    public static NetworkedPlayerInfo AntiBlackout_LastExiled
-    {
-        get => antiBlackout_LastExiled;
-        set => antiBlackout_LastExiled = value;
-    }
+    public static NetworkedPlayerInfo AntiBlackout_LastExiled { get; set; }
 
     static void WrapUpPostfix(NetworkedPlayerInfo exiled)
     {
         if (AntiBlackout.OverrideExiledPlayer)
         {
             exiled = AntiBlackout_LastExiled;
+            Logger.SendInGame(Translator.GetString("AntiBlackout.OverrideExiledPlayer"));
         }
 
         bool DecidedWinner = false;
@@ -44,12 +39,13 @@ class ExileControllerWrapUpPatch
             {
                 if (!Options.InnocentCanWinByImp.GetBool() && role.IsImpostor())
                 {
-                    Logger.Info("冤罪的目标是内鬼，非常可惜啊", "Exeiled Winner Check");
+                    Logger.Info("The exiled player is an impostor, but the Innocent cannot win due to the settings", "Exeiled Winner Check");
                 }
                 else
                 {
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Innocent);
-                    Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Innocent) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == exiled.PlayerId)
+                    Main.AllPlayerControls
+                        .Where(x => x.Is(CustomRoles.Innocent) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == exiled.PlayerId)
                         .Do(x => CustomWinnerHolder.WinnerIds.Add(x.PlayerId));
                     DecidedWinner = true;
                 }

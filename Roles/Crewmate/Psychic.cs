@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
 using EHR.Impostor;
 using EHR.Modules;
 using Hazel;
@@ -78,7 +77,7 @@ public class Psychic : RoleBase
     {
         if (target == null || seer == null) return false;
         if (Main.PlayerStates[seer.PlayerId].Role is not Psychic ph) return false;
-        if (seer.Is(CustomRoles.Madmate)) return target.GetCustomRole().IsNeutral() || target.GetCustomRole().GetDYRole() == RoleTypes.Impostor;
+        if (seer.Is(CustomRoles.Madmate)) return target.GetCustomRole().IsNeutral() || target.GetCustomRole().GetCrewmateRoleCategory() == RoleOptionType.Crewmate_Killing;
         return ph.RedPlayer != null && ph.RedPlayer.Contains(target.PlayerId);
     }
 

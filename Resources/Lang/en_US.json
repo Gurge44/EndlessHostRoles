@@ -2651,6 +2651,7 @@
   "AntiBlackOutLoggerSendInGame": "Because of an unknown error, the game will end to prevent black screen.",
   "AntiBlackOutRequestHostToForceEnd": "You were the reason of the black screen, you are asking the host to stop the game...",
   "AntiBlackOutHostRejectForceEnd": "You were the reason of the black screen, and the host is not going to end the game, we will disconnect you soon.",
+  "AntiBlackout.OverrideExiledPlayer": "To prevent black screens, the ejection screen shows a tied vote. (Players still get ejected, this is just visual.)",
   "GitHub": "GitHub",
   "Discord": "Discord",
   "Website": "Website",

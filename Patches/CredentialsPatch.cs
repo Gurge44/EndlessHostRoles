@@ -199,10 +199,10 @@ internal class TitleLogoPatch
         if (!(BottomButtonBounds = GameObject.Find("BottomButtonBounds"))) return;
         BottomButtonBounds.transform.localPosition -= new Vector3(0f, 0.1f, 0f);
 
-        __instance.settingsButton.buttonText.text = GetString("MainMenu.SettingsButton");
-        __instance.inventoryButton.buttonText.text = GetString("MainMenu.InventoryButton");
-        __instance.creditsButton.buttonText.text = GetString("MainMenu.CreditsButton");
-        __instance.quitButton.buttonText.text = GetString("MainMenu.QuitButton");
+        __instance.settingsButton?.ChangeButtonText(GetString("MainMenu.SettingsButton"));
+        __instance.inventoryButton?.ChangeButtonText(GetString("MainMenu.InventoryButton"));
+        __instance.creditsButton?.ChangeButtonText(GetString("MainMenu.CreditsButton"));
+        __instance.quitButton?.ChangeButtonText(GetString("MainMenu.QuitButton"));
 
         return;
 

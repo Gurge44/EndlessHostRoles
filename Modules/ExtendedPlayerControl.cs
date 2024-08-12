@@ -186,11 +186,11 @@ static class ExtendedPlayerControl
             var callerMethod = caller.GetMethod();
             string callerMethodName = callerMethod?.Name;
             string callerClassName = callerMethod?.DeclaringType?.FullName;
-            Logger.Warn(callerClassName + "." + callerMethodName + " tried to get a CountType, but the player was null", "GetCountTypes");
+            Logger.Warn($"{callerClassName}.{callerMethodName} tried to get a CountType, but the player was null", "GetCountTypes");
             return CountTypes.None;
         }
 
-        return Main.PlayerStates.TryGetValue(player.PlayerId, out var State) ? State.countTypes : CountTypes.None;
+        return Main.PlayerStates.TryGetValue(player.PlayerId, out var State) ? State.SubRoles.Contains(CustomRoles.Bloodlust) ? CountTypes.Bloodlust : State.countTypes : CountTypes.None;
     }
 
     public static void RpcSetNameEx(this PlayerControl player, string name)
@@ -200,7 +200,7 @@ static class ExtendedPlayerControl
             Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
         }
 
-        Logger.Info($"Set:{player?.Data?.PlayerName}:{name} for All", "RpcSetNameEx");
+        Logger.Info($"Set: {player?.Data?.PlayerName} => {name} for Everyone", "RpcSetNameEx");
         player?.RpcSetName(name);
     }
 
@@ -211,7 +211,7 @@ static class ExtendedPlayerControl
         if (!force && Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] == name) return;
 
         Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
-        Logger.Info($"Set:{player.Data?.PlayerName}:{name} for {seer.GetNameWithRole().RemoveHtmlTags()}", "RpcSetNamePrivate");
+        Logger.Info($"Set: {player.Data?.PlayerName} => {name} for {seer.GetNameWithRole().RemoveHtmlTags()}", "RpcSetNamePrivate");
 
         if (seer == null || player == null) return;
 
@@ -649,7 +649,7 @@ static class ExtendedPlayerControl
     {
         CustomRoles role = pc.GetCustomRole();
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Pelican.IsEaten(pc.PlayerId)) return false;
-        if (role.GetDYRole() == RoleTypes.Impostor || role.GetVNRole() is CustomRoles.Impostor or CustomRoles.Shapeshifter) return true;
+        if (role.GetVNRole(checkDesyncRole: true) is CustomRoles.Impostor or CustomRoles.Shapeshifter) return true;
         return pc.Is(CustomRoleTypes.Impostor) || pc.IsNeutralKiller() || role.IsTasklessCrewmate();
     }
 
@@ -930,10 +930,13 @@ static class ExtendedPlayerControl
 
         target.SetRealKiller(killer, NotOverRide: true);
 
+        if (target.Is(CustomRoles.Jackal))
+            Jackal.Instances.Do(x => x.PromoteSidekick());
+
         switch (killer.PlayerId == target.PlayerId)
         {
             case true when killer.shapeshifting:
-                LateTask.New(() => { killer.RpcMurderPlayer(target, true); }, 1.5f, "Shapeshifting Suicide Delay");
+                LateTask.New(() => killer.RpcMurderPlayer(target, true), 1.5f, "Shapeshifting Suicide Delay");
                 return;
             case false when !killer.Is(CustomRoles.Pestilence) && Main.PlayerStates[target.PlayerId].Role is SchrodingersCat cat:
                 cat.OnCheckMurderAsTarget(killer, target);
@@ -953,6 +956,19 @@ static class ExtendedPlayerControl
         MeetingRoomManager.Instance.AssignSelf(reporter, target);
         DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
         reporter.RpcStartMeeting(target);
+    }
+
+    public static void CheckAndSetUnshiftState(this PlayerControl pc, bool notify = true, bool force = false)
+    {
+        if (force || (pc.GetCustomRole().SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool())))
+        {
+            var target = Main.AllAlivePlayerControls.Without(pc).RandomElement();
+            var outfit = pc.Data.DefaultOutfit;
+            pc.RpcShapeshift(target, false);
+            Main.CheckShapeshift[pc.PlayerId] = false;
+            RpcChangeSkin(pc, outfit);
+            if (notify) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, NoCache: true);
+        }
     }
 
     public static bool IsModClient(this PlayerControl player) => Main.PlayerVersion.ContainsKey(player.PlayerId);

@@ -759,6 +759,9 @@ class ShapeshiftPatch
             isSSneeded = false;
         }
 
+        if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag)
+            CTFManager.TryPickUpFlag(shapeshifter);
+
         var role = shapeshifter.GetCustomRole();
         bool forceCancel = role.ForceCancelShapeshift();
         bool unshiftTrigger = role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool());
@@ -806,12 +809,7 @@ class ShapeshiftPatch
 
         if (unshiftTrigger)
         {
-            var rndTarget = Main.AllAlivePlayerControls.Without(shapeshifter).RandomElement();
-            var outfit = shapeshifter.Data.DefaultOutfit;
-            shapeshifter.RpcShapeshift(rndTarget, false);
-            Main.CheckShapeshift[shapeshifter.PlayerId] = false;
-            RpcChangeSkin(shapeshifter, outfit);
-            NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter, NoCache: true);
+            shapeshifter.CheckAndSetUnshiftState(force: true);
             shapeshifter.AddAbilityCD();
         }
 
@@ -1224,7 +1222,8 @@ class FixedUpdatePatch
     {
         var player = __instance;
         var playerId = player.PlayerId;
-        var localPlayer = player.PlayerId == PlayerControl.LocalPlayer.PlayerId; // Updates that are independent of the player are only executed for the local player.
+        var lpId = PlayerControl.LocalPlayer.PlayerId;
+        var localPlayer = player.PlayerId == lpId; // Updates that are independent of the player are only executed for the local player.
 
         bool lowLoad = false;
         if (Options.LowLoadMode.GetBool())
@@ -1437,7 +1436,9 @@ class FixedUpdatePatch
 
             if (GameStates.IsInGame)
             {
-                var RoleTextData = GetRoleText(PlayerControl.LocalPlayer.PlayerId, playerId);
+                bool shouldSeeTargetAddons = new[] { PlayerControl.LocalPlayer, player }.All(x => x.Is(Team.Impostor));
+
+                var RoleTextData = GetRoleText(lpId, playerId, shouldSeeTargetAddons);
 
                 RoleText.text = RoleTextData.Item1;
                 RoleText.color = RoleTextData.Item2;
@@ -1448,7 +1449,7 @@ class FixedUpdatePatch
 
                 if (!PlayerControl.LocalPlayer.Data.IsDead && PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) && __instance.Is(CustomRoles.Trickster))
                 {
-                    RoleText.text = Farseer.RandomRole[PlayerControl.LocalPlayer.PlayerId];
+                    RoleText.text = Farseer.RandomRole[lpId];
                     RoleText.text += Farseer.GetTaskState();
                 }
 
@@ -1997,7 +1998,7 @@ class CoEnterVentPatch
             Circumvent.OnCoEnterVent(__instance, id);
         }
 
-        if (__instance.myPlayer.GetCustomRole().GetDYRole() == RoleTypes.Impostor && !Main.PlayerStates[__instance.myPlayer.PlayerId].Role.CanUseImpostorVentButton(__instance.myPlayer) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !__instance.myPlayer.Is(CustomRoles.Nimble) && !__instance.myPlayer.Is(CustomRoles.Bloodlust))
+        if (__instance.myPlayer.GetCustomRole().IsDesyncRole() && !Main.PlayerStates[__instance.myPlayer.PlayerId].Role.CanUseImpostorVentButton(__instance.myPlayer) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !__instance.myPlayer.Is(CustomRoles.Nimble) && !__instance.myPlayer.Is(CustomRoles.Bloodlust))
         {
             LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, "CannotUseVentBootFromVent");
         }

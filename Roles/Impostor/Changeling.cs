@@ -49,11 +49,11 @@ namespace EHR.Impostor
                 IEnumerable<CustomRoles> result = AvailableRoles.GetValue() switch
                 {
                     0 => allRoles,
-                    1 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Impostor or CustomRoles.ImpostorEHR),
-                    2 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR),
+                    1 => allRoles.Where(x => x.GetVNRole(checkDesyncRole: true) is CustomRoles.Impostor or CustomRoles.ImpostorEHR),
+                    2 => allRoles.Where(x => x.GetVNRole(checkDesyncRole: true) is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR),
                     3 => allRoles.Where(x => x.GetMode() != 0),
-                    4 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Impostor or CustomRoles.ImpostorEHR && x.GetMode() != 0),
-                    5 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR && x.GetMode() != 0),
+                    4 => allRoles.Where(x => x.GetVNRole(checkDesyncRole: true) is CustomRoles.Impostor or CustomRoles.ImpostorEHR && x.GetMode() != 0),
+                    5 => allRoles.Where(x => x.GetVNRole(checkDesyncRole: true) is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR && x.GetMode() != 0),
                     _ => allRoles
                 };
 

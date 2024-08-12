@@ -651,7 +651,7 @@ class BeginImpostorPatch
             return true;
         }
 
-        if (PlayerControl.LocalPlayer.IsCrewmate() && role.GetDYRole() == RoleTypes.Impostor)
+        if (PlayerControl.LocalPlayer.IsCrewmate() && role.IsDesyncRole())
         {
             yourTeam = new();
             yourTeam.Add(PlayerControl.LocalPlayer);
@@ -784,21 +784,7 @@ class IntroCutsceneDestroyPatch
 
             if (Options.UseUnshiftTrigger.GetBool())
             {
-                LateTask.New(() =>
-                {
-                    foreach (var pc in Main.AllAlivePlayerControls)
-                    {
-                        if (pc.GetCustomRole().SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool()))
-                        {
-                            var target = Main.AllAlivePlayerControls.Without(pc).RandomElement();
-                            var outfit = pc.Data.DefaultOutfit;
-                            pc.RpcShapeshift(target, false);
-                            Main.CheckShapeshift[pc.PlayerId] = false;
-                            Utils.RpcChangeSkin(pc, outfit);
-                            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, NoCache: true);
-                        }
-                    }
-                }, 2f, "UnshiftTrigger SS");
+                LateTask.New(() => Main.AllAlivePlayerControls.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
             }
 
             if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))

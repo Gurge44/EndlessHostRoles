@@ -746,7 +746,8 @@ class MeetingHudStartPatch
         {
             var pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (pc == null) continue;
-            var RoleTextData = Utils.GetRoleText(PlayerControl.LocalPlayer.PlayerId, pc.PlayerId);
+            bool shouldSeeTargetAddons = new[] { PlayerControl.LocalPlayer, pc }.All(x => x.Is(Team.Impostor));
+            var RoleTextData = Utils.GetRoleText(PlayerControl.LocalPlayer.PlayerId, pc.PlayerId, shouldSeeTargetAddons);
             var roleTextMeeting = Object.Instantiate(pva.NameText, pva.NameText.transform, true);
             roleTextMeeting.transform.localPosition = new(0f, -0.18f, 0f);
             roleTextMeeting.fontSize = 1.4f;
@@ -807,7 +808,7 @@ class MeetingHudStartPatch
             Logger.Info("The ship has " + (Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + " buttons left", "SyncButtonMode");
         }
 
-        if (AntiBlackout.OverrideExiledPlayer && MeetingStates.FirstMeeting)
+        if (AntiBlackout.OverrideExiledPlayer && (MeetingStates.FirstMeeting || Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors) > 1))
         {
             LateTask.New(() => { Utils.SendMessage(GetString("Warning.OverrideExiledPlayer"), 255, Utils.ColorString(Color.red, GetString("DefaultSystemMessageTitle"))); }, 5f, "Warning OverrideExiledPlayer");
         }

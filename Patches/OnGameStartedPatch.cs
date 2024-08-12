@@ -742,7 +742,7 @@ internal class SelectRolesPatch
                     addonList.ForEach(x => state.SetSubRole(x));
                 }
 
-                if (state.MainRole.IsImpostor()) state.SubRoles.RemoveAll(x => x.IsImpOnlyAddon());
+                if (!state.MainRole.IsImpostor()) state.SubRoles.RemoveAll(x => x.IsImpOnlyAddon());
             }
 
             foreach (var pair in Main.PlayerStates)

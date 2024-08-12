@@ -24,8 +24,8 @@ public class Councillor : RoleBase
     private static OptionItem KillCooldown;
     public static OptionItem CouncillorAbilityUseGainWithEachKill;
     private static Dictionary<byte, int> MeetingKillLimit = [];
-    private byte CouncillorId;
 
+    private byte CouncillorId;
     public override bool IsEnable => playerIdList.Count > 0;
 
     public override void SetupCustomOption()

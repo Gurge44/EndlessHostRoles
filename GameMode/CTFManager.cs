@@ -35,6 +35,7 @@ namespace EHR
         private static Dictionary<byte, CTFTeam> PlayerTeams = [];
         private static Dictionary<CTFTeam, CTFTeamData> TeamData = [];
         private static Dictionary<byte, CTFPlayerData> PlayerData = [];
+        private static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> DefaultOutfits = [];
         private static bool ValidTag;
         public static bool IsDeathPossible => TaggedPlayersGet.GetValue() == 1;
 
@@ -131,26 +132,35 @@ namespace EHR
             switch (aapc.Length)
             {
                 case 0:
+                    ResetSkins();
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Draw);
                     CustomWinnerHolder.WinnerIds = Main.PlayerStates.Keys.ToHashSet();
                     reason = GameOverReason.HumansDisconnect;
                     return true;
                 case 1:
+                    ResetSkins();
                     TeamData[PlayerTeams[aapc[0].PlayerId]].SetAsWinner();
                     return true;
                 default:
                     // If WinnerData is already set, end the game
-                    if (WinnerData.Team != "No one wins") return true;
+                    if (WinnerData.Team != "No one wins")
+                    {
+                        ResetSkins();
+                        return true;
+                    }
 
                     // If all players are on the same team, end the game
                     if (aapc.All(x => PlayerTeams[x.PlayerId] == CTFTeam.Blue) || aapc.All(x => PlayerTeams[x.PlayerId] == CTFTeam.Yellow))
                     {
+                        ResetSkins();
                         TeamData[PlayerTeams[aapc[0].PlayerId]].SetAsWinner();
                         return true;
                     }
 
                     return false;
             }
+
+            void ResetSkins() => DefaultOutfits.Select(x => (pc: x.Key.GetPlayer(), outfit: x.Value)).DoIf(x => x.pc != null && x.outfit != null, x => Utils.RpcChangeSkin(x.pc, x.outfit));
         }
 
         public static void OnGameStart()
@@ -160,6 +170,7 @@ namespace EHR
             TeamData = [];
             WinnerData = (Color.white, "No one wins");
             PlayerData = Main.PlayerStates.Keys.ToDictionary(x => x, _ => new CTFPlayerData());
+            DefaultOutfits = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, x => x.Data.DefaultOutfit);
             ValidTag = false;
 
             // Check if the current game mode is Capture The Flag
@@ -182,6 +193,7 @@ namespace EHR
                     PlayerTeams[player.PlayerId] = CTFTeam.Blue;
                     bluePlayers.Add(player.PlayerId);
                     blueOutfit.PlayerName = player.GetRealName();
+                    blueOutfit.PetId = player.Data.DefaultOutfit.PetId;
                     Utils.RpcChangeSkin(player, blueOutfit);
                 }
 
@@ -190,6 +202,7 @@ namespace EHR
                     PlayerTeams[player.PlayerId] = CTFTeam.Yellow;
                     yellowPlayers.Add(player.PlayerId);
                     yellowOutfit.PlayerName = player.GetRealName();
+                    yellowOutfit.PetId = player.Data.DefaultOutfit.PetId;
                     Utils.RpcChangeSkin(player, yellowOutfit);
                 }
 
@@ -221,6 +234,9 @@ namespace EHR
                                 break;
                         }
                     }
+
+                    pc.CheckAndSetUnshiftState(force: true);
+                    pc.RpcResetAbilityCooldown();
                 }
 
                 ValidTag = true;
@@ -232,7 +248,7 @@ namespace EHR
             var targetTeam = PlayerTeams[target.PlayerId];
             if (!ValidTag || PlayerTeams[killer.PlayerId] == targetTeam || TeamData.Values.Any(x => x.FlagCarrier == killer.PlayerId)) return;
 
-            killer.SetKillCooldown();
+            new[] { killer, target }.Do(x => x.SetKillCooldown());
 
             if (TeamData.FindFirst(x => x.Value.FlagCarrier == target.PlayerId, out var kvp))
             {
@@ -261,14 +277,19 @@ namespace EHR
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
         }
 
-        public static void OnPet(PlayerControl pc)
+        public static void TryPickUpFlag(PlayerControl pc)
         {
             if (!ValidTag) return;
-            Logger.Info($"{pc.GetRealName()} petted their pet", "CTF.OnPet");
+            Logger.Info($"Received flag pickup request from {pc.GetRealName()}", "CTF");
             // If the player is near the enemy's flag, pick it up
             var pos = pc.Pos();
             var enemy = TeamData[PlayerTeams[pc.PlayerId].GetOppositeTeam()];
             if (enemy.IsNearFlag(pos)) enemy.PickUpFlag(pc.PlayerId);
+        }
+
+        public static void ApplyGameOptions(IGameOptions opt)
+        {
+            AURoleOptions.ShapeshifterCooldown = 1f;
         }
 
         static Color GetTeamColor(this CTFTeam team)

@@ -326,7 +326,7 @@ internal static class ChatCommands
 
     private static void HMCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        if (args.Length < 2 || !int.TryParse(args[1], out int id) || id is > 3 or < 1) return;
+        if (Messenger.Sent.Contains(player.PlayerId) || args.Length < 2 || !int.TryParse(args[1], out int id) || id is > 3 or < 1) return;
         Main.Instance.StartCoroutine(SendOnMeeting());
         return;
 

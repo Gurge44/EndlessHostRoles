@@ -2149,6 +2149,8 @@ public static class Utils
 
                             BeforeEnd2:
 
+                            bool shouldSeeTargetAddons = new[] { seer, target }.All(x => x.Is(Team.Impostor));
+
                             string TargetRoleText =
                                 (seer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) ||
                                 (seer.Is(CustomRoles.Mimic) && target.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) ||
@@ -2174,7 +2176,7 @@ public static class Utils
                                 (seer.IsRevealedPlayer(target) && !target.Is(CustomRoles.Trickster)) ||
                                 seer.Is(CustomRoles.God) ||
                                 target.Is(CustomRoles.GM)
-                                    ? $"<size={fontSize}>{target.GetDisplayRoleName(seer.PlayerId != target.PlayerId && !seer.Data.IsDead)}{GetProgressText(target)}</size>\r\n"
+                                    ? $"<size={fontSize}>{target.GetDisplayRoleName(shouldSeeTargetAddons)}{GetProgressText(target)}</size>\r\n"
                                     : string.Empty;
 
                             if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag) TargetRoleText = string.Empty;
@@ -2524,14 +2526,7 @@ public static class Utils
 
                 if (Options.UsePets.GetBool()) pc.AddAbilityCD(includeDuration: false);
 
-                if (pc.GetCustomRole().SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool()))
-                {
-                    var target = Main.AllAlivePlayerControls.Without(pc).RandomElement();
-                    var outfit = pc.Data.DefaultOutfit;
-                    pc.RpcShapeshift(target, false);
-                    Main.CheckShapeshift[pc.PlayerId] = false;
-                    RpcChangeSkin(pc, outfit);
-                }
+                pc.CheckAndSetUnshiftState(notify: false);
 
                 AFKDetector.RecordPosition(pc);
 

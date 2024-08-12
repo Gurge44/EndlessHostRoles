@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -9,7 +10,7 @@ namespace EHR.Neutral;
 public class Jackal : RoleBase
 {
     private const int Id = 12100;
-    private static List<byte> PlayerIdList = [];
+    public static List<Jackal> Instances = [];
 
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
@@ -30,7 +31,7 @@ public class Jackal : RoleBase
     public static bool On;
     private byte SidekickId;
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    public override bool IsEnable => Instances.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -80,14 +81,14 @@ public class Jackal : RoleBase
 
     public override void Init()
     {
-        PlayerIdList = [];
+        Instances = [];
         On = false;
     }
 
     public override void Add(byte playerId)
     {
         On = true;
-        PlayerIdList.Add(playerId);
+        Instances.Add(this);
         playerId.SetAbilityUseLimit(1);
         SidekickId = byte.MaxValue;
     }
@@ -148,11 +149,24 @@ public class Jackal : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!SKPromotesToJackal.GetBool() || pc.IsAlive()) return;
-        var sk = SidekickId.GetPlayer();
-        if (sk == null || !sk.Is(CustomRoles.Sidekick)) return;
-        sk.RpcSetCustomRole(CustomRoles.Jackal);
-        if (!PromotedSKCanRecruit.GetBool()) sk.SetAbilityUseLimit(0);
+        if (pc.IsAlive()) return;
+        PromoteSidekick();
+    }
+
+    public void PromoteSidekick()
+    {
+        try
+        {
+            if (!SKPromotesToJackal.GetBool()) return;
+            var sk = SidekickId.GetPlayer();
+            if (sk == null || !sk.Is(CustomRoles.Sidekick)) return;
+            sk.RpcSetCustomRole(CustomRoles.Jackal);
+            if (!PromotedSKCanRecruit.GetBool()) sk.SetAbilityUseLimit(0);
+        }
+        catch (Exception e)
+        {
+            Utils.ThrowException(e);
+        }
     }
 }
 
