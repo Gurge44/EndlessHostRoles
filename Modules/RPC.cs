@@ -55,7 +55,7 @@ public enum CustomRPC
     RemoveAbilityUseLimit,
     RemoveSubRole,
     Arrow,
-    CustomNetObject,
+    FixModdedClientCNO,
 
     // Roles
     SyncRoleData,
@@ -365,9 +365,6 @@ internal class RPCHandlerPatch
                 if (reader.ReadBoolean()) TargetArrow.ReceiveRPC(reader);
                 else LocateArrow.ReceiveRPC(reader);
                 break;
-            case CustomRPC.CustomNetObject:
-                CustomNetObject.ReceiveRPC(reader);
-                break;
             case CustomRPC.SyncRoleData:
             {
                 byte id = reader.ReadByte();
@@ -375,6 +372,11 @@ internal class RPCHandlerPatch
                 r.GetType().GetMethod("ReceiveRPC")?.Invoke(r, [reader]);
                 break;
             }
+            case CustomRPC.FixModdedClientCNO:
+                var CNO = reader.ReadNetObject<PlayerControl>();
+                CNO.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true); 
+                break;
+
             case CustomRPC.SyncPostman:
             {
                 byte id = reader.ReadByte();

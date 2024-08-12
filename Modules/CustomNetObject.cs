@@ -19,7 +19,6 @@ namespace EHR
         public static readonly List<CustomNetObject> AllObjects = [];
         private static int MaxId = -1;
         protected int Id;
-        private TextMeshPro ModdedClientText;
         public PlayerControl playerControl;
         private float PlayerControlTimer;
         public Vector2 Position;
@@ -77,8 +76,6 @@ namespace EHR
         public void TP(Vector2 position)
         {
             playerControl.NetTransform.RpcSnapTo(position);
-            ModdedClientText.transform.localPosition = position + new Vector2(0f, 0.5f);
-            Utils.SendRPC(CustomRPC.CustomNetObject, 3, Id, position);
             Position = position;
         }
 
@@ -86,8 +83,6 @@ namespace EHR
         {
             Logger.Info($" Despawn Custom Net Object {this.GetType().Name} (ID {Id})", "CNO.Despawn");
             playerControl.Despawn();
-            Object.Destroy(ModdedClientText);
-            Utils.SendRPC(CustomRPC.CustomNetObject, 2, Id);
             AllObjects.Remove(this);
         }
 
@@ -97,11 +92,9 @@ namespace EHR
             if (player.AmOwner)
             {
                 playerControl.Visible = false;
-                ModdedClientText.enabled = false;
                 return;
             }
 
-            Utils.SendRPC(CustomRPC.CustomNetObject, 4, Id, player.PlayerId);
 
             MessageWriter writer = MessageWriter.Get();
             writer.StartMessage(6);
@@ -198,8 +191,8 @@ namespace EHR
                     sender.SendMessage();
                 }, 0.2f);
                 LateTask.New(() => oldPlayerControl.Despawn(), 0.3f);
-                playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
-                playerControl.cosmetics.colorBlindText.color = Color.clear;
+               // playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
+                //playerControl.cosmetics.colorBlindText.color = Color.clear;
                 foreach (var pc in Main.AllPlayerControls)
                 {
                     if (pc.AmOwner) continue;
@@ -229,16 +222,23 @@ namespace EHR
                     }, 0.1f);
                 }
 
-/*
-                if (this is TrapArea trapArea)
-                {
-                    foreach (var pc in PlayerControl.AllPlayerControls)
-                    {
-                        if (!trapArea.VisibleList.Contains(pc.PlayerId))
-                            Hide(pc);
-                    }
-                }
-*/
+                LateTask.New(() => { // Fix for host
+                    playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
+                }, 0.1f);
+                LateTask.New(() => { // Fix for Modded
+                    Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl);
+                }, 0.4f);
+
+                /*
+                                if (this is TrapArea trapArea)
+                                {
+                                    foreach (var pc in PlayerControl.AllPlayerControls)
+                                    {
+                                        if (!trapArea.VisibleList.Contains(pc.PlayerId))
+                                            Hide(pc);
+                                    }
+                                }
+                */
                 PlayerControlTimer = 0f;
             }
         }
@@ -246,9 +246,6 @@ namespace EHR
         protected void CreateNetObject(string sprite, Vector2 position)
         {
             Logger.Info($" Create Custom Net Object {this.GetType().Name} (ID {Id}) at {position}", "CNO.CreateNetObject");
-            ModdedClientText = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab.cosmetics.nameText, position + new Vector2(0f, 0.5f), Quaternion.identity);
-            ModdedClientText.text = sprite;
-            Utils.SendRPC(CustomRPC.CustomNetObject, 1, sprite, position, MaxId + 1);
             playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
             playerControl.PlayerId = 255;
             playerControl.isNew = false;
@@ -326,8 +323,8 @@ namespace EHR
             }, 0.2f);
             Position = position;
             PlayerControlTimer = 0f;
-            playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
-            playerControl.cosmetics.colorBlindText.color = Color.clear;
+            //playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
+           // playerControl.cosmetics.colorBlindText.color = Color.clear;
             Sprite = sprite;
             ++MaxId;
             Id = MaxId;
@@ -361,6 +358,12 @@ namespace EHR
                     sender.SendMessage();
                 }, 0.1f);
             }
+            LateTask.New(() => { // Fix for host
+                playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
+            }, 0.1f);
+            LateTask.New(() => { // Fix for Modded
+                Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl);
+            }, 0.4f);
         }
 
         public static void FixedUpdate() => AllObjects.ToArray().Do(x => x.OnFixedUpdate());
@@ -379,62 +382,7 @@ namespace EHR
             }
         }
 
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            switch (reader.ReadPackedInt32())
-            {
-                case 1:
-                {
-                    string sprite = reader.ReadString();
-                    Vector2 position = reader.ReadVector2();
-                    int id = reader.ReadPackedInt32();
-                    var obj = new CustomNetObject
-                    {
-                        ModdedClientText = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab.cosmetics.nameText, position + new Vector2(0f, 0.5f), Quaternion.identity),
-                        Id = id,
-                        Sprite = sprite,
-                        Position = position
-                    };
-                    obj.ModdedClientText.text = sprite;
-                    AllObjects.Add(obj);
-                    break;
-                }
-                case 2:
-                {
-                    int id = reader.ReadPackedInt32();
-                    var obj = Get(id);
-                    if (obj != null)
-                    {
-                        Object.Destroy(obj.ModdedClientText);
-                        AllObjects.Remove(obj);
-                    }
-
-                    break;
-                }
-                case 3:
-                {
-                    int id = reader.ReadPackedInt32();
-                    Vector2 position = reader.ReadVector2();
-                    var obj = Get(id);
-                    if (obj != null)
-                    {
-                        obj.ModdedClientText.transform.localPosition = position + new Vector2(0f, 0.5f);
-                        obj.Position = position;
-                    }
-
-                    break;
-                }
-                case 4:
-                {
-                    int id = reader.ReadPackedInt32();
-                    byte playerId = reader.ReadByte();
-                    var obj = Get(id);
-                    if (obj != null && playerId == PlayerControl.LocalPlayer.PlayerId)
-                        obj.ModdedClientText.enabled = false;
-                    break;
-                }
-            }
-        }
+        
     }
 
 /*
