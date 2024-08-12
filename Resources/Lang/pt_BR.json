@@ -2651,6 +2651,7 @@
   "AntiBlackOutLoggerSendInGame": "Por causa de um erro desconhecido, o Jogo será encerrado para evitar telas pretas.",
   "AntiBlackOutRequestHostToForceEnd": "Você foi o motivo da tela preta, você está pedindo para o Anfitrião encerrar o jogo...",
   "AntiBlackOutHostRejectForceEnd": "Você foi o motivo pra tela preta, e o Anfitrião não irá encerrar o jogo, você será desconectado em breve.",
+  "AntiBlackout.OverrideExiledPlayer": "To prevent black screens, the ejection screen shows a tied vote. (Players still get ejected, this is just visual.)",
   "GitHub": "GitHub",
   "Discord": "Discord",
   "Website": "Página",
