@@ -2931,7 +2931,7 @@
   "MafiosoHUDTextWithDualPistols": "<color=#00ffa5>Tier:</color> {0}, <color=#00ffa5>XP:</color> {1}\\n",
   "Whisperer": "Whisperer",
   "WhispererInfo": "Question Souls to Get Info",
-  "WhispererInfoLong": "(Crewmates):\\nAs the Whisperer, you can ask the souls of dead players for information. You'll see the souls of the players who have died (after the next meeting) and can question them by petting your pet on them. You have to stay near the soul for a few seconds. You then get random details on the soul or the killer in the chat.",
+  "WhispererInfoLong": "(Crewmates):\\nAs the Whisperer, you can ask the souls of dead players for information. You'll see the souls of the players who have died (after the next meeting) and can question them by petting your pet on them. You have to stay near the soul for a few seconds. You then get random details on the soul or the killer shown below your name.",
   "WhispererCooldown": "Questioning Cooldown",
   "WhispererDuration": "Questioning Duration",
   "WhispererInfo.Color": "A {0} color killed me (<size=50%>{1}</color>)",
