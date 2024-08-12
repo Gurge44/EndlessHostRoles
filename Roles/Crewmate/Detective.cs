@@ -60,7 +60,7 @@ namespace EHR.Crewmate
             if (DetectiveCanknowKillTime.GetBool())
             {
                 var deathTimeStamp = Main.PlayerStates[tpc.PlayerId].RealKiller.TimeStamp;
-                var now = DateTime.UtcNow;
+                var now = DateTime.Now;
                 var timeSpanSeconds = (now - deathTimeStamp).TotalSeconds;
                 msg += "；" + string.Format(Translator.GetString("DetectiveNoticeKillTime"), (int)timeSpanSeconds);
             }

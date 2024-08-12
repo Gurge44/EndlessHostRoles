@@ -32,6 +32,7 @@ internal static class CustomRolesHelper
         CustomRoles.Necromancer,
         CustomRoles.Deathknight,
         CustomRoles.Dad,
+        CustomRoles.Whisperer,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -202,6 +203,7 @@ internal static class CustomRolesHelper
             CustomRoles.GuessManagerRole => CustomRoles.Crewmate,
             CustomRoles.Altruist => CustomRoles.Crewmate,
             CustomRoles.Transmitter => CustomRoles.Crewmate,
+            CustomRoles.Whisperer => CustomRoles.Crewmate,
             CustomRoles.Car => CustomRoles.Crewmate,
             CustomRoles.President => CustomRoles.Crewmate,
             CustomRoles.Oxyman => CustomRoles.Engineer,
@@ -1297,6 +1299,7 @@ internal static class CustomRolesHelper
         CustomRoles.Spiritualist => RoleOptionType.Crewmate_Investigate,
         CustomRoles.Spy => RoleOptionType.Crewmate_Investigate,
         CustomRoles.TaskManager => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Whisperer => RoleOptionType.Crewmate_Investigate,
         CustomRoles.Witness => RoleOptionType.Crewmate_Investigate,
         CustomRoles.Aid => RoleOptionType.Crewmate_Support,
         CustomRoles.Altruist => RoleOptionType.Crewmate_Support,

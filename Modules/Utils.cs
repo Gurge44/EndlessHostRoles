@@ -2446,6 +2446,7 @@ public static class Utils
             CustomRoles.TimeMaster => Options.TimeMasterSkillCooldown.GetInt() + (includeDuration ? Options.TimeMasterSkillDuration.GetInt() : 0),
             CustomRoles.Veteran => Options.VeteranSkillCooldown.GetInt() + (includeDuration ? Options.VeteranSkillDuration.GetInt() : 0),
             CustomRoles.Rhapsode => Rhapsode.AbilityCooldown.GetInt() + (includeDuration ? Rhapsode.AbilityDuration.GetInt() : 0),
+            CustomRoles.Whisperer => Whisperer.Cooldown.GetInt() + (includeDuration ? Whisperer.Duration.GetInt() : 0),
             CustomRoles.Perceiver => Perceiver.CD.GetInt(),
             CustomRoles.Convener => Convener.CD.GetInt(),
             CustomRoles.DovesOfNeace => Options.DovesOfNeaceCooldown.GetInt(),
@@ -2686,6 +2687,7 @@ public static class Utils
             Soothsayer.OnAnyoneDeath(target.GetRealKiller(), target);
             Amnesiac.OnAnyoneDeath(target);
             Dad.OnAnyoneDeath(target);
+            Whisperer.OnAnyoneDied(target);
             EHR.Impostor.Sentry.OnAnyoneMurder(target);
 
             if (QuizMaster.On) QuizMaster.Data.NumPlayersDeadThisRound++;

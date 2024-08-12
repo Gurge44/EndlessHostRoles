@@ -357,6 +357,7 @@ public class Main : BasePlugin
                 { CustomRoles.Convener, "#34eb7a" },
                 { CustomRoles.Mathematician, "#eb3474" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Whisperer, "#82919e" },
                 { CustomRoles.Car, "#6e6e6e" },
                 { CustomRoles.President, "#30916f" },
                 { CustomRoles.Oxyman, "#ffa58c" },
