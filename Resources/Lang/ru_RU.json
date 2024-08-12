@@ -2651,6 +2651,7 @@
   "AntiBlackOutLoggerSendInGame": "Из-за неизвестной ошибки игра будет завершена для предотвращения чёрного экрана.",
   "AntiBlackOutRequestHostToForceEnd": "Вы - причина чёрного экрана. Ваш клиент просит хоста остановить игру.",
   "AntiBlackOutHostRejectForceEnd": "Вы - причина чёрного экрана, но хост не остановит игру, поэтому мы сейчас вас отключим.",
+  "AntiBlackout.OverrideExiledPlayer": "To prevent black screens, the ejection screen shows a tied vote. (Players still get ejected, this is just visual.)",
   "GitHub": "GitHub",
   "Discord": "Discord",
   "Website": "Website",
