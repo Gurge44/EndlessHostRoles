@@ -242,6 +242,7 @@ public enum CustomRoles
     Ventguard,
     Veteran,
     SwordsMan, // Vigilante
+    Whisperer,
     Witness,
 
     // Neutrals
