@@ -642,6 +642,7 @@ public static class Options
     public static OptionItem PhantomCanGuess;
     public static OptionItem GodCanGuess;
 
+    public static OptionItem ShowAntiBlackoutWarning;
     public static OptionItem AllowConsole;
     public static OptionItem NoGameEnd;
     public static OptionItem DontUpdateDeadPlayers;
@@ -1231,6 +1232,7 @@ public static class Options
             .SetColor(Color.red);
         AllowConsole = new BooleanOptionItem(19408, "AllowConsole", false, TabGroup.SystemSettings)
             .SetColor(Color.red);
+        ShowAntiBlackoutWarning = new BooleanOptionItem(19421, "ShowAntiBlackoutWarning", true, TabGroup.SystemSettings);
         RoleAssigningAlgorithm = new StringOptionItem(19409, "RoleAssigningAlgorithm", RoleAssigningAlgorithms, 4, TabGroup.SystemSettings, true)
             .RegisterUpdateValueEvent((_, args) => IRandom.SetInstanceById(args.CurrentValue));
         KPDCamouflageMode = new StringOptionItem(19500, "KPDCamouflageMode", CamouflageMode, 0, TabGroup.SystemSettings)

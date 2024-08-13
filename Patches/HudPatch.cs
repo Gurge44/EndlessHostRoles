@@ -585,12 +585,19 @@ class TaskPanelBehaviourPatch
         PlayerControl player = PlayerControl.LocalPlayer;
 
         var taskText = __instance.taskText.text;
-        if (taskText == "None") return;
+        if (taskText == "None" || GameStates.IsLobby) return;
 
         if (!player.GetCustomRole().IsVanilla())
         {
-            var RoleWithInfo = $"<size=80%>{player.GetCustomRole().ToColoredString()}:\r\n{player.GetRoleInfo()}</size>";
-            if (Options.CurrentGameMode == CustomGameMode.MoveAndStop) RoleWithInfo = $"<size=60%>{GetString("TaskerInfo")}</size>\r\n";
+            var roleInfo = player.GetRoleInfo();
+            var RoleWithInfo = $"<size=80%>{player.GetCustomRole().ToColoredString()}:\r\n{roleInfo}</size>";
+            if (Options.CurrentGameMode != CustomGameMode.Standard)
+            {
+                var splitted = roleInfo.Split(' ');
+                RoleWithInfo = splitted.Length <= 3
+                    ? $"<size=60%>{roleInfo}</size>\r\n"
+                    : $"<size=60%>{string.Join(' ', splitted[..3])}\r\n{string.Join(' ', splitted[3..])}</size>\r\n";
+            }
 
             var AllText = Utils.ColorString(player.GetRoleColor(), RoleWithInfo);
 

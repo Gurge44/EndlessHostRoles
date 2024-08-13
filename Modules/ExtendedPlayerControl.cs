@@ -168,14 +168,14 @@ static class ExtendedPlayerControl
 
     public static List<CustomRoles> GetCustomSubRoles(this PlayerControl player)
     {
-        if (GameStates.IsLobby) return [CustomRoles.NotAssigned];
+        if (GameStates.IsLobby) return [];
         if (player == null)
         {
             Logger.Warn("The player is null", "GetCustomSubRoles");
-            return [CustomRoles.NotAssigned];
+            return [];
         }
 
-        return Main.PlayerStates.TryGetValue(player.PlayerId, out var state) ? state.SubRoles : [CustomRoles.NotAssigned];
+        return Main.PlayerStates.TryGetValue(player.PlayerId, out var state) ? state.SubRoles : [];
     }
 
     public static CountTypes GetCountTypes(this PlayerControl player)

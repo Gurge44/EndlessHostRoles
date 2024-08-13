@@ -154,6 +154,7 @@ public static class Utils
 
     public static bool IsActive(SystemTypes type)
     {
+        if (GameStates.IsLobby) return false;
         int mapId = Main.NormalOptions.MapId;
         switch (type)
         {

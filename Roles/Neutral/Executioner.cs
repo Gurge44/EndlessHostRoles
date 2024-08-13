@@ -66,6 +66,7 @@ public class Executioner : RoleBase
             {
                 List<PlayerControl> targetList = [];
                 targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetNeutralBenign.GetBool() || !target.IsNeutralBenign() where CanTargetNeutralEvil.GetBool() || !target.IsNeutralEvil() where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where Main.LoversPlayers.TrueForAll(x => x.PlayerId != playerId) select target);
+                targetList.AddRange(Main.AllPlayerControls.Where(x => x.IsCrewmate()));
                 if (!CanTargetNeutralBenign.GetBool() && !CanTargetNeutralEvil.GetBool() && !CanTargetNeutralKiller.GetBool()) targetList.RemoveAll(x => x.GetCustomRole().IsNeutral() || x.Is(CustomRoles.Bloodlust));
 
                 if (targetList.Count == 0)
@@ -121,22 +122,30 @@ public class Executioner : RoleBase
 
     public static void ChangeRoleByTarget(PlayerControl target)
     {
-        byte Executioner = Target.FirstOrDefault(x => x.Value == target.PlayerId).Key;
+        var Executioner = Target.GetKeyByValue(target.PlayerId);
         var ExePC = Utils.GetPlayerById(Executioner);
-        ExePC.RpcSetCustomRole(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]);
+        var newRole = CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()];
+        ExePC.RpcSetCustomRole(newRole);
         Target.Remove(Executioner);
         SendRPC(Executioner);
+        NotifyRoleChange(ExePC, newRole);
         Utils.NotifyRoles(SpecifySeer: ExePC, SpecifyTarget: target);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: ExePC);
     }
 
     private static void ChangeRole(PlayerControl executioner)
     {
-        executioner.RpcSetCustomRole(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]);
+        var newRole = CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()];
+        executioner.RpcSetCustomRole(newRole);
         Target.Remove(executioner.PlayerId);
         SendRPC(executioner.PlayerId);
-        var text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Executioner), Translator.GetString(""));
-        text = string.Format(text, Utils.ColorString(Utils.GetRoleColor(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]), Translator.GetString(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()].ToString())));
+        NotifyRoleChange(executioner, newRole);
+    }
+
+    private static void NotifyRoleChange(PlayerControl executioner, CustomRoles newRole)
+    {
+        var text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Executioner), Translator.GetString("ExecutionerChangeRole"));
+        text = string.Format(text, newRole.ToColoredString());
         executioner.Notify(text);
     }
 

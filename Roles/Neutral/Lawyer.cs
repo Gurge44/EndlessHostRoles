@@ -130,9 +130,11 @@ public class Lawyer : RoleBase
                 Lawyer = x.Key;
         });
         PlayerControl lawyer = Utils.GetPlayerById(Lawyer);
-        lawyer.RpcSetCustomRole(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]);
+        var newRole = CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()];
+        lawyer.RpcSetCustomRole(newRole);
         Target.Remove(Lawyer);
         SendRPC(Lawyer);
+        NotifyChangeRole(lawyer, newRole);
         Utils.NotifyRoles(SpecifySeer: lawyer, SpecifyTarget: target);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: lawyer);
     }
@@ -158,11 +160,17 @@ public class Lawyer : RoleBase
 
     public static void ChangeRole(PlayerControl lawyer)
     {
-        lawyer.RpcSetCustomRole(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]);
+        var newRole = CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()];
+        lawyer.RpcSetCustomRole(newRole);
         Target.Remove(lawyer.PlayerId);
         SendRPC(lawyer.PlayerId);
-        var text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), Translator.GetString(""));
-        text = string.Format(text, Utils.ColorString(Utils.GetRoleColor(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]), Translator.GetString(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()].ToString())));
+        NotifyChangeRole(lawyer, newRole);
+    }
+
+    private static void NotifyChangeRole(PlayerControl lawyer, CustomRoles newRole)
+    {
+        var text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), Translator.GetString("LawyerChangeRole"));
+        text = string.Format(text, newRole.ToColoredString());
         lawyer.Notify(text);
     }
 

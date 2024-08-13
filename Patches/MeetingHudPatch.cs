@@ -503,7 +503,7 @@ class CheckForEndVotingPatch
         foreach (var playerId in playerIds)
         {
             var id = playerId;
-            if (CustomRoles.Lovers.IsEnable() && !Main.IsLoversDead && Main.LoversPlayers.Find(lp => lp.PlayerId == id) != null)
+            if (CustomRoles.Lovers.IsEnable() && !Main.IsLoversDead && Main.LoversPlayers.Any(lp => lp.PlayerId == id))
                 FixedUpdatePatch.LoversSuicide(playerId, true);
             if (Main.PlayerStates.TryGetValue(id, out var state) && state.SubRoles.Contains(CustomRoles.Avanger))
                 RevengeOnExile(playerId /*, deathReason*/);

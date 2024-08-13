@@ -1768,7 +1768,7 @@ class FixedUpdatePatch
 
     public static void LoversSuicide(byte deathId = 0x7f, bool isExiled = false)
     {
-        if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || !Main.LoversPlayers.Any(player => player.Data.IsDead && player.PlayerId == deathId)) return;
+        if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || (!Main.LoversPlayers.Any(player => player.Data.IsDead && player.PlayerId == deathId) && !isExiled)) return;
 
         Main.IsLoversDead = true;
         var partnerPlayer = Main.LoversPlayers.First(player => player.PlayerId != deathId && !player.Data.IsDead);
@@ -1776,7 +1776,7 @@ class FixedUpdatePatch
         if (Lovers.LoverDieConsequence.GetValue() == 2)
         {
             partnerPlayer.MarkDirtySettings();
-            deathId.GetPlayer()?.MarkDirtySettings();
+            PlayerGameOptionsSender.SetDirty(deathId);
             return;
         }
 

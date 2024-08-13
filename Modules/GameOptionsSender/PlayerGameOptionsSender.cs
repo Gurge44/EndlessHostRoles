@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
 using EHR.Crewmate;
@@ -361,6 +362,10 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                         break;
                     case CustomRoles.Madmate:
                         opt.SetVision(Options.MadmateHasImpostorVision.GetBool());
+                        break;
+                    case CustomRoles.Lovers when Main.LoversPlayers.Count(x => x.IsAlive()) == 1 && Lovers.LoverDieConsequence.GetValue() == 2:
+                        opt.SetFloat(FloatOptionNames.CrewLightMod, Main.DefaultCrewmateVision / 2f);
+                        opt.SetFloat(FloatOptionNames.ImpostorFlashlightSize, Main.DefaultImpostorVision / 2f);
                         break;
                     case CustomRoles.Nimble when player.GetRoleTypes() == RoleTypes.Engineer:
                         AURoleOptions.EngineerCooldown = Nimble.NimbleCD.GetFloat();
