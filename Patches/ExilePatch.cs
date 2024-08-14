@@ -223,11 +223,11 @@ static class ExileControllerWrapUpPatch
         {
             try
             {
-                WrapUpPostfix(__instance.exiled);
+                WrapUpPostfix(__instance.initData.networkedPlayer);
             }
             finally
             {
-                WrapUpFinalizer(__instance.exiled);
+                WrapUpFinalizer(__instance.initData.networkedPlayer);
             }
         }
     }
@@ -239,11 +239,11 @@ static class ExileControllerWrapUpPatch
         {
             try
             {
-                WrapUpPostfix(__instance.exiled);
+                WrapUpPostfix(__instance.initData.networkedPlayer);
             }
             finally
             {
-                WrapUpFinalizer(__instance.exiled);
+                WrapUpFinalizer(__instance.initData.networkedPlayer);
             }
         }
     }

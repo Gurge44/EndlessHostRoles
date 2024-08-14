@@ -1123,7 +1123,7 @@ class ReportDeadBodyPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-class FixedUpdatePatch
+static class FixedUpdatePatch
 {
     private static readonly StringBuilder Mark = new(20);
     private static readonly StringBuilder Suffix = new(120);
@@ -1788,7 +1788,7 @@ class FixedUpdatePatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Start))]
-class PlayerStartPatch
+static class PlayerStartPatch
 {
     public static void Postfix(PlayerControl __instance)
     {
