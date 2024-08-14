@@ -2742,7 +2742,7 @@
   "DivinatorCheck.HelpFromDead": "<b>{0}</b> 似乎正在从死者那里得到帮助.",
   "DivinatorCheck.UnusualGoal": "<b>{0}</b> 似乎有不寻常的胜利条件.",
   "DivinatorCheckResult": "<b>{0}</b> 是以下角色之一:\\n{1}",
-  "SunnyboyChance": "<color=#ff9902>Sunnyboy</color> Chance",
+  "SunnyboyChance": "<color=#ff9902>阳光男大</color>出现几率",
   "BardChance": "<color=#ff1919>Bard</color> Chance",
   "NukerChance": "<color=#ff1919>Nuker</color> Chance",
   "SkeldChance": "Chance that the map is The Skeld",
