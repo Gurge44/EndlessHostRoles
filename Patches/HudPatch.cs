@@ -422,12 +422,12 @@ class SetHudActivePatch
                 __instance.ImpostorVentButton?.ToggleVisible(false);
                 __instance.AbilityButton?.ToggleVisible(false);
                 return;
-            case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.FFA:
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
                 __instance.AbilityButton?.ToggleVisible(false);
                 return;
+            case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.HideAndSeek:
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);

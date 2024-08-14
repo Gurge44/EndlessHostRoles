@@ -765,6 +765,7 @@ class ShapeshiftPatch
         var role = shapeshifter.GetCustomRole();
         bool forceCancel = role.ForceCancelShapeshift();
         bool unshiftTrigger = role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool());
+        unshiftTrigger |= Options.CurrentGameMode == CustomGameMode.CaptureTheFlag;
         forceCancel |= unshiftTrigger;
 
         if (shapeshifter.Is(CustomRoles.Camouflager) && !shapeshifting) Camouflager.Reset();
