@@ -199,6 +199,7 @@ class CheckForEndVotingPatch
             states = [.. statesList];
 
             var VotingData = __instance.CustomCalculateVotes();
+            Assumer.OnVotingEnd(VotingData);
             byte exileId = byte.MaxValue;
             int max = 0;
             voteLog.Info("===Decision to expel player processing begins===");

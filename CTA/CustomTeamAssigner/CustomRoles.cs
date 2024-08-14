@@ -21,6 +21,7 @@ public enum CustomRoles
     Hacker, // Anonymous
     AntiAdminer,
     Sans, // Arrogance
+    Assumer,
     Augmenter,
     Bard,
     Blackmailer,

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
 using EHR.Crewmate;
@@ -54,6 +55,7 @@ public class PlayerState(byte playerId)
         Consumed,
         BadLuck,
         Asthma,
+        Assumed,
 
         etc = -1
     }
@@ -334,15 +336,6 @@ public class TaskState
                 SpeedrunManager.ResetTimer(player);
             }
 
-            if (player.Is(CustomRoles.Unlucky) && alive)
-            {
-                var Ue = IRandom.Instance;
-                if (Ue.Next(0, 100) < Options.UnluckyTaskSuicideChance.GetInt())
-                {
-                    player.Suicide();
-                }
-            }
-
             if (alive && Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId))
             {
                 Mastermind.OnManipulatedPlayerTaskComplete(player);
@@ -380,7 +373,9 @@ public class TaskState
 
             var addons = Main.PlayerStates[player.PlayerId].SubRoles;
 
+            if (addons.Contains(CustomRoles.Deadlined)) Deadlined.SetDone(player);
             if (addons.Contains(CustomRoles.Stressed)) Stressed.OnTaskComplete(player);
+            if (addons.Contains(CustomRoles.Unlucky) && alive && IRandom.Instance.Next(0, 100) < Options.UnluckyTaskSuicideChance.GetInt()) player.Suicide();
             if (GhostRolesManager.AssignedGhostRoles.TryGetValue(player.PlayerId, out var ghostRole))
             {
                 if (ghostRole is { Role: CustomRoles.Specter, Instance: Specter specter } && (CompletedTasksCount + 1 >= AllTasksCount)) specter.OnFinishedTasks(player);

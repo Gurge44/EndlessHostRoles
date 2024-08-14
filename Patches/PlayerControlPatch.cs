@@ -646,6 +646,8 @@ class MurderPlayerPatch
         if (killer.Is(CustomRoles.Pickpocket) && killer.PlayerId != target.PlayerId)
             killer.Notify(string.Format(GetString("PickpocketGetVote"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Pickpocket.VotesPerKill.GetFloat()).ToString("0.0#####")));
 
+        if (killer.Is(CustomRoles.Deadlined)) Deadlined.SetDone(killer);
+
         if (target.Is(CustomRoles.Avanger))
         {
             var pcList = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId).ToArray();
@@ -1054,6 +1056,7 @@ class ReportDeadBodyPatch
         Spiritualist.OnReportDeadBody(target);
 
         Bloodmoon.OnMeetingStart();
+        Deadlined.OnMeetingStart();
 
         Main.LastVotedPlayerInfo = null;
         Witness.AllKillers.Clear();
@@ -1667,6 +1670,7 @@ static class FixedUpdatePatch
                     Suffix.Append(Haunter.GetSuffix(seer));
                     if (seer.Is(CustomRoles.Asthmatic)) Suffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
                     if (seer.Is(CustomRoles.Sonar)) Suffix.Append(Sonar.GetSuffix(seer, GameStates.IsMeeting));
+                    if (seer.Is(CustomRoles.Deadlined)) Suffix.Append(Deadlined.GetSuffix(seer));
                 }
 
                 switch (Options.CurrentGameMode)

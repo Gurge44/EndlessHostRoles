@@ -127,6 +127,7 @@ internal static class CustomRolesHelper
             CustomRoles.Dictator => CustomRoles.Crewmate,
             CustomRoles.Inhibitor => CustomRoles.Impostor,
             CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
+            CustomRoles.Assumer => CustomRoles.Impostor,
             CustomRoles.Augmenter => CustomRoles.Shapeshifter,
             CustomRoles.Ventriloquist => CustomRoles.Impostor,
             CustomRoles.Echo => CustomRoles.Shapeshifter,
@@ -573,6 +574,7 @@ internal static class CustomRolesHelper
         CustomRoles.Augmenter or
         CustomRoles.Inhibitor or
         CustomRoles.Kidnapper or
+        CustomRoles.Assumer or
         CustomRoles.Generator or
         CustomRoles.Blackmailer or
         CustomRoles.Commander or
@@ -1172,6 +1174,7 @@ internal static class CustomRolesHelper
     {
         CustomRoles.Sans => RoleOptionType.Impostor_Killing,
         CustomRoles.Assassin => RoleOptionType.Impostor_Killing,
+        CustomRoles.Assumer => RoleOptionType.Impostor_Killing,
         CustomRoles.Augmenter => RoleOptionType.Impostor_Killing,
         CustomRoles.Bomber => RoleOptionType.Impostor_Killing,
         CustomRoles.BountyHunter => RoleOptionType.Impostor_Killing,

@@ -21,6 +21,7 @@ public enum CustomRoles
     Hacker, // Anonymous
     AntiAdminer,
     Sans, // Arrogance
+    Assumer,
     Augmenter,
     Bard,
     Blackmailer,
@@ -395,6 +396,7 @@ public enum CustomRoles
     Clumsy,
     Contagious,
     Damocles,
+    Deadlined,
     DeadlyQuota,
     Disco,
     Diseased,

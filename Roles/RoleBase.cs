@@ -1,5 +1,7 @@
 ﻿global using Object = UnityEngine.Object;
 using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
@@ -188,5 +190,63 @@ namespace EHR
             var seerRole = seer.GetCustomRole();
             return seerRole.IsNK() && seerRole == target.GetCustomRole() && seer.GetTeam() == target.GetTeam();
         }
+
+        // Option setup simplifier
+        protected static OptionSetupHandler StartSetup(int id, TabGroup tab, CustomRoles role)
+        {
+            Options.SetupRoleOptions(id++, tab, role);
+            return new(++id, tab, role);
+        }
+    }
+
+    public class OptionSetupHandler(int id, TabGroup tab, CustomRoles role)
+    {
+        private readonly OptionItem Parent = Options.CustomRoleSpawnChances[role];
+
+        public OptionSetupHandler AutoSetupOption(ref OptionItem field, object defaultValue, object valueRule = null, OptionFormat format = OptionFormat.None, [CallerArgumentExpression("field")] string fieldName = "", string overrideName = "", OptionItem overrideParent = null)
+        {
+            try
+            {
+                var name = overrideName == "" ? $"{role}.{fieldName}" : overrideName;
+                switch (valueRule, defaultValue)
+                {
+                    case (null, bool bdv):
+                        field = new BooleanOptionItem(++id, name, bdv, tab);
+                        field.SetParent(overrideParent ?? Parent);
+                        break;
+                    case (IntegerValueRule ivr, int idv):
+                        field = new IntegerOptionItem(++id, name, ivr, idv, tab);
+                        field.SetParent(overrideParent ?? Parent);
+                        break;
+                    case (FloatValueRule fvr, float fdv):
+                        field = new FloatOptionItem(++id, name, fvr, fdv, tab);
+                        field.SetParent(overrideParent ?? Parent);
+                        break;
+                    case (IList<string> selections, int index):
+                        field = new StringOptionItem(++id, name, selections, index, tab);
+                        field.SetParent(overrideParent ?? Parent);
+                        break;
+                    default:
+                        throw new ArgumentException("The valueRule and defaultValue combination is not supported.");
+                }
+
+                if (format != OptionFormat.None) field?.SetValueFormat(format);
+            }
+            catch (Exception e)
+            {
+                Logger.Error($"Failed to setup option {fieldName} for {role}", "OptionSetupHandler");
+                Utils.ThrowException(e);
+            }
+
+            return this;
+        }
+    }
+
+    public enum OptionType
+    {
+        Boolean,
+        Int,
+        Float,
+        String
     }
 }

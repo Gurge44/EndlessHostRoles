@@ -29,23 +29,23 @@ namespace EHR.Crewmate
 
         public override void SetupCustomOption()
         {
-            // int id = 649550;
-            // Options.SetupRoleOptions(id++, TabGroup.CrewmateRoles, CustomRoles.Whisperer);
-            // Cooldown = new IntegerOptionItem(++id, "WhispererCooldown", new(0, 60, 1), 5, TabGroup.CrewmateRoles)
-            //     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
-            //     .SetValueFormat(OptionFormat.Seconds);
-            // Duration = new IntegerOptionItem(++id, "WhispererDuration", new(0, 60, 1), 7, TabGroup.CrewmateRoles)
-            //     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
-            //     .SetValueFormat(OptionFormat.Seconds);
-            // AbilityUseLimit = new IntegerOptionItem(++id, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles)
-            //     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
-            //     .SetValueFormat(OptionFormat.Times);
-            // WhispererAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(++id, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
-            //     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
-            //     .SetValueFormat(OptionFormat.Times);
-            // AbilityChargesWhenFinishedTasks = new FloatOptionItem(++id, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
-            //     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
-            //     .SetValueFormat(OptionFormat.Times);
+            int id = 649550;
+            Options.SetupRoleOptions(id++, TabGroup.CrewmateRoles, CustomRoles.Whisperer);
+            Cooldown = new IntegerOptionItem(++id, "WhispererCooldown", new(0, 60, 1), 5, TabGroup.CrewmateRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
+                .SetValueFormat(OptionFormat.Seconds);
+            Duration = new IntegerOptionItem(++id, "WhispererDuration", new(0, 60, 1), 7, TabGroup.CrewmateRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
+                .SetValueFormat(OptionFormat.Seconds);
+            AbilityUseLimit = new IntegerOptionItem(++id, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
+                .SetValueFormat(OptionFormat.Times);
+            WhispererAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(++id, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
+                .SetValueFormat(OptionFormat.Times);
+            AbilityChargesWhenFinishedTasks = new FloatOptionItem(++id, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Whisperer])
+                .SetValueFormat(OptionFormat.Times);
         }
 
         public override void Init()

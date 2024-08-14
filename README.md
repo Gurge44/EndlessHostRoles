@@ -11,6 +11,15 @@
 >
 > This mod is not affiliated with Among Us or Innersloth LLC, and the content contained therein is not endorsed or
 > otherwise sponsored by Innersloth LLC. Portions of the materials contained herein are the property of Innersloth LLC.
+> <br>
+> <br>
+> This mod does not unlock all cosmetics permanently, so it does not add them to your account. This is because your
+> progress is stored on the Innersloth servers and we cannot just modify it. However, this mod uses BepInEx and the
+> Reactor Framework to Postfix Among Us game methods and unlock all cosmetics temporarily. If you uninstall this mod,
+> the
+> cosmetics will be locked again. The cosmetics you have already unlocked legitimately, e.g., through buying a cosmicube
+> are untouched by this mod. This mod is not a cheat, it is a mod that adds new roles and features to the game. If you
+> have any questions, feel free to ask in our Discord server.
 <br>
 
 </p>
