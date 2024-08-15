@@ -41,6 +41,7 @@ namespace EHR.AddOns.Common
             if (MeetingEndTS + InactiveTime.GetInt() > Utils.TimeStamp) return;
             foreach (var pc in Main.AllAlivePlayerControls)
             {
+                if (!pc.Is(CustomRoles.Deadlined)) continue;
                 if (!DidTask.Contains(pc.PlayerId))
                     pc.Suicide();
             }

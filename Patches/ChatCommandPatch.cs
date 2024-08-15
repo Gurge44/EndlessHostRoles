@@ -287,12 +287,16 @@ internal static class ChatCommands
     private static void NoteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         if (player.Is(CustomRoles.Journalist) && player.IsAlive())
+        {
+            if (PlayerControl.LocalPlayer.PlayerId != player.PlayerId) ChatManager.SendPreviousMessagesToAll();
             Journalist.OnReceiveCommand(player, args);
+        }
     }
 
     private static void AssumeCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         if (args.Length < 3 || !byte.TryParse(args[1], out var id) || !int.TryParse(args[2], out var num) || !player.Is(CustomRoles.Assumer) || !player.IsAlive()) return;
+        if (PlayerControl.LocalPlayer.PlayerId != player.PlayerId) ChatManager.SendPreviousMessagesToAll();
         Assumer.Assume(player.PlayerId, id, num);
     }
 

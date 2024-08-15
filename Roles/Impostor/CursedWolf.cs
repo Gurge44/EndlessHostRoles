@@ -44,9 +44,6 @@ namespace EHR.Impostor
                 HasImpostorVision = true;
                 KillAttacker = Options.killAttacker.GetBool();
             }
-
-            if (!AmongUsClient.Instance.AmHost || !IsJinx) return;
-            Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)

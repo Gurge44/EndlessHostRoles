@@ -3344,6 +3344,8 @@
   "DeadlinedInfoLong": "(Add-ons):\\nAs the Deadlined, you must complete a task or kill someone each round. If you fail to do so, you will die. If a meeting gets called too soon after the previous one ends (time set by the host), you won't die.",
   "Prefix.Deadlined": "Deadlined",
   "Deadlined.InactiveTime": "Safe Time After Meetings",
+  "Deadlined.MustDoTask": "<size=80%><#ffa500>You must complete a task or kill before the next meeting</color></size>",
+  "Deadlined.SafeTime": "<size=80%><#00ffa5>Safe time:</color> <b>{0}</b>s</size>",
   "Assumer": "Assumer",
   "AssumerInfo": "Assume Vote Counts",
   "AssumerInfoLong": "(Impostors):\\nAs the Assumer, you can type <b>/assume {id} {number}</b> to assume that the selected player (whose ID you typed as the first argument, replacing '{id}') will get exactly {number} votes (the number you typed in the second argument, replacing '{number}').\\nExample: <b>/assume 0 3</b> (assume that the host gets 3 votes).\\n\\nIf you are correct, <u>every player</u> that voted for your target dies.",

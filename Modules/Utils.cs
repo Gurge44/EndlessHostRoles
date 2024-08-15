@@ -2553,6 +2553,12 @@ public static class Utils
                     pc.Notify(GetString("DoYourTasksPlease"), 10f);
 
                 GhostRolesManager.NotifyAboutGhostRole(pc);
+
+                if (pc.HasGhostRole())
+                {
+                    pc.ReactorFlash(1f);
+                    pc.ResetPlayerCam(2f);
+                }
             }
 
             if (pc.Is(CustomRoles.Specter) || pc.Is(CustomRoles.Haunter)) pc.RpcResetAbilityCooldown();

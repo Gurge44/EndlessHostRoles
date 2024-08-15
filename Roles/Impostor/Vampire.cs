@@ -64,9 +64,6 @@ public class Vampire : RoleBase
             CanVent = Poisoner.CanVent.GetBool();
             CanKillNormally = Poisoner.CanKillNormally.GetBool();
         }
-
-        if (!AmongUsClient.Instance.AmHost || !IsPoisoner) return;
-        Main.ResetCamPlayerList.Add(playerId);
     }
 
     public static bool IsThisRole(byte playerId) => PlayerIdList.Contains(playerId);

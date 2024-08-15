@@ -81,9 +81,6 @@ public class Wildling : RoleBase
                 ShapeshiftDur = 0;
                 HasImpostorVision = BloodKnight.HasImpostorVision.GetBool();
                 KillCooldown = BloodKnight.KillCooldown.GetFloat();
-
-                if (!AmongUsClient.Instance.AmHost) return;
-                Main.ResetCamPlayerList.Add(playerId);
                 break;
         }
     }

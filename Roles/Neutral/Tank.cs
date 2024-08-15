@@ -56,7 +56,6 @@ namespace EHR.Neutral
         {
             EnteredVents.Add(ventId);
             Utils.NotifyRoles(SpecifySeer: physics.myPlayer, SpecifyTarget: physics.myPlayer);
-            LateTask.New(() => physics.RpcBootFromVent(ventId), 0.5f, log: false);
         }
 
         public override string GetProgressText(byte playerId, bool comms)

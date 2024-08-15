@@ -62,9 +62,6 @@ namespace EHR.Impostor
                 CanVent = true;
                 HasImpVision = true;
             }
-
-            if (!AmongUsClient.Instance.AmHost || !IsRitualist) return;
-            Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override bool CanUseImpostorVentButton(PlayerControl pc)

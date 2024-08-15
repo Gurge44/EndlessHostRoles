@@ -64,13 +64,6 @@ public class Greedier : RoleBase // Also used for Imitator as the NK version of 
             AfterMeetingKCD = AfterMeetingKillCooldown.GetFloat();
             HasImpVision = true;
         }
-
-        if (!AmongUsClient.Instance.AmHost) return;
-
-        if (!Main.ResetCamPlayerList.Contains(playerId) && IsImitator)
-        {
-            Main.ResetCamPlayerList.Add(playerId);
-        }
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)

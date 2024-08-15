@@ -171,6 +171,7 @@ public enum CustomRoles
     Divinator, // Fortune Teller
     Gaulois,
     Goose,
+    Grappler,
     Grenadier,
     GuessManagerRole,
     Guardian,
@@ -179,6 +180,7 @@ public enum CustomRoles
     ParityCop, // Inspector
     Inquirer,
     Jailor,
+    Journalist,
     Judge,
     Needy, // Lazy Guy
     Lighter,
@@ -325,6 +327,7 @@ public enum CustomRoles
     DarkHide, // Stalker
     Succubus,
     Sunnyboy,
+    Tank,
     Terrorist,
     Tiger,
     Traitor,
@@ -396,6 +399,7 @@ public enum CustomRoles
     Clumsy,
     Contagious,
     Damocles,
+    Deadlined,
     DeadlyQuota,
     Disco,
     Diseased,

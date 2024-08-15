@@ -188,12 +188,43 @@ class TextBoxTMPSetTextPatch
             for (int i = 0; i < args.Length; i++)
             {
                 if (command.ArgsDescriptions.Length <= i) break;
-                bool current = spaces - 1 == i;
-                if (current) info += "<#ffff44>";
                 int skip = poll ? input.TakeWhile(x => x != '?').Count(x => x == ' ') - 1 : 0;
                 var arg = poll ? i == 0 ? args[..++skip].Join(delimiter: " ") : args[spaces - 1 < i ? skip + i + spaces : skip + i] : args[spaces > i ? i : i + spaces];
-                info += $"\n       - <b>{arg}</b>: {command.ArgsDescriptions[i]}";
-                if (current) info += "</color>";
+                bool current = spaces - 1 == i, invalid = IsInvalidArg(), valid = IsValidArg();
+                info += "\n" + (invalid, current, valid) switch
+                {
+                    (true, true, false) => "<#ffa500>\u27a1    ",
+                    (true, false, false) => "<#ff0000>        ",
+                    (false, true, true) => "<#00ffa5>\u27a1 \u2713 ",
+                    (false, false, true) => "<#00ffa5>\u2713</color> <#00ffff>     ",
+                    (false, true, false) => "<#ffff44>\u27a1    ",
+                    _ => "        "
+                };
+                info += $"   - <b>{arg}</b>: {command.ArgsDescriptions[i]}";
+                if (current || invalid || valid) info += "</color>";
+                continue;
+
+                bool IsInvalidArg() => arg != command.Arguments.Split(' ')[i] && command.Arguments.Split(' ')[i] switch
+                {
+                    "{id}" or "{id1}" or "{id2}" => !byte.TryParse(arg, out var id) || Main.AllPlayerControls.All(x => x.PlayerId != id),
+                    "{number}" or "{level}" or "{duration}" or "{number1}" or "{number2}" => !int.TryParse(arg, out _),
+                    "{team}" => arg is not "crew" and not "imp",
+                    "{role}" => !ChatCommands.GetRoleByName(arg, out _),
+                    "{addon}" => !ChatCommands.GetRoleByName(arg, out var role) || !role.IsAdditionRole(),
+                    "{letter}" => arg.Length != 1 || !char.IsLetter(arg[0]),
+                    _ => false
+                };
+
+                bool IsValidArg() => command.Arguments.Split(' ')[i].Replace('[', '{').Replace(']', '}') switch
+                {
+                    "{id}" or "{id1}" or "{id2}" => byte.TryParse(arg, out var id) && Main.AllPlayerControls.Any(x => x.PlayerId == id),
+                    "{number}" or "{level}" or "{duration}" or "{number1}" or "{number2}" => int.TryParse(arg, out _),
+                    "{team}" => arg is "crew" or "imp",
+                    "{role}" => ChatCommands.GetRoleByName(arg, out _),
+                    "{addon}" => ChatCommands.GetRoleByName(arg, out var role) && role.IsAdditionRole(),
+                    "{letter}" => arg.Length == 1 && char.IsLetter(arg[0]),
+                    _ => false
+                };
             }
         }
 

@@ -98,9 +98,6 @@ public class Swooper : RoleBase
                 VentNormallyOnCooldown = Wraith.WraithVentNormallyOnCooldown.GetBool();
                 break;
         }
-
-        if (!AmongUsClient.Instance.AmHost || UsedRole == CustomRoles.Swooper) return;
-        Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
