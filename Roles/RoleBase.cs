@@ -203,11 +203,11 @@ namespace EHR
     {
         private readonly OptionItem Parent = Options.CustomRoleSpawnChances[role];
 
-        public OptionSetupHandler AutoSetupOption(ref OptionItem field, object defaultValue, object valueRule = null, OptionFormat format = OptionFormat.None, [CallerArgumentExpression("field")] string fieldName = "", string overrideName = "", OptionItem overrideParent = null)
+        public OptionSetupHandler AutoSetupOption(ref OptionItem field, object defaultValue, object valueRule = null, OptionFormat format = OptionFormat.None, [CallerArgumentExpression("field")] string fieldName = "", string overrideName = "", OptionItem overrideParent = null, bool noTranslation = false)
         {
             try
             {
-                var name = overrideName == "" ? $"{role}.{fieldName}" : overrideName;
+                var name = overrideName == "" ? IsGeneralOption() ? fieldName : $"{role}.{fieldName}" : overrideName;
                 switch (valueRule, defaultValue)
                 {
                     case (null, bool bdv):
@@ -223,7 +223,7 @@ namespace EHR
                         field.SetParent(overrideParent ?? Parent);
                         break;
                     case (IList<string> selections, int index):
-                        field = new StringOptionItem(++id, name, selections, index, tab);
+                        field = new StringOptionItem(++id, name, selections, index, tab, noTranslation: noTranslation);
                         field.SetParent(overrideParent ?? Parent);
                         break;
                     default:
@@ -239,6 +239,8 @@ namespace EHR
             }
 
             return this;
+
+            bool IsGeneralOption() => !Translator.GetString(fieldName).Contains("INVALID");
         }
     }
 

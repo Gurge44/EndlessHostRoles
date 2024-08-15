@@ -229,7 +229,7 @@ internal static class SoloKombatManager
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
         if (!target.IsModClient() && !target.AmOwner)
-            target.RpcGuardAndKill(colorId: 5);
+            target.RpcGuardAndKill();
 
         SendRPCSyncKBPlayer(target.PlayerId);
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
@@ -243,11 +243,11 @@ internal static class SoloKombatManager
         SendRPCSyncKBPlayer(pc.PlayerId);
 
         LastHurt[pc.PlayerId] = Utils.TimeStamp;
-        Main.AllPlayerSpeed[pc.PlayerId] = Main.AllPlayerSpeed[pc.PlayerId] - 0.3f + OriginalSpeed[pc.PlayerId];
+        Main.AllPlayerSpeed[pc.PlayerId] = OriginalSpeed[pc.PlayerId];
         pc.MarkDirtySettings();
 
         RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
-        pc.RpcGuardAndKill(colorId: 1);
+        pc.RpcGuardAndKill();
 
         PlayerRandomSpwan(pc);
     }
@@ -274,7 +274,7 @@ internal static class SoloKombatManager
         OriginalSpeed.Add(target.PlayerId, Main.AllPlayerSpeed[target.PlayerId]);
 
         target.TP(Pelican.GetBlackRoomPS());
-        Main.AllPlayerSpeed[target.PlayerId] = 0.3f;
+        Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
         target.MarkDirtySettings();
 
         BackCountdown.TryAdd(target.PlayerId, KB_ResurrectionWaitingTime.GetInt());
@@ -291,6 +291,7 @@ internal static class SoloKombatManager
 
         float addRate = IRandom.Instance.Next(3, 5 + GetRankOfScore(killer.PlayerId)) / 100f;
         addRate *= KB_KillBonusMultiplier.GetFloat();
+        if (killer.IsHost()) addRate /= 2f;
         float addin;
         switch (IRandom.Instance.Next(0, 4))
         {
@@ -310,7 +311,7 @@ internal static class SoloKombatManager
                 AddNameNotify(killer, string.Format(Translator.GetString("KB_Buff_ATK"), addin.ToString("0.0#####")));
                 break;
             case 3:
-                addin = Math.Max(PlayerDF[killer.PlayerId], 1f) * addRate;
+                addin = Math.Max(PlayerDF[killer.PlayerId], 1f) * addRate * 3;
                 PlayerDF[killer.PlayerId] += addin;
                 AddNameNotify(killer, string.Format(Translator.GetString("KB_Buff_DF"), addin.ToString("0.0#####")));
                 break;

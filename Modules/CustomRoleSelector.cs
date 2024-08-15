@@ -610,7 +610,7 @@ internal static class CustomRoleSelector
 
     public static void SelectAddonRoles()
     {
-        if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HideAndSeek) return;
+        if (Options.CurrentGameMode != CustomGameMode.Standard) return;
 
         foreach (var id in Main.SetAddOns.Keys.Where(id => Utils.GetPlayerById(id) == null).ToArray()) Main.SetAddOns.Remove(id);
 

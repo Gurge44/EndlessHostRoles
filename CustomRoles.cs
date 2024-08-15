@@ -325,6 +325,7 @@ public enum CustomRoles
     DarkHide, // Stalker
     Succubus,
     Sunnyboy,
+    Tank,
     Terrorist,
     Tiger,
     Traitor,

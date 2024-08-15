@@ -416,36 +416,39 @@ internal class SelectRolesPatch
 
             BasisChangingAddons.Clear();
 
-            try
+            if (Options.CurrentGameMode == CustomGameMode.Standard)
             {
-                var rd = IRandom.Instance;
-                bool bloodlustSpawn = rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Bloodlust, out var option3) ? option3.GetFloat() : 0) && CustomRoles.Bloodlust.IsEnable();
-                bool hasBanned = Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var banned);
-                HashSet<byte> bloodlustList = RoleResult.Where(x => x.Value.IsCrewmate() && !x.Value.IsTaskBasedCrewmate() && (!hasBanned || banned == null || !banned.Any(b => b.Key == x.Value && b.Value.Contains(CustomRoles.Bloodlust)))).Select(x => x.Key.PlayerId).ToHashSet();
-                if (bloodlustList.Count == 0) bloodlustSpawn = false;
-
-                if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var combos) && combos.Values.Any(l => l.Contains(CustomRoles.Bloodlust)))
+                try
                 {
-                    var roles = combos.Where(x => x.Value.Contains(CustomRoles.Bloodlust)).Select(x => x.Key).ToHashSet();
-                    var players = RoleResult.Where(x => roles.Contains(x.Value) && x.Value.IsCrewmate() && !x.Value.IsTaskBasedCrewmate()).Select(x => x.Key.PlayerId).ToHashSet();
-                    if (players.Count > 0)
+                    var rd = IRandom.Instance;
+                    bool bloodlustSpawn = rd.Next(1, 100) <= (Options.CustomAdtRoleSpawnRate.TryGetValue(CustomRoles.Bloodlust, out var option3) ? option3.GetFloat() : 0) && CustomRoles.Bloodlust.IsEnable();
+                    bool hasBanned = Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var banned);
+                    HashSet<byte> bloodlustList = RoleResult.Where(x => x.Value.IsCrewmate() && !x.Value.IsTaskBasedCrewmate() && (!hasBanned || banned == null || !banned.Any(b => b.Key == x.Value && b.Value.Contains(CustomRoles.Bloodlust)))).Select(x => x.Key.PlayerId).ToHashSet();
+                    if (bloodlustList.Count == 0) bloodlustSpawn = false;
+
+                    if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var combos) && combos.Values.Any(l => l.Contains(CustomRoles.Bloodlust)))
                     {
-                        bloodlustList = players;
-                        bloodlustSpawn = true;
+                        var roles = combos.Where(x => x.Value.Contains(CustomRoles.Bloodlust)).Select(x => x.Key).ToHashSet();
+                        var players = RoleResult.Where(x => roles.Contains(x.Value) && x.Value.IsCrewmate() && !x.Value.IsTaskBasedCrewmate()).Select(x => x.Key.PlayerId).ToHashSet();
+                        if (players.Count > 0)
+                        {
+                            bloodlustList = players;
+                            bloodlustSpawn = true;
+                        }
                     }
-                }
 
-                if (Main.SetAddOns.Values.Any(x => x.Contains(CustomRoles.Bloodlust)))
+                    if (Main.SetAddOns.Values.Any(x => x.Contains(CustomRoles.Bloodlust)))
+                    {
+                        bloodlustSpawn = true;
+                        bloodlustList = Main.SetAddOns.Where(x => x.Value.Contains(CustomRoles.Bloodlust)).Select(x => x.Key).ToHashSet();
+                    }
+
+                    if (bloodlustSpawn) BasisChangingAddons[CustomRoles.Bloodlust] = bloodlustList.Shuffle().Take(CustomRoles.Bloodlust.GetCount()).ToList();
+                }
+                catch (Exception e)
                 {
-                    bloodlustSpawn = true;
-                    bloodlustList = Main.SetAddOns.Where(x => x.Value.Contains(CustomRoles.Bloodlust)).Select(x => x.Key).ToHashSet();
+                    Utils.ThrowException(e);
                 }
-
-                if (bloodlustSpawn) BasisChangingAddons[CustomRoles.Bloodlust] = bloodlustList.Shuffle().Take(CustomRoles.Bloodlust.GetCount()).ToList();
-            }
-            catch (Exception e)
-            {
-                Utils.ThrowException(e);
             }
 
 

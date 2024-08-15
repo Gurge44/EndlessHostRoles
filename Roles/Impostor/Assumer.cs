@@ -24,9 +24,9 @@ namespace EHR.Impostor
             StartSetup(649250, TabGroup.ImpostorRoles, CustomRoles.Assumer)
                 .AutoSetupOption(ref VoteReceiverDies, false)
                 .AutoSetupOption(ref MinPlayersToAssume, 6, new IntegerValueRule(1, 15, 1), OptionFormat.Players)
-                .AutoSetupOption(ref CanKill, true, overrideName: "CanKill")
-                .AutoSetupOption(ref KillCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds, overrideName: "KillCooldown", overrideParent: CanKill)
-                .AutoSetupOption(ref CanVent, false, overrideName: "CanVent");
+                .AutoSetupOption(ref CanKill, true)
+                .AutoSetupOption(ref KillCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds, overrideParent: CanKill)
+                .AutoSetupOption(ref CanVent, false);
         }
 
         public override void Init()

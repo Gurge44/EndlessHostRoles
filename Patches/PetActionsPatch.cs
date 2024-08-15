@@ -1,8 +1,10 @@
 using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Impostor;
 using EHR.Neutral;
 using HarmonyLib;
+using UnityEngine;
 
 namespace EHR.Patches;
 
@@ -109,7 +111,8 @@ class ExternalRpcPetPatch
         if (target != null) hasKillTarget = true;
         if (!pc.CanUseKillButton()) hasKillTarget = false;
 
-        if (pc.GetCustomRole().UsesPetInsteadOfKill() && hasKillTarget && (pc.Data.RoleType != RoleTypes.Impostor || pc.GetCustomRole() is CustomRoles.Necromancer or CustomRoles.Deathknight))
+        var role = pc.GetCustomRole();
+        if (role.UsesPetInsteadOfKill() && hasKillTarget && (pc.Data.RoleType != RoleTypes.Impostor || role is CustomRoles.Necromancer or CustomRoles.Deathknight))
         {
             pc.AddKCDAsAbilityCD();
             if (Main.PlayerStates[pc.PlayerId].Role.OnCheckMurder(pc, target))
@@ -133,6 +136,14 @@ class ExternalRpcPetPatch
     {
         var players = pc.GetPlayersInAbilityRangeSorted();
         var target = players.Count == 0 ? null : players[0];
+
+        if (target != null && target.Is(CustomRoles.Detour))
+        {
+            var tempTarget = target;
+            target = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId && x.PlayerId != pc.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
+            Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
+        }
+
         return target;
     }
 }

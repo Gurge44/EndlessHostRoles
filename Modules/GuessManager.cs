@@ -335,6 +335,10 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("GuessErased"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessErased"));
                             return true;
+                        case CustomRoles.Tank when !Tank.CanBeGuessed.GetBool():
+                            if (!isUI) Utils.SendMessage(GetString("GuessTank"), pc.PlayerId);
+                            else pc.ShowPopUp(GetString("GuessTank"));
+                            return true;
                         case CustomRoles.DonutDelivery when DonutDelivery.IsUnguessable(pc, target):
                         case CustomRoles.Shifter:
                         case CustomRoles.Car:

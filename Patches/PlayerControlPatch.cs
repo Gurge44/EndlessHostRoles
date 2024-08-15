@@ -212,7 +212,7 @@ class CheckMurderPatch
                 return false;
             case CustomGameMode.FFA:
                 FFAManager.OnPlayerAttack(killer, target);
-                return false;
+                return true;
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
                 return false;
@@ -1440,7 +1440,7 @@ static class FixedUpdatePatch
 
             if (GameStates.IsInGame)
             {
-                bool shouldSeeTargetAddons = new[] { PlayerControl.LocalPlayer, player }.All(x => x.Is(Team.Impostor));
+                bool shouldSeeTargetAddons = playerId == lpId || new[] { PlayerControl.LocalPlayer, player }.All(x => x.Is(Team.Impostor));
 
                 var RoleTextData = GetRoleText(lpId, playerId, shouldSeeTargetAddons);
 

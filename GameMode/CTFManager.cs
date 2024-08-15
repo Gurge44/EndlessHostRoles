@@ -103,6 +103,7 @@ namespace EHR
 
         public static bool KnowTargetRoleColor(PlayerControl seer, PlayerControl target, ref string color)
         {
+            if (!ValidTag) return false;
             Color32 teamColor = PlayerTeams[target.PlayerId].GetTeamColor();
             color = $"#{teamColor.r:x2}{teamColor.g:x2}{teamColor.b:x2}{teamColor.a:x2}";
             return true;
@@ -110,6 +111,7 @@ namespace EHR
 
         public static string GetSuffixText(PlayerControl seer, PlayerControl target)
         {
+            if (!ValidTag) return string.Empty;
             if (seer.PlayerId != target.PlayerId) return string.Empty;
             var arrows = TargetArrow.GetAllArrows(seer);
             arrows = arrows.Length > 0 ? $"{arrows}\n" : string.Empty;
@@ -128,6 +130,8 @@ namespace EHR
         {
             reason = GameOverReason.ImpostorByKill;
             var aapc = Main.AllAlivePlayerControls;
+
+            if (!ValidTag) return false;
 
             switch (aapc.Length)
             {
@@ -348,6 +352,7 @@ namespace EHR
             {
                 WinnerData = (team.GetTeamColor(), team.GetTeamName());
                 CustomWinnerHolder.WinnerIds = Players;
+                Logger.Info($"{team} team wins", "CTF");
             }
 
             public void Update()
@@ -375,6 +380,8 @@ namespace EHR
 
                 FlagCarrier = id;
                 Update();
+
+                Logger.Info($"{id.ColoredPlayerName()} picked up the {team} flag", "CTF");
 
                 Main.AllPlayerSpeed[id] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) - SpeedReductionForFlagCarrier.GetFloat();
                 PlayerGameOptionsSender.SetDirty(id);
@@ -410,6 +417,7 @@ namespace EHR
                     TeamData.Values.SelectMany(x => x.Players).Do(x => TargetArrow.Remove(x, FlagCarrier));
                 FlagCarrier = byte.MaxValue;
                 Utils.NotifyRoles();
+                Logger.Info($"{FlagCarrier.ColoredPlayerName()} dropped the {team} flag", "CTF");
             }
 
             public bool IsNearFlag(Vector2 pos) => Vector2.Distance(Flag.Position, pos) < 1f;

@@ -589,13 +589,13 @@ public static class Utils
     {
         try
         {
-            StackTrace st = new(1, true);
+            StackTrace st = new(0, true);
             StackFrame[] stFrames = st.GetFrames();
 
             StackFrame firstFrame = stFrames.FirstOrDefault();
 
             var sb = new StringBuilder();
-            sb.Append($" Exception: {ex.Message}\n      thrown by {ex.Source}\n      at {ex.TargetSite}\n      in {fileName} at line {lineNumber} in {callerMemberName}\n------ Stack Trace ------");
+            sb.Append($" Exception: {ex.Message}\n      thrown by {ex.Source}\n      at {ex.TargetSite}\n      in {fileName}\n      at line {lineNumber}\n      in method \"{callerMemberName}\"\n------ Method Stack Trace ------");
 
             bool skip = true;
             foreach (StackFrame sf in stFrames)
@@ -611,10 +611,17 @@ public static class Utils
                 string callerMethodName = callerMethod?.Name;
                 string callerClassName = callerMethod?.DeclaringType?.FullName;
 
-                sb.Append($"\n      at {callerClassName}.{callerMethodName}");
+                var line = $"line {sf.GetFileLineNumber()} ({sf.GetFileColumnNumber()}) in {sf.GetFileName()}";
+
+                sb.Append($"\n      at {callerClassName}.{callerMethodName} ({line})");
             }
 
-            sb.Append("\n------ End of Stack Trace ------");
+            sb.Append("\n------ End of Method Stack Trace ------");
+            sb.Append("\n------ Exception Stack Trace ------");
+
+            sb.Append(ex.StackTrace?.Replace("\r\n", "\n").Replace("\\n", "\n").Replace("\n", "\n      "));
+
+            sb.Append("\n------ End of Exception Stack Trace ------");
 
             Logger.Error(sb.ToString(), firstFrame?.GetMethod()?.ToString(), multiLine: true);
         }
@@ -683,6 +690,7 @@ public static class Utils
             case CustomRoles.Postman:
             case CustomRoles.SchrodingersCat:
             case CustomRoles.Shifter:
+            case CustomRoles.Tank:
             case CustomRoles.Impartial:
             case CustomRoles.Backstabber:
             case CustomRoles.Predator:
@@ -2154,7 +2162,7 @@ public static class Utils
 
                             BeforeEnd2:
 
-                            bool shouldSeeTargetAddons = new[] { seer, target }.All(x => x.Is(Team.Impostor));
+                            bool shouldSeeTargetAddons = seer.PlayerId == target.PlayerId || new[] { seer, target }.All(x => x.Is(Team.Impostor));
 
                             string TargetRoleText =
                                 (seer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool()) ||

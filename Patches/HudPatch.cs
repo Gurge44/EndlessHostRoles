@@ -182,7 +182,9 @@ class HudManagerPatch
                     var roleTypes = player.GetRoleTypes();
                     __instance.AbilityButton?.OverrideText(GetString($"AbilityButtonText.{roleTypes}"));
 
-                    Main.PlayerStates[player.PlayerId].Role.SetButtonTexts(__instance, player.PlayerId);
+                    var state = Main.PlayerStates[player.PlayerId];
+
+                    state.Role.SetButtonTexts(__instance, player.PlayerId);
 
                     switch (role)
                     {
@@ -208,6 +210,9 @@ class HudManagerPatch
                         case CustomRoles.Deputy:
                             usedButton?.OverrideText(GetString("DeputyHandcuffText"));
                             break;
+                        case CustomRoles.CTFPlayer:
+                            __instance.AbilityButton?.OverrideText(GetString("CTF_ButtonText"));
+                            break;
                     }
 
                     if (LowerInfoText == null)
@@ -220,8 +225,6 @@ class HudManagerPatch
                         LowerInfoText.color = Color.white;
                         LowerInfoText.fontSize = LowerInfoText.fontSizeMax = LowerInfoText.fontSizeMin = 2.7f;
                     }
-
-                    var state = Main.PlayerStates[player.PlayerId];
 
                     LowerInfoText.text = Options.CurrentGameMode switch
                     {
@@ -647,13 +650,13 @@ class TaskPanelBehaviourPatch
 
                     var lpc = PlayerControl.LocalPlayer;
 
-                    AllText += "\r\n";
-                    AllText += $"\r\n{GetString("PVP.ATK")}: {SoloKombatManager.PlayerATK[lpc.PlayerId]}";
-                    AllText += $"\r\n{GetString("PVP.DF")}: {SoloKombatManager.PlayerDF[lpc.PlayerId]}";
-                    AllText += $"\r\n{GetString("PVP.RCO")}: {SoloKombatManager.PlayerHPReco[lpc.PlayerId]}";
-                    AllText += "\r\n";
+                    AllText += "\r\n<size=90%>";
+                    AllText += $"\r\n{GetString("PVP.ATK")}: {SoloKombatManager.PlayerATK[lpc.PlayerId]:N1}";
+                    AllText += $"\r\n{GetString("PVP.DF")}: {SoloKombatManager.PlayerDF[lpc.PlayerId]:N1}";
+                    AllText += $"\r\n{GetString("PVP.RCO")}: {SoloKombatManager.PlayerHPReco[lpc.PlayerId]:N1}";
+                    AllText += "\r\n</size>";
 
-                    AllText += Main.PlayerStates.Keys.OrderBy(SoloKombatManager.GetRankOfScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{SoloKombatManager.GetRankOfScore(x)}. {x.ColoredPlayerName()} -{string.Format(GetString("KillCount"), SoloKombatManager.KBScore.GetValueOrDefault(x, 0))}");
+                    AllText += Main.PlayerStates.Keys.OrderBy(SoloKombatManager.GetRankOfScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{SoloKombatManager.GetRankOfScore(x)}. {x.ColoredPlayerName()} - {string.Format(GetString("KillCount").TrimStart(' '), SoloKombatManager.KBScore.GetValueOrDefault(x, 0))}");
 
                     AllText += "</size>";
                     break;
