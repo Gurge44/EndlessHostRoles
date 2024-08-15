@@ -179,6 +179,7 @@ public enum CustomRoles
     ParityCop, // Inspector
     Inquirer,
     Jailor,
+    Journalist,
     Judge,
     Needy, // Lazy Guy
     Lighter,

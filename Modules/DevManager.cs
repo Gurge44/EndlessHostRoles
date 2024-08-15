@@ -108,6 +108,7 @@ public static class DevManager
             new(code: "rainypearl#9545", color: "#A020F0", tag: "YouTuber", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "bielModzs"),
             new(code: "kiltedbill#4145", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "tsaki84"),
             new(code: "onlyfax#3941", color: "#ff0000", tag: "YouTuber", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "The Nick AG"),
+            new(code: "pagersane#4064", color: "null", tag: "null", isUp: true, isDev: false, deBug: false, colorCmd: false, upName: "Bluejava3"),
 
             // Sponsor
             new(code: "recentduct#6068", color: "#FF00FF", tag: "高冷男模法师", isUp: false, isDev: false, colorCmd: false, deBug: true, upName: null),

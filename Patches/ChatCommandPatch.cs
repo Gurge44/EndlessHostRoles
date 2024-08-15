@@ -157,6 +157,7 @@ internal static class ChatCommands
             new(["addvip", "добавитьвип"], "{id}", GetString("CommandDescription.AddVIP"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddVIPCommand, true, [GetString("CommandArgs.AddVIP.Id")]),
             new(["deletevip", "удалитьвип"], "{id}", GetString("CommandDescription.DeleteVIP"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteVIPCommand, true, [GetString("CommandArgs.DeleteVIP.Id")]),
             new(["assume", "предположить"], "{id} {number}", GetString("CommandDescription.Assume"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AssumeCommand, true, [GetString("CommandArgs.Assume.Id"), GetString("CommandArgs.Assume.Number")]),
+            new(["note", "заметка"], "{action} [?]", GetString("CommandDescription.Note"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NoteCommand, true, [GetString("CommandArgs.Note.Action"), GetString("CommandArgs.Note.UnknownValue")]),
 
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -283,9 +284,15 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void NoteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        if (player.Is(CustomRoles.Journalist) && player.IsAlive())
+            Journalist.OnReceiveCommand(player, args);
+    }
+
     private static void AssumeCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        if (args.Length < 3 || !byte.TryParse(args[1], out var id) || !int.TryParse(args[2], out var num) || !player.Is(CustomRoles.Assumer)) return;
+        if (args.Length < 3 || !byte.TryParse(args[1], out var id) || !int.TryParse(args[2], out var num) || !player.Is(CustomRoles.Assumer) || !player.IsAlive()) return;
         Assumer.Assume(player.PlayerId, id, num);
     }
 
