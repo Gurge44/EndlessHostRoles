@@ -3344,6 +3344,8 @@
   "DeadlinedInfoLong": "(Atributos):\\nCom este Atributo, você deve completar uma tarefa ou matar alguém a cada rodada. Caso falhe em fazer isso, você morrerá. Caso uma reunião for chamada logo após a anterior acabar (o tempo é definido pelo Anfitrião), você não morrerá.",
   "Prefix.Deadlined": "Limite",
   "Deadlined.InactiveTime": "Tempo seguro após reuniões",
+  "Deadlined.MustDoTask": "<size=80%><#ffa500>You must complete a task or kill before the next meeting</color></size>",
+  "Deadlined.SafeTime": "<size=80%><#00ffa5>Safe time:</color> <b>{0}</b>s</size>",
   "Assumer": "Assumista",
   "AssumerInfo": "Assuma os votos em um jogador",
   "AssumerInfoLong": "(Impostores):\\nComo Assumista, você pode digitar <b>/assume {id} {número}</b> para assumir que o jogador selecionado (o qual o ID será o que você digitou no primeiro argumento, substituindo '{id}') recebrá exatamente {número} votos (o número digitado no segundo argumento, substituindo '{número}').\\nExemplo: <b>/assume 0 3</b> (assume que o Anfitrião recebrá 3 votos).\\n\\nCaso estiver correto, <u>todos os jogadores</u> que votaram em seu alvo morrerão.",
