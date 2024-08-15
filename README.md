@@ -385,6 +385,12 @@
 > - Reference: Disable the 5s timeout on custom servers
 >
 
+### :star: [TOHO](https://github.com/Limeau/TownofHost-Optimized) :
+
+>
+> - Reference: Some role ideas (Tank, Deadlined)
+>
+
 ### Endless Host Roles (EHR), with Endless Possibilities, brought to you by the Endless Network.
 
 ##### Developers:
