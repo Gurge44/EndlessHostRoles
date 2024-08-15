@@ -3344,6 +3344,8 @@
   "DeadlinedInfoLong": "(Add-ons):\\nAs the Deadlined, you must complete a task or kill someone each round. If you fail to do so, you will die. If a meeting gets called too soon after the previous one ends (time set by the host), you won't die.",
   "Prefix.Deadlined": "Deadlined",
   "Deadlined.InactiveTime": "Safe Time After Meetings",
+  "Deadlined.MustDoTask": "<size=80%><#ffa500>You must complete a task or kill before the next meeting</color></size>",
+  "Deadlined.SafeTime": "<size=80%><#00ffa5>Safe time:</color> <b>{0}</b>s</size>",
   "Assumer": "传销头目",
   "AssumerInfo": "人性只是一颗棋子罢了...同志们！随我投票，即可入极乐世界！",
   "AssumerInfoLong": "(内鬼职业):\\n作为传销头目,打<b>/assume {id} {number}</b>来锁定一个目标,并且预测他将会获得x票\\n例如<b>/assume 0 3</b>表示你预测房主会获得3票,这样的话如果目标真获得x票,那么投给他的所有人都会死",
