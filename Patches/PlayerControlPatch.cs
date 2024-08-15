@@ -371,6 +371,7 @@ class CheckMurderPatch
             Medic.OnAnyoneCheckMurder(killer, target) ||
             Randomizer.IsShielded(target) ||
             Aid.ShieldedPlayers.ContainsKey(target.PlayerId) ||
+            !Grappler.OnAnyoneCheckMurder(target) ||
             !Adventurer.OnAnyoneCheckMurder(target) ||
             !Sentinel.OnAnyoneCheckMurder(killer) ||
             !ToiletMaster.OnAnyoneCheckMurder(killer, target))

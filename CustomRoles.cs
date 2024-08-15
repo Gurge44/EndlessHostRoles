@@ -171,6 +171,7 @@ public enum CustomRoles
     Divinator, // Fortune Teller
     Gaulois,
     Goose,
+    Grappler,
     Grenadier,
     GuessManagerRole,
     Guardian,
