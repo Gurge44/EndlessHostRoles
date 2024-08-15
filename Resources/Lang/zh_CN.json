@@ -2748,7 +2748,7 @@
   "DivinatorCheckResult": "<b>{0}</b> 是以下角色之一:\\n{1}",
   "SunnyboyChance": "<color=#ff9902>阳光开朗大男孩</color>出现几率",
   "BardChance": "<color=#ff1919>吟游诗人</color>出现概率",
-  "NukerChance": "<color=#ff1919>扩散性病毒</color>出现概率",
+  "NukerChance": "<color=#ff1919>核弹</color>出现概率",
   "SkeldChance": "Skeld地图随机到的概率",
   "MiraChance": "MIRA HQ地图随机到的概率",
   "PolusChance": "Polus地图随机到的概率",
