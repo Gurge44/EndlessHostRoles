@@ -3358,7 +3358,7 @@
   "SentinelPatrolDuration": "Duração da Patrulha",
   "SentinelPatrolRadius": "Raio Da Patrulha",
   "KillerEscapedFromSentinel": "<#00ff00>Escapou com sucesso do raio de Patrulha</color>",
-  "KillerNotifyPatrol": "<#ffff00>Você está no Raio da Patrulha! Saia ou você vai Morrer!</color>",
+  "KillerNotifyPatrol": "<#ffff00>You are in the patrolling radius!\\nYou have <#ffa500>{0}s</color> to move out or you'll die!</color>",
   "Penguin": "Pinguim",
   "PenguinInfo": "Arraste suas Vitimas",
   "PenguinInfoLong": "(Impostores):\nOs Pinguins podem prender o alvo pressionando o botão de matar e arrastá-lo. Enquanto estiver arrastando, o alvo morre ao pressionar o botão de matar novamente ou após um determinado período de tempo. Pressione o botão de matar duas vezes para matar imediatamente.",
