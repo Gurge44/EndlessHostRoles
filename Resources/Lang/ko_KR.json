@@ -3358,7 +3358,7 @@
   "SentinelPatrolDuration": "Patrol Time",
   "SentinelPatrolRadius": "Patrol Radius",
   "KillerEscapedFromSentinel": "<#00ff00>Successfully went out of patrolling radius</color>",
-  "KillerNotifyPatrol": "<#ffff00>You are in the patrolling radius! Move out or you'll die!</color>",
+  "KillerNotifyPatrol": "<#ffff00>You are in the patrolling radius!\\nYou have <#ffa500>{0}s</color> to move out or you'll die!</color>",
   "Penguin": "Penguin",
   "PenguinInfo": "Drag your victims",
   "PenguinInfoLong": "(Impostors):\\nPenguins can restrain target by pressing the kill button, and drag around. While dragging, the target dies by pressing the kill button again or after a certain period of time. Press the kill button twice for a direct kill.",
