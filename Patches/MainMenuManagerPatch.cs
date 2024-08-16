@@ -74,7 +74,7 @@ public static class MainMenuManagerPatch
     }
 
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.LateUpdate)), HarmonyPostfix]
-    public static void MainMenuManager_LateUpdate()
+    public static void MainMenuManager_LateUpdate(MainMenuManager __instance)
     {
         if (GameObject.Find("MainUI") == null) ShowingPanel = false;
 
@@ -95,6 +95,17 @@ public static class MainMenuManagerPatch
         Vector3 lerp2 = Vector3.Lerp(pos2, new(pos2.x, 7.1f, pos2.z), Time.deltaTime * 1.4f);
         bak.transform.position = lerp2;
         if (pos2.y > 7f) ShowedBak = true;
+
+        try
+        {
+            __instance.settingsButton?.ChangeButtonText(Translator.GetString("MainMenu.SettingsButton"));
+            __instance.inventoryButton?.ChangeButtonText(Translator.GetString("MainMenu.InventoryButton"));
+            __instance.creditsButton?.ChangeButtonText(Translator.GetString("MainMenu.CreditsButton"));
+            __instance.quitButton?.ChangeButtonText(Translator.GetString("MainMenu.QuitButton"));
+        }
+        catch
+        {
+        }
     }
 
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix, HarmonyPriority(Priority.VeryHigh)]

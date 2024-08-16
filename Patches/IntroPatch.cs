@@ -279,7 +279,7 @@ class BeginCrewmatePatch
             PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(role.GetRoleTypes());
             byte otherLoverId = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).PlayerId;
             __instance.ImpostorText.gameObject.SetActive(true);
-            __instance.ImpostorText.text = string.Format(GetString($"SubText.{role}"), Utils.ColorString(Main.PlayerColors.TryGetValue(otherLoverId, out var color) ? color : Color.white, Main.AllPlayerNames[otherLoverId]));
+            __instance.ImpostorText.text = string.Format(GetString($"SubText.{role}"), otherLoverId.ColoredPlayerName());
         }
         else
         {
@@ -324,6 +324,9 @@ class BeginCrewmatePatch
             if (PlayerControl.LocalPlayer.Is(CustomRoles.Lovers))
             {
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Lovers);
+                byte otherLoverId = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).PlayerId;
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = string.Format(GetString("SubText.LovingCrewmate"), otherLoverId.ColoredPlayerName());
             }
         }
 
@@ -728,7 +731,7 @@ class IntroCutsceneDestroyPatch
             };
             if (chat) Utils.SetChatVisibleForAll();
 
-            // LateTask.New(() => Main.AllPlayerControls.Do(pc => pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
+            // LateTask.New(() => Main.AllPlayerControls.Do(pc ⇒ pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 
             if (Options.UsePets.GetBool())
             {

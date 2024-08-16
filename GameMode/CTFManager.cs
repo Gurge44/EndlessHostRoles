@@ -266,7 +266,7 @@ namespace EHR
             switch (TaggedPlayersGet.GetValue())
             {
                 case 0:
-                    target.TP(targetTeam.GetFlagBase().Position);
+                    Loop.Times(3, _ => target.TP(targetTeam.GetFlagBase().Position));
                     Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                     target.MarkDirtySettings();
                     break;
@@ -381,7 +381,7 @@ namespace EHR
                 FlagCarrier = id;
                 Update();
 
-                Logger.Info($"{id.ColoredPlayerName()} picked up the {team} flag", "CTF");
+                Logger.Info($"{id.ColoredPlayerName().RemoveHtmlTags()} picked up the {team} flag", "CTF");
 
                 Main.AllPlayerSpeed[id] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) - SpeedReductionForFlagCarrier.GetFloat();
                 PlayerGameOptionsSender.SetDirty(id);
@@ -413,11 +413,11 @@ namespace EHR
 
             public void DropFlag()
             {
+                Logger.Info($"{FlagCarrier.ColoredPlayerName().RemoveHtmlTags()} dropped the {team} flag", "CTF");
                 if (ArrowToEnemyFlagCarrier.GetBool() || ArrowToOwnFlagCarrier.GetBool())
                     TeamData.Values.SelectMany(x => x.Players).Do(x => TargetArrow.Remove(x, FlagCarrier));
                 FlagCarrier = byte.MaxValue;
                 Utils.NotifyRoles();
-                Logger.Info($"{FlagCarrier.ColoredPlayerName()} dropped the {team} flag", "CTF");
             }
 
             public bool IsNearFlag(Vector2 pos) => Vector2.Distance(Flag.Position, pos) < 1f;

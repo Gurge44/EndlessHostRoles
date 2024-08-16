@@ -111,8 +111,10 @@ namespace EHR.Crewmate
 
         public static void OnAnyoneApplyGameOptions(IGameOptions opt)
         {
+            bool value = Main.RealOptionsData.GetBool(BoolOptionNames.AnonymousVotes);
             if (Instances.Any(x => x.IsDeclassification))
-                opt.SetBool(BoolOptionNames.AnonymousVotes, false);
+                value = false;
+            opt.SetBool(BoolOptionNames.AnonymousVotes, value);
         }
 
         public static void UseDecree(PlayerControl pc, string message)

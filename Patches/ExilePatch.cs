@@ -20,7 +20,8 @@ static class ExileControllerWrapUpPatch
         if (AntiBlackout.OverrideExiledPlayer)
         {
             exiled = AntiBlackout_LastExiled;
-            Logger.SendInGame(Translator.GetString("AntiBlackout.OverrideExiledPlayer"));
+            if (Options.ShowAntiBlackoutWarning.GetBool())
+                Logger.SendInGame(Translator.GetString("AntiBlackout.OverrideExiledPlayer"));
         }
 
         bool DecidedWinner = false;

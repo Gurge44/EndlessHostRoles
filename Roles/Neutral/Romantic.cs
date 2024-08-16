@@ -257,7 +257,7 @@ public class Romantic : RoleBase
             Logger.Info($"Impostor Romantic Partner Died => Changing {RomanticPC.GetNameWithRole()} to Refugee", "Romantic");
             RomanticPC.RpcSetCustomRole(CustomRoles.Refugee);
         }
-        else if (Partner.HasKillButton() || partnerRole.IsNK() || partnerRole.IsTasklessCrewmate()) // If the Partner has a kill button (NK or CK), Romantic becomes the role they were
+        else if (Partner.HasKillButton() || partnerRole.IsNK() || partnerRole.GetDYRole() == RoleTypes.Impostor) // If the Partner has a kill button (NK or CK), Romantic becomes the role they were
         {
             try
             {

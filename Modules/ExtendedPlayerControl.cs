@@ -517,9 +517,9 @@ static class ExtendedPlayerControl
 
     public static bool IsNonHostModClient(this PlayerControl pc) => pc.IsModClient() && !pc.IsHost();
 
-    public static string GetDisplayRoleName(this PlayerControl player, bool pure = false)
+    public static string GetDisplayRoleName(this PlayerControl player, bool pure = false, bool seeTargetBetrayalAddons = false)
     {
-        return Utils.GetDisplayRoleName(player.PlayerId, pure);
+        return Utils.GetDisplayRoleName(player.PlayerId, pure, seeTargetBetrayalAddons);
     }
 
     public static string GetSubRoleNames(this PlayerControl player, bool forUser = false)

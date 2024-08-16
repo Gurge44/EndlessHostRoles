@@ -762,14 +762,17 @@ class ShapeshiftPatch
             isSSneeded = false;
         }
 
-        if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag)
-            CTFManager.TryPickUpFlag(shapeshifter);
+        bool ctf = Options.CurrentGameMode == CustomGameMode.CaptureTheFlag;
+        if (ctf) CTFManager.TryPickUpFlag(shapeshifter);
 
         var role = shapeshifter.GetCustomRole();
+
         bool forceCancel = role.ForceCancelShapeshift();
         bool unshiftTrigger = role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool());
-        unshiftTrigger |= Options.CurrentGameMode == CustomGameMode.CaptureTheFlag;
+
+        unshiftTrigger |= ctf;
         forceCancel |= unshiftTrigger;
+        isSSneeded &= !ctf;
 
         if (shapeshifter.Is(CustomRoles.Camouflager) && !shapeshifting) Camouflager.Reset();
         if (Changeling.ChangedRole.TryGetValue(shapeshifter.PlayerId, out var changed) && changed && shapeshifter.GetRoleTypes() != RoleTypes.Shapeshifter)
@@ -1443,7 +1446,7 @@ static class FixedUpdatePatch
             {
                 bool shouldSeeTargetAddons = playerId == lpId || new[] { PlayerControl.LocalPlayer, player }.All(x => x.Is(Team.Impostor));
 
-                var RoleTextData = GetRoleText(lpId, playerId, shouldSeeTargetAddons);
+                var RoleTextData = GetRoleText(lpId, playerId, seeTargetBetrayalAddons: shouldSeeTargetAddons);
 
                 RoleText.text = RoleTextData.Item1;
                 RoleText.color = RoleTextData.Item2;
@@ -1772,9 +1775,9 @@ static class FixedUpdatePatch
         }
     }
 
-    public static void LoversSuicide(byte deathId = 0x7f, bool isExiled = false)
+    public static void LoversSuicide(byte deathId = 0x7f, bool exile = false, bool force = false)
     {
-        if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || (!Main.LoversPlayers.Any(player => player.Data.IsDead && player.PlayerId == deathId) && !isExiled)) return;
+        if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || (!Main.LoversPlayers.Any(player => player.Data.IsDead && player.PlayerId == deathId) && !force)) return;
 
         Main.IsLoversDead = true;
         var partnerPlayer = Main.LoversPlayers.First(player => player.PlayerId != deathId && !player.Data.IsDead);
@@ -1786,9 +1789,9 @@ static class FixedUpdatePatch
             return;
         }
 
-        if (Lovers.LoverSuicideTime.GetValue() != 0 && !isExiled) return;
+        if (Lovers.LoverSuicideTime.GetValue() != 0 && !exile) return;
 
-        if (isExiled) CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.FollowingSuicide, partnerPlayer.PlayerId);
+        if (exile) CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.FollowingSuicide, partnerPlayer.PlayerId);
         else partnerPlayer.Suicide(PlayerState.DeathReason.FollowingSuicide);
     }
 }

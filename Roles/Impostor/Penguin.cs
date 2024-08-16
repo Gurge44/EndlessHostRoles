@@ -207,7 +207,8 @@ namespace EHR.Impostor
                 AddVictim(target);
             }
 
-            return doKill;
+            if (doKill) killer.Kill(target);
+            return false;
         }
 
         public override void SetButtonTexts(HudManager hud, byte id)

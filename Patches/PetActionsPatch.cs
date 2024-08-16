@@ -109,10 +109,13 @@ class ExternalRpcPetPatch
         bool hasKillTarget = false;
         PlayerControl target = SelectKillButtonTarget(pc);
         if (target != null) hasKillTarget = true;
-        if (!pc.CanUseKillButton()) hasKillTarget = false;
 
         var role = pc.GetCustomRole();
-        if (role.UsesPetInsteadOfKill() && hasKillTarget && (pc.Data.RoleType != RoleTypes.Impostor || role is CustomRoles.Necromancer or CustomRoles.Deathknight))
+        var alwaysPetRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee;
+
+        if (!pc.CanUseKillButton() && !alwaysPetRole) hasKillTarget = false;
+
+        if (role.UsesPetInsteadOfKill() && hasKillTarget && (pc.Data.RoleType != RoleTypes.Impostor || alwaysPetRole))
         {
             pc.AddKCDAsAbilityCD();
             if (Main.PlayerStates[pc.PlayerId].Role.OnCheckMurder(pc, target))
@@ -120,7 +123,7 @@ class ExternalRpcPetPatch
                 pc.RpcCheckAndMurder(target);
             }
 
-            if (pc.Is(CustomRoles.Refugee)) pc.SetKillCooldown();
+            if (alwaysPetRole) pc.SetKillCooldown();
         }
         else
         {
@@ -134,8 +137,9 @@ class ExternalRpcPetPatch
 
     public static PlayerControl SelectKillButtonTarget(PlayerControl pc)
     {
-        var players = pc.GetPlayersInAbilityRangeSorted();
-        var target = players.Count == 0 ? null : players[0];
+        var pos = pc.Pos();
+        var players = Main.AllAlivePlayerControls.Select(x => (pc: x, distance: Vector2.Distance(pos, x.Pos()))).Where(x => x.distance < 2.5f).OrderBy(x => x.distance).ToList();
+        var target = players.Count > 0 ? players[0].pc : null;
 
         if (target != null && target.Is(CustomRoles.Detour))
         {

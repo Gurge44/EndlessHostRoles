@@ -64,6 +64,7 @@ class CheckForEndVotingPatch
                         VotedForId = pva.VotedFor
                     });
                     states = [.. statesList];
+                    AntiBlackout.OverrideExiledPlayer = AntiBlackout.IsOverride;
                     if (AntiBlackout.OverrideExiledPlayer)
                     {
                         __instance.RpcVotingComplete(states.ToArray(), null, true);
@@ -284,6 +285,7 @@ class CheckForEndVotingPatch
             exiledPlayer?.Object.SetRealKiller(null);
 
             // RPC
+            AntiBlackout.OverrideExiledPlayer = AntiBlackout.IsOverride;
             if (AntiBlackout.OverrideExiledPlayer)
             {
                 __instance.RpcVotingComplete(states.ToArray(), null, true);
@@ -351,7 +353,7 @@ class CheckForEndVotingPatch
         {
             if (pc == exiledPlayer.Object) continue;
             if (pc.GetCustomRole().IsImpostor()) impnum++;
-            else if (Options.MadmateCountMode.GetValue() == 1 && (pc.GetCustomRole().IsMadmate() || pc.Is(CustomRoles.Madmate))) impnum++;
+            else if (Options.MadmateCountMode.GetValue() == 1 && pc.IsMadmate()) impnum++;
             else if (pc.IsNeutralKiller()) neutralnum++;
         }
 
@@ -505,7 +507,7 @@ class CheckForEndVotingPatch
         {
             var id = playerId;
             if (CustomRoles.Lovers.IsEnable() && !Main.IsLoversDead && Main.LoversPlayers.Any(lp => lp.PlayerId == id))
-                FixedUpdatePatch.LoversSuicide(playerId, true);
+                FixedUpdatePatch.LoversSuicide(playerId, true, true);
             if (Main.PlayerStates.TryGetValue(id, out var state) && state.SubRoles.Contains(CustomRoles.Avanger))
                 RevengeOnExile(playerId /*, deathReason*/);
         }
@@ -747,8 +749,8 @@ class MeetingHudStartPatch
         {
             var pc = Utils.GetPlayerById(pva.TargetPlayerId);
             if (pc == null) continue;
-            bool shouldSeeTargetAddons = new[] { PlayerControl.LocalPlayer, pc }.All(x => x.Is(Team.Impostor));
-            var RoleTextData = Utils.GetRoleText(PlayerControl.LocalPlayer.PlayerId, pc.PlayerId, shouldSeeTargetAddons);
+            bool shouldSeeTargetAddons = PlayerControl.LocalPlayer.PlayerId == pc.PlayerId || new[] { PlayerControl.LocalPlayer, pc }.All(x => x.Is(Team.Impostor));
+            var RoleTextData = Utils.GetRoleText(PlayerControl.LocalPlayer.PlayerId, pc.PlayerId, seeTargetBetrayalAddons: shouldSeeTargetAddons);
             var roleTextMeeting = Object.Instantiate(pva.NameText, pva.NameText.transform, true);
             roleTextMeeting.transform.localPosition = new(0f, -0.18f, 0f);
             roleTextMeeting.fontSize = 1.4f;
@@ -809,6 +811,7 @@ class MeetingHudStartPatch
             Logger.Info("The ship has " + (Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + " buttons left", "SyncButtonMode");
         }
 
+        AntiBlackout.OverrideExiledPlayer = AntiBlackout.IsOverride;
         if (AntiBlackout.OverrideExiledPlayer && (MeetingStates.FirstMeeting || Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors) > 1))
         {
             LateTask.New(() => { Utils.SendMessage(GetString("Warning.OverrideExiledPlayer"), 255, Utils.ColorString(Color.red, GetString("DefaultSystemMessageTitle"))); }, 5f, "Warning OverrideExiledPlayer");
@@ -1061,7 +1064,7 @@ class MeetingHudOnDestroyPatch
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CastVote))]
 class MeetingHudCastVotePatch
 {
-    private static readonly Dictionary<byte, (MeetingHud MEETING_HUD, PlayerVoteArea SOURCE_PLAYER_VOTE_AREA, PlayerControl SOURCE_PLAYER)> ShouldCancelVoteList = [];
+    private static readonly Dictionary<byte, (MeetingHud MeetingHud, PlayerVoteArea SourcePVA, PlayerControl SourcePC)> ShouldCancelVoteList = [];
 
     public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId, [HarmonyArgument(1)] byte suspectPlayerId)
     {
@@ -1082,7 +1085,7 @@ class MeetingHudCastVotePatch
 
         if (pva_target == null)
         {
-            //Logger.Warn("Target PlayerVoteArea not found => Vote treated as a Skip", "MeetingHudCastVotePatch.Prefix");
+            //Logger.Warn("Target PlayerVoteArea not found ⇒ Vote treated as a Skip", "MeetingHudCastVotePatch.Prefix");
             isSkip = true;
         }
 
@@ -1096,7 +1099,7 @@ class MeetingHudCastVotePatch
 
         if (pc_target == null)
         {
-            //Logger.Warn("Target PlayerControl is null => Vote treated as a Skip", "MeetingHudCastVotePatch.Prefix");
+            //Logger.Warn("Target PlayerControl is null ⇒ Vote treated as a Skip", "MeetingHudCastVotePatch.Prefix");
             isSkip = true;
         }
 
@@ -1117,9 +1120,9 @@ class MeetingHudCastVotePatch
     {
         if (!ShouldCancelVoteList.TryGetValue(srcPlayerId, out var info)) return;
 
-        MeetingHud __instance = info.MEETING_HUD;
-        PlayerVoteArea pva_src = info.SOURCE_PLAYER_VOTE_AREA;
-        PlayerControl pc_src = info.SOURCE_PLAYER;
+        MeetingHud __instance = info.MeetingHud;
+        PlayerVoteArea pva_src = info.SourcePVA;
+        PlayerControl pc_src = info.SourcePC;
 
         try
         {

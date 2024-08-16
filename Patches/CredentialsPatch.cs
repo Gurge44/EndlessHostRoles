@@ -107,22 +107,6 @@ internal class TitleLogoPatch
         if (!(ModStamp = GameObject.Find("ModStamp"))) return;
         ModStamp.transform.localScale = new(0.3f, 0.3f, 0.3f);
 
-        // if (!Options.IsLoaded)
-        // {
-        //     LoadingHint = new("LoadingHint")
-        //     {
-        //         transform =
-        //         {
-        //             position = Vector3.down
-        //         }
-        //     };
-        //     var loadingHintText = LoadingHint.AddComponent<TextMeshPro>();
-        //     loadingHintText.text = GetString("Loading");
-        //     loadingHintText.alignment = TextAlignmentOptions.Center;
-        //     loadingHintText.fontSize = 5f;
-        //     __instance.playButton.transform.gameObject.SetActive(false);
-        // }
-
         Ambience = GameObject.Find("Ambience");
         if (Ambience != null)
         {
@@ -198,11 +182,6 @@ internal class TitleLogoPatch
 
         if (!(BottomButtonBounds = GameObject.Find("BottomButtonBounds"))) return;
         BottomButtonBounds.transform.localPosition -= new Vector3(0f, 0.1f, 0f);
-
-        __instance.settingsButton?.ChangeButtonText(GetString("MainMenu.SettingsButton"));
-        __instance.inventoryButton?.ChangeButtonText(GetString("MainMenu.InventoryButton"));
-        __instance.creditsButton?.ChangeButtonText(GetString("MainMenu.CreditsButton"));
-        __instance.quitButton?.ChangeButtonText(GetString("MainMenu.QuitButton"));
 
         return;
 

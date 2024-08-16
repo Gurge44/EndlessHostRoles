@@ -11,11 +11,12 @@ public static class AntiBlackout
 {
     private static Dictionary<byte, (bool isDead, bool Disconnected)> IsDeadCache = [];
     private static readonly LogHandler Logger = EHR.Logger.Handler("AntiBlackout");
+    public static bool OverrideExiledPlayer = false;
 
     ///<summary>
     ///Whether to override the ejection process
     ///</summary>
-    public static bool OverrideExiledPlayer => IsRequired && (IsSingleImpostor || Diff_CrewImp == 1 || Main.AliveImpostorCount == 1);
+    public static bool IsOverride => IsRequired && (IsSingleImpostor || Diff_CrewImp == 1 || Main.AliveImpostorCount == 1);
 
     ///<summary>
     ///Is there only one impostor?

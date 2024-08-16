@@ -375,9 +375,9 @@ public static class Utils
         }
     }
 
-    public static string GetDisplayRoleName(byte playerId, bool pure = false)
+    public static string GetDisplayRoleName(byte playerId, bool pure = false, bool seeTargetBetrayalAddons = false)
     {
-        var TextData = GetRoleText(playerId, playerId, pure);
+        var TextData = GetRoleText(playerId, playerId, pure, seeTargetBetrayalAddons);
         return ColorString(TextData.Item2, TextData.Item1);
     }
 
@@ -425,7 +425,7 @@ public static class Utils
         return hexColor;
     }
 
-    public static (string, Color) GetRoleText(byte seerId, byte targetId, bool pure = false)
+    public static (string, Color) GetRoleText(byte seerId, byte targetId, bool pure = false, bool seeTargetBetrayalAddons = false)
     {
         var seerMainRole = Main.PlayerStates[seerId].MainRole;
         var seerSubRoles = Main.PlayerStates[seerId].SubRoles;
@@ -451,8 +451,6 @@ public static class Utils
         string RoleText = GetRoleName(isHnsAgentOverride ? CustomRoles.Hider : targetMainRole);
         Color RoleColor = GetRoleColor(loversShowDifferentRole ? CustomRoles.Impostor : targetMainRole);
 
-        if (seerMainRole == CustomRoles.LovingImpostor && self) RoleColor = GetRoleColor(CustomRoles.LovingImpostor);
-
         if (LastImpostor.currentId == targetId)
             RoleText = GetRoleString("Last-") + RoleText;
 
@@ -470,6 +468,8 @@ public static class Utils
             }
         }
 
+        if (seerMainRole == CustomRoles.LovingImpostor && self) RoleColor = GetRoleColor(CustomRoles.LovingImpostor);
+
         if (targetSubRoles.Contains(CustomRoles.Madmate))
         {
             RoleColor = GetRoleColor(CustomRoles.Madmate);
@@ -482,13 +482,13 @@ public static class Utils
             RoleText = GetRoleString("Recruit-") + RoleText;
         }
 
-        if (targetSubRoles.Contains(CustomRoles.Charmed) && (self || pure || seerMainRole == CustomRoles.Succubus || (Succubus.TargetKnowOtherTarget.GetBool() && seerSubRoles.Contains(CustomRoles.Charmed))))
+        if (targetSubRoles.Contains(CustomRoles.Charmed) && (self || pure || seeTargetBetrayalAddons || seerMainRole == CustomRoles.Succubus || (Succubus.TargetKnowOtherTarget.GetBool() && seerSubRoles.Contains(CustomRoles.Charmed))))
         {
             RoleColor = GetRoleColor(CustomRoles.Charmed);
             RoleText = GetRoleString("Charmed-") + RoleText;
         }
 
-        if (targetSubRoles.Contains(CustomRoles.Contagious) && (self || pure || seerMainRole == CustomRoles.Virus || (Virus.TargetKnowOtherTarget.GetBool() && seerSubRoles.Contains(CustomRoles.Contagious))))
+        if (targetSubRoles.Contains(CustomRoles.Contagious) && (self || pure || seeTargetBetrayalAddons || seerMainRole == CustomRoles.Virus || (Virus.TargetKnowOtherTarget.GetBool() && seerSubRoles.Contains(CustomRoles.Contagious))))
         {
             RoleColor = GetRoleColor(CustomRoles.Contagious);
             RoleText = GetRoleString("Contagious-") + RoleText;
@@ -2189,7 +2189,7 @@ public static class Utils
                                 (seer.IsRevealedPlayer(target) && !target.Is(CustomRoles.Trickster)) ||
                                 seer.Is(CustomRoles.God) ||
                                 target.Is(CustomRoles.GM)
-                                    ? $"<size={fontSize}>{target.GetDisplayRoleName(shouldSeeTargetAddons)}{GetProgressText(target)}</size>\r\n"
+                                    ? $"<size={fontSize}>{target.GetDisplayRoleName(seeTargetBetrayalAddons: shouldSeeTargetAddons)}{GetProgressText(target)}</size>\r\n"
                                     : string.Empty;
 
                             if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag) TargetRoleText = string.Empty;
@@ -2906,7 +2906,7 @@ public static class Utils
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
             if (impShow && pc.Is(Team.Impostor)) impnum++;
-            if (nkShow && pc.IsNeutralKiller()) neutralnum++;
+            else if (nkShow && pc.IsNeutralKiller()) neutralnum++;
         }
 
         var sb = new StringBuilder();

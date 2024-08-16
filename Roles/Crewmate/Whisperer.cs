@@ -108,12 +108,15 @@ namespace EHR.Crewmate
 
                 try
                 {
-                    var killer = Main.PlayerStates[soulPlayerId].RealKiller;
-                    info = IRandom.Instance.Next(4) switch
+                    var state = Main.PlayerStates[soulPlayerId];
+                    var killer = state.RealKiller;
+                    int next = IRandom.Instance.Next(4);
+                    if (state.deathReason == PlayerState.DeathReason.Disconnected) next = 2;
+                    info = next switch
                     {
                         0 => string.Format(Translator.GetString("WhispererInfo.Color"), GetColorInfo(Utils.GetPlayerInfoById(killer.ID).DefaultOutfit.ColorId, out string colors), colors),
                         1 => string.Format(Translator.GetString("WhispererInfo.Time"), (int)Math.Round((LastMeetingStart - killer.TimeStamp).TotalSeconds)),
-                        2 => string.Format(Translator.GetString("WhispererInfo.Role"), soul.Player.GetCustomRole().ToColoredString()),
+                        2 => string.Format(Translator.GetString("WhispererInfo.Role"), state.MainRole.ToColoredString()),
                         3 => string.Format(Translator.GetString("WhispererInfo.KillerRole"), Main.PlayerStates[killer.ID].MainRole.ToColoredString()),
                         _ => string.Empty
                     };

@@ -10,6 +10,7 @@ public class Amnesiac : RoleBase
 {
     private const int Id = 35000;
     private static List<Amnesiac> Instances = [];
+    public static HashSet<byte> WasAmnesiac = [];
 
     private static OptionItem RememberCooldown;
     private static OptionItem CanRememberCrewPower;
@@ -54,6 +55,7 @@ public class Amnesiac : RoleBase
     public override void Init()
     {
         Instances = [];
+        WasAmnesiac = [];
     }
 
     public override void Add(byte playerId)
@@ -101,7 +103,7 @@ public class Amnesiac : RoleBase
         return true;
     }
 
-    public static void RememberRole(PlayerControl amnesiac, PlayerControl target)
+    private static void RememberRole(PlayerControl amnesiac, PlayerControl target)
     {
         CustomRoles? RememberedRole = null;
 
@@ -188,6 +190,9 @@ public class Amnesiac : RoleBase
 
         target.RpcGuardAndKill(amnesiac);
         target.RpcGuardAndKill(target);
+
+        if (role.GetRoleTypes() == RoleTypes.Engineer)
+            WasAmnesiac.Add(amnesiac.PlayerId);
     }
 
     public override void OnReportDeadBody()

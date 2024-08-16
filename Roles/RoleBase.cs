@@ -6,6 +6,7 @@ using System.Text;
 using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
+using EHR.Neutral;
 
 
 namespace EHR
@@ -51,7 +52,7 @@ namespace EHR
 
         public virtual bool CanUseImpostorVentButton(PlayerControl pc)
         {
-            return pc.IsAlive() && (pc.Is(CustomRoleTypes.Impostor) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.CanVent.GetBool())) && Circumvent.CanUseImpostorVentButton(pc) && pc.Data.Role.Role is not RoleTypes.Engineer;
+            return pc.IsAlive() && (pc.Is(CustomRoleTypes.Impostor) || Amnesiac.WasAmnesiac.Contains(pc.PlayerId) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.CanVent.GetBool())) && Circumvent.CanUseImpostorVentButton(pc) && pc.Data.Role.Role is not RoleTypes.Engineer;
         }
 
         public virtual bool CanUseSabotage(PlayerControl pc)
