@@ -21,6 +21,7 @@ namespace EHR
         protected int Id;
         public PlayerControl playerControl;
         private float PlayerControlTimer;
+        protected HashSet<byte> HiddenList = [];
         public Vector2 Position;
 
         private string Sprite;
@@ -89,11 +90,27 @@ namespace EHR
         protected void Hide(PlayerControl player)
         {
             Logger.Info($" Hide Custom Net Object {this.GetType().Name} (ID {Id}) from {player.GetNameWithRole()}", "CNO.Hide");
+
+            HiddenList.Add(player.PlayerId);
             if (player.AmOwner)
             {
+                LateTask.New(() =>
+                {
+                    playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(false);
+                }, 0.1f);
                 playerControl.Visible = false;
                 return;
             }
+
+            LateTask.New(() => {
+                CustomRpcSender sender = CustomRpcSender.Create("FixModdedClientCNOText", sendOption: SendOption.Reliable);
+                sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO, player.GetClientId())
+                    .WriteNetObject(playerControl)
+                    .Write(false)
+                    .EndRpc();
+                sender.SendMessage();
+            }, 0.4f);
+
 
 
             MessageWriter writer = MessageWriter.Get();
@@ -222,11 +239,24 @@ namespace EHR
                     }, 0.1f);
                 }
 
+                foreach (var pc in Main.AllPlayerControls.Where(x => HiddenList.Contains(x.PlayerId)))
+                {
+                    Hide(pc);
+                }
                 LateTask.New(() => { // Fix for host
-                    playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
+                    if (!HiddenList.Contains(PlayerControl.LocalPlayer.PlayerId))
+                        playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
                 }, 0.1f);
                 LateTask.New(() => { // Fix for Modded
-                    Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl);
+                    foreach (var visiblePC in Main.AllPlayerControls.ExceptBy(HiddenList, x => x.PlayerId))
+                    {
+                        CustomRpcSender sender = CustomRpcSender.Create("FixModdedClientCNOText", sendOption: SendOption.Reliable);
+                        sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO, visiblePC.GetClientId())
+                            .WriteNetObject(playerControl)
+                            .Write(true)
+                            .EndRpc();
+                        sender.SendMessage();
+                    }
                 }, 0.4f);
 
                 /*
@@ -358,8 +388,9 @@ namespace EHR
                     sender.SendMessage();
                 }, 0.1f);
             }
+            
             LateTask.New(() => { // Fix for host
-                playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
+                    playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
             }, 0.1f);
             LateTask.New(() => { // Fix for Modded
                 Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl);
@@ -552,7 +583,7 @@ namespace EHR
     {
         internal BlackHole(Vector2 position)
         {
-            CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<alpha=#00>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<alpha=#00>\u2588<br><#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<br><#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<br><#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<br><#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<br><alpha=#00>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></color></line-height></font></size>", position);
+            CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=67%><alpha=#00>█<alpha=#00>█<#000000>█<#19131c>█<#000000>█<#000000>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<#412847>█<#000000>█<#19131c>█<#000000>█<#412847>█<#260f26>█<alpha=#00>█<br><#000000>█<#412847>█<#412847>█<#000000>█<#260f26>█<#1c0d1c>█<#19131c>█<#000000>█<br><#19131c>█<#000000>█<#412847>█<#1c0d1c>█<#1c0d1c>█<#000000>█<#19131c>█<#000000>█<br><#000000>█<#000000>█<#260f26>█<#1c0d1c>█<#1c0d1c>█<#000000>█<#000000>█<#260f26>█<br><#000000>█<#260f26>█<#1c0d1c>█<#1c0d1c>█<#19131c>█<#412847>█<#412847>█<#19131c>█<br><alpha=#00>█<#260f26>█<#412847>█<#412847>█<#19131c>█<#260f26>█<#19131c>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<#412847>█<#260f26>█<#260f26>█<#000000>█<alpha=#00>█<alpha=#00>█<br></line-height></size>", position);
         }
     }
 
