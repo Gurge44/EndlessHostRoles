@@ -60,6 +60,7 @@ public enum CustomRoles
     Greedier,
     Hangman,
     Hitman,
+    Hypnotist,
     Inhibitor,
     Kamikaze,
     Kidnapper,

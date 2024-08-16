@@ -200,14 +200,14 @@ class TextBoxTMPSetTextPatch
                     (false, true, false) => "<#ffff44>\u27a1    ",
                     _ => "        "
                 };
-                info += $"   - <b>{arg}</b>: {command.ArgsDescriptions[i]}";
+                info += $"   - <b>{arg}</b>{GetExtraArgInfo()}: {command.ArgsDescriptions[i]}";
                 if (current || invalid || valid) info += "</color>";
                 continue;
 
                 bool IsInvalidArg() => arg != command.Arguments.Split(' ')[i] && command.Arguments.Split(' ')[i] switch
                 {
                     "{id}" or "{id1}" or "{id2}" => !byte.TryParse(arg, out var id) || Main.AllPlayerControls.All(x => x.PlayerId != id),
-                    "{number}" or "{level}" or "{duration}" or "{number1}" or "{number2}" => !int.TryParse(arg, out _),
+                    "{number}" or "{level}" or "{duration}" or "{number1}" or "{number2}" => !int.TryParse(arg, out var num) || num < 0,
                     "{team}" => arg is not "crew" and not "imp",
                     "{role}" => !ChatCommands.GetRoleByName(arg, out _),
                     "{addon}" => !ChatCommands.GetRoleByName(arg, out var role) || !role.IsAdditionRole(),
@@ -219,26 +219,21 @@ class TextBoxTMPSetTextPatch
                 bool IsValidArg() => command.Arguments.Split(' ')[i].Replace('[', '{').Replace(']', '}') switch
                 {
                     "{id}" or "{id1}" or "{id2}" => byte.TryParse(arg, out var id) && Main.AllPlayerControls.Any(x => x.PlayerId == id),
-                    "{number}" or "{level}" or "{duration}" or "{number1}" or "{number2}" => int.TryParse(arg, out _),
                     "{team}" => arg is "crew" or "imp",
                     "{role}" => ChatCommands.GetRoleByName(arg, out _),
                     "{addon}" => ChatCommands.GetRoleByName(arg, out var role) && role.IsAdditionRole(),
-                    "{letter}" => arg.Length == 1 && char.IsLetter(arg[0]),
                     "{chance}" => int.TryParse(arg, out var chance) && chance is >= 0 and <= 100 && chance % 5 == 0,
                     _ => false
                 };
 
                 string GetExtraArgInfo() => !IsValidArg()
                     ? string.Empty
-                    : command.Arguments.Split(' ')[i] switch
+                    : " (" + command.Arguments.Split(' ')[i] switch
                     {
                         "{id}" or "{id1}" or "{id2}" => byte.Parse(arg).ColoredPlayerName(),
-                        "{role}" => Enum.Parse<CustomRoles>(arg).ToColoredString(),
-                        "{addon}" => " (Addition Role Name)",
-                        "{letter}" => " (Letter)",
-                        "{chance}" => " (0-100, divisible by 5)",
+                        "{role}" when ChatCommands.GetRoleByName(arg, out var role) => role.ToColoredString(),
                         _ => ""
-                    };
+                    } + ")";
             }
         }
 
