@@ -390,19 +390,10 @@ namespace EHR
             }
             
             LateTask.New(() => { // Fix for host
-                if (!HiddenList.Contains(PlayerControl.LocalPlayer.PlayerId))
                     playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
             }, 0.1f);
             LateTask.New(() => { // Fix for Modded
-                foreach (var visiblePC in Main.AllPlayerControls.ExceptBy(HiddenList, x => x.PlayerId))
-                {
-                    CustomRpcSender sender = CustomRpcSender.Create("FixModdedClientCNOText", sendOption: SendOption.Reliable);
-                    sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO, visiblePC.GetClientId())
-                        .WriteNetObject(playerControl)
-                        .Write(true)
-                        .EndRpc();
-                    sender.SendMessage();
-                }
+                Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl);
             }, 0.4f);
         }
 
