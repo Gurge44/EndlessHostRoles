@@ -232,7 +232,7 @@ class TextBoxTMPSetTextPatch
                     {
                         "{id}" or "{id1}" or "{id2}" => byte.Parse(arg).ColoredPlayerName(),
                         "{role}" when ChatCommands.GetRoleByName(arg, out var role) => role.ToColoredString(),
-                        _ => ""
+                        _ => string.Empty
                     } + ")";
             }
         }
