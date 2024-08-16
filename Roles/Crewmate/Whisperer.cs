@@ -148,12 +148,12 @@ namespace EHR.Crewmate
             }
         }
 
+        // Color IDs: Red-0, Blue-1, Green-2, Pink-3, Orange-4, Yellow-5, Black-6, White-7, Purple-8, Brown-9, Cyan-10, Lime-11, Maroon-12, Rose-13, Banana-14, Gray-15, Tan-16, Coral-17
+        // Lighter color IDs: 3, 4, 5, 7, 10, 11, 13, 14, 16, 17 == Pink, Orange, Yellow, White, Cyan, Lime, Rose, Banana, Tan, Coral
+        // Darker color IDs: 0, 1, 2, 6, 8, 9, 12, 15 == Red, Blue, Green, Black, Purple, Brown, Maroon, Gray
+
         static string GetColorInfo(int colorId, out string colors)
         {
-            // Color IDs: Red-0, Blue-1, Green-2, Pink-3, Orange-4, Yellow-5, Black-6, White-7, Purple-8, Brown-9, Cyan-10, Lime-11, Maroon-12, Rose-13, Banana-14, Gray-15, Tan-16, Coral-17
-            // Lighter color IDs: 3, 4, 5, 7, 10, 11, 13, 14, 16, 17 == Pink, Orange, Yellow, White, Cyan, Lime, Rose, Banana, Tan, Coral
-            // Darker color IDs: 0, 1, 2, 6, 8, 9, 12, 15 == Red, Blue, Green, Black, Purple, Brown, Maroon, Gray
-
             var darker = new List<int> { 0, 1, 2, 6, 8, 9, 12, 15 };
             bool isDarker = darker.Contains(colorId);
             Func<int, string> selector = x => Utils.ColorString(Palette.PlayerColors[x], Palette.GetColorName(x));

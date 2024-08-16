@@ -38,6 +38,7 @@ namespace EHR.AddOns.Common
 
         public static void OnMeetingStart()
         {
+            if (MeetingStates.FirstMeeting) return;
             if (MeetingEndTS + InactiveTime.GetInt() > Utils.TimeStamp) return;
             foreach (var pc in Main.AllAlivePlayerControls)
             {
@@ -50,7 +51,7 @@ namespace EHR.AddOns.Common
         public static string GetSuffix(PlayerControl seer, bool hud = false)
         {
             if (!seer.Is(CustomRoles.Deadlined) || (seer.IsModClient() && !hud)) return string.Empty;
-            if (DidTask.Contains(seer.PlayerId)) return "<#00ff00>\u2713</color>";
+            if (DidTask.Contains(seer.PlayerId) || MeetingStates.FirstMeeting) return "<#00ff00>\u2713</color>";
             long now = Utils.TimeStamp;
             return MeetingEndTS + InactiveTime.GetInt() <= now
                 ? Translator.GetString("Deadlined.MustDoTask")

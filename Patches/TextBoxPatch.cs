@@ -212,6 +212,7 @@ class TextBoxTMPSetTextPatch
                     "{role}" => !ChatCommands.GetRoleByName(arg, out _),
                     "{addon}" => !ChatCommands.GetRoleByName(arg, out var role) || !role.IsAdditionRole(),
                     "{letter}" => arg.Length != 1 || !char.IsLetter(arg[0]),
+                    "{chance}" => !int.TryParse(arg, out var chance) || chance < 0 || chance > 100 || chance % 5 != 0,
                     _ => false
                 };
 
@@ -223,8 +224,21 @@ class TextBoxTMPSetTextPatch
                     "{role}" => ChatCommands.GetRoleByName(arg, out _),
                     "{addon}" => ChatCommands.GetRoleByName(arg, out var role) && role.IsAdditionRole(),
                     "{letter}" => arg.Length == 1 && char.IsLetter(arg[0]),
+                    "{chance}" => int.TryParse(arg, out var chance) && chance is >= 0 and <= 100 && chance % 5 == 0,
                     _ => false
                 };
+
+                string GetExtraArgInfo() => !IsValidArg()
+                    ? string.Empty
+                    : command.Arguments.Split(' ')[i] switch
+                    {
+                        "{id}" or "{id1}" or "{id2}" => byte.Parse(arg).ColoredPlayerName(),
+                        "{role}" => Enum.Parse<CustomRoles>(arg).ToColoredString(),
+                        "{addon}" => " (Addition Role Name)",
+                        "{letter}" => " (Letter)",
+                        "{chance}" => " (0-100, divisible by 5)",
+                        _ => ""
+                    };
             }
         }
 

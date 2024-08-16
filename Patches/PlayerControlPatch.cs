@@ -924,6 +924,7 @@ class ReportDeadBodyPatch
                     || Vulture.UnreportablePlayers.Contains(target.PlayerId)) return false;
 
                 if (!Librarian.OnAnyoneReport(__instance)) return false;
+                if (!Hypnotist.OnAnyoneReport()) return false;
 
                 if (!Main.PlayerStates[__instance.PlayerId].Role.CheckReportDeadBody(__instance, target, killer)) return false;
 

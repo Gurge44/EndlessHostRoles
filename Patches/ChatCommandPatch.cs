@@ -158,6 +158,7 @@ internal static class ChatCommands
             new(["deletevip", "удалитьвип"], "{id}", GetString("CommandDescription.DeleteVIP"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteVIPCommand, true, [GetString("CommandArgs.DeleteVIP.Id")]),
             new(["assume", "предположить"], "{id} {number}", GetString("CommandDescription.Assume"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AssumeCommand, true, [GetString("CommandArgs.Assume.Id"), GetString("CommandArgs.Assume.Number")]),
             new(["note", "заметка"], "{action} [?]", GetString("CommandDescription.Note"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NoteCommand, true, [GetString("CommandArgs.Note.Action"), GetString("CommandArgs.Note.UnknownValue")]),
+            new(["os", "optionset", "опция"], "{chance} {role}", GetString("CommandDescription.OS"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, OSCommand, true, [GetString("CommandArgs.OS.Chance"), GetString("CommandArgs.OS.Role")]),
 
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -283,6 +284,12 @@ internal static class ChatCommands
     }
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
+
+    private static void OSCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        if (!GameStates.IsLobby || args.Length < 3 || !byte.TryParse(args[1], out var chance) || chance > 100 || chance % 5 != 0 || !GetRoleByName(string.Join(' ', args[2..]), out var role) || !Options.CustomRoleSpawnChances.TryGetValue(role, out var option)) return;
+        option.SetValue(chance / 5);
+    }
 
     private static void NoteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
