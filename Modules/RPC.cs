@@ -374,7 +374,8 @@ internal class RPCHandlerPatch
             }
             case CustomRPC.FixModdedClientCNO:
                 var CNO = reader.ReadNetObject<PlayerControl>();
-                CNO.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true); 
+                bool active = reader.ReadBoolean();
+                CNO.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(active);
                 break;
 
             case CustomRPC.SyncPostman:
