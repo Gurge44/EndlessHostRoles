@@ -2872,7 +2872,7 @@
   "Insight": "洞察力",
   "InsightInfo": "知道出现了哪些职业",
   "InsightInfoLong": "(船员职业)：\\n作为洞察力，每当你完成任务时，你都会知道某人在当前游戏中的随机职业。\\n你不能查看同一个玩家两次\\n你必须记住他们的职业，没有第二次查看的机会。",
-  "InsightNotify": "<color=#ffffff>Someone in the game is</color> {0}",
+  "InsightNotify": "<color=#ffffff>游戏中有人是</color> {0}",
   "Tunneler": "Tunneler",
   "TunnelerInfo": "Mark a position and TP back there",
   "TunnelerInfoLong": "(Crewmates):\\nAs the Tunneler, you may mark a position by petting your pet, and then you can teleport back to the marked position by petting your pet again.",
