@@ -228,12 +228,12 @@ class TextBoxTMPSetTextPatch
 
                 string GetExtraArgInfo() => !IsValidArg()
                     ? string.Empty
-                    : " (" + command.Arguments.Split(' ')[i] switch
+                    : command.Arguments.Split(' ')[i] switch
                     {
-                        "{id}" or "{id1}" or "{id2}" => byte.Parse(arg).ColoredPlayerName(),
-                        "{role}" when ChatCommands.GetRoleByName(arg, out var role) => role.ToColoredString(),
+                        "{id}" or "{id1}" or "{id2}" => $" ({byte.Parse(arg).ColoredPlayerName()})",
+                        "{role}" or "{addon}" when ChatCommands.GetRoleByName(arg, out var role) => $" ({role.ToColoredString()})",
                         _ => string.Empty
-                    } + ")";
+                    };
             }
         }
 
