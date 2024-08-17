@@ -205,6 +205,7 @@ public enum CustomRoles
     NiceHacker,
     NiceSwapper,
     Nightmare,
+    Negotiator,
     Observer,
     Oracle,
     Oxyman,

@@ -112,7 +112,7 @@ namespace EHR
                 {
                     CustomRoleTypes.Impostor => $"Imp{x}",
                     CustomRoleTypes.Neutral => $"Neutral{x}",
-                    CustomRoleTypes.Crewmate => x == 1 ? "Crew" : pc.GetTaskState().hasTasks && pc.GetTaskState().IsTaskFinished ? "CrewTaskDone" : "CrewWithTasksLeft",
+                    CustomRoleTypes.Crewmate => x == 1 ? "Crew" : pc.GetTaskState().HasTasks && pc.GetTaskState().IsTaskFinished ? "CrewTaskDone" : "CrewWithTasksLeft",
                     _ => x.ToString()
                 };
             }

@@ -886,7 +886,7 @@ public static class Utils
     {
         var taskState = pc.GetTaskState();
         var Comms = false;
-        if (taskState.hasTasks)
+        if (taskState.HasTasks)
         {
             if (IsActive(SystemTypes.Comms)) Comms = true;
             if (Camouflager.IsActive) Comms = true;
@@ -953,7 +953,7 @@ public static class Utils
         try
         {
             var taskState = Main.PlayerStates[playerId].TaskState;
-            if (!taskState.hasTasks) return string.Empty;
+            if (!taskState.HasTasks) return string.Empty;
 
             var info = GetPlayerInfoById(playerId);
             var TaskCompleteColor = HasTasks(info) ? Color.green : GetRoleColor(Main.PlayerStates[playerId].MainRole).ShadeColor(0.5f);
@@ -2550,7 +2550,7 @@ public static class Utils
             else
             {
                 TaskState taskState = pc.GetTaskState();
-                if (pc.IsCrewmate() && !taskState.IsTaskFinished && taskState.hasTasks)
+                if (pc.IsCrewmate() && !taskState.IsTaskFinished && taskState.HasTasks)
                     pc.Notify(GetString("DoYourTasksPlease"), 10f);
 
                 GhostRolesManager.NotifyAboutGhostRole(pc);
@@ -2837,7 +2837,7 @@ public static class Utils
         else name = GetPlayerById(id)?.Data.PlayerName ?? name;
         var taskState = Main.PlayerStates[id].TaskState;
         string TaskCount;
-        if (taskState.hasTasks)
+        if (taskState.HasTasks)
         {
             var info = GetPlayerInfoById(id);
             var TaskCompleteColor = HasTasks(info) ? Color.green : Color.cyan;

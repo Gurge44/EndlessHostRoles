@@ -265,6 +265,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
             Chef.ApplyGameOptionsForOthers(opt, player.PlayerId);
             President.OnAnyoneApplyGameOptions(opt);
+            Negotiator.OnAnyoneApplyGameOptions(opt, player.PlayerId);
 
             if (Sprayer.LowerVisionList.Contains(player.PlayerId))
             {
@@ -428,7 +429,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                 AURoleOptions.PlayerSpeedMod = Mathf.Clamp(speed, Main.MinSpeed, 3f);
             }
 
-            state.taskState.hasTasks = Utils.HasTasks(player.Data, false);
+            state.TaskState.HasTasks = Utils.HasTasks(player.Data, false);
             if (Options.GhostCanSeeOtherVotes.GetBool() && player.Data.IsDead)
                 opt.SetBool(BoolOptionNames.AnonymousVotes, false);
             if (Options.AdditionalEmergencyCooldown.GetBool() &&

@@ -56,6 +56,7 @@ public class PlayerState(byte playerId)
         BadLuck,
         Asthma,
         Assumed,
+        Negotiation,
 
         etc = -1
     }
@@ -63,14 +64,13 @@ public class PlayerState(byte playerId)
     public readonly PlayerControl Player = Utils.GetPlayerById(playerId, fast: false);
 
     private readonly byte PlayerId = playerId;
+    public readonly List<CustomRoles> SubRoles = [];
+    public readonly Dictionary<byte, string> TargetColorData = [];
     public CountTypes countTypes = CountTypes.Crew;
     public PlainShipRoom LastRoom;
     public CustomRoles MainRole = CustomRoles.NotAssigned;
     public (DateTime TimeStamp, byte ID) RealKiller = (DateTime.MinValue, byte.MaxValue);
     public RoleBase Role = new VanillaRole();
-    public List<CustomRoles> SubRoles = [];
-    public Dictionary<byte, string> TargetColorData = [];
-    public TaskState taskState = new();
     public bool IsDead { get; set; }
 #pragma warning disable IDE1006 // Naming Styles
     // ReSharper disable once InconsistentNaming
@@ -79,7 +79,7 @@ public class PlayerState(byte playerId)
     public bool IsBlackOut { get; set; }
 
     public bool IsSuicide => deathReason == DeathReason.Suicide;
-    public TaskState TaskState => taskState;
+    public TaskState TaskState { get; } = new();
 
     public void SetMainRole(CustomRoles role)
     {
@@ -162,7 +162,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Stressed);
                 break;
             case CustomRoles.Madmate:
-                TaskState.hasTasks = false;
+                TaskState.HasTasks = false;
                 TaskState.AllTasksCount = 0;
                 countTypes = Options.MadmateCountMode.GetInt() switch
                 {
@@ -181,7 +181,7 @@ public class PlayerState(byte playerId)
                 Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Charmed:
-                TaskState.hasTasks = false;
+                TaskState.HasTasks = false;
                 TaskState.AllTasksCount = 0;
                 countTypes = Succubus.CharmedCountMode.GetInt() switch
                 {
@@ -200,7 +200,7 @@ public class PlayerState(byte playerId)
                 Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Undead:
-                TaskState.hasTasks = false;
+                TaskState.HasTasks = false;
                 TaskState.AllTasksCount = 0;
                 countTypes = Necromancer.UndeadCountMode.GetInt() switch
                 {
@@ -222,7 +222,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Mare);
                 break;
             case CustomRoles.Recruit:
-                TaskState.hasTasks = false;
+                TaskState.HasTasks = false;
                 TaskState.AllTasksCount = 0;
                 countTypes = Jackal.SidekickCountMode.GetInt() switch
                 {
@@ -241,7 +241,7 @@ public class PlayerState(byte playerId)
                 Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Contagious:
-                TaskState.hasTasks = false;
+                TaskState.HasTasks = false;
                 TaskState.AllTasksCount = 0;
                 countTypes = Virus.ContagiousCountMode.GetInt() switch
                 {
@@ -285,8 +285,8 @@ public class PlayerState(byte playerId)
         }
     }
 
-    public void InitTask(PlayerControl player) => taskState.Init(player);
-    public void UpdateTask(PlayerControl player) => taskState.Update(player);
+    public void InitTask(PlayerControl player) => TaskState.Init(player);
+    public void UpdateTask(PlayerControl player) => TaskState.Update(player);
 
     public byte GetRealKiller() => IsDead && RealKiller.TimeStamp != DateTime.MinValue ? RealKiller.ID : byte.MaxValue;
     public int GetKillCount(bool ExcludeSelfKill = false) => Main.PlayerStates.Values.Where(state => !(ExcludeSelfKill && state.PlayerId == PlayerId) && state.GetRealKiller() == PlayerId).ToArray().Length;
@@ -297,9 +297,9 @@ public class TaskState
     public static int InitialTotalTasks;
     public int AllTasksCount = -1;
     public int CompletedTasksCount;
-    public bool hasTasks;
+    public bool HasTasks;
     public int RemainingTasksCount => AllTasksCount - CompletedTasksCount;
-    public bool IsTaskFinished => RemainingTasksCount <= 0 && hasTasks;
+    public bool IsTaskFinished => RemainingTasksCount <= 0 && HasTasks;
 
     public void Init(PlayerControl player)
     {
@@ -311,7 +311,7 @@ public class TaskState
             return;
         }
 
-        hasTasks = true;
+        HasTasks = true;
         AllTasksCount = player.Data.Tasks.Count;
         Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Init");
     }
@@ -324,7 +324,7 @@ public class TaskState
 
         if (AllTasksCount == -1) Init(player);
 
-        if (!hasTasks) return;
+        if (!HasTasks) return;
 
         if (AmongUsClient.Instance.AmHost)
         {

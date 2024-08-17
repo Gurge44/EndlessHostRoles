@@ -10,8 +10,8 @@ namespace EHR.Crewmate
         private static List<Grappler> Instances = [];
 
         private static OptionItem AbilityUseLimit;
-        private static OptionItem AbilityUseGainWithEachTaskCompleted;
-        private static OptionItem AbilityChargesWhenFinishedTasks;
+        public static OptionItem AbilityUseGainWithEachTaskCompleted;
+        public static OptionItem AbilityChargesWhenFinishedTasks;
         private byte GrapplerId;
         private bool InUse;
 

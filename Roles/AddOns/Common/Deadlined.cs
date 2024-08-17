@@ -31,7 +31,7 @@ namespace EHR.AddOns.Common
             foreach (var pc in Main.AllPlayerControls)
             {
                 TaskState ts = pc.GetTaskState();
-                if (pc.Is(CustomRoles.Deadlined) && (!pc.IsAlive() || ts.IsTaskFinished || !ts.hasTasks))
+                if (pc.Is(CustomRoles.Deadlined) && (!pc.IsAlive() || ts.IsTaskFinished || !ts.HasTasks))
                     Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Deadlined);
             }
         }

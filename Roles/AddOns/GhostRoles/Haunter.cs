@@ -41,7 +41,7 @@ namespace EHR.AddOns.GhostRoles
                 var taskState = pc.GetTaskState();
                 if (taskState == null) return;
 
-                taskState.hasTasks = true;
+                taskState.HasTasks = true;
                 taskState.CompletedTasksCount = 0;
                 taskState.AllTasksCount = Utils.TotalTaskCount - Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks);
 

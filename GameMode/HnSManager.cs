@@ -401,7 +401,7 @@ namespace EHR
                 return stateText;
 
                 CustomRoles GetRole() => state.Value.MainRole == CustomRoles.Agent ? CustomRoles.Hider : state.Value.MainRole;
-                string GetTaskCount() => CustomRoles.Agent.IsEnable() || !ts.hasTasks ? string.Empty : $" ({ts.CompletedTasksCount}/{ts.AllTasksCount})";
+                string GetTaskCount() => CustomRoles.Agent.IsEnable() || !ts.HasTasks ? string.Empty : $" ({ts.CompletedTasksCount}/{ts.AllTasksCount})";
             }
         }
 

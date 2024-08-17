@@ -149,7 +149,7 @@ namespace EHR.Crewmate
 
         public static string GetTaskState()
         {
-            var playersWithTasks = Main.PlayerStates.Where(a => a.Value.TaskState.hasTasks).ToArray();
+            var playersWithTasks = Main.PlayerStates.Where(a => a.Value.TaskState.HasTasks).ToArray();
             if (playersWithTasks.Length == 0)
             {
                 return "\r\n";

@@ -71,7 +71,7 @@ namespace EHR.Impostor
             return killer.CheckDoubleTrigger(target, () =>
             {
                 killer.SetKillCooldown(time: ManipulateCD);
-                if (target.HasKillButton() || target.GetTaskState().hasTasks || UsePets.GetBool())
+                if (target.HasKillButton() || target.GetTaskState().HasTasks || UsePets.GetBool())
                 {
                     ManipulateDelays.TryAdd(target.PlayerId, TimeStamp);
                     NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
@@ -98,7 +98,7 @@ namespace EHR.Impostor
                     ManipulateDelays.Remove(x.Key);
                     ManipulatedPlayers.TryAdd(x.Key, TimeStamp);
 
-                    if (!pc.GetTaskState().hasTasks || UsePets.GetBool())
+                    if (!pc.GetTaskState().HasTasks || UsePets.GetBool())
                     {
                         TempKCDs.TryAdd(pc.PlayerId, Main.KillTimers[pc.PlayerId]);
                         pc.SetKillCooldown(time: 1f);
@@ -129,7 +129,7 @@ namespace EHR.Impostor
 
                 var time = TimeLimit.GetInt() - (TimeStamp - x.Value);
 
-                player.Notify(string.Format(GetString(UsePets.GetBool() ? "ManipulatePetNotify" : player.GetTaskState().hasTasks ? "ManipulateTaskNotify" : "ManipulateNotify"), time), 1.1f);
+                player.Notify(string.Format(GetString(UsePets.GetBool() ? "ManipulatePetNotify" : player.GetTaskState().HasTasks ? "ManipulateTaskNotify" : "ManipulateNotify"), time), 1.1f);
             }
         }
 

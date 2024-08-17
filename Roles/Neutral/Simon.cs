@@ -77,7 +77,7 @@ namespace EHR.Neutral
 
             return killer.CheckDoubleTrigger(target, () =>
             {
-                MarkedPlayers[target.PlayerId] = (DoMode, Main.PlayerStates[target.PlayerId].Role.CanUseKillButton(target) ? Instruction.Kill : target.GetTaskState().hasTasks ? Instruction.Task : Instruction.None);
+                MarkedPlayers[target.PlayerId] = (DoMode, Main.PlayerStates[target.PlayerId].Role.CanUseKillButton(target) ? Instruction.Kill : target.GetTaskState().HasTasks ? Instruction.Task : Instruction.None);
                 Utils.SendRPC(CustomRPC.SyncRoleData, killer.PlayerId, 3, target.PlayerId, DoMode, (int)MarkedPlayers[target.PlayerId].Instruction);
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             });

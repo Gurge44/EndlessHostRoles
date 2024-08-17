@@ -154,8 +154,8 @@ namespace EHR.Crewmate
             LateTask.New(newPatrolState.SetPlayer, 8f, log: false);
         }
 
-        public static PatrollingState GetPatrollingState(byte playerId) => PatrolStates.FirstOrDefault(x => x.SentinelId == playerId) ?? new(playerId, PatrolDuration.GetInt(), PatrolRadius.GetInt());
-        public static bool IsPatrolling(byte playerId) => GetPatrollingState(playerId).IsPatrolling;
+        private static PatrollingState GetPatrollingState(byte playerId) => PatrolStates.FirstOrDefault(x => x.SentinelId == playerId) ?? new(playerId, PatrolDuration.GetInt(), PatrolRadius.GetInt());
+        public static bool IsPatrolling(byte playerId) => GetPatrollingState(playerId)?.IsPatrolling == true;
         public override void OnEnterVent(PlayerControl pc, Vent vent) => GetPatrollingState(pc.PlayerId)?.StartPatrolling();
         public override void OnPet(PlayerControl pc) => GetPatrollingState(pc.PlayerId)?.StartPatrolling();
 
@@ -165,7 +165,7 @@ namespace EHR.Crewmate
             foreach (PatrollingState state in PatrolStates)
             {
                 if (!state.IsPatrolling) continue;
-                if (state.NearbyKillers.Contains(killer))
+                if (state.NearbyKillers.Any(x => x.PlayerId == killer.PlayerId))
                 {
                     state.Sentinel.RpcCheckAndMurder(killer);
                     return false;
