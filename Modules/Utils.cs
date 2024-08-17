@@ -451,7 +451,7 @@ public static class Utils
         string RoleText = GetRoleName(isHnsAgentOverride ? CustomRoles.Hider : targetMainRole);
         Color RoleColor = GetRoleColor(loversShowDifferentRole ? CustomRoles.Impostor : targetMainRole);
 
-        if (LastImpostor.currentId == targetId)
+        if (LastImpostor.CurrentId == targetId)
             RoleText = GetRoleString("Last-") + RoleText;
 
         if (Options.NameDisplayAddons.GetBool() && !pure && self)

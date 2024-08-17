@@ -827,7 +827,7 @@ static class ExtendedPlayerControl
             CustomRoles.Killer => FFAManager.FFAKcd.GetFloat(),
             _ => Main.AllPlayerKillCooldown[player.PlayerId]
         };
-        if (player.PlayerId == LastImpostor.currentId)
+        if (player.PlayerId == LastImpostor.CurrentId)
             LastImpostor.SetKillCooldown();
         if (player.Is(CustomRoles.Mare))
             if (IsActive(SystemTypes.Electrical)) Main.AllPlayerKillCooldown[player.PlayerId] = Options.MareKillCD.GetFloat();

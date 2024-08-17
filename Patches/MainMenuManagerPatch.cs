@@ -95,17 +95,6 @@ public static class MainMenuManagerPatch
         Vector3 lerp2 = Vector3.Lerp(pos2, new(pos2.x, 7.1f, pos2.z), Time.deltaTime * 1.4f);
         bak.transform.position = lerp2;
         if (pos2.y > 7f) ShowedBak = true;
-
-        try
-        {
-            __instance.settingsButton?.ChangeButtonText(Translator.GetString("MainMenu.SettingsButton"));
-            __instance.inventoryButton?.ChangeButtonText(Translator.GetString("MainMenu.InventoryButton"));
-            __instance.creditsButton?.ChangeButtonText(Translator.GetString("MainMenu.CreditsButton"));
-            __instance.quitButton?.ChangeButtonText(Translator.GetString("MainMenu.QuitButton"));
-        }
-        catch
-        {
-        }
     }
 
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPostfix, HarmonyPriority(Priority.VeryHigh)]
@@ -164,6 +153,13 @@ public static class MainMenuManagerPatch
         WebsiteButton.gameObject.SetActive(true);
 
         Application.targetFrameRate = Main.UnlockFps.Value ? 120 : 60;
+
+        foreach (var buttonName in new[] { "SettingsButton", "Inventory Button", "CreditsButton", "ExitGameButton" })
+        {
+            var buttonText = GameObject.Find(buttonName).transform.Find("FontPlacer/Text_TMP").GetComponent<TMP_Text>();
+            buttonText.DestroyTranslator();
+            buttonText.text = Translator.GetString($"MainMenu.{buttonName.Replace(" ", "")}");
+        }
     }
 
     private static PassiveButton CreateButton(string name, Vector3 localPosition, Color32 normalColor, Color32 hoverColor, Action action, string label, Vector2? scale = null)

@@ -138,7 +138,7 @@ class ExternalRpcPetPatch
     public static PlayerControl SelectKillButtonTarget(PlayerControl pc)
     {
         var pos = pc.Pos();
-        var players = Main.AllAlivePlayerControls.Select(x => (pc: x, distance: Vector2.Distance(pos, x.Pos()))).Where(x => x.distance < 2.5f).OrderBy(x => x.distance).ToList();
+        var players = Main.AllAlivePlayerControls.Without(pc).Select(x => (pc: x, distance: Vector2.Distance(pos, x.Pos()))).Where(x => x.distance < 2.5f).OrderBy(x => x.distance).ToList();
         var target = players.Count > 0 ? players[0].pc : null;
 
         if (target != null && target.Is(CustomRoles.Detour))

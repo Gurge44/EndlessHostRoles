@@ -8,7 +8,7 @@ namespace EHR.Impostor
         public static bool On;
 
         private static OptionItem UseLimit;
-        private static OptionItem VisionaryAbilityUseGainWithEachKill;
+        public static OptionItem VisionaryAbilityUseGainWithEachKill;
         private static OptionItem ShapeshiftCooldown;
         private static OptionItem ChanceOfSeeingAllAlignmentsOnStart;
 

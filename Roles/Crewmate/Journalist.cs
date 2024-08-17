@@ -44,7 +44,7 @@ namespace EHR.Crewmate
                         journalist.Notes.Add(string.Join(' ', args[2..]));
                         break;
                     case "remove":
-                        if (!int.TryParse(args[2], out var index))
+                        if (args.Length == 2 || !int.TryParse(args[2], out var index))
                             index = journalist.Notes.Count;
                         index--;
                         journalist.Notes.RemoveAt(index);
