@@ -2918,7 +2918,7 @@
   "CantankerousInfoLong": "(内鬼职业):\\n作为乐祸者,你只能在拥有积分的情况下击杀.当一名非内鬼玩家被驱逐时,你会获得积分.",
   "CantankerousPointsGainedPerEjection": "每个非内鬼玩家被放逐的积分",
   "CantankerousStartingPoints": "初始积分",
-  "Druid": "德鲁伊",
+  "Druid": "诱捕者",
   "DruidInfo": "去窥探他人的行踪吧!",
   "DruidInfoLong": "(船员职业):\\n作为德鲁伊,你可以跳管,并在延迟一段时间后,在你跳管的位置放置一个触发器.当任何玩家经过你的触发器时,你将会收到通知.\\n哪里内鬼经过地点多就将你的触发器放置在该位置,并抓住那些内鬼!\\n\\n注意:如果你拥有宠物,你可以通过抚摸宠物放置触发器.",
   "DruidTriggerPlaceDelayOpt": "触发器放置延迟(当未携带宠物时)",
