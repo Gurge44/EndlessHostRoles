@@ -2947,7 +2947,7 @@
   "MafiosoHUDTextWithDualPistols": "<color=#00ffa5>级:</color>{0},<color=#00ffa5>XP:</color>{1}\\n",
   "Whisperer": "低语者",
   "WhispererInfo": "灵魂啊!向我倾诉衷肠吧!",
-  "WhispererInfoLong": "(Crewmates)：\\n低语者可以从死去的玩家的灵魂获取信息.你会看到已经死亡的玩家的灵魂(在下次会议之后)，点击抚摸宠物的按钮来提问他们.然后你可以获得关于凶手的随机信息(显示在你的名字下面).",
+  "WhispererInfoLong": "(船员职业)：\\n低语者可以从死去的玩家的灵魂获取信息.你会看到已经死亡的玩家的灵魂(在下次会议之后)，点击抚摸宠物的按钮来提问他们.然后你可以获得关于凶手的随机信息(显示在你的名字下面).",
   "WhispererCooldown": "问答冷却时间",
   "WhispererDuration": "问答持续时间",
   "WhispererInfo.Color": "是{0}颜色杀死了我(<size=50%>{1}</color>)",
