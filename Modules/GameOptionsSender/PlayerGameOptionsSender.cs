@@ -170,6 +170,10 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     CTFManager.ApplyGameOptions(opt);
                     SetMaxVision();
                     break;
+                case CustomGameMode.NaturalDisasters:
+                    SetMaxVision();
+                    NaturalDisasters.ApplyGameOptions(opt, player.PlayerId);
+                    break;
                 case CustomGameMode.Speedrun:
                 case CustomGameMode.HotPotato:
                 case CustomGameMode.MoveAndStop:

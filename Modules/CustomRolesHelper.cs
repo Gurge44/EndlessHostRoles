@@ -55,7 +55,8 @@ internal static class CustomRolesHelper
         CustomRoles.Tasker or
         CustomRoles.Potato or
         CustomRoles.Runner or
-        CustomRoles.CTFPlayer;
+        CustomRoles.CTFPlayer or
+        CustomRoles.NDPlayer;
 
     public static RoleBase GetRoleClass(this CustomRoles role)
     {
@@ -377,6 +378,8 @@ internal static class CustomRolesHelper
             CustomRoles.Runner => RoleTypes.Crewmate,
             // Capture The Flag
             CustomRoles.CTFPlayer => RoleTypes.Shapeshifter,
+            // Natural Disasters
+            CustomRoles.NDPlayer => RoleTypes.Crewmate,
             // Standard
             CustomRoles.Executioner => Executioner.CRoleChangeRoles[Executioner.ChangeRolesAfterTargetKilled.GetValue()].GetDYRole(),
             CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,

@@ -233,6 +233,7 @@ class HudManagerPatch
                         CustomGameMode.MoveAndStop when player.IsHost() => MoveAndStopManager.HUDText,
                         CustomGameMode.HotPotato when player.IsHost() => HotPotatoManager.GetSuffixText(player.PlayerId),
                         CustomGameMode.HideAndSeek when player.IsHost() => HnSManager.GetSuffixText(player, player, isHUD: true),
+                        CustomGameMode.NaturalDisasters => NaturalDisasters.GetSuffixText(),
                         CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
                         _ => string.Empty
                     };
@@ -420,6 +421,7 @@ class SetHudActivePatch
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
             case CustomGameMode.Speedrun:
+            case CustomGameMode.NaturalDisasters:
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.KillButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
@@ -744,6 +746,13 @@ class TaskPanelBehaviourPatch
 
                     AllText += $"\r\n{SpeedrunManager.GetTaskBarText()}";
 
+                    break;
+
+                case CustomGameMode.NaturalDisasters:
+
+                    AllText += Main.AllPlayerControls.Select(x => (pc: x, alive: x.IsAlive(), time: NaturalDisasters.GetSurvivalTime(x.PlayerId))).OrderByDescending(x => x.time).ThenByDescending(x => x.alive).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {(x.alive ? $"<#00ff00>{GetString("Alive")}</color>" : $"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), x.time)}")}");
+
+                    AllText += "</size>";
                     break;
             }
 

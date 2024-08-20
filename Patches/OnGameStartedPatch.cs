@@ -821,6 +821,9 @@ internal class SelectRolesPatch
                 case CustomGameMode.CaptureTheFlag:
                     CTFManager.OnGameStart();
                     break;
+                case CustomGameMode.NaturalDisasters:
+                    NaturalDisasters.OnGameStart();
+                    break;
             }
 
             HudManager.Instance.SetHudActive(true);
@@ -864,6 +867,9 @@ internal class SelectRolesPatch
                     break;
                 case CustomGameMode.CaptureTheFlag:
                     GameEndChecker.SetPredicateToCaptureTheFlag();
+                    break;
+                case CustomGameMode.NaturalDisasters:
+                    GameEndChecker.SetPredicateToNaturalDisasters();
                     break;
             }
 

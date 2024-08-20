@@ -5,7 +5,6 @@ using EHR.Crewmate;
 using EHR.Modules;
 using Hazel;
 using InnerNet;
-using TMPro;
 using UnityEngine;
 
 
@@ -18,18 +17,20 @@ namespace EHR
     {
         public static readonly List<CustomNetObject> AllObjects = [];
         private static int MaxId = -1;
+        private readonly HashSet<byte> HiddenList = [];
         protected int Id;
         public PlayerControl playerControl;
         private float PlayerControlTimer;
-        protected HashSet<byte> HiddenList = [];
         public Vector2 Position;
 
-        private string Sprite;
-/*
-        protected void RpcChangeSprite(string sprite)
+        public string Sprite;
+
+        public void RpcChangeSprite(string sprite)
         {
+            if (this is not DisasterWarningTimer) Logger.Info($" Change Custom Net Object {this.GetType().Name} (ID {Id}) sprite", "CNO.RpcChangeSprite");
             Sprite = sprite;
-            LateTask.New(() => {
+            LateTask.New(() =>
+            {
                 playerControl.RawSetName(sprite);
                 var name = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName;
                 var colorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId;
@@ -72,7 +73,6 @@ namespace EHR
                 sender.SendMessage();
             }, 0f);
         }
-*/
 
         public void TP(Vector2 position)
         {
@@ -94,15 +94,13 @@ namespace EHR
             HiddenList.Add(player.PlayerId);
             if (player.AmOwner)
             {
-                LateTask.New(() =>
-                {
-                    playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(false);
-                }, 0.1f);
+                LateTask.New(() => playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(false), 0.1f);
                 playerControl.Visible = false;
                 return;
             }
 
-            LateTask.New(() => {
+            LateTask.New(() =>
+            {
                 CustomRpcSender sender = CustomRpcSender.Create("FixModdedClientCNOText", sendOption: SendOption.Reliable);
                 sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO, player.GetClientId())
                     .WriteNetObject(playerControl)
@@ -110,8 +108,6 @@ namespace EHR
                     .EndRpc();
                 sender.SendMessage();
             }, 0.4f);
-
-
 
             MessageWriter writer = MessageWriter.Get();
             writer.StartMessage(6);
@@ -127,6 +123,13 @@ namespace EHR
 
         protected virtual void OnFixedUpdate()
         {
+            if (this.playerControl.GetRealName() == "Player")
+            {
+                Logger.Warn($" Despawn Custom Net Object {this.GetType().Name} (ID {Id}) because it is bugged", "CNO.OnFixedUpdate");
+                Despawn();
+                return;
+            }
+
             PlayerControlTimer += Time.fixedDeltaTime;
             if (PlayerControlTimer > 20f)
             {
@@ -208,7 +211,7 @@ namespace EHR
                     sender.SendMessage();
                 }, 0.2f);
                 LateTask.New(() => oldPlayerControl.Despawn(), 0.3f);
-               // playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
+                //playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
                 //playerControl.cosmetics.colorBlindText.color = Color.clear;
                 foreach (var pc in Main.AllPlayerControls)
                 {
@@ -243,11 +246,16 @@ namespace EHR
                 {
                     Hide(pc);
                 }
-                LateTask.New(() => { // Fix for host
+
+                LateTask.New(() =>
+                {
+                    // Fix for Host
                     if (!HiddenList.Contains(PlayerControl.LocalPlayer.PlayerId))
                         playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
                 }, 0.1f);
-                LateTask.New(() => { // Fix for Modded
+                LateTask.New(() =>
+                {
+                    // Fix for Non-Host Modded
                     foreach (var visiblePC in Main.AllPlayerControls.ExceptBy(HiddenList, x => x.PlayerId))
                     {
                         CustomRpcSender sender = CustomRpcSender.Create("FixModdedClientCNOText", sendOption: SendOption.Reliable);
@@ -260,14 +268,14 @@ namespace EHR
                 }, 0.4f);
 
                 /*
-                                if (this is TrapArea trapArea)
-                                {
-                                    foreach (var pc in PlayerControl.AllPlayerControls)
-                                    {
-                                        if (!trapArea.VisibleList.Contains(pc.PlayerId))
-                                            Hide(pc);
-                                    }
-                                }
+                    if (this is TrapArea trapArea)
+                    {
+                        foreach (var pc in PlayerControl.AllPlayerControls)
+                        {
+                            if (!trapArea.VisibleList.Contains(pc.PlayerId))
+                                Hide(pc);
+                        }
+                    }
                 */
                 PlayerControlTimer = 0f;
             }
@@ -354,7 +362,7 @@ namespace EHR
             Position = position;
             PlayerControlTimer = 0f;
             //playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
-           // playerControl.cosmetics.colorBlindText.color = Color.clear;
+            // playerControl.cosmetics.colorBlindText.color = Color.clear;
             Sprite = sprite;
             ++MaxId;
             Id = MaxId;
@@ -388,13 +396,9 @@ namespace EHR
                     sender.SendMessage();
                 }, 0.1f);
             }
-            
-            LateTask.New(() => { // Fix for host
-                    playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
-            }, 0.1f);
-            LateTask.New(() => { // Fix for Modded
-                Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl);
-            }, 0.4f);
+
+            LateTask.New(() => playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true), 0.1f); // Fix for Host
+            LateTask.New(() => Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl), 0.4f); // Fix for Non-Host Modded
         }
 
         public static void FixedUpdate() => AllObjects.ToArray().Do(x => x.OnFixedUpdate());
@@ -412,8 +416,6 @@ namespace EHR
                 Utils.ThrowException(e);
             }
         }
-
-        
     }
 
 /*
@@ -625,8 +627,85 @@ namespace EHR
     {
         public SoulObject(Vector2 position, PlayerControl whisperer)
         {
-            CreateNetObject("<size=100%><line-height=85%><alpha=#00>\u2588<alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<br><#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#cfcfcf>\u2588<#cfcfcf>\u2588<br><#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<br><alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<br><alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<alpha=#00>\u2588<#fcfcfc>\u2588<br></line-height></size>", position);
+            CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<br><#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#cfcfcf>\u2588<#cfcfcf>\u2588<br><#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<br><alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<br><alpha=#00>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<#fcfcfc>\u2588<alpha=#00>\u2588<#fcfcfc>\u2588<br></line-height></size>", position);
             Main.AllAlivePlayerControls.Without(whisperer).Do(Hide);
+        }
+    }
+
+    internal sealed class DisasterWarningTimer : CustomNetObject
+    {
+        public DisasterWarningTimer(Vector2 position, float time, string disaster)
+        {
+            CreateNetObject($"<size=250%>{Math.Ceiling(time):N0}</size>\n{disaster}", position);
+            Disaster = disaster;
+            Timer = time;
+        }
+
+        private string Disaster { get; }
+        private float Timer { get; set; }
+        private int Time => (int)Math.Ceiling(Timer);
+
+        protected override void OnFixedUpdate()
+        {
+            base.OnFixedUpdate();
+            var oldTime = Time;
+            Timer -= UnityEngine.Time.fixedDeltaTime;
+            if (Time != oldTime)
+            {
+                RpcChangeSprite($"<size=250%>{Time:N0}</size>\n{Disaster}");
+            }
+        }
+    }
+
+    internal sealed class NaturalDisaster : CustomNetObject
+    {
+        public NaturalDisaster(Vector2 position, float time, string sprite, string disasterName)
+        {
+            WarningTimer = new(position, time, Translator.GetString($"ND_{disasterName}"));
+            SpawnTimer = time;
+            Sprite = sprite;
+            DisasterName = disasterName;
+        }
+
+        public string DisasterName { get; }
+        public float SpawnTimer { get; private set; }
+        private DisasterWarningTimer WarningTimer { get; }
+
+        private void RemoveWarningAndSpawn()
+        {
+            WarningTimer.Despawn();
+            CreateNetObject(Sprite, WarningTimer.Position);
+        }
+
+        public void Update()
+        {
+            if (float.IsNaN(SpawnTimer)) return;
+            SpawnTimer -= Time.fixedDeltaTime;
+            if (SpawnTimer <= 0f)
+            {
+                RemoveWarningAndSpawn();
+                SpawnTimer = float.NaN;
+            }
+        }
+    }
+
+    internal sealed class Lightning : CustomNetObject
+    {
+        private float Timer = 5f;
+
+        public Lightning(Vector2 position)
+        {
+            CreateNetObject("<size=100%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#c6c7c3>\u2588<br><alpha=#00>\u2588<#c6c7c3>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#c6c7c3>\u2588<alpha=#00>\u2588<br><#c6c7c3>\u2588<alpha=#00>\u2588<#fffb00>\u2588<#fffb00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#fffb00>\u2588<#fffb00>\u2588<alpha=#00>\u2588<#c6c7c3>\u2588<br><#c6c7c3>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#c6c7c3>\u2588<#c6c7c3>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>", position);
+        }
+
+        protected override void OnFixedUpdate()
+        {
+            base.OnFixedUpdate();
+            Timer -= Time.fixedDeltaTime;
+            if (Timer <= 0)
+            {
+                Despawn();
+            }
         }
     }
 }

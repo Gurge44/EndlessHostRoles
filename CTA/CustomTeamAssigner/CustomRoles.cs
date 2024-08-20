@@ -374,6 +374,9 @@ public enum CustomRoles
 
     // Capture The Flag
     CTFPlayer,
+    
+    // Natural Disasters
+    NDPlayer,
 
     // GM
     GM,

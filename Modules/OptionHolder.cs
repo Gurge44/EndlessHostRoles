@@ -1,7 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using EHR.AddOns;
 using EHR.AddOns.GhostRoles;
 using EHR.Modules;
@@ -24,6 +27,7 @@ public enum CustomGameMode
     HideAndSeek = 0x06,
     Speedrun = 0x07,
     CaptureTheFlag = 0x08,
+    NaturalDisasters = 0x09,
     All = int.MaxValue
 }
 
@@ -57,7 +61,8 @@ public static class Options
         "HotPotato",
         "HideAndSeek",
         "Speedrun",
-        "CaptureTheFlag"
+        "CaptureTheFlag",
+        "NaturalDisasters"
     ];
 
     private static Dictionary<CustomRoles, int> roleCounts;
@@ -777,6 +782,7 @@ public static class Options
             5 => CustomGameMode.HideAndSeek,
             6 => CustomGameMode.Speedrun,
             7 => CustomGameMode.CaptureTheFlag,
+            8 => CustomGameMode.NaturalDisasters,
             _ => CustomGameMode.Standard
         };
 
@@ -803,7 +809,7 @@ public static class Options
         // Used for generating the table of roles for the README
         try
         {
-            var sb = new System.Text.StringBuilder();
+            var sb = new StringBuilder();
             var grouped = Enum.GetValues<CustomRoles>().GroupBy(x =>
             {
                 if (x is CustomRoles.GM or CustomRoles.Philantropist or CustomRoles.Konan or CustomRoles.NotAssigned or CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Convict || x.IsForOtherGameMode() || x.IsVanilla() || x.ToString().Contains("EHR") || HnSManager.AllHnSRoles.Contains(x)) return 4;
@@ -831,8 +837,8 @@ public static class Options
             }
 
             const string path = "./roles.txt";
-            if (!System.IO.File.Exists(path)) System.IO.File.Create(path).Close();
-            System.IO.File.WriteAllText(path, sb.ToString());
+            if (!File.Exists(path)) File.Create(path).Close();
+            File.WriteAllText(path, sb.ToString());
         }
         catch (Exception e)
         {
@@ -903,7 +909,7 @@ public static class Options
         return CustomRoleSpawnChances.TryGetValue(role, out var option) ? option.GetValue() /* / 10f */ : roleSpawnChances[role];
     }
 
-    private static System.Collections.IEnumerator Load()
+    private static IEnumerator Load()
     {
         LoadingPercentage = 0;
         MainLoadingText = "Building system settings";
@@ -1268,6 +1274,8 @@ public static class Options
         HnSManager.SetupCustomOption();
         // Capture The Flag
         CTFManager.SetupCustomOption();
+        // Natural Disasters
+        NaturalDisasters.SetupCustomOption();
 
         yield return null;
 

@@ -376,6 +376,7 @@ class GameEndChecker
     public static void SetPredicateToSpeedrun() => Predicate = new SpeedrunGameEndPredicate();
     public static void SetPredicateToHideAndSeek() => Predicate = new HideAndSeekGameEndPredicate();
     public static void SetPredicateToCaptureTheFlag() => Predicate = new CaptureTheFlagGameEndPredicate();
+    public static void SetPredicateToNaturalDisasters() => Predicate = new NaturalDisastersGameEndPredicate();
 
     class NormalGameEndPredicate : GameEndPredicate
     {
@@ -732,6 +733,36 @@ class GameEndChecker
         private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
         {
             return CTFManager.CheckForGameEnd(out reason);
+        }
+    }
+
+    class NaturalDisastersGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForEndGame(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorByKill;
+
+            switch (Main.AllAlivePlayerControls.Length)
+            {
+                case 1:
+                    var winner = Main.AllAlivePlayerControls[0];
+                    Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "NaturalDisasters");
+                    WinnerIds = [winner.PlayerId];
+                    Main.DoBlockNameChange = true;
+                    return true;
+                case 0:
+                    ResetAndSetWinner(CustomWinner.Error);
+                    Logger.Warn("No players alive. Force ending the game", "NaturalDisasters");
+                    return true;
+                default:
+                    return false;
+            }
         }
     }
 

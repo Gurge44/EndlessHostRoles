@@ -43,7 +43,7 @@ class RandomSpawn
                     player.RpcResetAbilityCooldown();
                     if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled) player.SetKillCooldown(Main.AllPlayerKillCooldown[player.PlayerId]);
                     else if (Options.StartingKillCooldown.GetInt() != 10) player.SetKillCooldown(Options.StartingKillCooldown.GetInt());
-                    if (!Options.RandomSpawn.GetBool() && Options.CurrentGameMode != CustomGameMode.SoloKombat) return;
+                    if (!Options.RandomSpawn.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard) return;
                     new AirshipSpawnMap().RandomTeleport(player);
                     Penguin.OnSpawnAirship();
                 }

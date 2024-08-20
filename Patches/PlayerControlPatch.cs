@@ -215,6 +215,7 @@ class CheckMurderPatch
                 return true;
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
+            case CustomGameMode.NaturalDisasters:
                 return false;
             case CustomGameMode.Speedrun when !SpeedrunManager.CanKill.Contains(killer.PlayerId):
                 return false;
@@ -842,7 +843,7 @@ class ShapeshiftPatch
                 case Adventurer av:
                     Adventurer.OnAnyoneShapeshiftLoop(av, __instance);
                     break;
-                case EHR.Impostor.Sentry st:
+                case Impostor.Sentry st:
                     st.OnAnyoneShapeshiftLoop(__instance, target);
                     break;
             }
@@ -1865,7 +1866,7 @@ class EnterVentPatch
 
         Drainer.OnAnyoneEnterVent(pc, __instance);
         Analyst.OnAnyoneEnterVent(pc);
-        EHR.Impostor.Sentry.OnAnyoneEnterVent(pc);
+        Impostor.Sentry.OnAnyoneEnterVent(pc);
 
         switch (pc.GetCustomRole())
         {
@@ -1937,6 +1938,7 @@ class CoEnterVentPatch
             case CustomGameMode.HotPotato:
             case CustomGameMode.Speedrun:
             case CustomGameMode.CaptureTheFlag:
+            case CustomGameMode.NaturalDisasters:
                 LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, log: false);
                 return true;
             case CustomGameMode.HideAndSeek:

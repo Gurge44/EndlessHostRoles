@@ -1,9 +1,11 @@
 using System;
 using System.Linq;
+using System.Text;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
+using Il2CppSystem.Collections.Generic;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -87,6 +89,16 @@ class SetUpRoleTextPatch
                     __instance.RoleBlurbText.text = GetString("CTFPlayerInfo");
                     break;
                 }
+                case CustomGameMode.NaturalDisasters:
+                {
+                    var color = ColorUtility.TryParseHtmlString("#03fc4a", out var c) ? c : new(255, 255, 255, 255);
+                    __instance.YouAreText.color = color;
+                    __instance.RoleText.text = GetString("NDPlayer");
+                    __instance.RoleText.color = color;
+                    __instance.RoleBlurbText.color = color;
+                    __instance.RoleBlurbText.text = GetString("NDPlayerInfo");
+                    break;
+                }
                 default:
                 {
                     CustomRoles role = lp.GetCustomRole();
@@ -127,7 +139,7 @@ class CoBeginPatch
 {
     public static void Prefix()
     {
-        var sb = new System.Text.StringBuilder();
+        var sb = new StringBuilder();
         sb.Append("------------Display Names------------\n");
         foreach (PlayerControl pc in Main.AllPlayerControls)
         {
@@ -189,7 +201,7 @@ class CoBeginPatch
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.BeginCrewmate))]
 class BeginCrewmatePatch
 {
-    public static bool Prefix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> teamToDisplay)
+    public static bool Prefix(IntroCutscene __instance, ref List<PlayerControl> teamToDisplay)
     {
         CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
         if (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Neutral) && !role.IsMadmate())
@@ -259,7 +271,7 @@ class BeginCrewmatePatch
         return true;
     }
 
-    public static void Postfix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> teamToDisplay)
+    public static void Postfix(IntroCutscene __instance, ref List<PlayerControl> teamToDisplay)
     {
         CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
 
@@ -579,6 +591,15 @@ class BeginCrewmatePatch
                 __instance.ImpostorText.text = GetString("CTFPlayerInfo");
                 break;
             }
+            case CustomGameMode.NaturalDisasters:
+            {
+                __instance.TeamTitle.text = "<size=70%>" + GetString("NDPlayer") + "</size>";
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(3, 252, 74, byte.MaxValue);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.GuardianAngel);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = GetString("NDPlayerInfo");
+                break;
+            }
         }
 
         // if (Input.GetKey(KeyCode.RightShift))
@@ -644,7 +665,7 @@ class BeginCrewmatePatch
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.BeginImpostor))]
 class BeginImpostorPatch
 {
-    public static bool Prefix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> yourTeam)
+    public static bool Prefix(IntroCutscene __instance, ref List<PlayerControl> yourTeam)
     {
         var role = PlayerControl.LocalPlayer.GetCustomRole();
         if (PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) || role.IsMadmate())
@@ -679,7 +700,7 @@ class BeginImpostorPatch
         return true;
     }
 
-    public static void Postfix(IntroCutscene __instance, ref Il2CppSystem.Collections.Generic.List<PlayerControl> yourTeam)
+    public static void Postfix(IntroCutscene __instance, ref List<PlayerControl> yourTeam)
     {
         BeginCrewmatePatch.Postfix(__instance, ref yourTeam);
     }

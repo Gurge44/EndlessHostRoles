@@ -649,6 +649,7 @@ public static class Utils
             case CustomGameMode.HotPotato: return false;
             case CustomGameMode.Speedrun: return true;
             case CustomGameMode.CaptureTheFlag: return false;
+            case CustomGameMode.NaturalDisasters: return false;
             case CustomGameMode.HideAndSeek: return HnSManager.HasTasks(p);
         }
 
@@ -841,7 +842,7 @@ public static class Utils
 
     public static bool IsRoleTextEnabled(PlayerControl __instance)
     {
-        if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag) return false;
+        if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters) return false;
         if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun || (Options.CurrentGameMode == CustomGameMode.HideAndSeek && HnSManager.IsRoleTextEnabled(PlayerControl.LocalPlayer, __instance)) || Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool() || PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) return true;
 
         switch (__instance.GetCustomRole())
@@ -1342,6 +1343,7 @@ public static class Utils
                 }
 
                 break;
+            case CustomGameMode.NaturalDisasters:
             case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.Speedrun:
             case CustomGameMode.HotPotato:
@@ -1684,6 +1686,7 @@ public static class Utils
                     CustomGameMode.HotPotato => $"<color=#e8cd46><size=1.7>{modeText}</size></color>\r\n{name}",
                     CustomGameMode.HideAndSeek => $"<color=#345eeb><size=1.7>{modeText}</size></color>\r\n{name}",
                     CustomGameMode.CaptureTheFlag => $"<color=#1313c2><size=1.7>{modeText}</size></color>\r\n{name}",
+                    CustomGameMode.NaturalDisasters => $"<color=#03fc4a><size=1.7>{modeText}</size></color>\r\n{name}",
                     CustomGameMode.Speedrun => ColorString(GetRoleColor(CustomRoles.Speedrunner), $"<size=1.7>{modeText}</size>\r\n") + name,
                     _ => name
                 };
@@ -1945,6 +1948,9 @@ public static class Utils
                         case CustomGameMode.CaptureTheFlag:
                             SelfSuffix.Append(CTFManager.GetSuffixText(seer, seer));
                             break;
+                        case CustomGameMode.NaturalDisasters:
+                            SelfSuffix.Append(NaturalDisasters.GetSuffixText());
+                            break;
                     }
                 }
 
@@ -1955,7 +1961,7 @@ public static class Utils
                     if (Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFATeamMode.GetBool())
                         SeerRealName = SeerRealName.ApplyNameColorData(seer, seer, isForMeeting);
 
-                    if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag)
+                    if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters)
                     {
                         var team = CustomTeamManager.GetCustomTeam(seer.PlayerId);
                         if (team != null)
@@ -2192,7 +2198,7 @@ public static class Utils
                                     ? $"<size={fontSize}>{target.GetDisplayRoleName(seeTargetBetrayalAddons: shouldSeeTargetAddons)}{GetProgressText(target)}</size>\r\n"
                                     : string.Empty;
 
-                            if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag) TargetRoleText = string.Empty;
+                            if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters) TargetRoleText = string.Empty;
 
                             if (!GameStates.IsLobby)
                             {
@@ -2470,7 +2476,7 @@ public static class Utils
             CustomRoles.Sentinel => Sentinel.PatrolCooldown.GetInt(),
             CustomRoles.Druid => Druid.VentCooldown.GetInt(),
             CustomRoles.Catcher => Catcher.AbilityCooldown.GetInt(),
-            CustomRoles.Sentry => EHR.Impostor.Sentry.ShowInfoCooldown.GetInt(),
+            CustomRoles.Sentry => Impostor.Sentry.ShowInfoCooldown.GetInt(),
             CustomRoles.ToiletMaster => ToiletMaster.AbilityCooldown.GetInt(),
             CustomRoles.Sniper => Options.DefaultShapeshiftCooldown.GetInt(),
             CustomRoles.Assassin => Assassin.AssassinateCooldownOpt.GetInt(),
@@ -2709,7 +2715,7 @@ public static class Utils
             Amnesiac.OnAnyoneDeath(target);
             Dad.OnAnyoneDeath(target);
             Whisperer.OnAnyoneDied(target);
-            EHR.Impostor.Sentry.OnAnyoneMurder(target);
+            Impostor.Sentry.OnAnyoneMurder(target);
 
             if (QuizMaster.On) QuizMaster.Data.NumPlayersDeadThisRound++;
 
@@ -2882,7 +2888,11 @@ public static class Utils
                 break;
             case CustomGameMode.HotPotato:
                 int time = HotPotatoManager.GetSurvivalTime(id);
-                summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>Survived: <#ffffff>{(time == 0 ? "Until The End</color>" : $"{time}</color>s")}</color>  ({GetVitalText(id, true)})";
+                summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time}</color>s")}</color>  ({GetVitalText(id, true)})";
+                break;
+            case CustomGameMode.NaturalDisasters:
+                int time2 = NaturalDisasters.GetSurvivalTime(id);
+                summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time2 == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time2}</color>s")}</color>  ({GetVitalText(id, true)})";
                 break;
             case CustomGameMode.CaptureTheFlag:
                 summary = $"{ColorString(Main.PlayerColors[id], name)}: {CTFManager.GetStatistics(id)}";

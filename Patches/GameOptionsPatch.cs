@@ -57,6 +57,7 @@ class SetRecommendationsPatch
         {
             case CustomGameMode.SoloKombat:
             case CustomGameMode.FFA:
+            case CustomGameMode.NaturalDisasters:
             case CustomGameMode.HotPotato:
             case CustomGameMode.CaptureTheFlag:
                 __instance.CrewLightMod = __instance.ImpostorLightMod = 1.25f;

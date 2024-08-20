@@ -58,6 +58,15 @@ public class PlayerState(byte playerId)
         Assumed,
         Negotiation,
 
+        // Natural Disasters
+        Meteor,
+        Lava,
+        Tornado,
+        Lightning,
+        Drowned,
+        Sunken,
+        Collapsed,
+
         etc = -1
     }
 

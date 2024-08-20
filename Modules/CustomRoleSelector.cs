@@ -62,6 +62,9 @@ internal static class CustomRoleSelector
             case CustomGameMode.CaptureTheFlag:
                 AssignRoleToEveryone(CustomRoles.CTFPlayer);
                 return;
+            case CustomGameMode.NaturalDisasters:
+                AssignRoleToEveryone(CustomRoles.NDPlayer);
+                return;
             case CustomGameMode.HideAndSeek:
                 HnSManager.AssignRoles();
                 RoleResult = HnSManager.PlayerRoles.ToDictionary(x => Utils.GetPlayerById(x.Key), x => x.Value.Role);

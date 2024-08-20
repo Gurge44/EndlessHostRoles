@@ -168,7 +168,8 @@ class TextBoxTMPSetTextPatch
             CommandInfoText.enableWordWrapping = false;
             CommandInfoText.color = Color.white;
             CommandInfoText.fontSize = CommandInfoText.fontSizeMax = CommandInfoText.fontSizeMin = 1.8f;
-            CommandInfoText.sortingOrder = 100;
+            CommandInfoText.sortingOrder = 1000;
+            CommandInfoText.transform.SetAsLastSibling();
         }
 
         var inputForm = input.TrimStart('/');

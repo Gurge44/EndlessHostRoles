@@ -400,6 +400,13 @@ static class ExtendedPlayerControl
         }
 
         pc.Kill(pc);
+
+        if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters)
+        {
+            var message = GetString($"ND_DRLaughMessage.{deathReason}");
+            message = ColorString(NaturalDisasters.DeathReasonColor(deathReason), message);
+            LateTask.New(() => pc.Notify(message, 20f), 2f, $"{pc.GetRealName()} died with the reason {deathReason}");
+        }
     }
 
     public static void SetKillCooldown(this PlayerControl player, float time = -1f, PlayerControl target = null, bool forceAnime = false)
@@ -546,7 +553,7 @@ static class ExtendedPlayerControl
 
     public static string GetNameWithRole(this PlayerControl player, bool forUser = false)
     {
-        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
+        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
     }
 
     public static string GetRoleColorCode(this PlayerControl player)
@@ -659,7 +666,7 @@ static class ExtendedPlayerControl
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.HotPotato or CustomGameMode.MoveAndStop:
+            case CustomGameMode.HotPotato or CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters:
             case CustomGameMode.Speedrun when !SpeedrunManager.CanKill.Contains(pc.PlayerId):
                 return false;
             case CustomGameMode.CaptureTheFlag:
@@ -725,6 +732,8 @@ static class ExtendedPlayerControl
             CustomRoles.Runner => false,
             // Capture The Flag
             CustomRoles.CTFPlayer => false,
+            // Natural Disasters
+            CustomRoles.NDPlayer => false,
 
             _ => Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseImpostorVentButton(pc)
         };

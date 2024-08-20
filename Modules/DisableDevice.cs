@@ -8,7 +8,7 @@ using UnityEngine;
 namespace EHR;
 
 //参考元 : https://github.com/ykundesu/SuperNewRoles/blob/master/SuperNewRoles/Mode/SuperHostRoles/BlockTool.cs
-class DisableDevice
+static class DisableDevice
 {
     private static readonly List<byte> DesyncComms = [];
     private static int frame;

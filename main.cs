@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -630,6 +631,8 @@ public class Main : BasePlugin
                 { CustomRoles.Runner, "#800080" },
                 // Capture The Flag
                 { CustomRoles.CTFPlayer, "#1313c2" },
+                // Natural Disaster
+                { CustomRoles.NDPlayer, "#03fc4a" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },
@@ -705,7 +708,7 @@ public class Main : BasePlugin
         }
     }
 
-    public void StartCoroutine(System.Collections.IEnumerator coroutine)
+    public void StartCoroutine(IEnumerator coroutine)
     {
         if (coroutine == null)
         {
@@ -715,7 +718,7 @@ public class Main : BasePlugin
         coroutines.StartCoroutine(coroutine.WrapToIl2Cpp());
     }
 
-    public void StopCoroutine(System.Collections.IEnumerator coroutine)
+    public void StopCoroutine(IEnumerator coroutine)
     {
         if (coroutine == null)
         {

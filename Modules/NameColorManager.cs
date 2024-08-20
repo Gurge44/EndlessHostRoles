@@ -42,6 +42,7 @@ public static class NameColorManager
             case CustomGameMode.FFA when FFAManager.FFATeamMode.GetBool():
                 color = FFAManager.TeamColors[FFAManager.PlayerTeams[target.PlayerId]];
                 return true;
+            case CustomGameMode.NaturalDisasters:
             case CustomGameMode.MoveAndStop:
                 color = "#ffffff";
                 return true;
