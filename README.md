@@ -177,6 +177,15 @@
 | /poll     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
 | Lobby tag | :x:             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 
+<br>
+
+## Want to translate the mod to your language?
+
+Click this badge to view our translation project on Crowdin:
+[![Crowdin](https://badges.crowdin.net/ehr/localized.svg)](https://crowdin.com/project/ehr)
+
+<br>
+
 ## Main Features
 
 - Note: The goal with this branch is to improve the existing stuff over adding new roles. If some of the stuff you see
@@ -286,10 +295,6 @@
 <br>
 
 ![Anurag's GitHub stats](https://github-readme-stats.vercel.app/api?username=gurge44&show=reviews,discussions_started,discussions_answered,prs_merged,prs_merged_percentage&show_icons=true&theme=transparent&rank_icon=github)
-
-<br>
-
-[![Crowdin](https://badges.crowdin.net/ehr/localized.svg)](https://crowdin.com/project/ehr)
 
 <br>
 
