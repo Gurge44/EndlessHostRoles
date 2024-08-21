@@ -35,7 +35,7 @@
 
 ### Visit this website to find role descriptions: [Role description finder](https://gurge44.pythonanywhere.com/)
 
-### Exclusive mod features: [EHR features](https://sites.google.com/view/ehr-au)
+### Installation guide and exclusive mod features: [EHR](https://sites.google.com/view/ehr-au)
 
 ## List of Roles <span style="font-size: 12px;">(excluding Hide and Seek roles and vanilla roles)</span>
 
