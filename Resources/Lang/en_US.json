@@ -4063,6 +4063,8 @@
   "ND_Tsunami": "Tsunami",
   "ND_Sinkhole": "Sinkhole",
   "ND_BuildingCollapse": "Building Collapse",
+  "CollapsedBuildings": "<#00ffa5>Collapsed Buildings:</color> {0}",
+  "OngoingThunderstorm": "<#ffff44>⚠ Ongoing Thunderstorm ⚠</color>",
   "SurvivalTime": "Survived {0}s",
   "NDPlayer": "Natural Disasters",
   "NDPlayerInfo": "SURVIVE ALL NATURAL DISASTERS TO WIN",
