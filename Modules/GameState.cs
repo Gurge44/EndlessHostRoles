@@ -187,6 +187,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Undead);
                 SubRoles.Remove(CustomRoles.Stressed);
+                Utils.NotifyRoles(SpecifySeer: Player);
                 Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Charmed:
@@ -206,6 +207,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Undead);
                 SubRoles.Remove(CustomRoles.Stressed);
+                Utils.NotifyRoles(SpecifySeer: Player);
                 Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Undead:
@@ -225,6 +227,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Charmed);
                 SubRoles.Remove(CustomRoles.Stressed);
+                Utils.NotifyRoles(SpecifySeer: Player);
                 Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.LastImpostor:
@@ -247,6 +250,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Undead);
+                Utils.NotifyRoles(SpecifySeer: Player);
                 Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Contagious:
@@ -266,6 +270,7 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Undead);
                 SubRoles.Remove(CustomRoles.Stressed);
+                Utils.NotifyRoles(SpecifySeer: Player);
                 Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
         }

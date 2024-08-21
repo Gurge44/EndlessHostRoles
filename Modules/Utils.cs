@@ -1949,7 +1949,7 @@ public static class Utils
                             SelfSuffix.Append(CTFManager.GetSuffixText(seer, seer));
                             break;
                         case CustomGameMode.NaturalDisasters:
-                            SelfSuffix.Append(NaturalDisasters.GetSuffixText());
+                            SelfSuffix.Append(NaturalDisasters.SuffixText());
                             break;
                     }
                 }
@@ -2891,7 +2891,7 @@ public static class Utils
                 summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time}</color>s")}</color>  ({GetVitalText(id, true)})";
                 break;
             case CustomGameMode.NaturalDisasters:
-                int time2 = NaturalDisasters.GetSurvivalTime(id);
+                int time2 = NaturalDisasters.SurvivalTime(id);
                 summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time2 == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time2}</color>s")}</color>  ({GetVitalText(id, true)})";
                 break;
             case CustomGameMode.CaptureTheFlag:

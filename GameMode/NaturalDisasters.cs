@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using AmongUs.GameOptions;
@@ -8,34 +9,38 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 /*
- * Earthquake: <size=150%><font="VCR SDF"><line-height=72%><#000000>█<#000000>█<#5e5e5e>█<#adadad>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><#5e5e5e>█<#000000>█<#5e5e5e>█<#adadad>█<#adadad>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><#5e5e5e>█<#000000>█<#000000>█<#5e5e5e>█<#5e5e5e>█<#adadad>█<#adadad>█<alpha=#00>█<br><#adadad>█<#5e5e5e>█<#000000>█<#000000>█<#000000>█<#5e5e5e>█<#5e5e5e>█<#adadad>█<br><alpha=#00>█<#adadad>█<#5e5e5e>█<#5e5e5e>█<#000000>█<#000000>█<#000000>█<#5e5e5e>█<br><alpha=#00>█<alpha=#00>█<#adadad>█<#adadad>█<#5e5e5e>█<#5e5e5e>█<#000000>█<#000000>█<br><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<#adadad>█<#adadad>█<#5e5e5e>█<#000000>█<br><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<#adadad>█<#5e5e5e>█<#000000>█<br></line-height></size>
- * Meteor: <size=150%><font="VCR SDF"><line-height=72%><alpha=#00>█<alpha=#00>█<alpha=#00>█<#fff700>█<#fff700>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<#fff700>█<#ffae00>█<#ffae00>█<#fff700>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<#fff700>█<#ffae00>█<#ff6f00>█<#ff6f00>█<#ffae00>█<#fff700>█<alpha=#00>█<br><#fff700>█<#ffae00>█<#ff6f00>█<#ff1100>█<#ff1100>█<#ff6f00>█<#ffae00>█<#fff700>█<br><#fff700>█<#ffae00>█<#ff6f00>█<#ff1100>█<#ff1100>█<#ff6f00>█<#ffae00>█<#fff700>█<br><alpha=#00>█<#fff700>█<#ffae00>█<#ff6f00>█<#ff6f00>█<#ffae00>█<#fff700>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<#fff700>█<#ffae00>█<#ffae00>█<#fff700>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<alpha=#00>█<#fff700>█<#fff700>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br></line-height></size>
+ * Earthquake: <size=150%><font="VCR SDF"><line-height=67%><#000000>█<#000000>█<#5e5e5e>█<#adadad>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><#5e5e5e>█<#000000>█<#5e5e5e>█<#adadad>█<#adadad>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><#5e5e5e>█<#000000>█<#000000>█<#5e5e5e>█<#5e5e5e>█<#adadad>█<#adadad>█<alpha=#00>█<br><#adadad>█<#5e5e5e>█<#000000>█<#000000>█<#000000>█<#5e5e5e>█<#5e5e5e>█<#adadad>█<br><alpha=#00>█<#adadad>█<#5e5e5e>█<#5e5e5e>█<#000000>█<#000000>█<#000000>█<#5e5e5e>█<br><alpha=#00>█<alpha=#00>█<#adadad>█<#adadad>█<#5e5e5e>█<#5e5e5e>█<#000000>█<#000000>█<br><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<#adadad>█<#adadad>█<#5e5e5e>█<#000000>█<br><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<#adadad>█<#5e5e5e>█<#000000>█<br></line-height></size>
+ * Meteor: <size=150%><font="VCR SDF"><line-height=67%><alpha=#00>█<alpha=#00>█<alpha=#00>█<#fff700>█<#fff700>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<#fff700>█<#ffae00>█<#ffae00>█<#fff700>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<#fff700>█<#ffae00>█<#ff6f00>█<#ff6f00>█<#ffae00>█<#fff700>█<alpha=#00>█<br><#fff700>█<#ffae00>█<#ff6f00>█<#ff1100>█<#ff1100>█<#ff6f00>█<#ffae00>█<#fff700>█<br><#fff700>█<#ffae00>█<#ff6f00>█<#ff1100>█<#ff1100>█<#ff6f00>█<#ffae00>█<#fff700>█<br><alpha=#00>█<#fff700>█<#ffae00>█<#ff6f00>█<#ff6f00>█<#ffae00>█<#fff700>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<#fff700>█<#ffae00>█<#ffae00>█<#fff700>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<alpha=#00>█<#fff700>█<#fff700>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br></line-height></size>
  * Volcano Eruption:
- * 1. <size=150%><font="VCR SDF"><line-height=72%><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<#ff6200>█<#ff6200>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<#ff6200>█<#ff6200>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br></line-height></size>
- * 2. <size=150%><font="VCR SDF"><line-height=72%><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<alpha=#00>█<br><alpha=#00>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<alpha=#00>█<br><alpha=#00>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<alpha=#00>█<br><alpha=#00>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br></line-height></size>
- * 3. <size=150%><font="VCR SDF"><line-height=72%><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br></line-height></size>
- * 4. <size=150%><font="VCR SDF"><line-height=72%><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br></line-height></size>
- * Tornado: <size=150%><font="VCR SDF"><line-height=72%><alpha=#00>█<alpha=#00>█<#dbdbdb>█<#dbdbdb>█<#dbdbdb>█<#dbdbdb>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<#dbdbdb>█<#b0b0b0>█<#b0b0b0>█<#b0b0b0>█<#b0b0b0>█<#dbdbdb>█<alpha=#00>█<br><#dbdbdb>█<#b0b0b0>█<#b0b0b0>█<#828282>█<#828282>█<#b0b0b0>█<#b0b0b0>█<#dbdbdb>█<br><#dbdbdb>█<#b0b0b0>█<#828282>█<#474747>█<#474747>█<#828282>█<#b0b0b0>█<#dbdbdb>█<br><#dbdbdb>█<#b0b0b0>█<#828282>█<#474747>█<#474747>█<#828282>█<#b0b0b0>█<#dbdbdb>█<br><#dbdbdb>█<#b0b0b0>█<#b0b0b0>█<#828282>█<#828282>█<#b0b0b0>█<#b0b0b0>█<#dbdbdb>█<br><alpha=#00>█<#dbdbdb>█<#b0b0b0>█<#b0b0b0>█<#b0b0b0>█<#b0b0b0>█<#dbdbdb>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<#dbdbdb>█<#dbdbdb>█<#dbdbdb>█<#dbdbdb>█<alpha=#00>█<alpha=#00>█<br></line-height></size>
- * Thunderstorm strike: <size=150%><font="VCR SDF"><line-height=72%><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<#c6c7c3>█<br><alpha=#00>█<#c6c7c3>█<alpha=#00>█<alpha=#00>█<#c6c7c3>█<alpha=#00>█<br><#c6c7c3>█<alpha=#00>█<#fffb00>█<#fffb00>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<#fffb00>█<#fffb00>█<alpha=#00>█<#c6c7c3>█<br><#c6c7c3>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<#c6c7c3>█<#c6c7c3>█<alpha=#00>█<alpha=#00>█<br></line-height></size>
- * Sandstorm: <size=150%><font="VCR SDF"><line-height=72%><alpha=#00>█<#cf935f>█<#ffd3c2>█<alpha=#00>█<alpha=#00>█<#cf935f>█<#ffd3c2>█<alpha=#00>█<br><alpha=#00>█<#ffd3c2>█<alpha=#00>█<#cf935f>█<#ffd3c2>█<alpha=#00>█<alpha=#00>█<#cf935f>█<br><#cf935f>█<alpha=#00>█<#ffd3c2>█<#ffd3c2>█<alpha=#00>█<#cf935f>█<alpha=#00>█<alpha=#00>█<br><#ffd3c2>█<#ffd3c2>█<#cf935f>█<#ffd3c2>█<alpha=#00>█<alpha=#00>█<#ffd3c2>█<#cf935f>█<br><alpha=#00>█<alpha=#00>█<#ffd3c2>█<alpha=#00>█<#cf935f>█<#ffd3c2>█<alpha=#00>█<#ffd3c2>█<br><#ffd3c2>█<#cf935f>█<alpha=#00>█<#ffd3c2>█<alpha=#00>█<#ffd3c2>█<#cf935f>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<#ffd3c2>█<#cf935f>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<#ffd3c2>█<br><#cf935f>█<#ffd3c2>█<alpha=#00>█<alpha=#00>█<#ffd3c2>█<#cf935f>█<alpha=#00>█<#cf935f>█<br></line-height></size>
+ * 1. <size=150%><font="VCR SDF"><line-height=67%><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<#ff6200>█<#ff6200>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<#ff6200>█<#ff6200>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br></line-height></size>
+ * 2. <size=150%><font="VCR SDF"><line-height=67%><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<alpha=#00>█<br><alpha=#00>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<alpha=#00>█<br><alpha=#00>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<alpha=#00>█<br><alpha=#00>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br></line-height></size>
+ * 3. <size=150%><font="VCR SDF"><line-height=67%><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br></line-height></size>
+ * 4. <size=150%><font="VCR SDF"><line-height=67%><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br><#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<#ff6200>█<br></line-height></size>
+ * Tornado: <size=150%><font="VCR SDF"><line-height=67%><alpha=#00>█<alpha=#00>█<#dbdbdb>█<#dbdbdb>█<#dbdbdb>█<#dbdbdb>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<#dbdbdb>█<#b0b0b0>█<#b0b0b0>█<#b0b0b0>█<#b0b0b0>█<#dbdbdb>█<alpha=#00>█<br><#dbdbdb>█<#b0b0b0>█<#b0b0b0>█<#828282>█<#828282>█<#b0b0b0>█<#b0b0b0>█<#dbdbdb>█<br><#dbdbdb>█<#b0b0b0>█<#828282>█<#474747>█<#474747>█<#828282>█<#b0b0b0>█<#dbdbdb>█<br><#dbdbdb>█<#b0b0b0>█<#828282>█<#474747>█<#474747>█<#828282>█<#b0b0b0>█<#dbdbdb>█<br><#dbdbdb>█<#b0b0b0>█<#b0b0b0>█<#828282>█<#828282>█<#b0b0b0>█<#b0b0b0>█<#dbdbdb>█<br><alpha=#00>█<#dbdbdb>█<#b0b0b0>█<#b0b0b0>█<#b0b0b0>█<#b0b0b0>█<#dbdbdb>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<#dbdbdb>█<#dbdbdb>█<#dbdbdb>█<#dbdbdb>█<alpha=#00>█<alpha=#00>█<br></line-height></size>
+ * Thunderstorm strike: <size=150%><font="VCR SDF"><line-height=67%><alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<#c6c7c3>█<br><alpha=#00>█<#c6c7c3>█<alpha=#00>█<alpha=#00>█<#c6c7c3>█<alpha=#00>█<br><#c6c7c3>█<alpha=#00>█<#fffb00>█<#fffb00>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<#fffb00>█<#fffb00>█<alpha=#00>█<#c6c7c3>█<br><#c6c7c3>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<#c6c7c3>█<#c6c7c3>█<alpha=#00>█<alpha=#00>█<br></line-height></size>
+ * Sandstorm: <size=150%><font="VCR SDF"><line-height=67%><alpha=#00>█<#cf935f>█<#ffd3c2>█<alpha=#00>█<alpha=#00>█<#cf935f>█<#ffd3c2>█<alpha=#00>█<br><alpha=#00>█<#ffd3c2>█<alpha=#00>█<#cf935f>█<#ffd3c2>█<alpha=#00>█<alpha=#00>█<#cf935f>█<br><#cf935f>█<alpha=#00>█<#ffd3c2>█<#ffd3c2>█<alpha=#00>█<#cf935f>█<alpha=#00>█<alpha=#00>█<br><#ffd3c2>█<#ffd3c2>█<#cf935f>█<#ffd3c2>█<alpha=#00>█<alpha=#00>█<#ffd3c2>█<#cf935f>█<br><alpha=#00>█<alpha=#00>█<#ffd3c2>█<alpha=#00>█<#cf935f>█<#ffd3c2>█<alpha=#00>█<#ffd3c2>█<br><#ffd3c2>█<#cf935f>█<alpha=#00>█<#ffd3c2>█<alpha=#00>█<#ffd3c2>█<#cf935f>█<alpha=#00>█<br><alpha=#00>█<alpha=#00>█<#ffd3c2>█<#cf935f>█<alpha=#00>█<alpha=#00>█<alpha=#00>█<#ffd3c2>█<br><#cf935f>█<#ffd3c2>█<alpha=#00>█<alpha=#00>█<#ffd3c2>█<#cf935f>█<alpha=#00>█<#cf935f>█<br></line-height></size>
  * Tsunami:
- * Left to right: <size=150%><font="VCR SDF"><line-height=72%><#0073ff>█<#0095ff>█<#00ccff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<br><#0073ff>█<#0095ff>█<#00ccff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<br><#0073ff>█<#0095ff>█<#00ccff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<br><#0073ff>█<#0095ff>█<#00ccff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<br><#0073ff>█<#0095ff>█<#00ccff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<br><#0073ff>█<#0095ff>█<#00ccff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<br><#0073ff>█<#0095ff>█<#00ccff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<br><#0073ff>█<#0095ff>█<#00ccff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<br></line-height></size>
- * Right to left: <size=150%><font="VCR SDF"><line-height=72%><#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#00ccff>█<#0095ff>█<#0073ff>█<br><#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#00ccff>█<#0095ff>█<#0073ff>█<br><#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#00ccff>█<#0095ff>█<#0073ff>█<br><#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#00ccff>█<#0095ff>█<#0073ff>█<br><#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#00ccff>█<#0095ff>█<#0073ff>█<br><#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#00ccff>█<#0095ff>█<#0073ff>█<br><#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#00ccff>█<#0095ff>█<#0073ff>█<br><#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#00ccff>█<#0095ff>█<#0073ff>█<br></line-height></size>
- * Top to bottom: <size=150%><font="VCR SDF"><line-height=72%><#003cff>█<#003cff>█<#003cff>█<#003cff>█<#003cff>█<#003cff>█<#003cff>█<#003cff>█<br><#006aff>█<#006aff>█<#006aff>█<#006aff>█<#006aff>█<#006aff>█<#006aff>█<#006aff>█<br><#00bbff>█<#00bbff>█<#00bbff>█<#00bbff>█<#00bbff>█<#00bbff>█<#00bbff>█<#00bbff>█<br><#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<br><#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<br><#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<br><#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<br><#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<br></line-height></size>
- * Bottom to top: <size=150%><font="VCR SDF"><line-height=72%><#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<br><#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<br><#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<br><#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<br><#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<br><#00bfff>█<#00bfff>█<#00bfff>█<#00bfff>█<#00bfff>█<#00bfff>█<#00bfff>█<#00bfff>█<br><#007bff>█<#007bff>█<#007bff>█<#007bff>█<#007bff>█<#007bff>█<#007bff>█<#007bff>█<br><#0033ff>█<#0033ff>█<#0033ff>█<#0033ff>█<#0033ff>█<#0033ff>█<#0033ff>█<#0033ff>█<br></line-height></size>
- * Sinkhole: <size=150%><font="VCR SDF"><line-height=72%><#7d7d7d>█<#7d7d7d>█<#545454>█<#7d7d7d>█<#7d7d7d>█<#7d7d7d>█<#7d7d7d>█<#545454>█<br><#545454>█<#424242>█<#424242>█<#424242>█<#424242>█<#424242>█<#424242>█<#7d7d7d>█<br><#7d7d7d>█<#424242>█<#000000>█<#000000>█<#000000>█<#000000>█<#424242>█<#7d7d7d>█<br><#545454>█<#424242>█<#000000>█<#000000>█<#000000>█<#000000>█<#424242>█<#7d7d7d>█<br><#7d7d7d>█<#424242>█<#000000>█<#000000>█<#000000>█<#000000>█<#424242>█<#545454>█<br><#545454>█<#424242>█<#000000>█<#000000>█<#000000>█<#000000>█<#424242>█<#7d7d7d>█<br><#7d7d7d>█<#424242>█<#424242>█<#424242>█<#424242>█<#424242>█<#424242>█<#7d7d7d>█<br><#545454>█<#545454>█<#7d7d7d>█<#7d7d7d>█<#545454>█<#7d7d7d>█<#7d7d7d>█<#545454>█<br></line-height></size>
+ * Left to right: <size=150%><font="VCR SDF"><line-height=67%><#0073ff>█<#0095ff>█<#00ccff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<br><#0073ff>█<#0095ff>█<#00ccff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<br><#0073ff>█<#0095ff>█<#00ccff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<br><#0073ff>█<#0095ff>█<#00ccff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<br><#0073ff>█<#0095ff>█<#00ccff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<br><#0073ff>█<#0095ff>█<#00ccff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<br><#0073ff>█<#0095ff>█<#00ccff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<br><#0073ff>█<#0095ff>█<#00ccff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<br></line-height></size>
+ * Right to left: <size=150%><font="VCR SDF"><line-height=67%><#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#00ccff>█<#0095ff>█<#0073ff>█<br><#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#00ccff>█<#0095ff>█<#0073ff>█<br><#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#00ccff>█<#0095ff>█<#0073ff>█<br><#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#00ccff>█<#0095ff>█<#0073ff>█<br><#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#00ccff>█<#0095ff>█<#0073ff>█<br><#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#00ccff>█<#0095ff>█<#0073ff>█<br><#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#00ccff>█<#0095ff>█<#0073ff>█<br><#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#9ce8ff>█<#00ccff>█<#0095ff>█<#0073ff>█<br></line-height></size>
+ * Top to bottom: <size=150%><font="VCR SDF"><line-height=67%><#003cff>█<#003cff>█<#003cff>█<#003cff>█<#003cff>█<#003cff>█<#003cff>█<#003cff>█<br><#006aff>█<#006aff>█<#006aff>█<#006aff>█<#006aff>█<#006aff>█<#006aff>█<#006aff>█<br><#00bbff>█<#00bbff>█<#00bbff>█<#00bbff>█<#00bbff>█<#00bbff>█<#00bbff>█<#00bbff>█<br><#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<br><#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<br><#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<br><#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<br><#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<#b8e1ff>█<br></line-height></size>
+ * Bottom to top: <size=150%><font="VCR SDF"><line-height=67%><#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<br><#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<br><#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<br><#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<br><#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<#c2e2ff>█<br><#00bfff>█<#00bfff>█<#00bfff>█<#00bfff>█<#00bfff>█<#00bfff>█<#00bfff>█<#00bfff>█<br><#007bff>█<#007bff>█<#007bff>█<#007bff>█<#007bff>█<#007bff>█<#007bff>█<#007bff>█<br><#0033ff>█<#0033ff>█<#0033ff>█<#0033ff>█<#0033ff>█<#0033ff>█<#0033ff>█<#0033ff>█<br></line-height></size>
+ * Sinkhole: <size=150%><font="VCR SDF"><line-height=67%><#7d7d7d>█<#7d7d7d>█<#545454>█<#7d7d7d>█<#7d7d7d>█<#7d7d7d>█<#7d7d7d>█<#545454>█<br><#545454>█<#424242>█<#424242>█<#424242>█<#424242>█<#424242>█<#424242>█<#7d7d7d>█<br><#7d7d7d>█<#424242>█<#000000>█<#000000>█<#000000>█<#000000>█<#424242>█<#7d7d7d>█<br><#545454>█<#424242>█<#000000>█<#000000>█<#000000>█<#000000>█<#424242>█<#7d7d7d>█<br><#7d7d7d>█<#424242>█<#000000>█<#000000>█<#000000>█<#000000>█<#424242>█<#545454>█<br><#545454>█<#424242>█<#000000>█<#000000>█<#000000>█<#000000>█<#424242>█<#7d7d7d>█<br><#7d7d7d>█<#424242>█<#424242>█<#424242>█<#424242>█<#424242>█<#424242>█<#7d7d7d>█<br><#545454>█<#545454>█<#7d7d7d>█<#7d7d7d>█<#545454>█<#7d7d7d>█<#7d7d7d>█<#545454>█<br></line-height></size>
  */
 
 namespace EHR
 {
+    [SuppressMessage("ReSharper", "UnusedType.Local")]
+    [SuppressMessage("ReSharper", "ClassNeverInstantiated.Local")]
     public static class NaturalDisasters
     {
         private const float Range = 1.5f;
         private static List<Type> AllDisasters = [];
         private static readonly List<Disaster> ActiveDisasters = [];
         private static readonly List<NaturalDisaster> PreparingDisasters = [];
+        private static readonly Dictionary<byte, int> SurvivalTimes = [];
 
         private static ((float Left, float Right) X, (float Top, float Bottom) Y) MapBounds;
+        private static long GameStartTimeStamp;
 
         private static OptionItem DisasterFrequency;
         private static OptionItem DisasterWarningTime;
@@ -66,6 +71,7 @@ namespace EHR
 
         public static void OnGameStart()
         {
+            SurvivalTimes.Clear();
             ActiveDisasters.Clear();
             PreparingDisasters.Clear();
             Sinkhole.Sinkholes.Clear();
@@ -91,6 +97,8 @@ namespace EHR
 
             const float extend = 2.5f;
             MapBounds = ((x.Min() - extend, x.Max() + extend), (y.Min() - extend, y.Max() + extend));
+
+            GameStartTimeStamp = Utils.TimeStamp + 8;
         }
 
         public static void ApplyGameOptions(IGameOptions opt, byte id)
@@ -98,17 +106,28 @@ namespace EHR
             ActiveDisasters.ForEach(x => x.ApplyOwnGameOptions(opt, id));
         }
 
-        public static string GetSuffixText() // TODO: implement this
+        public static string SuffixText()
         {
-            return string.Empty;
+            var cb = string.Format(Translator.GetString("CollapsedBuildings"), BuildingCollapse.CollapsedBuildingsString);
+            var ts = ActiveDisasters.Any(x => x is Thunderstorm) ? $"\n{Translator.GetString("OngoingThunderstorm")}" : string.Empty;
+            return $"<size=80%>{cb}{ts}</size>";
         }
 
-        public static int GetSurvivalTime(byte id) // TODO: implement this
+        public static int SurvivalTime(byte id)
         {
-            return 0;
+            return SurvivalTimes.GetValueOrDefault(id, 0);
         }
 
-        public static Color DeathReasonColor(PlayerState.DeathReason deathReason) => deathReason switch
+        public static void RecordDeath(PlayerControl pc, PlayerState.DeathReason deathReason)
+        {
+            SurvivalTimes[pc.PlayerId] = (int)(Utils.TimeStamp - GameStartTimeStamp);
+
+            var message = Translator.GetString($"ND_DRLaughMessage.{deathReason}");
+            message = Utils.ColorString(DeathReasonColor(deathReason), message);
+            LateTask.New(() => pc.Notify(message, 20f), 1f, $"{pc.GetRealName()} died with the reason {deathReason}, survived for {SurvivalTime(pc.PlayerId)} seconds");
+        }
+
+        private static Color DeathReasonColor(PlayerState.DeathReason deathReason) => deathReason switch
         {
             PlayerState.DeathReason.Meteor => Color.red,
             PlayerState.DeathReason.Lava => Palette.Orange,
@@ -122,13 +141,13 @@ namespace EHR
 
         private static string Sprite(string name) => name switch
         {
-            "Earthquake" => "<size=150%><font=\"VCR SDF\"><line-height=72%><#000000>\u2588<#000000>\u2588<#5e5e5e>\u2588<#adadad>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><#5e5e5e>\u2588<#000000>\u2588<#5e5e5e>\u2588<#adadad>\u2588<#adadad>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><#5e5e5e>\u2588<#000000>\u2588<#000000>\u2588<#5e5e5e>\u2588<#5e5e5e>\u2588<#adadad>\u2588<#adadad>\u2588<alpha=#00>\u2588<br><#adadad>\u2588<#5e5e5e>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#5e5e5e>\u2588<#5e5e5e>\u2588<#adadad>\u2588<br><alpha=#00>\u2588<#adadad>\u2588<#5e5e5e>\u2588<#5e5e5e>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#5e5e5e>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#adadad>\u2588<#adadad>\u2588<#5e5e5e>\u2588<#5e5e5e>\u2588<#000000>\u2588<#000000>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#adadad>\u2588<#adadad>\u2588<#5e5e5e>\u2588<#000000>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#adadad>\u2588<#5e5e5e>\u2588<#000000>\u2588<br></line-height></size>",
-            "Meteor" => "<size=150%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<br><#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff1100>\u2588<#ff1100>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<br><#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff1100>\u2588<#ff1100>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<br><alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>",
-            "VolcanoEruption" => "<size=150%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>",
-            "Tornado" => "<size=150%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<alpha=#00>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#828282>\u2588<#828282>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#828282>\u2588<#474747>\u2588<#474747>\u2588<#828282>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#828282>\u2588<#474747>\u2588<#474747>\u2588<#828282>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#828282>\u2588<#828282>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><alpha=#00>\u2588<#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>",
-            "Sandstorm" => "<size=150%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<#cf935f>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#cf935f>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<#cf935f>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#cf935f>\u2588<br><#cf935f>\u2588<alpha=#00>\u2588<#ffd3c2>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<#cf935f>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><#ffd3c2>\u2588<#ffd3c2>\u2588<#cf935f>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#ffd3c2>\u2588<#cf935f>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<#cf935f>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<#ffd3c2>\u2588<br><#ffd3c2>\u2588<#cf935f>\u2588<alpha=#00>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<#ffd3c2>\u2588<#cf935f>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#ffd3c2>\u2588<#cf935f>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#ffd3c2>\u2588<br><#cf935f>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#ffd3c2>\u2588<#cf935f>\u2588<alpha=#00>\u2588<#cf935f>\u2588<br></line-height></size>",
+            "Earthquake" => "<size=150%><font=\"VCR SDF\"><line-height=67%><#000000>\u2588<#000000>\u2588<#5e5e5e>\u2588<#adadad>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><#5e5e5e>\u2588<#000000>\u2588<#5e5e5e>\u2588<#adadad>\u2588<#adadad>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><#5e5e5e>\u2588<#000000>\u2588<#000000>\u2588<#5e5e5e>\u2588<#5e5e5e>\u2588<#adadad>\u2588<#adadad>\u2588<alpha=#00>\u2588<br><#adadad>\u2588<#5e5e5e>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#5e5e5e>\u2588<#5e5e5e>\u2588<#adadad>\u2588<br><alpha=#00>\u2588<#adadad>\u2588<#5e5e5e>\u2588<#5e5e5e>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#5e5e5e>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#adadad>\u2588<#adadad>\u2588<#5e5e5e>\u2588<#5e5e5e>\u2588<#000000>\u2588<#000000>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#adadad>\u2588<#adadad>\u2588<#5e5e5e>\u2588<#000000>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#adadad>\u2588<#5e5e5e>\u2588<#000000>\u2588<br></line-height></size>",
+            "Meteor" => "<size=150%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<br><#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff1100>\u2588<#ff1100>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<br><#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff1100>\u2588<#ff1100>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<br><alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>",
+            "VolcanoEruption" => "<size=150%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>",
+            "Tornado" => "<size=150%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#828282>\u2588<#828282>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#828282>\u2588<#474747>\u2588<#474747>\u2588<#828282>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#828282>\u2588<#474747>\u2588<#474747>\u2588<#828282>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#828282>\u2588<#828282>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><alpha=#00>\u2588<#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>",
+            "Sandstorm" => "<size=150%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<#cf935f>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#cf935f>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<#cf935f>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#cf935f>\u2588<br><#cf935f>\u2588<alpha=#00>\u2588<#ffd3c2>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<#cf935f>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><#ffd3c2>\u2588<#ffd3c2>\u2588<#cf935f>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#ffd3c2>\u2588<#cf935f>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<#cf935f>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<#ffd3c2>\u2588<br><#ffd3c2>\u2588<#cf935f>\u2588<alpha=#00>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<#ffd3c2>\u2588<#cf935f>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#ffd3c2>\u2588<#cf935f>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#ffd3c2>\u2588<br><#cf935f>\u2588<#ffd3c2>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#ffd3c2>\u2588<#cf935f>\u2588<alpha=#00>\u2588<#cf935f>\u2588<br></line-height></size>",
             "Tsunami" => Tsunami.Sprites[Enum.GetValues<Tsunami.MovingDirection>().RandomElement()],
-            "Sinkhole" => "<size=150%><font=\"VCR SDF\"><line-height=72%><#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<br><#545454>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#7d7d7d>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#545454>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#7d7d7d>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#545454>\u2588<br><#545454>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#7d7d7d>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#545454>\u2588<#545454>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<br></line-height></size>",
+            "Sinkhole" => "<size=150%><font=\"VCR SDF\"><line-height=67%><#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<br><#545454>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#7d7d7d>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#545454>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#7d7d7d>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#545454>\u2588<br><#545454>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#7d7d7d>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#545454>\u2588<#545454>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<br></line-height></size>",
             _ => string.Empty
         };
 
@@ -137,6 +156,7 @@ namespace EHR
         {
             private static long LastDisaster = Utils.TimeStamp;
 
+            [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void Postfix(PlayerControl __instance)
             {
                 if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.NaturalDisasters || Main.HasJustStarted || !__instance.IsHost()) return;
@@ -160,7 +180,9 @@ namespace EHR
                 {
                     LastDisaster = Utils.TimeStamp;
                     var disaster = AllDisasters.RandomElement();
-                    var position = new Vector2(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Top, MapBounds.Y.Bottom));
+                    var position = IRandom.Instance.Next(2) == 0
+                        ? Main.AllAlivePlayerControls.RandomElement().Pos()
+                        : new(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Top, MapBounds.Y.Bottom));
                     PreparingDisasters.Add(new(position, DisasterWarningTime.GetFloat(), Sprite(disaster.Name), disaster.Name));
                 }
             }
@@ -196,6 +218,17 @@ namespace EHR
             public virtual void ApplyOwnGameOptions(IGameOptions opt, byte id)
             {
             }
+
+            protected void KillNearbyPlayers(PlayerState.DeathReason deathReason, float range = Range)
+            {
+                foreach (var pc in Main.AllAlivePlayerControls)
+                {
+                    if (Vector2.Distance(pc.Pos(), this.Position) <= range)
+                    {
+                        pc.Suicide(deathReason);
+                    }
+                }
+            }
         }
 
         sealed class Earthquake : Disaster
@@ -211,6 +244,7 @@ namespace EHR
 
             protected override int Duration { get; set; } = DurationOpt.GetInt();
 
+            [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void SetupOwnCustomOption()
             {
                 const int id = 69_216_100;
@@ -277,13 +311,7 @@ namespace EHR
                 NetObject = naturalDisaster;
                 Update();
 
-                foreach (var pc in Main.AllAlivePlayerControls)
-                {
-                    if (Vector2.Distance(pc.Pos(), this.Position) <= Range)
-                    {
-                        pc.Suicide(PlayerState.DeathReason.Meteor);
-                    }
-                }
+                KillNearbyPlayers(PlayerState.DeathReason.Meteor);
             }
 
             protected override int Duration { get; set; } = 5;
@@ -311,6 +339,7 @@ namespace EHR
 
             protected override int Duration { get; set; } = (int)((Phases - 1) * FlowStepDelay.GetFloat()) + DurationAfterFlowComplete.GetInt();
 
+            [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void SetupOwnCustomOption()
             {
                 const int id = 69_216_200;
@@ -341,23 +370,17 @@ namespace EHR
 
                     var newSprite = Phase switch
                     {
-                        2 => "<size=150%><font=\"VCR SDF\"><line-height=72%><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>",
-                        3 => "<size=150%><font=\"VCR SDF\"><line-height=72%><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br></line-height></size>",
-                        4 => "<size=150%><font=\"VCR SDF\"><line-height=72%><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br></line-height></size>",
+                        2 => "<size=150%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>",
+                        3 => "<size=150%><font=\"VCR SDF\"><line-height=67%><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br></line-height></size>",
+                        4 => "<size=150%><font=\"VCR SDF\"><line-height=67%><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br><#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<#ff6200>\u2588<br></line-height></size>",
                         _ => string.Empty
                     };
 
                     this.NetObject.RpcChangeSprite(newSprite);
                 }
 
-                var range = Range - (Phases - Phase) * 0.25f;
-                foreach (var pc in Main.AllAlivePlayerControls)
-                {
-                    if (Vector2.Distance(pc.Pos(), this.Position) <= range)
-                    {
-                        pc.Suicide(PlayerState.DeathReason.Lava);
-                    }
-                }
+                var range = Range - ((Phases - Phase) * 0.4f);
+                KillNearbyPlayers(PlayerState.DeathReason.Lava, range);
             }
         }
 
@@ -377,6 +400,7 @@ namespace EHR
 
             protected override int Duration { get; set; } = DurationOpt.GetInt();
 
+            [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void SetupOwnCustomOption()
             {
                 const int id = 69_216_300;
@@ -449,6 +473,7 @@ namespace EHR
 
             protected override int Duration { get; set; } = DurationOpt.GetInt();
 
+            [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void SetupOwnCustomOption()
             {
                 const int id = 69_216_400;
@@ -475,10 +500,11 @@ namespace EHR
                 {
                     LastHit = now;
                     var hit = new Vector2(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Bottom, MapBounds.Y.Top));
-                    _ = new Lightning(hit);
+                    var cno = new Lightning(hit);
+                    if (cno.playerControl.GetPlainShipRoom() != default(PlainShipRoom)) cno.Despawn();
                     foreach (var pc in Main.AllAlivePlayerControls)
                     {
-                        if (pc.GetPlainShipRoom() != default) continue;
+                        if (pc.GetPlainShipRoom() != default(PlainShipRoom)) continue;
                         if (Vector2.Distance(pc.Pos(), hit) <= Range)
                         {
                             pc.Suicide(PlayerState.DeathReason.Lightning);
@@ -503,6 +529,7 @@ namespace EHR
 
             protected override int Duration { get; set; } = DurationOpt.GetInt();
 
+            [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void SetupOwnCustomOption()
             {
                 const int id = 69_216_500;
@@ -526,7 +553,8 @@ namespace EHR
 
                 foreach (var pc in Main.AllAlivePlayerControls)
                 {
-                    if ((Vector2.Distance(pc.Pos(), this.Position) <= Range && AffectedPlayers.Add(pc.PlayerId)) || AffectedPlayers.Remove(pc.PlayerId))
+                    var inRange = Vector2.Distance(pc.Pos(), this.Position) <= Range;
+                    if ((inRange && AffectedPlayers.Add(pc.PlayerId)) || (!inRange && AffectedPlayers.Remove(pc.PlayerId)))
                     {
                         pc.MarkDirtySettings();
                     }
@@ -576,22 +604,26 @@ namespace EHR
 
             public static readonly Dictionary<MovingDirection, string> Sprites = new()
             {
-                [MovingDirection.LeftToRight] = "<size=150%><font=\"VCR SDF\"><line-height=72%><#0073ff>\u2588<#0095ff>\u2588<#00ccff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<br><#0073ff>\u2588<#0095ff>\u2588<#00ccff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<br><#0073ff>\u2588<#0095ff>\u2588<#00ccff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<br><#0073ff>\u2588<#0095ff>\u2588<#00ccff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<br><#0073ff>\u2588<#0095ff>\u2588<#00ccff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<br><#0073ff>\u2588<#0095ff>\u2588<#00ccff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<br><#0073ff>\u2588<#0095ff>\u2588<#00ccff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<br><#0073ff>\u2588<#0095ff>\u2588<#00ccff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<br></line-height></size>",
-                [MovingDirection.RightToLeft] = "<size=150%><font=\"VCR SDF\"><line-height=72%><#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#00ccff>\u2588<#0095ff>\u2588<#0073ff>\u2588<br><#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#00ccff>\u2588<#0095ff>\u2588<#0073ff>\u2588<br><#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#00ccff>\u2588<#0095ff>\u2588<#0073ff>\u2588<br><#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#00ccff>\u2588<#0095ff>\u2588<#0073ff>\u2588<br><#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#00ccff>\u2588<#0095ff>\u2588<#0073ff>\u2588<br><#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#00ccff>\u2588<#0095ff>\u2588<#0073ff>\u2588<br><#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#00ccff>\u2588<#0095ff>\u2588<#0073ff>\u2588<br><#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#00ccff>\u2588<#0095ff>\u2588<#0073ff>\u2588<br></line-height></size>",
-                [MovingDirection.TopToBottom] = "<size=150%><font=\"VCR SDF\"><line-height=72%><#003cff>\u2588<#003cff>\u2588<#003cff>\u2588<#003cff>\u2588<#003cff>\u2588<#003cff>\u2588<#003cff>\u2588<#003cff>\u2588<br><#006aff>\u2588<#006aff>\u2588<#006aff>\u2588<#006aff>\u2588<#006aff>\u2588<#006aff>\u2588<#006aff>\u2588<#006aff>\u2588<br><#00bbff>\u2588<#00bbff>\u2588<#00bbff>\u2588<#00bbff>\u2588<#00bbff>\u2588<#00bbff>\u2588<#00bbff>\u2588<#00bbff>\u2588<br><#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<br><#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<br><#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<br><#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<br><#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<br></line-height></size>",
-                [MovingDirection.BottomToTop] = "<size=150%><font=\"VCR SDF\"><line-height=72%><#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<br><#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<br><#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<br><#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<br><#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<br><#00bfff>\u2588<#00bfff>\u2588<#00bfff>\u2588<#00bfff>\u2588<#00bfff>\u2588<#00bfff>\u2588<#00bfff>\u2588<#00bfff>\u2588<br><#007bff>\u2588<#007bff>\u2588<#007bff>\u2588<#007bff>\u2588<#007bff>\u2588<#007bff>\u2588<#007bff>\u2588<#007bff>\u2588<br><#0033ff>\u2588<#0033ff>\u2588<#0033ff>\u2588<#0033ff>\u2588<#0033ff>\u2588<#0033ff>\u2588<#0033ff>\u2588<#0033ff>\u2588<br></line-height></size>"
+                [MovingDirection.LeftToRight] = "<size=150%><font=\"VCR SDF\"><line-height=67%><#0073ff>\u2588<#0095ff>\u2588<#00ccff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<br><#0073ff>\u2588<#0095ff>\u2588<#00ccff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<br><#0073ff>\u2588<#0095ff>\u2588<#00ccff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<br><#0073ff>\u2588<#0095ff>\u2588<#00ccff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<br><#0073ff>\u2588<#0095ff>\u2588<#00ccff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<br><#0073ff>\u2588<#0095ff>\u2588<#00ccff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<br><#0073ff>\u2588<#0095ff>\u2588<#00ccff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<br><#0073ff>\u2588<#0095ff>\u2588<#00ccff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<br></line-height></size>",
+                [MovingDirection.RightToLeft] = "<size=150%><font=\"VCR SDF\"><line-height=67%><#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#00ccff>\u2588<#0095ff>\u2588<#0073ff>\u2588<br><#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#00ccff>\u2588<#0095ff>\u2588<#0073ff>\u2588<br><#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#00ccff>\u2588<#0095ff>\u2588<#0073ff>\u2588<br><#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#00ccff>\u2588<#0095ff>\u2588<#0073ff>\u2588<br><#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#00ccff>\u2588<#0095ff>\u2588<#0073ff>\u2588<br><#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#00ccff>\u2588<#0095ff>\u2588<#0073ff>\u2588<br><#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#00ccff>\u2588<#0095ff>\u2588<#0073ff>\u2588<br><#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#9ce8ff>\u2588<#00ccff>\u2588<#0095ff>\u2588<#0073ff>\u2588<br></line-height></size>",
+                [MovingDirection.TopToBottom] = "<size=150%><font=\"VCR SDF\"><line-height=67%><#003cff>\u2588<#003cff>\u2588<#003cff>\u2588<#003cff>\u2588<#003cff>\u2588<#003cff>\u2588<#003cff>\u2588<#003cff>\u2588<br><#006aff>\u2588<#006aff>\u2588<#006aff>\u2588<#006aff>\u2588<#006aff>\u2588<#006aff>\u2588<#006aff>\u2588<#006aff>\u2588<br><#00bbff>\u2588<#00bbff>\u2588<#00bbff>\u2588<#00bbff>\u2588<#00bbff>\u2588<#00bbff>\u2588<#00bbff>\u2588<#00bbff>\u2588<br><#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<br><#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<br><#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<br><#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<br><#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<#b8e1ff>\u2588<br></line-height></size>",
+                [MovingDirection.BottomToTop] = "<size=150%><font=\"VCR SDF\"><line-height=67%><#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<br><#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<br><#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<br><#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<br><#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<#c2e2ff>\u2588<br><#00bfff>\u2588<#00bfff>\u2588<#00bfff>\u2588<#00bfff>\u2588<#00bfff>\u2588<#00bfff>\u2588<#00bfff>\u2588<#00bfff>\u2588<br><#007bff>\u2588<#007bff>\u2588<#007bff>\u2588<#007bff>\u2588<#007bff>\u2588<#007bff>\u2588<#007bff>\u2588<#007bff>\u2588<br><#0033ff>\u2588<#0033ff>\u2588<#0033ff>\u2588<#0033ff>\u2588<#0033ff>\u2588<#0033ff>\u2588<#0033ff>\u2588<#0033ff>\u2588<br></line-height></size>"
             };
 
             private readonly MovingDirection Direction;
+
+            private int Count = 1;
 
             public Tsunami(Vector2 position, NaturalDisaster naturalDisaster) : base(position)
             {
                 NetObject = naturalDisaster;
                 Update();
 
-                Direction = Sprites.GetKeyByValue(NetObject.Sprite);
+                Direction = Enum.GetValues<MovingDirection>().RandomElement();
+                naturalDisaster.RpcChangeSprite(Sprites[Direction]);
             }
 
+            [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void SetupOwnCustomOption()
             {
                 const int id = 69_216_600;
@@ -607,6 +639,27 @@ namespace EHR
             public override void Update()
             {
                 if (RemoveIfExpired()) return;
+
+                foreach (var pc in Main.AllAlivePlayerControls)
+                {
+                    var pos = pc.Pos();
+                    var inWay = Direction switch
+                    {
+                        MovingDirection.LeftToRight => pos.x >= this.Position.x,
+                        MovingDirection.RightToLeft => pos.x <= this.Position.x,
+                        MovingDirection.TopToBottom => pos.y <= this.Position.y,
+                        MovingDirection.BottomToTop => pos.y >= this.Position.y,
+                        _ => false
+                    };
+
+                    if (Vector2.Distance(pos, this.Position) <= Range && inWay)
+                    {
+                        pc.Suicide(PlayerState.DeathReason.Drowned);
+                    }
+                }
+
+                if (Count++ < 2) return;
+                Count = 0;
 
                 float speed = MovingSpeed.GetFloat();
                 Vector2 newPos = this.Position;
@@ -635,24 +688,6 @@ namespace EHR
 
                 this.Position = newPos;
                 this.NetObject.TP(this.Position);
-
-                foreach (var pc in Main.AllAlivePlayerControls)
-                {
-                    var pos = pc.Pos();
-                    var inWay = Direction switch
-                    {
-                        MovingDirection.LeftToRight => pos.x >= this.Position.x,
-                        MovingDirection.RightToLeft => pos.x <= this.Position.x,
-                        MovingDirection.TopToBottom => pos.y <= this.Position.y,
-                        MovingDirection.BottomToTop => pos.y >= this.Position.y,
-                        _ => false
-                    };
-
-                    if (Vector2.Distance(pos, this.Position) <= Range && inWay)
-                    {
-                        pc.Suicide(PlayerState.DeathReason.Drowned);
-                    }
-                }
             }
         }
 
@@ -665,13 +700,7 @@ namespace EHR
                 NetObject = naturalDisaster;
                 Update();
 
-                foreach (var pc in Main.AllAlivePlayerControls)
-                {
-                    if (Vector2.Distance(pc.Pos(), this.Position) <= Range)
-                    {
-                        pc.Suicide(PlayerState.DeathReason.Sunken);
-                    }
-                }
+                KillNearbyPlayers(PlayerState.DeathReason.Sunken);
 
                 Sinkholes.Add(position);
             }
@@ -704,6 +733,7 @@ namespace EHR
 
         sealed class BuildingCollapse : Disaster
         {
+            private static int Count = 1;
             public static readonly List<PlainShipRoom> CollapsedRooms = [];
             public static readonly Dictionary<byte, Vector2> LastPosition = [];
 
@@ -713,7 +743,7 @@ namespace EHR
                 Update();
 
                 var room = naturalDisaster.playerControl.GetPlainShipRoom();
-                if (room == default) return;
+                if (room == default(PlainShipRoom)) return;
 
                 foreach (var pc in Main.AllAlivePlayerControls)
                 {
@@ -726,6 +756,10 @@ namespace EHR
                 CollapsedRooms.Add(room);
             }
 
+            public static string CollapsedBuildingsString => CollapsedRooms.Count > 0
+                ? CollapsedRooms.Join(x => Translator.GetString($"{x.RoomId}"))
+                : Translator.GetString("None");
+
             public override void Update()
             {
                 Duration = 0;
@@ -736,9 +770,13 @@ namespace EHR
             {
                 if (CollapsedRooms.Count == 0) return;
 
+                if (Count++ < 10) return;
+                Count = 0;
+
                 foreach (var pc in Main.AllAlivePlayerControls)
                 {
-                    if (CollapsedRooms.Find(x => x == pc.GetPlainShipRoom()))
+                    var room = pc.GetPlainShipRoom();
+                    if (room != default(PlainShipRoom) && CollapsedRooms.Any(x => x == room))
                     {
                         if (LastPosition.TryGetValue(pc.PlayerId, out var lastPos)) pc.TP(lastPos);
                         else pc.Suicide(PlayerState.DeathReason.Collapsed);
@@ -751,13 +789,13 @@ namespace EHR
 }
 
 /*
-- Earthquake: The ground shakes, making it hard to move.
-- Meteor: A meteor falls from the sky, killing players in a certain range.
-- Volcano Eruption: Lava flows from one spot, killing players.
-- Tornado: Players are sucked into the tornado and die.
-- Thunderstorm: Lightning strikes outside of rooms, killing players that are hit by it.
-- Sandstorm: Sand blows, making it hard to see.
-- Tsunami: A giant wave comes moving in a specific direction, drowning players that are in the way.
-- Sinkhole: The ground collapses, killing players in range and any players that enter this range in the future.
-- Building Collapse: A building on the ship collapses, killing everyone inside it. Collapsed rooms cannot be entered in the future.
-*/
+ * Earthquake: The ground shakes, making it hard to move.
+ * Meteor: A meteor falls from the sky, killing players in a certain range.
+ * Volcano Eruption: Lava flows from one spot, killing players.
+ * Tornado: Players are sucked into the tornado and die.
+ * Thunderstorm: Lightning strikes outside of rooms, killing players that it hits.
+ * Sandstorm: Sand blows, making it hard to see.
+ * Tsunami: A giant wave comes moving in a specific direction, drowning players that are on the way.
+ * Sinkhole: The ground collapses, killing players in range and any players that enter this range in the future.
+ * Building Collapse: A building on the ship collapses, killing everyone inside it. Collapsed rooms cannot be entered in the future.
+ */

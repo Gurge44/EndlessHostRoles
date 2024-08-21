@@ -333,15 +333,17 @@ class BeginCrewmatePatch
                     break;
             }
 
-            if (PlayerControl.LocalPlayer.Is(CustomRoles.Lovers))
+            if (Main.LoversPlayers.Any(x => x.PlayerId == PlayerControl.LocalPlayer.PlayerId))
             {
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Lovers);
                 byte otherLoverId = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).PlayerId;
                 __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.DestroyTranslator();
                 __instance.ImpostorText.text = string.Format(GetString("SubText.LovingCrewmate"), otherLoverId.ColoredPlayerName());
             }
         }
 
+        // ReSharper disable Unity.IncorrectMonoBehaviourInstantiation
         try
         {
             PlayerControl.LocalPlayer.Data.Role.IntroSound = role switch
@@ -354,21 +356,21 @@ class BeginCrewmatePatch
 
                 CustomRoles.Sheriff or
                     CustomRoles.Veteran
-                    => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PutAwayPistols)?.MinigamePrefab.OpenSound,
+                    => new AirshipStatus().ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PutAwayPistols)?.MinigamePrefab.OpenSound,
 
                 CustomRoles.Cleaner or
                     CustomRoles.Cleanser
-                    => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PolishRuby)?.MinigamePrefab.OpenSound,
+                    => new AirshipStatus().ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.PolishRuby)?.MinigamePrefab.OpenSound,
 
                 CustomRoles.Dictator or
                     CustomRoles.Lawyer or
                     CustomRoles.Judge or
                     CustomRoles.Mayor
-                    => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.FixShower)?.MinigamePrefab.OpenSound,
+                    => new AirshipStatus().ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.FixShower)?.MinigamePrefab.OpenSound,
 
                 CustomRoles.Monitor or
                     CustomRoles.AntiAdminer
-                    => ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.ResetBreakers)?.MinigamePrefab.OpenSound,
+                    => new AirshipStatus().LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.ResetBreakers)?.MinigamePrefab.OpenSound,
 
                 CustomRoles.EvilTracker or
                     CustomRoles.Tracefinder or
@@ -376,7 +378,7 @@ class BeginCrewmatePatch
                     CustomRoles.Bloodhound or
                     CustomRoles.Mortician or
                     CustomRoles.Lighter
-                    => ShipStatus.Instance.ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.DivertPower)?.MinigamePrefab.OpenSound,
+                    => new AirshipStatus().ShortTasks.FirstOrDefault(task => task.TaskType == TaskTypes.DivertPower)?.MinigamePrefab.OpenSound,
 
                 CustomRoles.Oracle or
                     CustomRoles.Divinator or
@@ -389,11 +391,11 @@ class BeginCrewmatePatch
                     => GetIntroSound(RoleTypes.GuardianAngel),
 
                 CustomRoles.Alchemist
-                    => ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.DevelopPhotos)?.MinigamePrefab.OpenSound,
+                    => new AirshipStatus().LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.DevelopPhotos)?.MinigamePrefab.OpenSound,
 
                 CustomRoles.Deputy or
                     CustomRoles.Jailor
-                    => ShipStatus.Instance.LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.UnlockSafe)?.MinigamePrefab.OpenSound,
+                    => new AirshipStatus().LongTasks.FirstOrDefault(task => task.TaskType == TaskTypes.UnlockSafe)?.MinigamePrefab.OpenSound,
 
                 CustomRoles.Workaholic or
                     CustomRoles.Speedrunner or
@@ -484,6 +486,7 @@ class BeginCrewmatePatch
             PlayerControl.LocalPlayer.Data.Role.IntroSound = GetAudioClipFromCustomRoleType();
             Logger.Warn($"Could not set intro sound\n{ex}", "IntroSound");
         }
+        // ReSharper restore Unity.IncorrectMonoBehaviourInstantiation
 
         if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
         {

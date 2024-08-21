@@ -294,10 +294,11 @@ namespace EHR.Neutral
             {
                 InfectActive = false;
 
+                var pd = Main.AllPlayerControls.FirstOrDefault(x => x.Is(CustomRoles.PlagueDoctor));
                 foreach (PlayerControl player in Main.AllAlivePlayerControls)
                 {
                     if (player.Is(CustomRoles.PlagueDoctor)) continue;
-                    player.Suicide(PlayerState.DeathReason.Curse);
+                    player.Suicide(PlayerState.DeathReason.Curse, pd);
                 }
 
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.PlagueDoctor);

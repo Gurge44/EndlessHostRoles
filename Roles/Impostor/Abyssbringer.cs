@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using Hazel;
 using UnityEngine;
 
 namespace EHR.Impostor
@@ -94,6 +95,19 @@ namespace EHR.Impostor
             Utils.SendRPC(CustomRPC.SyncRoleData, AbyssbringerId, 1, pos, roomName);
         }
 
+        public override void OnReportDeadBody()
+        {
+            if ((DespawnMode)BlackHoleDespawnMode.GetValue() == DespawnMode.AfterMeeting)
+            {
+                for (int i = 0; i < BlackHoles.Count; i++)
+                {
+                    BlackHoles[i].NetObject.Despawn();
+                    BlackHoles.RemoveAt(i);
+                    Utils.SendRPC(CustomRPC.SyncRoleData, AbyssbringerId, 3, i);
+                }
+            }
+        }
+
         public override void OnFixedUpdate(PlayerControl pc)
         {
             var abyssbringer = AbyssbringerId.GetPlayer();
@@ -159,7 +173,7 @@ namespace EHR.Impostor
             }
         }
 
-        public void ReceiveRPC(Hazel.MessageReader reader)
+        public void ReceiveRPC(MessageReader reader)
         {
             switch (reader.ReadPackedInt32())
             {

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -362,7 +363,7 @@ internal static class ChatCommands
         Main.Instance.StartCoroutine(SendOnMeeting());
         return;
 
-        System.Collections.IEnumerator SendOnMeeting()
+        IEnumerator SendOnMeeting()
         {
             bool meeting = GameStates.IsMeeting;
             while (!GameStates.IsMeeting) yield return null;
@@ -390,13 +391,14 @@ internal static class ChatCommands
         PollVotes.Clear();
         PollAnswers.Clear();
         PollVoted.Clear();
-        PollTimer = 120f;
 
         if (!args.Any(x => x.Contains('?')))
         {
             Utils.SendMessage(GetString("PollUsage"), player.PlayerId);
             return;
         }
+
+        PollTimer = 60f;
 
         var splitIndex = Array.IndexOf(args, args.First(x => x.Contains('?'))) + 1;
         var answers = args.Skip(splitIndex).ToArray();
@@ -417,7 +419,7 @@ internal static class ChatCommands
         Main.Instance.StartCoroutine(StartPollCountdown());
         return;
 
-        System.Collections.IEnumerator StartPollCountdown()
+        IEnumerator StartPollCountdown()
         {
             if (PollVotes.Count == 0) yield break;
             bool playervoted = Main.AllPlayerControls.Length - 1 > PollVotes.Values.Sum();

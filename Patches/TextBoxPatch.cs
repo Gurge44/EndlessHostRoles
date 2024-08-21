@@ -81,7 +81,14 @@ class TextBoxTMPSetTextPatch
         }
 
         if (flag) __instance.OnEnter.Invoke();
-        __instance.SetPipePosition();
+
+        try
+        {
+            __instance.SetPipePosition();
+        }
+        catch
+        {
+        }
 
         return false;
     }

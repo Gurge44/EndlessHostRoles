@@ -402,11 +402,7 @@ static class ExtendedPlayerControl
         pc.Kill(pc);
 
         if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters)
-        {
-            var message = GetString($"ND_DRLaughMessage.{deathReason}");
-            message = ColorString(NaturalDisasters.DeathReasonColor(deathReason), message);
-            LateTask.New(() => pc.Notify(message, 20f), 2f, $"{pc.GetRealName()} died with the reason {deathReason}");
-        }
+            NaturalDisasters.RecordDeath(pc, deathReason);
     }
 
     public static void SetKillCooldown(this PlayerControl player, float time = -1f, PlayerControl target = null, bool forceAnime = false)

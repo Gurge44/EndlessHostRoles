@@ -451,7 +451,7 @@ class SetEverythingUpPatch
             }
             case CustomGameMode.NaturalDisasters:
             {
-                var list = cloneRoles.OrderByDescending(NaturalDisasters.GetSurvivalTime);
+                var list = cloneRoles.OrderByDescending(NaturalDisasters.SurvivalTime);
                 foreach (var id in list.Where(EndGamePatch.SummaryText.ContainsKey))
                     sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id]);
                 break;
