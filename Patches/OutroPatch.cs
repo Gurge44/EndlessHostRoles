@@ -387,7 +387,7 @@ class SetEverythingUpPatch
         RoleSummaryObject.transform.position = new(__instance.Navigation.ExitButton.transform.position.x + 0.1f, Pos.y - 0.1f, -15f);
         RoleSummaryObject.transform.localScale = new(1f, 1f, 1f);
 
-        StringBuilder sb = new($"{GetString("RoleSummaryText")}\n<b>");
+        StringBuilder sb = new($"<font=\"DIN_Pro_Bold_700 SDF\">{GetString("RoleSummaryText")}\n<b>");
         List<byte> cloneRoles = [.. Main.PlayerStates.Keys];
         foreach (byte id in Main.WinnerList)
         {
@@ -395,6 +395,8 @@ class SetEverythingUpPatch
             sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
             cloneRoles.Remove(id);
         }
+
+        sb.Append("</b>\n");
 
         switch (Options.CurrentGameMode)
         {
@@ -405,7 +407,7 @@ class SetEverythingUpPatch
 
                 list.Sort();
                 foreach (var id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2)))
-                    sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id.Item2]);
+                    sb.Append('\n').Append(EndGamePatch.SummaryText[id.Item2]);
                 break;
             }
             case CustomGameMode.FFA:
@@ -415,7 +417,7 @@ class SetEverythingUpPatch
 
                 list.Sort();
                 foreach (var id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2)))
-                    sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id.Item2]);
+                    sb.Append('\n').Append(EndGamePatch.SummaryText[id.Item2]);
                 break;
             }
             case CustomGameMode.MoveAndStop:
@@ -425,40 +427,39 @@ class SetEverythingUpPatch
 
                 list.Sort();
                 foreach (var id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2)))
-                    sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id.Item2]);
+                    sb.Append('\n').Append(EndGamePatch.SummaryText[id.Item2]);
                 break;
             }
             case CustomGameMode.HotPotato:
             {
                 var list = cloneRoles.OrderByDescending(HotPotatoManager.GetSurvivalTime);
                 foreach (var id in list.Where(EndGamePatch.SummaryText.ContainsKey))
-                    sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id]);
+                    sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
                 break;
             }
             case CustomGameMode.Speedrun:
             {
                 var list = cloneRoles.OrderByDescending(id => Main.PlayerStates[id].TaskState.CompletedTasksCount);
                 foreach (var id in list.Where(EndGamePatch.SummaryText.ContainsKey))
-                    sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id]);
+                    sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
                 break;
             }
             case CustomGameMode.CaptureTheFlag:
             {
                 var list = cloneRoles.OrderByDescending(CTFManager.GetFlagTime);
                 foreach (var id in list.Where(EndGamePatch.SummaryText.ContainsKey))
-                    sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id]);
+                    sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
                 break;
             }
             case CustomGameMode.NaturalDisasters:
             {
                 var list = cloneRoles.OrderByDescending(NaturalDisasters.SurvivalTime);
                 foreach (var id in list.Where(EndGamePatch.SummaryText.ContainsKey))
-                    sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id]);
+                    sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
                 break;
             }
             default:
             {
-                sb.Append("</b>\n");
                 foreach (byte id in cloneRoles)
                 {
                     if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
@@ -468,6 +469,8 @@ class SetEverythingUpPatch
                 break;
             }
         }
+
+        sb.Append("</font>");
 
         var RoleSummary = RoleSummaryObject.GetComponent<TextMeshPro>();
         RoleSummary.alignment = TextAlignmentOptions.TopLeft;

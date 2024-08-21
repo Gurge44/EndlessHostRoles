@@ -24,11 +24,11 @@ namespace EHR
                 .SetGameMode(CustomGameMode.Speedrun)
                 .SetColor(color);
 
-            TimeStacksUp = new BooleanOptionItem(id + 1, "Speedrun_TimeStacksUp", false, TabGroup.GameSettings)
+            TimeStacksUp = new BooleanOptionItem(id + 1, "Speedrun_TimeStacksUp", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Speedrun)
                 .SetColor(color);
 
-            TimeLimit = new IntegerOptionItem(id + 2, "Speedrun_TimeLimit", new(1, 90, 1), 20, TabGroup.GameSettings)
+            TimeLimit = new IntegerOptionItem(id + 2, "Speedrun_TimeLimit", new(1, 90, 1), 30, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Speedrun)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(color);
