@@ -403,7 +403,7 @@ Click this badge to view our translation project on Crowdin:
 ### :star: [TOHO](https://github.com/Limeau/TownofHost-Optimized) :
 
 >
-> - Reference: Some role ideas (Tank, Deadlined)
+> - Reference: Some role ideas (Tank, Deadlined, Journalist, Grapper, Negotiator)
 >
 
 ### Endless Host Roles (EHR), with Endless Possibilities, brought to you by the Endless Network.
