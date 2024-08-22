@@ -814,7 +814,7 @@ class MeetingHudStartPatch
         AntiBlackout.OverrideExiledPlayer = AntiBlackout.IsOverride;
         if (AntiBlackout.OverrideExiledPlayer && (MeetingStates.FirstMeeting || Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors) > 1))
         {
-            LateTask.New(() => { Utils.SendMessage(GetString("Warning.OverrideExiledPlayer"), 255, Utils.ColorString(Color.red, GetString("DefaultSystemMessageTitle"))); }, 5f, "Warning OverrideExiledPlayer");
+            LateTask.New(() => { Utils.SendMessage(GetString("AntiBlackout.OverrideExiledPlayer"), 255, Utils.ColorString(Color.red, GetString("DefaultSystemMessageTitle"))); }, 5f, "Warning OverrideExiledPlayer");
         }
 
         TemplateManager.SendTemplate("OnMeeting", noErr: true);
