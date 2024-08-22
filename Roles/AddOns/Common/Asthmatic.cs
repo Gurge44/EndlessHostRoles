@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static EHR.Options;
 
@@ -65,7 +66,7 @@ namespace EHR.AddOns.Common
 
         public static void OnFixedUpdate()
         {
-            foreach (var kvp in Timers)
+            foreach (var kvp in Timers.ToArray())
             {
                 PlayerState state = Main.PlayerStates[kvp.Key];
                 if (state.IsDead || !state.SubRoles.Contains(CustomRoles.Asthmatic))
