@@ -296,7 +296,13 @@ internal static class ChatCommands
     private static void OSCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         if (!GameStates.IsLobby || args.Length < 3 || !byte.TryParse(args[1], out var chance) || chance > 100 || chance % 5 != 0 || !GetRoleByName(string.Join(' ', args[2..]), out var role) || !Options.CustomRoleSpawnChances.TryGetValue(role, out var option)) return;
-        option.SetValue(chance / 5);
+        if (role.IsAdditionRole())
+        {
+            option.SetValue(chance == 0 ? 0 : 1);
+            if (!Options.CustomAdtRoleSpawnRate.TryGetValue(role, out var adtOption)) return;
+            adtOption.SetValue(chance / 5);
+        }
+        else option.SetValue(chance / 5);
     }
 
     private static void NoteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
