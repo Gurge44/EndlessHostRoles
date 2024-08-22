@@ -4049,6 +4049,7 @@
   "ND_VolcanoEruption.FlowStepDelay": "Лава продвигается дальше каждые",
   "ND_VolcanoEruption.DurationAfterFlowComplete": "Время перед исчезновением лавы после завершения потока лавы",
   "ND_Tornado.DurationOpt": "Длительность торнадо",
+  "ND_Tornado.GoesThroughWalls": "Tornado Goes Through Walls",
   "ND_Thunderstorm.DurationOpt": "Длительность грозы",
   "ND_Thunderstorm.HitFrequency": "Молнии бьют каждые",
   "ND_SandStorm.DurationOpt": "Длительность Песчаной Бури",
