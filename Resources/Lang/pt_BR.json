@@ -4049,6 +4049,7 @@
   "ND_VolcanoEruption.FlowStepDelay": "Atraso entre passos do fluxo da lava",
   "ND_VolcanoEruption.DurationAfterFlowComplete": "Tempo para desaparecer após o fluxo da lava for completo",
   "ND_Tornado.DurationOpt": "Duraçaõ do Tornado",
+  "ND_Tornado.GoesThroughWalls": "Tornado Goes Through Walls",
   "ND_Thunderstorm.DurationOpt": "Duração da Tempestade",
   "ND_Thunderstorm.HitFrequency": "Frequência dos raios",
   "ND_SandStorm.DurationOpt": "Duração da Tempestade de Areia",
