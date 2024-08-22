@@ -4050,6 +4050,7 @@
   "ND_VolcanoEruption.DurationAfterFlowComplete": "Time Before Despawning After Lava Flow is Complete",
   "ND_Tornado.DurationOpt": "龙卷风持续时间",
   "ND_Tornado.GoesThroughWalls": "Tornado Goes Through Walls",
+  "ND_Tornado.MovingSpeed": "Tornado Moving Speed",
   "ND_Thunderstorm.DurationOpt": "Thunderstorm Duration",
   "ND_Thunderstorm.HitFrequency": "Lightning Strike Frequency",
   "ND_SandStorm.DurationOpt": "Sandstorm Duration",
