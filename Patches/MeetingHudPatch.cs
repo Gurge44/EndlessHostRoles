@@ -16,7 +16,7 @@ using static EHR.Translator;
 namespace EHR.Patches;
 
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CheckForEndVoting))]
-class CheckForEndVotingPatch
+static class CheckForEndVotingPatch
 {
     public static string EjectionText = string.Empty;
     public static bool RunRoleCode = true;
@@ -521,7 +521,7 @@ class CheckForEndVotingPatch
         if (target == null) return;
         TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Revenge, target.PlayerId);
         target.SetRealKiller(player);
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}の道連れ先:{target.GetNameWithRole().RemoveHtmlTags()}", "RevengeOnExile");
+        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} revenged: {target.GetNameWithRole().RemoveHtmlTags()}", "RevengeOnExile");
     }
 
     private static PlayerControl PickRevengeTarget(PlayerControl exiledplayer /*, PlayerState.DeathReason deathReason*/)

@@ -244,6 +244,7 @@ namespace EHR
                 }
 
                 ValidTag = true;
+                LateTask.New(() => Main.ProcessShapeshifts = true, 3f, log: false);
             }, 10f, "CTFManager.OnGameStart");
         }
 

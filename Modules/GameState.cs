@@ -139,6 +139,8 @@ public class PlayerState(byte playerId)
 
             if (!role.Is(Team.Impostor)) SubRoles.ToArray().DoIf(x => x.IsImpOnlyAddon(), RemoveSubRole);
             if (role is CustomRoles.Sidekick or CustomRoles.Necromancer or CustomRoles.Deathknight) RemoveSubRole(CustomRoles.Nimble);
+
+            pc.CheckAndSetUnshiftState();
         }
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);

@@ -2,6 +2,7 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using Hazel;
 using UnityEngine;
 
 namespace EHR.Crewmate
@@ -199,7 +200,7 @@ namespace EHR.Crewmate
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
-        public void ReceiveRPC(Hazel.MessageReader reader)
+        public void ReceiveRPC(MessageReader reader)
         {
             switch (reader.ReadPackedInt32())
             {
@@ -236,7 +237,7 @@ namespace EHR.Crewmate
 
             long now = Utils.TimeStamp;
             if (ActiveEvents.TryGetValue(target.PlayerId, out var events) && (seer.PlayerId == target.PlayerId || seer.PlayerId == ChefId))
-                return string.Join('\n', events.Select(e => string.Format(Translator.GetString("ChefBoostSuffix"), GetEventString(e), (e.Duration - (now - e.StartTimeStamp)))));
+                return $"<size=80%>{string.Join('\n', events.Select(e => string.Format(Translator.GetString("ChefBoostSuffix"), GetEventString(e), (e.Duration - (now - e.StartTimeStamp)))))}</size>";
 
             if (RottenFood.TryGetValue(seer.PlayerId, out var ts) && seer.PlayerId == target.PlayerId)
                 return string.Format(Translator.GetString("ChefRottenSuffix"), (RottenTime.GetInt() - (now - ts)));

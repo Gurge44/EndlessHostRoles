@@ -750,7 +750,11 @@ class TaskPanelBehaviourPatch
 
                 case CustomGameMode.NaturalDisasters:
 
-                    AllText += Main.AllPlayerControls.Select(x => (pc: x, alive: x.IsAlive(), time: NaturalDisasters.SurvivalTime(x.PlayerId))).OrderByDescending(x => x.time).ThenByDescending(x => x.alive).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {(x.alive ? $"<#00ff00>{GetString("Alive")}</color>" : $"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), x.time)}")}");
+                    AllText += Main.AllPlayerControls
+                        .Select(x => (pc: x, alive: x.IsAlive(), time: NaturalDisasters.SurvivalTime(x.PlayerId)))
+                        .OrderByDescending(x => x.alive)
+                        .ThenByDescending(x => x.time)
+                        .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {(x.alive ? $"<#00ff00>{GetString("Alive")}</color>" : $"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), x.time)}")}");
 
                     AllText += "</size>";
                     break;

@@ -969,7 +969,10 @@ static class ExtendedPlayerControl
         {
             var target = Main.AllAlivePlayerControls.Without(pc).RandomElement();
             var outfit = pc.Data.DefaultOutfit;
+            var process = Main.ProcessShapeshifts;
+            Main.ProcessShapeshifts = false;
             pc.RpcShapeshift(target, false);
+            Main.ProcessShapeshifts = process;
             Main.CheckShapeshift[pc.PlayerId] = false;
             RpcChangeSkin(pc, outfit);
             if (notify) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, NoCache: true);
@@ -1053,7 +1056,7 @@ static class ExtendedPlayerControl
 
     public static PlainShipRoom GetPlainShipRoom(this PlayerControl pc)
     {
-        if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return null;
+        if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return default;
         var Rooms = ShipStatus.Instance.AllRooms;
         return Rooms.Where(room => room.roomArea).FirstOrDefault(room => pc.Collider.IsTouching(room.roomArea));
     }

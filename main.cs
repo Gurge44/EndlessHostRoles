@@ -31,8 +31,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "4.5.44";
-    public const string PluginDisplayVersion = "4.5.44";
+    public const string PluginVersion = "4.5.55";
+    public const string PluginDisplayVersion = "4.5.55";
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
     public const string CrewmateColor = "#8cffff";
@@ -44,7 +44,7 @@ public class Main : BasePlugin
     public const string ModColor = "#00ffff";
     public const bool AllowPublicRoom = true;
     public const string ForkId = "EHR";
-    public const string SupportedAUVersion = "2024.6.18";
+    public const string SupportedAUVersion = "2024.8.13";
     public static readonly Version Version = Version.Parse(PluginVersion);
     public static ManualLogSource Logger;
     public static bool HasArgumentException;

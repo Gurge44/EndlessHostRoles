@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -49,7 +48,9 @@ public class CopyCat : RoleBase
         Instances.Add(this);
         CopyCatPC = Utils.GetPlayerById(playerId);
         CurrentKillCooldown = KillCooldown.GetFloat();
-        playerId.SetAbilityUseLimit(MiscopyLimitOpt.GetInt());
+        var limit = MiscopyLimitOpt.GetInt();
+        playerId.SetAbilityUseLimit(limit);
+        TempLimit = limit;
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CurrentKillCooldown;
@@ -129,7 +130,7 @@ public class CopyCat : RoleBase
             };
         }
 
-        if (tpc.IsCrewmate() && tpc.GetCustomSubRoles().All(x => x != CustomRoles.Rascal))
+        if (tpc.IsCrewmate() && !tpc.GetCustomSubRoles().Contains(CustomRoles.Rascal) && !tpc.IsConverted())
         {
             TempLimit = pc.GetAbilityUseLimit();
 

@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EHR;
 using EHR.Crewmate;
 using EHR.Modules;
+using HarmonyLib;
 using Hazel;
 using InnerNet;
+using TMPro;
 using UnityEngine;
-
 
 // Credit: https://github.com/Rabek009/MoreGamemodes/blob/e054eb498094dfca0a365fc6b6fea8d17f9974d7/Modules/CustomObjects
 // Huge thanks to Rabek009 for this code!
@@ -83,7 +85,6 @@ namespace EHR
         public void Despawn()
         {
             Logger.Info($" Despawn Custom Net Object {this.GetType().Name} (ID {Id})", "CNO.Despawn");
-            Main.AllPlayerControls.Do(Hide);
             playerControl.Despawn();
             AllObjects.Remove(this);
         }
@@ -124,13 +125,6 @@ namespace EHR
 
         protected virtual void OnFixedUpdate()
         {
-            if (this.playerControl.GetRealName() == "Player")
-            {
-                Logger.Warn($" Despawn Custom Net Object {this.GetType().Name} (ID {Id}) because it is bugged", "CNO.OnFixedUpdate");
-                Despawn();
-                return;
-            }
-
             PlayerControlTimer += Time.fixedDeltaTime;
             if (PlayerControlTimer > 20f)
             {
@@ -243,9 +237,12 @@ namespace EHR
                     }, 0.1f);
                 }
 
-                foreach (var pc in Main.AllPlayerControls.Where(x => HiddenList.Contains(x.PlayerId)))
+                foreach (var pc in Main.AllPlayerControls)
                 {
-                    Hide(pc);
+                    if (HiddenList.Contains(pc.PlayerId))
+                    {
+                        Hide(pc);
+                    }
                 }
 
                 LateTask.New(() =>
@@ -708,5 +705,60 @@ namespace EHR
                 Despawn();
             }
         }
+    }
+}
+
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RawSetName))]
+static class RawSetNamePatch
+{
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] string name)
+    {
+        if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters) return true;
+
+        bool exception = false;
+
+        try
+        {
+            __instance.gameObject.name = name;
+        }
+        catch
+        {
+            exception = true;
+        }
+
+        try
+        {
+            __instance.cosmetics.SetName(name);
+        }
+        catch
+        {
+            exception = true;
+        }
+
+        try
+        {
+            __instance.cosmetics.SetNameMask(true);
+        }
+        catch
+        {
+            exception = true;
+        }
+
+        LateTask.New(() =>
+        {
+            switch (exception)
+            {
+                case true when __instance != null:
+                    EHR.Logger.Warn($"Failed to set name for {__instance.GetRealName()}, trying alternative method", "RawSetNamePatch");
+                    __instance.transform.FindChild("Names").FindChild("NameText_TMP").GetComponent<TextMeshPro>().text = name;
+                    EHR.Logger.Msg($"Successfully set name for {__instance.GetRealName()}", "RawSetNamePatch");
+                    break;
+                case true:
+                    EHR.Logger.Error("Failed to set name for player", "RawSetNamePatch");
+                    break;
+            }
+        }, 0.5f, log: false);
+
+        return false;
     }
 }

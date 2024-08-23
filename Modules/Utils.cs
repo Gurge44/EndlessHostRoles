@@ -43,6 +43,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
 
 public static class Utils
 {
+    public const string EmptyMessage = "<size=0>.</size>";
     private static readonly DateTime TimeStampStartTime = new(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
     private static readonly StringBuilder SelfSuffix = new();
@@ -55,7 +56,6 @@ public static class Utils
     public static long TimeStamp => (long)(DateTime.Now.ToUniversalTime() - TimeStampStartTime).TotalSeconds;
     public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModClient() && !x.IsHost());
     public static int TotalTaskCount => Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
-    public static string EmptyMessage => "<size=0>.</size>";
     public static int AllPlayersCount => Main.PlayerStates.Values.Count(state => state.countTypes != CountTypes.OutOfGame);
     public static int AllAlivePlayersCount => Main.AllAlivePlayerControls.Count(pc => !pc.Is(CountTypes.OutOfGame));
     public static bool IsAllAlive => Main.PlayerStates.Values.All(state => state.countTypes == CountTypes.OutOfGame || !state.IsDead);
@@ -617,9 +617,9 @@ public static class Utils
             }
 
             sb.Append("\n------ End of Method Stack Trace ------");
-            sb.Append("\n------ Exception Stack Trace ------");
+            sb.Append("\n------ Exception Stack Trace ------\n");
 
-            sb.Append(ex.StackTrace?.Replace("\r\n", "\n").Replace("\\n", "\n").Replace("\n", "\n      "));
+            sb.Append(ex.StackTrace?.Replace("\r\n", "\n").Replace("\\n", "\n").Replace("\n", "\n   "));
 
             sb.Append("\n------ End of Exception Stack Trace ------");
 

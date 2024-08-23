@@ -2,6 +2,7 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using Hazel;
 
 namespace EHR.Impostor
 {
@@ -14,6 +15,7 @@ namespace EHR.Impostor
         public static OptionItem AbilityDuration;
         public static OptionItem AbilityUseLimit;
         public static OptionItem AbilityUseGainWithEachKill;
+
         private long ActivateTS;
         private int Count;
         private byte HypnotistId;
@@ -86,14 +88,14 @@ namespace EHR.Impostor
             if (notify) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
-        public void ReceiveRPC(Hazel.MessageReader reader)
+        public void ReceiveRPC(MessageReader reader)
         {
             ActivateTS = long.Parse(reader.ReadString());
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != HypnotistId || isMeeting || (seer.IsModClient() && !isHUD)) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != HypnotistId || isMeeting || (seer.IsModClient() && !isHUD) || ActivateTS == 0) return string.Empty;
             int timeLeft = (int)(ActivateTS + AbilityDuration.GetInt() - Utils.TimeStamp);
             return timeLeft <= 5 ? $"\u25a9 ({timeLeft})" : "\u25a9";
         }

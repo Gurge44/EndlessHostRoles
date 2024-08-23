@@ -149,7 +149,7 @@ namespace EHR
             }
 
             var playerTeams = Enum.GetValues<Team>()[1..]
-                .SelectMany(x => Enumerable.Repeat(x, memberNum[x]))
+                .SelectMany(x => Enumerable.Repeat(x, Math.Max(memberNum[x], 0)))
                 .Shuffle()
                 .Zip(allPlayers)
                 .GroupBy(x => x.First, x => x.Second)
