@@ -97,6 +97,12 @@ class ExternalRpcPetPatch
            )
             return;
 
+        if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag)
+        {
+            CTFManager.TryPickUpFlag(pc);
+            return;
+        }
+
         if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId))
         {
             var killTarget = SelectKillButtonTarget(pc);
