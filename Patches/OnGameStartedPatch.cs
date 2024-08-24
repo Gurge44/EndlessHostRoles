@@ -714,7 +714,7 @@ internal class SelectRolesPatch
 
             // Add-on assignment
             var aapc = Main.AllAlivePlayerControls.Shuffle();
-            if (Main.GM.Value) aapc = aapc.Where(x => !x.IsHost()).ToArray();
+            if (Main.GM.Value) aapc = aapc.Without(PlayerControl.LocalPlayer).ToArray();
             var addonNum = aapc.ToDictionary(x => x, _ => 0);
             AddonRolesList
                 .Except(BasisChangingAddons.Keys)
