@@ -129,25 +129,18 @@ namespace EHR.Neutral
             return false;
         }
 
-        private static bool IsConvertedMainRole(CustomRoles role)
-        {
-            return role switch
-            {
-                CustomRoles.Gangster or
-                    CustomRoles.Succubus or
-                    CustomRoles.Deathknight or
-                    CustomRoles.Necromancer or
-                    CustomRoles.Romantic or
-                    CustomRoles.RuthlessRomantic or
-                    CustomRoles.VengefulRomantic or
-                    CustomRoles.Sidekick or
-                    CustomRoles.Jackal or
-                    CustomRoles.Virus
-                    => true,
-
-                _ => false
-            };
-        }
+        private static bool IsConvertedMainRole(CustomRoles role) => role is
+            CustomRoles.Gangster or
+            CustomRoles.Succubus or
+            CustomRoles.Deathknight or
+            CustomRoles.Necromancer or
+            CustomRoles.Refugee or
+            CustomRoles.Romantic or
+            CustomRoles.RuthlessRomantic or
+            CustomRoles.VengefulRomantic or
+            CustomRoles.Sidekick or
+            CustomRoles.Jackal or
+            CustomRoles.Virus;
 
         public override void OnFixedUpdate(PlayerControl pc)
         {

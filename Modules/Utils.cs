@@ -589,13 +589,13 @@ public static class Utils
     {
         try
         {
-            StackTrace st = new(0, true);
+            StackTrace st = new(1, true);
             StackFrame[] stFrames = st.GetFrames();
 
             StackFrame firstFrame = stFrames.FirstOrDefault();
 
             var sb = new StringBuilder();
-            sb.Append($" Exception: {ex.Message}\n      thrown by {ex.Source}\n      at {ex.TargetSite}\n      in {fileName}\n      at line {lineNumber}\n      in method \"{callerMemberName}\"\n------ Method Stack Trace ------");
+            sb.Append($" {ex.GetType().Name}: {ex.Message}\n      thrown by {ex.Source}\n      at {ex.TargetSite}\n      in {fileName}\n      at line {lineNumber}\n      in method \"{callerMemberName}\"\n------ Method Stack Trace ------");
 
             bool skip = true;
             foreach (StackFrame sf in stFrames)
@@ -611,13 +611,11 @@ public static class Utils
                 string callerMethodName = callerMethod?.Name;
                 string callerClassName = callerMethod?.DeclaringType?.FullName;
 
-                var line = $"line {sf.GetFileLineNumber()} ({sf.GetFileColumnNumber()}) in {sf.GetFileName()}";
-
-                sb.Append($"\n      at {callerClassName}.{callerMethodName} ({line})");
+                sb.Append($"\n      at {callerClassName}.{callerMethodName}");
             }
 
             sb.Append("\n------ End of Method Stack Trace ------");
-            sb.Append("\n------ Exception Stack Trace ------\n");
+            sb.Append("\n------ Exception Stack Trace ------\n   ");
 
             sb.Append(ex.StackTrace?.Replace("\r\n", "\n").Replace("\\n", "\n").Replace("\n", "\n   "));
 
@@ -811,7 +809,7 @@ public static class Utils
 
         if (CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == p.PlayerId) && ForRecompute && (!Options.UsePets.GetBool() || CopyCat.UsePet.GetBool())) hasTasks = false;
 
-        hasTasks |= role.UsesPetInsteadOfKill() && role is not (CustomRoles.Refugee or CustomRoles.Necromancer or CustomRoles.Deathknight);
+        hasTasks |= role.UsesPetInsteadOfKill() && role is not (CustomRoles.Refugee or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Sidekick);
 
         return hasTasks;
     }

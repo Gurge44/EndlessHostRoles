@@ -15,7 +15,7 @@ namespace EHR.Patches;
  */
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.TryPet))]
-class LocalPetPatch
+static class LocalPetPatch
 {
     private static readonly Dictionary<byte, long> LastProcess = [];
 
@@ -46,7 +46,7 @@ class LocalPetPatch
 }
 
 [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.HandleRpc))]
-class ExternalRpcPetPatch
+static class ExternalRpcPetPatch
 {
     private static readonly Dictionary<byte, long> LastProcess = [];
 
@@ -117,7 +117,7 @@ class ExternalRpcPetPatch
         if (target != null) hasKillTarget = true;
 
         var role = pc.GetCustomRole();
-        var alwaysPetRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee;
+        var alwaysPetRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee or CustomRoles.Sidekick;
 
         if (!pc.CanUseKillButton() && !alwaysPetRole) hasKillTarget = false;
 

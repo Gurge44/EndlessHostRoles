@@ -135,17 +135,25 @@ namespace EHR
 
             foreach (var item in Main.SetRoles)
             {
-                PlayerControl pc = allPlayers.FirstOrDefault(x => x.PlayerId == item.Key);
-                if (pc == null) continue;
+                try
+                {
+                    PlayerControl pc = allPlayers.FirstOrDefault(x => x.PlayerId == item.Key);
+                    if (pc == null) continue;
 
-                result[pc] = item.Value;
-                allPlayers.Remove(pc);
+                    result[pc] = item.Value;
+                    allPlayers.Remove(pc);
 
-                var role = HideAndSeekRoles.FirstOrDefault(x => x.Value.ContainsKey(item.Value));
-                role.Value[item.Value]--;
-                memberNum[role.Key]--;
+                    var role = HideAndSeekRoles.FirstOrDefault(x => x.Value.ContainsKey(item.Value));
+                    role.Value[item.Value]--;
+                    memberNum[role.Key]--;
 
-                Logger.Warn($"Pre-Set Role Assigned: {pc.GetRealName()} => {item.Value}", "HnsRoleAssigner");
+                    Logger.Warn($"Pre-Set Role Assigned: {pc.GetRealName()} => {item.Value}", "HnsRoleAssigner");
+                }
+                catch (Exception e)
+                {
+                    Logger.SendInGame($"Error Assigning Pre-Set Role: {item.Key.ColoredPlayerName()} => {item.Value}");
+                    Utils.ThrowException(e);
+                }
             }
 
             var playerTeams = Enum.GetValues<Team>()[1..]
