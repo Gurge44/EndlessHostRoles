@@ -263,7 +263,7 @@ class HudManagerPatch
                         LowerInfoText.enabled = false;
                     }
 
-                    bool allowedRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight;
+                    bool allowedRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee or CustomRoles.Sidekick;
                     if (player.CanUseKillButton() && (allowedRole || !role.UsesPetInsteadOfKill()))
                     {
                         __instance.KillButton?.ToggleVisible(player.IsAlive() && GameStates.IsInTask);

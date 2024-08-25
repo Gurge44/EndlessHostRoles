@@ -426,6 +426,8 @@ internal class SelectRolesPatch
                     HashSet<byte> bloodlustList = RoleResult.Where(x => x.Value.IsCrewmate() && !x.Value.IsTaskBasedCrewmate() && (!hasBanned || banned == null || !banned.Any(b => b.Key == x.Value && b.Value.Contains(CustomRoles.Bloodlust)))).Select(x => x.Key.PlayerId).ToHashSet();
                     if (bloodlustList.Count == 0) bloodlustSpawn = false;
 
+                    if (Main.GM.Value) bloodlustList.Remove(0);
+
                     if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var combos) && combos.Values.Any(l => l.Contains(CustomRoles.Bloodlust)))
                     {
                         var roles = combos.Where(x => x.Value.Contains(CustomRoles.Bloodlust)).Select(x => x.Key).ToHashSet();
@@ -534,6 +536,8 @@ internal class SelectRolesPatch
             {
                 (CustomRoles addon, (bool SpawnFlag, HashSet<byte> RoleList) value) = roleSpawnMapping.ElementAt(i);
                 if (value.RoleList.Count == 0) value.SpawnFlag = false;
+                
+                if (Main.GM.Value) value.RoleList.Remove(0);
 
                 if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var combos) && combos.Values.Any(l => l.Contains(addon)))
                 {
@@ -714,7 +718,7 @@ internal class SelectRolesPatch
 
             // Add-on assignment
             var aapc = Main.AllAlivePlayerControls.Shuffle();
-            if (Main.GM.Value) aapc = aapc.Where(x => !x.IsHost()).ToArray();
+            if (Main.GM.Value) aapc = aapc.Without(PlayerControl.LocalPlayer).ToArray();
             var addonNum = aapc.ToDictionary(x => x, _ => 0);
             AddonRolesList
                 .Except(BasisChangingAddons.Keys)

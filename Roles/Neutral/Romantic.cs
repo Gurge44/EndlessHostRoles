@@ -36,6 +36,7 @@ public class Romantic : RoleBase
 
     private static readonly Dictionary<CustomRoles, CustomRoles> ConvertingRolesAndAddons = new()
     {
+        [CustomRoles.Succubus] = CustomRoles.Charmed,
         [CustomRoles.Jackal] = CustomRoles.Sidekick,
         [CustomRoles.Virus] = CustomRoles.Contagious,
         [CustomRoles.Deathknight] = CustomRoles.Undead,

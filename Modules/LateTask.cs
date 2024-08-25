@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace EHR;
 
@@ -9,14 +10,16 @@ class LateTask
     private readonly Action action;
     private readonly bool log;
     private readonly string name;
+    private readonly string callerData;
     private float timer;
 
-    private LateTask(Action action, float time, string name, bool log)
+    private LateTask(Action action, float time, string name, bool log, string callerData)
     {
         this.action = action;
         timer = time;
         this.name = name;
         this.log = log;
+        this.callerData = callerData;
         Tasks.Add(this);
         if (log && name is not "" and not "No Name Task")
             Logger.Info("\"" + name + "\" is created", "LateTask");
@@ -41,7 +44,8 @@ class LateTask
     /// <param name="time">The time to wait until the task is run</param>
     /// <param name="name">The name of the task</param>
     /// <param name="log">Whether to send log of the creation and completion of the Late Task</param>
-    public static void New(Action action, float time, string name = "No Name Task", bool log = true) => _ = new LateTask(action, time, name, log);
+    public static void New(Action action, float time, string name = "No Name Task", bool log = true, [CallerFilePath] string path = "", [CallerMemberName] string member = "", [CallerLineNumber] int line = 0)
+        => _ = new LateTask(action, time, name, log, $"created at {path}, by member {member}, at line {line}");
 
     public static void Update(float deltaTime)
     {
@@ -58,7 +62,7 @@ class LateTask
             }
             catch (Exception ex)
             {
-                Logger.Error($"{ex.GetType()}: {ex.Message}  in \"{task.name}\"\n{ex.StackTrace}", "LateTask.Error", false);
+                Logger.Error($"{ex.GetType()}: {ex.Message}  in \"{task.name}\" ({task.callerData})\n{ex.StackTrace}", "LateTask.Error", false);
                 Tasks.Remove(task);
             }
         }

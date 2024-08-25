@@ -153,7 +153,7 @@ public class Judge : RoleBase
                         else if (targetRole.IsNonNK() && !CanTrialNeutralB.GetBool() && !CanTrialNeutralE.GetBool() && targetRole.GetNeutralRoleCategory() is not RoleOptionType.Neutral_Benign and not RoleOptionType.Neutral_Evil && CanTrialNeutralK.GetBool()) judgeSuicide = false;
                         else if (targetRole.IsImpostor()) judgeSuicide = false;
                         else if (targetRole.IsMadmate() && CanTrialMadmate.GetBool()) judgeSuicide = false;
-                        else if (targetRole is CustomRoles.Necromancer or CustomRoles.Deathknight && CanTrialNeutralK.GetBool()) judgeSuicide = false;
+                        else if (targetRole is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Sidekick && CanTrialNeutralK.GetBool()) judgeSuicide = false;
                         else judgeSuicide = true;
                     }
 

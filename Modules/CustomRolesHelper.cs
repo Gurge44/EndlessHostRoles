@@ -706,6 +706,7 @@ internal static class CustomRolesHelper
         CustomRoles.Refugee => true,
         CustomRoles.Necromancer => true,
         CustomRoles.Deathknight => true,
+        CustomRoles.Sidekick => true,
 
         // Speedrun
         CustomRoles.Runner => true,

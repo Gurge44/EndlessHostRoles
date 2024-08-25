@@ -643,7 +643,7 @@ internal static class CustomRoleSelector
         Crewmate
     }
 
-    private class RoleAssignInfo(CustomRoles role, int spawnChance, int maxCount, int assignedCount = 0)
+    private class RoleAssignInfo(CustomRoles role, int spawnChance, int maxCount)
     {
         public CustomRoles Role => role;
 
@@ -651,10 +651,6 @@ internal static class CustomRoleSelector
 
         public int MaxCount => maxCount;
 
-        public int AssignedCount
-        {
-            get => assignedCount;
-            set => assignedCount = value;
-        }
+        public int AssignedCount { get; set; }
     }
 }

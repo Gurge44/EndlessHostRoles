@@ -183,6 +183,18 @@
 
 Click this badge to view our translation project on Crowdin:
 [![Crowdin](https://badges.crowdin.net/ehr/localized.svg)](https://crowdin.com/project/ehr)
+<br>
+Source language: English
+
+#### Translation progress
+
+![es-ES translation](https://img.shields.io/badge/dynamic/json?color=blue&label=es-ES&style=for-the-badge&logo=crowdin&query=%24.progress[?(@.data.languageId==%27es-ES%27)].data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15788979-676754.json)
+![ko translation](https://img.shields.io/badge/dynamic/json?color=blue&label=ko&style=for-the-badge&logo=crowdin&query=%24.progress[?(@.data.languageId==%27ko%27)].data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15788979-676754.json)
+![pt-BR translation](https://img.shields.io/badge/dynamic/json?color=blue&label=pt-BR&style=for-the-badge&logo=crowdin&query=%24.progress[?(@.data.languageId==%27pt-BR%27)].data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15788979-676754.json)
+![ru translation](https://img.shields.io/badge/dynamic/json?color=blue&label=ru&style=for-the-badge&logo=crowdin&query=%24.progress[?(@.data.languageId==%27ru%27)].data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15788979-676754.json)
+![zh-CN translation](https://img.shields.io/badge/dynamic/json?color=blue&label=zh-CN&style=for-the-badge&logo=crowdin&query=%24.progress[?(@.data.languageId==%27zh-CN%27)].data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15788979-676754.json)
+
+[![Graph](https://badges.awesome-crowdin.com/translation-15788979-676754.png)](https://crowdin.com/project/ehr)
 
 <br>
 
