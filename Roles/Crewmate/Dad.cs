@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
+using Hazel;
 using UnityEngine;
 
 namespace EHR.Crewmate
@@ -72,7 +74,7 @@ namespace EHR.Crewmate
             AlcoholDecreaseOnVotedOut = new IntegerOptionItem(++id, "Dad.AlcoholDecreaseOnVotedOut", new(0, 100, 1), 5, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Percent);
-            NormalAlcoholDecreaseFrequency = new IntegerOptionItem(++id, "Dad.NormalAlcoholDecreaseFrequency", new(1, 60, 1), 5, tab)
+            NormalAlcoholDecreaseFrequency = new IntegerOptionItem(++id, "Dad.NormalAlcoholDecreaseFrequency", new(1, 60, 1), 10, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Seconds);
             NormalAlcoholDecreaseValue = new IntegerOptionItem(++id, "Dad.NormalAlcoholDecreaseValue", new(0, 100, 1), 1, tab)
@@ -84,7 +86,7 @@ namespace EHR.Crewmate
             ShowWarningWhenAlcoholIsBelow = new IntegerOptionItem(++id, "Dad.ShowWarningWhenAlcoholIsBelow", new(0, 100, 1), 20, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Percent);
-            StartingAlcohol = new IntegerOptionItem(++id, "Dad.StartingAlcohol", new(0, 100, 1), 10, tab)
+            StartingAlcohol = new IntegerOptionItem(++id, "Dad.StartingAlcohol", new(0, 100, 1), 15, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Percent);
             StartingMoney = new IntegerOptionItem(++id, "Dad.StartingMoney", new(0, 100, 1), 0, tab)
@@ -130,7 +132,7 @@ namespace EHR.Crewmate
         {
             On = true;
             Instances.Add(this);
-            Main.AllPlayerSpeed[playerId] *= -1;
+            //Main.AllPlayerSpeed[playerId] *= -1;
             DadId = playerId;
             Alcohol = StartingAlcohol.GetInt();
             LastUpdate = Utils.TimeStamp;
@@ -385,7 +387,7 @@ namespace EHR.Crewmate
             Utils.SendRPC(CustomRPC.SyncRoleData, DadId, 3, Alcohol);
         }
 
-        public void ReceiveRPC(Hazel.MessageReader reader)
+        public void ReceiveRPC(MessageReader reader)
         {
             switch (reader.ReadPackedInt32())
             {
@@ -406,7 +408,7 @@ namespace EHR.Crewmate
         {
             if (seer.PlayerId != target.PlayerId || seer.PlayerId != DadId || isMeeting || (seer.IsModClient() && !isHUD)) return string.Empty;
 
-            var sb = new System.Text.StringBuilder();
+            var sb = new StringBuilder();
 
             if (Vector2.Distance(seer.Pos(), Shop.transform.position) <= 2f)
             {

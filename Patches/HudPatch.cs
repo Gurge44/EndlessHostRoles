@@ -641,9 +641,6 @@ class TaskPanelBehaviourPatch
                     if (MeetingStates.FirstMeeting)
                     {
                         AllText += $"\r\n\r\n</color><size=60%>{GetString("PressF1ShowMainRoleDes")}";
-                        if (subRoles.Count > 0)
-                            AllText += $"\r\n{GetString("PressF2ShowAddRoleDes")}";
-                        AllText += $"\r\n{GetString("PressF3ShowRoleSettings")}</size>";
                     }
 
                     break;

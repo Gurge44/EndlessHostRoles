@@ -775,6 +775,8 @@ class IntroCutsceneDestroyPatch
                         PetsPatch.SetPet(pc, petId);
                         Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
                     }
+
+                    AntiBlackout.SendGameData();
                 }, 0.3f, "Grant Pet For Everyone");
                 try
                 {
