@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using EHR;
@@ -406,8 +407,26 @@ namespace EHR
         {
             try
             {
-                AllObjects.ToArray().Do(x => x.Despawn());
-                AllObjects.Clear();
+                if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters)
+                {
+                    AllObjects.ToArray().Do(x => x.Despawn());
+                    AllObjects.Clear();
+                }
+                else
+                {
+                    Main.Instance.StartCoroutine(RemoveAllNetObjects());
+
+                    IEnumerator RemoveAllNetObjects()
+                    {
+                        foreach (CustomNetObject netObject in AllObjects.ToArray())
+                        {
+                            netObject.Despawn();
+                            yield return new WaitForSeconds(0.2f);
+                        }
+
+                        AllObjects.Clear();
+                    }
+                }
             }
             catch (Exception e)
             {

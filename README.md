@@ -12,9 +12,8 @@
 > This mod is not affiliated with Among Us or Innersloth LLC, and the content contained therein is not endorsed or
 > otherwise sponsored by Innersloth LLC. Portions of the materials contained herein are the property of Innersloth LLC.
 > <br>
-> <br>
-> This mod is not a cheat, it is a mod that adds new roles and features to the game. If you
-> have any questions, feel free to ask in our Discord server.
+> This is not a cheat, it's a mod that adds new roles and features to the game. If you have questions, ask in our
+> Discord server.
 <br>
 
 </p>
@@ -31,11 +30,38 @@
 
 <br>
 
-#### Over 350 roles and add-ons, 9 custom game modes, and a custom team assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
+# Installation
+
+Whichever is easier for you:
+
+- Through [Mod Manager](https://goodloss.fr/mm)
+- or follow the manual guide on our website: [EHR](https://sites.google.com/view/ehr-au)
+
+<br>
+
+Share the download link with your friends: [bit.ly/downloadehr](https://bit.ly/downloadehr)
+
+## Want to become a beta tester?
+
+Join our Discord server and download the latest test build from the #test-builds channel.
+You do **NOT** need to pay, boost the server, donate, be a VIP, contributor or anything like that.
+In this mod and its discord server, everything is free.
+We don't want your money, we want your feedback.
+You can also report bugs and suggest features in the #bug-reports and #suggestions channels.
+
+#### How to install test builds:
+
+1. Download the latest test build (EHR.dll) from the #test-builds channel.
+2. Go to your Among Us directory (usually `C:\Program Files (x86)\Steam\steamapps\common\Among Us` for Steam users,
+   `C:\Program Files\AmongUs` for Epic Games users, `C:\Program Files\WindowsApps\InnerSloth.LLC-AmongUs_8wekyb3d8bbwe`
+   for Microsoft Store users).
+3. Go into the `BepInEx` folder.
+4. Go into the `plugins` folder.
+5. Replace the existing `EHR.dll` file with the one you downloaded.
 
 ### Visit this website to find role descriptions: [Role description finder](https://gurge44.pythonanywhere.com/)
 
-### Installation guide and exclusive mod features: [EHR](https://sites.google.com/view/ehr-au)
+#### Over 400 roles and add-ons, 9 custom game modes, and a custom team assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
 
 ## List of Roles <span style="font-size: 12px;">(excluding Hide and Seek roles and vanilla roles)</span>
 
@@ -244,7 +270,7 @@ Source language: English
 - You can chat during the game if the game mode is FFA
 - Simplified and shortened role descriptions
 - Loading animation
-- Set anyone's role for the next game using '/setrole [player ID] [role name]' (replaces /up)
+- Set anyone's role for the next game using `/setrole [player ID] [role name]` (replaces /up)
 
 ### Role specific Improvements
 
@@ -418,6 +444,12 @@ Source language: English
 > - Reference: Some role ideas (Tank, Deadlined, Journalist, Grapper, Negotiator, Hypnotist)
 >
 
+### :star: [Mini.RegionInstall](https://github.com/miniduikboot/Mini.RegionInstall) :
+
+>
+> - Reference: Custom Region Installer (adding modded regions)
+>
+
 ### Endless Host Roles (EHR), with Endless Possibilities, brought to you by the Endless Network.
 
 ##### Developers:
@@ -445,8 +477,9 @@ Source language: English
 - HyperAtill (RU)
 - ABoringCat (ZH-CN)
 
-# License for the Custom Team Assigner application
+# License for the Custom Team Assigner application (everything inside the `CTA` folder)
 
+```
 Copyright (c) 2024, Gurge44
 
 All rights reserved.
@@ -476,3 +509,4 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
