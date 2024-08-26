@@ -98,6 +98,8 @@ internal static class ChatCommands
     private static readonly List<byte> PollVoted = [];
     private static float PollTimer = 60f;
 
+    public static readonly Dictionary<byte, (long MuteTimeStamp, int Duration)> MutedPlayers = [];
+
     public static void LoadCommands()
     {
         AllCommands =
@@ -161,6 +163,8 @@ internal static class ChatCommands
             new(["note", "заметка"], "{action} [?]", GetString("CommandDescription.Note"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NoteCommand, true, [GetString("CommandArgs.Note.Action"), GetString("CommandArgs.Note.UnknownValue")]),
             new(["os", "optionset", "шансроли", "опция"], "{chance} {role}", GetString("CommandDescription.OS"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, OSCommand, true, [GetString("CommandArgs.OS.Chance"), GetString("CommandArgs.OS.Role")]),
             new(["negotiation", "neg", "наказание"], "{number}", GetString("CommandDescription.Negotiation"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NegotiationCommand, true, [GetString("CommandArgs.Negotiation.Number")]),
+            new(["mute", "мут"], "{id} [duration]", GetString("CommandDescription.Mute"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.AfterDeathOrLobby, MuteCommand, true, [GetString("CommandArgs.Mute.Id"), GetString("CommandArgs.Mute.Duration")]),
+            new(["unmute", "размут"], "{id}", GetString("CommandDescription.Unmute"), Command.UsageLevels.Host, Command.UsageTimes.Always, UnmuteCommand, true, [GetString("CommandArgs.Unmute.Id")]),
 
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -253,6 +257,8 @@ internal static class ChatCommands
             }
         }
 
+        if (CheckMute(PlayerControl.LocalPlayer.PlayerId)) goto Canceled;
+
         if (GameStates.InGame && (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) || Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk)) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
 
         if (GameStates.IsInGame && (PlayerControl.LocalPlayer.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting))
@@ -286,6 +292,25 @@ internal static class ChatCommands
     }
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
+
+    private static void MuteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        if (!player.IsHost() && (GameStates.InGame || MutedPlayers.ContainsKey(player.PlayerId))) return;
+        if (args.Length < 3 || !byte.TryParse(args[1], out var id) || id.IsHost()) return;
+        int duration = !int.TryParse(args[2], out var dur) ? 60 : dur;
+        MutedPlayers[id] = (Utils.TimeStamp, duration);
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PlayerMuted"), id.ColoredPlayerName(), duration));
+        Utils.SendMessage("\n", id, string.Format(GetString("YouMuted"), player.PlayerId.ColoredPlayerName(), duration));
+        if (!player.IsHost()) Utils.SendMessage("\n", 0, string.Format(GetString("ModeratorMuted"), player.PlayerId.ColoredPlayerName(), id.ColoredPlayerName(), duration));
+    }
+
+    private static void UnmuteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        if (args.Length < 2 || !byte.TryParse(args[1], out var id)) return;
+        MutedPlayers.Remove(id);
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PlayerUnmuted"), id.ColoredPlayerName()));
+        Utils.SendMessage("\n", id, string.Format(GetString("YouUnmuted"), player.PlayerId.ColoredPlayerName()));
+    }
 
     private static void NegotiationCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
@@ -1626,6 +1651,21 @@ internal static class ChatCommands
 
     // -------------------------------------------------------------------------------------------------------------------------
 
+    private static bool CheckMute(byte id)
+    {
+        if (!MutedPlayers.TryGetValue(id, out var mute)) return false;
+
+        var timeLeft = mute.Duration - (Utils.TimeStamp - mute.MuteTimeStamp);
+        if (timeLeft <= 0)
+        {
+            MutedPlayers.Remove(id);
+            return false;
+        }
+
+        Utils.SendMessage("\n", id, string.Format(GetString("MuteMessage"), timeLeft));
+        return true;
+    }
+
     public static string FixRoleNameInput(string text)
     {
         text = text.Replace("着", "者").Trim().ToLower();
@@ -1843,7 +1883,7 @@ internal static class ChatCommands
 
                 if (rl is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && Options.CustomRoleSpawnChances.TryGetValue(CustomRoles.Lovers, out chance)) AddSettings(chance);
 
-                var txt = $"<size=90%>{sb}</size>";
+                var txt = $"<size=90%>{sb}</size>".Replace(roleName, rl.ToColoredString()).Replace(roleName.ToLower(), rl.ToColoredString());
                 sb.Clear().Append(txt);
 
                 if (rl.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
@@ -1872,11 +1912,11 @@ internal static class ChatCommands
         long now = Utils.TimeStamp;
         if (LastSentCommand.TryGetValue(player.PlayerId, out var ts) && ts + 2 >= now)
         {
-            Logger.Warn("Command Ignored, it was sent too soon after their last command", "ReceiveChat");
+            Logger.Warn("Chat message ignored, it was sent too soon after their last message", "ReceiveChat");
             return;
         }
 
-        ChatManager.SendMessage(player, text);
+        if (!CheckMute(player.PlayerId)) ChatManager.SendMessage(player, text);
         if (text.StartsWith("\n")) text = text[1..];
 
         string[] args = text.Split(' ');
@@ -1918,6 +1958,13 @@ internal static class ChatCommands
                 if (command.IsCanceled) canceled = true;
                 break;
             }
+        }
+
+        if (CheckMute(player.PlayerId))
+        {
+            canceled = true;
+            ChatManager.SendPreviousMessagesToAll();
+            return;
         }
 
         if (GameStates.InGame && (Silencer.ForSilencer.Contains(player.PlayerId) || Main.PlayerStates[player.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk)) && player.IsAlive())

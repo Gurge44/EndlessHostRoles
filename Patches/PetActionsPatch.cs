@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -110,7 +111,12 @@ static class ExternalRpcPetPatch
             return;
         }
 
-        if (pc.HasAbilityCD()) return;
+        if (pc.HasAbilityCD())
+        {
+            if (!pc.IsHost()) pc.Notify(Translator.GetString("AbilityOnCooldown"));
+            else Main.Instance.StartCoroutine(FlashCooldownTimer());
+            return;
+        }
 
         bool hasKillTarget = false;
         PlayerControl target = SelectKillButtonTarget(pc);
@@ -123,7 +129,9 @@ static class ExternalRpcPetPatch
 
         if (role.UsesPetInsteadOfKill() && hasKillTarget && (pc.Data.RoleType != RoleTypes.Impostor || alwaysPetRole))
         {
-            pc.AddKCDAsAbilityCD();
+            if (Options.CurrentGameMode != CustomGameMode.Speedrun)
+                pc.AddKCDAsAbilityCD();
+
             if (Main.PlayerStates[pc.PlayerId].Role.OnCheckMurder(pc, target))
             {
                 pc.RpcCheckAndMurder(target);
@@ -155,5 +163,18 @@ static class ExternalRpcPetPatch
         }
 
         return target;
+    }
+
+    private static IEnumerator FlashCooldownTimer()
+    {
+        var yellow = false;
+        for (int i = 0; i < 8; i++)
+        {
+            HudManagerPatch.CooldownTimerFlashColor = yellow ? Color.red : Color.yellow;
+            yellow = !yellow;
+            yield return new WaitForSeconds(0.2f);
+        }
+
+        HudManagerPatch.CooldownTimerFlashColor = null;
     }
 }

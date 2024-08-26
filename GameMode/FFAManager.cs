@@ -374,6 +374,8 @@ internal static class FFAManager
                 killer.MarkDirtySettings();
             }
         }
+
+        killer.Kill(target);
     }
 
     public static void OnPlayerKill(PlayerControl killer)

@@ -212,7 +212,7 @@ class CheckMurderPatch
                 return false;
             case CustomGameMode.FFA:
                 FFAManager.OnPlayerAttack(killer, target);
-                return true;
+                return false;
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
             case CustomGameMode.NaturalDisasters:

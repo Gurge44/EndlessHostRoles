@@ -35,15 +35,15 @@ namespace EHR
             const int id = 69_211_001;
             Color color = new(52, 94, 235, byte.MaxValue);
 
-            MaxGameLength = new IntegerOptionItem(id, "FFA_GameTime", new(0, 1200, 10), 600, TabGroup.GameSettings)
+            MaxGameLength = new IntegerOptionItem(id, "FFA_GameTime", new(0, 1200, 10), 300, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(color);
 
-            MinNeutrals = new IntegerOptionItem(id + 1, "HNS.MinNeutrals", new(0, 13, 1), 1, TabGroup.GameSettings)
+            MinNeutrals = new IntegerOptionItem(id + 1, "HNS.MinNeutrals", new(0, 13, 1), 0, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(color);
-            MaxNeutrals = new IntegerOptionItem(id + 2, "HNS.MaxNeutrals", new(0, 13, 1), 3, TabGroup.GameSettings)
+            MaxNeutrals = new IntegerOptionItem(id + 2, "HNS.MaxNeutrals", new(0, 13, 1), 2, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(color);
 

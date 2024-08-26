@@ -23,6 +23,8 @@ class HudManagerPatch
     private static TextMeshPro SettingsText;
     private static long LastNullError;
 
+    public static Color? CooldownTimerFlashColor = null;
+
     public static bool Prefix(HudManager __instance)
     {
         if (PlayerControl.LocalPlayer != null) return true;
@@ -254,9 +256,14 @@ class HudManagerPatch
                         ? string.Empty
                         : string.Format(GetString("CDPT"), CD.TOTALCD - (Utils.TimeStamp - CD.START_TIMESTAMP) + 1);
 
-                    if (CD_HUDText != string.Empty) LowerInfoText.text = $"{CD_HUDText}\n{LowerInfoText.text}";
+                    bool hasCD = CD_HUDText != string.Empty;
+                    if (hasCD)
+                    {
+                        if (CooldownTimerFlashColor.HasValue) CD_HUDText = $"<b>{Utils.ColorString(CooldownTimerFlashColor.Value, CD_HUDText.RemoveHtmlTags())}</b>";
+                        LowerInfoText.text = $"{CD_HUDText}\n{LowerInfoText.text}";
+                    }
 
-                    LowerInfoText.enabled = LowerInfoText.text != string.Empty;
+                    LowerInfoText.enabled = hasCD;
 
                     if ((!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay) || GameStates.IsMeeting)
                     {
