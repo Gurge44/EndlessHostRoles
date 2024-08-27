@@ -273,6 +273,7 @@ public enum CustomRoles
     Evolver,
     Executioner,
     Totocalcio, // Follower
+    Gaslighter,
     Glitch,
     God,
     FFF, // Hater
@@ -329,6 +330,7 @@ public enum CustomRoles
     DarkHide, // Stalker
     Succubus,
     Sunnyboy,
+    Technician,
     Tank,
     Terrorist,
     Tiger,

@@ -111,7 +111,7 @@ namespace EHR.Crewmate
                     }
                     else if (arTime >= FarseerRevealTime.GetFloat())
                     {
-                        if (UsePets.GetBool()) player.AddKCDAsAbilityCD();
+                        if (UsePets.GetBool() && UsePet.GetBool()) player.AddKCDAsAbilityCD();
                         else player.SetKillCooldown();
                         FarseerTimer.Remove(player.PlayerId);
                         IsRevealed[(player.PlayerId, arTarget.PlayerId)] = true;

@@ -31,6 +31,36 @@ namespace EHR
         }
 
         /// <summary>
+        /// Sets the value for all existing keys in a dictionary to a specific value
+        /// </summary>
+        /// <param name="dictionary"></param>
+        /// <param name="value"></param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        public static void SetAllValues<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TValue value)
+        {
+            foreach (TKey key in dictionary.Keys.ToArray())
+            {
+                dictionary[key] = value;
+            }
+        }
+
+        /// <summary>
+        /// Adjusts the value for all existing keys in a dictionary
+        /// </summary>
+        /// <param name="dictionary">The dictionary to adjust the values of</param>
+        /// <param name="adjust">The function to adjust the values with</param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        public static void AdjustAllValues<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Func<TValue, TValue> adjust)
+        {
+            foreach (TKey key in dictionary.Keys.ToArray())
+            {
+                dictionary[key] = adjust(dictionary[key]);
+            }
+        }
+
+        /// <summary>
         /// Returns a random element from a collection
         /// </summary>
         /// <param name="collection">The collection</param>

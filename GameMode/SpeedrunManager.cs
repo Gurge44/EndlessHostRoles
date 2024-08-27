@@ -125,7 +125,8 @@ namespace EHR
                 if (LastUpdate == now) return;
                 LastUpdate = now;
 
-                Timers.Keys.ToArray().Do(x => Timers[x]--);
+                //Timers.Keys.ToArray().Do(x => Timers[x]--);
+                Timers.AdjustAllValues(x => x - 1);
                 Utils.NotifyRoles();
             }
         }

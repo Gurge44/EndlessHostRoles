@@ -372,6 +372,7 @@ class CheckMurderPatch
             Medic.OnAnyoneCheckMurder(killer, target) ||
             Randomizer.IsShielded(target) ||
             Aid.ShieldedPlayers.ContainsKey(target.PlayerId) ||
+            !Gaslighter.IsShielded(target) ||
             !Grappler.OnAnyoneCheckMurder(target) ||
             !Adventurer.OnAnyoneCheckMurder(target) ||
             !Sentinel.OnAnyoneCheckMurder(killer) ||
@@ -510,7 +511,7 @@ class CheckMurderPatch
                 break;
         }
 
-        if (Main.ShieldPlayer != string.Empty && Main.ShieldPlayer == target.FriendCode && IsAllAlive)
+        if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode))
         {
             Main.ShieldPlayer = string.Empty;
             killer.SetKillCooldown(15f);
@@ -1658,6 +1659,7 @@ static class FixedUpdatePatch
                 if (BallLightning.IsGhost(target)) Mark.Append(ColorString(GetRoleColor(CustomRoles.BallLightning), "■"));
 
                 Mark.Append(Medic.GetMark(seer, target));
+                Mark.Append(Gaslighter.GetMark(seer, target));
                 Mark.Append(Snitch.GetWarningArrow(seer, target));
                 Mark.Append(Snitch.GetWarningMark(seer, target));
                 Mark.Append(Deathpact.GetDeathpactMark(seer, target));
@@ -1704,7 +1706,7 @@ static class FixedUpdatePatch
                 if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
                     Suffix.Append(SoloKombatManager.GetDisplayHealth(target));
 
-                if (MeetingStates.FirstMeeting && Main.FirstDied != string.Empty && Main.FirstDied == target.FriendCode && !self && Main.ShieldPlayer != string.Empty && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
+                if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
                     Suffix.Append(GetString("DiedR1Warning"));
 
                 // Devourer
@@ -1777,7 +1779,7 @@ static class FixedUpdatePatch
         }
     }
 
-    public static void LoversSuicide(byte deathId = 0x7f, bool exile = false, bool force = false)
+    public static void LoversSuicide(byte deathId = 0x7f, bool exile = false, bool force = false, bool guess = false)
     {
         if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || (!Main.LoversPlayers.Any(player => player.Data.IsDead && player.PlayerId == deathId) && !force)) return;
 
@@ -1791,7 +1793,7 @@ static class FixedUpdatePatch
             return;
         }
 
-        if (Lovers.LoverSuicideTime.GetValue() != 0 && !exile) return;
+        if (Lovers.LoverSuicideTime.GetValue() != 0 && !exile && !guess) return;
 
         if (exile) CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.FollowingSuicide, partnerPlayer.PlayerId);
         else partnerPlayer.Suicide(PlayerState.DeathReason.FollowingSuicide);

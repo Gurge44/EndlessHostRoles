@@ -503,11 +503,12 @@ static class CheckForEndVotingPatch
     {
         Witch.OnCheckForEndVoting(deathReason, playerIds);
         Virus.OnCheckForEndVoting(deathReason, playerIds);
+        if (deathReason == PlayerState.DeathReason.Vote) Gaslighter.OnExile(playerIds);
         foreach (var playerId in playerIds)
         {
             var id = playerId;
             if (CustomRoles.Lovers.IsEnable() && !Main.IsLoversDead && Main.LoversPlayers.Any(lp => lp.PlayerId == id))
-                FixedUpdatePatch.LoversSuicide(playerId, true, true);
+                FixedUpdatePatch.LoversSuicide(playerId, exile: true, force: true);
             if (Main.PlayerStates.TryGetValue(id, out var state) && state.SubRoles.Contains(CustomRoles.Avanger))
                 RevengeOnExile(playerId /*, deathReason*/);
         }

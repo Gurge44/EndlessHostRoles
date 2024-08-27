@@ -191,6 +191,9 @@ public class Amnesiac : RoleBase
         target.RpcGuardAndKill(amnesiac);
         target.RpcGuardAndKill(target);
 
+        if (role.IsRecruitingRole())
+            amnesiac.SetAbilityUseLimit(0);
+
         if (role.GetRoleTypes() == RoleTypes.Engineer)
             WasAmnesiac.Add(amnesiac.PlayerId);
     }

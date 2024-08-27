@@ -111,6 +111,12 @@ public class Witch : RoleBase
         }
     }
 
+    public override void OnPet(PlayerControl pc)
+    {
+        if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger) return;
+        SwitchMode(pc.PlayerId);
+    }
+
     void SwitchSpellMode(byte playerId, bool kill)
     {
         bool needSwitch = NowSwitchTrigger switch
@@ -121,11 +127,16 @@ public class Witch : RoleBase
         };
         if (needSwitch)
         {
-            SpellMode = !SpellMode;
-            SendRPC(false, playerId);
-            var pc = Utils.GetPlayerById(playerId);
-            Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            SwitchMode(playerId);
         }
+    }
+
+    void SwitchMode(byte playerId)
+    {
+        SpellMode = !SpellMode;
+        SendRPC(false, playerId);
+        var pc = Utils.GetPlayerById(playerId);
+        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
     bool IsSpelled(byte target) => SpelledPlayer.Contains(target);

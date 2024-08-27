@@ -6,6 +6,7 @@ using System.Text;
 using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
+using EHR.GameMode.HideAndSeekRoles;
 using EHR.Neutral;
 
 
@@ -80,7 +81,7 @@ namespace EHR
         {
             if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && HnSManager.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
             {
-                int time = GameMode.HideAndSeekRoles.Hider.TimeDecreaseOnTaskComplete.GetInt();
+                int time = Hider.TimeDecreaseOnTaskComplete.GetInt();
                 HnSManager.TimeLeft -= time;
                 pc.Notify(Translator.GetString("TimeDecreased"));
                 if (60 - (HnSManager.TimeLeft % 60) <= time) Utils.NotifyRoles();
@@ -203,33 +204,23 @@ namespace EHR
     public class OptionSetupHandler(int id, TabGroup tab, CustomRoles role)
     {
         private readonly OptionItem Parent = Options.CustomRoleSpawnChances[role];
+        private int _id = id;
 
         public OptionSetupHandler AutoSetupOption(ref OptionItem field, object defaultValue, object valueRule = null, OptionFormat format = OptionFormat.None, [CallerArgumentExpression("field")] string fieldName = "", string overrideName = "", OptionItem overrideParent = null, bool noTranslation = false)
         {
             try
             {
                 var name = overrideName == "" ? IsGeneralOption() ? fieldName : $"{role}.{fieldName}" : overrideName;
-                switch (valueRule, defaultValue)
+                field = (valueRule, defaultValue) switch
                 {
-                    case (null, bool bdv):
-                        field = new BooleanOptionItem(++id, name, bdv, tab);
-                        field.SetParent(overrideParent ?? Parent);
-                        break;
-                    case (IntegerValueRule ivr, int idv):
-                        field = new IntegerOptionItem(++id, name, ivr, idv, tab);
-                        field.SetParent(overrideParent ?? Parent);
-                        break;
-                    case (FloatValueRule fvr, float fdv):
-                        field = new FloatOptionItem(++id, name, fvr, fdv, tab);
-                        field.SetParent(overrideParent ?? Parent);
-                        break;
-                    case (IList<string> selections, int index):
-                        field = new StringOptionItem(++id, name, selections, index, tab, noTranslation: noTranslation);
-                        field.SetParent(overrideParent ?? Parent);
-                        break;
-                    default:
-                        throw new ArgumentException("The valueRule and defaultValue combination is not supported.");
-                }
+                    (null, bool bdv) => new BooleanOptionItem(++_id, name, bdv, tab),
+                    (IntegerValueRule ivr, int idv) => new IntegerOptionItem(++_id, name, ivr, idv, tab),
+                    (FloatValueRule fvr, float fdv) => new FloatOptionItem(++_id, name, fvr, fdv, tab),
+                    (IList<string> selections, int index) => new StringOptionItem(++_id, name, selections, index, tab, noTranslation: noTranslation),
+                    _ => throw new ArgumentException("The valueRule and defaultValue combination is not supported.")
+                };
+
+                field.SetParent(overrideParent ?? Parent);
 
                 if (format != OptionFormat.None) field?.SetValueFormat(format);
             }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -24,6 +25,7 @@ public class SabotageMaster : RoleBase
     public static OptionItem UsesUsedWhenFixingLightsOrComms;
 
     private static bool DoorsProgressing;
+    private bool fixedSabotage;
     private byte SMId;
 
     public float UsedSkillCount;
@@ -97,106 +99,156 @@ public class SabotageMaster : RoleBase
         sm.UsedSkillCount = reader.ReadSingle();
     }
 
-    public static void RepairSystem(byte playerId, ShipStatus __instance, SystemTypes systemType, byte amount)
+    public static void RepairSystem(byte playerId, SystemTypes systemType, byte amount)
     {
         if (Main.PlayerStates[playerId].Role is not SabotageMaster sm) return;
 
         switch (systemType)
         {
             case SystemTypes.Reactor:
-                if (!FixesReactors.GetBool()) break;
-                if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
-                if (amount is 64 or 65)
-                {
-                    ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Reactor, 16);
-                    ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Reactor, 17);
-                    sm.UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
-                    sm.SendRPC();
-                }
-
-                break;
             case SystemTypes.Laboratory:
+            {
                 if (!FixesReactors.GetBool()) break;
                 if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
-                if (amount is 64 or 65)
+                if (amount.HasAnyBit(ReactorSystemType.AddUserOp))
                 {
-                    ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Laboratory, 67);
-                    ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Laboratory, 66);
+                    ShipStatus.Instance.UpdateSystem((MapNames)Main.NormalOptions.MapId == MapNames.Polus ? SystemTypes.Laboratory : SystemTypes.Reactor, playerId.GetPlayer(), ReactorSystemType.ClearCountdown);
                     sm.UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
                     sm.SendRPC();
                 }
 
                 break;
+            }
+            case SystemTypes.HeliSabotage:
+            {
+                if (!FixesReactors.GetBool()) break;
+                if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
+
+                var tags = (HeliSabotageSystem.Tags)(amount & HeliSabotageSystem.TagMask);
+                if (tags == HeliSabotageSystem.Tags.ActiveBit)
+                {
+                    sm.fixedSabotage = false;
+                }
+
+                if (!sm.fixedSabotage && tags == HeliSabotageSystem.Tags.FixBit)
+                {
+                    sm.fixedSabotage = true;
+                    var consoleId = amount & HeliSabotageSystem.IdMask;
+                    var otherConsoleId = (consoleId + 1) % 2;
+                    ShipStatus.Instance.UpdateSystem(SystemTypes.HeliSabotage, playerId.GetPlayer(), (byte)(otherConsoleId | (int)HeliSabotageSystem.Tags.FixBit));
+                    sm.UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
+                    sm.SendRPC();
+                }
+
+                break;
+            }
             case SystemTypes.LifeSupp:
+            {
                 if (!FixesOxygens.GetBool()) break;
                 if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
-                if (amount is 64 or 65)
+                if (amount.HasAnyBit(LifeSuppSystemType.AddUserOp))
                 {
-                    ShipStatus.Instance.RpcUpdateSystem(SystemTypes.LifeSupp, 67);
-                    ShipStatus.Instance.RpcUpdateSystem(SystemTypes.LifeSupp, 66);
+                    ShipStatus.Instance.UpdateSystem(SystemTypes.LifeSupp, playerId.GetPlayer(), LifeSuppSystemType.ClearCountdown);
                     sm.UsedSkillCount += UsesUsedWhenFixingReactorOrO2.GetFloat();
                     sm.SendRPC();
                 }
 
                 break;
-            case SystemTypes.Comms:
+            }
+            case SystemTypes.Comms when Main.CurrentMap == MapNames.Mira:
+            {
                 if (!FixesComms.GetBool()) break;
                 if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingLightsOrComms.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
-                if (amount is 64 or 65)
+
+                var tags = (HqHudSystemType.Tags)(amount & HqHudSystemType.TagMask);
+                if (tags == HqHudSystemType.Tags.ActiveBit)
                 {
-                    ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Comms, 16);
-                    ShipStatus.Instance.RpcUpdateSystem(SystemTypes.Comms, 17);
+                    sm.fixedSabotage = false;
+                }
+
+                if (!sm.fixedSabotage && tags == HqHudSystemType.Tags.FixBit)
+                {
+                    sm.fixedSabotage = true;
+                    var consoleId = amount & HqHudSystemType.IdMask;
+                    var otherConsoleId = (consoleId + 1) % 2;
+                    ShipStatus.Instance.UpdateSystem(SystemTypes.Comms, playerId.GetPlayer(), (byte)(otherConsoleId | (int)HqHudSystemType.Tags.FixBit));
                     sm.UsedSkillCount += UsesUsedWhenFixingLightsOrComms.GetFloat();
                     sm.SendRPC();
                 }
 
                 break;
+            }
             case SystemTypes.Doors:
+            {
                 if (!FixesDoors.GetBool()) break;
                 if (DoorsProgressing) break;
 
                 int mapId = Main.NormalOptions.MapId;
                 if (AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay) mapId = AmongUsClient.Instance.TutorialMapId;
+                var shipStatus = ShipStatus.Instance;
 
                 DoorsProgressing = true;
                 switch (mapId)
                 {
-                    case 2:
-                        //Polus
-                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 71, 72);
-                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 67, 68);
-                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 64, 66);
-                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 73, 74);
+                    case 2: // Polus
+                    {
+                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 71, 72);
+                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 67, 68);
+                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 64, 66);
+                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 73, 74);
                         break;
-                    case 4:
-                        //Airship
-                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 64, 67);
-                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 71, 73);
-                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 74, 75);
-                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 76, 78);
-                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 68, 70);
-                        RepairSystemPatch.CheckAndOpenDoorsRange(__instance, amount, 83, 84);
+                    }
+                    case 4: // Airship
+                    {
+                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 64, 67);
+                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 71, 73);
+                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 74, 75);
+                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 76, 78);
+                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 68, 70);
+                        RepairSystemPatch.CheckAndOpenDoorsRange(shipStatus, amount, 83, 84);
                         break;
+                    }
+                    case 5: // Fungle
+                    {
+                        var openedDoorId = amount & DoorsSystemType.IdMask;
+                        var openedDoor = shipStatus.AllDoors.FirstOrDefault(door => door.Id == openedDoorId);
+                        if (openedDoor == null)
+                        {
+                            Logger.Warn($"An unknown door has been opened: {openedDoorId}", nameof(SabotageMaster));
+                        }
+                        else
+                        {
+                            var room = openedDoor.Room;
+                            foreach (var door in shipStatus.AllDoors)
+                            {
+                                if (door.Id != openedDoorId && door.Room == room)
+                                {
+                                    door.SetDoorway(true);
+                                }
+                            }
+                        }
+
+                        break;
+                    }
                 }
 
                 DoorsProgressing = false;
                 break;
+            }
         }
     }
 
-    public static void SwitchSystemRepair(byte playerId, SwitchSystem __instance, byte amount)
+    public static void SwitchSystemRepair(byte playerId, SwitchSystem switchSystem, byte amount)
     {
         if (!FixesElectrical.GetBool() || Main.PlayerStates[playerId].Role is not SabotageMaster sm) return;
-        if (SkillLimit.GetFloat() > 0 &&
-            sm.UsedSkillCount + UsesUsedWhenFixingLightsOrComms.GetFloat() - 1 >= SkillLimit.GetFloat())
-            return;
+        if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingLightsOrComms.GetFloat() - 1 >= SkillLimit.GetFloat()) return;
 
-        if (amount <= 4)
-        {
-            __instance.ActualSwitches = 0;
-            __instance.ExpectedSwitches = 0;
-            sm.UsedSkillCount += UsesUsedWhenFixingLightsOrComms.GetFloat();
-            sm.SendRPC();
-        }
+        if (amount.HasBit(SwitchSystem.DamageSystem)) return;
+
+        var fixbit = 1 << amount;
+        switchSystem.ActualSwitches = (byte)(switchSystem.ExpectedSwitches ^ fixbit);
+
+        sm.UsedSkillCount += UsesUsedWhenFixingLightsOrComms.GetFloat();
+        sm.SendRPC();
     }
 }

@@ -689,7 +689,9 @@ public static class Utils
             case CustomRoles.Postman:
             case CustomRoles.SchrodingersCat:
             case CustomRoles.Shifter:
+            case CustomRoles.Technician:
             case CustomRoles.Tank:
+            case CustomRoles.Gaslighter:
             case CustomRoles.Impartial:
             case CustomRoles.Backstabber:
             case CustomRoles.Predator:
@@ -1873,6 +1875,7 @@ public static class Utils
                     if (Main.LoversPlayers.Any(x => x.PlayerId == seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), " ♥"));
                     if (BallLightning.IsGhost(seer)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.BallLightning), "■"));
                     SelfMark.Append(Medic.GetMark(seer, seer));
+                    SelfMark.Append(Gaslighter.GetMark(seer, seer));
                     SelfMark.Append(Gamer.TargetMark(seer, seer));
                     SelfMark.Append(Sniper.GetShotNotify(seer.PlayerId));
                     if (Silencer.ForSilencer.Contains(seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Silencer), "╳"));
@@ -2262,6 +2265,7 @@ public static class Utils
                             TargetMark.Append(Executioner.TargetMark(seer, target));
                             TargetMark.Append(Gamer.TargetMark(seer, target));
                             TargetMark.Append(Medic.GetMark(seer, target));
+                            TargetMark.Append(Gaslighter.GetMark(seer, target));
                             TargetMark.Append(Totocalcio.TargetMark(seer, target));
                             TargetMark.Append(Romantic.TargetMark(seer, target));
                             TargetMark.Append(Lawyer.LawyerMark(seer, target));
@@ -2289,7 +2293,7 @@ public static class Utils
 
                                 Main.PlayerStates.Values.Do(x => TargetSuffix.Append(x.Role.GetSuffix(seer, target, isMeeting: isForMeeting)));
 
-                                if (MeetingStates.FirstMeeting && Main.FirstDied != string.Empty && Main.FirstDied == target.FriendCode && Main.ShieldPlayer != string.Empty && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
+                                if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
                                     TargetSuffix.Append(GetString("DiedR1Warning"));
 
                                 TargetSuffix.Append(AFKDetector.GetSuffix(seer, target));
@@ -2577,25 +2581,15 @@ public static class Utils
 
         if (Options.DiseasedCDReset.GetBool())
         {
-            var array = Main.KilledDiseased.Keys.ToArray();
-            foreach (var pid in array)
-            {
-                Main.KilledDiseased[pid] = 0;
-                GetPlayerById(pid)?.ResetKillCooldown();
-            }
-
+            Main.KilledDiseased.SetAllValues(0);
+            Main.KilledDiseased.Keys.Select(x => x.GetPlayer()).Do(x => x?.ResetKillCooldown());
             Main.KilledDiseased.Clear();
         }
 
         if (Options.AntidoteCDReset.GetBool())
         {
-            var array = Main.KilledAntidote.Keys.ToArray();
-            foreach (var pid in array)
-            {
-                Main.KilledAntidote[pid] = 0;
-                GetPlayerById(pid)?.ResetKillCooldown();
-            }
-
+            Main.KilledAntidote.SetAllValues(0);
+            Main.KilledAntidote.Keys.Select(x => x.GetPlayer()).Do(x => x?.ResetKillCooldown());
             Main.KilledAntidote.Clear();
         }
 
@@ -2717,7 +2711,7 @@ public static class Utils
 
             if (QuizMaster.On) QuizMaster.Data.NumPlayersDeadThisRound++;
 
-            FixedUpdatePatch.LoversSuicide(target.PlayerId, onMeeting);
+            FixedUpdatePatch.LoversSuicide(target.PlayerId, guess: onMeeting);
             if (!target.HasGhostRole())
             {
                 Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);

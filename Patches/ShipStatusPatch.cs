@@ -96,11 +96,15 @@ class RepairSystemPatch
         switch (player.GetCustomRole())
         {
             case CustomRoles.SabotageMaster:
-                SabotageMaster.RepairSystem(player.PlayerId, __instance, systemType, amount);
+                SabotageMaster.RepairSystem(player.PlayerId, systemType, amount);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 break;
             case CustomRoles.Alchemist when Main.PlayerStates[player.PlayerId].Role is Alchemist { IsEnable: true, FixNextSabo: true }:
                 Alchemist.RepairSystem(player, systemType, amount);
+                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                break;
+            case CustomRoles.Technician:
+                Technician.RepairSystem(player.PlayerId, systemType, amount);
                 Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 break;
         }
@@ -170,30 +174,44 @@ class RepairSystemPatch
         switch (systemType)
         {
             case SystemTypes.Electrical when amount <= 4:
+            {
                 var SwitchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.Cast<SwitchSystem>();
                 if (SwitchSystem is { IsActive: true })
                 {
                     switch (Main.PlayerStates[player.PlayerId].Role)
                     {
                         case SabotageMaster:
+                        {
                             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
                             SabotageMaster.SwitchSystemRepair(player.PlayerId, SwitchSystem, amount);
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;
+                        }
                         case Alchemist { FixNextSabo: true } am:
+                        {
                             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
                             SwitchSystem.ActualSwitches = 0;
                             SwitchSystem.ExpectedSwitches = 0;
                             am.FixNextSabo = false;
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;
+                        }
                         case Adventurer av:
+                        {
                             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
                             SwitchSystem.ActualSwitches = 0;
                             SwitchSystem.ExpectedSwitches = 0;
                             av.OnLightsFix();
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                             break;
+                        }
+                        case Technician:
+                        {
+                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
+                            Technician.SwitchSystemRepair(player.PlayerId, SwitchSystem, amount);
+                            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                            break;
+                        }
                     }
 
                     if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage(player.PlayerId);
@@ -201,16 +219,19 @@ class RepairSystemPatch
                 }
 
                 break;
+            }
             case SystemTypes.Reactor:
             case SystemTypes.LifeSupp:
             case SystemTypes.Comms:
             case SystemTypes.Laboratory:
             case SystemTypes.HeliSabotage:
             case SystemTypes.Electrical:
+            {
                 if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage(player.PlayerId);
                 if (player.Is(CustomRoles.Stressed) && Stressed.countRepairSabotage) Stressed.OnRepairSabotage(player);
                 if (Main.PlayerStates[player.PlayerId].Role is Rogue rg) rg.OnFixSabotage();
                 break;
+            }
         }
     }
 
