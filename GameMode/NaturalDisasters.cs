@@ -116,6 +116,12 @@ namespace EHR
             MapBounds = ((x.Min() - extend, x.Max() + extend), (y.Min() - extend, y.Max() + extend));
 
             GameStartTimeStamp = Utils.TimeStamp + 8;
+
+            LateTask.New(() =>
+            {
+                Main.AllPlayerSpeed = Main.PlayerStates.Keys.ToDictionary(k => k, _ => Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+                Utils.SyncAllSettings();
+            }, 11f, log: false);
         }
 
         public static void ApplyGameOptions(IGameOptions opt, byte id)
@@ -190,7 +196,7 @@ namespace EHR
             [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void Postfix(PlayerControl __instance)
             {
-                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.NaturalDisasters || Main.HasJustStarted || !__instance.IsHost()) return;
+                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.NaturalDisasters || Main.HasJustStarted || GameStartTimeStamp + 5 > Utils.TimeStamp || !__instance.IsHost()) return;
 
                 foreach (NaturalDisaster naturalDisaster in PreparingDisasters.ToArray())
                 {

@@ -201,6 +201,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | /ban      | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
 | /say      | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
 | /poll     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
+| /mute     | :x:             | :x:                | :heavy_check_mark: | :heavy_check_mark: |
 | Lobby tag | :x:             | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark: |
 
 <br>
@@ -224,111 +225,29 @@ Source language: English
 
 <br>
 
-## Main Features
+## Should I switch from TOHE to EHR?
 
-- Note: The goal with this branch is to improve the existing stuff over adding new roles. If some of the stuff you see
-  below are in other mods, they were originally coded by me.
+- In comparison, both mods are great, but EHR has more roles, features, game modes, and settings.
+- Moreover, EHR contains almost all the roles from TOHE, so you won't be missing out on anything.
+- Some roles were deleted or reworked to make them more balanced or to make them fit better with the new roles.
+- If you switch to EHR, you will have access to all features without paying for anything.
+- Test builds are available for free in our Discord server, and you can report bugs and suggest features there as well.
+- /up was reworked to /setrole, allowing you to set anyone's role for the next game, not only yours.
+- You can gain access to /setrole by just hosting EHR lobbies weekly or uploading EHR content to YouTube.
+- EHR has a custom team assigner application, which is a unique feature that no other mod has.
+- You can force or ban certain role/add-on combinations directly in the game using /combo.
+- Not sure how to use commands? Use /help to see a list of all available commands.
+- EHR helps the host use commands by directly displaying their short descriptions, arguments, descriptions for all
+  arguments, and checking whether an argument is valid or not.
+- You can also press TAB to autocomplete commands.
+- Some hints and tips are displayed during the loading screen and ejection animations, which can help you discover new
+  features.
+- I, the main developer of EHR, care about user feedback and suggestions, and I try to implement them as much as
+  possible.
+- If this wasn't convincing enough, you can always try EHR and see if you like it better than TOHE.
+- In the end, it's your choice, and I respect it.
 
-### Most Popular Game Mode
-
-- A brand-new official gamemode, Basic FFA (Free For All)
-- This mode makes everyone a killer and the last player alive wins
-- Features: Random events, ranks and scoring, random ability gain for every kill, game timer, scoreboard (task list),
-  unique end screen, fully customizable
-
-### Overall improvements compared to other mods
-
-- Role spawn chances are in percentages
-- Gain more ability uses for completing tasks as crewmate roles
-- Gain more ability uses for getting kills as impostor roles
-- Most shapeshifting roles that only used shapeshifting as an ability trigger or a target selector now don't actually
-  shapeshift with the egg animation, it's automatically canceled
-- Prevent kills while shifted when no ability uses are left for some roles (Sniper, Twister, Disperser, Hangman,
-  Camouflager, etc.)
-- Code cleanup and major performance improvement
-- Improved EAC
-- Better intro sounds
-- Better custom button images
-- Better progress text look
-- Visualized cooldowns for more roles
-- Disabled most shield animations for modded clients for a better experience, and even some for vanilla clients (all
-  cooldowns are still reset properly, this is just a visual improvement)
-- Shapeshift and vent cooldowns are now always reset after meetings
-- Custom main menu
-- Improved strings and their appearance
-- More customizable settings; More reasonable default settings
-- Starting Kill Cooldown setting
-- Better confirm ejections text
-- Brand-new HUD text
-- Better role summary
-- Option to use Pet button instead of Vent, Shapeshift or Sabotage (assigns the Pusheen pet to everyone at the start of
-  the game)
-- Smaller mod version text and smaller credentials text (imo it was annoying that it covered a quarter of the screen)
-- Players have their name displayed with their color on the ejection screen
-- How many killers remain after each ejection (even if no one was ejected, like it was a skip or a tie) is displayed
-  below everyone's name
-- You can chat during the game if the game mode is FFA
-- Simplified and shortened role descriptions
-- Loading animation
-- Set anyone's role for the next game using `/setrole [player ID] [role name]` (replaces /up)
-
-### Role specific Improvements
-
-#### Crewmates
-
-- Chameleon uses vanilla engineer cooldown
-- The target of the Deputy no longer gets a shield animation on top of the Deputy
-- Fortune Teller: Setting whether it shows specific roles after completing tasks
-- Merchant: Option to sell Balanced add-ons (based on my opinion)
-- Mortician: Setting whether it has arrows toward dead bodies
-- Oracle: Chance to show incorrect results
-- Mechanic: Settings that determine how many uses it takes to fix Lights/Comms and Reactor/O2
-- Sheriff: Setting whether to display the shot limit next to the role name
-- Tracefinder: Settings that determine the delay in which the arrows show up
-- Bodyguard: Setting whether the murderer dies when the bodyguard protects the target
-- Monarch: Can be guessed, just not by Knighted players
-
-#### Impostors
-
-- Ninja: Kill Cooldown no longer resets when unshifting
-- Bounty Hunter: Target's name is displayed in black for the Bounty Hunter; Swap Timer is displayed next to the role
-  name, not on the Shapeshift button => Changed the basis to regular Impostor
-- Eraser: Erase by Voting or by Kill Button & What to do when target is neutral
-- Hangman: Kill Cooldown after strangling
-- Mare (add-on): Can kill at all times, but if lights are not out, the kill cooldown is higher
-- Quick Shooter now works correctly
-- Serial Killer: Suicide Timer is displayed next to the role name, not on the Shapeshift button => Changed the basis to
-  regular Impostor; Setting whether the Suicide Timer only starts after their first kill
-- Swooper: Setting whether it can vent normally when swooping is on cooldown; Swoop Cooldown is visualized next to the
-  role name
-- Wildling: Setting whether the role can Shapeshift or not; Setting whether the role can Vent or not
-- Underdog: Can kill at all times, but if the number of players alive is higher than the set amount, the kill cooldown
-  is higher
-- Miner: Shapeshift Cooldown and Shapeshift Duration setting
-- Escapist: Shapeshift Cooldown and Shapeshift Duration setting
-- Cleaner: Can only clean bodies if their kill cooldown is up
-- Vampire: Kill Cooldown is reset when the bitten target dies
-- Capitalist: Can kill normally with the double click method (& + Kill Cooldown setting)
-- Killing Machine: Has impostor vision
-- Puppeteer: Added a lot of settings
-
-#### Neutrals
-
-- Medusa: Can only clean bodies if their kill cooldown is up
-- Wraith: Setting whether it can vent normally when invis is on cooldown; Invis Cooldown is visualized next to the role
-  name
-- Poisoner: Kill Cooldown is reset when the poisoned target dies
-- Glitch is now The Glitch from TOU-R, it was completely rewritten, and I worked really hard on it
-- Provocateur: No longer suicides after selecting a target
-- Pursuer: Target doesn't die when trying to use their kill button, they'll just have their kill cooldown reset
-
-### To see the full list of unique roles and their descriptions, visit our website: [EHR](https://sites.google.com/view/ehr-au)
-
-## Note:
-
-- You can use parts of the code in here, but if you do, you'll have to credit me (Gurge44) or the mod by mentioning its
-  name (EHR) and providing a link to this GitHub page. (Or leaving the in-game credits as they are is also fine!)
-- To play the mod, use the given dll in the release section.
+#### There are more game changing features, which you can find on our website: [EHR](https://sites.google.com/view/ehr-au)
 
 <br>
 
