@@ -16,7 +16,7 @@ namespace EHR.Crewmate
     {
         private const int Id = 9700;
 
-        private const string FontSize = "1.6";
+        private const string FontSize = "1.7";
         public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> FarseerTimer = [];
         public static Dictionary<(byte, byte), bool> IsRevealed = [];
 
