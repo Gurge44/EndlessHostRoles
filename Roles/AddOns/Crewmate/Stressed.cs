@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using EHR.Modules;
 using Hazel;
 using static EHR.Options;
@@ -205,10 +204,7 @@ namespace EHR.AddOns.Crewmate
         private static void AdjustTime(int change)
         {
             if (!IsEnable) return;
-            foreach (var x in Timers.Keys.ToArray())
-            {
-                Timers[x] += change;
-            }
+            Timers.AdjustAllValues(x => x + change);
         }
     }
 }

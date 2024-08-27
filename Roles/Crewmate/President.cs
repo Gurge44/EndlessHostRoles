@@ -66,13 +66,13 @@ namespace EHR.Crewmate
                 switch (decree)
                 {
                     case Decree.Reveal:
-                        DecreeSettings[decree].AddRange(new[]
-                        {
+                        DecreeSettings[decree].AddRange(
+                        [
                             new BooleanOptionItem(++id, "President.Reveal.CanBeConvertedAfterRevealing", false, tab)
                                 .SetParent(DecreeSettings[decree][0]),
                             new BooleanOptionItem(++id, "President.Reveal.ConvertedPresidentCanReveal", false, tab)
                                 .SetParent(DecreeSettings[decree][0])
-                        });
+                        ]);
                         break;
                     case Decree.GovernmentRecruiting:
                         DecreeSettings[decree].Add(new StringOptionItem(++id, "President.GovernmentRecruiting.RecruitedRole", GovernmentRecruitRoles.Select(x => x.ToColoredString()).ToArray(), 0, tab, noTranslation: true)
@@ -145,8 +145,9 @@ namespace EHR.Crewmate
             {
                 case Decree.Reveal:
                     if (!DecreeSettings[decree][1].GetBool()) pc.RpcSetCustomRole(CustomRoles.Loyal);
-                    if (!DecreeSettings[decree][2].GetBool() && pc.GetCustomSubRoles().Any(x => x.IsConverted())) return;
+                    if (!DecreeSettings[decree][2].GetBool() && pc.IsConverted() || pc.Is(CustomRoles.Bloodlust)) return;
                     Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")));
+                    Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.RevealMessage"), pc.PlayerId.ColoredPlayerName()));
                     break;
                 case Decree.Finish:
                     MeetingHud.Instance?.RpcClose();

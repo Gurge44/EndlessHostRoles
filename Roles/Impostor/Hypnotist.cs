@@ -15,6 +15,7 @@ namespace EHR.Impostor
         public static OptionItem AbilityDuration;
         public static OptionItem AbilityUseLimit;
         public static OptionItem AbilityUseGainWithEachKill;
+        private static OptionItem DoReportAfterHypnosisEnds;
 
         private long ActivateTS;
         private int Count;
@@ -28,7 +29,8 @@ namespace EHR.Impostor
                 .AutoSetupOption(ref AbilityCooldown, 30, new IntegerValueRule(0, 60, 1), OptionFormat.Seconds)
                 .AutoSetupOption(ref AbilityDuration, 15, new IntegerValueRule(0, 30, 1), OptionFormat.Seconds)
                 .AutoSetupOption(ref AbilityUseLimit, 1, new IntegerValueRule(0, 5, 1), OptionFormat.Times)
-                .AutoSetupOption(ref AbilityUseGainWithEachKill, 0.5f, new FloatValueRule(0f, 5f, 0.1f), OptionFormat.Times);
+                .AutoSetupOption(ref AbilityUseGainWithEachKill, 0.5f, new FloatValueRule(0f, 5f, 0.1f), OptionFormat.Times)
+                .AutoSetupOption(ref DoReportAfterHypnosisEnds, true);
         }
 
         public override void Init()
@@ -67,6 +69,8 @@ namespace EHR.Impostor
             ActivateTS = Utils.TimeStamp;
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             Utils.SendRPC(CustomRPC.SyncRoleData, HypnotistId, ActivateTS);
+
+            if (DoReportAfterHypnosisEnds.GetBool()) ReportDeadBodyPatch.CanReport.SetAllValues(false);
         }
 
         public override void OnFixedUpdate(PlayerControl pc)
@@ -78,6 +82,7 @@ namespace EHR.Impostor
                 ActivateTS = 0;
                 notify = true;
                 pc.RpcResetAbilityCooldown();
+                if (DoReportAfterHypnosisEnds.GetBool()) ReportDeadBodyPatch.CanReport.SetAllValues(true);
             }
             else if (ActivateTS != 0 && Count++ >= 30 && timeLeft <= 6)
             {

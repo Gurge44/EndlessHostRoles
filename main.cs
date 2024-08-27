@@ -31,8 +31,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "4.5.55";
-    public const string PluginDisplayVersion = "4.5.55";
+    public const string PluginVersion = "4.6.0";
+    public const string PluginDisplayVersion = "4.6.0";
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
     public const string CrewmateColor = "#8cffff";
@@ -496,7 +496,9 @@ public class Main : BasePlugin
                 { CustomRoles.SchrodingersCat, "#616161" },
                 { CustomRoles.Shifter, "#777777" },
                 { CustomRoles.Impartial, "#4287f5" },
+                { CustomRoles.Gaslighter, "#b6aa82" },
                 { CustomRoles.Tank, "#176320" },
+                { CustomRoles.Technician, "#4e96f5" },
                 { CustomRoles.Backstabber, "#fcba03" },
                 { CustomRoles.Predator, "#c73906" },
                 { CustomRoles.Reckless, "#6e000d" },
@@ -661,7 +663,6 @@ public class Main : BasePlugin
         }
 
         CustomWinnerHolder.Reset();
-        ServerAddManager.Init();
         Translator.Init();
         BanManager.Init();
         TemplateManager.Init();
@@ -779,6 +780,7 @@ public enum CustomWinner
     Executioner = CustomRoles.Executioner,
     Arsonist = CustomRoles.Arsonist,
     Revolutionist = CustomRoles.Revolutionist,
+    Technician = CustomRoles.Technician,
     Jackal = CustomRoles.Jackal,
     God = CustomRoles.God,
     Mario = CustomRoles.Mario,
@@ -874,7 +876,9 @@ public enum AdditionalWinners
     Maverick = CustomRoles.Maverick,
     Postman = CustomRoles.Postman,
     Impartial = CustomRoles.Impartial,
+    Gaslighter = CustomRoles.Gaslighter,
     Tank = CustomRoles.Tank,
+    Technician = CustomRoles.Technician,
     Backstabber = CustomRoles.Backstabber,
     Predator = CustomRoles.Predator,
     SoulHunter = CustomRoles.SoulHunter,

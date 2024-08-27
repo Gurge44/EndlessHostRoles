@@ -25,6 +25,7 @@ public class Romantic : RoleBase
     private static OptionItem ProtectDuration;
     private static OptionItem KnowTargetRole;
     private static OptionItem BetTargetKnowRomantic;
+    private static OptionItem RomanticGetsPartnerConvertedAddons;
     private static OptionItem Arrows;
     private static OptionItem PartnerHasArrows;
     public static OptionItem VengefulKCD;
@@ -63,23 +64,25 @@ public class Romantic : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
         BetTargetKnowRomantic = new BooleanOptionItem(Id + 14, "RomanticBetTargetKnowRomantic", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        Arrows = new BooleanOptionItem(Id + 15, "RomanticArrows", true, TabGroup.NeutralRoles)
+        RomanticGetsPartnerConvertedAddons = new BooleanOptionItem(Id + 15, "RomanticGetsPartnerConvertedAddons", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        PartnerHasArrows = new BooleanOptionItem(Id + 16, "RomanticPartnerHasArrows", true, TabGroup.NeutralRoles)
+        Arrows = new BooleanOptionItem(Id + 16, "RomanticArrows", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        VengefulKCD = new FloatOptionItem(Id + 17, "VengefulKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles)
+        PartnerHasArrows = new BooleanOptionItem(Id + 17, "RomanticPartnerHasArrows", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+        VengefulKCD = new FloatOptionItem(Id + 18, "VengefulKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
-        VengefulCanVent = new BooleanOptionItem(Id + 18, "VengefulCanVent", true, TabGroup.NeutralRoles)
+        VengefulCanVent = new BooleanOptionItem(Id + 19, "VengefulCanVent", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        VengefulHasImpVision = new BooleanOptionItem(Id + 19, "VengefulHasImpVision", true, TabGroup.NeutralRoles)
+        VengefulHasImpVision = new BooleanOptionItem(Id + 20, "VengefulHasImpVision", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        RuthlessKCD = new FloatOptionItem(Id + 20, "RuthlessKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles)
+        RuthlessKCD = new FloatOptionItem(Id + 21, "RuthlessKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
-        RuthlessCanVent = new BooleanOptionItem(Id + 21, "RuthlessCanVent", true, TabGroup.NeutralRoles)
+        RuthlessCanVent = new BooleanOptionItem(Id + 22, "RuthlessCanVent", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        RuthlessHasImpVision = new BooleanOptionItem(Id + 22, "RuthlessHasImpVision", true, TabGroup.NeutralRoles)
+        RuthlessHasImpVision = new BooleanOptionItem(Id + 23, "RuthlessHasImpVision", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
     }
 
@@ -150,13 +153,16 @@ public class Romantic : RoleBase
             RomanticPC.Notify(GetString("RomanticBetPlayer"));
             if (BetTargetKnowRomantic.GetBool()) target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), GetString("RomanticBetOnYou")));
 
+            if (RomanticGetsPartnerConvertedAddons.GetBool() && Partner.IsConverted())
+                Partner.GetCustomSubRoles().DoIf(x => x.IsConverted() && !Partner.Is(x), x => RomanticPC.RpcSetCustomRole(x));
+
             if (Arrows.GetBool())
             {
                 TargetArrow.Add(RomanticId, PartnerId);
                 if (PartnerHasArrows.GetBool() && BetTargetKnowRomantic.GetBool()) TargetArrow.Add(PartnerId, RomanticId);
             }
 
-            Logger.Info($"Partner picked： {RomanticPC.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Romantic");
+            Logger.Info($"Partner picked: {RomanticPC.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Romantic");
         }
         else if (!IsPartnerProtected)
         {

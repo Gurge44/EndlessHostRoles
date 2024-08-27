@@ -1,6 +1,4 @@
-﻿using EHR.Modules;
-
-namespace EHR;
+﻿namespace EHR;
 
 public static class PetsPatch
 {
@@ -13,9 +11,12 @@ public static class PetsPatch
             return;
         }
 
+        var setEmpty = petId == "";
+        if (player.Data.DefaultOutfit.PetId == "" || setEmpty) player.Data.DefaultOutfit.PetId = petId;
+        if (player.CurrentOutfit.PetId == "" || setEmpty) player.CurrentOutfit.PetId = petId;
         foreach (var kvp in player.Data.Outfits)
         {
-            if (kvp.Value.PetId == "")
+            if (kvp.Value.PetId == "" || setEmpty)
             {
                 kvp.Value.PetId = petId;
             }
@@ -26,8 +27,6 @@ public static class PetsPatch
             .Write(petId)
             .EndRpc();
         sender.SendMessage();
-
-        RPC.SendGameData(player.GetClientId());
     }
 
     public static void RpcRemovePet(PlayerControl pc)

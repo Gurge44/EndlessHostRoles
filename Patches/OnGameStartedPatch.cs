@@ -229,6 +229,8 @@ internal class ChangeRoleSettings
 
             AFKDetector.ShieldedPlayers.Clear();
 
+            ChatCommands.MutedPlayers.Clear();
+
             MeetingTimeManager.Init();
             Main.DefaultCrewmateVision = Main.RealOptionsData.GetFloat(FloatOptionNames.CrewLightMod);
             Main.DefaultImpostorVision = Main.RealOptionsData.GetFloat(FloatOptionNames.ImpostorLightMod);
@@ -536,7 +538,7 @@ internal class SelectRolesPatch
             {
                 (CustomRoles addon, (bool SpawnFlag, HashSet<byte> RoleList) value) = roleSpawnMapping.ElementAt(i);
                 if (value.RoleList.Count == 0) value.SpawnFlag = false;
-                
+
                 if (Main.GM.Value) value.RoleList.Remove(0);
 
                 if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var combos) && combos.Values.Any(l => l.Contains(addon)))

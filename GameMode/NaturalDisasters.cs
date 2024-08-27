@@ -26,33 +26,77 @@ namespace EHR
 
         private static OptionItem DisasterFrequency;
         private static OptionItem DisasterWarningTime;
+        private static OptionItem LimitMaximumDisastersAtOnce;
+        private static OptionItem MaximumDisastersAtOnce;
+        private static OptionItem WhenLimitIsReached;
+        private static OptionItem PreferRemovingThunderstorm;
+        private static readonly Dictionary<string, OptionItem> DisasterSpawnChances = [];
+
+        private static readonly string[] LimitReachedOptions =
+        [
+            "ND_LimitReachedOptions.OnlySpawnInstantDisasters",
+            "ND_LimitReachedOptions.RemoveRandom",
+            "ND_LimitReachedOptions.RemoveOldest"
+        ];
 
         public static void SetupCustomOption()
         {
-            const int id = 69_216_001;
+            int id = 69_216_001;
             Color color = Utils.GetRoleColor(CustomRoles.NDPlayer);
 
-            DisasterFrequency = new IntegerOptionItem(id, "ND_DisasterFrequency", new(1, 20, 1), 2, TabGroup.GameSettings)
+            DisasterFrequency = new IntegerOptionItem(id++, "ND_DisasterFrequency", new(1, 20, 1), 2, TabGroup.GameSettings)
                 .SetHeader(true)
                 .SetGameMode(CustomGameMode.NaturalDisasters)
                 .SetColor(color)
                 .SetValueFormat(OptionFormat.Seconds);
 
-            DisasterWarningTime = new IntegerOptionItem(id + 1, "ND_DisasterWarningTime", new(1, 30, 1), 5, TabGroup.GameSettings)
+            DisasterWarningTime = new IntegerOptionItem(id++, "ND_DisasterWarningTime", new(1, 30, 1), 5, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.NaturalDisasters)
                 .SetColor(color)
                 .SetValueFormat(OptionFormat.Seconds);
 
-            AllDisasters = Assembly.GetExecutingAssembly()
-                .GetTypes()
-                .Where(x => x.IsClass && !x.IsAbstract && x.IsSubclassOf(typeof(Disaster)))
-                .ToList();
+            LimitMaximumDisastersAtOnce = new BooleanOptionItem(id++, "ND_LimitMaximumDisastersAtOnce", false, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.NaturalDisasters)
+                .SetColor(color);
+
+            MaximumDisastersAtOnce = new IntegerOptionItem(id++, "ND_MaximumDisastersAtOnce", new(1, 120, 1), 20, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.NaturalDisasters)
+                .SetParent(LimitMaximumDisastersAtOnce)
+                .SetColor(color);
+
+            WhenLimitIsReached = new StringOptionItem(id++, "ND_WhenLimitIsReached", LimitReachedOptions, 2, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.NaturalDisasters)
+                .SetParent(LimitMaximumDisastersAtOnce)
+                .SetColor(color);
+
+            PreferRemovingThunderstorm = new BooleanOptionItem(id++, "ND_PreferRemovingThunderstorm", true, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.NaturalDisasters)
+                .SetParent(WhenLimitIsReached)
+                .SetColor(color);
+
+            LoadAllDisasters();
+
+            AllDisasters.ConvertAll(x => x.Name).ForEach(x => DisasterSpawnChances[x] = new IntegerOptionItem(id++, "ND_Disaster.SpawnChance", new(0, 100, 5), 50, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.NaturalDisasters)
+                .SetColor(color)
+                .SetValueFormat(OptionFormat.Percent)
+                .AddReplacement(("{disaster}", Translator.GetString($"ND_{x}"))));
 
             AllDisasters.ForEach(x => x.GetMethod("SetupOwnCustomOption")?.Invoke(null, null));
         }
 
+        private static void LoadAllDisasters()
+        {
+            AllDisasters = Assembly
+                .GetExecutingAssembly()
+                .GetTypes()
+                .Where(x => x.IsClass && !x.IsAbstract && x.IsSubclassOf(typeof(Disaster)))
+                .ToList();
+        }
+
         public static void OnGameStart()
         {
+            LoadAllDisasters();
             SurvivalTimes.Clear();
             ActiveDisasters.Clear();
             PreparingDisasters.Clear();
@@ -62,7 +106,7 @@ namespace EHR
 
             if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters) return;
 
-            var rooms = RoomLocations();
+            var rooms = RoomLocations()?.Values;
             if (rooms == null) return;
 
             var x = rooms.Select(r => r.x).ToArray();
@@ -72,6 +116,12 @@ namespace EHR
             MapBounds = ((x.Min() - extend, x.Max() + extend), (y.Min() - extend, y.Max() + extend));
 
             GameStartTimeStamp = Utils.TimeStamp + 8;
+
+            LateTask.New(() =>
+            {
+                Main.AllPlayerSpeed = Main.PlayerStates.Keys.ToDictionary(k => k, _ => Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod));
+                Utils.SyncAllSettings();
+            }, 11f, log: false);
         }
 
         public static void ApplyGameOptions(IGameOptions opt, byte id)
@@ -123,16 +173,16 @@ namespace EHR
             _ => Utils.EmptyMessage
         };
 
-        private static Dictionary<string, Vector2>.ValueCollection RoomLocations()
+        private static Dictionary<SystemTypes, Vector2> RoomLocations()
         {
             return Main.CurrentMap switch
             {
-                MapNames.Skeld => new RandomSpawn.SkeldSpawnMap().positions.Values,
-                MapNames.Mira => new RandomSpawn.MiraHQSpawnMap().positions.Values,
-                MapNames.Polus => new RandomSpawn.PolusSpawnMap().positions.Values,
-                MapNames.Dleks => new RandomSpawn.DleksSpawnMap().positions.Values,
-                MapNames.Airship => new RandomSpawn.AirshipSpawnMap().positions.Values,
-                MapNames.Fungle => new RandomSpawn.FungleSpawnMap().positions.Values,
+                MapNames.Skeld => new RandomSpawn.SkeldSpawnMap().positions,
+                MapNames.Mira => new RandomSpawn.MiraHQSpawnMap().positions,
+                MapNames.Polus => new RandomSpawn.PolusSpawnMap().positions,
+                MapNames.Dleks => new RandomSpawn.DleksSpawnMap().positions,
+                MapNames.Airship => new RandomSpawn.AirshipSpawnMap().positions,
+                MapNames.Fungle => new RandomSpawn.FungleSpawnMap().positions,
                 _ => null
             };
         }
@@ -146,7 +196,7 @@ namespace EHR
             [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void Postfix(PlayerControl __instance)
             {
-                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.NaturalDisasters || Main.HasJustStarted || !__instance.IsHost()) return;
+                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.NaturalDisasters || Main.HasJustStarted || GameStartTimeStamp + 5 > Utils.TimeStamp || !__instance.IsHost()) return;
 
                 foreach (NaturalDisaster naturalDisaster in PreparingDisasters.ToArray())
                 {
@@ -163,22 +213,48 @@ namespace EHR
                 Sinkhole.OnFixedUpdate();
                 BuildingCollapse.OnFixedUpdate();
 
+                if (LimitMaximumDisastersAtOnce.GetBool())
+                {
+                    var numDisasters = ActiveDisasters.Count + PreparingDisasters.Count;
+                    if (numDisasters > MaximumDisastersAtOnce.GetInt())
+                    {
+                        switch (WhenLimitIsReached.GetValue())
+                        {
+                            case 0:
+                                AllDisasters.RemoveAll(x => x.Name is "Earthquake" or "VolcanoEruption" or "Tornado" or "Thunderstorm" or "Sandstorm" or "Tsunami");
+                                break;
+                            case 1:
+                                var remove = PreferRemovingThunderstorm.GetBool() ? ActiveDisasters.Find(x => x is Thunderstorm) : ActiveDisasters.RandomElement();
+                                if (remove != null) remove.Duration = 0;
+                                remove?.RemoveIfExpired();
+                                break;
+                            case 2:
+                                var oldest = ActiveDisasters.MinBy(x => x.StartTimeStamp);
+                                oldest.Duration = 0;
+                                oldest.RemoveIfExpired();
+                                break;
+                        }
+                    }
+                }
+
                 var now = Utils.TimeStamp;
                 if (now - LastDisaster >= DisasterFrequency.GetInt())
                 {
                     LastDisaster = now;
-                    var disaster = ActiveDisasters.Exists(x => x is Thunderstorm)
-                        ? AllDisasters.Without(typeof(Thunderstorm)).RandomElement()
-                        : AllDisasters.RandomElement();
+                    var disasters = AllDisasters.ToList();
+                    if (ActiveDisasters.Exists(x => x is Thunderstorm)) disasters.RemoveAll(x => x.Name == "Thunderstorm");
+                    var disaster = disasters.SelectMany(x => Enumerable.Repeat(x, DisasterSpawnChances[x.Name].GetInt() / 5)).RandomElement();
+                    var roomKvp = RoomLocations().RandomElement();
                     var position = disaster.Name switch
                     {
-                        "BuildingCollapse" => RoomLocations().RandomElement(),
+                        "BuildingCollapse" => roomKvp.Value,
                         "Thunderstorm" => Pelican.GetBlackRoomPS(),
                         _ => IRandom.Instance.Next(2) == 0
                             ? Main.AllAlivePlayerControls.RandomElement().Pos()
                             : new(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Top, MapBounds.Y.Bottom))
                     };
-                    PreparingDisasters.Add(new(position, DisasterWarningTime.GetFloat(), Sprite(disaster.Name), disaster.Name));
+                    SystemTypes? room = disaster.Name == "BuildingCollapse" ? roomKvp.Key : null;
+                    PreparingDisasters.Add(new(position, DisasterWarningTime.GetFloat(), Sprite(disaster.Name), disaster.Name, room));
                 }
 
                 if (now - LastSync >= 10)
@@ -197,12 +273,12 @@ namespace EHR
                 ActiveDisasters.Add(this);
             }
 
-            private long StartTimeStamp { get; } = Utils.TimeStamp;
+            public long StartTimeStamp { get; } = Utils.TimeStamp;
             protected Vector2 Position { get; set; }
             protected NaturalDisaster NetObject { get; init; }
-            protected virtual int Duration { get; set; }
+            public virtual int Duration { get; set; }
 
-            protected virtual bool RemoveIfExpired()
+            public virtual bool RemoveIfExpired()
             {
                 if (Duration == 0 || Utils.TimeStamp - StartTimeStamp >= Duration)
                 {
@@ -245,7 +321,7 @@ namespace EHR
                 Update();
             }
 
-            protected override int Duration { get; set; } = DurationOpt.GetInt();
+            public override int Duration { get; set; } = DurationOpt.GetInt();
 
             [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void SetupOwnCustomOption()
@@ -285,7 +361,7 @@ namespace EHR
                 }
             }
 
-            protected override bool RemoveIfExpired()
+            public override bool RemoveIfExpired()
             {
                 if (base.RemoveIfExpired())
                 {
@@ -315,7 +391,7 @@ namespace EHR
                 KillNearbyPlayers(PlayerState.DeathReason.Meteor);
             }
 
-            protected override int Duration { get; set; } = 5;
+            public override int Duration { get; set; } = 5;
 
             public override void Update()
             {
@@ -338,7 +414,7 @@ namespace EHR
                 Update();
             }
 
-            protected override int Duration { get; set; } = (int)((Phases - 1) * FlowStepDelay.GetFloat()) + DurationAfterFlowComplete.GetInt();
+            public override int Duration { get; set; } = (int)((Phases - 1) * FlowStepDelay.GetFloat()) + DurationAfterFlowComplete.GetInt();
 
             [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void SetupOwnCustomOption()
@@ -402,7 +478,7 @@ namespace EHR
                 Update();
             }
 
-            protected override int Duration { get; set; } = DurationOpt.GetInt();
+            public override int Duration { get; set; } = DurationOpt.GetInt();
 
             [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void SetupOwnCustomOption()
@@ -497,7 +573,7 @@ namespace EHR
                 LateTask.New(() => Utils.NotifyRoles(), 0.2f, "Thunderstorm Notify");
             }
 
-            protected override int Duration { get; set; } = DurationOpt.GetInt();
+            public override int Duration { get; set; } = DurationOpt.GetInt();
 
             [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void SetupOwnCustomOption()
@@ -539,7 +615,7 @@ namespace EHR
                 }
             }
 
-            protected override bool RemoveIfExpired()
+            public override bool RemoveIfExpired()
             {
                 if (base.RemoveIfExpired())
                 {
@@ -564,7 +640,7 @@ namespace EHR
                 Update();
             }
 
-            protected override int Duration { get; set; } = DurationOpt.GetInt();
+            public override int Duration { get; set; } = DurationOpt.GetInt();
 
             [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void SetupOwnCustomOption()
@@ -598,7 +674,7 @@ namespace EHR
                 }
             }
 
-            protected override bool RemoveIfExpired()
+            public override bool RemoveIfExpired()
             {
                 if (base.RemoveIfExpired())
                 {
@@ -652,7 +728,7 @@ namespace EHR
                 naturalDisaster.RpcChangeSprite(Sprites[Direction]);
             }
 
-            protected override int Duration { get; set; } = int.MaxValue;
+            public override int Duration { get; set; } = int.MaxValue;
 
             [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void SetupOwnCustomOption()
@@ -744,7 +820,7 @@ namespace EHR
                 Sinkholes.Add(position);
             }
 
-            protected override int Duration { get; set; } = int.MaxValue;
+            public override int Duration { get; set; } = int.MaxValue;
 
             public override void Update()
             {
@@ -781,7 +857,7 @@ namespace EHR
                 NetObject = naturalDisaster;
                 Update();
 
-                var room = naturalDisaster.playerControl.GetPlainShipRoom();
+                var room = ShipStatus.Instance.AllRooms.FirstOrDefault(x => x.RoomId == naturalDisaster.Room);
                 if (room == default(PlainShipRoom)) return;
 
                 foreach (var pc in Main.AllAlivePlayerControls)

@@ -700,6 +700,7 @@ public static class StringOptionPatch
                 name = name.RemoveHtmlTags();
                 if (Options.UsePets.GetBool() && role.PetActivatedAbility()) name += Translator.GetString("SupportsPetIndicator");
                 if (!Options.UsePets.GetBool() && role.OnlySpawnsWithPets()) name += Translator.GetString("RequiresPetIndicator");
+                if (role.IsGhostRole()) name += GetGhostRoleTeam(role);
                 __instance.TitleText.fontWeight = FontWeight.Black;
                 __instance.TitleText.outlineColor = new(255, 255, 255, 255);
                 __instance.TitleText.outlineWidth = 0.04f;

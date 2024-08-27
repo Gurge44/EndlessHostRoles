@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace EHR.AddOns.Impostor
 {
@@ -68,11 +67,7 @@ namespace EHR.AddOns.Impostor
         public static void AfterMeetingTasks()
         {
             if (VentPreventionMode.GetValue() != 2) return;
-
-            foreach (var playerId in Limits.Keys.ToArray())
-            {
-                Limits[playerId] = Limit.GetInt();
-            }
+            Limits.SetAllValues(Limit.GetInt());
         }
 
         public static string GetProgressText(byte playerId)

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using EHR;
@@ -406,8 +407,26 @@ namespace EHR
         {
             try
             {
-                AllObjects.ToArray().Do(x => x.Despawn());
-                AllObjects.Clear();
+                if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters)
+                {
+                    AllObjects.ToArray().Do(x => x.Despawn());
+                    AllObjects.Clear();
+                }
+                else
+                {
+                    Main.Instance.StartCoroutine(RemoveAllNetObjects());
+
+                    IEnumerator RemoveAllNetObjects()
+                    {
+                        foreach (CustomNetObject netObject in AllObjects.ToArray())
+                        {
+                            netObject.Despawn();
+                            yield return new WaitForSeconds(0.2f);
+                        }
+
+                        AllObjects.Clear();
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -657,14 +676,16 @@ namespace EHR
 
     internal sealed class NaturalDisaster : CustomNetObject
     {
-        public NaturalDisaster(Vector2 position, float time, string sprite, string disasterName)
+        public NaturalDisaster(Vector2 position, float time, string sprite, string disasterName, SystemTypes? room)
         {
             WarningTimer = new(position, time, Translator.GetString($"ND_{disasterName}"));
             SpawnTimer = time;
             Sprite = sprite;
             DisasterName = disasterName;
+            Room = room;
         }
 
+        public SystemTypes? Room { get; }
         public string DisasterName { get; }
         public float SpawnTimer { get; private set; }
         private DisasterWarningTimer WarningTimer { get; }

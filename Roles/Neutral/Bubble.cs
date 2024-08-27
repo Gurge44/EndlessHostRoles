@@ -150,7 +150,8 @@ namespace EHR.Neutral
         public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
-            foreach (var pc in EncasedPlayers.Keys.Select(x => GetPlayerById(x)).Where(x => x != null && x.IsAlive())) pc.Suicide(PlayerState.DeathReason.Bombed, Bubble_);
+            foreach (var pc in EncasedPlayers.Keys.Select(x => GetPlayerById(x)).Where(x => x != null && x.IsAlive()))
+                pc.Suicide(PlayerState.DeathReason.Bombed, Bubble_);
             EncasedPlayers.Clear();
             SendRPC(clear: true);
         }

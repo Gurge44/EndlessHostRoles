@@ -17,7 +17,7 @@ public static class Zoom
         try
         {
             if (Camera.main == null) return;
-            if ((GameStates.IsShip && !GameStates.IsMeeting && GameStates.IsCanMove && PlayerControl.LocalPlayer.Data.IsDead) || (GameStates.IsLobby && GameStates.IsCanMove))
+            if (((GameStates.IsShip && !GameStates.IsMeeting && GameStates.IsCanMove && PlayerControl.LocalPlayer.Data.IsDead) || (GameStates.IsLobby && GameStates.IsCanMove)) && !InGameRoleInfoMenu.Showing)
             {
                 if (Camera.main.orthographicSize > 3.0f)
                     ResetButtons = true;

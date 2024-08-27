@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using EHR.Modules;
 using Hazel;
 using static EHR.Options;
@@ -164,18 +163,12 @@ namespace EHR.AddOns.Impostor
 
         private static void AdjustTime(int change)
         {
-            foreach (var item in Timer.Keys.ToArray())
-            {
-                Timer[item] += change;
-            }
+            Timer.AdjustAllValues(x => x + change);
         }
 
         private static void AdjustTimeByPercent(double percent)
         {
-            foreach (var item in Timer.Keys.ToArray())
-            {
-                Timer[item] = (int)Math.Round(Timer[item] * percent);
-            }
+            Timer.AdjustAllValues(x => (int)Math.Round(x * percent));
         }
 
         public static string GetProgressText(byte id) => string.Format(GetString("DamoclesTimeLeft"), Timer.GetValueOrDefault(id, StartingTime));
