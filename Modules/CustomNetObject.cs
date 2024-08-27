@@ -676,14 +676,16 @@ namespace EHR
 
     internal sealed class NaturalDisaster : CustomNetObject
     {
-        public NaturalDisaster(Vector2 position, float time, string sprite, string disasterName)
+        public NaturalDisaster(Vector2 position, float time, string sprite, string disasterName, SystemTypes? room)
         {
             WarningTimer = new(position, time, Translator.GetString($"ND_{disasterName}"));
             SpawnTimer = time;
             Sprite = sprite;
             DisasterName = disasterName;
+            Room = room;
         }
 
+        public SystemTypes? Room { get; }
         public string DisasterName { get; }
         public float SpawnTimer { get; private set; }
         private DisasterWarningTimer WarningTimer { get; }

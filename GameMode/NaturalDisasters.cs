@@ -106,7 +106,7 @@ namespace EHR
 
             if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters) return;
 
-            var rooms = RoomLocations();
+            var rooms = RoomLocations()?.Values;
             if (rooms == null) return;
 
             var x = rooms.Select(r => r.x).ToArray();
@@ -173,16 +173,16 @@ namespace EHR
             _ => Utils.EmptyMessage
         };
 
-        private static Dictionary<string, Vector2>.ValueCollection RoomLocations()
+        private static Dictionary<SystemTypes, Vector2> RoomLocations()
         {
             return Main.CurrentMap switch
             {
-                MapNames.Skeld => new RandomSpawn.SkeldSpawnMap().positions.Values,
-                MapNames.Mira => new RandomSpawn.MiraHQSpawnMap().positions.Values,
-                MapNames.Polus => new RandomSpawn.PolusSpawnMap().positions.Values,
-                MapNames.Dleks => new RandomSpawn.DleksSpawnMap().positions.Values,
-                MapNames.Airship => new RandomSpawn.AirshipSpawnMap().positions.Values,
-                MapNames.Fungle => new RandomSpawn.FungleSpawnMap().positions.Values,
+                MapNames.Skeld => new RandomSpawn.SkeldSpawnMap().positions,
+                MapNames.Mira => new RandomSpawn.MiraHQSpawnMap().positions,
+                MapNames.Polus => new RandomSpawn.PolusSpawnMap().positions,
+                MapNames.Dleks => new RandomSpawn.DleksSpawnMap().positions,
+                MapNames.Airship => new RandomSpawn.AirshipSpawnMap().positions,
+                MapNames.Fungle => new RandomSpawn.FungleSpawnMap().positions,
                 _ => null
             };
         }
@@ -244,15 +244,17 @@ namespace EHR
                     var disasters = AllDisasters.ToList();
                     if (ActiveDisasters.Exists(x => x is Thunderstorm)) disasters.RemoveAll(x => x.Name == "Thunderstorm");
                     var disaster = disasters.SelectMany(x => Enumerable.Repeat(x, DisasterSpawnChances[x.Name].GetInt() / 5)).RandomElement();
+                    var roomKvp = RoomLocations().RandomElement();
                     var position = disaster.Name switch
                     {
-                        "BuildingCollapse" => RoomLocations().RandomElement(),
+                        "BuildingCollapse" => roomKvp.Value,
                         "Thunderstorm" => Pelican.GetBlackRoomPS(),
                         _ => IRandom.Instance.Next(2) == 0
                             ? Main.AllAlivePlayerControls.RandomElement().Pos()
                             : new(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Top, MapBounds.Y.Bottom))
                     };
-                    PreparingDisasters.Add(new(position, DisasterWarningTime.GetFloat(), Sprite(disaster.Name), disaster.Name));
+                    SystemTypes? room = disaster.Name == "BuildingCollapse" ? roomKvp.Key : null;
+                    PreparingDisasters.Add(new(position, DisasterWarningTime.GetFloat(), Sprite(disaster.Name), disaster.Name, room));
                 }
 
                 if (now - LastSync >= 10)
@@ -855,7 +857,7 @@ namespace EHR
                 NetObject = naturalDisaster;
                 Update();
 
-                var room = naturalDisaster.playerControl.GetPlainShipRoom();
+                var room = ShipStatus.Instance.AllRooms.FirstOrDefault(x => x.RoomId == naturalDisaster.Room);
                 if (room == default(PlainShipRoom)) return;
 
                 foreach (var pc in Main.AllAlivePlayerControls)
