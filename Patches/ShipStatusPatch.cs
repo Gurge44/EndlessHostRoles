@@ -36,7 +36,7 @@ class ShipFixedUpdatePatch
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(MessageReader))]
 public static class MessageReaderUpdateSystemPatch
 {
-    public static bool Prefix(ShipStatus __instance, [HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] MessageReader reader)
+    public static bool Prefix([HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] MessageReader reader)
     {
         try
         {
@@ -49,7 +49,7 @@ public static class MessageReaderUpdateSystemPatch
                 return false;
             }
 
-            return RepairSystemPatch.Prefix(__instance, systemType, player, amount);
+            return RepairSystemPatch.Prefix(systemType, player, amount);
         }
         catch
         {
@@ -58,12 +58,12 @@ public static class MessageReaderUpdateSystemPatch
         return true;
     }
 
-    public static void Postfix( /*ShipStatus __instance,*/ [HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player, [HarmonyArgument(2)] MessageReader reader)
+    public static void Postfix([HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player)
     {
         try
         {
             if (systemType is SystemTypes.Ventilation or SystemTypes.Security or SystemTypes.Decontamination or SystemTypes.Decontamination2 or SystemTypes.Decontamination3) return;
-            RepairSystemPatch.Postfix( /*__instance,*/ systemType, player, MessageReader.Get(reader).ReadByte());
+            RepairSystemPatch.Postfix(systemType, player);
         }
         catch
         {
@@ -72,9 +72,9 @@ public static class MessageReaderUpdateSystemPatch
 }
 
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.UpdateSystem), typeof(SystemTypes), typeof(PlayerControl), typeof(byte))]
-class RepairSystemPatch
+static class RepairSystemPatch
 {
-    public static bool Prefix(ShipStatus __instance,
+    public static bool Prefix( /*ShipStatus __instance,*/
         [HarmonyArgument(0)] SystemTypes systemType,
         [HarmonyArgument(1)] PlayerControl player,
         [HarmonyArgument(2)] byte amount)
@@ -124,7 +124,55 @@ class RepairSystemPatch
                 if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(-12.93f, -11.28f)) <= 2f) return false;
                 if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(13.92f, 6.43f)) <= 2f) return false;
                 if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(player.transform.position, new(30.56f, 2.12f)) <= 2f) return false;
+                goto Next;
+            case SystemTypes.Electrical when amount <= 4:
+                Next:
+            {
+                var SwitchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.Cast<SwitchSystem>();
+                if (SwitchSystem is { IsActive: true })
+                {
+                    switch (Main.PlayerStates[player.PlayerId].Role)
+                    {
+                        case SabotageMaster:
+                        {
+                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SabotageMaster");
+                            SabotageMaster.SwitchSystemRepair(player.PlayerId, SwitchSystem, amount);
+                            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                            break;
+                        }
+                        case Alchemist { FixNextSabo: true } am:
+                        {
+                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "Alchemist");
+                            if (amount.HasBit(SwitchSystem.DamageSystem)) break;
+                            SwitchSystem.ActualSwitches = (byte)(SwitchSystem.ExpectedSwitches ^ 1 << amount);
+                            am.FixNextSabo = false;
+                            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                            break;
+                        }
+                        case Adventurer av:
+                        {
+                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "Adventurer");
+                            if (amount.HasBit(SwitchSystem.DamageSystem)) break;
+                            SwitchSystem.ActualSwitches = (byte)(SwitchSystem.ExpectedSwitches ^ 1 << amount);
+                            av.OnLightsFix();
+                            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                            break;
+                        }
+                        case Technician:
+                        {
+                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "Technician");
+                            Technician.SwitchSystemRepair(player.PlayerId, SwitchSystem, amount);
+                            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                            break;
+                        }
+                    }
+
+                    if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage(player.PlayerId);
+                    if (player.Is(CustomRoles.Stressed) && Stressed.countRepairSabotage) Stressed.OnRepairSabotage(player);
+                }
+
                 break;
+            }
             case SystemTypes.Sabotage when AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay:
                 if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
                 if (SecurityGuard.BlockSabo.Count > 0) return false;
@@ -164,62 +212,12 @@ class RepairSystemPatch
         return true;
     }
 
-    public static void Postfix( /*ShipStatus __instance,*/
-        [HarmonyArgument(0)] SystemTypes systemType,
-        [HarmonyArgument(1)] PlayerControl player,
-        [HarmonyArgument(2)] byte amount)
+    public static void Postfix([HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player)
     {
         Camouflage.CheckCamouflage();
 
         switch (systemType)
         {
-            case SystemTypes.Electrical when amount <= 4:
-            {
-                var SwitchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.Cast<SwitchSystem>();
-                if (SwitchSystem is { IsActive: true })
-                {
-                    switch (Main.PlayerStates[player.PlayerId].Role)
-                    {
-                        case SabotageMaster:
-                        {
-                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
-                            SabotageMaster.SwitchSystemRepair(player.PlayerId, SwitchSystem, amount);
-                            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-                            break;
-                        }
-                        case Alchemist { FixNextSabo: true } am:
-                        {
-                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
-                            SwitchSystem.ActualSwitches = 0;
-                            SwitchSystem.ExpectedSwitches = 0;
-                            am.FixNextSabo = false;
-                            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-                            break;
-                        }
-                        case Adventurer av:
-                        {
-                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
-                            SwitchSystem.ActualSwitches = 0;
-                            SwitchSystem.ExpectedSwitches = 0;
-                            av.OnLightsFix();
-                            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-                            break;
-                        }
-                        case Technician:
-                        {
-                            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} instant-fix-lights", "SwitchSystem");
-                            Technician.SwitchSystemRepair(player.PlayerId, SwitchSystem, amount);
-                            Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-                            break;
-                        }
-                    }
-
-                    if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage(player.PlayerId);
-                    if (player.Is(CustomRoles.Stressed) && Stressed.countRepairSabotage) Stressed.OnRepairSabotage(player);
-                }
-
-                break;
-            }
             case SystemTypes.Reactor:
             case SystemTypes.LifeSupp:
             case SystemTypes.Comms:

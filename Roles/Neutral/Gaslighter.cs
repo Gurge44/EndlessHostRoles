@@ -126,6 +126,8 @@ namespace EHR.Neutral
 
             pc?.ResetKillCooldown();
             pc?.Notify(Translator.GetString($"Gaslighter.{CurrentRound}"));
+
+            LateTask.New(() => pc?.SetKillCooldown(), 1.5f, log: false);
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -143,8 +145,9 @@ namespace EHR.Neutral
                     CursedPlayers.Add(target.PlayerId);
                     killer.SetKillCooldown();
                     return false;
-                case Round.Shield:
+                case Round.Shield when killer.GetAbilityUseLimit() > 0:
                     ShieldedPlayers.Add(target.PlayerId);
+                    killer.RpcRemoveAbilityUse();
                     killer.SetKillCooldown();
                     return false;
             }
