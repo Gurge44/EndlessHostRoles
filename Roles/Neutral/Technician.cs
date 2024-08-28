@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AmongUs.GameOptions;
+using UnityEngine;
 
 namespace EHR.Neutral
 {
@@ -32,7 +34,7 @@ namespace EHR.Neutral
             int i = 0;
             foreach (var system in new[] { SystemTypes.Electrical, SystemTypes.Comms, SystemTypes.LifeSupp, SystemTypes.Reactor })
             {
-                PointGains[system] = new IntegerOptionItem(646960 + i, $"TechnicianPointGain.{system}", new(0, 10, 1), 1, TabGroup.NeutralRoles)
+                PointGains[system] = new IntegerOptionItem(646960 + i, $"Technician.PointGain.{system}", new(0, 10, 1), 1, TabGroup.NeutralRoles)
                     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Technician]);
                 i++;
             }
@@ -167,6 +169,14 @@ namespace EHR.Neutral
             switchSystem.ActualSwitches = (byte)(switchSystem.ExpectedSwitches ^ fixbit);
 
             technician.IncreasePoints(SystemTypes.Electrical);
+        }
+
+        public override string GetProgressText(byte playerId, bool comms)
+        {
+            var points = (int)Math.Round(playerId.GetAbilityUseLimit());
+            var needed = RequiredPoints.GetInt();
+            var color = points >= needed ? Color.green : Utils.GetRoleColor(CustomRoles.Technician);
+            return Utils.ColorString(color, $"{points}/{needed}");
         }
     }
 }
