@@ -372,7 +372,7 @@ class CheckMurderPatch
             Medic.OnAnyoneCheckMurder(killer, target) ||
             Randomizer.IsShielded(target) ||
             Aid.ShieldedPlayers.ContainsKey(target.PlayerId) ||
-            !Gaslighter.IsShielded(target) ||
+            Gaslighter.IsShielded(target) ||
             !Grappler.OnAnyoneCheckMurder(target) ||
             !Adventurer.OnAnyoneCheckMurder(target) ||
             !Sentinel.OnAnyoneCheckMurder(killer) ||
