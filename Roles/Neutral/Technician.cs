@@ -13,17 +13,16 @@ namespace EHR.Neutral
         private static OptionItem VentCooldown;
         private static OptionItem MaxInVentTime;
         private static readonly Dictionary<SystemTypes, OptionItem> PointGains = [];
+
         private bool fixedSabotage;
-
         public bool IsWon;
-
         private PlayerControl TechnicianPC;
 
         public override bool IsEnable => On;
 
         public override void SetupCustomOption()
         {
-            StartSetup(646950, TabGroup.NeutralRoles, CustomRoles.Technician)
+            StartSetup(646450)
                 .AutoSetupOption(ref WinsAlone, false)
                 .AutoSetupOption(ref RequiredPoints, 5, new IntegerValueRule(1, 50, 1))
                 .AutoSetupOption(ref CanVent, false)

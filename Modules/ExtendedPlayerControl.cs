@@ -343,10 +343,24 @@ static class ExtendedPlayerControl
         AmongUsClient.Instance.FinishRpcImmediately(msg);
     }
 
+    public static bool HasAbilityCD(this PlayerControl pc) => Main.AbilityCD.ContainsKey(pc.PlayerId);
     public static void AddKCDAsAbilityCD(this PlayerControl pc) => AddAbilityCD(pc, (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out var KCD) ? KCD : Options.DefaultKillCooldown));
     public static void AddAbilityCD(this PlayerControl pc, bool includeDuration = true) => Utils.AddAbilityCD(pc.GetCustomRole(), pc.PlayerId, includeDuration);
-    public static void AddAbilityCD(this PlayerControl pc, int CD) => Main.AbilityCD[pc.PlayerId] = (TimeStamp, CD);
-    public static bool HasAbilityCD(this PlayerControl pc) => Main.AbilityCD.ContainsKey(pc.PlayerId);
+
+    public static void AddAbilityCD(this PlayerControl pc, int CD)
+    {
+        Main.AbilityCD[pc.PlayerId] = (TimeStamp, CD);
+        SendRPC(CustomRPC.SyncAbilityCD, 1, pc.PlayerId, CD);
+    }
+
+    public static void RemoveAbilityCD(this PlayerControl pc)
+    {
+        if (Main.AbilityCD.ContainsKey(pc.PlayerId))
+        {
+            Main.AbilityCD.Remove(pc.PlayerId);
+            SendRPC(CustomRPC.SyncAbilityCD, 3, pc.PlayerId);
+        }
+    }
 
     public static float GetAbilityUseLimit(this PlayerControl pc) => Main.AbilityUseLimit.GetValueOrDefault(pc.PlayerId, float.NaN);
     public static float GetAbilityUseLimit(this byte playerId) => Main.AbilityUseLimit.GetValueOrDefault(playerId, float.NaN);

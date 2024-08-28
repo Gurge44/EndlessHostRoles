@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -56,6 +57,7 @@ public enum CustomRPC
     RemoveSubRole,
     Arrow,
     FixModdedClientCNO,
+    SyncAbilityCD,
 
     // Roles
     SyncRoleData,
@@ -365,6 +367,33 @@ internal class RPCHandlerPatch
                 if (reader.ReadBoolean()) TargetArrow.ReceiveRPC(reader);
                 else LocateArrow.ReceiveRPC(reader);
                 break;
+            case CustomRPC.SyncAbilityCD:
+            {
+                switch (reader.ReadPackedInt32())
+                {
+                    case 1:
+                    {
+                        byte id = reader.ReadByte();
+                        int cd = reader.ReadPackedInt32();
+                        long ts = Utils.TimeStamp;
+                        Main.AbilityCD[id] = (ts, cd);
+                        break;
+                    }
+                    case 2:
+                    {
+                        Main.AbilityCD.Clear();
+                        break;
+                    }
+                    case 3:
+                    {
+                        byte id = reader.ReadByte();
+                        Main.AbilityCD.Remove(id);
+                        break;
+                    }
+                }
+
+                break;
+            }
             case CustomRPC.SyncRoleData:
             {
                 byte id = reader.ReadByte();
@@ -399,7 +428,7 @@ internal class RPCHandlerPatch
             case CustomRPC.SyncSentry:
             {
                 byte id = reader.ReadByte();
-                if (Main.PlayerStates[id].Role is not EHR.Impostor.Sentry sentry) break;
+                if (Main.PlayerStates[id].Role is not Impostor.Sentry sentry) break;
                 sentry.MonitoredRoom = Utils.GetPlayerById(id).GetPlainShipRoom();
                 break;
             }
@@ -912,7 +941,7 @@ internal static class RPC
         Main.Instance.StartCoroutine(VersionCheck());
         return;
 
-        static System.Collections.IEnumerator VersionCheck()
+        static IEnumerator VersionCheck()
         {
             while (PlayerControl.LocalPlayer == null) yield return null;
             MessageWriter writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.VersionCheck);

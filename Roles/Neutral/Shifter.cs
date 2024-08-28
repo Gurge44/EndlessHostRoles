@@ -111,6 +111,7 @@ namespace EHR.Neutral
             }
 
             Main.AbilityCD.Remove(killer.PlayerId);
+            Utils.SendRPC(CustomRPC.SyncAbilityCD, 3, killer.PlayerId);
             killer.SyncSettings();
 
             // ------------------------------------------------------------------------------------------

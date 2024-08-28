@@ -32,7 +32,7 @@ namespace EHR.Neutral
 
         public override void SetupCustomOption()
         {
-            StartSetup(648350, TabGroup.NeutralRoles, CustomRoles.Gaslighter)
+            StartSetup(648350)
                 .AutoSetupOption(ref KillCooldown, 22.5f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
                 .AutoSetupOption(ref WinCondition, 0, WinConditionOptions)
                 .AutoSetupOption(ref CycleRepeats, false);
@@ -54,6 +54,8 @@ namespace EHR.Neutral
             ShieldedPlayers = [];
             CycleFinished = false;
         }
+
+        public override bool CanUseKillButton(PlayerControl pc) => pc.IsAlive();
 
         public override void SetKillCooldown(byte id)
         {
@@ -112,15 +114,16 @@ namespace EHR.Neutral
                 CurrentRound++;
             }
 
+            var pc = GaslighterId.GetPlayer();
             float limit = CurrentRound switch
             {
                 Round.Knight => Monarch.KnightMax.GetFloat(),
                 Round.Shield => Medic.SkillLimit,
-                _ => 0
+                _ => float.NaN
             };
-            GaslighterId.SetAbilityUseLimit(limit);
+            if (!float.IsNaN(limit)) GaslighterId.SetAbilityUseLimit(limit);
+            else pc?.RemoveAbilityCD();
 
-            var pc = GaslighterId.GetPlayer();
             pc?.ResetKillCooldown();
             pc?.Notify(Translator.GetString($"Gaslighter.{CurrentRound}"));
         }

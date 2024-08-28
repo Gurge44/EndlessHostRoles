@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
+using Hazel;
 
 namespace EHR.Crewmate
 {
@@ -19,7 +20,7 @@ namespace EHR.Crewmate
 
         public override void SetupCustomOption()
         {
-            StartSetup(647250, TabGroup.CrewmateRoles, CustomRoles.Grappler)
+            StartSetup(647250)
                 .AutoSetupOption(ref AbilityUseLimit, 0, new IntegerValueRule(0, 20, 1), OptionFormat.Times)
                 .AutoSetupOption(ref AbilityUseGainWithEachTaskCompleted, 0.3f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times)
                 .AutoSetupOption(ref AbilityChargesWhenFinishedTasks, 0.2f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times);
@@ -56,7 +57,7 @@ namespace EHR.Crewmate
             return base.GetProgressText(playerId, comms) + (InUse ? "<#00ff00>\u271a</color>" : string.Empty);
         }
 
-        public void ReceiveRPC(Hazel.MessageReader reader)
+        public void ReceiveRPC(MessageReader reader)
         {
             InUse = reader.ReadBoolean();
         }

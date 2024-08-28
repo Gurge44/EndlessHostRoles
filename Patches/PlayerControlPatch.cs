@@ -589,8 +589,15 @@ class MurderPlayerPatch
         }
 
         if (killer.Is(CustomRoles.Sniper))
+        {
             if (!Options.UsePets.GetBool()) killer.RpcResetAbilityCooldown();
-            else Main.AbilityCD[killer.PlayerId] = (TimeStamp, Options.DefaultShapeshiftCooldown.GetInt());
+            else
+            {
+                int cd = Options.DefaultShapeshiftCooldown.GetInt();
+                Main.AbilityCD[killer.PlayerId] = (TimeStamp, cd);
+                SendRPC(CustomRPC.SyncAbilityCD, 1, killer.PlayerId, cd);
+            }
+        }
 
         if (killer != __instance)
         {
@@ -1089,6 +1096,7 @@ class ReportDeadBodyPatch
         }
 
         Main.AbilityCD.Clear();
+        SendRPC(CustomRPC.SyncAbilityCD, 2);
 
         if (player.Is(CustomRoles.Damocles))
         {
@@ -1234,7 +1242,7 @@ static class FixedUpdatePatch
         var player = __instance;
         var playerId = player.PlayerId;
         var lpId = PlayerControl.LocalPlayer.PlayerId;
-        var localPlayer = player.PlayerId == lpId; // Updates that are independent of the player are only executed for the local player.
+        var localPlayer = playerId == lpId; // Updates that are independent of the player are only executed for the local player.
 
         bool lowLoad = false;
         if (Options.LowLoadMode.GetBool())
@@ -1297,9 +1305,9 @@ static class FixedUpdatePatch
 
             if (!GameStates.IsLobby)
             {
-                if (player.Is(CustomRoles.Spurt) && !Mathf.Approximately(Main.AllPlayerSpeed[player.PlayerId], Spurt.StartingSpeed[player.PlayerId]) && !inTask && !GameStates.IsMeeting) // fix ludicrous bug
+                if (player.Is(CustomRoles.Spurt) && !Mathf.Approximately(Main.AllPlayerSpeed[playerId], Spurt.StartingSpeed[playerId]) && !inTask && !GameStates.IsMeeting) // fix ludicrous bug
                 {
-                    Main.AllPlayerSpeed[player.PlayerId] = Spurt.StartingSpeed[player.PlayerId];
+                    Main.AllPlayerSpeed[playerId] = Spurt.StartingSpeed[playerId];
                     player.MarkDirtySettings();
                 }
 
@@ -1336,7 +1344,7 @@ static class FixedUpdatePatch
                     PlagueBearer.playerIdList.Remove(playerId);
                 }
 
-                bool checkPos = inTask && player != null && alive && !Pelican.IsEaten(player.PlayerId);
+                bool checkPos = inTask && player != null && alive && !Pelican.IsEaten(playerId);
                 if (checkPos) Asthmatic.OnCheckPlayerPosition(player);
                 foreach (var state in Main.PlayerStates.Values)
                 {
@@ -1372,6 +1380,7 @@ static class FixedUpdatePatch
                         if (timer.START_TIMESTAMP + timer.TOTALCD < TimeStamp || !alive)
                         {
                             Main.AbilityCD.Remove(playerId);
+                            SendRPC(CustomRPC.SyncAbilityCD, 3, playerId);
                         }
 
                         if (!player.IsModClient() && timer.TOTALCD - (now - timer.START_TIMESTAMP) <= 60) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
@@ -1434,7 +1443,7 @@ static class FixedUpdatePatch
         {
             if (GameStates.IsLobby)
             {
-                if (Main.PlayerVersion.TryGetValue(player.PlayerId, out var ver))
+                if (Main.PlayerVersion.TryGetValue(playerId, out var ver))
                 {
                     if (Main.ForkId != ver.forkId)
                         __instance.cosmetics.nameText.text = $"<color=#ff0000><size=1.2>{ver.forkId}</size>\n{__instance?.name}</color>";

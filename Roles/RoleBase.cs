@@ -194,8 +194,14 @@ namespace EHR
         }
 
         // Option setup simplifier
-        protected static OptionSetupHandler StartSetup(int id, TabGroup tab, CustomRoles role)
+        protected OptionSetupHandler StartSetup(int id)
         {
+            var role = Enum.Parse<CustomRoles>(this.GetType().Name, true);
+            var tab = TabGroup.OtherRoles;
+            if (role.IsImpostor()) tab = TabGroup.ImpostorRoles;
+            else if (role.IsNeutral(check: true)) tab = TabGroup.NeutralRoles;
+            else if (role.IsCrewmate()) tab = TabGroup.CrewmateRoles;
+
             Options.SetupRoleOptions(id++, tab, role);
             return new(++id, tab, role);
         }

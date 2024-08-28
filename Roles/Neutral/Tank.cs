@@ -22,7 +22,7 @@ namespace EHR.Neutral
 
         public override void SetupCustomOption()
         {
-            StartSetup(646950, TabGroup.NeutralRoles, CustomRoles.Tank)
+            StartSetup(646950)
                 .AutoSetupOption(ref Speed, 0.7f, new FloatValueRule(0.1f, 3f, 0.1f), OptionFormat.Multiplier)
                 .AutoSetupOption(ref CanBeGuessed, false)
                 .AutoSetupOption(ref CanBeKilled, true)

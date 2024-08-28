@@ -2450,7 +2450,9 @@ public static class Utils
     {
         if (role.UsesPetInsteadOfKill())
         {
-            Main.AbilityCD[playerId] = (TimeStamp, (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(playerId, out var KCD) ? KCD : Options.DefaultKillCooldown));
+            int kcd = (int)Math.Round(Main.AllPlayerKillCooldown.TryGetValue(playerId, out var KCD) ? KCD : Options.DefaultKillCooldown);
+            Main.AbilityCD[playerId] = (TimeStamp, kcd);
+            SendRPC(CustomRPC.SyncAbilityCD, 1, playerId, kcd);
             return;
         }
 
@@ -2507,6 +2509,7 @@ public static class Utils
             CD = (int)Math.Round(CD * 0.75f);
 
         Main.AbilityCD[playerId] = (TimeStamp, CD);
+        SendRPC(CustomRPC.SyncAbilityCD, 1, playerId, CD);
 
         if (Options.UseUnshiftTrigger.GetBool() && role.SimpleAbilityTrigger() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool()))
             GetPlayerById(playerId)?.RpcResetAbilityCooldown();
