@@ -321,7 +321,7 @@ Source language: English
 > - Provided roles: Marshall, Poisoner, Necroview, Sidekick
 >
 
-### :star: [PL](https://github.com/ImaMapleTree/Lotus) :
+### :star: [PL](https://github.com/Lotus-AU/LotusContinued) :
 
 >
 > - Ideas for some roles

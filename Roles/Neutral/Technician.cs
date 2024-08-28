@@ -15,17 +15,16 @@ namespace EHR.Neutral
         private static OptionItem VentCooldown;
         private static OptionItem MaxInVentTime;
         private static readonly Dictionary<SystemTypes, OptionItem> PointGains = [];
+
         private bool fixedSabotage;
-
         public bool IsWon;
-
         private PlayerControl TechnicianPC;
 
         public override bool IsEnable => On;
 
         public override void SetupCustomOption()
         {
-            StartSetup(646950, TabGroup.NeutralRoles, CustomRoles.Technician)
+            StartSetup(646450)
                 .AutoSetupOption(ref WinsAlone, false)
                 .AutoSetupOption(ref RequiredPoints, 5, new IntegerValueRule(1, 50, 1))
                 .AutoSetupOption(ref CanVent, false)
@@ -137,7 +136,7 @@ namespace EHR.Neutral
                 }
                 case SystemTypes.Comms:
                 {
-                    if (Main.CurrentMap == MapNames.Mira)
+                    if (Main.CurrentMap is MapNames.Mira or MapNames.Fungle)
                     {
                         var tags = (HqHudSystemType.Tags)(amount & HqHudSystemType.TagMask);
                         if (tags == HqHudSystemType.Tags.ActiveBit)
@@ -151,10 +150,11 @@ namespace EHR.Neutral
                             var consoleId = amount & HqHudSystemType.IdMask;
                             var otherConsoleId = (consoleId + 1) % 2;
                             ShipStatus.Instance.UpdateSystem(SystemTypes.Comms, playerId.GetPlayer(), (byte)(otherConsoleId | (int)HqHudSystemType.Tags.FixBit));
+                            technician.IncreasePoints(systemType);
                         }
                     }
+                    else if (amount == 0) technician.IncreasePoints(systemType);
 
-                    technician.IncreasePoints(systemType);
                     break;
                 }
             }
@@ -176,7 +176,7 @@ namespace EHR.Neutral
         {
             var points = (int)Math.Round(playerId.GetAbilityUseLimit());
             var needed = RequiredPoints.GetInt();
-            var color = points >= needed ? Color.green : Utils.GetRoleColor(CustomRoles.Technician);
+            var color = points >= needed ? Color.green : Color.white;
             return Utils.ColorString(color, $"{points}/{needed}");
         }
     }

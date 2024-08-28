@@ -15,7 +15,7 @@ namespace EHR.Crewmate
 
         public override void SetupCustomOption()
         {
-            StartSetup(647450, TabGroup.CrewmateRoles, CustomRoles.Journalist);
+            StartSetup(647450);
         }
 
         public override void Init()

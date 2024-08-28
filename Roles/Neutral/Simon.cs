@@ -187,7 +187,7 @@ namespace EHR.Neutral
             if (seer.IsModClient() && !hud && self) return string.Empty;
 
             if (self) return Translator.GetString(simon.DoMode ? "SimonDoMode" : "SimonDontMode");
-            else if (simon.MarkedPlayers.TryGetValue(target.PlayerId, out var value)) return Translator.GetString(GetNotify(value.Instruction, value.DoAction, true));
+            if (simon.MarkedPlayers.TryGetValue(target.PlayerId, out var value)) return Translator.GetString(GetNotify(value.Instruction, value.DoAction, true));
 
             return string.Empty;
         }

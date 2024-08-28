@@ -21,7 +21,7 @@ namespace EHR.Impostor
 
         public override void SetupCustomOption()
         {
-            StartSetup(649250, TabGroup.ImpostorRoles, CustomRoles.Assumer)
+            StartSetup(649250)
                 .AutoSetupOption(ref VoteReceiverDies, false)
                 .AutoSetupOption(ref MinPlayersToAssume, 6, new IntegerValueRule(1, 15, 1), OptionFormat.Players)
                 .AutoSetupOption(ref CanKill, true)

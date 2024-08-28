@@ -110,7 +110,7 @@ namespace EHR.Neutral
                 killerSubRoles.Skip(1).Do(x => target.RpcSetCustomRole(x));
             }
 
-            Main.AbilityCD.Remove(killer.PlayerId);
+            killer.RemoveAbilityCD();
             killer.SyncSettings();
 
             // ------------------------------------------------------------------------------------------

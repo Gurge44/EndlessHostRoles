@@ -32,7 +32,7 @@ namespace EHR.Neutral
 
         public override void SetupCustomOption()
         {
-            StartSetup(648350, TabGroup.NeutralRoles, CustomRoles.Gaslighter)
+            StartSetup(648350)
                 .AutoSetupOption(ref KillCooldown, 22.5f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds)
                 .AutoSetupOption(ref WinCondition, 0, WinConditionOptions)
                 .AutoSetupOption(ref CycleRepeats, false);
@@ -54,6 +54,8 @@ namespace EHR.Neutral
             ShieldedPlayers = [];
             CycleFinished = false;
         }
+
+        public override bool CanUseKillButton(PlayerControl pc) => pc.IsAlive();
 
         public override void SetKillCooldown(byte id)
         {
@@ -123,6 +125,8 @@ namespace EHR.Neutral
             var pc = GaslighterId.GetPlayer();
             pc?.ResetKillCooldown();
             pc?.Notify(Translator.GetString($"Gaslighter.{CurrentRound}"));
+
+            LateTask.New(() => pc?.SetKillCooldown(), 1.5f, log: false);
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
@@ -140,8 +144,9 @@ namespace EHR.Neutral
                     CursedPlayers.Add(target.PlayerId);
                     killer.SetKillCooldown();
                     return false;
-                case Round.Shield:
+                case Round.Shield when killer.GetAbilityUseLimit() > 0:
                     ShieldedPlayers.Add(target.PlayerId);
+                    killer.RpcRemoveAbilityUse();
                     killer.SetKillCooldown();
                     return false;
             }

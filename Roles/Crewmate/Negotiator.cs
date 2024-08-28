@@ -24,7 +24,7 @@ namespace EHR.Crewmate
 
         public override void SetupCustomOption()
         {
-            StartSetup(647950, TabGroup.CrewmateRoles, CustomRoles.Negotiator)
+            StartSetup(647950)
                 .AutoSetupOption(ref LowVision, 0.4f, new FloatValueRule(0f, 1f, 0.05f), OptionFormat.Multiplier)
                 .AutoSetupOption(ref LowSpeed, 0.9f, new FloatValueRule(0.1f, 2f, 0.1f), OptionFormat.Multiplier)
                 .AutoSetupOption(ref AbilityUseLimit, 0, new IntegerValueRule(0, 20, 1), OptionFormat.Times)
