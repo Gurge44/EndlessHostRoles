@@ -114,16 +114,15 @@ namespace EHR.Neutral
                 CurrentRound++;
             }
 
-            var pc = GaslighterId.GetPlayer();
             float limit = CurrentRound switch
             {
                 Round.Knight => Monarch.KnightMax.GetFloat(),
                 Round.Shield => Medic.SkillLimit,
-                _ => float.NaN
+                _ => 0
             };
-            if (!float.IsNaN(limit)) GaslighterId.SetAbilityUseLimit(limit);
-            else pc?.RemoveAbilityCD();
+            GaslighterId.SetAbilityUseLimit(limit);
 
+            var pc = GaslighterId.GetPlayer();
             pc?.ResetKillCooldown();
             pc?.Notify(Translator.GetString($"Gaslighter.{CurrentRound}"));
 

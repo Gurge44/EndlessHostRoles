@@ -1379,8 +1379,7 @@ static class FixedUpdatePatch
                     {
                         if (timer.START_TIMESTAMP + timer.TOTALCD < TimeStamp || !alive)
                         {
-                            Main.AbilityCD.Remove(playerId);
-                            SendRPC(CustomRPC.SyncAbilityCD, 3, playerId);
+                            player.RemoveAbilityCD();
                         }
 
                         if (!player.IsModClient() && timer.TOTALCD - (now - timer.START_TIMESTAMP) <= 60) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);

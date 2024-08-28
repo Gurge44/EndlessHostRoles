@@ -355,9 +355,8 @@ static class ExtendedPlayerControl
 
     public static void RemoveAbilityCD(this PlayerControl pc)
     {
-        if (Main.AbilityCD.ContainsKey(pc.PlayerId))
+        if (Main.AbilityCD.Remove(pc.PlayerId))
         {
-            Main.AbilityCD.Remove(pc.PlayerId);
             SendRPC(CustomRPC.SyncAbilityCD, 3, pc.PlayerId);
         }
     }
