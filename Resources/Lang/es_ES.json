@@ -4374,7 +4374,7 @@
   "Soothsayer": "Augur",
   "SoothsayerInfo": "Predice Quien Te Matará",
   "SoothsayerInfoLong": "(Tripulantes):\\nComo el Augur, puedes predecir quien te matará. Si es correcto, cuando mueres, todos serán notificados de la identidad del asesino.",
-  "SoothsayerDiedNotify": "The Soothsayer predicted that {0} would kill them\\nand they were correct!",
+  "SoothsayerDiedNotify": "El Augur predijo que {0} lo iba a matar\\n¡Y tenía razón!",
   "Ventriloquist": "Ventriloquist",
   "VentriloquistInfo": "Make Others Say What You Want",
   "VentriloquistInfoLong": "(Impostors):\\nAs the Ventriloquist, you can make others say what you want. First, type /target {id} to target a player. Then, type /chat {message} to make the targeted player say the message.",
