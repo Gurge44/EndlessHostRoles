@@ -262,6 +262,7 @@ Source language: English
 >
 > - Our repo is forked from TOHRE (from a long time ago)
 > - Thanks: Better Anti-Blackout
+> - Thanks: Phantom-basis fix for desynced roles
 >
 
 ### :star: [TOHE/TONX](https://github.com/KARPED1EM/TownOfHostEdited) :
