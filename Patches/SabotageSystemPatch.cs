@@ -123,6 +123,26 @@ public static class LifeSuppSystemTypePatch
     }
 }
 
+[HarmonyPatch(typeof(MushroomMixupSabotageSystem), nameof(MushroomMixupSabotageSystem.UpdateSystem))]
+public static class MushroomMixupSabotageSystemUpdateSystemPatch
+{
+    public static void Postfix()
+    {
+        Logger.Info(" IsActive", "MushroomMixupSabotageSystem.UpdateSystem.Postfix");
+
+        foreach (var pc in Main.AllAlivePlayerControls)
+        {
+            // Need for hiding player names if player is desync Impostor
+            Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
+            if (!pc.Is(Team.Impostor) && pc.HasDesyncRole())
+            {
+                // Need for hiding player names if player is desync Impostor
+                Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
+            }
+        }
+    }
+}
+
 [HarmonyPatch(typeof(MushroomMixupSabotageSystem), nameof(MushroomMixupSabotageSystem.Deteriorate))]
 public static class MushroomMixupSabotageSystemPatch
 {
@@ -178,7 +198,7 @@ public static class MushroomMixupSabotageSystemPatch
 
             foreach (var pc in Main.AllAlivePlayerControls)
             {
-                if (!pc.Is(CustomRoleTypes.Impostor) && Main.ResetCamPlayerList.Contains(pc.PlayerId))
+                if (!pc.Is(CustomRoleTypes.Impostor) && pc.HasDesyncRole())
                 {
                     Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
                 }

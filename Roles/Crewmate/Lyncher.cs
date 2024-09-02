@@ -2,12 +2,14 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using Hazel;
 
 namespace EHR.Crewmate
 {
     public class Lyncher : RoleBase
     {
         public static bool On;
+        public static List<Lyncher> Instances = [];
 
         private static OptionItem TaskNum;
         public static OptionItem GuessMode;
@@ -45,6 +47,7 @@ namespace EHR.Crewmate
         public override void Init()
         {
             On = false;
+            Instances = [];
             AllRoleNames = [];
             KnownCharacters = [];
             LateTask.New(() => AllRoleNames = Main.PlayerStates.ToDictionary(x => x.Key, x => Translator.GetString($"{x.Value.MainRole}").ToUpper().Shuffle()), 3f, log: false);
@@ -53,6 +56,7 @@ namespace EHR.Crewmate
         public override void Add(byte playerId)
         {
             On = true;
+            Instances.Add(this);
             LyncherId = playerId;
             TasksCompleted = 0;
             Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 1, TasksCompleted);
@@ -92,7 +96,17 @@ namespace EHR.Crewmate
             });
         }
 
-        public void ReceiveRPC(Hazel.MessageReader reader)
+        public void OnRoleChange(byte id)
+        {
+            Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 3, id);
+            var newRole = Main.PlayerStates[id].MainRole;
+            AllRoleNames[id] = Translator.GetString($"{newRole}").ToUpper().Shuffle();
+            var count = KnownCharacters[id].Count;
+            KnownCharacters[id] = AllRoleNames[id].Take(count).ToList();
+            KnownCharacters[id].ForEach(x => Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 2, id, x));
+        }
+
+        public void ReceiveRPC(MessageReader reader)
         {
             switch (reader.ReadPackedInt32())
             {
@@ -101,6 +115,9 @@ namespace EHR.Crewmate
                     break;
                 case 2:
                     KnownCharacters[reader.ReadByte()].Add(reader.ReadString()[0]);
+                    break;
+                case 3:
+                    KnownCharacters[reader.ReadByte()].Clear();
                     break;
             }
         }

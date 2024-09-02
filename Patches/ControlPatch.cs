@@ -32,6 +32,11 @@ internal class ControllerManagerUpdatePatch
                 if (OrGetKeysDown(KeyCode.Alpha1 + i, KeyCode.Keypad1 + i) && OptionShower.Pages.Count >= i + 1)
                     OptionShower.CurrentPage = i;
             }
+
+            if (KeysDown(KeyCode.Return) && GameSettingMenu.Instance != null && GameSettingMenu.Instance.isActiveAndEnabled)
+            {
+                GameSettingMenuPatch._SearchForOptions?.Invoke();
+            }
         }
 
         if (KeysDown(KeyCode.LeftShift, KeyCode.LeftControl, KeyCode.X))

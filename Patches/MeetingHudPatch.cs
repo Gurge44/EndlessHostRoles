@@ -64,19 +64,14 @@ static class CheckForEndVotingPatch
                         VotedForId = pva.VotedFor
                     });
                     states = [.. statesList];
-                    AntiBlackout.OverrideExiledPlayer = AntiBlackout.IsOverride;
-                    if (AntiBlackout.OverrideExiledPlayer)
-                    {
-                        __instance.RpcVotingComplete(states.ToArray(), null, true);
-                        ExileControllerWrapUpPatch.AntiBlackout_LastExiled = voteTarget.Data;
-                    }
-                    else __instance.RpcVotingComplete(states.ToArray(), voteTarget.Data, false); // Normal processing
+                    __instance.RpcVotingComplete(states.ToArray(), voteTarget.Data, false);
 
                     Logger.Info($"{voteTarget.GetNameWithRole().RemoveHtmlTags()} expelled by dictator", "Dictator");
                     CheckForDeathOnExile(PlayerState.DeathReason.Vote, pva.VotedFor);
                     Logger.Info("Dictatorship vote, forced end of meeting", "Special Phase");
                     voteTarget.SetRealKiller(pc);
                     Main.LastVotedPlayerInfo = voteTarget.Data;
+                    AntiBlackout.ExilePlayerId = voteTarget.PlayerId;
                     if (Main.LastVotedPlayerInfo != null)
                         ConfirmEjections(Main.LastVotedPlayerInfo, false);
                     return true;
@@ -284,20 +279,17 @@ static class CheckForEndVotingPatch
 
             exiledPlayer?.Object.SetRealKiller(null);
 
-            // RPC
-            AntiBlackout.OverrideExiledPlayer = AntiBlackout.IsOverride;
-            if (AntiBlackout.OverrideExiledPlayer)
-            {
-                __instance.RpcVotingComplete(states.ToArray(), null, true);
-                ExileControllerWrapUpPatch.AntiBlackout_LastExiled = exiledPlayer;
-            }
-            else __instance.RpcVotingComplete(states.ToArray(), exiledPlayer, tie);
+            __instance.RpcVotingComplete(states.ToArray(), exiledPlayer, tie);
 
             CheckForDeathOnExile(PlayerState.DeathReason.Vote, exileId);
 
             Main.LastVotedPlayerInfo = exiledPlayer;
+            AntiBlackout.ExilePlayerId = exiledPlayer.PlayerId;
             if (Main.LastVotedPlayerInfo != null)
+            {
+                AntiBlackout.ExilePlayerId = exiledPlayer.PlayerId;
                 ConfirmEjections(Main.LastVotedPlayerInfo, braked);
+            }
 
             if (QuizMaster.On) QuizMaster.Data.NumPlayersVotedLastMeeting = __instance.playerStates.Count(x => x.DidVote);
 
@@ -494,9 +486,9 @@ static class CheckForEndVotingPatch
 
     public static void TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason deathReason, params byte[] playerIds)
     {
-        var AddedIdList = playerIds.Where(playerId => Main.AfterMeetingDeathPlayers.TryAdd(playerId, deathReason)).ToList();
-
-        CheckForDeathOnExile(deathReason, [.. AddedIdList]);
+        Logger.Info($"{playerIds.Join(x => Main.AllPlayerNames[x])} - died with the reason: {deathReason}", "TryAddAfterMeetingDeathPlayers");
+        var addedIdList = playerIds.Where(playerId => Main.AfterMeetingDeathPlayers.TryAdd(playerId, deathReason)).ToArray();
+        CheckForDeathOnExile(deathReason, addedIdList);
     }
 
     private static void CheckForDeathOnExile(PlayerState.DeathReason deathReason, params byte[] playerIds)
@@ -810,12 +802,6 @@ class MeetingHudStartPatch
         {
             Utils.SendMessage(string.Format(GetString("Message.SyncButtonLeft"), Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount));
             Logger.Info("The ship has " + (Options.SyncedButtonCount.GetFloat() - Options.UsedButtonCount) + " buttons left", "SyncButtonMode");
-        }
-
-        AntiBlackout.OverrideExiledPlayer = AntiBlackout.IsOverride;
-        if (AntiBlackout.OverrideExiledPlayer && (MeetingStates.FirstMeeting || Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors) > 1))
-        {
-            LateTask.New(() => { Utils.SendMessage(GetString("AntiBlackout.OverrideExiledPlayer"), 255, Utils.ColorString(Color.red, GetString("DefaultSystemMessageTitle"))); }, 5f, "Warning OverrideExiledPlayer");
         }
 
         TemplateManager.SendTemplate("OnMeeting", noErr: true);

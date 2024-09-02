@@ -5,7 +5,7 @@ using HarmonyLib;
 namespace EHR;
 
 [HarmonyPatch(typeof(TaskAdderGame), nameof(TaskAdderGame.ShowFolder))]
-class ShowFolderPatch
+static class ShowFolderPatch
 {
     private static TaskFolder CustomRolesFolder;
 
@@ -77,7 +77,7 @@ class TaskAddButtonUpdatePatch
 }
 
 [HarmonyPatch(typeof(TaskAddButton), nameof(TaskAddButton.AddTask))]
-class AddTaskButtonPatch
+static class AddTaskButtonPatch
 {
     public static bool Prefix(TaskAddButton __instance)
     {
@@ -87,7 +87,7 @@ class AddTaskButtonPatch
             {
                 CustomRoles FileCustomRole = (CustomRoles)__instance.Role.Role - 1000;
                 PlayerControl.LocalPlayer.RpcSetCustomRole(FileCustomRole);
-                PlayerControl.LocalPlayer.RpcSetRole(FileCustomRole.GetRoleTypes());
+                PlayerControl.LocalPlayer.RpcSetRole(FileCustomRole.GetRoleTypes(), true);
                 return false;
             }
         }

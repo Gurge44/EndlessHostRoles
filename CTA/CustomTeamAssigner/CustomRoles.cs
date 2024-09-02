@@ -135,6 +135,7 @@ public enum CustomRoles
     Altruist,
     Analyst,
     Autocrat,
+    Bane,
     Beacon,
     Benefactor,
     Bodyguard,

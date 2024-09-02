@@ -221,18 +221,30 @@ namespace EHR
                         switch (WhenLimitIsReached.GetValue())
                         {
                             case 0:
+                            {
                                 AllDisasters.RemoveAll(x => x.Name is "Earthquake" or "VolcanoEruption" or "Tornado" or "Thunderstorm" or "Sandstorm" or "Tsunami");
                                 break;
+                            }
                             case 1:
+                            {
+                                if (IRandom.Instance.Next(AllDisasters.Count) == 0)
+                                {
+                                    Sinkhole.RemoveRandomSinkhole();
+                                    return;
+                                }
+
                                 var remove = PreferRemovingThunderstorm.GetBool() ? ActiveDisasters.Find(x => x is Thunderstorm) : ActiveDisasters.RandomElement();
                                 if (remove != null) remove.Duration = 0;
                                 remove?.RemoveIfExpired();
                                 break;
+                            }
                             case 2:
+                            {
                                 var oldest = ActiveDisasters.MinBy(x => x.StartTimeStamp);
                                 oldest.Duration = 0;
                                 oldest.RemoveIfExpired();
                                 break;
+                            }
                         }
                     }
                 }
@@ -275,7 +287,7 @@ namespace EHR
 
             public long StartTimeStamp { get; } = Utils.TimeStamp;
             protected Vector2 Position { get; set; }
-            protected NaturalDisaster NetObject { get; init; }
+            public NaturalDisaster NetObject { get; init; }
             public virtual int Duration { get; set; }
 
             public virtual bool RemoveIfExpired()
@@ -808,7 +820,7 @@ namespace EHR
 
         sealed class Sinkhole : Disaster
         {
-            public static readonly List<Vector2> Sinkholes = [];
+            public static readonly List<(Vector2 Position, NaturalDisaster NetObject)> Sinkholes = [];
 
             public Sinkhole(Vector2 position, NaturalDisaster naturalDisaster) : base(position)
             {
@@ -817,7 +829,7 @@ namespace EHR
 
                 KillNearbyPlayers(PlayerState.DeathReason.Sunken);
 
-                Sinkholes.Add(position);
+                Sinkholes.Add((position, naturalDisaster));
             }
 
             public override int Duration { get; set; } = int.MaxValue;
@@ -837,12 +849,19 @@ namespace EHR
                     // ReSharper disable once ForCanBeConvertedToForeach
                     for (int i = 0; i < Sinkholes.Count; i++)
                     {
-                        if (Vector2.Distance(pos, Sinkholes[i]) <= Range)
+                        if (Vector2.Distance(pos, Sinkholes[i].Position) <= Range)
                         {
                             pc.Suicide(PlayerState.DeathReason.Sunken);
                         }
                     }
                 }
+            }
+
+            public static void RemoveRandomSinkhole()
+            {
+                var remove = Sinkholes.RandomElement();
+                remove.NetObject.Despawn();
+                Sinkholes.Remove(remove);
             }
         }
 

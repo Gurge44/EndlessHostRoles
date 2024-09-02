@@ -13,25 +13,16 @@ namespace EHR.Patches;
 
 static class ExileControllerWrapUpPatch
 {
-    public static NetworkedPlayerInfo AntiBlackout_LastExiled { get; set; }
+    public static NetworkedPlayerInfo AntiBlackoutLastExiled { get; set; }
 
     static void WrapUpPostfix(NetworkedPlayerInfo exiled)
     {
-        if (AntiBlackout.OverrideExiledPlayer)
-        {
-            exiled = AntiBlackout_LastExiled;
-            if (Options.ShowAntiBlackoutWarning.GetBool())
-                Logger.SendInGame(Translator.GetString("AntiBlackout.OverrideExiledPlayer"));
-        }
-
         bool DecidedWinner = false;
         if (!AmongUsClient.Instance.AmHost) return;
         AntiBlackout.RestoreIsDead(doSend: false);
+        AntiBlackoutLastExiled = exiled;
         if (!Collector.CollectorWin(false) && exiled != null)
         {
-            if (!AntiBlackout.OverrideExiledPlayer && Main.ResetCamPlayerList.Contains(exiled.PlayerId))
-                exiled.Object?.ResetPlayerCam(1f);
-
             exiled.IsDead = true;
             Main.PlayerStates[exiled.PlayerId].deathReason = PlayerState.DeathReason.Vote;
             var role = exiled.GetCustomRole();
@@ -110,7 +101,6 @@ static class ExileControllerWrapUpPatch
             {
                 Warlock.CursedPlayers[pc.PlayerId] = null;
                 Warlock.IsCurseAndKill[pc.PlayerId] = false;
-                //RPC.RpcSyncCurseAndKill();
             }
 
             pc.ResetKillCooldown();
@@ -141,40 +131,33 @@ static class ExileControllerWrapUpPatch
         Utils.NotifyRoles(ForceLoop: true);
     }
 
-    static void WrapUpFinalizer(NetworkedPlayerInfo exiled)
+    static void WrapUpFinalizer()
     {
         // Even if an exception occurs in WrapUpPostfix, this part will be executed reliably.
         if (AmongUsClient.Instance.AmHost)
         {
             LateTask.New(() =>
             {
-                exiled = AntiBlackout_LastExiled;
                 AntiBlackout.SendGameData();
-                if (AntiBlackout.OverrideExiledPlayer && // State where the exile target is overwritten (no need to execute if it is not overwritten)
-                    exiled != null &&
-                    exiled.Object != null)
-                {
-                    exiled.Object.RpcExileV2();
-                }
-            }, 0.8f, "Restore IsDead Task");
+                AntiBlackout.SetRealPlayerRoles();
+            }, 1.1f, "Restore IsDead Task");
             LateTask.New(() =>
             {
                 Main.AfterMeetingDeathPlayers.Do(x =>
                 {
                     var player = Utils.GetPlayerById(x.Key);
                     var state = Main.PlayerStates[x.Key];
-                    Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} died with {x.Value}", "AfterMeetingDeath");
+                    Logger.Info($"{player?.GetNameWithRole().RemoveHtmlTags()} died with {x.Value}", "AfterMeetingDeath");
                     state.deathReason = x.Value;
                     state.SetDead();
                     player?.RpcExileV2();
                     if (x.Value == PlayerState.DeathReason.Suicide)
                         player?.SetRealKiller(player, true);
-                    if (Main.ResetCamPlayerList.Contains(x.Key))
-                        player?.ResetPlayerCam(1f);
                     Utils.AfterPlayerDeathTasks(player);
                 });
                 Main.AfterMeetingDeathPlayers.Clear();
-            }, 0.9f, "AfterMeetingDeathPlayers Task");
+                AntiBlackout.ResetAfterMeeting();
+            }, 1.2f, "AfterMeetingDeathPlayers Task");
         }
 
         GameStates.AlreadyDied |= !Utils.IsAllAlive;
@@ -228,7 +211,7 @@ static class ExileControllerWrapUpPatch
             }
             finally
             {
-                WrapUpFinalizer(__instance.initData.networkedPlayer);
+                WrapUpFinalizer();
             }
         }
     }
@@ -244,7 +227,7 @@ static class ExileControllerWrapUpPatch
             }
             finally
             {
-                WrapUpFinalizer(__instance.initData.networkedPlayer);
+                WrapUpFinalizer();
             }
         }
     }

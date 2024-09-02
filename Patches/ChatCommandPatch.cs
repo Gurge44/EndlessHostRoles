@@ -854,6 +854,7 @@ internal static class ChatCommands
         if (text.Length < 6 || !GameStates.IsMeeting) return;
         string toVote = text[6..].Replace(" ", string.Empty);
         if (!byte.TryParse(toVote, out var voteId) || MeetingHud.Instance?.playerStates?.FirstOrDefault(x => x.TargetPlayerId == player.PlayerId)?.DidVote == true) return;
+        if (voteId > Main.AllPlayerControls.Length) return;
         if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
         if (!player.IsHost()) MeetingHud.Instance?.CastVote(player.PlayerId, voteId);
         else MeetingHud.Instance?.CmdCastVote(player.PlayerId, voteId);

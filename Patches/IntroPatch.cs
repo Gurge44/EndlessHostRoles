@@ -12,7 +12,7 @@ using static EHR.Translator;
 namespace EHR;
 
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.ShowRole))]
-class SetUpRoleTextPatch
+static class SetUpRoleTextPatch
 {
     public static bool IsInIntro;
 
@@ -716,6 +716,11 @@ class IntroCutsceneDestroyPatch
     {
         if (!GameStates.IsInGame) return;
         Main.IntroDestroyed = true;
+
+        // Set roleAssigned as false for overriding roles for modded players
+        // for vanilla clients we use "Data.Disconnected"
+        Main.AllPlayerControls.Do(x => x.roleAssigned = false);
+
         if (AmongUsClient.Instance.AmHost)
         {
             if (Main.NormalOptions.MapId != 4)

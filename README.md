@@ -72,7 +72,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | Adventurer        | Anti Adminer    | Arsonist          | Asthmatic      |
 | Aid               | Arrogance       | Backstabber       | Autopsy        |
 | Alchemist         | Assumer         | Bandit            | Avenger        |
-| Altruist          | Augmenter       | Bargainer         | Bait           |
+| Bane              | Augmenter       | Bargainer         | Bait           |
 | Analyst           | Bard            | Beehive           | Busy           |
 | Autocrat          | Blackmailer     | Blood Knight      | Beartrap       |
 | Beacon            | Bomber          | Bubble            | Bewilder       |
@@ -261,6 +261,7 @@ Source language: English
 
 >
 > - Our repo is forked from TOHRE (from a long time ago)
+> - Thanks: Better Anti-Blackout
 >
 
 ### :star: [TOHE/TONX](https://github.com/KARPED1EM/TownOfHostEdited) :
@@ -284,6 +285,7 @@ Source language: English
 > - Provided roles: AntiAdminer, CursedWolf, Workaholic, Greedier, DarkHide, Ignitor, Rabbit
 > - Reference: Modify game announcement
 > - New settings UI for v2024.6.18
+> - Reference: Role Basis Changing Mid-Game
 >
 
 ### :star: [TOH:TOR](https://github.com/music-discussion/TownOfHost-TheOtherRoles) :

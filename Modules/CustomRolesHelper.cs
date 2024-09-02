@@ -204,8 +204,9 @@ internal static class CustomRolesHelper
             CustomRoles.Drainer => CustomRoles.Engineer,
             CustomRoles.Benefactor => CustomRoles.Crewmate,
             CustomRoles.GuessManagerRole => CustomRoles.Crewmate,
-            CustomRoles.Altruist => CustomRoles.Crewmate,
+            CustomRoles.Bane => CustomRoles.Crewmate,
             CustomRoles.Transmitter => CustomRoles.Crewmate,
+            CustomRoles.Altruist => CustomRoles.Engineer,
             CustomRoles.Negotiator => CustomRoles.Crewmate,
             CustomRoles.Grappler => CustomRoles.Crewmate,
             CustomRoles.Journalist => CustomRoles.Crewmate,
@@ -825,6 +826,7 @@ internal static class CustomRolesHelper
 
     public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc) => role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out var bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out var o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && (!role.IsImpOnlyAddon() || pc.IsImpostor()) && role switch
     {
+        CustomRoles.AntiTP when pc.Is(CustomRoles.Transmitter) => false,
         CustomRoles.Swift when pc.Is(CustomRoles.Stealth) => false,
         CustomRoles.Disco when pc.GetCustomRole() is CustomRoles.Chameleon or CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Alchemist => false,
         CustomRoles.Egoist when pc.Is(CustomRoles.Gangster) => false,
@@ -1345,6 +1347,7 @@ internal static class CustomRolesHelper
         CustomRoles.Aid => RoleOptionType.Crewmate_Support,
         CustomRoles.Altruist => RoleOptionType.Crewmate_Support,
         CustomRoles.Autocrat => RoleOptionType.Crewmate_Support,
+        CustomRoles.Bane => RoleOptionType.Crewmate_Support,
         CustomRoles.Beacon => RoleOptionType.Crewmate_Support,
         CustomRoles.Benefactor => RoleOptionType.Crewmate_Support,
         CustomRoles.Bodyguard => RoleOptionType.Crewmate_Support,

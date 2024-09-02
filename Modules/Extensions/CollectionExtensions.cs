@@ -255,6 +255,11 @@ namespace EHR
             return false;
         }
 
+        public static IEnumerable<PlayerControl> ToValidPlayers(this IEnumerable<byte> playerIds)
+        {
+            return playerIds.Select(Utils.GetPlayer).Where(x => x != null);
+        }
+
         #region Without
 
         /// <summary>

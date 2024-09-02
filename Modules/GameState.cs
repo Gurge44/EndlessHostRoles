@@ -137,6 +137,7 @@ public class PlayerState(byte playerId)
                 RemoveDisableDevicesPatch.UpdateDisableDevices();
             }
 
+            if (Lyncher.On) Lyncher.Instances.ForEach(x => x.OnRoleChange(PlayerId));
             if (!role.Is(Team.Impostor)) SubRoles.ToArray().DoIf(x => x.IsImpOnlyAddon(), RemoveSubRole);
             if (role is CustomRoles.Sidekick or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee) RemoveSubRole(CustomRoles.Nimble);
 

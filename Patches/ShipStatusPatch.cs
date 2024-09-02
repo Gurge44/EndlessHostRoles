@@ -40,7 +40,7 @@ public static class MessageReaderUpdateSystemPatch
     {
         try
         {
-            if (systemType is SystemTypes.Ventilation or SystemTypes.Security or SystemTypes.Decontamination or SystemTypes.Decontamination2 or SystemTypes.Decontamination3) return true;
+            if (systemType is SystemTypes.Ventilation or SystemTypes.Security or SystemTypes.Decontamination or SystemTypes.Decontamination2 or SystemTypes.Decontamination3 or SystemTypes.MedBay) return true;
 
             var amount = MessageReader.Get(reader).ReadByte();
             if (EAC.CheckInvalidSabotage(systemType, player, amount))
@@ -62,7 +62,7 @@ public static class MessageReaderUpdateSystemPatch
     {
         try
         {
-            if (systemType is SystemTypes.Ventilation or SystemTypes.Security or SystemTypes.Decontamination or SystemTypes.Decontamination2 or SystemTypes.Decontamination3) return;
+            if (systemType is SystemTypes.Ventilation or SystemTypes.Security or SystemTypes.Decontamination or SystemTypes.Decontamination2 or SystemTypes.Decontamination3 or SystemTypes.MedBay) return;
             RepairSystemPatch.Postfix(systemType, player);
         }
         catch
@@ -305,17 +305,6 @@ class StartMeetingPatch
     }
 }
 
-[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Begin))]
-class BeginPatch
-{
-    public static void Postfix()
-    {
-        Logger.CurrentMethod();
-
-        //Should I initialize the host role here? - no
-    }
-}
-
 [HarmonyPatch(typeof(GameManager), nameof(GameManager.CheckTaskCompletion))]
 class CheckTaskCompletionPatch
 {
@@ -344,5 +333,81 @@ public static class HauntMenuMinigameSetFilterTextPatch
         }
 
         return true;
+    }
+}
+
+// From https://github.com/0xDrMoe/TownofHost-Enhanced
+[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Begin))]
+static class ShipStatusBeginPatch
+{
+    public static bool RolesIsAssigned = false;
+
+    public static bool Prefix()
+    {
+        return RolesIsAssigned;
+    }
+
+    public static void Postfix()
+    {
+        Logger.CurrentMethod();
+
+        if (RolesIsAssigned && !Main.IntroDestroyed)
+        {
+            foreach (var player in Main.AllPlayerControls)
+            {
+                Main.PlayerStates[player.PlayerId].InitTask(player);
+            }
+
+            GameData.Instance.RecomputeTaskCounts();
+            TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
+
+            Utils.DoNotifyRoles(ForceLoop: true, NoCache: true);
+        }
+    }
+}
+
+// From https://github.com/0xDrMoe/TownofHost-Enhanced
+[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.SpawnPlayer))]
+static class ShipStatusSpawnPlayerPatch
+{
+    // Since SnapTo is unstable on the server side and after a meeting,
+    // all players sometimes do not appear on the table,
+    // it's better to manually teleport them
+    public static bool Prefix(ShipStatus __instance, PlayerControl player, int numPlayers, bool initialSpawn)
+    {
+        Vector2 direction = Vector2.up.Rotate((player.PlayerId - 1) * (360f / numPlayers));
+        Vector2 position = (initialSpawn ? __instance.InitialSpawnCenter : __instance.MeetingSpawnCenter) + direction * __instance.SpawnRadius + new Vector2(0.0f, 0.3636f);
+
+        player.TP(position, log: false);
+        return false;
+    }
+}
+
+// From https://github.com/0xDrMoe/TownofHost-Enhanced
+[HarmonyPatch(typeof(PolusShipStatus), nameof(PolusShipStatus.SpawnPlayer))]
+static class PolusShipStatusSpawnPlayerPatch
+{
+    public static bool Prefix(PolusShipStatus __instance,
+        [HarmonyArgument(0)] PlayerControl player,
+        [HarmonyArgument(1)] int numPlayers,
+        [HarmonyArgument(2)] bool initialSpawn)
+    {
+        if (initialSpawn)
+        {
+            ShipStatusSpawnPlayerPatch.Prefix(__instance, player, numPlayers, true);
+        }
+        else
+        {
+            int num1 = Mathf.FloorToInt(numPlayers / 2f);
+            int num2 = player.PlayerId % 15;
+
+            Vector2 position = num2 >= num1
+                ? __instance.MeetingSpawnCenter2 + Vector2.right * (num2 - num1) * 0.6f
+                : __instance.MeetingSpawnCenter + Vector2.right * num2 * 0.6f;
+
+            player.TP(position, log: false);
+        }
+
+        return false;
     }
 }

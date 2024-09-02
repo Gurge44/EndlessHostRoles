@@ -525,57 +525,71 @@ public static class Utils
     {
         if (!DoRPC) return;
 
-        var w = CreateRPC(rpc);
-        foreach (var o in data)
+        MessageWriter w;
+        try
         {
-            switch (o)
-            {
-                case byte b:
-                    w.Write(b);
-                    break;
-                case int i:
-                    w.WritePacked(i);
-                    break;
-                case float f:
-                    w.Write(f);
-                    break;
-                case string s:
-                    w.Write(s);
-                    break;
-                case bool b:
-                    w.Write(b);
-                    break;
-                case long l:
-                    w.Write(l.ToString());
-                    break;
-                case char c:
-                    w.Write(c.ToString());
-                    break;
-                case Vector2 v:
-                    w.Write(v);
-                    break;
-                case Vector3 v:
-                    w.Write(v);
-                    break;
-                case PlayerControl pc:
-                    w.WriteNetObject(pc);
-                    break;
-                default:
-                    try
-                    {
-                        if (o != null && Enum.TryParse(o.GetType(), o.ToString(), out var e) && e != null)
-                            w.WritePacked((int)e);
-                    }
-                    catch (InvalidCastException e)
-                    {
-                        ThrowException(e);
-                    }
-
-                    break;
-            }
+            w = CreateRPC(rpc);
+        }
+        catch
+        {
+            return;
         }
 
-        EndRPC(w);
+        try
+        {
+            foreach (var o in data)
+            {
+                switch (o)
+                {
+                    case byte b:
+                        w.Write(b);
+                        break;
+                    case int i:
+                        w.WritePacked(i);
+                        break;
+                    case float f:
+                        w.Write(f);
+                        break;
+                    case string s:
+                        w.Write(s);
+                        break;
+                    case bool b:
+                        w.Write(b);
+                        break;
+                    case long l:
+                        w.Write(l.ToString());
+                        break;
+                    case char c:
+                        w.Write(c.ToString());
+                        break;
+                    case Vector2 v:
+                        w.Write(v);
+                        break;
+                    case Vector3 v:
+                        w.Write(v);
+                        break;
+                    case PlayerControl pc:
+                        w.WriteNetObject(pc);
+                        break;
+                    default:
+                        try
+                        {
+                            if (o != null && Enum.TryParse(o.GetType(), o.ToString(), out var e) && e != null)
+                                w.WritePacked((int)e);
+                        }
+                        catch (InvalidCastException e)
+                        {
+                            ThrowException(e);
+                        }
+
+                        break;
+                }
+            }
+        }
+        finally
+        {
+            EndRPC(w);
+        }
     }
 
     public static void IncreaseAbilityUseLimitOnKill(PlayerControl killer)
@@ -844,6 +858,7 @@ public static class Utils
     {
         if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters) return false;
         if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun || (Options.CurrentGameMode == CustomGameMode.HideAndSeek && HnSManager.IsRoleTextEnabled(PlayerControl.LocalPlayer, __instance)) || Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool() || PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) return true;
+        if (Altruist.On && Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId)) return false;
 
         switch (__instance.GetCustomRole())
         {
@@ -1997,7 +2012,7 @@ public static class Utils
                                 }
                             }
 
-                            var mHelp = "\n" + GetString("MyRoleCommandHelp");
+                            var mHelp = Options.CurrentGameMode == CustomGameMode.Standard ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
 
                             SeerRealName = !Options.ChangeNameToRoleInfo.GetBool()
                                 ? SeerRealName
@@ -2199,6 +2214,7 @@ public static class Utils
                                     ? $"<size={fontSize}>{target.GetDisplayRoleName(seeTargetBetrayalAddons: shouldSeeTargetAddons)}{GetProgressText(target)}</size>\r\n"
                                     : string.Empty;
 
+                            if (Altruist.On && Main.DiedThisRound.Contains(seer.PlayerId)) TargetRoleText = string.Empty;
                             if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters) TargetRoleText = string.Empty;
 
                             if (!GameStates.IsLobby)
@@ -2515,6 +2531,12 @@ public static class Utils
             GetPlayerById(playerId)?.RpcResetAbilityCooldown();
     }
 
+    public static (RoleTypes roleType, CustomRoles customRole) GetRoleMap(byte seerId, byte targetId = byte.MaxValue)
+    {
+        if (targetId == byte.MaxValue) targetId = seerId;
+        return SelectRolesPatch.RpcSetRoleReplacer.RoleMap[(seerId, targetId)];
+    }
+
     public static void AfterMeetingTasks()
     {
         bool loversChat = Lovers.PrivateChat.GetBool();
@@ -2565,12 +2587,6 @@ public static class Utils
                     pc.Notify(GetString("DoYourTasksPlease"), 10f);
 
                 GhostRolesManager.NotifyAboutGhostRole(pc);
-
-                if (pc.HasGhostRole())
-                {
-                    pc.ReactorFlash(1f);
-                    pc.ResetPlayerCam(2f);
-                }
             }
 
             if (pc.Is(CustomRoles.Specter) || pc.Is(CustomRoles.Haunter)) pc.RpcResetAbilityCooldown();
@@ -2619,6 +2635,8 @@ public static class Utils
     {
         try
         {
+            if (!onMeeting) Main.DiedThisRound.Add(target.PlayerId);
+
             // Record the first death
             if (Main.FirstDied == string.Empty)
                 Main.FirstDied = target.FriendCode;

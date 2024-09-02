@@ -803,6 +803,29 @@ static class DialogueBoxHidePatch
     }
 }
 
+[HarmonyPatch(typeof(HudManager), nameof(HudManager.CoShowIntro))]
+static class CoShowIntroPatch
+{
+    public static void Prefix()
+    {
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return;
+
+        LateTask.New(() =>
+        {
+            // Update name players for custom vanilla intro
+            Utils.DoNotifyRoles(NoCache: true);
+        }, 0.35f, "Update names");
+
+        LateTask.New(() =>
+        {
+            ShipStatusBeginPatch.RolesIsAssigned = true;
+
+            // Assign tasks after assign all roles, as it should be
+            ShipStatus.Instance.Begin();
+        }, 4f, "Assing Task");
+    }
+}
+
 static class RepairSender
 {
     public static bool Enabled;

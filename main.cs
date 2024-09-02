@@ -31,8 +31,8 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "4.6.0";
-    public const string PluginDisplayVersion = "4.6.0";
+    public const string PluginVersion = "4.7.0";
+    public const string PluginDisplayVersion = "4.7.0";
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
     public const string CrewmateColor = "#8cffff";
@@ -103,6 +103,7 @@ public class Main : BasePlugin
     public static string FirstDied = string.Empty;
     public static string ShieldPlayer = string.Empty;
 
+    public static HashSet<byte> DiedThisRound = [];
     public static List<PlayerControl> LoversPlayers = [];
     public static bool IsLoversDead = true;
     public static List<byte> CyberStarDead = [];
@@ -378,6 +379,7 @@ public class Main : BasePlugin
                 { CustomRoles.Doppelganger, "#f6f4a3" },
                 { CustomRoles.Nightmare, "#1e1247" },
                 { CustomRoles.Altruist, "#300000" },
+                { CustomRoles.Bane, "#745da3" },
                 { CustomRoles.Benefactor, "#4aeaff" },
                 { CustomRoles.GuessManagerRole, "#d4ff00" },
                 { CustomRoles.Drainer, "#149627" },
