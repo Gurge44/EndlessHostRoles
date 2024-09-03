@@ -3745,7 +3745,7 @@
   "AltruistInfo": "Revive Dead Players",
   "AltruistInfoLong": "(Crewmates):\\nAs the Altruist, you can revive a dead player by reporting their body. The revived player will be able to continue playing as if they were never dead. If you revive a player, you will die.\\nYou can switch between reviving and reporting modes by entering a vent/petting your pet.",
   "AltruistSuffixRevive": "<#00ffa5>Target is revived in </color>{0}s",
-  "AltruistSuffix": "<#00ffa5>Mode:</color> <b>{0}</b>",
+  "AltruistSuffix": "<#00ffa5>模式:</color> <b>{0}</b>",
   "AltruistReviveMode": "Revive",
   "AltruistReportMode": "报告",
   "RevivedByAltruist": "<#ffff00><size=150%>You've been revived by the <color=#300000>Altruist</color>!</size></color>",
