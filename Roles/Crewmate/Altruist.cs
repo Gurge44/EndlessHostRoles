@@ -99,9 +99,9 @@ namespace EHR.Crewmate
             ReviveTargetPos = Vector2.zero;
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != AlturistId || isMeeting || (seer.IsModClient() && !isHUD)) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != AlturistId || meeting || (seer.IsModClient() && !hud)) return string.Empty;
             if (ReviveStartTS != 0) return string.Format(Translator.GetString("AltruistSuffixRevive"), ReviveTime.GetInt() - (Utils.TimeStamp - ReviveStartTS));
             return string.Format(Translator.GetString("AltruistSuffix"), Translator.GetString(RevivingMode ? "AltruistReviveMode" : "AltruistReportMode"));
         }

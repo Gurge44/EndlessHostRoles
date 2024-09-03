@@ -179,9 +179,9 @@ namespace EHR.Crewmate
             CurrentMode = (Mode)reader.ReadPackedInt32();
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != TelekineticPC.PlayerId || (seer.IsModClient() && !isHUD) || isMeeting) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != TelekineticPC.PlayerId || (seer.IsModClient() && !hud) || meeting) return string.Empty;
             return string.Format(Translator.GetString("Telekinetic.Suffix"), Translator.GetString($"Telekinetic.Mode.{CurrentMode}"));
         }
 

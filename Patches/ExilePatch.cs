@@ -180,10 +180,6 @@ static class ExileControllerWrapUpPatch
                 foreach (var pc in Main.AllAlivePlayerControls)
                 {
                     string finalText = text;
-                    if (NameNotifyManager.Notice.TryGetValue(pc.PlayerId, out var notify))
-                    {
-                        finalText = $"\n{notify.TEXT}\n{finalText}";
-                    }
 
                     if (appendEjectionNotify && !finalText.Contains(CheckForEndVotingPatch.EjectionText, StringComparison.OrdinalIgnoreCase))
                     {

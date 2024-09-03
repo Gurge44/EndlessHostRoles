@@ -1,4 +1,5 @@
 ﻿using EHR.Modules;
+using Hazel;
 
 namespace EHR.Crewmate
 {
@@ -94,14 +95,14 @@ namespace EHR.Crewmate
 
         public static bool CanCallMeeting(PlayerControl pc) => Main.PlayerStates[pc.PlayerId].Role is Adrenaline an && (an.Timer == 0 || CanCallMeetingDuringTimer.GetBool());
 
-        public void ReceiveRPC(Hazel.MessageReader reader)
+        public void ReceiveRPC(MessageReader reader)
         {
             Timer = reader.ReadPackedInt32();
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != AdrenalineId || isMeeting || (seer.IsModClient() && !isHUD) || Timer == 0) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != AdrenalineId || meeting || (seer.IsModClient() && !hud) || Timer == 0) return string.Empty;
             return string.Format(Translator.GetString("Adrenaline.Suffix"), Timer);
         }
     }

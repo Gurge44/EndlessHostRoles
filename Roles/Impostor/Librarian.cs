@@ -176,11 +176,11 @@ namespace EHR.Impostor
             sssh.Clear();
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             string result = string.Empty;
             if (target.Is(CustomRoles.Librarian)) result += GetNameTextForSuffix(target.PlayerId);
-            if (isHUD || (seer.PlayerId == target.PlayerId && !seer.IsModClient())) result += GetSelfSuffixAndHudText(target.PlayerId);
+            if (hud || (seer.PlayerId == target.PlayerId && !seer.IsModClient())) result += GetSelfSuffixAndHudText(target.PlayerId);
             return result;
         }
 

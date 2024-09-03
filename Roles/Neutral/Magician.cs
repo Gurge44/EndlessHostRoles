@@ -270,7 +270,7 @@ public class Magician : RoleBase
                 CardId = byte.MaxValue;
                 break;
             case 10: // Admin map
-                NameNotifyManager.Notice.Remove(pc.PlayerId);
+                NameNotifyManager.Notifies.Remove(pc.PlayerId);
                 var rooms = GetAllPlayerLocationsCount();
                 var sb = new StringBuilder();
                 foreach (var location in rooms)

@@ -27,6 +27,8 @@ public class Glitch : RoleBase
 
     public int HackCDTimer;
 
+    private bool HasMimiced;
+
     private bool IsShifted;
     public int KCDTimer;
 
@@ -82,6 +84,8 @@ public class Glitch : RoleBase
         LastMimic = ts;
 
         LastUpdate = ts;
+
+        HasMimiced = false;
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)
@@ -130,6 +134,7 @@ public class Glitch : RoleBase
             pc.RpcShapeshift(playerlist.RandomElement(), false);
 
             IsShifted = true;
+            HasMimiced = true;
             LastMimic = Utils.TimeStamp;
             MimicCDTimer = MimicCooldown.GetInt();
             MimicDurTimer = MimicDuration.GetInt();
@@ -258,7 +263,7 @@ public class Glitch : RoleBase
 
         try
         {
-            MimicCDTimer = (int)(MimicCooldown.GetInt() + MimicDuration.GetInt() - (now - LastMimic));
+            MimicCDTimer = (int)(MimicCooldown.GetInt() + (HasMimiced ? MimicDuration.GetInt() : 0) - (now - LastMimic));
         }
         catch
         {
@@ -278,16 +283,19 @@ public class Glitch : RoleBase
 
             string ns = sb.ToString();
 
-            if ((!NameNotifyManager.Notice.TryGetValue(player.PlayerId, out var a) || a.TEXT != ns) && ns != string.Empty) player.Notify(ns, 1.1f);
+            if ((!NameNotifyManager.GetNameNotify(player, out string a) || a != ns) && ns != string.Empty) player.Notify(ns, 1.1f);
         }
 
         if (player.IsNonHostModClient()) SendRPCSyncTimers();
     }
 
-    public override string GetSuffix(PlayerControl player, PlayerControl _, bool hud = false, bool m = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (!hud || player == null || !player.IsAlive() || m) return string.Empty;
-        if (Main.PlayerStates[player.PlayerId].Role is not Glitch gc) return string.Empty;
+        Logger.Test("pos0");
+        if (!hud || seer == null || !seer.IsAlive() || meeting) return string.Empty;
+        Logger.Test("pos1");
+        if (Main.PlayerStates[seer.PlayerId].Role is not Glitch gc) return string.Empty;
+        Logger.Test("pos2");
 
         var sb = new StringBuilder();
 
@@ -305,6 +313,7 @@ public class Glitch : RoleBase
         LastKill = timestamp;
         LastHack = timestamp;
         LastMimic = timestamp;
+        HasMimiced = false;
         KCDTimer = 10;
         HackCDTimer = 10;
         MimicCDTimer = 10;

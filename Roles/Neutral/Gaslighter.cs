@@ -154,7 +154,7 @@ namespace EHR.Neutral
             return false;
         }
 
-        public static bool IsShielded(PlayerControl target) => Instances.Exists(i => i.ShieldedPlayers.Contains(target.PlayerId));
+        public static bool IsShielded(PlayerControl target) => On && Instances.Exists(i => i.ShieldedPlayers.Contains(target.PlayerId));
 
         public override string GetProgressText(byte playerId, bool comms)
         {

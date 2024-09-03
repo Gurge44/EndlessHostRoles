@@ -236,11 +236,11 @@ namespace EHR.Neutral
             return Utils.ColorString(Utils.GetRoleColor(CustomRoles.PlagueDoctor), GetInfectRateCharactor(seen, pd));
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isForHud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != target.PlayerId && seer.IsAlive()) return string.Empty;
             if (!seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive()) return string.Empty;
-            if (!isForHud && seer.IsModClient()) return string.Empty;
+            if (!hud && seer.IsModClient()) return string.Empty;
             if (Main.PlayerStates[seer.PlayerId].Role is not PlagueDoctor { IsEnable: true } pd) return string.Empty;
             var str = new StringBuilder(40);
             foreach (PlayerControl player in Main.AllAlivePlayerControls)

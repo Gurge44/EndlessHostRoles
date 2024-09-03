@@ -304,9 +304,9 @@ internal class AntiAdminer : RoleBase
         }
     }
 
-    public override string GetSuffix(PlayerControl seer, PlayerControl _, bool h = false, bool m = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (Main.PlayerStates[seer.PlayerId].Role is AntiAdminer self && seer.PlayerId == _.PlayerId && self.AntiAdminerId == seer.PlayerId)
+        if (Main.PlayerStates[seer.PlayerId].Role is AntiAdminer self && seer.PlayerId == target.PlayerId && self.AntiAdminerId == seer.PlayerId)
         {
             return self.ExtraAbilityStartTimeStamp > 0
                 ? $"<#ffffff>▩ {Delay.GetInt() - (Utils.TimeStamp - self.ExtraAbilityStartTimeStamp):N0}</color>"

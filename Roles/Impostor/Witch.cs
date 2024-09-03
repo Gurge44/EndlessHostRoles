@@ -236,9 +236,9 @@ public class Witch : RoleBase
         return string.Empty;
     }
 
-    public override string GetSuffix(PlayerControl witch, PlayerControl target, bool hud = false, bool isMeeting = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (witch == null || isMeeting || witch.PlayerId != target.PlayerId || !witch.Is(CustomRoles.Witch)) return string.Empty;
+        if (seer == null || meeting || seer.PlayerId != target.PlayerId || !seer.Is(CustomRoles.Witch)) return string.Empty;
 
         var str = new StringBuilder();
         if (hud)
@@ -256,7 +256,7 @@ public class Witch : RoleBase
         }
         else
         {
-            str.Append(IsSpellMode(witch.PlayerId) ? GetString("WitchModeSpell") : GetString("WitchModeKill"));
+            str.Append(IsSpellMode(seer.PlayerId) ? GetString("WitchModeSpell") : GetString("WitchModeKill"));
         }
 
         return str.ToString();

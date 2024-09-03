@@ -385,10 +385,10 @@ namespace EHR.Crewmate
             }
         }
 
-        public override string GetSuffix(PlayerControl pc, PlayerControl tar, bool hud = false, bool isForMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (pc.IsModClient() && !hud) return string.Empty;
-            if (pc.PlayerId != tar.PlayerId || pc.PlayerId != AdventurerPC.PlayerId) return string.Empty;
+            if (seer.IsModClient() && !hud) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != AdventurerPC.PlayerId) return string.Empty;
 
             IEnumerable<string> resources =
                 from resource in Enum.GetValues<Resource>()
@@ -396,9 +396,9 @@ namespace EHR.Crewmate
                 select $"{Utils.ColorString(displayData.Color, $"{displayData.Icon}")}{ResourceCounts[resource]}";
 
             string finalText = string.Join(' ', resources);
-            if (isForMeeting) return finalText;
+            if (meeting) return finalText;
 
-            finalText += $"\n{LocateArrow.GetArrows(pc)}\n";
+            finalText += $"\n{LocateArrow.GetArrows(seer)}\n";
 
             finalText += "<size=80%>";
             finalText += InCraftingMode

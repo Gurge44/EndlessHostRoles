@@ -297,9 +297,9 @@ namespace EHR.Neutral
             }
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != RoguePC.PlayerId || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !isHUD) || MeetingStates.FirstMeeting) return string.Empty;
+            if (seer.PlayerId != RoguePC.PlayerId || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || MeetingStates.FirstMeeting) return string.Empty;
             if (AllTasksCompleted) return Translator.GetString("Rogue.AllTasksCompleted");
             if (CurrentTask.IsCompleted) return Translator.GetString("Rogue.TaskCompleted");
 

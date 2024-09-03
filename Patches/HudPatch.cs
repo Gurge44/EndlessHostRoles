@@ -242,7 +242,7 @@ class HudManagerPatch
 
                     string GetAddonSuffixes()
                     {
-                        var suffixes = state.SubRoles.Select(subRole => subRole switch
+                        var suffixes = state.SubRoles.Select(s => s switch
                         {
                             CustomRoles.Asthmatic => Asthmatic.GetSuffixText(player.PlayerId),
                             CustomRoles.Spurt => Spurt.GetSuffix(player, true),
@@ -254,7 +254,7 @@ class HudManagerPatch
 
                     string CD_HUDText = !Options.UsePets.GetBool() || !Main.AbilityCD.TryGetValue(player.PlayerId, out var CD)
                         ? string.Empty
-                        : string.Format(GetString("CDPT"), CD.TOTALCD - (Utils.TimeStamp - CD.START_TIMESTAMP) + 1);
+                        : string.Format(GetString("CDPT"), CD.TotalCooldown - (Utils.TimeStamp - CD.StartTimeStamp) + 1);
 
                     bool hasCD = CD_HUDText != string.Empty;
                     if (hasCD)
@@ -263,7 +263,7 @@ class HudManagerPatch
                         LowerInfoText.text = $"{CD_HUDText}\n{LowerInfoText.text}";
                     }
 
-                    LowerInfoText.enabled = hasCD;
+                    LowerInfoText.enabled = hasCD || LowerInfoText.text != string.Empty;
 
                     if ((!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay) || GameStates.IsMeeting)
                     {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using Hazel;
 using UnityEngine;
 
 namespace EHR.Neutral
@@ -108,7 +109,7 @@ namespace EHR.Neutral
             StungPlayers.Clear();
         }
 
-        public void ReceiveRPC(Hazel.MessageReader reader)
+        public void ReceiveRPC(MessageReader reader)
         {
             switch (reader.ReadPackedInt32())
             {
@@ -121,9 +122,9 @@ namespace EHR.Neutral
             }
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || isMeeting || isHUD || !StungPlayers.TryGetValue(seer.PlayerId, out var sp)) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || meeting || hud || !StungPlayers.TryGetValue(seer.PlayerId, out var sp)) return string.Empty;
 
             var walked = Math.Round(Vector2.Distance(seer.Pos(), sp.InitialPosition), 1);
             var distance = Math.Round(Distance.GetFloat(), 1);

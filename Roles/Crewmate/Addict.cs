@@ -120,7 +120,7 @@ namespace EHR.Crewmate
             Main.AllPlayerSpeed[pc.PlayerId] = SpeedWhileImmortal.GetFloat();
             pc.MarkDirtySettings();
 
-            if (NameNotifyManager.Notice.Remove(pc.PlayerId))
+            if (NameNotifyManager.Notifies.Remove(pc.PlayerId))
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 

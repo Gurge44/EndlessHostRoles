@@ -145,7 +145,7 @@ public class Snitch : RoleBase
         return Utils.ColorString(RoleColor, warning);
     }
 
-    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.Is(CustomRoles.Madmate)) return string.Empty;
         if (!EnableTargetArrow || GameStates.IsMeeting || seer.PlayerId != SnitchId) return string.Empty;

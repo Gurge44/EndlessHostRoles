@@ -196,7 +196,7 @@ namespace EHR.Impostor
             target.Suicide(realKiller: deathpact);
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (GameStates.IsMeeting) return string.Empty;
             if (!ShowArrowsToOtherPlayersInPact.GetBool()) return string.Empty;

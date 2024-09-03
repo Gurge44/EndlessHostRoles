@@ -37,6 +37,7 @@ namespace EHR.Crewmate
             On = true;
             Instances.Add(this);
             GrapplerId = playerId;
+            InUse = false;
             playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
         }
 

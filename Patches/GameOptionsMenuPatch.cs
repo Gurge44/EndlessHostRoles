@@ -200,7 +200,7 @@ public static class GameOptionsMenuPatch
     {
         Vector3 positionOffset = new(0f, 0f, 0f);
         Vector3 scaleOffset = new(0f, 0f, 0f);
-        Color color = new(0.8f, 0.8f, 0.8f);
+        Color color = new(0.35f, 0.35f, 0.35f);
         float sizeDelta_x = 5.7f;
 
         if (option.Parent?.Parent?.Parent != null)
@@ -829,6 +829,7 @@ public class GameSettingMenuPatch
             button.activeSprites.GetComponent<SpriteRenderer>().color = color;
             button.selectedSprites.GetComponent<SpriteRenderer>().color = color;
 
+            // ReSharper disable once PossibleLossOfFraction
             Vector3 offset = new(0f, 0.4f * (((int)tab + 1) / 2), 0f);
             button.transform.localPosition = ((((int)tab + 1) % 2 == 0) ? ButtonPositionLeft : ButtonPositionRight) - offset;
             button.transform.localScale = ButtonSize;

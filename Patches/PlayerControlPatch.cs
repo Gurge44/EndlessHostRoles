@@ -1382,12 +1382,12 @@ static class FixedUpdatePatch
                 {
                     if (Main.AbilityCD.TryGetValue(playerId, out var timer))
                     {
-                        if (timer.START_TIMESTAMP + timer.TOTALCD < TimeStamp || !alive)
+                        if (timer.StartTimeStamp + timer.TotalCooldown < TimeStamp || !alive)
                         {
                             player.RemoveAbilityCD();
                         }
 
-                        if (!player.IsModClient() && timer.TOTALCD - (now - timer.START_TIMESTAMP) <= 60) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                        if (!player.IsModClient() && timer.TotalCooldown - (now - timer.StartTimeStamp) <= 60) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                         LastUpdate[playerId] = now;
                     }
                 }
@@ -1546,7 +1546,7 @@ static class FixedUpdatePatch
                         Mark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★"));
                 }
 
-                Main.PlayerStates.Values.Do(x => Suffix.Append(x.Role.GetSuffix(seer, target, isMeeting: GameStates.IsMeeting)));
+                Main.PlayerStates.Values.Do(x => Suffix.Append(x.Role.GetSuffix(seer, target, meeting: GameStates.IsMeeting)));
 
                 if (self) Suffix.Append(CustomTeamManager.GetSuffix(seer));
 
@@ -1742,13 +1742,10 @@ static class FixedUpdatePatch
 
                     float offset = 0.2f;
 
-                    if (NameNotifyManager.Notice.TryGetValue(seer.PlayerId, out var notify) && notify.TEXT.Contains('\n'))
+                    if (NameNotifyManager.GetNameNotify(seer, out string notify) && notify.Contains('\n'))
                     {
-                        int count = notify.TEXT.Count(x => x == '\n');
-                        for (int i = 0; i < count; i++)
-                        {
-                            offset += 0.1f;
-                        }
+                        int count = notify.Count(x => x == '\n');
+                        for (int i = 0; i < count; i++) offset += 0.15f;
                     }
 
                     if (Suffix.ToString() != string.Empty)
@@ -1839,14 +1836,14 @@ static class PlayerStartPatch
 //}
 
 [HarmonyPatch(typeof(Vent), nameof(Vent.ExitVent))]
-class ExitVentPatch
+static class ExitVentPatch
 {
     public static void Postfix(Vent __instance, [HarmonyArgument(0)] PlayerControl pc)
     {
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "ExitVent");
 
         if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
-            LateTask.New(() => { HudManager.Instance.SetHudActive(pc, pc.Data.Role, true); }, 0.6f, log: false);
+            LateTask.New(() => HudManager.Instance.SetHudActive(pc, pc.Data.Role, true), 0.6f, log: false);
 
         if (!AmongUsClient.Instance.AmHost) return;
 
@@ -1867,7 +1864,7 @@ class ExitVentPatch
 }
 
 [HarmonyPatch(typeof(Vent), nameof(Vent.EnterVent))]
-class EnterVentPatch
+static class EnterVentPatch
 {
     public static void Postfix(Vent __instance, [HarmonyArgument(0)] PlayerControl pc)
     {

@@ -651,8 +651,15 @@ static class ExtendedPlayerControl
 
     public static void Suicide(this PlayerControl pc, PlayerState.DeathReason deathReason = PlayerState.DeathReason.Suicide, PlayerControl realKiller = null)
     {
-        Main.PlayerStates[pc.PlayerId].deathReason = deathReason;
-        Main.PlayerStates[pc.PlayerId].SetDead();
+        var state = Main.PlayerStates[pc.PlayerId];
+        if (realKiller != null && state.Role is SchrodingersCat cat)
+        {
+            cat.OnCheckMurderAsTarget(realKiller, pc);
+            return;
+        }
+
+        state.deathReason = deathReason;
+        state.SetDead();
 
         Medic.IsDead(pc);
         if (realKiller != null)
@@ -1242,7 +1249,7 @@ static class ExtendedPlayerControl
         }
     }
 
-    public static bool IsModClient(this PlayerControl player) => Main.PlayerVersion.ContainsKey(player.PlayerId);
+    public static bool IsModClient(this PlayerControl player) => player.IsHost() || Main.PlayerVersion.ContainsKey(player.PlayerId);
 
     public static List<PlayerControl> GetPlayersInAbilityRangeSorted(this PlayerControl player, bool ignoreColliders = false) => GetPlayersInAbilityRangeSorted(player, _ => true, ignoreColliders);
 

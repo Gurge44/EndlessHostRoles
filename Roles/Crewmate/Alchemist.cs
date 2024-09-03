@@ -156,7 +156,7 @@ namespace EHR.Crewmate
         {
             if (Main.PlayerStates[player.PlayerId].Role is not Alchemist am) return;
 
-            NameNotifyManager.Notice.Remove(player.PlayerId);
+            NameNotifyManager.Notifies.Remove(player.PlayerId);
 
             switch (am.PotionID)
             {
@@ -252,7 +252,7 @@ namespace EHR.Crewmate
             if (PotionID != 6) return;
             PotionID = 10;
             var pc = instance.myPlayer;
-            NameNotifyManager.Notice.Remove(pc.PlayerId);
+            NameNotifyManager.Notifies.Remove(pc.PlayerId);
             if (!AmongUsClient.Instance.AmHost) return;
             LateTask.New(() =>
             {
@@ -297,9 +297,9 @@ namespace EHR.Crewmate
             }
         }
 
-        public override string GetSuffix(PlayerControl pc, PlayerControl tar, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!hud || pc == null || pc.PlayerId != tar.PlayerId || !GameStates.IsInTask || pc.PlayerId != AlchemistId) return string.Empty;
+            if (!hud || seer == null || seer.PlayerId != target.PlayerId || !GameStates.IsInTask || seer.PlayerId != AlchemistId) return string.Empty;
             var str = new StringBuilder();
             if (IsInvis)
             {

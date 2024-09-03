@@ -122,14 +122,14 @@ namespace EHR.Crewmate
             }
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != LyncherId) return string.Empty;
 
             return (seer.PlayerId == target.PlayerId) switch
             {
                 false when KnownCharacters.TryGetValue(target.PlayerId, out var chars) && chars.Count > 0 => string.Join(' ', chars),
-                true when (!seer.IsModClient() || isHUD) => string.Format(Translator.GetString("Lyncher.Suffix"), TaskNum.GetInt() - TasksCompleted),
+                true when (!seer.IsModClient() || hud) => string.Format(Translator.GetString("Lyncher.Suffix"), TaskNum.GetInt() - TasksCompleted),
                 _ => string.Empty
             };
         }

@@ -186,10 +186,6 @@ class CoBeginPatch
 
         Logger.Info("\n" + sb, "GameInfo", multiLine: true);
 
-        Main.AllPlayerControls.Do(x => Main.PlayerStates[x.PlayerId].InitTask(x));
-        GameData.Instance.RecomputeTaskCounts();
-        TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
-
         RPC.RpcVersionCheck();
 
         Utils.NotifyRoles(NoCache: true);

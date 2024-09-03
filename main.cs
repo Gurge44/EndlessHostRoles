@@ -33,6 +33,7 @@ public class Main : BasePlugin
     private const string PluginGuid = "com.gurge44.endlesshostroles";
     public const string PluginVersion = "4.7.0";
     public const string PluginDisplayVersion = "4.7.0";
+    public const bool TestBuild = true;
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
     public const string CrewmateColor = "#8cffff";
@@ -70,7 +71,7 @@ public class Main : BasePlugin
     public static List<RoleBase> AllRoleClasses;
     public static float RefixCooldownDelay;
     public static bool ProcessShapeshifts = true;
-    public static readonly Dictionary<byte, (long START_TIMESTAMP, int TOTALCD)> AbilityCD = [];
+    public static readonly Dictionary<byte, (long StartTimeStamp, int TotalCooldown)> AbilityCD = [];
     public static Dictionary<byte, float> AbilityUseLimit = [];
     public static List<byte> DontCancelVoteList = [];
     public static HashSet<byte> ResetCamPlayerList = [];
@@ -80,7 +81,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, float> AllPlayerKillCooldown = [];
     public static Dictionary<byte, Vent> LastEnteredVent = [];
     public static Dictionary<byte, Vector2> LastEnteredVentLocation = [];
-    public static readonly List<(string MESSAGE, byte RECEIVER_ID, string TITLE)> MessagesToSend = [];
+    public static readonly List<(string Message, byte ReceiverID, string Title)> MessagesToSend = [];
     public static bool IsChatCommand;
     public static bool DoBlockNameChange;
     public static int UpdateTime;
@@ -98,7 +99,7 @@ public class Main : BasePlugin
     public static bool IntroDestroyed;
     public static float DefaultCrewmateVision;
     public static float DefaultImpostorVision;
-    public static readonly bool IsAprilFools = DateTime.Now.Month == 4 && DateTime.Now.Day is 1;
+    public static readonly bool IsAprilFools = DateTime.Now.Month == 4 && DateTime.Now.Day == 1;
     public static bool ResetOptions = true;
     public static string FirstDied = string.Empty;
     public static string ShieldPlayer = string.Empty;

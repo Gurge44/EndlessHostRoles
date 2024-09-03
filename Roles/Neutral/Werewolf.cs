@@ -189,9 +189,9 @@ public class Werewolf : RoleBase
         }, 0.5f, "Werewolf Vent");
     }
 
-    public override string GetSuffix(PlayerControl pc, PlayerControl _, bool hud = false, bool m = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (!hud || pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || Main.PlayerStates[pc.PlayerId].Role is not Werewolf { IsEnable: true } ww) return string.Empty;
+        if (!hud || seer == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || Main.PlayerStates[seer.PlayerId].Role is not Werewolf { IsEnable: true } ww) return string.Empty;
         var str = new StringBuilder();
         if (ww.IsRampaging)
         {

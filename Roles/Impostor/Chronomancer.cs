@@ -131,9 +131,9 @@ namespace EHR.Impostor
             }
         }
 
-        public override string GetSuffix(PlayerControl pc, PlayerControl _, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!hud || pc.PlayerId != ChronomancerId) return string.Empty;
+            if (!hud || seer.PlayerId != ChronomancerId) return string.Empty;
             return ChargePercent > 0 ? string.Format(Translator.GetString("ChronomancerPercent"), ChargePercent) : string.Empty;
         }
 

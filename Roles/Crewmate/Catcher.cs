@@ -2,6 +2,7 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using Hazel;
 using UnityEngine;
 
 namespace EHR.Crewmate
@@ -155,11 +156,11 @@ namespace EHR.Crewmate
         }
 
         void SendRPC() => Utils.SendRPC(CustomRPC.SyncRoleData, CatcherId, DelayStartTS);
-        public void ReceiveRPC(Hazel.MessageReader reader) => DelayStartTS = long.Parse(reader.ReadString());
+        public void ReceiveRPC(MessageReader reader) => DelayStartTS = long.Parse(reader.ReadString());
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != CatcherId || isMeeting || (seer.IsModClient() && !isHUD) || DelayStartTS == 0 || Options.UsePets.GetBool()) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != CatcherId || meeting || (seer.IsModClient() && !hud) || DelayStartTS == 0 || Options.UsePets.GetBool()) return string.Empty;
             return string.Format(Translator.GetString("Catcher.Suffix"), TrapPlaceDelay.GetInt() - (Utils.TimeStamp - DelayStartTS));
         }
     }

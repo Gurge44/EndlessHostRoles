@@ -92,7 +92,7 @@ namespace EHR.Neutral
             }
             else
             {
-                NameNotifyManager.Notice.Remove(pc.PlayerId);
+                NameNotifyManager.Notifies.Remove(pc.PlayerId);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }
 

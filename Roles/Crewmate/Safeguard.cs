@@ -70,9 +70,9 @@ namespace EHR.Crewmate
             return !Shielded;
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != SafeguardId || isMeeting || (seer.IsModClient() && !isHUD) || !Shielded) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != SafeguardId || meeting || (seer.IsModClient() && !hud) || !Shielded) return string.Empty;
             return seer.IsHost() ? string.Format(Translator.GetString("SafeguardSuffixTimer"), (int)Math.Ceiling(Timer)) : Translator.GetString("SafeguardSuffix");
         }
     }

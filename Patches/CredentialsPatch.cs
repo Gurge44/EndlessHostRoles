@@ -11,7 +11,7 @@ using static EHR.Translator;
 namespace EHR;
 
 [HarmonyPatch(typeof(PingTracker), nameof(PingTracker.Update))]
-internal class PingTrackerUpdatePatch
+internal static class PingTrackerUpdatePatch
 {
     public static PingTracker Instance;
     private static readonly StringBuilder Sb = new();
@@ -59,12 +59,17 @@ internal class PingTrackerUpdatePatch
 }
 
 [HarmonyPatch(typeof(VersionShower), nameof(VersionShower.Start))]
-internal class VersionShowerStartPatch
+internal static class VersionShowerStartPatch
 {
     private static void Postfix(VersionShower __instance)
     {
-        Main.CredentialsText = $"<size=1.5><color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
-        const string menuText = $"<color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}\r\n<color=#a54aff>By</color> <color=#ffff00>Gurge44</color>";
+#pragma warning disable CS0162 // Unreachable code detected
+        // ReSharper disable once HeuristicUnreachableCode
+        var testBuildIndicator = Main.TestBuild ? " <#ff0000>TEST</color>" : string.Empty;
+#pragma warning restore CS0162 // Unreachable code detected
+
+        Main.CredentialsText = $"<size=1.5><color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}{testBuildIndicator} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
+        var menuText = $"<color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}{testBuildIndicator}\r\n<color=#a54aff>By</color> <color=#ffff00>Gurge44</color>";
 
         if (Main.IsAprilFools) Main.CredentialsText = "<color=#00bfff>Endless Madness</color> v11.45.14 <color=#a54aff>by</color> <color=#ffff00>No one</color>";
 

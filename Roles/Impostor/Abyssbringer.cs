@@ -192,9 +192,9 @@ namespace EHR.Impostor
             }
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != AbyssbringerId || isMeeting || (seer.IsModClient() && !isHUD) || BlackHoles.Count == 0) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != AbyssbringerId || meeting || (seer.IsModClient() && !hud) || BlackHoles.Count == 0) return string.Empty;
             return string.Format(Translator.GetString("Abyssbringer.Suffix"), BlackHoles.Count, string.Join('\n', BlackHoles.Select(x => GetBlackHoleFormatText(x.RoomName, x.PlayersConsumed))));
 
             string GetBlackHoleFormatText(string roomName, int playersConsumed)

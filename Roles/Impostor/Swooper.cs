@@ -236,10 +236,10 @@ public class Swooper : RoleBase
         pc.Notify(GetString("SwooperInvisStateOut"));
     }
 
-    public override string GetSuffix(PlayerControl pc, PlayerControl _, bool hud = false, bool m = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (!hud || pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
-        if (Main.PlayerStates[pc.PlayerId].Role is not Swooper sw) return string.Empty;
+        if (!hud || seer == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
+        if (Main.PlayerStates[seer.PlayerId].Role is not Swooper sw) return string.Empty;
 
         var str = new StringBuilder();
         if (sw.IsInvis)

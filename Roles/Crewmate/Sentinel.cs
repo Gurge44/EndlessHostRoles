@@ -10,50 +10,27 @@ namespace EHR.Crewmate
 {
     public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRadius, PlayerControl sentinel = null, bool isPatrolling = false, Vector2? startingPosition = null, long patrolStartTimeStamp = 0)
     {
+        private Vector2? _startingPosition = startingPosition;
         private List<byte> LastNearbyKillers = [];
         private long LastUpdate;
 
-        public byte SentinelId
+        public byte SentinelId => sentinelId;
+
+        public PlayerControl Sentinel { get; private set; } = sentinel;
+
+        public bool IsPatrolling { get; private set; } = isPatrolling;
+
+        private Vector2 StartingPosition
         {
-            get => sentinelId;
-            set => sentinelId = value;
+            get => _startingPosition ?? Vector2.zero;
+            set => _startingPosition = value;
         }
 
-        public PlayerControl Sentinel
-        {
-            get => sentinel;
-            set => sentinel = value;
-        }
+        private long PatrolStartTimeStamp { get; set; } = patrolStartTimeStamp;
 
-        public bool IsPatrolling
-        {
-            get => isPatrolling;
-            set => isPatrolling = value;
-        }
+        private int PatrolDuration => patrolDuration;
 
-        public Vector2 StartingPosition
-        {
-            get => startingPosition ?? Vector2.zero;
-            set => startingPosition = value;
-        }
-
-        public long PatrolStartTimeStamp
-        {
-            get => patrolStartTimeStamp;
-            set => patrolStartTimeStamp = value;
-        }
-
-        public int PatrolDuration
-        {
-            get => patrolDuration;
-            set => patrolDuration = value;
-        }
-
-        public float PatrolRadius
-        {
-            get => patrolRadius;
-            set => patrolRadius = value;
-        }
+        private float PatrolRadius => patrolRadius;
 
         public PlayerControl[] NearbyKillers => GetPlayersInRadius(PatrolRadius, StartingPosition).Where(x => !x.Is(Team.Crewmate) && SentinelId != x.PlayerId).ToArray();
 

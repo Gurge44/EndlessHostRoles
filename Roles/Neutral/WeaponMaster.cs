@@ -219,9 +219,9 @@ public class WeaponMaster : RoleBase
         return !playerId.IsPlayerModClient() ? GetHudAndProgressText(playerId) : string.Empty;
     }
 
-    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        return isHUD ? GetHudAndProgressText(seer.PlayerId) : string.Empty;
+        return hud ? GetHudAndProgressText(seer.PlayerId) : string.Empty;
     }
 
     static string GetHudAndProgressText(byte id)

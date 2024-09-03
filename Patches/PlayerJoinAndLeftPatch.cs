@@ -211,7 +211,7 @@ class OnPlayerLeftPatch
                 if (state.deathReason == PlayerState.DeathReason.etc) state.deathReason = PlayerState.DeathReason.Disconnected;
                 if (!state.IsDead) state.SetDead();
 
-                NameNotifyManager.Notice.Remove(data.Character.PlayerId);
+                NameNotifyManager.Notifies.Remove(data.Character.PlayerId);
                 data.Character.RpcSetName(data.Character.GetRealName(isMeeting: true));
                 AntiBlackout.OnDisconnect(data.Character.Data);
                 PlayerGameOptionsSender.RemoveSender(data.Character);
@@ -271,7 +271,7 @@ class OnPlayerLeftPatch
                 Main.SayStartTimes.Remove(__instance.ClientId);
                 Main.SayBanwordsTimes.Remove(__instance.ClientId);
                 Main.PlayerVersion.Remove(data?.Character?.PlayerId ?? byte.MaxValue);
-                Logger.Info($"{Main.MessagesToSend.RemoveAll(x => x.RECEIVER_ID != byte.MaxValue && x.RECEIVER_ID == data?.Character.PlayerId)} sending messages were canceled", "OnPlayerLeftPatchPostfix");
+                Logger.Info($"{Main.MessagesToSend.RemoveAll(x => x.ReceiverID != byte.MaxValue && x.ReceiverID == data?.Character.PlayerId)} sending messages were canceled", "OnPlayerLeftPatchPostfix");
 
                 if (data != null && data.Character != null)
                 {
