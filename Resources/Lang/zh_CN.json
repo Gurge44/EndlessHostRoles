@@ -3942,7 +3942,7 @@
   "RogueInfo": "完成目标，获得奖励",
   "RogueInfoLong": "(中立职业):\\n恶棍每一轮都会获得一个目标.您可以选择完成目标来获得奖励。",
   "Rogue.Objective.KillInSpecificRoom": "在{0}内击杀某人",
-  "Rogue.Objective.VentXTimes": "Vent {0} times",
+  "Rogue.Objective.VentXTimes": "跳管{0}次",
   "Rogue.Objective.CallEmergencyMeeting": "Call an emergency meeting",
   "Rogue.Objective.KillSpecificPlayer": "Kill {0}",
   "Rogue.Objective.KillXTimes": "Kill {0} times",
