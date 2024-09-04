@@ -1766,7 +1766,7 @@
   "DeathReason.AFK": "恶意挂机",
   "DeathReason.Revenge": "被复仇",
   "DeathReason.Eaten": "被活吞",
-  "DeathReason.Sacrifice": "受害者",
+  "DeathReason.Sacrifice": "Sacrifice",
   "DeathReason.Quantization": "被量子化",
   "DeathReason.Overtired": "猝死",
   "DeathReason.Ashamed": "受辱致死",
