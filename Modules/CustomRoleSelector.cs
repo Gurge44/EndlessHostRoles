@@ -567,7 +567,12 @@ internal static class CustomRoleSelector
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (Main.GM.Value && pc.IsHost()) continue;
+                if (Main.GM.Value && pc.IsHost())
+                {
+                    RoleResult[pc.PlayerId] = CustomRoles.GM;
+                    continue;
+                }
+                
                 RoleResult[pc.PlayerId] = role;
             }
         }

@@ -334,17 +334,18 @@ public class VengefulRomantic : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer.PlayerId == target.PlayerId || killer.PlayerId != VengefulRomanticId) return true;
-
-        if (target.PlayerId == Target)
-        {
-            HasKilledKiller = true;
-            Utils.NotifyRoles(SpecifySeer: VengefulRomantic_, SpecifyTarget: target);
-            return true;
-        }
+        if (killer.PlayerId == target.PlayerId || killer.PlayerId != VengefulRomanticId || target.PlayerId == Target) return true;
 
         killer.Suicide(PlayerState.DeathReason.Misfire);
         return false;
+    }
+
+    public override void OnMurder(PlayerControl killer, PlayerControl target)
+    {
+        if (target.PlayerId == Target)
+        {
+            HasKilledKiller = true;
+        }
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

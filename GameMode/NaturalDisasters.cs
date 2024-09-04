@@ -287,7 +287,7 @@ namespace EHR
 
             public long StartTimeStamp { get; } = Utils.TimeStamp;
             protected Vector2 Position { get; set; }
-            public NaturalDisaster NetObject { get; init; }
+            protected NaturalDisaster NetObject { get; init; }
             public virtual int Duration { get; set; }
 
             public virtual bool RemoveIfExpired()
@@ -892,7 +892,7 @@ namespace EHR
             }
 
             public static string CollapsedBuildingsString => CollapsedRooms.Count > 0
-                ? CollapsedRooms.Join(x => Translator.GetString($"{x.RoomId}"))
+                ? CollapsedRooms.Select(x => Translator.GetString($"{x.RoomId}")).Distinct().Join()
                 : Translator.GetString("None");
 
             public override void Update()

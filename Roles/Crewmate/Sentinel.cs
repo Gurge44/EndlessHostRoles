@@ -10,7 +10,6 @@ namespace EHR.Crewmate
 {
     public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRadius, PlayerControl sentinel = null, bool isPatrolling = false, Vector2? startingPosition = null, long patrolStartTimeStamp = 0)
     {
-        private Vector2? _startingPosition = startingPosition;
         private List<byte> LastNearbyKillers = [];
         private long LastUpdate;
 
@@ -20,11 +19,7 @@ namespace EHR.Crewmate
 
         public bool IsPatrolling { get; private set; } = isPatrolling;
 
-        private Vector2 StartingPosition
-        {
-            get => _startingPosition ?? Vector2.zero;
-            set => _startingPosition = value;
-        }
+        private Vector2 StartingPosition { get; set; } = startingPosition ?? Vector2.zero;
 
         private long PatrolStartTimeStamp { get; set; } = patrolStartTimeStamp;
 
@@ -73,8 +68,9 @@ namespace EHR.Crewmate
             bool nowInRange = killers.Any(x => x.PlayerId == pc.PlayerId);
             bool wasInRange = LastNearbyKillers.Contains(pc.PlayerId);
 
+            var timeLeft = PatrolDuration - (TimeStamp - PatrolStartTimeStamp);
             if (wasInRange && !nowInRange) pc.Notify(GetString("KillerEscapedFromSentinel"));
-            if (nowInRange) pc.Notify(string.Format(GetString("KillerNotifyPatrol"), PatrolDuration - (TimeStamp - PatrolStartTimeStamp)));
+            if (nowInRange && timeLeft >= 0) pc.Notify(string.Format(GetString("KillerNotifyPatrol"), timeLeft));
 
             LastNearbyKillers = killers.Select(x => x.PlayerId).ToList();
         }

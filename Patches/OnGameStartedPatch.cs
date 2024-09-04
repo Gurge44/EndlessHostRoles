@@ -657,16 +657,6 @@ internal class SelectRolesPatch
 
             BasisChangingAddons.Do(x => x.Value.Do(y => Main.PlayerStates[y].SetSubRole(x.Key)));
 
-            LateTask.New(() =>
-            {
-                foreach ((CustomRoles role, List<byte> ids) in BasisChangingAddons)
-                {
-                    var roleTypes = role.GetRoleTypes();
-                    var players = ids.ToValidPlayers().ToArray();
-                    players.Do(x => x.RpcSetRoleDesync(roleTypes, x.GetClientId()));
-                }
-            }, 9f, "Assign Basis Changing Addons");
-
             bool overrideLovers = false;
             if (Main.SetAddOns.Count(x => x.Value.Contains(CustomRoles.Lovers)) == 2)
             {
@@ -903,7 +893,7 @@ internal class SelectRolesPatch
         {
             var roleType = othersRole;
 
-            if (RoleResult[target.PlayerId].GetVNRole() is CustomRoles.Noisemaker)
+            if (role.GetVNRole() is CustomRoles.Noisemaker)
                 roleType = RoleTypes.Noisemaker;
 
             rolesMap[(player.PlayerId, target.PlayerId)] = player.PlayerId != target.PlayerId ? (roleType, RoleResult[target.PlayerId]) : (selfRole, role);
@@ -1026,7 +1016,7 @@ internal class SelectRolesPatch
         public static void AssignDesyncRoles()
         {
             // Assign desync roles
-            foreach ((byte playerId, CustomRoles role) in RoleResult.Where(x => x.Value.IsDesyncRole() || IsBasisChangingPlayer(x.Key, CustomRoles.Bloodlust)))
+            foreach ((byte playerId, CustomRoles role) in RoleResult.Where(x => x.Value.IsDesyncRole() || IsBasisChangingPlayer(x.Key, CustomRoles.Bloodlust)).ToArray())
                 AssignDesyncRole(role, Utils.GetPlayerById(playerId), Senders, RoleMap, BaseRole: ForceImp(playerId) ? RoleTypes.Impostor : role.GetDYRole());
 
             // Set Desync RoleType by "RpcSetRole"
@@ -1043,15 +1033,28 @@ internal class SelectRolesPatch
             {
                 var player = Utils.GetPlayerById(playerId);
                 if (player == null || role.IsDesyncRole()) continue;
+                if (Options.CurrentGameMode == CustomGameMode.Speedrun && SpeedrunManager.CanKill.Contains(playerId)) continue;
 
                 var roleType = role.GetRoleTypes();
+
+                if (BasisChangingAddons.FindFirst(x => x.Value.Contains(playerId), out var kvp))
+                {
+                    if (kvp.Key == CustomRoles.Bloodlust) continue;
+                    roleType = kvp.Key switch
+                    {
+                        CustomRoles.Nimble => RoleTypes.Engineer,
+                        CustomRoles.Physicist => RoleTypes.Scientist,
+                        CustomRoles.Finder => RoleTypes.Tracker,
+                        CustomRoles.Noisy => RoleTypes.Noisemaker,
+                        _ => roleType
+                    };
+                }
 
                 StoragedData.Add(playerId, roleType);
 
                 foreach (var target in Main.AllPlayerControls)
                 {
-                    if (target.HasDesyncRole()) continue;
-
+                    if (role.IsDesyncRole() && !target.IsHost()) continue;
                     RoleMap[(target.PlayerId, playerId)] = (roleType, role);
                 }
 

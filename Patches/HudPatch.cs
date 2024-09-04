@@ -16,7 +16,7 @@ using static EHR.Translator;
 namespace EHR.Patches;
 
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
-class HudManagerPatch
+static class HudManagerPatch
 {
     private static TextMeshPro LowerInfoText;
     private static TextMeshPro OverriddenRolesText;
@@ -350,7 +350,7 @@ class HudManagerPatch
 }
 
 [HarmonyPatch(typeof(ActionButton), nameof(ActionButton.SetFillUp))]
-class ActionButtonSetFillUpPatch
+static class ActionButtonSetFillUpPatch
 {
     public static void Postfix(ActionButton __instance, [HarmonyArgument(0)] float timer)
     {
@@ -371,7 +371,7 @@ class ActionButtonSetFillUpPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ToggleHighlight))]
-class ToggleHighlightPatch
+static class ToggleHighlightPatch
 {
     private static readonly int OutlineColor = Shader.PropertyToID("_OutlineColor");
 
@@ -388,7 +388,7 @@ class ToggleHighlightPatch
 }
 
 [HarmonyPatch(typeof(Vent), nameof(Vent.SetOutline))]
-class SetVentOutlinePatch
+static class SetVentOutlinePatch
 {
     private static readonly int OutlineColor = Shader.PropertyToID("_OutlineColor");
     private static readonly int AddColor = Shader.PropertyToID("_AddColor");
@@ -402,7 +402,7 @@ class SetVentOutlinePatch
 }
 
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.SetHudActive), [typeof(PlayerControl), typeof(RoleBehaviour), typeof(bool)])]
-class SetHudActivePatch
+static class SetHudActivePatch
 {
     public static bool IsActive;
 
@@ -493,7 +493,7 @@ class SetHudActivePatch
 }
 
 [HarmonyPatch(typeof(VentButton), nameof(VentButton.DoClick))]
-class VentButtonDoClickPatch
+static class VentButtonDoClickPatch
 {
     public static bool Animating;
 
@@ -505,7 +505,7 @@ class VentButtonDoClickPatch
 }
 
 [HarmonyPatch(typeof(MapBehaviour), nameof(MapBehaviour.Show))]
-class MapBehaviourShowPatch
+static class MapBehaviourShowPatch
 {
     public static bool Prefix(MapBehaviour __instance, ref MapOptions opts)
     {
@@ -533,7 +533,7 @@ class MapBehaviourShowPatch
 }
 
 [HarmonyPatch(typeof(MapTaskOverlay), nameof(MapTaskOverlay.Show))]
-class MapTaskOverlayShowPatch
+static class MapTaskOverlayShowPatch
 {
     public static void Postfix()
     {
@@ -543,7 +543,7 @@ class MapTaskOverlayShowPatch
 }
 
 [HarmonyPatch(typeof(MapTaskOverlay), nameof(MapTaskOverlay.Hide))]
-class MapTaskOverlayHidePatch
+static class MapTaskOverlayHidePatch
 {
     public static void Postfix()
     {
@@ -553,7 +553,7 @@ class MapTaskOverlayHidePatch
 }
 
 [HarmonyPatch(typeof(InfectedOverlay), nameof(InfectedOverlay.Update))]
-class SabotageMapPatch
+static class SabotageMapPatch
 {
     public static Dictionary<SystemTypes, TextMeshPro> TimerTexts = [];
 
@@ -591,7 +591,7 @@ class SabotageMapPatch
 }
 
 [HarmonyPatch(typeof(TaskPanelBehaviour), nameof(TaskPanelBehaviour.SetTaskText))]
-class TaskPanelBehaviourPatch
+static class TaskPanelBehaviourPatch
 {
     public static void Postfix(TaskPanelBehaviour __instance)
     {
