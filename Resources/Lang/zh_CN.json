@@ -4451,7 +4451,7 @@
   "LostAddonByCleanser": "All your Addons were removed by the cleanser",
   "Cleanser": "Cleanser",
   "CleanserInfo": "Erase All Addons of your vote target",
-  "CleanserInfoLong": "(船员职业):\\n清洁工可以在会议上投票给任何目标,清除目标的附加职业,清除将在会议结束后生效.根据设置,被清洗的人在本局游戏可能不能再次获得附加职业",
+  "CleanserInfoLong": "(船员职业):\\n清洗者可以在会议上投票给任何目标,清除目标的附加职业,清除将在会议结束后生效.根据设置,被清洗的人在本局游戏可能不能再次获得附加职业",
   "CleansedInfoLong": "(附加职业):\\n只有在清洗者清除了您的所有附加职业后,才能获得被清洗的附加职业.根据房主的设置,您今后可能无法再获得任何附加职业.",
   "TimeMasterSkillDuration": "<color=#44baff>Time Shield</color> Duration",
   "TimeMasterSkillCooldown": "<color=#44baff>Time Shield</color> Cooldown",
