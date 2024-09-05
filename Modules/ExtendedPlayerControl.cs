@@ -279,13 +279,17 @@ static class ExtendedPlayerControl
         var newRoleType = newCustomRole.GetRoleTypes();
         RoleTypes remeberRoleType;
 
+        if (Options.CurrentGameMode == CustomGameMode.Speedrun && newCustomRole == CustomRoles.Runner)
+            newRoleType = SpeedrunManager.CanKill.Contains(player.PlayerId) ? RoleTypes.Impostor : RoleTypes.Crewmate;
+
         // Desync role to normal role
         if (playerRole.IsDesyncRole() && !newCustomRole.IsDesyncRole())
         {
             foreach (var seer in Main.AllPlayerControls)
             {
                 var isSelf = player.PlayerId == seer.PlayerId;
-                if (!isSelf && seer.HasDesyncRole() && !(seer.AmOwner || seer.IsModClient())) remeberRoleType = newCustomRole.GetVNRole() is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
+                if (!isSelf && seer.HasDesyncRole() && !(seer.AmOwner || seer.IsModClient()))
+                    remeberRoleType = newCustomRole.GetVNRole() is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
                 else remeberRoleType = newRoleType;
 
                 SelectRolesPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, playerId)] = (remeberRoleType, newCustomRole);
@@ -305,9 +309,7 @@ static class ExtendedPlayerControl
 
                     // For Desync Shapeshifter
                     if (newCustomRole.GetDYRole() is RoleTypes.Shapeshifter)
-                    {
                         remeberRoleType = RoleTypes.Shapeshifter;
-                    }
                 }
                 else
                 {
@@ -330,8 +332,7 @@ static class ExtendedPlayerControl
                 {
                     remeberRoleType = SelectRolesPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, playerId)].roleType;
                 }
-                else
-                    remeberRoleType = newRoleType;
+                else remeberRoleType = newRoleType;
 
                 SelectRolesPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, playerId)] = (remeberRoleType, newCustomRole);
                 player.RpcSetRoleDesync(remeberRoleType, seer.GetClientId());
@@ -344,8 +345,8 @@ static class ExtendedPlayerControl
             {
                 foreach (var target in Main.AllPlayerControls)
                 {
-                    SelectRolesPatch.RpcSetRoleReplacer.RoleMap.TryGetValue((seer.PlayerId, target.PlayerId), out var map);
-                    Logger.Info($"seer {seer.Data?.PlayerName}-{seer.PlayerId}, target {target.Data?.PlayerName}-{target.PlayerId} => {map.roleType}, {map.customRole}", "Role Map");
+                    if (SelectRolesPatch.RpcSetRoleReplacer.RoleMap.TryGetValue((seer.PlayerId, target.PlayerId), out var map))
+                        Logger.Info($"seer {seer.Data?.PlayerName}-{seer.PlayerId}, target {target.Data?.PlayerName}-{target.PlayerId} => {map.roleType}, {map.customRole}", "Role Map");
                 }
             }
         }

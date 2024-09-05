@@ -665,7 +665,7 @@ public static class Utils
             case CustomGameMode.HideAndSeek: return HnSManager.HasTasks(p);
         }
 
-        // if (Shifter.ForceDisableTasks(p.PlayerId)) return false;
+        if (false) return false;
 
         var role = States.MainRole;
         switch (role)

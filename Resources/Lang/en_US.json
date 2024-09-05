@@ -4527,6 +4527,7 @@
   "Prefix.Haunter": "Haunter",
   "GotGhostRoleNotify": "<#ffff00>You were assigned a ghost role!</color>",
   "NumOfTasks": "Number of Tasks to Finish",
+  "AmnesiacRoleBasis": "Role Basis",
   "RememberCooldown": "Remember Cooldown",
   "RefugeeKillCD": "<color=#ff1919>Renegade</color>'s Kill Cooldown",
   "AmnesiacRemembered": "An Amnesiac remembered your role!",

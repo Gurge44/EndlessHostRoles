@@ -17,6 +17,7 @@ public class Amnesiac : RoleBase
     private static OptionItem IncompatibleNeutralMode;
     private static OptionItem CanVent;
     public static OptionItem RememberMode;
+    public static OptionItem RoleBasis;
 
     public static readonly CustomRoles[] AmnesiacIncompatibleNeutralMode =
     [
@@ -49,6 +50,8 @@ public class Amnesiac : RoleBase
         IncompatibleNeutralMode = new StringOptionItem(Id + 12, "IncompatibleNeutralMode", AmnesiacIncompatibleNeutralMode.Select(x => x.ToColoredString()).ToArray(), 0, TabGroup.NeutralRoles, noTranslation: true)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
         CanVent = new BooleanOptionItem(Id + 13, "CanVent", false, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
+        RoleBasis = new StringOptionItem(Id + 14, "AmnesiacRoleBasis", [CustomRoles.Engineer.ToColoredString(), CustomRoles.Crewmate.ToColoredString()], 1, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
     }
 
@@ -151,16 +154,16 @@ public class Amnesiac : RoleBase
                         amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedImpostor"));
                         break;
                     case Team.Crewmate:
-                        RememberedRole = !targetRole.IsTaskBasedCrewmate() && (CanRememberCrewPower.GetBool() || targetRole.GetCrewmateRoleCategory() != RoleOptionType.Crewmate_Power) ? targetRole : CustomRoles.Sheriff;
+                        RememberedRole = CanRememberCrewPower.GetBool() || targetRole.GetCrewmateRoleCategory() != RoleOptionType.Crewmate_Power ? targetRole : CustomRoles.Sheriff;
                         amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedCrewmate"));
                         break;
                     case Team.Neutral:
-                        if (targetRole.IsNK())
+                        if (!SingleRoles.Contains(targetRole))
                         {
                             RememberedRole = targetRole;
                             amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("RememberedNeutralKiller"));
                         }
-                        else if (targetRole.IsNonNK())
+                        else
                         {
                             RememberedRole = AmnesiacIncompatibleNeutralMode[IncompatibleNeutralMode.GetValue()];
                             amneNotifyString = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString($"Remembered{RememberedRole}"));
@@ -173,15 +176,16 @@ public class Amnesiac : RoleBase
         }
 
 
-        if (RememberedRole == null)
+        if (!RememberedRole.HasValue)
         {
             amnesiac.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacInvalidTarget")));
             return;
         }
 
-        var role = (CustomRoles)RememberedRole;
+        var role = RememberedRole.Value;
 
         amnesiac.RpcSetCustomRole(role);
+        amnesiac.RpcChangeRoleBasis(role);
 
         amnesiac.Notify(amneNotifyString);
         target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));

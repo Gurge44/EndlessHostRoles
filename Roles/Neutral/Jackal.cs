@@ -115,11 +115,11 @@ public class Jackal : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer.GetAbilityUseLimit() < 1 || !CanBeSidekick(target, out var needBasisChange, out var targetRoleType) || (needBasisChange && SKCanKill.GetBool() && !UsePets.GetBool())) return true;
+        if (killer.GetAbilityUseLimit() < 1 || !CanBeSidekick(target, out var needBasisChange, out var targetRoleType)) return true;
 
         killer.RpcRemoveAbilityUse();
         target.RpcSetCustomRole(targetRoleType == RoleTypes.Shapeshifter ? CustomRoles.Recruit : CustomRoles.Sidekick);
-        // if (needBasisChange) target.ChangeRoleBasis(RoleTypes.Impostor);
+        if (needBasisChange) target.RpcChangeRoleBasis(CustomRoles.Sidekick);
         SidekickId = target.PlayerId;
 
         Main.ResetCamPlayerList.Add(target.PlayerId);

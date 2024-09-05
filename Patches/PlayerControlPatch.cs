@@ -936,6 +936,7 @@ class ReportDeadBodyPatch
                 if (!Librarian.OnAnyoneReport(__instance)) return false;
                 if (!Hypnotist.OnAnyoneReport()) return false;
                 if (!Altruist.OnAnyoneCheckReportDeadBody(__instance, target)) return false;
+                if (!BoobyTrap.OnAnyoneCheckReportDeadBody(__instance, target)) return false;
 
                 if (!Main.PlayerStates[__instance.PlayerId].Role.CheckReportDeadBody(__instance, target, killer)) return false;
 
@@ -1434,7 +1435,7 @@ static class FixedUpdatePatch
                 ApplySuffix(__instance);
         }
 
-        if (__instance.AmOwner && inTask && ((Main.ChangedRole && localPlayer && AmongUsClient.Instance.AmHost) || (!__instance.Is(CustomRoleTypes.Impostor) /* || Shifter.WasShifter.Contains(__instance.PlayerId)*/) && __instance.CanUseKillButton() && !__instance.Data.IsDead))
+        if (__instance.AmOwner && inTask && ((Main.ChangedRole && localPlayer && AmongUsClient.Instance.AmHost) || (!__instance.Is(CustomRoleTypes.Impostor)) && __instance.CanUseKillButton() && !__instance.Data.IsDead))
         {
             var players = __instance.GetPlayersInAbilityRangeSorted();
             PlayerControl closest = players.Count == 0 ? null : players[0];

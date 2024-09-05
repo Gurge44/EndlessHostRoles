@@ -43,7 +43,7 @@ public class SwordsMan : RoleBase
         => !Main.PlayerStates[pc.PlayerId].IsDead
            && !IsKilled(pc.PlayerId);
 
-    public static bool IsKilled(byte playerId) => Killed.Contains(playerId);
+    private static bool IsKilled(byte playerId) => Killed.Contains(playerId);
 
     public override void Add(byte playerId)
     {
@@ -72,6 +72,7 @@ public class SwordsMan : RoleBase
         SendRPC(killer.PlayerId);
         Killed.Add(killer.PlayerId);
         SetKillCooldown(killer.PlayerId);
+        killer.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
     }
 }

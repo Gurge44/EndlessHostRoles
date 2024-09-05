@@ -246,12 +246,6 @@ internal class ChangeRoleSettings
             Revolutionist.CurrentDrawTarget = byte.MaxValue;
             Main.PlayerColors = [];
 
-            if (Options.CurrentGameMode == CustomGameMode.Speedrun && !Options.UsePets.GetBool())
-            {
-                Options.UsePets.SetValue(1);
-                PlayerControl.LocalPlayer.ShowPopUp(GetString("PetsForceEnabled"));
-            }
-
             RPC.SyncAllPlayerNames();
             RPC.SyncAllClientRealNames();
 

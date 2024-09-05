@@ -52,7 +52,7 @@ namespace EHR
             if (TaskFinishWins.GetBool()) return;
 
             CanKill.Add(pc.PlayerId);
-            // pc.ChangeRoleBasis(RoleTypes.Impostor);
+            pc.RpcChangeRoleBasis(CustomRoles.Runner);
             pc.Notify(Translator.GetString("Speedrun_CompletedTasks"));
         }
 

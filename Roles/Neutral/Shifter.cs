@@ -1,4 +1,4 @@
-﻿/*using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Crewmate;
@@ -13,15 +13,12 @@ namespace EHR.Neutral
         public static bool On;
 
         public static List<byte> WasShifter = [];
-        private static Dictionary<byte, RoleTypes> AllPlayerBasis = [];
 
         private static OptionItem KillCooldown;
         private static OptionItem CanVent;
         private static OptionItem HasImpostorVision;
-        private static OptionItem TryChangeBasis;
 
         public override bool IsEnable => On;
-        public static bool ForceDisableTasks(byte id) => !TryChangeBasis.GetBool() && WasShifter.Contains(id) && AllPlayerBasis.TryGetValue(id, out var basis) && basis is RoleTypes.Impostor or RoleTypes.Shapeshifter;
 
         public override void SetupCustomOption()
         {
@@ -33,10 +30,6 @@ namespace EHR.Neutral
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
             HasImpostorVision = new BooleanOptionItem(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
-            TryChangeBasis = new BooleanOptionItem(Id + 5, "TryChangeBasis", false, TabGroup.NeutralRoles)
-                .SetHidden(true)
-                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
-            TryChangeBasis.SetValue(0);
         }
 
         public override void Init()
@@ -46,16 +39,11 @@ namespace EHR.Neutral
             On = false;
 
             WasShifter = [];
-            AllPlayerBasis = [];
-            LateTask.New(() => AllPlayerBasis = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, x => x.GetRoleTypes()), 10f, log: false);
         }
 
         public override void Add(byte playerId)
         {
             On = true;
-
-            if (!TryChangeBasis.GetBool() || playerId == 0)
-                WasShifter.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
@@ -85,8 +73,7 @@ namespace EHR.Neutral
             }
 
             killer.RpcSetCustomRole(targetRole);
-            if (TryChangeBasis.GetBool())
-                killer.ChangeRoleBasis(target.GetRoleTypes());
+            killer.RpcChangeRoleBasis(targetRole);
 
             var targetRoleBase = Main.PlayerStates[target.PlayerId].Role;
             LateTask.New(() => Main.PlayerStates[killer.PlayerId].Role = targetRoleBase, 0.5f, "Change RoleBase");
@@ -94,7 +81,7 @@ namespace EHR.Neutral
             killer.SetAbilityUseLimit(target.GetAbilityUseLimit());
 
             var taskState = target.GetTaskState();
-            if (taskState.hasTasks) Main.PlayerStates[killer.PlayerId].taskState = taskState;
+            if (taskState.HasTasks) Main.PlayerStates[killer.PlayerId].TaskState = taskState;
 
             var killerSubRoles = killer.GetCustomSubRoles().ToList();
             var targetSubRoles = target.GetCustomSubRoles().ToList();
@@ -126,6 +113,8 @@ namespace EHR.Neutral
             Utils.NotifyRoles(SpecifyTarget: killer);
             Utils.NotifyRoles(SpecifyTarget: target);
 
+            WasShifter.Add(killer.PlayerId);
+
             return false;
         }
 
@@ -135,5 +124,3 @@ namespace EHR.Neutral
         }
     }
 }
-*/
-

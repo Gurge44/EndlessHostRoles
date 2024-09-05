@@ -88,7 +88,7 @@ public class PlayerState(byte playerId)
     public bool IsBlackOut { get; set; }
 
     public bool IsSuicide => deathReason == DeathReason.Suicide;
-    public TaskState TaskState { get; } = new();
+    public TaskState TaskState { get; set; } = new();
 
     public void SetMainRole(CustomRoles role)
     {
@@ -108,6 +108,9 @@ public class PlayerState(byte playerId)
             countTypes = CountTypes.CustomTeam;
 
         SubRoles.ForEach(SetAddonCountTypes);
+
+        if (!Player.HasKillButton() && role == CustomRoles.Refugee)
+            Player.RpcChangeRoleBasis(CustomRoles.Refugee);
 
         Role = role.GetRoleClass();
 
