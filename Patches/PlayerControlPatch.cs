@@ -935,6 +935,7 @@ class ReportDeadBodyPatch
 
                 if (!Librarian.OnAnyoneReport(__instance)) return false;
                 if (!Hypnotist.OnAnyoneReport()) return false;
+                if (!Altruist.OnAnyoneCheckReportDeadBody(__instance, target)) return false;
 
                 if (!Main.PlayerStates[__instance.PlayerId].Role.CheckReportDeadBody(__instance, target, killer)) return false;
 

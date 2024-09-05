@@ -893,10 +893,10 @@ internal class SelectRolesPatch
         {
             var roleType = othersRole;
 
-            if (role.GetVNRole() is CustomRoles.Noisemaker)
+            if (RoleResult.TryGetValue(target.PlayerId, out var targetRole) && targetRole.GetVNRole() is CustomRoles.Noisemaker)
                 roleType = RoleTypes.Noisemaker;
 
-            rolesMap[(player.PlayerId, target.PlayerId)] = player.PlayerId != target.PlayerId ? (roleType, RoleResult[target.PlayerId]) : (selfRole, role);
+            rolesMap[(player.PlayerId, target.PlayerId)] = player.PlayerId != target.PlayerId ? (roleType, targetRole) : (selfRole, role);
         }
 
         // Set Desync role for others
@@ -1054,7 +1054,7 @@ internal class SelectRolesPatch
 
                 foreach (var target in Main.AllPlayerControls)
                 {
-                    if (role.IsDesyncRole() && !target.IsHost()) continue;
+                    if (RoleResult.TryGetValue(target.PlayerId, out var targetRole) && targetRole.IsDesyncRole() && !target.IsHost()) continue;
                     RoleMap[(target.PlayerId, playerId)] = (roleType, role);
                 }
 

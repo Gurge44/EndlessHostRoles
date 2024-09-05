@@ -3749,6 +3749,7 @@
   "AltruistReviveMode": "Revive",
   "AltruistReportMode": "Report",
   "RevivedByAltruist": "<#ffff00><size=150%>You've been revived by the <color=#300000>Altruist</color>!</size></color>",
+  "AltruistKillerAlert": "<#ffff00><size=150%>A player you killed was revived by the <color=#300000>Altruist</color>!</size></color>",
   "Altruist.ReviveTime": "Revive Time",
   "Adventurer": "Adventurer",
   "AdventurerInfo": "Collect Resources to Perform Actions",
