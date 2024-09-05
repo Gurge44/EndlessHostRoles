@@ -25,7 +25,6 @@ internal static class CustomRolesHelper
         CustomRoles.Sentry,
         CustomRoles.Cherokious,
         CustomRoles.Chemist,
-        CustomRoles.Shifter,
         CustomRoles.Evolver,
         CustomRoles.ToiletMaster,
         CustomRoles.Telekinetic,

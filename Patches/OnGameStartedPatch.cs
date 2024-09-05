@@ -1113,7 +1113,7 @@ internal class SelectRolesPatch
 
             int targetClientId = target.GetClientId();
 
-            RoleTypes roleType = RoleMap.TryGetValue((target.PlayerId, target.PlayerId), out var roleMap) ? roleMap.roleType : StoragedData[target.PlayerId];
+            RoleTypes roleType = RoleMap.TryGetValue((target.PlayerId, target.PlayerId), out var roleMap) ? roleMap.roleType : StoragedData.GetValueOrDefault(target.PlayerId, RoleTypes.Crewmate);
 
             var stream = MessageWriter.Get(SendOption.Reliable);
             stream.StartMessage(6);

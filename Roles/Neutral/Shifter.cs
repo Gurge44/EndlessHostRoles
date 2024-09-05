@@ -103,6 +103,7 @@ namespace EHR.Neutral
             // ------------------------------------------------------------------------------------------
 
             target.RpcSetCustomRole(CustomRoles.Shifter);
+            target.RpcChangeRoleBasis(CustomRoles.Shifter);
             Main.AbilityUseLimit.Remove(target.PlayerId);
             Utils.SendRPC(CustomRPC.RemoveAbilityUseLimit, target.PlayerId);
             target.SyncSettings();

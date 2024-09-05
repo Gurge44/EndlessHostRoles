@@ -5,7 +5,7 @@ using EHR.Modules;
 using HarmonyLib;
 using UnityEngine;
 
-namespace EHR.Impostor
+namespace EHR.Crewmate
 {
     internal class Sentry : RoleBase
     {

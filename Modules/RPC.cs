@@ -479,7 +479,7 @@ internal class RPCHandlerPatch
             case CustomRPC.SyncSentry:
             {
                 byte id = reader.ReadByte();
-                if (Main.PlayerStates[id].Role is not Impostor.Sentry sentry) break;
+                if (Main.PlayerStates[id].Role is not Crewmate.Sentry sentry) break;
                 sentry.MonitoredRoom = Utils.GetPlayerById(id).GetPlainShipRoom();
                 break;
             }

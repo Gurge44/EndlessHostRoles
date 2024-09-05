@@ -266,10 +266,6 @@ static class ExtendedPlayerControl
     }
 
     // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/ExtendedPlayerControl.cs
-    /// <summary>
-    /// Changes the Role Basis of player during the game
-    /// </summary>
-    /// <param name="newCustomRole">The custom role to change and auto set role type for others</param>
     public static void RpcChangeRoleBasis(this PlayerControl player, CustomRoles newCustomRole, bool loggerRoleMap = false)
     {
         if (!GameStates.IsInGame || !AmongUsClient.Instance.AmHost) return;
@@ -288,7 +284,7 @@ static class ExtendedPlayerControl
             foreach (var seer in Main.AllPlayerControls)
             {
                 var isSelf = player.PlayerId == seer.PlayerId;
-                if (!isSelf && seer.HasDesyncRole() && !(seer.AmOwner || seer.IsModClient()))
+                if (!isSelf && seer.HasDesyncRole() && !seer.AmOwner)
                     remeberRoleType = newCustomRole.GetVNRole() is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
                 else remeberRoleType = newRoleType;
 
@@ -299,13 +295,12 @@ static class ExtendedPlayerControl
         // Normal role to desync role
         else if (!playerRole.IsDesyncRole() && newCustomRole.IsDesyncRole())
         {
-            var isModded = player.IsHost() || player.IsModClient();
             foreach (var seer in Main.AllPlayerControls)
             {
                 var isSelf = player.PlayerId == seer.PlayerId;
                 if (isSelf)
                 {
-                    remeberRoleType = isModded ? RoleTypes.Crewmate : RoleTypes.Impostor;
+                    remeberRoleType = player.IsHost() ? RoleTypes.Crewmate : RoleTypes.Impostor;
 
                     // For Desync Shapeshifter
                     if (newCustomRole.GetDYRole() is RoleTypes.Shapeshifter)
@@ -313,7 +308,7 @@ static class ExtendedPlayerControl
                 }
                 else
                 {
-                    if (!isModded && seer.HasDesyncRole()) remeberRoleType = newCustomRole.GetVNRole() is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
+                    if (!player.IsHost() && seer.HasDesyncRole()) remeberRoleType = newCustomRole.GetVNRole() is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
                     else remeberRoleType = newRoleType;
                 }
 
@@ -328,9 +323,12 @@ static class ExtendedPlayerControl
             var playerIsDesync = player.HasDesyncRole();
             foreach (var seer in Main.AllPlayerControls)
             {
-                if ((playerIsDesync && seer.PlayerId != playerId) || seer.HasDesyncRole())
+                var seerClientId = seer.GetClientId();
+                if (seerClientId == -1) continue;
+
+                if ((playerIsDesync || seer.HasDesyncRole()) && seer.PlayerId != playerId)
                 {
-                    remeberRoleType = SelectRolesPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, playerId)].roleType;
+                    remeberRoleType = Utils.GetRoleMap(seer.PlayerId, playerId).roleType;
                 }
                 else remeberRoleType = newRoleType;
 

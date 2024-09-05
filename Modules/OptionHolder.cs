@@ -1231,7 +1231,7 @@ public static class Options
         FormatNameMode = new StringOptionItem(19403, "FormatNameMode", FormatNameModes, 0, TabGroup.SystemSettings);
         DisableEmojiName = new BooleanOptionItem(19404, "DisableEmojiName", true, TabGroup.SystemSettings);
         ChangeNameToRoleInfo = new BooleanOptionItem(19405, "ChangeNameToRoleInfo", true, TabGroup.SystemSettings);
-        ShowLongInfo = new BooleanOptionItem(19420, "ShowLongInfo", false, TabGroup.SystemSettings)
+        ShowLongInfo = new BooleanOptionItem(19420, "ShowLongInfo", true, TabGroup.SystemSettings)
             .SetParent(ChangeNameToRoleInfo);
         SendRoleDescriptionFirstMeeting = new BooleanOptionItem(19406, "SendRoleDescriptionFirstMeeting", true, TabGroup.SystemSettings);
         NoGameEnd = new BooleanOptionItem(19407, "NoGameEnd", false, TabGroup.SystemSettings)

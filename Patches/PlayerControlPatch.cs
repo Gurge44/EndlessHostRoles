@@ -852,7 +852,7 @@ class ShapeshiftPatch
                 case Adventurer av:
                     Adventurer.OnAnyoneShapeshiftLoop(av, __instance);
                     break;
-                case Impostor.Sentry st:
+                case Crewmate.Sentry st:
                     st.OnAnyoneShapeshiftLoop(__instance, target);
                     break;
             }
@@ -1535,7 +1535,7 @@ static class FixedUpdatePatch
 
                     if (Deathpact.IsInActiveDeathpact(seer))
                         RealName = Deathpact.GetDeathpactString(seer);
-                    if (NameNotifyManager.GetNameNotify(target, out var name))
+                    if (NameNotifyManager.GetNameNotify(target, out var name) && name.Length > 0)
                         RealName = name;
                 }
 
@@ -1855,7 +1855,7 @@ static class ExitVentPatch
 
         if (Options.WhackAMole.GetBool())
         {
-            LateTask.New(() => { pc.TPtoRndVent(); }, 0.5f, "Whack-A-Mole TP");
+            LateTask.New(() => pc.TPtoRndVent(), 0.5f, "Whack-A-Mole TP");
         }
 
         if (!pc.IsModClient() && pc.Is(CustomRoles.Haste))
@@ -1880,7 +1880,7 @@ static class EnterVentPatch
 
         Drainer.OnAnyoneEnterVent(pc, __instance);
         Analyst.OnAnyoneEnterVent(pc);
-        Impostor.Sentry.OnAnyoneEnterVent(pc);
+        Crewmate.Sentry.OnAnyoneEnterVent(pc);
 
         switch (pc.GetCustomRole())
         {

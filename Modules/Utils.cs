@@ -2496,7 +2496,7 @@ public static class Utils
             CustomRoles.Sentinel => Sentinel.PatrolCooldown.GetInt(),
             CustomRoles.Druid => Druid.VentCooldown.GetInt(),
             CustomRoles.Catcher => Catcher.AbilityCooldown.GetInt(),
-            CustomRoles.Sentry => Impostor.Sentry.ShowInfoCooldown.GetInt(),
+            CustomRoles.Sentry => Crewmate.Sentry.ShowInfoCooldown.GetInt(),
             CustomRoles.ToiletMaster => ToiletMaster.AbilityCooldown.GetInt(),
             CustomRoles.Sniper => Options.DefaultShapeshiftCooldown.GetInt(),
             CustomRoles.Assassin => Assassin.AssassinateCooldownOpt.GetInt(),
@@ -2728,7 +2728,7 @@ public static class Utils
             Amnesiac.OnAnyoneDeath(target);
             Dad.OnAnyoneDeath(target);
             Whisperer.OnAnyoneDied(target);
-            Impostor.Sentry.OnAnyoneMurder(target);
+            Crewmate.Sentry.OnAnyoneMurder(target);
 
             if (QuizMaster.On) QuizMaster.Data.NumPlayersDeadThisRound++;
 
