@@ -1234,7 +1234,8 @@ static class ExtendedPlayerControl
 
     public static void CheckAndSetUnshiftState(this PlayerControl pc, bool notify = true, bool force = false)
     {
-        if (force || (pc.GetCustomRole().SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool())))
+        var role = pc.GetCustomRole();
+        if (force || role.AlwaysUsesUnshift() || (role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool())))
         {
             var target = Main.AllAlivePlayerControls.Without(pc).RandomElement();
             var outfit = pc.Data.DefaultOutfit;

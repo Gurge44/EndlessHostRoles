@@ -10,19 +10,23 @@ public class Traitor : RoleBase
     public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
-    public static OptionItem CanVent;
+    private static OptionItem CanVent;
     private static OptionItem HasImpostorVision;
     public static OptionItem CanSabotage;
     public override bool IsEnable => playerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Traitor);
-        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Traitor])
+        SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Traitor);
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Traitor])
             .SetValueFormat(OptionFormat.Seconds);
-        CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Traitor]);
-        HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Traitor]);
-        CanSabotage = new BooleanOptionItem(Id + 15, "CanUseSabotage", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Traitor]);
+        CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Traitor]);
+        HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Traitor]);
+        CanSabotage = new BooleanOptionItem(Id + 15, "CanUseSabotage", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Traitor]);
     }
 
     public override void Init()

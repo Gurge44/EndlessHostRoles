@@ -26,12 +26,9 @@ public class Glitch : RoleBase
     private byte GlitchId;
 
     public int HackCDTimer;
-
     private bool HasMimiced;
-
     private bool IsShifted;
     public int KCDTimer;
-
     public long LastHack;
     public long LastKill;
     public long LastMimic;
@@ -43,7 +40,7 @@ public class Glitch : RoleBase
 
     public override void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Glitch);
+        SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Glitch);
         KillCooldown = new IntegerOptionItem(Id + 10, "KillCooldown", new(0, 180, 1), 25, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Glitch])
             .SetValueFormat(OptionFormat.Seconds);
         HackCooldown = new IntegerOptionItem(Id + 11, "HackCooldown", new(0, 180, 1), 20, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Glitch])

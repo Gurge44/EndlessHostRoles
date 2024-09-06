@@ -250,6 +250,7 @@ public enum CustomRoles
     SwordsMan, // Vigilante
     Whisperer,
     Witness,
+    Wizard,
 
     // Neutrals
 

@@ -26,7 +26,7 @@ namespace EHR.Impostor
 
         public override void SetupCustomOption()
         {
-            Options.SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Stealth);
+            Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Stealth);
             OptionExcludeImpostors = new BooleanOptionItem(Id + 10, "StealthExcludeImpostors", false, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Stealth]);
             OptionDarkenDuration = new FloatOptionItem(Id + 20, "StealthDarkenDuration", new(0.5f, 10f, 0.5f), 3f, TabGroup.ImpostorRoles)

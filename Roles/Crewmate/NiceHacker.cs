@@ -33,7 +33,7 @@ namespace EHR.Crewmate
 
         public override void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.NiceHacker);
+            SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.NiceHacker);
             AbilityCD = new FloatOptionItem(Id + 10, "AbilityCD", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.NiceHacker])
                 .SetValueFormat(OptionFormat.Seconds);
             UseLimitOpt = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(1, 20, 1), 2, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.NiceHacker])

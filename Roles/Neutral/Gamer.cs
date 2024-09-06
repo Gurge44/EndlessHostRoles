@@ -27,7 +27,7 @@ public class Gamer : RoleBase
 
     public override void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Gamer);
+        SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Gamer);
         KillCooldown = new FloatOptionItem(Id + 10, "GamerKillCooldown", new(1f, 180f, 1f), 2f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
             .SetValueFormat(OptionFormat.Seconds);
         CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer]);

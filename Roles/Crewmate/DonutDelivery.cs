@@ -21,6 +21,7 @@ namespace EHR.Crewmate
         private static OptionItem SEEvilsGetDecreased;
         private static OptionItem SEEvilsDecreaseAmount;
         public static OptionItem UsePet;
+        
         private byte DonutDeliveryId;
         private HashSet<byte> Players = [];
 
@@ -28,7 +29,7 @@ namespace EHR.Crewmate
 
         public override void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.DonutDelivery);
+            SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.DonutDelivery);
             CD = new FloatOptionItem(Id + 10, "DonutDeliverCD", new(2.5f, 60f, 2.5f), 30f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.DonutDelivery])
                 .SetValueFormat(OptionFormat.Seconds);

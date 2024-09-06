@@ -30,6 +30,7 @@ internal static class CustomRolesHelper
         CustomRoles.Telekinetic,
         CustomRoles.Dad,
         CustomRoles.Whisperer,
+        CustomRoles.Wizard,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -81,7 +82,7 @@ internal static class CustomRolesHelper
         if (role.IsVanilla()) return role;
         if (checkDesyncRole && role.IsDesyncRole()) return Enum.Parse<CustomRoles>(role.GetDYRole() + "EHR");
         if (Options.UsePhantomBasis.GetBool() && role.SimpleAbilityTrigger()) return CustomRoles.Phantom;
-        if (Options.UseUnshiftTrigger.GetBool() && role.SimpleAbilityTrigger()) return CustomRoles.Shapeshifter;
+        if ((Options.UseUnshiftTrigger.GetBool() || role.AlwaysUsesUnshift()) && role.SimpleAbilityTrigger()) return CustomRoles.Shapeshifter;
         bool UsePets = Options.UsePets.GetBool();
         return role switch
         {
@@ -467,6 +468,7 @@ internal static class CustomRolesHelper
             CustomRoles.Pestilence => RoleTypes.Impostor,
             CustomRoles.Spiritcaller => RoleTypes.Impostor,
             CustomRoles.Doppelganger => RoleTypes.Impostor,
+            CustomRoles.Wizard => RoleTypes.Shapeshifter,
             _ => RoleTypes.GuardianAngel
         };
     }
@@ -722,7 +724,7 @@ internal static class CustomRolesHelper
         _ => false
     };
 
-    public static bool OnlySpawnsWithPets(this CustomRoles role) => !(Options.UseUnshiftTrigger.GetBool() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool()) && role.SimpleAbilityTrigger() && role != CustomRoles.Chemist) && OnlySpawnsWithPetsRoleList.Contains(role);
+    public static bool OnlySpawnsWithPets(this CustomRoles role) => !(Options.UseUnshiftTrigger.GetBool() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool()) && role.SimpleAbilityTrigger() && role != CustomRoles.Chemist && !role.AlwaysUsesUnshift()) && OnlySpawnsWithPetsRoleList.Contains(role);
 
     public static bool NeedUpdateOnLights(this CustomRoles role) => !role.UsesPetInsteadOfKill() && (role.IsDesyncRole() || role is
         CustomRoles.Convict or
@@ -775,7 +777,11 @@ internal static class CustomRolesHelper
     public static bool IsNoAnimationShifter(this CustomRoles role) => role is
         CustomRoles.Echo;
 
+    public static bool AlwaysUsesUnshift(this CustomRoles role) => role is
+        CustomRoles.Wizard;
+
     public static bool SimpleAbilityTrigger(this CustomRoles role) => role is
+        CustomRoles.Wizard or
         CustomRoles.Warlock or
         CustomRoles.Swiftclaw or
         CustomRoles.Undertaker or
@@ -1364,6 +1370,7 @@ internal static class CustomRolesHelper
         CustomRoles.TimeMaster => RoleOptionType.Crewmate_Support,
         CustomRoles.Transporter => RoleOptionType.Crewmate_Support,
         CustomRoles.Ventguard => RoleOptionType.Crewmate_Support,
+        CustomRoles.Wizard => RoleOptionType.Crewmate_Support,
         CustomRoles.Drainer => RoleOptionType.Crewmate_Killing,
         CustomRoles.Judge => RoleOptionType.Crewmate_Killing,
         CustomRoles.NiceGuesser => RoleOptionType.Crewmate_Killing,

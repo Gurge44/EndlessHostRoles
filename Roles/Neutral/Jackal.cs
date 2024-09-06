@@ -35,7 +35,7 @@ public class Jackal : RoleBase
 
     public override void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Jackal);
+        SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Jackal);
         KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal])
             .SetValueFormat(OptionFormat.Seconds);

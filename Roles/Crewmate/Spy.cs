@@ -23,7 +23,7 @@ namespace EHR.Crewmate
 
         public override void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Spy);
+            SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Spy);
             UseLimitOpt = new IntegerOptionItem(Id + 10, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spy])
                 .SetValueFormat(OptionFormat.Times);
@@ -118,6 +118,7 @@ namespace EHR.Crewmate
             if (change && GameStates.IsInTask)
             {
                 NotifyRoles(SpecifySeer: pc);
+                change = false;
             }
         }
     }

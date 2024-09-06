@@ -28,7 +28,7 @@ public class Totocalcio : RoleBase
 
     public override void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Totocalcio);
+        SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Totocalcio);
         MaxBetTimes = new IntegerOptionItem(Id + 10, "TotocalcioMaxBetTimes", new(1, 5, 1), 3, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Totocalcio])
             .SetValueFormat(OptionFormat.Times);

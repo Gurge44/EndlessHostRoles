@@ -241,6 +241,8 @@ namespace EHR
 
             bool IsGeneralOption() => !Translator.GetString(fieldName).Contains("INVALID");
         }
+
+        public void CreateOverrideTasksData() => Options.OverrideTasksData.Create(++_id, tab, role);
     }
 
     public enum OptionType

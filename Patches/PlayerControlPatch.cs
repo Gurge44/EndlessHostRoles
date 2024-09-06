@@ -779,6 +779,7 @@ class ShapeshiftPatch
 
         bool forceCancel = role.ForceCancelShapeshift();
         bool unshiftTrigger = role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool());
+        unshiftTrigger |= role.AlwaysUsesUnshift();
 
         unshiftTrigger |= ctf;
         forceCancel |= unshiftTrigger;
@@ -1142,7 +1143,8 @@ class ReportDeadBodyPatch
         Main.ProcessShapeshifts = false;
         foreach (var pc in Main.AllAlivePlayerControls)
         {
-            if (pc.GetCustomRole().SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool()))
+            var role = pc.GetCustomRole();
+            if (role.AlwaysUsesUnshift() || (role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool())))
                 pc.RpcShapeshift(pc, false);
         }
     }

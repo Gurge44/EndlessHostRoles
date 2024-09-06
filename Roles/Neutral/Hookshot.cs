@@ -10,7 +10,8 @@ namespace EHR.Neutral
     {
         private static OptionItem KillCooldown;
         private static OptionItem HasImpostorVision;
-        public static OptionItem CanVent;
+        private static OptionItem CanVent;
+        
         private byte HookshotId = byte.MaxValue;
         public byte MarkedPlayerId = byte.MaxValue;
 
@@ -23,7 +24,7 @@ namespace EHR.Neutral
 
         public override void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Hookshot);
+            SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Hookshot);
             KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Hookshot])
                 .SetValueFormat(OptionFormat.Seconds);

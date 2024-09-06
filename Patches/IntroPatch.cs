@@ -813,7 +813,7 @@ class IntroCutsceneDestroyPatch
                 LateTask.New(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
             }
 
-            if (Options.UseUnshiftTrigger.GetBool())
+            if (Options.UseUnshiftTrigger.GetBool() || Main.PlayerStates.Values.Any(x => x.MainRole.AlwaysUsesUnshift()))
             {
                 LateTask.New(() => Main.AllAlivePlayerControls.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
             }

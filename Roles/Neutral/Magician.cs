@@ -17,7 +17,7 @@ public class Magician : RoleBase
     public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
-    public static OptionItem CanVent;
+    private static OptionItem CanVent;
     private static OptionItem HasImpostorVision;
     private static OptionItem Speed;
     private static OptionItem SpeedDur;

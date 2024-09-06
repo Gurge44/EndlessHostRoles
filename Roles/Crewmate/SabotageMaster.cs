@@ -34,7 +34,7 @@ public class SabotageMaster : RoleBase
 
     public override void SetupCustomOption()
     {
-        Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.SabotageMaster);
+        Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.SabotageMaster);
         SkillLimit = new IntegerOptionItem(Id + 10, "SabotageMasterSkillLimit", new(0, 80, 1), 2, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
             .SetValueFormat(OptionFormat.Times);
         FixesDoors = new BooleanOptionItem(Id + 11, "SabotageMasterFixesDoors", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);

@@ -2527,7 +2527,7 @@ public static class Utils
         Main.AbilityCD[playerId] = (TimeStamp, CD);
         SendRPC(CustomRPC.SyncAbilityCD, 1, playerId, CD);
 
-        if (Options.UseUnshiftTrigger.GetBool() && role.SimpleAbilityTrigger() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool()))
+        if (Options.UseUnshiftTrigger.GetBool() && role.SimpleAbilityTrigger() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool()) && !role.AlwaysUsesUnshift())
             GetPlayerById(playerId)?.RpcResetAbilityCooldown();
     }
 
@@ -2550,7 +2550,6 @@ public static class Utils
         if (loversChat) GameEndChecker.Prefix();
 
         Lovers.IsChatActivated = false;
-        if (!Options.UseUnshiftTrigger.GetBool()) Main.ProcessShapeshifts = true;
         AFKDetector.NumAFK = 0;
         AFKDetector.PlayerData.Clear();
 

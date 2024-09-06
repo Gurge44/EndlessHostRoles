@@ -16,14 +16,14 @@ namespace EHR.Impostor
 
         public static Dictionary<byte, long> ManipulatedPlayers = [];
         public static Dictionary<byte, long> ManipulateDelays = [];
-        public static Dictionary<byte, float> TempKCDs = [];
+        private static Dictionary<byte, float> TempKCDs = [];
 
-        public static OptionItem KillCooldown;
-        public static OptionItem TimeLimit;
-        public static OptionItem Delay;
+        private static OptionItem KillCooldown;
+        private static OptionItem TimeLimit;
+        private static OptionItem Delay;
 
-        public static float ManipulateCD;
-        public byte MastermindId = byte.MaxValue;
+        private static float ManipulateCD;
+        private byte MastermindId = byte.MaxValue;
 
         private PlayerControl Mastermind_ => GetPlayerById(MastermindId);
 

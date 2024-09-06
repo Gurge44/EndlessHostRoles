@@ -34,7 +34,7 @@ namespace EHR.Neutral
 
         public override void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Sprayer);
+            SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Sprayer);
             KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Seconds);

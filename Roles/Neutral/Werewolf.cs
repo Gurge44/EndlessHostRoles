@@ -12,16 +12,16 @@ namespace EHR.Neutral;
 public class Werewolf : RoleBase
 {
     private const int Id = 12850;
-    public static List<byte> playerIdList = [];
+    private static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
     private static OptionItem HasImpostorVision;
-    public static OptionItem RampageCD;
-    public static OptionItem RampageDur;
+    private static OptionItem RampageCD;
+    private static OptionItem RampageDur;
     private static int CD;
 
     private static long lastFixedTime;
-    public long lastTime;
+    private long lastTime;
 
     private long RampageTime;
     private byte WWId;
@@ -33,7 +33,7 @@ public class Werewolf : RoleBase
 
     public override void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Werewolf);
+        SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Werewolf);
         KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf])
             .SetValueFormat(OptionFormat.Seconds);
         HasImpostorVision = new BooleanOptionItem(Id + 11, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf]);
@@ -79,6 +79,9 @@ public class Werewolf : RoleBase
             AURoleOptions.PhantomCooldown = 1f;
         if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
             AURoleOptions.ShapeshifterCooldown = 1f;
+
+        AURoleOptions.EngineerCooldown = 0f;
+        AURoleOptions.EngineerInVentMaxTime = 0f;
     }
 
     void SendRPC()
@@ -123,6 +126,7 @@ public class Werewolf : RoleBase
             {
                 lastTime = -10;
                 if (!player.IsModClient()) player.Notify(GetString(UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool() ? "WWCanRampageUnshift" : "WWCanRampage"));
+                player.RpcChangeRoleBasis(CustomRoles.EngineerEHR);
                 SendRPC();
                 CD = 0;
             }
@@ -138,6 +142,7 @@ public class Werewolf : RoleBase
                 case < 0:
                     lastTime = now;
                     player.Notify(GetString("WWRampageOut"));
+                    player.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
                     RampageTime = -10;
                     SendRPC();
                     refresh = true;
@@ -185,6 +190,7 @@ public class Werewolf : RoleBase
                 RampageTime = Utils.TimeStamp;
                 SendRPC();
                 pc.Notify(GetString("WWRampaging"), RampageDur.GetFloat());
+                pc.RpcChangeRoleBasis(CustomRoles.Werewolf);
             }
         }, 0.5f, "Werewolf Vent");
     }

@@ -270,6 +270,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             Chef.ApplyGameOptionsForOthers(opt, player.PlayerId);
             President.OnAnyoneApplyGameOptions(opt);
             Negotiator.OnAnyoneApplyGameOptions(opt, player.PlayerId);
+            Wizard.OnAnyoneApplyGameOptions(opt, player.PlayerId);
 
             if (Sprayer.LowerVisionList.Contains(player.PlayerId))
             {
@@ -416,7 +417,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             if (Options.UsePhantomBasis.GetBool() && role.SimpleAbilityTrigger())
                 AURoleOptions.PhantomDuration = 1f;
 
-            if (Options.UseUnshiftTrigger.GetBool() && role.SimpleAbilityTrigger())
+            if ((Options.UseUnshiftTrigger.GetBool() || role.AlwaysUsesUnshift()) && role.SimpleAbilityTrigger())
                 AURoleOptions.ShapeshifterDuration = 0f;
 
             // ===================================================================================================================

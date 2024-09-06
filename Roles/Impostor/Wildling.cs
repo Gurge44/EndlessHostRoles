@@ -14,11 +14,12 @@ public class Wildling : RoleBase
     private const int Id = 4700;
     public static List<byte> playerIdList = [];
 
-    public static OptionItem ProtectDurationOpt;
-    public static OptionItem CanVentOpt;
+    private static OptionItem ProtectDurationOpt;
+    private static OptionItem CanVentOpt;
     public static OptionItem CanShapeshiftOpt;
-    public static OptionItem ShapeshiftCDOpt;
-    public static OptionItem ShapeshiftDurOpt;
+    private static OptionItem ShapeshiftCDOpt;
+    private static OptionItem ShapeshiftDurOpt;
+    
     private bool CanShapeshift;
     private bool CanVent;
     private bool HasImpostorVision;
@@ -38,7 +39,7 @@ public class Wildling : RoleBase
 
     public override void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Wildling);
+        SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Wildling);
         ProtectDurationOpt = new FloatOptionItem(Id + 14, "BKProtectDuration", new(1f, 30f, 1f), 15f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling])
             .SetValueFormat(OptionFormat.Seconds);
         CanVentOpt = new BooleanOptionItem(Id + 15, "CanVent", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling]);
