@@ -69,7 +69,7 @@ public class Werewolf : RoleBase
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    public override bool CanUseImpostorVentButton(PlayerControl pc) => (CanRampage && (!UseUnshiftTrigger.GetBool() || UseUnshiftTriggerForNKs.GetBool())) || IsRampaging || pc.inVent;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => (CanRampage && (!UseUnshiftTrigger.GetBool() || !UseUnshiftTriggerForNKs.GetBool())) || IsRampaging || pc.inVent;
     public override bool CanUseKillButton(PlayerControl pc) => IsRampaging;
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
@@ -78,7 +78,7 @@ public class Werewolf : RoleBase
         if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
             AURoleOptions.PhantomCooldown = 1f;
         if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
-            AURoleOptions.ShapeshifterCooldown = 1f;
+            AURoleOptions.ShapeshifterCooldown = RampageDur.GetFloat() + 0.5f;
 
         AURoleOptions.EngineerCooldown = 0f;
         AURoleOptions.EngineerInVentMaxTime = 0f;
@@ -125,8 +125,9 @@ public class Werewolf : RoleBase
             if (lastTime + (long)RampageCD.GetFloat() < now)
             {
                 lastTime = -10;
-                if (!player.IsModClient()) player.Notify(GetString(UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool() ? "WWCanRampageUnshift" : "WWCanRampage"));
-                player.RpcChangeRoleBasis(CustomRoles.EngineerEHR);
+                var unshift = UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool();
+                if (!player.IsModClient()) player.Notify(GetString(unshift ? "WWCanRampageUnshift" : "WWCanRampage"));
+                player.RpcChangeRoleBasis(unshift ? CustomRoles.Werewolf : CustomRoles.EngineerEHR);
                 SendRPC();
                 CD = 0;
             }
@@ -207,7 +208,7 @@ public class Werewolf : RoleBase
         else if (ww.lastTime != -10)
         {
             var cooldown = ww.lastTime + (long)RampageCD.GetFloat() - Utils.TimeStamp;
-            str.Append(string.Format(GetString("WWCD"), cooldown + 2));
+            str.Append(string.Format(GetString("WWCD"), cooldown + 1));
         }
         else
         {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using UnityEngine;
 
@@ -78,6 +79,7 @@ namespace EHR.Crewmate
 
             var state = Main.PlayerStates[reporter.PlayerId];
             state.deathReason = PlayerState.DeathReason.Sacrifice;
+            state.RealKiller = (DateTime.Now, reporter.PlayerId);
             state.SetDead();
             reporter.RpcExileV2();
 

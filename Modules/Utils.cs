@@ -649,7 +649,7 @@ public static class Utils
         if (p.Role == null) return false;
 
         var hasTasks = true;
-        var States = Main.PlayerStates[p.PlayerId];
+        var state = Main.PlayerStates[p.PlayerId];
         if (p.Disconnected) return false;
         if (p.Role.IsImpostor)
             hasTasks = false;
@@ -665,9 +665,7 @@ public static class Utils
             case CustomGameMode.HideAndSeek: return HnSManager.HasTasks(p);
         }
 
-        if (false) return false;
-
-        var role = States.MainRole;
+        var role = state.MainRole;
         switch (role)
         {
             case CustomRoles.GM:
@@ -776,7 +774,7 @@ public static class Utils
             case CustomRoles.Doomsayer:
                 hasTasks = false;
                 break;
-            case CustomRoles.Dad when ((Dad)States.Role).DoneTasks:
+            case CustomRoles.Dad when ((Dad)state.Role).DoneTasks:
             case CustomRoles.Workaholic:
             case CustomRoles.Terrorist:
             case CustomRoles.Sunnyboy:
@@ -800,7 +798,7 @@ public static class Utils
                 break;
         }
 
-        foreach (CustomRoles subRole in States.SubRoles)
+        foreach (CustomRoles subRole in state.SubRoles)
         {
             switch (subRole)
             {
@@ -2531,7 +2529,7 @@ public static class Utils
             GetPlayerById(playerId)?.RpcResetAbilityCooldown();
     }
 
-    public static (RoleTypes roleType, CustomRoles customRole) GetRoleMap(byte seerId, byte targetId = byte.MaxValue)
+    public static (RoleTypes RoleType, CustomRoles CustomRole) GetRoleMap(byte seerId, byte targetId = byte.MaxValue)
     {
         if (targetId == byte.MaxValue) targetId = seerId;
         return SelectRolesPatch.RpcSetRoleReplacer.RoleMap[(seerId, targetId)];

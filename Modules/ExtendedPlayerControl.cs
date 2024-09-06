@@ -240,7 +240,7 @@ static class ExtendedPlayerControl
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
-    public static (RoleTypes roleType, CustomRoles customRole) GetRoleMap(this PlayerControl player, byte targetId = byte.MaxValue) => Utils.GetRoleMap(player.PlayerId, targetId);
+    public static (RoleTypes RoleType, CustomRoles CustomRole) GetRoleMap(this PlayerControl player, byte targetId = byte.MaxValue) => Utils.GetRoleMap(player.PlayerId, targetId);
 
     // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/ExtendedPlayerControl.cs
     public static void RpcRevive(this PlayerControl player)
@@ -254,7 +254,7 @@ static class ExtendedPlayerControl
 
         Main.PlayerStates[player.PlayerId].IsDead = false;
         Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.etc;
-        player.RpcChangeRoleBasis(player.GetRoleMap().customRole, true);
+        player.RpcChangeRoleBasis(player.GetRoleMap().CustomRole, true);
         player.ResetKillCooldown();
         player.SyncSettings();
         player.SetKillCooldown();
@@ -271,69 +271,78 @@ static class ExtendedPlayerControl
         if (!GameStates.IsInGame || !AmongUsClient.Instance.AmHost) return;
 
         var playerId = player.PlayerId;
-        var playerRole = Utils.GetRoleMap(playerId).customRole;
+        var playerRole = Utils.GetRoleMap(playerId).CustomRole;
         var newRoleType = newCustomRole.GetRoleTypes();
         RoleTypes remeberRoleType;
 
         if (Options.CurrentGameMode == CustomGameMode.Speedrun && newCustomRole == CustomRoles.Runner)
             newRoleType = SpeedrunManager.CanKill.Contains(player.PlayerId) ? RoleTypes.Impostor : RoleTypes.Crewmate;
 
-        // Desync role to normal role
-        if (playerRole.IsDesyncRole() && !newCustomRole.IsDesyncRole())
-        {
-            foreach (var seer in Main.AllPlayerControls)
-            {
-                var isSelf = player.PlayerId == seer.PlayerId;
-                if (!isSelf && seer.HasDesyncRole() && !seer.AmOwner)
-                    remeberRoleType = newCustomRole.GetVNRole() is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
-                else remeberRoleType = newRoleType;
+        var oldRoleIsDesync = playerRole.IsDesyncRole();
+        var newRoleIsDesync = newCustomRole.IsDesyncRole();
 
-                SelectRolesPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, playerId)] = (remeberRoleType, newCustomRole);
-                player.RpcSetRoleDesync(remeberRoleType, seer.GetClientId());
-            }
-        }
-        // Normal role to desync role
-        else if (!playerRole.IsDesyncRole() && newCustomRole.IsDesyncRole())
+        switch (oldRoleIsDesync, newRoleIsDesync)
         {
-            foreach (var seer in Main.AllPlayerControls)
+            // Desync role to normal role
+            case (true, false):
             {
-                var isSelf = player.PlayerId == seer.PlayerId;
-                if (isSelf)
+                foreach (var seer in Main.AllPlayerControls)
                 {
-                    remeberRoleType = player.IsHost() ? RoleTypes.Crewmate : RoleTypes.Impostor;
-
-                    // For Desync Shapeshifter
-                    if (newCustomRole.GetDYRole() is RoleTypes.Shapeshifter)
-                        remeberRoleType = RoleTypes.Shapeshifter;
-                }
-                else
-                {
-                    if (!player.IsHost() && seer.HasDesyncRole()) remeberRoleType = newCustomRole.GetVNRole() is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
+                    var isSelf = player.PlayerId == seer.PlayerId;
+                    if (!isSelf && seer.HasDesyncRole() && !seer.AmOwner)
+                        remeberRoleType = newCustomRole.GetVNRole() is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
                     else remeberRoleType = newRoleType;
+
+                    SelectRolesPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, playerId)] = (remeberRoleType, newCustomRole);
+                    player.RpcSetRoleDesync(remeberRoleType, seer.GetClientId());
                 }
 
-                SelectRolesPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, playerId)] = (remeberRoleType, newCustomRole);
-                player.RpcSetRoleDesync(remeberRoleType, seer.GetClientId());
+                break;
             }
-        }
-        // Desync role to desync role
-        // Normal role to normal role
-        else
-        {
-            var playerIsDesync = player.HasDesyncRole();
-            foreach (var seer in Main.AllPlayerControls)
+            // Normal role to desync role
+            case (false, true):
             {
-                var seerClientId = seer.GetClientId();
-                if (seerClientId == -1) continue;
-
-                if ((playerIsDesync || seer.HasDesyncRole()) && seer.PlayerId != playerId)
+                foreach (var seer in Main.AllPlayerControls)
                 {
-                    remeberRoleType = Utils.GetRoleMap(seer.PlayerId, playerId).roleType;
-                }
-                else remeberRoleType = newRoleType;
+                    if (player.PlayerId == seer.PlayerId)
+                    {
+                        remeberRoleType = player.IsHost() ? RoleTypes.Crewmate : RoleTypes.Impostor;
 
-                SelectRolesPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, playerId)] = (remeberRoleType, newCustomRole);
-                player.RpcSetRoleDesync(remeberRoleType, seer.GetClientId());
+                        // For Desync Shapeshifter
+                        if (newCustomRole.GetDYRole() is RoleTypes.Shapeshifter)
+                            remeberRoleType = RoleTypes.Shapeshifter;
+                    }
+                    else
+                    {
+                        if (!player.IsHost() && seer.HasDesyncRole()) remeberRoleType = newCustomRole.GetVNRole() is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
+                        else remeberRoleType = newRoleType;
+                    }
+
+                    SelectRolesPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, playerId)] = (remeberRoleType, newCustomRole);
+                    player.RpcSetRoleDesync(remeberRoleType, seer.GetClientId());
+                }
+
+                break;
+            }
+            // Desync role to desync role
+            // Normal role to normal role
+            default:
+            {
+                var playerIsDesync = player.HasDesyncRole();
+                foreach (var seer in Main.AllPlayerControls)
+                {
+                    var seerClientId = seer.GetClientId();
+                    if (seerClientId == -1) continue;
+
+                    if ((playerIsDesync || seer.HasDesyncRole()) && seer.PlayerId != playerId)
+                        remeberRoleType = Utils.GetRoleMap(seer.PlayerId, playerId).RoleType;
+                    else remeberRoleType = newRoleType;
+
+                    SelectRolesPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, playerId)] = (remeberRoleType, newCustomRole);
+                    player.RpcSetRoleDesync(remeberRoleType, seer.GetClientId());
+                }
+
+                break;
             }
         }
 
@@ -344,10 +353,14 @@ static class ExtendedPlayerControl
                 foreach (var target in Main.AllPlayerControls)
                 {
                     if (SelectRolesPatch.RpcSetRoleReplacer.RoleMap.TryGetValue((seer.PlayerId, target.PlayerId), out var map))
-                        Logger.Info($"seer {seer.Data?.PlayerName}-{seer.PlayerId}, target {target.Data?.PlayerName}-{target.PlayerId} => {map.roleType}, {map.customRole}", "Role Map");
+                        Logger.Info($"seer {seer.Data?.PlayerName}-{seer.PlayerId}, target {target.Data?.PlayerName}-{target.PlayerId} => {map.RoleType}, {map.CustomRole}", "Role Map");
                 }
             }
         }
+
+        Main.ChangedRole = true;
+
+        Logger.Info($"{player.GetNameWithRole()}'s role basis was changed to {newRoleType} ({newCustomRole}) (from role: {playerRole}) - oldRoleIsDesync: {oldRoleIsDesync}, newRoleIsDesync: {newRoleIsDesync}", "RpcChangeRoleBasis");
     }
 
     // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/Utils.cs
