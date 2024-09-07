@@ -16,7 +16,7 @@ using UnityEngine;
 namespace EHR;
 
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.FixedUpdate))]
-class ShipFixedUpdatePatch
+static class ShipFixedUpdatePatch
 {
     public static void Postfix( /*ShipStatus __instance*/)
     {
@@ -256,7 +256,7 @@ static class RepairSystemPatch
 }
 
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.CloseDoorsOfType))]
-class CloseDoorsPatch
+static class CloseDoorsPatch
 {
     public static bool Prefix( /*ShipStatus __instance, */ [HarmonyArgument(0)] SystemTypes room)
     {
@@ -271,11 +271,10 @@ class CloseDoorsPatch
 }
 
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Start))]
-class StartPatch
+static class StartPatch
 {
     public static void Postfix()
     {
-        Logger.CurrentMethod();
         Logger.Info("-----------Game start-----------", "Phase");
 
         Utils.CountAlivePlayers(true);
@@ -297,7 +296,7 @@ class StartPatch
 }
 
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.StartMeeting))]
-class StartMeetingPatch
+static class StartMeetingPatch
 {
     public static void Prefix( /*ShipStatus __instance, PlayerControl reporter,*/ NetworkedPlayerInfo target)
     {
@@ -307,7 +306,7 @@ class StartMeetingPatch
 }
 
 [HarmonyPatch(typeof(GameManager), nameof(GameManager.CheckTaskCompletion))]
-class CheckTaskCompletionPatch
+static class CheckTaskCompletionPatch
 {
     public static bool Prefix(ref bool __result)
     {
@@ -350,8 +349,6 @@ static class ShipStatusBeginPatch
 
     public static void Postfix()
     {
-        Logger.CurrentMethod();
-
         if (RolesIsAssigned && !Main.IntroDestroyed)
         {
             foreach (var player in Main.AllPlayerControls)
@@ -445,14 +442,10 @@ static class ShipStatusSerializePatch
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (initialState) return;
-        bool cancel = false;
-        foreach (var pc in PlayerControl.AllPlayerControls)
-        {
-            if (VentilationSystemDeterioratePatch.BlockVentInteraction(pc))
-                cancel = true;
-        }
-
+        
+        var cancel = Main.AllPlayerControls.Any(VentilationSystemDeterioratePatch.BlockVentInteraction);
         var ventilationSystem = __instance.Systems[SystemTypes.Ventilation].Cast<VentilationSystem>();
+        
         if (cancel && ventilationSystem is { IsDirty: true })
         {
             Utils.SetAllVentInteractions();
@@ -465,12 +458,13 @@ static class ShipStatusSerializePatch
 static class VentilationSystemDeterioratePatch
 {
     public static Dictionary<byte, int> LastClosestVent = [];
+    public static Dictionary<byte, bool> LastCanUseVent = [];
 
     public static void Postfix(VentilationSystem __instance)
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (!GameStates.InGame) return;
-        foreach (var pc in PlayerControl.AllPlayerControls)
+        foreach (var pc in Main.AllPlayerControls)
         {
             if (BlockVentInteraction(pc))
             {
@@ -537,7 +531,7 @@ static class VentilationSystemDeterioratePatch
 
     public static void SerializeV2(VentilationSystem __instance, PlayerControl player = null)
     {
-        foreach (var pc in PlayerControl.AllPlayerControls)
+        foreach (var pc in Main.AllPlayerControls)
         {
             if (pc.AmOwner) continue;
             if (player != null && pc != player) continue;
@@ -603,6 +597,23 @@ static class VentilationSystemDeterioratePatch
                 AmongUsClient.Instance.SendOrDisconnect(writer);
                 writer.Recycle();
             }
+        }
+    }
+
+    public static void CheckVentInteraction(PlayerControl pc)
+    {
+        if (!LastCanUseVent.TryGetValue(pc.PlayerId, out bool couldUse))
+        {
+            LastCanUseVent[pc.PlayerId] = pc.CanUseVent();
+            return;
+        }
+        
+        bool canUse = pc.CanUseVent();
+        
+        if (couldUse != canUse)
+        {
+            LastCanUseVent[pc.PlayerId] = canUse;
+            SerializeV2(ShipStatus.Instance.Systems[SystemTypes.Ventilation].Cast<VentilationSystem>(), pc);
         }
     }
 }

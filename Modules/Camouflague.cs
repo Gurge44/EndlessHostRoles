@@ -65,12 +65,17 @@ public static class Camouflage
             _ => CamouflageOutfit
         };
 
-        if (Options.UsePets.GetBool() && CamouflageOutfit.PetId == "")
+        SetPetForOutfitIfNecessary(CamouflageOutfit);
+    }
+
+    public static void SetPetForOutfitIfNecessary(NetworkedPlayerInfo.PlayerOutfit outfit)
+    {
+        if (Options.UsePets.GetBool() && outfit.PetId == "")
         {
             string[] pets = Options.PetToAssign;
             string pet = pets[Options.PetToAssignToEveryone.GetValue()];
             string petId = pet == "pet_RANDOM_FOR_EVERYONE" ? pets[IRandom.Instance.Next(0, pets.Length - 1)] : pet;
-            CamouflageOutfit.PetId = petId;
+            outfit.PetId = petId;
         }
     }
 
@@ -135,6 +140,8 @@ public static class Camouflage
                 newOutfit = PlayerSkins[id];
             }
         }
+        
+        SetPetForOutfitIfNecessary(newOutfit);
 
         // if the current Outfit is the same, return it
         if (newOutfit.Compare(target.Data.DefaultOutfit)) return;

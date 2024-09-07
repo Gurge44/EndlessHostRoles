@@ -2394,6 +2394,8 @@ public static class Utils
 
     public static void RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit)
     {
+        Camouflage.SetPetForOutfitIfNecessary(newOutfit);
+        
         var sender = CustomRpcSender.Create(name: $"Utils.RpcChangeSkin({pc.Data.PlayerName})");
 
         pc.SetName(newOutfit.PlayerName);
