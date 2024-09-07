@@ -4310,7 +4310,7 @@
   "AADone": "进程已结束",
   "Wizard": "向导",
   "WizardInfo": "更改玩家数据",
-  "WizardInfoLong": "(船员职业):\\n向导可以为每个玩家调整4个属性:速度、视野和击杀冷却.使用宠物按钮来切换.用变形按钮来增加所选属性的值.要将选定的属性及其值赋予玩家,使用击杀.",
+  "WizardInfoLong": "(Crewmates):\\nAs the Wizard, you have 3 stats you can change for each player: Speed, Vision, and Kill Cooldown. Pet to cycle between these stats. Press Unshift to increase the value of the stat. To give the selected stat with its value to a player, use your kill button on them.",
   "Wizard.Vision": "视野",
   "Wizard.BuffGivenNotify": "<#00ffa5>{0}'s <#ffffff>{1}</color>设置为<#ffffff>{2}</color></color>",
   "Wizard.Buff.Speed": "速跑",
