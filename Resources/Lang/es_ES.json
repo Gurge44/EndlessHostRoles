@@ -4316,7 +4316,7 @@
   "Wizard.Buff.Speed": "Velocidad",
   "Wizard.Buff.Vision": "Vision",
   "Wizard.Buff.KCD": "Kill Cooldown",
-  "Wizard.SelectedBuff": "<#00ffa5>Selected Buff:</color> <b>{0}</b> {1}",
+  "Wizard.SelectedBuff": "<#00ffa5>Selected Buff:</color> <b>{0}</b> {1}{2}",
   "Oxyman": "Oximan",
   "OxymanInfo": "Tu Nivel de Oxígeno Afecta Todo",
   "OxymanInfoLong": "(Tripulantes): \\nComo el Oximan, tienes un nivel de Oxígeno bajo tu nombre. El nivel de Oxígeno disminuye con el tiempo. Tienes que usar las ventilas para aumentar tu Oxígeno. Si el nivel de Oxígeno llega a 0%, tú mueres. Si es muy bajo, eres ciego. Si es bajo, eres más lento. Si es alto, eres más rápido. Si es muy alto, eres invulnerable.",
