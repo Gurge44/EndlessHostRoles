@@ -3751,7 +3751,7 @@
   "RevivedByAltruist": "<#ffff00><size=150%>你已经被<color=#300000>复活了</color>!</size></color>",
   "AltruistKillerAlert": "<#ffff00><size=150%>你杀死的玩家被<color=#300000>利己主义者</color>复活了！</size></color>",
   "Altruist.ReviveTime": "复活时间",
-  "Altruist.ReviveTargetCanReportTheirOwnBody": "Revived players can report their own dead body",
+  "Altruist.ReviveTargetCanReportTheirOwnBody": "复活的玩家可以报告自己的尸体",
   "Altruist.ReviveTargetsKillerGetsAlert": "The killer of the revived player gets an alert about the revival",
   "Altruist.ReviveTargetsKillerGetsArrow": "The killer also gets an arrow towards the revived player",
   "Adventurer": "冒险家",
