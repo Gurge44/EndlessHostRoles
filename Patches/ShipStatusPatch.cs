@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -409,5 +410,199 @@ static class PolusShipStatusSpawnPlayerPatch
         }
 
         return false;
+    }
+}
+
+// All below are from: https://github.com/Rabek009/MoreGamemodes/blob/master/Patches/ShipStatusPatch.cs
+
+[HarmonyPatch(typeof(VentilationSystem), nameof(VentilationSystem.PerformVentOp))]
+static class PerformVentOpPatch
+{
+    public static bool Prefix(VentilationSystem __instance, [HarmonyArgument(0)] byte playerId, [HarmonyArgument(1)] VentilationSystem.Operation op, [HarmonyArgument(2)] byte ventId, [HarmonyArgument(3)] SequenceBuffer<VentilationSystem.VentMoveInfo> seqBuffer)
+    {
+        if (!AmongUsClient.Instance.AmHost) return true;
+        if (Utils.GetPlayerById(playerId) == null) return true;
+        switch (op)
+        {
+            case VentilationSystem.Operation.Move:
+                if (!__instance.PlayersInsideVents.ContainsKey(playerId))
+                {
+                    seqBuffer.BumpSid();
+                    return false;
+                }
+
+                break;
+        }
+
+        return true;
+    }
+}
+
+[HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.Serialize))]
+static class ShipStatusSerializePatch
+{
+    public static void Prefix(ShipStatus __instance, [HarmonyArgument(1)] bool initialState)
+    {
+        if (!AmongUsClient.Instance.AmHost) return;
+        if (initialState) return;
+        bool cancel = false;
+        foreach (var pc in PlayerControl.AllPlayerControls)
+        {
+            if (VentilationSystemDeterioratePatch.BlockVentInteraction(pc))
+                cancel = true;
+        }
+
+        var ventilationSystem = __instance.Systems[SystemTypes.Ventilation].Cast<VentilationSystem>();
+        if (cancel && ventilationSystem is { IsDirty: true })
+        {
+            Utils.SetAllVentInteractions();
+            ventilationSystem.IsDirty = false;
+        }
+    }
+}
+
+[HarmonyPatch(typeof(VentilationSystem), nameof(VentilationSystem.Deteriorate))]
+static class VentilationSystemDeterioratePatch
+{
+    public static Dictionary<byte, int> LastClosestVent = [];
+
+    public static void Postfix(VentilationSystem __instance)
+    {
+        if (!AmongUsClient.Instance.AmHost) return;
+        if (!GameStates.InGame) return;
+        foreach (var pc in PlayerControl.AllPlayerControls)
+        {
+            if (BlockVentInteraction(pc))
+            {
+                int players = 0;
+                foreach (var playerInfo in GameData.Instance.AllPlayers)
+                {
+                    if (playerInfo != null && !playerInfo.Disconnected)
+                        ++players;
+                }
+
+                if (pc.GetClosestVent().Id == LastClosestVent[pc.PlayerId] && players >= 3) continue;
+                LastClosestVent[pc.PlayerId] = pc.GetClosestVent().Id;
+                MessageWriter writer = MessageWriter.Get();
+                writer.StartMessage(6);
+                writer.Write(AmongUsClient.Instance.GameId);
+                writer.WritePacked(pc.GetClientId());
+                writer.StartMessage(1);
+                writer.WritePacked(ShipStatus.Instance.NetId);
+                writer.StartMessage((byte)SystemTypes.Ventilation);
+                int vents = ShipStatus.Instance.AllVents.Count(vent => !pc.CanUseVent(vent.Id));
+                List<NetworkedPlayerInfo> AllPlayers = [];
+                foreach (var playerInfo in GameData.Instance.AllPlayers)
+                {
+                    if (playerInfo != null && !playerInfo.Disconnected)
+                        AllPlayers.Add(playerInfo);
+                }
+
+                int maxVents = Math.Min(vents, AllPlayers.Count);
+                int blockedVents = 0;
+                writer.WritePacked(maxVents);
+                foreach (var vent in pc.GetVentsFromClosest())
+                {
+                    if (!pc.CanUseVent(vent.Id))
+                    {
+                        writer.Write(AllPlayers[blockedVents].PlayerId);
+                        writer.Write((byte)vent.Id);
+                        ++blockedVents;
+                    }
+
+                    if (blockedVents >= maxVents)
+                        break;
+                }
+
+                writer.WritePacked(__instance.PlayersInsideVents.Count);
+                foreach (Il2CppSystem.Collections.Generic.KeyValuePair<byte, byte> keyValuePair2 in __instance.PlayersInsideVents)
+                {
+                    writer.Write(keyValuePair2.Key);
+                    writer.Write(keyValuePair2.Value);
+                }
+
+                writer.EndMessage();
+                writer.EndMessage();
+                writer.EndMessage();
+                AmongUsClient.Instance.SendOrDisconnect(writer);
+                writer.Recycle();
+            }
+        }
+    }
+
+    public static bool BlockVentInteraction(PlayerControl pc)
+    {
+        return !pc.AmOwner && !pc.IsModClient() && !pc.Data.IsDead && (pc.IsImpostor() || pc.GetRoleTypes() is RoleTypes.Engineer or RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom) && ShipStatus.Instance.AllVents.Any(vent => !pc.CanUseVent(vent.Id));
+    }
+
+    public static void SerializeV2(VentilationSystem __instance, PlayerControl player = null)
+    {
+        foreach (var pc in PlayerControl.AllPlayerControls)
+        {
+            if (pc.AmOwner) continue;
+            if (player != null && pc != player) continue;
+            if (BlockVentInteraction(pc))
+            {
+                MessageWriter writer = MessageWriter.Get();
+                writer.StartMessage(6);
+                writer.Write(AmongUsClient.Instance.GameId);
+                writer.WritePacked(pc.GetClientId());
+                writer.StartMessage(1);
+                writer.WritePacked(ShipStatus.Instance.NetId);
+                writer.StartMessage((byte)SystemTypes.Ventilation);
+                int vents = ShipStatus.Instance.AllVents.Count(vent => !pc.CanUseVent(vent.Id));
+                List<NetworkedPlayerInfo> AllPlayers = [];
+                foreach (var playerInfo in GameData.Instance.AllPlayers)
+                {
+                    if (playerInfo != null && !playerInfo.Disconnected)
+                        AllPlayers.Add(playerInfo);
+                }
+
+                int maxVents = Math.Min(vents, AllPlayers.Count);
+                int blockedVents = 0;
+                writer.WritePacked(maxVents);
+                foreach (var vent in pc.GetVentsFromClosest())
+                {
+                    if (!pc.CanUseVent(vent.Id))
+                    {
+                        writer.Write(AllPlayers[blockedVents].PlayerId);
+                        writer.Write((byte)vent.Id);
+                        ++blockedVents;
+                    }
+
+                    if (blockedVents >= maxVents)
+                        break;
+                }
+
+                writer.WritePacked(__instance.PlayersInsideVents.Count);
+                foreach (Il2CppSystem.Collections.Generic.KeyValuePair<byte, byte> keyValuePair2 in __instance.PlayersInsideVents)
+                {
+                    writer.Write(keyValuePair2.Key);
+                    writer.Write(keyValuePair2.Value);
+                }
+
+                writer.EndMessage();
+                writer.EndMessage();
+                writer.EndMessage();
+                AmongUsClient.Instance.SendOrDisconnect(writer);
+                writer.Recycle();
+            }
+            else
+            {
+                MessageWriter writer = MessageWriter.Get();
+                writer.StartMessage(6);
+                writer.Write(AmongUsClient.Instance.GameId);
+                writer.WritePacked(pc.GetClientId());
+                writer.StartMessage(1);
+                writer.WritePacked(ShipStatus.Instance.NetId);
+                writer.StartMessage((byte)SystemTypes.Ventilation);
+                __instance.Serialize(writer, false);
+                writer.EndMessage();
+                writer.EndMessage();
+                writer.EndMessage();
+                AmongUsClient.Instance.SendOrDisconnect(writer);
+                writer.Recycle();
+            }
+        }
     }
 }

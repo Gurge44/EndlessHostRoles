@@ -449,6 +449,7 @@ public enum CustomRoles
     Spurt,
     Sleep,
     Specter, // Ghost role
+    Spotter,
     Physicist,
     Rascal,
     Reach,

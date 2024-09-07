@@ -352,6 +352,7 @@ Source language: English
 >
 > - Reference: Part of the code used for the Endless Host Roles Image in the Main Menu
 > - Reference: Custom Net Objects
+> - Reference: Block vent interaction for players who cannot use vents
 >
 
 ### :star: [Reactor](https://github.com/NuclearPowered/Reactor) :
