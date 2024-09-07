@@ -1056,7 +1056,7 @@ class ReportDeadBodyPatch
             QuizMaster.Data.NumMeetings++;
         }
 
-        if (Main.LoversPlayers.Any(x => x.IsAlive()) && Main.IsLoversDead && Lovers.LoverDieConsequence.GetValue() == 1)
+        if (Main.LoversPlayers.Exists(x => x.IsAlive()) && Main.IsLoversDead && Lovers.LoverDieConsequence.GetValue() == 1)
         {
             var aliveLover = Main.LoversPlayers.First(x => x.IsAlive());
             switch (Lovers.LoverSuicideTime.GetValue())
@@ -1683,9 +1683,9 @@ static class FixedUpdatePatch
 
                 Main.LoversPlayers.ToArray().DoIf(x => x == null, x => Main.LoversPlayers.Remove(x));
                 if (!Main.HasJustStarted) Main.LoversPlayers.DoIf(x => !x.Is(CustomRoles.Lovers), x => x.RpcSetCustomRole(CustomRoles.Lovers));
-                if (Main.LoversPlayers.Any(x => x.PlayerId == target.PlayerId))
+                if (Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId))
                 {
-                    if (Main.LoversPlayers.Any(x => x.PlayerId == seer.PlayerId)) Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
+                    if (Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId)) Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
                     else if (!seer.IsAlive()) Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
                 }
 
@@ -1797,7 +1797,7 @@ static class FixedUpdatePatch
 
     public static void LoversSuicide(byte deathId = 0x7f, bool exile = false, bool force = false, bool guess = false)
     {
-        if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || (!Main.LoversPlayers.Any(player => player.Data.IsDead && player.PlayerId == deathId) && !force)) return;
+        if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || (!Main.LoversPlayers.Exists(player => player.Data.IsDead && player.PlayerId == deathId) && !force)) return;
 
         Main.IsLoversDead = true;
         var partnerPlayer = Main.LoversPlayers.First(player => player.PlayerId != deathId && !player.Data.IsDead);

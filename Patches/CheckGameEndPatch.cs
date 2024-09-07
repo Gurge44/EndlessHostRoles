@@ -264,7 +264,7 @@ class GameEndChecker
                         });
                 }
 
-                if ((WinnerTeam == CustomWinner.Lovers || WinnerIds.Any(x => Main.PlayerStates[x].SubRoles.Contains(CustomRoles.Lovers))) && Main.LoversPlayers.All(x => x.IsAlive()) && reason != GameOverReason.HumansByTask)
+                if ((WinnerTeam == CustomWinner.Lovers || WinnerIds.Any(x => Main.PlayerStates[x].SubRoles.Contains(CustomRoles.Lovers))) && Main.LoversPlayers.TrueForAll(x => x.IsAlive()) && reason != GameOverReason.HumansByTask)
                 {
                     if (WinnerTeam != CustomWinner.Lovers) AdditionalWinnerTeams.Add(AdditionalWinners.Lovers);
                     WinnerIds.UnionWith(Main.LoversPlayers.Select(x => x.PlayerId));
@@ -399,13 +399,22 @@ class GameEndChecker
         {
             reason = GameOverReason.ImpostorByKill;
 
-            if (CustomRoles.Sunnyboy.RoleExist() && Main.AllAlivePlayerControls.Length > 1) return false;
+            PlayerControl[] aapc = Main.AllAlivePlayerControls;
+
+            if (CustomRoles.Sunnyboy.RoleExist() && aapc.Length > 1) return false;
 
             if (CustomTeamManager.CheckCustomTeamGameEnd()) return true;
 
-            if (Main.AllAlivePlayerControls.All(x => Main.LoversPlayers.Any(l => l.PlayerId == x.PlayerId)) && (!Main.LoversPlayers.All(x => x.Is(Team.Crewmate)) || !Lovers.CrewLoversWinWithCrew.GetBool()))
+            if (aapc.Length == 0)
+            {
+                ResetAndSetWinner(CustomWinner.None);
+                return true;
+            }
+
+            if (aapc.All(x => Main.LoversPlayers.Exists(l => l.PlayerId == x.PlayerId)) && (!Main.LoversPlayers.TrueForAll(x => x.Is(Team.Crewmate)) || !Lovers.CrewLoversWinWithCrew.GetBool()))
             {
                 ResetAndSetWinner(CustomWinner.Lovers);
+                WinnerIds.UnionWith(Main.LoversPlayers.ConvertAll(x => x.PlayerId));
                 return true;
             }
 
@@ -432,7 +441,7 @@ class GameEndChecker
 
             if (CustomRoles.DualPersonality.IsEnable())
             {
-                foreach (PlayerControl x in Main.AllAlivePlayerControls)
+                foreach (PlayerControl x in aapc)
                 {
                     if (!x.Is(CustomRoles.DualPersonality)) continue;
 

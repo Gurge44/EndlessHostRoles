@@ -65,6 +65,9 @@ public static class HudSpritePatch
 
             switch (player.GetCustomRole())
             {
+                case CustomRoles.Wizard:
+                    newAbilityButton = CustomButton.Get("Up");
+                    break;
                 case CustomRoles.Socialite:
                     newKillButton = CustomButton.Get("Mark");
                     break;

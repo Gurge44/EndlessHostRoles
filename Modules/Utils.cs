@@ -1895,7 +1895,7 @@ public static class Utils
                     if (Options.CurrentGameMode != CustomGameMode.Standard) goto GameMode0;
 
                     SelfMark.Append(Snitch.GetWarningArrow(seer));
-                    if (Main.LoversPlayers.Any(x => x.PlayerId == seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), " ♥"));
+                    if (Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), " ♥"));
                     if (BallLightning.IsGhost(seer)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.BallLightning), "■"));
                     SelfMark.Append(Medic.GetMark(seer, seer));
                     SelfMark.Append(Gaslighter.GetMark(seer, seer));
@@ -2009,14 +2009,14 @@ public static class Utils
                         }
                         else
                         {
-                            var longInfo = seer.GetRoleInfo(InfoLong: true).Split(@"\n\n")[0];
+                            var longInfo = seer.GetRoleInfo(InfoLong: true).Split("\n\n")[0];
                             bool tooLong = false;
                             bool showLongInfo = Options.ShowLongInfo.GetBool();
                             if (showLongInfo)
                             {
-                                if (longInfo.Length > 297)
+                                if (longInfo.Length > 296)
                                 {
-                                    longInfo = longInfo[..297];
+                                    longInfo = longInfo[..296];
                                     longInfo += "...";
                                     tooLong = true;
                                 }
@@ -2133,7 +2133,7 @@ public static class Utils
                             TargetMark.Append(Snitch.GetWarningMark(seer, target));
                             TargetMark.Append(Marshall.GetWarningMark(seer, target));
 
-                            if ((seer.Data.IsDead || Main.LoversPlayers.Any(x => x.PlayerId == seer.PlayerId)) && Main.LoversPlayers.Any(x => x.PlayerId == target.PlayerId))
+                            if ((seer.Data.IsDead || Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId)) && Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId))
                             {
                                 TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
                             }
@@ -2458,7 +2458,7 @@ public static class Utils
             else if (pc.Is(Team.Impostor)) nums[Options.GameStateInfo.ImpCount]++;
             else if (pc.Is(Team.Neutral)) nums[Options.GameStateInfo.NNKCount]++;
             if (pc.GetCustomSubRoles().Any(x => x.IsConverted())) nums[Options.GameStateInfo.ConvertedCount]++;
-            if (Main.LoversPlayers.Any(x => x.PlayerId == pc.PlayerId)) nums[Options.GameStateInfo.LoversState]++;
+            if (Main.LoversPlayers.Exists(x => x.PlayerId == pc.PlayerId)) nums[Options.GameStateInfo.LoversState]++;
             if (pc.Is(CustomRoles.Romantic)) nums[Options.GameStateInfo.RomanticState] *= 3;
             if (Romantic.PartnerId == pc.PlayerId) nums[Options.GameStateInfo.RomanticState] *= 4;
         }

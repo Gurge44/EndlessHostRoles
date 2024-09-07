@@ -29,7 +29,8 @@ public class Jackal : RoleBase
     private static OptionItem PromotedSKCanRecruit;
 
     public static bool On;
-    private byte SidekickId;
+
+    public byte SidekickId;
 
     public override bool IsEnable => Instances.Count > 0;
 

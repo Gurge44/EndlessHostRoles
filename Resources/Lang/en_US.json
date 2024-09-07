@@ -4316,7 +4316,7 @@
   "Wizard.Buff.Speed": "Speed",
   "Wizard.Buff.Vision": "Vision",
   "Wizard.Buff.KCD": "Kill Cooldown",
-  "Wizard.SelectedBuff": "<#00ffa5>Selected Buff:</color> <b>{0}</b> {1}",
+  "Wizard.SelectedBuff": "<#00ffa5>Selected Buff:</color> <b>{0}</b> {1}{2}",
   "Oxyman": "Oxyman",
   "OxymanInfo": "Your Oxygen Level Affects Everything",
   "OxymanInfoLong": "(Crewmates):\\nAs the Oxyman, you have an Oxygen level below your name. The Oxygen level decreases overtime. You have to vent to increase your Oxygen. If the Oxygen level reaches 0%, you die. If it's very low, you're blind. If it's low, you're slower. If it's high, you're faster. If it's very high, you're invulnerable.",

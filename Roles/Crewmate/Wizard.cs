@@ -20,7 +20,7 @@ namespace EHR.Crewmate
 
         private static readonly Dictionary<Buff, float> MaxBuffValues = new()
         {
-            [Buff.Speed] = 2f,
+            [Buff.Speed] = 3f,
             [Buff.Vision] = 1.2f,
             [Buff.KCD] = 40f
         };
@@ -130,7 +130,7 @@ namespace EHR.Crewmate
 
             BuffValues[SelectedBuff] += SelectedBuff switch
             {
-                Buff.Speed => 0.25f,
+                Buff.Speed => 0.3f,
                 Buff.Vision => 0.15f,
                 Buff.KCD => 5f,
                 _ => 0f
@@ -138,6 +138,7 @@ namespace EHR.Crewmate
 
             if (BuffValues[SelectedBuff] > MaxBuffValues[SelectedBuff])
                 BuffValues[SelectedBuff] = 0f;
+            else BuffValues[SelectedBuff] = (float)Math.Round(BuffValues[SelectedBuff], 1);
 
             Utils.SendRPC(CustomRPC.SyncRoleData, WizardId, 2, BuffValues[SelectedBuff]);
             Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter);
@@ -205,7 +206,7 @@ namespace EHR.Crewmate
 
             if (seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud)) return string.Empty;
 
-            return string.Format(Translator.GetString("Wizard.SelectedBuff"), SelectedBuff, BuffValues[SelectedBuff]);
+            return string.Format(Translator.GetString("Wizard.SelectedBuff"), SelectedBuff, BuffValues[SelectedBuff], GetBuffFormat(SelectedBuff));
 
             string GetBuffFormat(Buff buff) => buff switch
             {

@@ -1,7 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using EHR.Crewmate;
-using EHR.Neutral;
 using Hazel;
 using InnerNet;
 using UnityEngine;
@@ -46,6 +43,8 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
+            if (!killer.RpcCheckAndMurder(target, check: true)) return false;
+
             if (killer.PlayerId != target.PlayerId)
             {
                 Main.PlayerStates[target.PlayerId].deathReason = PlayerState.DeathReason.Dismembered;
@@ -78,13 +77,6 @@ namespace EHR.Impostor
 
                         target.NetTransform.SnapTo(location);
                         killer.MurderPlayer(target, ExtendedPlayerControl.ResultFlags);
-
-                        if (target.Is(CustomRoles.Avanger))
-                        {
-                            var pcList = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId || Pelican.IsEaten(x.PlayerId) || Medic.ProtectList.Contains(x.PlayerId) || target.Is(CustomRoles.Pestilence)).ToArray();
-                            var rp = pcList.RandomElement();
-                            rp.Suicide(PlayerState.DeathReason.Revenge, target);
-                        }
 
                         MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(killer.NetId, (byte)RpcCalls.MurderPlayer, SendOption.None);
                         messageWriter.WriteNetObject(target);
