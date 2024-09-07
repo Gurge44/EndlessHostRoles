@@ -1222,7 +1222,7 @@ static class FixedUpdatePatch
             }
         }
 
-        if (Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive())
+        if (Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && (!Altruist.On || Main.PlayerStates[id].Role is not Altruist at || at.ReviveStartTS == 0))
         {
             DeadBufferTime.TryAdd(id, 30);
             DeadBufferTime[id]--;
@@ -1776,6 +1776,8 @@ static class FixedUpdatePatch
 
     public static void AddExtraAbilityUsesOnFinishedTasks(PlayerControl player)
     {
+        if (Main.HasJustStarted || !player.IsAlive()) return;
+
         if (Main.PlayerStates[player.PlayerId].Role is SabotageMaster sm)
         {
             sm.UsedSkillCount -= SabotageMaster.AbilityChargesWhenFinishedTasks.GetFloat();

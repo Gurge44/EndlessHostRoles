@@ -124,6 +124,7 @@ internal class ChangeRoleSettings
     public static void Postfix(AmongUsClient __instance)
     {
         SetUpRoleTextPatch.IsInIntro = true;
+        CoShowIntroPatch.IntroStarted = false;
 
         Main.OverrideWelcomeMsg = string.Empty;
         try
@@ -394,14 +395,6 @@ internal class SelectRolesPatch
             // RpcSetRoleReplacer.StartReplace(senders);
 
             RpcSetRoleReplacer.Initialize();
-
-            if (Main.GM.Value)
-            {
-                PlayerControl.LocalPlayer.RpcSetCustomRole(CustomRoles.GM);
-                PlayerControl.LocalPlayer.RpcSetRole(RoleTypes.Crewmate, true);
-                PlayerControl.LocalPlayer.Data.IsDead = true;
-                Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetDead();
-            }
 
 
             SelectCustomRoles();
@@ -1142,7 +1135,7 @@ internal class SelectRolesPatch
             OverriddenSenderList = null;
             StoragedData = null;
 
-            if (PlayerControl.AllPlayerControls.Count <= 1) return;
+            if (CoShowIntroPatch.IntroStarted || (PlayerControl.AllPlayerControls.Count <= 1 && !Main.GM.Value)) return;
 
             PlayerControl.AllPlayerControls.ForEach((Action<PlayerControl>)(PlayerNameColor.Set));
             PlayerControl.LocalPlayer.StopAllCoroutines();

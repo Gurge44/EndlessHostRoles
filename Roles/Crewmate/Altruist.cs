@@ -17,10 +17,11 @@ namespace EHR.Crewmate
         private static OptionItem ReviveTargetsKillerGetsAlert;
         private static OptionItem ReviveTargetsKillerGetsArrow;
 
+        private static HashSet<byte> RevivedPlayers;
+
         private byte AlturistId;
 
-        private HashSet<byte> RevivedPlayers;
-        private long ReviveStartTS;
+        public long ReviveStartTS;
         private byte ReviveTarget;
         private Vector2 ReviveTargetPos;
 
@@ -64,13 +65,7 @@ namespace EHR.Crewmate
         public static bool OnAnyoneCheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
         {
             if (ReviveTargetCanReportTheirOwnBody.GetBool()) return true;
-            foreach (Altruist instance in Instances)
-            {
-                if (instance.RevivedPlayers.Contains(reporter.PlayerId) && target.PlayerId == reporter.PlayerId)
-                    return false;
-            }
-
-            return true;
+            return !RevivedPlayers.Contains(reporter.PlayerId) || target.PlayerId != reporter.PlayerId;
         }
 
         public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
@@ -79,7 +74,7 @@ namespace EHR.Crewmate
 
             var state = Main.PlayerStates[reporter.PlayerId];
             state.deathReason = PlayerState.DeathReason.Sacrifice;
-            state.RealKiller = (DateTime.Now, reporter.PlayerId);
+            state.RealKiller = (DateTime.Now, target.PlayerId);
             state.SetDead();
             reporter.RpcExileV2();
 

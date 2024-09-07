@@ -362,7 +362,7 @@ public class TaskState
             }
 
             // Ability Use Gain with this task completed
-            if (alive)
+            if (alive && !Main.HasJustStarted)
             {
                 switch (player.GetCustomRole())
                 {

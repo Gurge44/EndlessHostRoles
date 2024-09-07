@@ -793,6 +793,9 @@ public static class Utils
                 if (p.IsDead)
                     hasTasks = false;
                 break;
+            case CustomRoles.Wizard:
+                hasTasks = true;
+                break;
             default:
                 if (role.IsImpostor()) hasTasks = false;
                 break;
@@ -966,6 +969,8 @@ public static class Utils
     {
         try
         {
+            if (playerId == 0 && Main.GM.Value) return string.Empty;
+
             var taskState = Main.PlayerStates[playerId].TaskState;
             if (!taskState.HasTasks) return string.Empty;
 

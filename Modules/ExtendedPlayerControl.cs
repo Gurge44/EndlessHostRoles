@@ -368,7 +368,7 @@ static class ExtendedPlayerControl
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame) return;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGeneralOptions, SendOption.Reliable, -1);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGeneralOptions, SendOption.Reliable);
         writer.Write(player.PlayerId);
         writer.WritePacked((int)player.GetCustomRole());
         writer.Write(Main.PlayerStates[player.PlayerId].IsDead);
@@ -644,6 +644,8 @@ static class ExtendedPlayerControl
 
     public static void SetAbilityUseLimit(this byte playerId, float limit, bool rpc = true, bool log = true)
     {
+        limit = (float)Math.Round(limit, 1);
+
         if (float.IsNaN(limit) || limit is < 0f or > 100f || (Main.AbilityUseLimit.TryGetValue(playerId, out var beforeLimit) && Math.Abs(beforeLimit - limit) < 0.01f)) return;
 
         Main.AbilityUseLimit[playerId] = limit;
@@ -1391,11 +1393,9 @@ static class ExtendedPlayerControl
 
     public static bool IsAlive(this PlayerControl target)
     {
-        // If target is not null and cannot be obtained, it is assumed to be alive because it has not been registered
         if (target == null || target.Is(CustomRoles.GM)) return false;
         return GameStates.IsLobby || !Main.PlayerStates.TryGetValue(target.PlayerId, out var ps) || !ps.IsDead;
     }
 
-    ///<summary>Is the player currently protected</summary>
     public static bool IsProtected(this PlayerControl self) => self.protectedByGuardianId > -1;
 }
