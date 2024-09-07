@@ -4310,7 +4310,7 @@
   "AADone": "Способность закончилась",
   "Wizard": "Wizard",
   "WizardInfo": "Change Players' Stats",
-  "WizardInfoLong": "(Crewmates):\\nAs the Wizard, you have 3 stats you can change for each player: Speed, Vision, and Kill Cooldown. Pet to cycle between these stats. Press Unshift to increase the value of the stat. To give the selected stat with its value to a player, use your kill button on them.",
+  "WizardInfoLong": "(Crewmates):\\nAs the Wizard, you have 3 stats you can change for each player: Speed, Vision, and Kill Cooldown. Pet to cycle between these stats. Press Unshift to increase the value of the stat. To give the selected stat with its value to a player, use your kill button on them.\\n\\nThink twice before applying an effect, as it is <b><u>permanent</u></b>! You can override it by applying the same effect on them with a different value, but that removes another ability use!",
   "Wizard.Vision": "Зрение",
   "Wizard.BuffGivenNotify": "<#00ffa5>{0}'s <#ffffff>{1}</color> was set to <#ffffff>{2}</color></color>",
   "Wizard.Buff.Speed": "Ускорение",
