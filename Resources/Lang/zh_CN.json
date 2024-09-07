@@ -4316,7 +4316,7 @@
   "Wizard.Buff.Speed": "速跑",
   "Wizard.Buff.Vision": "视野",
   "Wizard.Buff.KCD": "击杀冷却时间",
-  "Wizard.SelectedBuff": "<#00ffa5>选定的属性:</color> <b>{0}</b> {1}",
+  "Wizard.SelectedBuff": "<#00ffa5>Selected Buff:</color> <b>{0}</b> {1}{2}",
   "Oxyman": "氧生者",
   "OxymanInfo": "您的氧气含量会影响一切",
   "OxymanInfoLong": "(船员职业):\\n氧生者有一个氧气值.氧气值随时间下降,需要通过跳管补充.氧气耗尽则死亡,氧气不足则视线模糊或行动迟缓,氧气充足则行动迅速,氧气充沛你则刀枪不入.",
