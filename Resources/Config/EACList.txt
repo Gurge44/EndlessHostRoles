@@ -100,6 +100,8 @@ polkaoval#0453,自作Modな橋本環奈
 ## Other
 tenthrope#3476,Oldishwire
 greencorps#9587,4a403fe31,ellsbells
+finlucky#6381,433b2e672,Wuwu
+nattertame#9540,0abd54784,Wuwu // Alt account
 
 ## teaming and harassing hosts in multiple lobbies
 broadbarn#7413,niah

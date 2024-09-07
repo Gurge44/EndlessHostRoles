@@ -190,7 +190,7 @@ public class Amnesiac : RoleBase
         amnesiac.Notify(amneNotifyString);
         target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Amnesiac), GetString("AmnesiacRemembered")));
 
-        amnesiac.SetKillCooldown();
+        amnesiac.SetKillCooldown(3f);
 
         target.RpcGuardAndKill(amnesiac);
         target.RpcGuardAndKill(target);

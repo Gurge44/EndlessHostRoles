@@ -124,6 +124,7 @@ internal class ChangeRoleSettings
     public static void Postfix(AmongUsClient __instance)
     {
         SetUpRoleTextPatch.IsInIntro = true;
+        CoShowIntroPatch.IntroStarted = false;
 
         Main.OverrideWelcomeMsg = string.Empty;
         try
@@ -219,6 +220,7 @@ internal class ChangeRoleSettings
 
             ReportDeadBodyPatch.CanReport = [];
             SabotageMapPatch.TimerTexts = [];
+            VentilationSystemDeterioratePatch.LastClosestVent = [];
 
             Options.UsedButtonCount = 0;
 
@@ -282,6 +284,7 @@ internal class ChangeRoleSettings
                 Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                 ReportDeadBodyPatch.CanReport[pc.PlayerId] = true;
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId] = [];
+                VentilationSystemDeterioratePatch.LastClosestVent[pc.PlayerId] = 0;
                 RoleResult[pc.PlayerId] = CustomRoles.NotAssigned;
                 pc.cosmetics.nameText.text = pc.name;
                 RandomSpawn.CustomNetworkTransformPatch.NumOfTP.Add(pc.PlayerId, 0);
@@ -394,14 +397,6 @@ internal class SelectRolesPatch
             // RpcSetRoleReplacer.StartReplace(senders);
 
             RpcSetRoleReplacer.Initialize();
-
-            if (Main.GM.Value)
-            {
-                PlayerControl.LocalPlayer.RpcSetCustomRole(CustomRoles.GM);
-                PlayerControl.LocalPlayer.RpcSetRole(RoleTypes.Crewmate, true);
-                PlayerControl.LocalPlayer.Data.IsDead = true;
-                Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetDead();
-            }
 
 
             SelectCustomRoles();
@@ -978,7 +973,7 @@ internal class SelectRolesPatch
         private static Dictionary<byte, CustomRpcSender> Senders = [];
         private static Dictionary<byte, RoleTypes> StoragedData = [];
         private static Dictionary<byte, bool> DataDisconnected = [];
-        public static Dictionary<(byte seerId, byte targetId), (RoleTypes roleType, CustomRoles customRole)> RoleMap = [];
+        public static Dictionary<(byte SeerID, byte TargetID), (RoleTypes RoleType, CustomRoles CustomRole)> RoleMap = [];
         public static List<CustomRpcSender> OverriddenSenderList = [];
 
         public static void Initialize()
@@ -1074,7 +1069,7 @@ internal class SelectRolesPatch
                     try
                     {
                         // canOverride should be false for the host during assign
-                        seer.SetRole(roleType, false);
+                        seer.SetRole(roleType, canOverride: false);
 
                         // send rpc set role for other clients
                         sender.AutoStartRpc(seer.NetId, (byte)RpcCalls.SetRole, target.GetClientId())
@@ -1113,7 +1108,7 @@ internal class SelectRolesPatch
 
             int targetClientId = target.GetClientId();
 
-            RoleTypes roleType = RoleMap.TryGetValue((target.PlayerId, target.PlayerId), out var roleMap) ? roleMap.roleType : StoragedData.GetValueOrDefault(target.PlayerId, RoleTypes.Crewmate);
+            RoleTypes roleType = RoleMap.TryGetValue((target.PlayerId, target.PlayerId), out var roleMap) ? roleMap.RoleType : StoragedData.GetValueOrDefault(target.PlayerId, RoleTypes.Crewmate);
 
             var stream = MessageWriter.Get(SendOption.Reliable);
             stream.StartMessage(6);
@@ -1141,6 +1136,13 @@ internal class SelectRolesPatch
             Senders = null;
             OverriddenSenderList = null;
             StoragedData = null;
+
+            if (CoShowIntroPatch.IntroStarted || (PlayerControl.AllPlayerControls.Count <= 1 && !Main.GM.Value)) return;
+
+            PlayerControl.AllPlayerControls.ForEach((Action<PlayerControl>)(PlayerNameColor.Set));
+            PlayerControl.LocalPlayer.StopAllCoroutines();
+            DestroyableSingleton<HudManager>.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoShowIntro());
+            DestroyableSingleton<HudManager>.Instance.HideGameLoader();
         }
 
         private static void RpcSetDisconnected(MessageWriter stream, bool disconnected)
@@ -1149,7 +1151,7 @@ internal class SelectRolesPatch
             {
                 if (disconnected)
                 {
-                    // if player left the game, remember current data
+                    // If player left the game, remember current data
                     DataDisconnected[playerinfo.PlayerId] = playerinfo.Disconnected;
 
                     playerinfo.Disconnected = true;

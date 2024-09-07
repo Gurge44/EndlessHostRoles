@@ -5,18 +5,26 @@ using UnityEngine;
 namespace EHR;
 
 [HarmonyPatch(typeof(Console), nameof(Console.CanUse))]
-class CanUsePatch
+static class CanUsePatch
 {
     public static bool Prefix( /*ref float __result,*/ Console __instance, /*[HarmonyArgument(0)] NetworkedPlayerInfo pc,*/ [HarmonyArgument(1)] out bool canUse, [HarmonyArgument(2)] out bool couldUse)
     {
         canUse = couldUse = false;
-        // Even if you return this with false, usable items other than tasks (including sabots) will remain usable (buttons, etc.)
-        return __instance.AllowImpostor || Utils.HasTasks(PlayerControl.LocalPlayer.Data, false);
+        // Even if you return this with false, usable items other than tasks will remain usable (buttons, etc.)
+        var lp = PlayerControl.LocalPlayer;
+        return __instance.AllowImpostor || (Utils.HasTasks(lp.Data, false) && (!lp.Is(CustomRoles.Wizard) || HasTasksAsWizard()));
+
+        bool HasTasksAsWizard()
+        {
+            if (lp.GetTaskState().IsTaskFinished) return false;
+            if (!lp.IsAlive()) return true;
+            return lp.GetAbilityUseLimit() < 1f;
+        }
     }
 }
 
 [HarmonyPatch(typeof(EmergencyMinigame), nameof(EmergencyMinigame.Update))]
-class EmergencyMinigamePatch
+static class EmergencyMinigamePatch
 {
     public static void Postfix(EmergencyMinigame __instance)
     {
@@ -26,7 +34,7 @@ class EmergencyMinigamePatch
 }
 
 [HarmonyPatch(typeof(Vent), nameof(Vent.CanUse))]
-class CanUseVentPatch
+static class CanUseVentPatch
 {
     public static bool Prefix(Vent __instance,
         [HarmonyArgument(0)] NetworkedPlayerInfo pc,

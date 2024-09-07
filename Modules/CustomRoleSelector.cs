@@ -194,7 +194,11 @@ internal static class CustomRoleSelector
             AllPlayers.Remove(PlayerControl.LocalPlayer);
         }
 
-        if (Main.GM.Value) Logger.Warn("Host: GM", "CustomRoleSelector");
+        if (Main.GM.Value)
+        {
+            Logger.Warn("Host: GM", "CustomRoleSelector");
+            AllPlayers.RemoveAll(x => x.IsHost());
+        }
 
         // Pre-Assigned Roles By Host Are Selected First
         foreach ((byte id, CustomRoles role) in Main.SetRoles)
@@ -572,7 +576,7 @@ internal static class CustomRoleSelector
                     RoleResult[pc.PlayerId] = CustomRoles.GM;
                     continue;
                 }
-                
+
                 RoleResult[pc.PlayerId] = role;
             }
         }

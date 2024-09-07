@@ -32,6 +32,9 @@ public static class HudSpritePatch
         {
             var player = PlayerControl.LocalPlayer;
             if (player == null) return;
+
+            if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId)) return;
+
             if (!SetHudActivePatch.IsActive || !player.IsAlive()) return;
             if (!AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed)
             {
@@ -60,10 +63,11 @@ public static class HudSpritePatch
             Sprite newPetButton = Pet;
             Sprite newReportButton = Report;
 
-            if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId)) goto EndOfSelectImg;
-
             switch (player.GetCustomRole())
             {
+                case CustomRoles.Wizard:
+                    newAbilityButton = CustomButton.Get("Up");
+                    break;
                 case CustomRoles.Socialite:
                     newKillButton = CustomButton.Get("Mark");
                     break;
@@ -309,13 +313,6 @@ public static class HudSpritePatch
                     }
 
                     break;
-                default:
-                    if (player.GetCustomRole().UsesPetInsteadOfKill())
-                    {
-                        newPetButton = __instance.KillButton.graphic.sprite;
-                    }
-
-                    break;
             }
 
             if (player.GetCustomRole().UsesPetInsteadOfKill())
@@ -323,8 +320,6 @@ public static class HudSpritePatch
                 newPetButton = newKillButton;
             }
 
-
-            EndOfSelectImg:
 
             __instance.KillButton.graphic.sprite = newKillButton;
             __instance.AbilityButton.graphic.sprite = newAbilityButton;

@@ -123,5 +123,10 @@ namespace EHR.Neutral
         {
             OnCheckMurder(pc, ExternalRpcPetPatch.SelectKillButtonTarget(pc));
         }
+
+        public override void SetButtonTexts(HudManager hud, byte id)
+        {
+            hud.KillButton?.OverrideText(Translator.GetString("ShifterKillButtonText"));
+        }
     }
 }

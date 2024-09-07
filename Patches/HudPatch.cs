@@ -282,9 +282,8 @@ static class HudManagerPatch
                         __instance.KillButton?.ToggleVisible(false);
                     }
 
-                    bool CanUseVent = (player.CanUseImpostorVentButton() || (player.inVent && player.GetRoleTypes() != RoleTypes.Engineer)) && GameStates.IsInTask;
-                    __instance.ImpostorVentButton?.ToggleVisible(CanUseVent);
-                    player.Data.Role.CanVent = CanUseVent;
+                    __instance.ImpostorVentButton?.ToggleVisible((player.CanUseImpostorVentButton() || (player.inVent && player.GetRoleTypes() != RoleTypes.Engineer)) && GameStates.IsInTask);
+                    player.Data.Role.CanVent = player.CanUseVent();
 
                     if (usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer)
                         __instance.AbilityButton.SetEnabled();
@@ -806,9 +805,13 @@ static class DialogueBoxHidePatch
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.CoShowIntro))]
 static class CoShowIntroPatch
 {
+    public static bool IntroStarted;
+
     public static void Prefix()
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return;
+
+        IntroStarted = true;
 
         LateTask.New(() =>
         {

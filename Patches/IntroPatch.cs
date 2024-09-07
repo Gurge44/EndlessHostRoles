@@ -329,7 +329,7 @@ class BeginCrewmatePatch
                     break;
             }
 
-            if (Main.LoversPlayers.Count == 2 && Main.LoversPlayers.Any(x => x.PlayerId == PlayerControl.LocalPlayer.PlayerId))
+            if (Main.LoversPlayers.Count == 2 && Main.LoversPlayers.Exists(x => x.PlayerId == PlayerControl.LocalPlayer.PlayerId))
             {
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Lovers);
                 byte otherLoverId = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).PlayerId;
@@ -758,6 +758,11 @@ class IntroCutsceneDestroyPatch
 
             // LateTask.New(() => Main.AllPlayerControls.Do(pc ⇒ pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 
+            var lp = PlayerControl.LocalPlayer;
+
+            if (lp.GetRoleTypes() == RoleTypes.Shapeshifter)
+                lp.RpcChangeRoleBasis(lp.GetCustomRole());
+
             if (Options.UsePets.GetBool())
             {
                 Main.ProcessShapeshifts = false;
@@ -785,7 +790,7 @@ class IntroCutsceneDestroyPatch
                     {
                         try
                         {
-                            PlayerControl.LocalPlayer.Notify(GetString("GLHF"), 2f);
+                            lp.Notify(GetString("GLHF"), 2f);
                             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                             {
                                 if (pc.IsHost()) continue; // Skip the host
@@ -818,10 +823,11 @@ class IntroCutsceneDestroyPatch
                 LateTask.New(() => Main.AllAlivePlayerControls.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
             }
 
-            if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
+            if (Main.GM.Value)
             {
-                PlayerControl.LocalPlayer.RpcExile();
-                Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetDead();
+                lp.RpcExile();
+                lp.RpcSetCustomRole(CustomRoles.GM);
+                Main.PlayerStates[lp.PlayerId].SetDead();
             }
 
             if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard)
@@ -838,9 +844,24 @@ class IntroCutsceneDestroyPatch
                 if (map != null && AmongUsClient.Instance.AmHost) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
             }
 
-            if (Main.ResetCamPlayerList.Contains(PlayerControl.LocalPlayer.PlayerId))
+            if (Main.ResetCamPlayerList.Contains(lp.PlayerId))
             {
-                PlayerControl.LocalPlayer.Data.Role.AffectedByLightAffectors = false;
+                lp.Data.Role.AffectedByLightAffectors = false;
+            }
+
+            bool shouldPerformVentInteractions = false;
+            foreach (var pc in PlayerControl.AllPlayerControls)
+            {
+                if (VentilationSystemDeterioratePatch.BlockVentInteraction(pc))
+                {
+                    VentilationSystemDeterioratePatch.LastClosestVent[pc.PlayerId] = pc.GetVentsFromClosest()[0].Id;
+                    shouldPerformVentInteractions = true;
+                }
+            }
+
+            if (shouldPerformVentInteractions)
+            {
+                Utils.SetAllVentInteractions();
             }
 
             if (AFKDetector.ActivateOnStart.GetBool())
