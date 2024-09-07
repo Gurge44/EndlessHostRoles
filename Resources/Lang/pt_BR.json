@@ -4316,7 +4316,7 @@
   "Wizard.Buff.Speed": "Velocidade",
   "Wizard.Buff.Vision": "Visão",
   "Wizard.Buff.KCD": "Recarga de Abate",
-  "Wizard.SelectedBuff": "<#00ffa5>Selected Buff:</color> <b>{0}</b> {1}",
+  "Wizard.SelectedBuff": "<#00ffa5>Selected Buff:</color> <b>{0}</b> {1}{2}",
   "Oxyman": "Mergulhador",
   "OxymanInfo": "Seu nível de oxigênio afeta tudo",
   "OxymanInfoLong": "(Tripulantes):\nComo Mergulhador, você tem um nível de Oxigênio abaixo do seu nome. O nível de Oxigênio diminui com o tempo. Você precisa usar os dutos para aumentar seu Oxigênio. Se o nível de Oxigênio chegar a 0%, você morre. Se estiver muito baixo, você fica cego. Se estiver baixo, você fica mais lento. Se estiver alto, você fica mais rápido. Se estiver muito alto, você fica invulnerável.",
