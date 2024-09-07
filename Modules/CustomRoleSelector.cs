@@ -632,7 +632,6 @@ internal static class CustomRoleSelector
             if (!role.IsAdditionRole() || role.IsGhostRole()) continue;
             switch (role)
             {
-                case CustomRoles.Spotter when Main.RealOptionsData.GetBool(BoolOptionNames.VisualTasks):
                 case CustomRoles.Autopsy when Options.EveryoneSeesDeathReasons.GetBool():
                 case CustomRoles.Mare or CustomRoles.Glow or CustomRoles.Sleep when Main.CurrentMap == MapNames.Fungle:
                 case CustomRoles.Madmate when Options.MadmateSpawnMode.GetInt() != 0:

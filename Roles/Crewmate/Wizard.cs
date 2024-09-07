@@ -20,8 +20,8 @@ namespace EHR.Crewmate
 
         private static readonly Dictionary<Buff, float> MaxBuffValues = new()
         {
-            [Buff.Speed] = 3f,
-            [Buff.Vision] = 1.3f,
+            [Buff.Speed] = 2f,
+            [Buff.Vision] = 1.2f,
             [Buff.KCD] = 40f
         };
 
@@ -65,6 +65,8 @@ namespace EHR.Crewmate
             SelectedBuff = default;
             playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
         }
+
+        public override bool CanUseKillButton(PlayerControl pc) => pc.IsAlive();
 
         public override void SetKillCooldown(byte id)
         {
@@ -130,7 +132,7 @@ namespace EHR.Crewmate
             {
                 Buff.Speed => 0.25f,
                 Buff.Vision => 0.15f,
-                Buff.KCD => 2.5f,
+                Buff.KCD => 5f,
                 _ => 0f
             };
 
@@ -205,11 +207,11 @@ namespace EHR.Crewmate
 
             return string.Format(Translator.GetString("Wizard.SelectedBuff"), SelectedBuff, BuffValues[SelectedBuff]);
 
-            char GetBuffFormat(Buff buff) => buff switch
+            string GetBuffFormat(Buff buff) => buff switch
             {
-                Buff.Speed => 'x',
-                Buff.Vision => 'x',
-                Buff.KCD => 's',
+                Buff.Speed => "x",
+                Buff.Vision => "x",
+                Buff.KCD => "s",
                 _ => throw new ArgumentOutOfRangeException(nameof(buff), buff, "Invalid buff")
             };
         }

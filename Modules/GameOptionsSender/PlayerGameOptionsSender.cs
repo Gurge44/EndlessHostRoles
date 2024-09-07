@@ -322,9 +322,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
 
                 switch (subRole)
                 {
-                    case CustomRoles.Spotter:
-                        opt.SetBool(BoolOptionNames.VisualTasks, true);
-                        break;
                     case CustomRoles.Watcher:
                         opt.SetBool(BoolOptionNames.AnonymousVotes, false);
                         break;

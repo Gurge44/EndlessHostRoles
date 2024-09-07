@@ -2010,9 +2010,17 @@ public static class Utils
                         else
                         {
                             var longInfo = seer.GetRoleInfo(InfoLong: true).Split(@"\n\n")[0];
+                            bool tooLong = false;
                             bool showLongInfo = Options.ShowLongInfo.GetBool();
                             if (showLongInfo)
                             {
+                                if (longInfo.Length > 297)
+                                {
+                                    longInfo = longInfo[..297];
+                                    longInfo += "...";
+                                    tooLong = true;
+                                }
+
                                 for (int i = 50; i < longInfo.Length; i += 50)
                                 {
                                     int index = longInfo.LastIndexOf(' ', i);
@@ -2020,7 +2028,9 @@ public static class Utils
                                 }
                             }
 
-                            var mHelp = !showLongInfo && Options.CurrentGameMode == CustomGameMode.Standard ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
+                            longInfo = $"<#ffffff>{longInfo}</color>";
+
+                            var mHelp = (!showLongInfo || tooLong) && Options.CurrentGameMode == CustomGameMode.Standard ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
 
                             SeerRealName = !Options.ChangeNameToRoleInfo.GetBool()
                                 ? SeerRealName
