@@ -1276,6 +1276,7 @@ static class FixedUpdatePatch
 
         if (!lowLoad)
         {
+            VentilationSystemDeterioratePatch.CheckVentInteraction(player);
             NameNotifyManager.OnFixedUpdate(player);
             TargetArrow.OnFixedUpdate(player);
             LocateArrow.OnFixedUpdate(player);

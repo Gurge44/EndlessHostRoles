@@ -388,6 +388,7 @@ internal static class CustomRolesHelper
             CustomRoles.Sidekick => RoleTypes.Impostor,
             CustomRoles.SwordsMan => UsePets && SwordsMan.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Innocent => RoleTypes.Impostor,
+            CustomRoles.Amnesiac when Amnesiac.RememberMode.GetValue() == 0 => RoleTypes.Impostor,
             CustomRoles.Pelican => RoleTypes.Impostor,
             CustomRoles.Aid => UsePets && Aid.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Socialite => UsePets && Socialite.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,

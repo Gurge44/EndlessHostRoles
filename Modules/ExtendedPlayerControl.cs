@@ -60,26 +60,25 @@ static class ExtendedPlayerControl
         }
     }
 
-    // Next 3: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs
-    public static Vent GetClosestVent(this PlayerControl player)
+    public static bool CanUseVent(this PlayerControl player)
     {
-        Vector2 playerpos = player.transform.position;
-        Dictionary<Vent, float> ventdistance = new();
-        foreach (Vent vent in ShipStatus.Instance.AllVents)
-        {
-            float dis = Vector2.Distance(playerpos, vent.transform.position);
-            ventdistance.Add(vent, dis);
-        }
-
-        var min = ventdistance.OrderBy(c => c.Value).FirstOrDefault();
-        Vent target = min.Key;
-        return target;
+        return CanUseVent(player, GetClosestVent(player).Id);
     }
 
     // VentId is unused for now, but it can be used to block specific vents
     // ReSharper disable once UnusedParameter.Global
-    public static bool CanUseVent(this PlayerControl player, int ventId = int.MaxValue) => GameStates.IsInTask && (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer || player.inVent);
+    public static bool CanUseVent(this PlayerControl player, int ventId)
+    {
+        return GameStates.IsInTask && (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer || player.inVent);
+    }
 
+    // Next 3: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs
+    public static Vent GetClosestVent(this PlayerControl player)
+    {
+        var pos = player.Pos();
+        return ShipStatus.Instance.AllVents.MinBy(x => Vector2.Distance(pos, x.transform.position));
+    }
+    
     public static List<Vent> GetVentsFromClosest(this PlayerControl player)
     {
         Vector2 playerpos = player.transform.position;
@@ -1297,8 +1296,11 @@ static class ExtendedPlayerControl
             pc.RpcShapeshift(target, false);
             Main.ProcessShapeshifts = process;
             Main.CheckShapeshift[pc.PlayerId] = false;
-            RpcChangeSkin(pc, outfit);
-            if (notify) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, NoCache: true);
+            LateTask.New(() =>
+            {
+                RpcChangeSkin(pc, outfit);
+                if (notify) NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, NoCache: true);
+            }, 0.1f, log: false);
         }
     }
 

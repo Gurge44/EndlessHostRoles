@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using EHR.Modules;
 using Hazel;
 using static EHR.Options;
@@ -101,6 +102,8 @@ namespace EHR.AddOns.Crewmate
                         LastUpdates.Add(pc.PlayerId, now + 1);
                     }
                 }
+                
+                LogTimer();
             }, 8f, "Add Stressed Timers");
         }
 
@@ -151,10 +154,17 @@ namespace EHR.AddOns.Crewmate
             LastUpdates[id] = lastUpdate;
         }
 
+        static void LogTimer(byte id = byte.MaxValue, [CallerMemberName] string action = "")
+        {
+            if (Timers.TryGetValue(id, out var time)) Logger.Info($"{action} - Timer: {time} for {id.ColoredPlayerName()}", "Stressed");
+            else Timers.Do(x => Logger.Info($"{action} - Timer: {x.Value} for {x.Key.ColoredPlayerName()}", "Stressed"));
+        }
+
         public static void OnTaskComplete(PlayerControl pc)
         {
             if (!IsEnable) return;
             Timers[pc.PlayerId] += TimeAfterTaskComplete;
+            LogTimer(pc.PlayerId);
         }
 
         public static void AfterMeetingTasks()
@@ -167,36 +177,42 @@ namespace EHR.AddOns.Crewmate
         {
             if (!IsEnable) return;
             AdjustTime(TimeAfterImpDead);
+            LogTimer();
         }
 
         public static void OnNonCrewmateEjected()
         {
             if (!IsEnable) return;
             AdjustTime(TimeAfterImpEject);
+            LogTimer();
         }
 
         public static void OnCrewmateEjected()
         {
             if (!IsEnable) return;
             AdjustTime(TimeMinusAfterCrewEject);
+            LogTimer();
         }
 
         public static void OnRepairSabotage(PlayerControl pc)
         {
             if (!IsEnable) return;
             Timers[pc.PlayerId] += TimeAfterSaboFix;
+            LogTimer(pc.PlayerId);
         }
 
         public static void OnReport(PlayerControl pc)
         {
             if (!IsEnable) return;
             Timers[pc.PlayerId] += TimeAfterReport;
+            LogTimer(pc.PlayerId);
         }
 
         public static void OnMeetingStart()
         {
             if (!IsEnable) return;
             AdjustTime(TimeAfterMeeting + 9);
+            LogTimer();
         }
 
         public static string GetProgressText(byte playerId) => Timers.TryGetValue(playerId, out var x) ? string.Format(GetString("DamoclesTimeLeft"), x) : string.Empty;
