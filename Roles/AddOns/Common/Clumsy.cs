@@ -11,7 +11,7 @@
 
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (IRandom.Instance.Next(300) == 0 && !pc.inVent && !pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() && !pc.MyPhysics.Animations.IsPlayingEnterVentAnimation() && !pc.inMovingPlat && pc.MyPhysics.Animations.IsPlayingSomeAnimation())
+            if (IRandom.Instance.Next(300) == 0 && !pc.inVent && !pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() && !pc.MyPhysics.Animations.IsPlayingEnterVentAnimation() && !pc.inMovingPlat && pc.MyPhysics.Animations.IsPlayingRunAnimation())
             {
                 float duration = IRandom.Instance.Next(1, 4);
                 float speed = Main.AllPlayerSpeed[pc.PlayerId];

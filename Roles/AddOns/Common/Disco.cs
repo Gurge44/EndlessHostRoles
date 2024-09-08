@@ -12,7 +12,7 @@ namespace EHR.AddOns.Common
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(15430, CustomRoles.Disco, canSetNum: true, teamSpawnOptions: true);
-            DiscoChangeInterval = new IntegerOptionItem(15436, "DiscoChangeInterval", new(1, 90, 1), 5, TabGroup.Addons)
+            DiscoChangeInterval = new IntegerOptionItem(15437, "DiscoChangeInterval", new(1, 90, 1), 5, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Disco])
                 .SetValueFormat(OptionFormat.Seconds);
         }

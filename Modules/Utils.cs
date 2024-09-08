@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using AmongUs.Data;
@@ -1602,24 +1601,6 @@ public static class Utils
         else Logger.Msg("No Player to change to Refugee.", "Add Refugee");
     }
 
-    public static int ToInt(this string input)
-    {
-        using MD5 md5 = MD5.Create();
-        byte[] hashBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(input));
-
-        int hashInt = BitConverter.ToInt32(hashBytes, 0);
-
-        hashInt = Math.Abs(hashInt);
-
-        string hashStr = hashInt.ToString().PadLeft(8, '0');
-        if (hashStr.Length > 8)
-        {
-            hashStr = hashStr[..8];
-        }
-
-        return int.Parse(hashStr);
-    }
-
     public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false)
     {
         if (!AmongUsClient.Instance.AmHost) return;
@@ -1898,7 +1879,7 @@ public static class Utils
                     if (Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Lovers), " ♥"));
                     if (BallLightning.IsGhost(seer)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.BallLightning), "■"));
                     SelfMark.Append(Medic.GetMark(seer, seer));
-                    SelfMark.Append(Gaslighter.GetMark(seer, seer));
+                    SelfMark.Append(Gaslighter.GetMark(seer, seer, isForMeeting));
                     SelfMark.Append(Gamer.TargetMark(seer, seer));
                     SelfMark.Append(Sniper.GetShotNotify(seer.PlayerId));
                     if (Silencer.ForSilencer.Contains(seer.PlayerId)) SelfMark.Append(ColorString(GetRoleColor(CustomRoles.Silencer), "╳"));
@@ -2074,7 +2055,7 @@ public static class Utils
 
                 if (!GameStates.IsLobby)
                 {
-                    if (NameNotifyManager.GetNameNotify(seer, out var name)) SelfName = name;
+                    if (NameNotifyManager.GetNameNotify(seer, out var name) && name.Length > 0) SelfName = name;
 
                     switch (Options.CurrentGameMode)
                     {
@@ -2299,7 +2280,7 @@ public static class Utils
                             TargetMark.Append(Executioner.TargetMark(seer, target));
                             TargetMark.Append(Gamer.TargetMark(seer, target));
                             TargetMark.Append(Medic.GetMark(seer, target));
-                            TargetMark.Append(Gaslighter.GetMark(seer, target));
+                            TargetMark.Append(Gaslighter.GetMark(seer, target, isForMeeting));
                             TargetMark.Append(Totocalcio.TargetMark(seer, target));
                             TargetMark.Append(Romantic.TargetMark(seer, target));
                             TargetMark.Append(Lawyer.LawyerMark(seer, target));
@@ -2552,7 +2533,7 @@ public static class Utils
     public static (RoleTypes RoleType, CustomRoles CustomRole) GetRoleMap(byte seerId, byte targetId = byte.MaxValue)
     {
         if (targetId == byte.MaxValue) targetId = seerId;
-        return SelectRolesPatch.RpcSetRoleReplacer.RoleMap[(seerId, targetId)];
+        return StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seerId, targetId)];
     }
 
     public static void AfterMeetingTasks()
@@ -3026,7 +3007,7 @@ public static class Utils
             var texture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
             using MemoryStream ms = new();
             stream?.CopyTo(ms);
-            ImageConversion.LoadImage(texture, ms.ToArray(), false);
+            texture.LoadImage(ms.ToArray(), false);
             return texture;
         }
         catch

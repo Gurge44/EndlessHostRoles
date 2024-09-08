@@ -107,7 +107,7 @@ namespace EHR.Neutral
             Main.AbilityUseLimit.Remove(target.PlayerId);
             Utils.SendRPC(CustomRPC.RemoveAbilityUseLimit, target.PlayerId);
             target.SyncSettings();
-            target.SetKillCooldown();
+            LateTask.New(() => target.SetKillCooldown(), 0.2f, log: false);
 
             // ------------------------------------------------------------------------------------------
 

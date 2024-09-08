@@ -12,7 +12,7 @@ namespace EHR.Neutral
 
         private static OptionItem KillCooldown;
         public static OptionItem WinCondition;
-        public static OptionItem CycleRepeats;
+        private static OptionItem CycleRepeats;
 
         static readonly string[] WinConditionOptions =
         [
@@ -163,7 +163,7 @@ namespace EHR.Neutral
                 : Utils.GetTaskCount(playerId, comms);
         }
 
-        public static string GetMark(PlayerControl seer, PlayerControl target)
+        public static string GetMark(PlayerControl seer, PlayerControl target, bool meeting = false)
         {
             if (!IsShielded(target)) return string.Empty;
             if (!seer.Is(CustomRoles.Gaslighter) && seer.PlayerId != target.PlayerId) return string.Empty;

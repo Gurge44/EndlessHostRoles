@@ -805,27 +805,40 @@ static class DialogueBoxHidePatch
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.CoShowIntro))]
 static class CoShowIntroPatch
 {
-    public static bool IntroStarted;
-
     public static void Prefix()
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return;
 
-        IntroStarted = true;
+        LateTask.New(() =>
+        {
+            if (!(AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.ShowAllRolesWhenGameEnd))
+            {
+                StartGameHostPatch.RpcSetDisconnected(disconnected: false);
+
+                if (!AmongUsClient.Instance.IsGameOver)
+                    DestroyableSingleton<HudManager>.Instance.SetHudActive(true);
+            }
+        }, 0.6f, "Set Disconnected");
 
         LateTask.New(() =>
         {
-            // Update name players for custom vanilla intro
-            Utils.DoNotifyRoles(NoCache: true);
-        }, 0.35f, "Update names");
+            try
+            {
+                if (!(AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.ShowAllRolesWhenGameEnd))
+                {
+                    ShipStatusBeginPatch.RolesIsAssigned = true;
 
-        LateTask.New(() =>
-        {
-            ShipStatusBeginPatch.RolesIsAssigned = true;
+                    // Assign tasks after assign all roles, as it should be
+                    ShipStatus.Instance.Begin();
 
-            // Assign tasks after assign all roles, as it should be
-            ShipStatus.Instance.Begin();
-        }, 4f, "Assing Task");
+                    Utils.SyncAllSettings();
+                }
+            }
+            catch
+            {
+                Logger.Warn($"Game ended? {AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.ShowAllRolesWhenGameEnd}", "ShipStatus.Begin");
+            }
+        }, 4f, "Assing Task For All");
     }
 }
 

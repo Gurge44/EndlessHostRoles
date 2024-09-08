@@ -1,6 +1,8 @@
-﻿using AmongUs.GameOptions;
+﻿using System;
+using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using Il2CppSystem.Collections.Generic;
 
 namespace EHR.Patches;
@@ -63,7 +65,11 @@ public static class PhantomRolePatch
             phantom.RpcSetRoleDesync(RoleTypes.Phantom, target.GetClientId());
             phantom.RpcCheckVanishDesync(target);
 
-            LateTask.New(() => phantom?.RpcExileDesync(target), 1.2f, "Set Phantom invisible", log: false);
+            LateTask.New(() =>
+            {
+                if (GameStates.IsMeeting) return;
+                phantom?.RpcExileDesync(target);
+            }, 1.2f, "Set Phantom invisible", log: false);
         }
 
         InvisibilityList.Add(phantom);
@@ -77,6 +83,11 @@ public static class PhantomRolePatch
         var phantom = __instance;
         Logger.Info($"Player: {phantom.GetRealName()} => shouldAnimate {shouldAnimate}", "CheckAppear");
 
+        if (phantom.walkingToVent || phantom.inVent)
+        {
+            phantom.MyPhysics.RpcBootFromVent(Main.LastEnteredVent[phantom.PlayerId].Id);
+        }
+
         foreach (var target in Main.AllPlayerControls)
         {
             if (!target.IsAlive() || phantom == target || target.AmOwner || !target.HasDesyncRole()) continue;
@@ -88,13 +99,18 @@ public static class PhantomRolePatch
             LateTask.New(() =>
             {
                 if (target != null)
-                    phantom?.RpcCheckAppearDesync(shouldAnimate, target);
+                {
+                    phantom.RpcCheckAppearDesync(shouldAnimate, target);
+                }
             }, 0.5f, "Check Appear when vanish is over", log: false);
 
-            LateTask.New(() => phantom?.RpcSetRoleDesync(RoleTypes.Scientist, clientId), 1.8f, "Set Scientist when vanish is over", log: false);
+            LateTask.New(() =>
+            {
+                if (GameStates.IsMeeting) return;
+                InvisibilityList.Remove(phantom);
+                phantom.RpcSetRoleDesync(RoleTypes.Scientist, clientId);
+            }, 1.8f, "Set Scientist when vanish is over", log: false);
         }
-
-        InvisibilityList.Remove(phantom);
     }
 
     [HarmonyPatch(nameof(PlayerControl.SetRoleInvisibility)), HarmonyPrefix]
@@ -131,5 +147,35 @@ public static class PhantomRolePatch
                 InvisibilityList.Clear();
             }, 4f, "Set Scientist in meeting after reset", log: false);
         }
+    }
+}
+
+// Fixed vanilla bug for host (from TOH-Y)
+[HarmonyPatch(typeof(PhantomRole), nameof(PhantomRole.UseAbility))]
+public static class PhantomRoleUseAbilityPatch
+{
+    public static bool Prefix(PhantomRole __instance)
+    {
+        if (!AmongUsClient.Instance.AmHost) return true;
+
+        if (__instance.Player.AmOwner && !__instance.Player.Data.IsDead && __instance.Player.moveable && !Minigame.Instance && !__instance.IsCoolingDown && !__instance.fading)
+        {
+            bool RoleEffectAnimation(RoleEffectAnimation x) => x.effectType == global::RoleEffectAnimation.EffectType.Vanish_Charge;
+            if (!__instance.Player.currentRoleAnimations.Find((Func<RoleEffectAnimation, bool>)RoleEffectAnimation) && !__instance.Player.walkingToVent && !__instance.Player.inMovingPlat)
+            {
+                if (__instance.isInvisible)
+                {
+                    __instance.MakePlayerVisible();
+                    return false;
+                }
+
+                DestroyableSingleton<HudManager>.Instance.AbilityButton.SetSecondImage(__instance.Ability);
+                DestroyableSingleton<HudManager>.Instance.AbilityButton.OverrideText(DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.PhantomAbilityUndo, new Il2CppReferenceArray<Il2CppSystem.Object>(0)));
+                __instance.Player.CmdCheckVanish(GameManager.Instance.LogicOptions.GetPhantomDuration());
+                return false;
+            }
+        }
+
+        return false;
     }
 }

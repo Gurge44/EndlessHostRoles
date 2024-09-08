@@ -21,11 +21,12 @@ using static EHR.Utils;
 namespace EHR;
 
 [HarmonyPatch(typeof(LogicGameFlowNormal), nameof(LogicGameFlowNormal.CheckEndCriteria))]
-class GameEndChecker
+static class GameEndChecker
 {
     private const float EndGameDelay = 0.2f;
     public static GameEndPredicate Predicate;
     public static bool ShouldNotCheck = false;
+    public static bool ShowAllRolesWhenGameEnd = false;
 
     public static bool Prefix()
     {
@@ -34,6 +35,8 @@ class GameEndChecker
         if (Predicate == null || ShouldNotCheck) return false;
 
         if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return false;
+
+        ShowAllRolesWhenGameEnd = false;
 
         Predicate.CheckForEndGame(out GameOverReason reason);
 
@@ -55,6 +58,8 @@ class GameEndChecker
             NotifyRoles(NoCache: true);
 
             Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, ForceRevert: true, RevertToDefault: true, GameEnd: true));
+
+            ShowAllRolesWhenGameEnd = true;
 
             if (reason == GameOverReason.ImpostorBySabotage && Options.NKWinsBySabotageIfNoImpAlive.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.IsImpostor()) && Main.AllAlivePlayerControls.Count(x => x.IsNeutralKiller()) == 1)
             {
@@ -851,7 +856,7 @@ class GameEndChecker
 }
 
 [HarmonyPatch(typeof(GameManager), nameof(GameManager.CheckEndGameViaTasks))]
-class CheckGameEndPatch
+static class CheckGameEndPatch
 {
     public static bool Prefix(ref bool __result)
     {

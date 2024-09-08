@@ -21,16 +21,16 @@ namespace EHR.AddOns.Impostor
 
         public static Dictionary<byte, int> Timer;
 
-        public static Dictionary<byte, long> lastUpdate;
+        public static Dictionary<byte, long> LastUpdate;
         public static Dictionary<byte, List<int>> PreviouslyEnteredVents;
 
-        public static bool countRepairSabotage;
+        public static bool CountRepairSabotage;
         public AddonTypes Type => AddonTypes.ImpOnly;
 
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(Id, CustomRoles.Damocles, canSetNum: true);
-            DamoclesExtraTimeAfterKill = new IntegerOptionItem(Id + 3, "DamoclesExtraTimeAfterKill", new(0, 60, 1), 30, TabGroup.Addons)
+            DamoclesExtraTimeAfterKill = new IntegerOptionItem(Id + 6, "DamoclesExtraTimeAfterKill", new(0, 60, 1), 30, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Damocles])
                 .SetValueFormat(OptionFormat.Seconds);
             DamoclesExtraTimeAfterMeeting = new IntegerOptionItem(Id + 4, "DamoclesExtraTimeAfterMeeting", new(0, 60, 1), 30, TabGroup.Addons)
@@ -48,23 +48,23 @@ namespace EHR.AddOns.Impostor
             StartingTime = DamoclesStartingTime.GetInt();
 
             Timer = [];
-            lastUpdate = [];
+            LastUpdate = [];
             PreviouslyEnteredVents = [];
-            countRepairSabotage = true;
+            CountRepairSabotage = true;
         }
 
         public static void Update(PlayerControl pc)
         {
             byte id = pc.PlayerId;
             long now = Utils.TimeStamp;
-            if ((lastUpdate.TryGetValue(id, out var ts) && ts >= now) || !GameStates.IsInTask || pc == null) return;
+            if ((LastUpdate.TryGetValue(id, out var ts) && ts >= now) || !GameStates.IsInTask || pc == null) return;
             if (!pc.IsAlive())
             {
                 Main.PlayerStates[id].RemoveSubRole(CustomRoles.Damocles);
                 return;
             }
 
-            lastUpdate[id] = now;
+            LastUpdate[id] = now;
             if (!Timer.ContainsKey(id)) Timer[id] = StartingTime + 8;
 
             Timer[id]--;
@@ -85,7 +85,7 @@ namespace EHR.AddOns.Impostor
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDamoclesTimer, SendOption.Reliable);
             writer.Write(playerId);
             writer.Write(Timer[playerId]);
-            writer.Write(lastUpdate[playerId].ToString());
+            writer.Write(LastUpdate[playerId].ToString());
             writer.Write(PreviouslyEnteredVents[playerId].Count);
             if (PreviouslyEnteredVents[playerId].Count > 0)
                 foreach (var vent in PreviouslyEnteredVents[playerId].ToArray())
@@ -97,7 +97,7 @@ namespace EHR.AddOns.Impostor
         {
             byte playerId = reader.ReadByte();
             Timer[playerId] = reader.ReadInt32();
-            lastUpdate[playerId] = long.Parse(reader.ReadString());
+            LastUpdate[playerId] = long.Parse(reader.ReadString());
             var elements = reader.ReadInt32();
             if (elements > 0)
                 for (int i = 0; i < elements; i++)
@@ -128,7 +128,7 @@ namespace EHR.AddOns.Impostor
             PreviouslyEnteredVents.Clear();
 
             AdjustTime(TimeAfterMeeting);
-            countRepairSabotage = true;
+            CountRepairSabotage = true;
         }
 
         public static void OnMeetingStart()

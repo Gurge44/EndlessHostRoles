@@ -60,7 +60,7 @@ static class CheckProtectPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcMurderPlayer))]
-class RpcMurderPlayerPatch
+static class RpcMurderPlayerPatch
 {
     public static bool Prefix(PlayerControl __instance, PlayerControl target, bool didSucceed)
     {
@@ -82,7 +82,7 @@ class RpcMurderPlayerPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckMurder))] // Modded
-class CmdCheckMurderPatch
+static class CmdCheckMurderPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
@@ -102,7 +102,7 @@ class CmdCheckMurderPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckMurder))] // Vanilla
-class CheckMurderPatch
+static class CheckMurderPatch
 {
     public static readonly Dictionary<byte, float> TimeSinceLastKill = [];
 
@@ -555,11 +555,17 @@ class CheckMurderPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.MurderPlayer))]
-class MurderPlayerPatch
+static class MurderPlayerPatch
 {
-    public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target /*, [HarmonyArgument(1)] MurderResultFlags resultFlags*/)
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target /*, [HarmonyArgument(1)] MurderResultFlags resultFlags*/)
     {
         Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}{(target.IsProtected() ? " (Protected)" : string.Empty)}", "MurderPlayer");
+
+        if (GameStates.IsLobby)
+        {
+            Logger.Info("Murder triggered in lobby, so murder canceled", "MurderPlayer Prefix");
+            return false;
+        }
 
         if (RandomSpawn.CustomNetworkTransformPatch.NumOfTP.TryGetValue(__instance.PlayerId, out var num) && num > 2) RandomSpawn.CustomNetworkTransformPatch.NumOfTP[__instance.PlayerId] = 3;
 
@@ -568,6 +574,8 @@ class MurderPlayerPatch
             Camouflage.ResetSkinAfterDeathPlayers.Add(target.PlayerId);
             Camouflage.RpcSetSkin(target, ForceRevert: true);
         }
+
+        return true;
     }
 
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
@@ -721,7 +729,7 @@ class MurderPlayerPatch
 
 // Triggered when the shapeshifter selects a target
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckShapeshift))]
-class CheckShapeshiftPatch
+static class CheckShapeshiftPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target /*, [HarmonyArgument(1)] bool shouldAnimate*/)
     {
@@ -730,7 +738,7 @@ class CheckShapeshiftPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckShapeshift))]
-class CmdCheckShapeshiftPatch
+static class CmdCheckShapeshiftPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target /*, [HarmonyArgument(1)] bool shouldAnimate*/)
     {
@@ -740,7 +748,7 @@ class CmdCheckShapeshiftPatch
 
 // Triggered when the egg animation starts playing
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Shapeshift))]
-class ShapeshiftPatch
+static class ShapeshiftPatch
 {
     public static bool ProcessShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
@@ -862,7 +870,7 @@ class ShapeshiftPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcShapeshift))]
-class RpcShapeshiftPatch
+static class RpcShapeshiftPatch
 {
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
@@ -871,7 +879,7 @@ class RpcShapeshiftPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ReportDeadBody))]
-class ReportDeadBodyPatch
+static class ReportDeadBodyPatch
 {
     public static Dictionary<byte, bool> CanReport;
     public static readonly Dictionary<byte, List<NetworkedPlayerInfo>> WaitReport = [];
@@ -1001,8 +1009,8 @@ class ReportDeadBodyPatch
         //    Hereinafter, it is assumed that it is confirmed that the button is pressed.
         //====================================================================================
 
-        Damocles.countRepairSabotage = false;
-        Stressed.countRepairSabotage = false;
+        Damocles.CountRepairSabotage = false;
+        Stressed.CountRepairSabotage = false;
 
         Main.DiedThisRound = [];
 
@@ -1706,9 +1714,6 @@ static class FixedUpdatePatch
                     case CustomGameMode.MoveAndStop when self:
                         Suffix.Append(MoveAndStopManager.GetSuffixText(seer));
                         break;
-                    case CustomGameMode.HotPotato when !seer.IsModClient() && self && seer.IsAlive():
-                        Suffix.Append(HotPotatoManager.GetSuffixText(seer.PlayerId));
-                        break;
                     case CustomGameMode.Speedrun when self:
                         Suffix.Append(SpeedrunManager.GetSuffixText(seer));
                         break;
@@ -1896,10 +1901,8 @@ static class EnterVentPatch
 
         if (!AmongUsClient.Instance.AmHost) return;
 
-        Main.LastEnteredVent.Remove(pc.PlayerId);
-        Main.LastEnteredVent.Add(pc.PlayerId, __instance);
-        Main.LastEnteredVentLocation.Remove(pc.PlayerId);
-        Main.LastEnteredVentLocation.Add(pc.PlayerId, pc.Pos());
+        Main.LastEnteredVent[pc.PlayerId] = __instance;
+        Main.LastEnteredVentLocation[pc.PlayerId] = pc.Pos();
 
         if (pc.Is(CustomRoles.Unlucky))
         {
@@ -1922,7 +1925,7 @@ static class EnterVentPatch
 }
 
 [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.CoEnterVent))]
-class CoEnterVentPatch
+static class CoEnterVentPatch
 {
     public static bool Prefix(PlayerPhysics __instance, [HarmonyArgument(0)] int id)
     {
@@ -2057,7 +2060,7 @@ class CoEnterVentPatch
 }
 
 [HarmonyPatch(typeof(GameData), nameof(GameData.CompleteTask))]
-class GameDataCompleteTaskPatch
+static class GameDataCompleteTaskPatch
 {
     public static void Postfix(PlayerControl pc /*, uint taskId*/)
     {
@@ -2069,7 +2072,7 @@ class GameDataCompleteTaskPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CompleteTask))]
-class PlayerControlCompleteTaskPatch
+static class PlayerControlCompleteTaskPatch
 {
     public static bool Prefix(PlayerControl __instance)
     {
@@ -2146,7 +2149,7 @@ public static class PlayerControlCheckUseZiplinePatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ProtectPlayer))]
-class PlayerControlProtectPlayerPatch
+static class PlayerControlProtectPlayerPatch
 {
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
@@ -2155,7 +2158,7 @@ class PlayerControlProtectPlayerPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RemoveProtection))]
-class PlayerControlRemoveProtectionPatch
+static class PlayerControlRemoveProtectionPatch
 {
     public static void Postfix(PlayerControl __instance)
     {
@@ -2164,14 +2167,14 @@ class PlayerControlRemoveProtectionPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSetRole))]
-class PlayerControlSetRolePatch
+static class PlayerControlSetRolePatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] ref RoleTypes roleType, [HarmonyArgument(1)] ref bool canOverrideRole)
     {
         canOverrideRole = true;
 
         // Skip after first assign
-        if (SelectRolesPatch.RpcSetRoleReplacer.BlockSetRole) return true;
+        if (StartGameHostPatch.RpcSetRoleReplacer.BlockSetRole) return true;
 
         var targetName = __instance.GetNameWithRole();
         Logger.Info($"{targetName} => {roleType}", "PlayerControl.RpcSetRole");
@@ -2220,7 +2223,7 @@ class PlayerControlSetRolePatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CoSetRole))]
-class PlayerControlLocalSetRolePatch
+static class PlayerControlLocalSetRolePatch
 {
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] RoleTypes role)
     {
@@ -2247,7 +2250,7 @@ class PlayerControlLocalSetRolePatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckVanish))]
-class CmdCheckVanishPatch
+static class CmdCheckVanishPatch
 {
     public static bool Prefix(PlayerControl __instance, float maxDuration)
     {
@@ -2267,7 +2270,7 @@ class CmdCheckVanishPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckAppear))]
-class CmdCheckAppearPatch
+static class CmdCheckAppearPatch
 {
     public static bool Prefix(PlayerControl __instance, bool shouldAnimate)
     {
@@ -2286,7 +2289,7 @@ class CmdCheckAppearPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckVanish))]
-class CheckVanishPatch
+static class CheckVanishPatch
 {
     public static bool Prefix(PlayerControl __instance)
     {
@@ -2298,13 +2301,13 @@ class CheckVanishPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.AssertWithTimeout))]
-class AssertWithTimeoutPatch
+static class AssertWithTimeoutPatch
 {
     public static bool Prefix() => false;
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckName))]
-class CmdCheckNameVersionCheckPatch
+static class CmdCheckNameVersionCheckPatch
 {
     public static void Postfix(PlayerControl __instance)
     {

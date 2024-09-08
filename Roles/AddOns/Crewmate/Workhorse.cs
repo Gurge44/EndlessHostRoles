@@ -25,7 +25,7 @@ public class Workhorse : IAddon
     public void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Workhorse, zeroOne: true);
-        SpawnChance = new IntegerOptionItem(Id + 13, "WorkhorseSpawnChance", new(0, 100, 1), 65, TabGroup.Addons)
+        SpawnChance = new IntegerOptionItem(Id + 13, "WorkhorseSpawnChance", new(0, 100, 5), 65, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
             .SetValueFormat(OptionFormat.Percent);
         OptionAssignOnlyToCrewmate = new BooleanOptionItem(Id + 10, "AssignOnlyToCrewmate", true, TabGroup.Addons)

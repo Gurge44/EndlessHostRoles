@@ -8,7 +8,7 @@ namespace EHR.AddOns.Crewmate
 {
     public class Stressed : IAddon
     {
-        private const int Id = 14685;
+        private const int Id = 14686;
 
         private static OptionItem StressedExtraTimeAfterTaskComplete;
         private static OptionItem StressedExtraTimeAfterMeeting;
@@ -31,7 +31,7 @@ namespace EHR.AddOns.Crewmate
         private static Dictionary<byte, int> Timers = [];
         private static Dictionary<byte, long> LastUpdates = [];
 
-        public static bool countRepairSabotage;
+        public static bool CountRepairSabotage;
 
         private static bool IsEnable => Timers.Count > 0;
         public AddonTypes Type => AddonTypes.Harmful;
@@ -39,7 +39,7 @@ namespace EHR.AddOns.Crewmate
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(Id, CustomRoles.Stressed, canSetNum: true);
-            StressedExtraTimeAfterTaskComplete = new IntegerOptionItem(Id + 3, "StressedExtraTimeAfterTask", new(0, 60, 1), 30, TabGroup.Addons)
+            StressedExtraTimeAfterTaskComplete = new IntegerOptionItem(Id + 11, "StressedExtraTimeAfterTask", new(0, 60, 1), 30, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Stressed])
                 .SetValueFormat(OptionFormat.Seconds);
             StressedExtraTimeAfterMeeting = new IntegerOptionItem(Id + 4, "DamoclesExtraTimeAfterMeeting", new(0, 60, 1), 15, TabGroup.Addons)
@@ -78,7 +78,7 @@ namespace EHR.AddOns.Crewmate
 
             Timers = [];
             LastUpdates = [];
-            countRepairSabotage = true;
+            CountRepairSabotage = true;
         }
 
         public static void Add()
@@ -160,7 +160,7 @@ namespace EHR.AddOns.Crewmate
         public static void AfterMeetingTasks()
         {
             if (!IsEnable) return;
-            countRepairSabotage = true;
+            CountRepairSabotage = true;
         }
 
         public static void OnNonCrewmateDead()
