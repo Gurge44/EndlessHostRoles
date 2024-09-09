@@ -455,15 +455,18 @@ public static class Utils
 
         if (Options.NameDisplayAddons.GetBool() && !pure && self)
         {
-            foreach (var subRole in targetSubRoles.Where(x => x is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Lovers and not CustomRoles.Contagious))
+            foreach (var subRole in targetSubRoles)
             {
-                var str = GetString("Prefix." + subRole);
-                if (!subRole.IsAdditionRole())
+                if (subRole is not CustomRoles.LastImpostor and not CustomRoles.Madmate and not CustomRoles.Charmed and not CustomRoles.Recruit and not CustomRoles.Lovers and not CustomRoles.Contagious and not CustomRoles.Bloodlust)
                 {
-                    str = GetString(subRole.ToString());
-                }
+                    var str = GetString("Prefix." + subRole);
+                    if (!subRole.IsAdditionRole())
+                    {
+                        str = GetString(subRole.ToString());
+                    }
 
-                RoleText = ColorString(GetRoleColor(subRole), (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>(</color>" : string.Empty) + str + (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>)</color>" : string.Empty) + " ") + RoleText;
+                    RoleText = ColorString(GetRoleColor(subRole), (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>(</color>" : string.Empty) + str + (Options.AddBracketsToAddons.GetBool() ? "<#ffffff>)</color>" : string.Empty) + " ") + RoleText;
+                }
             }
         }
 
@@ -491,6 +494,13 @@ public static class Utils
         {
             RoleColor = GetRoleColor(CustomRoles.Contagious);
             RoleText = GetRoleString("Contagious-") + RoleText;
+        }
+
+        // Bloodlust
+        if (targetSubRoles.Contains(CustomRoles.Bloodlust) && (self || pure || seeTargetBetrayalAddons))
+        {
+            RoleColor = GetRoleColor(CustomRoles.Bloodlust);
+            RoleText = GetRoleString("Bloodlust-") + RoleText;
         }
 
         return (RoleText, RoleColor);
@@ -2376,7 +2386,7 @@ public static class Utils
     public static void RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit)
     {
         Camouflage.SetPetForOutfitIfNecessary(newOutfit);
-        
+
         var sender = CustomRpcSender.Create(name: $"Utils.RpcChangeSkin({pc.Data.PlayerName})");
 
         pc.SetName(newOutfit.PlayerName);

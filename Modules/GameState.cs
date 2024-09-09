@@ -6,7 +6,6 @@ using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
 using EHR.Crewmate;
-using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
 using InnerNet;
@@ -356,11 +355,6 @@ public class TaskState
             {
                 if (CompletedTasksCount + 1 >= AllTasksCount) SpeedrunManager.OnTaskFinish(player);
                 SpeedrunManager.ResetTimer(player);
-            }
-
-            if (alive && Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId))
-            {
-                Mastermind.OnManipulatedPlayerTaskComplete(player);
             }
 
             // Ability Use Gain with this task completed
