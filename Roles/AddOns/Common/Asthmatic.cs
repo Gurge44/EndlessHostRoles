@@ -18,7 +18,7 @@ namespace EHR.AddOns.Common
 
         public void SetupCustomOption()
         {
-            SetupAdtRoleOptions(15420, CustomRoles.Asthmatic, canSetNum: true, teamSpawnOptions: true);
+            SetupAdtRoleOptions(15419, CustomRoles.Asthmatic, canSetNum: true, teamSpawnOptions: true);
             AsthmaticMinRedTime = new IntegerOptionItem(15426, "AsthmaticMinRedTime", new(1, 90, 1), 5, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Asthmatic])
                 .SetValueFormat(OptionFormat.Seconds);

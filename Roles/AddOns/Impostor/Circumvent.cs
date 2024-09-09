@@ -22,7 +22,7 @@ namespace EHR.AddOns.Impostor
         {
             const int id = 14680;
             Options.SetupAdtRoleOptions(id, CustomRoles.Circumvent, canSetNum: true);
-            VentPreventionMode = new StringOptionItem(id + 3, "VentPreventionMode", VentPreventionModes, 1, TabGroup.Addons)
+            VentPreventionMode = new StringOptionItem(id + 5, "VentPreventionMode", VentPreventionModes, 1, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Circumvent]);
             Limit = new IntegerOptionItem(id + 4, "VentLimit", new(1, 90, 1), 8, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Circumvent]);

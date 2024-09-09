@@ -8,7 +8,7 @@
         public void SetupCustomOption()
         {
             Options.SetupAdtRoleOptions(14500, CustomRoles.Onbound, canSetNum: true, teamSpawnOptions: true);
-            GuesserSuicides = new BooleanOptionItem(14506, "GuesserSuicides", true, TabGroup.Addons)
+            GuesserSuicides = new BooleanOptionItem(14507, "GuesserSuicides", true, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Onbound])
                 .SetGameMode(CustomGameMode.Standard);
         }

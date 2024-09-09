@@ -135,7 +135,7 @@ static class SetUpRoleTextPatch
 }
 
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.CoBegin))]
-class CoBeginPatch
+static class CoBeginPatch
 {
     public static void Prefix()
     {
@@ -195,7 +195,7 @@ class CoBeginPatch
 }
 
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.BeginCrewmate))]
-class BeginCrewmatePatch
+static class BeginCrewmatePatch
 {
     public static bool Prefix(IntroCutscene __instance, ref List<PlayerControl> teamToDisplay)
     {
@@ -662,7 +662,7 @@ class BeginCrewmatePatch
 }
 
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.BeginImpostor))]
-class BeginImpostorPatch
+static class BeginImpostorPatch
 {
     public static bool Prefix(IntroCutscene __instance, ref List<PlayerControl> yourTeam)
     {
@@ -706,7 +706,7 @@ class BeginImpostorPatch
 }
 
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.OnDestroy))]
-class IntroCutsceneDestroyPatch
+static class IntroCutsceneDestroyPatch
 {
     public static void Postfix( /*IntroCutscene __instance*/)
     {
@@ -844,13 +844,22 @@ class IntroCutsceneDestroyPatch
                 if (map != null && AmongUsClient.Instance.AmHost) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
             }
 
-            if (Main.ResetCamPlayerList.Contains(lp.PlayerId))
+            if (lp.HasDesyncRole())
             {
                 lp.Data.Role.AffectedByLightAffectors = false;
+                foreach (var target in Main.AllPlayerControls)
+                {
+                    // Set all players as killable players
+                    target.Data.Role.CanBeKilled = true;
+
+                    // When target is impostor, set name color as white
+                    target.cosmetics.SetNameColor(Color.white);
+                    target.Data.Role.NameColor = Color.white;
+                }
             }
 
             bool shouldPerformVentInteractions = false;
-            foreach (var pc in PlayerControl.AllPlayerControls)
+            foreach (var pc in Main.AllPlayerControls)
             {
                 if (VentilationSystemDeterioratePatch.BlockVentInteraction(pc))
                 {

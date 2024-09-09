@@ -165,7 +165,10 @@ public static class GuessManager
                 var target = Utils.GetPlayerById(targetId);
                 if (target != null)
                 {
+                    Main.GuesserGuessed.TryAdd(pc.PlayerId, 0);
+
                     bool guesserSuicide = false;
+
                     if (CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId))
                     {
                         if (!isUI) Utils.SendMessage(GetString("GuessDisabled"), pc.PlayerId);
@@ -180,9 +183,16 @@ public static class GuessManager
                         return true;
                     }
 
-                    Main.GuesserGuessed.TryAdd(pc.PlayerId, 0);
+                    bool hasGuessSetting = Options.AddonGuessSettings.TryGetValue(role, out var guessSetting);
 
-                    bool forceAllowGuess = role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Lovers && Lovers.GuessAbility.GetValue() == 2;
+                    if (hasGuessSetting && guessSetting.GetValue() == 1)
+                    {
+                        if (!isUI) Utils.SendMessage(GetString("GuessDisabledAddonOverride"), pc.PlayerId);
+                        else pc.ShowPopUp(GetString("GuessDisabledAddonOverride"));
+                        return true;
+                    }
+
+                    bool forceAllowGuess = (hasGuessSetting && guessSetting.GetValue() == 0) || (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Lovers && Lovers.GuessAbility.GetValue() == 2);
 
                     if (role == CustomRoles.Lovers && Lovers.GuessAbility.GetValue() == 0)
                     {

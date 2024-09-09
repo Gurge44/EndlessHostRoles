@@ -168,8 +168,8 @@ static class RepairSystemPatch
                         }
                     }
 
-                    if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage(player.PlayerId);
-                    if (player.Is(CustomRoles.Stressed) && Stressed.countRepairSabotage) Stressed.OnRepairSabotage(player);
+                    if (player.Is(CustomRoles.Damocles) && Damocles.CountRepairSabotage) Damocles.OnRepairSabotage(player.PlayerId);
+                    if (player.Is(CustomRoles.Stressed) && Stressed.CountRepairSabotage) Stressed.OnRepairSabotage(player);
                 }
 
                 break;
@@ -226,8 +226,8 @@ static class RepairSystemPatch
             case SystemTypes.HeliSabotage:
             case SystemTypes.Electrical:
             {
-                if (player.Is(CustomRoles.Damocles) && Damocles.countRepairSabotage) Damocles.OnRepairSabotage(player.PlayerId);
-                if (player.Is(CustomRoles.Stressed) && Stressed.countRepairSabotage) Stressed.OnRepairSabotage(player);
+                if (player.Is(CustomRoles.Damocles) && Damocles.CountRepairSabotage) Damocles.OnRepairSabotage(player.PlayerId);
+                if (player.Is(CustomRoles.Stressed) && Stressed.CountRepairSabotage) Stressed.OnRepairSabotage(player);
                 if (Main.PlayerStates[player.PlayerId].Role is Rogue rg) rg.OnFixSabotage();
                 break;
             }
@@ -368,13 +368,15 @@ static class ShipStatusBeginPatch
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.SpawnPlayer))]
 static class ShipStatusSpawnPlayerPatch
 {
-    // Since SnapTo is unstable on the server side and after a meeting,
-    // all players sometimes do not appear on the table,
+    // Since SnapTo is unstable on the server side,
+    // after a meeting, sometimes not all players appear on the table,
     // it's better to manually teleport them
     public static bool Prefix(ShipStatus __instance, PlayerControl player, int numPlayers, bool initialSpawn)
     {
+        if (!AmongUsClient.Instance.AmHost || initialSpawn || !player.IsAlive()) return true;
+
         Vector2 direction = Vector2.up.Rotate((player.PlayerId - 1) * (360f / numPlayers));
-        Vector2 position = (initialSpawn ? __instance.InitialSpawnCenter : __instance.MeetingSpawnCenter) + direction * __instance.SpawnRadius + new Vector2(0.0f, 0.3636f);
+        Vector2 position = __instance.MeetingSpawnCenter + direction * __instance.SpawnRadius + new Vector2(0.0f, 0.3636f);
 
         player.TP(position, log: false);
         return false;
@@ -390,22 +392,16 @@ static class PolusShipStatusSpawnPlayerPatch
         [HarmonyArgument(1)] int numPlayers,
         [HarmonyArgument(2)] bool initialSpawn)
     {
-        if (initialSpawn)
-        {
-            ShipStatusSpawnPlayerPatch.Prefix(__instance, player, numPlayers, true);
-        }
-        else
-        {
-            int num1 = Mathf.FloorToInt(numPlayers / 2f);
-            int num2 = player.PlayerId % 15;
+        if (!AmongUsClient.Instance.AmHost || initialSpawn || !player.IsAlive()) return true;
 
-            Vector2 position = num2 >= num1
-                ? __instance.MeetingSpawnCenter2 + Vector2.right * (num2 - num1) * 0.6f
-                : __instance.MeetingSpawnCenter + Vector2.right * num2 * 0.6f;
+        int num1 = Mathf.FloorToInt(numPlayers / 2f);
+        int num2 = player.PlayerId % 15;
 
-            player.TP(position, log: false);
-        }
+        Vector2 position = num2 >= num1
+            ? __instance.MeetingSpawnCenter2 + Vector2.right * (num2 - num1) * 0.6f
+            : __instance.MeetingSpawnCenter + Vector2.right * num2 * 0.6f;
 
+        player.TP(position, log: false);
         return false;
     }
 }
