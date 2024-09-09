@@ -243,6 +243,7 @@ internal class ChangeRoleSettings
             Main.LastNotifyNames = [];
 
             CheckForEndVotingPatch.EjectionText = string.Empty;
+            CoShowIntroPatch.IntroStarted = false;
 
             Arsonist.CurrentDousingTarget = byte.MaxValue;
             Revolutionist.CurrentDrawTarget = byte.MaxValue;
@@ -1182,6 +1183,16 @@ internal static class StartGameHostPatch
             Senders = null;
             OverriddenSenderList = null;
             StoragedData = null;
+            
+            LateTask.New(() =>
+            {
+                if (CoShowIntroPatch.IntroStarted) return;
+                Logger.Warn("Starting intro manually", "StartGameHostPatch");
+                PlayerControl.AllPlayerControls.ForEach((Action<PlayerControl>)(PlayerNameColor.Set));
+                PlayerControl.LocalPlayer.StopAllCoroutines();
+                DestroyableSingleton<HudManager>.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoShowIntro());
+                DestroyableSingleton<HudManager>.Instance.HideGameLoader();
+            }, 3f, log: false);
         }
     }
 }
