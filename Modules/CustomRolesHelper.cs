@@ -500,6 +500,7 @@ internal static class CustomRolesHelper
         CustomRoles.Jinx or
         CustomRoles.Poisoner or
         CustomRoles.Refugee or
+        CustomRoles.Gaslighter or
         CustomRoles.Simon or
         CustomRoles.Patroller or
         CustomRoles.Rogue or
