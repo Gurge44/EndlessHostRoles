@@ -2268,10 +2268,7 @@ public static class Utils
                                 case CustomRoles.BountyHunter when (Main.PlayerStates[seer.PlayerId].Role as BountyHunter).GetTarget(seer) == target.PlayerId && seer.IsAlive():
                                     TargetPlayerName = $"<color=#000000>{TargetPlayerName}</size>";
                                     break;
-                                case CustomRoles.Doomsayer when seer.IsAlive() && target.IsAlive() && GuesserIsForMeeting:
-                                    TargetPlayerName = $"{ColorString(GetRoleColor(CustomRoles.Doomsayer), $" {target.PlayerId}")} {TargetPlayerName}";
-                                    break;
-                                case CustomRoles.Lookout when seer.IsAlive() && target.IsAlive():
+                                case CustomRoles.Lookout when seer.IsAlive() && target.IsAlive() && !isForMeeting:
                                     TargetPlayerName = $"{ColorString(GetRoleColor(CustomRoles.Lookout), $" {target.PlayerId}")} {TargetPlayerName}";
                                     break;
                             }

@@ -592,7 +592,7 @@ static class ExtendedMeetingHud
 }
 
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
-class MeetingHudStartPatch
+static class MeetingHudStartPatch
 {
     private static void NotifyRoleSkillOnMeetingStart()
     {

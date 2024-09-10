@@ -841,6 +841,7 @@ internal static class StartGameHostPatch
                 Main.SetRoles = [];
                 Main.SetAddOns = [];
                 ChatCommands.DraftResult = [];
+                ChatCommands.DraftRoles = [];
             }, 7f, log: false);
 
             if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && Main.GM.Value)
@@ -1200,6 +1201,6 @@ static class FixIntroPatch
             PlayerControl.LocalPlayer.StopAllCoroutines();
             DestroyableSingleton<HudManager>.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoShowIntro());
             DestroyableSingleton<HudManager>.Instance.HideGameLoader();
-        }, 3f, log: false);
+        }, 1f, log: false);
     }
 }

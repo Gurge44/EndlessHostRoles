@@ -62,6 +62,7 @@ class OnGameJoinedPatch
             Main.SetRoles = [];
             Main.SetAddOns = [];
             ChatCommands.DraftResult = [];
+            ChatCommands.DraftRoles = [];
         }
     }
 }
