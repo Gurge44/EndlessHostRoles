@@ -358,21 +358,28 @@ namespace EHR
 
             public void Update()
             {
-                if (FlagCarrier == byte.MaxValue) return;
-                var flagCarrierPc = FlagCarrier.GetPlayer();
-                if (flagCarrierPc == null || !flagCarrierPc.IsAlive())
+                try
                 {
-                    DropFlag();
-                    return;
+                    if (FlagCarrier == byte.MaxValue) return;
+                    var flagCarrierPc = FlagCarrier.GetPlayer();
+                    if (flagCarrierPc == null || !flagCarrierPc.IsAlive())
+                    {
+                        DropFlag();
+                        return;
+                    }
+
+                    Flag.TP(flagCarrierPc.Pos());
+                    PlayerData[FlagCarrier].FlagTime += Time.fixedDeltaTime;
+                    Utils.NotifyRoles(SpecifySeer: flagCarrierPc, SpecifyTarget: flagCarrierPc);
+
+                    CTFTeam enemy = team.GetOppositeTeam();
+                    if (Translator.GetString(Flag.playerControl.GetPlainShipRoom().RoomId.ToString()) == enemy.GetFlagBase().RoomName)
+                        TeamData[enemy].SetAsWinner();
                 }
-
-                Flag.TP(flagCarrierPc.Pos());
-                PlayerData[FlagCarrier].FlagTime += Time.fixedDeltaTime;
-                Utils.NotifyRoles(SpecifySeer: flagCarrierPc, SpecifyTarget: flagCarrierPc);
-
-                CTFTeam enemy = team.GetOppositeTeam();
-                if (Translator.GetString(Flag.playerControl.GetPlainShipRoom().RoomId.ToString()) == enemy.GetFlagBase().RoomName)
-                    TeamData[enemy].SetAsWinner();
+                catch
+                {
+                    
+                }
             }
 
             public void PickUpFlag(byte id)

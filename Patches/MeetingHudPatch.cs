@@ -302,7 +302,7 @@ static class CheckForEndVotingPatch
         }
         catch (Exception ex)
         {
-            Logger.SendInGame(string.Format(GetString("Error.MeetingException"), ex.Message) /*, true*/);
+            Utils.ThrowException(ex);
             throw;
         }
     }
@@ -498,16 +498,30 @@ static class CheckForEndVotingPatch
 
     private static void CheckForDeathOnExile(PlayerState.DeathReason deathReason, params byte[] playerIds)
     {
-        Witch.OnCheckForEndVoting(deathReason, playerIds);
-        Virus.OnCheckForEndVoting(deathReason, playerIds);
-        if (deathReason == PlayerState.DeathReason.Vote) Gaslighter.OnExile(playerIds);
-        foreach (var playerId in playerIds)
+        try
         {
-            var id = playerId;
-            if (CustomRoles.Lovers.IsEnable() && !Main.IsLoversDead && Main.LoversPlayers.Exists(lp => lp.PlayerId == id))
-                FixedUpdatePatch.LoversSuicide(playerId, exile: true, force: true);
-            if (Main.PlayerStates.TryGetValue(id, out var state) && state.SubRoles.Contains(CustomRoles.Avanger))
-                RevengeOnExile(playerId /*, deathReason*/);
+            Witch.OnCheckForEndVoting(deathReason, playerIds);
+            Virus.OnCheckForEndVoting(deathReason, playerIds);
+            if (deathReason == PlayerState.DeathReason.Vote) Gaslighter.OnExile(playerIds);
+            foreach (var playerId in playerIds)
+            {
+                try
+                {
+                    var id = playerId;
+                    if (CustomRoles.Lovers.IsEnable() && !Main.IsLoversDead && Main.LoversPlayers.Exists(lp => lp.PlayerId == id))
+                        FixedUpdatePatch.LoversSuicide(playerId, exile: true, force: true);
+                    if (Main.PlayerStates.TryGetValue(id, out var state) && state.SubRoles.Contains(CustomRoles.Avanger))
+                        RevengeOnExile(playerId /*, deathReason*/);
+                }
+                catch (Exception e)
+                {
+                    Utils.ThrowException(e);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Utils.ThrowException(e);
         }
     }
 

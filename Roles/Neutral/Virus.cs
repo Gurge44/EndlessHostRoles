@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Patches;
@@ -104,40 +105,46 @@ namespace EHR.Neutral
 
         public static void OnCheckForEndVoting(PlayerState.DeathReason deathReason, params byte[] exileIds)
         {
-            if (!KillInfectedPlayerAfterMeeting.GetBool()) return;
-
-            PlayerControl virus =
-                Main.AllAlivePlayerControls.FirstOrDefault(a => a.GetCustomRole() == CustomRoles.Virus);
-            if (virus == null || deathReason != PlayerState.DeathReason.Vote) return;
-
-            if (exileIds.Contains(virus.PlayerId))
+            try
             {
-                InfectedPlayer.Clear();
-                return;
-            }
+                if (!KillInfectedPlayerAfterMeeting.GetBool()) return;
 
-            var infectedIdList = new List<byte>();
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-            {
-                bool isInfected = InfectedPlayer.Contains(pc.PlayerId);
-                if (!isInfected) continue;
+                PlayerControl virus = Main.AllAlivePlayerControls.FirstOrDefault(a => a.GetCustomRole() == CustomRoles.Virus);
+                if (virus == null || deathReason != PlayerState.DeathReason.Vote) return;
 
-                if (virus.IsAlive())
+                if (exileIds.Contains(virus.PlayerId))
                 {
-                    if (!Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId))
+                    InfectedPlayer.Clear();
+                    return;
+                }
+
+                var infectedIdList = new List<byte>();
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                {
+                    bool isInfected = InfectedPlayer.Contains(pc.PlayerId);
+                    if (!isInfected) continue;
+
+                    if (virus.IsAlive())
                     {
-                        pc.SetRealKiller(virus);
-                        infectedIdList.Add(pc.PlayerId);
+                        if (!Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId))
+                        {
+                            pc.SetRealKiller(virus);
+                            infectedIdList.Add(pc.PlayerId);
+                        }
+                    }
+                    else
+                    {
+                        Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
                     }
                 }
-                else
-                {
-                    Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
-                }
-            }
 
-            CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Infected, [.. infectedIdList]);
-            InfectedPlayer.Clear();
+                CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Infected, [.. infectedIdList]);
+                InfectedPlayer.Clear();
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
         }
 
         public override bool KnowRole(PlayerControl player, PlayerControl target)

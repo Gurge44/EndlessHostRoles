@@ -27,7 +27,7 @@ class Webhook
     }
 }
 
-class Logger
+static class Logger
 {
     private static bool IsEnable;
     private static readonly List<string> DisableList = [];

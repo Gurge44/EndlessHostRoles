@@ -100,6 +100,9 @@ internal static class ChatCommands
 
     public static readonly Dictionary<byte, (long MuteTimeStamp, int Duration)> MutedPlayers = [];
 
+    private static Dictionary<byte, List<CustomRoles>> DraftRoles = [];
+    public static Dictionary<byte, CustomRoles> DraftResult = [];
+
     public static void LoadCommands()
     {
         AllCommands =
@@ -293,6 +296,12 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void DraftStartCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        if (!player.IsHost() || !GameStates.IsLobby) return;
+        DraftResult = [];
+    }
+    
     private static void MuteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         if (!player.IsHost() && (GameStates.InGame || MutedPlayers.ContainsKey(player.PlayerId))) return;
