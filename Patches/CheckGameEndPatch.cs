@@ -26,7 +26,7 @@ static class GameEndChecker
     private const float EndGameDelay = 0.2f;
     public static GameEndPredicate Predicate;
     public static bool ShouldNotCheck = false;
-    public static bool ShowAllRolesWhenGameEnd = false;
+    public static bool ShowAllRolesWhenGameEnd;
 
     public static bool Prefix()
     {
