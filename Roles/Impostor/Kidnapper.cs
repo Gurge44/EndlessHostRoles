@@ -1,4 +1,5 @@
 ﻿using AmongUs.GameOptions;
+using UnityEngine;
 
 namespace EHR.Impostor
 {
@@ -27,7 +28,7 @@ namespace EHR.Impostor
         public override bool OnShapeshift(PlayerControl kidnapper, PlayerControl target, bool shapeshifting)
         {
             if (kidnapper == null || target == null || !shapeshifting) return true;
-            target.TP(kidnapper);
+            if (!target.TP(kidnapper)) kidnapper.Notify(Utils.ColorString(Color.yellow, Translator.GetString("TargetCannotBeTeleported")));
             return false;
         }
 

@@ -229,11 +229,11 @@ namespace EHR
                         switch (team)
                         {
                             case CTFTeam.Blue:
-                                pc.TP(blueFlagBase.Position);
+                                Loop.Times(3, _ => pc.TP(blueFlagBase.Position));
                                 pc.Notify(string.Format(Translator.GetString("CTF_Notify_EnemyTeamRoom"), yellowFlagBase.RoomName));
                                 break;
                             case CTFTeam.Yellow:
-                                pc.TP(yellowFlagBase.Position);
+                                Loop.Times(3, _ => pc.TP(yellowFlagBase.Position));
                                 pc.Notify(string.Format(Translator.GetString("CTF_Notify_EnemyTeamRoom"), blueFlagBase.RoomName));
                                 break;
                         }
