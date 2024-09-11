@@ -201,7 +201,7 @@ internal static class CustomRoleSelector
         }
 
         // Pre-Assigned Roles By Host Are Selected First
-        foreach ((byte id, CustomRoles role) in Main.SetRoles)
+        foreach ((byte id, CustomRoles role) in Main.SetRoles.AddRange(ChatCommands.DraftResult, overrideExistingKeys: false))
         {
             PlayerControl pc = AllPlayers.FirstOrDefault(x => x.PlayerId == id);
             if (pc == null) continue;

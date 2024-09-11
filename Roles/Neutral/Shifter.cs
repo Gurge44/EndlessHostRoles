@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Modules;
@@ -82,20 +81,6 @@ namespace EHR.Neutral
 
             var taskState = target.GetTaskState();
             if (taskState.HasTasks) Main.PlayerStates[killer.PlayerId].TaskState = taskState;
-
-            var killerSubRoles = killer.GetCustomSubRoles().ToList();
-            var targetSubRoles = target.GetCustomSubRoles().ToList();
-            if (targetSubRoles.Count > 0)
-            {
-                killer.RpcSetCustomRole(targetSubRoles[0], replaceAllAddons: true);
-                targetSubRoles.Skip(1).Do(x => killer.RpcSetCustomRole(x));
-            }
-
-            if (killerSubRoles.Count > 0)
-            {
-                target.RpcSetCustomRole(killerSubRoles[0], replaceAllAddons: true);
-                killerSubRoles.Skip(1).Do(x => target.RpcSetCustomRole(x));
-            }
 
             killer.RemoveAbilityCD();
             killer.SyncSettings();

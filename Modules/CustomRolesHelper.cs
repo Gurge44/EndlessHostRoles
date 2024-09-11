@@ -269,6 +269,7 @@ internal static class CustomRolesHelper
             CustomRoles.Speedrunner => CustomRoles.Crewmate,
             CustomRoles.CursedWolf => CustomRoles.Impostor,
             CustomRoles.Collector => CustomRoles.Crewmate,
+            CustomRoles.SchrodingersCat => CustomRoles.Crewmate,
             CustomRoles.ImperiusCurse => CustomRoles.Shapeshifter,
             CustomRoles.QuickShooter => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Eraser => CustomRoles.Impostor,
@@ -435,7 +436,6 @@ internal static class CustomRolesHelper
             CustomRoles.Sprayer => RoleTypes.Impostor,
             CustomRoles.PlagueDoctor => RoleTypes.Impostor,
             CustomRoles.Postman => RoleTypes.Impostor,
-            CustomRoles.SchrodingersCat => RoleTypes.Impostor,
             CustomRoles.Shifter => RoleTypes.Impostor,
             CustomRoles.Impartial => RoleTypes.Impostor,
             CustomRoles.Gaslighter => RoleTypes.Impostor,
@@ -500,6 +500,7 @@ internal static class CustomRolesHelper
         CustomRoles.Jinx or
         CustomRoles.Poisoner or
         CustomRoles.Refugee or
+        CustomRoles.Gaslighter or
         CustomRoles.Simon or
         CustomRoles.Patroller or
         CustomRoles.Rogue or
@@ -818,6 +819,7 @@ internal static class CustomRolesHelper
 
     public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc) => role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out var bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out var o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && (!role.IsImpOnlyAddon() || pc.IsImpostor()) && role switch
     {
+        CustomRoles.Circumvent when pc.GetCustomRole() is CustomRoles.Swooper or CustomRoles.RiftMaker => false,
         CustomRoles.Oblivious when pc.Is(CustomRoles.Altruist) => false,
         CustomRoles.AntiTP when pc.Is(CustomRoles.Transmitter) => false,
         CustomRoles.Swift when pc.Is(CustomRoles.Stealth) => false,

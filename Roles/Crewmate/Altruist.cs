@@ -17,7 +17,7 @@ namespace EHR.Crewmate
         private static OptionItem ReviveTargetsKillerGetsAlert;
         private static OptionItem ReviveTargetsKillerGetsArrow;
 
-        private static HashSet<byte> RevivedPlayers;
+        private static HashSet<byte> RevivedPlayers = [];
 
         private byte AlturistId;
 
@@ -42,6 +42,7 @@ namespace EHR.Crewmate
         {
             On = false;
             Instances = [];
+            RevivedPlayers = [];
         }
 
         public override void Add(byte playerId)

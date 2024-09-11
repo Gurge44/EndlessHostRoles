@@ -61,6 +61,8 @@ class OnGameJoinedPatch
 
             Main.SetRoles = [];
             Main.SetAddOns = [];
+            ChatCommands.DraftResult = [];
+            ChatCommands.DraftRoles = [];
         }
     }
 }
@@ -85,9 +87,8 @@ static class OnPlayerJoinedPatch
     static bool IsDisconnected(this ClientData client)
     {
         var __instance = AmongUsClient.Instance;
-        for (int i = 0; i < __instance.allClients.Count; i++)
+        foreach (ClientData clientData in __instance.allClients)
         {
-            ClientData clientData = __instance.allClients[i];
             if (clientData.Id == client.Id)
             {
                 return true;

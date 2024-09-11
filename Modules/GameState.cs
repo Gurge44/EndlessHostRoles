@@ -6,7 +6,6 @@ using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
 using EHR.Crewmate;
-using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
 using InnerNet;
@@ -123,17 +122,16 @@ public class PlayerState(byte playerId)
 
         Role.Add(PlayerId);
 
-        Logger.Info($"ID {PlayerId} ({Utils.GetPlayerById(PlayerId)?.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetMainRole");
+        Logger.Info($"ID {PlayerId} ({Player?.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetMainRole");
 
         if (!AmongUsClient.Instance.AmHost) return;
 
         if (!Main.HasJustStarted)
         {
-            var pc = Utils.GetPlayerById(PlayerId);
-            pc.ResetKillCooldown();
-            pc.SyncSettings();
-            Utils.NotifyRoles(SpecifySeer: pc);
-            Utils.NotifyRoles(SpecifyTarget: pc);
+            Player.ResetKillCooldown();
+            Player.SyncSettings();
+            Utils.NotifyRoles(SpecifySeer: Player);
+            Utils.NotifyRoles(SpecifyTarget: Player);
             if (PlayerId == PlayerControl.LocalPlayer.PlayerId && GameStates.IsInTask)
             {
                 HudManager.Instance.SetHudActive(true);
@@ -146,7 +144,7 @@ public class PlayerState(byte playerId)
             if (role == CustomRoles.Sidekick && Jackal.Instances.FindFirst(x => x.SidekickId == byte.MaxValue || x.SidekickId.GetPlayer() == null, out var jackal))
                 jackal.SidekickId = PlayerId;
 
-            pc.CheckAndSetUnshiftState();
+            Player.CheckAndSetUnshiftState();
         }
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
@@ -356,11 +354,6 @@ public class TaskState
             {
                 if (CompletedTasksCount + 1 >= AllTasksCount) SpeedrunManager.OnTaskFinish(player);
                 SpeedrunManager.ResetTimer(player);
-            }
-
-            if (alive && Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId))
-            {
-                Mastermind.OnManipulatedPlayerTaskComplete(player);
             }
 
             // Ability Use Gain with this task completed

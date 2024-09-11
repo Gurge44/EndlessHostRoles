@@ -15,7 +15,7 @@ using static EHR.Translator;
 namespace EHR;
 
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnGameEnd))]
-class EndGamePatch
+static class EndGamePatch
 {
     public static Dictionary<byte, string> SummaryText = [];
     public static string KillLog = string.Empty;
@@ -26,6 +26,8 @@ class EndGamePatch
 
         Logger.Info("-----------Game over-----------", "Phase");
 
+        ChatCommands.DraftResult = [];
+        ChatCommands.DraftRoles = [];
         Main.SetRoles = [];
         Main.SetAddOns = [];
         SummaryText = [];

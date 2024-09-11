@@ -996,8 +996,7 @@ static class ReportDeadBodyPatch
         }
         catch (Exception e)
         {
-            Logger.Exception(e, "ReportDeadBodyPatch");
-            Logger.SendInGame("Error: " + e);
+            Utils.ThrowException(e);
         }
 
         return true;

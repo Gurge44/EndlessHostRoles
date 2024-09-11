@@ -19,7 +19,7 @@ public static class NameNotifyManager
         if (!text.Contains("<size=")) text = $"<size=1.9>{text}</size>";
         var expireTS = Utils.TimeStamp + (long)time;
         if (!Notifies.TryGetValue(pc.PlayerId, out var notifies)) Notifies[pc.PlayerId] = new() { { text, expireTS } };
-        else notifies.Add(text, expireTS);
+        else notifies[text] = expireTS;
         SendRPC(pc.PlayerId, text, expireTS);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         if (log) Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
@@ -75,7 +75,7 @@ public static class NameNotifyManager
         string text = reader.ReadString();
         long expireTS = long.Parse(reader.ReadString());
         if (!Notifies.TryGetValue(playerId, out var notifies)) Notifies[playerId] = new() { { text, expireTS } };
-        else notifies.Add(text, expireTS);
+        else notifies[text] = expireTS;
         Logger.Info($"New name notify for {Main.AllPlayerNames[playerId]}: {text} ({expireTS - Utils.TimeStamp}s)", "Name Notify");
     }
 }

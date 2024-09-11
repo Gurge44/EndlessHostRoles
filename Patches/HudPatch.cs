@@ -805,9 +805,12 @@ static class DialogueBoxHidePatch
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.CoShowIntro))]
 static class CoShowIntroPatch
 {
+    public static bool IntroStarted;
     public static void Prefix()
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return;
+
+        IntroStarted = true;
 
         LateTask.New(() =>
         {

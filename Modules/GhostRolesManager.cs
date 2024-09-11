@@ -33,8 +33,7 @@ namespace EHR.Modules
 
             IGhostRole instance = CreateGhostRoleInstance(suitableRole);
             pc.RpcSetCustomRole(suitableRole);
-            pc.RpcSetRoleDesync(RoleTypes.GuardianAngel, pc.GetClientId());
-            Main.AllPlayerControls.Without(pc).Do(x => pc.RpcSetRoleDesync(RoleTypes.CrewmateGhost, x.GetClientId()));
+            pc.RpcSetRole(RoleTypes.GuardianAngel);
             instance.OnAssign(pc);
             Main.ResetCamPlayerList.Add(pc.PlayerId);
             AssignedGhostRoles[pc.PlayerId] = (suitableRole, instance);
@@ -49,15 +48,9 @@ namespace EHR.Modules
             if (AssignedGhostRoles.Any(x => x.Key == id || x.Value.Role == role)) return;
 
             var pc = Utils.GetPlayerById(id);
-
+            if (set) pc.RpcSetRole(RoleTypes.GuardianAngel);
+            
             IGhostRole instance = CreateGhostRoleInstance(role);
-
-            if (set)
-            {
-                pc.RpcSetRoleDesync(RoleTypes.GuardianAngel, pc.GetClientId());
-                Main.AllPlayerControls.Without(pc).Do(x => pc.RpcSetRoleDesync(RoleTypes.CrewmateGhost, x.GetClientId()));
-            }
-
             instance.OnAssign(pc);
             Main.ResetCamPlayerList.Add(pc.PlayerId);
             AssignedGhostRoles[id] = (role, instance);
