@@ -80,9 +80,11 @@ namespace EHR
 
         public static bool CheckForGameEnd(out GameOverReason reason)
         {
+            PlayerControl[] aapc = Main.AllAlivePlayerControls;
+            
             if (TaskFinishWins.GetBool())
             {
-                var player = Main.AllAlivePlayerControls.FirstOrDefault(x => x.GetTaskState().IsTaskFinished);
+                var player = aapc.FirstOrDefault(x => x.GetTaskState().IsTaskFinished);
                 if (player != null)
                 {
                     CustomWinnerHolder.WinnerIds = [player.PlayerId];
@@ -90,19 +92,17 @@ namespace EHR
                     return true;
                 }
             }
-            else
+            
+            switch (aapc.Length)
             {
-                switch (Main.AllAlivePlayerControls.Length)
-                {
-                    case 1:
-                        CustomWinnerHolder.WinnerIds = [Main.AllAlivePlayerControls[0].PlayerId];
-                        reason = GameOverReason.ImpostorByKill;
-                        return true;
-                    case 0:
-                        CustomWinnerHolder.WinnerIds = [];
-                        reason = GameOverReason.HumansDisconnect;
-                        return true;
-                }
+                case 1:
+                    CustomWinnerHolder.WinnerIds = [aapc[0].PlayerId];
+                    reason = GameOverReason.ImpostorByKill;
+                    return true;
+                case 0:
+                    CustomWinnerHolder.WinnerIds = [];
+                    reason = GameOverReason.HumansDisconnect;
+                    return true;
             }
 
             reason = GameOverReason.ImpostorByKill;

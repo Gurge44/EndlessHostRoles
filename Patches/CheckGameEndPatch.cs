@@ -410,7 +410,7 @@ static class GameEndChecker
 
             if (CustomTeamManager.CheckCustomTeamGameEnd()) return true;
 
-            if (aapc.Length == 0)
+            if (aapc.Length == 0 && !Main.HasJustStarted)
             {
                 ResetAndSetWinner(CustomWinner.None);
                 return true;
@@ -643,46 +643,38 @@ static class GameEndChecker
 
             if (MoveAndStopManager.RoundTime <= 0)
             {
-                var winner = Main.GM.Value && Main.AllPlayerControls.Length == 1 ? PlayerControl.LocalPlayer : Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => MoveAndStopManager.GetRankOfScore(x.PlayerId)).ThenByDescending(x => x.IsAlive()).First();
-
-                byte winnerId = winner.PlayerId;
-
-                Logger.Warn($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "MoveAndStop");
-
-                WinnerIds =
-                [
-                    winnerId
-                ];
-
-                Main.DoBlockNameChange = true;
-
+                PlayerControl[] apc = Main.AllPlayerControls;
+                SetWinner(Main.GM.Value && apc.Length == 1 ? PlayerControl.LocalPlayer : apc.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => MoveAndStopManager.GetRankOfScore(x.PlayerId)).ThenByDescending(x => x.IsAlive()).First());
                 return true;
             }
 
-            if (Main.AllAlivePlayerControls.Any(x => x.GetTaskState().IsTaskFinished))
+            PlayerControl[] aapc = Main.AllAlivePlayerControls;
+            
+            if (aapc.Any(x => x.GetTaskState().IsTaskFinished))
             {
-                var winner = Main.AllAlivePlayerControls.First(x => x.GetTaskState().IsTaskFinished);
-
-                Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "MoveAndStop");
-
-                WinnerIds =
-                [
-                    winner.PlayerId
-                ];
-
-                Main.DoBlockNameChange = true;
-
+                SetWinner(aapc.First(x => x.GetTaskState().IsTaskFinished));
                 return true;
             }
 
-            if (Main.AllAlivePlayerControls.Length == 0)
+            switch (aapc.Length)
             {
-                MoveAndStopManager.RoundTime = 0;
-                Logger.Warn("No players alive. Force ending the game", "MoveAndStop");
-                return false;
+                case 1 when !GameStates.IsLocalGame:
+                    SetWinner(aapc[0]);
+                    return true;
+                case 0:
+                    MoveAndStopManager.RoundTime = 0;
+                    Logger.Warn("No players alive. Force ending the game", "MoveAndStop");
+                    return false;
             }
 
             return false;
+
+            void SetWinner(PlayerControl winner)
+            {
+                Logger.Warn($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "MoveAndStop");
+                WinnerIds = [winner.PlayerId];
+                Main.DoBlockNameChange = true;
+            }
         }
     }
 
