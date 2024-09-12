@@ -484,8 +484,8 @@ public static class GameStates
 
     /**********TOP ZOOM.cs***********/
     public static bool IsShip => ShipStatus.Instance != null;
-    public static bool IsCanMove => PlayerControl.LocalPlayer?.CanMove is true;
-    public static bool IsDead => PlayerControl.LocalPlayer?.Data?.IsDead is true;
+    public static bool IsCanMove => PlayerControl.LocalPlayer != null && PlayerControl.LocalPlayer.CanMove;
+    public static bool IsDead => PlayerControl.LocalPlayer != null && PlayerControl.LocalPlayer.Data != null && PlayerControl.LocalPlayer.Data.IsDead;
 }
 
 public static class MeetingStates
