@@ -134,9 +134,11 @@ namespace EHR.Modules
 
         public static CustomTeam GetCustomTeam(byte id)
         {
+            if (!Main.PlayerStates.TryGetValue(id, out var state)) return null;
+
             foreach (var team in EnabledCustomTeams)
             {
-                if (team.TeamMembers.Contains(Main.PlayerStates[id].MainRole))
+                if (team.TeamMembers.Contains(state.MainRole))
                     return team;
             }
 

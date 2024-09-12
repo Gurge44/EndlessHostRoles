@@ -438,10 +438,10 @@ static class ShipStatusSerializePatch
     {
         if (!AmongUsClient.Instance.AmHost) return;
         if (initialState) return;
-        
+
         var cancel = Main.AllPlayerControls.Any(VentilationSystemDeterioratePatch.BlockVentInteraction);
         var ventilationSystem = __instance.Systems[SystemTypes.Ventilation].Cast<VentilationSystem>();
-        
+
         if (cancel && ventilationSystem is { IsDirty: true })
         {
             Utils.SetAllVentInteractions();
@@ -454,7 +454,7 @@ static class ShipStatusSerializePatch
 static class VentilationSystemDeterioratePatch
 {
     public static Dictionary<byte, int> LastClosestVent = [];
-    public static Dictionary<byte, bool> LastCanUseVent = [];
+    private static readonly Dictionary<byte, bool> LastCanUseVent = [];
 
     public static void Postfix(VentilationSystem __instance)
     {
@@ -598,14 +598,16 @@ static class VentilationSystemDeterioratePatch
 
     public static void CheckVentInteraction(PlayerControl pc)
     {
+        if (!GameStates.IsInTask) return;
+
+        bool canUse = pc.CanUseVent();
+
         if (!LastCanUseVent.TryGetValue(pc.PlayerId, out bool couldUse))
         {
-            LastCanUseVent[pc.PlayerId] = pc.CanUseVent();
+            LastCanUseVent[pc.PlayerId] = canUse;
             return;
         }
-        
-        bool canUse = pc.CanUseVent();
-        
+
         if (couldUse != canUse)
         {
             LastCanUseVent[pc.PlayerId] = canUse;

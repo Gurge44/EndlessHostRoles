@@ -229,6 +229,7 @@ internal class ChangeRoleSettings
 
             Main.IntroDestroyed = false;
             ShipStatusBeginPatch.RolesIsAssigned = false;
+            GameEndChecker.ShowAllRolesWhenGameEnd = false;
 
             RandomSpawn.CustomNetworkTransformPatch.NumOfTP = [];
 
@@ -397,10 +398,7 @@ internal static class StartGameHostPatch
 
     private static System.Collections.IEnumerator StartGameHost()
     {
-        if (LobbyBehaviour.Instance)
-        {
-            LobbyBehaviour.Instance.Despawn();
-        }
+        if (LobbyBehaviour.Instance) LobbyBehaviour.Instance.Despawn();
 
         if (!ShipStatus.Instance)
         {
@@ -413,17 +411,11 @@ internal static class StartGameHostPatch
         }
 
         float timer = 0f;
-        for (;;)
+        while (true)
         {
             bool stopWaiting = true;
-            int maxTimer = 10;
-            if (GameOptionsManager.Instance.CurrentGameOptions.MapId == 5 || GameOptionsManager.Instance.CurrentGameOptions.MapId == 4)
-            {
-                maxTimer = 15;
-            }
-
-            var allClients = AUClient.allClients; // Possibly .ToArray().ToList() is needed
-            lock (allClients)
+            int maxTimer = GameOptionsManager.Instance.CurrentGameOptions.MapId is 5 or 4 ? 20 : 15;
+            lock (AUClient.allClients)
             {
                 foreach (ClientData clientData in AUClient.allClients)
                 {
@@ -444,11 +436,7 @@ internal static class StartGameHostPatch
             }
 
             yield return null;
-            if (stopWaiting)
-            {
-                break;
-            }
-
+            if (stopWaiting) break;
             timer += Time.deltaTime;
         }
 

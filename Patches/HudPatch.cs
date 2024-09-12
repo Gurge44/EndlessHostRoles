@@ -806,6 +806,7 @@ static class DialogueBoxHidePatch
 static class CoShowIntroPatch
 {
     public static bool IntroStarted;
+
     public static void Prefix()
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return;
@@ -841,7 +842,7 @@ static class CoShowIntroPatch
             {
                 Logger.Warn($"Game ended? {AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.ShowAllRolesWhenGameEnd}", "ShipStatus.Begin");
             }
-        }, 4f, "Assing Task For All");
+        }, 4f, "Assign Tasks");
     }
 }
 
