@@ -2027,10 +2027,10 @@ public static class Utils
                                 ? SeerRealName
                                 : seerTeam switch
                                 {
-                                    Team.Impostor when seer.IsMadmate() => $"<font=\"DIN_Pro_Bold_700 SDF\"><size=200%><color=#ff1919>{GetString("YouAreMadmate")}</size></color></font>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Impostor when seer.IsMadmate() => $"<size=200%><color=#ff1919>{GetString("YouAreMadmate")}</size></color>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
                                     Team.Impostor => $"\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
-                                    Team.Crewmate => $"<font=\"DIN_Pro_Bold_700 SDF\"><size=200%><color=#8cffff>{GetString("YouAreCrewmate")}</size></color></font>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
-                                    Team.Neutral => $"<font=\"DIN_Pro_Bold_700 SDF\"><size=200%><color=#ffab1b>{GetString("YouAreNeutral")}</size></color></font>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Crewmate => $"<size=200%><color=#8cffff>{GetString("YouAreCrewmate")}</size></color>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Neutral => $"<size=200%><color=#ffab1b>{GetString("YouAreNeutral")}</size></color>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
                                     _ => SeerRealName
                                 };
                         }

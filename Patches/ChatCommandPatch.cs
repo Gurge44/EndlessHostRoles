@@ -103,6 +103,8 @@ internal static class ChatCommands
     public static Dictionary<byte, List<CustomRoles>> DraftRoles = [];
     public static Dictionary<byte, CustomRoles> DraftResult = [];
 
+    private static HashSet<byte> ReadyPlayers = [];
+
     public static void LoadCommands()
     {
         AllCommands =
@@ -170,6 +172,8 @@ internal static class ChatCommands
             new(["unmute", "размут"], "{id}", GetString("CommandDescription.Unmute"), Command.UsageLevels.Host, Command.UsageTimes.Always, UnmuteCommand, true, [GetString("CommandArgs.Unmute.Id")]),
             new(["draftstart", "ds", "драфтстарт"], "", GetString("CommandDescription.DraftStart"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DraftStartCommand, true),
             new(["draft", "драфт"], "{number}", GetString("CommandDescription.Draft"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, DraftCommand, true, [GetString("CommandArgs.Draft.Number")]),
+            new(["readycheck", "rc", "готов"], "", GetString("CommandDescription.ReadyCheck"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, ReadyCheckCommand, true),
+            new(["ready", "готов", "г"], "", GetString("CommandDescription.Ready"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ReadyCommand, true),
 
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -298,6 +302,35 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void ReadyCheckCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        Utils.SendMessage(GetString("ReadyCheckMessage"), title: GetString("ReadyCheckTitle"));
+        ReadyPlayers = [player.PlayerId];
+        Main.Instance.StartCoroutine(Countdown());
+        return;
+
+        System.Collections.IEnumerator Countdown()
+        {
+            var timer = 30f;
+            while (timer > 0f)
+            {
+                if (!GameStates.IsLobby) yield break;
+                if (Main.AllPlayerControls.Select(x => x.PlayerId).All(ReadyPlayers.Contains)) break;
+                timer -= Time.deltaTime;
+                yield return null;
+            }
+
+            var notReadyPlayers = Main.AllPlayerControls.Select(x => x.PlayerId).Except(ReadyPlayers).ToArray();
+            if (notReadyPlayers.Length == 0) Utils.SendMessage("\n", player.PlayerId, GetString("EveryoneReadyTitle"));
+            else Utils.SendMessage(string.Join(", ", notReadyPlayers.Select(x => x.ColoredPlayerName())), player.PlayerId, string.Format(GetString("PlayersNotReadyTitle"), notReadyPlayers.Length));
+        }
+    }
+
+    private static void ReadyCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        ReadyPlayers.Add(player.PlayerId);
+    }
+    
     private static void DraftStartCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         DraftResult = [];

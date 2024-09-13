@@ -140,7 +140,7 @@ public class PlayerState(byte playerId)
 
             if (Lyncher.On) Lyncher.Instances.ForEach(x => x.OnRoleChange(PlayerId));
             if (!role.Is(Team.Impostor)) SubRoles.ToArray().DoIf(x => x.IsImpOnlyAddon(), RemoveSubRole);
-            if (role is CustomRoles.Sidekick or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee) RemoveSubRole(CustomRoles.Nimble);
+            if (role is CustomRoles.Sidekick or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee) SubRoles.ToArray().DoIf(StartGameHostPatch.BasisChangingAddons.ContainsKey, RemoveSubRole);
             if (role == CustomRoles.Sidekick && Jackal.Instances.FindFirst(x => x.SidekickId == byte.MaxValue || x.SidekickId.GetPlayer() == null, out var jackal))
                 jackal.SidekickId = PlayerId;
 

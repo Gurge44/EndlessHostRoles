@@ -307,8 +307,20 @@ static class ExtendedPlayerControl
         var newRoleType = newCustomRole.GetRoleTypes();
         RoleTypes remeberRoleType;
 
-        if (Options.CurrentGameMode == CustomGameMode.Speedrun && newCustomRole == CustomRoles.Runner)
-            newRoleType = SpeedrunManager.CanKill.Contains(player.PlayerId) ? RoleTypes.Impostor : RoleTypes.Crewmate;
+        newRoleType = Options.CurrentGameMode switch
+        {
+            CustomGameMode.Speedrun when newCustomRole == CustomRoles.Runner => SpeedrunManager.CanKill.Contains(player.PlayerId) ? RoleTypes.Impostor : RoleTypes.Crewmate,
+            CustomGameMode.Standard when StartGameHostPatch.BasisChangingAddons.FindFirst(x => x.Value.Contains(player.PlayerId), out var kvp) => kvp.Key switch
+            {
+                CustomRoles.Bloodlust when newRoleType is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist => RoleTypes.Impostor,
+                CustomRoles.Nimble when newRoleType is RoleTypes.Crewmate or RoleTypes.Scientist => RoleTypes.Engineer,
+                CustomRoles.Physicist when newRoleType == RoleTypes.Crewmate => RoleTypes.Scientist,
+                CustomRoles.Finder when newRoleType is RoleTypes.Crewmate or RoleTypes.Scientist => RoleTypes.Tracker,
+                CustomRoles.Noisy when newRoleType == RoleTypes.Crewmate => RoleTypes.Noisemaker,
+                _ => newRoleType
+            },
+            _ => newRoleType
+        };
 
         var oldRoleIsDesync = playerRole.IsDesyncRole();
         var newRoleIsDesync = newCustomRole.IsDesyncRole();

@@ -367,7 +367,7 @@ internal static class StartGameHostPatch
 {
     private static AmongUsClient AUClient;
 
-    private static readonly Dictionary<CustomRoles, List<byte>> BasisChangingAddons = [];
+    public static readonly Dictionary<CustomRoles, List<byte>> BasisChangingAddons = [];
     private static Dictionary<RoleTypes, int> RoleTypeNums = [];
 
     private static readonly Dictionary<byte, bool> DataDisconnected = [];
