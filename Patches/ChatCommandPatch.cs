@@ -1858,6 +1858,7 @@ internal static class ChatCommands
             "monarch" => GetString("Monarch"),
             "sch" => GetString("SchrodingersCat"),
             "glitch" or "Glitch" => GetString("Glitch"),
+            "безумный" or "Безумный" or "mad" or "Mad" => GetString("Madmate"),
             _ => text
         };
     }
