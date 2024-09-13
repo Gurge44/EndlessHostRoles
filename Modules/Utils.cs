@@ -1251,10 +1251,10 @@ public static class Utils
         }
 
         SendMessage(sb.Append("\n.").ToString(), PlayerId, GetString("GMRoles"));
-        SendMessage(impsb.Append("\n.").ToString(), PlayerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("IMPoles")));
-        SendMessage(crewsb.Append("\n.").ToString(), PlayerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CREWRoles")));
-        SendMessage(neutralsb.Append("\n.").ToString(), PlayerId, GetString("NEUTRRoles"));
-        SendMessage(addonsb.Append("\n.").ToString(), PlayerId, GetString("ADDRoles"));
+        SendMessage(impsb.Append("\n.").ToString(), PlayerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("ImpostorRoles")));
+        SendMessage(crewsb.Append("\n.").ToString(), PlayerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CrewmateRoles")));
+        SendMessage(neutralsb.Append("\n.").ToString(), PlayerId, GetString("NeutralRoles"));
+        SendMessage(addonsb.Append("\n.").ToString(), PlayerId, GetString("AddonRoles"));
     }
 
     public static void ShowChildrenSettings(OptionItem option, ref StringBuilder sb, int deep = 0, bool command = false, bool disableColor = true)
