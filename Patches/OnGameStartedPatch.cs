@@ -417,7 +417,8 @@ internal static class StartGameHostPatch
             int maxTimer = GameOptionsManager.Instance.CurrentGameOptions.MapId is 5 or 4 ? 20 : 15;
             lock (AUClient.allClients)
             {
-                // For loop is needed, or else when a client times out, a foreach loop will throw a "System.InvalidOperationException: Collection was modified; enumeration operation may not execute." error
+                // For loop is necessary, or else when a client times out, a foreach loop will throw:
+                // System.InvalidOperationException: Collection was modified; enumeration operation may not execute.
                 for (int i = 0; i < AUClient.allClients.Count; i++)
                 {
                     ClientData clientData = AUClient.allClients[i]; // False error
