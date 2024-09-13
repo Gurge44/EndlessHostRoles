@@ -19,7 +19,7 @@ internal class QuickShooter : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.QuickShooter);
         KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.QuickShooter])
@@ -61,25 +61,43 @@ internal class QuickShooter : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
-        if (Options.UsePets.GetBool()) return;
-        AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
-        AURoleOptions.ShapeshifterDuration = 1f;
+        if (Options.UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = ShapeshiftCooldown.GetFloat();
+        else
+        {
+            if (Options.UsePets.GetBool()) return;
+            AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
+            AURoleOptions.ShapeshifterDuration = 1f;
+        }
     }
 
     public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
     {
-        if (Main.KillTimers[pc.PlayerId] <= 0 && shapeshifting)
+        if (Main.KillTimers[pc.PlayerId] <= 0 && (shapeshifting || Options.UseUnshiftTrigger.GetBool()))
         {
-            ShotLimit[pc.PlayerId]++;
-            SendRPC(pc.PlayerId);
-            //Storaging = true;
-            pc.ResetKillCooldown();
-            pc.SetKillCooldown();
-            pc.Notify(Translator.GetString("QuickShooterStoraging"));
-            Logger.Info($"{Utils.GetPlayerById(pc.PlayerId)?.GetNameWithRole().RemoveHtmlTags()} : Remaining: {ShotLimit[pc.PlayerId]} bullets", "QuickShooter");
+            Store(pc);
         }
 
         return false;
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        if (Main.KillTimers[pc.PlayerId] <= 0)
+        {
+            Store(pc);
+        }
+
+        return false;
+    }
+
+    private static void Store(PlayerControl pc)
+    {
+        ShotLimit[pc.PlayerId]++;
+        SendRPC(pc.PlayerId);
+        pc.ResetKillCooldown();
+        pc.SetKillCooldown();
+        pc.Notify(Translator.GetString("QuickShooterStoraging"));
+        Logger.Info($"{Utils.GetPlayerById(pc.PlayerId)?.GetNameWithRole().RemoveHtmlTags()} : Remaining: {ShotLimit[pc.PlayerId]} bullets", "QuickShooter");
     }
 
     public override void SetKillCooldown(byte id)

@@ -56,6 +56,7 @@ static class TargetArrow
         {
             TargetArrows[arrowInfo] = "・";
             Utils.SendRPC(CustomRPC.Arrow, true, 1, seer, target);
+            Logger.Info($"New target arrow: {seer} ({seer.GetPlayer()?.GetRealName()}) => {target} ({target.GetPlayer()?.GetRealName()})", "TargetArrow");
         }
     }
 
@@ -74,6 +75,7 @@ static class TargetArrow
         }
 
         Utils.SendRPC(CustomRPC.Arrow, true, 2, seer, target);
+        Logger.Info($"Removed target arrow: {seer} ({seer.GetPlayer()?.GetRealName()}) => {target} ({target.GetPlayer()?.GetRealName()})", "TargetArrow");
     }
 
     /// <summary>
@@ -89,10 +91,11 @@ static class TargetArrow
         }
 
         Utils.SendRPC(CustomRPC.Arrow, true, 3, seer);
+        Logger.Info($"Removed all target arrows for {seer} ({seer.GetPlayer()?.GetRealName()})", "TargetArrow");
     }
 
     /// <summary>
-    /// Get all visible target arrows
+    /// Get all visible target arrows for the specified seer to the specified target(s)
     /// </summary>
     /// <param name="seer"></param>
     /// <param name="targets"></param>
@@ -100,6 +103,16 @@ static class TargetArrow
     public static string GetArrows(PlayerControl seer, params byte[] targets)
     {
         return TargetArrows.Keys.Where(ai => ai.From == seer.PlayerId && targets.Contains(ai.To)).Aggregate(string.Empty, (current, arrowInfo) => current + TargetArrows[arrowInfo]);
+    }
+
+    /// <summary>
+    /// Get all visible target arrows for the specified seer
+    /// </summary>
+    /// <param name="seer"></param>
+    /// <returns></returns>
+    public static string GetAllArrows(PlayerControl seer)
+    {
+        return TargetArrows.Keys.Where(ai => ai.From == seer.PlayerId).Aggregate(string.Empty, (current, arrowInfo) => current + TargetArrows[arrowInfo]);
     }
 
     /// <summary>

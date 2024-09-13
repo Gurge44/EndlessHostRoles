@@ -24,7 +24,7 @@ namespace EHR.Crewmate
 
         public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Tether);
             VentCooldown = new FloatOptionItem(Id + 10, "VentCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Tether])
@@ -109,15 +109,15 @@ namespace EHR.Crewmate
             AURoleOptions.EngineerInVentMaxTime = 1f;
         }
 
-        public static bool OnVote(PlayerControl pc, PlayerControl target)
+        public override bool OnVote(PlayerControl pc, PlayerControl target)
         {
-            if (pc == null || target == null || Main.PlayerStates[pc.PlayerId].Role is not Tether th || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
+            if (pc == null || target == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
 
             if (pc.GetAbilityUseLimit() >= 1)
             {
                 pc.RpcRemoveAbilityUse();
-                th.Target = target.PlayerId;
-                th.SendRPCSyncTarget();
+                Target = target.PlayerId;
+                SendRPCSyncTarget();
                 Main.DontCancelVoteList.Add(pc.PlayerId);
                 return true;
             }
@@ -141,6 +141,6 @@ namespace EHR.Crewmate
             return sb.ToString();
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false) => Main.PlayerStates[seer.PlayerId].Role is Tether th && th.Target != byte.MaxValue && seer.PlayerId == target.PlayerId ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(th.Target).GetRealName()}</color>" : string.Empty;
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false) => Target != byte.MaxValue && seer.PlayerId == target.PlayerId && seer.PlayerId == TetherId ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(Target).GetRealName()}</color>" : string.Empty;
     }
 }

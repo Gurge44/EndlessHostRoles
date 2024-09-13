@@ -13,7 +13,7 @@ namespace EHR.Impostor
         private bool IsNuker;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(2400, TabGroup.ImpostorRoles, CustomRoles.Bomber);
             BomberRadius = new FloatOptionItem(2018, "BomberRadius", new(0.5f, 5f, 0.5f), 2f, TabGroup.ImpostorRoles)
@@ -24,7 +24,7 @@ namespace EHR.Impostor
             BomberKillCD = new FloatOptionItem(2020, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(BomberCanKill)
                 .SetValueFormat(OptionFormat.Seconds);
-            BombCooldown = new FloatOptionItem(2030, "BombCooldown", new(5f, 180f, 2.5f), 60f, TabGroup.ImpostorRoles)
+            BombCooldown = new FloatOptionItem(2030, "BombCooldown", new(5f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber])
                 .SetValueFormat(OptionFormat.Seconds);
             ImpostorsSurviveBombs = new BooleanOptionItem(2031, "ImpostorsSurviveBombs", true, TabGroup.ImpostorRoles)
@@ -66,11 +66,15 @@ namespace EHR.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool()) return;
             try
             {
-                AURoleOptions.ShapeshifterCooldown = IsNuker ? NukeCooldown.GetFloat() : BombCooldown.GetFloat();
-                AURoleOptions.ShapeshifterDuration = 2f;
+                if (UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = IsNuker ? NukeCooldown.GetFloat() : BombCooldown.GetFloat();
+                else
+                {
+                    if (UsePets.GetBool()) return;
+                    AURoleOptions.ShapeshifterCooldown = IsNuker ? NukeCooldown.GetFloat() : BombCooldown.GetFloat();
+                    AURoleOptions.ShapeshifterDuration = 2f;
+                }
             }
             catch
             {
@@ -90,9 +94,15 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting) return true;
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
             Bomb(shapeshifter);
 
+            return false;
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            Bomb(pc);
             return false;
         }
 

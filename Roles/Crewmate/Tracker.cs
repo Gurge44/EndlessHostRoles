@@ -24,10 +24,11 @@ namespace EHR.Crewmate
         public static bool CanSeeLastRoomInMeeting;
 
         public static Dictionary<byte, List<byte>> TrackerTarget = [];
+        byte TrackerId;
 
         public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Scout);
             TrackLimitOpt = new IntegerOptionItem(Id + 5, "DivinatorSkillLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Scout])
@@ -58,6 +59,7 @@ namespace EHR.Crewmate
             playerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(TrackLimitOpt.GetInt());
             TrackerTarget.Add(playerId, []);
+            TrackerId = playerId;
         }
 
         public static void SendRPC(byte trackerId = byte.MaxValue, byte targetId = byte.MaxValue)
@@ -81,7 +83,7 @@ namespace EHR.Crewmate
 
         public static string GetTargetMark(PlayerControl seer, PlayerControl target) => !(seer == null || target == null) && TrackerTarget.ContainsKey(seer.PlayerId) && TrackerTarget[seer.PlayerId].Contains(target.PlayerId) ? Utils.ColorString(seer.GetRoleColor(), "◀") : string.Empty;
 
-        public static bool OnVote(PlayerControl player, PlayerControl target)
+        public override bool OnVote(PlayerControl player, PlayerControl target)
         {
             if (player == null || target == null || player.GetAbilityUseLimit() < 1f || player.PlayerId == target.PlayerId || TrackerTarget[player.PlayerId].Contains(target.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
 
@@ -96,9 +98,9 @@ namespace EHR.Crewmate
             return true;
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer == null) return string.Empty;
+            if (seer == null || seer.PlayerId != TrackerId) return string.Empty;
             if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
             if (!TrackerTarget.ContainsKey(seer.PlayerId)) return string.Empty;
             if (GameStates.IsMeeting) return string.Empty;

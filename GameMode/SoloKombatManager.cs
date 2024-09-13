@@ -19,7 +19,7 @@ internal static class SoloKombatManager
     public static Dictionary<byte, float> PlayerDF = [];
 
     private static Dictionary<byte, float> OriginalSpeed = [];
-    private static Dictionary<byte, int> KBScore = [];
+    public static Dictionary<byte, int> KBScore = [];
     public static int RoundTime;
 
     private static readonly Dictionary<byte, (string TEXT, long TIMESTAMP)> NameNotify = [];
@@ -219,7 +219,7 @@ internal static class SoloKombatManager
 
         if (!target.SoloAlive())
         {
-            OnPlyaerDead(target);
+            OnPlayerDead(target);
             OnPlayerKill(killer);
         }
 
@@ -229,7 +229,7 @@ internal static class SoloKombatManager
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
         if (!target.IsModClient() && !target.AmOwner)
-            target.RpcGuardAndKill(colorId: 5);
+            target.RpcGuardAndKill();
 
         SendRPCSyncKBPlayer(target.PlayerId);
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
@@ -243,42 +243,38 @@ internal static class SoloKombatManager
         SendRPCSyncKBPlayer(pc.PlayerId);
 
         LastHurt[pc.PlayerId] = Utils.TimeStamp;
-        Main.AllPlayerSpeed[pc.PlayerId] = Main.AllPlayerSpeed[pc.PlayerId] - 0.3f + OriginalSpeed[pc.PlayerId];
+        Main.AllPlayerSpeed[pc.PlayerId] = OriginalSpeed[pc.PlayerId];
         pc.MarkDirtySettings();
 
         RPC.PlaySoundRPC(pc.PlayerId, Sounds.TaskComplete);
-        pc.RpcGuardAndKill(colorId: 1);
+        pc.RpcGuardAndKill();
 
         PlayerRandomSpwan(pc);
     }
 
     private static void PlayerRandomSpwan(PlayerControl pc)
     {
-        SpawnMap map;
-        switch (Main.NormalOptions.MapId)
+        SpawnMap map = Main.CurrentMap switch
         {
-            case 0:
-                map = new SkeldSpawnMap();
-                map.RandomTeleport(pc);
-                break;
-            case 1:
-                map = new MiraHQSpawnMap();
-                map.RandomTeleport(pc);
-                break;
-            case 2:
-                map = new PolusSpawnMap();
-                map.RandomTeleport(pc);
-                break;
-        }
+            MapNames.Skeld => new SkeldSpawnMap(),
+            MapNames.Mira => new MiraHQSpawnMap(),
+            MapNames.Polus => new PolusSpawnMap(),
+            MapNames.Airship => new AirshipSpawnMap(),
+            MapNames.Fungle => new FungleSpawnMap(),
+            MapNames.Dleks => new DleksSpawnMap(),
+            _ => null
+        };
+
+        map?.RandomTeleport(pc);
     }
 
-    private static void OnPlyaerDead(PlayerControl target)
+    private static void OnPlayerDead(PlayerControl target)
     {
         OriginalSpeed.Remove(target.PlayerId);
         OriginalSpeed.Add(target.PlayerId, Main.AllPlayerSpeed[target.PlayerId]);
 
         target.TP(Pelican.GetBlackRoomPS());
-        Main.AllPlayerSpeed[target.PlayerId] = 0.3f;
+        Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
         target.MarkDirtySettings();
 
         BackCountdown.TryAdd(target.PlayerId, KB_ResurrectionWaitingTime.GetInt());
@@ -295,8 +291,9 @@ internal static class SoloKombatManager
 
         float addRate = IRandom.Instance.Next(3, 5 + GetRankOfScore(killer.PlayerId)) / 100f;
         addRate *= KB_KillBonusMultiplier.GetFloat();
+        if (killer.IsHost()) addRate /= 2f;
         float addin;
-        switch (IRandom.Instance.Next(0, 3))
+        switch (IRandom.Instance.Next(0, 4))
         {
             case 0:
                 addin = PlayerHPMax[killer.PlayerId] * addRate;
@@ -312,6 +309,11 @@ internal static class SoloKombatManager
                 addin = PlayerATK[killer.PlayerId] * addRate;
                 PlayerATK[killer.PlayerId] += addin;
                 AddNameNotify(killer, string.Format(Translator.GetString("KB_Buff_ATK"), addin.ToString("0.0#####")));
+                break;
+            case 3:
+                addin = Math.Max(PlayerDF[killer.PlayerId], 1f) * addRate * 3;
+                PlayerDF[killer.PlayerId] += addin;
+                AddNameNotify(killer, string.Format(Translator.GetString("KB_Buff_DF"), addin.ToString("0.0#####")));
                 break;
         }
     }

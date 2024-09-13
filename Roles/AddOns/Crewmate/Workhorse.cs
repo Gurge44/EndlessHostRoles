@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using AmongUs.GameOptions;
 using UnityEngine;
 using static EHR.Options;
 
@@ -27,7 +25,7 @@ public class Workhorse : IAddon
     public void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.Addons, CustomRoles.Workhorse, zeroOne: true);
-        SpawnChance = new IntegerOptionItem(Id + 13, "WorkhorseSpawnChance", new(0, 100, 1), 65, TabGroup.Addons)
+        SpawnChance = new IntegerOptionItem(Id + 13, "WorkhorseSpawnChance", new(0, 100, 5), 65, TabGroup.Addons)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Workhorse])
             .SetValueFormat(OptionFormat.Percent);
         OptionAssignOnlyToCrewmate = new BooleanOptionItem(Id + 10, "AssignOnlyToCrewmate", true, TabGroup.Addons)
@@ -62,7 +60,7 @@ public class Workhorse : IAddon
     {
         if (!pc.IsAlive() || IsThisRole(pc.PlayerId)) return false;
         if (pc.Is(CustomRoles.Needy) || pc.Is(CustomRoles.Lazy) || pc.Is(CustomRoles.Bloodlust)) return false;
-        if (pc.GetCustomRole().GetDYRole() == RoleTypes.Impostor || pc.GetCustomRole().GetVNRole() is CustomRoles.Impostor or CustomRoles.Shapeshifter) return false;
+        if (pc.GetCustomRole().GetVNRole(checkDesyncRole: true) is CustomRoles.Impostor or CustomRoles.Shapeshifter) return false;
 
         var taskState = pc.GetTaskState();
         if (taskState.CompletedTasksCount + 1 < taskState.AllTasksCount) return false;
@@ -88,7 +86,7 @@ public class Workhorse : IAddon
         if (AmongUsClient.Instance.AmHost)
         {
             Add(pc.PlayerId);
-            pc.Data.RpcSetTasks(Array.Empty<byte>()); // Redistribute tasks
+            pc.Data.RpcSetTasks(new(0)); // Redistribute tasks
             pc.SyncSettings();
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }

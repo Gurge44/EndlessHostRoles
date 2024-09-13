@@ -12,7 +12,7 @@ public class TimeManager : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.TimeManager);
         IncreaseMeetingTime = new IntegerOptionItem(Id + 10, "TimeManagerIncreaseMeetingTime", new(1, 30, 1), 5, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.TimeManager])

@@ -25,7 +25,9 @@ public class Romantic : RoleBase
     private static OptionItem ProtectDuration;
     private static OptionItem KnowTargetRole;
     private static OptionItem BetTargetKnowRomantic;
+    private static OptionItem RomanticGetsPartnerConvertedAddons;
     private static OptionItem Arrows;
+    private static OptionItem PartnerHasArrows;
     public static OptionItem VengefulKCD;
     public static OptionItem VengefulCanVent;
     public static OptionItem VengefulHasImpVision;
@@ -35,6 +37,7 @@ public class Romantic : RoleBase
 
     private static readonly Dictionary<CustomRoles, CustomRoles> ConvertingRolesAndAddons = new()
     {
+        [CustomRoles.Succubus] = CustomRoles.Charmed,
         [CustomRoles.Jackal] = CustomRoles.Sidekick,
         [CustomRoles.Virus] = CustomRoles.Contagious,
         [CustomRoles.Deathknight] = CustomRoles.Undead,
@@ -45,7 +48,7 @@ public class Romantic : RoleBase
 
     public override bool IsEnable => RomanticId != byte.MaxValue;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Romantic);
         BetCooldown = new FloatOptionItem(Id + 10, "RomanticBetCooldown", new(0f, 60f, 1f), 7f, TabGroup.NeutralRoles)
@@ -61,21 +64,25 @@ public class Romantic : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
         BetTargetKnowRomantic = new BooleanOptionItem(Id + 14, "RomanticBetTargetKnowRomantic", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        Arrows = new BooleanOptionItem(Id + 15, "RomanticArrows", true, TabGroup.NeutralRoles)
+        RomanticGetsPartnerConvertedAddons = new BooleanOptionItem(Id + 15, "RomanticGetsPartnerConvertedAddons", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        VengefulKCD = new FloatOptionItem(Id + 16, "VengefulKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles)
+        Arrows = new BooleanOptionItem(Id + 16, "RomanticArrows", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+        PartnerHasArrows = new BooleanOptionItem(Id + 17, "RomanticPartnerHasArrows", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+        VengefulKCD = new FloatOptionItem(Id + 18, "VengefulKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
-        VengefulCanVent = new BooleanOptionItem(Id + 17, "VengefulCanVent", true, TabGroup.NeutralRoles)
+        VengefulCanVent = new BooleanOptionItem(Id + 19, "VengefulCanVent", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        VengefulHasImpVision = new BooleanOptionItem(Id + 18, "VengefulHasImpVision", true, TabGroup.NeutralRoles)
+        VengefulHasImpVision = new BooleanOptionItem(Id + 20, "VengefulHasImpVision", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        RuthlessKCD = new FloatOptionItem(Id + 19, "RuthlessKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles)
+        RuthlessKCD = new FloatOptionItem(Id + 21, "RuthlessKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
             .SetValueFormat(OptionFormat.Seconds);
-        RuthlessCanVent = new BooleanOptionItem(Id + 20, "RuthlessCanVent", true, TabGroup.NeutralRoles)
+        RuthlessCanVent = new BooleanOptionItem(Id + 22, "RuthlessCanVent", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
-        RuthlessHasImpVision = new BooleanOptionItem(Id + 21, "RuthlessHasImpVision", true, TabGroup.NeutralRoles)
+        RuthlessHasImpVision = new BooleanOptionItem(Id + 23, "RuthlessHasImpVision", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
     }
 
@@ -123,6 +130,7 @@ public class Romantic : RoleBase
 
     public override bool KnowRole(PlayerControl player, PlayerControl target)
     {
+        if (base.KnowRole(player, target)) return true;
         if (!KnowTargetRole.GetBool()) return false;
         return (player.Is(CustomRoles.Romantic) && PartnerId == target.PlayerId) || (BetTargetKnowRomantic.GetBool() && target.Is(CustomRoles.Romantic) && player.PlayerId == PartnerId);
     }
@@ -134,7 +142,7 @@ public class Romantic : RoleBase
         if (!HasPickedPartner)
         {
             PartnerId = target.PlayerId;
-            Partner = Utils.GetPlayerById(PartnerId);
+            Partner = target;
 
             SendRPC();
 
@@ -145,13 +153,16 @@ public class Romantic : RoleBase
             RomanticPC.Notify(GetString("RomanticBetPlayer"));
             if (BetTargetKnowRomantic.GetBool()) target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), GetString("RomanticBetOnYou")));
 
+            if (RomanticGetsPartnerConvertedAddons.GetBool() && Partner.IsConverted())
+                Partner.GetCustomSubRoles().DoIf(x => x.IsConverted() && !Partner.Is(x), x => RomanticPC.RpcSetCustomRole(x));
+
             if (Arrows.GetBool())
             {
                 TargetArrow.Add(RomanticId, PartnerId);
-                if (BetTargetKnowRomantic.GetBool()) TargetArrow.Add(PartnerId, RomanticId);
+                if (PartnerHasArrows.GetBool() && BetTargetKnowRomantic.GetBool()) TargetArrow.Add(PartnerId, RomanticId);
             }
 
-            Logger.Info($"Partner picked： {RomanticPC.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Romantic");
+            Logger.Info($"Partner picked: {RomanticPC.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Romantic");
         }
         else if (!IsPartnerProtected)
         {
@@ -206,7 +217,7 @@ public class Romantic : RoleBase
             : string.Empty;
     }
 
-    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != target.PlayerId) return string.Empty;
         if (seer.PlayerId == PartnerId && HasPickedPartner) return TargetArrow.GetArrows(seer, RomanticId);
@@ -237,9 +248,9 @@ public class Romantic : RoleBase
             return;
         }
 
-        if ((partnerRole.IsNonNK() && partnerRole is not CustomRoles.Romantic and not CustomRoles.VengefulRomantic and not CustomRoles.RuthlessRomantic) || killer == null || Main.PlayerStates[PartnerId].IsSuicide) // If Partner is NNK or died by themselves, Romantic becomes Ruthless Romantic
+        if ((partnerRole.IsNonNK() && partnerRole is not CustomRoles.Romantic and not CustomRoles.VengefulRomantic and not CustomRoles.RuthlessRomantic) || killer == null || !killer.IsAlive() || Main.PlayerStates[PartnerId].IsSuicide) // If Partner is NNK or died by themselves, Romantic becomes Ruthless Romantic
         {
-            Logger.Info($"NNK Romantic Partner Died ({partnerRole.IsNonNK()}) / Partner killer is null ({killer == null}) / Partner commited Suicide ({Main.PlayerStates[PartnerId].IsSuicide}) => Changing {RomanticPC.GetNameWithRole().RemoveHtmlTags()} to Ruthless Romantic", "Romantic");
+            Logger.Info($"NNK Romantic Partner Died ({partnerRole.IsNonNK()}) / Partner killer is null ({killer == null}) / Partner killer is dead ({!killer.IsAlive()}) / Partner commited Suicide ({Main.PlayerStates[PartnerId].IsSuicide}) => Changing {RomanticPC.GetNameWithRole().RemoveHtmlTags()} to Ruthless Romantic", "Romantic");
             RomanticPC.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
         }
         else if (ConvertingRolesAndAddons.TryGetValue(partnerRole, out var convertedRole))
@@ -248,12 +259,12 @@ public class Romantic : RoleBase
             if (convertedRole.IsAdditionRole()) RomanticPC.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
             Logger.Info($"Converting Romantic Partner Died ({Partner.GetNameWithRole()}) => Romantic becomes their ally ({RomanticPC.GetNameWithRole()})", "Romantic");
         }
-        else if (Partner.Is(Team.Impostor)) // If Partner is Imp, Romantic joins imp team as Refugee
+        else if (Partner.Is(Team.Impostor)) // If Partner is Imp, Romantic joins the imp team as Refugee
         {
             Logger.Info($"Impostor Romantic Partner Died => Changing {RomanticPC.GetNameWithRole()} to Refugee", "Romantic");
             RomanticPC.RpcSetCustomRole(CustomRoles.Refugee);
         }
-        else if (Partner.HasKillButton() || partnerRole.IsNK() || partnerRole.IsTasklessCrewmate()) // If Partner has a kill button (NK or CK), Romantic becomes the role they were
+        else if (Partner.HasKillButton() || partnerRole.IsNK() || partnerRole.GetDYRole() == RoleTypes.Impostor) // If the Partner has a kill button (NK or CK), Romantic becomes the role they were
         {
             try
             {
@@ -295,6 +306,10 @@ public class VengefulRomantic : RoleBase
 
     public override bool IsEnable => VengefulRomanticId != byte.MaxValue;
 
+    public override void SetupCustomOption()
+    {
+    }
+
     public override void Init()
     {
         VengefulRomanticId = byte.MaxValue;
@@ -319,20 +334,21 @@ public class VengefulRomantic : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer.PlayerId == target.PlayerId || killer.PlayerId != VengefulRomanticId) return true;
-
-        if (target.PlayerId == Target)
-        {
-            HasKilledKiller = true;
-            Utils.NotifyRoles(SpecifySeer: VengefulRomantic_, SpecifyTarget: target);
-            return true;
-        }
+        if (killer.PlayerId == target.PlayerId || killer.PlayerId != VengefulRomanticId || target.PlayerId == Target) return true;
 
         killer.Suicide(PlayerState.DeathReason.Misfire);
         return false;
     }
 
-    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+    public override void OnMurder(PlayerControl killer, PlayerControl target)
+    {
+        if (target.PlayerId == Target)
+        {
+            HasKilledKiller = true;
+        }
+    }
+
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != target.PlayerId || seer.PlayerId != VengefulRomanticId) return string.Empty;
         return seer == null ? string.Empty : Utils.ColorString(HasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"{(HasKilledKiller ? "✓" : "☹")}");
@@ -368,6 +384,10 @@ public class RuthlessRomantic : RoleBase
     public static List<byte> playerIdList = [];
 
     public override bool IsEnable => playerIdList.Count > 0;
+
+    public override void SetupCustomOption()
+    {
+    }
 
     public override void Init()
     {

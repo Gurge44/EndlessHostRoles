@@ -14,10 +14,11 @@ internal class NiceEraser : RoleBase
 
     private static List<byte> didVote = [];
     private static List<byte> PlayerToErase = [];
+    public static List<byte> ErasedPlayers = [];
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.NiceEraser);
         EraseLimitOpt = new IntegerOptionItem(Id + 2, "EraseLimit", new(1, 15, 1), 1, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceEraser])
@@ -29,6 +30,7 @@ internal class NiceEraser : RoleBase
     public override void Init()
     {
         playerIdList = [];
+        ErasedPlayers = [];
     }
 
     public override void Add(byte playerId)
@@ -37,7 +39,7 @@ internal class NiceEraser : RoleBase
         playerId.SetAbilityUseLimit(EraseLimitOpt.GetInt());
     }
 
-    public static bool OnVote(PlayerControl player, PlayerControl target)
+    public override bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null) return false;
         if (didVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
@@ -86,6 +88,7 @@ internal class NiceEraser : RoleBase
             player.Notify(GetString("LostRoleByNiceEraser"));
             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} 被擦除了", "NiceEraser");
             player.MarkDirtySettings();
+            ErasedPlayers.Add(pc);
         }
     }
 }

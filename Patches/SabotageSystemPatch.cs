@@ -3,11 +3,12 @@ using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
+using UnityEngine;
 
 namespace EHR;
 
-//Based on:
-//https://github.com/Koke1024/Town-Of-Moss/blob/main/TownOfMoss/Patches/MeltDownBoost.cs
+// Based on:
+// https://github.com/Koke1024/Town-Of-Moss/blob/main/TownOfMoss/Patches/MeltDownBoost.cs
 
 [HarmonyPatch(typeof(ReactorSystemType), nameof(ReactorSystemType.Deteriorate))]
 public static class ReactorSystemTypePatch
@@ -122,6 +123,26 @@ public static class LifeSuppSystemTypePatch
     }
 }
 
+[HarmonyPatch(typeof(MushroomMixupSabotageSystem), nameof(MushroomMixupSabotageSystem.UpdateSystem))]
+public static class MushroomMixupSabotageSystemUpdateSystemPatch
+{
+    public static void Postfix()
+    {
+        Logger.Info(" IsActive", "MushroomMixupSabotageSystem.UpdateSystem.Postfix");
+
+        foreach (var pc in Main.AllAlivePlayerControls)
+        {
+            // Need for hiding player names if player is desync Impostor
+            Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
+            if (!pc.Is(Team.Impostor) && pc.HasDesyncRole())
+            {
+                // Need for hiding player names if player is desync Impostor
+                Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
+            }
+        }
+    }
+}
+
 [HarmonyPatch(typeof(MushroomMixupSabotageSystem), nameof(MushroomMixupSabotageSystem.Deteriorate))]
 public static class MushroomMixupSabotageSystemPatch
 {
@@ -167,19 +188,82 @@ public static class MushroomMixupSabotageSystemPatch
                 // After MushroomMixup sabotage, shapeshift cooldown sets to 0
                 foreach (var pc in Main.AllAlivePlayerControls)
                 {
-                    // Reset Ability Cooldown To Default For Alive Players
+                    // Reset Ability Cooldown To Default For Living Players
                     pc.RpcResetAbilityCooldown();
+
+                    // Redo Unshift Trigger due to mushroom mixup breaking it
+                    pc.CheckAndSetUnshiftState();
                 }
             }, 1.2f, "Reset Ability Cooldown Arter Mushroom Mixup");
 
             foreach (var pc in Main.AllAlivePlayerControls)
             {
-                if (!pc.Is(CustomRoleTypes.Impostor) && Main.ResetCamPlayerList.Contains(pc.PlayerId))
+                if (!pc.Is(CustomRoleTypes.Impostor) && pc.HasDesyncRole())
                 {
                     Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
                 }
             }
         }
+    }
+}
+
+// Thanks: https://github.com/tukasa0001/TownOfHost/tree/main/Patches/ISystemType/SwitchSystemPatch.cs
+[HarmonyPatch(typeof(SwitchSystem), nameof(SwitchSystem.UpdateSystem))]
+static class SwitchSystemUpdatePatch
+{
+    private static bool Prefix(SwitchSystem __instance, [HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] MessageReader msgReader)
+    {
+        byte amount;
+        {
+            var newReader = MessageReader.Get(msgReader);
+            amount = newReader.ReadByte();
+            newReader.Recycle();
+        }
+
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            return true;
+        }
+
+        // No matter if the blackout sabotage is sounded (beware of misdirection as it flies under the host's name)
+        if (amount.HasBit(SwitchSystem.DamageSystem))
+        {
+            return true;
+        }
+
+        // Cancel if player can't fix a specific outage on Airship
+        if (Main.CurrentMap == MapNames.Airship)
+        {
+            var pos = player.Pos();
+            if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && Vector2.Distance(pos, new(-12.93f, -11.28f)) <= 2f) return false;
+            if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && Vector2.Distance(pos, new(13.92f, 6.43f)) <= 2f) return false;
+            if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(pos, new(30.56f, 2.12f)) <= 2f) return false;
+        }
+
+        if (player.Is(CustomRoles.Fool))
+        {
+            return false;
+        }
+
+        if (Options.BlockDisturbancesToSwitches.GetBool())
+        {
+            // Shift 1 to the left by amount
+            // Each digit corresponds to each switch
+            // Far left switch - (amount: 0) 00001
+            // Far right switch - (amount: 4) 10000
+            // ref: SwitchSystem.RepairDamage, SwitchMinigame.FixedUpdate
+            var switchedKnob = (byte)(0b_00001 << amount);
+
+            // ExpectedSwitches: Up and down state of switches when all are on
+            // ActualSwitches: Actual up/down state of switch
+            // if Expected and Actual are the same for the operated knob, the knob is already fixed
+            if ((__instance.ActualSwitches & switchedKnob) == (__instance.ExpectedSwitches & switchedKnob))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 
@@ -264,6 +348,7 @@ public static class SabotageSystemTypeRepairDamagePatch
         }
 
         if (player.Is(Team.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
+        if (!player.Is(Team.Impostor) && !player.IsAlive()) return false;
         bool allow = player.GetCustomRole() switch
         {
             CustomRoles.Jackal when Jackal.CanSabotage.GetBool() => true,

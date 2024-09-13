@@ -10,7 +10,7 @@ namespace EHR.Crewmate
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(6200, TabGroup.CrewmateRoles, CustomRoles.Transporter);
             Options.TransporterTeleportMax = new IntegerOptionItem(6210, "TransporterTeleportMax", new(0, 90, 1), 5, TabGroup.CrewmateRoles)

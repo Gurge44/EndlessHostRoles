@@ -10,7 +10,7 @@ namespace EHR.Crewmate
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(5585, TabGroup.CrewmateRoles, CustomRoles.Express);
             Options.ExpressSpeed = new FloatOptionItem(5587, "ExpressSpeed", new(0.25f, 5f, 0.25f), 1.5f, TabGroup.CrewmateRoles)

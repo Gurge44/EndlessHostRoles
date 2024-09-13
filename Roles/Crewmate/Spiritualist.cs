@@ -16,8 +16,8 @@ namespace EHR.Crewmate
 
         public static byte SpiritualistTarget;
         private long LastGhostArrowShowTime;
-
         private long ShowGhostArrowUntil;
+        byte SpiritualistId;
 
         public override bool IsEnable => playerIdList.Count > 0;
 
@@ -38,7 +38,7 @@ namespace EHR.Crewmate
             }
         }
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Spiritualist);
             ShowGhostArrowEverySeconds = new FloatOptionItem(Id + 10, "SpiritualistShowGhostArrowEverySeconds", new(1f, 60f, 1f), 15f, TabGroup.CrewmateRoles)
@@ -63,6 +63,7 @@ namespace EHR.Crewmate
             SpiritualistTarget = byte.MaxValue;
             LastGhostArrowShowTime = 0;
             ShowGhostArrowUntil = 0;
+            SpiritualistId = playerId;
         }
 
         public static void OnReportDeadBody(NetworkedPlayerInfo target)
@@ -119,12 +120,12 @@ namespace EHR.Crewmate
             }
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (Main.PlayerStates[seer.PlayerId].Role is not Spiritualist { IsEnable: true } st || !seer.IsAlive()) return string.Empty;
+            if (!seer.IsAlive() || seer.PlayerId != SpiritualistId) return string.Empty;
             if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
             if (GameStates.IsMeeting) return string.Empty;
-            return SpiritualistTarget != byte.MaxValue && st.ShowArrow ? Utils.ColorString(seer.GetRoleColor(), TargetArrow.GetArrows(seer, SpiritualistTarget)) : string.Empty;
+            return SpiritualistTarget != byte.MaxValue && ShowArrow ? Utils.ColorString(seer.GetRoleColor(), TargetArrow.GetArrows(seer, SpiritualistTarget)) : string.Empty;
         }
 
         public static void RemoveTarget()

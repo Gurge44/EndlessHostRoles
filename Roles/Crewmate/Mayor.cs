@@ -68,7 +68,7 @@ namespace EHR.Crewmate
             }
         }
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(9500, TabGroup.CrewmateRoles, CustomRoles.Mayor);
             MayorAdditionalVote = new IntegerOptionItem(9510, "MayorAdditionalVote", new(0, 90, 1), 3, TabGroup.CrewmateRoles)

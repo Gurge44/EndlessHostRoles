@@ -16,12 +16,12 @@ internal class MakePublicPatch
 {
     public static bool Prefix()
     {
-        if (ModUpdater.isBroken || (ModUpdater.hasUpdate && ModUpdater.forceUpdate) || !VersionChecker.IsSupported)
+        if (ModUpdater.IsBroken || (ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || !VersionChecker.IsSupported)
         {
             var message = string.Empty;
             if (!VersionChecker.IsSupported) message = GetString("UnsupportedVersion");
-            if (ModUpdater.isBroken) message = GetString("ModBrokenMessage");
-            if (ModUpdater.hasUpdate) message = GetString("CanNotJoinPublicRoomNoLatest");
+            if (ModUpdater.IsBroken) message = GetString("ModBrokenMessage");
+            if (ModUpdater.HasUpdate) message = GetString("CanNotJoinPublicRoomNoLatest");
             Logger.Info(message, "MakePublicPatch");
             Logger.SendInGame(message);
             return false;
@@ -37,7 +37,7 @@ internal class MMOnlineManagerStartPatch
 {
     public static void Postfix()
     {
-        if (!((ModUpdater.hasUpdate && ModUpdater.forceUpdate) || ModUpdater.isBroken)) return;
+        if (!((ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || ModUpdater.IsBroken)) return;
         var obj = GameObject.Find("FindGameButton");
         if (obj)
         {
@@ -45,7 +45,7 @@ internal class MMOnlineManagerStartPatch
             var textObj = Object.Instantiate(obj.transform.FindChild("Text_TMP").GetComponent<TextMeshPro>());
             textObj.transform.position = new(1f, -0.3f, 0);
             textObj.name = "CanNotJoinPublic";
-            var message = ModUpdater.isBroken
+            var message = ModUpdater.IsBroken
                 ? $"<size=2>{Utils.ColorString(Color.red, GetString("ModBrokenMessage"))}</size>"
                 : $"<size=2>{Utils.ColorString(Color.red, GetString("CanNotJoinPublicRoomNoLatest"))}</size>";
             LateTask.New(() => { textObj.text = message; }, 0.01f, "CanNotJoinPublic");
@@ -143,7 +143,7 @@ internal class InnerNetObjectSerializePatch
     }
 }
 
-public class InnerNetClientPatch
+public static class InnerNetClientPatch
 {
     private static byte Timer;
 
@@ -313,9 +313,46 @@ public class InnerNetClientPatch
 [HarmonyPatch(typeof(GameData), nameof(GameData.DirtyAllData))]
 internal class DirtyAllDataPatch
 {
-    // Currently this function only occurs in CreatePlayer.
-    // It's believed to lag the host, delay the PlayerControl spawn mesasge, blackout new clients
+    // Currently, this function only occurs in CreatePlayer.
+    // It's believed to lag the host, delay the PlayerControl spawn message, blackout new clients
     // and send huge packets to all clients while there's completely no need to run this.
     // Temporarily disable it until Innersloth gets a better fix.
     public static bool Prefix() => false;
+}
+
+[HarmonyPatch]
+internal class AuthTimeoutPatch
+{
+    [HarmonyPatch(typeof(AuthManager._CoConnect_d__4), nameof(AuthManager._CoConnect_d__4.MoveNext))]
+    [HarmonyPatch(typeof(AuthManager._CoWaitForNonce_d__6), nameof(AuthManager._CoWaitForNonce_d__6.MoveNext))]
+    [HarmonyPrefix]
+    // From Reactor.gg
+    // https://github.com/NuclearPowered/Reactor/blob/master/Reactor/Patches/Miscellaneous/CustomServersPatch.cs
+    public static bool CoWaitforNoncePrefix(ref bool __result)
+    {
+        if (GameStates.IsVanillaServer)
+        {
+            return true;
+        }
+
+        __result = false;
+        return false;
+    }
+
+    // If you don't patch this, you still need to wait for 5s.
+    // I have no idea why this is happening
+    [HarmonyPatch(typeof(AmongUsClient._CoJoinOnlinePublicGame_d__1), nameof(AmongUsClient._CoJoinOnlinePublicGame_d__1.MoveNext))]
+    [HarmonyPrefix]
+    public static void EnableUdpMatchmakingPrefix(AmongUsClient._CoJoinOnlinePublicGame_d__1 __instance)
+    {
+        // Skip to state 1, which just calls CoJoinOnlineGameDirect
+        if (__instance.__1__state == 0 && !ServerManager.Instance.IsHttp)
+        {
+            __instance.__1__state = 1;
+            __instance.__8__1 = new()
+            {
+                matchmakerToken = string.Empty,
+            };
+        }
+    }
 }

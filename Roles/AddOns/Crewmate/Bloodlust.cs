@@ -13,7 +13,7 @@ namespace EHR.AddOns.Crewmate
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(Id, CustomRoles.Bloodlust);
-            KCD = new FloatOptionItem(Id + 3, "KillCooldown", new(0f, 60f, 2.5f), 30f, TabGroup.Addons)
+            KCD = new FloatOptionItem(Id + 6, "KillCooldown", new(0f, 60f, 2.5f), 30f, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bloodlust])
                 .SetValueFormat(OptionFormat.Seconds);
             CanVent = new BooleanOptionItem(Id + 4, "CanVent", true, TabGroup.Addons)

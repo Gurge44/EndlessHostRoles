@@ -15,7 +15,7 @@
             On = false;
         }
 
-        public static void SetupCustomOption() => Options.SetupRoleOptions(642630, TabGroup.CrewmateRoles, CustomRoles.Nightmare);
+        public override void SetupCustomOption() => Options.SetupRoleOptions(642630, TabGroup.CrewmateRoles, CustomRoles.Nightmare);
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {

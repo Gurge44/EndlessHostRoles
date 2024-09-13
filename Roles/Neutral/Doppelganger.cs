@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using EHR.Impostor;
 using EHR.Modules;
@@ -35,9 +36,9 @@ public class Doppelganger : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Doppelganger);
+        SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Doppelganger);
         MaxSteals = new IntegerOptionItem(Id + 10, "DoppelMaxSteals", new(1, 14, 1), 9, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
         KillCooldown = new FloatOptionItem(Id + 11, "KillCooldown", new(0f, 180f, 0.5f), 20f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger])
             .SetValueFormat(OptionFormat.Seconds);
@@ -201,16 +202,24 @@ public class Doppelganger : RoleBase
 
     public override void OnReportDeadBody()
     {
-        if (ResetMode.GetValue() == 1 && TotalSteals[DGId] > 0)
+        try
         {
-            var pc = Utils.GetPlayerById(DGId);
-            var currentTarget = Main.AllPlayerControls.FirstOrDefault(x => x.GetRealName() == DoppelVictim[pc.PlayerId]);
-            if (currentTarget != null)
+            if (ResetMode.GetValue() == 1 && TotalSteals[DGId] > 0)
             {
-                RpcChangeSkin(currentTarget, DoppelPresentSkin[currentTarget.PlayerId]);
-                RpcChangeSkin(pc, DoppelDefaultSkin[pc.PlayerId]);
-                DoppelVictim[pc.PlayerId] = string.Empty;
+                var pc = Utils.GetPlayerById(DGId);
+                if (pc == null) return;
+                var currentTarget = Main.AllPlayerControls.FirstOrDefault(x => x?.GetRealName() == DoppelVictim[pc.PlayerId]);
+                if (currentTarget != null)
+                {
+                    RpcChangeSkin(currentTarget, DoppelPresentSkin[currentTarget.PlayerId]);
+                    RpcChangeSkin(pc, DoppelDefaultSkin[pc.PlayerId]);
+                    DoppelVictim[pc.PlayerId] = string.Empty;
+                }
             }
+        }
+        catch (Exception e)
+        {
+            Utils.ThrowException(e);
         }
     }
 

@@ -20,7 +20,7 @@ public class Oracle : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Oracle);
         CheckLimitOpt = new IntegerOptionItem(Id + 10, "OracleSkillLimit", new(0, 10, 1), 0, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Oracle])
@@ -49,7 +49,7 @@ public class Oracle : RoleBase
         playerId.SetAbilityUseLimit(CheckLimitOpt.GetInt());
     }
 
-    public static bool OnVote(PlayerControl player, PlayerControl target)
+    public override bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null) return false;
         if (didVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
@@ -81,21 +81,28 @@ public class Oracle : RoleBase
             if (random_number_1 <= FailChance.GetInt())
             {
                 int random_number_2 = IRandom.Instance.Next(1, 3);
-                switch (text)
+                text = text switch
                 {
-                    case "Crew":
-                        if (random_number_2 == 1) text = "Neut";
-                        else if (random_number_2 == 2) text = "Imp";
-                        break;
-                    case "Neut":
-                        if (random_number_2 == 1) text = "Crew";
-                        if (random_number_2 == 2) text = "Imp";
-                        break;
-                    case "Imp":
-                        if (random_number_2 == 1) text = "Neut";
-                        if (random_number_2 == 2) text = "Crew";
-                        break;
-                }
+                    "Crew" => random_number_2 switch
+                    {
+                        1 => "Neut",
+                        2 => "Imp",
+                        _ => text
+                    },
+                    "Neut" => random_number_2 switch
+                    {
+                        1 => "Crew",
+                        2 => "Imp",
+                        _ => text
+                    },
+                    "Imp" => random_number_2 switch
+                    {
+                        1 => "Neut",
+                        2 => "Crew",
+                        _ => text
+                    },
+                    _ => text
+                };
             }
         }
 

@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
 using EHR.Crewmate;
-using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
 using InnerNet;
@@ -53,6 +53,18 @@ public class PlayerState(byte playerId)
         WrongAnswer,
         Consumed,
         BadLuck,
+        Asthma,
+        Assumed,
+        Negotiation,
+
+        // Natural Disasters
+        Meteor,
+        Lava,
+        Tornado,
+        Lightning,
+        Drowned,
+        Sunken,
+        Collapsed,
 
         etc = -1
     }
@@ -60,14 +72,13 @@ public class PlayerState(byte playerId)
     public readonly PlayerControl Player = Utils.GetPlayerById(playerId, fast: false);
 
     private readonly byte PlayerId = playerId;
-    public CountTypes countTypes = CountTypes.OutOfGame;
+    public readonly List<CustomRoles> SubRoles = [];
+    public readonly Dictionary<byte, string> TargetColorData = [];
+    public CountTypes countTypes = CountTypes.Crew;
     public PlainShipRoom LastRoom;
     public CustomRoles MainRole = CustomRoles.NotAssigned;
-    public (DateTime TIMESTAMP, byte ID) RealKiller = (DateTime.MinValue, byte.MaxValue);
+    public (DateTime TimeStamp, byte ID) RealKiller = (DateTime.MinValue, byte.MaxValue);
     public RoleBase Role = new VanillaRole();
-    public List<CustomRoles> SubRoles = [];
-    public Dictionary<byte, string> TargetColorData = [];
-    public TaskState taskState = new();
     public bool IsDead { get; set; }
 #pragma warning disable IDE1006 // Naming Styles
     // ReSharper disable once InconsistentNaming
@@ -76,39 +87,29 @@ public class PlayerState(byte playerId)
     public bool IsBlackOut { get; set; }
 
     public bool IsSuicide => deathReason == DeathReason.Suicide;
-    public TaskState TaskState => taskState;
-
-    public CustomRoles GetCustomRole()
-    {
-        var RoleInfo = Utils.GetPlayerInfoById(PlayerId);
-        return RoleInfo.Role == null
-            ? MainRole
-            : RoleInfo.Role.Role switch
-            {
-                RoleTypes.Crewmate => CustomRoles.Crewmate,
-                RoleTypes.Engineer => CustomRoles.Engineer,
-                RoleTypes.Scientist => CustomRoles.Scientist,
-                RoleTypes.GuardianAngel => CustomRoles.GuardianAngel,
-                RoleTypes.Impostor => CustomRoles.Impostor,
-                RoleTypes.Shapeshifter => CustomRoles.Shapeshifter,
-                _ => CustomRoles.Crewmate
-            };
-    }
+    public TaskState TaskState { get; set; } = new();
 
     public void SetMainRole(CustomRoles role)
     {
-        countTypes = role switch
+        countTypes = role.GetCountTypes();
+
+        if (SubRoles.Contains(CustomRoles.Recruit))
         {
-            CustomRoles.DarkHide => !DarkHide.SnatchesWin.GetBool() ? CountTypes.DarkHide : CountTypes.Crew,
-            CustomRoles.Arsonist => Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Arsonist : CountTypes.Crew,
-            _ when SubRoles.Contains(CustomRoles.Recruit) => Jackal.SidekickCountMode.GetValue() switch
+            countTypes = Jackal.SidekickCountMode.GetValue() switch
             {
                 0 => CountTypes.Jackal,
                 1 => CountTypes.OutOfGame,
                 _ => role.GetCountTypes()
-            },
-            _ => role.GetCountTypes()
-        };
+            };
+        }
+
+        if (CustomTeamManager.GetCustomTeam(PlayerId) != null && !CustomTeamManager.IsSettingEnabledForPlayerTeam(PlayerId, CTAOption.WinWithOriginalTeam))
+            countTypes = CountTypes.CustomTeam;
+
+        SubRoles.ForEach(SetAddonCountTypes);
+
+        if (!Player.HasKillButton() && role == CustomRoles.Refugee)
+            Player.RpcChangeRoleBasis(CustomRoles.Refugee);
 
         Role = role.GetRoleClass();
 
@@ -121,22 +122,29 @@ public class PlayerState(byte playerId)
 
         Role.Add(PlayerId);
 
-        Logger.Info($"ID {PlayerId} ({Utils.GetPlayerById(PlayerId)?.GetRealName()}) => {role}", "SetMainRole");
+        Logger.Info($"ID {PlayerId} ({Player?.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetMainRole");
 
         if (!AmongUsClient.Instance.AmHost) return;
 
         if (!Main.HasJustStarted)
         {
-            var pc = Utils.GetPlayerById(PlayerId);
-            pc.ResetKillCooldown();
-            pc.SyncSettings();
-            Utils.NotifyRoles(SpecifySeer: pc);
-            Utils.NotifyRoles(SpecifyTarget: pc);
+            Player.ResetKillCooldown();
+            Player.SyncSettings();
+            Utils.NotifyRoles(SpecifySeer: Player);
+            Utils.NotifyRoles(SpecifyTarget: Player);
             if (PlayerId == PlayerControl.LocalPlayer.PlayerId && GameStates.IsInTask)
             {
                 HudManager.Instance.SetHudActive(true);
                 RemoveDisableDevicesPatch.UpdateDisableDevices();
             }
+
+            if (Lyncher.On) Lyncher.Instances.ForEach(x => x.OnRoleChange(PlayerId));
+            if (!role.Is(Team.Impostor)) SubRoles.ToArray().DoIf(x => x.IsImpOnlyAddon(), RemoveSubRole);
+            if (role is CustomRoles.Sidekick or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee) SubRoles.ToArray().DoIf(StartGameHostPatch.BasisChangingAddons.ContainsKey, RemoveSubRole);
+            if (role == CustomRoles.Sidekick && Jackal.Instances.FindFirst(x => x.SidekickId == byte.MaxValue || x.SidekickId.GetPlayer() == null, out var jackal))
+                jackal.SidekickId = PlayerId;
+
+            Player.CheckAndSetUnshiftState();
         }
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
@@ -155,13 +163,21 @@ public class PlayerState(byte playerId)
         if (!SubRoles.Contains(role))
             SubRoles.Add(role);
 
+        SetAddonCountTypes(role);
+
+        Logger.Info($" ID {PlayerId} ({Player?.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetSubRole");
+    }
+
+    private void SetAddonCountTypes(CustomRoles role)
+    {
         switch (role)
         {
             case CustomRoles.Bloodlust:
                 countTypes = CountTypes.Bloodlust;
+                SubRoles.Remove(CustomRoles.Stressed);
                 break;
             case CustomRoles.Madmate:
-                TaskState.hasTasks = false;
+                TaskState.HasTasks = false;
                 TaskState.AllTasksCount = 0;
                 countTypes = Options.MadmateCountMode.GetInt() switch
                 {
@@ -176,9 +192,12 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Undead);
+                SubRoles.Remove(CustomRoles.Stressed);
+                Utils.NotifyRoles(SpecifySeer: Player);
+                Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Charmed:
-                TaskState.hasTasks = false;
+                TaskState.HasTasks = false;
                 TaskState.AllTasksCount = 0;
                 countTypes = Succubus.CharmedCountMode.GetInt() switch
                 {
@@ -193,9 +212,12 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Undead);
+                SubRoles.Remove(CustomRoles.Stressed);
+                Utils.NotifyRoles(SpecifySeer: Player);
+                Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Undead:
-                TaskState.hasTasks = false;
+                TaskState.HasTasks = false;
                 TaskState.AllTasksCount = 0;
                 countTypes = Necromancer.UndeadCountMode.GetInt() switch
                 {
@@ -210,12 +232,15 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Charmed);
+                SubRoles.Remove(CustomRoles.Stressed);
+                Utils.NotifyRoles(SpecifySeer: Player);
+                Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.LastImpostor:
                 SubRoles.Remove(CustomRoles.Mare);
                 break;
             case CustomRoles.Recruit:
-                TaskState.hasTasks = false;
+                TaskState.HasTasks = false;
                 TaskState.AllTasksCount = 0;
                 countTypes = Jackal.SidekickCountMode.GetInt() switch
                 {
@@ -231,9 +256,11 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Undead);
+                Utils.NotifyRoles(SpecifySeer: Player);
+                Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
             case CustomRoles.Contagious:
-                TaskState.hasTasks = false;
+                TaskState.HasTasks = false;
                 TaskState.AllTasksCount = 0;
                 countTypes = Virus.ContagiousCountMode.GetInt() switch
                 {
@@ -248,6 +275,9 @@ public class PlayerState(byte playerId)
                 SubRoles.Remove(CustomRoles.Rascal);
                 SubRoles.Remove(CustomRoles.Loyal);
                 SubRoles.Remove(CustomRoles.Undead);
+                SubRoles.Remove(CustomRoles.Stressed);
+                Utils.NotifyRoles(SpecifySeer: Player);
+                Utils.NotifyRoles(SpecifyTarget: Player);
                 break;
         }
     }
@@ -256,7 +286,7 @@ public class PlayerState(byte playerId)
     {
         SubRoles.Remove(role);
 
-        if (role is CustomRoles.Flashman or CustomRoles.Dynamo)
+        if (role is CustomRoles.Flashman or CustomRoles.Dynamo or CustomRoles.Spurt)
         {
             Main.AllPlayerSpeed[PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
             PlayerGameOptionsSender.SetDirty(PlayerId);
@@ -275,10 +305,10 @@ public class PlayerState(byte playerId)
         }
     }
 
-    public void InitTask(PlayerControl player) => taskState.Init(player);
-    public void UpdateTask(PlayerControl player) => taskState.Update(player);
+    public void InitTask(PlayerControl player) => TaskState.Init(player);
+    public void UpdateTask(PlayerControl player) => TaskState.Update(player);
 
-    public byte GetRealKiller() => IsDead && RealKiller.TIMESTAMP != DateTime.MinValue ? RealKiller.ID : byte.MaxValue;
+    public byte GetRealKiller() => IsDead && RealKiller.TimeStamp != DateTime.MinValue ? RealKiller.ID : byte.MaxValue;
     public int GetKillCount(bool ExcludeSelfKill = false) => Main.PlayerStates.Values.Where(state => !(ExcludeSelfKill && state.PlayerId == PlayerId) && state.GetRealKiller() == PlayerId).ToArray().Length;
 }
 
@@ -287,9 +317,9 @@ public class TaskState
     public static int InitialTotalTasks;
     public int AllTasksCount = -1;
     public int CompletedTasksCount;
-    public bool hasTasks;
+    public bool HasTasks;
     public int RemainingTasksCount => AllTasksCount - CompletedTasksCount;
-    public bool IsTaskFinished => RemainingTasksCount <= 0 && hasTasks;
+    public bool IsTaskFinished => RemainingTasksCount <= 0 && HasTasks;
 
     public void Init(PlayerControl player)
     {
@@ -301,7 +331,7 @@ public class TaskState
             return;
         }
 
-        hasTasks = true;
+        HasTasks = true;
         AllTasksCount = player.Data.Tasks.Count;
         Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Init");
     }
@@ -314,7 +344,7 @@ public class TaskState
 
         if (AllTasksCount == -1) Init(player);
 
-        if (!hasTasks) return;
+        if (!HasTasks) return;
 
         if (AmongUsClient.Instance.AmHost)
         {
@@ -326,22 +356,8 @@ public class TaskState
                 SpeedrunManager.ResetTimer(player);
             }
 
-            if (player.Is(CustomRoles.Unlucky) && alive)
-            {
-                var Ue = IRandom.Instance;
-                if (Ue.Next(0, 100) < Options.UnluckyTaskSuicideChance.GetInt())
-                {
-                    player.Suicide();
-                }
-            }
-
-            if (alive && Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId))
-            {
-                Mastermind.OnManipulatedPlayerTaskComplete(player);
-            }
-
             // Ability Use Gain with this task completed
-            if (alive)
+            if (alive && !Main.HasJustStarted)
             {
                 switch (player.GetCustomRole())
                 {
@@ -372,7 +388,9 @@ public class TaskState
 
             var addons = Main.PlayerStates[player.PlayerId].SubRoles;
 
+            if (addons.Contains(CustomRoles.Deadlined)) Deadlined.SetDone(player);
             if (addons.Contains(CustomRoles.Stressed)) Stressed.OnTaskComplete(player);
+            if (addons.Contains(CustomRoles.Unlucky) && alive && IRandom.Instance.Next(0, 100) < Options.UnluckyTaskSuicideChance.GetInt()) player.Suicide();
             if (GhostRolesManager.AssignedGhostRoles.TryGetValue(player.PlayerId, out var ghostRole))
             {
                 if (ghostRole is { Role: CustomRoles.Specter, Instance: Specter specter } && (CompletedTasksCount + 1 >= AllTasksCount)) specter.OnFinishedTasks(player);
@@ -449,10 +467,25 @@ public static class GameStates
 
     public static bool IsCountDown => GameStartManager.InstanceExists && GameStartManager.Instance.startState == GameStartManager.StartingStates.Countdown;
 
+    public static bool IsVanillaServer
+    {
+        get
+        {
+            if (!IsOnlineGame) return false;
+
+            const string domain = "among.us";
+
+            // From Reactor.gg
+            return ServerManager.Instance.CurrentRegion?.TryCast<StaticHttpRegionInfo>() is { } regionInfo &&
+                   regionInfo.PingServer.EndsWith(domain, StringComparison.Ordinal) &&
+                   regionInfo.Servers.All(serverInfo => serverInfo.Ip.EndsWith(domain, StringComparison.Ordinal));
+        }
+    }
+
     /**********TOP ZOOM.cs***********/
     public static bool IsShip => ShipStatus.Instance != null;
-    public static bool IsCanMove => PlayerControl.LocalPlayer?.CanMove is true;
-    public static bool IsDead => PlayerControl.LocalPlayer?.Data?.IsDead is true;
+    public static bool IsCanMove => PlayerControl.LocalPlayer != null && PlayerControl.LocalPlayer.CanMove;
+    public static bool IsDead => PlayerControl.LocalPlayer != null && PlayerControl.LocalPlayer.Data != null && PlayerControl.LocalPlayer.Data.IsDead;
 }
 
 public static class MeetingStates

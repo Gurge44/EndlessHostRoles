@@ -12,16 +12,16 @@ namespace EHR.Neutral;
 public class Werewolf : RoleBase
 {
     private const int Id = 12850;
-    public static List<byte> playerIdList = [];
+    private static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
     private static OptionItem HasImpostorVision;
-    public static OptionItem RampageCD;
-    public static OptionItem RampageDur;
+    private static OptionItem RampageCD;
+    private static OptionItem RampageDur;
     private static int CD;
 
     private static long lastFixedTime;
-    public long lastTime;
+    private long lastTime;
 
     private long RampageTime;
     private byte WWId;
@@ -31,9 +31,9 @@ public class Werewolf : RoleBase
     bool CanRampage => GameStates.IsInTask && RampageTime == -10 && lastTime == -10;
     bool IsRampaging => RampageTime != -10;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Werewolf);
+        SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Werewolf);
         KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf])
             .SetValueFormat(OptionFormat.Seconds);
         HasImpostorVision = new BooleanOptionItem(Id + 11, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf]);
@@ -59,13 +59,30 @@ public class Werewolf : RoleBase
 
         RampageTime = -10;
         lastTime = -10;
-        CD = 0;
+        CD = StartingKillCooldown.GetInt();
+
+        LateTask.New(() =>
+        {
+            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
+                Utils.GetPlayerById(playerId).RpcResetAbilityCooldown();
+        }, 9f, log: false);
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
-    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanRampage || IsRampaging || pc.inVent;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => (CanRampage && (!UseUnshiftTrigger.GetBool() || !UseUnshiftTriggerForNKs.GetBool())) || IsRampaging || pc.inVent;
     public override bool CanUseKillButton(PlayerControl pc) => IsRampaging;
+
+    public override void ApplyGameOptions(IGameOptions opt, byte id)
+    {
+        opt.SetVision(HasImpostorVision.GetBool());
+        if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+            AURoleOptions.PhantomCooldown = 1f;
+        if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
+            AURoleOptions.ShapeshifterCooldown = RampageDur.GetFloat() + 0.5f;
+
+        AURoleOptions.EngineerCooldown = 0f;
+        AURoleOptions.EngineerInVentMaxTime = 0f;
+    }
 
     void SendRPC()
     {
@@ -92,7 +109,7 @@ public class Werewolf : RoleBase
 
     public override void OnFixedUpdate(PlayerControl player)
     {
-        if (!GameStates.IsInTask || !IsEnable || player == null) return;
+        if (!GameStates.IsInTask || !IsEnable || Main.HasJustStarted || player == null) return;
 
         var now = Utils.TimeStamp;
 
@@ -108,7 +125,9 @@ public class Werewolf : RoleBase
             if (lastTime + (long)RampageCD.GetFloat() < now)
             {
                 lastTime = -10;
-                if (!player.IsModClient()) player.Notify(GetString("WWCanRampage"));
+                var unshift = UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool();
+                if (!player.IsModClient()) player.Notify(GetString(unshift ? "WWCanRampageUnshift" : "WWCanRampage"));
+                player.RpcChangeRoleBasis(unshift ? CustomRoles.Werewolf : CustomRoles.EngineerEHR);
                 SendRPC();
                 CD = 0;
             }
@@ -124,6 +143,7 @@ public class Werewolf : RoleBase
                 case < 0:
                     lastTime = now;
                     player.Notify(GetString("WWRampageOut"));
+                    player.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
                     RampageTime = -10;
                     SendRPC();
                     refresh = true;
@@ -140,7 +160,29 @@ public class Werewolf : RoleBase
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         if (pc == null) return;
+        Rampage(pc);
+    }
 
+    public override void OnPet(PlayerControl pc)
+    {
+        Rampage(pc);
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        Rampage(pc);
+        return false;
+    }
+
+    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+    {
+        if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+        Rampage(shapeshifter);
+        return false;
+    }
+
+    private void Rampage(PlayerControl pc)
+    {
         if (!AmongUsClient.Instance.AmHost || IsRampaging) return;
         LateTask.New(() =>
         {
@@ -149,13 +191,14 @@ public class Werewolf : RoleBase
                 RampageTime = Utils.TimeStamp;
                 SendRPC();
                 pc.Notify(GetString("WWRampaging"), RampageDur.GetFloat());
+                pc.RpcChangeRoleBasis(CustomRoles.Werewolf);
             }
         }, 0.5f, "Werewolf Vent");
     }
 
-    public override string GetSuffix(PlayerControl pc, PlayerControl _, bool hud = false, bool m = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (!hud || pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || Main.PlayerStates[pc.PlayerId].Role is not Werewolf { IsEnable: true } ww) return string.Empty;
+        if (!hud || seer == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || Main.PlayerStates[seer.PlayerId].Role is not Werewolf { IsEnable: true } ww) return string.Empty;
         var str = new StringBuilder();
         if (ww.IsRampaging)
         {
@@ -165,11 +208,11 @@ public class Werewolf : RoleBase
         else if (ww.lastTime != -10)
         {
             var cooldown = ww.lastTime + (long)RampageCD.GetFloat() - Utils.TimeStamp;
-            str.Append(string.Format(GetString("WWCD"), cooldown + 2));
+            str.Append(string.Format(GetString("WWCD"), cooldown + 1));
         }
         else
         {
-            str.Append(GetString("WWCanRampage"));
+            str.Append(GetString(UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool() ? "WWCanRampageUnshift" : "WWCanRampage"));
         }
 
         return str.ToString();

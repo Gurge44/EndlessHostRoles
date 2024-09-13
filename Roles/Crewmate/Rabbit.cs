@@ -14,7 +14,7 @@ namespace EHR.Crewmate
         private static int Id => 643330;
         public override bool IsEnable => RabbitStates.Count > 0;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Rabbit);
             OptionTaskTrigger = new IntegerOptionItem(Id + 2, "RabbitMinTasks", new(0, 90, 1), 3, TabGroup.CrewmateRoles)
@@ -43,11 +43,11 @@ namespace EHR.Crewmate
             state.OnTaskComplete();
         }
 
-        public override string GetSuffix(PlayerControl pc, PlayerControl tar, bool HUD = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (pc == null || pc.PlayerId != tar.PlayerId || !RabbitStates.TryGetValue(pc.PlayerId, out RabbitState state)) return string.Empty;
+            if (seer == null || seer.PlayerId != target.PlayerId || !RabbitStates.TryGetValue(seer.PlayerId, out RabbitState state)) return string.Empty;
             string suffix = state.Suffix;
-            return HUD ? $"<size=200%>{suffix}</size>" : suffix;
+            return hud ? $"<size=200%>{suffix}</size>" : suffix;
         }
 
         class RabbitState(PlayerControl player)

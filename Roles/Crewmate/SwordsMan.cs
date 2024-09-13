@@ -17,7 +17,7 @@ public class SwordsMan : RoleBase
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.SwordsMan);
         CanVent = new BooleanOptionItem(Id + 11, "CanVent", false, TabGroup.CrewmateRoles)
@@ -43,7 +43,7 @@ public class SwordsMan : RoleBase
         => !Main.PlayerStates[pc.PlayerId].IsDead
            && !IsKilled(pc.PlayerId);
 
-    public static bool IsKilled(byte playerId) => Killed.Contains(playerId);
+    private static bool IsKilled(byte playerId) => Killed.Contains(playerId);
 
     public override void Add(byte playerId)
     {
@@ -72,6 +72,7 @@ public class SwordsMan : RoleBase
         SendRPC(killer.PlayerId);
         Killed.Add(killer.PlayerId);
         SetKillCooldown(killer.PlayerId);
+        killer.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: killer);
     }
 }

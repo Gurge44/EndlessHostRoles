@@ -19,7 +19,7 @@ namespace EHR.Neutral
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(18400, TabGroup.NeutralRoles, CustomRoles.Revolutionist);
             RevolutionistDrawTime = new FloatOptionItem(18410, "RevolutionistDrawTime", new(0f, 90f, 1f), 3f, TabGroup.NeutralRoles)
@@ -66,7 +66,7 @@ namespace EHR.Neutral
 
         public override bool CanUseSabotage(PlayerControl pc)
         {
-            return false;
+            return pc.Is(CustomRoles.Mischievous);
         }
 
         public override void SetKillCooldown(byte id)

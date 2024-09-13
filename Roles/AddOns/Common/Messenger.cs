@@ -9,7 +9,7 @@ namespace EHR.AddOns.Common
 
         public void SetupCustomOption()
         {
-            Options.SetupAdtRoleOptions(649394, CustomRoles.Messenger, canSetNum: true, teamSpawnOptions: true);
+            Options.SetupAdtRoleOptions(649393, CustomRoles.Messenger, canSetNum: true, teamSpawnOptions: true);
         }
     }
 }

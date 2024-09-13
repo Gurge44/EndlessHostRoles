@@ -22,10 +22,11 @@ namespace EHR.Neutral
         private int Bullets;
         private float KCD;
         private long LastRoll;
+        byte RouleteGrandeurId;
 
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.RouleteGrandeur);
             KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
@@ -49,17 +50,26 @@ namespace EHR.Neutral
             Bullets = 1;
             LastRoll = 0;
             KCD = KillCooldown.GetFloat();
+            RouleteGrandeurId = playerId;
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KCD;
-        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => true;
-        public override bool CanUseSabotage(PlayerControl pc) => true;
+        public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (!(Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()));
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
+        {
+            opt.SetVision(HasImpostorVision.GetBool());
+            if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool())
+                AURoleOptions.PhantomCooldown = 1f;
+            if (Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool())
+                AURoleOptions.ShapeshifterCooldown = 1f;
+        }
 
         public override void OnExitVent(PlayerControl pc, Vent vent)
         {
             Bullets = Bullets >= BulletCount - 1 ? 1 : Bullets + 1;
-            Utils.SendRPC(CustomRPC.SyncRouleteGrandeur, pc.PlayerId, 0, Bullets);
+            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 0, Bullets);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
@@ -74,12 +84,25 @@ namespace EHR.Neutral
             Roll(pc);
         }
 
+        public override bool OnVanish(PlayerControl pc)
+        {
+            Roll(pc);
+            return false;
+        }
+
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
+            Roll(shapeshifter);
+            return false;
+        }
+
         void Roll(PlayerControl pc)
         {
             long now = Utils.TimeStamp;
             if (now - LastRoll < 5) return;
             LastRoll = now;
-            Utils.SendRPC(CustomRPC.SyncRouleteGrandeur, pc.PlayerId, 1, LastRoll);
+            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, LastRoll);
 
             string result = new(NoHitIcon, BulletCount);
             result = $"<#ffffff>{result}</color>";
@@ -129,9 +152,9 @@ namespace EHR.Neutral
             }
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || !seer.Is(CustomRoles.RouleteGrandeur) || isMeeting || (seer.IsModClient() && !isHUD) || (!isHUD && Utils.TimeStamp - LastRoll < 15)) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != RouleteGrandeurId || meeting || (seer.IsModClient() && !hud) || (!hud && Utils.TimeStamp - LastRoll < 15)) return string.Empty;
             return string.Format(Translator.GetString("RG.Suffix"), Bullets);
         }
     }

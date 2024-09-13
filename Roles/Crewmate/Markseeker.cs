@@ -13,7 +13,7 @@ namespace EHR.Crewmate
         public bool TargetRevealed;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Markseeker);
             CancelVote = Options.CreateVoteCancellingUseSetting(Id + 2, CustomRoles.Markseeker, TabGroup.CrewmateRoles);
@@ -33,11 +33,11 @@ namespace EHR.Crewmate
             PlayerIdList = [];
         }
 
-        public static bool OnVote(PlayerControl player, PlayerControl target)
+        public override bool OnVote(PlayerControl player, PlayerControl target)
         {
-            if (player == null || target == null || player.PlayerId == target.PlayerId || Main.PlayerStates[player.PlayerId].Role is not Markseeker { IsEnable: true, MarkedId: byte.MaxValue } ms || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
+            if (player == null || target == null || player.PlayerId == target.PlayerId || MarkedId != byte.MaxValue || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
 
-            ms.MarkedId = target.PlayerId;
+            MarkedId = target.PlayerId;
 
             Main.DontCancelVoteList.Add(player.PlayerId);
             return true;

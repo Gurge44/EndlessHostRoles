@@ -15,7 +15,7 @@ namespace EHR.AddOns.Common
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(13900, CustomRoles.DoubleShot, canSetNum: true, teamSpawnOptions: true);
-            MaxTries = new IntegerOptionItem(13906, "DoubleShot.MaxTries", new(1, 30, 1), 1, TabGroup.Addons)
+            MaxTries = new IntegerOptionItem(13907, "DoubleShot.MaxTries", new(1, 30, 1), 1, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.DoubleShot])
                 .SetValueFormat(OptionFormat.Times);
         }
@@ -36,7 +36,7 @@ namespace EHR.AddOns.Common
                 return true;
             }
 
-            if (tries <= MaxTries.GetInt())
+            if (tries < MaxTries.GetInt())
             {
                 Tries[guesser.PlayerId] = ++tries;
                 LogAndNotify();
@@ -48,7 +48,7 @@ namespace EHR.AddOns.Common
 
             void LogAndNotify()
             {
-                Logger.Msg($"{guesser.PlayerId} : {Tries[guesser.PlayerId]}", "GuesserDoubleShotTries");
+                Logger.Msg($"{guesser.PlayerId} : {tries}", "GuesserDoubleShotTries");
 
                 if (!isUI) Utils.SendMessage(Translator.GetString("GuessDoubleShot"), guesser.PlayerId);
                 else guesser.ShowPopUp(Translator.GetString("GuessDoubleShot"));

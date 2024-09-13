@@ -1,7 +1,7 @@
 ﻿namespace EHR.Neutral;
 
-// 来源：https://github.com/Yumenopai/TownOfHost_Y
-public class Imitator : ISettingHolder
+// Credit: https://github.com/Yumenopai/TownOfHost_Y
+public class Imitator : RoleBase
 {
     private const int Id = 11950;
 
@@ -11,7 +11,9 @@ public class Imitator : ISettingHolder
     public static OptionItem CanVent;
     public static OptionItem HasImpostorVision;
 
-    public void SetupCustomOption()
+    public override bool IsEnable => false;
+
+    public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Imitator);
         OddKillCooldown = new FloatOptionItem(Id + 10, "OddKillCooldown", new(0f, 60f, 0.5f), 27.5f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Imitator])
@@ -22,5 +24,13 @@ public class Imitator : ISettingHolder
             .SetValueFormat(OptionFormat.Seconds);
         CanVent = new BooleanOptionItem(Id + 13, "CanVent", true, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Imitator]);
         HasImpostorVision = new BooleanOptionItem(Id + 14, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Imitator]);
+    }
+
+    public override void Init()
+    {
+    }
+
+    public override void Add(byte playerId)
+    {
     }
 }

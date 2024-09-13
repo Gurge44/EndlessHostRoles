@@ -14,7 +14,7 @@ public class Marshall : RoleBase
 
     public override bool IsEnable => PlayerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Marshall);
         Enum.GetValues<SeeingTeam>().Do(x =>
@@ -42,7 +42,7 @@ public class Marshall : RoleBase
     public static bool CanSeeMarshall(PlayerControl seer)
     {
         var team = seer.GetTeam();
-        var madmate = seer.GetCustomRole().IsMadmate() || seer.Is(CustomRoles.Madmate);
+        var madmate = seer.IsMadmate();
         return team switch
         {
             Team.Crewmate when !madmate => true,

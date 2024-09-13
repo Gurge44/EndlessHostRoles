@@ -12,18 +12,18 @@ namespace EHR.Impostor
         private const int Id = 640800;
         public static List<byte> playerIdList = [];
 
-        public static OptionItem KillCooldown;
-        public static OptionItem SuccessKCD;
-        public static OptionItem ShapeshiftCooldown;
-        private byte HitmanId = byte.MaxValue;
+        private static OptionItem KillCooldown;
+        private static OptionItem SuccessKCD;
+        private static OptionItem ShapeshiftCooldown;
 
+        private byte HitmanId = byte.MaxValue;
         public byte TargetId = byte.MaxValue;
 
         public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Hitman);
+            SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Hitman);
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hitman])
                 .SetValueFormat(OptionFormat.Seconds);
             SuccessKCD = new FloatOptionItem(Id + 11, "HitmanLowKCD", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hitman])
@@ -118,7 +118,7 @@ namespace EHR.Impostor
             return false;
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != target.PlayerId) return string.Empty;
             var id = (Main.PlayerStates[seer.PlayerId].Role as Hitman)?.TargetId ?? byte.MaxValue;

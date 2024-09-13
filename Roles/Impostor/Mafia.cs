@@ -19,7 +19,7 @@ namespace EHR.Impostor
         public static Dictionary<byte, int> MafiaRevenged = [];
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(3100, TabGroup.ImpostorRoles, CustomRoles.Mafia);
             MafiaCanKillNum = new IntegerOptionItem(3200, "MafiaCanKillNum", new(0, 15, 1), 1, TabGroup.ImpostorRoles)
@@ -188,10 +188,10 @@ namespace EHR.Impostor
                 targetBox.name = "ShootButton";
                 targetBox.transform.localPosition = new(-0.95f, 0.03f, -1.31f);
                 SpriteRenderer renderer = targetBox.GetComponent<SpriteRenderer>();
-                renderer.sprite = CustomButton.Get("TargetIcon");
+                renderer.sprite = CustomButton.Get("MeetingKillButton");
                 PassiveButton button = targetBox.GetComponent<PassiveButton>();
                 button.OnClick.RemoveAllListeners();
-                button.OnClick.AddListener((Action)(() => MafiaOnClick(pva.TargetPlayerId /*, __instance*/)));
+                button.OnClick.AddListener((Action)(() => MafiaOnClick(pva.TargetPlayerId)));
             }
         }
 

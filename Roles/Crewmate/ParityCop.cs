@@ -37,7 +37,7 @@ public class ParityCop : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.ParityCop);
         TryHideMsg = new BooleanOptionItem(Id + 10, "ParityCopTryHideMsg", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
@@ -79,7 +79,7 @@ public class ParityCop : RoleBase
     public override void OnReportDeadBody()
     {
         RoundCheckLimit.Clear();
-        foreach (byte pc in playerIdList.ToArray())
+        foreach (byte pc in playerIdList)
         {
             RoundCheckLimit.Add(pc, ParityCheckLimitPerMeeting.GetInt());
         }
@@ -137,7 +137,7 @@ public class ParityCop : RoleBase
                                 if (!isUI) Utils.SendMessage(GetString("ParityCheckMax"), pc.PlayerId);
                                 else pc.ShowPopUp(GetString("ParityCheckMax"));
                                 Logger.Msg("Check attempted at max checks per game", "Parity Cop");
-                            }, 0.2f, "ParityCop");
+                            }, 0.2f, "ParityCop 0");
                         }
                         else
                         {
@@ -146,7 +146,7 @@ public class ParityCop : RoleBase
                                 if (!isUI) Utils.SendMessage(GetString("ParityCheckRound"), pc.PlayerId);
                                 else pc.ShowPopUp(GetString("ParityCheckRound"));
                                 Logger.Msg("Check attempted at max checks per meeting", "Parity Cop");
-                            }, 0.2f, "ParityCop");
+                            }, 0.2f, "ParityCop 1");
                         }
 
                         return true;
@@ -159,7 +159,7 @@ public class ParityCop : RoleBase
                             if (!isUI) Utils.SendMessage(GetString("ParityCheckSelf"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
                             else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckSelf")) + "\n" + GetString("ParityCheckTitle"));
                             Logger.Msg("Check attempted on self", "Parity Cop");
-                        }, 0.2f, "ParityCop");
+                        }, 0.2f, "ParityCop 2");
                         return true;
                     }
 
@@ -170,7 +170,7 @@ public class ParityCop : RoleBase
                             if (!isUI) Utils.SendMessage(GetString("ParityCheckReveal"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
                             else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckReveal")) + "\n" + GetString("ParityCheckTitle"));
                             Logger.Msg("Check attempted on revealed role", "Parity Cop");
-                        }, 0.2f, "ParityCop");
+                        }, 0.2f, "ParityCop 3");
                         return true;
                     }
 
@@ -181,7 +181,7 @@ public class ParityCop : RoleBase
                             if (!isUI) Utils.SendMessage(string.Format(GetString("ParityCheckTrue"), target1.GetRealName(), target2.GetRealName()), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
                             else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTrue")) + "\n" + GetString("ParityCheckTitle"));
                             Logger.Msg("Check attempt, result TRUE", "Parity Cop");
-                        }, 0.2f, "ParityCop");
+                        }, 0.2f, "ParityCop 4");
                     }
                     else
                     {
@@ -190,7 +190,7 @@ public class ParityCop : RoleBase
                             if (!isUI) Utils.SendMessage(string.Format(GetString("ParityCheckFalse"), target1.GetRealName(), target2.GetRealName()), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
                             else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckFalse")) + "\n" + GetString("ParityCheckTitle"));
                             Logger.Msg("Check attempt, result FALSE", "Parity Cop");
-                        }, 0.2f, "ParityCop");
+                        }, 0.2f, "ParityCop 5");
                     }
 
                     if (ParityCheckTargetKnow.GetBool())
@@ -215,11 +215,11 @@ public class ParityCop : RoleBase
                         if (ParityCheckRevealTargetTeam.GetBool() && pc.AllTasksCompleted())
                         {
                             string roleT1 = string.Empty, roleT2 = string.Empty;
-                            if (target1.Is(Team.Impostor) || target1.GetCustomSubRoles().Any(role => role.IsImpostorTeamV3())) roleT1 = "Impostor";
+                            if (target1.Is(Team.Impostor) || target1.GetCustomSubRoles().Any(role => role.IsImpostorTeamV2())) roleT1 = "Impostor";
                             else if (target1.Is(Team.Neutral) || target1.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2())) roleT1 = "Neutral";
                             else if (target1.Is(Team.Crewmate) && (target1.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || (target1.GetCustomSubRoles().Count == 0)))
 
-                                if (target2.Is(Team.Impostor) || target2.GetCustomSubRoles().Any(role => role.IsImpostorTeamV3())) roleT2 = "Impostor";
+                                if (target2.Is(Team.Impostor) || target2.GetCustomSubRoles().Any(role => role.IsImpostorTeamV2())) roleT2 = "Impostor";
                                 else if (target2.Is(Team.Neutral) || target2.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2())) roleT2 = "Neutral";
                                 else if (target2.Is(Team.Crewmate) && (target2.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || target2.GetCustomSubRoles().Count == 0)) roleT2 = "Crewmate";
 
@@ -228,7 +228,7 @@ public class ParityCop : RoleBase
                                 Utils.SendMessage(string.Format(GetString("ParityCopTargetReveal"), target2.GetRealName(), roleT2), target1.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
                                 Utils.SendMessage(string.Format(GetString("ParityCopTargetReveal"), target1.GetRealName(), roleT1), target2.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
                                 Logger.Msg($"check attempt, target1 notified target2 as {roleT2} and target2 notified target1 as {roleT1}", "Parity Cop");
-                            }, 0.3f, "ParityCop");
+                            }, 0.3f, "ParityCop 6");
                         }
                     }
 
@@ -243,7 +243,7 @@ public class ParityCop : RoleBase
         return true;
     }
 
-    static bool AreInSameTeam(PlayerControl first, PlayerControl second)
+    public static bool AreInSameTeam(PlayerControl first, PlayerControl second)
     {
         var firstRole = first.GetCustomRole();
         var secondRole = second.GetCustomRole();
@@ -259,24 +259,25 @@ public class ParityCop : RoleBase
 
         switch (firstRoleClass)
         {
-            case Executioner when Executioner.Target[first.PlayerId] == second.PlayerId: return true;
             case Lawyer when Lawyer.Target[first.PlayerId] == second.PlayerId: return true;
             case Totocalcio tc when tc.BetPlayer == second.PlayerId: return true;
+            case Romantic when Romantic.HasPickedPartner && Romantic.PartnerId == second.PlayerId: return true;
+            case Necromancer when secondRoleClass is Deathknight: return true;
         }
 
         switch (secondRoleClass)
         {
-            case Executioner when Executioner.Target[second.PlayerId] == first.PlayerId: return true;
             case Lawyer when Lawyer.Target[second.PlayerId] == first.PlayerId: return true;
             case Totocalcio tc when tc.BetPlayer == first.PlayerId: return true;
+            case Romantic when Romantic.HasPickedPartner && Romantic.PartnerId == first.PlayerId: return true;
+            case Necromancer when firstRoleClass is Deathknight: return true;
         }
 
         if (CustomTeamManager.AreInSameCustomTeam(first.PlayerId, second.PlayerId)) return true;
         if (firstSubRoles.Contains(CustomRoles.Bloodlust) || secondSubRoles.Contains(CustomRoles.Bloodlust)) return false;
-        if (first.IsNeutralKiller() && second.IsNeutralKiller()) return true;
         if (firstRole.IsNeutral() && secondRole.IsNeutral()) return false;
 
-        return firstTeam == secondTeam;
+        return firstTeam == secondTeam || firstRole == secondRole;
     }
 
     private static bool MsgToPlayerAndRole(string msg, out byte id1, out byte id2, out string error)
@@ -340,7 +341,7 @@ public class ParityCop : RoleBase
         if (pc == null || !pc.IsAlive() || !GameStates.IsVoting || !AmongUsClient.Instance.AmHost) return;
         if (FirstPick.TryGetValue(lpcId, out var firstPick))
         {
-            ParityCheckMsg(PlayerControl.LocalPlayer, $"/cp {playerId} {firstPick}", true);
+            ParityCheckMsg(PlayerControl.LocalPlayer, $"/cp {playerId} {firstPick}");
             FirstPick.Remove(lpcId);
         }
         else

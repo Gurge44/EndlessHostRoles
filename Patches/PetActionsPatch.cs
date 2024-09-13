@@ -1,8 +1,11 @@
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Impostor;
 using EHR.Neutral;
 using HarmonyLib;
+using UnityEngine;
 
 namespace EHR.Patches;
 
@@ -13,7 +16,7 @@ namespace EHR.Patches;
  */
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.TryPet))]
-class LocalPetPatch
+static class LocalPetPatch
 {
     private static readonly Dictionary<byte, long> LastProcess = [];
 
@@ -44,7 +47,7 @@ class LocalPetPatch
 }
 
 [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.HandleRpc))]
-class ExternalRpcPetPatch
+static class ExternalRpcPetPatch
 {
     private static readonly Dictionary<byte, long> LastProcess = [];
 
@@ -95,6 +98,12 @@ class ExternalRpcPetPatch
            )
             return;
 
+        if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag)
+        {
+            CTFManager.TryPickUpFlag(pc);
+            return;
+        }
+
         if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId))
         {
             var killTarget = SelectKillButtonTarget(pc);
@@ -102,22 +111,33 @@ class ExternalRpcPetPatch
             return;
         }
 
-        if (pc.HasAbilityCD()) return;
+        if (pc.HasAbilityCD())
+        {
+            if (!pc.IsHost()) pc.Notify(Translator.GetString("AbilityOnCooldown"));
+            else Main.Instance.StartCoroutine(FlashCooldownTimer());
+            return;
+        }
 
         bool hasKillTarget = false;
         PlayerControl target = SelectKillButtonTarget(pc);
         if (target != null) hasKillTarget = true;
-        if (!pc.CanUseKillButton()) hasKillTarget = false;
 
-        if (pc.GetCustomRole().UsesPetInsteadOfKill() && hasKillTarget && (pc.Data.RoleType != RoleTypes.Impostor || pc.GetCustomRole() is CustomRoles.Necromancer or CustomRoles.Deathknight))
+        var role = pc.GetCustomRole();
+        var alwaysPetRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee or CustomRoles.Sidekick;
+
+        if (!pc.CanUseKillButton() && !alwaysPetRole) hasKillTarget = false;
+
+        if (role.UsesPetInsteadOfKill() && hasKillTarget && (pc.Data.RoleType != RoleTypes.Impostor || alwaysPetRole))
         {
-            pc.AddKCDAsAbilityCD();
+            if (Options.CurrentGameMode != CustomGameMode.Speedrun)
+                pc.AddKCDAsAbilityCD();
+
             if (Main.PlayerStates[pc.PlayerId].Role.OnCheckMurder(pc, target))
             {
                 pc.RpcCheckAndMurder(target);
             }
 
-            if (pc.Is(CustomRoles.Refugee)) pc.SetKillCooldown();
+            if (alwaysPetRole) pc.SetKillCooldown();
         }
         else
         {
@@ -131,8 +151,30 @@ class ExternalRpcPetPatch
 
     public static PlayerControl SelectKillButtonTarget(PlayerControl pc)
     {
-        var players = pc.GetPlayersInAbilityRangeSorted();
-        var target = players.Count == 0 ? null : players[0];
+        var pos = pc.Pos();
+        var players = Main.AllAlivePlayerControls.Without(pc).Select(x => (pc: x, distance: Vector2.Distance(pos, x.Pos()))).Where(x => x.distance < 2.5f).OrderBy(x => x.distance).ToList();
+        var target = players.Count > 0 ? players[0].pc : null;
+
+        if (target != null && target.Is(CustomRoles.Detour))
+        {
+            var tempTarget = target;
+            target = Main.AllAlivePlayerControls.Where(x => x.PlayerId != target.PlayerId && x.PlayerId != pc.PlayerId).MinBy(x => Vector2.Distance(x.Pos(), target.Pos()));
+            Logger.Info($"Target was {tempTarget.GetNameWithRole()}, new target is {target.GetNameWithRole()}", "Detour");
+        }
+
         return target;
+    }
+
+    private static IEnumerator FlashCooldownTimer()
+    {
+        var yellow = false;
+        for (int i = 0; i < 8; i++)
+        {
+            HudManagerPatch.CooldownTimerFlashColor = yellow ? Color.red : Color.yellow;
+            yellow = !yellow;
+            yield return new WaitForSeconds(0.2f);
+        }
+
+        HudManagerPatch.CooldownTimerFlashColor = null;
     }
 }

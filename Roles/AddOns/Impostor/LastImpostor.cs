@@ -3,34 +3,36 @@ namespace EHR.AddOns.Impostor;
 public class LastImpostor : IAddon
 {
     private const int Id = 15900;
-    public static byte currentId = byte.MaxValue;
+    public static byte CurrentId = byte.MaxValue;
 
-    public static OptionItem KillCooldown;
+    private static OptionItem Reduction;
     public AddonTypes Type => AddonTypes.ImpOnly;
 
     public void SetupCustomOption()
     {
         Options.SetupSingleRoleOptions(Id, TabGroup.Addons, CustomRoles.LastImpostor);
-        KillCooldown = new FloatOptionItem(Id + 15, "SansReduceKillCooldown", new(5f, 95f, 5f), 50f, TabGroup.Addons)
+        Reduction = new FloatOptionItem(Id + 15, "SansReduceKillCooldown", new(5f, 95f, 5f), 20f, TabGroup.Addons)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.LastImpostor])
             .SetValueFormat(OptionFormat.Percent);
     }
 
-    public static void Init() => currentId = byte.MaxValue;
-    public static void Add(byte id) => currentId = id;
+    public static void Init() => CurrentId = byte.MaxValue;
+    private static void Add(byte id) => CurrentId = id;
 
     public static void SetKillCooldown()
     {
-        if (currentId == byte.MaxValue) return;
-        if (!Main.AllPlayerKillCooldown.ContainsKey(currentId)) return;
-        Main.AllPlayerKillCooldown[currentId] -= Main.AllPlayerKillCooldown[currentId] * (KillCooldown.GetFloat() / 100);
+        if (CurrentId == byte.MaxValue) return;
+        if (!Main.AllPlayerKillCooldown.TryGetValue(CurrentId, out var cd)) return;
+        var minus = cd * (Reduction.GetFloat() / 100f);
+        Main.AllPlayerKillCooldown[CurrentId] -= minus;
+        Logger.Info($"{CurrentId.ColoredPlayerName().RemoveHtmlTags()}'s cooldown is {Main.AllPlayerKillCooldown[CurrentId]}s", "LastImpostor");
     }
 
-    public static bool CanBeLastImpostor(PlayerControl pc) => pc.IsAlive() && !pc.Is(CustomRoles.LastImpostor) && pc.Is(CustomRoleTypes.Impostor);
+    private static bool CanBeLastImpostor(PlayerControl pc) => pc.IsAlive() && !pc.Is(CustomRoles.LastImpostor) && pc.Is(CustomRoleTypes.Impostor);
 
     public static void SetSubRole()
     {
-        if (currentId != byte.MaxValue || !AmongUsClient.Instance.AmHost) return;
+        if (CurrentId != byte.MaxValue || !AmongUsClient.Instance.AmHost) return;
         if (Options.CurrentGameMode != CustomGameMode.Standard || !CustomRoles.LastImpostor.IsEnable() || Main.AliveImpostorCount != 1) return;
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
@@ -41,6 +43,10 @@ public class LastImpostor : IAddon
                 SetKillCooldown();
                 pc.SyncSettings();
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                if (Main.KillTimers.TryGetValue(pc.PlayerId, out var timer) &&
+                    Main.AllPlayerKillCooldown.TryGetValue(pc.PlayerId, out var cd) &&
+                    timer > cd)
+                    pc.SetKillCooldown();
                 break;
             }
         }

@@ -7,6 +7,10 @@ namespace EHR.Impostor
         public static bool On;
         public override bool IsEnable => On;
 
+        public override void SetupCustomOption()
+        {
+        }
+
         public override void Add(byte playerId)
         {
             On = true;

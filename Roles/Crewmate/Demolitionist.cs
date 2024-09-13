@@ -3,9 +3,11 @@ using static EHR.Options;
 
 namespace EHR.Crewmate
 {
-    internal class Demolitionist : ISettingHolder
+    internal class Demolitionist : RoleBase
     {
-        public void SetupCustomOption()
+        public override bool IsEnable => false;
+
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(5550, TabGroup.CrewmateRoles, CustomRoles.Demolitionist);
             DemolitionistVentTime = new FloatOptionItem(5552, "DemolitionistVentTime", new(0f, 90f, 1f), 5f, TabGroup.CrewmateRoles)
@@ -13,6 +15,14 @@ namespace EHR.Crewmate
                 .SetValueFormat(OptionFormat.Seconds);
             DemolitionistKillerDiesOnMeetingCall = new BooleanOptionItem(5553, "DemolitionistKillerDiesOnMeetingCall", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Demolitionist]);
+        }
+
+        public override void Init()
+        {
+        }
+
+        public override void Add(byte playerId)
+        {
         }
 
         public static void OnDeath(PlayerControl killer, PlayerControl target)

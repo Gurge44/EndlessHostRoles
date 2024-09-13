@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EHR.AddOns.GhostRoles
 {
-    internal class Warden : IGhostRole, ISettingHolder
+    internal class Warden : IGhostRole
     {
         private static OptionItem ExtraSpeed;
         private static OptionItem ExtraSpeedDuration;
@@ -14,7 +14,6 @@ namespace EHR.AddOns.GhostRoles
 
         public Team Team => Team.Crewmate;
         public int Cooldown => CD.GetInt();
-        public bool ChangeToGA => true;
 
         public void OnProtect(PlayerControl pc, PlayerControl target)
         {

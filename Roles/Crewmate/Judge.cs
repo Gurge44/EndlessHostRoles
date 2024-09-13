@@ -22,16 +22,12 @@ public class Judge : RoleBase
     private static OptionItem TryHideMsg;
     private static OptionItem CanTrialMadmate;
 
-    private static OptionItem CanTrialCharmed;
+    private static OptionItem CanTrialConverted;
 
-    //private static OptionItem CanTrialSidekick;
-    //private static OptionItem CanTrialInfected;
-    //private static OptionItem CanTrialContagious;
     private static OptionItem CanTrialCrewKilling;
     private static OptionItem CanTrialNeutralB;
     private static OptionItem CanTrialNeutralK;
     private static OptionItem CanTrialNeutralE;
-    private static OptionItem CanTrialNeutralC;
     public static OptionItem JudgeAbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
 
@@ -39,20 +35,16 @@ public class Judge : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Judge);
         TrialLimitPerMeeting = new FloatOptionItem(Id + 10, "TrialLimitPerMeeting", new(0f, 15f, 1f), 1f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetValueFormat(OptionFormat.Times);
-        TrialLimitPerGame = new FloatOptionItem(Id + 9, "TrialLimitPerGame", new(0f, 30f, 1f), 3f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetValueFormat(OptionFormat.Times);
+        TrialLimitPerGame = new FloatOptionItem(Id + 9, "AbilityUseLimit", new(0f, 30f, 1f), 1f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetValueFormat(OptionFormat.Times);
         CanTrialMadmate = new BooleanOptionItem(Id + 12, "JudgeCanTrialMadmate", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
-        CanTrialCharmed = new BooleanOptionItem(Id + 16, "JudgeCanTrialCharmed", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
-        //CanTrialSidekick = new BooleanOptionItem(Id + 19, "JudgeCanTrialSidekick", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
-        //CanTrialInfected = new BooleanOptionItem(Id + 20, "JudgeCanTrialInfected", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
-        //CanTrialContagious = new BooleanOptionItem(Id + 21, "JudgeCanTrialContagious", true, TabGroup.CrewmateRoles, false).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
+        CanTrialConverted = new BooleanOptionItem(Id + 16, "JudgeCanTrialConverted", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
         CanTrialCrewKilling = new BooleanOptionItem(Id + 13, "JudgeCanTrialnCrewKilling", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
         CanTrialNeutralB = new BooleanOptionItem(Id + 14, "JudgeCanTrialNeutralB", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
         CanTrialNeutralE = new BooleanOptionItem(Id + 17, "JudgeCanTrialNeutralE", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
-        CanTrialNeutralC = new BooleanOptionItem(Id + 18, "JudgeCanTrialNeutralC", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
         CanTrialNeutralK = new BooleanOptionItem(Id + 15, "JudgeCanTrialNeutralK", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
         TryHideMsg = new BooleanOptionItem(Id + 11, "JudgeTryHideMsg", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetColor(Color.green);
         JudgeAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 19, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.3f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetValueFormat(OptionFormat.Times);
@@ -150,20 +142,22 @@ public class Judge : RoleBase
                     else if (target.Is(CustomRoles.Pestilence)) judgeSuicide = true;
                     else if (target.Is(CustomRoles.Trickster)) judgeSuicide = true;
                     else if (target.Is(CustomRoles.Madmate) && CanTrialMadmate.GetBool()) judgeSuicide = false;
-                    else if (target.Is(CustomRoles.Charmed) && CanTrialCharmed.GetBool()) judgeSuicide = false;
+                    else if (target.IsConverted() && CanTrialConverted.GetBool()) judgeSuicide = false;
                     else if (target.IsNeutralKiller() && CanTrialNeutralK.GetBool()) judgeSuicide = false;
                     else
                     {
                         var targetRole = target.GetCustomRole();
-                        if (targetRole.IsCK() && CanTrialCrewKilling.GetBool()) judgeSuicide = false;
-                        else if (targetRole.IsNB() && CanTrialNeutralB.GetBool()) judgeSuicide = false;
-                        else if (targetRole.IsNE() && CanTrialNeutralE.GetBool()) judgeSuicide = false;
-                        else if (targetRole.IsNC() && CanTrialNeutralC.GetBool()) judgeSuicide = false;
-                        else if (targetRole.IsNonNK() && !CanTrialNeutralB.GetBool() && !CanTrialNeutralE.GetBool() && !CanTrialNeutralC.GetBool() && !targetRole.IsNB() && !targetRole.IsNC() && !targetRole.IsNE() && CanTrialNeutralK.GetBool()) judgeSuicide = false;
+                        if (targetRole.GetCrewmateRoleCategory() == RoleOptionType.Crewmate_Killing && CanTrialCrewKilling.GetBool()) judgeSuicide = false;
+                        else if (targetRole.GetNeutralRoleCategory() == RoleOptionType.Neutral_Benign && CanTrialNeutralB.GetBool()) judgeSuicide = false;
+                        else if (targetRole.GetNeutralRoleCategory() == RoleOptionType.Neutral_Evil && CanTrialNeutralE.GetBool()) judgeSuicide = false;
+                        else if (targetRole.IsNonNK() && !CanTrialNeutralB.GetBool() && !CanTrialNeutralE.GetBool() && targetRole.GetNeutralRoleCategory() is not RoleOptionType.Neutral_Benign and not RoleOptionType.Neutral_Evil && CanTrialNeutralK.GetBool()) judgeSuicide = false;
                         else if (targetRole.IsImpostor()) judgeSuicide = false;
                         else if (targetRole.IsMadmate() && CanTrialMadmate.GetBool()) judgeSuicide = false;
+                        else if (targetRole is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Sidekick && CanTrialNeutralK.GetBool()) judgeSuicide = false;
                         else judgeSuicide = true;
                     }
+
+                    if (pc.GetCustomSubRoles().Any(x => x.IsConverted() || x == CustomRoles.Bloodlust) && !target.Is(CustomRoles.Pestilence)) judgeSuicide = false;
 
                     var dp = judgeSuicide ? pc : target;
 

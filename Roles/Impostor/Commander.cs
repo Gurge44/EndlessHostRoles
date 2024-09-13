@@ -23,7 +23,7 @@ namespace EHR.Impostor
         public byte MarkedPlayer;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Commander);
             CannotSpawnAsSoloImp = new BooleanOptionItem(Id + 2, "CannotSpawnAsSoloImp", true, TabGroup.ImpostorRoles)
@@ -55,7 +55,7 @@ namespace EHR.Impostor
             AURoleOptions.ShapeshifterDuration = 1f;
         }
 
-        void SendRPC() => Utils.SendRPC(CustomRPC.SyncCommander, CommanderId, 1, (int)CurrentMode, IsWhistling, MarkedPlayer);
+        void SendRPC() => Utils.SendRPC(CustomRPC.SyncRoleData, CommanderId, 1, (int)CurrentMode, IsWhistling, MarkedPlayer);
 
         public void ReceiveRPC(MessageReader reader)
         {
@@ -191,7 +191,7 @@ namespace EHR.Impostor
             if (target == null) return;
 
             DontKillMarks.Add(target.PlayerId);
-            Utils.SendRPC(CustomRPC.SyncCommander, CommanderId, 2, target.PlayerId);
+            Utils.SendRPC(CustomRPC.SyncRoleData, CommanderId, 2, target.PlayerId);
             Utils.NotifyRoles(SpecifyTarget: target);
         }
 
@@ -218,10 +218,10 @@ namespace EHR.Impostor
             MarkedPlayer = byte.MaxValue;
             DontKillMarks = [];
             SendRPC();
-            Utils.SendRPC(CustomRPC.SyncCommander, CommanderId, 3);
+            Utils.SendRPC(CustomRPC.SyncRoleData, CommanderId, 3);
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer == null || !seer.Is(Team.Impostor)) return string.Empty;
 

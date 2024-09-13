@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using UnityEngine;
 
@@ -15,13 +16,14 @@ namespace EHR.Neutral
         public static OptionItem CanVent;
 
         public static bool On;
+        private float CooldownTimer;
 
         private int Count;
 
         public float EnrageTimer;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Tiger);
             Radius = new FloatOptionItem(Id + 2, "TigerRadius", new(0.5f, 10f, 0.5f), 3f, TabGroup.NeutralRoles)
@@ -44,6 +46,7 @@ namespace EHR.Neutral
         {
             On = true;
             EnrageTimer = float.NaN;
+            CooldownTimer = 0f;
         }
 
         public override void Init()
@@ -63,15 +66,23 @@ namespace EHR.Neutral
 
         public override bool CanUseSabotage(PlayerControl pc)
         {
-            return pc.IsAlive();
+            return base.CanUseSabotage(pc) || (pc.IsAlive() && !(Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()));
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool())
+                AURoleOptions.PhantomCooldown = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
+            if (Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool())
+                AURoleOptions.ShapeshifterCooldown = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
         }
 
         public override bool OnSabotage(PlayerControl pc)
         {
-            if (!pc.HasAbilityCD())
+            if (CooldownTimer <= 0f)
             {
                 StartEnraging();
-                pc.AddAbilityCD();
+                CooldownTimer = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
             }
 
             return false;
@@ -82,6 +93,30 @@ namespace EHR.Neutral
             StartEnraging();
         }
 
+        public override bool OnVanish(PlayerControl pc)
+        {
+            if (CooldownTimer <= 0f)
+            {
+                StartEnraging();
+                CooldownTimer = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
+            }
+
+            return false;
+        }
+
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
+
+            if (CooldownTimer <= 0f)
+            {
+                StartEnraging();
+                CooldownTimer = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
+            }
+
+            return false;
+        }
+
         void StartEnraging()
         {
             EnrageTimer = EnrageDuration.GetFloat();
@@ -89,6 +124,11 @@ namespace EHR.Neutral
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
+            if (CooldownTimer > 0f)
+            {
+                CooldownTimer -= Time.fixedDeltaTime;
+            }
+
             if (float.IsNaN(EnrageTimer)) return;
 
             EnrageTimer -= Time.fixedDeltaTime;
@@ -124,7 +164,7 @@ namespace EHR.Neutral
             }
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != target.PlayerId) return string.Empty;
             if (Main.PlayerStates[seer.PlayerId].Role is not Tiger { IsEnable: true } tg) return string.Empty;

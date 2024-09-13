@@ -22,7 +22,7 @@ namespace EHR.GameMode.HideAndSeekRoles
         public float RoleSpeed => Speed.GetFloat();
         public float RoleVision => Vision.GetFloat();
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(69_211_701, TabGroup.CrewmateRoles, CustomRoles.Jet, CustomGameMode.HideAndSeek);
             Vision = new FloatOptionItem(69_211_703, "JetVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)

@@ -9,7 +9,7 @@ namespace EHR.Crewmate
         private static int Id => 643370;
 
         public override bool IsEnable => On;
-        public static void SetupCustomOption() => Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mathematician);
+        public override void SetupCustomOption() => Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mathematician);
 
         public override void Init()
         {

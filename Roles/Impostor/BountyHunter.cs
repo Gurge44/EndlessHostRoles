@@ -29,7 +29,7 @@ public class BountyHunter : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.BountyHunter);
         OptionTargetChangeTime = new FloatOptionItem(Id + 10, "BountyTargetChangeTime", new(10f, 180f, 2.5f), 60f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.BountyHunter])
@@ -131,10 +131,10 @@ public class BountyHunter : RoleBase
                 if (tempTimer != Timer && Timer <= 15 && !player.IsModClient()) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
             }
 
-            if (Main.PlayerStates[targetId].IsDead)
+            if (Utils.GetPlayerById(targetId)?.IsAlive() == false)
             {
                 ResetTarget(player);
-                Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}のターゲットが無効だったため、ターゲットを更新しました", "BountyHunter");
+                Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}'s target was reset because the previous target died", "BountyHunter");
                 Utils.NotifyRoles(SpecifySeer: player);
             }
         }
@@ -197,9 +197,9 @@ public class BountyHunter : RoleBase
         }
     }
 
-    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        return GetTargetText(seer, target, isHUD) + GetTargetArrow(seer, target);
+        return GetTargetText(seer, target, hud) + GetTargetArrow(seer, target);
     }
 
     static string GetTargetText(PlayerControl bounty, PlayerControl tar, bool hud)

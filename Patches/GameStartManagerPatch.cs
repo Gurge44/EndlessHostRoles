@@ -5,6 +5,7 @@ using AmongUs.Data;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
+using EHR.Patches;
 using HarmonyLib;
 using InnerNet;
 using TMPro;
@@ -32,7 +33,7 @@ public static class GameStartManagerUpdatePatch
 
 public class GameStartManagerPatch
 {
-    public static float Timer { get; private set; } = 600f;
+    public static float Timer { get; set; } = 600f;
 
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Start))]
     public class GameStartManagerStartPatch
@@ -48,7 +49,6 @@ public class GameStartManagerPatch
 
                 var temp = __instance.PlayerCounter;
                 GameCountdown = Object.Instantiate(temp, __instance.StartButton.transform);
-                GameCountdown.transform.localPosition = new(GameCountdown.transform.localPosition.x + 1f, GameCountdown.transform.localPosition.y, GameCountdown.transform.localPosition.z);
                 GameCountdown.text = string.Empty;
 
                 if (AmongUsClient.Instance.AmHost)
@@ -71,7 +71,7 @@ public class GameStartManagerPatch
 
                 if (!AmongUsClient.Instance.AmHost) return;
 
-                if (ModUpdater.isBroken || (ModUpdater.hasUpdate && ModUpdater.forceUpdate) || !Main.AllowPublicRoom)
+                if (ModUpdater.IsBroken || (ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || !Main.AllowPublicRoom)
                 {
                     // __instance.MakePublicButton.color = Palette.DisabledClear;
                     // __instance.privatePublicText.color = Palette.DisabledClear;
@@ -163,7 +163,26 @@ public class GameStartManagerPatch
                             if (Options.RandomMapsMode.GetBool())
                             {
                                 Main.NormalOptions.MapId = GameStartRandomMap.SelectRandomMap();
+                                CreateOptionsPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
                             }
+                            else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
+
+                            if (Main.CurrentMap == MapNames.Dleks)
+                            {
+                                IGameOptions opt = Main.NormalOptions.Cast<IGameOptions>();
+
+                                Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
+                                Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
+                                Main.NormalOptions.KillCooldown = 0f;
+                                AURoleOptions.SetOpt(opt);
+                                Main.LastShapeshifterCooldown.Value = AURoleOptions.ShapeshifterCooldown;
+                                AURoleOptions.ShapeshifterCooldown = 0f;
+                                AURoleOptions.ImpostorsCanSeeProtect = false;
+
+                                PlayerControl.LocalPlayer.RpcSyncSettings(GameOptionsManager.Instance.gameOptionsFactory.ToBytes(opt, AprilFoolsMode.IsAprilFoolsModeToggledOn));
+                            }
+
+                            RPC.RpcVersionCheck();
 
                             GameStartManager.Instance.startState = GameStartManager.StartingStates.Countdown;
                             GameStartManager.Instance.countDownTimer = Options.AutoStartTimer.GetInt();
@@ -269,7 +288,7 @@ public class GameStartManagerPatch
                 }
                 else
                 {
-                    if (MatchVersions(0, true) || Main.VersionCheat.Value)
+                    if (MatchVersions(0, true))
                         ExitTimer = 0;
                     else
                     {
@@ -291,15 +310,27 @@ public class GameStartManagerPatch
                 Timer = Mathf.Max(0f, Timer -= Time.deltaTime);
                 int minutes = (int)Timer / 60;
                 int seconds = (int)Timer % 60;
-                string suffix = $" ({minutes:00}:{seconds:00})";
+                string suffix = $"{minutes:00}:{seconds:00}";
                 if (Timer <= 60) suffix = Utils.ColorString(Color.red, suffix);
 
                 if (Mathf.Approximately(Timer, 60f) && AmongUsClient.Instance.AmHost)
                     PlayerControl.LocalPlayer.ShowPopUp(GetString("Warning.OneMinuteLeft"));
 
-                GameStartManagerStartPatch.GameCountdown.text = suffix;
-                GameStartManagerStartPatch.GameCountdown.fontSize = 3f;
-                GameStartManagerStartPatch.GameCountdown.autoSizeTextContainer = false;
+                TextMeshPro tmp = GameStartManagerStartPatch.GameCountdown;
+
+                if (tmp.text == string.Empty)
+                {
+                    tmp.name = "LobbyTimer";
+                    tmp.fontSize = tmp.fontSizeMin = tmp.fontSizeMax = 3f;
+                    tmp.autoSizeTextContainer = true;
+                    tmp.alignment = TextAlignmentOptions.Center;
+                    tmp.outlineColor = Color.black;
+                    tmp.outlineWidth = 0.4f;
+                    tmp.transform.localPosition += new Vector3(-0.8f, -0.42f, 0f);
+                    tmp.transform.localScale = new(0.5f, 0.5f, 1f);
+                }
+
+                tmp.text = suffix;
             }
             catch (NullReferenceException)
             {
@@ -380,6 +411,11 @@ public class GameStartRandomMap
         if (Options.RandomMapsMode.GetBool())
         {
             Main.NormalOptions.MapId = SelectRandomMap();
+            CreateOptionsPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
+        }
+        else if (CreateOptionsPickerPatch.SetDleks)
+        {
+            Main.NormalOptions.MapId = 3;
         }
 
         return continueStart;
@@ -428,6 +464,8 @@ class ResetStartStatePatch
 {
     public static void Prefix(GameStartManager __instance)
     {
+        SoundManager.Instance.StopSound(__instance.gameStartSound);
+
         if (__instance.startState == GameStartManager.StartingStates.Countdown)
         {
             Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;

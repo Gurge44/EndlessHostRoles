@@ -14,29 +14,37 @@ class TextBoxTMPSetTextPatch
 
     public static bool IsInvalidCommand;
 
+    // The only characters to treat specially are \r, \n and \b, allow all other characters to be written
     public static bool Prefix(TextBoxTMP __instance, [HarmonyArgument(0)] string input, [HarmonyArgument(1)] string inputCompo = "")
     {
         bool flag = false;
         char ch = ' ';
+        __instance.AdjustCaretPosition(input.Length - __instance.text.Length);
         __instance.tempTxt.Clear();
 
-        foreach (var str in input)
+        foreach (char c in input)
         {
-            char upperInvariant = str;
-            if (ch != ' ' || upperInvariant != ' ')
+            char upperInvariant = c;
+            if (ch == ' ' && upperInvariant == ' ')
+            {
+                __instance.AdjustCaretPosition(-1);
+            }
+            else
             {
                 switch (upperInvariant)
                 {
-                    case '\r' or '\n':
+                    case '\r':
+                    case '\n':
                         flag = true;
                         break;
                     case '\b':
                         __instance.tempTxt.Length = Math.Max(__instance.tempTxt.Length - 1, 0);
+                        __instance.AdjustCaretPosition(-2);
                         break;
                 }
 
                 if (__instance.ForceUppercase) upperInvariant = char.ToUpperInvariant(upperInvariant);
-                if (upperInvariant is not '\b' and not '\n' and not '\r')
+                if (upperInvariant is not '\r' and not '\n' and not '\b')
                 {
                     __instance.tempTxt.Append(upperInvariant);
                     ch = upperInvariant;
@@ -45,9 +53,13 @@ class TextBoxTMPSetTextPatch
         }
 
         if (!__instance.tempTxt.ToString().Equals(DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.EnterName), StringComparison.OrdinalIgnoreCase) && __instance.characterLimit > 0)
+        {
+            int length = __instance.tempTxt.Length;
             __instance.tempTxt.Length = Math.Min(__instance.tempTxt.Length, __instance.characterLimit);
-        input = __instance.tempTxt.ToString();
+            __instance.AdjustCaretPosition(-(length - __instance.tempTxt.Length));
+        }
 
+        input = __instance.tempTxt.ToString();
         if (!input.Equals(__instance.text) || !inputCompo.Equals(__instance.compoText))
         {
             __instance.text = input;
@@ -69,7 +81,14 @@ class TextBoxTMPSetTextPatch
         }
 
         if (flag) __instance.OnEnter.Invoke();
-        __instance.Pipe.transform.localPosition = __instance.outputText.CursorPos();
+
+        try
+        {
+            __instance.SetPipePosition();
+        }
+        catch
+        {
+        }
 
         return false;
     }
@@ -88,10 +107,13 @@ class TextBoxTMPSetTextPatch
         double highestMatchRate = 0;
         string inputCheck = input.Split(' ')[0];
         bool exactMatch = false;
+        bool english = TranslationController.Instance.currentLanguage.languageID == SupportedLangs.English;
         foreach (var cmd in ChatCommands.AllCommands)
         {
             foreach (var form in cmd.CommandForms)
             {
+                if (english && !form.All(char.IsAscii)) continue;
+
                 var check = "/" + form;
                 if (check.Length < inputCheck.Length) continue;
 
@@ -153,16 +175,20 @@ class TextBoxTMPSetTextPatch
             CommandInfoText.enableWordWrapping = false;
             CommandInfoText.color = Color.white;
             CommandInfoText.fontSize = CommandInfoText.fontSizeMax = CommandInfoText.fontSizeMin = 1.8f;
-            CommandInfoText.sortingOrder = 100;
+            CommandInfoText.sortingOrder = 1000;
+            CommandInfoText.transform.SetAsLastSibling();
         }
 
-        var text = "/" + (exactMatch ? input.TrimStart('/') : command.CommandForms.MaxBy(x => x.Length));
+        var inputForm = input.TrimStart('/');
+        var text = "/" + (exactMatch ? inputForm : command.CommandForms.Where(x => x.All(char.IsAscii) && x.StartsWith(inputForm)).MaxBy(x => x.Length));
         var info = $"<b>{command.Description}</b>";
 
         if (exactMatch && command.Arguments.Length > 0)
         {
             bool poll = command.CommandForms.Contains("poll");
+            bool say = command.CommandForms.Contains("say");
             int spaces = poll ? input.SkipWhile(x => x != '?').Count(x => x == ' ') + 1 : input.Count(x => x == ' ');
+            if (say) spaces = Math.Min(spaces, 1);
             var preText = $"{text} {command.Arguments}";
             if (!poll) text += " " + command.Arguments.Split(' ').Skip(spaces).Join(delimiter: " ");
 
@@ -170,12 +196,52 @@ class TextBoxTMPSetTextPatch
             for (int i = 0; i < args.Length; i++)
             {
                 if (command.ArgsDescriptions.Length <= i) break;
-                bool current = spaces - 1 == i;
-                if (current) info += "<#ffff44>";
                 int skip = poll ? input.TakeWhile(x => x != '?').Count(x => x == ' ') - 1 : 0;
                 var arg = poll ? i == 0 ? args[..++skip].Join(delimiter: " ") : args[spaces - 1 < i ? skip + i + spaces : skip + i] : args[spaces > i ? i : i + spaces];
-                info += $"\n       - <b>{arg}</b>: {command.ArgsDescriptions[i]}";
-                if (current) info += "</color>";
+                bool current = spaces - 1 == i, invalid = IsInvalidArg(), valid = IsValidArg();
+                info += "\n" + (invalid, current, valid) switch
+                {
+                    (true, true, false) => "<#ffa500>\u27a1    ",
+                    (true, false, false) => "<#ff0000>        ",
+                    (false, true, true) => "<#00ffa5>\u27a1 \u2713 ",
+                    (false, false, true) => "<#00ffa5>\u2713</color> <#00ffff>     ",
+                    (false, true, false) => "<#ffff44>\u27a1    ",
+                    _ => "        "
+                };
+                info += $"   - <b>{arg}</b>{GetExtraArgInfo()}: {command.ArgsDescriptions[i]}";
+                if (current || invalid || valid) info += "</color>";
+                continue;
+
+                bool IsInvalidArg() => arg != command.Arguments.Split(' ')[i] && command.Arguments.Split(' ')[i] switch
+                {
+                    "{id}" or "{id1}" or "{id2}" => !byte.TryParse(arg, out var id) || Main.AllPlayerControls.All(x => x.PlayerId != id),
+                    "{number}" or "{level}" or "{duration}" or "{number1}" or "{number2}" => !int.TryParse(arg, out var num) || num < 0,
+                    "{team}" => arg is not "crew" and not "imp",
+                    "{role}" => !ChatCommands.GetRoleByName(arg, out _),
+                    "{addon}" => !ChatCommands.GetRoleByName(arg, out var role) || !role.IsAdditionRole(),
+                    "{letter}" => arg.Length != 1 || !char.IsLetter(arg[0]),
+                    "{chance}" => !int.TryParse(arg, out var chance) || chance < 0 || chance > 100 || chance % 5 != 0,
+                    _ => false
+                };
+
+                bool IsValidArg() => command.Arguments.Split(' ')[i].Replace('[', '{').Replace(']', '}') switch
+                {
+                    "{id}" or "{id1}" or "{id2}" => byte.TryParse(arg, out var id) && Main.AllPlayerControls.Any(x => x.PlayerId == id),
+                    "{team}" => arg is "crew" or "imp",
+                    "{role}" => ChatCommands.GetRoleByName(arg, out _),
+                    "{addon}" => ChatCommands.GetRoleByName(arg, out var role) && role.IsAdditionRole(),
+                    "{chance}" => int.TryParse(arg, out var chance) && chance is >= 0 and <= 100 && chance % 5 == 0,
+                    _ => false
+                };
+
+                string GetExtraArgInfo() => !IsValidArg()
+                    ? string.Empty
+                    : command.Arguments.Split(' ')[i] switch
+                    {
+                        "{id}" or "{id1}" or "{id2}" => $" ({byte.Parse(arg).ColoredPlayerName()})",
+                        "{role}" or "{addon}" when ChatCommands.GetRoleByName(arg, out var role) => $" ({role.ToColoredString()})",
+                        _ => string.Empty
+                    };
             }
         }
 
@@ -209,10 +275,38 @@ class TextBoxTMPSetTextPatch
 
     public static void Update()
     {
-        PlaceHolderText?.gameObject.SetActive(HudManager.Instance.Chat.IsOpenOrOpening);
-        CommandInfoText?.gameObject.SetActive(HudManager.Instance.Chat.IsOpenOrOpening);
+        try
+        {
+            bool open = HudManager.Instance?.Chat?.IsOpenOrOpening ?? false;
+            PlaceHolderText?.gameObject.SetActive(open);
+            CommandInfoText?.gameObject.SetActive(open);
+        }
+        catch
+        {
+        }
     }
 }
+
+/*
+//Thanks https://github.com/NuclearPowered/Reactor/blob/master/Reactor/Patches/Fixes/CursorPosPatch.cs
+
+/// <summary>
+/// "Fixes" an issue where empty TextBoxes have wrong cursor positions.
+/// </summary>
+[HarmonyPatch(typeof(TextMeshProExtensions), nameof(TextMeshProExtensions.CursorPos))]
+internal static class CursorPosPatch
+{
+    public static bool Prefix(TextMeshPro self, ref Vector2 __result)
+    {
+        if (self.textInfo == null || self.textInfo.lineCount == 0 || self.textInfo.lineInfo[0].characterCount <= 0)
+        {
+            __result = self.GetTextInfo(" ").lineInfo[0].lineExtents.max;
+            return false;
+        }
+
+        return true;
+    }
+}*/
 
 /* Originally by KARPED1EM. Reference: https://github.com/KARPED1EM/TownOfNext/blob/TONX/TONX/Patches/TextBoxPatch.cs */
 [HarmonyPatch(typeof(TextBoxTMP))]

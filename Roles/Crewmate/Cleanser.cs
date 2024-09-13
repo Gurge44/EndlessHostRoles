@@ -24,7 +24,7 @@ public class Cleanser : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Cleanser);
         CleanserUsesOpt = new IntegerOptionItem(Id + 10, "MaxCleanserUses", new(1, 14, 1), 3, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser])
@@ -76,26 +76,25 @@ public class Cleanser : RoleBase
         cs.CleanserUses = Limit;
     }
 
-    public static bool OnVote(PlayerControl voter, PlayerControl target)
+    public override bool OnVote(PlayerControl voter, PlayerControl target)
     {
-        if (Main.PlayerStates[voter.PlayerId].Role is not Cleanser cs) return false;
         if (DidVote[voter.PlayerId] || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
         DidVote[voter.PlayerId] = true;
-        if (cs.CleanserUses >= CleanserUsesOpt.GetInt()) return false;
+        if (CleanserUses >= CleanserUsesOpt.GetInt()) return false;
         if (target.PlayerId == voter.PlayerId)
         {
             Utils.SendMessage(GetString("CleanserRemoveSelf"), voter.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Cleanser), GetString("CleanserTitle")));
             return false;
         }
 
-        if (cs.CleanserTarget != byte.MaxValue) return false;
+        if (CleanserTarget != byte.MaxValue) return false;
 
-        cs.CleanserUses++;
-        cs.CleanserTarget = target.PlayerId;
+        CleanserUses++;
+        CleanserTarget = target.PlayerId;
         Logger.Info($"{voter.GetNameWithRole().RemoveHtmlTags()} cleansed {target.GetNameWithRole().RemoveHtmlTags()}", "Cleansed");
         CleansedPlayers.Add(target.PlayerId);
         Utils.SendMessage(string.Format(GetString("CleanserRemovedRole"), target.GetRealName()), voter.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Cleanser), GetString("CleanserTitle")));
-        cs.SendRPC(voter.PlayerId);
+        SendRPC(voter.PlayerId);
 
         Main.DontCancelVoteList.Add(voter.PlayerId);
         return true;

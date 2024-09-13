@@ -15,7 +15,7 @@ public class WeaponMaster : RoleBase
     public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
-    public static OptionItem CanVent;
+    private static OptionItem CanVent;
     private static OptionItem HasImpostorVision;
     private static OptionItem Radius;
     private static OptionItem HighKCD;
@@ -28,21 +28,26 @@ public class WeaponMaster : RoleBase
 
     /*
      * 0 = Kill (Sword) ~ Normal Kill
-     * 1 = EHRN Werewolf Kill / Higher KCD (Axe)
+     * 1 = TOHEN Werewolf Kill / Higher KCD (Axe)
      * 2 = Reach + Swift / Can't Vent (Lance)
      * 3 = 1-Time Shield / Can't Kill (Shield)
      */
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.WeaponMaster);
-        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
+        SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.WeaponMaster);
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
             .SetValueFormat(OptionFormat.Seconds);
-        CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster]);
-        HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster]);
-        Radius = new FloatOptionItem(Id + 12, "WMRadius", new(0f, 10f, 0.25f), 2f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
+        CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster]);
+        HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster]);
+        Radius = new FloatOptionItem(Id + 12, "WMRadius", new(0f, 10f, 0.1f), 2f, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
             .SetValueFormat(OptionFormat.Multiplier);
-        HighKCD = new FloatOptionItem(Id + 14, "GamblerHighKCD", new(0f, 180f, 2.5f), 35f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
+        HighKCD = new FloatOptionItem(Id + 14, "GamblerHighKCD", new(0f, 180f, 2.5f), 35f, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
             .SetValueFormat(OptionFormat.Seconds);
     }
 
@@ -84,12 +89,16 @@ public class WeaponMaster : RoleBase
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
-    public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive();
+    public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (pc.IsAlive() && !(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()));
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
         opt.SetInt(Int32OptionNames.KillDistance, Mode == 2 ? 2 : 0);
         opt.SetVision(HasImpostorVision.GetBool());
+        if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+            AURoleOptions.PhantomCooldown = 1f;
+        if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
+            AURoleOptions.ShapeshifterCooldown = 1f;
     }
 
     public override bool CanUseKillButton(PlayerControl pc) => Mode != 3;
@@ -101,6 +110,19 @@ public class WeaponMaster : RoleBase
 
     public override bool OnSabotage(PlayerControl pc)
     {
+        SwitchMode();
+        return false;
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        SwitchMode();
+        return false;
+    }
+
+    public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+    {
+        if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
         SwitchMode();
         return false;
     }
@@ -197,9 +219,9 @@ public class WeaponMaster : RoleBase
         return !playerId.IsPlayerModClient() ? GetHudAndProgressText(playerId) : string.Empty;
     }
 
-    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        return isHUD ? GetHudAndProgressText(seer.PlayerId) : string.Empty;
+        return hud ? GetHudAndProgressText(seer.PlayerId) : string.Empty;
     }
 
     static string GetHudAndProgressText(byte id)

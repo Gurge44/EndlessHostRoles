@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using AmongUs.GameOptions;
 using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
@@ -21,27 +20,20 @@ using UnityEngine;
 using static EHR.Translator;
 using static EHR.Utils;
 
-
 namespace EHR;
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckProtect))]
-class CheckProtectPatch
+static class CheckProtectPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
-        if (!AmongUsClient.Instance.AmHost) return false;
-        Logger.Info("CheckProtect: " + __instance.GetNameWithRole().RemoveHtmlTags() + " => " + target.GetNameWithRole().RemoveHtmlTags(), "CheckProtect");
+        if (!AmongUsClient.Instance.AmHost || target.Data.IsDead) return false;
+        Logger.Info($"CheckProtect: {__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "CheckProtect");
 
         if (__instance.Is(CustomRoles.EvilSpirit))
         {
-            if (target.Is(CustomRoles.Spiritcaller))
-            {
-                Spiritcaller.ProtectSpiritcaller();
-            }
-            else
-            {
-                Spiritcaller.HauntPlayer(target);
-            }
+            if (target.Is(CustomRoles.Spiritcaller)) Spiritcaller.ProtectSpiritcaller();
+            else Spiritcaller.HauntPlayer(target);
 
             __instance.RpcResetAbilityCooldown();
             return true;
@@ -68,7 +60,7 @@ class CheckProtectPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcMurderPlayer))]
-class RpcMurderPlayerPatch
+static class RpcMurderPlayerPatch
 {
     public static bool Prefix(PlayerControl __instance, PlayerControl target, bool didSucceed)
     {
@@ -90,11 +82,11 @@ class RpcMurderPlayerPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckMurder))] // Modded
-class CmdCheckMurderPatch
+static class CmdCheckMurderPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
-        if (AmongUsClient.Instance.AmHost && GameStates.IsModHost)
+        if (AmongUsClient.Instance.AmHost)
         {
             __instance.CheckMurder(target);
         }
@@ -110,7 +102,7 @@ class CmdCheckMurderPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckMurder))] // Vanilla
-class CheckMurderPatch
+static class CheckMurderPatch
 {
     public static readonly Dictionary<byte, float> TimeSinceLastKill = [];
 
@@ -138,6 +130,12 @@ class CheckMurderPatch
         if (killer.Data.IsDead)
         {
             Logger.Info($"Killer {killer.GetNameWithRole().RemoveHtmlTags()} is dead, kill canceled", "CheckMurder");
+            return false;
+        }
+
+        if (AntiBlackout.SkipTasks)
+        {
+            Logger.Info("CheckMurder while AntiBlackOut protection is in progress, kill canceled", "CheckMurder");
             return false;
         }
 
@@ -216,6 +214,7 @@ class CheckMurderPatch
                 return false;
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
+            case CustomGameMode.NaturalDisasters:
                 return false;
             case CustomGameMode.Speedrun when !SpeedrunManager.CanKill.Contains(killer.PlayerId):
                 return false;
@@ -225,9 +224,15 @@ class CheckMurderPatch
             case CustomGameMode.HideAndSeek:
                 HnSManager.OnCheckMurder(killer, target);
                 return false;
+            case CustomGameMode.CaptureTheFlag:
+                CTFManager.OnCheckMurder(killer, target);
+                return false;
         }
 
+        Deadlined.SetDone(killer);
+
         if (ToiletMaster.OnAnyoneCheckMurderStart(killer, target)) return false;
+        if (Dad.OnAnyoneCheckMurderStart(target)) return false;
 
         Simon.RemoveTarget(killer, Simon.Instruction.Kill);
 
@@ -254,7 +259,23 @@ class CheckMurderPatch
 
         if (Pursuer.OnClientMurder(killer)) return false;
 
-        if (killer.PlayerId != target.PlayerId && !Main.PlayerStates[killer.PlayerId].Role.OnCheckMurder(killer, target)) return false;
+        if (killer.PlayerId != target.PlayerId)
+        {
+            switch (killer.Is(CustomRoles.Bloodlust))
+            {
+                case false when !CheckMurder():
+                    return false;
+                case true when killer.GetCustomRole().GetDYRole() == RoleTypes.Impostor:
+                    if (killer.CheckDoubleTrigger(target, () =>
+                        {
+                            if (CheckMurder()) killer.RpcCheckAndMurder(target);
+                        }))
+                        killer.RpcCheckAndMurder(target);
+                    return false;
+            }
+
+            bool CheckMurder() => Main.PlayerStates[killer.PlayerId].Role.OnCheckMurder(killer, target);
+        }
 
         if (!killer.RpcCheckAndMurder(target, true))
             return false;
@@ -289,7 +310,7 @@ class CheckMurderPatch
         if (killer.Is(CustomRoles.Magnet) && !target.Is(CustomRoles.Pestilence))
         {
             target.TP(killer);
-            LateTask.New(() => { killer.RpcCheckAndMurder(target); }, 0.1f, log: false);
+            LateTask.New(() => killer.RpcCheckAndMurder(target), 0.1f, log: false);
             return false;
         }
 
@@ -352,11 +373,19 @@ class CheckMurderPatch
             Medic.OnAnyoneCheckMurder(killer, target) ||
             Randomizer.IsShielded(target) ||
             Aid.ShieldedPlayers.ContainsKey(target.PlayerId) ||
+            Gaslighter.IsShielded(target) ||
+            !Grappler.OnAnyoneCheckMurder(target) ||
             !Adventurer.OnAnyoneCheckMurder(target) ||
             !Sentinel.OnAnyoneCheckMurder(killer) ||
             !ToiletMaster.OnAnyoneCheckMurder(killer, target))
         {
             Notify("SomeSortOfProtection");
+            return false;
+        }
+
+        if (!Socialite.OnAnyoneCheckMurder(killer, target))
+        {
+            Notify("SocialiteTarget");
             return false;
         }
 
@@ -375,6 +404,12 @@ class CheckMurderPatch
         if (killer.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor))
         {
             Notify("RefugeeKillImpostor");
+            return false;
+        }
+
+        if (!Bodyguard.OnAnyoneCheckMurder(killer, target))
+        {
+            Notify("BodyguardProtected");
             return false;
         }
 
@@ -459,9 +494,6 @@ class CheckMurderPatch
             case CustomRoles.Medic:
                 Medic.IsDead(target);
                 break;
-            case CustomRoles.Monarch when killer.Is(CustomRoles.Knighted):
-                Notify("KnightedKillMonarch");
-                return false;
             case CustomRoles.Gambler when Gambler.IsShielded.ContainsKey(target.PlayerId):
                 Notify("SomeSortOfProtection");
                 killer.SetKillCooldown(time: 5f);
@@ -477,7 +509,7 @@ class CheckMurderPatch
                 break;
         }
 
-        if (Main.ShieldPlayer != string.Empty && Main.ShieldPlayer == target.FriendCode && IsAllAlive)
+        if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode))
         {
             Main.ShieldPlayer = string.Empty;
             killer.SetKillCooldown(15f);
@@ -520,11 +552,17 @@ class CheckMurderPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.MurderPlayer))]
-class MurderPlayerPatch
+static class MurderPlayerPatch
 {
-    public static void Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target /*, [HarmonyArgument(1)] MurderResultFlags resultFlags*/)
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target /*, [HarmonyArgument(1)] MurderResultFlags resultFlags*/)
     {
         Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}{(target.IsProtected() ? " (Protected)" : string.Empty)}", "MurderPlayer");
+
+        if (GameStates.IsLobby)
+        {
+            Logger.Info("Murder triggered in lobby, so murder canceled", "MurderPlayer Prefix");
+            return false;
+        }
 
         if (RandomSpawn.CustomNetworkTransformPatch.NumOfTP.TryGetValue(__instance.PlayerId, out var num) && num > 2) RandomSpawn.CustomNetworkTransformPatch.NumOfTP[__instance.PlayerId] = 3;
 
@@ -533,6 +571,8 @@ class MurderPlayerPatch
             Camouflage.ResetSkinAfterDeathPlayers.Add(target.PlayerId);
             Camouflage.RpcSetSkin(target, ForceRevert: true);
         }
+
+        return true;
     }
 
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
@@ -555,8 +595,15 @@ class MurderPlayerPatch
         }
 
         if (killer.Is(CustomRoles.Sniper))
+        {
             if (!Options.UsePets.GetBool()) killer.RpcResetAbilityCooldown();
-            else Main.AbilityCD[killer.PlayerId] = (TimeStamp, Options.DefaultShapeshiftCooldown.GetInt());
+            else
+            {
+                int cd = Options.DefaultShapeshiftCooldown.GetInt();
+                Main.AbilityCD[killer.PlayerId] = (TimeStamp, cd);
+                SendRPC(CustomRPC.SyncAbilityCD, 1, killer.PlayerId, cd);
+            }
+        }
 
         if (killer != __instance)
         {
@@ -595,8 +642,8 @@ class MurderPlayerPatch
             case CustomRoles.BallLightning:
                 if (killer != target) BallLightning.MurderPlayer(killer, target);
                 break;
-            case CustomRoles.Altruist:
-                if (killer != target) Altruist.OnKilled(killer);
+            case CustomRoles.Bane:
+                if (killer != target) Bane.OnKilled(killer);
                 break;
             case CustomRoles.Markseeker:
                 Markseeker.OnDeath(target);
@@ -605,6 +652,8 @@ class MurderPlayerPatch
 
         Main.PlayerStates[killer.PlayerId].Role.OnMurder(killer, target);
 
+        Chef.SpitOutFood(killer);
+
         if (Options.CurrentGameMode == CustomGameMode.Speedrun) SpeedrunManager.ResetTimer(killer);
 
         if (killer.Is(CustomRoles.TicketsStealer) && killer.PlayerId != target.PlayerId)
@@ -612,6 +661,8 @@ class MurderPlayerPatch
 
         if (killer.Is(CustomRoles.Pickpocket) && killer.PlayerId != target.PlayerId)
             killer.Notify(string.Format(GetString("PickpocketGetVote"), ((Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == killer.PlayerId) + 1) * Pickpocket.VotesPerKill.GetFloat()).ToString("0.0#####")));
+
+        if (killer.Is(CustomRoles.Deadlined)) Deadlined.SetDone(killer);
 
         if (target.Is(CustomRoles.Avanger))
         {
@@ -675,7 +726,7 @@ class MurderPlayerPatch
 
 // Triggered when the shapeshifter selects a target
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckShapeshift))]
-class CheckShapeshiftPatch
+static class CheckShapeshiftPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target /*, [HarmonyArgument(1)] bool shouldAnimate*/)
     {
@@ -684,7 +735,7 @@ class CheckShapeshiftPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckShapeshift))]
-class CmdCheckShapeshiftPatch
+static class CmdCheckShapeshiftPatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target /*, [HarmonyArgument(1)] bool shouldAnimate*/)
     {
@@ -694,7 +745,7 @@ class CmdCheckShapeshiftPatch
 
 // Triggered when the egg animation starts playing
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Shapeshift))]
-class ShapeshiftPatch
+static class ShapeshiftPatch
 {
     public static bool ProcessShapeshift(PlayerControl shapeshifter, PlayerControl target)
     {
@@ -705,11 +756,7 @@ class ShapeshiftPatch
 
         var shapeshifting = shapeshifter.PlayerId != target.PlayerId;
 
-        if (Main.CheckShapeshift.TryGetValue(shapeshifter.PlayerId, out var last) && last == shapeshifting)
-        {
-            // Don't know how you would get here but ok
-            return true;
-        }
+        if (AmongUsClient.Instance.AmHost && shapeshifting && !Rhapsode.CheckAbilityUse(shapeshifter)) return false;
 
         Main.CheckShapeshift[shapeshifter.PlayerId] = shapeshifting;
         Main.ShapeshiftTarget[shapeshifter.PlayerId] = target.PlayerId;
@@ -730,8 +777,18 @@ class ShapeshiftPatch
             isSSneeded = false;
         }
 
+        bool ctf = Options.CurrentGameMode == CustomGameMode.CaptureTheFlag;
+        if (ctf) CTFManager.TryPickUpFlag(shapeshifter);
+
         var role = shapeshifter.GetCustomRole();
+
         bool forceCancel = role.ForceCancelShapeshift();
+        bool unshiftTrigger = role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool());
+        unshiftTrigger |= role.AlwaysUsesUnshift();
+
+        unshiftTrigger |= ctf;
+        forceCancel |= unshiftTrigger;
+        isSSneeded &= !ctf;
 
         if (shapeshifter.Is(CustomRoles.Camouflager) && !shapeshifting) Camouflager.Reset();
         if (Changeling.ChangedRole.TryGetValue(shapeshifter.PlayerId, out var changed) && changed && shapeshifter.GetRoleTypes() != RoleTypes.Shapeshifter)
@@ -752,7 +809,7 @@ class ShapeshiftPatch
         // Forced rewriting in case the name cannot be corrected due to the timing of canceling the transformation being off.
         if (!shapeshifting && !shapeshifter.Is(CustomRoles.Glitch) && isSSneeded)
         {
-            LateTask.New(() => { NotifyRoles(NoCache: true); }, 1.2f, "ShapeShiftNotify");
+            LateTask.New(() => NotifyRoles(NoCache: true), 1.2f, "ShapeShiftNotify");
         }
 
         if (!(shapeshifting && doSSwithoutAnim) && !isSSneeded && !Swapster.FirstSwapTarget.ContainsKey(shapeshifter.PlayerId))
@@ -773,7 +830,13 @@ class ShapeshiftPatch
             return false;
         }
 
-        return isSSneeded || (!shouldCancel && !forceCancel) || (!shapeshifting && !shouldAlwaysCancel);
+        if (unshiftTrigger)
+        {
+            shapeshifter.CheckAndSetUnshiftState(force: true);
+            shapeshifter.AddAbilityCD();
+        }
+
+        return isSSneeded || (!shouldCancel && !forceCancel) || (!shapeshifting && !shouldAlwaysCancel && !unshiftTrigger);
     }
 
     // Tasks that should run when someone performs a shapeshift (with the egg animation) should be here.
@@ -787,7 +850,7 @@ class ShapeshiftPatch
         {
             if (pc.Is(CustomRoles.Shiftguard))
             {
-                pc.Notify(shapeshifting ? GetString("ShiftguardNotifySS") : "ShiftguardNotifyUnshift");
+                pc.Notify(shapeshifting ? GetString("ShiftguardNotifySS") : GetString("ShiftguardNotifyUnshift"));
             }
 
             switch (Main.PlayerStates[pc.PlayerId].Role)
@@ -795,7 +858,7 @@ class ShapeshiftPatch
                 case Adventurer av:
                     Adventurer.OnAnyoneShapeshiftLoop(av, __instance);
                     break;
-                case EHR.Impostor.Sentry st:
+                case Crewmate.Sentry st:
                     st.OnAnyoneShapeshiftLoop(__instance, target);
                     break;
             }
@@ -804,7 +867,7 @@ class ShapeshiftPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcShapeshift))]
-class RpcShapeshiftPatch
+static class RpcShapeshiftPatch
 {
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
@@ -813,7 +876,7 @@ class RpcShapeshiftPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ReportDeadBody))]
-class ReportDeadBodyPatch
+static class ReportDeadBodyPatch
 {
     public static Dictionary<byte, bool> CanReport;
     public static readonly Dictionary<byte, List<NetworkedPlayerInfo>> WaitReport = [];
@@ -877,6 +940,9 @@ class ReportDeadBodyPatch
                     || Vulture.UnreportablePlayers.Contains(target.PlayerId)) return false;
 
                 if (!Librarian.OnAnyoneReport(__instance)) return false;
+                if (!Hypnotist.OnAnyoneReport()) return false;
+                if (!Altruist.OnAnyoneCheckReportDeadBody(__instance, target)) return false;
+                if (!BoobyTrap.OnAnyoneCheckReportDeadBody(__instance, target)) return false;
 
                 if (!Main.PlayerStates[__instance.PlayerId].Role.CheckReportDeadBody(__instance, target, killer)) return false;
 
@@ -927,8 +993,7 @@ class ReportDeadBodyPatch
         }
         catch (Exception e)
         {
-            Logger.Exception(e, "ReportDeadBodyPatch");
-            Logger.SendInGame("Error: " + e);
+            Utils.ThrowException(e);
         }
 
         return true;
@@ -940,8 +1005,10 @@ class ReportDeadBodyPatch
         //    Hereinafter, it is assumed that it is confirmed that the button is pressed.
         //====================================================================================
 
-        Damocles.countRepairSabotage = false;
-        Stressed.countRepairSabotage = false;
+        Damocles.CountRepairSabotage = false;
+        Stressed.CountRepairSabotage = false;
+
+        Main.DiedThisRound = [];
 
         if (target == null)
         {
@@ -982,7 +1049,7 @@ class ReportDeadBodyPatch
             if (QuizMaster.On)
             {
                 QuizMaster.Data.LastReporterName = player.GetRealName();
-                QuizMaster.Data.LastReportedPlayer = (Main.PlayerColors[target.PlayerId], target.GetPlayerColorString(), target.Object);
+                QuizMaster.Data.LastReportedPlayer = (Palette.GetColorName(target.DefaultOutfit.ColorId), target.Object);
                 if (MeetingStates.FirstMeeting) QuizMaster.Data.FirstReportedBodyPlayerName = target.Object.GetRealName();
             }
         }
@@ -993,12 +1060,27 @@ class ReportDeadBodyPatch
             QuizMaster.Data.NumMeetings++;
         }
 
+        if (Main.LoversPlayers.Exists(x => x.IsAlive()) && Main.IsLoversDead && Lovers.LoverDieConsequence.GetValue() == 1)
+        {
+            var aliveLover = Main.LoversPlayers.First(x => x.IsAlive());
+            switch (Lovers.LoverSuicideTime.GetValue())
+            {
+                case 1:
+                    aliveLover.Suicide(PlayerState.DeathReason.FollowingSuicide);
+                    break;
+                case 2:
+                    CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.FollowingSuicide, aliveLover.PlayerId);
+                    break;
+            }
+        }
+
         Enigma.OnReportDeadBody(player, target);
         Mediumshiper.OnReportDeadBody(target);
         Mortician.OnReportDeadBody(player, target);
         Spiritualist.OnReportDeadBody(target);
 
         Bloodmoon.OnMeetingStart();
+        Deadlined.OnMeetingStart();
 
         Main.LastVotedPlayerInfo = null;
         Witness.AllKillers.Clear();
@@ -1024,6 +1106,7 @@ class ReportDeadBodyPatch
         }
 
         Main.AbilityCD.Clear();
+        SendRPC(CustomRPC.SyncAbilityCD, 2);
 
         if (player.Is(CustomRoles.Damocles))
         {
@@ -1050,6 +1133,8 @@ class ReportDeadBodyPatch
             {
                 pc.FixMixedUpOutfit();
             }
+
+            PhantomRolePatch.OnReportBody(pc);
         }
 
         MeetingTimeManager.OnReportDeadBody();
@@ -1059,12 +1144,18 @@ class ReportDeadBodyPatch
 
         LateTask.New(SyncAllSettings, 3f, "SyncAllSettings on meeting start");
 
-        LateTask.New(() => Main.ProcessShapeshifts = false, 5f, log: false);
+        Main.ProcessShapeshifts = false;
+        foreach (var pc in Main.AllAlivePlayerControls)
+        {
+            var role = pc.GetCustomRole();
+            if (role.AlwaysUsesUnshift() || (role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool())))
+                pc.RpcShapeshift(pc, false);
+        }
     }
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-class FixedUpdatePatch
+static class FixedUpdatePatch
 {
     private static readonly StringBuilder Mark = new(20);
     private static readonly StringBuilder Suffix = new(120);
@@ -1073,11 +1164,11 @@ class FixedUpdatePatch
     private static readonly Dictionary<byte, int> DeadBufferTime = [];
     private static readonly Dictionary<byte, long> LastUpdate = [];
     private static long LastAddAbilityTime;
+    private static bool ChatOpen;
 
-    public static async void Postfix(PlayerControl __instance)
+    public static void Postfix(PlayerControl __instance)
     {
         if (__instance == null || __instance.PlayerId == 255) return;
-        if (!GameStates.IsModHost) return;
 
         byte id = __instance.PlayerId;
         if (AmongUsClient.Instance.AmHost && GameStates.IsInTask && ReportDeadBodyPatch.CanReport[id] && ReportDeadBodyPatch.WaitReport[id].Count > 0)
@@ -1099,7 +1190,7 @@ class FixedUpdatePatch
 
         if (AmongUsClient.Instance.AmHost)
         {
-            if (GhostRolesManager.AssignedGhostRoles.TryGetValue(__instance.PlayerId, out var ghostRole))
+            if (GhostRolesManager.AssignedGhostRoles.TryGetValue(id, out var ghostRole))
             {
                 switch (ghostRole.Instance)
                 {
@@ -1120,12 +1211,27 @@ class FixedUpdatePatch
             }
         }
 
-        if (Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive())
+        if (GameStates.IsMeeting)
         {
-            DeadBufferTime.TryAdd(id, IRandom.Instance.Next(20, 40));
+            switch (ChatOpen)
+            {
+                case false when DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening:
+                    ChatOpen = true;
+                    break;
+                case true when DestroyableSingleton<HudManager>.Instance.Chat.IsClosedOrClosing:
+                    ChatOpen = false;
+                    if (GameStates.IsVoting)
+                        GuessManager.CreateIDLabels(MeetingHud.Instance);
+                    break;
+            }
+        }
+
+        if (Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && (!Altruist.On || Main.PlayerStates[id].Role is not Altruist at || at.ReviveStartTS == 0))
+        {
+            DeadBufferTime.TryAdd(id, 30);
             DeadBufferTime[id]--;
             if (DeadBufferTime[id] > 0) return;
-            DeadBufferTime[id] = IRandom.Instance.Next(20, 40);
+            DeadBufferTime[id] = 30;
         }
 
         if (Options.LowLoadMode.GetBool())
@@ -1136,7 +1242,7 @@ class FixedUpdatePatch
 
         try
         {
-            await DoPostfix(__instance);
+            DoPostfix(__instance);
         }
         catch (Exception ex)
         {
@@ -1144,11 +1250,12 @@ class FixedUpdatePatch
         }
     }
 
-    public static Task DoPostfix(PlayerControl __instance)
+    public static void DoPostfix(PlayerControl __instance)
     {
         var player = __instance;
         var playerId = player.PlayerId;
-        var localPlayer = player.PlayerId == PlayerControl.LocalPlayer.PlayerId; // Updates that are independent of the player are only executed for the local player.
+        var lpId = PlayerControl.LocalPlayer.PlayerId;
+        var localPlayer = playerId == lpId; // Updates that are independent of the player are only executed for the local player.
 
         bool lowLoad = false;
         if (Options.LowLoadMode.GetBool())
@@ -1165,6 +1272,7 @@ class FixedUpdatePatch
 
         if (!lowLoad)
         {
+            VentilationSystemDeterioratePatch.CheckVentInteraction(player);
             NameNotifyManager.OnFixedUpdate(player);
             TargetArrow.OnFixedUpdate(player);
             LocateArrow.OnFixedUpdate(player);
@@ -1183,7 +1291,7 @@ class FixedUpdatePatch
         bool alive = player.IsAlive();
         if (AmongUsClient.Instance.AmHost)
         {
-            if (GameStates.IsLobby && ((ModUpdater.hasUpdate && ModUpdater.forceUpdate) || ModUpdater.isBroken || !Main.AllowPublicRoom) && AmongUsClient.Instance.IsGamePublic)
+            if (GameStates.IsLobby && ((ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || ModUpdater.IsBroken || !Main.AllowPublicRoom) && AmongUsClient.Instance.IsGamePublic)
                 AmongUsClient.Instance.ChangeGamePublic(false);
 
             // Kick low level people
@@ -1211,6 +1319,12 @@ class FixedUpdatePatch
 
             if (!GameStates.IsLobby)
             {
+                if (player.Is(CustomRoles.Spurt) && !Mathf.Approximately(Main.AllPlayerSpeed[playerId], Spurt.StartingSpeed[playerId]) && !inTask && !GameStates.IsMeeting) // fix ludicrous bug
+                {
+                    Main.AllPlayerSpeed[playerId] = Spurt.StartingSpeed[playerId];
+                    player.MarkDirtySettings();
+                }
+
                 if (!Main.KillTimers.TryAdd(playerId, 10f) && ((!player.inVent && !player.MyPhysics.Animations.IsPlayingEnterVentAnimation()) || player.Is(CustomRoles.Haste)) && Main.KillTimers[playerId] > 0)
                 {
                     Main.KillTimers[playerId] -= Time.fixedDeltaTime;
@@ -1244,7 +1358,7 @@ class FixedUpdatePatch
                     PlagueBearer.playerIdList.Remove(playerId);
                 }
 
-                bool checkPos = inTask && player != null && alive && !Pelican.IsEaten(player.PlayerId);
+                bool checkPos = inTask && player != null && alive && !Pelican.IsEaten(playerId);
                 if (checkPos) Asthmatic.OnCheckPlayerPosition(player);
                 foreach (var state in Main.PlayerStates.Values)
                 {
@@ -1259,6 +1373,7 @@ class FixedUpdatePatch
                 {
                     var subRoles = playerState.SubRoles;
                     if (subRoles.Contains(CustomRoles.Dynamo)) Dynamo.OnFixedUpdate(player);
+                    if (subRoles.Contains(CustomRoles.Spurt)) Spurt.OnFixedUpdate(player);
                     if (!lowLoad)
                     {
                         if (subRoles.Contains(CustomRoles.Damocles)) Damocles.Update(player);
@@ -1276,12 +1391,12 @@ class FixedUpdatePatch
                 {
                     if (Main.AbilityCD.TryGetValue(playerId, out var timer))
                     {
-                        if (timer.START_TIMESTAMP + timer.TOTALCD < TimeStamp || !alive)
+                        if (timer.StartTimeStamp + timer.TotalCooldown < TimeStamp || !alive)
                         {
-                            Main.AbilityCD.Remove(playerId);
+                            player.RemoveAbilityCD();
                         }
 
-                        if (!player.IsModClient() && timer.TOTALCD - (now - timer.START_TIMESTAMP) <= 60) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
+                        if (!player.IsModClient() && timer.TotalCooldown - (now - timer.StartTimeStamp) <= 60) NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                         LastUpdate[playerId] = now;
                     }
                 }
@@ -1327,7 +1442,7 @@ class FixedUpdatePatch
                 ApplySuffix(__instance);
         }
 
-        if (__instance.AmOwner && inTask && ((Main.ChangedRole && localPlayer && AmongUsClient.Instance.AmHost) || (!__instance.Is(CustomRoleTypes.Impostor) /* || Shifter.WasShifter.Contains(__instance.PlayerId)*/) && __instance.CanUseKillButton() && !__instance.Data.IsDead))
+        if (__instance.AmOwner && inTask && ((Main.ChangedRole && localPlayer && AmongUsClient.Instance.AmHost) || (!__instance.Is(CustomRoleTypes.Impostor)) && __instance.CanUseKillButton() && !__instance.Data.IsDead))
         {
             var players = __instance.GetPlayersInAbilityRangeSorted();
             PlayerControl closest = players.Count == 0 ? null : players[0];
@@ -1354,7 +1469,9 @@ class FixedUpdatePatch
 
             if (GameStates.IsInGame)
             {
-                var RoleTextData = GetRoleText(PlayerControl.LocalPlayer.PlayerId, playerId);
+                bool shouldSeeTargetAddons = playerId == lpId || new[] { PlayerControl.LocalPlayer, player }.All(x => x.Is(Team.Impostor));
+
+                var RoleTextData = GetRoleText(lpId, playerId, seeTargetBetrayalAddons: shouldSeeTargetAddons);
 
                 RoleText.text = RoleTextData.Item1;
                 RoleText.color = RoleTextData.Item2;
@@ -1365,7 +1482,7 @@ class FixedUpdatePatch
 
                 if (!PlayerControl.LocalPlayer.Data.IsDead && PlayerControl.LocalPlayer.IsRevealedPlayer(__instance) && __instance.Is(CustomRoles.Trickster))
                 {
-                    RoleText.text = Farseer.RandomRole[PlayerControl.LocalPlayer.PlayerId];
+                    RoleText.text = Farseer.RandomRole[lpId];
                     RoleText.text += Farseer.GetTaskState();
                 }
 
@@ -1389,6 +1506,13 @@ class FixedUpdatePatch
 
                 var seer = PlayerControl.LocalPlayer;
                 var target = __instance;
+
+                if (target.Is(CustomRoles.Car))
+                {
+                    target.cosmetics.nameText.text = Car.Name;
+                    RoleText.enabled = false;
+                    return;
+                }
 
                 bool self = seer.PlayerId == target.PlayerId;
 
@@ -1418,7 +1542,7 @@ class FixedUpdatePatch
 
                     if (Deathpact.IsInActiveDeathpact(seer))
                         RealName = Deathpact.GetDeathpactString(seer);
-                    if (NameNotifyManager.GetNameNotify(target, out var name))
+                    if (NameNotifyManager.GetNameNotify(target, out var name) && name.Length > 0)
                         RealName = name;
                 }
 
@@ -1431,7 +1555,7 @@ class FixedUpdatePatch
                         Mark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★"));
                 }
 
-                Main.PlayerStates.Values.Do(x => Suffix.Append(x.Role.GetSuffix(seer, target, isMeeting: GameStates.IsMeeting)));
+                Main.PlayerStates.Values.Do(x => Suffix.Append(x.Role.GetSuffix(seer, target, meeting: GameStates.IsMeeting)));
 
                 if (self) Suffix.Append(CustomTeamManager.GetSuffix(seer));
 
@@ -1557,14 +1681,16 @@ class FixedUpdatePatch
                 if (BallLightning.IsGhost(target)) Mark.Append(ColorString(GetRoleColor(CustomRoles.BallLightning), "■"));
 
                 Mark.Append(Medic.GetMark(seer, target));
+                Mark.Append(Gaslighter.GetMark(seer, target));
                 Mark.Append(Snitch.GetWarningArrow(seer, target));
                 Mark.Append(Snitch.GetWarningMark(seer, target));
                 Mark.Append(Deathpact.GetDeathpactMark(seer, target));
 
+                Main.LoversPlayers.ToArray().DoIf(x => x == null, x => Main.LoversPlayers.Remove(x));
                 if (!Main.HasJustStarted) Main.LoversPlayers.DoIf(x => !x.Is(CustomRoles.Lovers), x => x.RpcSetCustomRole(CustomRoles.Lovers));
-                if (Main.LoversPlayers.Any(x => x.PlayerId == target.PlayerId))
+                if (Main.LoversPlayers.Exists(x => x.PlayerId == target.PlayerId))
                 {
-                    if (Main.LoversPlayers.Any(x => x.PlayerId == seer.PlayerId)) Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
+                    if (Main.LoversPlayers.Exists(x => x.PlayerId == seer.PlayerId)) Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
                     else if (!seer.IsAlive()) Mark.Append($"<color={GetRoleColorCode(CustomRoles.Lovers)}> ♥</color>");
                 }
 
@@ -1574,6 +1700,7 @@ class FixedUpdatePatch
                     Suffix.Append(Haunter.GetSuffix(seer));
                     if (seer.Is(CustomRoles.Asthmatic)) Suffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
                     if (seer.Is(CustomRoles.Sonar)) Suffix.Append(Sonar.GetSuffix(seer, GameStates.IsMeeting));
+                    if (seer.Is(CustomRoles.Deadlined)) Suffix.Append(Deadlined.GetSuffix(seer));
                 }
 
                 switch (Options.CurrentGameMode)
@@ -1584,21 +1711,21 @@ class FixedUpdatePatch
                     case CustomGameMode.MoveAndStop when self:
                         Suffix.Append(MoveAndStopManager.GetSuffixText(seer));
                         break;
-                    case CustomGameMode.HotPotato when !seer.IsModClient() && self && seer.IsAlive():
-                        Suffix.Append(HotPotatoManager.GetSuffixText(seer.PlayerId));
-                        break;
                     case CustomGameMode.Speedrun when self:
                         Suffix.Append(SpeedrunManager.GetSuffixText(seer));
                         break;
                     case CustomGameMode.HideAndSeek:
                         Suffix.Append(HnSManager.GetSuffixText(seer, target));
                         break;
+                    case CustomGameMode.CaptureTheFlag:
+                        Suffix.Append(CTFManager.GetSuffixText(seer, target));
+                        break;
                 }
 
                 if (Options.CurrentGameMode == CustomGameMode.SoloKombat)
                     Suffix.Append(SoloKombatManager.GetDisplayHealth(target));
 
-                if (MeetingStates.FirstMeeting && Main.FirstDied != string.Empty && Main.FirstDied == target.FriendCode && !self && Main.ShieldPlayer != string.Empty && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
+                if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && !self && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
                     Suffix.Append(GetString("DiedR1Warning"));
 
                 // Devourer
@@ -1621,13 +1748,10 @@ class FixedUpdatePatch
 
                     float offset = 0.2f;
 
-                    if (NameNotifyManager.Notice.TryGetValue(seer.PlayerId, out var notify) && notify.TEXT.Contains('\n'))
+                    if (NameNotifyManager.GetNameNotify(seer, out string notify) && notify.Contains('\n'))
                     {
-                        int count = notify.TEXT.Count(x => x == '\n');
-                        for (int i = 0; i < count; i++)
-                        {
-                            offset += 0.1f;
-                        }
+                        int count = notify.Count(x => x == '\n');
+                        for (int i = 0; i < count; i++) offset += 0.15f;
                     }
 
                     if (Suffix.ToString() != string.Empty)
@@ -1650,12 +1774,12 @@ class FixedUpdatePatch
                 RoleText.transform.SetLocalY(0.2f);
             }
         }
-
-        return Task.CompletedTask;
     }
 
     public static void AddExtraAbilityUsesOnFinishedTasks(PlayerControl player)
     {
+        if (Main.HasJustStarted || !player.IsAlive()) return;
+
         if (Main.PlayerStates[player.PlayerId].Role is SabotageMaster sm)
         {
             sm.UsedSkillCount -= SabotageMaster.AbilityChargesWhenFinishedTasks.GetFloat();
@@ -1673,20 +1797,29 @@ class FixedUpdatePatch
         }
     }
 
-    public static void LoversSuicide(byte deathId = 0x7f, bool isExiled = false)
+    public static void LoversSuicide(byte deathId = 0x7f, bool exile = false, bool force = false, bool guess = false)
     {
-        if (!Lovers.LoverSuicide.GetBool() || Main.IsLoversDead || !Main.LoversPlayers.Any(player => player.Data.IsDead && player.PlayerId == deathId)) return;
+        if (Lovers.LoverDieConsequence.GetValue() == 0 || Main.IsLoversDead || (!Main.LoversPlayers.Exists(player => player.Data.IsDead && player.PlayerId == deathId) && !force)) return;
 
         Main.IsLoversDead = true;
         var partnerPlayer = Main.LoversPlayers.First(player => player.PlayerId != deathId && !player.Data.IsDead);
 
-        if (isExiled) CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.FollowingSuicide, partnerPlayer.PlayerId);
+        if (Lovers.LoverDieConsequence.GetValue() == 2)
+        {
+            partnerPlayer.MarkDirtySettings();
+            PlayerGameOptionsSender.SetDirty(deathId);
+            return;
+        }
+
+        if (Lovers.LoverSuicideTime.GetValue() != 0 && !exile && !guess) return;
+
+        if (exile) CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.FollowingSuicide, partnerPlayer.PlayerId);
         else partnerPlayer.Suicide(PlayerState.DeathReason.FollowingSuicide);
     }
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.Start))]
-class PlayerStartPatch
+static class PlayerStartPatch
 {
     public static void Postfix(PlayerControl __instance)
     {
@@ -1711,14 +1844,14 @@ class PlayerStartPatch
 //}
 
 [HarmonyPatch(typeof(Vent), nameof(Vent.ExitVent))]
-class ExitVentPatch
+static class ExitVentPatch
 {
     public static void Postfix(Vent __instance, [HarmonyArgument(0)] PlayerControl pc)
     {
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "ExitVent");
 
         if (pc.PlayerId == PlayerControl.LocalPlayer.PlayerId)
-            LateTask.New(() => { HudManager.Instance.SetHudActive(pc, pc.Data.Role, true); }, 0.6f, log: false);
+            LateTask.New(() => HudManager.Instance.SetHudActive(pc, pc.Data.Role, true), 0.6f, log: false);
 
         if (!AmongUsClient.Instance.AmHost) return;
 
@@ -1728,7 +1861,7 @@ class ExitVentPatch
 
         if (Options.WhackAMole.GetBool())
         {
-            LateTask.New(() => { pc.TPtoRndVent(); }, 0.5f, "Whack-A-Mole TP");
+            LateTask.New(() => pc.TPtoRndVent(), 0.5f, "Whack-A-Mole TP");
         }
 
         if (!pc.IsModClient() && pc.Is(CustomRoles.Haste))
@@ -1739,13 +1872,13 @@ class ExitVentPatch
 }
 
 [HarmonyPatch(typeof(Vent), nameof(Vent.EnterVent))]
-class EnterVentPatch
+static class EnterVentPatch
 {
     public static void Postfix(Vent __instance, [HarmonyArgument(0)] PlayerControl pc)
     {
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "EnterVent");
 
-        if (pc.GetRoleTypes() != RoleTypes.Engineer && !Main.PlayerStates[pc.PlayerId].Role.CanUseImpostorVentButton(pc) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !pc.Is(CustomRoles.Nimble) && !pc.Is(CustomRoles.Bloodlust))
+        if (!pc.CanUseVent() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !pc.Is(CustomRoles.Nimble) && !pc.Is(CustomRoles.Bloodlust))
         {
             pc.MyPhysics?.RpcBootFromVent(__instance.Id);
             return;
@@ -1753,7 +1886,7 @@ class EnterVentPatch
 
         Drainer.OnAnyoneEnterVent(pc, __instance);
         Analyst.OnAnyoneEnterVent(pc);
-        EHR.Impostor.Sentry.OnAnyoneEnterVent(pc);
+        Crewmate.Sentry.OnAnyoneEnterVent(pc);
 
         switch (pc.GetCustomRole())
         {
@@ -1765,10 +1898,8 @@ class EnterVentPatch
 
         if (!AmongUsClient.Instance.AmHost) return;
 
-        Main.LastEnteredVent.Remove(pc.PlayerId);
-        Main.LastEnteredVent.Add(pc.PlayerId, __instance);
-        Main.LastEnteredVentLocation.Remove(pc.PlayerId);
-        Main.LastEnteredVentLocation.Add(pc.PlayerId, pc.Pos());
+        Main.LastEnteredVent[pc.PlayerId] = __instance;
+        Main.LastEnteredVentLocation[pc.PlayerId] = pc.Pos();
 
         if (pc.Is(CustomRoles.Unlucky))
         {
@@ -1784,12 +1915,14 @@ class EnterVentPatch
             Damocles.OnEnterVent(pc.PlayerId, __instance.Id);
         }
 
+        Chef.SpitOutFood(pc);
+
         Main.PlayerStates[pc.PlayerId].Role.OnEnterVent(pc, __instance);
     }
 }
 
 [HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.CoEnterVent))]
-class CoEnterVentPatch
+static class CoEnterVentPatch
 {
     public static bool Prefix(PlayerPhysics __instance, [HarmonyArgument(0)] int id)
     {
@@ -1816,13 +1949,15 @@ class CoEnterVentPatch
                 LateTask.New(() =>
                 {
                     __instance.myPlayer?.Notify(GetString("FFA-NoVentingBecauseKCDIsUP"), 7f);
-                    __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
+                    __instance.RpcBootFromVent(id);
                 }, 0.5f, "FFA-NoVentingWhenKCDIsUP");
                 return true;
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
             case CustomGameMode.Speedrun:
-                LateTask.New(() => { __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id); }, 0.5f, log: false);
+            case CustomGameMode.CaptureTheFlag:
+            case CustomGameMode.NaturalDisasters:
+                LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, log: false);
                 return true;
             case CustomGameMode.HideAndSeek:
                 HnSManager.OnCoEnterVent(__instance, id);
@@ -1834,14 +1969,20 @@ class CoEnterVentPatch
             LateTask.New(() =>
             {
                 __instance.myPlayer?.Notify(BlockedAction.Vent.GetBlockNotify());
-                __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
+                __instance.RpcBootFromVent(id);
             }, 0.5f, "RoleBlockedBootFromVent");
+            return true;
+        }
+
+        if (!Rhapsode.CheckAbilityUse(__instance.myPlayer))
+        {
+            LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, log: false);
             return true;
         }
 
         if (Penguin.IsVictim(__instance.myPlayer))
         {
-            LateTask.New(() => { __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id); }, 0.5f, "PenguinVictimBootFromVent");
+            LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, "PenguinVictimBootFromVent");
             return true;
         }
 
@@ -1850,7 +1991,7 @@ class CoEnterVentPatch
             LateTask.New(() =>
             {
                 __instance.myPlayer?.Notify(GetString("SoulHunterTargetNotifyNoVent"));
-                __instance.myPlayer?.MyPhysics?.RpcBootFromVent(id);
+                __instance.RpcBootFromVent(id);
                 LateTask.New(() =>
                 {
                     if (SoulHunter.IsSoulHunterTarget(__instance.myPlayer.PlayerId)) __instance.myPlayer.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter.GetSoulHunter(__instance.myPlayer.PlayerId).SoulHunter_.GetRealName()), 300f);
@@ -1867,7 +2008,7 @@ class CoEnterVentPatch
                 LateTask.New(() =>
                 {
                     pc?.Notify(GetString("EnteredBlockedVent"));
-                    pc?.MyPhysics?.RpcBootFromVent(id);
+                    __instance.RpcBootFromVent(id);
                 }, 0.5f, "VentguardBlockedVentBootFromVent");
 
                 if (Ventguard.VentguardNotifyOnBlockedVentUse.GetBool())
@@ -1887,9 +2028,9 @@ class CoEnterVentPatch
             Circumvent.OnCoEnterVent(__instance, id);
         }
 
-        if (__instance.myPlayer.GetCustomRole().GetDYRole() == RoleTypes.Impostor && !Main.PlayerStates[__instance.myPlayer.PlayerId].Role.CanUseImpostorVentButton(__instance.myPlayer) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !__instance.myPlayer.Is(CustomRoles.Nimble) && !__instance.myPlayer.Is(CustomRoles.Bloodlust))
+        if (!__instance.myPlayer.CanUseVent() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !__instance.myPlayer.Is(CustomRoles.Nimble) && !__instance.myPlayer.Is(CustomRoles.Bloodlust))
         {
-            LateTask.New(() => { __instance.RpcBootFromVent(id); }, 0.5f, "CannotUseVentBootFromVent");
+            LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, "CannotUseVentBootFromVent");
         }
 
         if (((__instance.myPlayer.Data.Role.Role != RoleTypes.Engineer && !__instance.myPlayer.CanUseImpostorVentButton()) ||
@@ -1899,7 +2040,7 @@ class CoEnterVentPatch
         {
             try
             {
-                LateTask.New(() => { __instance.RpcBootFromVent(id); }, 0.5f, "CannotUseVentBootFromVent2");
+                LateTask.New(() => __instance.RpcBootFromVent(id), 0.5f, "CannotUseVentBootFromVent2");
                 return true;
             }
             catch
@@ -1915,18 +2056,12 @@ class CoEnterVentPatch
     }
 }
 
-//[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.SetName))]
-//class SetNamePatch
-//{
-//    public static void Postfix(/*PlayerControl __instance, [HarmonyArgument(0)] string name*/)
-//    {
-//    }
-//}
 [HarmonyPatch(typeof(GameData), nameof(GameData.CompleteTask))]
-class GameDataCompleteTaskPatch
+static class GameDataCompleteTaskPatch
 {
     public static void Postfix(PlayerControl pc /*, uint taskId*/)
     {
+        if (GameStates.IsMeeting) return;
         Logger.Info($"TaskComplete: {pc.GetNameWithRole().RemoveHtmlTags()}", "CompleteTask");
         Main.PlayerStates[pc.PlayerId].UpdateTask(pc);
         NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -1934,15 +2069,17 @@ class GameDataCompleteTaskPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CompleteTask))]
-class PlayerControlCompleteTaskPatch
+static class PlayerControlCompleteTaskPatch
 {
     public static bool Prefix(PlayerControl __instance)
     {
+        if (GameStates.IsMeeting) return false;
         return !Workhorse.OnCompleteTask(__instance) && Capitalism.AddTaskForPlayer(__instance); // Cancel task win
     }
 
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] uint idx)
     {
+        if (GameStates.IsMeeting) return;
         if (__instance != null && __instance.IsAlive()) Benefactor.OnTaskComplete(__instance, __instance.myTasks[(Index)Convert.ToInt32(idx)] as PlayerTask);
 
         if (__instance == null) return;
@@ -1957,8 +2094,7 @@ class PlayerControlCompleteTaskPatch
             NotifyRoles(SpecifySeer: __instance, ForceLoop: true);
         }
 
-        if (isTaskFinish &&
-            __instance.GetCustomRole() is CustomRoles.Doctor or CustomRoles.Sunnyboy or CustomRoles.SpeedBooster)
+        if (isTaskFinish && __instance.GetCustomRole() is CustomRoles.Doctor or CustomRoles.Sunnyboy or CustomRoles.SpeedBooster)
         {
             // Execute CustomSyncAllSettings at the end of the task only for matches with sunnyboy, speed booster, or doctor.
             MarkEveryoneDirtySettings();
@@ -2010,7 +2146,7 @@ public static class PlayerControlCheckUseZiplinePatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ProtectPlayer))]
-class PlayerControlProtectPlayerPatch
+static class PlayerControlProtectPlayerPatch
 {
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] PlayerControl target)
     {
@@ -2019,7 +2155,7 @@ class PlayerControlProtectPlayerPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RemoveProtection))]
-class PlayerControlRemoveProtectionPatch
+static class PlayerControlRemoveProtectionPatch
 {
     public static void Postfix(PlayerControl __instance)
     {
@@ -2028,37 +2164,34 @@ class PlayerControlRemoveProtectionPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RpcSetRole))]
-class PlayerControlSetRolePatch
+static class PlayerControlSetRolePatch
 {
-    public static bool Prefix(PlayerControl __instance, ref RoleTypes roleType)
+    public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] ref RoleTypes roleType, [HarmonyArgument(1)] ref bool canOverrideRole)
     {
-        var target = __instance;
+        canOverrideRole = true;
+
+        // Skip after first assign
+        if (StartGameHostPatch.RpcSetRoleReplacer.BlockSetRole) return true;
+
         var targetName = __instance.GetNameWithRole();
         Logger.Info($"{targetName} => {roleType}", "PlayerControl.RpcSetRole");
         if (!ShipStatus.Instance.enabled) return true;
+
         if (roleType is RoleTypes.CrewmateGhost or RoleTypes.ImpostorGhost)
         {
-            var targetIsKiller = target.Is(CustomRoleTypes.Impostor) || Main.ResetCamPlayerList.Contains(target.PlayerId);
+            var targetIsKiller = __instance.Is(CustomRoleTypes.Impostor) || Main.ResetCamPlayerList.Contains(__instance.PlayerId);
             var ghostRoles = new Dictionary<PlayerControl, RoleTypes>();
             foreach (PlayerControl seer in Main.AllPlayerControls)
             {
-                var self = seer.PlayerId == target.PlayerId;
+                var self = seer.PlayerId == __instance.PlayerId;
                 var seerIsKiller = seer.Is(CustomRoleTypes.Impostor) || Main.ResetCamPlayerList.Contains(seer.PlayerId);
-                if (target.HasGhostRole())
-                {
-                    ghostRoles[seer] = RoleTypes.GuardianAngel;
-                }
-                else if ((self && targetIsKiller) || (!seerIsKiller && target.Is(CustomRoleTypes.Impostor)))
-                {
-                    ghostRoles[seer] = RoleTypes.ImpostorGhost;
-                }
-                else
-                {
-                    ghostRoles[seer] = RoleTypes.CrewmateGhost;
-                }
+
+                if (__instance.HasGhostRole()) ghostRoles[seer] = RoleTypes.GuardianAngel;
+                else if ((self && targetIsKiller) || (!seerIsKiller && __instance.Is(CustomRoleTypes.Impostor))) ghostRoles[seer] = RoleTypes.ImpostorGhost;
+                else ghostRoles[seer] = RoleTypes.CrewmateGhost;
             }
 
-            if (target.HasGhostRole())
+            if (__instance.HasGhostRole())
             {
                 roleType = RoleTypes.GuardianAngel;
             }
@@ -2075,7 +2208,7 @@ class PlayerControlSetRolePatch
                 foreach ((PlayerControl seer, RoleTypes role) in ghostRoles)
                 {
                     Logger.Info($"Desync {targetName} => {role} for {seer.GetNameWithRole().RemoveHtmlTags()}", "PlayerControl.RpcSetRole");
-                    target.RpcSetRoleDesync(role, false, seer.GetClientId());
+                    __instance.RpcSetRoleDesync(role, seer.GetClientId());
                 }
 
                 return false;
@@ -2087,7 +2220,7 @@ class PlayerControlSetRolePatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CoSetRole))]
-class PlayerControlLocalSetRolePatch
+static class PlayerControlLocalSetRolePatch
 {
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] RoleTypes role)
     {
@@ -2114,7 +2247,7 @@ class PlayerControlLocalSetRolePatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckVanish))]
-class CmdCheckVanishPatch
+static class CmdCheckVanishPatch
 {
     public static bool Prefix(PlayerControl __instance, float maxDuration)
     {
@@ -2134,7 +2267,7 @@ class CmdCheckVanishPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckAppear))]
-class CmdCheckAppearPatch
+static class CmdCheckAppearPatch
 {
     public static bool Prefix(PlayerControl __instance, bool shouldAnimate)
     {
@@ -2152,17 +2285,53 @@ class CmdCheckAppearPatch
     }
 }
 
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckVanish))]
+static class CheckVanishPatch
+{
+    public static bool Prefix(PlayerControl __instance)
+    {
+        Logger.Info($" {__instance.GetNameWithRole()}", "CheckVanish");
+        bool allow = Main.PlayerStates[__instance.PlayerId].Role.OnVanish(__instance);
+        if (!allow) LateTask.New(__instance.RpcResetAbilityCooldown, 0.2f, log: false);
+        return true;
+    }
+}
+
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.AssertWithTimeout))]
-class AssertWithTimeoutPatch
+static class AssertWithTimeoutPatch
 {
     public static bool Prefix() => false;
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CmdCheckName))]
-class CmdCheckNameVersionCheckPatch
+static class CmdCheckNameVersionCheckPatch
 {
     public static void Postfix(PlayerControl __instance)
     {
         RPC.RpcVersionCheck();
+    }
+}
+
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.MixUpOutfit))]
+public static class PlayerControlMixupOutfitPatch
+{
+    public static void Postfix(PlayerControl __instance)
+    {
+        if (!__instance.IsAlive()) return;
+
+        if (PlayerControl.LocalPlayer.Data.Role.IsImpostor && // Has Impostor role behavior
+            !PlayerControl.LocalPlayer.Is(Team.Impostor) && // Not an actual Impostor
+            PlayerControl.LocalPlayer.GetCustomRole().GetDYRole() is RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom) // Has Desynced Impostor role
+            __instance.cosmetics.ToggleNameVisible(false);
+    }
+}
+
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixMixedUpOutfit))]
+public static class PlayerControlFixMixedUpOutfitPatch
+{
+    public static void Postfix(PlayerControl __instance)
+    {
+        if (!__instance.IsAlive()) return;
+        __instance.cosmetics.ToggleNameVisible(true);
     }
 }

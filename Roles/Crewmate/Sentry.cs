@@ -5,7 +5,7 @@ using EHR.Modules;
 using HarmonyLib;
 using UnityEngine;
 
-namespace EHR.Impostor
+namespace EHR.Crewmate
 {
     internal class Sentry : RoleBase
     {
@@ -20,7 +20,7 @@ namespace EHR.Impostor
         private static OptionItem AbilityUseLimit;
         public static OptionItem AbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
-        private static readonly Dictionary<SimpleRoleOptionType, OptionItem> TeamsCanSeeInfo = [];
+        private static readonly Dictionary<SimpleTeam, OptionItem> TeamsCanSeeInfo = [];
 
         private static Vector2[] AvailableDevices = [];
 
@@ -36,7 +36,7 @@ namespace EHR.Impostor
         private HashSet<byte> UsingDevice = [];
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             int id = 11370;
             Options.SetupRoleOptions(id++, TabGroup.CrewmateRoles, CustomRoles.Sentry);
@@ -54,7 +54,7 @@ namespace EHR.Impostor
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
             AdditionalDevicesForInfoView = new StringOptionItem(++id, "Sentry.AdditionalDevicesForInfoView", Enum.GetNames<AdditionalDevicesStrings>(), 0, TabGroup.CrewmateRoles)
                 .SetParent(UsableDevicesForInfoView);
-            Enum.GetValues<SimpleRoleOptionType>().Do(x =>
+            Enum.GetValues<SimpleTeam>().Do(x =>
             {
                 TeamsCanSeeInfo[x] = new BooleanOptionItem(++id, "Sentry.TeamsCanSeeInfo." + x, true, TabGroup.CrewmateRoles)
                     .SetParent(UsableDevicesForInfoView);
@@ -156,7 +156,7 @@ namespace EHR.Impostor
 
         public void OnAnyoneShapeshiftLoop(PlayerControl shapeshifter, PlayerControl target)
         {
-            if (IsInMonitoredRoom(shapeshifter) && NameNotifyManager.Notice.TryGetValue(SentryPC.PlayerId, out var notify))
+            if (IsInMonitoredRoom(shapeshifter) && NameNotifyManager.Notifies.TryGetValue(SentryPC.PlayerId, out var notifies) && notifies.Count > 0)
             {
                 bool shapeshifting = shapeshifter.PlayerId != target.PlayerId;
                 var ssTarget = shapeshifting ? target : shapeshifter;
@@ -166,14 +166,14 @@ namespace EHR.Impostor
                     Utils.ColorString(Main.PlayerColors[ss.PlayerId], ss.GetRealName()),
                     Utils.ColorString(Main.PlayerColors[ssTarget.PlayerId], Main.AllPlayerNames[ssTarget.PlayerId]));
 
-                SentryPC.Notify($"{notify.TEXT}{text}", ShowInfoDuration.GetInt() - (Utils.TimeStamp - notify.TIMESTAMP));
+                SentryPC.Notify($"{string.Join('\n', notifies.Keys)}{text}", ShowInfoDuration.GetInt() - (Utils.TimeStamp - notifies.First().Value));
 
                 LateTask.New(() =>
                 {
-                    if (NameNotifyManager.Notice.TryGetValue(SentryPC.PlayerId, out var laterNotify))
+                    if (NameNotifyManager.Notifies.TryGetValue(SentryPC.PlayerId, out var laterNotifies) && laterNotifies.Count > 0)
                     {
-                        laterNotify.TEXT = laterNotify.TEXT.Replace(text, string.Empty);
-                        SentryPC.Notify(laterNotify.TEXT, ShowInfoDuration.GetInt() - (Utils.TimeStamp - laterNotify.TIMESTAMP));
+                        var newText = string.Join('\n', laterNotifies.Keys).Replace(text, string.Empty);
+                        SentryPC.Notify(newText, ShowInfoDuration.GetInt() - (Utils.TimeStamp - laterNotifies.First().Value));
                     }
                 }, 3f, log: false);
             }
@@ -196,27 +196,27 @@ namespace EHR.Impostor
 
             foreach (var state in Main.PlayerStates.Values)
             {
-                if (state.Role is Sentry st && st.IsInMonitoredRoom(pc) && NameNotifyManager.Notice.TryGetValue(st.SentryPC.PlayerId, out var notify))
+                if (state.Role is Sentry st && st.IsInMonitoredRoom(pc) && NameNotifyManager.Notifies.TryGetValue(st.SentryPC.PlayerId, out var notifies) && notifies.Count > 0)
                 {
                     var text = "\n" + string.Format(
                         Translator.GetString("Sentry.Notify.Vented"),
                         Utils.ColorString(Main.PlayerColors[pc.PlayerId], pc.GetRealName()));
 
-                    st.SentryPC.Notify($"{notify.TEXT}{text}", ShowInfoDuration.GetInt() - (Utils.TimeStamp - notify.TIMESTAMP));
+                    st.SentryPC.Notify($"{string.Join('\n', notifies.Keys)}{text}", ShowInfoDuration.GetInt() - (Utils.TimeStamp - notifies.First().Value));
 
                     LateTask.New(() =>
                     {
-                        if (NameNotifyManager.Notice.TryGetValue(st.SentryPC.PlayerId, out var laterNotify))
+                        if (NameNotifyManager.Notifies.TryGetValue(st.SentryPC.PlayerId, out var laterNotifies) && laterNotifies.Count > 0)
                         {
-                            laterNotify.TEXT = laterNotify.TEXT.Replace(text, string.Empty);
-                            st.SentryPC.Notify(laterNotify.TEXT, ShowInfoDuration.GetInt() - (Utils.TimeStamp - laterNotify.TIMESTAMP));
+                            var newText = string.Join('\n', laterNotifies.Keys).Replace(text, string.Empty);
+                            st.SentryPC.Notify(newText, ShowInfoDuration.GetInt() - (Utils.TimeStamp - laterNotifies.First().Value));
                         }
                     }, 3f, log: false);
                 }
             }
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool h = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != target.PlayerId) return string.Empty;
 
@@ -270,7 +270,7 @@ namespace EHR.Impostor
             {
                 if (UsingDevice.Contains(pc.PlayerId))
                 {
-                    NameNotifyManager.Notice.Remove(pc.PlayerId);
+                    NameNotifyManager.Notifies.Remove(pc.PlayerId);
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                     UsingDevice.Remove(pc.PlayerId);
                 }
@@ -284,12 +284,12 @@ namespace EHR.Impostor
 
         static bool CheckTeam(PlayerControl pc)
         {
-            SimpleRoleOptionType team = pc.GetTeam() switch
+            SimpleTeam team = pc.GetTeam() switch
             {
-                Team.Crewmate => SimpleRoleOptionType.Crewmate,
-                Team.Impostor => SimpleRoleOptionType.Impostor,
-                Team.Neutral => pc.IsNeutralKiller() ? SimpleRoleOptionType.NK : SimpleRoleOptionType.NNK,
-                _ => SimpleRoleOptionType.Crewmate
+                Team.Crewmate => SimpleTeam.Crewmate,
+                Team.Impostor => SimpleTeam.Impostor,
+                Team.Neutral => pc.IsNeutralKiller() ? SimpleTeam.NK : SimpleTeam.NNK,
+                _ => SimpleTeam.Crewmate
             };
             return TeamsCanSeeInfo[team].GetBool();
         }
@@ -318,6 +318,14 @@ namespace EHR.Impostor
             DoorLog,
             Binoculars,
             DoorLogAndBinoculars
+        }
+
+        enum SimpleTeam
+        {
+            Crewmate,
+            Impostor,
+            NK,
+            NNK
         }
     }
 }

@@ -21,7 +21,7 @@ namespace EHR.Crewmate
             On = false;
         }
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Electric);
             FreezeDuration = new FloatOptionItem(Id + 2, "GamblerFreezeDur", new(0.5f, 90f, 0.5f), 3f, TabGroup.CrewmateRoles)

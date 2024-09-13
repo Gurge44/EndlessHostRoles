@@ -27,7 +27,7 @@ namespace EHR.Crewmate
 
         public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Addict);
             VentCooldown = new FloatOptionItem(Id + 11, "VentCooldown", new(5f, 70f, 1f), 40f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Addict])
@@ -120,7 +120,7 @@ namespace EHR.Crewmate
             Main.AllPlayerSpeed[pc.PlayerId] = SpeedWhileImmortal.GetFloat();
             pc.MarkDirtySettings();
 
-            if (NameNotifyManager.Notice.Remove(pc.PlayerId))
+            if (NameNotifyManager.Notifies.Remove(pc.PlayerId))
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 

@@ -2,16 +2,16 @@
 
 namespace EHR.AddOns.GhostRoles
 {
-    internal class Bloodmoon : IGhostRole, ISettingHolder
+    internal class Bloodmoon : IGhostRole
     {
         private static OptionItem CD;
         private static OptionItem Duration;
         private static OptionItem Speed;
+        private static OptionItem DieOnMeetingCall;
 
         private static readonly Dictionary<byte, long> ScheduledDeaths = [];
         public Team Team => Team.Impostor | Team.Neutral;
         public int Cooldown => Duration.GetInt() + CD.GetInt();
-        public bool ChangeToGA => true;
 
         public void OnAssign(PlayerControl pc)
         {
@@ -37,6 +37,8 @@ namespace EHR.AddOns.GhostRoles
             Speed = new FloatOptionItem(649404, "Bloodmoon.Speed", new(0.05f, 5f, 0.05f), 1f, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon])
                 .SetValueFormat(OptionFormat.Multiplier);
+            DieOnMeetingCall = new BooleanOptionItem(649405, "Bloodmoon.DieOnMeetingCall", true, TabGroup.OtherRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon]);
         }
 
         public static void Update(PlayerControl pc)
@@ -60,12 +62,15 @@ namespace EHR.AddOns.GhostRoles
 
         public static void OnMeetingStart()
         {
-            foreach (var id in ScheduledDeaths.Keys)
+            if (DieOnMeetingCall.GetBool())
             {
-                var pc = Utils.GetPlayerById(id);
-                if (pc == null || !pc.IsAlive()) continue;
+                foreach (var id in ScheduledDeaths.Keys)
+                {
+                    var pc = Utils.GetPlayerById(id);
+                    if (pc == null || !pc.IsAlive()) continue;
 
-                pc.Suicide();
+                    pc.Suicide();
+                }
             }
 
             ScheduledDeaths.Clear();

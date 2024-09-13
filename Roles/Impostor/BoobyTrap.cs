@@ -17,7 +17,7 @@ namespace EHR.Impostor
         private static OptionItem TrapConsecutiveBodies;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(16500, TabGroup.ImpostorRoles, CustomRoles.BoobyTrap);
             BTKillCooldown = new FloatOptionItem(16510, "KillCooldown", new(2.5f, 180f, 2.5f), 20f, TabGroup.ImpostorRoles)
@@ -67,7 +67,7 @@ namespace EHR.Impostor
             }
         }
 
-        public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
+        public static bool OnAnyoneCheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
         {
             if (BoobyTrapBody.Contains(target.PlayerId) && reporter.IsAlive())
             {

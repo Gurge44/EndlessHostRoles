@@ -10,7 +10,7 @@ namespace EHR.Impostor
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(4000, TabGroup.ImpostorRoles, CustomRoles.Scavenger);
             ScavengerKillCooldown = new FloatOptionItem(4010, "KillCooldown", new(0f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles)

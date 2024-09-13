@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 
 namespace EHR.AddOns.GhostRoles
 {
-    internal class Haunter : IGhostRole, ISettingHolder
+    internal class Haunter : IGhostRole
     {
         public static HashSet<byte> AllHauntedPlayers = [];
 
@@ -14,14 +13,21 @@ namespace EHR.AddOns.GhostRoles
         private static OptionItem RevealNeutralKillers;
         private static OptionItem RevealMadmates;
         private static OptionItem NumberOfReveals;
+        public static OptionItem CanWinWithCrewmates;
+
+        private static readonly string[] WinWithCrewOpts =
+        [
+            "RoleOff",
+            "WWCO.IfFinishedTasks",
+            "RoleOn"
+        ];
+
         private byte HaunterId;
-
         private List<byte> WarnedImps = [];
+        private long WarnTimeStamp;
 
-        private long WarnTimeStamp = 0;
         public Team Team => Team.Crewmate | Team.Neutral;
         public int Cooldown => 900;
-        public bool ChangeToGA => false;
 
         public void OnProtect(PlayerControl pc, PlayerControl target)
         {
@@ -35,11 +41,11 @@ namespace EHR.AddOns.GhostRoles
                 var taskState = pc.GetTaskState();
                 if (taskState == null) return;
 
-                taskState.hasTasks = true;
+                taskState.HasTasks = true;
                 taskState.CompletedTasksCount = 0;
                 taskState.AllTasksCount = Utils.TotalTaskCount - Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks);
 
-                pc.Data.RpcSetTasks(Array.Empty<byte>());
+                pc.Data.RpcSetTasks(new(0));
                 pc.SyncSettings();
                 pc.RpcResetAbilityCooldown();
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -57,7 +63,9 @@ namespace EHR.AddOns.GhostRoles
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
             NumberOfReveals = new IntegerOptionItem(649305, "Haunter.NumberOfReveals", new(1, 10, 1), 1, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
-            Options.OverrideTasksData.Create(649306, TabGroup.OtherRoles, CustomRoles.Haunter);
+            CanWinWithCrewmates = new StringOptionItem(649306, "Haunter.CanWinWithCrewmates", WinWithCrewOpts, 1, TabGroup.OtherRoles)
+                .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
+            Options.OverrideTasksData.Create(649307, TabGroup.OtherRoles, CustomRoles.Haunter);
         }
 
         public void OnOneTaskLeft(PlayerControl pc)
@@ -78,8 +86,8 @@ namespace EHR.AddOns.GhostRoles
             foreach (var imp in filtered)
             {
                 TargetArrow.Add(imp.PlayerId, pc.PlayerId);
-                imp.Notify(Translator.GetString("Haunter1TaskLeft"), 300f);
                 WarnedImps.Add(imp.PlayerId);
+                imp.Notify(Translator.GetString("Haunter1TaskLeft"), 300f);
             }
 
             WarnTimeStamp = Utils.TimeStamp;
@@ -137,6 +145,16 @@ namespace EHR.AddOns.GhostRoles
             }
 
             return string.Empty;
+        }
+
+        public static bool CanWinWithCrew(PlayerControl pc)
+        {
+            return CanWinWithCrewmates.GetValue() switch
+            {
+                0 => false,
+                1 => pc.GetTaskState().IsTaskFinished,
+                _ => true
+            };
         }
     }
 }

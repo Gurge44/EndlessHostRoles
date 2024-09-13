@@ -10,50 +10,22 @@ namespace EHR.Crewmate
 {
     public class PatrollingState(byte sentinelId, int patrolDuration, float patrolRadius, PlayerControl sentinel = null, bool isPatrolling = false, Vector2? startingPosition = null, long patrolStartTimeStamp = 0)
     {
-        private readonly List<byte> LastNearbyKillers = [];
+        private List<byte> LastNearbyKillers = [];
         private long LastUpdate;
 
-        public byte SentinelId
-        {
-            get => sentinelId;
-            set => sentinelId = value;
-        }
+        public byte SentinelId => sentinelId;
 
-        public PlayerControl Sentinel
-        {
-            get => sentinel;
-            set => sentinel = value;
-        }
+        public PlayerControl Sentinel { get; private set; } = sentinel;
 
-        public bool IsPatrolling
-        {
-            get => isPatrolling;
-            set => isPatrolling = value;
-        }
+        public bool IsPatrolling { get; private set; } = isPatrolling;
 
-        public Vector2 StartingPosition
-        {
-            get => startingPosition ?? Vector2.zero;
-            set => startingPosition = value;
-        }
+        private Vector2 StartingPosition { get; set; } = startingPosition ?? Vector2.zero;
 
-        public long PatrolStartTimeStamp
-        {
-            get => patrolStartTimeStamp;
-            set => patrolStartTimeStamp = value;
-        }
+        private long PatrolStartTimeStamp { get; set; } = patrolStartTimeStamp;
 
-        public int PatrolDuration
-        {
-            get => patrolDuration;
-            set => patrolDuration = value;
-        }
+        private int PatrolDuration => patrolDuration;
 
-        public float PatrolRadius
-        {
-            get => patrolRadius;
-            set => patrolRadius = value;
-        }
+        private float PatrolRadius => patrolRadius;
 
         public PlayerControl[] NearbyKillers => GetPlayersInRadius(PatrolRadius, StartingPosition).Where(x => !x.Is(Team.Crewmate) && SentinelId != x.PlayerId).ToArray();
 
@@ -96,17 +68,11 @@ namespace EHR.Crewmate
             bool nowInRange = killers.Any(x => x.PlayerId == pc.PlayerId);
             bool wasInRange = LastNearbyKillers.Contains(pc.PlayerId);
 
-            if (wasInRange && !nowInRange)
-            {
-                pc.Notify(GetString("KillerEscapedFromSentinel"));
-                LastNearbyKillers.Remove(pc.PlayerId);
-            }
+            var timeLeft = PatrolDuration - (TimeStamp - PatrolStartTimeStamp);
+            if (wasInRange && !nowInRange) pc.Notify(GetString("KillerEscapedFromSentinel"));
+            if (nowInRange && timeLeft >= 0) pc.Notify(string.Format(GetString("KillerNotifyPatrol"), timeLeft));
 
-            if (nowInRange)
-            {
-                pc.Notify(string.Format(GetString("KillerNotifyPatrol"), PatrolDuration - (TimeStamp - PatrolStartTimeStamp)));
-                LastNearbyKillers.Add(pc.PlayerId);
-            }
+            LastNearbyKillers = killers.Select(x => x.PlayerId).ToList();
         }
 
         public void FinishPatrolling()
@@ -134,7 +100,7 @@ namespace EHR.Crewmate
 
         public override bool IsEnable => PatrolStates.Count > 0 || Randomizer.Exists;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Sentinel);
             PatrolCooldown = CreateCDSetting(Id + 2, TabGroup.CrewmateRoles, CustomRoles.Sentinel);
@@ -161,8 +127,8 @@ namespace EHR.Crewmate
             LateTask.New(newPatrolState.SetPlayer, 8f, log: false);
         }
 
-        public static PatrollingState GetPatrollingState(byte playerId) => PatrolStates.FirstOrDefault(x => x.SentinelId == playerId) ?? new(playerId, PatrolDuration.GetInt(), PatrolRadius.GetInt());
-        public static bool IsPatrolling(byte playerId) => GetPatrollingState(playerId).IsPatrolling;
+        private static PatrollingState GetPatrollingState(byte playerId) => PatrolStates.FirstOrDefault(x => x.SentinelId == playerId) ?? new(playerId, PatrolDuration.GetInt(), PatrolRadius.GetInt());
+        public static bool IsPatrolling(byte playerId) => GetPatrollingState(playerId)?.IsPatrolling == true;
         public override void OnEnterVent(PlayerControl pc, Vent vent) => GetPatrollingState(pc.PlayerId)?.StartPatrolling();
         public override void OnPet(PlayerControl pc) => GetPatrollingState(pc.PlayerId)?.StartPatrolling();
 
@@ -172,7 +138,7 @@ namespace EHR.Crewmate
             foreach (PatrollingState state in PatrolStates)
             {
                 if (!state.IsPatrolling) continue;
-                if (state.NearbyKillers.Contains(killer))
+                if (state.NearbyKillers.Any(x => x.PlayerId == killer.PlayerId))
                 {
                     state.Sentinel.RpcCheckAndMurder(killer);
                     return false;

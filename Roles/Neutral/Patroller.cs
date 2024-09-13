@@ -22,7 +22,7 @@ namespace EHR.Neutral
 
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Patroller);
             KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
@@ -57,10 +57,14 @@ namespace EHR.Neutral
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).GetPlainShipRoom() == RoomBoosts[Boost.Cooldown] ? DecreasedKillCooldown.GetFloat() : KillCooldown.GetFloat();
         public override bool CanUseImpostorVentButton(PlayerControl pc) => pc.inVent || pc.GetAbilityUseLimit() > 0 || pc.GetPlainShipRoom() == RoomBoosts[Boost.Vent];
-        public override bool CanUseSabotage(PlayerControl pc) => pc.GetPlainShipRoom() == RoomBoosts[Boost.Sabotage];
+        public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (pc.GetPlainShipRoom() == RoomBoosts[Boost.Sabotage]);
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
+            if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool())
+                AURoleOptions.PhantomCooldown = 1f;
+            if (Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool())
+                AURoleOptions.ShapeshifterCooldown = 1f;
             var room = Utils.GetPlayerById(id)?.GetPlainShipRoom();
             if (room == null) return;
             opt.SetVision(room == RoomBoosts[Boost.Vision]);
@@ -88,7 +92,7 @@ namespace EHR.Neutral
             }
             else
             {
-                NameNotifyManager.Notice.Remove(pc.PlayerId);
+                NameNotifyManager.Notifies.Remove(pc.PlayerId);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }
 
@@ -113,6 +117,19 @@ namespace EHR.Neutral
         {
             var s = RoomBoosts.Select(x => $"{Translator.GetString(x.Value.RoomId.ToString())} \u21e8 {Translator.GetString($"PatrollerBoost.{x.Key}")}");
             pc.Notify(string.Join('\n', s));
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            OnPet(pc);
+            return false;
+        }
+
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
+            OnPet(shapeshifter);
+            return false;
         }
 
         enum Boost

@@ -31,9 +31,9 @@ namespace EHR.Crewmate
 
         public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.NiceHacker);
+            SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.NiceHacker);
             AbilityCD = new FloatOptionItem(Id + 10, "AbilityCD", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.NiceHacker])
                 .SetValueFormat(OptionFormat.Seconds);
             UseLimitOpt = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(1, 20, 1), 2, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.NiceHacker])
@@ -122,7 +122,7 @@ namespace EHR.Crewmate
             }
             else
             {
-                if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
+                if (!NameNotifyManager.Notifies.ContainsKey(pc.PlayerId))
                     pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
             }
         }
@@ -182,10 +182,10 @@ namespace EHR.Crewmate
             LateTask.New(() => { MapCountdown(pc, map, opts, seconds - 1); }, 1f, "NiceHackerAbilityCountdown");
         }
 
-        public override string GetSuffix(PlayerControl pc, PlayerControl _, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!hud || pc == null) return string.Empty;
-            return !pc.Is(CustomRoles.NiceHacker) ? string.Empty : $"<color=#00ffa5>{GetString("NiceHackerAbilitySecondsLeft")}:</color> <b>{(int)UseLimitSeconds[pc.PlayerId]}</b>s";
+            if (!hud || seer == null) return string.Empty;
+            return !seer.Is(CustomRoles.NiceHacker) ? string.Empty : $"<color=#00ffa5>{GetString("NiceHackerAbilitySecondsLeft")}:</color> <b>{(int)UseLimitSeconds[seer.PlayerId]}</b>s";
         }
 
         public override string GetProgressText(byte playerId, bool comms)

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -30,8 +31,9 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "4.1.0";
-    public const string PluginDisplayVersion = "4.1.0";
+    public const string PluginVersion = "4.7.0";
+    public const string PluginDisplayVersion = "4.7.0";
+    public const bool TestBuild = true;
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
     public const string CrewmateColor = "#8cffff";
@@ -43,7 +45,7 @@ public class Main : BasePlugin
     public const string ModColor = "#00ffff";
     public const bool AllowPublicRoom = true;
     public const string ForkId = "EHR";
-    public const string SupportedAUVersion = "2024.6.18";
+    public const string SupportedAUVersion = "2024.8.13";
     public static readonly Version Version = Version.Parse(PluginVersion);
     public static ManualLogSource Logger;
     public static bool HasArgumentException;
@@ -69,7 +71,7 @@ public class Main : BasePlugin
     public static List<RoleBase> AllRoleClasses;
     public static float RefixCooldownDelay;
     public static bool ProcessShapeshifts = true;
-    public static readonly Dictionary<byte, (long START_TIMESTAMP, int TOTALCD)> AbilityCD = [];
+    public static readonly Dictionary<byte, (long StartTimeStamp, int TotalCooldown)> AbilityCD = [];
     public static Dictionary<byte, float> AbilityUseLimit = [];
     public static List<byte> DontCancelVoteList = [];
     public static HashSet<byte> ResetCamPlayerList = [];
@@ -79,7 +81,7 @@ public class Main : BasePlugin
     public static Dictionary<byte, float> AllPlayerKillCooldown = [];
     public static Dictionary<byte, Vent> LastEnteredVent = [];
     public static Dictionary<byte, Vector2> LastEnteredVentLocation = [];
-    public static readonly List<(string MESSAGE, byte RECEIVER_ID, string TITLE)> MessagesToSend = [];
+    public static readonly List<(string Message, byte ReceiverID, string Title)> MessagesToSend = [];
     public static bool IsChatCommand;
     public static bool DoBlockNameChange;
     public static int UpdateTime;
@@ -97,11 +99,12 @@ public class Main : BasePlugin
     public static bool IntroDestroyed;
     public static float DefaultCrewmateVision;
     public static float DefaultImpostorVision;
-    public static readonly bool IsAprilFools = DateTime.Now.Month == 4 && DateTime.Now.Day is 1;
+    public static readonly bool IsAprilFools = DateTime.Now.Month == 4 && DateTime.Now.Day == 1;
     public static bool ResetOptions = true;
     public static string FirstDied = string.Empty;
     public static string ShieldPlayer = string.Empty;
 
+    public static HashSet<byte> DiedThisRound = [];
     public static List<PlayerControl> LoversPlayers = [];
     public static bool IsLoversDead = true;
     public static List<byte> CyberStarDead = [];
@@ -145,7 +148,6 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> EnableCustomButton { get; private set; }
     public static ConfigEntry<bool> EnableCustomSoundEffect { get; private set; }
     public static ConfigEntry<bool> SwitchVanilla { get; private set; }
-    public static ConfigEntry<bool> VersionCheat { get; private set; }
     public static ConfigEntry<bool> GodMode { get; private set; }
     public static ConfigEntry<bool> DarkTheme { get; private set; }
     public static ConfigEntry<bool> HorseMode { get; private set; }
@@ -181,7 +183,7 @@ public class Main : BasePlugin
             int i = 0;
             foreach (var pc in PlayerControl.AllPlayerControls)
             {
-                if (pc == null) continue;
+                if (pc == null || pc.PlayerId == 255) continue;
                 result[i++] = pc;
             }
 
@@ -201,7 +203,7 @@ public class Main : BasePlugin
             int i = 0;
             foreach (var pc in PlayerControl.AllPlayerControls)
             {
-                if (pc == null || !pc.IsAlive() || pc.Data.Disconnected || Pelican.IsEaten(pc.PlayerId)) continue;
+                if (pc == null || pc.PlayerId == 255 || !pc.IsAlive() || pc.Data.Disconnected || Pelican.IsEaten(pc.PlayerId)) continue;
                 result[i++] = pc;
             }
 
@@ -236,7 +238,6 @@ public class Main : BasePlugin
         EnableCustomButton = Config.Bind("Client Options", "EnableCustomButton", true);
         EnableCustomSoundEffect = Config.Bind("Client Options", "EnableCustomSoundEffect", true);
         SwitchVanilla = Config.Bind("Client Options", "SwitchVanilla", false);
-        VersionCheat = Config.Bind("Client Options", "VersionCheat", false);
         GodMode = Config.Bind("Client Options", "GodMode", false);
         DarkTheme = Config.Bind("Client Options", "DarkTheme", true);
         HorseMode = Config.Bind("Client Options", "HorseMode", false);
@@ -301,9 +302,9 @@ public class Main : BasePlugin
             {
                 // Vanilla
                 { CustomRoles.Crewmate, "#8cffff" },
-                { CustomRoles.Engineer, "#8cffff" },
-                { CustomRoles.Scientist, "#8cffff" },
-                { CustomRoles.GuardianAngel, "#ffffff" },
+                { CustomRoles.Engineer, "#FF6A00" },
+                { CustomRoles.Scientist, "#8ee98e" },
+                { CustomRoles.GuardianAngel, "#77e6d1" },
                 { CustomRoles.Tracker, "#34ad50" },
                 { CustomRoles.Noisemaker, "#ff4a62" },
                 // Vanilla Remakes
@@ -342,11 +343,13 @@ public class Main : BasePlugin
                 { CustomRoles.Electric, "#fbff00" },
                 { CustomRoles.Philantropist, "#e3b384" },
                 { CustomRoles.Tornado, "#303030" },
+                { CustomRoles.Dad, "#037bfc" },
                 { CustomRoles.Insight, "#26ff38" },
                 { CustomRoles.Tunneler, "#543232" },
                 { CustomRoles.Detour, "#ffd35c" },
                 { CustomRoles.Gaulois, "#42d1f5" },
                 { CustomRoles.Druid, "#ffb694" },
+                { CustomRoles.Catcher, "#aaf2cf" },
                 { CustomRoles.Autocrat, "#e2ed64" },
                 { CustomRoles.LovingCrewmate, "#ff9ace" },
                 { CustomRoles.LovingImpostor, "#ff9ace" },
@@ -357,6 +360,18 @@ public class Main : BasePlugin
                 { CustomRoles.Convener, "#34eb7a" },
                 { CustomRoles.Mathematician, "#eb3474" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Wizard, "#FD05CC" },
+                { CustomRoles.Negotiator, "#00c3ff" },
+                { CustomRoles.Grappler, "#befc03" },
+                { CustomRoles.Journalist, "#fcba03" },
+                { CustomRoles.Whisperer, "#82919e" },
+                { CustomRoles.Car, "#6e6e6e" },
+                { CustomRoles.President, "#30916f" },
+                { CustomRoles.Oxyman, "#ffa58c" },
+                { CustomRoles.Rhapsode, "#f5ad42" },
+                { CustomRoles.Chef, "#d6d6ff" },
+                { CustomRoles.Lyncher, "#14ba7d" },
+                { CustomRoles.Socialite, "#32a8a8" },
                 { CustomRoles.Adrenaline, "#ffff00" },
                 { CustomRoles.Safeguard, "#4949e3" },
                 { CustomRoles.Clairvoyant, "#d4ffdd" },
@@ -366,6 +381,7 @@ public class Main : BasePlugin
                 { CustomRoles.Doppelganger, "#f6f4a3" },
                 { CustomRoles.Nightmare, "#1e1247" },
                 { CustomRoles.Altruist, "#300000" },
+                { CustomRoles.Bane, "#745da3" },
                 { CustomRoles.Benefactor, "#4aeaff" },
                 { CustomRoles.GuessManagerRole, "#d4ff00" },
                 { CustomRoles.Drainer, "#149627" },
@@ -460,6 +476,7 @@ public class Main : BasePlugin
                 { CustomRoles.HexMaster, "#ff00ff" },
                 { CustomRoles.Wraith, "#4B0082" },
                 { CustomRoles.NSerialKiller, "#233fcc" },
+                { CustomRoles.Beehive, "#ffff00" },
                 { CustomRoles.RouleteGrandeur, "#a88332" },
                 { CustomRoles.Nonplus, "#09632f" },
                 { CustomRoles.Tremor, "#e942f5" },
@@ -483,6 +500,10 @@ public class Main : BasePlugin
                 { CustomRoles.SchrodingersCat, "#616161" },
                 { CustomRoles.Shifter, "#777777" },
                 { CustomRoles.Impartial, "#4287f5" },
+                { CustomRoles.Gaslighter, "#b6aa82" },
+                { CustomRoles.Tank, "#176320" },
+                { CustomRoles.Technician, "#4e96f5" },
+                { CustomRoles.Backstabber, "#fcba03" },
                 { CustomRoles.Predator, "#c73906" },
                 { CustomRoles.Reckless, "#6e000d" },
                 { CustomRoles.Magician, "#BF5FFF" },
@@ -530,7 +551,6 @@ public class Main : BasePlugin
                 { CustomRoles.LastImpostor, "#ff1919" },
                 { CustomRoles.Lovers, "#ff9ace" },
                 { CustomRoles.Bloodlust, "#630000" },
-                { CustomRoles.Ntr, "#00a4ff" },
                 { CustomRoles.Madmate, "#ff1919" },
                 { CustomRoles.Watcher, "#800080" },
                 { CustomRoles.Sleuth, "#30221c" },
@@ -538,6 +558,7 @@ public class Main : BasePlugin
                 { CustomRoles.Messenger, "#28b573" },
                 { CustomRoles.Dynamo, "#ebe534" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Deadlined, "#ffa500" },
                 { CustomRoles.Rookie, "#bf671f" },
                 { CustomRoles.Taskcounter, "#ff1919" },
                 { CustomRoles.Stained, "#e6bf91" },
@@ -561,6 +582,7 @@ public class Main : BasePlugin
                 { CustomRoles.Brakar, "#1447af" },
                 { CustomRoles.Oblivious, "#424242" },
                 { CustomRoles.Bewilder, "#c894f5" },
+                { CustomRoles.Spurt, "#c9e8f5" },
                 { CustomRoles.Sunglasses, "#E7C12B" },
                 { CustomRoles.Workhorse, "#00ffff" },
                 { CustomRoles.Undead, "#ed9abd" },
@@ -613,6 +635,10 @@ public class Main : BasePlugin
                 { CustomRoles.Potato, "#e8cd46" },
                 // Speedrun
                 { CustomRoles.Runner, "#800080" },
+                // Capture The Flag
+                { CustomRoles.CTFPlayer, "#1313c2" },
+                // Natural Disaster
+                { CustomRoles.NDPlayer, "#03fc4a" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },
@@ -641,7 +667,6 @@ public class Main : BasePlugin
         }
 
         CustomWinnerHolder.Reset();
-        ServerAddManager.Init();
         Translator.Init();
         BanManager.Init();
         TemplateManager.Init();
@@ -688,7 +713,7 @@ public class Main : BasePlugin
         }
     }
 
-    public void StartCoroutine(System.Collections.IEnumerator coroutine)
+    public void StartCoroutine(IEnumerator coroutine)
     {
         if (coroutine == null)
         {
@@ -698,7 +723,7 @@ public class Main : BasePlugin
         coroutines.StartCoroutine(coroutine.WrapToIl2Cpp());
     }
 
-    public void StopCoroutine(System.Collections.IEnumerator coroutine)
+    public void StopCoroutine(IEnumerator coroutine)
     {
         if (coroutine == null)
         {
@@ -721,6 +746,13 @@ public enum Team
     Impostor = 1,
     Neutral = 2,
     Crewmate = 4
+
+    /*
+     * Impostor | Neutral = 3
+     * Impostor | Crewmate = 5
+     * Neutral | Crewmate = 6
+     * Impostor | Neutral | Crewmate = 7
+     */
 }
 
 #pragma warning disable IDE0079 // Remove unnecessary suppression
@@ -752,6 +784,7 @@ public enum CustomWinner
     Executioner = CustomRoles.Executioner,
     Arsonist = CustomRoles.Arsonist,
     Revolutionist = CustomRoles.Revolutionist,
+    Technician = CustomRoles.Technician,
     Jackal = CustomRoles.Jackal,
     God = CustomRoles.God,
     Mario = CustomRoles.Mario,
@@ -770,6 +803,7 @@ public enum CustomWinner
     Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
     SerialKiller = CustomRoles.NSerialKiller,
+    Beehive = CustomRoles.Beehive,
     RouleteGrandeur = CustomRoles.RouleteGrandeur,
     Nonplus = CustomRoles.Nonplus,
     Tremor = CustomRoles.Tremor,
@@ -846,6 +880,10 @@ public enum AdditionalWinners
     Maverick = CustomRoles.Maverick,
     Postman = CustomRoles.Postman,
     Impartial = CustomRoles.Impartial,
+    Gaslighter = CustomRoles.Gaslighter,
+    Tank = CustomRoles.Tank,
+    Technician = CustomRoles.Technician,
+    Backstabber = CustomRoles.Backstabber,
     Predator = CustomRoles.Predator,
     SoulHunter = CustomRoles.SoulHunter,
     SchrodingersCat = CustomRoles.SchrodingersCat

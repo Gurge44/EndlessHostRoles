@@ -13,7 +13,7 @@ namespace EHR.Crewmate
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             const int id = 8990;
             SetupRoleOptions(id, TabGroup.CrewmateRoles, CustomRoles.Veteran);
@@ -93,7 +93,7 @@ namespace EHR.Crewmate
             }
             else
             {
-                if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId)) pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
+                if (!NameNotifyManager.Notifies.ContainsKey(pc.PlayerId)) pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
             }
         }
 

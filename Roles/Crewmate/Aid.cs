@@ -17,11 +17,12 @@ namespace EHR.Crewmate
         public static OptionItem UseLimitOpt;
         public static OptionItem UsePet;
         private static bool On;
+        byte AidId;
 
         public byte TargetId;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Aid);
             AidCD = new FloatOptionItem(Id + 10, "AidCD", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles)
@@ -49,6 +50,7 @@ namespace EHR.Crewmate
             On = true;
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             TargetId = byte.MaxValue;
+            AidId = playerId;
         }
 
         public override void SetKillCooldown(byte playerId) => Main.AllPlayerKillCooldown[playerId] = AidCD.GetInt();
@@ -77,7 +79,7 @@ namespace EHR.Crewmate
                 if (x.Value + AidDur.GetInt() <= Utils.TimeStamp || !GameStates.IsInTask)
                 {
                     ShieldedPlayers.Remove(x.Key);
-                    Utils.SendRPC(CustomRPC.SyncAid, pc.PlayerId, 1, x.Key);
+                    Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, x.Key);
                     change = true;
                 }
             }
@@ -95,7 +97,7 @@ namespace EHR.Crewmate
             {
                 pc.RpcRemoveAbilityUse();
                 ShieldedPlayers[TargetId] = Utils.TimeStamp;
-                Utils.SendRPC(CustomRPC.SyncAid, pc.PlayerId, 0, TargetId);
+                Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 0, TargetId);
                 var target = Utils.GetPlayerById(TargetId);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
@@ -103,6 +105,11 @@ namespace EHR.Crewmate
             }
 
             LateTask.New(() => physics.RpcBootFromVent(ventId), 0.5f, log: false);
+        }
+
+        public override void OnReportDeadBody()
+        {
+            ShieldedPlayers.Clear();
         }
 
         public void ReceiveRPC(MessageReader reader)
@@ -127,7 +134,7 @@ namespace EHR.Crewmate
                 return string.Format(Translator.GetString("AidCounterSelf"), timeLeft);
             }
 
-            if (seer.Is(CustomRoles.Aid))
+            if (seer.PlayerId == AidId)
             {
                 var duration = AidDur.GetInt();
                 var now = Utils.TimeStamp;

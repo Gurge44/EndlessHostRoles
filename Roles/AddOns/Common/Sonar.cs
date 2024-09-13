@@ -11,7 +11,7 @@ namespace EHR.AddOns.Common
 
         public void SetupCustomOption()
         {
-            Options.SetupAdtRoleOptions(13644, CustomRoles.Sonar, canSetNum: true, teamSpawnOptions: true);
+            Options.SetupAdtRoleOptions(13643, CustomRoles.Sonar, canSetNum: true, teamSpawnOptions: true);
         }
 
         public static string GetSuffix(PlayerControl seer, bool meeting)

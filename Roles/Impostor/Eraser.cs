@@ -28,10 +28,11 @@ internal class Eraser : RoleBase
 
     private static List<byte> didVote = [];
     private static List<byte> PlayerToErase = [];
+    public static List<byte> ErasedPlayers = [];
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Eraser);
         EraseMethod = new StringOptionItem(Id + 10, "EraseMethod", EraseMode, 0, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
@@ -45,6 +46,7 @@ internal class Eraser : RoleBase
     public override void Init()
     {
         playerIdList = [];
+        ErasedPlayers = [];
     }
 
     public override void Add(byte playerId)
@@ -80,7 +82,7 @@ internal class Eraser : RoleBase
         return true;
     }
 
-    public static bool OnVote(PlayerControl player, PlayerControl target)
+    public override bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null || EraseMethod.GetInt() == 0) return false;
         if (didVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
@@ -128,6 +130,7 @@ internal class Eraser : RoleBase
             player.Notify(GetString("LostRoleByEraser"));
             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} lost their role", "Eraser");
             player.MarkDirtySettings();
+            ErasedPlayers.Add(pc);
         }
 
         PlayerToErase = [];

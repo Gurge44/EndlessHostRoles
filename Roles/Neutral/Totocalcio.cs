@@ -26,9 +26,9 @@ public class Totocalcio : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Totocalcio);
+        SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Totocalcio);
         MaxBetTimes = new IntegerOptionItem(Id + 10, "TotocalcioMaxBetTimes", new(1, 5, 1), 3, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Totocalcio])
             .SetValueFormat(OptionFormat.Times);
@@ -101,6 +101,7 @@ public class Totocalcio : RoleBase
 
     public override bool KnowRole(PlayerControl player, PlayerControl target)
     {
+        if (base.KnowRole(player, target)) return true;
         if (!KnowTargetRole.GetBool()) return false;
         return player.Is(CustomRoles.Totocalcio) && BetPlayer == target.PlayerId;
     }

@@ -8,10 +8,12 @@ namespace EHR.Modules
 {
     internal static class LoadingScreen
     {
-        const int HintCount = 36;
+        const int HintCount = 40;
         const int JokeHintCount = 6;
         private static SpriteRenderer LoadingAnimation;
         private static readonly HashSet<int> ToldHints = [];
+        private static float HintHideTimer;
+        public static string Hint;
 
         private static void UpdateLoadingAnimation()
         {
@@ -35,40 +37,42 @@ namespace EHR.Modules
             }
         }
 
-        public static string GetHint()
+        private static void NewHint()
         {
             int index;
             if (ToldHints.Count == HintCount) ToldHints.Clear();
             do index = IRandom.Instance.Next(HintCount);
             while (!ToldHints.Add(index));
-            if (IRandom.Instance.Next(20) == 0) index = IRandom.Instance.Next(40, 40 + JokeHintCount);
+            bool joke = IRandom.Instance.Next(20) == 0;
+            if (joke) index = IRandom.Instance.Next(40, 40 + JokeHintCount);
             string text = Translator.GetString($"LoadingHint.{index}");
-            text = text.Insert(0, "<color=#00ffa5>");
+            text = text.Insert(0, joke ? "<color=#ffff00>" : "<color=#00ffa5>");
             text = text.Insert(text.IndexOf('\n'), "</color><#ffffff>");
             text += "</color>";
-            return text;
+            Hint = text;
         }
 
         public static void Update()
         {
             try
             {
+                if (HintHideTimer <= 15f)
+                    HintHideTimer += Time.deltaTime;
+
                 var lp = PlayerControl.LocalPlayer;
                 if (lp == null) return;
                 var anims = lp.MyPhysics.Animations;
 
                 bool visible = AmongUsClient.Instance.AmHost && AmongUsClient.Instance.IsGameStarted && !GameStates.IsCanMove && (!GameStates.IsInTask || ExileController.Instance) && !GameStates.IsMeeting && !HudManager.Instance.Chat.IsOpenOrOpening && !lp.inVent && !anims.IsPlayingAnyLadderAnimation() && !VentButtonDoClickPatch.Animating && !lp.onLadder;
 
-                if (!visible && LoadingAnimation)
+                switch (visible)
                 {
-                    Object.Destroy(LoadingAnimation);
-                    return;
-                }
-
-                if (!LoadingAnimation && visible)
-                {
-                    UpdateLoadingAnimation();
-                    return;
+                    case false when LoadingAnimation:
+                        Object.Destroy(LoadingAnimation);
+                        return;
+                    case true when !LoadingAnimation:
+                        UpdateLoadingAnimation();
+                        return;
                 }
 
                 if (LoadingAnimation)
@@ -90,6 +94,8 @@ namespace EHR.Modules
                         ErrorText.RemoveHint();
                         return;
                     case true when !ErrorText.HasHint:
+                        if (HintHideTimer > 15f) NewHint();
+                        HintHideTimer = 0f;
                         ErrorText.Instance.AddError(ErrorCode.LoadingHint);
                         break;
                 }

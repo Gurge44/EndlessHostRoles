@@ -51,7 +51,7 @@ namespace EHR.Crewmate
 
         public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Enigma);
             EnigmaClueStage1Tasks = new FloatOptionItem(Id + 11, "EnigmaClueStage1Tasks", new(0f, 10f, 1f), 1f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
@@ -341,6 +341,8 @@ namespace EHR.Crewmate
             {
                 int start = length - rd.Next(0, 2);
                 int end = length + rd.Next(0, 2);
+
+                if (start == end) return GetStage3Clue(length);
 
                 start = start < 0 ? 0 : start;
                 end = end > 10 ? 10 : end;

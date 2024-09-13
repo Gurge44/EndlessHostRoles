@@ -65,12 +65,17 @@ public static class Camouflage
             _ => CamouflageOutfit
         };
 
-        if (Options.UsePets.GetBool() && CamouflageOutfit.PetId == "")
+        SetPetForOutfitIfNecessary(CamouflageOutfit);
+    }
+
+    public static void SetPetForOutfitIfNecessary(NetworkedPlayerInfo.PlayerOutfit outfit)
+    {
+        if (Options.UsePets.GetBool() && outfit.PetId == "")
         {
             string[] pets = Options.PetToAssign;
             string pet = pets[Options.PetToAssignToEveryone.GetValue()];
             string petId = pet == "pet_RANDOM_FOR_EVERYONE" ? pets[IRandom.Instance.Next(0, pets.Length - 1)] : pet;
-            CamouflageOutfit.PetId = petId;
+            outfit.PetId = petId;
         }
     }
 
@@ -88,7 +93,7 @@ public static class Camouflage
 
             foreach (var pc in Main.AllPlayerControls)
             {
-                if (pc.inVent || pc.walkingToVent || pc.onLadder)
+                if (pc.inVent || pc.walkingToVent || pc.onLadder || pc.inMovingPlat)
                 {
                     WaitingForSkinChange.Add(pc.PlayerId);
                     continue;
@@ -135,6 +140,8 @@ public static class Camouflage
                 newOutfit = PlayerSkins[id];
             }
         }
+        
+        SetPetForOutfitIfNecessary(newOutfit);
 
         // if the current Outfit is the same, return it
         if (newOutfit.Compare(target.Data.DefaultOutfit)) return;
@@ -178,7 +185,7 @@ public static class Camouflage
 
     public static void OnFixedUpdate(PlayerControl pc)
     {
-        if (!WaitingForSkinChange.Contains(pc.PlayerId) || pc.inVent || pc.walkingToVent || pc.onLadder) return;
+        if (!WaitingForSkinChange.Contains(pc.PlayerId) || pc.inVent || pc.walkingToVent || pc.onLadder || pc.inMovingPlat) return;
 
         RpcSetSkin(pc);
         WaitingForSkinChange.Remove(pc.PlayerId);

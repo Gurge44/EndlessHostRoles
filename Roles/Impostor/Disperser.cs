@@ -18,14 +18,17 @@ public class Disperser : RoleBase
     public static bool On;
     public override bool IsEnable => On;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Disperser);
-        DisperserShapeshiftCooldown = new FloatOptionItem(Id + 5, "ShapeshiftCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
+        DisperserShapeshiftCooldown = new FloatOptionItem(Id + 5, "ShapeshiftCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
             .SetValueFormat(OptionFormat.Seconds);
-        DisperserShapeshiftDuration = new FloatOptionItem(Id + 6, "ShapeshiftDuration", new(1f, 30f, 1f), 1f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
+        DisperserShapeshiftDuration = new FloatOptionItem(Id + 6, "ShapeshiftDuration", new(1f, 30f, 1f), 1f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
             .SetValueFormat(OptionFormat.Seconds);
-        DisperserLimitOpt = new IntegerOptionItem(Id + 7, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
+        DisperserLimitOpt = new IntegerOptionItem(Id + 7, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
             .SetValueFormat(OptionFormat.Times);
         DisperserAbilityUseGainWithEachKill = new FloatOptionItem(Id + 8, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
@@ -45,25 +48,45 @@ public class Disperser : RoleBase
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
-        if (UsePets.GetBool()) return;
-        AURoleOptions.ShapeshifterCooldown = DisperserShapeshiftCooldown.GetFloat();
-        AURoleOptions.ShapeshifterDuration = DisperserShapeshiftDuration.GetFloat();
+        if (UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = DisperserShapeshiftCooldown.GetFloat();
+        else
+        {
+            if (UsePets.GetBool()) return;
+            AURoleOptions.ShapeshifterCooldown = DisperserShapeshiftCooldown.GetFloat();
+            AURoleOptions.ShapeshifterDuration = DisperserShapeshiftDuration.GetFloat();
+        }
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
-        if (shapeshifter == null || !shapeshifting) return false;
+        if (shapeshifter == null || (!shapeshifting && !UseUnshiftTrigger.GetBool())) return false;
         if (shapeshifter.GetAbilityUseLimit() < 1)
         {
             shapeshifter.SetKillCooldown(DisperserShapeshiftDuration.GetFloat() + 1f);
             return false;
         }
 
-        shapeshifter.RpcRemoveAbilityUse();
+        Disperse(shapeshifter);
+
+        return false;
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        if (pc == null || pc.GetAbilityUseLimit() < 1) return false;
+
+        Disperse(pc);
+
+        return false;
+    }
+
+    private static void Disperse(PlayerControl player)
+    {
+        player.RpcRemoveAbilityUse();
 
         foreach (var pc in PlayerControl.AllPlayerControls)
         {
-            if (shapeshifter.PlayerId == pc.PlayerId || pc.Data.IsDead || pc.onLadder || pc.inVent || GameStates.IsMeeting)
+            if (player.PlayerId == pc.PlayerId || pc.Data.IsDead || pc.onLadder || pc.inMovingPlat || pc.inVent || GameStates.IsMeeting)
             {
                 if (!pc.Is(CustomRoles.Disperser))
                     pc.Notify(ColorString(GetRoleColor(CustomRoles.Disperser), string.Format(GetString("ErrorTeleport"), pc.GetRealName())));
@@ -75,8 +98,6 @@ public class Disperser : RoleBase
             pc.TPtoRndVent();
             pc.Notify(ColorString(GetRoleColor(CustomRoles.Disperser), string.Format(GetString("TeleportedInRndVentByDisperser"), pc.GetRealName())));
         }
-
-        return false;
     }
 
     public override void SetButtonTexts(HudManager __instance, byte id)

@@ -63,7 +63,7 @@ namespace EHR.Crewmate
                         List<byte> changePositionPlayers = [];
                         foreach (var pc in Main.AllAlivePlayerControls)
                         {
-                            if (changePositionPlayers.Contains(pc.PlayerId) || Pelican.IsEaten(pc.PlayerId) || pc.onLadder || pc.inVent || GameStates.IsMeeting) continue;
+                            if (changePositionPlayers.Contains(pc.PlayerId) || Pelican.IsEaten(pc.PlayerId) || pc.onLadder || pc.inVent || pc.inMovingPlat || GameStates.IsMeeting) continue;
 
                             var filtered = Main.AllAlivePlayerControls.Where(a => !a.inVent && !Pelican.IsEaten(a.PlayerId) && !a.onLadder && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
                             if (filtered.Length == 0) break;
@@ -218,7 +218,7 @@ namespace EHR.Crewmate
                         break;
                     case Effect.TimeBomb:
                         Bombs.TryAdd(PickRandomPlayer().Pos(), (Utils.TimeStamp, IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration)));
-                        Utils.SendRPC(CustomRPC.SyncRandomizer, randomizer.PlayerId, 1, Bombs.Last().Key, Bombs.Last().Value.PlaceTimeStamp, Bombs.Last().Value.ExplosionDelay);
+                        Utils.SendRPC(CustomRPC.SyncRoleData, randomizer.PlayerId, 1, Bombs.Last().Key, Bombs.Last().Value.PlaceTimeStamp, Bombs.Last().Value.ExplosionDelay);
                         break;
                     case Effect.Tornado:
                         Tornado.SpawnTornado(PickRandomPlayer());
@@ -451,6 +451,8 @@ namespace EHR.Crewmate
         private static long LastDeathEffect;
 
         public static bool Exists;
+
+        byte RandomizerId;
         private static int Id => 643490;
 
         private static string RNGString => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Randomizer), Translator.GetString("RNGHasSpoken"));
@@ -469,7 +471,7 @@ namespace EHR.Crewmate
         public static bool HasSuperVision(PlayerControl pc) => CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && (effects.ContainsKey(Effect.SuperVisionForRandomPlayer) || effects.ContainsKey(Effect.SuperVisionForAll));
         public static bool IsBlind(PlayerControl pc) => CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && (effects.ContainsKey(Effect.BlindnessForRandomPlayer) || effects.ContainsKey(Effect.BlindnessForAll));
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Randomizer);
             EffectFrequencyOpt = new IntegerOptionItem(Id + 2, "RandomizerEffectFrequency", new(1, 90, 1), 10, TabGroup.CrewmateRoles)
@@ -514,6 +516,7 @@ namespace EHR.Crewmate
             Exists = true;
             PlayerIdList.Add(playerId);
             AllPlayerDefaultSpeed = Main.AllPlayerSpeed.ToDictionary(x => x.Key, x => x.Value);
+            RandomizerId = playerId;
         }
 
         public static PlayerControl PickRandomPlayer()
@@ -617,7 +620,7 @@ namespace EHR.Crewmate
             LastDeathEffect = Utils.TimeStamp;
             Rifts.Clear();
             Bombs.Clear();
-            Utils.SendRPC(CustomRPC.SyncRandomizer, PlayerIdList.First(), 3);
+            Utils.SendRPC(CustomRPC.SyncRoleData, PlayerIdList.First(), 3);
             foreach (var pc in Main.AllPlayerControls)
             {
                 RevertSpeedChangesForPlayer(pc, false);
@@ -652,7 +655,7 @@ namespace EHR.Crewmate
                         }
 
                         Bombs.Remove(bomb.Key);
-                        Utils.SendRPC(CustomRPC.SyncRandomizer, randomizer.PlayerId, 2, bomb.Key);
+                        Utils.SendRPC(CustomRPC.SyncRoleData, randomizer.PlayerId, 2, bomb.Key);
                     }
                 }
             }
@@ -679,10 +682,10 @@ namespace EHR.Crewmate
             }
         }
 
-        public override string GetSuffix(PlayerControl pc, PlayerControl target, bool h = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (pc == null || pc.PlayerId != target.PlayerId || Bombs.Count == 0) return string.Empty;
-            var bomb = Bombs.FirstOrDefault(x => Vector2.Distance(x.Key, pc.Pos()) <= 5f);
+            if (seer == null || seer.PlayerId != target.PlayerId || Bombs.Count == 0) return string.Empty;
+            var bomb = Bombs.FirstOrDefault(x => Vector2.Distance(x.Key, seer.Pos()) <= 5f);
             var time = bomb.Value.ExplosionDelay - (Utils.TimeStamp - bomb.Value.PlaceTimeStamp) + 1;
             return time < 0 ? string.Empty : $"<#ffff00>⚠ {time}</color>";
         }

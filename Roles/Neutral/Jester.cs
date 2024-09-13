@@ -15,7 +15,7 @@ namespace EHR.Neutral
         public static OptionItem MaxInVentTime;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(10900, TabGroup.NeutralRoles, CustomRoles.Jester);
             JesterCanUseButton = new BooleanOptionItem(10910, "JesterCanUseButton", false, TabGroup.NeutralRoles)

@@ -15,7 +15,9 @@ namespace EHR.Neutral
         [
             "VentButtonText", // 0
             "SabotageButtonText", // 1
-            "PetButtonText" // 2
+            "PetButtonText", // 2
+            "AbilityButtonText.Phantom", // 3
+            "AbilityButtonText.Shapeshifter" // 4
         ];
 
         private static OptionItem KillCooldown;
@@ -33,7 +35,7 @@ namespace EHR.Neutral
 
         public override bool IsEnable => MycologistId != byte.MaxValue;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Mycologist);
             KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
@@ -67,7 +69,15 @@ namespace EHR.Neutral
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
+        {
+            opt.SetVision(HasImpostorVision.GetBool());
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+                AURoleOptions.PhantomCooldown = CD.GetInt();
+            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
+                AURoleOptions.ShapeshifterCooldown = CD.GetInt();
+        }
 
         void SendRPC()
         {
@@ -119,6 +129,27 @@ namespace EHR.Neutral
             }
         }
 
+        public override bool OnVanish(PlayerControl pc)
+        {
+            if (SpreadAction.GetValue() == 3)
+            {
+                SpreadSpores();
+            }
+
+            return false;
+        }
+
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+            if (SpreadAction.GetValue() == 4)
+            {
+                SpreadSpores();
+            }
+
+            return false;
+        }
+
         void SpreadSpores()
         {
             if (!IsEnable || Mycologist_.HasAbilityCD()) return;
@@ -135,6 +166,6 @@ namespace EHR.Neutral
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target) => IsEnable && target != null && InfectedPlayers.Contains(target.PlayerId);
         public override void AfterMeetingTasks() => Mycologist_.AddAbilityCD(CD.GetInt());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => true;
-        public override bool CanUseSabotage(PlayerControl pc) => SpreadAction.GetValue() == 1 && pc.IsAlive();
+        public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (SpreadAction.GetValue() == 1 && pc.IsAlive());
     }
 }

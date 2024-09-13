@@ -22,7 +22,7 @@ public class PlagueBearer : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.PlagueBearer);
         PlagueBearerCDOpt = new FloatOptionItem(Id + 10, "PlagueBearerCD", new(0f, 180f, 0.5f), 17.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer])
@@ -120,6 +120,10 @@ public class Pestilence : RoleBase
     public static bool On;
     public override bool IsEnable => On;
 
+    public override void SetupCustomOption()
+    {
+    }
+
     public override void Add(byte playerId)
     {
         On = true;
@@ -136,6 +140,13 @@ public class Pestilence : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
     {
         opt.SetVision(PlagueBearer.PestilenceHasImpostorVision.GetBool());
+    }
+
+    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    {
+        if (base.OnCheckMurder(killer, target))
+            killer.Kill(target);
+        return false;
     }
 
     public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)

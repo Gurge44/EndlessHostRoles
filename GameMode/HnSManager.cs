@@ -35,15 +35,15 @@ namespace EHR
             const int id = 69_211_001;
             Color color = new(52, 94, 235, byte.MaxValue);
 
-            MaxGameLength = new IntegerOptionItem(id, "FFA_GameTime", new(0, 1200, 10), 600, TabGroup.GameSettings)
+            MaxGameLength = new IntegerOptionItem(id, "FFA_GameTime", new(0, 1200, 10), 300, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(color);
 
-            MinNeutrals = new IntegerOptionItem(id + 1, "HNS.MinNeutrals", new(0, 13, 1), 1, TabGroup.GameSettings)
+            MinNeutrals = new IntegerOptionItem(id + 1, "HNS.MinNeutrals", new(0, 13, 1), 0, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(color);
-            MaxNeutrals = new IntegerOptionItem(id + 2, "HNS.MaxNeutrals", new(0, 13, 1), 3, TabGroup.GameSettings)
+            MaxNeutrals = new IntegerOptionItem(id + 2, "HNS.MaxNeutrals", new(0, 13, 1), 2, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(color);
 
@@ -135,21 +135,29 @@ namespace EHR
 
             foreach (var item in Main.SetRoles)
             {
-                PlayerControl pc = allPlayers.FirstOrDefault(x => x.PlayerId == item.Key);
-                if (pc == null) continue;
+                try
+                {
+                    PlayerControl pc = allPlayers.FirstOrDefault(x => x.PlayerId == item.Key);
+                    if (pc == null) continue;
 
-                result[pc] = item.Value;
-                allPlayers.Remove(pc);
+                    result[pc] = item.Value;
+                    allPlayers.Remove(pc);
 
-                var role = HideAndSeekRoles.FirstOrDefault(x => x.Value.ContainsKey(item.Value));
-                role.Value[item.Value]--;
-                memberNum[role.Key]--;
+                    var role = HideAndSeekRoles.FirstOrDefault(x => x.Value.ContainsKey(item.Value));
+                    role.Value[item.Value]--;
+                    memberNum[role.Key]--;
 
-                Logger.Warn($"Pre-Set Role Assigned: {pc.GetRealName()} => {item.Value}", "HnsRoleAssigner");
+                    Logger.Warn($"Pre-Set Role Assigned: {pc.GetRealName()} => {item.Value}", "HnsRoleAssigner");
+                }
+                catch (Exception e)
+                {
+                    Logger.SendInGame($"Error Assigning Pre-Set Role: {item.Key.ColoredPlayerName()} => {item.Value}");
+                    Utils.ThrowException(e);
+                }
             }
 
             var playerTeams = Enum.GetValues<Team>()[1..]
-                .SelectMany(x => Enumerable.Repeat(x, memberNum[x]))
+                .SelectMany(x => Enumerable.Repeat(x, Math.Max(memberNum[x], 0)))
                 .Shuffle()
                 .Zip(allPlayers)
                 .GroupBy(x => x.First, x => x.Second)
@@ -276,6 +284,7 @@ namespace EHR
 
         public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool isHUD = false)
         {
+            if (GameStates.IsLobby || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted) return string.Empty;
             if (seer.PlayerId != target.PlayerId) return string.Empty;
 
             string dangerMeter = GetDangerMeter(seer);
@@ -334,6 +343,7 @@ namespace EHR
             // If there are 0 players alive, the game is over and only foxes win
             if (alivePlayers.Length == 0)
             {
+                reason = GameOverReason.HumansDisconnect;
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
                 AddFoxesToWinners();
                 return true;
@@ -342,6 +352,7 @@ namespace EHR
             // If there are no crew roles left, the game is over and only impostors win
             if (alivePlayers.All(x => PlayerRoles[x.PlayerId].Interface.Team != Team.Crewmate))
             {
+                reason = GameOverReason.HideAndSeek_ByKills;
                 SetWinners(CustomWinner.Seeker, Team.Impostor);
                 return true;
             }
@@ -349,6 +360,7 @@ namespace EHR
             // If time is up or there are no impostors in the game, the game is over and crewmates win
             if (TimeLeft <= 0 || PlayerRoles.Values.All(x => x.Interface.Team != Team.Impostor))
             {
+                reason = TimeLeft <= 0 ? GameOverReason.HideAndSeek_ByTimer : GameOverReason.ImpostorDisconnect;
                 SetWinners(CustomWinner.Hider, Team.Crewmate);
                 return true;
             }
@@ -398,7 +410,7 @@ namespace EHR
                 return stateText;
 
                 CustomRoles GetRole() => state.Value.MainRole == CustomRoles.Agent ? CustomRoles.Hider : state.Value.MainRole;
-                string GetTaskCount() => CustomRoles.Agent.IsEnable() || !ts.hasTasks ? string.Empty : $" ({ts.CompletedTasksCount}/{ts.AllTasksCount})";
+                string GetTaskCount() => CustomRoles.Agent.IsEnable() || !ts.HasTasks ? string.Empty : $" ({ts.CompletedTasksCount}/{ts.AllTasksCount})";
             }
         }
 

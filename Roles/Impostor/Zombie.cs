@@ -17,7 +17,7 @@ namespace EHR.Impostor
         private long LastReduce;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(16400, TabGroup.ImpostorRoles, CustomRoles.Zombie);
             ZombieKillCooldown = new FloatOptionItem(16410, "KillCooldown", new(0f, 180f, 2.5f), 5f, TabGroup.ImpostorRoles)

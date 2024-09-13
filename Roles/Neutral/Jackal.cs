@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -9,16 +10,16 @@ namespace EHR.Neutral;
 public class Jackal : RoleBase
 {
     private const int Id = 12100;
-    private static List<byte> PlayerIdList = [];
+    public static List<Jackal> Instances = [];
 
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
     public static OptionItem CanSabotage;
-    public static OptionItem CanWinBySabotageWhenNoImpAlive;
     public static OptionItem HasImpostorVision;
     public static OptionItem ResetKillCooldownWhenSbGetKilled;
     private static OptionItem ResetKillCooldownOn;
     private static OptionItem CanRecruitImpostors;
+    private static OptionItem CanRecruitMadmates;
     public static OptionItem SidekickCountMode;
     public static OptionItem SKCanKill;
     public static OptionItem KillCooldownSK;
@@ -29,11 +30,13 @@ public class Jackal : RoleBase
 
     public static bool On;
 
-    public override bool IsEnable => PlayerIdList.Count > 0;
+    public byte SidekickId;
 
-    public static void SetupCustomOption()
+    public override bool IsEnable => Instances.Count > 0;
+
+    public override void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Jackal);
+        SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Jackal);
         KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal])
             .SetValueFormat(OptionFormat.Seconds);
@@ -41,8 +44,6 @@ public class Jackal : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
         CanSabotage = new BooleanOptionItem(Id + 4, "CanSabotage", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
-        CanWinBySabotageWhenNoImpAlive = new BooleanOptionItem(Id + 5, "JackalCanWinBySabotageWhenNoImpAlive", true, TabGroup.NeutralRoles)
-            .SetParent(CanSabotage);
         HasImpostorVision = new BooleanOptionItem(Id + 6, "ImpostorVision", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
         ResetKillCooldownWhenSbGetKilled = new BooleanOptionItem(Id + 7, "ResetKillCooldownWhenPlayerGetKilled", false, TabGroup.NeutralRoles)
@@ -54,50 +55,52 @@ public class Jackal : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
         CanRecruitImpostors = new BooleanOptionItem(Id + 10, "JackalCanRecruitImpostors", true, TabGroup.NeutralRoles)
             .SetParent(SKOpts);
-        JackalCanKillSidekick = new BooleanOptionItem(Id + 11, "JackalCanKillSidekick", false, TabGroup.NeutralRoles)
+        CanRecruitMadmates = new BooleanOptionItem(Id + 11, "JackalCanRecruitMadmates", true, TabGroup.NeutralRoles)
+            .SetParent(CanRecruitImpostors);
+        JackalCanKillSidekick = new BooleanOptionItem(Id + 12, "JackalCanKillSidekick", false, TabGroup.NeutralRoles)
             .SetParent(SKOpts);
-        SKCanKill = new BooleanOptionItem(Id + 12, "SKCanKill", true, TabGroup.NeutralRoles)
+        SKCanKill = new BooleanOptionItem(Id + 13, "SKCanKill", true, TabGroup.NeutralRoles)
             .SetParent(SKOpts);
-        KillCooldownSK = new FloatOptionItem(Id + 13, "KillCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.NeutralRoles)
+        KillCooldownSK = new FloatOptionItem(Id + 14, "KillCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.NeutralRoles)
             .SetParent(SKCanKill)
             .SetValueFormat(OptionFormat.Seconds);
-        SidekickCanKillJackal = new BooleanOptionItem(Id + 14, "SidekickCanKillJackal", false, TabGroup.NeutralRoles)
+        SidekickCanKillJackal = new BooleanOptionItem(Id + 15, "SidekickCanKillJackal", false, TabGroup.NeutralRoles)
             .SetParent(SKCanKill);
-        SidekickCanKillSidekick = new BooleanOptionItem(Id + 15, "SidekickCanKillSidekick", false, TabGroup.NeutralRoles)
+        SidekickCanKillSidekick = new BooleanOptionItem(Id + 16, "SidekickCanKillSidekick", false, TabGroup.NeutralRoles)
             .SetParent(SKCanKill);
-        CanVentSK = new BooleanOptionItem(Id + 16, "CanVent", true, TabGroup.NeutralRoles)
+        CanVentSK = new BooleanOptionItem(Id + 17, "CanVent", true, TabGroup.NeutralRoles)
             .SetParent(SKOpts);
-        CanSabotageSK = new BooleanOptionItem(Id + 17, "CanSabotage", true, TabGroup.NeutralRoles)
+        CanSabotageSK = new BooleanOptionItem(Id + 18, "CanSabotage", true, TabGroup.NeutralRoles)
             .SetParent(SKOpts);
-        SKPromotesToJackal = new BooleanOptionItem(Id + 18, "SKPromotesToJackal", true, TabGroup.NeutralRoles)
+        SKPromotesToJackal = new BooleanOptionItem(Id + 19, "SKPromotesToJackal", true, TabGroup.NeutralRoles)
             .SetParent(SKOpts);
-        PromotedSKCanRecruit = new BooleanOptionItem(Id + 19, "PromotedSKCanRecruit", true, TabGroup.NeutralRoles)
+        PromotedSKCanRecruit = new BooleanOptionItem(Id + 20, "PromotedSKCanRecruit", true, TabGroup.NeutralRoles)
             .SetParent(SKPromotesToJackal);
-        SidekickCountMode = new StringOptionItem(Id + 20, "SidekickCountMode", Options.SidekickCountMode, 0, TabGroup.NeutralRoles)
+        SidekickCountMode = new StringOptionItem(Id + 21, "SidekickCountMode", Options.SidekickCountMode, 0, TabGroup.NeutralRoles)
             .SetParent(SKOpts);
     }
 
     public override void Init()
     {
-        PlayerIdList = [];
+        Instances = [];
         On = false;
     }
 
     public override void Add(byte playerId)
     {
         On = true;
-        PlayerIdList.Add(playerId);
+        Instances.Add(this);
         playerId.SetAbilityUseLimit(1);
+        SidekickId = byte.MaxValue;
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    private static bool CanRecruit(byte id) => id.GetAbilityUseLimit() > 0;
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
-    public override bool CanUseSabotage(PlayerControl pc) => CanSabotage.GetBool() && pc.IsAlive();
+    public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (CanSabotage.GetBool() && pc.IsAlive());
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        hud.KillButton.OverrideText(CanRecruit(id) ? $"{GetString("GangsterButtonText")}" : $"{GetString("KillButtonText")}");
+        hud.KillButton.OverrideText(id.GetAbilityUseLimit() > 0 ? $"{GetString("GangsterButtonText")}" : $"{GetString("KillButtonText")}");
         hud.SabotageButton.ToggleVisible(CanSabotage.GetBool());
     }
 
@@ -113,11 +116,12 @@ public class Jackal : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer.GetAbilityUseLimit() < 1 || !CanBeSidekick(target, out var needBasisChange, out var targetRoleType) || needBasisChange) return true;
+        if (killer.GetAbilityUseLimit() < 1 || !CanBeSidekick(target)) return true;
 
         killer.RpcRemoveAbilityUse();
-        target.RpcSetCustomRole(targetRoleType == RoleTypes.Shapeshifter ? CustomRoles.Recruit : CustomRoles.Sidekick);
-        // if (needBasisChange) target.ChangeRoleBasis(RoleTypes.Impostor);
+        target.RpcSetCustomRole(CustomRoles.Sidekick);
+        target.RpcChangeRoleBasis(CustomRoles.Sidekick);
+        SidekickId = target.PlayerId;
 
         Main.ResetCamPlayerList.Add(target.PlayerId);
 
@@ -127,29 +131,41 @@ public class Jackal : RoleBase
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
 
-        killer.ResetKillCooldown();
+        killer.SetKillCooldown(3f);
         target.RpcGuardAndKill(killer);
         target.RpcGuardAndKill(target);
 
-        Logger.Info($" {target.Data?.PlayerName} = {target.GetCustomRole()} + {CustomRoles.Sidekick}", "Assign " + CustomRoles.Sidekick);
+        Logger.Info($" {target.Data?.PlayerName} = {target.GetCustomRole()} + {CustomRoles.Sidekick}", $"Assign {CustomRoles.Sidekick}");
         return false;
     }
 
-    private static bool CanBeSidekick(PlayerControl pc, out bool needBasisChange, out RoleTypes targetRoleType)
+    private static bool CanBeSidekick(PlayerControl pc)
     {
-        targetRoleType = pc.GetRoleTypes();
-        needBasisChange = targetRoleType is not RoleTypes.Impostor and not RoleTypes.Shapeshifter;
-        if (!CanRecruitImpostors.GetBool() && pc.Is(Team.Impostor)) return false;
-        return pc != null && !pc.Is(CustomRoles.Sidekick) && !pc.Is(CustomRoles.Recruit) && !pc.Is(CustomRoles.Loyal) && !pc.Is(CustomRoles.Rascal) && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.Charmed) && !pc.Is(CustomRoles.Contagious) && pc.GetCustomRole().IsAbleToBeSidekicked();
+        if (!CanRecruitImpostors.GetBool() && pc.Is(CustomRoleTypes.Impostor)) return false;
+        if (!CanRecruitMadmates.GetBool() && pc.IsMadmate()) return false;
+        return pc != null && !pc.Is(CustomRoles.Sidekick) && !pc.IsConverted() && pc.GetCustomRole().IsAbleToBeSidekicked();
     }
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!SKPromotesToJackal.GetBool() || pc.IsAlive()) return;
-        var sk = Main.AllPlayerControls.FirstOrDefault(x => x.Is(CustomRoles.Sidekick));
-        if (sk == null) return;
-        sk.RpcSetCustomRole(CustomRoles.Jackal);
-        if (!PromotedSKCanRecruit.GetBool()) sk.SetAbilityUseLimit(0);
+        if (pc.IsAlive()) return;
+        PromoteSidekick();
+    }
+
+    public void PromoteSidekick()
+    {
+        try
+        {
+            if (!SKPromotesToJackal.GetBool()) return;
+            var sk = SidekickId.GetPlayer();
+            if (sk == null || !sk.Is(CustomRoles.Sidekick)) return;
+            sk.RpcSetCustomRole(CustomRoles.Jackal);
+            if (!PromotedSKCanRecruit.GetBool()) sk.SetAbilityUseLimit(0);
+        }
+        catch (Exception e)
+        {
+            Utils.ThrowException(e);
+        }
     }
 }
 
@@ -158,6 +174,10 @@ public class Sidekick : RoleBase
     private static List<byte> PlayerIdList = [];
 
     public override bool IsEnable => PlayerIdList.Count > 0;
+
+    public override void SetupCustomOption()
+    {
+    }
 
     public override void Init()
     {
@@ -174,7 +194,7 @@ public class Sidekick : RoleBase
     public override bool CanUseImpostorVentButton(PlayerControl pc) => Jackal.CanVentSK.GetBool();
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Jackal.KillCooldownSK.GetFloat();
     public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(Jackal.HasImpostorVision.GetBool());
-    public override bool CanUseSabotage(PlayerControl pc) => Jackal.CanSabotageSK.GetBool() && pc.IsAlive();
+    public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (Jackal.CanSabotageSK.GetBool() && pc.IsAlive());
 
     public override void SetButtonTexts(HudManager __instance, byte id)
     {

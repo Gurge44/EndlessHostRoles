@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
@@ -14,34 +13,26 @@ public class OptionBackupData
     {
         AllValues = new(32);
 
-        IList list = Enum.GetValues(typeof(ByteOptionNames));
-        for (int i = 0; i < list.Count; i++)
+        foreach (var name in Enum.GetValues<ByteOptionNames>())
         {
-            ByteOptionNames name = (ByteOptionNames)list[i];
             if (option.TryGetByte(name, out var value))
                 AllValues.Add(new ByteOptionBackupValue(name, value));
         }
 
-        IList list1 = Enum.GetValues(typeof(BoolOptionNames));
-        for (int i = 0; i < list1.Count; i++)
+        foreach (var name in Enum.GetValues<BoolOptionNames>())
         {
-            BoolOptionNames name = (BoolOptionNames)list1[i];
             if (option.TryGetBool(name, out var value) && name != BoolOptionNames.GhostsDoTasks)
                 AllValues.Add(new BoolOptionBackupValue(name, value));
         }
 
-        IList list2 = Enum.GetValues(typeof(FloatOptionNames));
-        for (int i = 0; i < list2.Count; i++)
+        foreach (var name in Enum.GetValues<FloatOptionNames>())
         {
-            FloatOptionNames name = (FloatOptionNames)list2[i];
             if (option.TryGetFloat(name, out var value))
                 AllValues.Add(new FloatOptionBackupValue(name, value));
         }
 
-        IList list3 = Enum.GetValues(typeof(Int32OptionNames));
-        for (int i = 0; i < list3.Count; i++)
+        foreach (var name in Enum.GetValues<Int32OptionNames>())
         {
-            Int32OptionNames name = (Int32OptionNames)list3[i];
             if (option.TryGetInt(name, out var value))
                 AllValues.Add(new IntOptionBackupValue(name, value));
         }
@@ -60,11 +51,7 @@ public class OptionBackupData
 
     public IGameOptions Restore(IGameOptions option)
     {
-        foreach (OptionBackupValue value in AllValues.ToArray())
-        {
-            value.Restore(option);
-        }
-
+        AllValues.ForEach(o => o.Restore(option));
         return option;
     }
 

@@ -2,9 +2,11 @@
 
 namespace EHR.Neutral
 {
-    internal class Terrorist : ISettingHolder
+    internal class Terrorist : RoleBase
     {
-        public void SetupCustomOption()
+        public override bool IsEnable => false;
+
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(11500, TabGroup.NeutralRoles, CustomRoles.Terrorist);
             CanTerroristSuicideWin = new BooleanOptionItem(11510, "CanTerroristSuicideWin", false, TabGroup.NeutralRoles)
@@ -12,6 +14,14 @@ namespace EHR.Neutral
             TerroristCanGuess = new BooleanOptionItem(11511, "CanGuess", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Terrorist]);
             OverrideTasksData.Create(11512, TabGroup.NeutralRoles, CustomRoles.Terrorist);
+        }
+
+        public override void Init()
+        {
+        }
+
+        public override void Add(byte playerId)
+        {
         }
     }
 }

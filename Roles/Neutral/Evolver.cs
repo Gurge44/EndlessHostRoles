@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
@@ -25,7 +26,7 @@ namespace EHR.Neutral
         public override bool IsEnable => On;
         private (float MinKillCooldown, float MaxVision, float MaxSpeed, int MaxKillDistance) Limits => (1f, Stats.ImpostorVision ? 1.5f : 5f, 3f, 2);
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Evolver);
             KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
@@ -60,7 +61,7 @@ namespace EHR.Neutral
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Stats.KillCooldown;
         public override bool CanUseImpostorVentButton(PlayerControl pc) => pc.inVent || Stats is { CanVent: true, VentUseLimit: > 0 };
-        public override bool CanUseSabotage(PlayerControl pc) => Stats is { CanSabotage: true, SabotageUseLimit: > 0 };
+        public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || Stats is { CanSabotage: true, SabotageUseLimit: > 0 };
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
@@ -109,8 +110,8 @@ namespace EHR.Neutral
             ChooseTimer = 15;
 
             SendRPC();
-            Utils.SendRPC(CustomRPC.SyncEvolver, EvolverPC.PlayerId, 2, SelectedUpgradeIndex);
-            Utils.SendRPC(CustomRPC.SyncEvolver, EvolverPC.PlayerId, 3, ChooseTimer);
+            Utils.SendRPC(CustomRPC.SyncRoleData, EvolverPC.PlayerId, 2, SelectedUpgradeIndex);
+            Utils.SendRPC(CustomRPC.SyncRoleData, EvolverPC.PlayerId, 3, ChooseTimer);
         }
 
         IEnumerable<Upgrade> GetBannedUpgradeList()
@@ -132,7 +133,7 @@ namespace EHR.Neutral
             LastUpdate = Utils.TimeStamp;
 
             ChooseTimer--;
-            Utils.SendRPC(CustomRPC.SyncEvolver, EvolverPC.PlayerId, 3, ChooseTimer);
+            Utils.SendRPC(CustomRPC.SyncRoleData, EvolverPC.PlayerId, 3, ChooseTimer);
 
             if (ChooseTimer == 0) ApplySelectedUpgradeAndReset();
 
@@ -187,7 +188,7 @@ namespace EHR.Neutral
 
             Upgrades = [];
             SelectedUpgradeIndex = -1;
-            Utils.SendRPC(CustomRPC.SyncEvolver, EvolverPC.PlayerId, 2, SelectedUpgradeIndex);
+            Utils.SendRPC(CustomRPC.SyncRoleData, EvolverPC.PlayerId, 2, SelectedUpgradeIndex);
         }
 
         void EnsureStatLimits()
@@ -210,13 +211,13 @@ namespace EHR.Neutral
             SelectedUpgradeIndex = (SelectedUpgradeIndex + 1) % Upgrades.Count;
             ChooseTimer = 8;
 
-            Utils.SendRPC(CustomRPC.SyncEvolver, EvolverPC.PlayerId, 2, SelectedUpgradeIndex);
-            Utils.SendRPC(CustomRPC.SyncEvolver, EvolverPC.PlayerId, 3, ChooseTimer);
+            Utils.SendRPC(CustomRPC.SyncRoleData, EvolverPC.PlayerId, 2, SelectedUpgradeIndex);
+            Utils.SendRPC(CustomRPC.SyncRoleData, EvolverPC.PlayerId, 3, ChooseTimer);
         }
 
         void SendRPC()
         {
-            var w = Utils.CreateRPC(CustomRPC.SyncEvolver);
+            var w = Utils.CreateRPC(CustomRPC.SyncRoleData);
             w.Write(EvolverPC.PlayerId);
             w.Write(1);
             w.Write(Upgrades.Count);
@@ -243,15 +244,15 @@ namespace EHR.Neutral
             }
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || (seer.IsModClient() && !isHUD) || isMeeting || ChooseTimer == 0 || Upgrades.Count == 0 || SelectedUpgradeIndex == -1) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != EvolverPC.PlayerId || (seer.IsModClient() && !hud) || meeting || ChooseTimer == 0 || Upgrades.Count == 0 || SelectedUpgradeIndex == -1) return string.Empty;
             return string.Format(Translator.GetString("EvolverSuffix"), ChooseTimer, Translator.GetString($"EvolverUpgrade.{Upgrades[SelectedUpgradeIndex]}"), string.Join(", ", Upgrades.ConvertAll(x => Translator.GetString($"EvolverUpgrade.{x}"))));
         }
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            var sb = new System.Text.StringBuilder();
+            var sb = new StringBuilder();
 
             if (Stats.CanVent) sb.Append(string.Format(Translator.GetString("EvolverProgress.Vent"), Stats.VentUseLimit));
             if (Stats.CanSabotage) sb.Append(string.Format(Translator.GetString("EvolverProgress.Sabotage"), Stats.SabotageUseLimit));

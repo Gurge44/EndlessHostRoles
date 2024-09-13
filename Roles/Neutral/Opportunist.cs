@@ -35,7 +35,7 @@ namespace EHR.Neutral
             return !OppoImmuneToAttacksWhenTasksDone.GetBool() || !target.Is(CustomRoles.Opportunist) || !target.AllTasksCompleted();
         }
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(10100, TabGroup.NeutralRoles, CustomRoles.Opportunist);
             OppoImmuneToAttacksWhenTasksDone = new BooleanOptionItem(10110, "ImmuneToAttacksWhenTasksDone", false, TabGroup.NeutralRoles)

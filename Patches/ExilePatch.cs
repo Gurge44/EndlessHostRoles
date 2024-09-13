@@ -11,31 +11,18 @@ using HarmonyLib;
 
 namespace EHR.Patches;
 
-class ExileControllerWrapUpPatch
+static class ExileControllerWrapUpPatch
 {
-    private static NetworkedPlayerInfo antiBlackout_LastExiled;
-
-    public static NetworkedPlayerInfo AntiBlackout_LastExiled
-    {
-        get => antiBlackout_LastExiled;
-        set => antiBlackout_LastExiled = value;
-    }
+    public static NetworkedPlayerInfo AntiBlackoutLastExiled { get; set; }
 
     static void WrapUpPostfix(NetworkedPlayerInfo exiled)
     {
-        if (AntiBlackout.OverrideExiledPlayer)
-        {
-            exiled = AntiBlackout_LastExiled;
-        }
-
         bool DecidedWinner = false;
         if (!AmongUsClient.Instance.AmHost) return;
         AntiBlackout.RestoreIsDead(doSend: false);
+        AntiBlackoutLastExiled = exiled;
         if (!Collector.CollectorWin(false) && exiled != null)
         {
-            if (!AntiBlackout.OverrideExiledPlayer && Main.ResetCamPlayerList.Contains(exiled.PlayerId))
-                exiled.Object?.ResetPlayerCam(1f);
-
             exiled.IsDead = true;
             Main.PlayerStates[exiled.PlayerId].deathReason = PlayerState.DeathReason.Vote;
             var role = exiled.GetCustomRole();
@@ -44,12 +31,13 @@ class ExileControllerWrapUpPatch
             {
                 if (!Options.InnocentCanWinByImp.GetBool() && role.IsImpostor())
                 {
-                    Logger.Info("冤罪的目标是内鬼，非常可惜啊", "Exeiled Winner Check");
+                    Logger.Info("The exiled player is an impostor, but the Innocent cannot win due to the settings", "Exeiled Winner Check");
                 }
                 else
                 {
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Innocent);
-                    Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Innocent) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == exiled.PlayerId)
+                    Main.AllPlayerControls
+                        .Where(x => x.Is(CustomRoles.Innocent) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == exiled.PlayerId)
                         .Do(x => CustomWinnerHolder.WinnerIds.Add(x.PlayerId));
                     DecidedWinner = true;
                 }
@@ -113,7 +101,6 @@ class ExileControllerWrapUpPatch
             {
                 Warlock.CursedPlayers[pc.PlayerId] = null;
                 Warlock.IsCurseAndKill[pc.PlayerId] = false;
-                //RPC.RpcSyncCurseAndKill();
             }
 
             pc.ResetKillCooldown();
@@ -144,40 +131,33 @@ class ExileControllerWrapUpPatch
         Utils.NotifyRoles(ForceLoop: true);
     }
 
-    static void WrapUpFinalizer(NetworkedPlayerInfo exiled)
+    static void WrapUpFinalizer()
     {
         // Even if an exception occurs in WrapUpPostfix, this part will be executed reliably.
         if (AmongUsClient.Instance.AmHost)
         {
             LateTask.New(() =>
             {
-                exiled = AntiBlackout_LastExiled;
                 AntiBlackout.SendGameData();
-                if (AntiBlackout.OverrideExiledPlayer && // State where the exile target is overwritten (no need to execute if it is not overwritten)
-                    exiled != null &&
-                    exiled.Object != null)
-                {
-                    exiled.Object.RpcExileV2();
-                }
-            }, 0.8f, "Restore IsDead Task");
+                AntiBlackout.SetRealPlayerRoles();
+            }, 1.1f, "Restore IsDead Task");
             LateTask.New(() =>
             {
                 Main.AfterMeetingDeathPlayers.Do(x =>
                 {
                     var player = Utils.GetPlayerById(x.Key);
                     var state = Main.PlayerStates[x.Key];
-                    Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} died with {x.Value}", "AfterMeetingDeath");
+                    Logger.Info($"{player?.GetNameWithRole().RemoveHtmlTags()} died with {x.Value}", "AfterMeetingDeath");
                     state.deathReason = x.Value;
                     state.SetDead();
                     player?.RpcExileV2();
                     if (x.Value == PlayerState.DeathReason.Suicide)
                         player?.SetRealKiller(player, true);
-                    if (Main.ResetCamPlayerList.Contains(x.Key))
-                        player?.ResetPlayerCam(1f);
                     Utils.AfterPlayerDeathTasks(player);
                 });
                 Main.AfterMeetingDeathPlayers.Clear();
-            }, 0.9f, "AfterMeetingDeathPlayers Task");
+                AntiBlackout.ResetAfterMeeting();
+            }, 1.2f, "AfterMeetingDeathPlayers Task");
         }
 
         GameStates.AlreadyDied |= !Utils.IsAllAlive;
@@ -200,10 +180,6 @@ class ExileControllerWrapUpPatch
                 foreach (var pc in Main.AllAlivePlayerControls)
                 {
                     string finalText = text;
-                    if (NameNotifyManager.Notice.TryGetValue(pc.PlayerId, out var notify))
-                    {
-                        finalText = $"\n{notify.TEXT}\n{finalText}";
-                    }
 
                     if (appendEjectionNotify && !finalText.Contains(CheckForEndVotingPatch.EjectionText, StringComparison.OrdinalIgnoreCase))
                     {
@@ -227,11 +203,11 @@ class ExileControllerWrapUpPatch
         {
             try
             {
-                WrapUpPostfix(__instance.exiled);
+                WrapUpPostfix(__instance.initData.networkedPlayer);
             }
             finally
             {
-                WrapUpFinalizer(__instance.exiled);
+                WrapUpFinalizer();
             }
         }
     }
@@ -243,11 +219,11 @@ class ExileControllerWrapUpPatch
         {
             try
             {
-                WrapUpPostfix(__instance.exiled);
+                WrapUpPostfix(__instance.initData.networkedPlayer);
             }
             finally
             {
-                WrapUpFinalizer(__instance.exiled);
+                WrapUpFinalizer();
             }
         }
     }

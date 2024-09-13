@@ -1,4 +1,5 @@
 ﻿using EHR.Modules;
+using Hazel;
 
 namespace EHR.Crewmate
 {
@@ -18,7 +19,7 @@ namespace EHR.Crewmate
         private int Timer;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             int id = 648300;
             Options.SetupRoleOptions(id++, TabGroup.CrewmateRoles, CustomRoles.Adrenaline);
@@ -47,7 +48,7 @@ namespace EHR.Crewmate
             On = true;
             AdrenalineId = playerId;
             Timer = 0;
-            Utils.SendRPC(CustomRPC.SyncAdrenaline, playerId, Timer);
+            Utils.SendRPC(CustomRPC.SyncRoleData, playerId, Timer);
             DefaultSpeed = Main.AllPlayerSpeed[playerId];
             playerId.SetAbilityUseLimit(MaxSurvives.GetInt());
         }
@@ -58,7 +59,7 @@ namespace EHR.Crewmate
 
             target.RpcRemoveAbilityUse();
             Timer = Time.GetInt();
-            Utils.SendRPC(CustomRPC.SyncAdrenaline, target.PlayerId, Timer);
+            Utils.SendRPC(CustomRPC.SyncRoleData, target.PlayerId, Timer);
             Main.AllPlayerSpeed[target.PlayerId] += SpeedIncreaseDuringTimer.GetFloat();
             target.MarkDirtySettings();
             return false;
@@ -88,20 +89,20 @@ namespace EHR.Crewmate
                 pc.Suicide();
             }
 
-            Utils.SendRPC(CustomRPC.SyncAdrenaline, pc.PlayerId, Timer);
+            Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, Timer);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
         public static bool CanCallMeeting(PlayerControl pc) => Main.PlayerStates[pc.PlayerId].Role is Adrenaline an && (an.Timer == 0 || CanCallMeetingDuringTimer.GetBool());
 
-        public void ReceiveRPC(Hazel.MessageReader reader)
+        public void ReceiveRPC(MessageReader reader)
         {
             Timer = reader.ReadPackedInt32();
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != AdrenalineId || isMeeting || (seer.IsModClient() && !isHUD) || Timer == 0) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != AdrenalineId || meeting || (seer.IsModClient() && !hud) || Timer == 0) return string.Empty;
             return string.Format(Translator.GetString("Adrenaline.Suffix"), Timer);
         }
     }

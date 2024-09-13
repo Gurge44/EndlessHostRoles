@@ -1,17 +1,15 @@
-﻿using System;
-using AmongUs.GameOptions;
+﻿using AmongUs.GameOptions;
 
 namespace EHR.AddOns.GhostRoles
 {
     // TOU-R Phantom
-    internal class Specter : IGhostRole, ISettingHolder
+    internal class Specter : IGhostRole
     {
         private static OptionItem SnatchWin;
 
         public bool IsWon;
         public Team Team => Team.Neutral;
         public int Cooldown => 900;
-        public bool ChangeToGA => false;
 
         public void OnAssign(PlayerControl pc)
         {
@@ -21,11 +19,11 @@ namespace EHR.AddOns.GhostRoles
                 var taskState = pc.GetTaskState();
                 if (taskState == null) return;
 
-                taskState.hasTasks = true;
+                taskState.HasTasks = true;
                 taskState.CompletedTasksCount = 0;
                 taskState.AllTasksCount = Utils.TotalTaskCount - Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks);
 
-                pc.Data.RpcSetTasks(Array.Empty<byte>());
+                pc.Data.RpcSetTasks(new(0));
                 pc.SyncSettings();
                 pc.RpcResetAbilityCooldown();
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);

@@ -16,10 +16,11 @@ public class Tracefinder : RoleBase
     private static OptionItem ArrowDelayMax;
 
     public static bool On;
+    byte TracefinderId;
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Tracefinder);
         VitalsCooldown = new FloatOptionItem(Id + 10, "VitalsCooldown", new(1f, 60f, 1f), 25f, TabGroup.CrewmateRoles)
@@ -45,6 +46,7 @@ public class Tracefinder : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        TracefinderId = playerId;
         On = true;
     }
 
@@ -86,9 +88,9 @@ public class Tracefinder : RoleBase
         }, delay, "Tracefinder arrow delay");
     }
 
-    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (!seer.Is(CustomRoles.Tracefinder)) return string.Empty;
+        if (seer.PlayerId != TracefinderId) return string.Empty;
         if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
         return Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
     }

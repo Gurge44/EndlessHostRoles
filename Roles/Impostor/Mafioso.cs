@@ -49,7 +49,7 @@ namespace EHR.Impostor
 
         public override bool IsEnable => PlayerIdList.Count > 0;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Mafioso);
             Delay = new IntegerOptionItem(Id + 10, "MafiosoDelay", new(1, 10, 1), 3, TabGroup.ImpostorRoles)
@@ -239,9 +239,9 @@ namespace EHR.Impostor
 
         public override string GetProgressText(byte id, bool comms) => id.IsPlayerModClient() ? string.Empty : string.Format(GetString("MafiosoProgressText"), Tier, XP);
 
-        public override string GetSuffix(PlayerControl pc, PlayerControl _, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!hud || Main.PlayerStates[pc.PlayerId].Role is not Mafioso { IsEnable: true } mo) return string.Empty;
+            if (!hud || Main.PlayerStates[seer.PlayerId].Role is not Mafioso { IsEnable: true } mo) return string.Empty;
 
             if (mo.Tier >= 3)
             {

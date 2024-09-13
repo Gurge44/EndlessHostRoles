@@ -6,7 +6,7 @@
 
         public void SetupCustomOption()
         {
-            Options.SetupAdtRoleOptions(644594, CustomRoles.Energetic, canSetNum: true, teamSpawnOptions: true);
+            Options.SetupAdtRoleOptions(644593, CustomRoles.Energetic, canSetNum: true, teamSpawnOptions: true);
         }
     }
 }

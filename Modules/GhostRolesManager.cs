@@ -18,7 +18,7 @@ namespace EHR.Modules
         public static void Initialize()
         {
             AssignedGhostRoles = [];
-            GhostRoles = Enum.GetValues<CustomRoles>().Where(x => x != CustomRoles.EvilSpirit && x.IsGhostRole() && x.IsEnable()).ToList();
+            GhostRoles = Enum.GetValues<CustomRoles>().Where(x => x != CustomRoles.EvilSpirit && x.IsGhostRole() && x.IsEnable() && x.GetMode() != 0).ToList();
 
             Logger.Msg($"Ghost roles: {GhostRoles.Join()}", "GhostRoles");
             Haunter.AllHauntedPlayers = [];
@@ -33,7 +33,7 @@ namespace EHR.Modules
 
             IGhostRole instance = CreateGhostRoleInstance(suitableRole);
             pc.RpcSetCustomRole(suitableRole);
-            if (instance.ChangeToGA) pc.RpcSetRole(RoleTypes.GuardianAngel);
+            pc.RpcSetRole(RoleTypes.GuardianAngel);
             instance.OnAssign(pc);
             Main.ResetCamPlayerList.Add(pc.PlayerId);
             AssignedGhostRoles[pc.PlayerId] = (suitableRole, instance);
@@ -48,9 +48,9 @@ namespace EHR.Modules
             if (AssignedGhostRoles.Any(x => x.Key == id || x.Value.Role == role)) return;
 
             var pc = Utils.GetPlayerById(id);
-
+            if (set) pc.RpcSetRole(RoleTypes.GuardianAngel);
+            
             IGhostRole instance = CreateGhostRoleInstance(role);
-            if (set && instance.ChangeToGA) pc.RpcSetRole(RoleTypes.GuardianAngel);
             instance.OnAssign(pc);
             Main.ResetCamPlayerList.Add(pc.PlayerId);
             AssignedGhostRoles[id] = (role, instance);
@@ -93,7 +93,7 @@ namespace EHR.Modules
             {
                 if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
                 if (AssignedGhostRoles.Count >= GhostRoles.Count) return false;
-                if (pc.IsAlive() || pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame || pc.Is(CustomRoles.EvilSpirit)) return false;
+                if (pc.IsAlive() || pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame || pc.Is(CustomRoles.EvilSpirit) || pc.Is(CustomRoles.Backstabber)) return false;
 
                 var suitableRole = GetSuitableGhostRole(pc);
                 return suitableRole switch

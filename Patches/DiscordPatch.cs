@@ -5,12 +5,12 @@ using HarmonyLib;
 
 namespace EHR.Patches
 {
-    // Originally from Town of Us Rewritten, by Det
+    // Originally from "Town of Us Rewritten", by Det
     [HarmonyPatch(typeof(ActivityManager), nameof(ActivityManager.UpdateActivity))]
     public class DiscordRPC
     {
-        private static string lobbycode = "";
-        private static string region = "";
+        private static string Lobbycode = "";
+        private static string Region = "";
 
         public static void Prefix([HarmonyArgument(0)] Activity activity)
         {
@@ -27,30 +27,21 @@ namespace EHR.Patches
                     {
                         if (GameStates.IsLobby)
                         {
-                            lobbycode = GameStartManager.Instance.GameRoomNameCode.text;
-                            region = ServerManager.Instance.CurrentRegion.Name;
-                            if (region == "North America") region = "NA";
-                            else if (region == "Europe") region = "EU";
-                            else if (region == "Asia") region = "AS";
-                            else if (region.Contains("MNA")) region = "MNA";
-                            else if (region.Contains("MEU")) region = "MEU";
-                            else if (region.Contains("MAS")) region = "MAS";
-                            else if (region.Contains("MSA")) region = "MSA";
+                            Lobbycode = GameStartManager.Instance.GameRoomNameCode.text;
+                            Region = Utils.GetRegionName();
                         }
 
-                        if (lobbycode != "" && region != "")
+                        if (Lobbycode != "" && Region != "")
                         {
-                            details = $"EHR - {lobbycode} ({region})";
+                            details = $"EHR - {Lobbycode} ({Region})";
                         }
-
-                        activity.Details = details;
                     }
                     else
                     {
                         details = $"EHR v{Main.PluginDisplayVersion}";
-
-                        activity.Details = details;
                     }
+
+                    activity.Details = details;
                 }
             }
 

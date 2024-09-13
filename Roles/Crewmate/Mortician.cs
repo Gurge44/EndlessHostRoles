@@ -14,9 +14,11 @@ public class Mortician : RoleBase
     private static Dictionary<byte, string> lastPlayerName = [];
     public static Dictionary<byte, string> msgToSend = [];
 
+    byte MorticianId;
+
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mortician);
         ShowArrows = new BooleanOptionItem(Id + 2, "ShowArrows", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Mortician]);
@@ -32,6 +34,7 @@ public class Mortician : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        MorticianId = playerId;
     }
 
     public static void OnPlayerDead(PlayerControl target)
@@ -71,11 +74,12 @@ public class Mortician : RoleBase
         msgToSend.Add(pc.PlayerId, name == "" ? string.Format(Translator.GetString("MorticianGetNoInfo"), target.PlayerName) : string.Format(Translator.GetString("MorticianGetInfo"), target.PlayerName, name));
     }
 
-    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (ShowArrows.GetBool())
         {
             if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
+            if (seer.PlayerId != MorticianId) return string.Empty;
             return GameStates.IsMeeting ? string.Empty : Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
         }
 

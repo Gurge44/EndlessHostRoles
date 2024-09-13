@@ -10,7 +10,7 @@ namespace EHR.Modules;
 
 internal static class CustomRoleSelector
 {
-    public static Dictionary<PlayerControl, CustomRoles> RoleResult;
+    public static Dictionary<byte, CustomRoles> RoleResult;
 
     public static int AddScientistNum;
     public static int AddEngineerNum;
@@ -59,9 +59,15 @@ internal static class CustomRoleSelector
             case CustomGameMode.Speedrun:
                 AssignRoleToEveryone(CustomRoles.Runner);
                 return;
+            case CustomGameMode.CaptureTheFlag:
+                AssignRoleToEveryone(CustomRoles.CTFPlayer);
+                return;
+            case CustomGameMode.NaturalDisasters:
+                AssignRoleToEveryone(CustomRoles.NDPlayer);
+                return;
             case CustomGameMode.HideAndSeek:
                 HnSManager.AssignRoles();
-                RoleResult = HnSManager.PlayerRoles.ToDictionary(x => Utils.GetPlayerById(x.Key), x => x.Value.Role);
+                RoleResult = HnSManager.PlayerRoles.ToDictionary(x => x.Key, x => x.Value.Role);
                 return;
         }
 
@@ -94,6 +100,7 @@ internal static class CustomRoleSelector
             if (role.IsVanilla() || chance == 0 || role.IsAdditionRole() || (role.OnlySpawnsWithPets() && !Options.UsePets.GetBool()) || (role != CustomRoles.Randomizer && role.IsCrewmate() && Options.AprilFoolsMode.GetBool()) || HnSManager.AllHnSRoles.Contains(role)) continue;
             switch (role)
             {
+                case CustomRoles.Doctor when Options.EveryoneSeesDeathReasons.GetBool():
                 case CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor when !LoversData.Spawning:
                 case CustomRoles.Commander when optImpNum <= 1 && Commander.CannotSpawnAsSoloImp.GetBool():
                 case CustomRoles.Changeling when Changeling.GetAvailableRoles(check: true).Count == 0:
@@ -183,19 +190,23 @@ internal static class CustomRoleSelector
         if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode, PlayerControl.LocalPlayer.GetClient().GetHashedPuid()))
         {
             Main.GM.Value = true;
-            RoleResult[PlayerControl.LocalPlayer] = CustomRoles.GM;
+            RoleResult[PlayerControl.LocalPlayer.PlayerId] = CustomRoles.GM;
             AllPlayers.Remove(PlayerControl.LocalPlayer);
         }
 
-        if (Main.GM.Value) Logger.Warn("Host: GM", "CustomRoleSelector");
+        if (Main.GM.Value)
+        {
+            Logger.Warn("Host: GM", "CustomRoleSelector");
+            AllPlayers.RemoveAll(x => x.IsHost());
+        }
 
         // Pre-Assigned Roles By Host Are Selected First
-        foreach ((byte id, CustomRoles role) in Main.SetRoles)
+        foreach ((byte id, CustomRoles role) in Main.SetRoles.AddRange(ChatCommands.DraftResult, overrideExistingKeys: false))
         {
             PlayerControl pc = AllPlayers.FirstOrDefault(x => x.PlayerId == id);
             if (pc == null) continue;
 
-            RoleResult[pc] = role;
+            RoleResult[pc.PlayerId] = role;
             AllPlayers.Remove(pc);
 
             if (role.IsImpostor())
@@ -213,6 +224,7 @@ internal static class CustomRoleSelector
                 Roles[RoleAssignType.NonKillingNeutral].DoIf(x => x.Role == role, x => x.AssignedCount++);
                 readyNonNeutralKillingNum++;
             }
+            else Roles[RoleAssignType.Crewmate].DoIf(x => x.Role == role, x => x.AssignedCount++);
 
             readyRoleNum++;
 
@@ -547,7 +559,7 @@ internal static class CustomRoleSelector
         Logger.Info(string.Join(", ", FinalRolesList.Select(x => x.ToString())), "RoleResults");
 
         var preResult = RoleResult.ToDictionary(x => x.Key, x => x.Value);
-        RoleResult = AllPlayers.Zip(FinalRolesList.Shuffle()).ToDictionary(x => x.First, x => x.Second);
+        RoleResult = AllPlayers.Zip(FinalRolesList.Shuffle()).ToDictionary(x => x.First.PlayerId, x => x.Second);
         RoleResult.AddRange(preResult);
 
         if (RoleResult.Count < AllPlayers.Count)
@@ -559,8 +571,13 @@ internal static class CustomRoleSelector
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (Main.GM.Value && pc.IsHost()) continue;
-                RoleResult[pc] = role;
+                if (Main.GM.Value && pc.IsHost())
+                {
+                    RoleResult[pc.PlayerId] = CustomRoles.GM;
+                    continue;
+                }
+
+                RoleResult[pc.PlayerId] = role;
             }
         }
 
@@ -605,7 +622,7 @@ internal static class CustomRoleSelector
 
     public static void SelectAddonRoles()
     {
-        if (Options.CurrentGameMode is CustomGameMode.SoloKombat or CustomGameMode.FFA or CustomGameMode.MoveAndStop or CustomGameMode.HideAndSeek) return;
+        if (Options.CurrentGameMode != CustomGameMode.Standard) return;
 
         foreach (var id in Main.SetAddOns.Keys.Where(id => Utils.GetPlayerById(id) == null).ToArray()) Main.SetAddOns.Remove(id);
 
@@ -615,7 +632,8 @@ internal static class CustomRoleSelector
             if (!role.IsAdditionRole() || role.IsGhostRole()) continue;
             switch (role)
             {
-                case CustomRoles.Mare when Main.CurrentMap == MapNames.Fungle:
+                case CustomRoles.Autopsy when Options.EveryoneSeesDeathReasons.GetBool():
+                case CustomRoles.Mare or CustomRoles.Glow or CustomRoles.Sleep when Main.CurrentMap == MapNames.Fungle:
                 case CustomRoles.Madmate when Options.MadmateSpawnMode.GetInt() != 0:
                 case CustomRoles.Lovers or CustomRoles.LastImpostor or CustomRoles.Workhorse or CustomRoles.Undead:
                 case CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust or CustomRoles.Finder or CustomRoles.Noisy: // Assigned at a different function due to role base change
@@ -634,7 +652,7 @@ internal static class CustomRoleSelector
         Crewmate
     }
 
-    private class RoleAssignInfo(CustomRoles role, int spawnChance, int maxCount, int assignedCount = 0)
+    private class RoleAssignInfo(CustomRoles role, int spawnChance, int maxCount)
     {
         public CustomRoles Role => role;
 
@@ -642,10 +660,6 @@ internal static class CustomRoleSelector
 
         public int MaxCount => maxCount;
 
-        public int AssignedCount
-        {
-            get => assignedCount;
-            set => assignedCount = value;
-        }
+        public int AssignedCount { get; set; }
     }
 }

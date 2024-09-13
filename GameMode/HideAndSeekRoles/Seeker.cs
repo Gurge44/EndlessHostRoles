@@ -16,7 +16,7 @@
         public float RoleSpeed => Speed.GetFloat();
         public float RoleVision => Vision.GetFloat();
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             new TextOptionItem(69_211_299, "Seeker", TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)

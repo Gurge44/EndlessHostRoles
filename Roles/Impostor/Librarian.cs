@@ -27,7 +27,7 @@ namespace EHR.Impostor
 
         public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Librarian);
             Radius = new FloatOptionItem(Id + 5, "LibrarianRadius", new(0.5f, 5f, 0.5f), 3f, TabGroup.ImpostorRoles)
@@ -38,8 +38,8 @@ namespace EHR.Impostor
             SSCD = new FloatOptionItem(Id + 7, "ShapeshiftCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(ShowSSAnimation)
                 .SetValueFormat(OptionFormat.Seconds);
-            SSDur = new FloatOptionItem(Id + 8, "ShapeshiftDuration", new(2.5f, 60f, 2.5f), 10f, TabGroup.ImpostorRoles)
-                .SetParent(ShowSSAnimation)
+            SSDur = new FloatOptionItem(Id + 8, "LibrarianSilenceDuration", new(2.5f, 60f, 2.5f), 10f, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Librarian])
                 .SetValueFormat(OptionFormat.Seconds);
             CanKillWhileShifted = new BooleanOptionItem(Id + 9, "CanKillWhileShifted", false, TabGroup.ImpostorRoles)
                 .SetParent(ShowSSAnimation);
@@ -65,8 +65,12 @@ namespace EHR.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
-            AURoleOptions.ShapeshifterDuration = SSDur.GetFloat();
-            AURoleOptions.ShapeshifterCooldown = SSCD.GetFloat();
+            if (UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = SSCD.GetFloat();
+            else
+            {
+                AURoleOptions.ShapeshifterCooldown = SSCD.GetFloat();
+                AURoleOptions.ShapeshifterDuration = SSDur.GetFloat();
+            }
         }
 
         private static void SendRPC(byte playerId, bool isInSilenceMode)
@@ -94,12 +98,13 @@ namespace EHR.Impostor
             PlayerControl librarian = null;
             float silenceRadius = Radius.GetFloat();
 
-            foreach (var id in playerIdList.ToArray())
+            foreach (var id in playerIdList)
             {
                 if (Main.PlayerStates[id].Role is not Librarian lr) continue;
                 if (!lr.IsInSilencingMode.SILENCING) continue;
 
                 var pc = GetPlayerById(id);
+                if (pc == null || !pc.IsAlive()) continue;
                 if (Vector2.Distance(pc.Pos(), reporter.Pos()) <= silenceRadius)
                 {
                     librarian = pc;
@@ -111,8 +116,14 @@ namespace EHR.Impostor
             reporter.SetRealKiller(librarian);
             if (librarian.RpcCheckAndMurder(reporter))
             {
+                Logger.Info(" Counter kill (report during and in range of silence)", "Librarian");
                 sssh.Add(librarian.PlayerId);
-                LateTask.New(() => { sssh.Remove(librarian.PlayerId); }, NameDuration.GetInt(), "Librarian sssh text");
+                NotifyRoles(SpecifyTarget: librarian);
+                LateTask.New(() =>
+                {
+                    sssh.Remove(librarian.PlayerId);
+                    NotifyRoles(SpecifyTarget: librarian);
+                }, NameDuration.GetInt(), "Librarian sssh text");
             }
 
             return false;
@@ -123,18 +134,32 @@ namespace EHR.Impostor
             if (!IsEnable) return false;
             if (pc == null) return false;
 
-            byte id = pc.PlayerId;
+            ChangeSilencingMode(pc);
 
+            return (!shapeshifting && !UseUnshiftTrigger.GetBool()) || ShowSSAnimation.GetBool();
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            if (!IsEnable) return false;
+            if (pc == null) return false;
+
+            ChangeSilencingMode(pc);
+
+            return false;
+        }
+
+        private void ChangeSilencingMode(PlayerControl pc)
+        {
             IsInSilencingMode = (!IsInSilencingMode.SILENCING, TimeStamp);
-            SendRPC(id, IsInSilencingMode.SILENCING);
-
-            return !shapeshifting || ShowSSAnimation.GetBool();
+            SendRPC(pc.PlayerId, IsInSilencingMode.SILENCING);
+            NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
             if (!IsEnable) return;
-            if (ShowSSAnimation.GetBool()) return;
+            if (ShowSSAnimation.GetBool() && !UsePhantomBasis.GetBool() && !UseUnshiftTrigger.GetBool()) return;
 
             if (IsInSilencingMode.SILENCING && IsInSilencingMode.LAST_CHANGE + SSDur.GetInt() < TimeStamp)
             {
@@ -151,11 +176,11 @@ namespace EHR.Impostor
             sssh.Clear();
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             string result = string.Empty;
             if (target.Is(CustomRoles.Librarian)) result += GetNameTextForSuffix(target.PlayerId);
-            if (isHUD || (seer.PlayerId == target.PlayerId && !seer.IsModClient())) result += GetSelfSuffixAndHudText(target.PlayerId);
+            if (hud || (seer.PlayerId == target.PlayerId && !seer.IsModClient())) result += GetSelfSuffixAndHudText(target.PlayerId);
             return result;
         }
 

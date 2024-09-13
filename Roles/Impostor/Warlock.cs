@@ -19,6 +19,7 @@ namespace EHR.Impostor
         public static OptionItem WarlockCanKillSelf;
         public static OptionItem KillCooldown;
         public static OptionItem CurseCooldown;
+        public static OptionItem ShapeshiftCooldown;
         public static OptionItem FreezeAfterCurseKill;
         public static OptionItem FreezeDurationAfterCurseKill;
 
@@ -32,7 +33,7 @@ namespace EHR.Impostor
         private long LastNotify;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(4600, TabGroup.ImpostorRoles, CustomRoles.Warlock);
             WarlockCanKillAllies = new BooleanOptionItem(4610, "CanKillAllies", true, TabGroup.ImpostorRoles)
@@ -43,6 +44,9 @@ namespace EHR.Impostor
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
                 .SetValueFormat(OptionFormat.Seconds);
             CurseCooldown = new FloatOptionItem(4614, "CurseCooldown", new(0f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
+                .SetValueFormat(OptionFormat.Seconds);
+            ShapeshiftCooldown = new FloatOptionItem(4612, "ShapeshiftCooldown", new(0f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
                 .SetValueFormat(OptionFormat.Seconds);
             FreezeAfterCurseKill = new BooleanOptionItem(4615, "FreezeAfterCurseKill", true, TabGroup.ImpostorRoles)
@@ -69,11 +73,15 @@ namespace EHR.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool()) return;
             try
             {
-                AURoleOptions.ShapeshifterCooldown = IsCursed ? 1f : DefaultKillCooldown;
-                AURoleOptions.ShapeshifterDuration = 1f;
+                if (UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = IsCursed ? 1f : ShapeshiftCooldown.GetFloat();
+                else
+                {
+                    if (UsePets.GetBool()) return;
+                    AURoleOptions.ShapeshifterCooldown = IsCursed ? 1f : ShapeshiftCooldown.GetFloat();
+                    AURoleOptions.ShapeshifterDuration = 1f;
+                }
             }
             catch
             {
@@ -89,12 +97,9 @@ namespace EHR.Impostor
         {
             bool curse = IsCurseAndKill.TryGetValue(id, out bool wcs) && wcs;
             bool shapeshifting = id.IsPlayerShifted();
-            if (!shapeshifting && !curse)
-                hud.KillButton?.OverrideText(Translator.GetString("WarlockCurseButtonText"));
-            else
-                hud.KillButton?.OverrideText(Translator.GetString("KillButtonText"));
-            if (!shapeshifting && curse)
-                hud.AbilityButton?.OverrideText(Translator.GetString("WarlockShapeshiftButtonText"));
+            if (!shapeshifting && !curse) hud.KillButton?.OverrideText(Translator.GetString("WarlockCurseButtonText"));
+            else hud.KillButton?.OverrideText(Translator.GetString("KillButtonText"));
+            if (!shapeshifting && curse) hud.AbilityButton?.OverrideText(Translator.GetString("WarlockShapeshiftButtonText"));
         }
 
         void ResetCooldowns(bool killCooldown = false, bool curseCooldown = false, bool shapeshiftCooldown = false, PlayerControl warlock = null)
@@ -164,10 +169,16 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting) return true;
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
 
             Curse(shapeshifter);
 
+            return false;
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            Curse(pc);
             return false;
         }
 
@@ -267,9 +278,10 @@ namespace EHR.Impostor
             if (KCD > 0f) KCD -= Time.fixedDeltaTime;
             if (CurseCD > 0f) CurseCD -= Time.fixedDeltaTime;
 
-            if (!pc.IsModClient() && (Math.Abs(KCD - beforeKCD) > 0.5f || Math.Abs(beforeCCD - CurseCD) > 0.5f) && LastNotify != Utils.TimeStamp)
+            var now = Utils.TimeStamp;
+            if ((Math.Abs(KCD - beforeKCD) > 0.01f || Math.Abs(beforeCCD - CurseCD) > 0.01f) && LastNotify != now)
             {
-                LastNotify = Utils.TimeStamp;
+                LastNotify = now;
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }
         }
@@ -279,7 +291,7 @@ namespace EHR.Impostor
             ResetCooldowns(killCooldown: true, curseCooldown: true);
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.IsModClient() && !hud) return string.Empty;
             if (Main.PlayerStates[seer.PlayerId].Role is not Warlock { IsEnable: true } wl) return string.Empty;

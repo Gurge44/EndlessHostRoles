@@ -11,9 +11,9 @@ namespace EHR.Crewmate
         private bool IsAbilityActive;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
-            SetupSingleRoleOptions(6850, TabGroup.CrewmateRoles, CustomRoles.Lighter);
+            SetupRoleOptions(6850, TabGroup.CrewmateRoles, CustomRoles.Lighter);
             LighterSkillCooldown = new FloatOptionItem(6852, "LighterSkillCooldown", new(0f, 180f, 1f), 25f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lighter])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -110,7 +110,7 @@ namespace EHR.Crewmate
             }
             else
             {
-                if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
+                if (!NameNotifyManager.Notifies.ContainsKey(pc.PlayerId))
                     pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
             }
         }

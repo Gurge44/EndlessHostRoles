@@ -50,7 +50,7 @@ namespace EHR.Impostor
             return false;
         }
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Penguin);
             OptionAbductTimerLimit = new FloatOptionItem(Id + 11, "PenguinAbductTimerLimit", new(1f, 20f, 1f), 10f, TabGroup.ImpostorRoles)
@@ -207,7 +207,8 @@ namespace EHR.Impostor
                 AddVictim(target);
             }
 
-            return doKill;
+            if (doKill) killer.Kill(target);
+            return false;
         }
 
         public override void SetButtonTexts(HudManager hud, byte id)
@@ -303,10 +304,7 @@ namespace EHR.Impostor
                     if (!IsGoose)
                     {
                         AbductVictim.Data.IsDead = true;
-                        foreach (var innerNetObject in GameData.Instance.AllPlayers)
-                        {
-                            innerNetObject.SetDirtyBit(uint.MaxValue);
-                        }
+                        AbductVictim.Data.MarkDirty();
                     }
 
                     // If the penguin himself is on a ladder, kill him after getting off the ladder.
@@ -365,7 +363,7 @@ namespace EHR.Impostor
             }
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer == null || seer.PlayerId != target.PlayerId) return string.Empty;
             if (Main.PlayerStates.TryGetValue(seer.PlayerId, out var state) && state.Role is Penguin pg && pg.AbductVictim != null)

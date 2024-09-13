@@ -28,7 +28,7 @@ namespace EHR.Neutral
 
         public override bool IsEnable => BubbleId != byte.MaxValue;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Bubble);
             KillCooldown = new FloatOptionItem(Id + 2, "BubbleCD", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
@@ -150,12 +150,13 @@ namespace EHR.Neutral
         public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
-            foreach (var pc in EncasedPlayers.Keys.Select(x => GetPlayerById(x)).Where(x => x != null && x.IsAlive())) pc.Suicide(PlayerState.DeathReason.Bombed, Bubble_);
+            foreach (var pc in EncasedPlayers.Keys.Select(x => GetPlayerById(x)).Where(x => x != null && x.IsAlive()))
+                pc.Suicide(PlayerState.DeathReason.Bombed, Bubble_);
             EncasedPlayers.Clear();
             SendRPC(clear: true);
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (target == null || !EncasedPlayers.TryGetValue(target.PlayerId, out var ts) || ((ts + NotifyDelay.GetInt() >= TimeStamp) && !seer.Is(CustomRoles.Bubble))) return string.Empty;
             return ColorString(GetRoleColor(CustomRoles.Bubble), $"⚠ {ExplodeDelay.GetInt() - (TimeStamp - ts) + 1}");

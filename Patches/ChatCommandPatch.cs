@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -57,7 +58,7 @@ class Command(string[] commandForms, string arguments, string description, Comma
         return CommandForms.Any(text.Split(' ')[0].Equals);
     }
 
-    public bool CanUseCommand(PlayerControl pc)
+    public bool CanUseCommand(PlayerControl pc, bool checkTime = true)
     {
         if (UsageLevel == UsageLevels.Everyone && UsageTime == UsageTimes.Always) return true;
 
@@ -68,6 +69,8 @@ class Command(string[] commandForms, string arguments, string description, Comma
             case UsageLevels.HostOrModerator when !pc.IsHost() && !ChatCommands.IsPlayerModerator(pc.FriendCode):
                 return false;
         }
+
+        if (!checkTime) return true;
 
         switch (UsageTime)
         {
@@ -95,6 +98,13 @@ internal static class ChatCommands
     private static readonly List<byte> PollVoted = [];
     private static float PollTimer = 60f;
 
+    public static readonly Dictionary<byte, (long MuteTimeStamp, int Duration)> MutedPlayers = [];
+
+    public static Dictionary<byte, List<CustomRoles>> DraftRoles = [];
+    public static Dictionary<byte, CustomRoles> DraftResult = [];
+
+    private static HashSet<byte> ReadyPlayers = [];
+
     public static void LoadCommands()
     {
         AllCommands =
@@ -108,15 +118,15 @@ internal static class ChatCommands
             new(["rn", "rename", "рн", "ренейм", "переименовать"], "{name}", GetString("CommandDescription.Rename"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, RenameCommand, true, [GetString("CommandArgs.Rename.Name")]),
             new(["hn", "hidename", "хн", "спрник"], "", GetString("CommandDescription.HideName"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, HideNameCommand, true),
             new(["level", "лвл", "уровень"], "{level}", GetString("CommandDescription.Level"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, LevelCommand, true, [GetString("CommandArgs.Level.Level")]),
-            new(["n", "now", "н"], "/n", GetString("CommandDescription.Now"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, NowCommand, true),
+            new(["n", "now", "н"], "", GetString("CommandDescription.Now"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, NowCommand, true),
             new(["dis", "disconnect", "дис"], "{team}", GetString("CommandDescription.Disconnect"), Command.UsageLevels.Host, Command.UsageTimes.InGame, DisconnectCommand, true, [GetString("CommandArgs.Disconnect.Team")]),
-            new(["r", "р"], "{role}", GetString("CommandDescription.R"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RCommand, true, [GetString("CommandArgs.R.Role")]),
+            new(["r", "р"], "[role]", GetString("CommandDescription.R"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, RCommand, true, [GetString("CommandArgs.R.Role")]),
             new(["up"], "{role}", GetString("CommandDescription.Up"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, UpCommand, true, [GetString("CommandArgs.Up.Role")]),
             new(["setrole", "сетроль"], "{id} {role}", GetString("CommandDescription.SetRole"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, SetRoleCommand, true, [GetString("CommandArgs.SetRole.Id"), GetString("CommandArgs.SetRole.Role")]),
             new(["h", "help", "хэлп", "хелп", "помощь"], "", GetString("CommandDescription.Help"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, HelpCommand, true),
-            new(["kcount", "gamestate", "gstate", "gs", "кубийц", "гс", "статигры"], "", GetString("CommandDescription.KCount"), Command.UsageLevels.Everyone, Command.UsageTimes.InGame, KCountCommand, true),
+            new(["gamestate", "gstate", "gs", "kcount", "kc", "кубийц", "гс", "статигры"], "", GetString("CommandDescription.KCount"), Command.UsageLevels.Everyone, Command.UsageTimes.InGame, KCountCommand, true),
             new(["addmod", "добмодера"], "{id}", GetString("CommandDescription.AddMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddModCommand, true, [GetString("CommandArgs.AddMod.Id")]),
-            new(["deletemod", "убрмодера", "удмодера"], "{id}", GetString("CommandDescription.DeleteMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteModCommand, true, [GetString("CommandArgs.DeleteMod.Id")]),
+            new(["deletemod", "убрмодера", "удмодера", "убратьмодера", "удалитьмодера"], "{id}", GetString("CommandDescription.DeleteMod"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteModCommand, true, [GetString("CommandArgs.DeleteMod.Id")]),
             new(["combo", "комбо"], "{mode} {role} {addon} [all]", GetString("CommandDescription.Combo"), Command.UsageLevels.Host, Command.UsageTimes.Always, ComboCommand, true, [GetString("CommandArgs.Combo.Mode"), GetString("CommandArgs.Combo.Role"), GetString("CommandArgs.Combo.Addon"), GetString("CommandArgs.Combo.All")]),
             new(["eff", "effect", "эффект"], "{effect}", GetString("CommandDescription.Effect"), Command.UsageLevels.Host, Command.UsageTimes.InGame, EffectCommand, true, [GetString("CommandArgs.Effect.Effect")]),
             new(["afkexempt", "освафк", "афкосв"], "{id}", GetString("CommandDescription.AFKExempt"), Command.UsageLevels.Host, Command.UsageTimes.Always, AFKExemptCommand, true, [GetString("CommandArgs.AFKExempt.Id")]),
@@ -135,26 +145,39 @@ internal static class ChatCommands
             new(["target", "цель"], "{id}", GetString("CommandDescription.Target"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, TargetCommand, true, [GetString("CommandArgs.Target.Id")]),
             new(["chat", "сообщение"], "{message}", GetString("CommandDescription.Chat"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, ChatCommand, true, [GetString("CommandArgs.Chat.Message")]),
             new(["check", "проверить"], "{id} {role}", GetString("CommandDescription.Check"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, CheckCommand, true, [GetString("CommandArgs.Check.Id"), GetString("CommandArgs.Check.Role")]),
-            new(["ban", "kick", "бан", "кик", "забанить", "кикнуть"], "{id}", GetString("CommandDescription.Ban"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, BanKickCommand, true, [GetString("CommandArgs.Ban.Id")]), //HyperAtill: Did I do everything right there? Or I need to add something else so game knows the differences between /ban and /kick
+            new(["ban", "kick", "бан", "кик", "забанить", "кикнуть"], "{id}", GetString("CommandDescription.Ban"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, BanKickCommand, true, [GetString("CommandArgs.Ban.Id")]),
             new(["exe", "выкинуть"], "{id}", GetString("CommandDescription.Exe"), Command.UsageLevels.Host, Command.UsageTimes.Always, ExeCommand, true, [GetString("CommandArgs.Exe.Id")]),
             new(["kill", "убить"], "{id}", GetString("CommandDescription.Kill"), Command.UsageLevels.Host, Command.UsageTimes.Always, KillCommand, true, [GetString("CommandArgs.Kill.Id")]),
             new(["colour", "color", "цвет"], "{color}", GetString("CommandDescription.Colour"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ColorCommand, true, [GetString("CommandArgs.Colour.Color")]),
-            new(["xf", "испр"], "", GetString("CommandDescription.XF"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, XFCommand, true),
-            new(["id", "guesslist"], "", GetString("CommandDescription.ID"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, IDCommand, true),
-            new(["changerole", "измроль"], "{role}", GetString("CommandDescription.ChangeRole"), Command.UsageLevels.Host, Command.UsageTimes.InGame, ChangeRoleCommand, true),
+            new(["xf", "испр"], "", GetString("CommandDescription.XF"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, XFCommand, true),
+            new(["id", "guesslist", "айди"], "", GetString("CommandDescription.ID"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, IDCommand, true),
+            new(["changerole", "измроль"], "{role}", GetString("CommandDescription.ChangeRole"), Command.UsageLevels.Host, Command.UsageTimes.InGame, ChangeRoleCommand, true, [GetString("CommandArgs.ChangeRole.Role")]),
             new(["end", "завершить"], "", GetString("CommandDescription.End"), Command.UsageLevels.Host, Command.UsageTimes.InGame, EndCommand, true),
             new(["cosid", "костюм", "одежда"], "", GetString("CommandDescription.CosID"), Command.UsageLevels.Modded, Command.UsageTimes.Always, CosIDCommand, true),
             new(["mt", "hy", "собрание"], "", GetString("CommandDescription.MTHY"), Command.UsageLevels.Host, Command.UsageTimes.InGame, MTHYCommand, true),
-            new(["csd", "кзвук"], "{sound}", GetString("CommandDescription.CSD"), Command.UsageLevels.Modded, Command.UsageTimes.Always, CSDCommand, true),
+            new(["csd", "кзвук"], "{sound}", GetString("CommandDescription.CSD"), Command.UsageLevels.Modded, Command.UsageTimes.Always, CSDCommand, true, [GetString("CommandArgs.CSD.Sound")]),
             new(["sd", "взвук"], "{sound}", GetString("CommandDescription.SD"), Command.UsageLevels.Modded, Command.UsageTimes.Always, SDCommand, true, [GetString("CommandArgs.SD.Sound")]),
             new(["gno", "гно"], "{number}", GetString("CommandDescription.GNO"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeathOrLobby, GNOCommand, true, [GetString("CommandArgs.GNO.Number")]),
             new(["poll", "опрос"], "{question} {answerA} {answerB} [answerC] [answerD]", GetString("CommandDescription.Poll"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.Always, PollCommand, true, [GetString("CommandArgs.Poll.Question"), GetString("CommandArgs.Poll.AnswerA"), GetString("CommandArgs.Poll.AnswerB"), GetString("CommandArgs.Poll.AnswerC"), GetString("CommandArgs.Poll.AnswerD")]),
-            new(["pv", "проголосовать"], "{vote}", GetString("CommandDescription.PV"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, PVCommand, true, [GetString("CommandArgs.PV.Vote")]),
+            new(["pv", "проголосовать"], "{vote}", GetString("CommandDescription.PV"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, PVCommand, false, [GetString("CommandArgs.PV.Vote")]),
             new(["hm", "мс", "мессенджер"], "{id}", GetString("CommandDescription.HM"), Command.UsageLevels.Everyone, Command.UsageTimes.AfterDeath, HMCommand, true, [GetString("CommandArgs.HM.Id")]),
+            new(["decree", "указ"], "{number}", GetString("CommandDescription.Decree"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, DecreeCommand, true, [GetString("CommandArgs.Decree.Number")]),
+            new(["addvip", "добавитьвип", "добвип"], "{id}", GetString("CommandDescription.AddVIP"), Command.UsageLevels.Host, Command.UsageTimes.Always, AddVIPCommand, true, [GetString("CommandArgs.AddVIP.Id")]),
+            new(["deletevip", "удвип", "убрвип", "удалитьвип", "убратьвип"], "{id}", GetString("CommandDescription.DeleteVIP"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteVIPCommand, true, [GetString("CommandArgs.DeleteVIP.Id")]),
+            new(["assume", "предположить"], "{id} {number}", GetString("CommandDescription.Assume"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AssumeCommand, true, [GetString("CommandArgs.Assume.Id"), GetString("CommandArgs.Assume.Number")]),
+            new(["note", "заметка"], "{action} [?]", GetString("CommandDescription.Note"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NoteCommand, true, [GetString("CommandArgs.Note.Action"), GetString("CommandArgs.Note.UnknownValue")]),
+            new(["os", "optionset", "шансроли", "опция"], "{chance} {role}", GetString("CommandDescription.OS"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, OSCommand, true, [GetString("CommandArgs.OS.Chance"), GetString("CommandArgs.OS.Role")]),
+            new(["negotiation", "neg", "наказание"], "{number}", GetString("CommandDescription.Negotiation"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NegotiationCommand, true, [GetString("CommandArgs.Negotiation.Number")]),
+            new(["mute", "мут"], "{id} [duration]", GetString("CommandDescription.Mute"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.AfterDeathOrLobby, MuteCommand, true, [GetString("CommandArgs.Mute.Id"), GetString("CommandArgs.Mute.Duration")]),
+            new(["unmute", "размут"], "{id}", GetString("CommandDescription.Unmute"), Command.UsageLevels.Host, Command.UsageTimes.Always, UnmuteCommand, true, [GetString("CommandArgs.Unmute.Id")]),
+            new(["draftstart", "ds", "драфтстарт"], "", GetString("CommandDescription.DraftStart"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DraftStartCommand, true),
+            new(["draft", "драфт"], "{number}", GetString("CommandDescription.Draft"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, DraftCommand, true, [GetString("CommandArgs.Draft.Number")]),
+            new(["readycheck", "rc", "готов"], "", GetString("CommandDescription.ReadyCheck"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, ReadyCheckCommand, true),
+            new(["ready", "готов", "г"], "", GetString("CommandDescription.Ready"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ReadyCommand, true),
 
             // Commands with action handled elsewhere
-            new(["shoot", "guess", "bet", "st", "bt", "угадать", "бт"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
-            new(["sp", "jj", "tl", "trial", "суд", "засудить"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Trial.Id")]),
+            new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
+            new(["tl", "sp", "jj", "trial", "суд", "засудить"], "{id}", GetString("CommandDescription.Trial"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Trial.Id")]),
             new(["sw", "swap", "st", "свап", "свапнуть"], "{id}", GetString("CommandDescription.Swap"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Swap.Id")]),
             new(["compare", "cp", "cmp", "сравнить", "ср"], "{id1} {id2}", GetString("CommandDescription.Compare"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Compare.Id1"), GetString("CommandArgs.Compare.Id2")]),
             new(["ms", "mediumship", "medium", "медиум"], "{answer}", GetString("CommandDescription.Medium"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Medium.Answer")]),
@@ -166,7 +189,30 @@ internal static class ChatCommands
     public static bool IsPlayerModerator(string friendCode)
     {
         if (friendCode == "" || friendCode == string.Empty || !Options.ApplyModeratorList.GetBool()) return false;
+
         const string friendCodesFilePath = "./EHR_DATA/Moderators.txt";
+        if (!File.Exists(friendCodesFilePath))
+        {
+            File.WriteAllText(friendCodesFilePath, string.Empty);
+            return false;
+        }
+
+        var friendCodes = File.ReadAllLines(friendCodesFilePath);
+        return friendCodes.Any(code => code.Contains(friendCode, StringComparison.OrdinalIgnoreCase));
+    }
+
+    // Function to check if a player is a VIP
+    public static bool IsPlayerVIP(string friendCode)
+    {
+        if (friendCode == "" || friendCode == string.Empty || !Options.ApplyVIPList.GetBool()) return false;
+
+        const string friendCodesFilePath = "./EHR_DATA/VIPs.txt";
+        if (!File.Exists(friendCodesFilePath))
+        {
+            File.WriteAllText(friendCodesFilePath, string.Empty);
+            return false;
+        }
+
         var friendCodes = File.ReadAllLines(friendCodesFilePath);
         return friendCodes.Any(code => code.Contains(friendCode, StringComparison.OrdinalIgnoreCase));
     }
@@ -175,7 +221,6 @@ internal static class ChatCommands
     {
         if (__instance.quickChatField.visible) return true;
         if (__instance.freeChatField.textArea.text == string.Empty) return false;
-        if (!GameStates.IsModHost && !AmongUsClient.Instance.AmHost) return true;
         __instance.timeSinceLastMessage = 3f;
 
         var text = __instance.freeChatField.textArea.text;
@@ -207,6 +252,7 @@ internal static class ChatCommands
             foreach (var command in AllCommands)
             {
                 if (!command.IsThisCommand(text)) continue;
+                Logger.Info($" Recognized command: {text}", "ChatCommand");
                 Main.IsChatCommand = true;
                 if (!command.CanUseCommand(PlayerControl.LocalPlayer))
                 {
@@ -220,9 +266,11 @@ internal static class ChatCommands
             }
         }
 
-        if (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
+        if (CheckMute(PlayerControl.LocalPlayer.PlayerId)) goto Canceled;
 
-        if (GameStates.IsInGame && ((PlayerControl.LocalPlayer.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting)))
+        if (GameStates.InGame && (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) || Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk)) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
+
+        if (GameStates.IsInGame && (PlayerControl.LocalPlayer.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting))
         {
             if (PlayerControl.LocalPlayer.Is(CustomRoles.Lovers) || PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
             {
@@ -231,7 +279,7 @@ internal static class ChatCommands
                 ChatUpdatePatch.LoversMessage = true;
                 Utils.SendMessage(text, otherLover.PlayerId, title);
                 Utils.SendMessage(text, PlayerControl.LocalPlayer.PlayerId, title);
-                LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max((AmongUsClient.Instance.Ping / 1000f) * 2f, Main.MessageWait.Value + 0.5f), log: false);
+                LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max(AmongUsClient.Instance.Ping / 1000f * 2f, Main.MessageWait.Value + 0.5f), log: false);
             }
 
             goto Canceled;
@@ -254,13 +302,168 @@ internal static class ChatCommands
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
 
+    private static void ReadyCheckCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        Utils.SendMessage(GetString("ReadyCheckMessage"), title: GetString("ReadyCheckTitle"));
+        ReadyPlayers = [player.PlayerId];
+        Main.Instance.StartCoroutine(Countdown());
+        return;
+
+        System.Collections.IEnumerator Countdown()
+        {
+            var timer = 30f;
+            while (timer > 0f)
+            {
+                if (!GameStates.IsLobby) yield break;
+                if (Main.AllPlayerControls.Select(x => x.PlayerId).All(ReadyPlayers.Contains)) break;
+                timer -= Time.deltaTime;
+                yield return null;
+            }
+
+            var notReadyPlayers = Main.AllPlayerControls.Select(x => x.PlayerId).Except(ReadyPlayers).ToArray();
+            if (notReadyPlayers.Length == 0) Utils.SendMessage("\n", player.PlayerId, GetString("EveryoneReadyTitle"));
+            else Utils.SendMessage(string.Join(", ", notReadyPlayers.Select(x => x.ColoredPlayerName())), player.PlayerId, string.Format(GetString("PlayersNotReadyTitle"), notReadyPlayers.Length));
+        }
+    }
+
+    private static void ReadyCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        ReadyPlayers.Add(player.PlayerId);
+    }
+    
+    private static void DraftStartCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        DraftResult = [];
+
+        var allPlayerIds = Main.AllPlayerControls.Select(x => x.PlayerId).ToArray();
+        var allRoles = Enum.GetValues<CustomRoles>().Where(x => x < CustomRoles.NotAssigned && x.IsEnable() && !x.IsForOtherGameMode() && !HnSManager.AllHnSRoles.Contains(x) && !x.IsVanilla() && x is not CustomRoles.GM and not CustomRoles.Konan).ToArray();
+
+        if (allRoles.Length < allPlayerIds.Length)
+        {
+            Utils.SendMessage(GetString("DraftNotEnoughRoles"), player.PlayerId);
+            return;
+        }
+
+        DraftRoles = allRoles.Shuffle().Partition(allPlayerIds.Length).Zip(allPlayerIds).ToDictionary(x => x.Second, x => x.First.ToList());
+
+        foreach ((byte id, List<CustomRoles> roles) in DraftRoles)
+        {
+            var roleList = roles.Select((x, i) => $"{i + 1}. {x.ToColoredString()}");
+            var msg = string.Format(GetString("DraftStart"), string.Join('\n', roleList));
+            Utils.SendMessage(msg, id, title: GetString("DraftTitle"));
+        }
+    }
+
+    private static void DraftCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        if (DraftRoles.Count == 0 || !DraftRoles.TryGetValue(player.PlayerId, out var roles) || args.Length < 2 || !int.TryParse(args[1], out var chosenIndex) || roles.Count < chosenIndex) return;
+        CustomRoles role = roles[chosenIndex - 1];
+        DraftResult[player.PlayerId] = role;
+        Utils.SendMessage(string.Format(GetString("DraftChosen"), role.ToColoredString()), player.PlayerId, title: GetString("DraftTitle"));
+    }
+
+    private static void MuteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        if (!player.IsHost() && (GameStates.InGame || MutedPlayers.ContainsKey(player.PlayerId))) return;
+        if (args.Length < 3 || !byte.TryParse(args[1], out var id) || id.IsHost()) return;
+        int duration = !int.TryParse(args[2], out var dur) ? 60 : dur;
+        MutedPlayers[id] = (Utils.TimeStamp, duration);
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PlayerMuted"), id.ColoredPlayerName(), duration));
+        Utils.SendMessage("\n", id, string.Format(GetString("YouMuted"), player.PlayerId.ColoredPlayerName(), duration));
+        if (!player.IsHost()) Utils.SendMessage("\n", 0, string.Format(GetString("ModeratorMuted"), player.PlayerId.ColoredPlayerName(), id.ColoredPlayerName(), duration));
+    }
+
+    private static void UnmuteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        if (args.Length < 2 || !byte.TryParse(args[1], out var id)) return;
+        MutedPlayers.Remove(id);
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PlayerUnmuted"), id.ColoredPlayerName()));
+        Utils.SendMessage("\n", id, string.Format(GetString("YouUnmuted"), player.PlayerId.ColoredPlayerName()));
+    }
+
+    private static void NegotiationCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        if (!Negotiator.On || !player.IsAlive() || args.Length < 2 || !int.TryParse(args[1], out var index)) return;
+        Negotiator.ReceiveCommand(player, index);
+    }
+
+    private static void OSCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        if (!GameStates.IsLobby || args.Length < 3 || !byte.TryParse(args[1], out var chance) || chance > 100 || chance % 5 != 0 || !GetRoleByName(string.Join(' ', args[2..]), out var role) || !Options.CustomRoleSpawnChances.TryGetValue(role, out var option)) return;
+        if (role.IsAdditionRole())
+        {
+            option.SetValue(chance == 0 ? 0 : 1);
+            if (!Options.CustomAdtRoleSpawnRate.TryGetValue(role, out var adtOption)) return;
+            adtOption.SetValue(chance / 5);
+        }
+        else option.SetValue(chance / 5);
+    }
+
+    private static void NoteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        if (player.Is(CustomRoles.Journalist) && player.IsAlive())
+        {
+            if (PlayerControl.LocalPlayer.PlayerId != player.PlayerId) ChatManager.SendPreviousMessagesToAll();
+            Journalist.OnReceiveCommand(player, args);
+        }
+    }
+
+    private static void AssumeCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        if (args.Length < 3 || !byte.TryParse(args[1], out var id) || !int.TryParse(args[2], out var num) || !player.Is(CustomRoles.Assumer) || !player.IsAlive()) return;
+        if (PlayerControl.LocalPlayer.PlayerId != player.PlayerId) ChatManager.SendPreviousMessagesToAll();
+        Assumer.Assume(player.PlayerId, id, num);
+    }
+
+    private static void DeleteVIPCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        if (args.Length < 2 || !byte.TryParse(args[1], out var VIPId)) return;
+        var VIPPc = Utils.GetPlayerById(VIPId);
+        if (VIPPc == null) return;
+        var fc = VIPPc.FriendCode;
+        if (!IsPlayerVIP(fc)) Utils.SendMessage(GetString("PlayerNotVIP"), player.PlayerId);
+        var lines = File.ReadAllLines("./EHR_DATA/VIPs.txt").Where(line => !line.Contains(fc)).ToArray();
+        File.WriteAllLines("./EHR_DATA/VIPs.txt", lines);
+        Utils.SendMessage(GetString("PlayerRemovedFromVIPList"), player.PlayerId);
+    }
+
+    private static void AddVIPCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        if (args.Length < 2 || !byte.TryParse(args[1], out var newVIPId)) return;
+        var newVIPPc = Utils.GetPlayerById(newVIPId);
+        if (newVIPPc == null) return;
+        var fc = newVIPPc.FriendCode;
+        if (IsPlayerVIP(fc)) Utils.SendMessage(GetString("PlayerAlreadyVIP"), player.PlayerId);
+        File.AppendAllText("./EHR_DATA/VIPs.txt", $"\n{fc}");
+        Utils.SendMessage(GetString("PlayerAddedToVIPList"), player.PlayerId);
+    }
+
+    private static void DecreeCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        if (!player.Is(CustomRoles.President)) return;
+
+        if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId)
+            ChatManager.SendPreviousMessagesToAll();
+
+        LateTask.New(() =>
+        {
+            if (args.Length < 2)
+            {
+                Utils.SendMessage(President.GetHelpMessage(), player.PlayerId);
+                return;
+            }
+
+            President.UseDecree(player, args[1]);
+        }, 0.2f, log: false);
+    }
+
     private static void HMCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        if (args.Length < 2 || !int.TryParse(args[1], out int id) || id is > 3 or < 1) return;
+        if (Messenger.Sent.Contains(player.PlayerId) || args.Length < 2 || !int.TryParse(args[1], out int id) || id is > 3 or < 1) return;
         Main.Instance.StartCoroutine(SendOnMeeting());
         return;
 
-        System.Collections.IEnumerator SendOnMeeting()
+        IEnumerator SendOnMeeting()
         {
             bool meeting = GameStates.IsMeeting;
             while (!GameStates.IsMeeting) yield return null;
@@ -282,12 +485,12 @@ internal static class ChatCommands
         }
     }
 
+    // Credit: Drakos for the base code
     private static void PollCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         PollVotes.Clear();
         PollAnswers.Clear();
         PollVoted.Clear();
-        PollTimer = 120f;
 
         if (!args.Any(x => x.Contains('?')))
         {
@@ -295,11 +498,12 @@ internal static class ChatCommands
             return;
         }
 
+        PollTimer = 60f;
+
         var splitIndex = Array.IndexOf(args, args.First(x => x.Contains('?'))) + 1;
-        string title = string.Join(" ", args.Take(splitIndex).Skip(1));
         var answers = args.Skip(splitIndex).ToArray();
 
-        string msg = "";
+        string msg = string.Join(" ", args.Take(splitIndex).Skip(1)) + "\n";
         for (int i = 0; i < Math.Clamp(answers.Length, 2, 5); i++)
         {
             char choiceLetter = (char)(i + 65);
@@ -309,20 +513,29 @@ internal static class ChatCommands
         }
 
         msg += $"\n{GetString("Poll.Begin")}\n<size=55%><i>{GetString("Poll.TimeInfo")}</i></size>";
+        var title = GetString("Poll.Title");
         Utils.SendMessage(msg, title: title);
 
         Main.Instance.StartCoroutine(StartPollCountdown());
         return;
 
-        static System.Collections.IEnumerator StartPollCountdown()
+        IEnumerator StartPollCountdown()
         {
             if (PollVotes.Count == 0) yield break;
-            bool playervoted = (Main.AllPlayerControls.Length - 1) > PollVotes.Values.Sum();
+            bool playervoted = Main.AllPlayerControls.Length - 1 > PollVotes.Values.Sum();
 
+            var resendTimer = 0f;
             while (playervoted && PollTimer > 0f)
             {
-                playervoted = (Main.AllPlayerControls.Length - 1) > PollVotes.Values.Sum();
+                playervoted = Main.AllPlayerControls.Length - 1 > PollVotes.Values.Sum();
                 PollTimer -= Time.deltaTime;
+                resendTimer += Time.deltaTime;
+                if (resendTimer >= 15f)
+                {
+                    resendTimer = 0f;
+                    Utils.SendMessage(msg, title: title);
+                }
+
                 yield return null;
             }
 
@@ -452,8 +665,7 @@ internal static class ChatCommands
 
     private static void CSDCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        string subArgs;
-        subArgs = text.Remove(0, 3);
+        string subArgs = text.Remove(0, 3);
         player.RPCPlayCustomSound(subArgs.Trim());
     }
 
@@ -491,7 +703,7 @@ internal static class ChatCommands
             var roleName = GetString(rl.ToString()).ToLower().Trim();
             if (setRole.Contains(roleName))
             {
-                if (!rl.IsAdditionRole()) player.RpcSetRole(rl.GetRoleTypes());
+                if (!rl.IsAdditionRole()) player.SetRole(rl.GetRoleTypes());
                 player.RpcSetCustomRole(rl);
 
                 if (rl.IsGhostRole()) GhostRolesManager.SpecificAssignGhostRole(player.PlayerId, rl, true);
@@ -506,7 +718,7 @@ internal static class ChatCommands
     private static void IDCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         string msgText = GetString("PlayerIdList");
-        msgText = Main.AllPlayerControls.Aggregate(msgText, (current, pc) => current + "\n" + pc.PlayerId + " → " + Main.AllPlayerNames[pc.PlayerId]);
+        msgText = Main.AllPlayerControls.Aggregate(msgText, (current, pc) => $"{current}\n{pc.PlayerId} \u2192 {pc.GetRealName()}");
 
         Utils.SendMessage(msgText, player.PlayerId);
     }
@@ -534,6 +746,12 @@ internal static class ChatCommands
         if (GameStates.IsInGame)
         {
             Utils.SendMessage(GetString("Message.OnlyCanUseInLobby"), player.PlayerId);
+            return;
+        }
+
+        if (!player.IsHost() && !Options.PlayerCanSetColor.GetBool() && !IsPlayerVIP(player.FriendCode))
+        {
+            Utils.SendMessage(GetString("DisableUseCommand"), player.PlayerId);
             return;
         }
 
@@ -591,14 +809,14 @@ internal static class ChatCommands
     private static void BanKickCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         // Check if the kick command is enabled in the settings
-        if (Options.ApplyModeratorList.GetValue() == 0)
+        if (Options.ApplyModeratorList.GetValue() == 0 && !player.IsHost())
         {
             Utils.SendMessage(GetString("KickCommandDisabled"), player.PlayerId);
             return;
         }
 
         // Check if the player has the necessary privileges to use the command
-        if (!IsPlayerModerator(player.FriendCode))
+        if (!IsPlayerModerator(player.FriendCode) && !player.IsHost())
         {
             Utils.SendMessage(GetString("KickCommandNoAccess"), player.PlayerId);
             return;
@@ -637,7 +855,7 @@ internal static class ChatCommands
         string textToSend = $"{kickedPlayerName} {GetString("KickCommandKicked")}";
         if (GameStates.IsInGame)
         {
-            textToSend += $"{GetString("KickCommandKickedRole")} {GetString(kickedPlayer.GetCustomRole().ToString())}";
+            textToSend += $"{GetString("KickCommandKickedRole")} {kickedPlayer.GetCustomRole().ToColoredString()}";
         }
 
         Utils.SendMessage(textToSend);
@@ -704,22 +922,30 @@ internal static class ChatCommands
     {
         if (text.Length < 6 || !GameStates.IsMeeting) return;
         string toVote = text[6..].Replace(" ", string.Empty);
-        if (!byte.TryParse(toVote, out var voteId)) return;
+        if (!byte.TryParse(toVote, out var voteId) || MeetingHud.Instance?.playerStates?.FirstOrDefault(x => x.TargetPlayerId == player.PlayerId)?.DidVote == true) return;
+        if (voteId > Main.AllPlayerControls.Length) return;
         if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
-        MeetingHud.Instance?.CastVote(player.PlayerId, voteId);
+        if (!player.IsHost()) MeetingHud.Instance?.CastVote(player.PlayerId, voteId);
+        else MeetingHud.Instance?.CmdCastVote(player.PlayerId, voteId);
     }
 
     private static void SayCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         if (args.Length > 1)
-            Utils.SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString("MessageFromTheHost")}</color>");
+            Utils.SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString(player.IsHost() ? "MessageFromTheHost" : "SayTitle")}</color>");
     }
 
     private static void DeathCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         if (!GameStates.IsInGame) return;
         var killer = player.GetRealKiller();
-        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathCommand"), Utils.ColorString(Main.PlayerColors.TryGetValue(killer.PlayerId, out var kColor) ? kColor : Color.white, killer.GetRealName()), killer.GetCustomRole().ToColoredString()));
+        if (killer == null)
+        {
+            Utils.SendMessage("\n", player.PlayerId, GetString("DeathCommandFail"));
+            return;
+        }
+
+        Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("DeathCommand"), Utils.ColorString(Main.PlayerColors.TryGetValue(killer.PlayerId, out var kColor) ? kColor : Color.white, killer.GetRealName()), (killer.Is(CustomRoles.Bloodlust) ? CustomRoles.Bloodlust.ToColoredString() : string.Empty) + killer.GetCustomRole().ToColoredString()));
     }
 
     private static void MessageWaitCommand(ChatController __instance, PlayerControl player, string text, string[] args)
@@ -774,18 +1000,21 @@ internal static class ChatCommands
                 Utils.ShowChildrenSettings(opt, ref settings, disableColor: false);
             settings.Append("</size>");
             if (role.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
-            sb.Replace(role.ToString(), role.ToColoredString());
-            sb.Replace(role.ToString().ToLower(), role.ToColoredString());
+            var searchStr = GetString(role.ToString());
+            sb.Replace(searchStr, role.ToColoredString());
+            sb.Replace(searchStr.ToLower(), role.ToColoredString());
             sb.Append("<size=70%>");
             foreach (CustomRoles subRole in Main.PlayerStates[player.PlayerId].SubRoles)
             {
                 sb.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong")}");
-                sb.Replace(subRole.ToString(), subRole.ToColoredString());
-                sb.Replace(subRole.ToString().ToLower(), subRole.ToColoredString());
+                var searchSubStr = GetString(subRole.ToString());
+                sb.Replace(searchSubStr, subRole.ToColoredString());
+                sb.Replace(searchSubStr.ToLower(), subRole.ToColoredString());
             }
 
             if (settings.Length > 0) Utils.SendMessage("\n", player.PlayerId, settings.ToString());
             Utils.SendMessage(sb.Append("</size>").ToString(), player.PlayerId, titleSb.ToString());
+            if (role.UsesPetInsteadOfKill()) Utils.SendMessage("\n", player.PlayerId, GetString("UsesPetInsteadOfKillNotice"));
         }
         else Utils.SendMessage((player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), player.PlayerId);
     }
@@ -963,13 +1192,12 @@ internal static class ChatCommands
     private static void KCountCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool() || Main.AllAlivePlayerControls.Length < Options.MinPlayersForGameStateCommand.GetInt()) return;
-        Utils.SendMessage(Utils.GetGameStateData(), player.PlayerId);
+        Utils.SendMessage("\n", player.PlayerId, Utils.GetGameStateData());
     }
 
     private static void SetRoleCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        string subArgs;
-        subArgs = text.Remove(0, 8);
+        string subArgs = text.Remove(0, 8);
         if (!player.FriendCode.GetDevUser().IsUp) return;
         if (!Options.EnableUpMode.GetBool())
         {
@@ -1014,15 +1242,13 @@ internal static class ChatCommands
 
     private static void RCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        string subArgs;
-        subArgs = text.Remove(0, 2);
+        string subArgs = text.Remove(0, 2);
         SendRolesInfo(subArgs, player.PlayerId, player.FriendCode.GetDevUser().DeBug);
     }
 
     private static void DisconnectCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        string subArgs;
-        subArgs = args.Length < 2 ? string.Empty : args[1];
+        string subArgs = args.Length < 2 ? string.Empty : args[1];
         switch (subArgs)
         {
             case "crew":
@@ -1045,28 +1271,26 @@ internal static class ChatCommands
 
     private static void NowCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        string subArgs;
-        subArgs = args.Length < 2 ? string.Empty : args[1];
+        string subArgs = args.Length < 2 ? string.Empty : args[1];
         switch (subArgs)
         {
             case "r":
             case "roles":
-                Utils.ShowActiveRoles();
+                Utils.ShowActiveRoles(player.PlayerId);
                 break;
             case "a":
             case "all":
-                Utils.ShowAllActiveSettings();
+                Utils.ShowAllActiveSettings(player.PlayerId);
                 break;
             default:
-                Utils.ShowActiveSettings();
+                Utils.ShowActiveSettings(player.PlayerId);
                 break;
         }
     }
 
     private static void LevelCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        string subArgs;
-        subArgs = args.Length < 2 ? string.Empty : args[1];
+        string subArgs = args.Length < 2 ? string.Empty : args[1];
         Utils.SendMessage(string.Format(GetString("Message.SetLevel"), subArgs), player.PlayerId);
         _ = int.TryParse(subArgs, out int input);
         if (input is < 1 or > 999)
@@ -1090,7 +1314,7 @@ internal static class ChatCommands
 
     private static void RenameCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        if (args.Length < 1) return;
+        if (args.Length < 2) return;
         if (args[1].Length is > 50 or < 1)
         {
             Utils.SendMessage(GetString("Message.AllowNameLength"), player.PlayerId);
@@ -1100,7 +1324,7 @@ internal static class ChatCommands
             if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId) Main.NickName = args[1];
             else
             {
-                if (!Options.PlayerCanSetName.GetBool() || args.Length < 2) return;
+                if (!Options.PlayerCanSetName.GetBool() && !IsPlayerVIP(player.FriendCode)) return;
                 if (GameStates.IsInGame)
                 {
                     Utils.SendMessage(GetString("Message.OnlyCanUseInLobby"), player.PlayerId);
@@ -1122,10 +1346,10 @@ internal static class ChatCommands
 
     private static void LastResultCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        Utils.ShowKillLog();
-        Utils.ShowLastAddOns();
-        Utils.ShowLastRoles();
-        Utils.ShowLastResult();
+        Utils.ShowKillLog(player.PlayerId);
+        Utils.ShowLastAddOns(player.PlayerId);
+        Utils.ShowLastRoles(player.PlayerId);
+        Utils.ShowLastResult(player.PlayerId);
     }
 
     private static void WinnerCommand(ChatController __instance, PlayerControl player, string text, string[] args)
@@ -1480,7 +1704,7 @@ internal static class ChatCommands
 
     private static void VersionCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        string version_text = Main.PlayerVersion.OrderBy(pair => pair.Key).Aggregate(string.Empty, (current, kvp) => current + $"{kvp.Key}:{Main.AllPlayerNames[kvp.Key]}:{kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n");
+        string version_text = Main.PlayerVersion.OrderBy(pair => pair.Key).Aggregate(string.Empty, (current, kvp) => current + $"{kvp.Key}: ({Main.AllPlayerNames[kvp.Key]}) {kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n");
         if (version_text != string.Empty) HudManager.Instance.Chat.AddChat(player, (player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + version_text);
     }
 
@@ -1496,6 +1720,21 @@ internal static class ChatCommands
     }
 
     // -------------------------------------------------------------------------------------------------------------------------
+
+    private static bool CheckMute(byte id)
+    {
+        if (!MutedPlayers.TryGetValue(id, out var mute)) return false;
+
+        var timeLeft = mute.Duration - (Utils.TimeStamp - mute.MuteTimeStamp);
+        if (timeLeft <= 0)
+        {
+            MutedPlayers.Remove(id);
+            return false;
+        }
+
+        Utils.SendMessage("\n", id, string.Format(GetString("MuteMessage"), timeLeft));
+        return true;
+    }
 
     public static string FixRoleNameInput(string text)
     {
@@ -1619,6 +1858,7 @@ internal static class ChatCommands
             "monarch" => GetString("Monarch"),
             "sch" => GetString("SchrodingersCat"),
             "glitch" or "Glitch" => GetString("Glitch"),
+            "безумный" or "Безумный" or "mad" or "Mad" => GetString("Madmate"),
             _ => text
         };
     }
@@ -1714,7 +1954,7 @@ internal static class ChatCommands
 
                 if (rl is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && Options.CustomRoleSpawnChances.TryGetValue(CustomRoles.Lovers, out chance)) AddSettings(chance);
 
-                var txt = $"<size=90%>{sb}</size>";
+                var txt = $"<size=90%>{sb}</size>".Replace(roleName, rl.ToColoredString()).Replace(roleName.ToLower(), rl.ToColoredString());
                 sb.Clear().Append(txt);
 
                 if (rl.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
@@ -1743,11 +1983,11 @@ internal static class ChatCommands
         long now = Utils.TimeStamp;
         if (LastSentCommand.TryGetValue(player.PlayerId, out var ts) && ts + 2 >= now)
         {
-            Logger.Warn("Command Ignored, it was sent too soon after their last command", "ReceiveChat");
+            Logger.Warn("Chat message ignored, it was sent too soon after their last message", "ReceiveChat");
             return;
         }
 
-        ChatManager.SendMessage(player, text);
+        if (!CheckMute(player.PlayerId)) ChatManager.SendMessage(player, text);
         if (text.StartsWith("\n")) text = text[1..];
 
         string[] args = text.Split(' ');
@@ -1776,6 +2016,7 @@ internal static class ChatCommands
             foreach (var command in AllCommands)
             {
                 if (!command.IsThisCommand(text)) continue;
+                Logger.Info($" Recognized command: {text}", "ReceiveChat");
                 isCommand = true;
                 if (!command.CanUseCommand(player))
                 {
@@ -1790,7 +2031,14 @@ internal static class ChatCommands
             }
         }
 
-        if (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive() && !player.IsHost())
+        if (CheckMute(player.PlayerId))
+        {
+            canceled = true;
+            ChatManager.SendPreviousMessagesToAll();
+            return;
+        }
+
+        if (GameStates.InGame && (Silencer.ForSilencer.Contains(player.PlayerId) || Main.PlayerStates[player.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk)) && player.IsAlive())
         {
             ChatManager.SendPreviousMessagesToAll();
             canceled = true;
@@ -1798,7 +2046,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (GameStates.IsInGame && !ChatUpdatePatch.LoversMessage && ((player.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting)))
+        if (GameStates.IsInGame && !ChatUpdatePatch.LoversMessage && (player.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting))
         {
             ChatManager.SendPreviousMessagesToAll(clear: true);
             canceled = true;
@@ -1811,7 +2059,7 @@ internal static class ChatCommands
                     ChatUpdatePatch.LoversMessage = true;
                     Utils.SendMessage(text, otherLover.PlayerId, title);
                     Utils.SendMessage(text, player.PlayerId, title);
-                    LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max((AmongUsClient.Instance.Ping / 1000f) * 2f, Main.MessageWait.Value + 0.5f), log: false);
+                    LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max(AmongUsClient.Instance.Ping / 1000f * 2f, Main.MessageWait.Value + 0.5f), log: false);
                 }, 0.2f, log: false);
             }
         }
@@ -1827,6 +2075,8 @@ internal class ChatUpdatePatch
     public static bool DoBlockChat;
     public static bool LoversMessage;
 
+    private static readonly List<(string Text, byte SendTo, string Title, long SendTimeStamp)> LastMessages = [];
+
     public static void Postfix(ChatController __instance)
     {
         var chatBubble = __instance.chatBubblePool.Prefab.Cast<ChatBubble>();
@@ -1837,7 +2087,9 @@ internal class ChatUpdatePatch
             chatBubble.Background.color = Color.black;
         }
 
-        if (!AmongUsClient.Instance.AmHost || Main.MessagesToSend.Count == 0 || (Main.MessagesToSend[0].RECEIVER_ID == byte.MaxValue && Main.MessageWait.Value > __instance.timeSinceLastMessage) || DoBlockChat) return;
+        LastMessages.RemoveAll(x => Utils.TimeStamp - x.SendTimeStamp > 10);
+
+        if (!AmongUsClient.Instance.AmHost || Main.MessagesToSend.Count == 0 || Main.MessagesToSend[0].ReceiverID == byte.MaxValue && Main.MessageWait.Value > __instance.timeSinceLastMessage || DoBlockChat) return;
 
         var player = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
         if (player == null) return;
@@ -1845,6 +2097,26 @@ internal class ChatUpdatePatch
         (string msg, byte sendTo, string title) = Main.MessagesToSend[0];
         Main.MessagesToSend.RemoveAt(0);
 
+        SendMessage(player, msg, sendTo, title);
+
+        __instance.timeSinceLastMessage = 0f;
+
+        LastMessages.Add((msg, sendTo, title, Utils.TimeStamp));
+    }
+
+    internal static void SendLastMessages()
+    {
+        var player = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
+        if (player == null) return;
+
+        foreach ((string msg, byte sendTo, string title, _) in LastMessages)
+        {
+            SendMessage(player, msg, sendTo, title);
+        }
+    }
+
+    internal static void SendMessage(PlayerControl player, string msg, byte sendTo, string title)
+    {
         int clientId = sendTo == byte.MaxValue ? -1 : Utils.GetPlayerById(sendTo).GetClientId();
 
         var name = player.Data.PlayerName;
@@ -1871,8 +2143,6 @@ internal class ChatUpdatePatch
             .EndRpc();
         writer.EndMessage();
         writer.SendMessage();
-
-        __instance.timeSinceLastMessage = 0f;
     }
 }
 

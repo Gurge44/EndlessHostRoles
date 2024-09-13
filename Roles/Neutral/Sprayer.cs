@@ -22,7 +22,7 @@ namespace EHR.Neutral
         private static OptionItem EffectDuration;
         private static OptionItem MaxTrappedTimes;
 
-        private static readonly List<Vector2> Traps = [];
+        private static readonly Dictionary<Vector2, SprayedArea> Traps = [];
         private static readonly Dictionary<byte, int> TrappedCount = [];
         public static readonly List<byte> LowerVisionList = [];
         private static readonly Dictionary<byte, long> LastUpdate = [];
@@ -32,9 +32,9 @@ namespace EHR.Neutral
 
         public override bool IsEnable => SprayerId != byte.MaxValue;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Sprayer);
+            SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Sprayer);
             KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -80,9 +80,17 @@ namespace EHR.Neutral
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
-        public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive();
+        public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (pc.IsAlive() && !(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()));
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
+        {
+            opt.SetVision(HasImpostorVision.GetBool());
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+                AURoleOptions.PhantomCooldown = CD.GetInt();
+            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
+                AURoleOptions.ShapeshifterCooldown = CD.GetInt();
+        }
 
         public override bool OnSabotage(PlayerControl pc)
         {
@@ -95,11 +103,25 @@ namespace EHR.Neutral
             PlaceTrap();
         }
 
+        public override bool OnVanish(PlayerControl pc)
+        {
+            PlaceTrap();
+            return false;
+        }
+
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+            PlaceTrap();
+            return false;
+        }
+
         void PlaceTrap()
         {
             if (!IsEnable || SprayerId.GetAbilityUseLimit() <= 0 || Sprayer_.HasAbilityCD()) return;
 
-            Traps.Add(Sprayer_.Pos());
+            Vector2 pos = Sprayer_.Pos();
+            Traps[pos] = new(pos, [SprayerId]);
             Sprayer_.RpcRemoveAbilityUse();
 
             if (SprayerId.GetAbilityUseLimit() > 0) Sprayer_.AddAbilityCD(CD.GetInt());
@@ -121,7 +143,7 @@ namespace EHR.Neutral
 
             foreach (var trap in Traps)
             {
-                if (Vector2.Distance(pc.Pos(), trap) <= 2f)
+                if (Vector2.Distance(pc.Pos(), trap.Key) <= 2f)
                 {
                     byte playerId = pc.PlayerId;
                     var tempSpeed = Main.AllPlayerSpeed[playerId];
@@ -149,6 +171,7 @@ namespace EHR.Neutral
 
         public override void OnReportDeadBody()
         {
+            Traps.Values.Do(x => x.Despawn());
             Traps.Clear();
         }
 

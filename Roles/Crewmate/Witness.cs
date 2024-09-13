@@ -11,9 +11,9 @@ namespace EHR.Crewmate
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
-            SetupSingleRoleOptions(8550, TabGroup.CrewmateRoles, CustomRoles.Witness);
+            SetupRoleOptions(8550, TabGroup.CrewmateRoles, CustomRoles.Witness);
             WitnessCD = new FloatOptionItem(8552, "AbilityCD", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Witness])
                 .SetValueFormat(OptionFormat.Seconds);

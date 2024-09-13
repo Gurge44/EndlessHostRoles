@@ -10,10 +10,12 @@ namespace EHR.AddOns.Common
 
         public static OptionItem LoverSpawnChances;
         public static OptionItem LoverKnowRoles;
-        public static OptionItem LoverSuicide;
+        public static OptionItem LoverDieConsequence;
+        public static OptionItem LoverSuicideTime;
         public static OptionItem ImpCanBeInLove;
         public static OptionItem CrewCanBeInLove;
         public static OptionItem NeutralCanBeInLove;
+        public static OptionItem CrewLoversWinWithCrew;
         public static OptionItem LegacyLovers;
         public static OptionItem LovingImpostorSpawnChance;
         public static OptionItem LovingImpostorRoleForOtherImps;
@@ -32,6 +34,20 @@ namespace EHR.AddOns.Common
             "Impostor",
             "RandomONImpRole",
             "LovingImpostor"
+        ];
+
+        private static readonly string[] Consequences =
+        [
+            "Nothing",
+            "Suicide",
+            "HalvedVision"
+        ];
+
+        private static readonly string[] SuicideTimes =
+        [
+            "Immediately",
+            "WhenNextMeetingStarts",
+            "WhenNextMeetingEnds"
         ];
 
         public static CustomRoles LovingImpostorRole;
@@ -55,45 +71,58 @@ namespace EHR.AddOns.Common
                 .SetGameMode(customGameMode) as IntegerOptionItem;
             LoverSpawnChances = rateOption;
 
-            LoverKnowRoles = new BooleanOptionItem(id + 4, "LoverKnowRoles", true, TabGroup.Addons)
+            LoverDieConsequence = new StringOptionItem(id + 3, "LoverDieConsequence", Consequences, 0, TabGroup.Addons)
                 .SetParent(spawnOption)
                 .SetGameMode(customGameMode);
 
-            LoverSuicide = new BooleanOptionItem(id + 3, "LoverSuicide", true, TabGroup.Addons)
+            LoverSuicideTime = new StringOptionItem(id + 4, "LoverSuicideTime", SuicideTimes, 0, TabGroup.Addons)
+                .SetParent(LoverDieConsequence)
+                .SetValueFormat(OptionFormat.Seconds)
+                .SetGameMode(customGameMode);
+
+            LoverKnowRoles = new BooleanOptionItem(id + 5, "LoverKnowRoles", true, TabGroup.Addons)
                 .SetParent(spawnOption)
                 .SetGameMode(customGameMode);
 
-            ImpCanBeInLove = new BooleanOptionItem(id + 5, "ImpCanBeInLove", true, TabGroup.Addons)
+            PrivateChat = new BooleanOptionItem(id + 6, "PrivateChat", false, TabGroup.Addons)
                 .SetParent(spawnOption)
                 .SetGameMode(customGameMode);
 
-            CrewCanBeInLove = new BooleanOptionItem(id + 6, "CrewCanBeInLove", true, TabGroup.Addons)
+            CrewLoversWinWithCrew = new BooleanOptionItem(id + 7, "CrewLoversWinWithCrew", true, TabGroup.Addons)
                 .SetParent(spawnOption)
                 .SetGameMode(customGameMode);
 
-            NeutralCanBeInLove = new BooleanOptionItem(id + 7, "NeutralCanBeInLove", true, TabGroup.Addons)
+            GuessAbility = new StringOptionItem(id + 8, "GuessAbility", GuessModes, 1, TabGroup.Addons)
                 .SetParent(spawnOption)
                 .SetGameMode(customGameMode);
 
-            LegacyLovers = new BooleanOptionItem(id + 8, "LegacyLovers", false, TabGroup.Addons)
+            LegacyLovers = new BooleanOptionItem(id + 9, "LegacyLovers", false, TabGroup.Addons)
                 .SetParent(spawnOption)
-                .SetGameMode(customGameMode);
+                .SetGameMode(customGameMode)
+                .RegisterUpdateValueEvent((_, _) => new[] { ImpCanBeInLove, CrewCanBeInLove, NeutralCanBeInLove }.Do(x => x.SetHidden(LegacyLovers.GetBool())));
 
-            LovingImpostorSpawnChance = new FloatOptionItem(id + 9, "LovingImpostorSpawnChance", new(0, 100, 5), 25, TabGroup.Addons)
+            LovingImpostorSpawnChance = new FloatOptionItem(id + 10, "LovingImpostorSpawnChance", new(0, 100, 5), 25, TabGroup.Addons)
                 .SetParent(LegacyLovers)
                 .SetValueFormat(OptionFormat.Percent)
                 .SetGameMode(customGameMode);
 
-            LovingImpostorRoleForOtherImps = new StringOptionItem(id + 12, "LIRoleForOtherImps", LIRole, 2, TabGroup.Addons)
+            LovingImpostorRoleForOtherImps = new StringOptionItem(id + 11, "LIRoleForOtherImps", LIRole, 2, TabGroup.Addons)
                 .SetParent(LovingImpostorSpawnChance)
                 .SetGameMode(customGameMode);
 
-            PrivateChat = new BooleanOptionItem(id + 10, "PrivateChat", false, TabGroup.Addons)
+            ImpCanBeInLove = new BooleanOptionItem(id + 12, "ImpCanBeInLove", true, TabGroup.Addons)
                 .SetParent(spawnOption)
+                .SetHidden(LegacyLovers.GetBool())
                 .SetGameMode(customGameMode);
 
-            GuessAbility = new StringOptionItem(id + 11, "GuessAbility", GuessModes, 1, TabGroup.Addons)
+            CrewCanBeInLove = new BooleanOptionItem(id + 13, "CrewCanBeInLove", true, TabGroup.Addons)
                 .SetParent(spawnOption)
+                .SetHidden(LegacyLovers.GetBool())
+                .SetGameMode(customGameMode);
+
+            NeutralCanBeInLove = new BooleanOptionItem(id + 14, "NeutralCanBeInLove", true, TabGroup.Addons)
+                .SetParent(spawnOption)
+                .SetHidden(LegacyLovers.GetBool())
                 .SetGameMode(customGameMode);
 
 

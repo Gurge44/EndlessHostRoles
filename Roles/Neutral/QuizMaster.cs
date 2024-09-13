@@ -5,7 +5,6 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Patches;
-using UnityEngine;
 using static EHR.Options;
 
 namespace EHR.Neutral
@@ -29,7 +28,7 @@ namespace EHR.Neutral
         public static Dictionary<byte, string> MessagesToSend = [];
         public static List<QuizMaster> QuizMasters = [];
 
-        private static List<(Color32 Color, string String)> AllColors = [];
+        private static List<string> AllColors = [];
 
         public static readonly SystemTypes[] AllSabotages =
         [
@@ -42,7 +41,7 @@ namespace EHR.Neutral
             SystemTypes.HeliSabotage
         ];
 
-        public static ((Color32 Color, string String, PlayerControl Player) LastReportedPlayer, string LastPlayerPressedButtonName, SystemTypes LastSabotage, string LastReporterName, int NumPlayersVotedLastMeeting, string FirstReportedBodyPlayerName, int NumEmergencyMeetings, int NumPlayersDeadThisRound, int NumPlayersDeadFirstRound, int NumSabotages, int NumMeetings) Data = ((new(), string.Empty, null), string.Empty, default, string.Empty, 0, string.Empty, 0, 0, 0, 0, 0);
+        public static ((string ColorString, PlayerControl Player) LastReportedPlayer, string LastPlayerPressedButtonName, SystemTypes LastSabotage, string LastReporterName, int NumPlayersVotedLastMeeting, string FirstReportedBodyPlayerName, int NumEmergencyMeetings, int NumPlayersDeadThisRound, int NumPlayersDeadFirstRound, int NumSabotages, int NumMeetings) Data = ((string.Empty, null), string.Empty, default, string.Empty, 0, string.Empty, 0, 0, 0, 0, 0);
 
         private Question CurrentQuestion;
         public byte QuizMasterId;
@@ -50,7 +49,7 @@ namespace EHR.Neutral
 
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.QuizMaster);
             MarkCooldown = new FloatOptionItem(Id + 2, "QuizMaster.MarkCooldown", new(0f, 180f, 1f), 1f, TabGroup.NeutralRoles)
@@ -80,17 +79,15 @@ namespace EHR.Neutral
 
             QuizMasters = [];
 
-            Data = ((new(), string.Empty, null), string.Empty, default, string.Empty, 0, string.Empty, 0, 0, 0, 0, 0);
+            Data = ((string.Empty, null), string.Empty, default, string.Empty, 0, string.Empty, 0, 0, 0, 0, 0);
 
             AllColors = [];
             LateTask.New(() =>
             {
-                foreach (var kvp in Main.PlayerColors)
+                foreach (var pc in Main.AllPlayerControls)
                 {
-                    var info = Utils.GetPlayerInfoById(kvp.Key);
-                    if (info == null) continue;
-
-                    AllColors.Add((kvp.Value, info.GetPlayerColorString()));
+                    var colorId = pc.Data.DefaultOutfit.ColorId;
+                    AllColors.Add(Palette.GetColorName(colorId));
                 }
             }, 10f, log: false);
 
@@ -171,7 +168,7 @@ namespace EHR.Neutral
             {
                 switch (i)
                 {
-                    case 1 when Data.LastReportedPlayer.String != string.Empty:
+                    case 1 when Data.LastReportedPlayer.ColorString != string.Empty:
                     case 2 when Data.LastPlayerPressedButtonName != string.Empty:
                     case 3 when Data.LastSabotage != default:
                     case 4 when Main.LastVotedPlayerInfo != null:
@@ -207,7 +204,7 @@ namespace EHR.Neutral
             List<int> indexes = abc ? allowedABCIndexes : allowedIndexes;
             int index = indexes.RandomElement();
 
-            var randomRole = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable()).Shuffle()[0];
+            var randomRole = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && !x.IsAdditionRole() && !HnSManager.AllHnSRoles.Contains(x) && !x.IsForOtherGameMode()).Shuffle()[0];
 
             string title = index switch
             {
@@ -220,13 +217,13 @@ namespace EHR.Neutral
             (IEnumerable<string> WrongAnswers, string CorrectAnswer) answers = index switch
             {
                 1 when abc => (Enum.GetValues<Team>().Skip(1).Where(x => x != Data.LastReportedPlayer.Player.GetTeam()).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{Data.LastReportedPlayer.Player.GetTeam()}")),
-                1 => (AllColors.Shuffle().Take(2).Select(x => x.String), Data.LastReportedPlayer.String),
-                2 when abc => ((new[] { PlayerState.DeathReason.Suicide, PlayerState.DeathReason.Kill, PlayerState.DeathReason.etc }).Select(x => Translator.GetString($"DeathReason.{x}")), Translator.GetString($"DeathReason.{Main.PlayerStates[Data.LastReportedPlayer.Player!.PlayerId].deathReason}")),
+                1 => (AllColors.Without(Data.LastReportedPlayer.ColorString).Shuffle().Take(2), Data.LastReportedPlayer.ColorString),
+                2 when abc => ((new[] { PlayerState.DeathReason.Suicide, PlayerState.DeathReason.Kill, PlayerState.DeathReason.etc }).Without(Main.PlayerStates[Data.LastReportedPlayer.Player!.PlayerId].deathReason).Select(x => Translator.GetString($"DeathReason.{x}")), Translator.GetString($"DeathReason.{Main.PlayerStates[Data.LastReportedPlayer.Player!.PlayerId].deathReason}")),
                 2 => (GetTwoRandomNames(Data.LastPlayerPressedButtonName), Data.LastPlayerPressedButtonName),
                 3 when abc => (["Town Of Us", "Town Of Host Enhanced"], "Endless Host Roles"),
-                3 => (AllSabotages[..1].Select(x => Translator.GetString($"{x}")), Translator.GetString($"{Data.LastSabotage}")),
+                3 => (AllSabotages.Take(2).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{Data.LastSabotage}")),
                 4 when abc => (["tukasa0001", "0xDrMoe"], "Gurge44"),
-                4 => (CustomRoleSelector.RoleResult.Values.Shuffle().Take(2).Select(x => x.ToColoredString()), Main.LastVotedPlayerInfo!.Object.GetCustomRole().ToColoredString()),
+                4 => (CustomRoleSelector.RoleResult.Values.Without(Main.LastVotedPlayerInfo!.Object.GetCustomRole()).Shuffle().Take(2).Select(x => x.ToColoredString()), Main.LastVotedPlayerInfo!.Object.GetCustomRole().ToColoredString()),
                 5 when abc => (Enum.GetValues<Team>().Skip(1).Where(x => x != randomRole.GetTeam()).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetTeam()}")),
                 5 => (GetTwoRandomNames(Data.LastReporterName), Data.LastReporterName),
                 6 when abc => (Enum.GetValues<CustomRoleTypes>().Where(x => x != randomRole.GetCustomRoleTypes()).Shuffle().Take(2).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{randomRole.GetCustomRoleTypes()}")),

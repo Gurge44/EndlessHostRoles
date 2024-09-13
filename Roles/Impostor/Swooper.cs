@@ -41,7 +41,7 @@ public class Swooper : RoleBase
     bool CanGoInvis => GameStates.IsInTask && InvisTime == -10 && lastTime == -10;
     bool IsInvis => InvisTime != -10;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Swooper);
         SwooperCooldown = new FloatOptionItem(Id + 2, "SwooperCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
@@ -98,9 +98,6 @@ public class Swooper : RoleBase
                 VentNormallyOnCooldown = Wraith.WraithVentNormallyOnCooldown.GetBool();
                 break;
         }
-
-        if (!AmongUsClient.Instance.AmHost || UsedRole == CustomRoles.Swooper) return;
-        Main.ResetCamPlayerList.Add(playerId);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -239,10 +236,10 @@ public class Swooper : RoleBase
         pc.Notify(GetString("SwooperInvisStateOut"));
     }
 
-    public override string GetSuffix(PlayerControl pc, PlayerControl _, bool hud = false, bool m = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (!hud || pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
-        if (Main.PlayerStates[pc.PlayerId].Role is not Swooper sw) return string.Empty;
+        if (!hud || seer == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
+        if (Main.PlayerStates[seer.PlayerId].Role is not Swooper sw) return string.Empty;
 
         var str = new StringBuilder();
         if (sw.IsInvis)

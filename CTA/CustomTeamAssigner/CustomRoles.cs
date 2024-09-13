@@ -21,6 +21,7 @@ public enum CustomRoles
     Hacker, // Anonymous
     AntiAdminer,
     Sans, // Arrogance
+    Assumer,
     Augmenter,
     Bard,
     Blackmailer,
@@ -50,6 +51,7 @@ public enum CustomRoles
     EvilGuesser,
     EvilTracker,
     FireWorks,
+    Framer,
     Freezer,
     Gambler,
     Gangster,
@@ -58,6 +60,7 @@ public enum CustomRoles
     Greedier,
     Hangman,
     Hitman,
+    Hypnotist,
     Inhibitor,
     Kamikaze,
     Kidnapper,
@@ -132,12 +135,16 @@ public enum CustomRoles
     Altruist,
     Analyst,
     Autocrat,
+    Bane,
     Beacon,
     Benefactor,
     Bodyguard,
     CameraMan,
+    Car,
+    Catcher,
     CyberStar, // Celebrity
     Chameleon,
+    Chef,
     Clairvoyant,
     Cleanser,
     Convener,
@@ -146,6 +153,7 @@ public enum CustomRoles
     LovingCrewmate,
     LovingImpostor,
     Crusader,
+    Dad,
     Demolitionist,
     Deputy,
     Detective,
@@ -165,6 +173,7 @@ public enum CustomRoles
     Divinator, // Fortune Teller
     Gaulois,
     Goose,
+    Grappler,
     Grenadier,
     GuessManagerRole,
     Guardian,
@@ -173,11 +182,13 @@ public enum CustomRoles
     ParityCop, // Inspector
     Inquirer,
     Jailor,
+    Journalist,
     Judge,
     Needy, // Lazy Guy
     Lighter,
     Lookout,
     Luckey,
+    Lyncher,
     Markseeker,
     Marshall,
     Mathematician,
@@ -195,14 +206,18 @@ public enum CustomRoles
     NiceHacker,
     NiceSwapper,
     Nightmare,
+    Negotiator,
     Observer,
     Oracle,
+    Oxyman,
     Paranoia,
     Perceiver,
     Philantropist,
+    President,
     Psychic,
     Rabbit,
     Randomizer,
+    Rhapsode,
     Ricochet,
     Safeguard,
     Scout,
@@ -212,6 +227,7 @@ public enum CustomRoles
     Sheriff,
     Shiftguard,
     Snitch,
+    Socialite,
     Soothsayer,
     Spiritualist,
     Speedrunner,
@@ -232,15 +248,19 @@ public enum CustomRoles
     Ventguard,
     Veteran,
     SwordsMan, // Vigilante
+    Whisperer,
     Witness,
+    Wizard,
 
     // Neutrals
 
     Agitater,
     Amnesiac,
     Arsonist,
+    Backstabber,
     Bandit,
     Bargainer,
+    Beehive,
     BloodKnight,
     Bubble,
     Chemist,
@@ -255,6 +275,7 @@ public enum CustomRoles
     Evolver,
     Executioner,
     Totocalcio, // Follower
+    Gaslighter,
     Glitch,
     God,
     FFF, // Hater
@@ -311,6 +332,8 @@ public enum CustomRoles
     DarkHide, // Stalker
     Succubus,
     Sunnyboy,
+    Technician,
+    Tank,
     Terrorist,
     Tiger,
     Traitor,
@@ -353,6 +376,12 @@ public enum CustomRoles
     // Speedrun
     Runner,
 
+    // Capture The Flag
+    CTFPlayer,
+
+    // Natural Disasters
+    NDPlayer,
+
     // GM
     GM,
 
@@ -379,6 +408,7 @@ public enum CustomRoles
     Clumsy,
     Contagious,
     Damocles,
+    Deadlined,
     DeadlyQuota,
     Disco,
     Diseased,
@@ -412,11 +442,11 @@ public enum CustomRoles
     Minion, // Ghost role
     Mischievous,
     Necroview,
-    Ntr, // Neptune
     Nimble,
     Noisy,
     Oblivious,
     Onbound,
+    Spurt,
     Sleep,
     Specter, // Ghost role
     Physicist,

@@ -9,7 +9,7 @@ namespace EHR.AddOns.Common
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(15290, CustomRoles.Busy, canSetNum: true, teamSpawnOptions: true);
-            BusyLongTasks = new IntegerOptionItem(15296, "BusyLongTasks", new(0, 90, 1), 1, TabGroup.Addons)
+            BusyLongTasks = new IntegerOptionItem(15298, "BusyLongTasks", new(0, 90, 1), 1, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Busy]);
             BusyShortTasks = new IntegerOptionItem(15297, "BusyShortTasks", new(0, 90, 1), 1, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Busy]);

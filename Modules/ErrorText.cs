@@ -92,7 +92,7 @@ public class ErrorText : MonoBehaviour
             foreach (ErrorData err in AllErrors)
             {
                 if (err.Code == ErrorCode.LoadingHint) hint = true;
-                text += hint ? LoadingScreen.GetHint() : $"{err}: {err.Message}\n";
+                text += hint ? LoadingScreen.Hint : $"{err}: {err.Message}\n";
                 if (maxLevel < err.ErrorLevel) maxLevel = err.ErrorLevel;
             }
 

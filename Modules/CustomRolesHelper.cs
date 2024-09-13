@@ -16,7 +16,7 @@ internal static class CustomRolesHelper
 {
     public static bool CanCheck = false;
 
-    public static readonly List<CustomRoles> OnlySpawnsWithPetsRoleList =
+    private static readonly List<CustomRoles> OnlySpawnsWithPetsRoleList =
     [
         CustomRoles.Tunneler,
         CustomRoles.Tornado,
@@ -25,12 +25,12 @@ internal static class CustomRolesHelper
         CustomRoles.Sentry,
         CustomRoles.Cherokious,
         CustomRoles.Chemist,
-        CustomRoles.Shifter,
         CustomRoles.Evolver,
         CustomRoles.ToiletMaster,
         CustomRoles.Telekinetic,
-        CustomRoles.Necromancer,
-        CustomRoles.Deathknight,
+        CustomRoles.Dad,
+        CustomRoles.Whisperer,
+        CustomRoles.Wizard,
 
         // Add-ons
         CustomRoles.Energetic,
@@ -40,19 +40,14 @@ internal static class CustomRolesHelper
         CustomRoles.Dasher
     ];
 
-    public static readonly List<CustomRoles> ExperimentalRoleList =
-    [
-        CustomRoles.Shifter
-    ];
-
-    public static bool IsExperimental(this CustomRoles role) => ExperimentalRoleList.Contains(role);
-
     public static bool IsForOtherGameMode(this CustomRoles role) => HnSManager.AllHnSRoles.Contains(role) || role is
         CustomRoles.KB_Normal or
         CustomRoles.Killer or
         CustomRoles.Tasker or
         CustomRoles.Potato or
-        CustomRoles.Runner;
+        CustomRoles.Runner or
+        CustomRoles.CTFPlayer or
+        CustomRoles.NDPlayer;
 
     public static RoleBase GetRoleClass(this CustomRoles role)
     {
@@ -85,7 +80,9 @@ internal static class CustomRolesHelper
     {
         if (role.IsGhostRole()) return CustomRoles.GuardianAngel;
         if (role.IsVanilla()) return role;
-        if (checkDesyncRole && role.GetDYRole() == RoleTypes.Impostor) return CustomRoles.Impostor;
+        if (checkDesyncRole && role.IsDesyncRole()) return Enum.Parse<CustomRoles>(role.GetDYRole() + "EHR");
+        if (Options.UsePhantomBasis.GetBool() && role.SimpleAbilityTrigger()) return CustomRoles.Phantom;
+        if ((Options.UseUnshiftTrigger.GetBool() || role.AlwaysUsesUnshift()) && role.SimpleAbilityTrigger()) return CustomRoles.Shapeshifter;
         bool UsePets = Options.UsePets.GetBool();
         return role switch
         {
@@ -122,11 +119,13 @@ internal static class CustomRolesHelper
             CustomRoles.Dictator => CustomRoles.Crewmate,
             CustomRoles.Inhibitor => CustomRoles.Impostor,
             CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
+            CustomRoles.Assumer => CustomRoles.Impostor,
             CustomRoles.Augmenter => CustomRoles.Shapeshifter,
             CustomRoles.Ventriloquist => CustomRoles.Impostor,
             CustomRoles.Echo => CustomRoles.Shapeshifter,
             CustomRoles.Abyssbringer => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Overheat => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
+            CustomRoles.Hypnotist => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Generator => CustomRoles.Shapeshifter,
             CustomRoles.Blackmailer => CustomRoles.Impostor,
             CustomRoles.Commander => CustomRoles.Shapeshifter,
@@ -140,6 +139,7 @@ internal static class CustomRolesHelper
             CustomRoles.YinYanger => CustomRoles.Impostor,
             CustomRoles.Duellist => CustomRoles.Shapeshifter,
             CustomRoles.Consort => CustomRoles.Impostor,
+            CustomRoles.Framer => CustomRoles.Impostor,
             CustomRoles.Mafioso => CustomRoles.Impostor,
             CustomRoles.Chronomancer => CustomRoles.Impostor,
             CustomRoles.Nullifier => CustomRoles.Impostor,
@@ -187,17 +187,30 @@ internal static class CustomRolesHelper
             CustomRoles.Philantropist => CustomRoles.Crewmate,
             CustomRoles.Tornado => CustomRoles.Crewmate,
             CustomRoles.Druid => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
+            CustomRoles.Catcher => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Insight => CustomRoles.Crewmate,
             CustomRoles.Tunneler => CustomRoles.Crewmate,
             CustomRoles.Detour => CustomRoles.Crewmate,
+            CustomRoles.Dad => CustomRoles.Engineer,
             CustomRoles.Drainer => CustomRoles.Engineer,
             CustomRoles.Benefactor => CustomRoles.Crewmate,
             CustomRoles.GuessManagerRole => CustomRoles.Crewmate,
-            CustomRoles.Altruist => CustomRoles.Crewmate,
+            CustomRoles.Bane => CustomRoles.Crewmate,
             CustomRoles.Transmitter => CustomRoles.Crewmate,
+            CustomRoles.Altruist => CustomRoles.Engineer,
+            CustomRoles.Negotiator => CustomRoles.Crewmate,
+            CustomRoles.Grappler => CustomRoles.Crewmate,
+            CustomRoles.Journalist => CustomRoles.Crewmate,
+            CustomRoles.Whisperer => CustomRoles.Crewmate,
+            CustomRoles.Car => CustomRoles.Crewmate,
+            CustomRoles.President => CustomRoles.Crewmate,
+            CustomRoles.Oxyman => CustomRoles.Engineer,
+            CustomRoles.Chef => CustomRoles.Crewmate,
+            CustomRoles.Lyncher => CustomRoles.Crewmate,
             CustomRoles.Adrenaline => CustomRoles.Crewmate,
             CustomRoles.Safeguard => CustomRoles.Crewmate,
             CustomRoles.Clairvoyant => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
+            CustomRoles.Rhapsode => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Telekinetic => CustomRoles.Engineer,
             CustomRoles.Autocrat => CustomRoles.Crewmate,
             CustomRoles.Inquirer => CustomRoles.Crewmate,
@@ -216,6 +229,7 @@ internal static class CustomRolesHelper
             CustomRoles.Tether => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Doormaster => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Aid => UsePets && Aid.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
+            CustomRoles.Socialite => UsePets && Socialite.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
             CustomRoles.Escort => UsePets && Escort.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
             CustomRoles.DonutDelivery => UsePets && DonutDelivery.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
             CustomRoles.Gaulois => UsePets && Gaulois.UsePet.GetBool() ? CustomRoles.Crewmate : CustomRoles.Impostor,
@@ -225,6 +239,8 @@ internal static class CustomRolesHelper
             CustomRoles.EvilGuesser => CustomRoles.Impostor,
             CustomRoles.Detective => CustomRoles.Crewmate,
             CustomRoles.God => CustomRoles.Crewmate,
+            CustomRoles.Tank => CustomRoles.Engineer,
+            CustomRoles.Technician => Technician.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.GuardianAngelEHR => CustomRoles.GuardianAngel,
             CustomRoles.Zombie => CustomRoles.Impostor,
             CustomRoles.Mario => CustomRoles.Engineer,
@@ -249,9 +265,11 @@ internal static class CustomRolesHelper
             CustomRoles.BallLightning => CustomRoles.Impostor,
             CustomRoles.Greedier => CustomRoles.Impostor,
             CustomRoles.Workaholic => CustomRoles.Engineer,
+            CustomRoles.Amnesiac => Amnesiac.RoleBasis.GetValue() == 0 ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Speedrunner => CustomRoles.Crewmate,
             CustomRoles.CursedWolf => CustomRoles.Impostor,
             CustomRoles.Collector => CustomRoles.Crewmate,
+            CustomRoles.SchrodingersCat => CustomRoles.Crewmate,
             CustomRoles.ImperiusCurse => CustomRoles.Shapeshifter,
             CustomRoles.QuickShooter => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
             CustomRoles.Eraser => CustomRoles.Impostor,
@@ -276,7 +294,6 @@ internal static class CustomRolesHelper
             CustomRoles.Deathpact => CustomRoles.Shapeshifter,
             CustomRoles.Bloodhound => CustomRoles.Crewmate,
             CustomRoles.Tracker => CustomRoles.Crewmate,
-            CustomRoles.Deathknight => CustomRoles.Crewmate,
             CustomRoles.Merchant => CustomRoles.Crewmate,
             CustomRoles.Lookout => CustomRoles.Crewmate,
             CustomRoles.Guardian => CustomRoles.Crewmate,
@@ -320,8 +337,7 @@ internal static class CustomRolesHelper
     public static CustomRoles GetErasedRole(this CustomRoles role)
     {
         if (role.IsVanilla()) return role;
-        var vnRole = role.GetVNRole();
-        if (role.GetDYRole() == RoleTypes.Impostor) vnRole = CustomRoles.Impostor;
+        var vnRole = role.GetVNRole(checkDesyncRole: true);
         return vnRole switch
         {
             CustomRoles.Crewmate => CustomRoles.CrewmateEHR,
@@ -339,6 +355,8 @@ internal static class CustomRolesHelper
 
     public static RoleTypes GetDYRole(this CustomRoles role, bool load = false)
     {
+        if (!load && Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool() && !role.IsImpostor() && role.SimpleAbilityTrigger()) return RoleTypes.Phantom;
+        if (!load && Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool() && !role.IsImpostor() && role.SimpleAbilityTrigger()) return RoleTypes.Shapeshifter;
         bool UsePets = !load && Options.UsePets.GetBool();
         return role switch
         {
@@ -352,13 +370,16 @@ internal static class CustomRolesHelper
             CustomRoles.Potato => RoleTypes.Crewmate,
             // Speedrun
             CustomRoles.Runner => RoleTypes.Crewmate,
+            // Capture The Flag
+            CustomRoles.CTFPlayer => RoleTypes.Shapeshifter,
+            // Natural Disasters
+            CustomRoles.NDPlayer => RoleTypes.Crewmate,
             // Standard
             CustomRoles.Executioner => Executioner.CRoleChangeRoles[Executioner.ChangeRolesAfterTargetKilled.GetValue()].GetDYRole(),
             CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Crusader => UsePets && Crusader.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.CopyCat => UsePets && CopyCat.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Refugee => RoleTypes.Impostor,
-            CustomRoles.Amnesiac => RoleTypes.Impostor,
             CustomRoles.Agitater => RoleTypes.Impostor,
             CustomRoles.Monarch => UsePets && Monarch.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Deputy => UsePets && Deputy.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
@@ -368,8 +389,10 @@ internal static class CustomRolesHelper
             CustomRoles.Sidekick => RoleTypes.Impostor,
             CustomRoles.SwordsMan => UsePets && SwordsMan.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Innocent => RoleTypes.Impostor,
+            CustomRoles.Amnesiac when Amnesiac.RememberMode.GetValue() == 0 => RoleTypes.Impostor,
             CustomRoles.Pelican => RoleTypes.Impostor,
             CustomRoles.Aid => UsePets && Aid.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
+            CustomRoles.Socialite => UsePets && Socialite.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Escort => UsePets && Escort.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.DonutDelivery => UsePets && DonutDelivery.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Gaulois => UsePets && Gaulois.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
@@ -392,6 +415,7 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Beehive => RoleTypes.Impostor,
             CustomRoles.RouleteGrandeur => RoleTypes.Impostor,
             CustomRoles.Nonplus => RoleTypes.Impostor,
             CustomRoles.Tremor => RoleTypes.Impostor,
@@ -412,9 +436,10 @@ internal static class CustomRolesHelper
             CustomRoles.Sprayer => RoleTypes.Impostor,
             CustomRoles.PlagueDoctor => RoleTypes.Impostor,
             CustomRoles.Postman => RoleTypes.Impostor,
-            CustomRoles.SchrodingersCat => RoleTypes.Impostor,
             CustomRoles.Shifter => RoleTypes.Impostor,
             CustomRoles.Impartial => RoleTypes.Impostor,
+            CustomRoles.Gaslighter => RoleTypes.Impostor,
+            CustomRoles.Backstabber => RoleTypes.Impostor,
             CustomRoles.Predator => RoleTypes.Impostor,
             CustomRoles.Reckless => RoleTypes.Impostor,
             CustomRoles.Magician => RoleTypes.Impostor,
@@ -434,6 +459,7 @@ internal static class CustomRolesHelper
             CustomRoles.RuthlessRomantic => RoleTypes.Impostor,
             CustomRoles.Succubus => RoleTypes.Impostor,
             CustomRoles.Necromancer => RoleTypes.Impostor,
+            CustomRoles.Deathknight => RoleTypes.Impostor,
             CustomRoles.Virus => RoleTypes.Impostor,
             CustomRoles.Farseer => UsePets && Farseer.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Ritualist => RoleTypes.Impostor,
@@ -443,43 +469,14 @@ internal static class CustomRolesHelper
             CustomRoles.Pestilence => RoleTypes.Impostor,
             CustomRoles.Spiritcaller => RoleTypes.Impostor,
             CustomRoles.Doppelganger => RoleTypes.Impostor,
+            CustomRoles.Wizard => RoleTypes.Shapeshifter,
             _ => RoleTypes.GuardianAngel
         };
     }
 
     public static bool IsAdditionRole(this CustomRoles role) => role > CustomRoles.NotAssigned;
 
-    public static bool IsNonNK(this CustomRoles role, bool check = false) => (!check && role == CustomRoles.Arsonist && CanCheck && Options.IsLoaded && Options.ArsonistCanIgniteAnytime != null && !Options.ArsonistCanIgniteAnytime.GetBool()) || role is
-        CustomRoles.Jester or
-        CustomRoles.Postman or
-        CustomRoles.Shifter or
-        CustomRoles.SchrodingersCat or
-        CustomRoles.Impartial or
-        CustomRoles.Predator or
-        CustomRoles.SoulHunter or
-        CustomRoles.Terrorist or
-        CustomRoles.Opportunist or
-        CustomRoles.Executioner or
-        CustomRoles.Mario or
-        CustomRoles.Lawyer or
-        CustomRoles.God or
-        CustomRoles.Amnesiac or
-        CustomRoles.Innocent or
-        CustomRoles.Vulture or
-        CustomRoles.Pursuer or
-        CustomRoles.Revolutionist or
-        CustomRoles.Provocateur or
-        CustomRoles.FFF or
-        CustomRoles.Workaholic or
-        CustomRoles.Collector or
-        CustomRoles.Sunnyboy or
-        CustomRoles.Maverick or
-        CustomRoles.Phantasm or
-        CustomRoles.Totocalcio or
-        CustomRoles.Romantic or
-        CustomRoles.VengefulRomantic or
-        CustomRoles.Doomsayer or
-        CustomRoles.Deathknight;
+    public static bool IsNonNK(this CustomRoles role, bool check = false) => (!check && role == CustomRoles.Arsonist && CanCheck && Options.IsLoaded && Options.ArsonistCanIgniteAnytime != null && !Options.ArsonistCanIgniteAnytime.GetBool()) || role.GetNeutralRoleCategory() is RoleOptionType.Neutral_Benign or RoleOptionType.Neutral_Evil;
 
     public static bool IsNK(this CustomRoles role, bool check = false) => (role == CustomRoles.Arsonist && (check || !CanCheck || !Options.IsLoaded || Options.ArsonistCanIgniteAnytime == null || Options.ArsonistCanIgniteAnytime.GetBool())) || role is
         CustomRoles.Jackal or
@@ -503,11 +500,13 @@ internal static class CustomRolesHelper
         CustomRoles.Jinx or
         CustomRoles.Poisoner or
         CustomRoles.Refugee or
+        CustomRoles.Gaslighter or
         CustomRoles.Simon or
         CustomRoles.Patroller or
         CustomRoles.Rogue or
         CustomRoles.Parasite or
         CustomRoles.NSerialKiller or
+        CustomRoles.Beehive or
         CustomRoles.RouleteGrandeur or
         CustomRoles.Nonplus or
         CustomRoles.Tremor or
@@ -546,52 +545,6 @@ internal static class CustomRolesHelper
 
     public static bool IsGhostRole(this CustomRoles role) => role == CustomRoles.EvilSpirit || GhostRolesManager.CreateGhostRoleInstance(role, check: true) != null;
 
-    public static bool IsNE(this CustomRoles role) => role is
-        CustomRoles.Jester or
-        CustomRoles.Gamer or
-        CustomRoles.Arsonist or
-        CustomRoles.Executioner or
-        CustomRoles.Doomsayer or
-        CustomRoles.Innocent;
-
-    public static bool IsNB(this CustomRoles role) => role is
-        CustomRoles.Opportunist or
-        CustomRoles.Lawyer or
-        CustomRoles.Amnesiac or
-        CustomRoles.God or
-        CustomRoles.Postman or
-        CustomRoles.SchrodingersCat or
-        CustomRoles.Predator or
-        CustomRoles.Pursuer or
-        CustomRoles.FFF or
-        CustomRoles.Sunnyboy or
-        CustomRoles.Maverick or
-        CustomRoles.Romantic or
-        CustomRoles.VengefulRomantic or
-        CustomRoles.Totocalcio;
-
-    public static bool IsNC(this CustomRoles role) => role is
-        CustomRoles.Mario or
-        CustomRoles.Shifter or
-        CustomRoles.Terrorist or
-        CustomRoles.Revolutionist or
-        CustomRoles.Impartial or
-        CustomRoles.Vulture or
-        CustomRoles.Phantasm or
-        CustomRoles.Workaholic or
-        CustomRoles.Collector or
-        CustomRoles.Provocateur;
-
-    public static bool IsCK(this CustomRoles role) => role is
-        CustomRoles.SwordsMan or
-        CustomRoles.Veteran or
-        CustomRoles.CopyCat or
-        CustomRoles.Bodyguard or
-        CustomRoles.Crusader or
-        CustomRoles.NiceGuesser or
-        CustomRoles.Sheriff or
-        CustomRoles.Jailor;
-
     public static bool IsImpostor(this CustomRoles role) => role is
         CustomRoles.Impostor or
         CustomRoles.ImpostorEHR or
@@ -626,6 +579,8 @@ internal static class CustomRolesHelper
         CustomRoles.Augmenter or
         CustomRoles.Inhibitor or
         CustomRoles.Kidnapper or
+        CustomRoles.Hypnotist or
+        CustomRoles.Assumer or
         CustomRoles.Generator or
         CustomRoles.Blackmailer or
         CustomRoles.Commander or
@@ -639,6 +594,7 @@ internal static class CustomRolesHelper
         CustomRoles.Duellist or
         CustomRoles.YinYanger or
         CustomRoles.Consort or
+        CustomRoles.Framer or
         CustomRoles.Mafioso or
         CustomRoles.Nullifier or
         CustomRoles.Chronomancer or
@@ -689,9 +645,8 @@ internal static class CustomRolesHelper
 
     public static bool IsNeutral(this CustomRoles role, bool check = false) => role.IsNK(check: check) || role.IsNonNK(check: check);
 
-    public static bool IsAbleToBeSidekicked(this CustomRoles role) => !role.IsImpostor() && !role.IsRecruitingRole() && role is not
-        CustomRoles.Deathknight and not
-        CustomRoles.Gangster;
+    public static bool IsAbleToBeSidekicked(this CustomRoles role) => !role.IsRecruitingRole() && role is not
+        CustomRoles.Deathknight;
 
     public static bool IsEvilAddon(this CustomRoles role) => role is
         CustomRoles.Madmate or
@@ -714,25 +669,11 @@ internal static class CustomRolesHelper
         CustomRoles.Refugee or
         CustomRoles.Parasite;
 
-    public static bool IsTasklessCrewmate(this CustomRoles role) => !role.UsesPetInsteadOfKill() && role is
-        CustomRoles.Sheriff or
-        CustomRoles.Medic or
-        CustomRoles.CopyCat or
-        CustomRoles.Crusader or
-        CustomRoles.Aid or
-        CustomRoles.Escort or
-        CustomRoles.DonutDelivery or
-        CustomRoles.Gaulois or
-        CustomRoles.Analyst or
-        CustomRoles.Witness or
-        CustomRoles.Monarch or
-        CustomRoles.Jailor or
-        CustomRoles.Farseer or
-        CustomRoles.SwordsMan or
-        CustomRoles.Deputy;
+    public static bool IsTasklessCrewmate(this CustomRoles role) => !role.UsesPetInsteadOfKill() && role.IsCrewmate() && role.IsDesyncRole();
 
     public static bool PetActivatedAbility(this CustomRoles role)
     {
+        if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag) return true;
         if (!Options.UsePets.GetBool()) return false;
         if (role.UsesPetInsteadOfKill()) return true;
 
@@ -744,6 +685,7 @@ internal static class CustomRolesHelper
     {
         CustomRoles.Gaulois when Gaulois.UsePet.GetBool() => true,
         CustomRoles.Aid when Aid.UsePet.GetBool() => true,
+        CustomRoles.Socialite when Socialite.UsePet.GetBool() => true,
         CustomRoles.Escort when Escort.UsePet.GetBool() => true,
         CustomRoles.DonutDelivery when DonutDelivery.UsePet.GetBool() => true,
         CustomRoles.Analyst when Analyst.UsePet.GetBool() => true,
@@ -758,19 +700,35 @@ internal static class CustomRolesHelper
         CustomRoles.Crusader when Crusader.UsePet.GetBool() => true,
         CustomRoles.Witness when Options.WitnessUsePet.GetBool() => true,
 
-        CustomRoles.Refugee => true,
-        CustomRoles.Necromancer => true,
-        CustomRoles.Deathknight => true,
-
         // Speedrun
         CustomRoles.Runner => true,
 
         _ => false
     };
 
-    public static bool OnlySpawnsWithPets(this CustomRoles role) => OnlySpawnsWithPetsRoleList.Contains(role);
+    public static bool CancelsVote(this CustomRoles role) => role switch
+    {
+        CustomRoles.Divinator when Divinator.CancelVote.GetBool() => true,
+        CustomRoles.Soothsayer when Soothsayer.CancelVote.GetBool() => true,
+        CustomRoles.Oracle when Oracle.CancelVote.GetBool() => true,
+        CustomRoles.Eraser when Eraser.CancelVote.GetBool() => true,
+        CustomRoles.Tether when Tether.CancelVote.GetBool() => true,
+        CustomRoles.Ricochet when Ricochet.CancelVote.GetBool() => true,
+        CustomRoles.Cleanser when Cleanser.CancelVote.GetBool() => true,
+        CustomRoles.NiceEraser when NiceEraser.CancelVote.GetBool() => true,
+        CustomRoles.Scout when Scout.CancelVote.GetBool() => true,
+        CustomRoles.Markseeker when Markseeker.CancelVote.GetBool() => true,
+        CustomRoles.Godfather when Options.GodfatherCancelVote.GetBool() => true,
+        CustomRoles.Socialite when Socialite.CancelVote.GetBool() => true,
 
-    public static bool NeedUpdateOnLights(this CustomRoles role) => (!role.UsesPetInsteadOfKill()) && (role.GetDYRole() != RoleTypes.GuardianAngel || role is
+        CustomRoles.President => true,
+
+        _ => false
+    };
+
+    public static bool OnlySpawnsWithPets(this CustomRoles role) => !(Options.UseUnshiftTrigger.GetBool() && (!role.IsNeutral() || Options.UseUnshiftTriggerForNKs.GetBool()) && role.SimpleAbilityTrigger() && role != CustomRoles.Chemist && !role.AlwaysUsesUnshift()) && OnlySpawnsWithPetsRoleList.Contains(role);
+
+    public static bool NeedUpdateOnLights(this CustomRoles role) => !role.UsesPetInsteadOfKill() && (role.IsDesyncRole() || role is
         CustomRoles.Convict or
         CustomRoles.Parasite or
         CustomRoles.Refugee or
@@ -779,8 +737,7 @@ internal static class CustomRolesHelper
         CustomRoles.Ignitor or
         CustomRoles.Saboteur or
         CustomRoles.Inhibitor or
-        CustomRoles.Gambler or
-        CustomRoles.Deputy);
+        CustomRoles.Gambler);
 
     public static bool IsBetrayalAddon(this CustomRoles role) => role is
         CustomRoles.Charmed or
@@ -802,6 +759,7 @@ internal static class CustomRolesHelper
         CustomRoles.Merchant or
         CustomRoles.Mayor or
         CustomRoles.Insight or
+        CustomRoles.Lyncher or
         CustomRoles.Transporter;
 
     public static bool IsNotKnightable(this CustomRoles role) => role is
@@ -821,15 +779,63 @@ internal static class CustomRolesHelper
     public static bool IsNoAnimationShifter(this CustomRoles role) => role is
         CustomRoles.Echo;
 
+    public static bool AlwaysUsesUnshift(this CustomRoles role) => role is
+        CustomRoles.Wizard;
+
+    public static bool SimpleAbilityTrigger(this CustomRoles role) => role is
+        CustomRoles.Wizard or
+        CustomRoles.Warlock or
+        CustomRoles.Swiftclaw or
+        CustomRoles.Undertaker or
+        CustomRoles.Abyssbringer or
+        CustomRoles.Bomber or
+        CustomRoles.Nuker or
+        CustomRoles.Camouflager or
+        CustomRoles.Disperser or
+        CustomRoles.Escapee or
+        CustomRoles.FireWorks or
+        CustomRoles.Hypnotist or
+        CustomRoles.Librarian or
+        CustomRoles.Miner or
+        CustomRoles.RiftMaker or
+        CustomRoles.Assassin or
+        CustomRoles.QuickShooter or
+        CustomRoles.Sapper or
+        CustomRoles.Sniper or
+        CustomRoles.Twister or
+        CustomRoles.RouleteGrandeur or
+        CustomRoles.Enderman or
+        CustomRoles.Hookshot or
+        CustomRoles.Mycologist or
+        CustomRoles.Magician or
+        CustomRoles.Sprayer or
+        CustomRoles.Werewolf or
+        CustomRoles.WeaponMaster or
+        CustomRoles.Tiger or
+        CustomRoles.Bargainer or
+        CustomRoles.Chemist or
+        CustomRoles.Simon or
+        CustomRoles.Patroller;
+
     public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc) => role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out var bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out var o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && (!role.IsImpOnlyAddon() || pc.IsImpostor()) && role switch
     {
+        CustomRoles.Circumvent when pc.GetCustomRole() is CustomRoles.Swooper or CustomRoles.RiftMaker => false,
+        CustomRoles.Oblivious when pc.Is(CustomRoles.Altruist) => false,
+        CustomRoles.AntiTP when pc.Is(CustomRoles.Transmitter) => false,
+        CustomRoles.Swift when pc.Is(CustomRoles.Stealth) => false,
+        CustomRoles.Disco when pc.GetCustomRole() is CustomRoles.Chameleon or CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Alchemist => false,
+        CustomRoles.Egoist when pc.Is(CustomRoles.Gangster) => false,
+        CustomRoles.Nimble when pc.Is(CustomRoles.Oxyman) => false,
+        CustomRoles.Magnet when pc.Is(Team.Impostor) => false,
+        CustomRoles.Swift when pc.Is(CustomRoles.Magnet) => false,
+        CustomRoles.Oblivious when pc.Is(CustomRoles.Amnesiac) && Amnesiac.RememberMode.GetValue() == 1 => false,
         CustomRoles.Rookie when !pc.CanUseKillButton() => false,
         CustomRoles.Energetic when !Options.UsePets.GetBool() => false,
         CustomRoles.Madmate when pc.Is(CustomRoles.Sidekick) => false,
         CustomRoles.Autopsy when pc.Is(CustomRoles.Doctor) || pc.Is(CustomRoles.Tracefinder) || pc.Is(CustomRoles.Scientist) || pc.Is(CustomRoles.ScientistEHR) || pc.Is(CustomRoles.Sunnyboy) => false,
         CustomRoles.Necroview when pc.Is(CustomRoles.Doctor) => false,
         CustomRoles.Lazy when pc.Is(CustomRoles.Speedrunner) => false,
-        CustomRoles.Mischievous when pc.Is(Team.Impostor) || pc.GetCustomRole().GetDYRole() != RoleTypes.Impostor || !pc.IsNeutralKiller() || Main.PlayerStates[pc.PlayerId].Role.CanUseSabotage(pc) => false,
+        CustomRoles.Mischievous when pc.Is(Team.Impostor) || (!pc.GetCustomRole().IsDesyncRole() && !pc.Is(CustomRoles.Bloodlust)) || !pc.IsNeutralKiller() || Main.PlayerStates[pc.PlayerId].Role.CanUseSabotage(pc) => false,
         CustomRoles.Loyal when pc.IsCrewmate() && !Options.CrewCanBeLoyal.GetBool() => false,
         CustomRoles.Lazy when pc.Is(CustomRoles.Needy) || pc.Is(CustomRoles.Snitch) || pc.Is(CustomRoles.Marshall) || pc.Is(CustomRoles.Transporter) || pc.Is(CustomRoles.Guardian) => false,
         CustomRoles.Brakar when pc.Is(CustomRoles.Dictator) => false,
@@ -838,6 +844,8 @@ internal static class CustomRolesHelper
         CustomRoles.TicketsStealer or CustomRoles.Swift or CustomRoles.DeadlyQuota or CustomRoles.Damocles or CustomRoles.Mare when pc.Is(CustomRoles.Bomber) || pc.Is(CustomRoles.Nuker) || pc.Is(CustomRoles.BoobyTrap) || pc.Is(CustomRoles.Capitalism) => false,
         CustomRoles.Torch when !pc.IsCrewmate() || pc.Is(CustomRoles.Bewilder) || pc.Is(CustomRoles.Sunglasses) || pc.Is(CustomRoles.GuardianAngelEHR) => false,
         CustomRoles.Bewilder when pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.GuardianAngelEHR) || pc.Is(CustomRoles.Sunglasses) => false,
+        CustomRoles.Dynamo when pc.Is(CustomRoles.Spurt) => false,
+        CustomRoles.Spurt when pc.GetCustomSubRoles().Any(x => x is CustomRoles.Dynamo or CustomRoles.Swiftclaw or CustomRoles.Giant or CustomRoles.Flashman) => false,
         CustomRoles.Sunglasses when pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.GuardianAngelEHR) || pc.Is(CustomRoles.Bewilder) => false,
         CustomRoles.Guesser when pc.GetCustomRole() is CustomRoles.EvilGuesser or CustomRoles.NiceGuesser or CustomRoles.Doomsayer or CustomRoles.CopyCat => false,
         CustomRoles.Madmate when !pc.CanBeMadmate() || pc.Is(CustomRoles.Egoist) || pc.Is(CustomRoles.Rascal) => false,
@@ -846,8 +854,8 @@ internal static class CustomRolesHelper
         CustomRoles.Egoist when !pc.IsImpostor() => false,
         CustomRoles.Damocles when pc.GetCustomRole() is CustomRoles.Bomber or CustomRoles.Nuker or CustomRoles.SerialKiller or CustomRoles.Cantankerous => false,
         CustomRoles.Damocles when !pc.CanUseKillButton() => false,
-        CustomRoles.Flashman when pc.Is(CustomRoles.Swiftclaw) || pc.Is(CustomRoles.Giant) => false,
-        CustomRoles.Giant when pc.Is(CustomRoles.Flashman) => false,
+        CustomRoles.Flashman when pc.Is(CustomRoles.Swiftclaw) || pc.Is(CustomRoles.Giant) || pc.Is(CustomRoles.Spurt) => false,
+        CustomRoles.Giant when pc.Is(CustomRoles.Flashman) || pc.Is(CustomRoles.Spurt) => false,
         CustomRoles.Necroview when pc.Is(CustomRoles.Visionary) => false,
         CustomRoles.Mimic when pc.Is(CustomRoles.Mafia) => false,
         CustomRoles.Rascal when !pc.IsCrewmate() => false,
@@ -899,17 +907,17 @@ internal static class CustomRolesHelper
         CustomRoles.Trapper when pc.Is(CustomRoles.GuardianAngelEHR) => false,
         CustomRoles.Reach when !pc.CanUseKillButton() => false,
         CustomRoles.Magnet when !pc.CanUseKillButton() => false,
-        CustomRoles.Haste when !pc.CanUseKillButton() => false,
+        CustomRoles.Haste when !pc.CanUseKillButton() || !pc.CanUseImpostorVentButton() => false,
         CustomRoles.Diseased when pc.Is(CustomRoles.Antidote) => false,
         CustomRoles.Antidote when pc.Is(CustomRoles.Diseased) => false,
         CustomRoles.Flashman or CustomRoles.Giant when pc.GetCustomRole() is CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Chameleon or CustomRoles.Alchemist => false,
         CustomRoles.Bait when pc.Is(CustomRoles.Unreportable) => false,
-        CustomRoles.Busy when !pc.GetTaskState().hasTasks => false,
+        CustomRoles.Busy when !pc.GetTaskState().HasTasks => false,
         CustomRoles.Truant when pc.Is(CustomRoles.SoulHunter) => false,
         CustomRoles.Nimble when !pc.IsCrewmate() => false,
-        CustomRoles.Physicist when !pc.IsCrewmate() || pc.GetCustomRole().GetDYRole() == RoleTypes.Impostor => false,
-        CustomRoles.Finder when !pc.IsCrewmate() || pc.GetCustomRole().GetDYRole() == RoleTypes.Impostor => false,
-        CustomRoles.Noisy when !pc.IsCrewmate() || pc.GetCustomRole().GetDYRole() == RoleTypes.Impostor => false,
+        CustomRoles.Physicist when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() => false,
+        CustomRoles.Finder when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() => false,
+        CustomRoles.Noisy when !pc.IsCrewmate() || pc.GetCustomRole().IsDesyncRole() => false,
         CustomRoles.Unreportable when pc.Is(CustomRoles.Bait) => false,
         CustomRoles.Oblivious when pc.Is(CustomRoles.Bloodhound) => false,
         CustomRoles.Oblivious when pc.Is(CustomRoles.Vulture) => false,
@@ -930,14 +938,14 @@ internal static class CustomRolesHelper
 
     public static Team GetTeam(this CustomRoles role)
     {
-        if (role.IsImpostorTeamV3()) return Team.Impostor;
+        if (role.IsImpostorTeamV2()) return Team.Impostor;
         if (role.IsNeutralTeamV2()) return Team.Neutral;
         return role.IsCrewmateTeamV2() ? Team.Crewmate : Team.None;
     }
 
     public static bool Is(this CustomRoles role, Team team) => team switch
     {
-        Team.Impostor => role.IsImpostorTeamV3(),
+        Team.Impostor => role.IsImpostorTeamV2(),
         Team.Neutral => role.IsNeutralTeamV2(),
         Team.Crewmate => role.IsCrewmateTeamV2(),
         Team.None => role.GetCountTypes() is CountTypes.OutOfGame or CountTypes.None || role == CustomRoles.GM,
@@ -946,8 +954,7 @@ internal static class CustomRolesHelper
 
     public static RoleTypes GetRoleTypes(this CustomRoles role)
     {
-        if (role.GetDYRole() == RoleTypes.Impostor) return RoleTypes.Impostor;
-        if (Enum.TryParse<RoleTypes>(role.GetVNRole().ToString(), ignoreCase: true, out var type)) return type;
+        if (Enum.TryParse<RoleTypes>(role.GetVNRole(checkDesyncRole: true).ToString().Replace("EHR", ""), ignoreCase: true, out var type)) return type;
         return role.IsImpostor() ? RoleTypes.Impostor : RoleTypes.Crewmate;
     }
 
@@ -955,7 +962,7 @@ internal static class CustomRolesHelper
     public static bool IsImpostorTeam(this CustomRoles role) => role.IsImpostor() || role == CustomRoles.Madmate;
     public static bool IsCrewmate(this CustomRoles role) => !role.IsImpostor() && !role.IsNeutral() && !role.IsMadmate();
 
-    private static bool IsImpostorTeamV2(this CustomRoles role) => (role.IsImpostorTeam() && role != CustomRoles.Trickster && !role.IsConverted()) || role == CustomRoles.Rascal;
+    public static bool IsImpostorTeamV2(this CustomRoles role) => (role.IsImpostorTeam() && role != CustomRoles.Trickster && !role.IsConverted()) || role is CustomRoles.Rascal or CustomRoles.Madmate || role.IsMadmate();
     public static bool IsNeutralTeamV2(this CustomRoles role) => role.IsConverted() || (role.IsNeutral() && role != CustomRoles.Madmate);
     public static bool IsCrewmateTeamV2(this CustomRoles role) => (!role.IsImpostorTeamV2() && !role.IsNeutralTeamV2()) || (role == CustomRoles.Trickster && !role.IsConverted());
 
@@ -963,8 +970,7 @@ internal static class CustomRolesHelper
         CustomRoles.Charmed or
         CustomRoles.Recruit or
         CustomRoles.Contagious or
-        CustomRoles.Undead or
-        CustomRoles.Lovers;
+        CustomRoles.Undead;
 
     public static bool IsRevealingRole(this CustomRoles role, PlayerControl target) =>
         ((role is CustomRoles.Mayor) && Mayor.MayorRevealWhenDoneTasks.GetBool() && target.AllTasksCompleted()) ||
@@ -974,7 +980,6 @@ internal static class CustomRolesHelper
         ((role is CustomRoles.Doctor) && Options.DoctorVisibleToEveryone.GetBool()) ||
         ((role is CustomRoles.Bait) && Options.BaitNotification.GetBool() && ParityCop.ParityCheckBaitCountType.GetBool());
 
-    public static bool IsImpostorTeamV3(this CustomRoles role) => role.IsImpostor() || role.IsMadmate() || role == CustomRoles.Madmate;
 
     public static bool IsVanilla(this CustomRoles role) => role is
         CustomRoles.Crewmate or
@@ -1052,76 +1057,26 @@ internal static class CustomRolesHelper
     public static CountTypes GetCountTypes(this CustomRoles role) => role switch
     {
         CustomRoles.GM => CountTypes.OutOfGame,
-        CustomRoles.Sidekick => CountTypes.Jackal,
+        CustomRoles.Sidekick when Jackal.SidekickCountMode.GetValue() == 0 => CountTypes.Jackal,
+        CustomRoles.Sidekick when Jackal.SidekickCountMode.GetValue() == 1 => CountTypes.OutOfGame,
         CustomRoles.Deathknight => CountTypes.Necromancer,
         CustomRoles.Parasite => CountTypes.Impostor,
         CustomRoles.Crewpostor => CountTypes.Impostor,
         CustomRoles.Refugee => CountTypes.Impostor,
+        CustomRoles.Gaslighter => Gaslighter.WinCondition.GetValue() == 2 ? CountTypes.Gaslighter : CountTypes.Crew,
         CustomRoles.DarkHide when DarkHide.SnatchesWin.GetBool() => CountTypes.Crew,
         CustomRoles.Arsonist when !Options.ArsonistKeepsGameGoing.GetBool() => CountTypes.Crew,
         CustomRoles.SchrodingersCat => SchrodingersCat.WinsWithCrewIfNotAttacked.GetBool() ? CountTypes.Crew : CountTypes.OutOfGame,
+        CustomRoles.DarkHide => !DarkHide.SnatchesWin.GetBool() ? CountTypes.DarkHide : CountTypes.Crew,
+        CustomRoles.Arsonist => Options.ArsonistKeepsGameGoing.GetBool() ? CountTypes.Arsonist : CountTypes.Crew,
+        CustomRoles.Sheriff => Sheriff.KeepsGameGoing.GetBool() ? CountTypes.Sheriff : CountTypes.Crew,
         CustomRoles.Shifter => CountTypes.OutOfGame,
 
         _ => Enum.TryParse(role.ToString(), true, out CountTypes type)
             ? type
-            : role.Is(Team.Impostor)
+            : role.Is(Team.Impostor) || role == CustomRoles.Trickster
                 ? CountTypes.Impostor
                 : CountTypes.Crew
-    };
-
-    public static RoleOptionType GetRoleOptionType(this CustomRoles role)
-    {
-        if (role.IsImpostor()) return RoleOptionType.Impostor;
-        if (role.IsCrewmate()) return role.GetDYRole(load: true) == RoleTypes.Impostor ? RoleOptionType.Crewmate_ImpostorBased : RoleOptionType.Crewmate_Normal;
-        if (role.IsNeutral(check: true)) return role.IsNK(check: true) ? RoleOptionType.Neutral_Killing : RoleOptionType.Neutral_NonKilling;
-        return RoleOptionType.Crewmate_Normal;
-    }
-
-    public static Color GetRoleOptionTypeColor(this RoleOptionType type) => type switch
-    {
-        RoleOptionType.Impostor => Palette.ImpostorRed,
-        RoleOptionType.Crewmate_Normal => Palette.CrewmateBlue,
-        RoleOptionType.Crewmate_ImpostorBased => Utils.GetRoleColor(CustomRoles.Sheriff),
-        RoleOptionType.Neutral_NonKilling => Utils.GetRoleColor(CustomRoles.Sprayer),
-        RoleOptionType.Neutral_Killing => Utils.GetRoleColor(CustomRoles.Traitor),
-        _ => Utils.GetRoleColor(CustomRoles.SwordsMan)
-    };
-
-    public static TabGroup GetTabFromOptionType(this RoleOptionType type) => type switch
-    {
-        RoleOptionType.Impostor => TabGroup.ImpostorRoles,
-        RoleOptionType.Crewmate_Normal => TabGroup.CrewmateRoles,
-        RoleOptionType.Crewmate_ImpostorBased => TabGroup.CrewmateRoles,
-        RoleOptionType.Neutral_NonKilling => TabGroup.NeutralRoles,
-        RoleOptionType.Neutral_Killing => TabGroup.NeutralRoles,
-        _ => TabGroup.OtherRoles
-    };
-
-    public static SimpleRoleOptionType GetSimpleRoleOptionType(this RoleOptionType type) => type switch
-    {
-        RoleOptionType.Impostor => SimpleRoleOptionType.Impostor,
-        RoleOptionType.Crewmate_Normal => SimpleRoleOptionType.Crewmate,
-        RoleOptionType.Crewmate_ImpostorBased => SimpleRoleOptionType.Crewmate,
-        RoleOptionType.Neutral_NonKilling => SimpleRoleOptionType.NNK,
-        RoleOptionType.Neutral_Killing => SimpleRoleOptionType.NK,
-        _ => SimpleRoleOptionType.Crewmate
-    };
-
-    public static SimpleRoleOptionType GetSimpleRoleOptionType(this CustomRoles role)
-    {
-        if (role.IsImpostor()) return SimpleRoleOptionType.Impostor;
-        if (role.IsCrewmate()) return SimpleRoleOptionType.Crewmate;
-        if (role.IsNeutral(check: true)) return role.IsNK(check: true) ? SimpleRoleOptionType.NK : SimpleRoleOptionType.NNK;
-        return SimpleRoleOptionType.Crewmate;
-    }
-
-    public static Color GetAddonTypeColor(this AddonTypes type) => type switch
-    {
-        AddonTypes.ImpOnly => Palette.ImpostorRed,
-        AddonTypes.Helpful => Palette.CrewmateBlue,
-        AddonTypes.Harmful => Utils.GetRoleColor(CustomRoles.Sprayer),
-        AddonTypes.Mixed => Utils.GetRoleColor(CustomRoles.TaskManager),
-        _ => Palette.CrewmateBlue
     };
 
     public static Color GetTeamColor(this Team team) => ColorUtility.TryParseHtmlString(team switch
@@ -1135,6 +1090,322 @@ internal static class CustomRolesHelper
         : Color.clear;
 
     public static string ToColoredString(this CustomRoles role) => Utils.ColorString(Utils.GetRoleColor(role), Translator.GetString($"{role}"));
+
+    #region OptionsAndCategories
+
+    public static RoleOptionType GetRoleOptionType(this CustomRoles role)
+    {
+        if (role.IsImpostor()) return role.GetImpostorRoleCategory();
+        if (role.IsCrewmate()) return role.GetCrewmateRoleCategory();
+        if (role.IsNeutral(check: true)) return role.GetNeutralRoleCategory();
+        return RoleOptionType.Crewmate_Miscellaneous;
+    }
+
+    public static Color GetRoleOptionTypeColor(this RoleOptionType type) => type switch
+    {
+        RoleOptionType.Impostor_Killing => Utils.GetRoleColor(CustomRoles.Witness),
+        RoleOptionType.Impostor_Support => Utils.GetRoleColor(CustomRoles.Bubble),
+        RoleOptionType.Impostor_Concealing => Utils.GetRoleColor(CustomRoles.CyberStar),
+        RoleOptionType.Impostor_Miscellaneous => Palette.ImpostorRed,
+        RoleOptionType.Crewmate_Miscellaneous => Palette.CrewmateBlue,
+        RoleOptionType.Crewmate_Investigate => Utils.GetRoleColor(CustomRoles.Detective),
+        RoleOptionType.Crewmate_Support => Utils.GetRoleColor(CustomRoles.NiceEraser),
+        RoleOptionType.Crewmate_Killing => Utils.GetRoleColor(CustomRoles.Sheriff),
+        RoleOptionType.Crewmate_Power => Utils.GetRoleColor(CustomRoles.Electric),
+        RoleOptionType.Crewmate_Chaos => Utils.GetRoleColor(CustomRoles.Tornado),
+        RoleOptionType.Neutral_Benign => Utils.GetRoleColor(CustomRoles.Chameleon),
+        RoleOptionType.Neutral_Evil => Utils.GetRoleColor(CustomRoles.Mario),
+        RoleOptionType.Neutral_Killing => Palette.ImpostorRed,
+        _ => Utils.GetRoleColor(CustomRoles.SwordsMan)
+    };
+
+    public static TabGroup GetTabFromOptionType(this RoleOptionType type) => type switch
+    {
+        RoleOptionType.Impostor_Killing => TabGroup.ImpostorRoles,
+        RoleOptionType.Impostor_Support => TabGroup.ImpostorRoles,
+        RoleOptionType.Impostor_Concealing => TabGroup.ImpostorRoles,
+        RoleOptionType.Impostor_Miscellaneous => TabGroup.ImpostorRoles,
+        RoleOptionType.Crewmate_Miscellaneous => TabGroup.CrewmateRoles,
+        RoleOptionType.Crewmate_Investigate => TabGroup.CrewmateRoles,
+        RoleOptionType.Crewmate_Support => TabGroup.CrewmateRoles,
+        RoleOptionType.Crewmate_Killing => TabGroup.CrewmateRoles,
+        RoleOptionType.Crewmate_Power => TabGroup.CrewmateRoles,
+        RoleOptionType.Crewmate_Chaos => TabGroup.CrewmateRoles,
+        RoleOptionType.Neutral_Benign => TabGroup.NeutralRoles,
+        RoleOptionType.Neutral_Evil => TabGroup.NeutralRoles,
+        RoleOptionType.Neutral_Killing => TabGroup.NeutralRoles,
+        _ => TabGroup.OtherRoles
+    };
+
+    public static Color GetAddonTypeColor(this AddonTypes type) => type switch
+    {
+        AddonTypes.ImpOnly => Palette.ImpostorRed,
+        AddonTypes.Helpful => Palette.CrewmateBlue,
+        AddonTypes.Harmful => Utils.GetRoleColor(CustomRoles.Sprayer),
+        AddonTypes.Mixed => Utils.GetRoleColor(CustomRoles.TaskManager),
+        _ => Palette.CrewmateBlue
+    };
+
+    public static RoleOptionType GetNeutralRoleCategory(this CustomRoles role) => role switch
+    {
+        CustomRoles.Opportunist => RoleOptionType.Neutral_Benign,
+        CustomRoles.Lawyer => RoleOptionType.Neutral_Benign,
+        CustomRoles.Amnesiac => RoleOptionType.Neutral_Benign,
+        CustomRoles.Postman => RoleOptionType.Neutral_Benign,
+        CustomRoles.SchrodingersCat => RoleOptionType.Neutral_Benign,
+        CustomRoles.Predator => RoleOptionType.Neutral_Benign,
+        CustomRoles.Pursuer => RoleOptionType.Neutral_Benign,
+        CustomRoles.FFF => RoleOptionType.Neutral_Benign,
+        CustomRoles.Revolutionist => RoleOptionType.Neutral_Benign,
+        CustomRoles.Impartial => RoleOptionType.Neutral_Benign,
+        CustomRoles.Backstabber => RoleOptionType.Neutral_Benign,
+        CustomRoles.Shifter => RoleOptionType.Neutral_Benign,
+        CustomRoles.Sunnyboy => RoleOptionType.Neutral_Benign,
+        CustomRoles.Maverick => RoleOptionType.Neutral_Benign,
+        CustomRoles.Romantic => RoleOptionType.Neutral_Benign,
+        CustomRoles.VengefulRomantic => RoleOptionType.Neutral_Benign,
+        CustomRoles.Phantasm => RoleOptionType.Neutral_Benign,
+        CustomRoles.Provocateur => RoleOptionType.Neutral_Benign,
+        CustomRoles.SoulHunter => RoleOptionType.Neutral_Benign,
+        CustomRoles.Technician => RoleOptionType.Neutral_Benign,
+        CustomRoles.Tank => RoleOptionType.Neutral_Benign,
+        CustomRoles.Totocalcio => RoleOptionType.Neutral_Benign,
+        CustomRoles.Jester => RoleOptionType.Neutral_Evil,
+        CustomRoles.Gaslighter => RoleOptionType.Neutral_Evil,
+        CustomRoles.God => RoleOptionType.Neutral_Evil,
+        CustomRoles.Executioner => RoleOptionType.Neutral_Evil,
+        CustomRoles.Doomsayer => RoleOptionType.Neutral_Evil,
+        CustomRoles.Mario => RoleOptionType.Neutral_Evil,
+        CustomRoles.Terrorist => RoleOptionType.Neutral_Evil,
+        CustomRoles.Collector => RoleOptionType.Neutral_Evil,
+        CustomRoles.Vulture => RoleOptionType.Neutral_Evil,
+        CustomRoles.Workaholic => RoleOptionType.Neutral_Evil,
+        CustomRoles.Deathknight => RoleOptionType.Neutral_Evil,
+        CustomRoles.Innocent => RoleOptionType.Neutral_Evil,
+        _ => role.IsNK(check: true) ? RoleOptionType.Neutral_Killing : role.IsImpostor() ? RoleOptionType.Impostor_Miscellaneous : RoleOptionType.Crewmate_Miscellaneous
+    };
+
+    public static RoleOptionType GetImpostorRoleCategory(this CustomRoles role) => role switch
+    {
+        CustomRoles.Sans => RoleOptionType.Impostor_Killing,
+        CustomRoles.Assassin => RoleOptionType.Impostor_Killing,
+        CustomRoles.Assumer => RoleOptionType.Impostor_Killing,
+        CustomRoles.Augmenter => RoleOptionType.Impostor_Killing,
+        CustomRoles.Bomber => RoleOptionType.Impostor_Killing,
+        CustomRoles.BountyHunter => RoleOptionType.Impostor_Killing,
+        CustomRoles.Cantankerous => RoleOptionType.Impostor_Killing,
+        CustomRoles.Chronomancer => RoleOptionType.Impostor_Killing,
+        CustomRoles.Councillor => RoleOptionType.Impostor_Killing,
+        CustomRoles.EvilGuesser => RoleOptionType.Impostor_Killing,
+        CustomRoles.FireWorks => RoleOptionType.Impostor_Killing,
+        CustomRoles.Greedier => RoleOptionType.Impostor_Killing,
+        CustomRoles.Hitman => RoleOptionType.Impostor_Killing,
+        CustomRoles.Inhibitor => RoleOptionType.Impostor_Killing,
+        CustomRoles.Kamikaze => RoleOptionType.Impostor_Killing,
+        CustomRoles.Minimalism => RoleOptionType.Impostor_Killing,
+        CustomRoles.Lurker => RoleOptionType.Impostor_Killing,
+        CustomRoles.Mafioso => RoleOptionType.Impostor_Killing,
+        CustomRoles.Mafia => RoleOptionType.Impostor_Killing,
+        CustomRoles.SerialKiller => RoleOptionType.Impostor_Killing,
+        CustomRoles.Nuker => RoleOptionType.Impostor_Killing,
+        CustomRoles.Overheat => RoleOptionType.Impostor_Killing,
+        CustomRoles.OverKiller => RoleOptionType.Impostor_Killing,
+        CustomRoles.QuickShooter => RoleOptionType.Impostor_Killing,
+        CustomRoles.Saboteur => RoleOptionType.Impostor_Killing,
+        CustomRoles.Sapper => RoleOptionType.Impostor_Killing,
+        CustomRoles.Sniper => RoleOptionType.Impostor_Killing,
+        CustomRoles.BoobyTrap => RoleOptionType.Impostor_Killing,
+        CustomRoles.Underdog => RoleOptionType.Impostor_Killing,
+        CustomRoles.Witch => RoleOptionType.Impostor_Killing,
+        CustomRoles.Zombie => RoleOptionType.Impostor_Killing,
+        CustomRoles.Bard => RoleOptionType.Impostor_Support,
+        CustomRoles.Blackmailer => RoleOptionType.Impostor_Support,
+        CustomRoles.Camouflager => RoleOptionType.Impostor_Support,
+        CustomRoles.Capitalism => RoleOptionType.Impostor_Support,
+        CustomRoles.Cleaner => RoleOptionType.Impostor_Support,
+        CustomRoles.Commander => RoleOptionType.Impostor_Support,
+        CustomRoles.Consort => RoleOptionType.Impostor_Support,
+        CustomRoles.Framer => RoleOptionType.Impostor_Support,
+        CustomRoles.Deathpact => RoleOptionType.Impostor_Support,
+        CustomRoles.Devourer => RoleOptionType.Impostor_Support,
+        CustomRoles.Disperser => RoleOptionType.Impostor_Support,
+        CustomRoles.Dazzler => RoleOptionType.Impostor_Support,
+        CustomRoles.Eraser => RoleOptionType.Impostor_Support,
+        CustomRoles.Freezer => RoleOptionType.Impostor_Support,
+        CustomRoles.Gangster => RoleOptionType.Impostor_Support,
+        CustomRoles.Godfather => RoleOptionType.Impostor_Support,
+        CustomRoles.Hypnotist => RoleOptionType.Impostor_Support,
+        CustomRoles.Librarian => RoleOptionType.Impostor_Support,
+        CustomRoles.Nullifier => RoleOptionType.Impostor_Support,
+        CustomRoles.Silencer => RoleOptionType.Impostor_Support,
+        CustomRoles.Swapster => RoleOptionType.Impostor_Support,
+        CustomRoles.TimeThief => RoleOptionType.Impostor_Support,
+        CustomRoles.Twister => RoleOptionType.Impostor_Support,
+        CustomRoles.Ventriloquist => RoleOptionType.Impostor_Support,
+        CustomRoles.Vindicator => RoleOptionType.Impostor_Support,
+        CustomRoles.YinYanger => RoleOptionType.Impostor_Support,
+        CustomRoles.Hacker => RoleOptionType.Impostor_Concealing,
+        CustomRoles.Duellist => RoleOptionType.Impostor_Concealing,
+        CustomRoles.Echo => RoleOptionType.Impostor_Concealing,
+        CustomRoles.Escapee => RoleOptionType.Impostor_Concealing,
+        CustomRoles.Hangman => RoleOptionType.Impostor_Concealing,
+        CustomRoles.Kidnapper => RoleOptionType.Impostor_Concealing,
+        CustomRoles.BallLightning => RoleOptionType.Impostor_Concealing,
+        CustomRoles.Mastermind => RoleOptionType.Impostor_Concealing,
+        CustomRoles.Miner => RoleOptionType.Impostor_Concealing,
+        CustomRoles.Morphling => RoleOptionType.Impostor_Concealing,
+        CustomRoles.Penguin => RoleOptionType.Impostor_Concealing,
+        CustomRoles.Puppeteer => RoleOptionType.Impostor_Concealing,
+        CustomRoles.RiftMaker => RoleOptionType.Impostor_Concealing,
+        CustomRoles.Scavenger => RoleOptionType.Impostor_Concealing,
+        CustomRoles.ImperiusCurse => RoleOptionType.Impostor_Concealing,
+        CustomRoles.Swiftclaw => RoleOptionType.Impostor_Concealing,
+        CustomRoles.Swooper => RoleOptionType.Impostor_Concealing,
+        CustomRoles.Stealth => RoleOptionType.Impostor_Concealing,
+        CustomRoles.Trickster => RoleOptionType.Impostor_Concealing,
+        CustomRoles.Undertaker => RoleOptionType.Impostor_Concealing,
+        CustomRoles.Vampire => RoleOptionType.Impostor_Concealing,
+        CustomRoles.Warlock => RoleOptionType.Impostor_Concealing,
+        CustomRoles.Abyssbringer => RoleOptionType.Impostor_Miscellaneous,
+        CustomRoles.AntiAdminer => RoleOptionType.Impostor_Miscellaneous,
+        CustomRoles.Changeling => RoleOptionType.Impostor_Miscellaneous,
+        CustomRoles.EvilDiviner => RoleOptionType.Impostor_Miscellaneous,
+        CustomRoles.CursedWolf => RoleOptionType.Impostor_Miscellaneous,
+        CustomRoles.EvilTracker => RoleOptionType.Impostor_Miscellaneous,
+        CustomRoles.Gambler => RoleOptionType.Impostor_Miscellaneous,
+        CustomRoles.Generator => RoleOptionType.Impostor_Miscellaneous,
+        CustomRoles.Visionary => RoleOptionType.Impostor_Miscellaneous,
+        CustomRoles.Wildling => RoleOptionType.Impostor_Miscellaneous,
+        _ => role.IsCrewmate() ? RoleOptionType.Crewmate_Miscellaneous : RoleOptionType.Neutral_Benign
+    };
+
+    public static RoleOptionType GetCrewmateRoleCategory(this CustomRoles role) => role switch
+    {
+        CustomRoles.Addict => RoleOptionType.Crewmate_Miscellaneous,
+        CustomRoles.CameraMan => RoleOptionType.Crewmate_Miscellaneous,
+        CustomRoles.CyberStar => RoleOptionType.Crewmate_Miscellaneous,
+        CustomRoles.Demolitionist => RoleOptionType.Crewmate_Miscellaneous,
+        CustomRoles.Express => RoleOptionType.Crewmate_Miscellaneous,
+        CustomRoles.Needy => RoleOptionType.Crewmate_Miscellaneous,
+        CustomRoles.Journalist => RoleOptionType.Crewmate_Miscellaneous,
+        CustomRoles.Luckey => RoleOptionType.Crewmate_Miscellaneous,
+        CustomRoles.Mole => RoleOptionType.Crewmate_Miscellaneous,
+        CustomRoles.Nightmare => RoleOptionType.Crewmate_Miscellaneous,
+        CustomRoles.Paranoia => RoleOptionType.Crewmate_Miscellaneous,
+        CustomRoles.Ricochet => RoleOptionType.Crewmate_Miscellaneous,
+        CustomRoles.Safeguard => RoleOptionType.Crewmate_Miscellaneous,
+        CustomRoles.SuperStar => RoleOptionType.Crewmate_Miscellaneous,
+        CustomRoles.Tether => RoleOptionType.Crewmate_Miscellaneous,
+        CustomRoles.Transmitter => RoleOptionType.Crewmate_Miscellaneous,
+        CustomRoles.Tracefinder => RoleOptionType.Crewmate_Miscellaneous,
+        CustomRoles.Tunneler => RoleOptionType.Crewmate_Miscellaneous,
+        CustomRoles.Analyst => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Catcher => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Chameleon => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Clairvoyant => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Bloodhound => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Detective => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Doctor => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Druid => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Enigma => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Farseer => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Divinator => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.GuessManagerRole => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Ignitor => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Insight => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.ParityCop => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Inquirer => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Lighter => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Lookout => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Lyncher => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Markseeker => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Mediumshiper => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Monitor => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Mortician => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.NiceHacker => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Observer => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Oracle => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Perceiver => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Psychic => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Rabbit => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Scout => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Sentry => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Shiftguard => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Snitch => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Socialite => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Soothsayer => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Spiritualist => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Spy => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.TaskManager => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Whisperer => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Witness => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Aid => RoleOptionType.Crewmate_Support,
+        CustomRoles.Altruist => RoleOptionType.Crewmate_Support,
+        CustomRoles.Autocrat => RoleOptionType.Crewmate_Support,
+        CustomRoles.Bane => RoleOptionType.Crewmate_Support,
+        CustomRoles.Beacon => RoleOptionType.Crewmate_Support,
+        CustomRoles.Benefactor => RoleOptionType.Crewmate_Support,
+        CustomRoles.Bodyguard => RoleOptionType.Crewmate_Support,
+        CustomRoles.Chef => RoleOptionType.Crewmate_Support,
+        CustomRoles.Cleanser => RoleOptionType.Crewmate_Support,
+        CustomRoles.Convener => RoleOptionType.Crewmate_Support,
+        CustomRoles.Crusader => RoleOptionType.Crewmate_Support,
+        CustomRoles.Deputy => RoleOptionType.Crewmate_Support,
+        CustomRoles.DonutDelivery => RoleOptionType.Crewmate_Support,
+        CustomRoles.Doormaster => RoleOptionType.Crewmate_Support,
+        CustomRoles.DovesOfNeace => RoleOptionType.Crewmate_Support,
+        CustomRoles.Electric => RoleOptionType.Crewmate_Support,
+        CustomRoles.Escort => RoleOptionType.Crewmate_Support,
+        CustomRoles.Gaulois => RoleOptionType.Crewmate_Support,
+        CustomRoles.Grappler => RoleOptionType.Crewmate_Support,
+        CustomRoles.Grenadier => RoleOptionType.Crewmate_Support,
+        CustomRoles.Jailor => RoleOptionType.Crewmate_Support,
+        CustomRoles.Mathematician => RoleOptionType.Crewmate_Support,
+        CustomRoles.SabotageMaster => RoleOptionType.Crewmate_Support,
+        CustomRoles.Medic => RoleOptionType.Crewmate_Support,
+        CustomRoles.Merchant => RoleOptionType.Crewmate_Support,
+        CustomRoles.Monarch => RoleOptionType.Crewmate_Support,
+        CustomRoles.NiceSwapper => RoleOptionType.Crewmate_Support,
+        CustomRoles.Negotiator => RoleOptionType.Crewmate_Support,
+        CustomRoles.Rhapsode => RoleOptionType.Crewmate_Support,
+        CustomRoles.SecurityGuard => RoleOptionType.Crewmate_Support,
+        CustomRoles.SpeedBooster => RoleOptionType.Crewmate_Support,
+        CustomRoles.TimeManager => RoleOptionType.Crewmate_Support,
+        CustomRoles.TimeMaster => RoleOptionType.Crewmate_Support,
+        CustomRoles.Transporter => RoleOptionType.Crewmate_Support,
+        CustomRoles.Ventguard => RoleOptionType.Crewmate_Support,
+        CustomRoles.Wizard => RoleOptionType.Crewmate_Support,
+        CustomRoles.Drainer => RoleOptionType.Crewmate_Killing,
+        CustomRoles.Judge => RoleOptionType.Crewmate_Killing,
+        CustomRoles.NiceGuesser => RoleOptionType.Crewmate_Killing,
+        CustomRoles.Sentinel => RoleOptionType.Crewmate_Killing,
+        CustomRoles.Sheriff => RoleOptionType.Crewmate_Killing,
+        CustomRoles.Veteran => RoleOptionType.Crewmate_Killing,
+        CustomRoles.SwordsMan => RoleOptionType.Crewmate_Killing,
+        CustomRoles.Adrenaline => RoleOptionType.Crewmate_Power,
+        CustomRoles.Adventurer => RoleOptionType.Crewmate_Power,
+        CustomRoles.Alchemist => RoleOptionType.Crewmate_Power,
+        CustomRoles.CopyCat => RoleOptionType.Crewmate_Power,
+        CustomRoles.Detour => RoleOptionType.Crewmate_Power,
+        CustomRoles.Dictator => RoleOptionType.Crewmate_Power,
+        CustomRoles.Guardian => RoleOptionType.Crewmate_Power,
+        CustomRoles.Marshall => RoleOptionType.Crewmate_Power,
+        CustomRoles.Mayor => RoleOptionType.Crewmate_Power,
+        CustomRoles.NiceEraser => RoleOptionType.Crewmate_Power,
+        CustomRoles.Oxyman => RoleOptionType.Crewmate_Power,
+        CustomRoles.President => RoleOptionType.Crewmate_Power,
+        CustomRoles.Speedrunner => RoleOptionType.Crewmate_Power,
+        CustomRoles.Telekinetic => RoleOptionType.Crewmate_Power,
+        CustomRoles.Car => RoleOptionType.Crewmate_Chaos,
+        CustomRoles.Dad => RoleOptionType.Crewmate_Chaos,
+        CustomRoles.Goose => RoleOptionType.Crewmate_Chaos,
+        CustomRoles.Randomizer => RoleOptionType.Crewmate_Chaos,
+        CustomRoles.ToiletMaster => RoleOptionType.Crewmate_Chaos,
+        CustomRoles.Tornado => RoleOptionType.Crewmate_Chaos,
+        _ => role.IsImpostor() ? RoleOptionType.Impostor_Miscellaneous : RoleOptionType.Neutral_Benign
+    };
+
+    #endregion
 }
 
 #pragma warning disable IDE0079
@@ -1142,10 +1413,18 @@ internal static class CustomRolesHelper
 #pragma warning restore IDE0079
 public enum RoleOptionType
 {
-    Impostor,
-    Crewmate_Normal,
-    Crewmate_ImpostorBased,
-    Neutral_NonKilling,
+    Impostor_Killing,
+    Impostor_Support,
+    Impostor_Concealing,
+    Impostor_Miscellaneous,
+    Crewmate_Miscellaneous,
+    Crewmate_Investigate,
+    Crewmate_Support,
+    Crewmate_Killing,
+    Crewmate_Power,
+    Crewmate_Chaos,
+    Neutral_Benign,
+    Neutral_Evil,
     Neutral_Killing
 }
 
@@ -1180,6 +1459,7 @@ public enum CountTypes
     None,
     Crew,
     Impostor,
+    CustomTeam,
     Bloodlust,
     Jackal,
     Doppelganger,
@@ -1192,6 +1472,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     NSerialKiller,
+    Beehive,
     RouleteGrandeur,
     Nonplus,
     Tremor,
@@ -1217,6 +1498,7 @@ public enum CountTypes
     Eclipse,
     Vengeance,
     HeadHunter,
+    Gaslighter,
     Imitator,
     Werewolf,
     Juggernaut,
@@ -1235,5 +1517,6 @@ public enum CountTypes
     PlagueBearer,
     Glitch,
     Arsonist,
-    Cherokious
+    Cherokious,
+    Sheriff
 }

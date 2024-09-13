@@ -16,7 +16,7 @@ namespace EHR.Crewmate
         public override bool IsEnable => On;
         public static float IncreasedVision => VisionIncrease.GetFloat() * 5f;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Beacon);
             VisionIncrease = new FloatOptionItem(Id + 2, "BeaconVisionIncrease", new(0.05f, 1.25f, 0.05f), 0.5f, TabGroup.CrewmateRoles)

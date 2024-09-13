@@ -6,7 +6,7 @@
 
         public void SetupCustomOption()
         {
-            Options.SetupAdtRoleOptions(16894, CustomRoles.AntiTP, canSetNum: true, teamSpawnOptions: true);
+            Options.SetupAdtRoleOptions(16893, CustomRoles.AntiTP, canSetNum: true, teamSpawnOptions: true);
         }
     }
 }

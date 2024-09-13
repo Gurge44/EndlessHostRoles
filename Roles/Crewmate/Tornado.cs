@@ -29,7 +29,7 @@ namespace EHR.Crewmate
 
         public override bool IsEnable => PlayerIdList.Count > 0 || Randomizer.Exists;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Tornado);
             TornadoCooldown = new IntegerOptionItem(Id + 2, "TornadoCooldown", new(1, 90, 1), 15, TabGroup.CrewmateRoles)
@@ -122,8 +122,8 @@ namespace EHR.Crewmate
             var info = pc.GetPositionInfo();
             var now = TimeStamp;
             Tornados.TryAdd(info, now);
-            SendRPCAddTornado(true, info.LOCATION, info.ROOM_NAME, now);
-            _ = new TornadoObject(info.LOCATION, [pc.PlayerId]);
+            SendRPCAddTornado(true, info.Location, info.RoomName, now);
+            _ = new TornadoObject(info.Location, [pc.PlayerId]);
         }
 
         public override void OnCheckPlayerPosition(PlayerControl pc)
@@ -171,10 +171,10 @@ namespace EHR.Crewmate
             }
         }
 
-        public override string GetSuffix(PlayerControl s, PlayerControl t, bool h = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (s.PlayerId != t.PlayerId || !IsEnable || (s.IsModClient() && !h)) return string.Empty;
-            return string.Join(h ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.ROOM_NAME)} {GetFormattedVectorText(x.Key.LOCATION)} ({(int)(TornadoDuration.GetInt() - (TimeStamp - x.Value) + 1)}s)"));
+            if (seer.PlayerId != target.PlayerId || !IsEnable || (seer.IsModClient() && !hud) || seer.PlayerId != TornadoPC.PlayerId) return string.Empty;
+            return string.Join(hud ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.ROOM_NAME)} {GetFormattedVectorText(x.Key.LOCATION)} ({(int)(TornadoDuration.GetInt() - (TimeStamp - x.Value) + 1)}s)"));
         }
     }
 }

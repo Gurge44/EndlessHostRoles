@@ -16,7 +16,7 @@ public class Pursuer : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Pursuer);
         PursuerSkillCooldown = new FloatOptionItem(Id + 10, "PursuerSkillCooldown", new(0.5f, 60f, 0.5f), 20f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pursuer])

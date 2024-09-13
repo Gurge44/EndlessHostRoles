@@ -11,7 +11,7 @@ namespace EHR.Crewmate
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(7700, TabGroup.CrewmateRoles, CustomRoles.DovesOfNeace);
             DovesOfNeaceCooldown = new FloatOptionItem(7710, "DovesOfNeaceCooldown", new(0f, 180f, 1f), 7f, TabGroup.CrewmateRoles)
@@ -69,7 +69,7 @@ namespace EHR.Crewmate
         {
             if (pc.GetAbilityUseLimit() < 1)
             {
-                if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
+                if (!NameNotifyManager.Notifies.ContainsKey(pc.PlayerId))
                     pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
                 return;
             }

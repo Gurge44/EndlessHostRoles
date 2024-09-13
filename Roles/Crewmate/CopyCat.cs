@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -22,7 +21,7 @@ public class CopyCat : RoleBase
 
     public override bool IsEnable => Instances.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.CopyCat);
         KillCooldown = new FloatOptionItem(Id + 10, "CopyCatCopyCooldown", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles)
@@ -49,7 +48,9 @@ public class CopyCat : RoleBase
         Instances.Add(this);
         CopyCatPC = Utils.GetPlayerById(playerId);
         CurrentKillCooldown = KillCooldown.GetFloat();
-        playerId.SetAbilityUseLimit(MiscopyLimitOpt.GetInt());
+        var limit = MiscopyLimitOpt.GetInt();
+        playerId.SetAbilityUseLimit(limit);
+        TempLimit = limit;
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CurrentKillCooldown;
@@ -82,8 +83,10 @@ public class CopyCat : RoleBase
 
         Main.PlayerStates[CopyCatPC.PlayerId].MainRole = CustomRoles.CopyCat;
         Main.PlayerStates[CopyCatPC.PlayerId].Role = this;
-        CopyCatPC.SetAbilityUseLimit(TempLimit);
         SetKillCooldown(CopyCatPC.PlayerId);
+        CopyCatPC.SetAbilityUseLimit(TempLimit);
+        CopyCatPC.RpcChangeRoleBasis(CustomRoles.CopyCat);
+        CopyCatPC.SyncSettings();
     }
 
     public static void ResetRoles()
@@ -91,51 +94,46 @@ public class CopyCat : RoleBase
         Instances.Do(x => x.ResetRole());
     }
 
-    private static bool BlackList(CustomRoles role) => role is
-        CustomRoles.CopyCat or
-        // can't copy due to vent cooldown
-        CustomRoles.Grenadier or
-        CustomRoles.Lighter or
-        CustomRoles.SecurityGuard or
-        CustomRoles.Ventguard or
-        CustomRoles.DovesOfNeace or
-        CustomRoles.Veteran or
-        CustomRoles.Addict or
-        CustomRoles.Chameleon;
-
     public override bool OnCheckMurder(PlayerControl pc, PlayerControl tpc)
     {
         CustomRoles role = tpc.GetCustomRole();
-
-        if (BlackList(role))
-        {
-            pc.Notify(GetString("CopyCatCanNotCopy"));
-            SetKillCooldown(pc.PlayerId);
-            return false;
-        }
 
         if (CopyCrewVar.GetBool())
         {
             role = role switch
             {
+                CustomRoles.Swooper or CustomRoles.Wraith => CustomRoles.Chameleon,
+                CustomRoles.Stealth or CustomRoles.Nonplus => CustomRoles.Grenadier,
+                CustomRoles.TimeThief => CustomRoles.TimeManager,
+                CustomRoles.EvilDiviner or CustomRoles.Ritualist => CustomRoles.Farseer,
+                CustomRoles.AntiAdminer => CustomRoles.Monitor,
+                CustomRoles.CursedWolf or CustomRoles.Jinx => CustomRoles.Veteran,
+                CustomRoles.EvilTracker => CustomRoles.TrackerEHR,
+                CustomRoles.SerialKiller => CustomRoles.Addict,
+                CustomRoles.Miner => CustomRoles.Mole,
+                CustomRoles.Escapee => CustomRoles.Tunneler,
+                CustomRoles.Twister => CustomRoles.TimeMaster,
+                CustomRoles.Disperser => CustomRoles.Transporter,
                 CustomRoles.Eraser => CustomRoles.Cleanser,
                 CustomRoles.Visionary => CustomRoles.Oracle,
                 CustomRoles.Workaholic => CustomRoles.Snitch,
                 CustomRoles.Sunnyboy => CustomRoles.Doctor,
                 CustomRoles.Vindicator or CustomRoles.Pickpocket => CustomRoles.Mayor,
                 CustomRoles.Councillor => CustomRoles.Judge,
-                CustomRoles.EvilGuesser or CustomRoles.Doomsayer or CustomRoles.Ritualist => CustomRoles.NiceGuesser,
+                CustomRoles.EvilGuesser or CustomRoles.Doomsayer => CustomRoles.NiceGuesser,
                 _ => role
             };
         }
 
-        if (tpc.IsCrewmate() && tpc.GetCustomSubRoles().All(x => x != CustomRoles.Rascal))
+        if (tpc.IsCrewmate() && !tpc.GetCustomSubRoles().Contains(CustomRoles.Rascal) && !tpc.IsConverted())
         {
             TempLimit = pc.GetAbilityUseLimit();
 
             pc.RpcSetCustomRole(role);
+            pc.RpcChangeRoleBasis(role);
             pc.SetAbilityUseLimit(tpc.GetAbilityUseLimit());
 
+            pc.SyncSettings();
             pc.SetKillCooldown();
             pc.Notify(string.Format(GetString("CopyCatRoleChange"), Utils.GetRoleName(role)));
             return false;

@@ -3,7 +3,12 @@
     internal class VanillaRole : RoleBase
     {
         public static bool On;
+
         public override bool IsEnable => On;
+
+        public override void SetupCustomOption()
+        {
+        }
 
         public override void Init()
         {

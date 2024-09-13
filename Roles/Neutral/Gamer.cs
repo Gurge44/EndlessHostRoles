@@ -25,9 +25,9 @@ public class Gamer : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Gamer);
+        SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Gamer);
         KillCooldown = new FloatOptionItem(Id + 10, "GamerKillCooldown", new(1f, 180f, 1f), 2f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
             .SetValueFormat(OptionFormat.Seconds);
         CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gamer]);
@@ -89,6 +89,12 @@ public class Gamer : RoleBase
 
         if (PlayerHealth[target.PlayerId] - Damage.GetInt() < 1)
         {
+            if (target.Is(CustomRoles.Pestilence))
+            {
+                target.Kill(killer);
+                return false;
+            }
+
             PlayerHealth.Remove(target.PlayerId);
             killer.Kill(target);
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
@@ -128,7 +134,7 @@ public class Gamer : RoleBase
 
     public static string TargetMark(PlayerControl seer, PlayerControl target)
     {
-        if (!seer.IsAlive()) return string.Empty;
+        if (!seer.IsAlive() || !playerIdList.Contains(seer.PlayerId)) return string.Empty;
         if (seer.PlayerId == target.PlayerId)
         {
             var GetValue = GamerHealth.TryGetValue(target.PlayerId, out var value);

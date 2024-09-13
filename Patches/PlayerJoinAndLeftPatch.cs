@@ -10,23 +10,22 @@ using EHR.Neutral;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
+using UnityEngine;
 using static EHR.Translator;
 
 namespace EHR;
 
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnGameJoined))]
-class OnGameJoinedPatch
+static class OnGameJoinedPatch
 {
     public static void Postfix(AmongUsClient __instance)
     {
         while (!Options.IsLoaded) Task.Delay(1);
         Logger.Info($"{__instance.GameId} joined lobby", "OnGameJoined");
+        if (AmongUsClient.Instance.AmHost) Main.HostClientId = __instance.ClientId;
         Main.PlayerVersion = [];
-        if (!Main.VersionCheat.Value) RPC.RpcVersionCheck();
+        RPC.RpcVersionCheck();
         SoundManager.Instance?.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
-
-        if (GameStates.IsModHost)
-            Main.HostClientId = Utils.GetPlayerById(0)?.GetClientId() ?? -1;
 
         ChatUpdatePatch.DoBlockChat = false;
         GameStates.InGame = false;
@@ -62,12 +61,14 @@ class OnGameJoinedPatch
 
             Main.SetRoles = [];
             Main.SetAddOns = [];
+            ChatCommands.DraftResult = [];
+            ChatCommands.DraftRoles = [];
         }
     }
 }
 
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.DisconnectInternal))]
-class DisconnectInternalPatch
+static class DisconnectInternalPatch
 {
     public static void Prefix( /*InnerNetClient __instance,*/ DisconnectReasons reason, string stringReason)
     {
@@ -81,8 +82,22 @@ class DisconnectInternalPatch
 }
 
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnPlayerJoined))]
-class OnPlayerJoinedPatch
+static class OnPlayerJoinedPatch
 {
+    static bool IsDisconnected(this ClientData client)
+    {
+        var __instance = AmongUsClient.Instance;
+        foreach (ClientData clientData in __instance.allClients)
+        {
+            if (clientData.Id == client.Id)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public static void Postfix( /*AmongUsClient __instance,*/ [HarmonyArgument(0)] ClientData client)
     {
         Logger.Info($"{client.PlayerName} (ClientID: {client.Id} / FriendCode: {client.FriendCode} / Hashed PUID: {client.GetHashedPuid()}) joined the lobby", "Session");
@@ -93,15 +108,15 @@ class OnPlayerJoinedPatch
             {
                 if (AmongUsClient.Instance.AmHost)
                 {
-                    if (!client.Character.Data.Disconnected && client.Character.Data.IsIncomplete)
+                    if (!client.IsDisconnected() && client.Character.Data.IsIncomplete)
                     {
                         Logger.SendInGame(GetString("Error.InvalidColor") + $" {client.Id}/{client.PlayerName}");
                         AmongUsClient.Instance.KickPlayer(client.Id, false);
-                        Logger.Info($"Kicked client {client.Id}/{client.PlayerName} because PlayerControl is not spawned in time.", "OnPlayerJoinedPatchPostfix");
+                        Logger.Info($"Kicked client {client.Id}/{client.PlayerName} since its PlayerControl was not spawned in time.", "OnPlayerJoinedPatchPostfix");
                         return;
                     }
 
-                    if (!Main.PlayerVersion.TryGetValue(client.Character.PlayerId, out _))
+                    if (!Main.PlayerVersion.ContainsKey(client.Character.PlayerId))
                     {
                         var retry = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.None, client.Id);
                         AmongUsClient.Instance.FinishRpcImmediately(retry);
@@ -139,23 +154,22 @@ class OnPlayerJoinedPatch
         if (DestroyableSingleton<FriendsListManager>.Instance.IsPlayerBlockedUsername(client.FriendCode) && AmongUsClient.Instance.AmHost)
         {
             AmongUsClient.Instance.KickPlayer(client.Id, true);
-            Logger.Info($"Ban Player ー {client.PlayerName}({client.FriendCode}) has been banned.", "BAN");
+            Logger.Info($"Blocked Player {client.PlayerName}({client.FriendCode}) has been banned.", "BAN");
         }
 
         BanManager.CheckBanPlayer(client);
-        BanManager.CheckDenyNamePlayer(client);
         RPC.RpcVersionCheck();
 
         if (AmongUsClient.Instance.AmHost)
         {
-            if (Main.SayStartTimes.ContainsKey(client.Id)) Main.SayStartTimes.Remove(client.Id);
-            if (Main.SayBanwordsTimes.ContainsKey(client.Id)) Main.SayBanwordsTimes.Remove(client.Id);
+            Main.SayStartTimes.Remove(client.Id);
+            Main.SayBanwordsTimes.Remove(client.Id);
         }
     }
 }
 
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnPlayerLeft))]
-class OnPlayerLeftPatch
+static class OnPlayerLeftPatch
 {
     public static void Postfix(AmongUsClient __instance, [HarmonyArgument(0)] ClientData data, [HarmonyArgument(1)] DisconnectReasons reason)
     {
@@ -167,12 +181,13 @@ class OnPlayerLeftPatch
 
                 if (data.Character.Is(CustomRoles.Lovers) && !data.Character.Data.IsDead)
                 {
-                    foreach (var lovers in Main.LoversPlayers.ToArray())
+                    foreach (var lovers in Main.LoversPlayers)
                     {
                         Main.IsLoversDead = true;
-                        Main.LoversPlayers.Remove(lovers);
                         Main.PlayerStates[lovers.PlayerId].RemoveSubRole(CustomRoles.Lovers);
                     }
+
+                    Main.LoversPlayers.RemoveAll(x => x.PlayerId == data.Character.PlayerId);
                 }
 
                 switch (data.Character.GetCustomRole())
@@ -197,66 +212,56 @@ class OnPlayerLeftPatch
                 if (state.deathReason == PlayerState.DeathReason.etc) state.deathReason = PlayerState.DeathReason.Disconnected;
                 if (!state.IsDead) state.SetDead();
 
-                NameNotifyManager.Notice.Remove(data.Character.PlayerId);
+                NameNotifyManager.Notifies.Remove(data.Character.PlayerId);
                 data.Character.RpcSetName(data.Character.GetRealName(isMeeting: true));
                 AntiBlackout.OnDisconnect(data.Character.Data);
                 PlayerGameOptionsSender.RemoveSender(data.Character);
             }
 
-            if (Main.HostClientId == __instance.ClientId)
-            {
-                const int clientId = -1;
-                var player = PlayerControl.LocalPlayer;
-                var title = "<color=#aaaaff>" + GetString("DefaultSystemMessageTitle") + "</color>";
-                var name = player?.Data?.PlayerName;
-                var msg = string.Empty;
-                if (GameStates.IsInGame)
-                {
-                    Utils.ErrorEnd("Host Left the Game");
-                    msg = GetString("Message.HostLeftGameInGame");
-                }
-                else if (GameStates.IsLobby)
-                    msg = GetString("Message.HostLeftGameInLobby");
-
-                player?.SetName(title);
-                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
-                player?.SetName(name);
-
-                if (player != null && player.Data != null)
-                {
-                    var writer = CustomRpcSender.Create("MessagesToSend");
-                    writer.StartMessage(clientId);
-                    writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
-                        .Write(player.Data.NetId)
-                        .Write(title)
-                        .EndRpc();
-                    writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
-                        .Write(msg)
-                        .EndRpc();
-                    writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
-                        .Write(player.Data.NetId)
-                        .Write(player.Data.PlayerName)
-                        .EndRpc();
-                    writer.EndMessage();
-                    writer.SendMessage();
-                }
-            }
+            // if (Main.HostClientId == __instance.ClientId)
+            // {
+            //     const int clientId = -1;
+            //     var player = PlayerControl.LocalPlayer;
+            //     var title = "<color=#aaaaff>" + GetString("DefaultSystemMessageTitle") + "</color>";
+            //     var name = player?.Data?.PlayerName;
+            //     var msg = string.Empty;
+            //     if (GameStates.IsInGame)
+            //     {
+            //         Utils.ErrorEnd("Host Left the Game");
+            //         msg = GetString("Message.HostLeftGameInGame");
+            //     }
+            //     else if (GameStates.IsLobby)
+            //         msg = GetString("Message.HostLeftGameInLobby");
+            //
+            //     player?.SetName(title);
+            //     DestroyableSingleton<HudManager>.Instance.Chat.AddChat(player, msg);
+            //     player?.SetName(name);
+            //
+            //     if (player != null && player.Data != null)
+            //     {
+            //         var writer = CustomRpcSender.Create("MessagesToSend");
+            //         writer.StartMessage(clientId);
+            //         writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+            //             .Write(player.Data.NetId)
+            //             .Write(title)
+            //             .EndRpc();
+            //         writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
+            //             .Write(msg)
+            //             .EndRpc();
+            //         writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
+            //             .Write(player.Data.NetId)
+            //             .Write(player.Data.PlayerName)
+            //             .EndRpc();
+            //         writer.EndMessage();
+            //         writer.SendMessage();
+            //     }
+            // }
 
             // Additional description of the reason for disconnection
             switch (reason)
             {
                 case DisconnectReasons.Hacking:
                     Logger.SendInGame(string.Format(GetString("PlayerLeftByAU-Anticheat"), data?.PlayerName));
-                    break;
-                case DisconnectReasons.Error:
-                    Logger.SendInGame(string.Format(GetString("PlayerLeftByError"), data?.PlayerName));
-                    LateTask.New(() =>
-                    {
-                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Error);
-                        GameManager.Instance.enabled = false;
-                        GameManager.Instance?.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
-                    }, 3f, "Disconnect Error Auto-end");
-
                     break;
             }
 
@@ -267,7 +272,7 @@ class OnPlayerLeftPatch
                 Main.SayStartTimes.Remove(__instance.ClientId);
                 Main.SayBanwordsTimes.Remove(__instance.ClientId);
                 Main.PlayerVersion.Remove(data?.Character?.PlayerId ?? byte.MaxValue);
-                Main.MessagesToSend.RemoveAll(x => x.RECEIVER_ID == data?.Character.PlayerId);
+                Logger.Info($"{Main.MessagesToSend.RemoveAll(x => x.ReceiverID != byte.MaxValue && x.ReceiverID == data?.Character.PlayerId)} sending messages were canceled", "OnPlayerLeftPatchPostfix");
 
                 if (data != null && data.Character != null)
                 {
@@ -286,8 +291,6 @@ class OnPlayerLeftPatch
             }
 
             Utils.CountAlivePlayers(true);
-
-            if (data != null && data.Character != null) data.Character.Data.Disconnected = true;
         }
         catch (NullReferenceException)
         {
@@ -299,37 +302,73 @@ class OnPlayerLeftPatch
         finally
         {
             Utils.NotifyRoles(NoCache: true);
+            ChatUpdatePatch.DoBlockChat = false;
         }
     }
 }
 
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.Spawn))]
-class InnerNetClientSpawnPatch
+static class InnerNetClientSpawnPatch
 {
     public static void Postfix([HarmonyArgument(1)] int ownerId, [HarmonyArgument(2)] SpawnFlags flags)
     {
         if (!AmongUsClient.Instance.AmHost || flags != SpawnFlags.IsClientCharacter) return;
 
         var client = Utils.GetClientById(ownerId);
-        if (client == null) return;
 
-        Logger.Msg($"Spawn player data: ID {client.Character.PlayerId}: {client.PlayerName}", "CreatePlayer");
+        Logger.Msg($"Spawn player data: ID {client?.Character?.PlayerId}: {client?.PlayerName}", "CreatePlayer");
 
-        LateTask.New(() =>
+        if (client == null || client.Character == null // client is null
+                           || client.ColorId < 0 || Palette.PlayerColors.Length <= client.ColorId) // invalid client color
         {
-            if (client.Character == null || !GameStates.IsLobby) return;
-            OptionItem.SyncAllOptions(client.Id);
-        }, 3f, "Sync All Options For New Player");
-
-        Main.GuessNumber[client.Character.PlayerId] = [-1, 7];
-
-        LateTask.New(() =>
+            Logger.Warn("client is null or client have invalid color", "TrySyncAndSendMessage");
+        }
+        else
         {
-            if (client.Character == null) return;
-            if (Main.OverrideWelcomeMsg != string.Empty) Utils.SendMessage(Main.OverrideWelcomeMsg, client.Character.PlayerId);
-            else TemplateManager.SendTemplate("welcome", client.Character.PlayerId, true);
-        }, 3f, "Welcome Message");
-        if (Main.OverrideWelcomeMsg == string.Empty && Main.PlayerStates.Count > 0 && Main.ClientIdList.Contains(client.Id))
+            LateTask.New(() => { OptionItem.SyncAllOptions(client.Id); }, 3f, "Sync All Options For New Player");
+
+            LateTask.New(() =>
+            {
+                if (Main.OverrideWelcomeMsg != "") Utils.SendMessage(Main.OverrideWelcomeMsg, client.Character.PlayerId);
+                else TemplateManager.SendTemplate("welcome", client.Character.PlayerId, true);
+            }, 3f, "Welcome Message");
+
+            LateTask.New(() =>
+            {
+                if (client.Character == null) return;
+                var sender = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, client.Character.OwnerId);
+                AmongUsClient.Instance.FinishRpcImmediately(sender);
+            }, 3f, "RPC Request Retry Version Check");
+
+            if (GameStates.IsOnlineGame)
+            {
+                LateTask.New(() =>
+                {
+                    if (GameStates.IsLobby && client.Character != null && LobbyBehaviour.Instance != null && GameStates.IsVanillaServer)
+                    {
+                        // Only for vanilla
+                        if (!client.Character.IsHost() && !client.Character.IsModClient())
+                        {
+                            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(LobbyBehaviour.Instance.NetId, (byte)RpcCalls.LobbyTimeExpiring, SendOption.None, client.Id);
+                            writer.WritePacked((int)GameStartManagerPatch.Timer);
+                            writer.Write(false);
+                            AmongUsClient.Instance.FinishRpcImmediately(writer);
+                        }
+                        // Non-host modded client
+                        else if (!client.Character.IsHost() && client.Character.IsModClient())
+                        {
+                            MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncLobbyTimer, SendOption.Reliable, client.Id);
+                            writer.WritePacked((int)GameStartManagerPatch.Timer);
+                            AmongUsClient.Instance.FinishRpcImmediately(writer);
+                        }
+                    }
+                }, 3f, "Sync Lobby Timer RPC");
+            }
+        }
+
+        if (client != null && client.Character != null) Main.GuessNumber[client.Character.PlayerId] = [-1, 7];
+
+        if (Main.OverrideWelcomeMsg == string.Empty && Main.PlayerStates.Count > 0 && client != null && Main.ClientIdList.Contains(client.Id))
         {
             if (Options.AutoDisplayKillLog.GetBool())
             {
@@ -379,27 +418,29 @@ class InnerNetClientSpawnPatch
                 }, 1.3f, "DisplayLastResult");
             }
 
-            if (PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp && Options.EnableUpMode.GetBool())
-            {
-                LateTask.New(() =>
-                {
-                    if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
-                    {
-                        Main.IsChatCommand = true;
-                        //     Utils.SendMessage($"{GetString("Message.YTPlanNotice")} {PlayerControl.LocalPlayer.FriendCode.GetDevUser().UpName}", client.Character.PlayerId);
-                    }
-                }, 1.4f, "DisplayUpWarnning");
-            }
+            // if (PlayerControl.LocalPlayer.FriendCode.GetDevUser().IsUp && Options.EnableUpMode.GetBool())
+            // {
+            //     LateTask.New(() =>
+            //     {
+            //         if (!AmongUsClient.Instance.IsGameStarted && client.Character != null)
+            //         {
+            //             Main.IsChatCommand = true;
+            //             Utils.SendMessage($"{GetString("Message.YTPlanNotice")} {PlayerControl.LocalPlayer.FriendCode.GetDevUser().UpName}", client.Character.PlayerId);
+            //         }
+            //     }, 1.4f, "DisplayUpWarnning");
+            // }
         }
     }
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckName))]
-class PlayerControlCheckNamePatch
+static class PlayerControlCheckNamePatch
 {
     public static void Postfix(PlayerControl __instance, ref string playerName)
     {
         if (!AmongUsClient.Instance.AmHost || !GameStates.IsLobby) return;
+
+        if (BanManager.CheckDenyNamePlayer(__instance, playerName)) return;
 
         if (Main.AllClientRealNames.TryAdd(__instance.OwnerId, playerName))
             RPC.SyncAllClientRealNames();
@@ -420,11 +461,38 @@ class PlayerControlCheckNamePatch
 
         Main.AllPlayerNames[__instance.PlayerId] = name;
         Logger.Info($"PlayerId: {__instance.PlayerId} - playerName: {playerName} - name: {name}", "Name player");
+        RPC.SyncAllPlayerNames();
 
         if (__instance != null && !name.Equals(playerName))
         {
             Logger.Warn($"Standard nickname: {playerName} => {name}", "Name Format");
             playerName = name;
         }
+
+        LateTask.New(() =>
+        {
+            if (__instance != null && !__instance.Data.Disconnected && !__instance.IsModClient())
+            {
+                var sender = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, __instance.OwnerId);
+                AmongUsClient.Instance.FinishRpcImmediately(sender);
+            }
+        }, 0.6f, "Retry Version Check", false);
+    }
+}
+
+[HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.FixedUpdate))]
+static class InnerNetClientFixedUpdatePatch
+{
+    private static float Timer;
+
+    public static void Postfix()
+    {
+        if (GameStates.IsLocalGame || !Options.KickNotJoinedPlayersRegularly.GetBool() || Main.AllPlayerControls.Length < 7) return;
+
+        Timer += Time.fixedDeltaTime;
+        if (Timer < 25f) return;
+        Timer = 0f;
+
+        AmongUsClient.Instance.KickNotJoinedPlayers();
     }
 }

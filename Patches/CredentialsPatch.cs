@@ -11,7 +11,7 @@ using static EHR.Translator;
 namespace EHR;
 
 [HarmonyPatch(typeof(PingTracker), nameof(PingTracker.Update))]
-internal class PingTrackerUpdatePatch
+internal static class PingTrackerUpdatePatch
 {
     public static PingTracker Instance;
     private static readonly StringBuilder Sb = new();
@@ -31,6 +31,8 @@ internal class PingTrackerUpdatePatch
 
         Sb.Clear();
 
+        if (GameStates.IsLobby) Sb.Append("\r\n");
+
         Sb.Append(Main.CredentialsText);
 
         var ping = AmongUsClient.Instance.Ping;
@@ -44,6 +46,8 @@ internal class PingTrackerUpdatePatch
         };
         Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
         Sb.Append($"<color={color}>{GetString("PingText")}: {ping} ms</color>");
+        Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
+        Sb.Append(string.Format(GetString("Server"), Utils.GetRegionName()));
         if (GameStates.InGame) Sb.Append("\r\n.");
 
         // if (Options.NoGameEnd.GetBool()) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.red, GetString("NoGameEnd"))).Append("</size>");
@@ -55,12 +59,17 @@ internal class PingTrackerUpdatePatch
 }
 
 [HarmonyPatch(typeof(VersionShower), nameof(VersionShower.Start))]
-internal class VersionShowerStartPatch
+internal static class VersionShowerStartPatch
 {
     private static void Postfix(VersionShower __instance)
     {
-        Main.CredentialsText = $"<size=1.5><color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
-        const string menuText = $"<color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}\r\n<color=#a54aff>By</color> <color=#ffff00>Gurge44</color>";
+#pragma warning disable CS0162 // Unreachable code detected
+        // ReSharper disable once HeuristicUnreachableCode
+        var testBuildIndicator = Main.TestBuild ? " <#ff0000>TEST</color>" : string.Empty;
+#pragma warning restore CS0162 // Unreachable code detected
+
+        Main.CredentialsText = $"<size=1.5><color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}{testBuildIndicator} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
+        var menuText = $"<color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}{testBuildIndicator}\r\n<color=#a54aff>By</color> <color=#ffff00>Gurge44</color>";
 
         if (Main.IsAprilFools) Main.CredentialsText = "<color=#00bfff>Endless Madness</color> v11.45.14 <color=#a54aff>by</color> <color=#ffff00>No one</color>";
 
@@ -102,22 +111,6 @@ internal class TitleLogoPatch
 
         if (!(ModStamp = GameObject.Find("ModStamp"))) return;
         ModStamp.transform.localScale = new(0.3f, 0.3f, 0.3f);
-
-        // if (!Options.IsLoaded)
-        // {
-        //     LoadingHint = new("LoadingHint")
-        //     {
-        //         transform =
-        //         {
-        //             position = Vector3.down
-        //         }
-        //     };
-        //     var loadingHintText = LoadingHint.AddComponent<TextMeshPro>();
-        //     loadingHintText.text = GetString("Loading");
-        //     loadingHintText.alignment = TextAlignmentOptions.Center;
-        //     loadingHintText.fontSize = 5f;
-        //     __instance.playButton.transform.gameObject.SetActive(false);
-        // }
 
         Ambience = GameObject.Find("Ambience");
         if (Ambience != null)
@@ -194,6 +187,7 @@ internal class TitleLogoPatch
 
         if (!(BottomButtonBounds = GameObject.Find("BottomButtonBounds"))) return;
         BottomButtonBounds.transform.localPosition -= new Vector3(0f, 0.1f, 0f);
+
         return;
 
         static void ResetParent(GameObject obj) => obj.transform.SetParent(LeftPanel.transform.parent);
@@ -278,5 +272,11 @@ class OptionsMenuBehaviourOpenPatch
         }
 
         return false;
+    }
+
+    public static void Postfix()
+    {
+        if (GameStates.InGame && GameStates.IsMeeting)
+            GuessManager.DestroyIDLabels();
     }
 }

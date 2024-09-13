@@ -20,7 +20,7 @@ namespace EHR.Impostor
         private long LastUpdate;
         public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Chronomancer);
             KCD = new FloatOptionItem(Id + 11, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
@@ -131,10 +131,10 @@ namespace EHR.Impostor
             }
         }
 
-        public override string GetSuffix(PlayerControl pc, PlayerControl _, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!hud || Main.PlayerStates[pc.PlayerId].Role is not Chronomancer cm) return string.Empty;
-            return cm.ChargePercent > 0 ? string.Format(Translator.GetString("ChronomancerPercent"), cm.ChargePercent) : string.Empty;
+            if (!hud || seer.PlayerId != ChronomancerId) return string.Empty;
+            return ChargePercent > 0 ? string.Format(Translator.GetString("ChronomancerPercent"), ChargePercent) : string.Empty;
         }
 
         public override void OnReportDeadBody()

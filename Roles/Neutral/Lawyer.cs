@@ -22,19 +22,6 @@ public class Lawyer : RoleBase
 
     public static Dictionary<byte, byte> Target = [];
 
-    public static readonly string[] ChangeRoles =
-    [
-        "Role.Crewmate",
-        "Role.Jester",
-        "Role.Opportunist",
-        "Role.Convict",
-        "Role.Celebrity",
-        "Role.Bodyguard",
-        "Role.Dictator",
-        "Role.Mayor",
-        "Role.Doctor"
-    ];
-
     public static readonly CustomRoles[] CRoleChangeRoles =
     [
         CustomRoles.CrewmateEHR,
@@ -45,12 +32,15 @@ public class Lawyer : RoleBase
         CustomRoles.Bodyguard,
         CustomRoles.Dictator,
         CustomRoles.Mayor,
-        CustomRoles.Doctor
+        CustomRoles.Doctor,
+        CustomRoles.Amnesiac
     ];
+
+    private byte LawyerId;
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Lawyer);
         CanTargetImpostor = new BooleanOptionItem(Id + 10, "LawyerCanTargetImpostor", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
@@ -59,7 +49,7 @@ public class Lawyer : RoleBase
         CanTargetJester = new BooleanOptionItem(Id + 13, "LawyerCanTargetJester", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
         KnowTargetRole = new BooleanOptionItem(Id + 14, "KnowTargetRole", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
         TargetKnowsLawyer = new BooleanOptionItem(Id + 15, "TargetKnowsLawyer", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
-        ChangeRolesAfterTargetKilled = new StringOptionItem(Id + 16, "LawyerChangeRolesAfterTargetKilled", ChangeRoles, 2, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
+        ChangeRolesAfterTargetKilled = new StringOptionItem(Id + 16, "LawyerChangeRolesAfterTargetKilled", CRoleChangeRoles.Select(x => x.ToColoredString()).ToArray(), 2, TabGroup.NeutralRoles, noTranslation: true).SetParent(CustomRoleSpawnChances[CustomRoles.Lawyer]);
     }
 
     public override void Init()
@@ -71,6 +61,7 @@ public class Lawyer : RoleBase
     public override void Add(byte playerId)
     {
         playerIdList.Add(playerId);
+        LawyerId = playerId;
 
         try
         {
@@ -139,15 +130,18 @@ public class Lawyer : RoleBase
                 Lawyer = x.Key;
         });
         PlayerControl lawyer = Utils.GetPlayerById(Lawyer);
-        lawyer.RpcSetCustomRole(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]);
+        var newRole = CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()];
+        lawyer.RpcSetCustomRole(newRole);
         Target.Remove(Lawyer);
         SendRPC(Lawyer);
+        NotifyChangeRole(lawyer, newRole);
         Utils.NotifyRoles(SpecifySeer: lawyer, SpecifyTarget: target);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: lawyer);
     }
 
     public override bool KnowRole(PlayerControl player, PlayerControl target)
     {
+        if (base.KnowRole(player, target)) return true;
         if (!KnowTargetRole.GetBool()) return false;
         return player.Is(CustomRoles.Lawyer) && Target.TryGetValue(player.PlayerId, out var tar) && tar == target.PlayerId;
     }
@@ -166,16 +160,28 @@ public class Lawyer : RoleBase
 
     public static void ChangeRole(PlayerControl lawyer)
     {
-        lawyer.RpcSetCustomRole(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]);
+        var newRole = CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()];
+        lawyer.RpcSetCustomRole(newRole);
         Target.Remove(lawyer.PlayerId);
         SendRPC(lawyer.PlayerId);
-        var text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), Translator.GetString(""));
-        text = string.Format(text, Utils.ColorString(Utils.GetRoleColor(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()]), Translator.GetString(CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()].ToString())));
+        NotifyChangeRole(lawyer, newRole);
+    }
+
+    private static void NotifyChangeRole(PlayerControl lawyer, CustomRoles newRole)
+    {
+        var text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), Translator.GetString("LawyerChangeRole"));
+        text = string.Format(text, newRole.ToColoredString());
         lawyer.Notify(text);
     }
 
     public static bool CheckExileTarget(NetworkedPlayerInfo exiled /*, bool DecidedWinner, bool Check = false*/)
     {
         return Target.Where(x => x.Value == exiled.PlayerId).Select(kvp => Utils.GetPlayerById(kvp.Key)).Any(lawyer => lawyer != null && !lawyer.Data.Disconnected);
+    }
+
+    public override void OnReportDeadBody()
+    {
+        if (MeetingStates.FirstMeeting && TargetKnowsLawyer.GetBool())
+            LateTask.New(() => Utils.SendMessage("\n", Target[LawyerId], string.Format(Translator.GetString("YourLawyerIsNotify"), LawyerId.ColoredPlayerName())), 10f, log: false);
     }
 }

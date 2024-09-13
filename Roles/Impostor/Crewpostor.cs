@@ -15,7 +15,7 @@ namespace EHR.Impostor
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(4800, TabGroup.ImpostorRoles, CustomRoles.Crewpostor);
             CrewpostorCanKillAllies = new BooleanOptionItem(4810, "CanKillAllies", true, TabGroup.ImpostorRoles)

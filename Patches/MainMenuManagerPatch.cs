@@ -49,6 +49,7 @@ public static class MainMenuManagerPatch
     {
         LateTask.New(() => { IsOnline = true; }, 0.1f, "Set Online Status");
     }
+
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start)), HarmonyPrefix]
     public static void Start_Prefix(MainMenuManager __instance)
     {
@@ -62,18 +63,18 @@ public static class MainMenuManagerPatch
                 new(4.2f, -1.3f, 1f),
                 new(255, 165, 0, byte.MaxValue),
                 new(255, 200, 0, byte.MaxValue),
-                () => ModUpdater.StartUpdate(ModUpdater.downloadUrl, true),
+                () => ModUpdater.StartUpdate(ModUpdater.DownloadUrl, true),
                 Translator.GetString("updateButton"));
             UpdateButton.transform.localScale = Vector3.one;
         }
 
-        UpdateButton.gameObject.SetActive(ModUpdater.hasUpdate);
+        UpdateButton.gameObject.SetActive(ModUpdater.HasUpdate);
 
-        Application.targetFrameRate = Main.UnlockFps.Value ? 9999 : 60;
+        Application.targetFrameRate = Main.UnlockFps.Value ? 120 : 60;
     }
 
     [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.LateUpdate)), HarmonyPostfix]
-    public static void MainMenuManager_LateUpdate()
+    public static void MainMenuManager_LateUpdate(MainMenuManager __instance)
     {
         if (GameObject.Find("MainUI") == null) ShowingPanel = false;
 
@@ -91,7 +92,7 @@ public static class MainMenuManagerPatch
         var bak = GameObject.Find("BackgroundTexture");
         if (bak == null || !bak.active) return;
         var pos2 = bak.transform.position;
-        Vector3 lerp2 = Vector3.Lerp(pos2, new Vector3(pos2.x, 7.1f, pos2.z), Time.deltaTime * 1.4f);
+        Vector3 lerp2 = Vector3.Lerp(pos2, new(pos2.x, 7.1f, pos2.z), Time.deltaTime * 1.4f);
         bak.transform.position = lerp2;
         if (pos2.y > 7f) ShowedBak = true;
     }
@@ -114,9 +115,9 @@ public static class MainMenuManagerPatch
         {
             GitHubButton = CreateButton(
                 "GitHubButton",
-                new Vector3(-2.3f, -1.3f, 1f),
-                new Color32(153, 153, 153, byte.MaxValue),
-                new Color32(209, 209, 209, byte.MaxValue),
+                new(-2.3f, -1.3f, 1f),
+                new(153, 153, 153, byte.MaxValue),
+                new(209, 209, 209, byte.MaxValue),
                 () => Application.OpenURL("https://github.com/Gurge44/EndlessHostRoles"),
                 Translator.GetString("GitHub")); //"GitHub"
         }
@@ -128,9 +129,9 @@ public static class MainMenuManagerPatch
         {
             DiscordButton = CreateButton(
                 "DiscordButton",
-                new Vector3(-0.5f, -1.3f, 1f),
-                new Color32(88, 101, 242, byte.MaxValue),
-                new Color32(148, 161, byte.MaxValue, byte.MaxValue),
+                new(-0.5f, -1.3f, 1f),
+                new(88, 101, 242, byte.MaxValue),
+                new(148, 161, byte.MaxValue, byte.MaxValue),
                 () => Application.OpenURL("https://discord.com/invite/m3ayxfumC8"),
                 Translator.GetString("Discord")); //"Discord"
         }
@@ -142,16 +143,23 @@ public static class MainMenuManagerPatch
         {
             WebsiteButton = CreateButton(
                 "WebsiteButton",
-                new Vector3(1.3f, -1.3f, 1f),
-                new Color32(251, 81, 44, byte.MaxValue),
-                new Color32(211, 77, 48, byte.MaxValue),
+                new(1.3f, -1.3f, 1f),
+                new(251, 81, 44, byte.MaxValue),
+                new(211, 77, 48, byte.MaxValue),
                 () => Application.OpenURL("https://sites.google.com/view/ehr-au"),
                 Translator.GetString("Website")); //"Website"
         }
 
         WebsiteButton.gameObject.SetActive(true);
 
-        Application.targetFrameRate = Main.UnlockFps.Value ? 9999 : 60;
+        Application.targetFrameRate = Main.UnlockFps.Value ? 120 : 60;
+
+        foreach (var buttonName in new[] { "SettingsButton", "Inventory Button", "CreditsButton", "ExitGameButton" })
+        {
+            var buttonText = GameObject.Find(buttonName).transform.Find("FontPlacer/Text_TMP").GetComponent<TMP_Text>();
+            buttonText.DestroyTranslator();
+            buttonText.text = Translator.GetString($"MainMenu.{buttonName.Replace(" ", "")}");
+        }
     }
 
     private static PassiveButton CreateButton(string name, Vector3 localPosition, Color32 normalColor, Color32 hoverColor, Action action, string label, Vector2? scale = null)

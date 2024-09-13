@@ -6,26 +6,26 @@ using InnerNet;
 
 namespace EHR.Neutral;
 
-// 来源：https://github.com/Yumenopai/TownOfHost_Y
+// Credit: https://github.com/Yumenopai/TownOfHost_Y
 public class DarkHide : RoleBase
 {
-    public static readonly int Id = 12900;
-    public static List<byte> playerIdList = [];
+    private const int Id = 12900;
+    private static List<byte> playerIdList = [];
 
-    public static OptionItem KillCooldown;
-    public static OptionItem HasImpostorVision;
-    public static OptionItem CanCountNeutralKiller;
-    public static OptionItem CanVent;
+    private static OptionItem KillCooldown;
+    private static OptionItem HasImpostorVision;
+    private static OptionItem CanCountNeutralKiller;
+    private static OptionItem CanVent;
     public static OptionItem SnatchesWin;
 
-    public float CurrentKillCooldown = Options.DefaultKillCooldown;
+    private float CurrentKillCooldown = Options.DefaultKillCooldown;
     public bool IsWinKill;
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
-        Options.SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.DarkHide);
+        Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.DarkHide);
         KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.DarkHide])
             .SetValueFormat(OptionFormat.Seconds);
         CanVent = new BooleanOptionItem(Id + 14, "CanVent", true, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.DarkHide]);

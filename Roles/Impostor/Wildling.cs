@@ -14,11 +14,12 @@ public class Wildling : RoleBase
     private const int Id = 4700;
     public static List<byte> playerIdList = [];
 
-    public static OptionItem ProtectDurationOpt;
-    public static OptionItem CanVentOpt;
+    private static OptionItem ProtectDurationOpt;
+    private static OptionItem CanVentOpt;
     public static OptionItem CanShapeshiftOpt;
-    public static OptionItem ShapeshiftCDOpt;
-    public static OptionItem ShapeshiftDurOpt;
+    private static OptionItem ShapeshiftCDOpt;
+    private static OptionItem ShapeshiftDurOpt;
+    
     private bool CanShapeshift;
     private bool CanVent;
     private bool HasImpostorVision;
@@ -36,9 +37,9 @@ public class Wildling : RoleBase
 
     bool InProtect => TimeStamp > Utils.TimeStamp;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
-        SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Wildling);
+        SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Wildling);
         ProtectDurationOpt = new FloatOptionItem(Id + 14, "BKProtectDuration", new(1f, 30f, 1f), 15f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling])
             .SetValueFormat(OptionFormat.Seconds);
         CanVentOpt = new BooleanOptionItem(Id + 15, "CanVent", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling]);
@@ -81,9 +82,6 @@ public class Wildling : RoleBase
                 ShapeshiftDur = 0;
                 HasImpostorVision = BloodKnight.HasImpostorVision.GetBool();
                 KillCooldown = BloodKnight.KillCooldown.GetFloat();
-
-                if (!AmongUsClient.Instance.AmHost) return;
-                Main.ResetCamPlayerList.Add(playerId);
                 break;
         }
     }
@@ -150,10 +148,10 @@ public class Wildling : RoleBase
         }
     }
 
-    public override string GetSuffix(PlayerControl pc, PlayerControl _, bool hud = false, bool m = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (!hud || pc == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
-        if (Main.PlayerStates[pc.PlayerId].Role is not Wildling wl) return string.Empty;
+        if (!hud || seer == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
+        if (Main.PlayerStates[seer.PlayerId].Role is not Wildling wl) return string.Empty;
 
         var str = new StringBuilder();
         if (wl.InProtect)

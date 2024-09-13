@@ -21,11 +21,12 @@ namespace EHR.Crewmate
         public static OptionItem BloodhoundAbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
 
+        private byte BloodhoundId;
         private List<byte> BloodhoundTargets = [];
 
         public override bool IsEnable => PlayerIdList.Count > 0;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Bloodhound);
             ArrowsPointingToDeadBody = new BooleanOptionItem(Id + 10, "BloodhoundArrowsPointingToDeadBody", false, TabGroup.CrewmateRoles)
@@ -57,6 +58,7 @@ namespace EHR.Crewmate
             PlayerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             BloodhoundTargets = [];
+            BloodhoundId = playerId;
         }
 
         public override void OnReportDeadBody()
@@ -68,6 +70,12 @@ namespace EHR.Crewmate
             }
 
             BloodhoundTargets.Clear();
+        }
+
+        public override void AfterMeetingTasks()
+        {
+            TargetArrow.RemoveAllTarget(BloodhoundId);
+            LocateArrow.RemoveAllTarget(BloodhoundId);
         }
 
         public static void OnPlayerDead(PlayerControl target)
@@ -124,10 +132,10 @@ namespace EHR.Crewmate
             return false;
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
-            if (GameStates.IsMeeting) return string.Empty;
+            if (GameStates.IsMeeting || seer.PlayerId != BloodhoundId || hud) return string.Empty;
             if (Main.PlayerStates[seer.PlayerId].Role is not Bloodhound bh) return string.Empty;
 
             return bh.BloodhoundTargets.Count > 0 ? bh.BloodhoundTargets.Select(targetId => TargetArrow.GetArrows(seer, targetId)).Aggregate(string.Empty, (current, arrow) => current + Utils.ColorString(seer.GetRoleColor(), arrow)) : Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));

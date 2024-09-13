@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 
 namespace EHR.Impostor
 {
@@ -13,7 +14,7 @@ namespace EHR.Impostor
         private static int Id => 643340;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Swiftclaw);
             DashCD = new FloatOptionItem(Id + 2, "SwiftclawDashCD", new(0f, 180f, 2.5f), 15f, TabGroup.ImpostorRoles)
@@ -38,7 +39,33 @@ namespace EHR.Impostor
             On = true;
         }
 
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            if (Options.UsePhantomBasis.GetBool())
+                AURoleOptions.PhantomCooldown = DashCD.GetFloat() + DashDuration.GetFloat();
+            if (Options.UseUnshiftTrigger.GetBool())
+                AURoleOptions.ShapeshifterCooldown = DashCD.GetFloat() + DashDuration.GetFloat();
+        }
+
         public override void OnPet(PlayerControl pc)
+        {
+            Dash(pc);
+        }
+
+        public override bool OnVanish(PlayerControl pc)
+        {
+            Dash(pc);
+            return false;
+        }
+
+        public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
+        {
+            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
+            Dash(shapeshifter);
+            return false;
+        }
+
+        private static void Dash(PlayerControl pc)
         {
             if (pc == null || DashStart.ContainsKey(pc.PlayerId)) return;
 
@@ -68,7 +95,8 @@ namespace EHR.Impostor
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            hud.PetButton?.OverrideText(Translator.GetString("SwiftclawKillButtonText"));
+            ActionButton button = Options.UseUnshiftTrigger.GetBool() ? hud.AbilityButton : hud.PetButton;
+            button?.OverrideText(Translator.GetString("SwiftclawKillButtonText"));
         }
     }
 }

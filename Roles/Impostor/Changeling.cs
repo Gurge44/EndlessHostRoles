@@ -27,11 +27,12 @@ namespace EHR.Impostor
 
         private static List<CustomRoles> Roles = [];
         public static bool On;
+        byte ChangelingId;
 
         public CustomRoles CurrentRole;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Changeling);
             CanPickPartnerRole = new BooleanOptionItem(Id + 10, "CanPickPartnerRole", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Changeling]);
@@ -48,11 +49,11 @@ namespace EHR.Impostor
                 IEnumerable<CustomRoles> result = AvailableRoles.GetValue() switch
                 {
                     0 => allRoles,
-                    1 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Impostor or CustomRoles.ImpostorEHR),
-                    2 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR),
+                    1 => allRoles.Where(x => x.GetVNRole(checkDesyncRole: true) is CustomRoles.Impostor or CustomRoles.ImpostorEHR),
+                    2 => allRoles.Where(x => x.GetVNRole(checkDesyncRole: true) is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR),
                     3 => allRoles.Where(x => x.GetMode() != 0),
-                    4 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Impostor or CustomRoles.ImpostorEHR && x.GetMode() != 0),
-                    5 => allRoles.Where(x => x.GetVNRole() is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR && x.GetMode() != 0),
+                    4 => allRoles.Where(x => x.GetVNRole(checkDesyncRole: true) is CustomRoles.Impostor or CustomRoles.ImpostorEHR && x.GetMode() != 0),
+                    5 => allRoles.Where(x => x.GetVNRole(checkDesyncRole: true) is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR && x.GetMode() != 0),
                     _ => allRoles
                 };
 
@@ -75,6 +76,7 @@ namespace EHR.Impostor
         public override void Add(byte playerId)
         {
             On = true;
+            ChangelingId = playerId;
             ChangedRole[playerId] = false;
             try
             {
@@ -130,6 +132,6 @@ namespace EHR.Impostor
             return false;
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl _, bool h = false, bool m = false) => seer.PlayerId != _.PlayerId || Main.PlayerStates[seer.PlayerId].Role is not Changeling { IsEnable: true } cl ? string.Empty : string.Format(Translator.GetString("ChangelingCurrentRole"), Utils.ColorString(Utils.GetRoleColor(cl.CurrentRole), Translator.GetString($"{cl.CurrentRole}")));
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false) => seer.PlayerId != target.PlayerId || ChangelingId != seer.PlayerId ? string.Empty : string.Format(Translator.GetString("ChangelingCurrentRole"), CurrentRole.ToColoredString());
     }
 }

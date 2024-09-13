@@ -14,7 +14,7 @@
         public float RoleSpeed => Speed.GetFloat();
         public float RoleVision => Vision.GetFloat();
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(69_211_401, TabGroup.NeutralRoles, CustomRoles.Troll, CustomGameMode.HideAndSeek);
             Vision = new FloatOptionItem(69_211_403, "TrollVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.NeutralRoles)

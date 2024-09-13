@@ -7,7 +7,7 @@
         public byte Target;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(649700, TabGroup.ImpostorRoles, CustomRoles.Augmenter);
         }
@@ -33,11 +33,13 @@
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             var newTarget = Utils.GetPlayerById(Target);
-            if (newTarget == null || !killer.RpcCheckAndMurder(newTarget, check: true)) return true;
+            if (newTarget == null || !newTarget.IsAlive() || !killer.RpcCheckAndMurder(newTarget, check: true)) return true;
 
             var pos = newTarget.Pos();
             newTarget.TP(target);
             target.TP(pos);
+
+            Target = byte.MaxValue;
 
             LateTask.New(() => killer.Kill(newTarget), 0.2f, "AugmenterKill");
 

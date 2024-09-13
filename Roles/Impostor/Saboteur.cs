@@ -9,7 +9,7 @@ namespace EHR.Impostor
         private byte SaboteurId;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(10005, TabGroup.ImpostorRoles, CustomRoles.Saboteur);
             SaboteurCD = new FloatOptionItem(10015, "KillCooldown", new(0f, 180f, 2.5f), 17.5f, TabGroup.ImpostorRoles)

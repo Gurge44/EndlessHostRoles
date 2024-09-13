@@ -24,6 +24,7 @@ namespace EHR.Crewmate
         public static OptionItem SpeedDuration;
         public static OptionItem VisionDuration;
         public static OptionItem InvisDuration;
+
         private byte AlchemistId;
         public bool FixNextSabo;
         private long InvisTime = -10;
@@ -39,7 +40,7 @@ namespace EHR.Crewmate
         public override bool IsEnable => playerIdList.Count > 0;
         bool IsInvis => InvisTime != -10;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Alchemist);
             VentCooldown = new FloatOptionItem(Id + 11, "VentCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Alchemist])
@@ -155,7 +156,7 @@ namespace EHR.Crewmate
         {
             if (Main.PlayerStates[player.PlayerId].Role is not Alchemist am) return;
 
-            NameNotifyManager.Notice.Remove(player.PlayerId);
+            NameNotifyManager.Notifies.Remove(player.PlayerId);
 
             switch (am.PotionID)
             {
@@ -251,7 +252,7 @@ namespace EHR.Crewmate
             if (PotionID != 6) return;
             PotionID = 10;
             var pc = instance.myPlayer;
-            NameNotifyManager.Notice.Remove(pc.PlayerId);
+            NameNotifyManager.Notifies.Remove(pc.PlayerId);
             if (!AmongUsClient.Instance.AmHost) return;
             LateTask.New(() =>
             {
@@ -296,19 +297,19 @@ namespace EHR.Crewmate
             }
         }
 
-        public override string GetSuffix(PlayerControl pc, PlayerControl tar, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!hud || pc == null || pc.PlayerId != tar.PlayerId || !GameStates.IsInTask || Main.PlayerStates[pc.PlayerId].Role is not Alchemist { IsEnable: true } am) return string.Empty;
+            if (!hud || seer == null || seer.PlayerId != target.PlayerId || !GameStates.IsInTask || seer.PlayerId != AlchemistId) return string.Empty;
             var str = new StringBuilder();
-            if (am.IsInvis)
+            if (IsInvis)
             {
-                var remainTime = am.InvisTime + (long)InvisDuration.GetFloat() - Utils.TimeStamp;
+                var remainTime = InvisTime + (long)InvisDuration.GetFloat() - Utils.TimeStamp;
                 str.Append(string.Format(GetString("ChameleonInvisStateCountdown"), remainTime + 1));
             }
             else
             {
                 var preText = $"<color=#00ffa5>{GetString("PotionInStore")}:</color>";
-                switch (am.PotionID)
+                switch (PotionID)
                 {
                     case 1: // Shield
                         str.Append($"{preText} <b><color=#00ff97>{GetString("ShieldPotion")}</color></b>");
@@ -336,7 +337,7 @@ namespace EHR.Crewmate
                         break;
                 }
 
-                if (am.FixNextSabo) str.Append($"\n<b><color=#3333ff>{GetString("QuickFixPotionWaitForUse")}</color></b>");
+                if (FixNextSabo) str.Append($"\n<b><color=#3333ff>{GetString("QuickFixPotionWaitForUse")}</color></b>");
             }
 
             return str.ToString();

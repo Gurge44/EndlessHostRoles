@@ -449,7 +449,7 @@ internal static class FFAManager
 
                     foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                     {
-                        if (changePositionPlayers.Contains(pc.PlayerId) || !pc.IsAlive() || pc.onLadder || pc.inVent) continue;
+                        if (changePositionPlayers.Contains(pc.PlayerId) || !pc.IsAlive() || pc.onLadder || pc.inVent || pc.inMovingPlat) continue;
 
                         var filtered = Main.AllAlivePlayerControls.Where(a =>
                             pc.IsAlive() && !pc.inVent && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();

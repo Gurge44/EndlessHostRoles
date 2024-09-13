@@ -24,11 +24,11 @@ namespace EHR
                 .SetGameMode(CustomGameMode.Speedrun)
                 .SetColor(color);
 
-            TimeStacksUp = new BooleanOptionItem(id + 1, "Speedrun_TimeStacksUp", false, TabGroup.GameSettings)
+            TimeStacksUp = new BooleanOptionItem(id + 1, "Speedrun_TimeStacksUp", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Speedrun)
                 .SetColor(color);
 
-            TimeLimit = new IntegerOptionItem(id + 2, "Speedrun_TimeLimit", new(1, 90, 1), 20, TabGroup.GameSettings)
+            TimeLimit = new IntegerOptionItem(id + 2, "Speedrun_TimeLimit", new(1, 90, 1), 30, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Speedrun)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(color);
@@ -52,7 +52,7 @@ namespace EHR
             if (TaskFinishWins.GetBool()) return;
 
             CanKill.Add(pc.PlayerId);
-            // pc.ChangeRoleBasis(RoleTypes.Impostor);
+            pc.RpcChangeRoleBasis(CustomRoles.Runner);
             pc.Notify(Translator.GetString("Speedrun_CompletedTasks"));
         }
 
@@ -80,9 +80,11 @@ namespace EHR
 
         public static bool CheckForGameEnd(out GameOverReason reason)
         {
+            PlayerControl[] aapc = Main.AllAlivePlayerControls;
+            
             if (TaskFinishWins.GetBool())
             {
-                var player = Main.AllAlivePlayerControls.FirstOrDefault(x => x.GetTaskState().IsTaskFinished);
+                var player = aapc.FirstOrDefault(x => x.GetTaskState().IsTaskFinished);
                 if (player != null)
                 {
                     CustomWinnerHolder.WinnerIds = [player.PlayerId];
@@ -90,19 +92,17 @@ namespace EHR
                     return true;
                 }
             }
-            else
+            
+            switch (aapc.Length)
             {
-                switch (Main.AllAlivePlayerControls.Length)
-                {
-                    case 1:
-                        CustomWinnerHolder.WinnerIds = [Main.AllAlivePlayerControls[0].PlayerId];
-                        reason = GameOverReason.ImpostorByKill;
-                        return true;
-                    case 0:
-                        CustomWinnerHolder.WinnerIds = [];
-                        reason = GameOverReason.HumansDisconnect;
-                        return true;
-                }
+                case 1:
+                    CustomWinnerHolder.WinnerIds = [aapc[0].PlayerId];
+                    reason = GameOverReason.ImpostorByKill;
+                    return true;
+                case 0:
+                    CustomWinnerHolder.WinnerIds = [];
+                    reason = GameOverReason.HumansDisconnect;
+                    return true;
             }
 
             reason = GameOverReason.ImpostorByKill;
@@ -125,7 +125,8 @@ namespace EHR
                 if (LastUpdate == now) return;
                 LastUpdate = now;
 
-                Timers.Keys.ToArray().Do(x => Timers[x]--);
+                //Timers.Keys.ToArray().Do(x => Timers[x]--);
+                Timers.AdjustAllValues(x => x - 1);
                 Utils.NotifyRoles();
             }
         }

@@ -25,6 +25,7 @@ internal class AntiAdminer : RoleBase
     public static bool IsDoorLogWatch;
     public static bool IsCameraWatch;
     public static List<byte> PlayersNearDevices = [];
+    byte AntiAdminerId;
 
     private int Count;
     private long ExtraAbilityStartTimeStamp;
@@ -33,7 +34,7 @@ internal class AntiAdminer : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.AntiAdminer);
         CanCheckCamera = new BooleanOptionItem(Id + 10, "CanCheckCamera", true, TabGroup.ImpostorRoles)
@@ -62,6 +63,7 @@ internal class AntiAdminer : RoleBase
         playerIdList.Add(playerId);
         IsMonitor = Main.PlayerStates[playerId].MainRole == CustomRoles.Monitor;
         ExtraAbilityStartTimeStamp = 0;
+        AntiAdminerId = playerId;
     }
 
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
@@ -302,9 +304,9 @@ internal class AntiAdminer : RoleBase
         }
     }
 
-    public override string GetSuffix(PlayerControl seer, PlayerControl _, bool h = false, bool m = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (Main.PlayerStates[seer.PlayerId].Role is AntiAdminer self && seer.PlayerId == _.PlayerId)
+        if (Main.PlayerStates[seer.PlayerId].Role is AntiAdminer self && seer.PlayerId == target.PlayerId && self.AntiAdminerId == seer.PlayerId)
         {
             return self.ExtraAbilityStartTimeStamp > 0
                 ? $"<#ffffff>▩ {Delay.GetInt() - (Utils.TimeStamp - self.ExtraAbilityStartTimeStamp):N0}</color>"

@@ -2,7 +2,7 @@
 
 namespace EHR.Neutral;
 
-public class Juggernaut : ISettingHolder
+public class Juggernaut : RoleBase
 {
     private const int Id = 12300;
 
@@ -12,7 +12,9 @@ public class Juggernaut : ISettingHolder
     public static OptionItem HasImpostorVision;
     public static OptionItem CanVent;
 
-    public void SetupCustomOption()
+    public override bool IsEnable => false;
+
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Juggernaut);
         DefaultKillCooldown = new FloatOptionItem(Id + 10, "SansDefaultKillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Juggernaut])
@@ -23,5 +25,13 @@ public class Juggernaut : ISettingHolder
             .SetValueFormat(OptionFormat.Seconds);
         HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Juggernaut]);
         CanVent = new BooleanOptionItem(Id + 14, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Juggernaut]);
+    }
+
+    public override void Init()
+    {
+    }
+
+    public override void Add(byte playerId)
+    {
     }
 }

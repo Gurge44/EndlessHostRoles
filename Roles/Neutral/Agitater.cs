@@ -29,7 +29,7 @@ public class Agitater : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Agitater);
         AgiTaterBombCooldown = new FloatOptionItem(Id + 10, "AgitaterBombCooldown", new(10f, 180f, 0.5f), 20f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Agitater])

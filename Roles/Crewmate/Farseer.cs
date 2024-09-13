@@ -16,7 +16,7 @@ namespace EHR.Crewmate
     {
         private const int Id = 9700;
 
-        private const string FontSize = "1.6";
+        private const string FontSize = "1.7";
         public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> FarseerTimer = [];
         public static Dictionary<(byte, byte), bool> IsRevealed = [];
 
@@ -32,7 +32,7 @@ namespace EHR.Crewmate
         private static CustomRoles[] RandomRolesForTrickster => Enum.GetValues<CustomRoles>().Where(x => x.IsCrewmate()).ToArray();
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Farseer);
             FarseerCooldown = new FloatOptionItem(Id + 10, "FarseerRevealCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles)
@@ -111,7 +111,7 @@ namespace EHR.Crewmate
                     }
                     else if (arTime >= FarseerRevealTime.GetFloat())
                     {
-                        if (UsePets.GetBool()) player.AddKCDAsAbilityCD();
+                        if (UsePets.GetBool() && UsePet.GetBool()) player.AddKCDAsAbilityCD();
                         else player.SetKillCooldown();
                         FarseerTimer.Remove(player.PlayerId);
                         IsRevealed[(player.PlayerId, arTarget.PlayerId)] = true;
@@ -149,7 +149,7 @@ namespace EHR.Crewmate
 
         public static string GetTaskState()
         {
-            var playersWithTasks = Main.PlayerStates.Where(a => a.Value.TaskState.hasTasks).ToArray();
+            var playersWithTasks = Main.PlayerStates.Where(a => a.Value.TaskState.HasTasks).ToArray();
             if (playersWithTasks.Length == 0)
             {
                 return "\r\n";

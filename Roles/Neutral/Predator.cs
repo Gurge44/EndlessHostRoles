@@ -22,7 +22,7 @@ namespace EHR.Neutral
         private List<CustomRoles> RolesToKill = [];
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Predator);
             NumOfRolesToKill = new IntegerOptionItem(Id + 2, "NumOfRolesToKill", new(1, 10, 1), 3, TabGroup.NeutralRoles)
@@ -75,7 +75,7 @@ namespace EHR.Neutral
 
                 Logger.Info($"Predator Roles: {RolesToKill.Join()}", "Predator");
 
-                var w = Utils.CreateRPC(CustomRPC.SyncPredator);
+                var w = Utils.CreateRPC(CustomRPC.SyncRoleData);
                 w.WritePacked(1);
                 w.WritePacked(RolesToKill.Count);
                 foreach (var role in RolesToKill)
@@ -84,7 +84,7 @@ namespace EHR.Neutral
                 }
 
                 Utils.EndRPC(w);
-                Utils.SendRPC(CustomRPC.SyncPredator, playerId, 2, IsWon);
+                Utils.SendRPC(CustomRPC.SyncRoleData, playerId, 2, IsWon);
             }, 3f, "Select Predator Roles");
         }
 
@@ -148,7 +148,7 @@ namespace EHR.Neutral
             return false;
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != target.PlayerId) return string.Empty;
             if (seer.IsModClient() && !hud) return string.Empty;

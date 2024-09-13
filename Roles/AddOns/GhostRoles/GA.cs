@@ -2,7 +2,7 @@
 
 namespace EHR.AddOns.GhostRoles
 {
-    internal class GA : IGhostRole, ISettingHolder
+    internal class GA : IGhostRole
     {
         private static OptionItem ProtectDuration;
         private static OptionItem CD;
@@ -11,7 +11,6 @@ namespace EHR.AddOns.GhostRoles
 
         public Team Team => Team.Crewmate;
         public int Cooldown => CD.GetInt();
-        public bool ChangeToGA => true;
 
         public void OnProtect(PlayerControl pc, PlayerControl target)
         {

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
 using Hazel;
@@ -39,7 +38,7 @@ public class FireWorks : RoleBase
 
     public override bool IsEnable => On;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.FireWorks);
         FireWorksCountOpt = new IntegerOptionItem(Id + 10, "FireWorksMaxCount", new(1, 10, 1), 3, TabGroup.ImpostorRoles)
@@ -125,7 +124,23 @@ public class FireWorks : RoleBase
     public override bool OnShapeshift(PlayerControl pc, PlayerControl _, bool shapeshifting)
     {
         Logger.Info("FireWorks ShapeShift", "FireWorks");
-        if (pc == null || pc.Data.IsDead || !shapeshifting || Pelican.IsEaten(pc.PlayerId) || Medic.ProtectList.Contains(pc.PlayerId)) return false;
+        if (pc == null || pc.Data.IsDead || (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) || Pelican.IsEaten(pc.PlayerId)) return false;
+        UseAbility(pc);
+
+        return false;
+    }
+
+    public override bool OnVanish(PlayerControl pc)
+    {
+        Logger.Info("FireWorks Vanish", "FireWorks");
+        if (pc == null || pc.Data.IsDead || Pelican.IsEaten(pc.PlayerId)) return false;
+        UseAbility(pc);
+
+        return false;
+    }
+
+    private void UseAbility(PlayerControl pc)
+    {
         switch (state)
         {
             case FireWorksState.Initial:
@@ -173,11 +188,9 @@ public class FireWorks : RoleBase
 
         SendRPC(pc.PlayerId);
         Utils.NotifyRoles(ForceLoop: true);
-
-        return false;
     }
 
-    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         string retText = string.Empty;
         if (seer == null || seer.Data.IsDead || seer.PlayerId != target.PlayerId) return retText;

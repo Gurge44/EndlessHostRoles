@@ -7,7 +7,7 @@
         public static OptionItem WinsWithCrewIfNotAttacked;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             const int id = 13840;
             Options.SetupRoleOptions(id, TabGroup.NeutralRoles, CustomRoles.SchrodingersCat);
@@ -28,10 +28,11 @@
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
             var killerRole = killer.GetCustomRole();
-            if (killerRole.IsImpostor()) killerRole = CustomRoles.Refugee;
+            if (killerRole.IsImpostor() || killerRole.IsMadmate()) killerRole = CustomRoles.Refugee;
             if (Options.SingleRoles.Contains(killerRole)) killerRole = CustomRoles.Amnesiac;
 
             target.RpcSetCustomRole(killerRole);
+            target.RpcChangeRoleBasis(killerRole);
 
             killer.SetKillCooldown(5f);
 

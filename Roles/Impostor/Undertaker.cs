@@ -2,14 +2,16 @@
 
 namespace EHR.Impostor
 {
-    internal class Undertaker : ISettingHolder
+    internal class Undertaker : RoleBase
     {
         private const int Id = 720;
         public static OptionItem UndertakerMarkCooldown;
         public static OptionItem UndertakerAssassinateCooldown;
         public static OptionItem UndertakerCanKillAfterAssassinate;
 
-        public void SetupCustomOption()
+        public override bool IsEnable => false;
+
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id + 20, TabGroup.ImpostorRoles, CustomRoles.Undertaker);
             UndertakerMarkCooldown = new FloatOptionItem(Id + 30, "UndertakerMarkCooldown", new(0f, 180f, 0.5f), 1f, TabGroup.ImpostorRoles)
@@ -20,6 +22,14 @@ namespace EHR.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
             UndertakerCanKillAfterAssassinate = new BooleanOptionItem(Id + 32, "UndertakerCanKillAfterAssassinate", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Undertaker]);
+        }
+
+        public override void Init()
+        {
+        }
+
+        public override void Add(byte playerId)
+        {
         }
     }
 }

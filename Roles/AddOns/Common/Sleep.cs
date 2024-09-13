@@ -7,7 +7,7 @@ namespace EHR.AddOns.Common
     {
         public AddonTypes Type => AddonTypes.Harmful;
 
-        public void SetupCustomOption() => Options.SetupAdtRoleOptions(644294, CustomRoles.Sleep, canSetNum: true, teamSpawnOptions: true);
+        public void SetupCustomOption() => Options.SetupAdtRoleOptions(644293, CustomRoles.Sleep, canSetNum: true, teamSpawnOptions: true);
 
         public static void CheckGlowNearby(PlayerControl pc)
         {

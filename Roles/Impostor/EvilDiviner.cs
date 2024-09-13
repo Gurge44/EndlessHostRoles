@@ -25,7 +25,7 @@ namespace EHR.Impostor
 
         public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.EvilDiviner);
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.EvilDiviner])
@@ -62,9 +62,6 @@ namespace EHR.Impostor
                 CanVent = true;
                 HasImpVision = true;
             }
-
-            if (!AmongUsClient.Instance.AmHost || !IsRitualist) return;
-            Main.ResetCamPlayerList.Add(playerId);
         }
 
         public override bool CanUseImpostorVentButton(PlayerControl pc)
@@ -119,6 +116,7 @@ namespace EHR.Impostor
 
         public override bool KnowRole(PlayerControl seer, PlayerControl target)
         {
+            if (base.KnowRole(seer, target)) return true;
             return Main.PlayerStates[seer.PlayerId].Role is EvilDiviner ed && ed.DivinationTarget.Contains(target.PlayerId);
         }
     }

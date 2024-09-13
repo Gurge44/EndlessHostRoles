@@ -22,7 +22,7 @@ namespace EHR.Crewmate
 
         public override bool IsEnable => playerIdList.Count > 0;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Benefactor);
             TaskMarkPerRoundOpt = new IntegerOptionItem(Id + 10, "TaskMarkPerRound", new(1, 14, 1), 3, TabGroup.CrewmateRoles)
@@ -115,7 +115,7 @@ namespace EHR.Crewmate
         {
             if (!IsEnable) return;
             shieldedPlayers.Clear();
-            foreach (var playerId in TaskMarkPerRound.Keys)
+            foreach (var playerId in TaskMarkPerRound.Keys.ToArray())
             {
                 TaskMarkPerRound[playerId] = 0;
                 if (taskIndex.ContainsKey(playerId)) taskIndex[playerId].Clear();
@@ -156,7 +156,7 @@ namespace EHR.Crewmate
             }
             else
             {
-                foreach (var benefactorId in taskIndex.Keys)
+                foreach (var benefactorId in taskIndex.Keys.ToArray())
                 {
                     if (taskIndex[benefactorId].Contains(task.Index))
                     {

@@ -66,6 +66,7 @@ namespace EHR.Modules
 
         public static void InitializeCustomTeamPlayers()
         {
+            UpdateEnabledTeams();
             if (EnabledCustomTeams.Count == 0) return;
 
             CustomTeamPlayerIds = Main.PlayerStates
@@ -131,7 +132,18 @@ namespace EHR.Modules
             return false;
         }
 
-        public static CustomTeam GetCustomTeam(byte id) => EnabledCustomTeams.FirstOrDefault(x => x.TeamMembers.Contains(Main.PlayerStates[id].MainRole));
+        public static CustomTeam GetCustomTeam(byte id)
+        {
+            if (!Main.PlayerStates.TryGetValue(id, out var state)) return null;
+
+            foreach (var team in EnabledCustomTeams)
+            {
+                if (team.TeamMembers.Contains(state.MainRole))
+                    return team;
+            }
+
+            return null;
+        }
 
         public static bool AreInSameCustomTeam(byte id1, byte id2)
         {

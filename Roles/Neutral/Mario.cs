@@ -12,7 +12,7 @@ namespace EHR.Neutral
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(18300, TabGroup.NeutralRoles, CustomRoles.Mario);
             MarioVentNumWin = new IntegerOptionItem(18310, "MarioVentNumWin", new(0, 900, 5), 40, TabGroup.NeutralRoles)

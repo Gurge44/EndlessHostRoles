@@ -28,7 +28,7 @@ public class HeadHunter : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.HeadHunter);
         KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 27.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
@@ -109,10 +109,10 @@ public class HeadHunter : RoleBase
         return true;
     }
 
-    public override string GetSuffix(PlayerControl player, PlayerControl _, bool hud = false, bool m = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (!hud) return string.Empty;
-        var targetId = player.PlayerId;
+        var targetId = seer.PlayerId;
         string output = string.Empty;
         if (Main.PlayerStates[targetId].Role is not HeadHunter hh) return output;
         for (int i = 0; i < hh.Targets.Count; i++)

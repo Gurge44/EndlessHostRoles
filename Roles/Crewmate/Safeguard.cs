@@ -9,13 +9,14 @@ namespace EHR.Crewmate
 
         private static OptionItem ShieldDuration;
         private static OptionItem MinTasks;
+        byte SafeguardId;
 
         private float Timer;
         private bool Shielded => Timer > 0;
 
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             const TabGroup tab = TabGroup.CrewmateRoles;
             const CustomRoles role = CustomRoles.Safeguard;
@@ -39,12 +40,13 @@ namespace EHR.Crewmate
         {
             On = true;
             Timer = 0;
+            SafeguardId = playerId;
         }
 
         public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
             if (!pc.IsAlive()) return;
-            if (completedTaskCount + 1 >= MinTasks.GetValue())
+            if (completedTaskCount + 1 >= MinTasks.GetInt())
             {
                 Timer += ShieldDuration.GetFloat();
             }
@@ -68,9 +70,9 @@ namespace EHR.Crewmate
             return !Shielded;
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || !seer.Is(CustomRoles.Safeguard) || isMeeting || (seer.IsModClient() && !isHUD) || !Shielded) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != SafeguardId || meeting || (seer.IsModClient() && !hud) || !Shielded) return string.Empty;
             return seer.IsHost() ? string.Format(Translator.GetString("SafeguardSuffixTimer"), (int)Math.Ceiling(Timer)) : Translator.GetString("SafeguardSuffix");
         }
     }

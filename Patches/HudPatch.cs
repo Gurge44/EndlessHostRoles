@@ -16,12 +16,14 @@ using static EHR.Translator;
 namespace EHR.Patches;
 
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
-class HudManagerPatch
+static class HudManagerPatch
 {
     private static TextMeshPro LowerInfoText;
     private static TextMeshPro OverriddenRolesText;
     private static TextMeshPro SettingsText;
     private static long LastNullError;
+
+    public static Color? CooldownTimerFlashColor = null;
 
     public static bool Prefix(HudManager __instance)
     {
@@ -40,7 +42,6 @@ class HudManagerPatch
         {
             LoadingScreen.Update();
 
-            if (!GameStates.IsModHost) return;
             var player = PlayerControl.LocalPlayer;
             if (player == null) return;
 
@@ -183,7 +184,9 @@ class HudManagerPatch
                     var roleTypes = player.GetRoleTypes();
                     __instance.AbilityButton?.OverrideText(GetString($"AbilityButtonText.{roleTypes}"));
 
-                    Main.PlayerStates[player.PlayerId].Role.SetButtonTexts(__instance, player.PlayerId);
+                    var state = Main.PlayerStates[player.PlayerId];
+
+                    state.Role.SetButtonTexts(__instance, player.PlayerId);
 
                     switch (role)
                     {
@@ -209,6 +212,9 @@ class HudManagerPatch
                         case CustomRoles.Deputy:
                             usedButton?.OverrideText(GetString("DeputyHandcuffText"));
                             break;
+                        case CustomRoles.CTFPlayer:
+                            __instance.AbilityButton?.OverrideText(GetString("CTF_ButtonText"));
+                            break;
                     }
 
                     if (LowerInfoText == null)
@@ -222,8 +228,6 @@ class HudManagerPatch
                         LowerInfoText.fontSize = LowerInfoText.fontSizeMax = LowerInfoText.fontSizeMin = 2.7f;
                     }
 
-                    var state = Main.PlayerStates[player.PlayerId];
-
                     LowerInfoText.text = Options.CurrentGameMode switch
                     {
                         CustomGameMode.SoloKombat => SoloKombatManager.GetHudText(),
@@ -231,28 +235,42 @@ class HudManagerPatch
                         CustomGameMode.MoveAndStop when player.IsHost() => MoveAndStopManager.HUDText,
                         CustomGameMode.HotPotato when player.IsHost() => HotPotatoManager.GetSuffixText(player.PlayerId),
                         CustomGameMode.HideAndSeek when player.IsHost() => HnSManager.GetSuffixText(player, player, isHUD: true),
-                        CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + state.SubRoles switch
-                        {
-                            { } s when s.Contains(CustomRoles.Asthmatic) => Asthmatic.GetSuffixText(player.PlayerId),
-                            _ => string.Empty
-                        },
+                        CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
+                        CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
                         _ => string.Empty
                     };
 
+                    string GetAddonSuffixes()
+                    {
+                        var suffixes = state.SubRoles.Select(s => s switch
+                        {
+                            CustomRoles.Asthmatic => Asthmatic.GetSuffixText(player.PlayerId),
+                            CustomRoles.Spurt => Spurt.GetSuffix(player, true),
+                            CustomRoles.Deadlined => Deadlined.GetSuffix(player, true),
+                            _ => string.Empty
+                        });
+                        return string.Join(string.Empty, suffixes);
+                    }
+
                     string CD_HUDText = !Options.UsePets.GetBool() || !Main.AbilityCD.TryGetValue(player.PlayerId, out var CD)
                         ? string.Empty
-                        : string.Format(GetString("CDPT"), CD.TOTALCD - (Utils.TimeStamp - CD.START_TIMESTAMP) + 1);
+                        : string.Format(GetString("CDPT"), CD.TotalCooldown - (Utils.TimeStamp - CD.StartTimeStamp) + 1);
 
-                    if (CD_HUDText != string.Empty) LowerInfoText.text = $"{CD_HUDText}\n{LowerInfoText.text}";
+                    bool hasCD = CD_HUDText != string.Empty;
+                    if (hasCD)
+                    {
+                        if (CooldownTimerFlashColor.HasValue) CD_HUDText = $"<b>{Utils.ColorString(CooldownTimerFlashColor.Value, CD_HUDText.RemoveHtmlTags())}</b>";
+                        LowerInfoText.text = $"{CD_HUDText}\n{LowerInfoText.text}";
+                    }
 
-                    LowerInfoText.enabled = LowerInfoText.text != string.Empty;
+                    LowerInfoText.enabled = hasCD || LowerInfoText.text != string.Empty;
 
                     if ((!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay) || GameStates.IsMeeting)
                     {
                         LowerInfoText.enabled = false;
                     }
 
-                    bool allowedRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight;
+                    bool allowedRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee or CustomRoles.Sidekick;
                     if (player.CanUseKillButton() && (allowedRole || !role.UsesPetInsteadOfKill()))
                     {
                         __instance.KillButton?.ToggleVisible(player.IsAlive() && GameStates.IsInTask);
@@ -264,9 +282,11 @@ class HudManagerPatch
                         __instance.KillButton?.ToggleVisible(false);
                     }
 
-                    bool CanUseVent = (player.CanUseImpostorVentButton() || player.inVent) && GameStates.IsInTask;
-                    __instance.ImpostorVentButton?.ToggleVisible(CanUseVent);
-                    player.Data.Role.CanVent = CanUseVent;
+                    __instance.ImpostorVentButton?.ToggleVisible((player.CanUseImpostorVentButton() || (player.inVent && player.GetRoleTypes() != RoleTypes.Engineer)) && GameStates.IsInTask);
+                    player.Data.Role.CanVent = player.CanUseVent();
+
+                    if (usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer)
+                        __instance.AbilityButton.SetEnabled();
                 }
                 else
                 {
@@ -329,7 +349,7 @@ class HudManagerPatch
 }
 
 [HarmonyPatch(typeof(ActionButton), nameof(ActionButton.SetFillUp))]
-class ActionButtonSetFillUpPatch
+static class ActionButtonSetFillUpPatch
 {
     public static void Postfix(ActionButton __instance, [HarmonyArgument(0)] float timer)
     {
@@ -350,7 +370,7 @@ class ActionButtonSetFillUpPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ToggleHighlight))]
-class ToggleHighlightPatch
+static class ToggleHighlightPatch
 {
     private static readonly int OutlineColor = Shader.PropertyToID("_OutlineColor");
 
@@ -367,7 +387,7 @@ class ToggleHighlightPatch
 }
 
 [HarmonyPatch(typeof(Vent), nameof(Vent.SetOutline))]
-class SetVentOutlinePatch
+static class SetVentOutlinePatch
 {
     private static readonly int OutlineColor = Shader.PropertyToID("_OutlineColor");
     private static readonly int AddColor = Shader.PropertyToID("_AddColor");
@@ -381,7 +401,7 @@ class SetVentOutlinePatch
 }
 
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.SetHudActive), [typeof(PlayerControl), typeof(RoleBehaviour), typeof(bool)])]
-class SetHudActivePatch
+static class SetHudActivePatch
 {
     public static bool IsActive;
 
@@ -393,7 +413,6 @@ class SetHudActivePatch
     public static void Postfix(HudManager __instance, [HarmonyArgument(2)] bool isActive)
     {
         __instance?.ReportButton?.ToggleVisible(!GameStates.IsLobby && isActive);
-        if (!GameStates.IsModHost) return;
         if (__instance == null)
         {
             Logger.Fatal("HudManager __instance ended up being null", "SetHudActivePatch.Postfix");
@@ -408,6 +427,7 @@ class SetHudActivePatch
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
             case CustomGameMode.Speedrun:
+            case CustomGameMode.NaturalDisasters:
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.KillButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
@@ -419,6 +439,7 @@ class SetHudActivePatch
                 __instance.SabotageButton?.ToggleVisible(false);
                 __instance.AbilityButton?.ToggleVisible(false);
                 return;
+            case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.HideAndSeek:
                 __instance.ReportButton?.ToggleVisible(false);
                 __instance.SabotageButton?.ToggleVisible(false);
@@ -442,7 +463,6 @@ class SetHudActivePatch
             case CustomRoles.Farseer:
             case CustomRoles.Crusader:
                 __instance.SabotageButton?.ToggleVisible(false);
-                __instance.AbilityButton?.ToggleVisible(false);
                 __instance.ImpostorVentButton?.ToggleVisible(false);
                 break;
 
@@ -472,7 +492,7 @@ class SetHudActivePatch
 }
 
 [HarmonyPatch(typeof(VentButton), nameof(VentButton.DoClick))]
-class VentButtonDoClickPatch
+static class VentButtonDoClickPatch
 {
     public static bool Animating;
 
@@ -484,7 +504,7 @@ class VentButtonDoClickPatch
 }
 
 [HarmonyPatch(typeof(MapBehaviour), nameof(MapBehaviour.Show))]
-class MapBehaviourShowPatch
+static class MapBehaviourShowPatch
 {
     public static bool Prefix(MapBehaviour __instance, ref MapOptions opts)
     {
@@ -511,8 +531,28 @@ class MapBehaviourShowPatch
     }
 }
 
+[HarmonyPatch(typeof(MapTaskOverlay), nameof(MapTaskOverlay.Show))]
+static class MapTaskOverlayShowPatch
+{
+    public static void Postfix()
+    {
+        if (GameStates.IsMeeting)
+            GuessManager.DestroyIDLabels();
+    }
+}
+
+[HarmonyPatch(typeof(MapTaskOverlay), nameof(MapTaskOverlay.Hide))]
+static class MapTaskOverlayHidePatch
+{
+    public static void Postfix()
+    {
+        if (GameStates.IsMeeting && !DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening)
+            GuessManager.CreateIDLabels(MeetingHud.Instance);
+    }
+}
+
 [HarmonyPatch(typeof(InfectedOverlay), nameof(InfectedOverlay.Update))]
-class SabotageMapPatch
+static class SabotageMapPatch
 {
     public static Dictionary<SystemTypes, TextMeshPro> TimerTexts = [];
 
@@ -550,26 +590,42 @@ class SabotageMapPatch
 }
 
 [HarmonyPatch(typeof(TaskPanelBehaviour), nameof(TaskPanelBehaviour.SetTaskText))]
-class TaskPanelBehaviourPatch
+static class TaskPanelBehaviourPatch
 {
     public static void Postfix(TaskPanelBehaviour __instance)
     {
-        if (!GameStates.IsModHost) return;
         PlayerControl player = PlayerControl.LocalPlayer;
 
         var taskText = __instance.taskText.text;
-        if (taskText == "None") return;
+        if (taskText == "None" || GameStates.IsLobby) return;
 
         if (!player.GetCustomRole().IsVanilla())
         {
-            var RoleWithInfo = $"<size=80%>{player.GetDisplayRoleName()}:\r\n{player.GetRoleInfo()}</size>";
-            if (Options.CurrentGameMode == CustomGameMode.MoveAndStop) RoleWithInfo = $"{GetString("TaskerInfo")}\r\n";
+            var roleInfo = player.GetRoleInfo();
+            var RoleWithInfo = $"<size=80%>{player.GetCustomRole().ToColoredString()}:\r\n{roleInfo}</size>";
+            if (Options.CurrentGameMode != CustomGameMode.Standard)
+            {
+                var splitted = roleInfo.Split(' ');
+                RoleWithInfo = splitted.Length <= 3
+                    ? $"<size=60%>{roleInfo}</size>\r\n"
+                    : $"<size=60%>{string.Join(' ', splitted[..3])}\r\n{string.Join(' ', splitted[3..])}</size>\r\n";
+            }
 
             var AllText = Utils.ColorString(player.GetRoleColor(), RoleWithInfo);
 
             switch (Options.CurrentGameMode)
             {
                 case CustomGameMode.Standard:
+
+                    var subRoles = player.GetCustomSubRoles();
+                    if (subRoles.Count > 0)
+                    {
+                        const int max = 3;
+                        var s = subRoles.Take(max).Select(x => Utils.ColorString(Utils.GetRoleColor(x), $"\r\n\r\n{x.ToColoredString()}:\r\n{GetString($"{x}Info")}"));
+                        AllText += s.Aggregate("<size=70%>", (current, next) => current + next) + "</size>";
+                        int chunk = subRoles.Any(x => GetString(x.ToString()).Contains(' ')) ? 3 : 4;
+                        if (subRoles.Count > max) AllText += $"\r\n<size=70%>....\r\n({subRoles.Skip(max).Chunk(chunk).Select(x => x.Join(r => r.ToColoredString())).Join(delimiter: ",\r\n")})</size>";
+                    }
 
                     var lines = taskText.Split("\r\n</color>\n")[0].Split("\r\n\n")[0].Split("\r\n");
                     StringBuilder sb = new();
@@ -584,16 +640,13 @@ class TaskPanelBehaviourPatch
                     {
                         var text = sb.ToString().TrimEnd('\n').TrimEnd('\r');
                         if (!Utils.HasTasks(player.Data, false) && sb.ToString().Count(s => s == '\n') >= 2)
-                            text = $"{Utils.ColorString(Utils.GetRoleColor(player.GetCustomRole()).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}";
-                        AllText += $"\r\n\r\n<size=70%>{text}</size>";
+                            text = $"<size=55%>{Utils.ColorString(Utils.GetRoleColor(player.GetCustomRole()).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}</size>";
+                        AllText += $"\r\n\r\n<size=65%>{text}</size>";
                     }
 
                     if (MeetingStates.FirstMeeting)
                     {
-                        AllText += $"\r\n\r\n</color><size=65%>{GetString("PressF1ShowMainRoleDes")}";
-                        if (Main.PlayerStates.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out var ps) && ps.SubRoles.Count > 0)
-                            AllText += $"\r\n{GetString("PressF2ShowAddRoleDes")}";
-                        AllText += "</size>";
+                        AllText += $"\r\n\r\n</color><size=60%>{GetString("PressF1ShowMainRoleDes")}";
                     }
 
                     break;
@@ -602,48 +655,22 @@ class TaskPanelBehaviourPatch
 
                     var lpc = PlayerControl.LocalPlayer;
 
-                    AllText += "\r\n";
-                    AllText += $"\r\n{GetString("PVP.ATK")}: {SoloKombatManager.PlayerATK[lpc.PlayerId]}";
-                    AllText += $"\r\n{GetString("PVP.DF")}: {SoloKombatManager.PlayerDF[lpc.PlayerId]}";
-                    AllText += $"\r\n{GetString("PVP.RCO")}: {SoloKombatManager.PlayerHPReco[lpc.PlayerId]}";
-                    AllText += "\r\n";
+                    AllText += "\r\n<size=90%>";
+                    AllText += $"\r\n{GetString("PVP.ATK")}: {SoloKombatManager.PlayerATK[lpc.PlayerId]:N1}";
+                    AllText += $"\r\n{GetString("PVP.DF")}: {SoloKombatManager.PlayerDF[lpc.PlayerId]:N1}";
+                    AllText += $"\r\n{GetString("PVP.RCO")}: {SoloKombatManager.PlayerHPReco[lpc.PlayerId]:N1}";
+                    AllText += "\r\n</size>";
 
-                    Dictionary<byte, string> SummaryText = [];
-                    foreach (var id in Main.PlayerStates.Keys)
-                    {
-                        string name = Main.AllPlayerNames[id].RemoveHtmlTags().Replace("\r\n", string.Empty);
-                        string summary = $"{Utils.GetProgressText(id)}  {Utils.ColorString(Main.PlayerColors[id], name)}";
-                        if (Utils.GetProgressText(id).Trim() == string.Empty) continue;
-                        SummaryText[id] = summary;
-                    }
+                    AllText += Main.PlayerStates.Keys.OrderBy(SoloKombatManager.GetRankOfScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{SoloKombatManager.GetRankOfScore(x)}. {x.ColoredPlayerName()} - {string.Format(GetString("KillCount").TrimStart(' '), SoloKombatManager.KBScore.GetValueOrDefault(x, 0))}");
 
-                    List<(int, byte)> list = [];
-                    foreach (var id in Main.PlayerStates.Keys) list.Add((SoloKombatManager.GetRankOfScore(id), id));
-                    list.Sort();
-                    AllText = list.Where(x => SummaryText.ContainsKey(x.Item2)).Aggregate(AllText, (current, id) => current + "\r\n" + SummaryText[id.Item2]);
-
-                    AllText = $"<size=70%>{AllText}</size>";
-
+                    AllText += "</size>";
                     break;
 
                 case CustomGameMode.FFA:
 
-                    Dictionary<byte, string> SummaryText2 = [];
-                    foreach (var id in Main.PlayerStates.Keys)
-                    {
-                        string name = Main.AllPlayerNames[id].RemoveHtmlTags().Replace("\r\n", string.Empty);
-                        string summary = $"{Utils.GetProgressText(id)}  {Utils.ColorString(Main.PlayerColors[id], name)}";
-                        if (Utils.GetProgressText(id).Trim() == string.Empty) continue;
-                        SummaryText2[id] = summary;
-                    }
+                    AllText += Main.PlayerStates.Keys.OrderBy(FFAManager.GetRankOfScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{FFAManager.GetRankOfScore(x)}. {x.ColoredPlayerName()} -{string.Format(GetString("KillCount"), FFAManager.KillCount.GetValueOrDefault(x, 0))}");
 
-                    List<(int, byte)> list2 = [];
-                    foreach (var id in Main.PlayerStates.Keys) list2.Add((FFAManager.GetRankOfScore(id), id));
-                    list2.Sort();
-                    AllText = list2.Where(x => SummaryText2.ContainsKey(x.Item2)).Aggregate(AllText, (current, id) => current + "\r\n" + SummaryText2[id.Item2]);
-
-                    AllText = $"<size=70%>{AllText}</size>";
-
+                    AllText += "</size>";
                     break;
 
                 case CustomGameMode.MoveAndStop:
@@ -689,7 +716,7 @@ class TaskPanelBehaviourPatch
                 case CustomGameMode.HotPotato:
 
                     List<string> SummaryText4 = [];
-                    SummaryText4.AddRange(from id in Main.PlayerStates.Keys let pc = Utils.GetPlayerById(id) let name = pc.GetRealName().RemoveHtmlTags().Replace("\r\n", string.Empty) let alive = pc.IsAlive() select $"{(!alive ? "<size=70%><#777777>" : "<size=80%>")}{HotPotatoManager.GetIndicator(id)}{Utils.ColorString(Main.PlayerColors[id], name)}{(!alive ? $"</color>  <#ff0000>{GetString("Dead")}</color></size>" : "</size>")}");
+                    SummaryText4.AddRange(from id in Main.PlayerStates.Keys let pc = Utils.GetPlayerById(id) let name = pc.GetRealName().RemoveHtmlTags().Replace("\r\n", string.Empty) let alive = pc.IsAlive() select $"{(!alive ? "<size=80%><#777777>" : "<size=80%>")}{HotPotatoManager.GetIndicator(id)}{Utils.ColorString(Main.PlayerColors[id], name)}{(!alive ? $"</color>  <#ff0000>{GetString("Dead")}</color></size>" : "</size>")}");
 
                     AllText += $"\r\n\r\n{string.Join('\n', SummaryText4)}";
 
@@ -723,6 +750,17 @@ class TaskPanelBehaviourPatch
                     AllText += $"\r\n{SpeedrunManager.GetTaskBarText()}";
 
                     break;
+
+                case CustomGameMode.NaturalDisasters:
+
+                    AllText += Main.AllPlayerControls
+                        .Select(x => (pc: x, alive: x.IsAlive(), time: NaturalDisasters.SurvivalTime(x.PlayerId)))
+                        .OrderByDescending(x => x.alive)
+                        .ThenByDescending(x => x.time)
+                        .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {(x.alive ? $"<#00ff00>{GetString("Alive")}</color>" : $"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), x.time)}")}");
+
+                    AllText += "</size>";
+                    break;
             }
 
             __instance.taskText.text = AllText;
@@ -730,6 +768,81 @@ class TaskPanelBehaviourPatch
 
         if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
             __instance.taskText.text = RepairSender.GetText();
+    }
+}
+
+[HarmonyPatch(typeof(DialogueBox), nameof(DialogueBox.Show))]
+static class DialogueBoxShowPatch
+{
+    public static bool Prefix(DialogueBox __instance, [HarmonyArgument(0)] string dialogue)
+    {
+        __instance.target.text = dialogue;
+        if (Minigame.Instance != null)
+            Minigame.Instance.Close();
+        if (Minigame.Instance != null)
+            Minigame.Instance.Close();
+        __instance.gameObject.SetActive(true);
+        return false;
+    }
+
+    public static void Postfix()
+    {
+        if (GameStates.IsMeeting)
+            GuessManager.DestroyIDLabels();
+    }
+}
+
+[HarmonyPatch(typeof(DialogueBox), nameof(DialogueBox.Hide))]
+static class DialogueBoxHidePatch
+{
+    public static void Postfix()
+    {
+        if (GameStates.IsMeeting && !DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening)
+            GuessManager.CreateIDLabels(MeetingHud.Instance);
+    }
+}
+
+[HarmonyPatch(typeof(HudManager), nameof(HudManager.CoShowIntro))]
+static class CoShowIntroPatch
+{
+    public static bool IntroStarted;
+
+    public static void Prefix()
+    {
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return;
+
+        IntroStarted = true;
+
+        LateTask.New(() =>
+        {
+            if (!(AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.ShowAllRolesWhenGameEnd))
+            {
+                StartGameHostPatch.RpcSetDisconnected(disconnected: false);
+
+                if (!AmongUsClient.Instance.IsGameOver)
+                    DestroyableSingleton<HudManager>.Instance.SetHudActive(true);
+            }
+        }, 0.6f, "Set Disconnected");
+
+        LateTask.New(() =>
+        {
+            try
+            {
+                if (!(AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.ShowAllRolesWhenGameEnd))
+                {
+                    ShipStatusBeginPatch.RolesIsAssigned = true;
+
+                    // Assign tasks after assign all roles, as it should be
+                    ShipStatus.Instance.Begin();
+
+                    Utils.SyncAllSettings();
+                }
+            }
+            catch
+            {
+                Logger.Warn($"Game ended? {AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.ShowAllRolesWhenGameEnd}", "ShipStatus.Begin");
+            }
+        }, 4f, "Assign Tasks");
     }
 }
 

@@ -1,7 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
@@ -17,8 +17,8 @@ namespace EHR.Modules;
 
 public enum CustomRPC
 {
-    VersionCheck = 60,
-    RequestRetryVersionCheck = 61,
+    VersionCheck = 78,
+    RequestRetryVersionCheck = 79,
     SyncCustomSettings = 80,
     SetDeathReason,
     EndGame,
@@ -40,6 +40,8 @@ public enum CustomRPC
     SetCurrentDousingTarget,
     SetEvilTrackerTarget,
     SetRealKiller,
+    ShowChat,
+    SyncLobbyTimer,
 
     // EHR
     AntiBlackout,
@@ -54,8 +56,12 @@ public enum CustomRPC
     RemoveAbilityUseLimit,
     RemoveSubRole,
     Arrow,
+    FixModdedClientCNO,
+    SyncAbilityCD,
+    SyncGeneralOptions,
 
     // Roles
+    SyncRoleData,
     SetDrawPlayer,
     SyncHeadHunter,
     SyncRabbit,
@@ -124,25 +130,11 @@ public enum CustomRPC
     RpcPassBomb,
     SetAlchemistTimer,
     SyncPostman,
-    SyncRandomizer,
     SyncChangeling,
-    SyncCommander,
     SyncTiger,
-    SyncPredator,
-    SyncImpartial,
-    SyncAdventurer,
     SyncSentry,
     SyncBargainer,
     SyncOverheat,
-    SyncChemist,
-    SyncSimon,
-    SyncRogue,
-    SyncEvolver,
-    SyncTremor,
-    SyncAid,
-    SyncTelekinetic,
-    SyncRouleteGrandeur,
-    SyncAdrenaline,
 
     // Other Game Modes
     SyncKBPlayer,
@@ -171,7 +163,7 @@ internal class RPCHandlerPatch
     {
         var rpcType = (RpcCalls)callId;
         MessageReader subReader = MessageReader.Get(reader);
-        //if (EAC.ReceiveRpc(__instance, callId, reader)) return false;
+        if (EAC.ReceiveRpc(__instance, callId, reader)) return false;
         Logger.Info($"From ID: {__instance?.Data?.PlayerId} ({(__instance?.Data?.PlayerId == 0 ? "Host" : __instance?.Data?.PlayerName)}) : {callId} ({RPC.GetRpcName(callId)})", "ReceiveRPC");
         if (callId == 11 && __instance != null)
         {
@@ -234,17 +226,13 @@ internal class RPCHandlerPatch
 
     public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
     {
-        if (AmongUsClient.Instance.AmHost) return;
         var rpcType = (CustomRPC)callId;
-
-        // Finish this later
-        // Main.PlayerStates.Values
-        //     .Where(x => "Sync" + x.Role.GetType().Name == rpcType.ToString())
-        //     .Do(x => x.Role.GetType().GetMethod("ReceiveRPC")?.Invoke(reader));
+        if (AmongUsClient.Instance.AmHost && rpcType != CustomRPC.VersionCheck) return;
 
         switch (rpcType)
         {
             case CustomRPC.AntiBlackout:
+            {
                 if (Options.EndWhenPlayerBug.GetBool())
                 {
                     Logger.Fatal($"{__instance?.Data?.PlayerName}({__instance?.PlayerId}): {reader.ReadString()} - Error, terminate the game according to settings", "Anti-blackout");
@@ -257,6 +245,7 @@ internal class RPCHandlerPatch
                         GameManager.Instance.LogicFlow.CheckEndCriteria();
                         RPC.ForceEndGame(CustomWinner.Error);
                     }, 5.5f, "Anti-Black End Game");
+                    LateTask.New(() => ChatUpdatePatch.DoBlockChat = false, 6f, log: false);
                 }
                 else if (GameStates.IsOnlineGame)
                 {
@@ -265,7 +254,9 @@ internal class RPCHandlerPatch
                 }
 
                 break;
+            }
             case CustomRPC.VersionCheck:
+            {
                 try
                 {
                     Version version = Version.Parse(reader.ReadString());
@@ -279,13 +270,8 @@ internal class RPCHandlerPatch
 
                     Main.PlayerVersion[__instance.PlayerId] = new(version, tag, forkId);
 
-                    if (Main.VersionCheat.Value && __instance.IsHost()) RPC.RpcVersionCheck();
-
-                    if (Main.VersionCheat.Value && AmongUsClient.Instance.AmHost)
-                        Main.PlayerVersion[__instance.PlayerId] = Main.PlayerVersion[0];
-
                     // Kick Unmached Player Start
-                    if (AmongUsClient.Instance.AmHost && tag != $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" && forkId != Main.ForkId && !Main.VersionCheat.Value)
+                    if (AmongUsClient.Instance.AmHost && tag != $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})" && forkId != Main.ForkId)
                     {
                         LateTask.New(() =>
                         {
@@ -302,7 +288,7 @@ internal class RPCHandlerPatch
                 }
                 catch
                 {
-                    Logger.Warn($"{__instance?.Data?.PlayerName}({__instance?.PlayerId}): バージョン情報が無効です", "RpcVersionCheck");
+                    Logger.Warn($"{__instance?.Data?.PlayerName}({__instance?.PlayerId}): error during version check", "RpcVersionCheck");
                     LateTask.New(() =>
                     {
                         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, __instance.GetClientId());
@@ -311,10 +297,14 @@ internal class RPCHandlerPatch
                 }
 
                 break;
+            }
             case CustomRPC.RequestRetryVersionCheck:
+            {
                 RPC.RpcVersionCheck();
                 break;
+            }
             case CustomRPC.SyncCustomSettings:
+            {
                 if (AmongUsClient.Instance.AmHost) break;
 
                 List<OptionItem> listOptions = [];
@@ -333,47 +323,64 @@ internal class RPCHandlerPatch
                 Logger.Msg($"StartAmount: {startAmount} - LastAmount: {lastAmount} ({startAmount}/{lastAmount}) :--: ListOptionsCount: {countOptions} - AllOptions: {countAllOptions} ({countOptions}/{countAllOptions})", "SyncCustomSettings");
 
                 // Sync Settings
-                foreach (var option in listOptions.ToArray())
+                foreach (var option in listOptions)
                 {
                     option.SetValue(reader.ReadPackedInt32());
                 }
 
                 OptionShower.GetText();
                 break;
+            }
             case CustomRPC.SetDeathReason:
+            {
                 RPC.GetDeathReason(reader);
                 break;
+            }
             case CustomRPC.EndGame:
+            {
                 RPC.EndGame(reader);
                 break;
+            }
             case CustomRPC.PlaySound:
+            {
                 byte playerID = reader.ReadByte();
                 Sounds sound = (Sounds)reader.ReadByte();
                 RPC.PlaySound(playerID, sound);
                 break;
+            }
             case CustomRPC.ShowPopUp:
+            {
                 string msg = reader.ReadString();
                 HudManager.Instance.ShowPopUp(msg);
                 break;
+            }
             case CustomRPC.SyncAllClientRealNames:
+            {
                 Main.AllClientRealNames.Clear();
                 int num2 = reader.ReadPackedInt32();
                 for (int i = 0; i < num2; i++)
                     Main.AllClientRealNames.TryAdd(reader.ReadInt32(), reader.ReadString());
                 break;
+            }
             case CustomRPC.SetCustomRole:
+            {
                 byte CustomRoleTargetId = reader.ReadByte();
                 CustomRoles role = (CustomRoles)reader.ReadPackedInt32();
                 bool replaceAllAddons = reader.ReadBoolean();
                 RPC.SetCustomRole(CustomRoleTargetId, role, replaceAllAddons);
                 break;
+            }
             case CustomRPC.SyncAbilityUseLimit:
+            {
                 var pc = Utils.GetPlayerById(reader.ReadByte());
                 pc.SetAbilityUseLimit(reader.ReadSingle(), rpc: false);
                 break;
+            }
             case CustomRPC.RemoveAbilityUseLimit:
+            {
                 Main.AbilityUseLimit.Remove(reader.ReadByte());
                 break;
+            }
             case CustomRPC.RemoveSubRole:
             {
                 byte id = reader.ReadByte();
@@ -382,9 +389,71 @@ internal class RPCHandlerPatch
                 break;
             }
             case CustomRPC.Arrow:
+            {
                 if (reader.ReadBoolean()) TargetArrow.ReceiveRPC(reader);
                 else LocateArrow.ReceiveRPC(reader);
                 break;
+            }
+            case CustomRPC.SyncAbilityCD:
+            {
+                switch (reader.ReadPackedInt32())
+                {
+                    case 1:
+                    {
+                        byte id = reader.ReadByte();
+                        int cd = reader.ReadPackedInt32();
+                        long ts = Utils.TimeStamp;
+                        Main.AbilityCD[id] = (ts, cd);
+                        break;
+                    }
+                    case 2:
+                    {
+                        Main.AbilityCD.Clear();
+                        break;
+                    }
+                    case 3:
+                    {
+                        byte id = reader.ReadByte();
+                        Main.AbilityCD.Remove(id);
+                        break;
+                    }
+                }
+
+                break;
+            }
+            case CustomRPC.SyncRoleData:
+            {
+                byte id = reader.ReadByte();
+                RoleBase r = Main.PlayerStates[id].Role;
+                r.GetType().GetMethod("ReceiveRPC")?.Invoke(r, [reader]);
+                break;
+            }
+            case CustomRPC.FixModdedClientCNO:
+            {
+                var CNO = reader.ReadNetObject<PlayerControl>();
+                bool active = reader.ReadBoolean();
+                CNO.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(active);
+                break;
+            }
+            case CustomRPC.SyncGeneralOptions:
+            {
+                byte id = reader.ReadByte();
+                CustomRoles role = (CustomRoles)reader.ReadPackedInt32();
+                bool dead = reader.ReadBoolean();
+                PlayerState.DeathReason dr = (PlayerState.DeathReason)reader.ReadPackedInt32();
+                if (Main.PlayerStates.TryGetValue(id, out PlayerState state))
+                {
+                    state.MainRole = role;
+                    state.IsDead = dead;
+                    state.deathReason = dr;
+                }
+
+                float kcd = reader.ReadSingle();
+                float speed = reader.ReadSingle();
+                Main.AllPlayerKillCooldown[id] = kcd;
+                Main.AllPlayerSpeed[id] = speed;
+                break;
+            }
             case CustomRPC.SyncPostman:
             {
                 byte id = reader.ReadByte();
@@ -395,66 +464,30 @@ internal class RPCHandlerPatch
                 pm.IsFinished = isFinished;
                 break;
             }
-            case CustomRPC.SyncRandomizer:
-                (Main.PlayerStates[reader.ReadByte()].Role as Randomizer)?.ReceiveRPC(reader);
-                break;
             case CustomRPC.SyncChangeling:
+            {
                 if (Main.PlayerStates[reader.ReadByte()].Role is not Changeling changeling) break;
                 changeling.CurrentRole = (CustomRoles)reader.ReadPackedInt32();
                 break;
-            case CustomRPC.SyncCommander:
-                (Main.PlayerStates[reader.ReadByte()].Role as Commander)?.ReceiveRPC(reader);
-                break;
+            }
             case CustomRPC.SyncTiger:
+            {
                 if (Main.PlayerStates[reader.ReadByte()].Role is not Tiger tiger) break;
                 tiger.EnrageTimer = reader.ReadSingle();
                 break;
-            case CustomRPC.SyncPredator:
-                (Main.PlayerStates[reader.ReadByte()].Role as Predator)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncImpartial:
-                (Main.PlayerStates[reader.ReadByte()].Role as Impartial)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncAdventurer:
-                (Main.PlayerStates[reader.ReadByte()].Role as Adventurer)?.ReceiveRPC(reader);
-                break;
+            }
             case CustomRPC.SyncSentry:
             {
                 byte id = reader.ReadByte();
-                if (Main.PlayerStates[id].Role is not EHR.Impostor.Sentry sentry) break;
+                if (Main.PlayerStates[id].Role is not Crewmate.Sentry sentry) break;
                 sentry.MonitoredRoom = Utils.GetPlayerById(id).GetPlainShipRoom();
                 break;
             }
             case CustomRPC.SyncOverheat:
+            {
                 ((Overheat)Main.PlayerStates[reader.ReadByte()].Role).Temperature = reader.ReadPackedInt32();
                 break;
-            case CustomRPC.SyncChemist:
-                (Main.PlayerStates[reader.ReadByte()].Role as Chemist)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncSimon:
-                (Main.PlayerStates[reader.ReadByte()].Role as Simon)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncRogue:
-                (Main.PlayerStates[reader.ReadByte()].Role as Rogue)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncEvolver:
-                (Main.PlayerStates[reader.ReadByte()].Role as Evolver)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncTremor:
-                (Main.PlayerStates[reader.ReadByte()].Role as Tremor)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncAid:
-                (Main.PlayerStates[reader.ReadByte()].Role as Aid)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncTelekinetic:
-                (Main.PlayerStates[reader.ReadByte()].Role as Telekinetic)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncRouleteGrandeur:
-                (Main.PlayerStates[reader.ReadByte()].Role as RouleteGrandeur)?.ReceiveRPC(reader);
-                break;
-            case CustomRPC.SyncAdrenaline:
-                (Main.PlayerStates[reader.ReadByte()].Role as Adrenaline)?.ReceiveRPC(reader);
-                break;
+            }
             case CustomRPC.SetBountyTarget:
             {
                 byte bountyId = reader.ReadByte();
@@ -463,59 +496,89 @@ internal class RPCHandlerPatch
                 break;
             }
             case CustomRPC.SyncBargainer:
+            {
                 Bargainer.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SetKillOrSpell:
+            {
                 Witch.ReceiveRPC(reader, false);
                 break;
+            }
             case CustomRPC.SetCPTasksDone:
+            {
                 Crewpostor.RecieveRPC(reader);
                 break;
+            }
             case CustomRPC.SetLibrarianMode:
+            {
                 Librarian.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SyncSoulHunter:
+            {
                 SoulHunter.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SetDousedPlayer:
+            {
                 byte ArsonistId = reader.ReadByte();
                 byte dousedId = reader.ReadByte();
                 bool doused = reader.ReadBoolean();
                 Arsonist.IsDoused[(ArsonistId, dousedId)] = doused;
                 break;
+            }
             case CustomRPC.SetPlaguedPlayer:
+            {
                 PlagueBearer.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SyncHeadHunter:
+            {
                 HeadHunter.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SyncDamoclesTimer:
+            {
                 Damocles.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SetDrawPlayer:
+            {
                 byte RevolutionistId = reader.ReadByte();
                 byte DrawId = reader.ReadByte();
                 bool drawed = reader.ReadBoolean();
                 Revolutionist.IsDraw[(RevolutionistId, DrawId)] = drawed;
                 break;
+            }
             case CustomRPC.SetRevealedPlayer:
+            {
                 byte FarseerId = reader.ReadByte();
                 byte RevealId = reader.ReadByte();
                 bool revealed = reader.ReadBoolean();
                 Farseer.IsRevealed[(FarseerId, RevealId)] = revealed;
                 break;
+            }
             case CustomRPC.SetNameColorData:
+            {
                 NameColorManager.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.RpcPassBomb:
+            {
                 Agitater.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.DoSpell:
+            {
                 Witch.ReceiveRPC(reader, true);
                 break;
+            }
             case CustomRPC.SetBanditStealLimit:
+            {
                 Bandit.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SniperSync:
             {
                 byte id = reader.ReadByte();
@@ -523,23 +586,35 @@ internal class RPCHandlerPatch
             }
                 break;
             case CustomRPC.SyncSpy:
+            {
                 Spy.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SetAlchemistPotion:
+            {
                 Alchemist.ReceiveRPCData(reader);
                 break;
+            }
             case CustomRPC.SetRicochetTarget:
+            {
                 Ricochet.ReceiveRPCSyncTarget(reader);
                 break;
+            }
             case CustomRPC.SyncRabbit:
+            {
                 Rabbit.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SyncYinYanger:
+            {
                 YinYanger.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SetTetherTarget:
+            {
                 Tether.ReceiveRPCSyncTarget(reader);
                 break;
+            }
             case CustomRPC.SetHitmanTarget:
             {
                 byte hitmanId = reader.ReadByte();
@@ -548,20 +623,30 @@ internal class RPCHandlerPatch
             }
                 break;
             case CustomRPC.SetWeaponMasterMode:
+            {
                 WeaponMaster.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SyncGlitchTimers:
+            {
                 Glitch.ReceiveRPCSyncTimers(reader);
                 break;
+            }
             case CustomRPC.DruidAddTrigger:
+            {
                 Druid.ReceiveRPCAddTrigger(reader);
                 break;
+            }
             case CustomRPC.SetSabotageMasterLimit:
+            {
                 SabotageMaster.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SetNiceHackerLimit:
+            {
                 NiceHacker.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SetLoversPlayers:
             {
                 Main.LoversPlayers.Clear();
@@ -571,17 +656,25 @@ internal class RPCHandlerPatch
             }
                 break;
             case CustomRPC.SetExecutionerTarget:
+            {
                 Executioner.ReceiveRPC(reader, SetTarget: true);
                 break;
+            }
             case CustomRPC.RemoveExecutionerTarget:
+            {
                 Executioner.ReceiveRPC(reader, SetTarget: false);
                 break;
+            }
             case CustomRPC.SetLawyerTarget:
+            {
                 Lawyer.ReceiveRPC(reader, SetTarget: true);
                 break;
+            }
             case CustomRPC.RemoveLawyerTarget:
+            {
                 Lawyer.ReceiveRPC(reader, SetTarget: false);
                 break;
+            }
             case CustomRPC.SendFireWorksState:
             {
                 byte id = reader.ReadByte();
@@ -592,29 +685,41 @@ internal class RPCHandlerPatch
             }
                 break;
             case CustomRPC.SyncMycologist:
+            {
                 Mycologist.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SyncBubble:
+            {
                 Bubble.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SetCurrentDousingTarget:
+            {
                 byte arsonistId = reader.ReadByte();
                 byte dousingTargetId = reader.ReadByte();
                 if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
                     Arsonist.CurrentDousingTarget = dousingTargetId;
                 break;
+            }
             case CustomRPC.SetCurrentDrawTarget:
+            {
                 byte arsonistId1 = reader.ReadByte();
                 byte doTargetId = reader.ReadByte();
                 if (PlayerControl.LocalPlayer.PlayerId == arsonistId1)
                     Revolutionist.CurrentDrawTarget = doTargetId;
                 break;
+            }
             case CustomRPC.SetEvilTrackerTarget:
+            {
                 EvilTracker.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SyncPlagueDoctor:
+            {
                 PlagueDoctor.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.PenguinSync:
             {
                 byte id = reader.ReadByte();
@@ -629,36 +734,67 @@ internal class RPCHandlerPatch
                     float timer = reader.ReadSingle();
                     (Main.PlayerStates[id].Role as Penguin)?.ReceiveRPC(timer);
                 }
-            }
+
                 break;
+            }
             case CustomRPC.SetRealKiller:
             {
                 byte targetId = reader.ReadByte();
                 byte killerId = reader.ReadByte();
                 RPC.SetRealKiller(targetId, killerId);
-            }
                 break;
+            }
+            case CustomRPC.ShowChat:
+            {
+                var clientId = reader.ReadPackedUInt32();
+                var show = reader.ReadBoolean();
+                if (AmongUsClient.Instance.ClientId == clientId)
+                {
+                    HudManager.Instance.Chat.SetVisible(show);
+                }
+
+                break;
+            }
+            case CustomRPC.SyncLobbyTimer:
+            {
+                GameStartManagerPatch.Timer = reader.ReadPackedInt32();
+                break;
+            }
             case CustomRPC.SetGamerHealth:
+            {
                 Gamer.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SetPelicanEtenNum:
+            {
                 Pelican.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SetDoomsayerProgress:
+            {
                 Doomsayer.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SwordsManKill:
+            {
                 SwordsMan.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.PlayCustomSound:
+            {
                 CustomSoundsManager.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SetGhostPlayer:
+            {
                 BallLightning.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SetDarkHiderKillCount:
+            {
                 DarkHide.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SetGreedierOE:
             {
                 byte id = reader.ReadByte();
@@ -667,17 +803,25 @@ internal class RPCHandlerPatch
             }
                 break;
             case CustomRPC.SetCollectorVotes:
+            {
                 Collector.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SetQuickShooterShotLimit:
+            {
                 QuickShooter.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.GuessKill:
+            {
                 GuessManager.RpcClientGuess(Utils.GetPlayerById(reader.ReadByte()));
                 break;
+            }
             case CustomRPC.SetMarkedPlayer:
+            {
                 Assassin.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SyncChronomancer:
             {
                 byte id = reader.ReadByte();
@@ -688,36 +832,54 @@ internal class RPCHandlerPatch
             }
                 break;
             case CustomRPC.SetMedicalerProtectList:
+            {
                 Medic.ReceiveRPCForProtectList(reader);
                 break;
+            }
             case CustomRPC.SyncPsychicRedList:
+            {
                 Psychic.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SetKillTimer:
+            {
                 float time = reader.ReadSingle();
                 PlayerControl.LocalPlayer.SetKillTimer(time);
                 break;
+            }
             case CustomRPC.SyncKBPlayer:
+            {
                 SoloKombatManager.ReceiveRPCSyncKBPlayer(reader);
                 break;
+            }
             case CustomRPC.SyncFFAPlayer:
+            {
                 FFAManager.ReceiveRPCSyncFFAPlayer(reader);
                 break;
+            }
             case CustomRPC.SyncAllPlayerNames:
+            {
                 Main.AllPlayerNames = [];
                 int num = reader.ReadInt32();
                 for (int i = 0; i < num; i++)
                     Main.AllPlayerNames.TryAdd(reader.ReadByte(), reader.ReadString());
                 break;
+            }
             case CustomRPC.SyncKBBackCountdown:
+            {
                 SoloKombatManager.ReceiveRPCSyncBackCountdown(reader);
                 break;
+            }
             case CustomRPC.SyncKBNameNotify:
+            {
                 SoloKombatManager.ReceiveRPCSyncNameNotify(reader);
                 break;
+            }
             case CustomRPC.SyncFFANameNotify:
+            {
                 FFAManager.ReceiveRPCSyncNameNotify(reader);
                 break;
+            }
             case CustomRPC.SyncMafiosoData:
             {
                 byte id = reader.ReadByte();
@@ -731,20 +893,30 @@ internal class RPCHandlerPatch
             }
                 break;
             case CustomRPC.SyncNameNotify:
+            {
                 NameNotifyManager.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.Judge:
+            {
                 Judge.ReceiveRPC(reader, __instance);
                 break;
+            }
             case CustomRPC.MeetingKill:
+            {
                 Councillor.ReceiveRPC(reader, __instance);
                 break;
+            }
             case CustomRPC.Guess:
+            {
                 GuessManager.ReceiveRPC(reader, __instance);
                 break;
+            }
             case CustomRPC.MafiaRevenge:
+            {
                 Mafia.ReceiveRPC(reader, __instance);
                 break;
+            }
             case CustomRPC.SetSwooperTimer:
             {
                 byte id = reader.ReadByte();
@@ -752,20 +924,30 @@ internal class RPCHandlerPatch
             }
                 break;
             case CustomRPC.SetAlchemistTimer:
+            {
                 Alchemist.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SetBKTimer:
+            {
                 Wildling.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SyncTotocalcioTargetAndTimes:
+            {
                 Totocalcio.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SyncRomanticTarget:
+            {
                 Romantic.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SyncVengefulRomanticTarget:
+            {
                 VengefulRomantic.ReceiveRPC(reader);
                 break;
+            }
             //case CustomRPC.SetCursedSoulCurseLimit:
             //    CursedSoul.ReceiveRPC(reader);
             //    break;
@@ -777,36 +959,56 @@ internal class RPCHandlerPatch
             }
                 break;
             case CustomRPC.SyncHookshot:
+            {
                 Hookshot.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.AddTornado:
+            {
                 Tornado.ReceiveRPCAddTornado(reader);
                 break;
+            }
             case CustomRPC.SetDoppelgangerStealLimit:
+            {
                 Doppelganger.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SyncBenefactorMarkedTask:
+            {
                 Benefactor.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SyncStressedTimer:
+            {
                 Stressed.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.KillFlash:
+            {
                 Utils.FlashColor(new(1f, 0f, 0f, 0.3f));
                 if (Constants.ShouldPlaySfx()) RPC.PlaySound(PlayerControl.LocalPlayer.PlayerId, Sounds.KillSound);
                 break;
+            }
             case CustomRPC.SetCleanserCleanLimit:
+            {
                 Cleanser.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.StealthDarken:
+            {
                 Stealth.ReceiveRPC(reader);
                 break;
+            }
             case CustomRPC.SetJailorExeLimit:
+            {
                 Jailor.ReceiveRPC(reader, setTarget: false);
                 break;
+            }
             case CustomRPC.SetJailorTarget:
+            {
                 Jailor.ReceiveRPC(reader, setTarget: true);
                 break;
+            }
             case CustomRPC.SetWWTimer:
             {
                 byte id = reader.ReadByte();
@@ -814,11 +1016,15 @@ internal class RPCHandlerPatch
             }
                 break;
             case CustomRPC.SetNiceSwapperVotes:
+            {
                 NiceSwapper.ReceiveRPC(reader, __instance);
                 break;
+            }
             case CustomRPC.SetTrackerTarget:
+            {
                 Scout.ReceiveRPC(reader);
                 break;
+            }
         }
     }
 }
@@ -849,10 +1055,7 @@ internal static class RPC
         if (targetId != -1)
         {
             var client = Utils.GetClientById(targetId);
-            if (client == null || client.Character == null || !Main.PlayerVersion.ContainsKey(client.Character.PlayerId))
-            {
-                return;
-            }
+            if (client == null || client.Character == null || !Main.PlayerVersion.ContainsKey(client.Character.PlayerId)) return;
         }
 
         if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1 || (AmongUsClient.Instance.AmHost == false && PlayerControl.LocalPlayer == null)) return;
@@ -946,20 +1149,25 @@ internal static class RPC
         player.Exiled();
     }
 
-    public static async void RpcVersionCheck()
+    public static void RpcVersionCheck()
     {
-        while (PlayerControl.LocalPlayer == null) await Task.Delay(500);
-        if (Main.PlayerVersion.ContainsKey(0) || !Main.VersionCheat.Value)
-        {
-            bool cheating = Main.VersionCheat.Value;
-            MessageWriter writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.VersionCheck);
-            writer.Write(cheating ? Main.PlayerVersion[0].version.ToString() : Main.PluginVersion);
-            writer.Write(cheating ? Main.PlayerVersion[0].tag : $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})");
-            writer.Write(cheating ? Main.PlayerVersion[0].forkId : Main.ForkId);
-            writer.EndMessage();
-        }
+        Main.Instance.StartCoroutine(VersionCheck());
+        return;
 
-        Main.PlayerVersion[PlayerControl.LocalPlayer.PlayerId] = new(Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
+        static IEnumerator VersionCheck()
+        {
+            while (PlayerControl.LocalPlayer == null) yield return null;
+            MessageWriter writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.VersionCheck);
+            writer.Write(Main.PluginVersion);
+            writer.Write($"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})");
+            writer.Write(Main.ForkId);
+            writer.EndMessage();
+
+            Main.PlayerVersion[PlayerControl.LocalPlayer.PlayerId] = new(Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
+
+            if (GameStates.IsModHost)
+                Main.HostClientId = Utils.GetPlayerById(0)?.GetClientId() ?? -1;
+        }
     }
 
     public static void SendDeathReason(byte playerId, PlayerState.DeathReason deathReason)
@@ -1156,7 +1364,7 @@ internal static class RPC
     public static void SetRealKiller(byte targetId, byte killerId)
     {
         var state = Main.PlayerStates[targetId];
-        state.RealKiller.TIMESTAMP = DateTime.Now;
+        state.RealKiller.TimeStamp = DateTime.Now;
         state.RealKiller.ID = killerId;
 
         if (!AmongUsClient.Instance.AmHost) return;
@@ -1167,8 +1375,28 @@ internal static class RPC
     }
 }
 
+[HarmonyPatch(typeof(PlayerPhysics), nameof(PlayerPhysics.HandleRpc))]
+internal static class PlayerPhysicsRPCHandlerPatch
+{
+    public static bool Prefix(PlayerPhysics __instance, byte callId, MessageReader reader)
+    {
+        bool host = __instance.IsHost();
+        if (!host && EAC.PlayerPhysicsRpcCheck(__instance, callId, reader)) return false;
+
+        var player = __instance.myPlayer;
+        if (!player)
+        {
+            Logger.Warn("Received Physics RPC without a player", "PlayerPhysics_ReceiveRPC");
+            return false;
+        }
+
+        Logger.Info($"{player.PlayerId}({(host ? "Host" : player.Data.PlayerName)}):{callId}({RPC.GetRpcName(callId)})", "PlayerPhysics_ReceiveRPC");
+        return true;
+    }
+}
+
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.StartRpc))]
-internal class StartRpcPatch
+internal static class StartRpcPatch
 {
     public static void Prefix( /*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId)
     {
@@ -1177,7 +1405,7 @@ internal class StartRpcPatch
 }
 
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.StartRpcImmediately))]
-internal class StartRpcImmediatelyPatch
+internal static class StartRpcImmediatelyPatch
 {
     public static void Prefix( /*InnerNet.InnerNetClient __instance,*/ [HarmonyArgument(0)] uint targetNetId, [HarmonyArgument(1)] byte callId, [HarmonyArgument(3)] int targetClientId = -1)
     {

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace EHR.AddOns.Impostor
 {
@@ -23,7 +22,7 @@ namespace EHR.AddOns.Impostor
         {
             const int id = 14680;
             Options.SetupAdtRoleOptions(id, CustomRoles.Circumvent, canSetNum: true);
-            VentPreventionMode = new StringOptionItem(id + 3, "VentPreventionMode", VentPreventionModes, 1, TabGroup.Addons)
+            VentPreventionMode = new StringOptionItem(id + 5, "VentPreventionMode", VentPreventionModes, 1, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Circumvent]);
             Limit = new IntegerOptionItem(id + 4, "VentLimit", new(1, 90, 1), 8, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Circumvent]);
@@ -68,11 +67,7 @@ namespace EHR.AddOns.Impostor
         public static void AfterMeetingTasks()
         {
             if (VentPreventionMode.GetValue() != 2) return;
-
-            foreach (var playerId in Limits.Keys.ToArray())
-            {
-                Limits[playerId] = Limit.GetInt();
-            }
+            Limits.SetAllValues(Limit.GetInt());
         }
 
         public static string GetProgressText(byte playerId)
@@ -100,7 +95,8 @@ namespace EHR.AddOns.Impostor
 
         public static bool CanUseImpostorVentButton(PlayerControl pc)
         {
-            return !pc.Is(CustomRoles.Circumvent) && pc.inVent || (!Limits.TryGetValue(pc.PlayerId, out var limit) && VentPreventionMode.GetValue() != 0) || limit > 0;
+            if (!pc.Is(CustomRoles.Circumvent)) return true;
+            return pc.inVent || (!Limits.TryGetValue(pc.PlayerId, out var limit) && VentPreventionMode.GetValue() != 0) || limit > 0;
         }
     }
 }

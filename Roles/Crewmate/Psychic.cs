@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AmongUs.GameOptions;
+using EHR.Impostor;
 using EHR.Modules;
 using Hazel;
 using static EHR.Options;
@@ -24,7 +24,7 @@ public class Psychic : RoleBase
 
     public override bool IsEnable => playerIdList.Count > 0;
 
-    public static void SetupCustomOption()
+    public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Psychic);
         CanSeeNum = new IntegerOptionItem(Id + 2, "PsychicCanSeeNum", new(1, 10, 1), 3, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Psychic])
@@ -77,7 +77,7 @@ public class Psychic : RoleBase
     {
         if (target == null || seer == null) return false;
         if (Main.PlayerStates[seer.PlayerId].Role is not Psychic ph) return false;
-        if (seer.Is(CustomRoles.Madmate)) return target.GetCustomRole().IsNeutral() || target.GetCustomRole().GetDYRole() == RoleTypes.Impostor;
+        if (seer.Is(CustomRoles.Madmate)) return target.GetCustomRole().IsNeutral() || target.GetCustomRole().GetCrewmateRoleCategory() == RoleOptionType.Crewmate_Killing;
         return ph.RedPlayer != null && ph.RedPlayer.Contains(target.PlayerId);
     }
 
@@ -92,10 +92,10 @@ public class Psychic : RoleBase
         if (!IsEnable || !AmongUsClient.Instance.AmHost) return;
 
         List<PlayerControl> BadListPc = Main.AllAlivePlayerControls.Where(x =>
-            (x.Is(CustomRoleTypes.Impostor) && !x.Is(CustomRoles.Trickster)) || x.Is(CustomRoles.Madmate) || x.Is(CustomRoles.Rascal) || x.Is(CustomRoles.Recruit) || x.Is(CustomRoles.Charmed) || x.Is(CustomRoles.Contagious) ||
-            (x.GetCustomRole().IsCK() && CkshowEvil.GetBool()) ||
-            (x.GetCustomRole().IsNE() && NEshowEvil.GetBool()) ||
-            (x.GetCustomRole().IsNB() && NBshowEvil.GetBool())
+            (x.Is(CustomRoleTypes.Impostor) && !x.Is(CustomRoles.Trickster)) || x.Is(CustomRoles.Madmate) || x.Is(CustomRoles.Rascal) || Framer.FramedPlayers.Contains(x.PlayerId) || x.IsConverted() ||
+            (x.GetCustomRole().GetCrewmateRoleCategory() == RoleOptionType.Crewmate_Killing && CkshowEvil.GetBool()) ||
+            (x.GetCustomRole().GetNeutralRoleCategory() == RoleOptionType.Neutral_Evil && NEshowEvil.GetBool()) ||
+            (x.GetCustomRole().GetNeutralRoleCategory() == RoleOptionType.Neutral_Benign && NBshowEvil.GetBool())
         ).ToList();
 
         List<byte> BadList = [];

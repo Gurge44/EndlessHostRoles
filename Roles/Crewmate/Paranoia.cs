@@ -11,7 +11,7 @@ namespace EHR.Crewmate
         public static bool On;
         public override bool IsEnable => On;
 
-        public static void SetupCustomOption()
+        public override void SetupCustomOption()
         {
             SetupRoleOptions(7800, TabGroup.CrewmateRoles, CustomRoles.Paranoia);
             ParanoiaNumOfUseButton = new IntegerOptionItem(7810, "ParanoiaNumOfUseButton", new(0, 90, 1), 3, TabGroup.CrewmateRoles)
