@@ -4048,6 +4048,7 @@
   "MoveAndStop_MiddleCounterRedMax": "Tempo Maximo para Cima/Baixo estar Vermelho",
   "MoveAndStop_ExtraGreenTimeOnAirship": "Tempo Extra no Verde no Mapa Airship",
   "MoveAndStop_ExtraGreenTimeOnFungle": "Tempo Extra no Verde no Mapa Fungle",
+  "MoveAndStop_EnableTutorial": "Enable Tutorial",
   "MoveAndStop_Tutorial": "<size=80%><#ffffff><size=100%>Pare nas luzes vermelhas</size>\nMova-se apenas nas direções onde as setas estão verdes\n● indica cima e baixo\nOs Temporizadores indicam quando a cor ira mudar\nAmarelo significa que a luz ficará vermelha, então pare de se mover\nLaranja significa que a luz ficará verde, mas não se mova ainda\nTermine suas tarefas para vencer</color></size>",
   "Tasker": "Tarefador",
   "TaskerInfo": "Seja o Primeiro a Terminar as Tarefas para vencer!",
