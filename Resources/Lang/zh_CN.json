@@ -4048,6 +4048,7 @@
   "MoveAndStop_MiddleCounterRedMax": "中间计数器最大至红灯时间",
   "MoveAndStop_ExtraGreenTimeOnAirship": "AirShip地图上的额外绿灯时间",
   "MoveAndStop_ExtraGreenTimeOnFungle": "Fungle地图上的额外绿灯时间",
+  "MoveAndStop_EnableTutorial": "Enable Tutorial",
   "MoveAndStop_Tutorial": "<size=80%><#ffffff><size=100%>红灯停!</size>\\n只在看到绿色箭头的方向移动\\n● 表示上下,即中间的计时器\\n计时器显示颜色变化的时间.\\n黄灯表示信号灯将变为红色,建议停下.\\n橙色表示信号灯将变绿，但先不要移动\\n完成你的任务获得胜利!</color></size>",
   "Tasker": "任务管理",
   "TaskerInfo": "先完成任务者获胜!!!",
