@@ -60,7 +60,13 @@ namespace EHR.Crewmate
             LyncherId = playerId;
             TasksCompleted = 0;
             Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 1, TasksCompleted);
-            LateTask.New(() => KnownCharacters = AllRoleNames.ToDictionary(x => x.Key, _ => new List<char>()), 4f, log: false);
+
+            if (Main.HasJustStarted) LateTask.New(Action, 4f, log: false);
+            else Action();
+
+            return;
+
+            void Action() => KnownCharacters = AllRoleNames.ToDictionary(x => x.Key, _ => new List<char>());
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)

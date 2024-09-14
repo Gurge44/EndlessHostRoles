@@ -4030,6 +4030,7 @@
   "MoveAndStop_MiddleCounterRedMax": "Middle Counter Maximum Red Time",
   "MoveAndStop_ExtraGreenTimeOnAirship": "Extra Green Time On AirShip",
   "MoveAndStop_ExtraGreenTimeOnFungle": "Extra Green Time On Fungle",
+  "MoveAndStop_EnableTutorial": "Enable Tutorial",
   "MoveAndStop_Tutorial": "<size=80%><#ffffff><size=100%>Stop on red lights</size>\\nOnly move in directions where you see a green arrow\\n● indicates up and down\\nThe timers indicate when the color changes\\nYellow means the light will turn red, so stop moving\\nOrange means the light will turn green, but do not move yet\\nFinish your tasks to win</color></size>",
   "Tasker": "Tasker",
   "TaskerInfo": "FINISH TASKS FIRST TO WIN",
