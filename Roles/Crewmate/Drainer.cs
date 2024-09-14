@@ -22,7 +22,7 @@ namespace EHR.Crewmate
 
         public override void SetupCustomOption()
         {
-            SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Drainer);
+            SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Drainer);
             VentCD = new IntegerOptionItem(Id + 10, "VentCooldown", new(1, 60, 1), 30, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Drainer])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -66,7 +66,7 @@ namespace EHR.Crewmate
 
             pc.RpcRemoveAbilityUse();
 
-            var vents = vent.NearbyVents.Where(v => v != null).AddItem(vent).ToArray();
+            var vents = vent.NearbyVents.Where(v => v != null).Append(vent).ToArray();
             foreach (var ventToDrain in vents) KillPlayersInVent(pc, ventToDrain);
         }
 

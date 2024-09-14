@@ -243,7 +243,7 @@ public class ParityCop : RoleBase
         return true;
     }
 
-    static bool AreInSameTeam(PlayerControl first, PlayerControl second)
+    public static bool AreInSameTeam(PlayerControl first, PlayerControl second)
     {
         var firstRole = first.GetCustomRole();
         var secondRole = second.GetCustomRole();
@@ -275,10 +275,9 @@ public class ParityCop : RoleBase
 
         if (CustomTeamManager.AreInSameCustomTeam(first.PlayerId, second.PlayerId)) return true;
         if (firstSubRoles.Contains(CustomRoles.Bloodlust) || secondSubRoles.Contains(CustomRoles.Bloodlust)) return false;
-        if (first.IsNeutralKiller() && second.IsNeutralKiller()) return true;
         if (firstRole.IsNeutral() && secondRole.IsNeutral()) return false;
 
-        return firstTeam == secondTeam;
+        return firstTeam == secondTeam || firstRole == secondRole;
     }
 
     private static bool MsgToPlayerAndRole(string msg, out byte id1, out byte id2, out string error)

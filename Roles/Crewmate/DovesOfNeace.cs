@@ -69,7 +69,7 @@ namespace EHR.Crewmate
         {
             if (pc.GetAbilityUseLimit() < 1)
             {
-                if (!NameNotifyManager.Notice.ContainsKey(pc.PlayerId))
+                if (!NameNotifyManager.Notifies.ContainsKey(pc.PlayerId))
                     pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
                 return;
             }

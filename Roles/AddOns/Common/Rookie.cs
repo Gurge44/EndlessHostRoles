@@ -4,6 +4,6 @@
     {
         public AddonTypes Type => AddonTypes.Harmful;
 
-        public void SetupCustomOption() => Options.SetupAdtRoleOptions(649594, CustomRoles.Rookie, canSetNum: true, teamSpawnOptions: true);
+        public void SetupCustomOption() => Options.SetupAdtRoleOptions(649593, CustomRoles.Rookie, canSetNum: true, teamSpawnOptions: true);
     }
 }

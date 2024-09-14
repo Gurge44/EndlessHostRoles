@@ -24,7 +24,7 @@ namespace EHR.Impostor
             BomberKillCD = new FloatOptionItem(2020, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(BomberCanKill)
                 .SetValueFormat(OptionFormat.Seconds);
-            BombCooldown = new FloatOptionItem(2030, "BombCooldown", new(5f, 180f, 2.5f), 60f, TabGroup.ImpostorRoles)
+            BombCooldown = new FloatOptionItem(2030, "BombCooldown", new(5f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber])
                 .SetValueFormat(OptionFormat.Seconds);
             ImpostorsSurviveBombs = new BooleanOptionItem(2031, "ImpostorsSurviveBombs", true, TabGroup.ImpostorRoles)

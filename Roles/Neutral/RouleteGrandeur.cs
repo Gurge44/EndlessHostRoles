@@ -55,7 +55,7 @@ namespace EHR.Neutral
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KCD;
         public override bool CanUseImpostorVentButton(PlayerControl pc) => true;
-        public override bool CanUseSabotage(PlayerControl pc) => !(Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool());
+        public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (!(Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()));
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
@@ -152,9 +152,9 @@ namespace EHR.Neutral
             }
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != RouleteGrandeurId || isMeeting || (seer.IsModClient() && !isHUD) || (!isHUD && Utils.TimeStamp - LastRoll < 15)) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != RouleteGrandeurId || meeting || (seer.IsModClient() && !hud) || (!hud && Utils.TimeStamp - LastRoll < 15)) return string.Empty;
             return string.Format(Translator.GetString("RG.Suffix"), Bullets);
         }
     }

@@ -171,10 +171,10 @@ namespace EHR.Crewmate
             }
         }
 
-        public override string GetSuffix(PlayerControl s, PlayerControl t, bool h = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (s.PlayerId != t.PlayerId || !IsEnable || (s.IsModClient() && !h) || s.PlayerId != TornadoPC.PlayerId) return string.Empty;
-            return string.Join(h ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.ROOM_NAME)} {GetFormattedVectorText(x.Key.LOCATION)} ({(int)(TornadoDuration.GetInt() - (TimeStamp - x.Value) + 1)}s)"));
+            if (seer.PlayerId != target.PlayerId || !IsEnable || (seer.IsModClient() && !hud) || seer.PlayerId != TornadoPC.PlayerId) return string.Empty;
+            return string.Join(hud ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.ROOM_NAME)} {GetFormattedVectorText(x.Key.LOCATION)} ({(int)(TornadoDuration.GetInt() - (TimeStamp - x.Value) + 1)}s)"));
         }
     }
 }

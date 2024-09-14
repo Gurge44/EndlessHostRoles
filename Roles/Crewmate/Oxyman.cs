@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using Hazel;
 using UnityEngine;
 
 namespace EHR.Crewmate
@@ -163,14 +164,14 @@ namespace EHR.Crewmate
             _ => Color.white
         };
 
-        public void ReceiveRPC(Hazel.MessageReader reader)
+        public void ReceiveRPC(MessageReader reader)
         {
             OxygenLevel = reader.ReadPackedInt32();
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != OxymanId || (seer.IsModClient() && !isHUD)) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != OxymanId || (seer.IsModClient() && !hud)) return string.Empty;
             return $"<#ff0000>O<sub>2</sub>:</color> {Utils.ColorString(GetLevelColor(), OxygenLevel.ToString())}%";
         }
 

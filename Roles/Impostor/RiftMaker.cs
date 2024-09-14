@@ -141,6 +141,14 @@ namespace EHR.Impostor
             return false;
         }
 
+        public override void OnPet(PlayerControl pc)
+        {
+            if (pc == null) return;
+            if (Marks.Count >= 2) return;
+
+            Mark(pc);
+        }
+
         private void Mark(PlayerControl player)
         {
             Marks.Add(player.transform.position);

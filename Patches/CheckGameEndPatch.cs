@@ -21,11 +21,12 @@ using static EHR.Utils;
 namespace EHR;
 
 [HarmonyPatch(typeof(LogicGameFlowNormal), nameof(LogicGameFlowNormal.CheckEndCriteria))]
-class GameEndChecker
+static class GameEndChecker
 {
     private const float EndGameDelay = 0.2f;
     public static GameEndPredicate Predicate;
     public static bool ShouldNotCheck = false;
+    public static bool ShowAllRolesWhenGameEnd;
 
     public static bool Prefix()
     {
@@ -34,6 +35,8 @@ class GameEndChecker
         if (Predicate == null || ShouldNotCheck) return false;
 
         if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return false;
+
+        ShowAllRolesWhenGameEnd = false;
 
         Predicate.CheckForEndGame(out GameOverReason reason);
 
@@ -55,6 +58,8 @@ class GameEndChecker
             NotifyRoles(NoCache: true);
 
             Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, ForceRevert: true, RevertToDefault: true, GameEnd: true));
+
+            ShowAllRolesWhenGameEnd = true;
 
             if (reason == GameOverReason.ImpostorBySabotage && Options.NKWinsBySabotageIfNoImpAlive.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.IsImpostor()) && Main.AllAlivePlayerControls.Count(x => x.IsNeutralKiller()) == 1)
             {
@@ -264,7 +269,7 @@ class GameEndChecker
                         });
                 }
 
-                if ((WinnerTeam == CustomWinner.Lovers || WinnerIds.Any(x => Main.PlayerStates[x].SubRoles.Contains(CustomRoles.Lovers))) && Main.LoversPlayers.All(x => x.IsAlive()) && reason != GameOverReason.HumansByTask)
+                if ((WinnerTeam == CustomWinner.Lovers || WinnerIds.Any(x => Main.PlayerStates[x].SubRoles.Contains(CustomRoles.Lovers))) && Main.LoversPlayers.TrueForAll(x => x.IsAlive()) && reason != GameOverReason.HumansByTask)
                 {
                     if (WinnerTeam != CustomWinner.Lovers) AdditionalWinnerTeams.Add(AdditionalWinners.Lovers);
                     WinnerIds.UnionWith(Main.LoversPlayers.Select(x => x.PlayerId));
@@ -399,13 +404,22 @@ class GameEndChecker
         {
             reason = GameOverReason.ImpostorByKill;
 
-            if (CustomRoles.Sunnyboy.RoleExist() && Main.AllAlivePlayerControls.Length > 1) return false;
+            PlayerControl[] aapc = Main.AllAlivePlayerControls;
+
+            if (CustomRoles.Sunnyboy.RoleExist() && aapc.Length > 1) return false;
 
             if (CustomTeamManager.CheckCustomTeamGameEnd()) return true;
 
-            if (Main.AllAlivePlayerControls.All(x => Main.LoversPlayers.Any(l => l.PlayerId == x.PlayerId)) && (!Main.LoversPlayers.All(x => x.Is(Team.Crewmate)) || !Lovers.CrewLoversWinWithCrew.GetBool()))
+            if (aapc.Length == 0 && !Main.HasJustStarted)
+            {
+                ResetAndSetWinner(CustomWinner.None);
+                return true;
+            }
+
+            if (aapc.All(x => Main.LoversPlayers.Exists(l => l.PlayerId == x.PlayerId)) && (!Main.LoversPlayers.TrueForAll(x => x.Is(Team.Crewmate)) || !Lovers.CrewLoversWinWithCrew.GetBool()))
             {
                 ResetAndSetWinner(CustomWinner.Lovers);
+                WinnerIds.UnionWith(Main.LoversPlayers.ConvertAll(x => x.PlayerId));
                 return true;
             }
 
@@ -432,7 +446,7 @@ class GameEndChecker
 
             if (CustomRoles.DualPersonality.IsEnable())
             {
-                foreach (PlayerControl x in Main.AllAlivePlayerControls)
+                foreach (PlayerControl x in aapc)
                 {
                     if (!x.Is(CustomRoles.DualPersonality)) continue;
 
@@ -629,46 +643,38 @@ class GameEndChecker
 
             if (MoveAndStopManager.RoundTime <= 0)
             {
-                var winner = Main.GM.Value && Main.AllPlayerControls.Length == 1 ? PlayerControl.LocalPlayer : Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => MoveAndStopManager.GetRankOfScore(x.PlayerId)).ThenByDescending(x => x.IsAlive()).First();
-
-                byte winnerId = winner.PlayerId;
-
-                Logger.Warn($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "MoveAndStop");
-
-                WinnerIds =
-                [
-                    winnerId
-                ];
-
-                Main.DoBlockNameChange = true;
-
+                PlayerControl[] apc = Main.AllPlayerControls;
+                SetWinner(Main.GM.Value && apc.Length == 1 ? PlayerControl.LocalPlayer : apc.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => MoveAndStopManager.GetRankOfScore(x.PlayerId)).ThenByDescending(x => x.IsAlive()).First());
                 return true;
             }
 
-            if (Main.AllAlivePlayerControls.Any(x => x.GetTaskState().IsTaskFinished))
+            PlayerControl[] aapc = Main.AllAlivePlayerControls;
+            
+            if (aapc.Any(x => x.GetTaskState().IsTaskFinished))
             {
-                var winner = Main.AllAlivePlayerControls.First(x => x.GetTaskState().IsTaskFinished);
-
-                Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "MoveAndStop");
-
-                WinnerIds =
-                [
-                    winner.PlayerId
-                ];
-
-                Main.DoBlockNameChange = true;
-
+                SetWinner(aapc.First(x => x.GetTaskState().IsTaskFinished));
                 return true;
             }
 
-            if (Main.AllAlivePlayerControls.Length == 0)
+            switch (aapc.Length)
             {
-                MoveAndStopManager.RoundTime = 0;
-                Logger.Warn("No players alive. Force ending the game", "MoveAndStop");
-                return false;
+                case 1 when !GameStates.IsLocalGame:
+                    SetWinner(aapc[0]);
+                    return true;
+                case 0:
+                    MoveAndStopManager.RoundTime = 0;
+                    Logger.Warn("No players alive. Force ending the game", "MoveAndStop");
+                    return false;
             }
 
             return false;
+
+            void SetWinner(PlayerControl winner)
+            {
+                Logger.Warn($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "MoveAndStop");
+                WinnerIds = [winner.PlayerId];
+                Main.DoBlockNameChange = true;
+            }
         }
     }
 
@@ -842,7 +848,7 @@ class GameEndChecker
 }
 
 [HarmonyPatch(typeof(GameManager), nameof(GameManager.CheckEndGameViaTasks))]
-class CheckGameEndPatch
+static class CheckGameEndPatch
 {
     public static bool Prefix(ref bool __result)
     {

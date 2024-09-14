@@ -34,7 +34,7 @@ namespace EHR.Neutral
 
         public override bool CanUseSabotage(PlayerControl pc)
         {
-            return false;
+            return pc.Is(CustomRoles.Mischievous);
         }
 
         public override void SetKillCooldown(byte id)

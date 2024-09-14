@@ -67,7 +67,7 @@ namespace EHR.Impostor
             }
         }
 
-        public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
+        public static bool OnAnyoneCheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
         {
             if (BoobyTrapBody.Contains(target.PlayerId) && reporter.IsAlive())
             {

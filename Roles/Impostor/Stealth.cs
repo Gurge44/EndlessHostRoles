@@ -26,7 +26,7 @@ namespace EHR.Impostor
 
         public override void SetupCustomOption()
         {
-            Options.SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Stealth);
+            Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Stealth);
             OptionExcludeImpostors = new BooleanOptionItem(Id + 10, "StealthExcludeImpostors", false, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Stealth]);
             OptionDarkenDuration = new FloatOptionItem(Id + 20, "StealthDarkenDuration", new(0.5f, 10f, 0.5f), 3f, TabGroup.ImpostorRoles)
@@ -161,12 +161,12 @@ namespace EHR.Impostor
             Utils.NotifyRoles(SpecifySeer: StealthPC, SpecifyTarget: StealthPC);
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl seen, bool hud = false, bool meeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (Main.PlayerStates[seer.PlayerId].Role is not Stealth { IsEnable: true }) return string.Empty;
-            seen ??= seer;
+            target ??= seer;
             // During the meeting, unless it's my suffix, or it's dark everywhere, I won't show anything.
-            return meeting || seen != seer || !DarkenedRoom.HasValue || (seer.IsModClient() && !hud)
+            return meeting || target != seer || !DarkenedRoom.HasValue || (seer.IsModClient() && !hud)
                 ? string.Empty
                 : string.Format(Translator.GetString("StealthDarkened"), DestroyableSingleton<TranslationController>.Instance.GetString(DarkenedRoom.Value));
         }

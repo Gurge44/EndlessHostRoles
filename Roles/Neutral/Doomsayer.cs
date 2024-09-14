@@ -32,7 +32,7 @@ public class Doomsayer : RoleBase
 
     public override void SetupCustomOption()
     {
-        Options.SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Doomsayer);
+        Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Doomsayer);
         DoomsayerAmountOfGuessesToWin = new IntegerOptionItem(Id + 10, "DoomsayerAmountOfGuessesToWin", new(1, 10, 1), 3, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer])
             .SetValueFormat(OptionFormat.Times);
@@ -93,13 +93,6 @@ public class Doomsayer : RoleBase
     {
         byte DoomsayerId = reader.ReadByte();
         GuessingToWin[DoomsayerId]++;
-    }
-
-    public static (int, int) GuessedPlayerCount(byte doomsayerId)
-    {
-        int doomsayerguess = GuessingToWin[doomsayerId], GuessesToWin = DoomsayerAmountOfGuessesToWin.GetInt();
-
-        return (doomsayerguess, GuessesToWin);
     }
 
     public static void CheckCountGuess(PlayerControl doomsayer)

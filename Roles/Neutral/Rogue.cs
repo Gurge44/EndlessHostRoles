@@ -63,7 +63,7 @@ namespace EHR.Neutral
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = GotRewards.Contains(Reward.DecreasedKillCooldown) ? KillCooldown.GetFloat() / 2f : KillCooldown.GetFloat();
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CurrentTask.Objective == Objective.VentXTimes || CanVent.GetBool();
-        public override bool CanUseSabotage(PlayerControl pc) => GotRewards.Contains(Reward.Sabotage) || GotRewards.Contains(Reward.Morph);
+        public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (GotRewards.Contains(Reward.Sabotage) || GotRewards.Contains(Reward.Morph));
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
@@ -297,9 +297,9 @@ namespace EHR.Neutral
             }
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != RoguePC.PlayerId || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !isHUD) || MeetingStates.FirstMeeting) return string.Empty;
+            if (seer.PlayerId != RoguePC.PlayerId || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud) || MeetingStates.FirstMeeting) return string.Empty;
             if (AllTasksCompleted) return Translator.GetString("Rogue.AllTasksCompleted");
             if (CurrentTask.IsCompleted) return Translator.GetString("Rogue.TaskCompleted");
 

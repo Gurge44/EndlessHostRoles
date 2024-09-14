@@ -284,6 +284,7 @@ namespace EHR
 
         public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool isHUD = false)
         {
+            if (GameStates.IsLobby || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted) return string.Empty;
             if (seer.PlayerId != target.PlayerId) return string.Empty;
 
             string dangerMeter = GetDangerMeter(seer);

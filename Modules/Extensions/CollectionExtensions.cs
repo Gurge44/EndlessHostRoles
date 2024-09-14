@@ -194,7 +194,8 @@ namespace EHR
         /// <param name="overrideExistingKeys">Whether to override existing keys in the <paramref name="dictionary"/> with the same keys in the <paramref name="other"/> dictionary. If <c>true</c>, the same keys in the <paramref name="dictionary"/> will be overwritten with the values from the <paramref name="other"/> dictionary. If <c>false</c>, the same keys in the <paramref name="dictionary"/> will be kept and the values from the <paramref name="other"/> dictionary will be ignored</param>
         /// <typeparam name="TKey">The type of the keys in the dictionaries</typeparam>
         /// <typeparam name="TValue">The type of the values in the dictionaries</typeparam>
-        public static void AddRange<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Dictionary<TKey, TValue> other, bool overrideExistingKeys = true)
+        /// <returns>The <paramref name="dictionary"/> with the elements from the <paramref name="other"/> dictionary added</returns>
+        public static Dictionary<TKey, TValue> AddRange<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Dictionary<TKey, TValue> other, bool overrideExistingKeys = true)
         {
             foreach ((TKey key, TValue value) in other)
             {
@@ -203,6 +204,8 @@ namespace EHR
                     dictionary[key] = value;
                 }
             }
+
+            return dictionary;
         }
 
         /// <summary>
@@ -253,6 +256,11 @@ namespace EHR
 
             element = default;
             return false;
+        }
+
+        public static IEnumerable<PlayerControl> ToValidPlayers(this IEnumerable<byte> playerIds)
+        {
+            return playerIds.Select(Utils.GetPlayer).Where(x => x != null);
         }
 
         #region Without

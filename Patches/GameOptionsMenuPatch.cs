@@ -200,7 +200,7 @@ public static class GameOptionsMenuPatch
     {
         Vector3 positionOffset = new(0f, 0f, 0f);
         Vector3 scaleOffset = new(0f, 0f, 0f);
-        Color color = new(0.8f, 0.8f, 0.8f);
+        Color color = new(0.35f, 0.35f, 0.35f);
         float sizeDelta_x = 5.7f;
 
         if (option.Parent?.Parent?.Parent != null)
@@ -790,6 +790,7 @@ public class GameSettingMenuPatch
 
     public static FreeChatInputField InputField;
     private static System.Collections.Generic.List<OptionItem> HiddenBySearch = [];
+    public static Action _SearchForOptions;
 
     [HarmonyPatch(nameof(GameSettingMenu.Start)), HarmonyPrefix]
     [HarmonyPriority(Priority.First)]
@@ -828,6 +829,7 @@ public class GameSettingMenuPatch
             button.activeSprites.GetComponent<SpriteRenderer>().color = color;
             button.selectedSprites.GetComponent<SpriteRenderer>().color = color;
 
+            // ReSharper disable once PossibleLossOfFraction
             Vector3 offset = new(0f, 0.4f * (((int)tab + 1) / 2), 0f);
             button.transform.localPosition = ((((int)tab + 1) % 2 == 0) ? ButtonPositionLeft : ButtonPositionRight) - offset;
             button.transform.localScale = ButtonSize;
@@ -866,8 +868,8 @@ public class GameSettingMenuPatch
     // Thanks: Drakos for the preset button and search bar code (https://github.com/0xDrMoe/TownofHost-Enhanced/pull/1115)
     private static void SetupExtendedUI(GameSettingMenu __instance)
     {
-        var ParentLeftPanel = __instance.GamePresetsButton.transform.parent;
-        var preset = Object.Instantiate(GameObject.Find("ModeValue"), ParentLeftPanel);
+        var parentLeftPanel = __instance.GamePresetsButton.transform.parent;
+        var preset = Object.Instantiate(GameObject.Find("ModeValue"), parentLeftPanel);
 
         preset.transform.localPosition = new(-1.83f, 0.1f, -2f);
         preset.transform.localScale = new(0.65f, 0.63f, 1f);
@@ -879,54 +881,54 @@ public class GameSettingMenuPatch
         presetTmp.DestroyTranslator();
         presetTmp.text = Translator.GetString($"Preset_{OptionItem.CurrentPreset + 1}");
 
-        var IsRussian = DestroyableSingleton<TranslationController>.Instance.currentLanguage.languageID == SupportedLangs.Russian;
-        float size = !IsRussian ? 2.45f : 1.45f;
+        var russian = DestroyableSingleton<TranslationController>.Instance.currentLanguage.languageID == SupportedLangs.Russian;
+        float size = !russian ? 2.45f : 1.45f;
         presetTmp.fontSizeMax = presetTmp.fontSizeMin = size;
 
 
-        var TempMinus = GameObject.Find("MinusButton").gameObject;
-        var GMinus = Object.Instantiate(__instance.GamePresetsButton.gameObject, preset.transform);
-        GMinus.gameObject.SetActive(true);
-        GMinus.transform.localScale = new(0.08f, 0.4f, 1f);
+        var tempMinus = GameObject.Find("MinusButton").gameObject;
+        var gMinus = Object.Instantiate(__instance.GamePresetsButton.gameObject, preset.transform);
+        gMinus.gameObject.SetActive(true);
+        gMinus.transform.localScale = new(0.08f, 0.4f, 1f);
 
-        var MLabel = GMinus.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
-        MLabel.alignment = TextAlignmentOptions.Center;
-        MLabel.DestroyTranslator();
-        MLabel.text = "-";
-        MLabel.transform.localPosition = new(MLabel.transform.localPosition.x, MLabel.transform.localPosition.y + 0.26f, MLabel.transform.localPosition.z);
-        MLabel.color = Color.white;
-        MLabel.SetFaceColor(new Color(255f, 255f, 255f));
-        MLabel.transform.localScale = new(12f, 4f, 1f);
+        var mLabel = gMinus.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
+        mLabel.alignment = TextAlignmentOptions.Center;
+        mLabel.DestroyTranslator();
+        mLabel.text = "-";
+        mLabel.transform.localPosition = new(mLabel.transform.localPosition.x, mLabel.transform.localPosition.y + 0.26f, mLabel.transform.localPosition.z);
+        mLabel.color = Color.white;
+        mLabel.SetFaceColor(new Color(255f, 255f, 255f));
+        mLabel.transform.localScale = new(12f, 4f, 1f);
 
-        var Minus = GMinus.GetComponent<PassiveButton>();
-        Minus.OnClick.RemoveAllListeners();
-        Minus.OnClick.AddListener((Action)(() =>
+        var minus = gMinus.GetComponent<PassiveButton>();
+        minus.OnClick.RemoveAllListeners();
+        minus.OnClick.AddListener((Action)(() =>
         {
             if (PresetBehaviour == null) __instance.ChangeTab(3, false);
             PresetBehaviour.Decrease();
         }));
-        Minus.activeTextColor = Minus.inactiveTextColor = Minus.disabledTextColor = Minus.selectedTextColor = Color.white;
+        minus.activeTextColor = minus.inactiveTextColor = minus.disabledTextColor = minus.selectedTextColor = Color.white;
 
-        Minus.transform.localPosition = new(-2f, -3.37f, -4f);
-        Minus.inactiveSprites.GetComponent<SpriteRenderer>().sprite = TempMinus.GetComponentInChildren<SpriteRenderer>().sprite;
-        Minus.activeSprites.GetComponent<SpriteRenderer>().sprite = TempMinus.GetComponentInChildren<SpriteRenderer>().sprite;
-        Minus.selectedSprites.GetComponent<SpriteRenderer>().sprite = TempMinus.GetComponentInChildren<SpriteRenderer>().sprite;
+        minus.transform.localPosition = new(-2f, -3.37f, -4f);
+        minus.inactiveSprites.GetComponent<SpriteRenderer>().sprite = tempMinus.GetComponentInChildren<SpriteRenderer>().sprite;
+        minus.activeSprites.GetComponent<SpriteRenderer>().sprite = tempMinus.GetComponentInChildren<SpriteRenderer>().sprite;
+        minus.selectedSprites.GetComponent<SpriteRenderer>().sprite = tempMinus.GetComponentInChildren<SpriteRenderer>().sprite;
 
-        Minus.inactiveSprites.GetComponent<SpriteRenderer>().color = new Color32(55, 59, 60, 255);
-        Minus.activeSprites.GetComponent<SpriteRenderer>().color = new Color32(0, 255, 165, 255);
-        Minus.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(0, 165, 255, 255);
+        minus.inactiveSprites.GetComponent<SpriteRenderer>().color = new Color32(55, 59, 60, 255);
+        minus.activeSprites.GetComponent<SpriteRenderer>().color = new Color32(0, 255, 165, 255);
+        minus.selectedSprites.GetComponent<SpriteRenderer>().color = new Color32(0, 165, 255, 255);
 
 
-        var PlusFab = Object.Instantiate(GMinus, preset.transform);
-        var PLuLabel = PlusFab.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
-        PLuLabel.alignment = TextAlignmentOptions.Center;
-        PLuLabel.DestroyTranslator();
-        PLuLabel.text = "+";
-        PLuLabel.color = Color.white;
-        PLuLabel.transform.localPosition = new(PLuLabel.transform.localPosition.x, PLuLabel.transform.localPosition.y + 0.26f, PLuLabel.transform.localPosition.z);
-        PLuLabel.transform.localScale = new(18f, 4f, 1f);
+        var plusFab = Object.Instantiate(gMinus, preset.transform);
+        var plusLabel = plusFab.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
+        plusLabel.alignment = TextAlignmentOptions.Center;
+        plusLabel.DestroyTranslator();
+        plusLabel.text = "+";
+        plusLabel.color = Color.white;
+        plusLabel.transform.localPosition = new(plusLabel.transform.localPosition.x, plusLabel.transform.localPosition.y + 0.26f, plusLabel.transform.localPosition.z);
+        plusLabel.transform.localScale = new(18f, 4f, 1f);
 
-        var plus = PlusFab.GetComponent<PassiveButton>();
+        var plus = plusFab.GetComponent<PassiveButton>();
         plus.OnClick.RemoveAllListeners();
         plus.OnClick.AddListener((Action)(() =>
         {
@@ -937,30 +939,30 @@ public class GameSettingMenuPatch
         plus.transform.localPosition = new(-0.4f, -3.37f, -4f);
 
 
-        var GameSettingsLabel = __instance.GameSettingsButton.transform.parent.parent.FindChild("GameSettingsLabel").GetComponent<TextMeshPro>();
-        GameSettingsLabel.DestroyTranslator();
+        var gameSettingsLabel = __instance.GameSettingsButton.transform.parent.parent.FindChild("GameSettingsLabel").GetComponent<TextMeshPro>();
+        gameSettingsLabel.DestroyTranslator();
         var gameModeText = Translator.GetString($"Mode{Options.CurrentGameMode}").Split(':').Last().TrimStart(' ');
         if (gameModeText.Length >= 15) gameModeText = $"<size=70%>{gameModeText}</size>";
-        GameSettingsLabel.text = gameModeText;
-        if (IsRussian)
+        gameSettingsLabel.text = gameModeText;
+        if (russian)
         {
-            GameSettingsLabel.transform.localScale = new(0.7f, 0.7f, 1f);
-            GameSettingsLabel.transform.localPosition = new(-3.77f, 1.62f, -4);
+            gameSettingsLabel.transform.localScale = new(0.7f, 0.7f, 1f);
+            gameSettingsLabel.transform.localPosition = new(-3.77f, 1.62f, -4);
         }
 
-        var GameSettingsLabelPos = GameSettingsLabel.transform.localPosition;
+        var gameSettingsLabelPos = gameSettingsLabel.transform.localPosition;
 
-        var gmCycler = Object.Instantiate(GMinus, GameSettingsLabel.transform, true);
+        var gmCycler = Object.Instantiate(gMinus, gameSettingsLabel.transform, true);
 
         gmCycler.transform.localScale = new(0.25f, 0.7f, 1f);
-        gmCycler.transform.localPosition = new(GameSettingsLabelPos.x + 0.8f, GameSettingsLabelPos.y - 2.9f, GameSettingsLabelPos.z);
+        gmCycler.transform.localPosition = new(gameSettingsLabelPos.x + 0.8f, gameSettingsLabelPos.y - 2.9f, gameSettingsLabelPos.z);
         var gmTmp = gmCycler.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
         gmTmp.alignment = TextAlignmentOptions.Center;
         gmTmp.DestroyTranslator();
         gmTmp.text = "\u21c4";
         gmTmp.color = Color.white;
-        var Offset2 = !IsRussian ? 3.35f : 3.65f;
-        gmTmp.transform.localPosition = new(GameSettingsLabelPos.x + Offset2, GameSettingsLabelPos.y - 1.52f, GameSettingsLabelPos.z);
+        var Offset2 = !russian ? 3.35f : 3.65f;
+        gmTmp.transform.localPosition = new(gameSettingsLabelPos.x + Offset2, gameSettingsLabelPos.y - 1.52f, gameSettingsLabelPos.z);
         gmTmp.transform.localScale = new(4f, 1.5f, 1f);
 
         var cycle = gmCycler.GetComponent<PassiveButton>();
@@ -970,21 +972,21 @@ public class GameSettingMenuPatch
             if (GameModeBehaviour == null) __instance.ChangeTab(4, false);
             GameModeBehaviour.Increase();
         }));
-        var Offset = !IsRussian ? 1.15f : 2.25f;
+        var Offset = !russian ? 1.15f : 2.25f;
         cycle.activeTextColor = cycle.inactiveTextColor = cycle.disabledTextColor = cycle.selectedTextColor = Color.white;
         cycle.transform.localPosition = new(Offset, 0.08f, 1f);
 
 
-        var FreeChatField = DestroyableSingleton<ChatController>.Instance.freeChatField;
-        var TextField = Object.Instantiate(FreeChatField, ParentLeftPanel.parent);
-        TextField.transform.localScale = new(0.3f, 0.59f, 1);
-        TextField.transform.localPosition = new(-0.7f, -2.5f, -5f);
-        TextField.textArea.outputText.transform.localScale = new(3.5f, 2f, 1f);
-        TextField.textArea.outputText.font = PLuLabel.font;
+        var freeChatField = DestroyableSingleton<ChatController>.Instance.freeChatField;
+        var field = Object.Instantiate(freeChatField, parentLeftPanel.parent);
+        field.transform.localScale = new(0.3f, 0.59f, 1);
+        field.transform.localPosition = new(-0.7f, -2.5f, -5f);
+        field.textArea.outputText.transform.localScale = new(3.5f, 2f, 1f);
+        field.textArea.outputText.font = plusLabel.font;
 
-        InputField = TextField;
+        InputField = field;
 
-        var button = TextField.transform.FindChild("ChatSendButton");
+        var button = field.transform.FindChild("ChatSendButton");
 
         Object.Destroy(button.FindChild("Normal").FindChild("Icon").GetComponent<SpriteRenderer>());
         Object.Destroy(button.FindChild("Hover").FindChild("Icon").GetComponent<SpriteRenderer>());
@@ -995,21 +997,27 @@ public class GameSettingMenuPatch
         button.FindChild("Hover").FindChild("Background").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.SearchIconHover.png", 100f);
         button.FindChild("Disabled").FindChild("Background").GetComponent<SpriteRenderer>().sprite = Utils.LoadSprite("EHR.Resources.Images.SearchIcon.png", 100f);
 
-        if (IsRussian)
+        if (russian)
         {
-            Vector3 FixedScale = new(0.7f, 1f, 1f);
-            button.FindChild("Normal").FindChild("Background").transform.localScale = FixedScale;
-            button.FindChild("Hover").FindChild("Background").transform.localScale = FixedScale;
-            button.FindChild("Disabled").FindChild("Background").transform.localScale = FixedScale;
+            Vector3 fixedScale = new(0.7f, 1f, 1f);
+            button.FindChild("Normal").FindChild("Background").transform.localScale = fixedScale;
+            button.FindChild("Hover").FindChild("Background").transform.localScale = fixedScale;
+            button.FindChild("Disabled").FindChild("Background").transform.localScale = fixedScale;
         }
 
 
         PassiveButton passiveButton = button.GetComponent<PassiveButton>();
 
         passiveButton.OnClick = new();
-        passiveButton.OnClick.AddListener((Action)(() => SearchForOptions(TextField)));
-        return;
+        passiveButton.OnClick.AddListener((Action)(() => SearchForOptions(field)));
 
+        _SearchForOptions = (() =>
+        {
+            if (field.textArea.text != string.Empty)
+                SearchForOptions(field);
+        });
+
+        return;
 
         static void SearchForOptions(FreeChatInputField textField)
         {

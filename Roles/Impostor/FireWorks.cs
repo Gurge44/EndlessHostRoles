@@ -190,7 +190,7 @@ public class FireWorks : RoleBase
         Utils.NotifyRoles(ForceLoop: true);
     }
 
-    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         string retText = string.Empty;
         if (seer == null || seer.Data.IsDead || seer.PlayerId != target.PlayerId) return retText;

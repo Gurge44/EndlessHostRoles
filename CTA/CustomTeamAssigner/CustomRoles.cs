@@ -135,6 +135,7 @@ public enum CustomRoles
     Altruist,
     Analyst,
     Autocrat,
+    Bane,
     Beacon,
     Benefactor,
     Bodyguard,
@@ -249,6 +250,7 @@ public enum CustomRoles
     SwordsMan, // Vigilante
     Whisperer,
     Witness,
+    Wizard,
 
     // Neutrals
 

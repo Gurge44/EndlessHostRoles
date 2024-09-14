@@ -11,7 +11,7 @@ namespace EHR.AddOns.Common
 
         public void SetupCustomOption()
         {
-            Options.SetupAdtRoleOptions(649293, CustomRoles.Deadlined, canSetNum: true, teamSpawnOptions: true);
+            Options.SetupAdtRoleOptions(649292, CustomRoles.Deadlined, canSetNum: true, teamSpawnOptions: true);
             InactiveTime = new IntegerOptionItem(649299, "Deadlined.InactiveTime", new(0, 60, 1), 15, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Deadlined])
                 .SetValueFormat(OptionFormat.Seconds);

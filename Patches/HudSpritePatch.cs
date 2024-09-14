@@ -32,6 +32,9 @@ public static class HudSpritePatch
         {
             var player = PlayerControl.LocalPlayer;
             if (player == null) return;
+
+            if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId)) return;
+
             if (!SetHudActivePatch.IsActive || !player.IsAlive()) return;
             if (!AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed)
             {
@@ -60,10 +63,22 @@ public static class HudSpritePatch
             Sprite newPetButton = Pet;
             Sprite newReportButton = Report;
 
-            if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId)) goto EndOfSelectImg;
-
             switch (player.GetCustomRole())
             {
+                case CustomRoles.Enderman:
+                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("abscond");
+                    else newSabotageButton = CustomButton.Get("abscond");
+                    break;
+                case CustomRoles.Wizard:
+                    newAbilityButton = CustomButton.Get("Up");
+                    break;
+                case CustomRoles.Socialite:
+                    newKillButton = CustomButton.Get("Mark");
+                    break;
+                case CustomRoles.Hitman:
+                case CustomRoles.Augmenter:
+                    newAbilityButton = CustomButton.Get("Mark");
+                    break;
                 case CustomRoles.Echo:
                     newAbilityButton = player.IsShifted() ? Kill : CustomButton.Get("Puttpuer");
                     break;
@@ -72,6 +87,8 @@ public static class HudSpritePatch
                     break;
                 case CustomRoles.Changeling:
                     newAbilityButton = CustomButton.Get("GlitchMimic");
+                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("Swap");
+                    else newVentButton = CustomButton.Get("Swap");
                     break;
                 case CustomRoles.Vulture:
                     newReportButton = CustomButton.Get("Eat");
@@ -109,6 +126,10 @@ public static class HudSpritePatch
                 case CustomRoles.Gaulois:
                     newKillButton = CustomButton.Get("Gaulois");
                     break;
+                case CustomRoles.Consort:
+                case CustomRoles.Escort:
+                    newKillButton = CustomButton.Get("GlitchHack");
+                    break;
                 case CustomRoles.Glitch:
                     if (Main.PlayerStates[player.PlayerId].Role is not Glitch gc) break;
                     if (gc.KCDTimer > 0 && gc.HackCDTimer <= 0) newKillButton = CustomButton.Get("GlitchHack");
@@ -117,16 +138,12 @@ public static class HudSpritePatch
                 case CustomRoles.Jester:
                     newAbilityButton = CustomButton.Get("JesterVent");
                     break;
+                case CustomRoles.Swapster:
+                    newAbilityButton = CustomButton.Get("Transport");
+                    break;
                 case CustomRoles.Disperser:
-                    if (Options.UsePets.GetBool())
-                    {
-                        newPetButton = CustomButton.Get("Disperse");
-                    }
-                    else if (!shapeshifting)
-                    {
-                        newAbilityButton = CustomButton.Get("Disperse");
-                    }
-
+                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("Disperse");
+                    else if (!shapeshifting) newAbilityButton = CustomButton.Get("Disperse");
                     break;
                 case CustomRoles.ImperiusCurse:
                 case CustomRoles.Twister:
@@ -155,9 +172,6 @@ public static class HudSpritePatch
                     break;
                 case CustomRoles.Penguin:
                     newAbilityButton = CustomButton.Get("Timer");
-                    break;
-                case CustomRoles.Hitman:
-                    newAbilityButton = CustomButton.Get("TargetIcon");
                     break;
                 case CustomRoles.Revolutionist:
                     newKillButton = CustomButton.Get("Tag");
@@ -271,17 +285,19 @@ public static class HudSpritePatch
                     else newAbilityButton = CustomButton.Get("Dash");
                     break;
                 case CustomRoles.Swooper:
-                    newAbilityButton = CustomButton.Get("invisible");
-                    break;
                 case CustomRoles.Chameleon:
-                    newAbilityButton = CustomButton.Get("invisible");
-                    break;
                 case CustomRoles.Wraith:
                     newAbilityButton = CustomButton.Get("invisible");
+                    break;
+                case CustomRoles.Visionary:
+                    newAbilityButton = CustomButton.Get("prophecies");
                     break;
                 case CustomRoles.Escapee:
                     if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("abscond");
                     else newAbilityButton = CustomButton.Get("abscond");
+                    break;
+                case CustomRoles.Tunneler:
+                    newPetButton = CustomButton.Get("abscond");
                     break;
                 case CustomRoles.Farseer:
                     newKillButton = CustomButton.Get("prophecies");
@@ -301,13 +317,6 @@ public static class HudSpritePatch
                     }
 
                     break;
-                default:
-                    if (player.GetCustomRole().UsesPetInsteadOfKill())
-                    {
-                        newPetButton = __instance.KillButton.graphic.sprite;
-                    }
-
-                    break;
             }
 
             if (player.GetCustomRole().UsesPetInsteadOfKill())
@@ -315,8 +324,6 @@ public static class HudSpritePatch
                 newPetButton = newKillButton;
             }
 
-
-            EndOfSelectImg:
 
             __instance.KillButton.graphic.sprite = newKillButton;
             __instance.AbilityButton.graphic.sprite = newAbilityButton;

@@ -217,7 +217,7 @@ public class Romantic : RoleBase
             : string.Empty;
     }
 
-    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != target.PlayerId) return string.Empty;
         if (seer.PlayerId == PartnerId && HasPickedPartner) return TargetArrow.GetArrows(seer, RomanticId);
@@ -334,20 +334,21 @@ public class VengefulRomantic : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (killer.PlayerId == target.PlayerId || killer.PlayerId != VengefulRomanticId) return true;
-
-        if (target.PlayerId == Target)
-        {
-            HasKilledKiller = true;
-            Utils.NotifyRoles(SpecifySeer: VengefulRomantic_, SpecifyTarget: target);
-            return true;
-        }
+        if (killer.PlayerId == target.PlayerId || killer.PlayerId != VengefulRomanticId || target.PlayerId == Target) return true;
 
         killer.Suicide(PlayerState.DeathReason.Misfire);
         return false;
     }
 
-    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+    public override void OnMurder(PlayerControl killer, PlayerControl target)
+    {
+        if (target.PlayerId == Target)
+        {
+            HasKilledKiller = true;
+        }
+    }
+
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (seer.PlayerId != target.PlayerId || seer.PlayerId != VengefulRomanticId) return string.Empty;
         return seer == null ? string.Empty : Utils.ColorString(HasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"{(HasKilledKiller ? "✓" : "☹")}");

@@ -56,7 +56,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
         for (int index = 0; index < AllSenders.Count; index++)
         {
             GameOptionsSender allSender = AllSenders[index];
-            if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && (sender.player.GetCustomRole().NeedUpdateOnLights() || sender.player.Is(CustomRoles.Torch) || sender.player.Is(CustomRoles.Mare)))
+            if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && (sender.player.GetCustomRole().NeedUpdateOnLights() || sender.player.Is(CustomRoles.Torch) || sender.player.Is(CustomRoles.Mare) || sender.player.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(sender.player.PlayerId)))
             {
                 sender.SetDirty();
             }
@@ -231,7 +231,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             if (role.IsDesyncRole() && role.IsCrewmate() && !CrewmateVanillaRoles.NoiseMakerImpostorAlert.GetBool()) AURoleOptions.NoisemakerImpostorAlert = true;
             else AURoleOptions.NoisemakerImpostorAlert = CrewmateVanillaRoles.NoiseMakerImpostorAlert.GetBool();
 
-            // if (Shifter.WasShifter.Contains(player.PlayerId) && role.IsImpostor()) opt.SetVision(true);
+            if (Shifter.WasShifter.Contains(player.PlayerId) && role.IsImpostor()) opt.SetVision(true);
 
             Main.PlayerStates[player.PlayerId].Role.ApplyGameOptions(opt, player.PlayerId);
 
@@ -270,6 +270,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             Chef.ApplyGameOptionsForOthers(opt, player.PlayerId);
             President.OnAnyoneApplyGameOptions(opt);
             Negotiator.OnAnyoneApplyGameOptions(opt, player.PlayerId);
+            Wizard.OnAnyoneApplyGameOptions(opt, player.PlayerId);
 
             if (Sprayer.LowerVisionList.Contains(player.PlayerId))
             {
@@ -416,7 +417,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             if (Options.UsePhantomBasis.GetBool() && role.SimpleAbilityTrigger())
                 AURoleOptions.PhantomDuration = 1f;
 
-            if (Options.UseUnshiftTrigger.GetBool() && role.SimpleAbilityTrigger())
+            if ((Options.UseUnshiftTrigger.GetBool() || role.AlwaysUsesUnshift()) && role.SimpleAbilityTrigger())
                 AURoleOptions.ShapeshifterDuration = 0f;
 
             // ===================================================================================================================

@@ -2,6 +2,7 @@
 using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
+using Hazel;
 
 namespace EHR.Crewmate
 {
@@ -103,15 +104,15 @@ namespace EHR.Crewmate
             return !Instances.Any(x => x.AbilityActive);
         }
 
-        public void ReceiveRPC(Hazel.MessageReader reader)
+        public void ReceiveRPC(MessageReader reader)
         {
             AbilityActive = reader.ReadBoolean();
             if (AbilityActive) ActivateTimeStamp = Utils.TimeStamp;
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != RhapsodeId || isHUD || isMeeting || !AbilityActive) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != RhapsodeId || hud || meeting || !AbilityActive) return string.Empty;
             return $"\u25b6 ({AbilityDuration.GetInt() - (Utils.TimeStamp - ActivateTimeStamp)}s)";
         }
     }

@@ -763,8 +763,16 @@ public static class Options
     public static string RoleLoadingText = string.Empty;
 
     public static readonly Dictionary<CustomRoles, (OptionItem Imp, OptionItem Neutral, OptionItem Crew)> AddonCanBeSettings = [];
+    public static readonly Dictionary<CustomRoles, OptionItem> AddonGuessSettings = [];
 
     public static readonly HashSet<CustomRoles> SingleRoles = [];
+
+    private static readonly string[] AddonGuessOptions =
+    [
+        "RoleOn",
+        "RoleOff",
+        "Untouched"
+    ];
 
     static Options()
     {
@@ -1231,7 +1239,7 @@ public static class Options
         FormatNameMode = new StringOptionItem(19403, "FormatNameMode", FormatNameModes, 0, TabGroup.SystemSettings);
         DisableEmojiName = new BooleanOptionItem(19404, "DisableEmojiName", true, TabGroup.SystemSettings);
         ChangeNameToRoleInfo = new BooleanOptionItem(19405, "ChangeNameToRoleInfo", true, TabGroup.SystemSettings);
-        ShowLongInfo = new BooleanOptionItem(19420, "ShowLongInfo", false, TabGroup.SystemSettings)
+        ShowLongInfo = new BooleanOptionItem(19420, "ShowLongInfo", true, TabGroup.SystemSettings)
             .SetParent(ChangeNameToRoleInfo);
         SendRoleDescriptionFirstMeeting = new BooleanOptionItem(19406, "SendRoleDescriptionFirstMeeting", true, TabGroup.SystemSettings);
         NoGameEnd = new BooleanOptionItem(19407, "NoGameEnd", false, TabGroup.SystemSettings)
@@ -2210,25 +2218,31 @@ public static class Options
             .SetHidden(!canSetChance)
             .SetGameMode(customGameMode) as IntegerOptionItem;
 
+        var guessSetting = new StringOptionItem(id + 3, "AddonCanBeGuessed", AddonGuessOptions, 2, tab)
+            .SetParent(spawnOption)
+            .SetGameMode(customGameMode);
+
         if (teamSpawnOptions)
         {
-            var impOption = new BooleanOptionItem(id + 3, "ImpCanBeRole", true, tab)
+            var impOption = new BooleanOptionItem(id + 4, "ImpCanBeRole", true, tab)
                 .SetParent(spawnOption)
                 .SetGameMode(customGameMode)
                 .AddReplacement(("{role}", role.ToColoredString()));
 
-            var neutralOption = new BooleanOptionItem(id + 4, "NeutralCanBeRole", true, tab)
+            var neutralOption = new BooleanOptionItem(id + 5, "NeutralCanBeRole", true, tab)
                 .SetParent(spawnOption)
                 .SetGameMode(customGameMode)
                 .AddReplacement(("{role}", role.ToColoredString()));
 
-            var crewOption = new BooleanOptionItem(id + 5, "CrewCanBeRole", true, tab)
+            var crewOption = new BooleanOptionItem(id + 6, "CrewCanBeRole", true, tab)
                 .SetParent(spawnOption)
                 .SetGameMode(customGameMode)
                 .AddReplacement(("{role}", role.ToColoredString()));
 
             AddonCanBeSettings.Add(role, (impOption, neutralOption, crewOption));
         }
+
+        AddonGuessSettings.Add(role, guessSetting);
 
         CustomAdtRoleSpawnRate.Add(role, spawnRateOption);
         CustomRoleSpawnChances.Add(role, spawnOption);

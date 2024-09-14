@@ -86,8 +86,15 @@ namespace EHR
         public void Despawn()
         {
             Logger.Info($" Despawn Custom Net Object {this.GetType().Name} (ID {Id})", "CNO.Despawn");
-            playerControl.Despawn();
-            AllObjects.Remove(this);
+            try
+            {
+                playerControl.Despawn();
+                AllObjects.Remove(this);
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
         }
 
         protected void Hide(PlayerControl player)
@@ -407,26 +414,8 @@ namespace EHR
         {
             try
             {
-                if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters)
-                {
-                    AllObjects.ToArray().Do(x => x.Despawn());
-                    AllObjects.Clear();
-                }
-                else
-                {
-                    Main.Instance.StartCoroutine(RemoveAllNetObjects());
-
-                    IEnumerator RemoveAllNetObjects()
-                    {
-                        foreach (CustomNetObject netObject in AllObjects.ToArray())
-                        {
-                            netObject.Despawn();
-                            yield return new WaitForSeconds(0.2f);
-                        }
-
-                        AllObjects.Clear();
-                    }
-                }
+                AllObjects.ToArray().Do(x => x.Despawn());
+                AllObjects.Clear();
             }
             catch (Exception e)
             {

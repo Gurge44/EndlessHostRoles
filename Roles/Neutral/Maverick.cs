@@ -48,7 +48,7 @@ public class Maverick : RoleBase
     public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
     public override bool CanUseKillButton(PlayerControl pc) => pc.IsAlive();
-    public override bool CanUseSabotage(PlayerControl pc) => false;
+    public override bool CanUseSabotage(PlayerControl pc) => pc.Is(CustomRoles.Mischievous);
 
     public override string GetProgressText(byte playerId, bool comms)
     {

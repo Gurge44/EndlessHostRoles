@@ -76,6 +76,7 @@ namespace EHR.Neutral
         {
             if (Deathknight.DeathknightId == byte.MaxValue)
             {
+                if (!target.HasKillButton()) target.RpcChangeRoleBasis(CustomRoles.Deathknight);
                 target.RpcSetCustomRole(CustomRoles.Deathknight);
 
                 killer.SetKillCooldown();

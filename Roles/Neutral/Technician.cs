@@ -15,8 +15,9 @@ namespace EHR.Neutral
         private static OptionItem VentCooldown;
         private static OptionItem MaxInVentTime;
         private static readonly Dictionary<SystemTypes, OptionItem> PointGains = [];
+        private bool FixedSabotage;
 
-        private bool fixedSabotage;
+        private bool Ignore;
         public bool IsWon;
         private PlayerControl TechnicianPC;
 
@@ -49,8 +50,9 @@ namespace EHR.Neutral
         {
             On = true;
             IsWon = false;
+            Ignore = false;
             TechnicianPC = playerId.GetPlayer();
-            fixedSabotage = false;
+            FixedSabotage = false;
             playerId.SetAbilityUseLimit(0);
         }
 
@@ -62,6 +64,9 @@ namespace EHR.Neutral
                 AURoleOptions.EngineerInVentMaxTime = MaxInVentTime.GetFloat();
             }
         }
+
+        public override void OnReportDeadBody() => Ignore = true;
+        public override void AfterMeetingTasks() => Ignore = false;
 
         private static SystemTypes GetActualSystemType(SystemTypes systemTypes) => systemTypes switch
         {
@@ -89,8 +94,9 @@ namespace EHR.Neutral
 
         public static void RepairSystem(byte playerId, SystemTypes systemType, byte amount)
         {
+            if (Main.PlayerStates[playerId].IsDead) return;
             if (Main.PlayerStates[playerId].Role is not Technician technician) return;
-            if (!GetsAnyPoint(systemType) || technician.IsWon) return;
+            if (!GetsAnyPoint(systemType) || technician.IsWon || technician.Ignore) return;
 
             switch (systemType)
             {
@@ -110,12 +116,12 @@ namespace EHR.Neutral
                     var tags = (HeliSabotageSystem.Tags)(amount & HeliSabotageSystem.TagMask);
                     if (tags == HeliSabotageSystem.Tags.ActiveBit)
                     {
-                        technician.fixedSabotage = false;
+                        technician.FixedSabotage = false;
                     }
 
-                    if (!technician.fixedSabotage && tags == HeliSabotageSystem.Tags.FixBit)
+                    if (!technician.FixedSabotage && tags == HeliSabotageSystem.Tags.FixBit)
                     {
-                        technician.fixedSabotage = true;
+                        technician.FixedSabotage = true;
                         var consoleId = amount & HeliSabotageSystem.IdMask;
                         var otherConsoleId = (consoleId + 1) % 2;
                         ShipStatus.Instance.UpdateSystem(SystemTypes.HeliSabotage, playerId.GetPlayer(), (byte)(otherConsoleId | (int)HeliSabotageSystem.Tags.FixBit));
@@ -141,12 +147,12 @@ namespace EHR.Neutral
                         var tags = (HqHudSystemType.Tags)(amount & HqHudSystemType.TagMask);
                         if (tags == HqHudSystemType.Tags.ActiveBit)
                         {
-                            technician.fixedSabotage = false;
+                            technician.FixedSabotage = false;
                         }
 
-                        if (!technician.fixedSabotage && tags == HqHudSystemType.Tags.FixBit)
+                        if (!technician.FixedSabotage && tags == HqHudSystemType.Tags.FixBit)
                         {
-                            technician.fixedSabotage = true;
+                            technician.FixedSabotage = true;
                             var consoleId = amount & HqHudSystemType.IdMask;
                             var otherConsoleId = (consoleId + 1) % 2;
                             ShipStatus.Instance.UpdateSystem(SystemTypes.Comms, playerId.GetPlayer(), (byte)(otherConsoleId | (int)HqHudSystemType.Tags.FixBit));
@@ -162,6 +168,7 @@ namespace EHR.Neutral
 
         public static void SwitchSystemRepair(byte playerId, SwitchSystem switchSystem, byte amount)
         {
+            if (Main.PlayerStates[playerId].IsDead) return;
             if (!GetsAnyPoint(SystemTypes.Electrical) || Main.PlayerStates[playerId].Role is not Technician technician) return;
 
             if (amount.HasBit(SwitchSystem.DamageSystem)) return;

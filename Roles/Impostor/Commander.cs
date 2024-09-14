@@ -221,7 +221,7 @@ namespace EHR.Impostor
             Utils.SendRPC(CustomRPC.SyncRoleData, CommanderId, 3);
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer == null || !seer.Is(Team.Impostor)) return string.Empty;
 

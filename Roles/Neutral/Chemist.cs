@@ -550,7 +550,7 @@ namespace EHR.Neutral
             }
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != target.PlayerId) return string.Empty;
             if (Main.PlayerStates[seer.PlayerId].Role is not Chemist cm) return string.Empty;

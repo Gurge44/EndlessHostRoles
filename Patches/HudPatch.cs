@@ -16,7 +16,7 @@ using static EHR.Translator;
 namespace EHR.Patches;
 
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.Update))]
-class HudManagerPatch
+static class HudManagerPatch
 {
     private static TextMeshPro LowerInfoText;
     private static TextMeshPro OverriddenRolesText;
@@ -242,7 +242,7 @@ class HudManagerPatch
 
                     string GetAddonSuffixes()
                     {
-                        var suffixes = state.SubRoles.Select(subRole => subRole switch
+                        var suffixes = state.SubRoles.Select(s => s switch
                         {
                             CustomRoles.Asthmatic => Asthmatic.GetSuffixText(player.PlayerId),
                             CustomRoles.Spurt => Spurt.GetSuffix(player, true),
@@ -254,7 +254,7 @@ class HudManagerPatch
 
                     string CD_HUDText = !Options.UsePets.GetBool() || !Main.AbilityCD.TryGetValue(player.PlayerId, out var CD)
                         ? string.Empty
-                        : string.Format(GetString("CDPT"), CD.TOTALCD - (Utils.TimeStamp - CD.START_TIMESTAMP) + 1);
+                        : string.Format(GetString("CDPT"), CD.TotalCooldown - (Utils.TimeStamp - CD.StartTimeStamp) + 1);
 
                     bool hasCD = CD_HUDText != string.Empty;
                     if (hasCD)
@@ -263,7 +263,7 @@ class HudManagerPatch
                         LowerInfoText.text = $"{CD_HUDText}\n{LowerInfoText.text}";
                     }
 
-                    LowerInfoText.enabled = hasCD;
+                    LowerInfoText.enabled = hasCD || LowerInfoText.text != string.Empty;
 
                     if ((!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay) || GameStates.IsMeeting)
                     {
@@ -282,9 +282,8 @@ class HudManagerPatch
                         __instance.KillButton?.ToggleVisible(false);
                     }
 
-                    bool CanUseVent = (player.CanUseImpostorVentButton() || (player.inVent && player.GetRoleTypes() != RoleTypes.Engineer)) && GameStates.IsInTask;
-                    __instance.ImpostorVentButton?.ToggleVisible(CanUseVent);
-                    player.Data.Role.CanVent = CanUseVent;
+                    __instance.ImpostorVentButton?.ToggleVisible((player.CanUseImpostorVentButton() || (player.inVent && player.GetRoleTypes() != RoleTypes.Engineer)) && GameStates.IsInTask);
+                    player.Data.Role.CanVent = player.CanUseVent();
 
                     if (usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer)
                         __instance.AbilityButton.SetEnabled();
@@ -350,7 +349,7 @@ class HudManagerPatch
 }
 
 [HarmonyPatch(typeof(ActionButton), nameof(ActionButton.SetFillUp))]
-class ActionButtonSetFillUpPatch
+static class ActionButtonSetFillUpPatch
 {
     public static void Postfix(ActionButton __instance, [HarmonyArgument(0)] float timer)
     {
@@ -371,7 +370,7 @@ class ActionButtonSetFillUpPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ToggleHighlight))]
-class ToggleHighlightPatch
+static class ToggleHighlightPatch
 {
     private static readonly int OutlineColor = Shader.PropertyToID("_OutlineColor");
 
@@ -388,7 +387,7 @@ class ToggleHighlightPatch
 }
 
 [HarmonyPatch(typeof(Vent), nameof(Vent.SetOutline))]
-class SetVentOutlinePatch
+static class SetVentOutlinePatch
 {
     private static readonly int OutlineColor = Shader.PropertyToID("_OutlineColor");
     private static readonly int AddColor = Shader.PropertyToID("_AddColor");
@@ -402,7 +401,7 @@ class SetVentOutlinePatch
 }
 
 [HarmonyPatch(typeof(HudManager), nameof(HudManager.SetHudActive), [typeof(PlayerControl), typeof(RoleBehaviour), typeof(bool)])]
-class SetHudActivePatch
+static class SetHudActivePatch
 {
     public static bool IsActive;
 
@@ -493,7 +492,7 @@ class SetHudActivePatch
 }
 
 [HarmonyPatch(typeof(VentButton), nameof(VentButton.DoClick))]
-class VentButtonDoClickPatch
+static class VentButtonDoClickPatch
 {
     public static bool Animating;
 
@@ -505,7 +504,7 @@ class VentButtonDoClickPatch
 }
 
 [HarmonyPatch(typeof(MapBehaviour), nameof(MapBehaviour.Show))]
-class MapBehaviourShowPatch
+static class MapBehaviourShowPatch
 {
     public static bool Prefix(MapBehaviour __instance, ref MapOptions opts)
     {
@@ -533,7 +532,7 @@ class MapBehaviourShowPatch
 }
 
 [HarmonyPatch(typeof(MapTaskOverlay), nameof(MapTaskOverlay.Show))]
-class MapTaskOverlayShowPatch
+static class MapTaskOverlayShowPatch
 {
     public static void Postfix()
     {
@@ -543,7 +542,7 @@ class MapTaskOverlayShowPatch
 }
 
 [HarmonyPatch(typeof(MapTaskOverlay), nameof(MapTaskOverlay.Hide))]
-class MapTaskOverlayHidePatch
+static class MapTaskOverlayHidePatch
 {
     public static void Postfix()
     {
@@ -553,7 +552,7 @@ class MapTaskOverlayHidePatch
 }
 
 [HarmonyPatch(typeof(InfectedOverlay), nameof(InfectedOverlay.Update))]
-class SabotageMapPatch
+static class SabotageMapPatch
 {
     public static Dictionary<SystemTypes, TextMeshPro> TimerTexts = [];
 
@@ -591,7 +590,7 @@ class SabotageMapPatch
 }
 
 [HarmonyPatch(typeof(TaskPanelBehaviour), nameof(TaskPanelBehaviour.SetTaskText))]
-class TaskPanelBehaviourPatch
+static class TaskPanelBehaviourPatch
 {
     public static void Postfix(TaskPanelBehaviour __instance)
     {
@@ -800,6 +799,50 @@ static class DialogueBoxHidePatch
     {
         if (GameStates.IsMeeting && !DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening)
             GuessManager.CreateIDLabels(MeetingHud.Instance);
+    }
+}
+
+[HarmonyPatch(typeof(HudManager), nameof(HudManager.CoShowIntro))]
+static class CoShowIntroPatch
+{
+    public static bool IntroStarted;
+
+    public static void Prefix()
+    {
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return;
+
+        IntroStarted = true;
+
+        LateTask.New(() =>
+        {
+            if (!(AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.ShowAllRolesWhenGameEnd))
+            {
+                StartGameHostPatch.RpcSetDisconnected(disconnected: false);
+
+                if (!AmongUsClient.Instance.IsGameOver)
+                    DestroyableSingleton<HudManager>.Instance.SetHudActive(true);
+            }
+        }, 0.6f, "Set Disconnected");
+
+        LateTask.New(() =>
+        {
+            try
+            {
+                if (!(AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.ShowAllRolesWhenGameEnd))
+                {
+                    ShipStatusBeginPatch.RolesIsAssigned = true;
+
+                    // Assign tasks after assign all roles, as it should be
+                    ShipStatus.Instance.Begin();
+
+                    Utils.SyncAllSettings();
+                }
+            }
+            catch
+            {
+                Logger.Warn($"Game ended? {AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.ShowAllRolesWhenGameEnd}", "ShipStatus.Begin");
+            }
+        }, 4f, "Assign Tasks");
     }
 }
 

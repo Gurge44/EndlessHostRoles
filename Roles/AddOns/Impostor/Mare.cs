@@ -9,7 +9,7 @@ namespace EHR.AddOns.Impostor
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(1600, CustomRoles.Mare, canSetNum: true, tab: TabGroup.Addons);
-            MareKillCD = new FloatOptionItem(1605, "KillCooldown", new(0f, 60f, 1f), 15f, TabGroup.Addons)
+            MareKillCD = new FloatOptionItem(1609, "KillCooldown", new(0f, 60f, 1f), 15f, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mare])
                 .SetValueFormat(OptionFormat.Seconds);
             MareKillCDNormally = new FloatOptionItem(1606, "KillCooldownNormally", new(0f, 90f, 1f), 40f, TabGroup.Addons)

@@ -66,7 +66,7 @@ namespace EHR.Neutral
 
         public override bool CanUseSabotage(PlayerControl pc)
         {
-            return pc.IsAlive() && !(Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool());
+            return base.CanUseSabotage(pc) || (pc.IsAlive() && !(Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()));
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -164,7 +164,7 @@ namespace EHR.Neutral
             }
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != target.PlayerId) return string.Empty;
             if (Main.PlayerStates[seer.PlayerId].Role is not Tiger { IsEnable: true } tg) return string.Empty;

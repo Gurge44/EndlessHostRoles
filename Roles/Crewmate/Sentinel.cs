@@ -13,47 +13,19 @@ namespace EHR.Crewmate
         private List<byte> LastNearbyKillers = [];
         private long LastUpdate;
 
-        public byte SentinelId
-        {
-            get => sentinelId;
-            set => sentinelId = value;
-        }
+        public byte SentinelId => sentinelId;
 
-        public PlayerControl Sentinel
-        {
-            get => sentinel;
-            set => sentinel = value;
-        }
+        public PlayerControl Sentinel { get; private set; } = sentinel;
 
-        public bool IsPatrolling
-        {
-            get => isPatrolling;
-            set => isPatrolling = value;
-        }
+        public bool IsPatrolling { get; private set; } = isPatrolling;
 
-        public Vector2 StartingPosition
-        {
-            get => startingPosition ?? Vector2.zero;
-            set => startingPosition = value;
-        }
+        private Vector2 StartingPosition { get; set; } = startingPosition ?? Vector2.zero;
 
-        public long PatrolStartTimeStamp
-        {
-            get => patrolStartTimeStamp;
-            set => patrolStartTimeStamp = value;
-        }
+        private long PatrolStartTimeStamp { get; set; } = patrolStartTimeStamp;
 
-        public int PatrolDuration
-        {
-            get => patrolDuration;
-            set => patrolDuration = value;
-        }
+        private int PatrolDuration => patrolDuration;
 
-        public float PatrolRadius
-        {
-            get => patrolRadius;
-            set => patrolRadius = value;
-        }
+        private float PatrolRadius => patrolRadius;
 
         public PlayerControl[] NearbyKillers => GetPlayersInRadius(PatrolRadius, StartingPosition).Where(x => !x.Is(Team.Crewmate) && SentinelId != x.PlayerId).ToArray();
 
@@ -96,8 +68,9 @@ namespace EHR.Crewmate
             bool nowInRange = killers.Any(x => x.PlayerId == pc.PlayerId);
             bool wasInRange = LastNearbyKillers.Contains(pc.PlayerId);
 
+            var timeLeft = PatrolDuration - (TimeStamp - PatrolStartTimeStamp);
             if (wasInRange && !nowInRange) pc.Notify(GetString("KillerEscapedFromSentinel"));
-            if (nowInRange) pc.Notify(string.Format(GetString("KillerNotifyPatrol"), PatrolDuration - (TimeStamp - PatrolStartTimeStamp)));
+            if (nowInRange && timeLeft >= 0) pc.Notify(string.Format(GetString("KillerNotifyPatrol"), timeLeft));
 
             LastNearbyKillers = killers.Select(x => x.PlayerId).ToList();
         }

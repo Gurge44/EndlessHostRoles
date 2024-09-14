@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using EHR.Crewmate;
@@ -187,39 +188,46 @@ public class Witch : RoleBase
 
     public static void OnCheckForEndVoting(PlayerState.DeathReason deathReason, params byte[] exileIds)
     {
-        if (deathReason != PlayerState.DeathReason.Vote) return;
-        foreach (byte id in exileIds)
+        try
         {
-            if (playerIdList.Contains(id))
+            if (deathReason != PlayerState.DeathReason.Vote) return;
+            foreach (byte id in exileIds)
             {
-                if (Main.PlayerStates[id].Role is not Witch wc) continue;
-                wc.SpelledPlayer.Clear();
-            }
-        }
-
-        var spelledIdList = new List<byte>();
-        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-        {
-            foreach (var witchId in playerIdList)
-            {
-                if (Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId)) continue;
-                if (Main.PlayerStates[witchId].Role is not Witch wc) continue;
-
-                var witch = Utils.GetPlayerById(witchId);
-                if (wc.SpelledPlayer.Contains(pc.PlayerId) && witch != null && witch.IsAlive())
+                if (playerIdList.Contains(id))
                 {
-                    pc.SetRealKiller(witch);
-                    spelledIdList.Add(pc.PlayerId);
-                }
-                else
-                {
-                    Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
+                    if (Main.PlayerStates[id].Role is not Witch wc) continue;
+                    wc.SpelledPlayer.Clear();
                 }
             }
-        }
 
-        CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Spell, [.. spelledIdList]);
-        RemoveSpelledPlayer();
+            var spelledIdList = new List<byte>();
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            {
+                foreach (var witchId in playerIdList)
+                {
+                    if (Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId)) continue;
+                    if (Main.PlayerStates[witchId].Role is not Witch wc) continue;
+
+                    var witch = Utils.GetPlayerById(witchId);
+                    if (wc.SpelledPlayer.Contains(pc.PlayerId) && witch != null && witch.IsAlive())
+                    {
+                        pc.SetRealKiller(witch);
+                        spelledIdList.Add(pc.PlayerId);
+                    }
+                    else
+                    {
+                        Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
+                    }
+                }
+            }
+
+            CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Spell, [.. spelledIdList]);
+            RemoveSpelledPlayer();
+        }
+        catch (Exception e)
+        {
+            Utils.ThrowException(e);
+        }
     }
 
     public static string GetSpelledMark(byte target, bool isMeeting)
@@ -236,9 +244,9 @@ public class Witch : RoleBase
         return string.Empty;
     }
 
-    public override string GetSuffix(PlayerControl witch, PlayerControl target, bool hud = false, bool isMeeting = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (witch == null || isMeeting || witch.PlayerId != target.PlayerId || !witch.Is(CustomRoles.Witch)) return string.Empty;
+        if (seer == null || meeting || seer.PlayerId != target.PlayerId || !seer.Is(CustomRoles.Witch)) return string.Empty;
 
         var str = new StringBuilder();
         if (hud)
@@ -256,7 +264,7 @@ public class Witch : RoleBase
         }
         else
         {
-            str.Append(IsSpellMode(witch.PlayerId) ? GetString("WitchModeSpell") : GetString("WitchModeKill"));
+            str.Append(IsSpellMode(seer.PlayerId) ? GetString("WitchModeSpell") : GetString("WitchModeKill"));
         }
 
         return str.ToString();

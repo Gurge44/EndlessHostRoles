@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using AmongUs.GameOptions;
@@ -9,56 +9,53 @@ namespace EHR;
 
 public static class AntiBlackout
 {
-    private static Dictionary<byte, (bool isDead, bool Disconnected)> IsDeadCache = [];
+    public static int ExilePlayerId = -1;
+    public static bool SkipTasks;
+    private static Dictionary<byte, (bool IsDead, bool Disconnected)> IsDeadCache = [];
     private static readonly LogHandler Logger = EHR.Logger.Handler("AntiBlackout");
-    public static bool OverrideExiledPlayer = false;
 
-    ///<summary>
-    ///Whether to override the ejection process
-    ///</summary>
-    public static bool IsOverride => IsRequired && (IsSingleImpostor || Diff_CrewImp == 1 || Main.AliveImpostorCount == 1);
-
-    ///<summary>
-    ///Is there only one impostor?
-    ///</summary>
-    public static bool IsSingleImpostor => Main.RealOptionsData != null ? Main.RealOptionsData.GetInt(Int32OptionNames.NumImpostors) <= 1 : Main.NormalOptions.NumImpostors <= 1;
-
-    ///<summary>
-    ///Whether processing within AntiBlackout is required
-    ///</summary>
-    public static bool IsRequired => Options.NoGameEnd.GetBool() || Main.AllPlayerControls.Any(x => x.GetCountTypes() is not CountTypes.Crew and not CountTypes.Impostor and not CountTypes.OutOfGame);
-
-    //|| Pirate.IsEnable;
-    ///<summary>
-    ///Difference between the number of non-impostors and the number of impostors
-    ///</summary>
-    public static int Diff_CrewImp
+/*
+    public static bool CheckBlackOut()
     {
-        get
-        {
-            int numImpostors = 0;
-            int numCrewmates = 0;
-            foreach (PlayerControl pc in Main.AllPlayerControls)
-            {
-                if (pc.Data.Role.IsImpostor) numImpostors++;
-                else numCrewmates++;
-            }
+        HashSet<byte> Impostors = [];
+        HashSet<byte> Crewmates = [];
+        HashSet<byte> NeutralKillers = [];
 
-            return numCrewmates - numImpostors;
+        var lastExiled = ExileControllerWrapUpPatch.AntiBlackoutLastExiled;
+        foreach (var pc in Main.AllAlivePlayerControls)
+        {
+            // If a player is ejected, do not count them as alive
+            if (lastExiled != null && pc.PlayerId == lastExiled.PlayerId) continue;
+
+            if (pc.Is(Team.Impostor)) Impostors.Add(pc.PlayerId);
+            else if (pc.IsNeutralKiller()) NeutralKillers.Add(pc.PlayerId);
+            else Crewmates.Add(pc.PlayerId);
         }
+        var numAliveImpostors = Impostors.Count;
+        var numAliveCrewmates = Crewmates.Count;
+        var numAliveNeutralKillers = NeutralKillers.Count;
+
+        EHR.Logger.Info($" Impostors: {numAliveImpostors}, Crewmates: {numAliveCrewmates}, Neutral Killers: {numAliveNeutralKillers}", "AntiBlackout Num Alive");
+
+        bool con1 = numAliveImpostors <= 0; // All real impostors are dead
+        bool con2 = (numAliveNeutralKillers + numAliveCrewmates) <= numAliveImpostors; // Alive Impostors >= other teams sum
+        bool con3 = numAliveNeutralKillers == 1 && numAliveImpostors == 1 && numAliveCrewmates <= 2; // One Impostor and one Neutral Killer is alive and living Crewmates are very few
+
+        var blackOutIsActive = con1 || con2 || con3;
+
+        EHR.Logger.Info($" {blackOutIsActive}", "BlackOut Is Active");
+        return blackOutIsActive;
     }
+*/
 
     private static bool IsCached { get; set; }
 
     public static void SetIsDead(bool doSend = true, [CallerMemberName] string callerMethodName = "")
     {
+        SkipTasks = true;
+        RevivePlayersAndSetDummyImp();
         Logger.Info($"SetIsDead is called from {callerMethodName}");
-        if (IsCached)
-        {
-            Logger.Info("Please run RestoreIsDead before running SetIsDead again.");
-            return;
-        }
-
+        if (IsCached) return;
         IsDeadCache.Clear();
         foreach (var info in GameData.Instance.AllPlayers)
         {
@@ -72,6 +69,23 @@ public static class AntiBlackout
         if (doSend) SendGameData();
     }
 
+    private static void RevivePlayersAndSetDummyImp()
+    {
+        if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return;
+
+        PlayerControl dummyImp = Main.AllAlivePlayerControls.First(x => x.PlayerId != ExilePlayerId);
+
+        foreach (var seer in Main.AllPlayerControls)
+        {
+            if (seer.IsHost() || seer.IsModClient()) continue;
+            foreach (var target in Main.AllPlayerControls)
+            {
+                RoleTypes targetRoleType = target.PlayerId == dummyImp.PlayerId ? RoleTypes.Impostor : RoleTypes.Crewmate;
+                target.RpcSetRoleDesync(targetRoleType, seer.GetClientId());
+            }
+        }
+    }
+
     public static void RestoreIsDead(bool doSend = true, [CallerMemberName] string callerMethodName = "")
     {
         Logger.Info($"RestoreIsDead is called from {callerMethodName}");
@@ -80,7 +94,7 @@ public static class AntiBlackout
             if (info == null) continue;
             if (IsDeadCache.TryGetValue(info.PlayerId, out var val))
             {
-                info.IsDead = val.isDead;
+                info.IsDead = val.IsDead;
                 info.Disconnected = val.Disconnected;
             }
         }
@@ -111,46 +125,79 @@ public static class AntiBlackout
             AmongUsClient.Instance.SendOrDisconnect(writer);
             writer.Recycle();
         }
-
-        AmongUsClient.Instance.SendAllStreamedObjects();
     }
 
     public static void OnDisconnect(NetworkedPlayerInfo player)
     {
-        // Execution conditions: client is host, IsDead is overwritten, player is disconnected
+        // Execution conditions: Client is the host, IsDead is overridden, player is already disconnected
         if (!AmongUsClient.Instance.AmHost || !IsCached || !player.Disconnected) return;
         IsDeadCache[player.PlayerId] = (true, true);
+        RevivePlayersAndSetDummyImp();
         player.IsDead = player.Disconnected = false;
         SendGameData();
     }
 
-    /*
-        ///<summary>
-        ///Run the code with IsDead temporarily restored to its original value
-        ///<param name="action">Execution details</param>
-        ///</summary>
-        public static void TempRestore(Action action)
+    public static void SetRealPlayerRoles()
+    {
+        if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return;
+
+        foreach (((byte seerId, byte targetId), (RoleTypes roletype, _)) in StartGameHostPatch.RpcSetRoleReplacer.RoleMap)
         {
-            Logger.Info("==Temp Restore==");
-            //Whether TempRestore was executed with IsDead overwritten
-            bool before_IsCached = IsCached;
-            try
+            if (seerId == 0) continue; // Skip the host
+
+            var seer = Utils.GetPlayerById(seerId);
+            var target = Utils.GetPlayerById(targetId);
+
+            if (seer == null || target == null) continue;
+            if (seer.IsModClient()) continue;
+
+            var self = seerId == targetId;
+            var changedRoleType = roletype;
+            if (target.Data.IsDead)
             {
-                if (before_IsCached) RestoreIsDead(doSend: false);
-                action();
+                if (self)
+                {
+                    target.RpcExile();
+
+                    if (target.GetCustomRole().IsGhostRole() || target.HasGhostRole()) changedRoleType = RoleTypes.GuardianAngel;
+                    else if (target.Is(Team.Impostor) || target.HasDesyncRole()) changedRoleType = RoleTypes.ImpostorGhost;
+                    else changedRoleType = RoleTypes.CrewmateGhost;
+                }
+                else
+                {
+                    var seerIsKiller = seer.Is(Team.Impostor) || seer.HasDesyncRole();
+                    if (!seerIsKiller && target.Is(Team.Impostor)) changedRoleType = RoleTypes.ImpostorGhost;
+                    else changedRoleType = RoleTypes.CrewmateGhost;
+                }
             }
-            catch (Exception ex)
+
+            target.RpcSetRoleDesync(changedRoleType, seer.GetClientId());
+        }
+
+        ResetAllCooldowns();
+    }
+
+    private static void ResetAllCooldowns()
+    {
+        foreach (var seer in Main.AllPlayerControls)
+        {
+            if (seer.IsAlive())
             {
-                Logger.Warn("An exception occurred within AntiBlackout.TempRestore");
-                Logger.Exception(ex);
+                seer.SetKillCooldown();
+                seer.RpcResetAbilityCooldown();
             }
-            finally
+            else if (seer.GetCustomRole().IsGhostRole() || seer.HasGhostRole())
             {
-                if (before_IsCached) SetIsDead(doSend: false);
-                Logger.Info("==/Temp Restore==");
+                seer.RpcResetAbilityCooldown();
             }
         }
-    */
+    }
+
+    public static void ResetAfterMeeting()
+    {
+        SkipTasks = false;
+        ExilePlayerId = -1;
+    }
 
     public static void Reset()
     {
@@ -158,5 +205,7 @@ public static class AntiBlackout
         IsDeadCache ??= [];
         IsDeadCache.Clear();
         IsCached = false;
+        ExilePlayerId = -1;
+        SkipTasks = false;
     }
 }

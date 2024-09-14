@@ -120,7 +120,7 @@ namespace EHR.Crewmate
             }
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (!seer.IsAlive() || seer.PlayerId != SpiritualistId) return string.Empty;
             if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;

@@ -18,7 +18,7 @@ namespace EHR.Modules
         public static void Initialize()
         {
             AssignedGhostRoles = [];
-            GhostRoles = Enum.GetValues<CustomRoles>().Where(x => x != CustomRoles.EvilSpirit && x.IsGhostRole() && x.IsEnable()).ToList();
+            GhostRoles = Enum.GetValues<CustomRoles>().Where(x => x != CustomRoles.EvilSpirit && x.IsGhostRole() && x.IsEnable() && x.GetMode() != 0).ToList();
 
             Logger.Msg($"Ghost roles: {GhostRoles.Join()}", "GhostRoles");
             Haunter.AllHauntedPlayers = [];
@@ -48,9 +48,9 @@ namespace EHR.Modules
             if (AssignedGhostRoles.Any(x => x.Key == id || x.Value.Role == role)) return;
 
             var pc = Utils.GetPlayerById(id);
-
-            IGhostRole instance = CreateGhostRoleInstance(role);
             if (set) pc.RpcSetRole(RoleTypes.GuardianAngel);
+            
+            IGhostRole instance = CreateGhostRoleInstance(role);
             instance.OnAssign(pc);
             Main.ResetCamPlayerList.Add(pc.PlayerId);
             AssignedGhostRoles[id] = (role, instance);

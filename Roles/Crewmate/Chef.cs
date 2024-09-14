@@ -231,9 +231,9 @@ namespace EHR.Crewmate
             }
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (isMeeting) return string.Empty;
+            if (meeting) return string.Empty;
 
             long now = Utils.TimeStamp;
             if (ActiveEvents.TryGetValue(target.PlayerId, out var events) && (seer.PlayerId == target.PlayerId || seer.PlayerId == ChefId))

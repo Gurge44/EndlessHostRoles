@@ -134,7 +134,7 @@ namespace EHR.Impostor
             }
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.IsModClient() && !hud) return string.Empty;
             if (Main.PlayerStates[seer.PlayerId].Role is YinYanger { IsEnable: true } yy && seer.PlayerId == target.PlayerId)

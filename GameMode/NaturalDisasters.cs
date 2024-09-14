@@ -168,7 +168,7 @@ namespace EHR
             "Meteor" => "<size=170%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<br><#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff1100>\u2588<#ff1100>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<br><#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff1100>\u2588<#ff1100>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<br><alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ff6f00>\u2588<#ff6f00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#ffae00>\u2588<#ffae00>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<#fff700>\u2588<#fff700>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>",
             "VolcanoEruption" => "<size=170%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#ff6200>\u2588<#ff6200>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>",
             "Tornado" => "<size=170%><font=\"VCR SDF\"><line-height=67%><alpha=#00>\u2588<alpha=#00>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#828282>\u2588<#828282>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#828282>\u2588<#474747>\u2588<#474747>\u2588<#828282>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#828282>\u2588<#474747>\u2588<#474747>\u2588<#828282>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#828282>\u2588<#828282>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<br><alpha=#00>\u2588<#dbdbdb>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#b0b0b0>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<br><alpha=#00>\u2588<alpha=#00>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<#dbdbdb>\u2588<alpha=#00>\u2588<alpha=#00>\u2588<br></line-height></size>",
-            "Sandstorm" => "<size=170%><font=\"VCR SDF\"><line-height=67%><#ffc89c>\u2588<#fff3eb>\u2588<#fff3eb>\u2588<#ffc89c>\u2588<#fff3eb>\u2588<#ffdcc2>\u2588<#fff3eb>\u2588<#ff936b>\u2588<br><#fff3eb>\u2588<#ff936b>\u2588<#ff936b>\u2588<#fff3eb>\u2588<#ff936b>\u2588<#fff3eb>\u2588<#ffc89c>\u2588<#fff3eb>\u2588<br><#ff936b>\u2588<#ffc89c>\u2588<#fff3eb>\u2588<#ffc89c>\u2588<#ffdcc2>\u2588<#ff936b>\u2588<alpha=#00>\u2588<#ff936b>\u2588<br><#fff3eb>\u2588<#ff936b>\u2588<#ffdcc2>\u2588<#ff936b>\u2588<#fff3eb>\u2588<#ffdcc2>\u2588<#ffc89c>\u2588<#ffdcc2>\u2588<br><#ffc89c>\u2588<#ff936b>\u2588<#fff3eb>\u2588<#ffdcc2>\u2588<#ffc89c>\u2588<#fff3eb>\u2588<#ff936b>\u2588<#fff3eb>\u2588<br><#ffdcc2>\u2588<#fff3eb>\u2588<#ff936b>\u2588<#fff3eb>\u2588<#ff936b>\u2588<#fff3eb>\u2588<#fff3eb>\u2588<#ffc89c>\u2588<br><#ff936b>\u2588<#ffc89c>\u2588<#fff3eb>\u2588<#ffc89c>\u2588<#ffdcc2>\u2588<#ff936b>\u2588<#ff936b>\u2588<#fff3eb>\u2588<br><#fff3eb>\u2588<#ff936b>\u2588<#fff3eb>\u2588<#ff936b>\u2588<#fff3eb>\u2588<#ffc89c>\u2588<#fff3eb>\u2588<#ffc89c>\u2588<br></line-height></size>",
+            "SandStorm" => "<size=170%><font=\"VCR SDF\"><line-height=67%><#ffdc7a>█<#dbcfba>█<#f5c387>█<#ffe8d6>█<#ffc18f>█<#ffe8d6>█<#ffe8d6>█<#ffdc7a>█<br><#dbcfba>█<#f5c6a2>█<#ffc18f>█<#ffe8d6>█<#e6a875>█<#ffe8d6>█<#f5c6a2>█<#ffe8d6>█<br><#e6a875>█<#ffe8d6>█<#f5c6a2>█<#ffe8d6>█<#ffe8d6>█<#ffdc7a>█<#ffe8d6>█<#f5c387>█<br><#ffe8d6>█<#ffdc7a>█<#dbcfba>█<#ffc18f>█<#ffe8d6>█<#ffe8d6>█<#f5c6a2>█<#ffc18f>█<br><#f5c6a2>█<#ffe8d6>█<#f5c6a2>█<#ffe8d6>█<#f5c6a2>█<#e6a875>█<#dbcfba>█<#ffe8d6>█<br><#ffc18f>█<#ffe8d6>█<#ffc18f>█<#ffe8d6>█<#ffe8d6>█<#ffdc7a>█<#ffe8d6>█<#e6a875>█<br><#ffe8d6>█<#f5c6a2>█<#ffe8d6>█<#f5c6a2>█<#ffe8d6>█<#ffe8d6>█<#f5c6a2>█<#ffe8d6>█<br><#ffdc7a>█<#ffe8d6>█<#e6a875>█<#ffe8d6>█<#ffc18f>█<#ffe8d6>█<#ffe8d6>█<#ffdc7a>█<br></line-height></size>",
             "Sinkhole" => "<size=170%><font=\"VCR SDF\"><line-height=67%><#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<br><#545454>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#7d7d7d>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#545454>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#7d7d7d>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#545454>\u2588<br><#545454>\u2588<#424242>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#000000>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#7d7d7d>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#424242>\u2588<#7d7d7d>\u2588<br><#545454>\u2588<#545454>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<#7d7d7d>\u2588<#7d7d7d>\u2588<#545454>\u2588<br></line-height></size>",
             _ => Utils.EmptyMessage
         };
@@ -221,18 +221,30 @@ namespace EHR
                         switch (WhenLimitIsReached.GetValue())
                         {
                             case 0:
-                                AllDisasters.RemoveAll(x => x.Name is "Earthquake" or "VolcanoEruption" or "Tornado" or "Thunderstorm" or "Sandstorm" or "Tsunami");
+                            {
+                                AllDisasters.RemoveAll(x => x.Name is "Earthquake" or "VolcanoEruption" or "Tornado" or "Thunderstorm" or "SandStorm" or "Tsunami");
                                 break;
+                            }
                             case 1:
+                            {
+                                if (IRandom.Instance.Next(AllDisasters.Count) == 0)
+                                {
+                                    Sinkhole.RemoveRandomSinkhole();
+                                    return;
+                                }
+
                                 var remove = PreferRemovingThunderstorm.GetBool() ? ActiveDisasters.Find(x => x is Thunderstorm) : ActiveDisasters.RandomElement();
                                 if (remove != null) remove.Duration = 0;
                                 remove?.RemoveIfExpired();
                                 break;
+                            }
                             case 2:
+                            {
                                 var oldest = ActiveDisasters.MinBy(x => x.StartTimeStamp);
                                 oldest.Duration = 0;
                                 oldest.RemoveIfExpired();
                                 break;
+                            }
                         }
                     }
                 }
@@ -456,7 +468,7 @@ namespace EHR
                     this.NetObject.RpcChangeSprite(newSprite);
                 }
 
-                var range = Range - ((Phases - Phase) * 0.4f);
+                var range = Range - ((Phases - Phase) * 0.05f);
                 KillNearbyPlayers(PlayerState.DeathReason.Lava, range);
             }
         }
@@ -808,7 +820,7 @@ namespace EHR
 
         sealed class Sinkhole : Disaster
         {
-            public static readonly List<Vector2> Sinkholes = [];
+            public static readonly List<(Vector2 Position, NaturalDisaster NetObject)> Sinkholes = [];
 
             public Sinkhole(Vector2 position, NaturalDisaster naturalDisaster) : base(position)
             {
@@ -817,7 +829,7 @@ namespace EHR
 
                 KillNearbyPlayers(PlayerState.DeathReason.Sunken);
 
-                Sinkholes.Add(position);
+                Sinkholes.Add((position, naturalDisaster));
             }
 
             public override int Duration { get; set; } = int.MaxValue;
@@ -837,12 +849,19 @@ namespace EHR
                     // ReSharper disable once ForCanBeConvertedToForeach
                     for (int i = 0; i < Sinkholes.Count; i++)
                     {
-                        if (Vector2.Distance(pos, Sinkholes[i]) <= Range)
+                        if (Vector2.Distance(pos, Sinkholes[i].Position) <= Range)
                         {
                             pc.Suicide(PlayerState.DeathReason.Sunken);
                         }
                     }
                 }
+            }
+
+            public static void RemoveRandomSinkhole()
+            {
+                var remove = Sinkholes.RandomElement();
+                remove.NetObject.Despawn();
+                Sinkholes.Remove(remove);
             }
         }
 
@@ -873,7 +892,7 @@ namespace EHR
             }
 
             public static string CollapsedBuildingsString => CollapsedRooms.Count > 0
-                ? CollapsedRooms.Join(x => Translator.GetString($"{x.RoomId}"))
+                ? CollapsedRooms.Select(x => Translator.GetString($"{x.RoomId}")).Distinct().Join()
                 : Translator.GetString("None");
 
             public override void Update()
@@ -910,7 +929,7 @@ namespace EHR
  * Volcano Eruption: Lava flows from one spot, killing players.
  * Tornado: Players are sucked into the tornado and die.
  * Thunderstorm: Lightning strikes outside of rooms, killing players that it hits.
- * Sandstorm: Sand blows, making it hard to see.
+ * SandStorm: Sand blows, making it hard to see.
  * Tsunami: A giant wave comes moving in a specific direction, drowning players that are on the way.
  * Sinkhole: The ground collapses, killing players in range and any players that enter this range in the future.
  * Building Collapse: A building on the ship collapses, killing everyone inside it. Collapsed rooms cannot be entered in the future.

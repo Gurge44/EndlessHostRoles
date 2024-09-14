@@ -197,9 +197,9 @@ public class BountyHunter : RoleBase
         }
     }
 
-    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        return GetTargetText(seer, target, isHUD) + GetTargetArrow(seer, target);
+        return GetTargetText(seer, target, hud) + GetTargetArrow(seer, target);
     }
 
     static string GetTargetText(PlayerControl bounty, PlayerControl tar, bool hud)

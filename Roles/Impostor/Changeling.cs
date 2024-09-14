@@ -132,6 +132,6 @@ namespace EHR.Impostor
             return false;
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl _, bool h = false, bool m = false) => seer.PlayerId != _.PlayerId || ChangelingId != seer.PlayerId ? string.Empty : string.Format(Translator.GetString("ChangelingCurrentRole"), CurrentRole.ToColoredString());
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false) => seer.PlayerId != target.PlayerId || ChangelingId != seer.PlayerId ? string.Empty : string.Format(Translator.GetString("ChangelingCurrentRole"), CurrentRole.ToColoredString());
     }
 }

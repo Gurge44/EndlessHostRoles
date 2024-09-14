@@ -682,10 +682,10 @@ namespace EHR.Crewmate
             }
         }
 
-        public override string GetSuffix(PlayerControl pc, PlayerControl target, bool h = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (pc == null || pc.PlayerId != target.PlayerId || Bombs.Count == 0) return string.Empty;
-            var bomb = Bombs.FirstOrDefault(x => Vector2.Distance(x.Key, pc.Pos()) <= 5f);
+            if (seer == null || seer.PlayerId != target.PlayerId || Bombs.Count == 0) return string.Empty;
+            var bomb = Bombs.FirstOrDefault(x => Vector2.Distance(x.Key, seer.Pos()) <= 5f);
             var time = bomb.Value.ExplosionDelay - (Utils.TimeStamp - bomb.Value.PlaceTimeStamp) + 1;
             return time < 0 ? string.Empty : $"<#ffff00>⚠ {time}</color>";
         }

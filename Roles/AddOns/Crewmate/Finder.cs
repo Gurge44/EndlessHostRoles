@@ -10,7 +10,7 @@
         public void SetupCustomOption()
         {
             Options.SetupAdtRoleOptions(15660, CustomRoles.Finder, canSetNum: true);
-            FinderCD = new FloatOptionItem(15665, "TrackerCooldown", new(0f, 180f, 1f), 25f, TabGroup.Addons)
+            FinderCD = new FloatOptionItem(15668, "TrackerCooldown", new(0f, 180f, 1f), 25f, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Finder])
                 .SetValueFormat(OptionFormat.Seconds);
             FinderDuration = new FloatOptionItem(15666, "TrackerDuration", new(0f, 180f, 1f), 10f, TabGroup.Addons)

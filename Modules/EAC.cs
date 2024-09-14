@@ -657,7 +657,7 @@ internal class GameDataHandlerPatch
 
                 if (AmongUsClient.Instance.AmHost)
                 {
-                    if (!StartGameHostPatch.IsStartingAsHost)
+                    if (!StartGameHostPatchEAC.IsStartingAsHost)
                     {
                         Logger.Warn($"Received ReadyFlag while game is started from {clientId}.", "GameDataHandlerPatch");
                         EAC.WarnHost();
@@ -677,7 +677,7 @@ internal class GameDataHandlerPatch
 }
 
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.CoStartGameHost))]
-internal class StartGameHostPatch
+internal static class StartGameHostPatchEAC
 {
     public static bool IsStartingAsHost;
 

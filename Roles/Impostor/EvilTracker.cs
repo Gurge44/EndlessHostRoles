@@ -186,7 +186,7 @@ public class EvilTracker : RoleBase
     public override string GetProgressText(byte playerId, bool comms) => Main.PlayerStates[playerId].Role is not EvilTracker et ? null : et.CanTarget(playerId) ? Utils.ColorString(Palette.ImpostorRed.ShadeColor(0.5f), "◁") : string.Empty;
     public static string GetTargetMark(PlayerControl seer, PlayerControl target) => Main.PlayerStates[seer.PlayerId].Role is not EvilTracker et ? string.Empty : et.Target == target.PlayerId ? Utils.ColorString(Palette.ImpostorRed, "◀") : string.Empty;
 
-    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool m = false)
+    public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (!GameStates.IsInTask) return string.Empty;
 

@@ -12,7 +12,7 @@ using static EHR.Translator;
 namespace EHR;
 
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.ShowRole))]
-class SetUpRoleTextPatch
+static class SetUpRoleTextPatch
 {
     public static bool IsInIntro;
 
@@ -135,7 +135,7 @@ class SetUpRoleTextPatch
 }
 
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.CoBegin))]
-class CoBeginPatch
+static class CoBeginPatch
 {
     public static void Prefix()
     {
@@ -186,10 +186,6 @@ class CoBeginPatch
 
         Logger.Info("\n" + sb, "GameInfo", multiLine: true);
 
-        Main.AllPlayerControls.Do(x => Main.PlayerStates[x.PlayerId].InitTask(x));
-        GameData.Instance.RecomputeTaskCounts();
-        TaskState.InitialTotalTasks = GameData.Instance.TotalTasks;
-
         RPC.RpcVersionCheck();
 
         Utils.NotifyRoles(NoCache: true);
@@ -199,7 +195,7 @@ class CoBeginPatch
 }
 
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.BeginCrewmate))]
-class BeginCrewmatePatch
+static class BeginCrewmatePatch
 {
     public static bool Prefix(IntroCutscene __instance, ref List<PlayerControl> teamToDisplay)
     {
@@ -333,7 +329,7 @@ class BeginCrewmatePatch
                     break;
             }
 
-            if (Main.LoversPlayers.Count == 2 && Main.LoversPlayers.Any(x => x.PlayerId == PlayerControl.LocalPlayer.PlayerId))
+            if (Main.LoversPlayers.Count == 2 && Main.LoversPlayers.Exists(x => x.PlayerId == PlayerControl.LocalPlayer.PlayerId))
             {
                 __instance.TeamTitle.color = __instance.BackgroundBar.material.color = Utils.GetRoleColor(CustomRoles.Lovers);
                 byte otherLoverId = Main.LoversPlayers.First(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId).PlayerId;
@@ -666,7 +662,7 @@ class BeginCrewmatePatch
 }
 
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.BeginImpostor))]
-class BeginImpostorPatch
+static class BeginImpostorPatch
 {
     public static bool Prefix(IntroCutscene __instance, ref List<PlayerControl> yourTeam)
     {
@@ -710,12 +706,17 @@ class BeginImpostorPatch
 }
 
 [HarmonyPatch(typeof(IntroCutscene), nameof(IntroCutscene.OnDestroy))]
-class IntroCutsceneDestroyPatch
+static class IntroCutsceneDestroyPatch
 {
     public static void Postfix( /*IntroCutscene __instance*/)
     {
         if (!GameStates.IsInGame) return;
         Main.IntroDestroyed = true;
+
+        // Set roleAssigned as false for overriding roles for modded players
+        // for vanilla clients we use "Data.Disconnected"
+        Main.AllPlayerControls.Do(x => x.roleAssigned = false);
+
         if (AmongUsClient.Instance.AmHost)
         {
             if (Main.NormalOptions.MapId != 4)
@@ -757,6 +758,11 @@ class IntroCutsceneDestroyPatch
 
             // LateTask.New(() => Main.AllPlayerControls.Do(pc ⇒ pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 
+            var lp = PlayerControl.LocalPlayer;
+
+            if (lp.GetRoleTypes() == RoleTypes.Shapeshifter)
+                lp.RpcChangeRoleBasis(lp.GetCustomRole());
+
             if (Options.UsePets.GetBool())
             {
                 Main.ProcessShapeshifts = false;
@@ -784,7 +790,7 @@ class IntroCutsceneDestroyPatch
                     {
                         try
                         {
-                            PlayerControl.LocalPlayer.Notify(GetString("GLHF"), 2f);
+                            lp.Notify(GetString("GLHF"), 2f);
                             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                             {
                                 if (pc.IsHost()) continue; // Skip the host
@@ -812,15 +818,16 @@ class IntroCutsceneDestroyPatch
                 LateTask.New(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
             }
 
-            if (Options.UseUnshiftTrigger.GetBool())
+            if (Options.UseUnshiftTrigger.GetBool() || Main.PlayerStates.Values.Any(x => x.MainRole.AlwaysUsesUnshift()))
             {
                 LateTask.New(() => Main.AllAlivePlayerControls.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
             }
 
-            if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
+            if (Main.GM.Value)
             {
-                PlayerControl.LocalPlayer.RpcExile();
-                Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].SetDead();
+                lp.RpcExile();
+                lp.RpcSetCustomRole(CustomRoles.GM);
+                Main.PlayerStates[lp.PlayerId].SetDead();
             }
 
             if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard)
@@ -837,9 +844,33 @@ class IntroCutsceneDestroyPatch
                 if (map != null && AmongUsClient.Instance.AmHost) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
             }
 
-            if (Main.ResetCamPlayerList.Contains(PlayerControl.LocalPlayer.PlayerId))
+            if (lp.HasDesyncRole())
             {
-                PlayerControl.LocalPlayer.Data.Role.AffectedByLightAffectors = false;
+                lp.Data.Role.AffectedByLightAffectors = false;
+                foreach (var target in Main.AllPlayerControls)
+                {
+                    // Set all players as killable players
+                    target.Data.Role.CanBeKilled = true;
+
+                    // When target is impostor, set name color as white
+                    target.cosmetics.SetNameColor(Color.white);
+                    target.Data.Role.NameColor = Color.white;
+                }
+            }
+
+            bool shouldPerformVentInteractions = false;
+            foreach (var pc in Main.AllPlayerControls)
+            {
+                if (VentilationSystemDeterioratePatch.BlockVentInteraction(pc))
+                {
+                    VentilationSystemDeterioratePatch.LastClosestVent[pc.PlayerId] = pc.GetVentsFromClosest()[0].Id;
+                    shouldPerformVentInteractions = true;
+                }
+            }
+
+            if (shouldPerformVentInteractions)
+            {
+                Utils.SetAllVentInteractions();
             }
 
             if (AFKDetector.ActivateOnStart.GetBool())

@@ -17,7 +17,7 @@ public class Magician : RoleBase
     public static List<byte> playerIdList = [];
 
     private static OptionItem KillCooldown;
-    public static OptionItem CanVent;
+    private static OptionItem CanVent;
     private static OptionItem HasImpostorVision;
     private static OptionItem Speed;
     private static OptionItem SpeedDur;
@@ -103,7 +103,7 @@ public class Magician : RoleBase
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
-    public override bool CanUseSabotage(PlayerControl pc) => pc.IsAlive() && !(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool());
+    public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (pc.IsAlive() && !(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()));
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)
     {
@@ -270,7 +270,7 @@ public class Magician : RoleBase
                 CardId = byte.MaxValue;
                 break;
             case 10: // Admin map
-                NameNotifyManager.Notice.Remove(pc.PlayerId);
+                NameNotifyManager.Notifies.Remove(pc.PlayerId);
                 var rooms = GetAllPlayerLocationsCount();
                 var sb = new StringBuilder();
                 foreach (var location in rooms)

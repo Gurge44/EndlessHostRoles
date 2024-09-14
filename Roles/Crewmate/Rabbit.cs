@@ -43,11 +43,11 @@ namespace EHR.Crewmate
             state.OnTaskComplete();
         }
 
-        public override string GetSuffix(PlayerControl pc, PlayerControl tar, bool HUD = false, bool m = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (pc == null || pc.PlayerId != tar.PlayerId || !RabbitStates.TryGetValue(pc.PlayerId, out RabbitState state)) return string.Empty;
+            if (seer == null || seer.PlayerId != target.PlayerId || !RabbitStates.TryGetValue(seer.PlayerId, out RabbitState state)) return string.Empty;
             string suffix = state.Suffix;
-            return HUD ? $"<size=200%>{suffix}</size>" : suffix;
+            return hud ? $"<size=200%>{suffix}</size>" : suffix;
         }
 
         class RabbitState(PlayerControl player)

@@ -72,7 +72,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | Adventurer        | Anti Adminer    | Arsonist          | Asthmatic      |
 | Aid               | Arrogance       | Backstabber       | Autopsy        |
 | Alchemist         | Assumer         | Bandit            | Avenger        |
-| Altruist          | Augmenter       | Bargainer         | Bait           |
+| Bane              | Augmenter       | Bargainer         | Bait           |
 | Analyst           | Bard            | Beehive           | Busy           |
 | Autocrat          | Blackmailer     | Blood Knight      | Beartrap       |
 | Beacon            | Bomber          | Bubble            | Bewilder       |
@@ -261,6 +261,8 @@ Source language: English
 
 >
 > - Our repo is forked from TOHRE (from a long time ago)
+> - Thanks: Better Anti-Blackout
+> - Thanks: Phantom-basis fix for desynced roles
 >
 
 ### :star: [TOHE/TONX](https://github.com/KARPED1EM/TownOfHostEdited) :
@@ -284,6 +286,7 @@ Source language: English
 > - Provided roles: AntiAdminer, CursedWolf, Workaholic, Greedier, DarkHide, Ignitor, Rabbit
 > - Reference: Modify game announcement
 > - New settings UI for v2024.6.18
+> - Reference: Role Basis Changing Mid-Game
 >
 
 ### :star: [TOH:TOR](https://github.com/music-discussion/TownOfHost-TheOtherRoles) :
@@ -349,6 +352,7 @@ Source language: English
 >
 > - Reference: Part of the code used for the Endless Host Roles Image in the Main Menu
 > - Reference: Custom Net Objects
+> - Reference: Block vent interaction for players who cannot use vents
 >
 
 ### :star: [Reactor](https://github.com/NuclearPowered/Reactor) :
@@ -360,7 +364,7 @@ Source language: English
 ### :star: [TOHO](https://github.com/Limeau/TownofHost-Optimized) :
 
 >
-> - Reference: Some role ideas (Tank, Deadlined, Journalist, Grapper, Negotiator, Hypnotist)
+> - Reference: Some role ideas (Tank, Deadlined, Journalist, Grappler, Negotiator, Hypnotist, etc.)
 >
 
 ### :star: [Mini.RegionInstall](https://github.com/miniduikboot/Mini.RegionInstall) :

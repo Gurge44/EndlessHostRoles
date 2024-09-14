@@ -10,7 +10,7 @@ namespace EHR.Modules;
 
 internal static class CustomRoleSelector
 {
-    public static Dictionary<PlayerControl, CustomRoles> RoleResult;
+    public static Dictionary<byte, CustomRoles> RoleResult;
 
     public static int AddScientistNum;
     public static int AddEngineerNum;
@@ -67,7 +67,7 @@ internal static class CustomRoleSelector
                 return;
             case CustomGameMode.HideAndSeek:
                 HnSManager.AssignRoles();
-                RoleResult = HnSManager.PlayerRoles.ToDictionary(x => Utils.GetPlayerById(x.Key), x => x.Value.Role);
+                RoleResult = HnSManager.PlayerRoles.ToDictionary(x => x.Key, x => x.Value.Role);
                 return;
         }
 
@@ -190,19 +190,23 @@ internal static class CustomRoleSelector
         if (BanManager.CheckEACList(PlayerControl.LocalPlayer.FriendCode, PlayerControl.LocalPlayer.GetClient().GetHashedPuid()))
         {
             Main.GM.Value = true;
-            RoleResult[PlayerControl.LocalPlayer] = CustomRoles.GM;
+            RoleResult[PlayerControl.LocalPlayer.PlayerId] = CustomRoles.GM;
             AllPlayers.Remove(PlayerControl.LocalPlayer);
         }
 
-        if (Main.GM.Value) Logger.Warn("Host: GM", "CustomRoleSelector");
+        if (Main.GM.Value)
+        {
+            Logger.Warn("Host: GM", "CustomRoleSelector");
+            AllPlayers.RemoveAll(x => x.IsHost());
+        }
 
         // Pre-Assigned Roles By Host Are Selected First
-        foreach ((byte id, CustomRoles role) in Main.SetRoles)
+        foreach ((byte id, CustomRoles role) in Main.SetRoles.AddRange(ChatCommands.DraftResult, overrideExistingKeys: false))
         {
             PlayerControl pc = AllPlayers.FirstOrDefault(x => x.PlayerId == id);
             if (pc == null) continue;
 
-            RoleResult[pc] = role;
+            RoleResult[pc.PlayerId] = role;
             AllPlayers.Remove(pc);
 
             if (role.IsImpostor())
@@ -555,7 +559,7 @@ internal static class CustomRoleSelector
         Logger.Info(string.Join(", ", FinalRolesList.Select(x => x.ToString())), "RoleResults");
 
         var preResult = RoleResult.ToDictionary(x => x.Key, x => x.Value);
-        RoleResult = AllPlayers.Zip(FinalRolesList.Shuffle()).ToDictionary(x => x.First, x => x.Second);
+        RoleResult = AllPlayers.Zip(FinalRolesList.Shuffle()).ToDictionary(x => x.First.PlayerId, x => x.Second);
         RoleResult.AddRange(preResult);
 
         if (RoleResult.Count < AllPlayers.Count)
@@ -567,8 +571,13 @@ internal static class CustomRoleSelector
         {
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (Main.GM.Value && pc.IsHost()) continue;
-                RoleResult[pc] = role;
+                if (Main.GM.Value && pc.IsHost())
+                {
+                    RoleResult[pc.PlayerId] = CustomRoles.GM;
+                    continue;
+                }
+
+                RoleResult[pc.PlayerId] = role;
             }
         }
 

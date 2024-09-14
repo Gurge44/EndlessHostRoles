@@ -22,7 +22,7 @@ namespace EHR.AddOns.Common
         {
             const int id = 648950;
             SetupAdtRoleOptions(id, CustomRoles.Spurt, canSetNum: true, teamSpawnOptions: true);
-            MinSpeed = new FloatOptionItem(id + 6, "SpurtMinSpeed", new(0f, 3f, 0.25f), 0.75f, TabGroup.Addons)
+            MinSpeed = new FloatOptionItem(id + 10, "SpurtMinSpeed", new(0f, 3f, 0.25f), 0.75f, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spurt])
                 .SetValueFormat(OptionFormat.Multiplier);
             MaxSpeed = new FloatOptionItem(id + 7, "SpurtMaxSpeed", new(1.5f, 3f, 0.25f), 3f, TabGroup.Addons)

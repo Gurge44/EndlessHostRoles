@@ -98,9 +98,9 @@ namespace EHR.Impostor
             ActivateTS = long.Parse(reader.ReadString());
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != HypnotistId || isMeeting || (seer.IsModClient() && !isHUD) || ActivateTS == 0) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != HypnotistId || meeting || (seer.IsModClient() && !hud) || ActivateTS == 0) return string.Empty;
             int timeLeft = (int)(ActivateTS + AbilityDuration.GetInt() - Utils.TimeStamp);
             return timeLeft <= 5 ? $"\u25a9 ({timeLeft})" : "\u25a9";
         }

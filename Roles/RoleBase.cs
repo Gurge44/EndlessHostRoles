@@ -109,11 +109,12 @@ namespace EHR
             if (x >= 14)
             {
                 x -= 13;
+                TaskState ts = pc.GetTaskState();
                 suffix = pc.GetCustomRoleTypes() switch
                 {
                     CustomRoleTypes.Impostor => $"Imp{x}",
                     CustomRoleTypes.Neutral => $"Neutral{x}",
-                    CustomRoleTypes.Crewmate => x == 1 ? "Crew" : pc.GetTaskState().HasTasks && pc.GetTaskState().IsTaskFinished ? "CrewTaskDone" : "CrewWithTasksLeft",
+                    CustomRoleTypes.Crewmate => x == 1 ? "Crew" : ts.HasTasks && ts.IsTaskFinished ? "CrewTaskDone" : "CrewWithTasksLeft",
                     _ => x.ToString()
                 };
             }
@@ -181,7 +182,7 @@ namespace EHR
         {
         }
 
-        public virtual string GetSuffix(PlayerControl seer, PlayerControl target, bool isHUD = false, bool isMeeting = false)
+        public virtual string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             return string.Empty;
         }
@@ -240,6 +241,8 @@ namespace EHR
 
             bool IsGeneralOption() => !Translator.GetString(fieldName).Contains("INVALID");
         }
+
+        public void CreateOverrideTasksData() => Options.OverrideTasksData.Create(++_id, tab, role);
     }
 
     public enum OptionType
