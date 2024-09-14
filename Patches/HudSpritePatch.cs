@@ -65,6 +65,10 @@ public static class HudSpritePatch
 
             switch (player.GetCustomRole())
             {
+                case CustomRoles.Enderman:
+                    if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("abscond");
+                    else newSabotageButton = CustomButton.Get("abscond");
+                    break;
                 case CustomRoles.Wizard:
                     newAbilityButton = CustomButton.Get("Up");
                     break;
