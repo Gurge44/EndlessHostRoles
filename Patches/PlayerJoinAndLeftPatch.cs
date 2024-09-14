@@ -16,7 +16,7 @@ using static EHR.Translator;
 namespace EHR;
 
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnGameJoined))]
-class OnGameJoinedPatch
+static class OnGameJoinedPatch
 {
     public static void Postfix(AmongUsClient __instance)
     {
@@ -61,12 +61,14 @@ class OnGameJoinedPatch
 
             Main.SetRoles = [];
             Main.SetAddOns = [];
+            ChatCommands.DraftResult = [];
+            ChatCommands.DraftRoles = [];
         }
     }
 }
 
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.DisconnectInternal))]
-class DisconnectInternalPatch
+static class DisconnectInternalPatch
 {
     public static void Prefix( /*InnerNetClient __instance,*/ DisconnectReasons reason, string stringReason)
     {
@@ -85,9 +87,8 @@ static class OnPlayerJoinedPatch
     static bool IsDisconnected(this ClientData client)
     {
         var __instance = AmongUsClient.Instance;
-        for (int i = 0; i < __instance.allClients.Count; i++)
+        foreach (ClientData clientData in __instance.allClients)
         {
-            ClientData clientData = __instance.allClients[i];
             if (clientData.Id == client.Id)
             {
                 return true;
@@ -168,7 +169,7 @@ static class OnPlayerJoinedPatch
 }
 
 [HarmonyPatch(typeof(AmongUsClient), nameof(AmongUsClient.OnPlayerLeft))]
-class OnPlayerLeftPatch
+static class OnPlayerLeftPatch
 {
     public static void Postfix(AmongUsClient __instance, [HarmonyArgument(0)] ClientData data, [HarmonyArgument(1)] DisconnectReasons reason)
     {
@@ -307,7 +308,7 @@ class OnPlayerLeftPatch
 }
 
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.Spawn))]
-class InnerNetClientSpawnPatch
+static class InnerNetClientSpawnPatch
 {
     public static void Postfix([HarmonyArgument(1)] int ownerId, [HarmonyArgument(2)] SpawnFlags flags)
     {
@@ -433,7 +434,7 @@ class InnerNetClientSpawnPatch
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.CheckName))]
-class PlayerControlCheckNamePatch
+static class PlayerControlCheckNamePatch
 {
     public static void Postfix(PlayerControl __instance, ref string playerName)
     {

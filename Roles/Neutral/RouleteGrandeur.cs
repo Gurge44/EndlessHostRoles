@@ -55,7 +55,7 @@ namespace EHR.Neutral
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KCD;
         public override bool CanUseImpostorVentButton(PlayerControl pc) => true;
-        public override bool CanUseSabotage(PlayerControl pc) => !(Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool());
+        public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (!(Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()));
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {

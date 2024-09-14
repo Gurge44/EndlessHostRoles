@@ -57,7 +57,7 @@ namespace EHR.Neutral
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Utils.GetPlayerById(id).GetPlainShipRoom() == RoomBoosts[Boost.Cooldown] ? DecreasedKillCooldown.GetFloat() : KillCooldown.GetFloat();
         public override bool CanUseImpostorVentButton(PlayerControl pc) => pc.inVent || pc.GetAbilityUseLimit() > 0 || pc.GetPlainShipRoom() == RoomBoosts[Boost.Vent];
-        public override bool CanUseSabotage(PlayerControl pc) => pc.GetPlainShipRoom() == RoomBoosts[Boost.Sabotage];
+        public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (pc.GetPlainShipRoom() == RoomBoosts[Boost.Sabotage]);
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {

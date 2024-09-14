@@ -1250,11 +1250,11 @@ public static class Utils
             }
         }
 
-        SendMessage(sb.Append("\n.").ToString(), PlayerId, "<color=#ff5b70>【 ★ Roles ★ 】</color>");
-        SendMessage(impsb.Append("\n.").ToString(), PlayerId, ColorString(GetRoleColor(CustomRoles.Impostor), "【 ★ Impostor Roles ★ 】"));
-        SendMessage(crewsb.Append("\n.").ToString(), PlayerId, ColorString(GetRoleColor(CustomRoles.Crewmate), "【 ★ Crewmate Roles ★ 】"));
-        SendMessage(neutralsb.Append("\n.").ToString(), PlayerId, "<color=#ffab1b>【 ★ Neutral Roles ★ 】</color>");
-        SendMessage(addonsb.Append("\n.").ToString(), PlayerId, "<color=#ff9ace>【 ★ Add-ons ★ 】</color>");
+        SendMessage(sb.Append("\n.").ToString(), PlayerId, GetString("GMRoles"));
+        SendMessage(impsb.Append("\n.").ToString(), PlayerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("ImpostorRoles")));
+        SendMessage(crewsb.Append("\n.").ToString(), PlayerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CrewmateRoles")));
+        SendMessage(neutralsb.Append("\n.").ToString(), PlayerId, GetString("NeutralRoles"));
+        SendMessage(addonsb.Append("\n.").ToString(), PlayerId, GetString("AddonRoles"));
     }
 
     public static void ShowChildrenSettings(OptionItem option, ref StringBuilder sb, int deep = 0, bool command = false, bool disableColor = true)
@@ -1598,7 +1598,7 @@ public static class Utils
     {
         if (Options.CurrentGameMode != CustomGameMode.Standard || deadPlayer == null || deadPlayer.Object.Is(CustomRoles.Refugee) || Main.HasJustStarted || !GameStates.InGame || !Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() || Main.AllAlivePlayerControls.Length < Options.SpawnAdditionalRefugeeMinAlivePlayers.GetInt() || CustomRoles.Refugee.RoleExist(countDead: true) || Main.AllAlivePlayerControls == null || Main.AllAlivePlayerControls.Length == 0 || Main.AllAlivePlayerControls.Any(x => x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && !Options.SpawnAdditionalRefugeeWhenNKAlive.GetBool())))) return;
 
-        PlayerControl[] ListToChooseFrom = Options.UsePets.GetBool() ? Main.AllAlivePlayerControls.Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate) && !x.Is(CustomRoles.Loyal)).ToArray() : Main.AllAlivePlayerControls.Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate) && x.GetCustomRole().GetRoleTypes() == RoleTypes.Impostor && !x.Is(CustomRoles.Loyal)).ToArray();
+        PlayerControl[] ListToChooseFrom = Main.AllAlivePlayerControls.Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate) && !x.Is(CustomRoles.Loyal)).ToArray();
 
         if (ListToChooseFrom.Length > 0)
         {
@@ -1673,7 +1673,7 @@ public static class Utils
     public static void ApplySuffix(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost || player == null) return;
-        if (Main.HostRealName == string.Empty) Main.HostRealName = player.name;
+        if (Main.HostRealName == string.Empty) Main.HostRealName = PlayerControl.LocalPlayer.name;
         if (!player.AmOwner && !player.FriendCode.GetDevUser().HasTag() && !ChatCommands.IsPlayerModerator(player.FriendCode) && !ChatCommands.IsPlayerVIP(player.FriendCode)) return;
         string name = Main.AllPlayerNames.TryGetValue(player.PlayerId, out var n) ? n : string.Empty;
         if (Main.NickName != string.Empty && player.AmOwner) name = Main.NickName;
@@ -2027,10 +2027,10 @@ public static class Utils
                                 ? SeerRealName
                                 : seerTeam switch
                                 {
-                                    Team.Impostor when seer.IsMadmate() => $"<font=\"DIN_Pro_Bold_700 SDF\"><size=200%><color=#ff1919>{GetString("YouAreMadmate")}</size></color></font>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Impostor when seer.IsMadmate() => $"<size=200%><color=#ff1919>{GetString("YouAreMadmate")}</size></color>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
                                     Team.Impostor => $"\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
-                                    Team.Crewmate => $"<font=\"DIN_Pro_Bold_700 SDF\"><size=200%><color=#8cffff>{GetString("YouAreCrewmate")}</size></color></font>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
-                                    Team.Neutral => $"<font=\"DIN_Pro_Bold_700 SDF\"><size=200%><color=#ffab1b>{GetString("YouAreNeutral")}</size></color></font>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Crewmate => $"<size=200%><color=#8cffff>{GetString("YouAreCrewmate")}</size></color>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Neutral => $"<size=200%><color=#ffab1b>{GetString("YouAreNeutral")}</size></color>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
                                     _ => SeerRealName
                                 };
                         }
@@ -2268,10 +2268,7 @@ public static class Utils
                                 case CustomRoles.BountyHunter when (Main.PlayerStates[seer.PlayerId].Role as BountyHunter).GetTarget(seer) == target.PlayerId && seer.IsAlive():
                                     TargetPlayerName = $"<color=#000000>{TargetPlayerName}</size>";
                                     break;
-                                case CustomRoles.Doomsayer when seer.IsAlive() && target.IsAlive() && GuesserIsForMeeting:
-                                    TargetPlayerName = $"{ColorString(GetRoleColor(CustomRoles.Doomsayer), $" {target.PlayerId}")} {TargetPlayerName}";
-                                    break;
-                                case CustomRoles.Lookout when seer.IsAlive() && target.IsAlive():
+                                case CustomRoles.Lookout when seer.IsAlive() && target.IsAlive() && !isForMeeting:
                                     TargetPlayerName = $"{ColorString(GetRoleColor(CustomRoles.Lookout), $" {target.PlayerId}")} {TargetPlayerName}";
                                     break;
                             }

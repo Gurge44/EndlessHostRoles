@@ -494,9 +494,6 @@ static class CheckMurderPatch
             case CustomRoles.Medic:
                 Medic.IsDead(target);
                 break;
-            case CustomRoles.Monarch when killer.Is(CustomRoles.Knighted):
-                Notify("KnightedKillMonarch");
-                return false;
             case CustomRoles.Gambler when Gambler.IsShielded.ContainsKey(target.PlayerId):
                 Notify("SomeSortOfProtection");
                 killer.SetKillCooldown(time: 5f);
@@ -996,8 +993,7 @@ static class ReportDeadBodyPatch
         }
         catch (Exception e)
         {
-            Logger.Exception(e, "ReportDeadBodyPatch");
-            Logger.SendInGame("Error: " + e);
+            Utils.ThrowException(e);
         }
 
         return true;

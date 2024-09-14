@@ -32,6 +32,7 @@
             if (Options.SingleRoles.Contains(killerRole)) killerRole = CustomRoles.Amnesiac;
 
             target.RpcSetCustomRole(killerRole);
+            target.RpcChangeRoleBasis(killerRole);
 
             killer.SetKillCooldown(5f);
 

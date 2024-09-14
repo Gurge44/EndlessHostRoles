@@ -63,7 +63,7 @@ namespace EHR.Neutral
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = GotRewards.Contains(Reward.DecreasedKillCooldown) ? KillCooldown.GetFloat() / 2f : KillCooldown.GetFloat();
         public override bool CanUseImpostorVentButton(PlayerControl pc) => CurrentTask.Objective == Objective.VentXTimes || CanVent.GetBool();
-        public override bool CanUseSabotage(PlayerControl pc) => GotRewards.Contains(Reward.Sabotage) || GotRewards.Contains(Reward.Morph);
+        public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (GotRewards.Contains(Reward.Sabotage) || GotRewards.Contains(Reward.Morph));
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {

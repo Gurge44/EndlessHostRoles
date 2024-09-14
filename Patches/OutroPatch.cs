@@ -26,6 +26,8 @@ static class EndGamePatch
 
         Logger.Info("-----------Game over-----------", "Phase");
 
+        ChatCommands.DraftResult = [];
+        ChatCommands.DraftRoles = [];
         Main.SetRoles = [];
         Main.SetAddOns = [];
         SummaryText = [];

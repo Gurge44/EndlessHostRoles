@@ -229,6 +229,7 @@ internal class ChangeRoleSettings
 
             Main.IntroDestroyed = false;
             ShipStatusBeginPatch.RolesIsAssigned = false;
+            GameEndChecker.ShowAllRolesWhenGameEnd = false;
 
             RandomSpawn.CustomNetworkTransformPatch.NumOfTP = [];
 
@@ -243,6 +244,7 @@ internal class ChangeRoleSettings
             Main.LastNotifyNames = [];
 
             CheckForEndVotingPatch.EjectionText = string.Empty;
+            CoShowIntroPatch.IntroStarted = false;
 
             Arsonist.CurrentDousingTarget = byte.MaxValue;
             Revolutionist.CurrentDrawTarget = byte.MaxValue;
@@ -363,9 +365,9 @@ internal class ChangeRoleSettings
 [HarmonyPatch]
 internal static class StartGameHostPatch
 {
-    private static AmongUsClient thiz;
+    private static AmongUsClient AUClient;
 
-    private static readonly Dictionary<CustomRoles, List<byte>> BasisChangingAddons = [];
+    public static readonly Dictionary<CustomRoles, List<byte>> BasisChangingAddons = [];
     private static Dictionary<RoleTypes, int> RoleTypeNums = [];
 
     private static readonly Dictionary<byte, bool> DataDisconnected = [];
@@ -389,44 +391,38 @@ internal static class StartGameHostPatch
     [HarmonyPrefix]
     public static bool CoStartGameHost_Prefix(AmongUsClient __instance, ref IEnumerator __result)
     {
-        thiz = __instance;
+        AUClient = __instance;
         __result = StartGameHost().WrapToIl2Cpp();
         return false;
     }
 
-    public static System.Collections.IEnumerator StartGameHost()
+    private static System.Collections.IEnumerator StartGameHost()
     {
-        if (LobbyBehaviour.Instance)
-        {
-            LobbyBehaviour.Instance.Despawn();
-        }
+        if (LobbyBehaviour.Instance) LobbyBehaviour.Instance.Despawn();
 
         if (!ShipStatus.Instance)
         {
             int num = Mathf.Clamp(GameOptionsManager.Instance.CurrentGameOptions.MapId, 0, Constants.MapNames.Length - 1);
-            thiz.ShipLoadingAsyncHandle = thiz.ShipPrefabs.ToArray()[num].InstantiateAsync();
-            yield return thiz.ShipLoadingAsyncHandle;
-            GameObject result = thiz.ShipLoadingAsyncHandle.Result;
+            AUClient.ShipLoadingAsyncHandle = AUClient.ShipPrefabs.ToArray()[num].InstantiateAsync();
+            yield return AUClient.ShipLoadingAsyncHandle;
+            GameObject result = AUClient.ShipLoadingAsyncHandle.Result;
             ShipStatus.Instance = result.GetComponent<ShipStatus>();
-            thiz.Spawn(ShipStatus.Instance);
+            AUClient.Spawn(ShipStatus.Instance);
         }
 
         float timer = 0f;
-        for (;;)
+        while (true)
         {
             bool stopWaiting = true;
-            int maxTimer = 10;
-            if (GameOptionsManager.Instance.CurrentGameOptions.MapId == 5 || GameOptionsManager.Instance.CurrentGameOptions.MapId == 4)
+            int maxTimer = GameOptionsManager.Instance.CurrentGameOptions.MapId is 5 or 4 ? 20 : 15;
+            lock (AUClient.allClients)
             {
-                maxTimer = 15;
-            }
-
-            var allClients = thiz.allClients; // Possibly .Toarray().ToList() is needed
-            lock (allClients)
-            {
-                foreach (ClientData clientData in thiz.allClients)
+                // For loop is necessary, or else when a client times out, a foreach loop will throw:
+                // System.InvalidOperationException: Collection was modified; enumeration operation may not execute.
+                for (int i = 0; i < AUClient.allClients.Count; i++)
                 {
-                    if (clientData.Id != thiz.ClientId && !clientData.IsReady)
+                    ClientData clientData = AUClient.allClients[i]; // False error
+                    if (clientData.Id != AUClient.ClientId && !clientData.IsReady)
                     {
                         if (timer < maxTimer)
                         {
@@ -434,30 +430,25 @@ internal static class StartGameHostPatch
                         }
                         else
                         {
-                            thiz.SendLateRejection(clientData.Id, DisconnectReasons.ClientTimeout);
+                            AUClient.SendLateRejection(clientData.Id, DisconnectReasons.ClientTimeout);
                             clientData.IsReady = true;
-                            thiz.OnPlayerLeft(clientData, DisconnectReasons.ClientTimeout);
+                            AUClient.OnPlayerLeft(clientData, DisconnectReasons.ClientTimeout);
                         }
                     }
                 }
             }
 
             yield return null;
-            if (stopWaiting)
-            {
-                break;
-            }
-
+            if (stopWaiting) break;
             timer += Time.deltaTime;
         }
 
-        thiz.SendClientReady();
+        AUClient.SendClientReady();
         yield return new WaitForSeconds(2f);
         yield return AssignRoles();
-        //ShipStatus.Instance.Begin(); // Tasks sets in IntroPatch
     }
 
-    public static System.Collections.IEnumerator AssignRoles()
+    private static System.Collections.IEnumerator AssignRoles()
     {
         if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.ShowAllRolesWhenGameEnd) yield break;
 
@@ -840,6 +831,8 @@ internal static class StartGameHostPatch
             {
                 Main.SetRoles = [];
                 Main.SetAddOns = [];
+                ChatCommands.DraftResult = [];
+                ChatCommands.DraftRoles = [];
             }, 7f, log: false);
 
             if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && Main.GM.Value)
@@ -1183,5 +1176,22 @@ internal static class StartGameHostPatch
             OverriddenSenderList = null;
             StoragedData = null;
         }
+    }
+}
+
+[HarmonyPatch(typeof(RoleManager), nameof(RoleManager.SelectRoles))]
+static class FixIntroPatch
+{
+    public static void Postfix()
+    {
+        LateTask.New(() =>
+        {
+            if (CoShowIntroPatch.IntroStarted) return;
+            Logger.Warn("Starting intro manually", "StartGameHostPatch");
+            PlayerControl.AllPlayerControls.ForEach((Action<PlayerControl>)(PlayerNameColor.Set));
+            PlayerControl.LocalPlayer.StopAllCoroutines();
+            DestroyableSingleton<HudManager>.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoShowIntro());
+            DestroyableSingleton<HudManager>.Instance.HideGameLoader();
+        }, 1f, log: false);
     }
 }

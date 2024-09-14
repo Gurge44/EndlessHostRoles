@@ -102,13 +102,25 @@ public class CopyCat : RoleBase
         {
             role = role switch
             {
+                CustomRoles.Swooper or CustomRoles.Wraith => CustomRoles.Chameleon,
+                CustomRoles.Stealth or CustomRoles.Nonplus => CustomRoles.Grenadier,
+                CustomRoles.TimeThief => CustomRoles.TimeManager,
+                CustomRoles.EvilDiviner or CustomRoles.Ritualist => CustomRoles.Farseer,
+                CustomRoles.AntiAdminer => CustomRoles.Monitor,
+                CustomRoles.CursedWolf or CustomRoles.Jinx => CustomRoles.Veteran,
+                CustomRoles.EvilTracker => CustomRoles.TrackerEHR,
+                CustomRoles.SerialKiller => CustomRoles.Addict,
+                CustomRoles.Miner => CustomRoles.Mole,
+                CustomRoles.Escapee => CustomRoles.Tunneler,
+                CustomRoles.Twister => CustomRoles.TimeMaster,
+                CustomRoles.Disperser => CustomRoles.Transporter,
                 CustomRoles.Eraser => CustomRoles.Cleanser,
                 CustomRoles.Visionary => CustomRoles.Oracle,
                 CustomRoles.Workaholic => CustomRoles.Snitch,
                 CustomRoles.Sunnyboy => CustomRoles.Doctor,
                 CustomRoles.Vindicator or CustomRoles.Pickpocket => CustomRoles.Mayor,
                 CustomRoles.Councillor => CustomRoles.Judge,
-                CustomRoles.EvilGuesser or CustomRoles.Doomsayer or CustomRoles.Ritualist => CustomRoles.NiceGuesser,
+                CustomRoles.EvilGuesser or CustomRoles.Doomsayer => CustomRoles.NiceGuesser,
                 _ => role
             };
         }

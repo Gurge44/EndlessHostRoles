@@ -61,7 +61,7 @@ namespace EHR.Neutral
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Stats.KillCooldown;
         public override bool CanUseImpostorVentButton(PlayerControl pc) => pc.inVent || Stats is { CanVent: true, VentUseLimit: > 0 };
-        public override bool CanUseSabotage(PlayerControl pc) => Stats is { CanSabotage: true, SabotageUseLimit: > 0 };
+        public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || Stats is { CanSabotage: true, SabotageUseLimit: > 0 };
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
