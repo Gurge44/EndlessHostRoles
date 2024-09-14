@@ -2347,7 +2347,7 @@
   "MuteMessage": "<#ff0000>Você está mutado e não pode enviar mensagens. O silenciamento irá expirar em <#ffff00>{0}</color> segundos.</color>",
   "ThankYouForUsingEHR": "Obrigado por usar o EHR!",
   "GMRoles": "<color=#ff5b70>【 ★ Funções ★ 】</color>",
-  "ImpostorRoles": "【 ★ Funções de impostor ★ 】",
+  "ImpostorRoles": "【 ★ Funções de Impostor ★ 】",
   "CrewmateRoles": "【 ★ Funções de Tripulante★ 】",
   "NeutralRoles": "<color=#ffab1b>【 ★ Funções Neutras ★ 】</color>",
   "AddonRoles": "<color=#ff9ace>【 ★ Atributos ★ 】</color>",
