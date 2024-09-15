@@ -835,6 +835,12 @@ static class CoShowIntroPatch
                     // Assign tasks after assign all roles, as it should be
                     ShipStatus.Instance.Begin();
 
+                    GameOptionsSender.AllSenders.Clear();
+                    foreach (PlayerControl pc in Main.AllPlayerControls)
+                    {
+                        GameOptionsSender.AllSenders.Add(new PlayerGameOptionsSender(pc));
+                    }
+
                     Utils.SyncAllSettings();
                 }
             }
