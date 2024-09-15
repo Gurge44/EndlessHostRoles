@@ -816,12 +816,6 @@ internal static class StartGameHostPatch
                     break;
             }
 
-            GameOptionsSender.AllSenders.Clear();
-            foreach (PlayerControl pc in Main.AllPlayerControls)
-            {
-                GameOptionsSender.AllSenders.Add(new PlayerGameOptionsSender(pc));
-            }
-
             // Add players with unclassified roles to the list of players who require ResetCam.
             Main.ResetCamPlayerList.UnionWith(Main.PlayerStates.Where(p => (p.Value.MainRole.IsDesyncRole() && !p.Value.MainRole.UsesPetInsteadOfKill()) || p.Value.SubRoles.Contains(CustomRoles.Bloodlust)).Select(p => p.Key));
             Utils.CountAlivePlayers(true);
