@@ -4749,6 +4749,7 @@
   "Stored": "Armazenado",
   "QuickFix": "Correção Rápida",
   "CD": "Recarga",
+  "AlchemistAbilityCooldown": "Recarga da Habilidade",
   "AddictVentButtonText": "Invulnerabilidade",
   "AddictInvulnerbilityTimeAfterVent": "</color>Tempo da<color=#008000> Invulnerabilidade",
   "AddictSpeedWhileInvulnerble": "Velocidade durante a <color=#008000>Invulnerabilidade</color>",
