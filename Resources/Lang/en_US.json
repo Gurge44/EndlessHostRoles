@@ -4749,6 +4749,7 @@
   "Stored": "Stored",
   "QuickFix": "Quick Fix",
   "CD": "CD",
+  "AlchemistAbilityCooldown": "Ability Cooldown",
   "AddictVentButtonText": "Get Fix",
   "AddictInvulnerbilityTimeAfterVent": "<color=#008000>Invulnerbility</color> Time",
   "AddictSpeedWhileInvulnerble": "Movement speed while <color=#008000>Invulnerble</color>",
