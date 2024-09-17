@@ -48,5 +48,15 @@ namespace CustomTeamAssigner
         }
 
         void Exit(object sender, RoutedEventArgs e) => Close();
+
+        private void SettingsClick(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void OpenRoleDescFinder(object sender, RoutedEventArgs e)
+        {
+            Utils.SetMainWindowContents(Visibility.Collapsed);
+            Navigator.NavigationService.Navigate(new RoleDescFinder());
+        }
     }
 }

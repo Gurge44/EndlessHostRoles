@@ -17,19 +17,22 @@ README file in the root directory of this source tree.
 
     <Page.Resources>
         <Style TargetType="Button">
-            <Setter Property="Background" Value="LightGray"/>
-            <Setter Property="Foreground" Value="Black"/>
-            <Setter Property="FontFamily" Value="Arial"/>
+            <Setter Property="Background" Value="#2D2D2D"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="FontSize" Value="30"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="10"/>
             <Setter Property="Margin" Value="10"/>
+            <Setter Property="Width" Value="220"/>
+            <Setter Property="Height" Value="44"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="1">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10">
                             <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </Border>
                     </ControlTemplate>
@@ -37,69 +40,182 @@ README file in the root directory of this source tree.
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="Gray"/>
+                    <Setter Property="Background" Value="#3E3E3E"/>
                 </Trigger>
                 <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="DarkGray"/>
-                </Trigger>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Background" Value="DarkGray"/>
-                    <Setter Property="Foreground" Value="Gray"/>
+                    <Setter Property="Background" Value="#525252"/>
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="1" To="0.95" Duration="0:0:0.1" AutoReverse="True"/>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="1" To="0.95" Duration="0:0:0.1" AutoReverse="True"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
                 </Trigger>
             </Style.Triggers>
         </Style>
         
         <Style TargetType="CheckBox">
             <Setter Property="Foreground" Value="LightGray"/>
-            <Setter Property="FontFamily" Value="Arial"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Margin" Value="10"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="LayoutTransform">
+                <Setter.Value>
+                    <ScaleTransform ScaleX="1.5" ScaleY="1.5"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <BulletDecorator Background="{TemplateBinding Background}">
+                            <BulletDecorator.Bullet>
+                                <Ellipse Width="20" Height="20" Fill="#2D2D2D" Stroke="LightGray" StrokeThickness="2"/>
+                            </BulletDecorator.Bullet>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </BulletDecorator>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Resources>
+                <SolidColorBrush x:Key="CheckBoxBulletBrush" Color="Transparent"/>
+            </Style.Resources>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Setter Property="Cursor" Value="Hand"/>
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetProperty="(Control.Foreground).(SolidColorBrush.Color)" To="White" Duration="0:0:0.3"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                </Trigger>
+
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Foreground" Value="White"/>
+                </Trigger>
+
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="#707070"/>
+                    <Setter Property="Opacity" Value="0.5"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
-        
+
         <Style TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="Arial"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="LightGray"/>
             <Setter Property="Margin" Value="10"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" To="White" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetProperty="(TextBlock.Foreground).(SolidColorBrush.Color)" To="LightGray" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.ExitActions>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
         <Style TargetType="TextBox">
-            <Setter Property="FontFamily" Value="Arial"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#2D2D2D"/>
+            <Setter Property="BorderBrush" Value="Gray"/>
             <Setter Property="Margin" Value="10"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#3E3E3E"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="#707070"/>
+                    <Setter Property="Background" Value="#1E1E1E"/>
+                    <Setter Property="Opacity" Value="0.6"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
         <Style TargetType="ComboBox">
-            <Setter Property="FontFamily" Value="Arial"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#2D2D2D"/>
+            <Setter Property="BorderBrush" Value="Gray"/>
             <Setter Property="Margin" Value="10"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Width" Value="200"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#3E3E3E"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="#707070"/>
+                    <Setter Property="Background" Value="#1E1E1E"/>
+                    <Setter Property="Opacity" Value="0.6"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
         <Style TargetType="Label">
             <Setter Property="Foreground" Value="LightGray"/>
-            <Setter Property="FontFamily" Value="Arial"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Margin" Value="10,0,10,0"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect Color="Black" Direction="0" ShadowDepth="0" BlurRadius="10"/>
-                </Setter.Value>
-            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetProperty="(Label.Foreground).(SolidColorBrush.Color)" To="White" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetProperty="(Label.Foreground).(SolidColorBrush.Color)" To="LightGray" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.ExitActions>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="#707070"/>
+                    <Setter Property="Opacity" Value="0.5"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
     </Page.Resources>
 
     <Grid>
         <Grid.Background>
-            <ImageBrush ImageSource="bg.png"/>
+            <ImageBrush ImageSource="bg.jpg"/>
         </Grid.Background>
         
         <Grid.RowDefinitions>
@@ -160,7 +276,7 @@ README file in the root directory of this source tree.
         <Label Grid.Row="8" Grid.Column="2" Content="Click on a member to remove it" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
 
         <Button Grid.Row="10" Grid.Column="0" Content=" Cancel " FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" Click="Cancel"/>
-        <Button Grid.Row="10" Grid.Column="1" Content=" Delete Team " FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" Click="Delete"/>
+        <Button Grid.Row="10" Grid.Column="1" Content=" Delete " FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" Click="Delete"/>
         <Button Grid.Row="10" Grid.Column="2" Content=" Save " FontWeight="Bold" HorizontalAlignment="Right" VerticalAlignment="Center" Click="Save"/>
     </Grid>
 </Page>

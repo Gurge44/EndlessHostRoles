@@ -17,18 +17,24 @@ README file in the root directory of this source tree.
     
     <Page.Resources>
         <Style TargetType="Button">
-            <Setter Property="Background" Value="LightGray"/>
-            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Background" Value="#2D2D2D"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
             <Setter Property="FontSize" Value="30"/>
-            <Setter Property="FontFamily" Value="Arial"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="10"/>
             <Setter Property="Margin" Value="10"/>
-            <Setter Property="Width" Value="440"/>
-            <Setter Property="Height" Value="100"/>
+            <Setter Property="Width" Value="280"/>
+            <Setter Property="Height" Value="70"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
+                </Setter.Value>
+            </Setter>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -40,62 +46,90 @@ README file in the root directory of this source tree.
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="Gray"/>
+                    <Setter Property="Background" Value="#3E3E3E"/>
                 </Trigger>
                 <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="DarkGray"/>
+                    <Setter Property="Background" Value="#525252"/>
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="1" To="0.95" Duration="0:0:0.1" AutoReverse="True"/>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="1" To="0.95" Duration="0:0:0.1" AutoReverse="True"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
                 </Trigger>
                 <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Background" Value="DarkGray"/>
-                    <Setter Property="Foreground" Value="Gray"/>
+                    <Setter Property="Background" Value="#1E1E1E"/>
+                    <Setter Property="Foreground" Value="#707070"/>
+                    <Setter Property="Opacity" Value="0.5"/>
+                    <Setter Property="Cursor" Value="Arrow"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
         
         <Style TargetType="ListBoxItem">
-            <Setter Property="Background" Value="Black"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="30"/>
-            <Setter Property="FontFamily" Value="Arial"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="10"/>
-            <Setter Property="Margin" Value="10"/>
-            <Setter Property="Width" Value="440"/>
-            <Setter Property="Height" Value="100"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ListBoxItem">
-                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10">
-                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="Gray"/>
-                </Trigger>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="DarkGray"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+        <Setter Property="Background" Value="#2D2D2D"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontWeight" Value="Regular"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="8"/>
+        <Setter Property="Margin" Value="4"/>
+        <Setter Property="Width" Value="Auto"/>
+        <Setter Property="Height" Value="Auto"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="BorderElement" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#3C3C3C"/>
+                <Setter Property="Opacity" Value="0.9"/>
+                <Trigger.EnterActions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                            From="#2D2D2D" To="#3C3C3C" Duration="0:0:0.2"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                            From="#3C3C3C" To="#2D2D2D" Duration="0:0:0.2"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="#1F1F1F"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
         
         <Style TargetType="ScrollViewer">
-            <Setter Property="Background" Value="DarkGray"/>
+            <Setter Property="Background" Value="#2D2D2D"/>
+            <Setter Property="Opacity" Value="0.95"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Margin" Value="0"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ScrollViewer">
-                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10">
+                        <Border x:Name="BorderElement" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
                             <ScrollContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </Border>
                     </ControlTemplate>
@@ -104,20 +138,20 @@ README file in the root directory of this source tree.
         </Style>
         
         <Style TargetType="ListBox">
-            <Setter Property="Background" Value="LightGray"/>
+            <Setter Property="Background" Value="#1D1D1D"/>
             <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="30"/>
-            <Setter Property="FontFamily" Value="Arial"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontWeight" Value="Regular"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Stretch"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBox">
-                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="10">
-                            <ItemsPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        <Border x:Name="BorderElement" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
+                            <ItemsPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalAlignment}"/>
                         </Border>
                     </ControlTemplate>
                 </Setter.Value>
@@ -127,7 +161,7 @@ README file in the root directory of this source tree.
 
     <Grid Name="MainGrid">
         <Grid.Background>
-            <ImageBrush ImageSource="bg.png"/>
+            <ImageBrush ImageSource="bg.jpg"/>
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
@@ -145,10 +179,30 @@ README file in the root directory of this source tree.
         <ScrollViewer Grid.RowSpan="7">
             <ListBox Name="TeamListBox" d:ItemsSource="{d:SampleData ItemCount=20}" SelectionChanged="ChangeSelection"/>
         </ScrollViewer>
-        <Button Grid.Row="1" Grid.Column="1" Content="Add Team" Click="AddNewTeam"/>
-        <Button Grid.Row="2" Grid.Column="1" Content="Edit Team" Click="EditTeam" IsEnabled="False" Name="EditTeamButton"/>
-        <Button Grid.Row="3" Grid.Column="1" Content="Delete Team" Click="DeleteTeam" IsEnabled="False" Name="DeleteTeamButton"/>
-        <Button Grid.Row="4" Grid.Column="1" Content="Save" Click="SavePlaySet"/>
-        <Button Grid.Row="6" Grid.Column="1" Content="Go Back" Click="Back"/>
+        <Button Grid.Row="1" Grid.Column="1" Content="Add Team" Click="AddNewTeam">
+            <Button.RenderTransform>
+                <ScaleTransform/>
+            </Button.RenderTransform>
+        </Button>
+        <Button Grid.Row="2" Grid.Column="1" Content="Edit Team" Click="EditTeam" IsEnabled="False" Name="EditTeamButton">
+            <Button.RenderTransform>
+                <ScaleTransform/>
+            </Button.RenderTransform>
+        </Button>
+        <Button Grid.Row="3" Grid.Column="1" Content="Delete Team" Click="DeleteTeam" IsEnabled="False" Name="DeleteTeamButton">
+            <Button.RenderTransform>
+                <ScaleTransform/>
+            </Button.RenderTransform>
+        </Button>
+        <Button Grid.Row="4" Grid.Column="1" Content="Save" Click="SavePlaySet">
+            <Button.RenderTransform>
+                <ScaleTransform/>
+            </Button.RenderTransform>
+        </Button>
+        <Button Grid.Row="6" Grid.Column="1" Content="Go Back" Click="Back">
+            <Button.RenderTransform>
+                <ScaleTransform/>
+            </Button.RenderTransform>
+        </Button>
     </Grid>
 </Page>

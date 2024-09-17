@@ -12,20 +12,20 @@ README file in the root directory of this source tree.
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Custom Team Assigner" Height="720" Width="1280" FontSize="20" MinHeight="640" MinWidth="1024" WindowStartupLocation="CenterScreen">
+        Title="EHR Control Panel" Height="720" Width="1280" FontSize="20" MinHeight="640" MinWidth="1024" WindowStartupLocation="CenterScreen" Background="#1C1C1C">
 
     <Window.Resources>
         <Style TargetType="Button">
-            <Setter Property="Background" Value="LightGray"/>
-            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Background" Value="#2D2D2D"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
             <Setter Property="FontSize" Value="30"/>
-            <Setter Property="FontFamily" Value="Arial"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="10"/>
             <Setter Property="Margin" Value="10"/>
             <Setter Property="Width" Value="440"/>
-            <Setter Property="Height" Value="100"/>
+            <Setter Property="Height" Value="70"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Template">
@@ -39,10 +39,18 @@ README file in the root directory of this source tree.
             </Setter>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="Gray"/>
+                    <Setter Property="Background" Value="#3E3E3E"/>
                 </Trigger>
                 <Trigger Property="IsPressed" Value="True">
-                    <Setter Property="Background" Value="DarkGray"/>
+                    <Setter Property="Background" Value="#525252"/>
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" From="1" To="0.95" Duration="0:0:0.1" AutoReverse="True"/>
+                                <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" From="1" To="0.95" Duration="0:0:0.1" AutoReverse="True"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -50,7 +58,7 @@ README file in the root directory of this source tree.
 
     <Grid Name="MainGrid">
         <Grid.Background>
-            <ImageBrush ImageSource="bg.png"/>
+            <ImageBrush ImageSource="bg.jpg"/>
         </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition/>
@@ -72,11 +80,34 @@ README file in the root directory of this source tree.
 
         <Frame Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="10" Name="Navigator" NavigationUIVisibility="Hidden"/>
 
-        <Label Content="Custom Team Assigner" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Grid.RowSpan="2" FontSize="70" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="LightGray" Name="Title"/>
+        <Label Content="EHR Control Panel" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Grid.RowSpan="2" FontSize="70" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="LightGray" Name="Title"/>
 
-        <Button Content="Create New Play-Set" Grid.Column="1" Grid.Row="3" Click="CreateNewPlaySet"/>
-        <Button Content="Import Play-Set" Grid.Column="1" Grid.Row="5" Click="ImportPlaySet"/>
+        <Border Grid.Column="1" Grid.Row="3" Grid.RowSpan="4" Background="#2D2D2D" CornerRadius="20" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center" Name="ButtonGroup">
+            <StackPanel>
+                <Label Content="Custom Team Assignment" FontSize="15" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="LightGray"></Label>
+                <Button Content="Create New Play-Set" Click="CreateNewPlaySet" RenderTransformOrigin="0.5,0.5">
+                    <Button.RenderTransform>
+                        <ScaleTransform/>
+                    </Button.RenderTransform>
+                </Button>
+                <Button Content="Import Play-Set" Click="ImportPlaySet" RenderTransformOrigin="0.5,0.5">
+                    <Button.RenderTransform>
+                        <ScaleTransform/>
+                    </Button.RenderTransform>
+                </Button>
+            </StackPanel>
+        </Border>
 
-        <Button Content="Exit" Grid.Column="1" Grid.Row="8" Click="Exit"/>
+        <Button Content="Quiz Master Questions" Grid.Column="1" Grid.Row="7" Click="SettingsClick" RenderTransformOrigin="0.5,0.5" Foreground="LightGray">
+            <Button.RenderTransform>
+                <ScaleTransform/>
+            </Button.RenderTransform>
+        </Button>
+
+        <Button Content="Role Description Finder" Grid.Column="1" Grid.Row="8" Click="OpenRoleDescFinder" RenderTransformOrigin="0.5,0.5" Foreground="LightGray">
+            <Button.RenderTransform>
+                <ScaleTransform/>
+            </Button.RenderTransform>
+        </Button>
     </Grid>
 </Window>

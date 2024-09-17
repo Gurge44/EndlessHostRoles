@@ -13,8 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="bg.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Remove="bg.jpg" />
+    <Resource Include="bg.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
 

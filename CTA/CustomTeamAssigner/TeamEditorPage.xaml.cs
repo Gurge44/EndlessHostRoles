@@ -109,7 +109,7 @@ namespace CustomTeamAssigner
                 return;
             }
 
-            var role = Enum.Parse<CustomRoles>(((string)MemberComboBox.SelectedItem).GetInternalRoleName().ToString());
+            var role = Enum.Parse<CustomRoles>(((string)MemberComboBox.SelectedItem).GetCustomRole().ToString());
             EditingTeamMembers.Add(role);
             MemberComboBox.Items.RemoveAt(MemberComboBox.SelectedIndex);
             AddMemberToGrid(role);
