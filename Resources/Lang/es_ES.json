@@ -4749,6 +4749,7 @@
   "Stored": "Stored",
   "QuickFix": "Quick Fix",
   "CD": "CD",
+  "AlchemistAbilityCooldown": "Tiempo de Reutilización Habilidad",
   "AddictVentButtonText": "Ir por Dosis",
   "AddictInvulnerbilityTimeAfterVent": "Tiempo de <color=#008000>Invulnerabilidad</color>",
   "AddictSpeedWhileInvulnerble": "Velocidad de movimiento mientras <color=#008000>Invulnerable</color>",
