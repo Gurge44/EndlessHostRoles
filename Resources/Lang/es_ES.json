@@ -3806,7 +3806,7 @@
   "AdventurerGun.RNG": "RNG",
   "Chef": "Cocinero",
   "ChefInfo": "Cocina Deliciosas Comidas para Todos",
-  "ChefInfoLong": "(Tripulantes):\\nComo el Cocinero, puedes cocinar comidas para todos completando tareas. Si un tripulante recibe una comida, recibirá un impulso aleatorio (velocidad, visión, escudo). Si un impostor o un asesino neutral recibe una comida, estará podrida y tendrá que escupirla usando las ventilas o matando en una cantidad especificada de tiempo o será cegado y congelado por un rato.",
+  "ChefInfoLong": "(Tripulantes):\\nComo el Cocinero, puedes cocinar comidas para todos completando tareas. Si un tripulante recibe una comida, recibirá un aumento aleatorio (velocidad, visión, escudo). Si un impostor o un asesino neutral recibe una comida, estará podrida y tendrá que escupirla usando las ventilas o matando en una cantidad especificada de tiempo o será cegado y congelado por un rato.",
   "Chef.EventTarget": "Efecto Aplica a",
   "Chef.ET.RandomPlayer": "Jugador Aleatorio",
   "Chef.ET.NearestPlayer": "Jugador más Cercano",
