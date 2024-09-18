@@ -18,14 +18,14 @@ README file in the root directory of this source tree.
         <Style TargetType="Button">
             <Setter Property="Background" Value="#2D2D2D"/>
             <Setter Property="Foreground" Value="#FFFFFF"/>
-            <Setter Property="FontSize" Value="30"/>
+            <Setter Property="FontSize" Value="27"/>
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="10"/>
             <Setter Property="Margin" Value="10"/>
-            <Setter Property="Width" Value="440"/>
-            <Setter Property="Height" Value="70"/>
+            <Setter Property="Width" Value="370"/>
+            <Setter Property="Height" Value="60"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Template">
@@ -74,7 +74,7 @@ README file in the root directory of this source tree.
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
-            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
@@ -98,13 +98,19 @@ README file in the root directory of this source tree.
             </StackPanel>
         </Border>
 
-        <Button Content="Quiz Master Questions" Grid.Column="1" Grid.Row="7" Click="SettingsClick" RenderTransformOrigin="0.5,0.5" Foreground="LightGray">
+        <Button Content="Quiz Master Questions" Grid.Column="0" Grid.Row="7" Grid.RowSpan="2" Click="SettingsClick" RenderTransformOrigin="0.5,0.5" Foreground="LightGray">
             <Button.RenderTransform>
                 <ScaleTransform/>
             </Button.RenderTransform>
         </Button>
 
-        <Button Content="Role Description Finder" Grid.Column="1" Grid.Row="8" Click="OpenRoleDescFinder" RenderTransformOrigin="0.5,0.5" Foreground="LightGray">
+        <Button Content="Role Description Finder" Grid.Column="1" Grid.Row="7" Grid.RowSpan="2" Click="OpenRoleDescFinder" RenderTransformOrigin="0.5,0.5" Foreground="LightGray">
+            <Button.RenderTransform>
+                <ScaleTransform/>
+            </Button.RenderTransform>
+        </Button>
+        
+        <Button Content="Template Creator" Grid.Column="2" Grid.Row="7" Grid.RowSpan="2" Click="OpenTemplateCreator" RenderTransformOrigin="0.5,0.5" Foreground="LightGray">
             <Button.RenderTransform>
                 <ScaleTransform/>
             </Button.RenderTransform>

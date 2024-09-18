@@ -1,5 +1,6 @@
 ﻿using EHR;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -70,6 +71,8 @@ namespace CustomTeamAssigner
                 return Color.FromRgb(0, 0, 0);
             }
         }
+        
+        public static string RemoveHtmlTags(this string str) => Regex.Replace(str, "<[^>]*?>", string.Empty);
 
         public static void Do<T>(this IEnumerable<T> enumerable, Action<T> action)
         {

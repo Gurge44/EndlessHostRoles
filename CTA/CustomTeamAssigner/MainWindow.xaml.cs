@@ -58,5 +58,11 @@ namespace CustomTeamAssigner
             Utils.SetMainWindowContents(Visibility.Collapsed);
             Navigator.NavigationService.Navigate(new RoleDescFinder());
         }
+
+        private void OpenTemplateCreator(object sender, RoutedEventArgs e)
+        {
+            Utils.SetMainWindowContents(Visibility.Collapsed);
+            Navigator.NavigationService.Navigate(new RichTextEditor());
+        }
     }
 }
