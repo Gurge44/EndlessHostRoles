@@ -26,7 +26,7 @@
   "ShortTeamName.Crewmate": "Crew",
   "ShortTeamName.Neutral": "Neut",
   "YouAreCrewmate": "<size=1.7><color=#ffffff>You are</color> Crewmate</size>",
-  "YouAreImpostor": "<size=1.7><color=#ffffff>You are:</color> Impostor</size>",
+  "YouAreImpostor": "<size=1.7><color=#ffffff>You are</color> Impostor</size>",
   "YouAreNeutral": "<size=1.7><color=#ffffff>You are</color> Neutral</size>",
   "YouAreMadmate": "<size=1.7><color=#ffffff>You are in</color> Impostors <color=#ffffff>team</color></size>",
   "CrewmateSub": "Find and exile the <color=#ff1919>Impostors</color>",
