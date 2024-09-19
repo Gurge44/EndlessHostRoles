@@ -1857,9 +1857,9 @@ internal static class ChatCommands
             "持槍" or "持械" or "手长" => GetString("Reach"),
             "monarch" => GetString("Monarch"),
             "sch" => GetString("SchrodingersCat"),
-            "glitch" or "Glitch" => GetString("Glitch"),
-            "безумный" or "Безумный" or "mad" or "Mad" => GetString("Madmate"),
-            "Анти Админер" or "анти админер" or "Anti Adminer" or "anti adminer" => GetString("AntiAdminer"),
+            "glitch" => GetString("Glitch"),
+            "безумный" or "mad" => GetString("Madmate"),
+            "анти админер" or "anti adminer" => GetString("AntiAdminer"),
             _ => text
         };
     }
