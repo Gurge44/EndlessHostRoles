@@ -46,7 +46,8 @@ namespace CustomTeamAssigner
             TeamMembersGrid.RowDefinitions.Clear();
             TeamMembersGrid.Children.Clear();
 
-            for (int i = 0; i < Utils.GetAllValidRoles().Count() / 3 + 1; i++)
+            int count = Utils.GetAllValidRoles().Count();
+            for (int i = 0; i < count / 3 + 1; i++)
             {
                 TeamMembersGrid.RowDefinitions.Add(new());
             }
@@ -109,7 +110,7 @@ namespace CustomTeamAssigner
                 return;
             }
 
-            var role = Enum.Parse<CustomRoles>(((string)MemberComboBox.SelectedItem).GetCustomRole().ToString());
+            var role = ((string)MemberComboBox.SelectedItem).GetCustomRole();
             EditingTeamMembers.Add(role);
             MemberComboBox.Items.RemoveAt(MemberComboBox.SelectedIndex);
             AddMemberToGrid(role);
@@ -172,9 +173,23 @@ namespace CustomTeamAssigner
             TeamMembersGrid.Children.Add(button);
         }
 
-        void OverrideColorCheck(object sender, RoutedEventArgs e) => TeamColorTextBox.IsEnabled = OverrideColorCheckBox.IsChecked == true;
-        void OverrideTitleCheck(object sender, RoutedEventArgs e) => TeamTitleTextBox.IsEnabled = OverrideTitleCheckBox.IsChecked == true;
-        void OverrideSubTitleCheck(object sender, RoutedEventArgs e) => TeamSubTitleTextBox.IsEnabled = OverrideSubTitleCheckBox.IsChecked == true;
+        void OverrideColorCheck(object sender, RoutedEventArgs e)
+        {
+            if (TeamColorTextBox == null) return;
+            TeamColorTextBox.IsEnabled = OverrideColorCheckBox.IsChecked == true;
+        }
+
+        void OverrideTitleCheck(object sender, RoutedEventArgs e)
+        {
+            if (TeamTitleTextBox == null) return;
+            TeamTitleTextBox.IsEnabled = OverrideTitleCheckBox.IsChecked == true;
+        }
+
+        void OverrideSubTitleCheck(object sender, RoutedEventArgs e)
+        {
+            if (TeamSubTitleTextBox == null) return;
+            TeamSubTitleTextBox.IsEnabled = OverrideSubTitleCheckBox.IsChecked == true;
+        }
 
         void ColorTextChanged(object sender, TextChangedEventArgs e)
         {
