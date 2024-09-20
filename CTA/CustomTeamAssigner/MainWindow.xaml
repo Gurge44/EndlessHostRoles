@@ -54,6 +54,39 @@ README file in the root directory of this source tree.
                 </Trigger>
             </Style.Triggers>
         </Style>
+        
+        <Style TargetType="Label">
+            <Setter Property="Foreground" Value="LightGray"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="10,0,10,0"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="White"/>
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetProperty="(Label.Foreground).(SolidColorBrush.Color)" To="White" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetProperty="(Label.Foreground).(SolidColorBrush.Color)" To="LightGray" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.ExitActions>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Foreground" Value="#707070"/>
+                    <Setter Property="Opacity" Value="0.5"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
     <Grid Name="MainGrid">
@@ -85,35 +118,57 @@ README file in the root directory of this source tree.
         <Border Grid.Column="1" Grid.Row="3" Grid.RowSpan="4" Background="#2D2D2D" CornerRadius="20" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center" Name="ButtonGroup">
             <StackPanel>
                 <Label Content="Custom Team Assignment" FontSize="15" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="LightGray"></Label>
-                <Button Content="Create New Play-Set" Click="CreateNewPlaySet" RenderTransformOrigin="0.5,0.5">
+                <Button Click="CreateNewPlaySet" RenderTransformOrigin="0.5,0.5">
                     <Button.RenderTransform>
                         <ScaleTransform/>
                     </Button.RenderTransform>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="Resources/add.svg" Name="AddButtonImage" Width="30" Height="30"/>
+                        <TextBlock Text="Create New Play-Set" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                    </StackPanel>
                 </Button>
-                <Button Content="Import Play-Set" Click="ImportPlaySet" RenderTransformOrigin="0.5,0.5">
+                <Button Click="ImportPlaySet" RenderTransformOrigin="0.5,0.5">
                     <Button.RenderTransform>
                         <ScaleTransform/>
                     </Button.RenderTransform>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="Resources/import.svg" Name="ImportButtonImage" Width="30" Height="30"/>
+                        <TextBlock Text="Import Play-Set" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                    </StackPanel>
                 </Button>
             </StackPanel>
         </Border>
 
-        <Button Content="Quiz Master Questions" Grid.Column="0" Grid.Row="7" Grid.RowSpan="2" Click="SettingsClick" RenderTransformOrigin="0.5,0.5" Foreground="LightGray">
+        <Button Grid.Column="0" Grid.Row="7" Grid.RowSpan="2" Click="QMQuestionsClick" RenderTransformOrigin="0.5,0.5" Foreground="LightGray">
             <Button.RenderTransform>
                 <ScaleTransform/>
             </Button.RenderTransform>
+            <StackPanel Orientation="Horizontal">
+                <Image Source="Resources/question.svg" Name="QuestionButtonImage" Width="30" Height="30"/>
+                <TextBlock Text="Settings" VerticalAlignment="Center" Margin="10,0,0,0"/>
+            </StackPanel>
         </Button>
 
-        <Button Content="Role Description Finder" Grid.Column="1" Grid.Row="7" Grid.RowSpan="2" Click="OpenRoleDescFinder" RenderTransformOrigin="0.5,0.5" Foreground="LightGray">
+        <Button Grid.Column="1" Grid.Row="7" Grid.RowSpan="2" Click="OpenRoleDescFinder" RenderTransformOrigin="0.5,0.5" Foreground="LightGray">
             <Button.RenderTransform>
                 <ScaleTransform/>
             </Button.RenderTransform>
+            <StackPanel Orientation="Horizontal">
+                <Image Source="Resources/search.svg" Name="SearchButtonImage" Width="30" Height="30"/>
+                <TextBlock Text="Role Description Finder" VerticalAlignment="Center" Margin="10,0,0,0"/>
+            </StackPanel>
         </Button>
         
-        <Button Content="Template Creator" Grid.Column="2" Grid.Row="7" Grid.RowSpan="2" Click="OpenTemplateCreator" RenderTransformOrigin="0.5,0.5" Foreground="LightGray">
+        <Button Grid.Column="2" Grid.Row="7" Grid.RowSpan="2" Click="OpenTemplateCreator" RenderTransformOrigin="0.5,0.5" Foreground="LightGray">
             <Button.RenderTransform>
                 <ScaleTransform/>
             </Button.RenderTransform>
+            <StackPanel Orientation="Horizontal">
+                <Image Source="Resources/template.svg" Name="TemplateButtonImage" Width="30" Height="30"/>
+                <TextBlock Text="Template Creator" VerticalAlignment="Center" Margin="10,0,0,0"/>
+            </StackPanel>
         </Button>
+        
+        <Label Grid.Column="0" Grid.Row="9" Content="Loading SVG Images...." Name="LoadingLabel"></Label>
     </Grid>
 </Window>

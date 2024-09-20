@@ -11,6 +11,7 @@ README file in the root directory of this source tree.
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
       mc:Ignorable="d" 
       d:DesignHeight="720" d:DesignWidth="1280"
       Title="Play-Set Lister">
@@ -179,30 +180,50 @@ README file in the root directory of this source tree.
         <ScrollViewer Grid.RowSpan="7">
             <ListBox Name="TeamListBox" d:ItemsSource="{d:SampleData ItemCount=20}" SelectionChanged="ChangeSelection"/>
         </ScrollViewer>
-        <Button Grid.Row="1" Grid.Column="1" Content="Add Team" Click="AddNewTeam">
+        <Button Grid.Row="1" Grid.Column="1" Click="AddNewTeam">
             <Button.RenderTransform>
                 <ScaleTransform/>
             </Button.RenderTransform>
+            <StackPanel Orientation="Horizontal">
+                <Image Source="Resources/add.svg" Name="AddButtonImage" Width="30" Height="30" Margin="0,0,15,0"/>
+                <TextBlock Text="Add"/>
+            </StackPanel>
         </Button>
-        <Button Grid.Row="2" Grid.Column="1" Content="Edit Team" Click="EditTeam" IsEnabled="False" Name="EditTeamButton">
+        <Button Grid.Row="2" Grid.Column="1" Click="EditTeam" IsEnabled="False" Name="EditTeamButton">
             <Button.RenderTransform>
                 <ScaleTransform/>
             </Button.RenderTransform>
+            <StackPanel Orientation="Horizontal">
+                <Image Source="Resources/edit.svg" Name="EditButtonImage" Width="30" Height="30" Margin="0,0,15,0"/>
+                <TextBlock Text="Edit"/>
+            </StackPanel>
         </Button>
-        <Button Grid.Row="3" Grid.Column="1" Content="Delete Team" Click="DeleteTeam" IsEnabled="False" Name="DeleteTeamButton">
+        <Button Grid.Row="3" Grid.Column="1" Click="DeleteTeam" IsEnabled="False" Name="DeleteTeamButton">
             <Button.RenderTransform>
                 <ScaleTransform/>
             </Button.RenderTransform>
+            <StackPanel Orientation="Horizontal">
+                <Image Source="Resources/delete.svg" Name="DeleteButtonImage" Width="30" Height="30" Margin="0,0,15,0"/>
+                <TextBlock Text="Delete"/>
+            </StackPanel>
         </Button>
-        <Button Grid.Row="4" Grid.Column="1" Content="Save" Click="SavePlaySet">
+        <Button Grid.Row="4" Grid.Column="1" Click="SavePlaySet">
             <Button.RenderTransform>
                 <ScaleTransform/>
             </Button.RenderTransform>
+            <StackPanel Orientation="Horizontal">
+                <Image Source="Resources/save-as.svg" Name="SaveAsButtonImage" Width="30" Height="30" Margin="0,0,15,0"/>
+                <TextBlock Text="Save"/>
+            </StackPanel>
         </Button>
-        <Button Grid.Row="6" Grid.Column="1" Content="Go Back" Click="Back">
+        <Button Grid.Row="6" Grid.Column="1" Click="Back">
             <Button.RenderTransform>
                 <ScaleTransform/>
             </Button.RenderTransform>
+            <StackPanel Orientation="Horizontal">
+                <Image Source="Resources/back.svg" Name="BackButtonImage" Width="30" Height="30" Margin="0,0,15,0"/>
+                <TextBlock Text="Go Back"/>
+            </StackPanel>
         </Button>
     </Grid>
 </Page>

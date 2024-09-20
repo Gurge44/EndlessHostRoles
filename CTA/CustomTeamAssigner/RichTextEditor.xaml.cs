@@ -11,6 +11,8 @@ namespace CustomTeamAssigner
 {
     public partial class RichTextEditor : Page
     {
+        public static RichTextEditor Instance { get; private set; } = null!;
+        
         public RichTextEditor()
         {
             InitializeComponent();
