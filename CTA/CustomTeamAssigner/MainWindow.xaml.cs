@@ -110,6 +110,7 @@ namespace CustomTeamAssigner
                     break;
                 case "search":
                     Instance.SearchButtonImage.Source = image;
+                    if (RoleDescFinder.Instance != null) RoleDescFinder.Instance.SearchButtonImage.Source = image;
                     break;
                 case "template":
                     Instance.TemplateButtonImage.Source = image;

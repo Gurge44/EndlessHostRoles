@@ -4,7 +4,7 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       mc:Ignorable="d"
-      Title="QMQuestions" Height="450" Width="800">
+      Title="QMQuestions" Height="680" Width="1260">
     
     <Page.Resources>
         <Style TargetType="Button">
@@ -120,6 +120,7 @@
             <Setter Property="Background" Value="#2D2D2D"/>
             <Setter Property="BorderBrush" Value="#1a3ba2"/>
             <Setter Property="Margin" Value="10,5,10,5"/>
+            <Setter Property="Padding" Value="10"/>
             <Setter Property="FontSize" Value="20"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -145,13 +146,14 @@
         </Style>
 
         <Style TargetType="ComboBox">
-            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontSize" Value="30"/>
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="Background" Value="#2D2D2D"/>
             <Setter Property="BorderBrush" Value="Gray"/>
             <Setter Property="Margin" Value="10,5,10,5"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="Width" Value="200"/>
@@ -236,7 +238,7 @@
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="FontSize" Value="20"/>
             <Setter Property="Margin" Value="10,0,10,0"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
@@ -264,10 +266,10 @@
         </Style>
     </Page.Resources>
     
-    <Grid>
+    <Grid Name="MainGrid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
-            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="4*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition/>
@@ -320,7 +322,7 @@
                     <TextBlock Text="Add to existing file"/>
                 </StackPanel>
             </Button>
-            <Button>
+            <Button Click="CopyOutput">
                 <Button.RenderTransform>
                     <ScaleTransform/>
                 </Button.RenderTransform>
@@ -329,7 +331,7 @@
                     <TextBlock Text="Copy"/>
                 </StackPanel>
             </Button>
-            <Button>
+            <Button Click="GoBack">
                 <Button.RenderTransform>
                     <ScaleTransform/>
                 </Button.RenderTransform>

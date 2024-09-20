@@ -356,7 +356,7 @@ README file in the root directory of this source tree.
             </Button.RenderTransform>
             <StackPanel Orientation="Horizontal">
                 <Image Source="Resources/save.svg" Name="SaveButtonImage" Width="30" Height="30" Margin="0,0,15,0"/>
-                <TextBlock Text="Go Back"/>
+                <TextBlock Text="Save"/>
             </StackPanel>
         </Button>
     </Grid>

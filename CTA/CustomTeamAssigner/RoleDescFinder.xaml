@@ -17,7 +17,7 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="10"/>
             <Setter Property="Margin" Value="10"/>
-            <Setter Property="Width" Value="300"/>
+            <Setter Property="Width" Value="350"/>
             <Setter Property="Height" Value="70"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -121,7 +121,7 @@
                 <ScaleTransform/>
             </Button.RenderTransform>
             <StackPanel Orientation="Horizontal">
-                <Image Source="Resources/search.svg" Name="SearchButtonImage" Width="30" Height="30" Margin="0,0,15,0"/>
+                <Image Source="Resources/search.svg" Name="SearchButtonImage" Width="30" Height="30" Margin="15"/>
                 <TextBlock Text="Find Description"/>
             </StackPanel>
         </Button>
