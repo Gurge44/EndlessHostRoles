@@ -145,6 +145,7 @@
         </Style>
 
         <Style TargetType="ComboBox">
+            <Setter Property="FontSize" Value="20"/>
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="White"/>
@@ -306,16 +307,16 @@
                     <ScaleTransform/>
                 </Button.RenderTransform>
                 <StackPanel Orientation="Horizontal">
-                    <Image Source="Resources/new-file.svg" Name="NewFileButtonImage" Width="30" Height="30" Margin="0,0,15,0"/>
+                    <Image Source="Resources/new-file.svg" Name="NewFileButtonImage" Width="30" Height="30" Margin="15"/>
                     <TextBlock Text="Save to new file"/>
                 </StackPanel>
             </Button>
-            <Button>
+            <Button Click="AddToExistingFile">
                 <Button.RenderTransform>
                     <ScaleTransform/>
                 </Button.RenderTransform>
                 <StackPanel Orientation="Horizontal">
-                    <Image Source="Resources/save-as.svg" Name="SaveAsButtonImage" Width="30" Height="30" Margin="0,0,15,0"/>
+                    <Image Source="Resources/save-as.svg" Name="SaveAsButtonImage" Width="30" Height="30" Margin="15"/>
                     <TextBlock Text="Add to existing file"/>
                 </StackPanel>
             </Button>
@@ -324,7 +325,7 @@
                     <ScaleTransform/>
                 </Button.RenderTransform>
                 <StackPanel Orientation="Horizontal">
-                    <Image Source="Resources/copy.svg" Name="CopyButtonImage" Width="30" Height="30" Margin="0,0,15,0"/>
+                    <Image Source="Resources/copy.svg" Name="CopyButtonImage" Width="30" Height="30" Margin="15"/>
                     <TextBlock Text="Copy"/>
                 </StackPanel>
             </Button>
@@ -333,7 +334,7 @@
                     <ScaleTransform/>
                 </Button.RenderTransform>
                 <StackPanel Orientation="Horizontal">
-                    <Image Source="Resources/back.svg" Name="BackButtonImage" Width="30" Height="30" Margin="0,0,15,0"/>
+                    <Image Source="Resources/back.svg" Name="BackButtonImage" Width="30" Height="30" Margin="15"/>
                     <TextBlock Text="Back"/>
                 </StackPanel>
             </Button>

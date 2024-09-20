@@ -113,11 +113,11 @@ README file in the root directory of this source tree.
 
         <Frame Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="10" Name="Navigator" NavigationUIVisibility="Hidden"/>
 
-        <Label Content="EHR Control Panel" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Grid.RowSpan="2" FontSize="70" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="LightGray" Name="Title"/>
+        <Label Content="EHR Control Panel" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Grid.RowSpan="2" FontSize="70" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" HorizontalAlignment="Center" Foreground="LightGray" Name="Title"/>
 
         <Border Grid.Column="1" Grid.Row="3" Grid.RowSpan="4" Background="#2D2D2D" CornerRadius="20" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center" Name="ButtonGroup">
             <StackPanel>
-                <Label Content="Custom Team Assignment" FontSize="15" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="LightGray"></Label>
+                <Label Content="Custom Team Assignment" FontSize="15" HorizontalContentAlignment="Center" HorizontalAlignment="Center" VerticalContentAlignment="Center" Foreground="LightGray"/>
                 <Button Click="CreateNewPlaySet" RenderTransformOrigin="0.5,0.5">
                     <Button.RenderTransform>
                         <ScaleTransform/>
@@ -145,7 +145,7 @@ README file in the root directory of this source tree.
             </Button.RenderTransform>
             <StackPanel Orientation="Horizontal">
                 <Image Source="Resources/question.svg" Name="QuestionButtonImage" Width="30" Height="30"/>
-                <TextBlock Text="Settings" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                <TextBlock Text="Quiz Master Questions" VerticalAlignment="Center" Margin="10,0,0,0"/>
             </StackPanel>
         </Button>
 

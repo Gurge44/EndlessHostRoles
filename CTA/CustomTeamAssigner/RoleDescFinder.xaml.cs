@@ -13,6 +13,7 @@ namespace CustomTeamAssigner
         public RoleDescFinder()
         {
             InitializeComponent();
+            Instance = this;
             MainGrid.Visibility = Visibility.Visible;
         }
         

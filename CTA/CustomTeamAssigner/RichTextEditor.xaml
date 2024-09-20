@@ -163,10 +163,10 @@
         </StackPanel>
 
         <!-- RichTextBox for Text Input -->
-        <RichTextBox Name="richTextBox" Grid.Row="1" Grid.RowSpan="5" VerticalAlignment="Top" Margin="10,20,10,80" BorderBrush="#1C1C1C" MinHeight="50"/>
+        <RichTextBox Name="RichTextBox" Grid.Row="1" Grid.RowSpan="5" VerticalAlignment="Top" Margin="10,20,10,80" BorderBrush="#1C1C1C" MinHeight="50"/>
 
         <!-- Preview HTML Output -->
-        <TextBox Name="htmlPreview" Grid.Row="6" Grid.RowSpan="3" IsReadOnly="True"
+        <TextBox Name="HtmlPreview" Grid.Row="6" Grid.RowSpan="3" IsReadOnly="True"
                  VerticalAlignment="Bottom" Margin="10,10,10,0" TextWrapping="Wrap" />
         
         <Button Grid.Row="9" VerticalAlignment="Bottom" HorizontalAlignment="Right" Click="BackButton_Click">

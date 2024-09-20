@@ -320,7 +320,15 @@ README file in the root directory of this source tree.
         
         <StackPanel Grid.Row="6" Grid.Column="2" HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
             <ComboBox x:Name="MemberComboBox" FontWeight="Bold" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center" Width="300"/>
-            <Button Content=" Add Member " FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" Click="AddMember"/>
+            <Button FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center" Click="AddMember" Width="300">
+                <Button.RenderTransform>
+                    <ScaleTransform/>
+                </Button.RenderTransform>
+                <StackPanel Orientation="Horizontal">
+                    <Image Source="Resources/add.svg" Name="AddButtonImage" Width="30" Height="30" Margin="15"/>
+                    <TextBlock Text="Add Member"/>
+                </StackPanel>
+            </Button>
         </StackPanel>
         <Label Grid.Row="8" Grid.Column="2" Content="Click on a member to remove it" FontWeight="Bold" HorizontalAlignment="Left" VerticalAlignment="Center"/>
 

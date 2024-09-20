@@ -23,6 +23,7 @@ namespace CustomTeamAssigner
         public TeamEditorPage(Team team)
         {
             InitializeComponent();
+            Instance = this;
             EditingTeam = team;
             EditingTeamMembers = team.TeamMembers;
             InitializeMembersGrid();
