@@ -4677,6 +4677,7 @@
   "President.DecreeAlreadyUsedMessage": "Você já usou este decreto ou ele não está habilitado!",
   "President.DecreeAlreadyChosenThisMeetingMessage": "Você já fez um decreto nessa reunião!",
   "President.UsedDecreeMessage.RevealMessage": "{0} é o <#30916f>Presidente</color>!",
+  "President.Recruit.TargetNotCrewmateMessage": "You can only recruit <#8cffff>crewmates!</color>",
   "GuessPresident": "Você não pode adivinhar um <#30916f>Presidente</color> revelado!",
   "GuessErased": "Você não pode adivinhar a função que foi apagada de um jogador!",
   "Alchemist": "Alquimista",
