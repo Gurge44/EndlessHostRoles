@@ -11,11 +11,14 @@ namespace CustomTeamAssigner
 {
     public partial class RichTextEditor : Page
     {
+        public static RichTextEditor Instance { get; private set; } = null!;
+        
         public RichTextEditor()
         {
             InitializeComponent();
-            richTextBox.TextChanged += RichTextBox_TextChanged;
-            richTextBox.Focus();
+            Instance = this;
+            RichTextBox.TextChanged += RichTextBox_TextChanged;
+            RichTextBox.Focus();
             MainGrid.Visibility = Visibility.Visible;
         }
         
@@ -28,12 +31,12 @@ namespace CustomTeamAssigner
         {
             string xamlText = GetXamlFromRichTextBox();
             string htmlText = ConvertXamlToHtml(xamlText);
-            htmlPreview.Text = htmlText;
+            HtmlPreview.Text = htmlText;
         }
 
         private string GetXamlFromRichTextBox()
         {
-            TextRange textRange = new(richTextBox.Document.ContentStart, richTextBox.Document.ContentEnd);
+            TextRange textRange = new(RichTextBox.Document.ContentStart, RichTextBox.Document.ContentEnd);
             using MemoryStream stream = new();
             textRange.Save(stream, DataFormats.Xaml);
             return Encoding.UTF8.GetString(stream.ToArray());
@@ -140,19 +143,19 @@ namespace CustomTeamAssigner
 
         private void Bold_Click(object sender, RoutedEventArgs e)
         {
-            if (!richTextBox.Selection.IsEmpty)
-                richTextBox.Selection.ApplyPropertyValue(TextElement.FontWeightProperty, FontWeights.Bold);
+            if (!RichTextBox.Selection.IsEmpty)
+                RichTextBox.Selection.ApplyPropertyValue(TextElement.FontWeightProperty, FontWeights.Bold);
         }
 
         private void Italic_Click(object sender, RoutedEventArgs e)
         {
-            if (!richTextBox.Selection.IsEmpty)
-                richTextBox.Selection.ApplyPropertyValue(TextElement.FontStyleProperty, FontStyles.Italic);
+            if (!RichTextBox.Selection.IsEmpty)
+                RichTextBox.Selection.ApplyPropertyValue(TextElement.FontStyleProperty, FontStyles.Italic);
         }
 
         private void Underline_Click(object sender, RoutedEventArgs e)
         {
-            TextSelection selection = richTextBox.Selection;
+            TextSelection selection = RichTextBox.Selection;
             if (!selection.IsEmpty)
             {
                 selection.ApplyPropertyValue(
@@ -168,7 +171,7 @@ namespace CustomTeamAssigner
             if (sender is ComboBox { SelectedItem: ComboBoxItem selectedItem })
             {
                 double selectedFontSize = double.Parse(selectedItem.Content.ToString() ?? "20");
-                richTextBox.Selection.ApplyPropertyValue(TextElement.FontSizeProperty, selectedFontSize);
+                RichTextBox?.Selection.ApplyPropertyValue(TextElement.FontSizeProperty, selectedFontSize);
             }
         }
 
@@ -178,7 +181,7 @@ namespace CustomTeamAssigner
             {
                 string selectedColor = selectedItem.Content.ToString() ?? string.Empty;
                 SolidColorBrush colorBrush = new BrushConverter().ConvertFromString(selectedColor) as SolidColorBrush ?? new(Colors.White);
-                richTextBox.Selection.ApplyPropertyValue(TextElement.ForegroundProperty, colorBrush);
+                RichTextBox?.Selection.ApplyPropertyValue(TextElement.ForegroundProperty, colorBrush);
             }
         }
 

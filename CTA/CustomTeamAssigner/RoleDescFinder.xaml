@@ -17,7 +17,7 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding" Value="10"/>
             <Setter Property="Margin" Value="10"/>
-            <Setter Property="Width" Value="300"/>
+            <Setter Property="Width" Value="350"/>
             <Setter Property="Height" Value="70"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -116,11 +116,27 @@
         </Grid.ColumnDefinitions>
 
         <TextBox x:Name="RoleNameTextBox" Grid.Row="0" Margin="10" ToolTip="Enter role name"/>
-        <Button x:Name="FindDescriptionButton" Grid.Row="1" Margin="10" Content=" Find Description " Click="FindDescription"/>
+        <Button x:Name="FindDescriptionButton" Grid.Row="1" Margin="10" Click="FindDescription">
+            <Button.RenderTransform>
+                <ScaleTransform/>
+            </Button.RenderTransform>
+            <StackPanel Orientation="Horizontal">
+                <Image Source="Resources/search.svg" Name="SearchButtonImage" Width="30" Height="30" Margin="15"/>
+                <TextBlock Text="Find Description"/>
+            </StackPanel>
+        </Button>
         <Border Grid.Row="2" Background="#2D2D2D" CornerRadius="20" Padding="20" HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock x:Name="RoleDescriptionTextBlock" Margin="10" TextWrapping="Wrap" FontSize="14"
                        Text="Type in the name of a role in the input field in one word, then click on Find Description. If everything goes right, it will display the description of the role you typed here." />
         </Border>
-        <Button x:Name="BackButton" Grid.Row="2" Margin="10" Content=" Back " VerticalAlignment="Bottom" HorizontalAlignment="Right" Click="BackToMain"/>
+        <Button x:Name="BackButton" Grid.Row="2" Margin="10" VerticalAlignment="Bottom" HorizontalAlignment="Right" Click="BackToMain">
+            <Button.RenderTransform>
+                <ScaleTransform/>
+            </Button.RenderTransform>
+            <StackPanel Orientation="Horizontal">
+                <Image Source="Resources/back.svg" Name="BackButtonImage" Width="30" Height="30" Margin="0,0,15,0"/>
+                <TextBlock Text="Back"/>
+            </StackPanel>
+        </Button>
     </Grid>
 </Page>

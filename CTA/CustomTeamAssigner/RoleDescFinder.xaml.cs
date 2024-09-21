@@ -8,9 +8,12 @@ namespace CustomTeamAssigner
 {
     public partial class RoleDescFinder : Page
     {
+        public static RoleDescFinder Instance { get; private set; } = null!;
+        
         public RoleDescFinder()
         {
             InitializeComponent();
+            Instance = this;
             MainGrid.Visibility = Visibility.Visible;
         }
         
