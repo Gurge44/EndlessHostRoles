@@ -4677,6 +4677,7 @@
   "President.DecreeAlreadyUsedMessage": "您已经使用了此法令，或者它没有启用！",
   "President.DecreeAlreadyChosenThisMeetingMessage": "你已经选择了这次会议的法令！",
   "President.UsedDecreeMessage.RevealMessage": "{0} 是<#30916f>总统</color>！",
+  "President.Recruit.TargetNotCrewmateMessage": "You can only recruit <#8cffff>crewmates!</color>",
   "GuessPresident": "你无法猜测一个已经揭晓的<#30916f>总统</color>。",
   "GuessErased": "您不能赌一个被抹除了职业的玩家",
   "Alchemist": "炼金术士",
