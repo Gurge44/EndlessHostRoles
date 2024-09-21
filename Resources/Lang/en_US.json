@@ -4677,6 +4677,7 @@
   "President.DecreeAlreadyUsedMessage": "You have already used this decree or it isn't enabled!",
   "President.DecreeAlreadyChosenThisMeetingMessage": "You have already chosen a decree this meeting!",
   "President.UsedDecreeMessage.RevealMessage": "{0} is the <#30916f>President</color>!",
+  "President.Recruit.TargetNotCrewmateMessage": "You can only recruit <#8cffff>crewmates!</color>",
   "GuessPresident": "You cannot guess a revealed <#30916f>President</color>.",
   "GuessErased": "You cannot guess a player's role that has been erased.",
   "Alchemist": "Alchemist",
