@@ -615,3 +615,21 @@ static class VentilationSystemDeterioratePatch
         }
     }
 }
+
+[HarmonyPatch(typeof(VentilationSystem), nameof(VentilationSystem.IsVentCurrentlyBeingCleaned))]
+static class VentSystemIsVentCurrentlyBeingCleanedPatch
+{
+    // Patch block use vent for host becouse host always skips RpcSerializeVent
+    public static bool Prefix([HarmonyArgument(0)] int id, ref bool __result)
+    {
+        if (!AmongUsClient.Instance.AmHost) return true;
+
+        if (!PlayerControl.LocalPlayer.CanUseVent(id))
+        {
+            __result = true;
+            return false;
+        }
+
+        return true;
+    }
+}

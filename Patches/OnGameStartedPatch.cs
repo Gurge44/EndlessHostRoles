@@ -255,14 +255,18 @@ internal class ChangeRoleSettings
 
             Camouflage.BlockCamouflage = false;
             Camouflage.Init();
-            var invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).Select(p => $"{p.name}").ToArray();
-            if (invalidColor.Length > 0)
+
+            if (AmongUsClient.Instance.AmHost)
             {
-                var msg = GetString("Error.InvalidColor");
-                Logger.SendInGame(msg);
-                msg += "\n" + string.Join(",", invalidColor);
-                Utils.SendMessage(msg);
-                Logger.Error(msg, "CoStartGame");
+                var invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).Select(p => $"{p.name}").ToArray();
+                if (invalidColor.Length > 0)
+                {
+                    var msg = GetString("Error.InvalidColor");
+                    Logger.SendInGame(msg);
+                    msg += "\n" + string.Join(",", invalidColor);
+                    Utils.SendMessage(msg);
+                    Logger.Error(msg, "CoStartGame");
+                }
             }
 
             RoleResult = [];

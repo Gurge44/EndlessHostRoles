@@ -56,6 +56,11 @@ namespace EHR
             return pc.IsAlive() && (pc.Is(CustomRoleTypes.Impostor) || Amnesiac.WasAmnesiac.Contains(pc.PlayerId) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.CanVent.GetBool())) && Circumvent.CanUseImpostorVentButton(pc) && pc.Data.Role.Role is not RoleTypes.Engineer;
         }
 
+        public virtual bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return true;
+        }
+
         public virtual bool CanUseSabotage(PlayerControl pc)
         {
             return pc.Is(Team.Impostor) || pc.Is(CustomRoles.Trickster) || pc.Is(CustomRoles.Mischievous) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool()) && pc.IsAlive();

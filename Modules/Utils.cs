@@ -97,6 +97,25 @@ public static class Utils
         }
     }
 
+    public static void CheckAndSetVentInteractions()
+    {
+        bool shouldPerformVentInteractions = false;
+
+        foreach (var pc in Main.AllPlayerControls)
+        {
+            if (VentilationSystemDeterioratePatch.BlockVentInteraction(pc))
+            {
+                VentilationSystemDeterioratePatch.LastClosestVent[pc.PlayerId] = pc.GetVentsFromClosest()[0].Id;
+                shouldPerformVentInteractions = true;
+            }
+        }
+
+        if (shouldPerformVentInteractions)
+        {
+            SetAllVentInteractions();
+        }
+    }
+
     public static void TPAll(Vector2 location, bool log = true)
     {
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)

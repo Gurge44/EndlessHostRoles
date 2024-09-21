@@ -129,6 +129,7 @@ static class ExileControllerWrapUpPatch
         Utils.AfterMeetingTasks();
         Utils.SyncAllSettings();
         Utils.NotifyRoles(ForceLoop: true);
+        Utils.CheckAndSetVentInteractions();
     }
 
     static void WrapUpFinalizer()

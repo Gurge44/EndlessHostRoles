@@ -209,7 +209,12 @@ namespace EHR.Crewmate
         public override bool OnVote(PlayerControl voter, PlayerControl target)
         {
             if (voter.PlayerId != PresidentId || !IsRecruiting || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
-            if (!target.Is(CustomRoleTypes.Crewmate) || target.IsConverted()) return true;
+            if (!target.Is(CustomRoleTypes.Crewmate) || target.IsConverted())
+            {
+                Utils.SendMessage(Translator.GetString("President.Recruit.TargetNotCrewmateMessage"), voter.PlayerId);
+                IsRecruiting = false;
+                return true;
+            }
 
             CustomRoles role = GovernmentRecruitRoles[DecreeSettings[Decree.GovernmentRecruiting][1].GetValue()];
             if (role.IsDesyncRole() && target.GetRoleTypes() != role.GetDYRole()) role = CustomRoles.NiceGuesser;

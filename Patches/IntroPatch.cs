@@ -858,20 +858,7 @@ static class IntroCutsceneDestroyPatch
                 }
             }
 
-            bool shouldPerformVentInteractions = false;
-            foreach (var pc in Main.AllPlayerControls)
-            {
-                if (VentilationSystemDeterioratePatch.BlockVentInteraction(pc))
-                {
-                    VentilationSystemDeterioratePatch.LastClosestVent[pc.PlayerId] = pc.GetVentsFromClosest()[0].Id;
-                    shouldPerformVentInteractions = true;
-                }
-            }
-
-            if (shouldPerformVentInteractions)
-            {
-                Utils.SetAllVentInteractions();
-            }
+            Utils.CheckAndSetVentInteractions();
 
             if (AFKDetector.ActivateOnStart.GetBool())
             {
