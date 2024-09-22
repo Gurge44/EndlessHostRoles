@@ -124,10 +124,6 @@ internal class SetResolutionManager
 {
     public static void Postfix()
     {
-        //if (MainMenuManagerPatch.qqButton != null)
-        //    MainMenuManagerPatch.qqButton.transform.localPosition = Vector3.Reflect(MainMenuManagerPatch.template.transform.localPosition, Vector3.left);
-        //if (MainMenuManagerPatch.discordButton != null)
-        //    MainMenuManagerPatch.discordButton.transform.localPosition = Vector3.Reflect(MainMenuManagerPatch.template.transform.localPosition, Vector3.left);
         if (MainMenuManagerPatch.UpdateButton != null)
             MainMenuManagerPatch.UpdateButton.transform.localPosition = MainMenuManagerPatch.Template.transform.localPosition + new Vector3(0.25f, 0.75f);
     }
@@ -143,15 +139,14 @@ internal class InnerNetObjectSerializePatch
     }
 }
 
+[HarmonyPatch(typeof(InnerNetClient))]
 public static class InnerNetClientPatch
 {
-    private static byte Timer;
-
     [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.SendInitialData))]
     [HarmonyPrefix]
     public static bool SendInitialDataPrefix(InnerNetClient __instance, int clientId)
     {
-        if (!Constants.IsVersionModded() || __instance.NetworkMode != NetworkModes.OnlineGame) return true;
+        if (!Constants.IsVersionModded() || GameStates.IsInGame || __instance.NetworkMode != NetworkModes.OnlineGame) return true;
         // We make sure other stuff like PlayerControl and LobbyBehavior is spawned properly
         // Then we spawn the networked data for new clients
         MessageWriter messageWriter = MessageWriter.Get(SendOption.Reliable);
@@ -161,10 +156,10 @@ public static class InnerNetClientPatch
         List<InnerNetObject> obj = __instance.allObjects;
         lock (obj)
         {
-            System.Collections.Generic.HashSet<GameObject> hashSet = [];
+            HashSet<GameObject> hashSet = new();
             for (int i = 0; i < __instance.allObjects.Count; i++)
             {
-                InnerNetObject innerNetObject = __instance.allObjects[i];
+                InnerNetObject innerNetObject = __instance.allObjects[i]; // False error
                 if (innerNetObject && (innerNetObject.OwnerId != -4 || __instance.AmModdedHost) && hashSet.Add(innerNetObject.gameObject))
                 {
                     GameManager gameManager = innerNetObject as GameManager;
@@ -189,23 +184,26 @@ public static class InnerNetClientPatch
         return false;
     }
 
+    // InnerSloth vanilla officials send PlayerInfo in spilt reliable packets
     private static void DelaySpawnPlayerInfo(InnerNetClient __instance, int clientId)
     {
-        var players = GameData.Instance.AllPlayers.ToArray();
+        var players = GameData.Instance.AllPlayers.ToArray().ToList();
 
-        // We send 5 players at a time to prevent too large packets
-        foreach (var batch in players.Chunk(5))
+        foreach (var player in players)
         {
-            MessageWriter messageWriter = MessageWriter.Get(SendOption.Reliable);
-            messageWriter.StartMessage(6);
-            messageWriter.Write(__instance.GameId);
-            messageWriter.WritePacked(clientId);
+            if (player != null && player.ClientId != clientId && !player.Disconnected)
+            {
+                MessageWriter messageWriter = MessageWriter.Get(SendOption.Reliable);
+                messageWriter.StartMessage(6);
+                messageWriter.Write(__instance.GameId);
+                messageWriter.WritePacked(clientId);
 
-            batch.DoIf(p => p != null && p.ClientId != clientId && !p.Disconnected, p => __instance.WriteSpawnMessage(p, p.OwnerId, p.SpawnFlags, messageWriter));
+                __instance.WriteSpawnMessage(player, player.OwnerId, player.SpawnFlags, messageWriter);
+                messageWriter.EndMessage();
 
-            messageWriter.EndMessage();
-            __instance.SendOrDisconnect(messageWriter);
-            messageWriter.Recycle();
+                __instance.SendOrDisconnect(messageWriter);
+                messageWriter.Recycle();
+            }
         }
     }
 
@@ -221,7 +219,7 @@ public static class InnerNetClientPatch
         {
             for (int i = 0; i < __instance.allObjects.Count; i++)
             {
-                InnerNetObject innerNetObject = __instance.allObjects[i];
+                InnerNetObject innerNetObject = __instance.allObjects[i]; // False error
                 if (innerNetObject && innerNetObject is not NetworkedPlayerInfo && innerNetObject.IsDirty && (innerNetObject.AmOwner || (innerNetObject.OwnerId == -2 && __instance.AmHost)))
                 {
                     MessageWriter messageWriter = __instance.Streams[(int)innerNetObject.sendMode];
@@ -229,8 +227,14 @@ public static class InnerNetClientPatch
                     messageWriter.WritePacked(innerNetObject.NetId);
                     try
                     {
-                        if (innerNetObject.Serialize(messageWriter, false)) messageWriter.EndMessage();
-                        else messageWriter.CancelMessage();
+                        if (innerNetObject.Serialize(messageWriter, false))
+                        {
+                            messageWriter.EndMessage();
+                        }
+                        else
+                        {
+                            messageWriter.CancelMessage();
+                        }
 
                         if (innerNetObject.Chunked && innerNetObject.IsDirty)
                         {
@@ -266,62 +270,50 @@ public static class InnerNetClientPatch
     [HarmonyPostfix]
     public static void FixedUpdatePostfix(InnerNetClient __instance)
     {
-        if (!__instance.AmHost || __instance.Streams == null || __instance.NetworkMode != NetworkModes.OnlineGame) return;
+        // Send it with None calls. Who cares?
+        if (!Constants.IsVersionModded() || GameStates.IsInGame || __instance.NetworkMode != NetworkModes.OnlineGame) return;
+        if (!__instance.AmHost || __instance.Streams == null) return;
 
-        if (Timer == 0)
+        var players = GameData.Instance.AllPlayers.ToArray();
+        foreach (var player in players)
         {
-            Timer = 1;
-            return;
-        }
-
-        var player = GameData.Instance.AllPlayers.ToArray().FirstOrDefault(x => x.IsDirty);
-        if (player != null)
-        {
-            Timer = 0;
-            MessageWriter messageWriter = MessageWriter.Get(SendOption.Reliable);
-            messageWriter.StartMessage(5);
-            messageWriter.Write(__instance.GameId);
-            messageWriter.StartMessage(1);
-            messageWriter.WritePacked(player.NetId);
-            try
+            if (player.IsDirty)
             {
-                if (player.Serialize(messageWriter, false))
+                MessageWriter messageWriter = MessageWriter.Get();
+                messageWriter.StartMessage(5);
+                messageWriter.Write(__instance.GameId);
+                messageWriter.StartMessage(1);
+                messageWriter.WritePacked(player.NetId);
+                try
                 {
+                    if (player.Serialize(messageWriter, false))
+                    {
+                        messageWriter.EndMessage();
+                    }
+                    else
+                    {
+                        messageWriter.CancelMessage();
+                        player.ClearDirtyBits();
+                        continue;
+                    }
+
                     messageWriter.EndMessage();
+                    __instance.SendOrDisconnect(messageWriter);
+                    messageWriter.Recycle();
                 }
-                else
+                catch (Exception ex)
                 {
+                    Logger.Exception(ex, "FixedUpdatePostfix");
                     messageWriter.CancelMessage();
                     player.ClearDirtyBits();
-                    return;
                 }
-
-                messageWriter.EndMessage();
-                __instance.SendOrDisconnect(messageWriter);
-                messageWriter.Recycle();
-            }
-            catch (Exception ex)
-            {
-                Logger.Exception(ex, "FixedUpdatePostfix");
-                messageWriter.CancelMessage();
-                player.ClearDirtyBits();
             }
         }
     }
 }
 
-[HarmonyPatch(typeof(GameData), nameof(GameData.DirtyAllData))]
-internal class DirtyAllDataPatch
-{
-    // Currently, this function only occurs in CreatePlayer.
-    // It's believed to lag the host, delay the PlayerControl spawn message, blackout new clients
-    // and send huge packets to all clients while there's completely no need to run this.
-    // Temporarily disable it until Innersloth gets a better fix.
-    public static bool Prefix() => false;
-}
-
 [HarmonyPatch]
-internal class AuthTimeoutPatch
+internal static class AuthTimeoutPatch
 {
     [HarmonyPatch(typeof(AuthManager._CoConnect_d__4), nameof(AuthManager._CoConnect_d__4.MoveNext))]
     [HarmonyPatch(typeof(AuthManager._CoWaitForNonce_d__6), nameof(AuthManager._CoWaitForNonce_d__6.MoveNext))]
@@ -339,7 +331,7 @@ internal class AuthTimeoutPatch
         return false;
     }
 
-    // If you don't patch this, you still need to wait for 5s.
+    // If you don't patch this, you still need to wait for 5 s.
     // I have no idea why this is happening
     [HarmonyPatch(typeof(AmongUsClient._CoJoinOnlinePublicGame_d__1), nameof(AmongUsClient._CoJoinOnlinePublicGame_d__1.MoveNext))]
     [HarmonyPrefix]

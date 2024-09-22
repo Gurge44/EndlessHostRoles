@@ -1,10 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using EHR.AddOns;
 using EHR.AddOns.GhostRoles;
 using EHR.Modules;
@@ -124,10 +122,6 @@ public static class Options
         "CamouflageMode.Default",
         "CamouflageMode.Host",
         "CamouflageMode.Karpe",
-        "CamouflageMode.Lauryn",
-        "CamouflageMode.Moe",
-        "CamouflageMode.Pyro",
-        "CamouflageMode.ryuk",
         "CamouflageMode.Gurge44",
         "CamouflageMode.TommyXL"
     ];

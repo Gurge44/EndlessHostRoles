@@ -11,7 +11,7 @@ namespace EHR.Neutral
     public class Virus : RoleBase
     {
         private const int Id = 13200;
-        private static List<byte> playerIdList = [];
+        public static List<byte> playerIdList = [];
         public static List<byte> InfectedPlayer = [];
         public static Dictionary<byte, string> VirusNotify = [];
         public static List<byte> InfectedBodies = [];

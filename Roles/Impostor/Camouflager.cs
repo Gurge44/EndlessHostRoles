@@ -63,7 +63,7 @@ namespace EHR.Impostor
                 return true;
             }
 
-            if (pc.GetAbilityUseLimit() < 1)
+            if (pc.GetAbilityUseLimit() < 1 && !Options.DisableShapeshiftAnimations.GetBool())
             {
                 pc.SetKillCooldown(CamouflageDuration.GetFloat() + 1f);
             }

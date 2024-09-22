@@ -821,7 +821,7 @@ internal static class CustomRolesHelper
     {
         CustomRoles.Circumvent when pc.GetCustomRole() is CustomRoles.Swooper or CustomRoles.RiftMaker => false,
         CustomRoles.Oblivious when pc.Is(CustomRoles.Altruist) => false,
-        CustomRoles.AntiTP when pc.Is(CustomRoles.Transmitter) => false,
+        CustomRoles.AntiTP when pc.GetCustomRole() is CustomRoles.Transmitter or CustomRoles.Miner or CustomRoles.Escapee or CustomRoles.Tunneler => false,
         CustomRoles.Swift when pc.Is(CustomRoles.Stealth) => false,
         CustomRoles.Disco when pc.GetCustomRole() is CustomRoles.Chameleon or CustomRoles.Swooper or CustomRoles.Wraith or CustomRoles.Alchemist => false,
         CustomRoles.Egoist when pc.Is(CustomRoles.Gangster) => false,

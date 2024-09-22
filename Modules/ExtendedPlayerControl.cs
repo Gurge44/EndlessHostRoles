@@ -67,7 +67,7 @@ static class ExtendedPlayerControl
 
     public static bool CanUseVent(this PlayerControl player, int ventId)
     {
-        return GameStates.IsInTask && (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer || player.inVent) && Main.PlayerStates.TryGetValue(player.PlayerId, out var state) && state.Role.CanUseVent(player, ventId);
+        return GameStates.IsInTask && (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer || player.inVent) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId));
     }
 
     // Next 3: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs
@@ -1334,6 +1334,8 @@ static class ExtendedPlayerControl
 
         if (target.Is(CustomRoles.Jackal))
             Jackal.Instances.Do(x => x.PromoteSidekick());
+
+        Main.DiedThisRound.Add(target.PlayerId);
 
         switch (killer.PlayerId == target.PlayerId)
         {

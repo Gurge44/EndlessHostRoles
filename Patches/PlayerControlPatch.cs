@@ -993,7 +993,7 @@ static class ReportDeadBodyPatch
         }
         catch (Exception e)
         {
-            Utils.ThrowException(e);
+            ThrowException(e);
         }
 
         return true;
@@ -1226,7 +1226,7 @@ static class FixedUpdatePatch
             }
         }
 
-        if (Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && (!Altruist.On || Main.PlayerStates[id].Role is not Altruist at || at.ReviveStartTS == 0))
+        if (Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && (!Altruist.On || !CustomRoles.Altruist.RoleExist() || Main.PlayerStates[id].Role is not Altruist at || at.ReviveStartTS == 0))
         {
             DeadBufferTime.TryAdd(id, 30);
             DeadBufferTime[id]--;

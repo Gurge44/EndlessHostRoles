@@ -287,12 +287,13 @@ static class CheckForEndVotingPatch
             __instance.RpcVotingComplete(states.ToArray(), exiledPlayer, tie);
 
             CheckForDeathOnExile(PlayerState.DeathReason.Vote, exileId);
+            Utils.CheckAndSpawnAdditionalRefugee(exiledPlayer);
 
             Main.LastVotedPlayerInfo = exiledPlayer;
-            AntiBlackout.ExilePlayerId = exiledPlayer.PlayerId;
+            AntiBlackout.ExilePlayerId = exileId;
             if (Main.LastVotedPlayerInfo != null)
             {
-                AntiBlackout.ExilePlayerId = exiledPlayer.PlayerId;
+                AntiBlackout.ExilePlayerId = exileId;
                 ConfirmEjections(Main.LastVotedPlayerInfo, braked);
             }
 
@@ -500,8 +501,8 @@ static class CheckForEndVotingPatch
     {
         try
         {
-            Witch.OnCheckForEndVoting(deathReason, playerIds);
-            Virus.OnCheckForEndVoting(deathReason, playerIds);
+            if (Witch.playerIdList.Count > 0) Witch.OnCheckForEndVoting(deathReason, playerIds);
+            if (Virus.playerIdList.Count > 0) Virus.OnCheckForEndVoting(deathReason, playerIds);
             if (deathReason == PlayerState.DeathReason.Vote) Gaslighter.OnExile(playerIds);
             foreach (var playerId in playerIds)
             {
@@ -959,25 +960,21 @@ static class MeetingHudStartPatch
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Update))]
 static class MeetingHudUpdatePatch
 {
-    private static int bufferTime = 10;
+    private static int BufferTime = 10;
 
-    private static void ClearShootButton(MeetingHud __instance, bool forceAll = false)
-        => __instance.playerStates.ToList().ForEach(x =>
-        {
-            if ((forceAll || !Main.PlayerStates.TryGetValue(x.TargetPlayerId, out var ps) || ps.IsDead) && x.transform.FindChild("ShootButton") != null) Object.Destroy(x.transform.FindChild("ShootButton").gameObject);
-        });
+    private static void ClearShootButton(MeetingHud __instance, bool forceAll = false) => __instance.playerStates.DoIf(
+        x => (forceAll || !Main.PlayerStates.TryGetValue(x.TargetPlayerId, out var ps) || ps.IsDead) && x.transform.FindChild("ShootButton") != null,
+        x => Object.Destroy(x.transform.FindChild("ShootButton").gameObject));
 
     public static void Postfix(MeetingHud __instance)
     {
         try
         {
-            // Meeting Skip with vote counting on keystroke (m + delete)
+            // Meeting Skip with vote counting on keystroke (F6)
             if (AmongUsClient.Instance.AmHost && Input.GetKeyDown(KeyCode.F6))
             {
                 __instance.CheckForEndVoting();
             }
-
-            //if (Options.DisableCrackedGlass.GetBool()) __instance.CrackedGlass = null;
 
             if (AmongUsClient.Instance.AmHost && Input.GetMouseButtonUp(1) && Input.GetKey(KeyCode.LeftControl))
             {
@@ -990,7 +987,7 @@ static class MeetingHudUpdatePatch
                         player.RpcExileV2();
                         Main.PlayerStates[player.PlayerId].SetDead();
                         Utils.SendMessage(string.Format(GetString("Message.Executed"), player.Data.PlayerName));
-                        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}を処刑しました", "Execution");
+                        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} was executed by the host", "Execution");
                         __instance.CheckForEndVoting();
                     }
                 });
@@ -1007,10 +1004,10 @@ static class MeetingHudUpdatePatch
                 return;
             }
 
-            bufferTime--;
-            if (bufferTime < 0 && __instance.discussionTimer > 0)
+            BufferTime--;
+            if (BufferTime < 0 && __instance.discussionTimer > 0)
             {
-                bufferTime = 10;
+                BufferTime = 10;
                 var myRole = PlayerControl.LocalPlayer.GetCustomRole();
 
                 __instance.playerStates.Where(x => (!Main.PlayerStates.TryGetValue(x.TargetPlayerId, out var ps) || ps.IsDead) && !x.AmDead).Do(x => x.SetDead(x.DidReport, true));
@@ -1044,7 +1041,7 @@ static class MeetingHudUpdatePatch
 }
 
 [HarmonyPatch(typeof(PlayerVoteArea), nameof(PlayerVoteArea.SetHighlighted))]
-class SetHighlightedPatch
+static class SetHighlightedPatch
 {
     public static bool Prefix(PlayerVoteArea __instance, bool value)
     {
@@ -1056,7 +1053,7 @@ class SetHighlightedPatch
 }
 
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.OnDestroy))]
-class MeetingHudOnDestroyPatch
+static class MeetingHudOnDestroyPatch
 {
     public static void Postfix()
     {
@@ -1073,7 +1070,7 @@ class MeetingHudOnDestroyPatch
 }
 
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CastVote))]
-class MeetingHudCastVotePatch
+static class MeetingHudCastVotePatch
 {
     private static readonly Dictionary<byte, (MeetingHud MeetingHud, PlayerVoteArea SourcePVA, PlayerControl SourcePC)> ShouldCancelVoteList = [];
 

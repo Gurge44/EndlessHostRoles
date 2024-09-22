@@ -453,6 +453,8 @@ public static class Utils
 
         var self = seerId == targetId || Main.PlayerStates[seerId].IsDead;
 
+        if (!self && Main.DiedThisRound.Contains(seerId)) return (string.Empty, Color.white);
+
         bool isHnsAgentOverride = Options.CurrentGameMode == CustomGameMode.HideAndSeek && targetMainRole == CustomRoles.Agent && HnSManager.PlayerRoles[seerId].Interface.Team != Team.Impostor;
         bool loversShowDifferentRole = false;
         if (!GameStates.IsEnded && targetMainRole == CustomRoles.LovingImpostor && !self && seerMainRole != CustomRoles.LovingCrewmate && !seerSubRoles.Contains(CustomRoles.Lovers))
@@ -515,7 +517,6 @@ public static class Utils
             RoleText = GetRoleString("Contagious-") + RoleText;
         }
 
-        // Bloodlust
         if (targetSubRoles.Contains(CustomRoles.Bloodlust) && (self || pure || seeTargetBetrayalAddons))
         {
             RoleColor = GetRoleColor(CustomRoles.Bloodlust);
@@ -637,7 +638,7 @@ public static class Utils
             StackFrame firstFrame = stFrames.FirstOrDefault();
 
             var sb = new StringBuilder();
-            sb.Append($" {ex.GetType().Name}: {ex.Message}\n      thrown by {ex.Source}\n      at {ex.TargetSite}\n      in {fileName}\n      at line {lineNumber}\n      in method \"{callerMemberName}\"\n------ Method Stack Trace ------");
+            sb.Append($" {ex.GetType().Name}: {ex.Message}\n      thrown by {ex.Source}\n      at {ex.TargetSite}\n      in {fileName.Split('\\')[^1]}\n      at line {lineNumber}\n      in method \"{callerMemberName}\"\n------ Method Stack Trace ------");
 
             bool skip = true;
             foreach (StackFrame sf in stFrames)
@@ -657,9 +658,25 @@ public static class Utils
             }
 
             sb.Append("\n------ End of Method Stack Trace ------");
-            sb.Append("\n------ Exception Stack Trace ------\n   ");
+            sb.Append("\n------ Exception ------\n   ");
 
             sb.Append(ex.StackTrace?.Replace("\r\n", "\n").Replace("\\n", "\n").Replace("\n", "\n   "));
+
+            sb.Append("\n------ End of Exception ------");
+            sb.Append("\n------ Exception Stack Trace ------\n");
+
+            var stEx = new StackTrace(ex, true);
+            var stFramesEx = stEx.GetFrames();
+
+            foreach (StackFrame sf in stFramesEx)
+            {
+                var callerMethod = sf.GetMethod();
+
+                string callerMethodName = callerMethod?.Name;
+                string callerClassName = callerMethod?.DeclaringType?.FullName;
+
+                sb.Append($"\n      at {callerClassName}.{callerMethodName} in {sf.GetFileName()}, line {sf.GetFileLineNumber()}");
+            }
 
             sb.Append("\n------ End of Exception Stack Trace ------");
 
@@ -892,7 +909,7 @@ public static class Utils
     {
         if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters) return false;
         if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun || (Options.CurrentGameMode == CustomGameMode.HideAndSeek && HnSManager.IsRoleTextEnabled(PlayerControl.LocalPlayer, __instance)) || Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool() || PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) return true;
-        if (Altruist.On && Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId)) return false;
+        if (CustomRoles.Altruist.RoleExist() && Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId)) return false;
 
         switch (__instance.GetCustomRole())
         {
@@ -1615,19 +1632,26 @@ public static class Utils
 
     public static void CheckAndSpawnAdditionalRefugee(NetworkedPlayerInfo deadPlayer)
     {
-        if (Options.CurrentGameMode != CustomGameMode.Standard || deadPlayer == null || deadPlayer.Object.Is(CustomRoles.Refugee) || Main.HasJustStarted || !GameStates.InGame || !Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() || Main.AllAlivePlayerControls.Length < Options.SpawnAdditionalRefugeeMinAlivePlayers.GetInt() || CustomRoles.Refugee.RoleExist(countDead: true) || Main.AllAlivePlayerControls == null || Main.AllAlivePlayerControls.Length == 0 || Main.AllAlivePlayerControls.Any(x => x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && !Options.SpawnAdditionalRefugeeWhenNKAlive.GetBool())))) return;
-
-        PlayerControl[] ListToChooseFrom = Main.AllAlivePlayerControls.Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate) && !x.Is(CustomRoles.Loyal)).ToArray();
-
-        if (ListToChooseFrom.Length > 0)
+        try
         {
-            var pc = ListToChooseFrom.RandomElement();
-            pc.RpcSetCustomRole(CustomRoles.Refugee);
-            pc.SetKillCooldown();
-            Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Madmate);
-            Logger.Warn($"{pc.GetRealName()} is now a Refugee since all Impostors are dead", "Add Refugee");
+            if (Options.CurrentGameMode != CustomGameMode.Standard || deadPlayer == null || deadPlayer.Object.Is(CustomRoles.Refugee) || Main.HasJustStarted || !GameStates.InGame || !Options.SpawnAdditionalRefugeeOnImpsDead.GetBool() || Main.AllAlivePlayerControls.Length < Options.SpawnAdditionalRefugeeMinAlivePlayers.GetInt() || CustomRoles.Refugee.RoleExist(countDead: true) || Main.AllAlivePlayerControls == null || Main.AllAlivePlayerControls.Length == 0 || Main.AllAlivePlayerControls.Any(x => x.PlayerId != deadPlayer.PlayerId && (x.Is(CustomRoleTypes.Impostor) || (x.IsNeutralKiller() && !Options.SpawnAdditionalRefugeeWhenNKAlive.GetBool())))) return;
+
+            PlayerControl[] ListToChooseFrom = Main.AllAlivePlayerControls.Where(x => x.PlayerId != deadPlayer.PlayerId && x.Is(CustomRoleTypes.Crewmate) && !x.Is(CustomRoles.Loyal)).ToArray();
+
+            if (ListToChooseFrom.Length > 0)
+            {
+                var pc = ListToChooseFrom.RandomElement();
+                pc.RpcSetCustomRole(CustomRoles.Refugee);
+                pc.SetKillCooldown();
+                Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Madmate);
+                Logger.Warn($"{pc.GetRealName()} is now a Refugee since all Impostors are dead", "Add Refugee");
+            }
+            else Logger.Msg("No Player to change to Refugee.", "Add Refugee");
         }
-        else Logger.Msg("No Player to change to Refugee.", "Add Refugee");
+        catch (Exception e)
+        {
+            ThrowException(e);
+        }
     }
 
     public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false)
@@ -2242,7 +2266,7 @@ public static class Utils
                                     ? $"<size={fontSize}>{target.GetDisplayRoleName(seeTargetBetrayalAddons: shouldSeeTargetAddons)}{GetProgressText(target)}</size>\r\n"
                                     : string.Empty;
 
-                            if (Altruist.On && Main.DiedThisRound.Contains(seer.PlayerId)) TargetRoleText = string.Empty;
+                            if (CustomRoles.Altruist.RoleExist() && Main.DiedThisRound.Contains(seer.PlayerId)) TargetRoleText = string.Empty;
                             if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters) TargetRoleText = string.Empty;
 
                             if (!GameStates.IsLobby)

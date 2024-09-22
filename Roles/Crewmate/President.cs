@@ -211,7 +211,6 @@ namespace EHR.Crewmate
             if (voter.PlayerId != PresidentId || !IsRecruiting || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
             if (!target.Is(CustomRoleTypes.Crewmate) || target.IsConverted())
             {
-                Utils.SendMessage(Translator.GetString("President.Recruit.TargetNotCrewmateMessage"), voter.PlayerId);
                 IsRecruiting = false;
                 return true;
             }
