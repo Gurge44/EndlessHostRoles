@@ -4124,7 +4124,7 @@
   "ND_BuildingCollapse": "Building Collapse",
   "CollapsedBuildings": "<#00ffa5>Collapsed Buildings:</color> {0}",
   "OngoingThunderstorm": "<#ffff44>⚠ Ongoing Thunderstorm ⚠</color>",
-  "SurvivalTime": "Survived {0}s",
+  "SurvivalTime": "Has sobrevivido {0}s",
   "NDPlayer": "Desastres Naturales",
   "NDPlayerInfo": "SOBREVIVE TODOS LOS DESASTRES NATURALES PARA GANAR",
   "NDPlayerInfoLong": "SOBREVIVE TODOS LOS DESASTRES NATURALES PARA GANAR",
