@@ -706,7 +706,7 @@ static class CheckInvalidMovementPatch
 
     public static void Postfix(PlayerControl __instance)
     {
-        if (!GameStates.IsInTask || !Options.EnableMovementChecking.GetBool() || Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) >= 1.9f || AmongUsClient.Instance.Ping >= 300 || Utils.GetRegionName() is not ("EU" or "NA" or "AS")) return;
+        if (!GameStates.IsInTask || !Options.EnableMovementChecking.GetBool() || Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) >= 1.9f || AmongUsClient.Instance.Ping >= 300 || Utils.GetRegionName() is not ("EU" or "NA" or "AS") || __instance == null || __instance.PlayerId == 255) return;
 
         var pos = __instance.Pos();
         var now = Utils.TimeStamp;
