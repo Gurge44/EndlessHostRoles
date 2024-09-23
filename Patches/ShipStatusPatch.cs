@@ -375,6 +375,9 @@ static class ShipStatusSpawnPlayerPatch
     {
         if (!AmongUsClient.Instance.AmHost || initialSpawn || !player.IsAlive()) return true;
 
+        // Lazy doesn't teleport to the meeting table
+        if (player.Is(CustomRoles.Lazy)) return false;
+
         Vector2 direction = Vector2.up.Rotate((player.PlayerId - 1) * (360f / numPlayers));
         Vector2 position = __instance.MeetingSpawnCenter + direction * __instance.SpawnRadius + new Vector2(0.0f, 0.3636f);
 
@@ -393,6 +396,9 @@ static class PolusShipStatusSpawnPlayerPatch
         [HarmonyArgument(2)] bool initialSpawn)
     {
         if (!AmongUsClient.Instance.AmHost || initialSpawn || !player.IsAlive()) return true;
+
+        // Lazy doesn't teleport to the meeting table
+        if (player.Is(CustomRoles.Lazy)) return false;
 
         int num1 = Mathf.FloorToInt(numPlayers / 2f);
         int num2 = player.PlayerId % 15;
@@ -455,6 +461,7 @@ static class VentilationSystemDeterioratePatch
 {
     public static Dictionary<byte, int> LastClosestVent = [];
     private static readonly Dictionary<byte, bool> LastCanUseVent = [];
+    private static readonly Dictionary<byte, int> LastClosestVentForUpdate = [];
 
     public static void Postfix(VentilationSystem __instance)
     {
@@ -598,7 +605,14 @@ static class VentilationSystemDeterioratePatch
 
     public static void CheckVentInteraction(PlayerControl pc)
     {
-        if (!GameStates.IsInTask) return;
+        if (!GameStates.IsInTask || ExileController.Instance) return;
+
+        int closestVent = pc.GetClosestVent().Id;
+        if (!LastClosestVentForUpdate.TryGetValue(pc.PlayerId, out int lastClosestVent))
+        {
+            LastClosestVentForUpdate[pc.PlayerId] = closestVent;
+            return;
+        }
 
         bool canUse = pc.CanUseVent();
 
@@ -608,7 +622,7 @@ static class VentilationSystemDeterioratePatch
             return;
         }
 
-        if (couldUse != canUse)
+        if (couldUse != canUse || lastClosestVent != closestVent)
         {
             LastCanUseVent[pc.PlayerId] = canUse;
             SerializeV2(ShipStatus.Instance.Systems[SystemTypes.Ventilation].Cast<VentilationSystem>(), pc);

@@ -830,7 +830,7 @@ static class IntroCutsceneDestroyPatch
                 Main.PlayerStates[lp.PlayerId].SetDead();
             }
 
-            if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard)
+            if (Options.RandomSpawn.GetBool())
             {
                 RandomSpawn.SpawnMap map = Main.NormalOptions.MapId switch
                 {

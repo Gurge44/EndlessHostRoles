@@ -108,7 +108,7 @@ static class ExileControllerWrapUpPatch
             PetsPatch.RpcRemovePet(pc);
         }
 
-        if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard)
+        if (Options.RandomSpawn.GetBool())
         {
             RandomSpawn.SpawnMap map = Main.NormalOptions.MapId switch
             {

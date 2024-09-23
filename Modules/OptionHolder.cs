@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using EHR.AddOns;
 using EHR.AddOns.GhostRoles;
 using EHR.Modules;
@@ -191,6 +193,7 @@ public static class Options
     public static OptionItem ShowNKRemainOnEject;
     public static OptionItem ShowTeamNextToRoleNameOnEject;
     public static OptionItem CheatResponses;
+    public static OptionItem EnableMovementChecking;
     public static OptionItem LowLoadMode;
     public static OptionItem DeepLowLoad;
     public static OptionItem DisableVoteBan;
@@ -1210,6 +1213,9 @@ public static class Options
         CheatResponses = new StringOptionItem(19319, "CheatResponses", CheatResponsesName, 2, TabGroup.SystemSettings)
             .SetHeader(true);
 
+        EnableMovementChecking = new BooleanOptionItem(19329, "EnableMovementChecking", true, TabGroup.SystemSettings)
+            .SetHeader(true);
+
 
         DisableVoteBan = new BooleanOptionItem(19320, "DisableVoteBan", true, TabGroup.SystemSettings, true);
 
@@ -1353,11 +1359,9 @@ public static class Options
 
         // Random Spawn
         RandomSpawn = new BooleanOptionItem(22000, "RandomSpawn", false, TabGroup.GameSettings)
-            .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(19, 188, 233, byte.MaxValue));
         AirshipAdditionalSpawn = new BooleanOptionItem(22010, "AirshipAdditionalSpawn", false, TabGroup.GameSettings)
-            .SetParent(RandomSpawn)
-            .SetGameMode(CustomGameMode.Standard);
+            .SetParent(RandomSpawn);
 
         // Airship Variable Electrical
         AirshipVariableElectrical = new BooleanOptionItem(22100, "AirshipVariableElectrical", false, TabGroup.GameSettings)

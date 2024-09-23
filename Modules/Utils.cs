@@ -143,6 +143,10 @@ public static class Utils
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
 
         if (log) Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} => {location}", "TP");
+
+        CheckInvalidMovementPatch.LastPosition[pc.PlayerId] = location;
+        CheckInvalidMovementPatch.ExemptedPlayers.Add(pc.PlayerId);
+
         return true;
     }
 
@@ -896,7 +900,6 @@ public static class Utils
                    pc.Is(CustomRoles.NiceSwapper) ||
                    pc.Is(CustomRoles.Speedrunner) ||
                    pc.Is(CustomRoles.Needy) ||
-                   pc.Is(CustomRoles.Lazy) ||
                    pc.Is(CustomRoles.Loyal) ||
                    pc.Is(CustomRoles.SuperStar) ||
                    pc.Is(CustomRoles.CyberStar) ||
@@ -2070,10 +2073,10 @@ public static class Utils
                                 ? SeerRealName
                                 : seerTeam switch
                                 {
-                                    Team.Impostor when seer.IsMadmate() => $"<size=200%><color=#ff1919>{GetString("YouAreMadmate")}</size></color>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Impostor when seer.IsMadmate() => $"<size=150%><color=#ff1919>{GetString("YouAreMadmate")}</size></color>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
                                     Team.Impostor => $"\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
-                                    Team.Crewmate => $"<size=200%><color=#8cffff>{GetString("YouAreCrewmate")}</size></color>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
-                                    Team.Neutral => $"<size=200%><color=#ffab1b>{GetString("YouAreNeutral")}</size></color>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Crewmate => $"<size=150%><color=#8cffff>{GetString("YouAreCrewmate")}</size></color>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Neutral => $"<size=150%><color=#ffab1b>{GetString("YouAreNeutral")}</size></color>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
                                     _ => SeerRealName
                                 };
                         }

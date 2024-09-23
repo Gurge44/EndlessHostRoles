@@ -15,11 +15,10 @@ public class Amnesiac : RoleBase
     private static OptionItem RememberCooldown;
     private static OptionItem CanRememberCrewPower;
     private static OptionItem IncompatibleNeutralMode;
-    private static OptionItem CanVent;
     public static OptionItem RememberMode;
     public static OptionItem RoleBasis;
 
-    public static readonly CustomRoles[] AmnesiacIncompatibleNeutralMode =
+    private static readonly CustomRoles[] AmnesiacIncompatibleNeutralMode =
     [
         CustomRoles.Amnesiac,
         CustomRoles.Pursuer,
@@ -29,8 +28,8 @@ public class Amnesiac : RoleBase
 
     private static readonly string[] RememberModes =
     [
-        "AmnesiacRM.ByKillButton",
-        "AmnesiacRM.ByReportingBody"
+        "AmnesiacRM.ByReportingBody",
+        "AmnesiacRM.ByKillButton"
     ];
 
     private byte AmnesiacId;
@@ -43,13 +42,11 @@ public class Amnesiac : RoleBase
         RememberMode = new StringOptionItem(Id + 9, "RememberMode", RememberModes, 0, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
         RememberCooldown = new FloatOptionItem(Id + 10, "RememberCooldown", new(0f, 180f, 0.5f), 5f, TabGroup.NeutralRoles)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac])
+            .SetParent(RememberMode)
             .SetValueFormat(OptionFormat.Seconds);
         CanRememberCrewPower = new BooleanOptionItem(Id + 11, "CanRememberCrewPower", false, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
         IncompatibleNeutralMode = new StringOptionItem(Id + 12, "IncompatibleNeutralMode", AmnesiacIncompatibleNeutralMode.Select(x => x.ToColoredString()).ToArray(), 0, TabGroup.NeutralRoles, noTranslation: true)
-            .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
-        CanVent = new BooleanOptionItem(Id + 13, "CanVent", false, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
         RoleBasis = new StringOptionItem(Id + 14, "AmnesiacRoleBasis", [CustomRoles.Engineer.ToColoredString(), CustomRoles.Crewmate.ToColoredString()], 1, TabGroup.NeutralRoles, noTranslation: true)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
@@ -69,7 +66,6 @@ public class Amnesiac : RoleBase
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = RememberCooldown.GetFloat();
     public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && RememberMode.GetValue() == 0;
-    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
     public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
 
     public static void OnAnyoneDeath(PlayerControl target)

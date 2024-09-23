@@ -87,11 +87,7 @@ public class Bandit : RoleBase
         for (int i = 0; i < AllSubRoles.Count; i++)
         {
             var role = AllSubRoles[i];
-            if (role == CustomRoles.Cleansed || // making Bandit unable to steal Cleansed for obvious reasons. Although it can still be cleansed by cleanser.
-                role == CustomRoles.LastImpostor ||
-                role == CustomRoles.Lovers || // Causes issues involving Lovers Suicide
-                (role.IsImpOnlyAddon() && !CanStealImpOnlyAddon.GetBool()) ||
-                (role.IsBetrayalAddon() && !CanStealBetrayalAddon.GetBool()))
+            if (IsBlacklistedAddon(role))
             {
                 Logger.Info($"Removed {role} from stealable addons", "Bandit");
                 AllSubRoles.Remove(role);
@@ -107,6 +103,17 @@ public class Bandit : RoleBase
         var addon = AllSubRoles.RandomElement();
         return addon;
     }
+
+    private static bool IsBlacklistedAddon(CustomRoles role) => (role.IsImpOnlyAddon() && !CanStealImpOnlyAddon.GetBool()) || (role.IsBetrayalAddon() && !CanStealBetrayalAddon.GetBool()) || StartGameHostPatch.BasisChangingAddons.ContainsKey(role) || role is
+        CustomRoles.Egoist or
+        CustomRoles.Workhorse or
+        CustomRoles.Cleansed or
+        CustomRoles.Busy or
+        CustomRoles.Lovers or
+        CustomRoles.Stressed or
+        CustomRoles.Lazy or
+        CustomRoles.Rascal or
+        CustomRoles.LastImpostor;
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {

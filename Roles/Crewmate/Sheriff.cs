@@ -7,29 +7,28 @@ namespace EHR.Crewmate;
 public class Sheriff : RoleBase
 {
     private const int Id = 8800;
-    public static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
-    public static OptionItem KillCooldown;
+    private static OptionItem KillCooldown;
     private static OptionItem MisfireKillsTarget;
-    public static OptionItem ShotLimitOpt;
-    public static OptionItem ShowShotLimit;
+    private static OptionItem ShotLimitOpt;
+    private static OptionItem ShowShotLimit;
     private static OptionItem CanKillAllAlive;
-    public static OptionItem CanKillNeutrals;
-    public static OptionItem CanKillNeutralsMode;
-    public static OptionItem CanKillMadmate;
-    public static OptionItem CanKillCharmed;
-    public static OptionItem CanKillLovers;
-    public static OptionItem CanKillSidekicks;
-    public static OptionItem CanKillEgoists;
-    public static OptionItem CanKillContagious;
-    public static OptionItem SidekickSheriffCanGoBerserk;
-    public static OptionItem SetNonCrewCanKill;
-    public static OptionItem NonCrewCanKillCrew;
-    public static OptionItem NonCrewCanKillImp;
-    public static OptionItem NonCrewCanKillNeutral;
+    private static OptionItem CanKillNeutrals;
+    private static OptionItem CanKillNeutralsMode;
+    private static OptionItem CanKillMadmate;
+    private static OptionItem CanKillCharmed;
+    private static OptionItem CanKillLovers;
+    private static OptionItem CanKillSidekicks;
+    private static OptionItem CanKillContagious;
+    private static OptionItem SidekickSheriffCanGoBerserk;
+    private static OptionItem SetNonCrewCanKill;
+    private static OptionItem NonCrewCanKillCrew;
+    private static OptionItem NonCrewCanKillImp;
+    private static OptionItem NonCrewCanKillNeutral;
     public static OptionItem KeepsGameGoing;
     public static OptionItem UsePet;
-    public static Dictionary<CustomRoles, OptionItem> KillTargetOptions = [];
+    private static readonly Dictionary<CustomRoles, OptionItem> KillTargetOptions = [];
 
     public static readonly string[] KillOption =
     [
@@ -37,7 +36,7 @@ public class Sheriff : RoleBase
         "SheriffCanKillSeparately"
     ];
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -53,7 +52,6 @@ public class Sheriff : RoleBase
         CanKillCharmed = new BooleanOptionItem(Id + 22, "SheriffCanKillCharmed", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillLovers = new BooleanOptionItem(Id + 24, "SheriffCanKillLovers", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillSidekicks = new BooleanOptionItem(Id + 23, "SheriffCanKillSidekick", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
-        CanKillEgoists = new BooleanOptionItem(Id + 25, "SheriffCanKillEgoist", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillContagious = new BooleanOptionItem(Id + 27, "SheriffCanKillContagious", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillNeutrals = new BooleanOptionItem(Id + 16, "SheriffCanKillNeutrals", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillNeutralsMode = new StringOptionItem(Id + 14, "SheriffCanKillNeutralsMode", KillOption, 0, TabGroup.CrewmateRoles).SetParent(CanKillNeutrals);
@@ -90,12 +88,12 @@ public class Sheriff : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(ShotLimitOpt.GetInt());
 
         Logger.Info($"{Utils.GetPlayerById(playerId)?.GetNameWithRole().RemoveHtmlTags()} : Shot Limit - {playerId.GetAbilityUseLimit()}", "Sheriff");
@@ -153,7 +151,6 @@ public class Sheriff : RoleBase
                 CustomRoles.Charmed => CanKillCharmed.GetBool(),
                 CustomRoles.Lovers => CanKillLovers.GetBool(),
                 CustomRoles.Recruit => CanKillSidekicks.GetBool(),
-                CustomRoles.Egoist => CanKillEgoists.GetBool(),
                 CustomRoles.Contagious => CanKillContagious.GetBool(),
                 CustomRoles.Rascal => true,
                 _ => false
@@ -171,5 +168,10 @@ public class Sheriff : RoleBase
                 _ => CanKill
             }
         };
+    }
+
+    public override string GetProgressText(byte playerId, bool comms)
+    {
+        return ShowShotLimit.GetBool() ? base.GetProgressText(playerId, comms) : Utils.GetTaskCount(playerId, comms);
     }
 }
