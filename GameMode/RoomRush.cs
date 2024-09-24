@@ -24,8 +24,56 @@ namespace EHR
         private static HashSet<byte> DonePlayers = [];
 
         private static bool GameGoing;
+        private static DateTime GameStartDateTime;
 
         private static RandomSpawn.SpawnMap Map;
+
+        private static readonly Dictionary<MapNames, Dictionary<(SystemTypes, SystemTypes), int>> Multipliers = new()
+        {
+            [MapNames.Skeld] = new()
+            {
+                [(SystemTypes.Admin, SystemTypes.LifeSupp)] = 4,
+                [(SystemTypes.Electrical, SystemTypes.MedBay)] = 3,
+                [(SystemTypes.Electrical, SystemTypes.Security)] = 3
+            },
+            [MapNames.Mira] = new()
+            {
+                [(SystemTypes.Launchpad, SystemTypes.Reactor)] = 2,
+                [(SystemTypes.Launchpad, SystemTypes.LockerRoom)] = 2,
+                [(SystemTypes.Greenhouse, SystemTypes.Laboratory)] = 2,
+                [(SystemTypes.Office, SystemTypes.Laboratory)] = 2,
+                [(SystemTypes.Storage, SystemTypes.Comms)] = 5,
+                [(SystemTypes.Cafeteria, SystemTypes.Comms)] = 3,
+                [(SystemTypes.Balcony, SystemTypes.Comms)] = 3,
+                [(SystemTypes.Storage, SystemTypes.MedBay)] = 4,
+                [(SystemTypes.Cafeteria, SystemTypes.MedBay)] = 3,
+                [(SystemTypes.Balcony, SystemTypes.MedBay)] = 5,
+                [(SystemTypes.Storage, SystemTypes.LockerRoom)] = 2,
+                [(SystemTypes.Balcony, SystemTypes.LockerRoom)] = 2
+            },
+            [MapNames.Polus] = new()
+            {
+                [(SystemTypes.Laboratory, SystemTypes.Office)] = 2,
+                [(SystemTypes.Laboratory, SystemTypes.Admin)] = 2,
+                [(SystemTypes.Storage, SystemTypes.Comms)] = 2,
+                [(SystemTypes.Storage, SystemTypes.Office)] = 2,
+                [(SystemTypes.Security, SystemTypes.LifeSupp)] = 2
+            },
+            [MapNames.Airship] = new()
+            {
+                [(SystemTypes.MainHall, SystemTypes.GapRoom)] = 2,
+                [(SystemTypes.MainHall, SystemTypes.Kitchen)] = 2,
+                [(SystemTypes.Showers, SystemTypes.CargoBay)] = 2,
+                [(SystemTypes.Showers, SystemTypes.Lounge)] = 2,
+                [(SystemTypes.Showers, SystemTypes.Electrical)] = 2,
+                [(SystemTypes.Showers, SystemTypes.Medical)] = 2,
+                [(SystemTypes.Comms, SystemTypes.VaultRoom)] = 2,
+                [(SystemTypes.Cockpit, SystemTypes.VaultRoom)] = 2,
+            },
+            [MapNames.Fungle] = new()
+        };
+        
+        // TODO: Fix vent button not active for host
 
         public static void SetupCustomOption()
         {
@@ -48,9 +96,8 @@ namespace EHR
         public static int GetSurvivalTime(byte id)
         {
             if (!Main.PlayerStates.TryGetValue(id, out var state)) return 0;
-            DateTime start = DateTime.UtcNow;
             DateTime died = state.RealKiller.TimeStamp;
-            TimeSpan time = start - died;
+            TimeSpan time = died - GameStartDateTime;
             return (int)time.TotalSeconds;
         }
 
@@ -63,6 +110,7 @@ namespace EHR
         private static System.Collections.IEnumerator GameStartTasks()
         {
             GameGoing = false;
+            GameStartDateTime = DateTime.Now;
             
             VentLimit = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => VentTimes.GetInt());
 
@@ -83,7 +131,7 @@ namespace EHR
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-            yield return new WaitForSeconds(8f);
+            yield return new WaitForSeconds(Main.CurrentMap == MapNames.Airship ? 20f : 12f);
             
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
@@ -93,7 +141,7 @@ namespace EHR
                 string[] notifies = [Translator.GetString("RR_Tutorial_1"), Translator.GetString("RR_Tutorial_2"), Translator.GetString("RR_Tutorial_3"), Translator.GetString("RR_Tutorial_4")];
                 foreach (string notify in notifies)
                 {
-                    aapc.Do(x => x.Notify(notify, 6f));
+                    aapc.Do(x => x.Notify(notify));
                     yield return new WaitForSeconds(3f);
                 }
 
@@ -107,29 +155,56 @@ namespace EHR
             for (int i = 3; i > 0; i--)
             {
                 int time = i;
+                NameNotifyManager.Reset();
                 aapc.Do(x => x.Notify(time.ToString()));
                 yield return new WaitForSeconds(1f);
             }
             
-            StartNewRound();
-
+            NameNotifyManager.Reset();
+            StartNewRound(true);
             GameGoing = true;
         }
 
-        private static void StartNewRound()
+        private static void StartNewRound(bool initial = false)
         {
-            PlayerControl[] aapc = Main.AllAlivePlayerControls;
+            if (!initial) KillPlayersOutsideRoom();
+            DonePlayers.Clear();
+            SystemTypes previous = RoomGoal;
             RoomGoal = AllRooms.RandomElement();
-            float distance = Vector2.Distance(Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position), aapc.RandomElement().transform.position);
+            Vector2 goalPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
+            Vector2 previousPos = Map.Positions.GetValueOrDefault(previous, initial ? Main.AllAlivePlayerControls.RandomElement().Pos() : previous.GetRoomClass().transform.position);
+            float distance = Vector2.Distance(goalPos, previousPos);
             float speed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-            TimeLeft = (int)Math.Ceiling(distance * 3f / speed);
+            int time = (int)Math.Ceiling(distance / speed);
+            MapNames map = Main.CurrentMap;
+            Dictionary<(SystemTypes, SystemTypes), int> multipliers = Multipliers[map == MapNames.Dleks ? MapNames.Skeld : map];
+            time *= multipliers.GetValueOrDefault((previous, RoomGoal), multipliers.GetValueOrDefault((RoomGoal, previous), 1));
+            bool involvesDecontamination = Main.CurrentMap switch
+            {
+                MapNames.Mira => previous is SystemTypes.Laboratory or SystemTypes.Reactor || RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor,
+                MapNames.Polus => previous == SystemTypes.Specimens || RoomGoal == SystemTypes.Specimens,
+                _ => false
+            };
+            if (involvesDecontamination) time += 18;
+            if (initial && Main.CurrentMap == MapNames.Airship) time = (int)Math.Ceiling(60 / speed);
+            TimeLeft = time;
+        }
+
+        private static void KillPlayersOutsideRoom()
+        {
+            foreach (var pc in Main.AllAlivePlayerControls)
+            {
+                var room = pc.GetPlainShipRoom();
+                if (room != null && room.RoomId != RoomGoal)
+                    pc.Suicide();
+            }
         }
 
         private static PlainShipRoom GetRoomClass(this SystemTypes systemTypes) => ShipStatus.Instance.AllRooms.First(x => x.RoomId == systemTypes);
 
         public static string GetSuffix(PlayerControl seer)
         {
-            if (!GameGoing || Main.HasJustStarted) return string.Empty;
+            if (!GameGoing || Main.HasJustStarted || seer == null || !seer.IsAlive()) return string.Empty;
 
             var sb = new StringBuilder();
             sb.AppendLine(Translator.GetString(RoomGoal.ToString()));
@@ -154,22 +229,26 @@ namespace EHR
                 if (!GameGoing || Main.HasJustStarted || Options.CurrentGameMode != CustomGameMode.RoomRush || !AmongUsClient.Instance.AmHost) return;
 
                 long now = Utils.TimeStamp;
-                
-                if (__instance.IsAlive() && __instance.GetPlainShipRoom().RoomId == RoomGoal && DonePlayers.Add(__instance.PlayerId))
+                var aapc = Main.AllAlivePlayerControls;
+
+                var room = __instance.GetPlainShipRoom();
+                if (__instance.IsAlive() && room != null && room.RoomId == RoomGoal && DonePlayers.Add(__instance.PlayerId))
                 {
-                    if (DonePlayers.Count == Main.AllAlivePlayerControls.Length)
+                    __instance.Notify(Translator.GetString("RR_GoalReached"));
+                    
+                    if (DonePlayers.Count == 2)
                     {
-                        __instance.Suicide();
-                        __instance.Notify(Translator.GetString("RR_YouWereLast"));
+                        TimeLeft = TimeWhenFirstPlayerEntersRoom.GetInt();
+                        LastUpdate = now;
                     }
-                    else
+
+                    if (DonePlayers.Count == aapc.Length - 1)
                     {
-                        __instance.Notify(Translator.GetString("RR_GoalReached"));
-                        if (DonePlayers.Count == 2)
-                        {
-                            TimeLeft = TimeWhenFirstPlayerEntersRoom.GetInt();
-                            LastUpdate = now;
-                        }
+                        var last = aapc.First(x => !DonePlayers.Contains(x.PlayerId));
+                        last.Suicide();
+                        last.Notify(Translator.GetString("RR_YouWereLast"));
+                        StartNewRound();
+                        return;
                     }
                 }
                 
@@ -210,5 +289,11 @@ namespace EHR
         }
 
         public override bool CanUseVent(PlayerControl pc, int ventId) => pc.inVent || RoomRush.VentLimit[pc.PlayerId] > 0;
+
+        public override void SetButtonTexts(HudManager hud, byte id)
+        {
+            hud.AbilityButton.SetEnabled();
+            hud.AbilityButton.SetUsesRemaining(RoomRush.VentLimit[id]);
+        }
     }
 }

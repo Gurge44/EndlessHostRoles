@@ -11,7 +11,7 @@ public static class NameNotifyManager
     public static Dictionary<byte, Dictionary<string, long>> Notifies = [];
     public static void Reset() => Notifies = [];
 
-    public static void Notify(this PlayerControl pc, string text, float time = 5f, bool log = true)
+    public static void Notify(this PlayerControl pc, string text, float time = 6f, bool log = true)
     {
         if (!AmongUsClient.Instance.AmHost || pc == null) return;
         if (!GameStates.IsInTask) return;
@@ -39,7 +39,7 @@ public static class NameNotifyManager
         {
             foreach (var notify in notifies.ToArray())
             {
-                if (notify.Value < Utils.TimeStamp)
+                if (notify.Value <= Utils.TimeStamp)
                 {
                     notifies.Remove(notify.Key);
                     removed = true;
@@ -54,7 +54,7 @@ public static class NameNotifyManager
     {
         name = string.Empty;
         if (!Notifies.TryGetValue(player.PlayerId, out var notifies)) return false;
-        name = string.Join('\n', notifies.Keys);
+        name = string.Join('\n', notifies.OrderBy(x => x.Value).Select(x => x.Key));
         return true;
     }
 

@@ -776,6 +776,8 @@ static class ExtendedPlayerControl
 
     public static void Suicide(this PlayerControl pc, PlayerState.DeathReason deathReason = PlayerState.DeathReason.Suicide, PlayerControl realKiller = null)
     {
+        if (!pc.IsAlive()) return;
+        
         var state = Main.PlayerStates[pc.PlayerId];
         if (realKiller != null && state.Role is SchrodingersCat cat)
         {

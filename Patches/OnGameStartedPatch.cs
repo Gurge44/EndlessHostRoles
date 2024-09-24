@@ -772,7 +772,7 @@ internal static class StartGameHostPatch
                     NaturalDisasters.OnGameStart();
                     break;
                 case CustomGameMode.RoomRush:
-                    RoomRushManager.OnGameStart();
+                    RoomRush.OnGameStart();
                     break;
             }
 

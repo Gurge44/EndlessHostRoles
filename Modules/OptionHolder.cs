@@ -1287,6 +1287,8 @@ public static class Options
         CTFManager.SetupCustomOption();
         // Natural Disasters
         NaturalDisasters.SetupCustomOption();
+        // Room Rush
+        RoomRush.SetupCustomOption();
 
         yield return null;
 
