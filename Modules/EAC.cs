@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
+using UnityEngine;
 using static EHR.Translator;
 
 namespace EHR;
@@ -392,7 +395,7 @@ internal static class EAC
         bool HasVent(int ventId) => ShipStatus.Instance.AllVents.Any(v => v.Id == ventId);
     }
 
-    private static void Report(PlayerControl pc, string reason)
+    internal static void Report(PlayerControl pc, string reason)
     {
         string msg = $"{pc.GetClientId()}|{pc.FriendCode}|{pc.Data.PlayerName}|{pc.GetClient().GetHashedPuid()}|{reason}";
         //Cloud.SendData(msg);
@@ -691,5 +694,47 @@ internal static class StartGameHostPatchEAC
     {
         if (ShipStatus.Instance != null)
             IsStartingAsHost = false;
+    }
+}
+
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
+static class CheckInvalidMovementPatch
+{
+    private static readonly Dictionary<byte, long> LastCheck = [];
+    public static readonly Dictionary<byte, Vector2> LastPosition = [];
+    public static readonly HashSet<byte> ExemptedPlayers = [];
+
+    public static void Postfix(PlayerControl __instance)
+    {
+        if (!GameStates.IsInTask || !Options.EnableMovementChecking.GetBool() || Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) >= 1.9f || AmongUsClient.Instance.Ping >= 300 || Utils.GetRegionName() is not ("EU" or "NA" or "AS") || __instance == null || __instance.PlayerId == 255) return;
+
+        var pos = __instance.Pos();
+        var now = Utils.TimeStamp;
+
+        if (!LastPosition.TryGetValue(__instance.PlayerId, out var lastPosition))
+        {
+            SetCurrentData();
+            return;
+        }
+
+        if (LastCheck[__instance.PlayerId] == now) return;
+
+        SetCurrentData();
+
+        if (ExemptedPlayers.Remove(__instance.PlayerId)) return;
+
+        if (Vector2.Distance(lastPosition, pos) > 10f && PhysicsHelpers.AnythingBetween(__instance.Collider, lastPosition, pos, Constants.ShipOnlyMask, false))
+        {
+            EAC.WarnHost();
+            EAC.Report(__instance, "This player is moving too fast, possibly using a speed hack.");
+        }
+
+        return;
+
+        void SetCurrentData()
+        {
+            LastPosition[__instance.PlayerId] = pos;
+            LastCheck[__instance.PlayerId] = now;
+        }
     }
 }

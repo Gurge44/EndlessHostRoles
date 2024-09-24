@@ -309,7 +309,7 @@ internal static class ChatCommands
         Main.Instance.StartCoroutine(Countdown());
         return;
 
-        System.Collections.IEnumerator Countdown()
+        IEnumerator Countdown()
         {
             var timer = 30f;
             while (timer > 0f)
@@ -330,7 +330,7 @@ internal static class ChatCommands
     {
         ReadyPlayers.Add(player.PlayerId);
     }
-    
+
     private static void DraftStartCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         DraftResult = [];
@@ -344,7 +344,7 @@ internal static class ChatCommands
             return;
         }
 
-        DraftRoles = allRoles.Shuffle().Partition(allPlayerIds.Length).Zip(allPlayerIds).ToDictionary(x => x.Second, x => x.First.ToList());
+        DraftRoles = allRoles.Shuffle().Partition(allPlayerIds.Length).Zip(allPlayerIds).ToDictionary(x => x.Second, x => x.First.Take(5).ToList());
 
         foreach ((byte id, List<CustomRoles> roles) in DraftRoles)
         {

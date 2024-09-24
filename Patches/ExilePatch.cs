@@ -108,7 +108,7 @@ static class ExileControllerWrapUpPatch
             PetsPatch.RpcRemovePet(pc);
         }
 
-        if (Options.RandomSpawn.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard)
+        if (Options.RandomSpawn.GetBool())
         {
             RandomSpawn.SpawnMap map = Main.NormalOptions.MapId switch
             {
@@ -122,13 +122,8 @@ static class ExileControllerWrapUpPatch
             if (map != null) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
         }
 
-        Utils.CheckAndSpawnAdditionalRefugee(exiled);
-
         FallFromLadder.Reset();
         Utils.CountAlivePlayers(true);
-        Utils.AfterMeetingTasks();
-        Utils.SyncAllSettings();
-        Utils.NotifyRoles(ForceLoop: true);
     }
 
     static void WrapUpFinalizer()
@@ -140,7 +135,7 @@ static class ExileControllerWrapUpPatch
             {
                 AntiBlackout.SendGameData();
                 AntiBlackout.SetRealPlayerRoles();
-            }, 1.1f, "Restore IsDead Task");
+            }, 0.7f, "Restore IsDead Task");
             LateTask.New(() =>
             {
                 Main.AfterMeetingDeathPlayers.Do(x =>
@@ -157,6 +152,10 @@ static class ExileControllerWrapUpPatch
                 });
                 Main.AfterMeetingDeathPlayers.Clear();
                 AntiBlackout.ResetAfterMeeting();
+                Utils.AfterMeetingTasks();
+                Utils.SyncAllSettings();
+                Utils.NotifyRoles(NoCache: true);
+                Utils.CheckAndSetVentInteractions();
             }, 1.2f, "AfterMeetingDeathPlayers Task");
         }
 

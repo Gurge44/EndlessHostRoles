@@ -496,3 +496,17 @@ static class InnerNetClientFixedUpdatePatch
         AmongUsClient.Instance.KickNotJoinedPlayers();
     }
 }
+
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.SetColor))]
+static class RpcSetColorPatch
+{
+    public static void Postfix(PlayerControl __instance, byte bodyColor)
+    {
+        if (Main.IntroDestroyed || __instance == null) return;
+
+        Logger.Info($"{__instance.GetRealName()}'s color is {Palette.GetColorName(bodyColor)}", "RpcSetColor");
+        if (bodyColor == 255) return;
+
+        Main.PlayerColors[__instance.PlayerId] = Palette.PlayerColors[bodyColor];
+    }
+}

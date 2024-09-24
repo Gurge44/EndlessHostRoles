@@ -113,7 +113,7 @@ namespace EHR
         public static void AssignRoles()
         {
             Dictionary<PlayerControl, CustomRoles> result = [];
-            List<PlayerControl> allPlayers = [.. Main.AllAlivePlayerControls];
+            List<PlayerControl> allPlayers = [.. Main.AllPlayerControls];
 
             if (Main.GM.Value)
             {
@@ -270,7 +270,7 @@ namespace EHR
 
         public static bool HasTasks(NetworkedPlayerInfo playerInfo)
         {
-            var role = PlayerRoles[playerInfo.PlayerId];
+            if (!PlayerRoles.TryGetValue(playerInfo.PlayerId, out var role)) return false;
             return role.Interface.Team == Team.Crewmate || role.Role == CustomRoles.Taskinator;
         }
 
@@ -448,11 +448,17 @@ namespace EHR
 
                 PlayerRoles = PlayerRoles.IntersectBy(Main.AllPlayerControls.Select(x => x.PlayerId), x => x.Key).ToDictionary(x => x.Key, x => x.Value);
 
-                var idPosPairs = PlayerRoles.Join(Main.AllPlayerControls, x => x.Key, x => x.PlayerId, (role, pc) => (role.Key, pc)).ToDictionary(x => x.Key, x => x.pc.Pos());
-                var imps = PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).ToDictionary(x => x.Key, x => idPosPairs[x.Key]);
-                var nonImps = PlayerRoles.Where(x => x.Value.Interface.Team is Team.Crewmate or Team.Neutral).ToArray();
-                ClosestImpostor = nonImps.ToDictionary(x => x.Key, x => imps.MinBy(y => Vector2.Distance(y.Value, idPosPairs[x.Key])).Key);
-                Danger = nonImps.ToDictionary(x => x.Key, x => Math.Clamp(((1 + (int)Math.Ceiling(Vector2.Distance(idPosPairs[x.Key], idPosPairs[ClosestImpostor[x.Key]]))) / 3) - 1, 0, 5));
+                try
+                {
+                    var idPosPairs = PlayerRoles.Join(Main.AllPlayerControls, x => x.Key, x => x.PlayerId, (role, pc) => (role.Key, pc)).ToDictionary(x => x.Key, x => x.pc.Pos());
+                    var imps = PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).ToDictionary(x => x.Key, x => idPosPairs[x.Key]);
+                    var nonImps = PlayerRoles.Where(x => x.Value.Interface.Team is Team.Crewmate or Team.Neutral).ToArray();
+                    ClosestImpostor = nonImps.ToDictionary(x => x.Key, x => imps.MinBy(y => Vector2.Distance(y.Value, idPosPairs[x.Key])).Key);
+                    Danger = nonImps.ToDictionary(x => x.Key, x => Math.Clamp(((1 + (int)Math.Ceiling(Vector2.Distance(idPosPairs[x.Key], idPosPairs[ClosestImpostor[x.Key]]))) / 3) - 1, 0, 5));
+                }
+                catch
+                {
+                }
 
                 if (DangerMeter.GetBool() || (TimeLeft + 1) % 60 == 0 || TimeLeft <= 60) Utils.NotifyRoles();
             }

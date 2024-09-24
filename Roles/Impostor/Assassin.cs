@@ -139,6 +139,13 @@ internal class Assassin : RoleBase
     public override bool OnVanish(PlayerControl pc)
     {
         if (pc == null || !pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
+
+        if (!IsUndertaker)
+        {
+            LateTask.New(() => Take(pc), 1.5f, "Ninja Vanish");
+            return true;
+        }
+
         Take(pc);
         return false;
     }
@@ -148,10 +155,9 @@ internal class Assassin : RoleBase
         if (MarkedPlayer != byte.MaxValue)
         {
             var target = Utils.GetPlayerById(MarkedPlayer);
-            if (IsUndertaker) target.TP(pc);
-            else pc.TP(target);
+            var tpSuccess = IsUndertaker ? target.TP(pc) : pc.TP(target);
 
-            if (!(target == null || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask) && pc.RpcCheckAndMurder(target))
+            if (!(target == null || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask) && tpSuccess && pc.RpcCheckAndMurder(target))
             {
                 MarkedPlayer = byte.MaxValue;
                 SendRPC(pc.PlayerId);
@@ -159,6 +165,7 @@ internal class Assassin : RoleBase
                 pc.SyncSettings();
                 pc.SetKillCooldown(DefaultKillCooldown);
             }
+            else if (!tpSuccess) pc.Notify(GetString("TargetCannotBeTeleported"));
         }
     }
 

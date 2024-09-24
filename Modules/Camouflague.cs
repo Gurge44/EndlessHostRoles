@@ -56,10 +56,6 @@ public static class Camouflage
             0 => new NetworkedPlayerInfo.PlayerOutfit().Set("", 15, "", "", "", "", ""), // Default
             1 => new NetworkedPlayerInfo.PlayerOutfit().Set("", DataManager.Player.Customization.Color, DataManager.Player.Customization.Hat, DataManager.Player.Customization.Skin, DataManager.Player.Customization.Visor, DataManager.Player.Customization.Pet, ""), // Host
             2 => new NetworkedPlayerInfo.PlayerOutfit().Set("", 13, "hat_pk05_Plant", "", "visor_BubbleBumVisor", "", ""), // Karpe
-            3 => new NetworkedPlayerInfo.PlayerOutfit().Set("", 13, "hat_rabbitEars", "skin_Bananaskin", "visor_BubbleBumVisor", "pet_Pusheen", ""), // Lauryn
-            4 => new NetworkedPlayerInfo.PlayerOutfit().Set("", 0, "hat_mira_headset_yellow", "skin_SuitB", "visor_lollipopCrew", "pet_EmptyPet", ""), // Moe
-            5 => new NetworkedPlayerInfo.PlayerOutfit().Set("", 17, "hat_pkHW01_Witch", "skin_greedygrampaskin", "visor_Plsno", "pet_Pusheen", ""), // Pyro
-            6 => new NetworkedPlayerInfo.PlayerOutfit().Set("", 7, "hat_crownDouble", "skin_D2Saint14", "visor_anime", "pet_Bush", ""), // ryuk
             7 => new NetworkedPlayerInfo.PlayerOutfit().Set("", 7, "hat_pk04_Snowman", "", "", "", ""), // Gurge44
             8 => new NetworkedPlayerInfo.PlayerOutfit().Set("", 17, "hat_baseball_Black", "skin_Scientist-Darkskin", "visor_pusheenSmileVisor", "pet_Pip", ""), // TommyXL
             _ => CamouflageOutfit
@@ -89,6 +85,8 @@ public static class Camouflage
 
         if (oldIsCamouflage != IsCamouflage)
         {
+            Logger.Info($"IsCamouflage: {IsCamouflage}", "CheckCamouflage");
+
             WaitingForSkinChange = [];
 
             foreach (var pc in Main.AllPlayerControls)
@@ -115,6 +113,8 @@ public static class Camouflage
     {
         if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On) || target == null || (BlockCamouflage && !ForceRevert && !RevertToDefault && !GameEnd)) return;
 
+        Logger.Info($"New outfit for {target.GetNameWithRole()}", "Camouflage.RpcSetSkin");
+
         var id = target.PlayerId;
 
         if (IsCamouflage && Main.PlayerStates[id].IsDead) return;
@@ -140,13 +140,17 @@ public static class Camouflage
                 newOutfit = PlayerSkins[id];
             }
         }
-        
+
         SetPetForOutfitIfNecessary(newOutfit);
 
-        // if the current Outfit is the same, return it
-        if (newOutfit.Compare(target.Data.DefaultOutfit)) return;
+        // if the current Outfit is the same, return
+        if (newOutfit.Compare(target.Data.DefaultOutfit))
+        {
+            Logger.Info("Outfit is the same, returning", "Camouflage.RpcSetSkin");
+            return;
+        }
 
-        Logger.Info($"newOutfit={newOutfit.GetString()}", "RpcSetSkin");
+        Logger.Info($"Setting new outfit: {newOutfit.GetString()}", "Camouflage.RpcSetSkin");
 
         var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.PlayerName})");
 

@@ -1390,7 +1390,6 @@ internal static class PlayerPhysicsRPCHandlerPatch
             return false;
         }
 
-        Logger.Info($"{player.PlayerId}({(host ? "Host" : player.Data.PlayerName)}):{callId}({RPC.GetRpcName(callId)})", "PlayerPhysics_ReceiveRPC");
         return true;
     }
 }

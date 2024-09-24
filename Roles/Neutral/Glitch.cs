@@ -288,11 +288,8 @@ public class Glitch : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        Logger.Test("pos0");
         if (!hud || seer == null || !seer.IsAlive() || meeting) return string.Empty;
-        Logger.Test("pos1");
         if (Main.PlayerStates[seer.PlayerId].Role is not Glitch gc) return string.Empty;
-        Logger.Test("pos2");
 
         var sb = new StringBuilder();
 
