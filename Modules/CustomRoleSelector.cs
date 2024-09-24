@@ -65,6 +65,9 @@ internal static class CustomRoleSelector
             case CustomGameMode.NaturalDisasters:
                 AssignRoleToEveryone(CustomRoles.NDPlayer);
                 return;
+            case CustomGameMode.RoomRush:
+                AssignRoleToEveryone(CustomRoles.RRPlayer);
+                return;
             case CustomGameMode.HideAndSeek:
                 HnSManager.AssignRoles();
                 RoleResult = HnSManager.PlayerRoles.ToDictionary(x => x.Key, x => x.Value.Role);

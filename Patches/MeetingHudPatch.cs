@@ -9,6 +9,7 @@ using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
+using TMPro;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -820,6 +821,21 @@ static class MeetingHudStartPatch
 
             var suffix = Main.PlayerStates[seer.PlayerId].Role.GetSuffix(seer, target, meeting: true);
             if (roleTextMeeting.text.Length > 0 && suffix.Length > 0) roleTextMeeting.text += "\n" + suffix;
+            
+            // Thanks BAU (By D1GQ) - are you happy now?
+            var playerLevel = pva.transform.Find("PlayerLevel");
+            var levelDisplay = Object.Instantiate(playerLevel, pva.transform);
+            levelDisplay.localPosition = new(-1.21f, -0.15f, playerLevel.transform.localPosition.z);
+            levelDisplay.transform.SetSiblingIndex(pva.transform.Find("PlayerLevel").GetSiblingIndex() + 1);
+            levelDisplay.gameObject.name = "PlayerId";
+            levelDisplay.GetComponent<SpriteRenderer>().color = Palette.Purple;
+            var idLabel = levelDisplay.transform.Find("LevelLabel");
+            var idNumber = levelDisplay.transform.Find("LevelNumber");
+            Object.Destroy(idLabel.GetComponent<TextTranslatorTMP>());
+            idLabel.GetComponent<TextMeshPro>().text = "ID";
+            idNumber.GetComponent<TextMeshPro>().text = pva.TargetPlayerId.ToString();
+            idLabel.name = "IdLabel";
+            idNumber.name = "IdNumber";
         }
 
         if (Options.SyncButtonMode.GetBool())
@@ -998,7 +1014,6 @@ static class MeetingHudUpdatePatch
 
             if (DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening)
             {
-                GuessManager.DestroyIDLabels();
             }
 
             if (!GameStates.IsVoting && __instance.lastSecond < 1)

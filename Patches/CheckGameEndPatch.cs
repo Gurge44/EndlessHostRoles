@@ -390,6 +390,7 @@ static class GameEndChecker
     public static void SetPredicateToHideAndSeek() => Predicate = new HideAndSeekGameEndPredicate();
     public static void SetPredicateToCaptureTheFlag() => Predicate = new CaptureTheFlagGameEndPredicate();
     public static void SetPredicateToNaturalDisasters() => Predicate = new NaturalDisastersGameEndPredicate();
+    public static void SetPredicateToRoomRush() => Predicate = new RoomRushGameEndPredicate();
 
     class NormalGameEndPredicate : GameEndPredicate
     {
@@ -773,6 +774,37 @@ static class GameEndChecker
                 case 0:
                     ResetAndSetWinner(CustomWinner.Error);
                     Logger.Warn("No players alive. Force ending the game", "NaturalDisasters");
+                    return true;
+                default:
+                    return false;
+            }
+        }
+    }
+    
+    class RoomRushGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForEndGame(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorByKill;
+
+            var appc = Main.AllAlivePlayerControls;
+            switch (appc.Length)
+            {
+                case 1:
+                    var winner = appc[0];
+                    Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "RoomRush");
+                    WinnerIds = [winner.PlayerId];
+                    Main.DoBlockNameChange = true;
+                    return true;
+                case 0:
+                    ResetAndSetWinner(CustomWinner.None);
+                    Logger.Warn("No players alive. Force ending the game", "RoomRush");
                     return true;
                 default:
                     return false;

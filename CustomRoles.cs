@@ -381,6 +381,9 @@ public enum CustomRoles
 
     // Natural Disasters
     NDPlayer,
+    
+    // Room Rush
+    RRPlayer,
 
     // GM
     GM,

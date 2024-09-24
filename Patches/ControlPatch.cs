@@ -416,7 +416,9 @@ public static class InGameRoleInfoMenu
             Fill?.SetActive(true);
             Menu?.SetActive(true);
 
-            if (GameStates.IsMeeting) GuessManager.DestroyIDLabels();
+            if (GameStates.IsMeeting)
+            {
+            }
         }
     }
 
@@ -427,7 +429,9 @@ public static class InGameRoleInfoMenu
             Fill?.SetActive(false);
             Menu?.SetActive(false);
 
-            if (GameStates.IsVoting) GuessManager.CreateIDLabels(MeetingHud.Instance);
+            if (GameStates.IsVoting)
+            {
+            }
         }
     }
 }

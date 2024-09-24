@@ -174,6 +174,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     SetMaxVision();
                     NaturalDisasters.ApplyGameOptions(opt, player.PlayerId);
                     break;
+                case CustomGameMode.RoomRush:
                 case CustomGameMode.Speedrun:
                 case CustomGameMode.HotPotato:
                 case CustomGameMode.MoveAndStop:

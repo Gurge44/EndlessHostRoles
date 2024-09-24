@@ -214,6 +214,7 @@ static class CheckMurderPatch
                 return false;
             case CustomGameMode.MoveAndStop:
             case CustomGameMode.HotPotato:
+            case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
                 return false;
             case CustomGameMode.Speedrun when !SpeedrunManager.CanKill.Contains(killer.PlayerId):
@@ -1221,7 +1222,9 @@ static class FixedUpdatePatch
                 case true when DestroyableSingleton<HudManager>.Instance.Chat.IsClosedOrClosing:
                     ChatOpen = false;
                     if (GameStates.IsVoting)
-                        GuessManager.CreateIDLabels(MeetingHud.Instance);
+                    {
+                    }
+
                     break;
             }
         }
@@ -1719,6 +1722,9 @@ static class FixedUpdatePatch
                         break;
                     case CustomGameMode.CaptureTheFlag:
                         Suffix.Append(CTFManager.GetSuffixText(seer, target));
+                        break;
+                    case CustomGameMode.RoomRush when self:
+                        Suffix.Append(RoomRush.GetSuffix(seer));
                         break;
                 }
 

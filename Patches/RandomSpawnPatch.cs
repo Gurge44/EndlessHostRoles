@@ -53,6 +53,8 @@ class RandomSpawn
 
     public abstract class SpawnMap
     {
+        public abstract Dictionary<SystemTypes, Vector2> Positions { get; }
+        
         public virtual void RandomTeleport(PlayerControl player)
         {
             var spawn = GetLocation();
@@ -83,6 +85,8 @@ class RandomSpawn
             [SystemTypes.MedBay] = new(-9.0f, -4.0f)
         };
 
+        public override Dictionary<SystemTypes, Vector2> Positions => positions;
+
         protected override KeyValuePair<SystemTypes, Vector2> GetLocation()
         {
             return positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();
@@ -108,6 +112,8 @@ class RandomSpawn
             [SystemTypes.Office] = new(15.0f, 19.0f),
             [SystemTypes.Greenhouse] = new(17.8f, 23.0f)
         };
+
+        public override Dictionary<SystemTypes, Vector2> Positions => positions;
 
         protected override KeyValuePair<SystemTypes, Vector2> GetLocation()
         {
@@ -136,6 +142,8 @@ class RandomSpawn
             [SystemTypes.Specimens] = new(36.5f, -22.0f)
         };
 
+        public override Dictionary<SystemTypes, Vector2> Positions => positions;
+
         protected override KeyValuePair<SystemTypes, Vector2> GetLocation()
         {
             return positions.ToArray().OrderBy(_ => Guid.NewGuid()).Take(1).FirstOrDefault();
@@ -145,6 +153,8 @@ class RandomSpawn
     public class DleksSpawnMap : SpawnMap
     {
         public readonly Dictionary<SystemTypes, Vector2> positions = new SkeldSpawnMap().positions.ToDictionary(e => e.Key, e => new Vector2(-e.Value.x, e.Value.y));
+
+        public override Dictionary<SystemTypes, Vector2> Positions => positions;
 
         protected override KeyValuePair<SystemTypes, Vector2> GetLocation()
         {
@@ -177,6 +187,8 @@ class RandomSpawn
             [SystemTypes.Showers] = new(21.2f, -0.8f)
         };
 
+        public override Dictionary<SystemTypes, Vector2> Positions => positions;
+
         protected override KeyValuePair<SystemTypes, Vector2> GetLocation()
         {
             return Options.AirshipAdditionalSpawn.GetBool()
@@ -208,6 +220,8 @@ class RandomSpawn
             [SystemTypes.UpperEngine] = new(22.4f, 3.4f),
             [SystemTypes.Comms] = new(22.2f, 13.7f)
         };
+
+        public override Dictionary<SystemTypes, Vector2> Positions => positions;
 
         protected override KeyValuePair<SystemTypes, Vector2> GetLocation()
         {

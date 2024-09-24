@@ -639,6 +639,8 @@ public class Main : BasePlugin
                 { CustomRoles.CTFPlayer, "#1313c2" },
                 // Natural Disaster
                 { CustomRoles.NDPlayer, "#03fc4a" },
+                // Room Rush
+                { CustomRoles.RRPlayer, "#ffab1b" },
                 // Hide And Seek
                 { CustomRoles.Seeker, "#ff1919" },
                 { CustomRoles.Hider, "#345eeb" },
