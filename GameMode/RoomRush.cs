@@ -40,7 +40,6 @@ namespace EHR
             [MapNames.Mira] = new()
             {
                 [(SystemTypes.Launchpad, SystemTypes.Reactor)] = 2,
-                [(SystemTypes.Launchpad, SystemTypes.LockerRoom)] = 2,
                 [(SystemTypes.Greenhouse, SystemTypes.Laboratory)] = 2,
                 [(SystemTypes.Office, SystemTypes.Laboratory)] = 2,
                 [(SystemTypes.Storage, SystemTypes.Comms)] = 5,
@@ -54,7 +53,6 @@ namespace EHR
             },
             [MapNames.Polus] = new()
             {
-                [(SystemTypes.Laboratory, SystemTypes.Office)] = 2,
                 [(SystemTypes.Laboratory, SystemTypes.Admin)] = 2,
                 [(SystemTypes.Storage, SystemTypes.Comms)] = 2,
                 [(SystemTypes.Storage, SystemTypes.Office)] = 2,
@@ -78,6 +76,24 @@ namespace EHR
                 [(SystemTypes.MeetingRoom, SystemTypes.MainHall)] = 2,
             },
             [MapNames.Fungle] = new()
+            {
+                [(SystemTypes.Lookout, SystemTypes.SleepingQuarters)] = 3,
+                [(SystemTypes.Lookout, SystemTypes.MeetingRoom)] = 2,
+                [(SystemTypes.Lookout, SystemTypes.Storage)] = 2,
+                [(SystemTypes.Lookout, SystemTypes.Dropship)] = 2,
+                [(SystemTypes.Lookout, SystemTypes.FishingDock)] = 2,
+                [(SystemTypes.Lookout, SystemTypes.RecRoom)] = 2,
+                [(SystemTypes.Lookout, SystemTypes.Kitchen)] = 2,
+                [(SystemTypes.Lookout, SystemTypes.Cafeteria)] = 2,
+                [(SystemTypes.MiningPit, SystemTypes.SleepingQuarters)] = 3,
+                [(SystemTypes.MiningPit, SystemTypes.MeetingRoom)] = 2,
+                [(SystemTypes.MiningPit, SystemTypes.Storage)] = 2,
+                [(SystemTypes.MiningPit, SystemTypes.Dropship)] = 2,
+                [(SystemTypes.MiningPit, SystemTypes.FishingDock)] = 2,
+                [(SystemTypes.MiningPit, SystemTypes.RecRoom)] = 2,
+                [(SystemTypes.MiningPit, SystemTypes.Kitchen)] = 2,
+                [(SystemTypes.MiningPit, SystemTypes.Cafeteria)] = 2
+            }
         };
         
         // TODO: Fix vent button not active for host
@@ -210,11 +226,6 @@ namespace EHR
                     break;
                 case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
                     time += (int)(8 / speed);
-                    break;
-                case MapNames.Fungle:
-                    if (RoomGoal is not (SystemTypes.Lookout or SystemTypes.MiningPit) && previous is not (SystemTypes.Lookout or SystemTypes.MiningPit)) break;
-                    if (previous is not (SystemTypes.SleepingQuarters or SystemTypes.Storage or SystemTypes.Dropship or SystemTypes.FishingDock or SystemTypes.RecRoom or SystemTypes.Kitchen or SystemTypes.Cafeteria) && RoomGoal is not (SystemTypes.SleepingQuarters or SystemTypes.Storage or SystemTypes.Dropship or SystemTypes.FishingDock or SystemTypes.RecRoom or SystemTypes.Kitchen or SystemTypes.Cafeteria)) break;
-                    time *= 2;
                     break;
             }
 
