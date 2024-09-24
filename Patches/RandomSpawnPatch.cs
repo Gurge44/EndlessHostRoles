@@ -204,7 +204,7 @@ class RandomSpawn
             [SystemTypes.Outside] = new(-9.8f, 3.4f), // First Spawn
             [SystemTypes.Dropship] = new(-7.8f, 10.6f),
             [SystemTypes.Cafeteria] = new(-16.4f, 7.3f),
-            [SystemTypes.Balcony] = new(-15.6f, -1.8f), // Splash Zone
+            [SystemTypes.RecRoom] = new(-15.6f, -1.8f), // Splash Zone
             [SystemTypes.Beach] = new(-22.8f, -0.6f),
             [SystemTypes.Kitchen] = new(-15.5f, -7.5f),
             [SystemTypes.FishingDock] = new(-23.1f, -7.0f),

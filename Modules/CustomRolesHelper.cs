@@ -330,6 +330,9 @@ internal static class CustomRolesHelper
             CustomRoles.Venter => CustomRoles.Impostor,
             CustomRoles.Agent => CustomRoles.Impostor,
             CustomRoles.Taskinator => CustomRoles.Crewmate,
+            
+            // Room Rush
+            CustomRoles.RRPlayer => CustomRoles.Engineer,
 
             _ => role.IsImpostor() ? CustomRoles.Impostor : CustomRoles.Crewmate
         };

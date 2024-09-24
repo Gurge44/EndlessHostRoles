@@ -11,6 +11,7 @@ namespace EHR
 {
     public static class RoomRush
     {
+        private static OptionItem GlobalTimeMultiplier;
         private static OptionItem TimeWhenFirstPlayerEntersRoom;
         private static OptionItem VentTimes;
 
@@ -67,8 +68,14 @@ namespace EHR
                 [(SystemTypes.Showers, SystemTypes.Lounge)] = 2,
                 [(SystemTypes.Showers, SystemTypes.Electrical)] = 2,
                 [(SystemTypes.Showers, SystemTypes.Medical)] = 2,
+                [(SystemTypes.Ventilation, SystemTypes.CargoBay)] = 2,
+                [(SystemTypes.Ventilation, SystemTypes.Lounge)] = 2,
+                [(SystemTypes.Ventilation, SystemTypes.Electrical)] = 2,
+                [(SystemTypes.Ventilation, SystemTypes.Medical)] = 2,
                 [(SystemTypes.Comms, SystemTypes.VaultRoom)] = 2,
-                [(SystemTypes.Cockpit, SystemTypes.VaultRoom)] = 2,
+                [(SystemTypes.MeetingRoom, SystemTypes.Records)] = 3,
+                [(SystemTypes.MeetingRoom, SystemTypes.Lounge)] = 3,
+                [(SystemTypes.MeetingRoom, SystemTypes.MainHall)] = 2,
             },
             [MapNames.Fungle] = new()
         };
@@ -80,9 +87,13 @@ namespace EHR
             int id = 69_217_001;
             Color color = Utils.GetRoleColor(CustomRoles.RRPlayer);
             const CustomGameMode gameMode = CustomGameMode.RoomRush;
+            
+            GlobalTimeMultiplier = new FloatOptionItem(id++, "RR_GlobalTimeMultiplier", new(0.05f, 2f, 0.05f), 1f, TabGroup.GameSettings)
+                .SetHeader(true)
+                .SetColor(color)
+                .SetGameMode(gameMode);
 
             TimeWhenFirstPlayerEntersRoom = new IntegerOptionItem(id++, "RR_TimeWhenTwoPlayersEntersRoom", new(1, 30, 1), 5, TabGroup.GameSettings)
-                .SetHeader(true)
                 .SetColor(color)
                 .SetGameMode(gameMode)
                 .SetValueFormat(OptionFormat.Seconds);
@@ -110,7 +121,6 @@ namespace EHR
         private static System.Collections.IEnumerator GameStartTasks()
         {
             GameGoing = false;
-            GameStartDateTime = DateTime.Now;
             
             VentLimit = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => VentTimes.GetInt());
 
@@ -141,14 +151,15 @@ namespace EHR
                 string[] notifies = [Translator.GetString("RR_Tutorial_1"), Translator.GetString("RR_Tutorial_2"), Translator.GetString("RR_Tutorial_3"), Translator.GetString("RR_Tutorial_4")];
                 foreach (string notify in notifies)
                 {
-                    aapc.Do(x => x.Notify(notify));
+                    aapc.Do(x => x.Notify(notify, 7f));
                     yield return new WaitForSeconds(3f);
                 }
 
                 yield return new WaitForSeconds(4f);
             }
             
-            aapc.Do(x => x.Notify(Translator.GetString("RR_ReadyQM"), 2f));
+            NameNotifyManager.Reset();
+            aapc.Do(x => x.Notify(Translator.GetString("RR_ReadyQM")));
 
             yield return new WaitForSeconds(2f);
 
@@ -163,6 +174,7 @@ namespace EHR
             NameNotifyManager.Reset();
             StartNewRound(true);
             GameGoing = true;
+            GameStartDateTime = DateTime.Now;
         }
 
         private static void StartNewRound(bool initial = false)
@@ -170,7 +182,7 @@ namespace EHR
             if (!initial) KillPlayersOutsideRoom();
             DonePlayers.Clear();
             SystemTypes previous = RoomGoal;
-            RoomGoal = AllRooms.RandomElement();
+            RoomGoal = AllRooms.Without(previous).RandomElement();
             Vector2 goalPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
             Vector2 previousPos = Map.Positions.GetValueOrDefault(previous, initial ? Main.AllAlivePlayerControls.RandomElement().Pos() : previous.GetRoomClass().transform.position);
             float distance = Vector2.Distance(goalPos, previousPos);
@@ -185,9 +197,28 @@ namespace EHR
                 MapNames.Polus => previous == SystemTypes.Specimens || RoomGoal == SystemTypes.Specimens,
                 _ => false
             };
-            if (involvesDecontamination) time += 18;
-            if (initial && Main.CurrentMap == MapNames.Airship) time = (int)Math.Ceiling(60 / speed);
-            TimeLeft = time;
+            if (involvesDecontamination) time += 15;
+            switch (Main.CurrentMap)
+            {
+                case MapNames.Airship when initial:
+                case MapNames.Fungle when initial && RoomGoal is SystemTypes.Lookout or SystemTypes.MiningPit or SystemTypes.UpperEngine:
+                    time = (int)Math.Ceiling(50 / speed);
+                    break;
+                case MapNames.Airship:
+                    if (RoomGoal == SystemTypes.Ventilation)
+                        time = (int)(time * 0.4f);
+                    break;
+                case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
+                    time += (int)(8 / speed);
+                    break;
+                case MapNames.Fungle:
+                    if (RoomGoal is not (SystemTypes.Lookout or SystemTypes.MiningPit) && previous is not (SystemTypes.Lookout or SystemTypes.MiningPit)) break;
+                    if (previous is not (SystemTypes.SleepingQuarters or SystemTypes.Storage or SystemTypes.Dropship or SystemTypes.FishingDock or SystemTypes.RecRoom or SystemTypes.Kitchen or SystemTypes.Cafeteria) && RoomGoal is not (SystemTypes.SleepingQuarters or SystemTypes.Storage or SystemTypes.Dropship or SystemTypes.FishingDock or SystemTypes.RecRoom or SystemTypes.Kitchen or SystemTypes.Cafeteria)) break;
+                    time *= 2;
+                    break;
+            }
+
+            TimeLeft = (int)Math.Round(time * GlobalTimeMultiplier.GetFloat());
         }
 
         private static void KillPlayersOutsideRoom()
@@ -207,8 +238,12 @@ namespace EHR
             if (!GameGoing || Main.HasJustStarted || seer == null || !seer.IsAlive()) return string.Empty;
 
             var sb = new StringBuilder();
-            sb.AppendLine(Translator.GetString(RoomGoal.ToString()));
-            sb.AppendLine(TimeLeft.ToString());
+            var room = seer.GetPlainShipRoom();
+            var done = room != null && room.RoomId == RoomGoal;
+            var color = done ? Color.green : Color.yellow;
+            sb.AppendLine(Utils.ColorString(color, Translator.GetString(RoomGoal.ToString())));
+            color = done ? Color.white : Color.yellow;
+            sb.AppendLine(Utils.ColorString(color, TimeLeft.ToString()));
             
             sb.AppendLine();
             
@@ -234,8 +269,6 @@ namespace EHR
                 var room = __instance.GetPlainShipRoom();
                 if (__instance.IsAlive() && room != null && room.RoomId == RoomGoal && DonePlayers.Add(__instance.PlayerId))
                 {
-                    __instance.Notify(Translator.GetString("RR_GoalReached"));
-                    
                     if (DonePlayers.Count == 2)
                     {
                         TimeLeft = TimeWhenFirstPlayerEntersRoom.GetInt();

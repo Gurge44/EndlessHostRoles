@@ -170,7 +170,7 @@ internal class ControllerManagerUpdatePatch
             Logger.SendInGame($"In-game output log：{Logger.IsAlsoInGame}");
         }
 
-        if (!DebugModeManager.IsDebugMode) return;
+        if (!DebugModeManager.AmDebugger && Options.NoGameEnd.GetBool()) return;
 
         if (KeysDown(KeyCode.Return, KeyCode.F, KeyCode.LeftShift))
         {
@@ -209,30 +209,25 @@ internal class ControllerManagerUpdatePatch
                 PlayerControl.LocalPlayer.RpcCompleteTask(task.Id);
         }
 
-        if (Input.GetKeyDown(KeyCode.Y))
+        if (Input.GetKeyDown(KeyCode.Y) && !GameStates.IsMeeting)
         {
             RPC.SyncCustomSettingsRPC();
             Logger.SendInGame(GetString("SyncCustomSettingsRPC"));
         }
 
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            HudManager.Instance.StartCoroutine(HudManager.Instance.CoFadeFullScreen(Color.clear, Color.black));
-            HudManager.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoShowIntro());
-        }
-
-        if (Input.GetKeyDown(KeyCode.Equals))
+        if (Input.GetKeyDown(KeyCode.Equals) && !GameStates.IsMeeting)
         {
             Main.VisibleTasksCount = !Main.VisibleTasksCount;
             DestroyableSingleton<HudManager>.Instance.Notifier.AddDisconnectMessage($"VisibleTaskCount changed to {Main.VisibleTasksCount}.");
         }
 
-        if (Input.GetKeyDown(KeyCode.I))
+        if (Input.GetKeyDown(KeyCode.I) && !GameStates.IsMeeting)
         {
             Logger.SendInGame(PlayerControl.LocalPlayer.Pos().ToString());
+            Logger.SendInGame(PlayerControl.LocalPlayer.GetPlainShipRoom()?.RoomId.ToString() ?? "null");
         }
 
-        if (Input.GetKeyDown(KeyCode.C))
+        if (Input.GetKeyDown(KeyCode.C) && !GameStates.IsMeeting)
         {
             foreach (var pc in PlayerControl.AllPlayerControls)
             {
@@ -240,7 +235,7 @@ internal class ControllerManagerUpdatePatch
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.V))
+        if (Input.GetKeyDown(KeyCode.V) && !GameStates.IsMeeting)
         {
             Vector2 pos = PlayerControl.LocalPlayer.NetTransform.transform.position;
             foreach (var pc in PlayerControl.AllPlayerControls)
@@ -253,7 +248,7 @@ internal class ControllerManagerUpdatePatch
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.B))
+        if (Input.GetKeyDown(KeyCode.B) && !GameStates.IsMeeting)
         {
             foreach (var pc in PlayerControl.AllPlayerControls)
             {
@@ -261,7 +256,7 @@ internal class ControllerManagerUpdatePatch
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.N))
+        if (Input.GetKeyDown(KeyCode.N) && !GameStates.IsMeeting)
         {
             VentilationSystem.Update(VentilationSystem.Operation.StartCleaning, 0);
         }
