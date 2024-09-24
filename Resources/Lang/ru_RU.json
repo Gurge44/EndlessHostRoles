@@ -4055,7 +4055,7 @@
   "Speedrun_CanKillSuffixInfo": "<#00ffa5>Время:</color> <#ffffff>{3}с</color>\\n<size=80%><#ffff00>Живых игроков: <#ffab1b>{0}</color>/{1}</color>\\n<#ff1919>Убейте всех, чтобы выиграть</color>\\n<size=70%><#888888>Кроме вас, ещё <#ffffff>{2}</color> игрок(-ов) могут убивать</color></size></size>",
   "Speedrun_DoTasksSuffixInfo": "<#00ffa5>Время:</color> <#ffffff>{4}с</color>\\n<size=70%><#888888>Живых игроков: <#ffffff>{1}</color>/{2}</color>\\n<size=80%><#ffff00>Осталось тасков: {0}</color>\\n<#00ffa5>Сделайте все свои таски</color>\\n<size=70%><#ffab1b><#ffffff>{3}</color> игрок(-ов) могут убивать</color></size></size></size>",
   "Speedrun_CompletedTasks": "<#00ff00>Вы сделали все таски!</color>",
-  "Speedrun_KillingPlayer": "<#ff1919>УБИВАЮЩИЙ</color>",
+  "Speedrun_KillingPlayer": "<#ff1919>УБИЙСТВО</color>",
   "Runner": "Speedrunner",
   "RunnerInfo": "СДЕЛАЙТЕ ТАСКИ И УБЕЙТЕ ВСЕХ, ЧТОБЫ ПОБЕДИТЬ",
   "RunnerInfoLong": "СДЕЛАЙТЕ ТАСКИ И УБЕЙТЕ ВСЕХ, ЧТОБЫ ПОБЕДИТЬ",
