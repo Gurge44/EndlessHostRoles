@@ -181,7 +181,7 @@ public class Lawyer : RoleBase
 
     public override void OnReportDeadBody()
     {
-        if (MeetingStates.FirstMeeting && TargetKnowsLawyer.GetBool())
-            LateTask.New(() => Utils.SendMessage("\n", Target[LawyerId], string.Format(Translator.GetString("YourLawyerIsNotify"), LawyerId.ColoredPlayerName())), 10f, log: false);
+        if (MeetingStates.FirstMeeting && TargetKnowsLawyer.GetBool() && Target.TryGetValue(LawyerId, out var target))
+            LateTask.New(() => Utils.SendMessage("\n", target, string.Format(Translator.GetString("YourLawyerIsNotify"), LawyerId.ColoredPlayerName())), 10f, log: false);
     }
 }

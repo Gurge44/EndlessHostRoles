@@ -145,15 +145,20 @@ namespace EHR.Neutral
                     return true;
                 case Round.Knight when killer.GetAbilityUseLimit() > 0 && !target.Is(CustomRoles.Knighted):
                     target.RpcSetCustomRole(CustomRoles.Knighted);
+                    Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                    Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
                     killer.RpcRemoveAbilityUse();
                     killer.SetKillCooldown();
                     return false;
                 case Round.Curse:
                     CursedPlayers.Add(target.PlayerId);
+                    Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                     killer.SetKillCooldown();
                     return false;
                 case Round.Shield when killer.GetAbilityUseLimit() > 0:
                     ShieldedPlayers.Add(target.PlayerId);
+                    Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
+                    Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
                     killer.RpcRemoveAbilityUse();
                     killer.SetKillCooldown();
                     return false;
@@ -163,7 +168,7 @@ namespace EHR.Neutral
         }
 
         public static bool IsShielded(PlayerControl target) => On && Instances.Exists(i => i.ShieldedPlayers.Contains(target.PlayerId));
-        public static bool IsCursed(PlayerControl target) => On && Instances.Exists(i => i.CursedPlayers.Contains(target.PlayerId));
+        private static bool IsCursed(PlayerControl target) => On && Instances.Exists(i => i.CursedPlayers.Contains(target.PlayerId));
         
         public override string GetProgressText(byte playerId, bool comms)
         {
@@ -175,10 +180,11 @@ namespace EHR.Neutral
         public static string GetMark(PlayerControl seer, PlayerControl target, bool meeting = false)
         {
             bool seerIsGaslighter = seer.Is(CustomRoles.Gaslighter);
-            if (!seerIsGaslighter && seer.PlayerId != target.PlayerId) return string.Empty;
             var sb = new System.Text.StringBuilder();
-            if (IsShielded(target)) sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>");
-            if (IsCursed(target) && (meeting || seerIsGaslighter)) sb.Append(Utils.ColorString(Palette.ImpostorRed, "†"));
+            if (IsShielded(target) && (seerIsGaslighter || seer.PlayerId == target.PlayerId))
+                sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>");
+            if (IsCursed(target) && (meeting || seerIsGaslighter))
+                sb.Append(Utils.ColorString(Palette.ImpostorRed, "†"));
             return sb.ToString();
         }
 
