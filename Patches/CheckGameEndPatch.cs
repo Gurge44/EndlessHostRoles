@@ -411,12 +411,6 @@ static class GameEndChecker
 
             if (CustomTeamManager.CheckCustomTeamGameEnd()) return true;
 
-            if (aapc.Length == 0 && !Main.HasJustStarted)
-            {
-                ResetAndSetWinner(CustomWinner.None);
-                return true;
-            }
-
             if (aapc.All(x => Main.LoversPlayers.Exists(l => l.PlayerId == x.PlayerId)) && (!Main.LoversPlayers.TrueForAll(x => x.Is(Team.Crewmate)) || !Lovers.CrewLoversWinWithCrew.GetBool()))
             {
                 ResetAndSetWinner(CustomWinner.Lovers);
