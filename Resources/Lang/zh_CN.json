@@ -4731,7 +4731,7 @@
   "CD": "冷却",
   "AlchemistAbilityCooldown": "技能使用冷却",
   "AddictVentButtonText": "得到修复",
-  "AddictInvulnerbilityTimeAfterVent": "<color=#008000>Invulnerbility</color> Time",
+  "AddictInvulnerbilityTimeAfterVent": "<color=#008000>无敌</color> 时间",
   "AddictSpeedWhileInvulnerble": "移动速度而<color=#008000>无敌</color>",
   "AddictFreezeTimeAfterInvulnerbility": "<color=#008000>瘾君子</color>在<color=#008000>无敌</color>后冻结的时间",
   "DeathpactDuration": "<color=#ff1919>死亡契约</color>持续时间",
