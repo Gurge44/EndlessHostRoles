@@ -1130,7 +1130,7 @@ static class ExtendedPlayerControl
             // Natural Disasters
             CustomRoles.NDPlayer => false,
             // Room Rush
-            CustomRoles.RRPlayer => false,
+            CustomRoles.RRPlayer => RoomRush.VentLimit[pc.PlayerId] > 0,
 
             _ => Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseImpostorVentButton(pc)
         };

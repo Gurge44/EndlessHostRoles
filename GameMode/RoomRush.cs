@@ -24,7 +24,7 @@ namespace EHR
         private static int TimeLeft;
         private static HashSet<byte> DonePlayers = [];
 
-        private static bool GameGoing;
+        public static bool GameGoing;
         private static DateTime GameStartDateTime;
 
         private static RandomSpawn.SpawnMap Map;
@@ -44,7 +44,7 @@ namespace EHR
                 [(SystemTypes.Office, SystemTypes.Laboratory)] = 2,
                 [(SystemTypes.Storage, SystemTypes.Comms)] = 5,
                 [(SystemTypes.Cafeteria, SystemTypes.Comms)] = 3,
-                [(SystemTypes.Balcony, SystemTypes.Comms)] = 3,
+                [(SystemTypes.Balcony, SystemTypes.Comms)] = 2,
                 [(SystemTypes.Storage, SystemTypes.MedBay)] = 4,
                 [(SystemTypes.Cafeteria, SystemTypes.MedBay)] = 3,
                 [(SystemTypes.Balcony, SystemTypes.MedBay)] = 5,
@@ -56,7 +56,9 @@ namespace EHR
                 [(SystemTypes.Laboratory, SystemTypes.Admin)] = 2,
                 [(SystemTypes.Storage, SystemTypes.Comms)] = 2,
                 [(SystemTypes.Storage, SystemTypes.Office)] = 2,
-                [(SystemTypes.Security, SystemTypes.LifeSupp)] = 2
+                [(SystemTypes.Security, SystemTypes.LifeSupp)] = 2,
+                [(SystemTypes.Security, SystemTypes.Comms)] = 2,
+                [(SystemTypes.Security, SystemTypes.Electrical)] = 2
             },
             [MapNames.Airship] = new()
             {
@@ -71,9 +73,16 @@ namespace EHR
                 [(SystemTypes.Ventilation, SystemTypes.Electrical)] = 2,
                 [(SystemTypes.Ventilation, SystemTypes.Medical)] = 2,
                 [(SystemTypes.Comms, SystemTypes.VaultRoom)] = 2,
+                [(SystemTypes.GapRoom, SystemTypes.Records)] = 3,
+                [(SystemTypes.GapRoom, SystemTypes.Lounge)] = 3,
+                [(SystemTypes.GapRoom, SystemTypes.Brig)] = 4,
+                [(SystemTypes.GapRoom, SystemTypes.VaultRoom)] = 3,
+                [(SystemTypes.GapRoom, SystemTypes.Engine)] = 2,
                 [(SystemTypes.MeetingRoom, SystemTypes.Records)] = 3,
                 [(SystemTypes.MeetingRoom, SystemTypes.Lounge)] = 3,
                 [(SystemTypes.MeetingRoom, SystemTypes.MainHall)] = 2,
+                [(SystemTypes.Engine, SystemTypes.Security)] = 2,
+                [(SystemTypes.MainHall, SystemTypes.Security)] = 2
             },
             [MapNames.Fungle] = new()
             {
@@ -137,11 +146,13 @@ namespace EHR
         private static System.Collections.IEnumerator GameStartTasks()
         {
             GameGoing = false;
-            
-            VentLimit = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => VentTimes.GetInt());
+
+            int ventLimit = VentTimes.GetInt();
+            VentLimit = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => ventLimit);
 
             AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).ToHashSet();
             AllRooms.Remove(SystemTypes.Hallway);
+            AllRooms.Remove(SystemTypes.Outside);
             AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
             
             DonePlayers = [];
@@ -160,6 +171,7 @@ namespace EHR
             yield return new WaitForSeconds(Main.CurrentMap == MapNames.Airship ? 20f : 12f);
             
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
+            aapc.Do(x => x.RpcSetCustomRole(CustomRoles.RRPlayer));
 
             bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() >= aapc.Length / 3;
             if (showTutorial)
@@ -167,7 +179,7 @@ namespace EHR
                 string[] notifies = [Translator.GetString("RR_Tutorial_1"), Translator.GetString("RR_Tutorial_2"), Translator.GetString("RR_Tutorial_3"), Translator.GetString("RR_Tutorial_4")];
                 foreach (string notify in notifies)
                 {
-                    aapc.Do(x => x.Notify(notify, 7f));
+                    aapc.Do(x => x.Notify(notify, 8f));
                     yield return new WaitForSeconds(3f);
                 }
 
@@ -187,6 +199,8 @@ namespace EHR
                 yield return new WaitForSeconds(1f);
             }
             
+            if (ventLimit > 0) aapc.Without(PlayerControl.LocalPlayer).Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
+
             NameNotifyManager.Reset();
             StartNewRound(true);
             GameGoing = true;
@@ -201,7 +215,7 @@ namespace EHR
             RoomGoal = AllRooms.Without(previous).RandomElement();
             Vector2 goalPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
             Vector2 previousPos = Map.Positions.GetValueOrDefault(previous, initial ? Main.AllAlivePlayerControls.RandomElement().Pos() : previous.GetRoomClass().transform.position);
-            float distance = Vector2.Distance(goalPos, previousPos);
+            float distance = initial ? 50 : Vector2.Distance(goalPos, previousPos);
             float speed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
             int time = (int)Math.Ceiling(distance / speed);
             MapNames map = Main.CurrentMap;
@@ -209,17 +223,13 @@ namespace EHR
             time *= multipliers.GetValueOrDefault((previous, RoomGoal), multipliers.GetValueOrDefault((RoomGoal, previous), 1));
             bool involvesDecontamination = Main.CurrentMap switch
             {
-                MapNames.Mira => previous is SystemTypes.Laboratory or SystemTypes.Reactor || RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor,
+                MapNames.Mira => !(previous is SystemTypes.Laboratory or SystemTypes.Reactor && RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor) && (previous is SystemTypes.Laboratory or SystemTypes.Reactor || RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor),
                 MapNames.Polus => previous == SystemTypes.Specimens || RoomGoal == SystemTypes.Specimens,
                 _ => false
             };
             if (involvesDecontamination) time += 15;
             switch (Main.CurrentMap)
             {
-                case MapNames.Airship when initial:
-                case MapNames.Fungle when initial && RoomGoal is SystemTypes.Lookout or SystemTypes.MiningPit or SystemTypes.UpperEngine:
-                    time = (int)Math.Ceiling(50 / speed);
-                    break;
                 case MapNames.Airship:
                     if (RoomGoal == SystemTypes.Ventilation)
                         time = (int)(time * 0.4f);
@@ -227,9 +237,13 @@ namespace EHR
                 case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
                     time += (int)(8 / speed);
                     break;
+                case MapNames.Polus when RoomGoal == SystemTypes.Laboratory || (previous == SystemTypes.Laboratory && RoomGoal is not SystemTypes.Office and not SystemTypes.Storage):
+                    time -= (int)(7 * speed);
+                    break;
             }
 
             TimeLeft = (int)Math.Round(time * GlobalTimeMultiplier.GetFloat());
+            Utils.NotifyRoles();
         }
 
         private static void KillPlayersOutsideRoom()
@@ -278,7 +292,7 @@ namespace EHR
                 var aapc = Main.AllAlivePlayerControls;
 
                 var room = __instance.GetPlainShipRoom();
-                if (__instance.IsAlive() && room != null && room.RoomId == RoomGoal && DonePlayers.Add(__instance.PlayerId))
+                if (__instance.IsAlive() && !__instance.inMovingPlat && room != null && room.RoomId == RoomGoal && DonePlayers.Add(__instance.PlayerId))
                 {
                     if (DonePlayers.Count == 2)
                     {
@@ -327,17 +341,11 @@ namespace EHR
         {
         }
 
-        public override void OnEnterVent(PlayerControl pc, Vent vent)
+        public override void OnExitVent(PlayerControl pc, Vent vent)
         {
             RoomRush.VentLimit[pc.PlayerId]--;
         }
 
-        public override bool CanUseVent(PlayerControl pc, int ventId) => pc.inVent || RoomRush.VentLimit[pc.PlayerId] > 0;
-
-        public override void SetButtonTexts(HudManager hud, byte id)
-        {
-            hud.AbilityButton.SetEnabled();
-            hud.AbilityButton.SetUsesRemaining(RoomRush.VentLimit[id]);
-        }
+        public override bool CanUseVent(PlayerControl pc, int ventId) => RoomRush.GameGoing && (pc.inVent || RoomRush.VentLimit[pc.PlayerId] > 0);
     }
 }
