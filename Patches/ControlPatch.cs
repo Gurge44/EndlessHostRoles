@@ -170,7 +170,7 @@ internal class ControllerManagerUpdatePatch
             Logger.SendInGame($"In-game output log：{Logger.IsAlsoInGame}");
         }
 
-        if (!DebugModeManager.AmDebugger && Options.NoGameEnd.GetBool()) return;
+        if (!DebugModeManager.AmDebugger || !Options.NoGameEnd.GetBool()) return;
 
         if (KeysDown(KeyCode.Return, KeyCode.F, KeyCode.LeftShift))
         {

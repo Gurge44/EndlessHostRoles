@@ -985,18 +985,21 @@ internal static class StartGameHostPatch
                 playerInfo.IsDead = data;
             }
 
-            var stream = MessageWriter.Get();
-            stream.StartMessage(5);
-            stream.Write(AmongUsClient.Instance.GameId);
-            {
-                stream.StartMessage(1);
-                stream.WritePacked(playerInfo.NetId);
-                playerInfo.Serialize(stream, false);
-                stream.EndMessage();
-            }
-            stream.EndMessage();
-            AmongUsClient.Instance.SendOrDisconnect(stream);
-            stream.Recycle();
+            // var stream = MessageWriter.Get();
+            // stream.StartMessage(5);
+            // stream.Write(AmongUsClient.Instance.GameId);
+            // {
+            //     stream.StartMessage(1);
+            //     stream.WritePacked(playerInfo.NetId);
+            //     playerInfo.Serialize(stream, false);
+            //     stream.EndMessage();
+            // }
+            // stream.EndMessage();
+            // AmongUsClient.Instance.SendOrDisconnect(stream);
+            // stream.Recycle();
+            
+            // Let Delayed Networked Data send it with delay.
+            playerInfo.SetDirtyBit(uint.MaxValue);
         }
     }
 

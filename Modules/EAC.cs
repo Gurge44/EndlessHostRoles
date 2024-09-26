@@ -706,7 +706,7 @@ static class CheckInvalidMovementPatch
 
     public static void Postfix(PlayerControl __instance)
     {
-        if (!GameStates.IsInTask || !Options.EnableMovementChecking.GetBool() || Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) >= 1.9f || AmongUsClient.Instance.Ping >= 300 || Utils.GetRegionName() is not ("EU" or "NA" or "AS") || __instance == null || __instance.PlayerId == 255) return;
+        if (!GameStates.IsInTask || ExileController.Instance || !Options.EnableMovementChecking.GetBool() || Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) >= 1.9f || AmongUsClient.Instance.Ping >= 300 || Utils.GetRegionName() is not ("EU" or "NA" or "AS") || __instance == null || __instance.PlayerId == 255) return;
 
         var pos = __instance.Pos();
         var now = Utils.TimeStamp;
@@ -717,7 +717,7 @@ static class CheckInvalidMovementPatch
             return;
         }
 
-        if (LastCheck[__instance.PlayerId] == now) return;
+        if (LastCheck.TryGetValue(__instance.PlayerId, out var lastCheck) && lastCheck == now) return;
 
         SetCurrentData();
 

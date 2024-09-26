@@ -209,7 +209,7 @@ namespace EHR
 
         private static void StartNewRound(bool initial = false)
         {
-            if (!initial) KillPlayersOutsideRoom();
+            Logger.Info("Starting a new round", "RoomRush");
             DonePlayers.Clear();
             SystemTypes previous = RoomGoal;
             RoomGoal = AllRooms.Without(previous).RandomElement();
@@ -246,16 +246,6 @@ namespace EHR
             Utils.NotifyRoles();
         }
 
-        private static void KillPlayersOutsideRoom()
-        {
-            foreach (var pc in Main.AllAlivePlayerControls)
-            {
-                var room = pc.GetPlainShipRoom();
-                if (room != null && room.RoomId != RoomGoal)
-                    pc.Suicide();
-            }
-        }
-
         private static PlainShipRoom GetRoomClass(this SystemTypes systemTypes) => ShipStatus.Instance.AllRooms.First(x => x.RoomId == systemTypes);
 
         public static string GetSuffix(PlayerControl seer)
@@ -263,8 +253,7 @@ namespace EHR
             if (!GameGoing || Main.HasJustStarted || seer == null || !seer.IsAlive()) return string.Empty;
 
             var sb = new StringBuilder();
-            var room = seer.GetPlainShipRoom();
-            var done = room != null && room.RoomId == RoomGoal;
+            var done = DonePlayers.Contains(seer.PlayerId);
             var color = done ? Color.green : Color.yellow;
             sb.AppendLine(Utils.ColorString(color, Translator.GetString(RoomGoal.ToString())));
             color = done ? Color.white : Color.yellow;
@@ -286,28 +275,37 @@ namespace EHR
             [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void Postfix(PlayerControl __instance)
             {
-                if (!GameGoing || Main.HasJustStarted || Options.CurrentGameMode != CustomGameMode.RoomRush || !AmongUsClient.Instance.AmHost) return;
+                if (!GameGoing || Main.HasJustStarted || Options.CurrentGameMode != CustomGameMode.RoomRush || !AmongUsClient.Instance.AmHost || !__instance.IsHost()) return;
 
                 long now = Utils.TimeStamp;
                 var aapc = Main.AllAlivePlayerControls;
 
-                var room = __instance.GetPlainShipRoom();
-                if (__instance.IsAlive() && !__instance.inMovingPlat && room != null && room.RoomId == RoomGoal && DonePlayers.Add(__instance.PlayerId))
+                foreach (var pc in aapc)
                 {
-                    if (DonePlayers.Count == 2)
+                    var room = pc.GetPlainShipRoom();
+                    if (pc.IsAlive() && !pc.inMovingPlat && room != null && room.RoomId == RoomGoal && DonePlayers.Add(pc.PlayerId))
                     {
-                        TimeLeft = TimeWhenFirstPlayerEntersRoom.GetInt();
-                        LastUpdate = now;
-                    }
+                        Logger.Info($"{pc.GetRealName()} entered the correct room", "RoomRush");
+                    
+                        if (DonePlayers.Count == 2)
+                        {
+                            int timeLeft = TimeWhenFirstPlayerEntersRoom.GetInt();
+                            Logger.Info($"Two players entered the correct room, setting the timer to {timeLeft}", "RoomRush");
+                            TimeLeft = timeLeft;
+                            LastUpdate = now;
+                        }
 
-                    if (DonePlayers.Count == aapc.Length - 1)
-                    {
-                        var last = aapc.First(x => !DonePlayers.Contains(x.PlayerId));
-                        last.Suicide();
-                        last.Notify(Translator.GetString("RR_YouWereLast"));
-                        StartNewRound();
-                        return;
+                        if (DonePlayers.Count == aapc.Length - 1)
+                        {
+                            var last = aapc.First(x => !DonePlayers.Contains(x.PlayerId));
+                            Logger.Info($"All players entered the correct room except one, killing the last player ({last.GetRealName()})", "RoomRush");
+                            last.Suicide();
+                            last.Notify(Translator.GetString("RR_YouWereLast"));
+                            StartNewRound();
+                            return;
+                        }
                     }
+                    else if (room == null || room.RoomId != RoomGoal) DonePlayers.Remove(pc.PlayerId);
                 }
                 
                 if (LastUpdate == now) return;
@@ -318,6 +316,7 @@ namespace EHR
 
                 if (TimeLeft <= 0)
                 {
+                    Logger.Info("Time is up, killing everyone who didn't enter the correct room", "RoomRush");
                     Main.AllAlivePlayerControls.ExceptBy(DonePlayers, x => x.PlayerId).Do(x => x.Suicide());
                     StartNewRound();
                 }

@@ -229,7 +229,9 @@ static class ExtendedPlayerControl
             return CountTypes.None;
         }
 
-        return Main.PlayerStates.TryGetValue(player.PlayerId, out var State) ? State.SubRoles.Contains(CustomRoles.Bloodlust) ? CountTypes.Bloodlust : State.countTypes : CountTypes.None;
+        if (!Main.PlayerStates.TryGetValue(player.PlayerId, out var state)) return CountTypes.None;
+        if (!player.IsConverted() && player.Is(CustomRoles.Bloodlust)) return CountTypes.Bloodlust;
+        return state.countTypes;
     }
 
     public static void RpcSetNameEx(this PlayerControl player, string name)

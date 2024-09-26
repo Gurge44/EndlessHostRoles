@@ -336,15 +336,23 @@ internal static class ChatCommands
         DraftResult = [];
 
         var allPlayerIds = Main.AllPlayerControls.Select(x => x.PlayerId).ToArray();
-        var allRoles = Enum.GetValues<CustomRoles>().Where(x => x < CustomRoles.NotAssigned && x.IsEnable() && !x.IsForOtherGameMode() && !HnSManager.AllHnSRoles.Contains(x) && !x.IsVanilla() && x is not CustomRoles.GM and not CustomRoles.Konan).ToArray();
+        var allRoles = Enum.GetValues<CustomRoles>().Where(x => x < CustomRoles.NotAssigned && x.IsEnable() && !x.IsForOtherGameMode() && !HnSManager.AllHnSRoles.Contains(x) && !x.IsVanilla() && x is not CustomRoles.GM and not CustomRoles.Konan).ToList();
 
-        if (allRoles.Length < allPlayerIds.Length)
+        if (allRoles.Count < allPlayerIds.Length)
         {
             Utils.SendMessage(GetString("DraftNotEnoughRoles"), player.PlayerId);
             return;
         }
 
-        DraftRoles = allRoles.Shuffle().Partition(allPlayerIds.Length).Zip(allPlayerIds).ToDictionary(x => x.Second, x => x.First.Take(5).ToList());
+        var impRoles = allRoles.Where(x => x.IsImpostor()).Shuffle().Take(Main.NormalOptions.NumImpostors);
+        var nkRoles = allRoles.Where(x => x.IsNK()).Shuffle().Take(Options.NeutralKillingRolesMaxPlayer.GetInt());
+        var nnkRoles = allRoles.Where(x => x.IsNonNK()).Shuffle().Take(Options.NonNeutralKillingRolesMaxPlayer.GetInt());
+
+        allRoles.RemoveAll(x => x.IsImpostor());
+        allRoles.RemoveAll(x => x.IsNK());
+        allRoles.RemoveAll(x => x.IsNonNK());
+
+        DraftRoles = allRoles.CombineWith(impRoles, nkRoles, nnkRoles).Shuffle().Partition(allPlayerIds.Length).Zip(allPlayerIds).ToDictionary(x => x.Second, x => x.First.Take(5).ToList());
 
         foreach ((byte id, List<CustomRoles> roles) in DraftRoles)
         {
