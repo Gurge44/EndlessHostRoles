@@ -1170,6 +1170,9 @@ static class FixedUpdatePatch
     public static void Postfix(PlayerControl __instance)
     {
         if (__instance == null || __instance.PlayerId == 255) return;
+        
+        if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+            CustomNetObject.FixedUpdate();
 
         byte id = __instance.PlayerId;
         if (AmongUsClient.Instance.AmHost && GameStates.IsInTask && ReportDeadBodyPatch.CanReport[id] && ReportDeadBodyPatch.WaitReport[id].Count > 0)
@@ -1335,8 +1338,6 @@ static class FixedUpdatePatch
 
                 if (localPlayer)
                 {
-                    CustomNetObject.FixedUpdate();
-
                     if (QuizMaster.On && inTask && !lowLoad && QuizMaster.AllSabotages.Any(IsActive))
                         QuizMaster.Data.LastSabotage = QuizMaster.AllSabotages.FirstOrDefault(IsActive);
                 }

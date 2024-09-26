@@ -1216,7 +1216,7 @@ public static class Options
         CheatResponses = new StringOptionItem(19319, "CheatResponses", CheatResponsesName, 2, TabGroup.SystemSettings)
             .SetHeader(true);
 
-        EnableMovementChecking = new BooleanOptionItem(19329, "EnableMovementChecking", true, TabGroup.SystemSettings)
+        EnableMovementChecking = new BooleanOptionItem(19329, "EnableMovementChecking", false, TabGroup.SystemSettings)
             .SetHeader(true);
 
 
