@@ -630,7 +630,7 @@
   "AntiAdminerInfoLong": "(内鬼职业):\\n监管者能察觉周遭设备使用情况,例如:管理地图,三岔路口日志,监控,生命仪器.注意:你无法确认玩家是否在用这些设备,只能肯定有人靠近这些设备\\n\\n你可以用变形警告玩家远离这些设备,如果玩家不远离就死了,取决于房主设置.",
   "SansInfoLong": "(内鬼职业):\\n狂妄杀手每次击杀都能减少cd.",
   "BomberInfoLong": "(内鬼职业):\\n自爆兵可使用变形/摸宠物安置炸弹,造成AOE伤害,但代价是你也会死.注意：自爆兵爆炸时所有玩家都会看到击杀闪光.",
-  "ScavengerInfoLong": "(内鬼职业):\\n清道夫击杀不会留下尸体.就算是诱饵死了也不会让清道夫自报.",
+  "ScavengerInfoLong": "(Impostors):\\nScavenger kills do not leave dead bodies behind. In addition, if the victim is a bait, no self-report will be made. To kill someone, you must click your kill button on them, then stay near that person for a few seconds, similar to an Arsonist douse.",
   "BoobyTrapInfoLong": "(内鬼职业):\\n诡雷杀死玩家时会在鸡腿上放置陷阱.如果其他玩家报告了这个鸡腿就会死亡,这个玩家的鸡腿不能被报告并同样具有陷阱.这种连锁反应会持续到没有足够的玩家.但是诡雷会在击杀之后立刻死亡.如果报告了他的鸡腿则不会触发陷阱.",
   "CapitalismInfoLong": "(内鬼职业):\\n资本家可以通过击杀给人安排一个额外任务.注意：技能不会在没有任务/已完成任务的玩家上生效.",
   "GangsterInfoLong": "(内鬼职业):\\n歹徒用击杀即可绑走一个人成为叛徒.如果有破盾动画就是成功了.能绑架的最大玩家数目取决于房主.如果招募失败,目标会被撕票死亡.当招募次数为0,歹徒只能进行正常击杀.",
