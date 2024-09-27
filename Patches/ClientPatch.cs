@@ -12,11 +12,11 @@ using static EHR.Translator;
 namespace EHR;
 
 [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.MakePublic))]
-internal class MakePublicPatch
+static class MakePublicPatch
 {
     public static bool Prefix()
     {
-        if (ModUpdater.IsBroken || (ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || !VersionChecker.IsSupported)
+        if (ModUpdater.IsBroken || ModUpdater.HasUpdate && ModUpdater.ForceUpdate || !VersionChecker.IsSupported)
         {
             var message = string.Empty;
             if (!VersionChecker.IsSupported) message = GetString("UnsupportedVersion");
@@ -33,11 +33,11 @@ internal class MakePublicPatch
 
 [HarmonyPatch(typeof(MMOnlineManager), nameof(MMOnlineManager.Start))]
 // ReSharper disable once InconsistentNaming
-internal class MMOnlineManagerStartPatch
+static class MMOnlineManagerStartPatch
 {
     public static void Postfix()
     {
-        if (!((ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || ModUpdater.IsBroken)) return;
+        if (!(ModUpdater.HasUpdate && ModUpdater.ForceUpdate || ModUpdater.IsBroken)) return;
         var obj = GameObject.Find("FindGameButton");
         if (obj)
         {
@@ -54,7 +54,7 @@ internal class MMOnlineManagerStartPatch
 }
 
 [HarmonyPatch(typeof(SplashManager), nameof(SplashManager.Update))]
-internal class SplashLogoAnimatorPatch
+static class SplashLogoAnimatorPatch
 {
     public static void Prefix(SplashManager __instance)
     {
@@ -64,7 +64,7 @@ internal class SplashLogoAnimatorPatch
 }
 
 [HarmonyPatch(typeof(EOSManager), nameof(EOSManager.IsAllowedOnline))]
-internal class RunLoginPatch
+static class RunLoginPatch
 {
     public const int ClickCount = 0;
 
@@ -76,7 +76,7 @@ internal class RunLoginPatch
 }
 
 [HarmonyPatch(typeof(BanMenu), nameof(BanMenu.SetVisible))]
-internal class BanMenuSetVisiblePatch
+static class BanMenuSetVisiblePatch
 {
     public static bool Prefix(BanMenu __instance, bool show)
     {
@@ -90,7 +90,7 @@ internal class BanMenuSetVisiblePatch
 }
 
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.CanBan))]
-internal class InnerNetClientCanBanPatch
+static class InnerNetClientCanBanPatch
 {
     public static bool Prefix(InnerNetClient __instance, ref bool __result)
     {
@@ -100,7 +100,7 @@ internal class InnerNetClientCanBanPatch
 }
 
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.KickPlayer))]
-internal class KickPlayerPatch
+static class KickPlayerPatch
 {
     public static bool Prefix( /*InnerNetClient __instance,*/ int clientId, bool ban)
     {
@@ -120,7 +120,7 @@ internal class KickPlayerPatch
 }
 
 [HarmonyPatch(typeof(ResolutionManager), nameof(ResolutionManager.SetResolution))]
-internal class SetResolutionManager
+static class SetResolutionManager
 {
     public static void Postfix()
     {
@@ -130,7 +130,7 @@ internal class SetResolutionManager
 }
 
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.SendAllStreamedObjects))]
-internal class InnerNetObjectSerializePatch
+static class InnerNetObjectSerializePatch
 {
     public static void Prefix()
     {
@@ -140,7 +140,7 @@ internal class InnerNetObjectSerializePatch
 }
 
 [HarmonyPatch(typeof(InnerNetClient))]
-static class InnerNetClientPatch
+public class InnerNetClientPatch
 {
     [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.SendInitialData))]
     [HarmonyPrefix]
@@ -178,12 +178,12 @@ static class InnerNetClientPatch
             __instance.SendOrDisconnect(messageWriter);
             messageWriter.Recycle();
         }
-        DelayInitialSpawnPlayerInfo(__instance, clientId);
+        DelaySpawnPlayerInfo(__instance, clientId);
         return false;
     }
 
     // InnerSloth vanilla officials send PlayerInfo in spilt reliable packets
-    private static void DelayInitialSpawnPlayerInfo(InnerNetClient __instance, int clientId)
+    private static void DelaySpawnPlayerInfo(InnerNetClient __instance, int clientId)
     {
         foreach (var player in GameData.Instance.AllPlayers)
         {
@@ -259,42 +259,6 @@ static class InnerNetClientPatch
         return false;
     }
 
-    [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.Spawn))]
-    [HarmonyPrefix]
-    public static bool SpawnPrefix(InnerNetClient __instance, InnerNetObject netObjParent, int ownerId = -2, SpawnFlags flags = SpawnFlags.None)
-    {
-        if (!Constants.IsVersionModded() || __instance.NetworkMode != NetworkModes.OnlineGame) return true;
-
-        if (__instance.AmHost)
-        {
-            ownerId = ((ownerId == -3) ? __instance.ClientId : ownerId);
-            MessageWriter msg = MessageWriter.Get(SendOption.Reliable);
-            msg.StartMessage(5);
-            msg.Write(__instance.GameId);
-            __instance.WriteSpawnMessage(netObjParent, ownerId, flags, msg);
-            msg.EndMessage();
-
-            //For unknow reason delaying playerinfo spawn here will make beans much easier to appear.
-            //Especially when spawning lots of players on game end
-            //Leaving these codes for further use.
-            /*
-            if (netObjParent is NetworkedPlayerInfo)
-            {
-                DelayedSpawnPlayers.Add(msg);
-                return false;
-            }
-            */
-
-            AmongUsClient.Instance.SendOrDisconnect(msg);
-        }
-
-        if (__instance.AmClient)
-        {
-            Logger.Error("Tried to spawn while not host:" + (netObjParent?.ToString()), "InnerNetClientPatch.SpawnPrefix");
-        }
-        return false;
-    }
-
     [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.FixedUpdate))]
     [HarmonyPostfix]
     public static void FixedUpdatePostfix(InnerNetClient __instance)
@@ -303,61 +267,40 @@ static class InnerNetClientPatch
         if (!Constants.IsVersionModded() || GameStates.IsInGame || __instance.NetworkMode != NetworkModes.OnlineGame) return;
         if (!__instance.AmHost || __instance.Streams == null) return;
 
-        /*
-        var delayedPlayers = DelayedSpawnPlayers.Take(2);
-        foreach (var msg in delayedPlayers)
+        foreach (var player in GameData.Instance.AllPlayers)
         {
-            AmongUsClient.Instance.SendOrDisconnect(msg);
-            msg.Recycle();
-            DelayedSpawnPlayers.Remove(msg);
-        }
-
-        if (DelayedSpawnPlayers.Count >= 2) return;
-        */
-
-        // We are serializing 2 Networked playerinfo maxium per fixed update
-        var players = GameData.Instance.AllPlayers.ToArray()
-            .Where(x => x.IsDirty)
-            .Take(2)
-            .ToArray();
-
-        foreach (var player in players)
-        {
-            MessageWriter messageWriter = MessageWriter.Get(SendOption.Reliable);
-            messageWriter.StartMessage(5);
-            messageWriter.Write(__instance.GameId);
-            messageWriter.StartMessage(1);
-            messageWriter.WritePacked(player.NetId);
-            try
+            if (player.IsDirty)
             {
-                if (player.Serialize(messageWriter, false))
+                MessageWriter messageWriter = MessageWriter.Get();
+                messageWriter.StartMessage(5);
+                messageWriter.Write(__instance.GameId);
+                messageWriter.StartMessage(1);
+                messageWriter.WritePacked(player.NetId);
+                try
                 {
+                    if (player.Serialize(messageWriter, false))
+                    {
+                        messageWriter.EndMessage();
+                    }
+                    else
+                    {
+                        messageWriter.CancelMessage();
+                        player.ClearDirtyBits();
+                        continue;
+                    }
                     messageWriter.EndMessage();
+                    __instance.SendOrDisconnect(messageWriter);
+                    messageWriter.Recycle();
                 }
-                else
+                catch (Exception ex)
                 {
+                    Logger.Exception(ex, "FixedUpdatePostfix");
                     messageWriter.CancelMessage();
                     player.ClearDirtyBits();
-                    continue;
                 }
-                messageWriter.EndMessage();
-                __instance.SendOrDisconnect(messageWriter);
-                messageWriter.Recycle();
-            }
-            catch (Exception ex)
-            {
-                Logger.Exception(ex, "FixedUpdatePostfix");
-                messageWriter.CancelMessage();
-                player.ClearDirtyBits();
             }
         }
     }
-}
-
-[HarmonyPatch(typeof(GameData), nameof(GameData.DirtyAllData))]
-static class DirtyAllDataPatch
-{
-    public static bool Prefix() => false;
 }
 
 [HarmonyPatch]
