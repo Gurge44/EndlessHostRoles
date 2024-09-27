@@ -1794,6 +1794,7 @@
   "Alive": "Vivo",
   "Win": " Gana!",
   "Last-": "Último ",
+  "NotifyGameEnding": "<#ff0000>GAME END NOTIFY</color>\\n<#ffff00>This game has already ended. If it didn't end for you, please leave the game and rejoin the lobby. This is a vanilla bug. Sorry for the inconvenience.</color>",
   "DiedR1Warning": "#ffff00>(Murió Primero en Último Juego)</color>",
   "GLHF": "¡Buena Suerte y Diviértete!",
   "DeputyHandcuffCooldown": "Tiempo de Reutilización Esposar",
