@@ -1794,6 +1794,7 @@
   "Alive": "存活",
   "Win": " 胜利!",
   "Last-": "仅存的 ",
+  "NotifyGameEnding": "<#ff0000>GAME END NOTIFY</color>\\n<#ffff00>This game has already ended. If it didn't end for you, please leave the game and rejoin the lobby. This is a vanilla bug. Sorry for the inconvenience.</color>",
   "DiedR1Warning": "<#ffff00>(上局首刀)</color>",
   "GLHF": "祝你好运 & 玩的开心!",
   "DeputyHandcuffCooldown": "手铐冷却",
