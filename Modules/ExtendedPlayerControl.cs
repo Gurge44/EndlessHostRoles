@@ -230,7 +230,7 @@ static class ExtendedPlayerControl
         }
 
         if (!Main.PlayerStates.TryGetValue(player.PlayerId, out var state)) return CountTypes.None;
-        if (!player.IsConverted() && player.Is(CustomRoles.Bloodlust)) return CountTypes.Bloodlust;
+        if (!player.IsConverted() && state.SubRoles.Contains(CustomRoles.Bloodlust)) return CountTypes.Bloodlust;
         return state.countTypes;
     }
 
@@ -779,7 +779,7 @@ static class ExtendedPlayerControl
     public static void Suicide(this PlayerControl pc, PlayerState.DeathReason deathReason = PlayerState.DeathReason.Suicide, PlayerControl realKiller = null)
     {
         if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
-        
+
         var state = Main.PlayerStates[pc.PlayerId];
         if (realKiller != null && state.Role is SchrodingersCat cat)
         {
