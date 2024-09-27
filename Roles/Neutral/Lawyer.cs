@@ -10,7 +10,7 @@ namespace EHR.Neutral;
 public class Lawyer : RoleBase
 {
     private const int Id = 9900;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     private static OptionItem CanTargetImpostor;
     private static OptionItem CanTargetNeutralKiller;
@@ -38,7 +38,7 @@ public class Lawyer : RoleBase
 
     private byte LawyerId;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -54,13 +54,13 @@ public class Lawyer : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         Target = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         LawyerId = playerId;
 
         try

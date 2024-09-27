@@ -15,7 +15,7 @@ namespace EHR.Impostor;
 public class EvilTracker : RoleBase
 {
     private const int Id = 500;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     private static OptionItem OptionCanSeeKillFlash;
     private static OptionItem OptionTargetMode;
@@ -40,7 +40,7 @@ public class EvilTracker : RoleBase
     public byte Target = byte.MaxValue;
     private byte[] ImpostorsId => Main.AllAlivePlayerControls.Where(x => x.PlayerId != EvilTrackerId && x.Is(CustomRoleTypes.Impostor)).Select(x => x.PlayerId).ToArray();
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -49,13 +49,13 @@ public class EvilTracker : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.EvilTracker]);
         OptionTargetMode = new StringOptionItem(Id + 11, "EvilTrackerTargetMode", TargetModeText, 2, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.EvilTracker]);
-        OptionCanSeeLastRoomInMeeting = new BooleanOptionItem(Id + 12, "EvilTrackerCanSeeLastRoomInMeeting", false, TabGroup.ImpostorRoles)
+        OptionCanSeeLastRoomInMeeting = new BooleanOptionItem(Id + 12, "EvilTrackerCanSeeLastRoomInMeeting", true, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.EvilTracker]);
     }
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         Target = byte.MaxValue;
         CanSetTarget = false;
         EvilTrackerId = byte.MaxValue;
@@ -68,7 +68,7 @@ public class EvilTracker : RoleBase
         RoleTypes = CurrentTargetMode == TargetMode.Never ? RoleTypes.Impostor : RoleTypes.Shapeshifter;
         CanSeeLastRoomInMeeting = OptionCanSeeLastRoomInMeeting.GetBool();
 
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         Target = byte.MaxValue;
         CanSetTarget = CurrentTargetMode != TargetMode.Never;
         EvilTrackerId = playerId;
@@ -99,7 +99,7 @@ public class EvilTracker : RoleBase
 
     public static bool IsTrackTarget(PlayerControl seer, PlayerControl target) =>
         Main.PlayerStates[seer.PlayerId].Role is EvilTracker et
-        && seer.IsAlive() && playerIdList.Contains(seer.PlayerId)
+        && seer.IsAlive() && PlayerIdList.Contains(seer.PlayerId)
         && target.IsAlive() && seer != target
         && (target.Is(CustomRoleTypes.Impostor) || et.Target == target.PlayerId);
 
@@ -133,7 +133,7 @@ public class EvilTracker : RoleBase
                 SetTarget();
             }
 
-            foreach (byte playerId in playerIdList)
+            foreach (byte playerId in PlayerIdList)
             {
                 var pc = Utils.GetPlayerById(playerId);
                 var target = Utils.GetPlayerById(Target);

@@ -8,7 +8,7 @@ namespace EHR.Neutral;
 public class Vengeance : RoleBase
 {
     private const int Id = 12820;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     private static OptionItem KillCooldown;
     public static OptionItem CanVent;
@@ -21,7 +21,7 @@ public class Vengeance : RoleBase
     private float tempKillTimer;
     private int Timer;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -36,7 +36,7 @@ public class Vengeance : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         IsRevenge = false;
         Success = false;
         Killer = byte.MaxValue;
@@ -45,7 +45,7 @@ public class Vengeance : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
 
         Timer = RevengeTime.GetInt();
 

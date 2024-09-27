@@ -9,17 +9,17 @@ namespace EHR.Crewmate
     {
         private const int Id = 8100;
 
-        public static List<byte> playerIdList = [];
+        public static List<byte> PlayerIdList = [];
 
-        public static OptionItem ShowGhostArrowEverySeconds;
-        public static OptionItem ShowGhostArrowForSeconds;
+        private static OptionItem ShowGhostArrowEverySeconds;
+        private static OptionItem ShowGhostArrowForSeconds;
 
         public static byte SpiritualistTarget;
         private long LastGhostArrowShowTime;
         private long ShowGhostArrowUntil;
         byte SpiritualistId;
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         bool ShowArrow
         {
@@ -51,7 +51,7 @@ namespace EHR.Crewmate
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             SpiritualistTarget = new();
             LastGhostArrowShowTime = 0;
             ShowGhostArrowUntil = 0;
@@ -59,7 +59,7 @@ namespace EHR.Crewmate
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             SpiritualistTarget = byte.MaxValue;
             LastGhostArrowShowTime = 0;
             ShowGhostArrowUntil = 0;
@@ -81,7 +81,7 @@ namespace EHR.Crewmate
 
         public override void AfterMeetingTasks()
         {
-            foreach (byte spiritualist in playerIdList)
+            foreach (byte spiritualist in PlayerIdList)
             {
                 PlayerControl player = Main.AllPlayerControls.FirstOrDefault(a => a.PlayerId == spiritualist);
                 if (!player.IsAlive())
@@ -98,7 +98,7 @@ namespace EHR.Crewmate
                     continue;
                 }
 
-                target.Notify("<color=#ffff00>The Spiritualist has an arrow pointing toward you</color>");
+                target.Notify(GetString("SpiritualistTargetMessage"));
 
                 TargetArrow.Add(spiritualist, target.PlayerId);
 
@@ -130,7 +130,7 @@ namespace EHR.Crewmate
 
         public static void RemoveTarget()
         {
-            foreach (byte spiritualist in playerIdList)
+            foreach (byte spiritualist in PlayerIdList)
             {
                 TargetArrow.Remove(spiritualist, SpiritualistTarget);
             }

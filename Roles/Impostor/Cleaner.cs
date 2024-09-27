@@ -9,9 +9,9 @@ namespace EHR.Impostor
     {
         public static bool On;
         public static List<byte> CleanerBodies = [];
-        public static OptionItem CleanerKillCooldown;
-        public static OptionItem KillCooldownAfterCleaning;
-        public static OptionItem CannotCleanWhenKCDIsntUp;
+        private static OptionItem CleanerKillCooldown;
+        private static OptionItem KillCooldownAfterCleaning;
+        private static OptionItem CannotCleanWhenKCDIsntUp;
 
         private bool CanVent;
         private bool HasImpostorVision;
@@ -28,7 +28,7 @@ namespace EHR.Impostor
             CleanerKillCooldown = new FloatOptionItem(2610, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Cleaner])
                 .SetValueFormat(OptionFormat.Seconds);
-            KillCooldownAfterCleaning = new FloatOptionItem(2611, "KillCooldownAfterCleaning", new(0f, 180f, 2.5f), 60f, TabGroup.ImpostorRoles)
+            KillCooldownAfterCleaning = new FloatOptionItem(2611, "KillCooldownAfterCleaning", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Cleaner])
                 .SetValueFormat(OptionFormat.Seconds);
             CannotCleanWhenKCDIsntUp = new BooleanOptionItem(2612, "CannotCleanWhenKCDIsntUp", true, TabGroup.ImpostorRoles)

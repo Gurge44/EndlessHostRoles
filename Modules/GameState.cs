@@ -363,7 +363,7 @@ public class TaskState
                 {
                     case CustomRoles.SabotageMaster:
                         if (Main.PlayerStates[player.PlayerId].Role is not SabotageMaster sm) break;
-                        sm.UsedSkillCount -= SabotageMaster.SMAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        sm.UsedSkillCount -= SabotageMaster.SmAbilityUseGainWithEachTaskCompleted.GetFloat();
                         sm.SendRPC();
                         break;
                     case CustomRoles.NiceHacker:

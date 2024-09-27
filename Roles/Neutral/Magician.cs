@@ -14,7 +14,7 @@ namespace EHR.Neutral;
 public class Magician : RoleBase
 {
     private const int Id = 641300;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
@@ -33,18 +33,18 @@ public class Magician : RoleBase
 
     private static byte CardId = byte.MaxValue;
 
-    public static Dictionary<byte, long> SlowPPL = [];
+    public static Dictionary<byte, long> SlowPpl = [];
     public static Dictionary<byte, float> TempSpeeds = [];
-    public static Dictionary<byte, long> BlindPPL = [];
+    public static Dictionary<byte, long> BlindPpl = [];
     public static Dictionary<Vector2, long> Bombs = [];
     private static List<Vector2> PortalMarks = [];
-    private static bool isSniping;
-    private static Vector3 snipeBasePosition;
-    private static bool isSpeedup;
-    private static float originalSpeed;
-    private static long lastTP = TimeStamp;
+    private static bool IsSniping;
+    private static Vector3 SnipeBasePosition;
+    private static bool IsSpeedup;
+    private static float OriginalSpeed;
+    private static long LastTP = TimeStamp;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -80,25 +80,25 @@ public class Magician : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         CardId = byte.MaxValue;
-        SlowPPL = [];
-        BlindPPL = [];
+        SlowPpl = [];
+        BlindPpl = [];
         Bombs = [];
         PortalMarks = [];
-        isSniping = false;
-        isSpeedup = false;
-        lastTP = TimeStamp;
+        IsSniping = false;
+        IsSpeedup = false;
+        LastTP = TimeStamp;
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
-        originalSpeed = Main.AllPlayerSpeed[playerId];
+        PlayerIdList.Add(playerId);
+        OriginalSpeed = Main.AllPlayerSpeed[playerId];
 
-        isSniping = false;
-        isSpeedup = false;
-        lastTP = TimeStamp;
+        IsSniping = false;
+        IsSpeedup = false;
+        LastTP = TimeStamp;
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
@@ -172,7 +172,7 @@ public class Magician : RoleBase
                     if (x.PlayerId == pc.PlayerId) continue;
 
                     TempSpeeds.TryAdd(x.PlayerId, Main.AllPlayerSpeed[x.PlayerId]);
-                    SlowPPL.TryAdd(x.PlayerId, TimeStamp);
+                    SlowPpl.TryAdd(x.PlayerId, TimeStamp);
                     Main.AllPlayerSpeed[x.PlayerId] = SlownessValue.GetFloat();
                     x.MarkDirtySettings();
                 }
@@ -194,15 +194,15 @@ public class Magician : RoleBase
                 if (PortalMarks.Count == 2) CardId = byte.MaxValue;
                 break;
             case 5: // Snipe
-                if (!isSniping)
+                if (!IsSniping)
                 {
-                    snipeBasePosition = pc.transform.position;
-                    isSniping = true;
+                    SnipeBasePosition = pc.transform.position;
+                    IsSniping = true;
                     pc.Notify(GetString("MarkDone"));
                     return;
                 }
 
-                isSniping = false;
+                IsSniping = false;
                 CardId = byte.MaxValue;
                 pc.Notify(GetString("MagicianCardUsed"));
 
@@ -241,7 +241,7 @@ public class Magician : RoleBase
                 {
                     if (x.PlayerId == pc.PlayerId) continue;
 
-                    BlindPPL.TryAdd(x.PlayerId, TimeStamp);
+                    BlindPpl.TryAdd(x.PlayerId, TimeStamp);
                     x.MarkDirtySettings();
                 }
 
@@ -255,13 +255,13 @@ public class Magician : RoleBase
                 break;
             case 8: // Speed up
                 Main.AllPlayerSpeed[pc.PlayerId] = Speed.GetFloat();
-                isSpeedup = true;
+                IsSpeedup = true;
                 sync = true;
                 LateTask.New(() =>
                 {
-                    Main.AllPlayerSpeed[pc.PlayerId] = originalSpeed;
+                    Main.AllPlayerSpeed[pc.PlayerId] = OriginalSpeed;
                     pc.MarkDirtySettings();
-                    isSpeedup = false;
+                    IsSpeedup = false;
                 }, SpeedDur.GetInt(), "Revert Magician Speed");
                 CardId = byte.MaxValue;
                 break;
@@ -296,7 +296,7 @@ public class Magician : RoleBase
 
         if (TempSpeeds.Count > 0) RevertSpeedChanges(false);
 
-        if (PortalMarks.Count == 2 && lastTP + 5 < TimeStamp)
+        if (PortalMarks.Count == 2 && LastTP + 5 < TimeStamp)
         {
             if (Vector2.Distance(PortalMarks[0], PortalMarks[1]) <= 4f)
             {
@@ -321,7 +321,7 @@ public class Magician : RoleBase
 
                 if (isTP)
                 {
-                    lastTP = TimeStamp;
+                    LastTP = TimeStamp;
                     if (from == PortalMarks[0])
                     {
                         pc.TP(PortalMarks[1]);
@@ -338,11 +338,11 @@ public class Magician : RoleBase
             }
         }
 
-        if (BlindPPL.Count > 0)
+        if (BlindPpl.Count > 0)
         {
-            foreach (var x in BlindPPL.Where(x => x.Value + BlindDur.GetInt() < TimeStamp))
+            foreach (var x in BlindPpl.Where(x => x.Value + BlindDur.GetInt() < TimeStamp))
             {
-                BlindPPL.Remove(x.Key);
+                BlindPpl.Remove(x.Key);
                 GetPlayerById(x.Key).MarkDirtySettings();
             }
         }
@@ -389,24 +389,24 @@ public class Magician : RoleBase
 
     public override void OnReportDeadBody()
     {
-        SlowPPL.Clear();
-        BlindPPL.Clear();
+        SlowPpl.Clear();
+        BlindPpl.Clear();
         Bombs.Clear();
-        isSniping = false;
+        IsSniping = false;
         if (ClearPortalAfterMeeting.GetBool()) PortalMarks.Clear();
-        if (isSpeedup)
+        if (IsSpeedup)
         {
-            isSpeedup = false;
-            Main.AllPlayerSpeed[playerIdList[0]] = originalSpeed;
+            IsSpeedup = false;
+            Main.AllPlayerSpeed[PlayerIdList[0]] = OriginalSpeed;
         }
     }
 
     private static void RevertSpeedChanges(bool force)
     {
-        foreach (var x in TempSpeeds.Where(x => SlowPPL[x.Key] + SlownessDur.GetInt() < TimeStamp || force))
+        foreach (var x in TempSpeeds.Where(x => SlowPpl[x.Key] + SlownessDur.GetInt() < TimeStamp || force))
         {
             Main.AllPlayerSpeed[x.Key] = x.Value;
-            SlowPPL.Remove(x.Key);
+            SlowPpl.Remove(x.Key);
             TempSpeeds.Remove(x.Key);
             GetPlayerById(x.Key).MarkDirtySettings();
         }
@@ -415,7 +415,7 @@ public class Magician : RoleBase
     private static Dictionary<PlayerControl, float> GetSnipeTargets(PlayerControl sniper)
     {
         var targets = new Dictionary<PlayerControl, float>();
-        var snipeBasePos = snipeBasePosition;
+        var snipeBasePos = SnipeBasePosition;
         var snipePos = sniper.transform.position;
         var dir = (snipePos - snipeBasePos).normalized;
 

@@ -299,7 +299,6 @@ public class Romantic : RoleBase
 public class VengefulRomantic : RoleBase
 {
     private static byte VengefulRomanticId = byte.MaxValue;
-    private static PlayerControl VengefulRomantic_;
 
     public static bool HasKilledKiller;
     public static byte Target = byte.MaxValue;
@@ -313,7 +312,6 @@ public class VengefulRomantic : RoleBase
     public override void Init()
     {
         VengefulRomanticId = byte.MaxValue;
-        VengefulRomantic_ = null;
         Target = byte.MaxValue;
         HasKilledKiller = false;
     }
@@ -321,7 +319,7 @@ public class VengefulRomantic : RoleBase
     public override void Add(byte playerId)
     {
         VengefulRomanticId = playerId;
-        VengefulRomantic_ = Utils.GetPlayerById(playerId);
+        Utils.GetPlayerById(playerId);
     }
 
     public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && !HasKilledKiller;
@@ -381,9 +379,9 @@ public class VengefulRomantic : RoleBase
 
 public class RuthlessRomantic : RoleBase
 {
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -391,12 +389,12 @@ public class RuthlessRomantic : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc) => Romantic.RuthlessCanVent.GetBool();

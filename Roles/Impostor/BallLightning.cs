@@ -12,7 +12,7 @@ namespace EHR.Impostor;
 public class BallLightning : RoleBase
 {
     private const int Id = 16700;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     private static OptionItem KillCooldown;
     private static OptionItem ConvertTime;
@@ -21,28 +21,31 @@ public class BallLightning : RoleBase
     private static List<byte> GhostPlayer = [];
     private static Dictionary<byte, PlayerControl> RealKiller = [];
 
-    public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
+    public override bool IsEnable => PlayerIdList.Count > 0 || Randomizer.Exists;
 
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.BallLightning);
-        KillCooldown = new FloatOptionItem(Id + 10, "BallLightningKillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning])
+        KillCooldown = new FloatOptionItem(Id + 10, "BallLightningKillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning])
             .SetValueFormat(OptionFormat.Seconds);
-        ConvertTime = new FloatOptionItem(Id + 12, "BallLightningConvertTime", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning])
+        ConvertTime = new FloatOptionItem(Id + 12, "BallLightningConvertTime", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning])
             .SetValueFormat(OptionFormat.Seconds);
-        KillerConvertGhost = new BooleanOptionItem(Id + 14, "BallLightningKillerConvertGhost", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning]);
+        KillerConvertGhost = new BooleanOptionItem(Id + 14, "BallLightningKillerConvertGhost", true, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning]);
     }
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         GhostPlayer = [];
         RealKiller = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
     }
 
     private static void SendRPC(byte playerId)

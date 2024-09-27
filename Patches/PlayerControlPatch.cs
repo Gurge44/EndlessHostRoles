@@ -1093,8 +1093,8 @@ static class ReportDeadBodyPatch
         Grenadier.GrenadierBlinding.Clear();
         SecurityGuard.BlockSabo.Clear();
         Grenadier.MadGrenadierBlinding.Clear();
-        Divinator.didVote.Clear();
-        Oracle.didVote.Clear();
+        Divinator.DidVote.Clear();
+        Oracle.DidVote.Clear();
         Vulture.Clear();
 
         foreach (var state in Main.PlayerStates.Values)
@@ -1355,7 +1355,7 @@ static class FixedUpdatePatch
                     if (!PlagueBearer.PestilenceList.Contains(playerId))
                         PlagueBearer.PestilenceList.Add(playerId);
                     player.ResetKillCooldown();
-                    PlagueBearer.playerIdList.Remove(playerId);
+                    PlagueBearer.PlayerIdList.Remove(playerId);
                 }
 
                 bool checkPos = inTask && player != null && alive && !Pelican.IsEaten(playerId);
@@ -1729,7 +1729,7 @@ static class FixedUpdatePatch
                     Suffix.Append(GetString("DiedR1Warning"));
 
                 // Devourer
-                if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.playerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)))
+                if (Devourer.HideNameOfConsumedPlayer.GetBool() && Devourer.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Devourer { IsEnable: true } dv && dv.PlayerSkinsCosumed.Contains(seer.PlayerId)))
                     RealName = GetString("DevouredName");
 
                 // Camouflage

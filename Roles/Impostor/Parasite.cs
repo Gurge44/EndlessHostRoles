@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using AmongUs.GameOptions;
-using UnityEngine;
+﻿using AmongUs.GameOptions;
 
 namespace EHR.Impostor
 {
@@ -8,14 +6,13 @@ namespace EHR.Impostor
     {
         public static bool On;
 
-        public static OptionItem ParasiteCD;
-        public static OptionItem ShapeshiftCooldown;
-        public static OptionItem ShapeshiftDuration;
+        private static OptionItem ParasiteCD;
+        private static OptionItem ShapeshiftCooldown;
+        private static OptionItem ShapeshiftDuration;
 
         public static float SSCD;
         public static float SSDur;
 
-        private float Duration;
         public override bool IsEnable => On;
 
         public override void SetupCustomOption()
@@ -35,7 +32,6 @@ namespace EHR.Impostor
         public override void Add(byte playerId)
         {
             On = true;
-            Duration = float.NaN;
         }
 
         public override void Init()
@@ -53,29 +49,8 @@ namespace EHR.Impostor
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             opt.SetVision(true);
-        }
-
-        public override void OnPet(PlayerControl pc)
-        {
-            PlayerControl target = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Impostor)).Shuffle().FirstOrDefault();
-            if (target != null)
-            {
-                Duration = SSDur;
-                pc.RpcShapeshift(target, !Options.DisableAllShapeshiftAnimations.GetBool());
-            }
-        }
-
-        public override void OnFixedUpdate(PlayerControl pc)
-        {
-            if (Duration > 0)
-            {
-                Duration -= Time.fixedDeltaTime;
-            }
-
-            if (!float.IsNaN(Duration) && Duration <= 0)
-            {
-                pc.RpcShapeshift(pc, !Options.DisableAllShapeshiftAnimations.GetBool());
-            }
+            AURoleOptions.ShapeshifterCooldown = SSCD;
+            AURoleOptions.ShapeshifterDuration = SSDur;
         }
     }
 }

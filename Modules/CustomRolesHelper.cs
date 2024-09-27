@@ -452,7 +452,7 @@ internal static class CustomRolesHelper
             CustomRoles.Werewolf => RoleTypes.Impostor,
             CustomRoles.Bandit => RoleTypes.Impostor,
             CustomRoles.Maverick => RoleTypes.Impostor,
-            CustomRoles.Parasite => RoleTypes.Impostor,
+            CustomRoles.Parasite => RoleTypes.Shapeshifter,
             CustomRoles.Totocalcio => RoleTypes.Impostor,
             CustomRoles.Romantic => RoleTypes.Impostor,
             CustomRoles.VengefulRomantic => RoleTypes.Impostor,

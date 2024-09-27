@@ -11,33 +11,35 @@ namespace EHR.Neutral;
 public class Pelican : RoleBase
 {
     private const int Id = 12500;
-    private static List<byte> playerIdList = [];
-    private static Dictionary<byte, List<byte>> eatenList = [];
+    private static List<byte> PlayerIdList = [];
+    private static Dictionary<byte, List<byte>> EatenList = [];
     private static readonly Dictionary<byte, float> OriginalSpeed = [];
     public static OptionItem KillCooldown;
     public static OptionItem CanVent;
 
     private int Count;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Pelican);
-        KillCooldown = new FloatOptionItem(Id + 10, "PelicanKillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican])
+        KillCooldown = new FloatOptionItem(Id + 10, "PelicanKillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican])
             .SetValueFormat(OptionFormat.Seconds);
-        CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican]);
+        CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican]);
     }
 
     public override void Init()
     {
-        playerIdList = [];
-        eatenList = [];
+        PlayerIdList = [];
+        EatenList = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
@@ -47,7 +49,7 @@ public class Pelican : RoleBase
     private static void SyncEatenList( /*byte playerId*/)
     {
         SendRPC(byte.MaxValue);
-        foreach (var el in eatenList)
+        foreach (var el in EatenList)
             SendRPC(el.Key);
     }
 
@@ -58,8 +60,8 @@ public class Pelican : RoleBase
         writer.Write(playerId);
         if (playerId != byte.MaxValue)
         {
-            writer.Write(eatenList[playerId].Count);
-            foreach (byte el in eatenList[playerId].ToArray())
+            writer.Write(EatenList[playerId].Count);
+            foreach (byte el in EatenList[playerId].ToArray())
             {
                 writer.Write(el);
             }
@@ -73,24 +75,24 @@ public class Pelican : RoleBase
         byte playerId = reader.ReadByte();
         if (playerId == byte.MaxValue)
         {
-            eatenList.Clear();
+            EatenList.Clear();
         }
         else
         {
             int eatenNum = reader.ReadInt32();
-            eatenList.Remove(playerId);
+            EatenList.Remove(playerId);
             List<byte> list = [];
             for (int i = 0; i < eatenNum; i++)
                 list.Add(reader.ReadByte());
-            eatenList.Add(playerId, list);
+            EatenList.Add(playerId, list);
         }
     }
 
-    public static bool IsEaten(PlayerControl pc, byte id) => eatenList.ContainsKey(pc.PlayerId) && eatenList[pc.PlayerId].Contains(id);
+    public static bool IsEaten(PlayerControl pc, byte id) => EatenList.ContainsKey(pc.PlayerId) && EatenList[pc.PlayerId].Contains(id);
 
     public static bool IsEaten(byte id)
     {
-        foreach (var el in eatenList)
+        foreach (var el in EatenList)
             if (el.Value.Contains(id))
                 return true;
         return false;
@@ -122,7 +124,7 @@ public class Pelican : RoleBase
         var player = Utils.GetPlayerById(playerId);
         if (player == null) return "Invalid";
         var eatenNum = 0;
-        if (eatenList.TryGetValue(playerId, out List<byte> value))
+        if (EatenList.TryGetValue(playerId, out List<byte> value))
             eatenNum = value.Count;
         return Utils.ColorString(eatenNum < 1 ? Color.gray : Utils.GetRoleColor(CustomRoles.Pelican), $"({eatenNum})");
     }
@@ -130,8 +132,8 @@ public class Pelican : RoleBase
     public static void EatPlayer(PlayerControl pc, PlayerControl target)
     {
         if (pc == null || target == null || !CanEat(pc, target.PlayerId)) return;
-        if (!eatenList.ContainsKey(pc.PlayerId)) eatenList.Add(pc.PlayerId, []);
-        eatenList[pc.PlayerId].Add(target.PlayerId);
+        if (!EatenList.ContainsKey(pc.PlayerId)) EatenList.Add(pc.PlayerId, []);
+        EatenList[pc.PlayerId].Add(target.PlayerId);
 
         SyncEatenList( /*pc.PlayerId*/);
 
@@ -150,7 +152,7 @@ public class Pelican : RoleBase
 
     public override void OnReportDeadBody()
     {
-        foreach (var pc in eatenList)
+        foreach (var pc in EatenList)
         {
             foreach (byte tar in pc.Value)
             {
@@ -168,13 +170,13 @@ public class Pelican : RoleBase
             }
         }
 
-        eatenList.Clear();
+        EatenList.Clear();
         SyncEatenList( /*byte.MaxValue*/);
     }
 
     public static void OnPelicanDied(byte pc)
     {
-        if (!eatenList.TryGetValue(pc, out List<byte> value)) return;
+        if (!EatenList.TryGetValue(pc, out List<byte> value)) return;
         foreach (byte tar in value)
         {
             var target = Utils.GetPlayerById(tar);
@@ -189,7 +191,7 @@ public class Pelican : RoleBase
             Logger.Info($"{Utils.GetPlayerById(pc).GetRealName()} died, {target.GetRealName()} is back in-game", "Pelican");
         }
 
-        eatenList.Remove(pc);
+        EatenList.Remove(pc);
         SyncEatenList( /*pc*/);
     }
 
@@ -197,9 +199,9 @@ public class Pelican : RoleBase
     {
         if (!GameStates.IsInTask)
         {
-            if (eatenList.Count > 0)
+            if (EatenList.Count > 0)
             {
-                eatenList.Clear();
+                EatenList.Clear();
                 SyncEatenList( /*byte.MaxValue*/);
             }
 
@@ -211,7 +213,7 @@ public class Pelican : RoleBase
         if (Count > 0) return;
         Count = 20;
 
-        if (!eatenList.TryGetValue(pc.PlayerId, out List<byte> list)) return;
+        if (!EatenList.TryGetValue(pc.PlayerId, out List<byte> list)) return;
         foreach (byte tar in list)
         {
             var target = Utils.GetPlayerById(tar);

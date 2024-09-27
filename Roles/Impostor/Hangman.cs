@@ -8,7 +8,7 @@ namespace EHR.Impostor;
 public class Hangman : RoleBase
 {
     private const int Id = 1400;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     private static OptionItem ShapeshiftCooldown;
     public static OptionItem ShapeshiftDuration;
@@ -16,7 +16,7 @@ public class Hangman : RoleBase
     private static OptionItem HangmanLimitOpt;
     public static OptionItem HangmanAbilityUseGainWithEachKill;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -40,12 +40,12 @@ public class Hangman : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(HangmanLimitOpt.GetInt());
     }
 

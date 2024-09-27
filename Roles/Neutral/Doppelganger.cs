@@ -12,17 +12,18 @@ namespace EHR.Neutral;
 public class Doppelganger : RoleBase
 {
     private const int Id = 648100;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     private static OptionItem KillCooldown;
-    public static OptionItem MaxSteals;
+    private static OptionItem CanVent;
+    private static OptionItem MaxSteals;
     private static OptionItem ResetMode;
     private static OptionItem ResetTimer;
 
     public static Dictionary<byte, string> DoppelVictim = [];
     public static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> DoppelPresentSkin = [];
-    public static Dictionary<byte, int> TotalSteals = [];
-    public static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> DoppelDefaultSkin = [];
+    private static Dictionary<byte, int> TotalSteals = [];
+    private static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> DoppelDefaultSkin = [];
 
     private static readonly string[] ResetModes =
     [
@@ -34,22 +35,28 @@ public class Doppelganger : RoleBase
     private byte DGId;
     private long StealTimeStamp;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Doppelganger);
-        MaxSteals = new IntegerOptionItem(Id + 10, "DoppelMaxSteals", new(1, 14, 1), 9, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
-        KillCooldown = new FloatOptionItem(Id + 11, "KillCooldown", new(0f, 180f, 0.5f), 20f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger])
+        MaxSteals = new IntegerOptionItem(Id + 10, "DoppelMaxSteals", new(1, 14, 1), 9, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
+        KillCooldown = new FloatOptionItem(Id + 11, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger])
             .SetValueFormat(OptionFormat.Seconds);
-        ResetMode = new StringOptionItem(Id + 12, "DGResetMode", ResetModes, 0, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
-        ResetTimer = new FloatOptionItem(Id + 13, "DGResetTimer", new(0f, 60f, 1f), 30f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger])
+        CanVent = new BooleanOptionItem(Id + 14, "CanVent", false, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
+        ResetMode = new StringOptionItem(Id + 12, "DGResetMode", ResetModes, 0, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
+        ResetTimer = new FloatOptionItem(Id + 13, "DGResetTimer", new(0f, 60f, 1f), 30f, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger])
             .SetValueFormat(OptionFormat.Seconds);
     }
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         DoppelVictim = [];
         TotalSteals = [];
         DoppelPresentSkin = [];
@@ -60,7 +67,7 @@ public class Doppelganger : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         DGId = playerId;
         TotalSteals.Add(playerId, 0);
         var pc = Utils.GetPlayerById(playerId);
@@ -88,9 +95,9 @@ public class Doppelganger : RoleBase
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-    public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
 
-    public static NetworkedPlayerInfo.PlayerOutfit Set(NetworkedPlayerInfo.PlayerOutfit instance, string playerName, int colorId, string hatId, string skinId, string visorId, string petId, string nameplateId)
+    private static NetworkedPlayerInfo.PlayerOutfit Set(NetworkedPlayerInfo.PlayerOutfit instance, string playerName, int colorId, string hatId, string skinId, string visorId, string petId, string nameplateId)
     {
         instance.PlayerName = playerName;
         instance.ColorId = colorId;

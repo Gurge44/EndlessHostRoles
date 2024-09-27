@@ -10,7 +10,7 @@ namespace EHR.Crewmate
     public class CameraMan : RoleBase
     {
         private const int Id = 641600;
-        private static List<byte> playerIdList = [];
+        private static List<byte> PlayerIdList = [];
 
         public static OptionItem VentCooldown;
         public static OptionItem UseLimitOpt;
@@ -22,7 +22,7 @@ namespace EHR.Crewmate
         private Vector2 BasePos;
 
         private bool IsTeleported;
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
@@ -45,7 +45,7 @@ namespace EHR.Crewmate
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             CameraPosition = Main.CurrentMap switch
             {
                 MapNames.Skeld => new(-13.5f, -5.5f),
@@ -60,7 +60,7 @@ namespace EHR.Crewmate
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             IsTeleported = false;
         }

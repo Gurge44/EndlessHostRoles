@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using HarmonyLib;
 using static EHR.Options;
 
 namespace EHR.Crewmate
@@ -9,16 +8,16 @@ namespace EHR.Crewmate
     public class Drainer : RoleBase
     {
         private const int Id = 642500;
-        private static List<byte> playerIdList = [];
+        private static List<byte> PlayerIdList = [];
 
         private static OptionItem VentCD;
         private static OptionItem UseLimit;
         public static OptionItem DrainerAbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
 
-        public static Dictionary<byte, int> playersInVents = [];
+        public static Dictionary<byte, int> PlayersInVents = [];
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
@@ -39,13 +38,13 @@ namespace EHR.Crewmate
 
         public override void Init()
         {
-            playerIdList = [];
-            playersInVents = [];
+            PlayerIdList = [];
+            PlayersInVents = [];
         }
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimit.GetInt());
         }
 
@@ -57,7 +56,7 @@ namespace EHR.Crewmate
         public static void OnAnyoneExitVent(PlayerControl pc)
         {
             if (!AmongUsClient.Instance.AmHost) return;
-            if (pc != null) playersInVents.Remove(pc.PlayerId);
+            if (pc != null) PlayersInVents.Remove(pc.PlayerId);
         }
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)
@@ -74,7 +73,7 @@ namespace EHR.Crewmate
         {
             if (!AmongUsClient.Instance.AmHost || pc == null || vent == null || pc.Is(CustomRoles.Drainer)) return;
 
-            playersInVents[pc.PlayerId] = vent.Id;
+            PlayersInVents[pc.PlayerId] = vent.Id;
         }
 
         void KillPlayersInVent(PlayerControl pc, Vent vent)
@@ -83,9 +82,9 @@ namespace EHR.Crewmate
 
             int ventId = vent.Id;
 
-            if (!playersInVents.ContainsValue(ventId)) return;
+            if (!PlayersInVents.ContainsValue(ventId)) return;
 
-            foreach (var venterId in playersInVents.Where(x => x.Value == ventId).ToArray())
+            foreach (var venterId in PlayersInVents.Where(x => x.Value == ventId).ToArray())
             {
                 var venter = Utils.GetPlayerById(venterId.Key);
                 if (venter == null) continue;
@@ -105,7 +104,7 @@ namespace EHR.Crewmate
         public override void OnReportDeadBody()
         {
             if (!IsEnable) return;
-            playersInVents.Clear();
+            PlayersInVents.Clear();
         }
     }
 }

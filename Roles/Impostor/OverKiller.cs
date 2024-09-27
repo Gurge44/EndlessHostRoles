@@ -16,7 +16,7 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(16900, TabGroup.ImpostorRoles, CustomRoles.OverKiller);
-            KillCooldown = new FloatOptionItem(16902, "KillCooldown", new(0f, 180f, 0.5f), 20f, TabGroup.ImpostorRoles)
+            KillCooldown = new FloatOptionItem(16902, "KillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.OverKiller])
                 .SetValueFormat(OptionFormat.Seconds);
         }

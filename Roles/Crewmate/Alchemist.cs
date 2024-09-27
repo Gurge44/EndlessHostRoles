@@ -14,7 +14,7 @@ namespace EHR.Crewmate
     public class Alchemist : RoleBase
     {
         private const int Id = 5250;
-        private static List<byte> playerIdList = [];
+        private static List<byte> PlayerIdList = [];
 
         public static OptionItem VentCooldown;
         public static OptionItem ShieldDuration;
@@ -37,7 +37,7 @@ namespace EHR.Crewmate
         private int ventedId = -10;
         public bool VisionPotionActive;
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
         bool IsInvis => InvisTime != -10;
 
         public override void SetupCustomOption()
@@ -64,7 +64,7 @@ namespace EHR.Crewmate
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             PotionID = 10;
             PlayerName = string.Empty;
             ventedId = -10;
@@ -76,7 +76,7 @@ namespace EHR.Crewmate
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             PlayerName = Utils.GetPlayerById(playerId).GetRealName();
             AlchemistId = playerId;
             PotionID = 10;

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using AmongUs.GameOptions;
 using static EHR.Options;
 
@@ -8,22 +7,21 @@ namespace EHR.Neutral
     public class FFF : RoleBase
     {
         private const int Id = 11300;
-        public static List<byte> PlayerIdList = [];
-        public static bool On;
+        private static bool On;
 
-        public static OptionItem ChooseConverted;
-        public static OptionItem MisFireKillTarget;
+        private static OptionItem ChooseConverted;
+        private static OptionItem MisFireKillTarget;
 
-        public static OptionItem CanKillLovers;
-        public static OptionItem CanKillMadmate;
-        public static OptionItem CanKillCharmed;
-        public static OptionItem CanKillSidekicks;
-        public static OptionItem CanKillEgoists;
-        public static OptionItem CanKillContagious;
-        public static OptionItem CanKillUndead;
+        private static OptionItem CanKillLovers;
+        private static OptionItem CanKillMadmate;
+        private static OptionItem CanKillCharmed;
+        private static OptionItem CanKillSidekicks;
+        private static OptionItem CanKillEgoists;
+        private static OptionItem CanKillContagious;
+        private static OptionItem CanKillUndead;
 
-        public static OptionItem ChangeRoleWhenCantWin;
-        public static OptionItem ChangeRole;
+        private static OptionItem ChangeRoleWhenCantWin;
+        private static OptionItem ChangeRole;
 
         private static readonly CustomRoles[] ChangeRoles =
         [
@@ -59,14 +57,12 @@ namespace EHR.Neutral
 
         public override void Init()
         {
-            PlayerIdList = [];
             On = false;
             IsWon = false;
         }
 
         public override void Add(byte playerId)
         {
-            PlayerIdList.Add(playerId);
             On = true;
             IsWon = false;
         }

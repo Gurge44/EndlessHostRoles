@@ -10,8 +10,7 @@ namespace EHR.Crewmate
     {
         public static bool On;
         public static Dictionary<byte, Vector2> TimeMasterBackTrack = [];
-        public static Dictionary<byte, int> TimeMasterNum = [];
-        public static Dictionary<byte, long> TimeMasterInProtect = [];
+        private static readonly Dictionary<byte, long> TimeMasterInProtect = [];
         public override bool IsEnable => On;
 
         public override void SetupCustomOption()
@@ -20,7 +19,7 @@ namespace EHR.Crewmate
             TimeMasterSkillCooldown = new FloatOptionItem(8960, "TimeMasterSkillCooldown", new(0f, 180f, 1f), 20f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
                 .SetValueFormat(OptionFormat.Seconds);
-            TimeMasterSkillDuration = new FloatOptionItem(8961, "TimeMasterSkillDuration", new(0f, 180f, 1f), 10f, TabGroup.CrewmateRoles)
+            TimeMasterSkillDuration = new FloatOptionItem(8961, "TimeMasterSkillDuration", new(0f, 180f, 1f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.TimeMaster])
                 .SetValueFormat(OptionFormat.Seconds);
             TimeMasterMaxUses = new IntegerOptionItem(8962, "TimeMasterMaxUses", new(0, 180, 1), 1, TabGroup.CrewmateRoles)
@@ -37,7 +36,6 @@ namespace EHR.Crewmate
         public override void Add(byte playerId)
         {
             On = true;
-            TimeMasterNum[playerId] = 0;
             playerId.SetAbilityUseLimit(TimeMasterMaxUses.GetInt());
         }
 

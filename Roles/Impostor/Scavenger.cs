@@ -13,7 +13,7 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(4000, TabGroup.ImpostorRoles, CustomRoles.Scavenger);
-            ScavengerKillCooldown = new FloatOptionItem(4010, "KillCooldown", new(0f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles)
+            ScavengerKillCooldown = new FloatOptionItem(4010, "KillCooldown", new(0f, 180f, 2.5f), 35f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Scavenger])
                 .SetValueFormat(OptionFormat.Seconds);
             ScavengerKillDuration = new FloatOptionItem(4011, "ScavengerKillDuration", new(0f, 90f, 0.5f), 5f, TabGroup.ImpostorRoles)

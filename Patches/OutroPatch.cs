@@ -37,7 +37,7 @@ static class EndGamePatch
 
         foreach ((byte id, PlayerState state) in Main.PlayerStates)
         {
-            if (Doppelganger.playerIdList.Count > 0 && Doppelganger.DoppelVictim.ContainsKey(id))
+            if (Doppelganger.PlayerIdList.Count > 0 && Doppelganger.DoppelVictim.ContainsKey(id))
             {
                 var dpc = Utils.GetPlayerById(id);
                 if (dpc != null)

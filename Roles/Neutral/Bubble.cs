@@ -24,7 +24,7 @@ namespace EHR.Neutral
         private byte BubbleId = byte.MaxValue;
         private static int Id => 643220;
 
-        private PlayerControl Bubble_ => GetPlayerById(BubbleId);
+        private PlayerControl BubblePC => GetPlayerById(BubbleId);
 
         public override bool IsEnable => BubbleId != byte.MaxValue;
 
@@ -92,7 +92,7 @@ namespace EHR.Neutral
             if (!IsEnable || target == null) return false;
             EncasedPlayers.Add(target.PlayerId, TimeStamp);
             SendRPC(target.PlayerId);
-            Bubble_.SetKillCooldown();
+            BubblePC.SetKillCooldown();
             return false;
         }
 
@@ -129,7 +129,7 @@ namespace EHR.Neutral
                         continue;
                     }
 
-                    pc.Suicide(PlayerState.DeathReason.Bombed, Bubble_);
+                    pc.Suicide(PlayerState.DeathReason.Bombed, BubblePC);
                 }
 
                 EncasedPlayers.Remove(id);
@@ -151,7 +151,7 @@ namespace EHR.Neutral
         {
             if (!IsEnable) return;
             foreach (var pc in EncasedPlayers.Keys.Select(x => GetPlayerById(x)).Where(x => x != null && x.IsAlive()))
-                pc.Suicide(PlayerState.DeathReason.Bombed, Bubble_);
+                pc.Suicide(PlayerState.DeathReason.Bombed, BubblePC);
             EncasedPlayers.Clear();
             SendRPC(clear: true);
         }

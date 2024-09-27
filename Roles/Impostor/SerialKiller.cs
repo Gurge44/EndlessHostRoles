@@ -6,7 +6,7 @@ namespace EHR.Impostor;
 public class SerialKiller : RoleBase
 {
     private const int Id = 1700;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     private static OptionItem KillCooldown;
     private static OptionItem TimeLimit;
@@ -15,28 +15,31 @@ public class SerialKiller : RoleBase
     private float SuicideTimer;
     private int Timer;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.SerialKiller);
-        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SerialKiller])
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SerialKiller])
             .SetValueFormat(OptionFormat.Seconds);
-        TimeLimit = new FloatOptionItem(Id + 11, "SerialKillerLimit", new(5f, 180f, 5f), 80f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SerialKiller])
+        TimeLimit = new FloatOptionItem(Id + 11, "SerialKillerLimit", new(5f, 180f, 5f), 40f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SerialKiller])
             .SetValueFormat(OptionFormat.Seconds);
-        WaitFor1Kill = new BooleanOptionItem(Id + 12, "WaitFor1Kill", true, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SerialKiller]);
+        WaitFor1Kill = new BooleanOptionItem(Id + 12, "WaitFor1Kill", true, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SerialKiller]);
     }
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         SuicideTimer = TimeLimit.GetFloat();
         Timer = TimeLimit.GetInt();
     }
 
     public override void Add(byte serial)
     {
-        playerIdList.Add(serial);
+        PlayerIdList.Add(serial);
         Timer = TimeLimit.GetInt();
         SuicideTimer = TimeLimit.GetFloat();
     }

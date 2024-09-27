@@ -47,7 +47,7 @@ public class FireWorks : RoleBase
         FireWorksRadiusOpt = new FloatOptionItem(Id + 11, "FireWorksRadius", new(0.5f, 5f, 0.5f), 2f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks])
             .SetValueFormat(OptionFormat.Multiplier);
-        CanKill = new BooleanOptionItem(Id + 12, "CanKill", false, TabGroup.ImpostorRoles)
+        CanKill = new BooleanOptionItem(Id + 12, "CanKill", true, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks]);
         KillCooldown = new FloatOptionItem(Id + 13, "KillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks])

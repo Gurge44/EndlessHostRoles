@@ -70,7 +70,7 @@ namespace EHR.Neutral
 
             if (AmongUsClient.Instance.AmHost && MarioVentCount[pc.PlayerId] >= MarioVentNumWin.GetInt())
             {
-                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Mario); //马里奥这个多动症赢了
+                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Mario);
                 CustomWinnerHolder.WinnerIds.Add(pc.PlayerId);
             }
         }

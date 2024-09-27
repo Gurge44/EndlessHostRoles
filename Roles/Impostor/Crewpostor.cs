@@ -18,7 +18,7 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(4800, TabGroup.ImpostorRoles, CustomRoles.Crewpostor);
-            CrewpostorCanKillAllies = new BooleanOptionItem(4810, "CanKillAllies", true, TabGroup.ImpostorRoles)
+            CrewpostorCanKillAllies = new BooleanOptionItem(4810, "CanKillAllies", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
             CrewpostorKnowsAllies = new BooleanOptionItem(4811, "CrewpostorKnowsAllies", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);

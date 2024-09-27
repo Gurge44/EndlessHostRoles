@@ -7,13 +7,13 @@ namespace EHR.Neutral;
 public class Traitor : RoleBase
 {
     private const int Id = 13100;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
     private static OptionItem HasImpostorVision;
     public static OptionItem CanSabotage;
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -31,12 +31,12 @@ public class Traitor : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
     }
 
     public override void SetButtonTexts(HudManager __instance, byte id) => __instance.SabotageButton.ToggleVisible(CanSabotage.GetBool());

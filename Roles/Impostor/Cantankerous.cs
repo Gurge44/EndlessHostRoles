@@ -6,13 +6,13 @@ namespace EHR.Impostor
     public class Cantankerous : RoleBase
     {
         private const int Id = 642860;
-        private static List<byte> playerIdList = [];
+        private static List<byte> PlayerIdList = [];
 
         private static OptionItem PointsGainedPerEjection;
         private static OptionItem StartingPoints;
         private static OptionItem KCD;
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
@@ -30,12 +30,12 @@ namespace EHR.Impostor
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
         }
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(StartingPoints.GetInt());
         }
 

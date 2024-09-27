@@ -12,7 +12,7 @@ namespace EHR.Neutral;
 public class Werewolf : RoleBase
 {
     private const int Id = 12850;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     private static OptionItem KillCooldown;
     private static OptionItem HasImpostorVision;
@@ -20,13 +20,13 @@ public class Werewolf : RoleBase
     private static OptionItem RampageDur;
     private static int CD;
 
-    private static long lastFixedTime;
+    private static long LastFixedTime;
     private long lastTime;
 
     private long RampageTime;
     private byte WWId;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     bool CanRampage => GameStates.IsInTask && RampageTime == -10 && lastTime == -10;
     bool IsRampaging => RampageTime != -10;
@@ -45,7 +45,7 @@ public class Werewolf : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         RampageTime = -10;
         lastTime = -10;
         CD = 0;
@@ -54,7 +54,7 @@ public class Werewolf : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         WWId = playerId;
 
         RampageTime = -10;
@@ -133,9 +133,9 @@ public class Werewolf : RoleBase
             }
         }
 
-        if (lastFixedTime != now && RampageTime != -10)
+        if (LastFixedTime != now && RampageTime != -10)
         {
-            lastFixedTime = now;
+            LastFixedTime = now;
             bool refresh = false;
             var remainTime = RampageTime + (long)RampageDur.GetFloat() - now;
             switch (remainTime)

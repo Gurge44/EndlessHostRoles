@@ -12,7 +12,7 @@ namespace EHR.Impostor
         private const int Id = 3550;
         private static readonly NetworkedPlayerInfo.PlayerOutfit ConsumedOutfit = new NetworkedPlayerInfo.PlayerOutfit().Set("", 15, "", "", "visor_Crack", "", "");
         private static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> OriginalPlayerSkins = [];
-        public static List<byte> playerIdList = [];
+        public static List<byte> PlayerIdList = [];
 
         private static OptionItem DefaultKillCooldown;
         private static OptionItem ReduceKillCooldown;
@@ -23,25 +23,30 @@ namespace EHR.Impostor
 
         public List<byte> PlayerSkinsCosumed = [];
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Devourer);
-            DefaultKillCooldown = new FloatOptionItem(Id + 10, "SansDefaultKillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Devourer])
+            DefaultKillCooldown = new FloatOptionItem(Id + 10, "SansDefaultKillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Devourer])
                 .SetValueFormat(OptionFormat.Seconds);
-            ReduceKillCooldown = new FloatOptionItem(Id + 11, "SansReduceKillCooldown", new(0f, 30f, 0.5f), 1.5f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Devourer])
+            ReduceKillCooldown = new FloatOptionItem(Id + 11, "SansReduceKillCooldown", new(0f, 30f, 0.5f), 1.5f, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Devourer])
                 .SetValueFormat(OptionFormat.Seconds);
-            MinKillCooldown = new FloatOptionItem(Id + 12, "SansMinKillCooldown", new(0f, 30f, 0.5f), 21f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Devourer])
+            MinKillCooldown = new FloatOptionItem(Id + 12, "SansMinKillCooldown", new(0f, 30f, 0.5f), 21f, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Devourer])
                 .SetValueFormat(OptionFormat.Seconds);
-            ShapeshiftCooldown = new FloatOptionItem(Id + 14, "DevourCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Devourer])
+            ShapeshiftCooldown = new FloatOptionItem(Id + 14, "DevourCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Devourer])
                 .SetValueFormat(OptionFormat.Seconds);
-            HideNameOfConsumedPlayer = new BooleanOptionItem(Id + 16, "DevourerHideNameConsumed", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Devourer]);
+            HideNameOfConsumedPlayer = new BooleanOptionItem(Id + 16, "DevourerHideNameConsumed", true, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Devourer]);
         }
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             PlayerSkinsCosumed = [];
             OriginalPlayerSkins = [];
             NowCooldown = DefaultKillCooldown.GetFloat();
@@ -49,7 +54,7 @@ namespace EHR.Impostor
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             PlayerSkinsCosumed = [];
             NowCooldown = DefaultKillCooldown.GetFloat();
         }

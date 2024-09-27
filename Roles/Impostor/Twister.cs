@@ -23,7 +23,7 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Twister);
-            ShapeshiftCooldown = new FloatOptionItem(Id + 10, "TwisterCooldown", new(1f, 60f, 1f), 30f, TabGroup.ImpostorRoles)
+            ShapeshiftCooldown = new FloatOptionItem(Id + 10, "TwisterCooldown", new(1f, 60f, 1f), 15f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Twister])
                 .SetValueFormat(OptionFormat.Seconds);
             TwisterLimitOpt = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles)

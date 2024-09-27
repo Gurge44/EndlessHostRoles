@@ -13,7 +13,7 @@ namespace EHR.Impostor;
 internal class AntiAdminer : RoleBase
 {
     private const int Id = 2300;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     private static OptionItem CanCheckCamera;
     public static OptionItem EnableExtraAbility;
@@ -32,7 +32,7 @@ internal class AntiAdminer : RoleBase
 
     private bool IsMonitor;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -50,7 +50,7 @@ internal class AntiAdminer : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         PlayersNearDevices = [];
         IsAdminWatch = false;
         IsVitalWatch = false;
@@ -60,7 +60,7 @@ internal class AntiAdminer : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         IsMonitor = Main.PlayerStates[playerId].MainRole == CustomRoles.Monitor;
         ExtraAbilityStartTimeStamp = 0;
         AntiAdminerId = playerId;
@@ -316,7 +316,7 @@ internal class AntiAdminer : RoleBase
         if (!PlayersNearDevices.Contains(seer.PlayerId)) return string.Empty;
 
         AntiAdminer aa = null;
-        foreach (byte id in playerIdList)
+        foreach (byte id in PlayerIdList)
         {
             if (Main.PlayerStates[id].Role is not AntiAdminer { IsEnable: true, IsMonitor: false } x || x.ExtraAbilityStartTimeStamp == 0) continue;
             if (aa != null && x.ExtraAbilityStartTimeStamp >= aa.ExtraAbilityStartTimeStamp) continue;

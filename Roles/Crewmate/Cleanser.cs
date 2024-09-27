@@ -10,32 +10,34 @@ namespace EHR.Crewmate;
 public class Cleanser : RoleBase
 {
     private const int Id = 23420;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
     public static List<byte> CleansedPlayers = [];
     public static Dictionary<byte, bool> DidVote = [];
 
     public static OptionItem CleanserUsesOpt;
     public static OptionItem CleansedCanGetAddon;
     public static OptionItem CancelVote;
-    private byte CleanserId;
 
+    private byte CleanserId;
     public byte CleanserTarget = byte.MaxValue;
     public int CleanserUses;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Cleanser);
-        CleanserUsesOpt = new IntegerOptionItem(Id + 10, "MaxCleanserUses", new(1, 14, 1), 3, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser])
+        CleanserUsesOpt = new IntegerOptionItem(Id + 10, "MaxCleanserUses", new(1, 14, 1), 3, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser])
             .SetValueFormat(OptionFormat.Times);
-        CleansedCanGetAddon = new BooleanOptionItem(Id + 11, "CleansedCanGetAddon", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser]);
+        CleansedCanGetAddon = new BooleanOptionItem(Id + 11, "CleansedCanGetAddon", false, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser]);
         CancelVote = CreateVoteCancellingUseSetting(Id + 12, CustomRoles.Cleanser, TabGroup.CrewmateRoles);
     }
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         CleanserTarget = byte.MaxValue;
         CleanserUses = 0;
         CleansedPlayers = [];
@@ -45,7 +47,7 @@ public class Cleanser : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         CleanserTarget = byte.MaxValue;
         CleanserUses = 0;
         DidVote.Add(playerId, false);

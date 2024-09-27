@@ -14,7 +14,7 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(8550, TabGroup.CrewmateRoles, CustomRoles.Witness);
-            WitnessCD = new FloatOptionItem(8552, "AbilityCD", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles)
+            WitnessCD = new FloatOptionItem(8552, "AbilityCD", new(0f, 60f, 2.5f), 10f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Witness])
                 .SetValueFormat(OptionFormat.Seconds);
             WitnessTime = new IntegerOptionItem(8553, "WitnessTime", new(0, 90, 1), 10, TabGroup.CrewmateRoles)

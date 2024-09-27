@@ -6,17 +6,17 @@ namespace EHR.Crewmate;
 internal class NiceEraser : RoleBase
 {
     private const int Id = 5580;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     private static OptionItem EraseLimitOpt;
     public static OptionItem HideVote;
     public static OptionItem CancelVote;
 
-    private static List<byte> didVote = [];
+    private static List<byte> DidVote = [];
     private static List<byte> PlayerToErase = [];
     public static List<byte> ErasedPlayers = [];
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -29,21 +29,21 @@ internal class NiceEraser : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         ErasedPlayers = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(EraseLimitOpt.GetInt());
     }
 
     public override bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null) return false;
-        if (didVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
-        didVote.Add(player.PlayerId);
+        if (DidVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
+        DidVote.Add(player.PlayerId);
 
         if (player.GetAbilityUseLimit() < 1) return false;
 
@@ -75,7 +75,7 @@ internal class NiceEraser : RoleBase
     public override void OnReportDeadBody()
     {
         PlayerToErase = [];
-        didVote = [];
+        DidVote = [];
     }
 
     public override void AfterMeetingTasks()

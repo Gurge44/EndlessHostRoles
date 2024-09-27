@@ -15,7 +15,7 @@ namespace EHR.Impostor;
 public class Councillor : RoleBase
 {
     private const int Id = 900;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
     private static OptionItem MurderLimitPerGame;
     private static OptionItem MurderLimitPerMeeting;
     private static OptionItem TryHideMsg;
@@ -26,7 +26,7 @@ public class Councillor : RoleBase
     private static Dictionary<byte, int> MeetingKillLimit = [];
 
     private byte CouncillorId;
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -54,13 +54,13 @@ public class Councillor : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         MeetingKillLimit = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         CouncillorId = playerId;
         MeetingKillLimit[playerId] = MurderLimitPerMeeting.GetInt();
         playerId.SetAbilityUseLimit(MurderLimitPerGame.GetInt());
@@ -126,7 +126,7 @@ public class Councillor : RoleBase
                         return true;
                     }
 
-                    if (Jailor.playerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == targetId))
+                    if (Jailor.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == targetId))
                     {
                         if (!isUI) Utils.SendMessage(GetString("CanNotTrialJailed"), pc.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
                         else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")) + "\n" + GetString("CanNotTrialJailed"));

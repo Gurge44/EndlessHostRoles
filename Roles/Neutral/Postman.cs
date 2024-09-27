@@ -10,7 +10,7 @@ namespace EHR.Neutral;
 public class Postman : RoleBase
 {
     private const int Id = 641400;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     private static OptionItem KillCooldown;
     public static OptionItem CanVent;
@@ -22,7 +22,7 @@ public class Postman : RoleBase
     public byte Target;
     private List<byte> wereTargets = [];
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -36,7 +36,7 @@ public class Postman : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         Target = byte.MaxValue;
         IsFinished = false;
         wereTargets = [];
@@ -44,7 +44,7 @@ public class Postman : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         PostmanId = playerId;
         LateTask.New(SetNewTarget, 8f, "Set Postman First Target");
 
@@ -60,7 +60,7 @@ public class Postman : RoleBase
 
     public static void CheckAndResetTargets(PlayerControl deadPc, bool isDeath = false)
     {
-        foreach (var id in playerIdList)
+        foreach (var id in PlayerIdList)
         {
             var pc = Utils.GetPlayerById(id);
             if (pc == null || !pc.IsAlive()) continue;

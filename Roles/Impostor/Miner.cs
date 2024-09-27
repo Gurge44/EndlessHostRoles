@@ -11,7 +11,7 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(3800, TabGroup.ImpostorRoles, CustomRoles.Miner);
-            Options.MinerSSCD = new FloatOptionItem(3811, "ShapeshiftCooldown", new(1f, 180f, 1f), 15f, TabGroup.ImpostorRoles)
+            Options.MinerSSCD = new FloatOptionItem(3811, "ShapeshiftCooldown", new(1f, 180f, 1f), 5f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Miner])
                 .SetValueFormat(OptionFormat.Seconds);
         }

@@ -12,40 +12,46 @@ namespace EHR.Neutral;
 public class Agitater : RoleBase
 {
     private const int Id = 12420;
-    public static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
-    public static OptionItem BombExplodeCooldown;
-    public static OptionItem PassCooldown;
-    public static OptionItem AgitaterCanGetBombed;
-    public static OptionItem AgiTaterBombCooldown;
-    public static OptionItem AgitaterAutoReportBait;
-    public static OptionItem HasImpostorVision;
-    public bool AgitaterHasBombed;
+    private static OptionItem BombExplodeCooldown;
+    private static OptionItem PassCooldown;
+    private static OptionItem AgitaterCanGetBombed;
+    private static OptionItem AgiTaterBombCooldown;
+    private static OptionItem AgitaterAutoReportBait;
+    private static OptionItem HasImpostorVision;
+    private bool AgitaterHasBombed;
     private byte AgitaterId;
 
-    public byte CurrentBombedPlayer = byte.MaxValue;
-    public long CurrentBombedPlayerTime;
-    public byte LastBombedPlayer = byte.MaxValue;
+    private byte CurrentBombedPlayer = byte.MaxValue;
+    private long CurrentBombedPlayerTime;
+    private byte LastBombedPlayer = byte.MaxValue;
 
-    public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
+    public override bool IsEnable => PlayerIdList.Count > 0 || Randomizer.Exists;
 
     public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Agitater);
-        AgiTaterBombCooldown = new FloatOptionItem(Id + 10, "AgitaterBombCooldown", new(10f, 180f, 0.5f), 20f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Agitater])
+        AgiTaterBombCooldown = new FloatOptionItem(Id + 10, "AgitaterBombCooldown", new(10f, 180f, 0.5f), 20f, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Agitater])
             .SetValueFormat(OptionFormat.Seconds);
-        PassCooldown = new FloatOptionItem(Id + 11, "AgitaterPassCooldown", new(0f, 5f, 0.25f), 1f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Agitater])
+        PassCooldown = new FloatOptionItem(Id + 11, "AgitaterPassCooldown", new(0f, 5f, 0.25f), 2f, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Agitater])
             .SetValueFormat(OptionFormat.Seconds);
-        BombExplodeCooldown = new FloatOptionItem(Id + 12, "BombExplodeCooldown", new(1f, 60f, 1f), 10f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Agitater])
+        BombExplodeCooldown = new FloatOptionItem(Id + 12, "BombExplodeCooldown", new(1f, 60f, 1f), 15f, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Agitater])
             .SetValueFormat(OptionFormat.Seconds);
-        AgitaterCanGetBombed = new BooleanOptionItem(Id + 13, "AgitaterCanGetBombed", false, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Agitater]);
-        AgitaterAutoReportBait = new BooleanOptionItem(Id + 14, "AgitaterAutoReportBait", false, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Agitater]);
-        HasImpostorVision = new BooleanOptionItem(Id + 15, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Agitater]);
+        AgitaterCanGetBombed = new BooleanOptionItem(Id + 13, "AgitaterCanGetBombed", false, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Agitater]);
+        AgitaterAutoReportBait = new BooleanOptionItem(Id + 14, "AgitaterAutoReportBait", true, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Agitater]);
+        HasImpostorVision = new BooleanOptionItem(Id + 15, "ImpostorVision", true, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Agitater]);
     }
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         CurrentBombedPlayer = byte.MaxValue;
         LastBombedPlayer = byte.MaxValue;
         AgitaterHasBombed = false;
@@ -55,7 +61,7 @@ public class Agitater : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         AgitaterId = playerId;
 
         CurrentBombedPlayer = byte.MaxValue;
@@ -104,7 +110,7 @@ public class Agitater : RoleBase
                 // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 if (pc != null && pc.IsAlive() && killer != null) // Can be null since it's a late task
                 {
-                    pc.Suicide(PlayerState.DeathReason.Bombed, Utils.GetPlayerById(playerIdList[0]));
+                    pc.Suicide(PlayerState.DeathReason.Bombed, Utils.GetPlayerById(PlayerIdList[0]));
                     Logger.Info($"{killer.GetNameWithRole().RemoveHtmlTags()} bombed {pc.GetNameWithRole().RemoveHtmlTags()}, bomb cd complete", "Agitater");
                     ResetBomb();
                 }
@@ -118,7 +124,7 @@ public class Agitater : RoleBase
         if (!IsEnable) return;
         if (CurrentBombedPlayer == byte.MaxValue) return;
         var target = Utils.GetPlayerById(CurrentBombedPlayer);
-        var killer = Utils.GetPlayerById(playerIdList[0]);
+        var killer = Utils.GetPlayerById(PlayerIdList[0]);
         if (target == null || killer == null) return;
         target.RpcExileV2();
         target.SetRealKiller(killer);

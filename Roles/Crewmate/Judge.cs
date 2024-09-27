@@ -14,7 +14,7 @@ namespace EHR.Crewmate;
 public class Judge : RoleBase
 {
     private const int Id = 9300;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     public static OptionItem TrialLimitPerMeeting;
     public static OptionItem TrialLimitPerGame;
@@ -33,7 +33,7 @@ public class Judge : RoleBase
 
     private static Dictionary<byte, int> GlobalUseLimit = [];
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -42,7 +42,7 @@ public class Judge : RoleBase
         TrialLimitPerGame = new FloatOptionItem(Id + 9, "AbilityUseLimit", new(0f, 30f, 1f), 1f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]).SetValueFormat(OptionFormat.Times);
         CanTrialMadmate = new BooleanOptionItem(Id + 12, "JudgeCanTrialMadmate", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
         CanTrialConverted = new BooleanOptionItem(Id + 16, "JudgeCanTrialConverted", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
-        CanTrialCrewKilling = new BooleanOptionItem(Id + 13, "JudgeCanTrialnCrewKilling", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
+        CanTrialCrewKilling = new BooleanOptionItem(Id + 13, "JudgeCanTrialnCrewKilling", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
         CanTrialNeutralB = new BooleanOptionItem(Id + 14, "JudgeCanTrialNeutralB", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
         CanTrialNeutralE = new BooleanOptionItem(Id + 17, "JudgeCanTrialNeutralE", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
         CanTrialNeutralK = new BooleanOptionItem(Id + 15, "JudgeCanTrialNeutralK", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Judge]);
@@ -53,20 +53,20 @@ public class Judge : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         GlobalUseLimit = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(TrialLimitPerMeeting.GetInt());
         GlobalUseLimit[playerId] = TrialLimitPerGame.GetInt();
     }
 
     public override void OnReportDeadBody()
     {
-        byte[] list = [.. playerIdList];
+        byte[] list = [.. PlayerIdList];
         foreach (byte pid in list)
         {
             pid.SetAbilityUseLimit(TrialLimitPerMeeting.GetInt());
@@ -121,10 +121,17 @@ public class Judge : RoleBase
                         return true;
                     }
 
-                    if (Jailor.playerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == target.PlayerId))
+                    if (Jailor.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == target.PlayerId))
                     {
                         if (!isUI) Utils.SendMessage(GetString("CanNotTrialJailed"), pc.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
                         else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")) + "\n" + GetString("CanNotTrialJailed"));
+                        return true;
+                    }
+
+                    if (Medic.InProtect(target.PlayerId) && !Medic.JudgingIgnoreShield.GetBool())
+                    {
+                        if (!isUI) Utils.SendMessage(GetString("CanNotTrialProtected"), pc.PlayerId, title: CustomRoles.Medic.ToColoredString());
+                        else pc.ShowPopUp($"{CustomRoles.Medic.ToColoredString()}\n{GetString("CanNotTrialProtected")}");
                         return true;
                     }
 

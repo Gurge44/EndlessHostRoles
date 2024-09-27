@@ -6,15 +6,15 @@ namespace EHR.Impostor;
 internal class Eraser : RoleBase
 {
     private const int Id = 16800;
-    public static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
-    public static readonly string[] EraseMode =
+    private static readonly string[] EraseMode =
     [
         "EKill",
         "EVote"
     ];
 
-    public static readonly string[] WhenTargetIsNeutralAction =
+    private static readonly string[] WhenTargetIsNeutralAction =
     [
         "E2Block",
         "E2Kill"
@@ -26,32 +26,36 @@ internal class Eraser : RoleBase
     public static OptionItem HideVote;
     public static OptionItem CancelVote;
 
-    private static List<byte> didVote = [];
+    private static List<byte> DidVote = [];
     private static List<byte> PlayerToErase = [];
     public static List<byte> ErasedPlayers = [];
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Eraser);
-        EraseMethod = new StringOptionItem(Id + 10, "EraseMethod", EraseMode, 0, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
-        WhenTargetIsNeutral = new StringOptionItem(Id + 11, "WhenTargetIsNeutral", WhenTargetIsNeutralAction, 0, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
-        EraseLimitOpt = new IntegerOptionItem(Id + 12, "EraseLimit", new(1, 15, 1), 1, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser])
+        EraseMethod = new StringOptionItem(Id + 10, "EraseMethod", EraseMode, 0, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
+        WhenTargetIsNeutral = new StringOptionItem(Id + 11, "WhenTargetIsNeutral", WhenTargetIsNeutralAction, 0, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
+        EraseLimitOpt = new IntegerOptionItem(Id + 12, "EraseLimit", new(1, 15, 1), 1, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser])
             .SetValueFormat(OptionFormat.Times);
-        HideVote = new BooleanOptionItem(Id + 13, "EraserHideVote", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
+        HideVote = new BooleanOptionItem(Id + 13, "EraserHideVote", false, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
         CancelVote = Options.CreateVoteCancellingUseSetting(Id + 14, CustomRoles.Eraser, TabGroup.ImpostorRoles);
     }
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         ErasedPlayers = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(EraseLimitOpt.GetInt());
     }
 
@@ -85,8 +89,8 @@ internal class Eraser : RoleBase
     public override bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null || EraseMethod.GetInt() == 0) return false;
-        if (didVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
-        didVote.Add(player.PlayerId);
+        if (DidVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
+        DidVote.Add(player.PlayerId);
 
         if (player.GetAbilityUseLimit() < 1) return false;
 
@@ -117,7 +121,7 @@ internal class Eraser : RoleBase
 
     public override void OnReportDeadBody()
     {
-        didVote = [];
+        DidVote = [];
     }
 
     public override void AfterMeetingTasks()

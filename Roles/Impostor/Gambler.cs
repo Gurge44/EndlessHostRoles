@@ -13,11 +13,11 @@ namespace EHR.Impostor
     public class Gambler : RoleBase
     {
         private const int Id = 640700;
-        private static List<byte> playerIdList = [];
+        private static List<byte> PlayerIdList = [];
 
         private static OptionItem KillCooldown;
         private static OptionItem KillDelay;
-        private static OptionItem BSRDelay;
+        private static OptionItem BsrDelay;
         private static OptionItem TPDelay;
         private static OptionItem ShieldDur;
         private static OptionItem FreezeDur;
@@ -42,7 +42,7 @@ namespace EHR.Impostor
         private byte EffectID = byte.MaxValue;
         private bool isPositiveEffect;
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
@@ -63,7 +63,7 @@ namespace EHR.Impostor
                 .SetValueFormat(OptionFormat.Multiplier);
             SpeedDur = new IntegerOptionItem(Id + 17, "GamblerSpeedupDur", new(1, 20, 1), 5, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
-            BSRDelay = new IntegerOptionItem(Id + 18, "GamblerBSRDelay", new(0, 10, 1), 2, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
+            BsrDelay = new IntegerOptionItem(Id + 18, "GamblerBSRDelay", new(0, 10, 1), 2, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
             HighKCD = new FloatOptionItem(Id + 19, "GamblerHighKCD", new(10f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -83,7 +83,7 @@ namespace EHR.Impostor
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             EffectID = byte.MaxValue;
             WaitingDelayedKills = [];
             IsSpeedChange = [];
@@ -93,7 +93,7 @@ namespace EHR.Impostor
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             EffectID = byte.MaxValue;
             isPositiveEffect = true;
         }
@@ -195,10 +195,10 @@ namespace EHR.Impostor
                 switch (EffectID)
                 {
                     case 1: // BSR
-                        var delay = Math.Max(0.15f, BSRDelay.GetFloat());
+                        var delay = Math.Max(0.15f, BsrDelay.GetFloat());
                         if (delay >= 1f)
                         {
-                            killer.Notify(string.Format(GetString("GamblerGet.BSR"), BSRDelay.GetInt()));
+                            killer.Notify(string.Format(GetString("GamblerGet.BSR"), BsrDelay.GetInt()));
                         }
 
                         LateTask.New(() =>

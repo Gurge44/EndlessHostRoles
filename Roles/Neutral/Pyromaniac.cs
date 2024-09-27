@@ -7,7 +7,7 @@ namespace EHR.Neutral;
 public class Pyromaniac : RoleBase
 {
     private const int Id = 648000;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     private static OptionItem KillCooldown;
     private static OptionItem DouseCooldown;
@@ -17,7 +17,7 @@ public class Pyromaniac : RoleBase
 
     public List<byte> DousedList = [];
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -34,13 +34,13 @@ public class Pyromaniac : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         DousedList = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         DousedList = [];
     }
 

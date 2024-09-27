@@ -8,7 +8,7 @@ namespace EHR.Impostor;
 public class Hacker : RoleBase
 {
     private const int Id = 2200;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     private static OptionItem HackLimitOpt;
     private static OptionItem KillCooldown;
@@ -16,14 +16,16 @@ public class Hacker : RoleBase
 
     private static List<byte> DeadBodyList = [];
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Hacker);
-        KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
+        KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Seconds);
-        HackLimitOpt = new IntegerOptionItem(Id + 3, "HackLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
+        HackLimitOpt = new IntegerOptionItem(Id + 3, "HackLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
             .SetValueFormat(OptionFormat.Times);
         HackerAbilityUseGainWithEachKill = new FloatOptionItem(Id + 4, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.2f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
@@ -32,13 +34,13 @@ public class Hacker : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         DeadBodyList = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(HackLimitOpt.GetInt());
     }
 

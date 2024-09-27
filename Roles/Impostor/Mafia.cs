@@ -27,10 +27,10 @@ namespace EHR.Impostor
                 .SetValueFormat(OptionFormat.Players);
             LegacyMafia = new BooleanOptionItem(3210, "LegacyMafia", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafia]);
-            MafiaShapeshiftCD = new FloatOptionItem(3211, "ShapeshiftCooldown", new(1f, 180f, 1f), 15f, TabGroup.ImpostorRoles)
+            MafiaShapeshiftCD = new FloatOptionItem(3211, "ShapeshiftCooldown", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(LegacyMafia)
                 .SetValueFormat(OptionFormat.Seconds);
-            MafiaShapeshiftDur = new FloatOptionItem(3212, "ShapeshiftDuration", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
+            MafiaShapeshiftDur = new FloatOptionItem(3212, "ShapeshiftDuration", new(1f, 180f, 1f), 15f, TabGroup.ImpostorRoles)
                 .SetParent(LegacyMafia)
                 .SetValueFormat(OptionFormat.Seconds);
         }

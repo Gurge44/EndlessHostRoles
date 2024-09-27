@@ -9,7 +9,7 @@ namespace EHR.Crewmate;
 public class Tracefinder : RoleBase
 {
     private const int Id = 6100;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
     private static OptionItem VitalsDuration;
     private static OptionItem VitalsCooldown;
     private static OptionItem ArrowDelayMin;
@@ -18,7 +18,7 @@ public class Tracefinder : RoleBase
     public static bool On;
     byte TracefinderId;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -39,13 +39,13 @@ public class Tracefinder : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         On = false;
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         TracefinderId = playerId;
         On = true;
     }
@@ -58,7 +58,7 @@ public class Tracefinder : RoleBase
 
     public override void OnReportDeadBody()
     {
-        foreach (byte apc in playerIdList)
+        foreach (byte apc in PlayerIdList)
         {
             LocateArrow.RemoveAllTarget(apc);
         }
@@ -77,7 +77,7 @@ public class Tracefinder : RoleBase
         {
             if (GameStates.IsInTask)
             {
-                foreach (byte id in playerIdList)
+                foreach (byte id in PlayerIdList)
                 {
                     PlayerControl pc = Utils.GetPlayerById(id);
                     if (pc == null || !pc.IsAlive()) continue;

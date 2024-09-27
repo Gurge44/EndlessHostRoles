@@ -29,7 +29,7 @@ public class Vampire : RoleBase
     public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Vampire);
-        Cooldown = new FloatOptionItem(Id + 9, "VampireKillCooldown", new(1f, 30f, 1f), 30f, TabGroup.ImpostorRoles)
+        Cooldown = new FloatOptionItem(Id + 9, "VampireKillCooldown", new(1f, 90f, 1f), 30f, TabGroup.ImpostorRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Vampire])
             .SetValueFormat(OptionFormat.Seconds);
         OptionKillDelay = new FloatOptionItem(Id + 10, "VampireKillDelay", new(1f, 30f, 1f), 3f, TabGroup.ImpostorRoles)

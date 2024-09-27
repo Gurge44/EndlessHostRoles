@@ -203,7 +203,6 @@ internal class ChangeRoleSettings
             Revolutionist.RevolutionistLastTime = [];
             Revolutionist.RevolutionistCountdown = [];
             TimeMaster.TimeMasterBackTrack = [];
-            TimeMaster.TimeMasterNum = [];
             Farseer.FarseerTimer = [];
             Warlock.CursedPlayers = [];
             Mafia.MafiaRevenged = [];

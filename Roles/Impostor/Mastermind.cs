@@ -24,7 +24,7 @@ namespace EHR.Impostor
         private static float ManipulateCD;
         private byte MastermindId = byte.MaxValue;
 
-        private PlayerControl Mastermind_ => GetPlayerById(MastermindId);
+        private PlayerControl MastermindPC => GetPlayerById(MastermindId);
 
         public override bool IsEnable => MastermindId != byte.MaxValue || Randomizer.Exists;
 
@@ -101,7 +101,7 @@ namespace EHR.Impostor
                     }
                     else pc.RpcChangeRoleBasis(CustomRoles.NSerialKiller);
 
-                    NotifyRoles(SpecifySeer: Mastermind_, SpecifyTarget: pc);
+                    NotifyRoles(SpecifySeer: MastermindPC, SpecifyTarget: pc);
                 }
             }
 
@@ -120,7 +120,7 @@ namespace EHR.Impostor
                 {
                     ManipulatedPlayers.Remove(x.Key);
                     TempKCDs.Remove(x.Key);
-                    player.Suicide(realKiller: Mastermind_);
+                    player.Suicide(realKiller: MastermindPC);
                     RPC.PlaySoundRPC(MastermindId, Sounds.KillSound);
                     player.RpcChangeRoleBasis(player.GetCustomRole());
                 }
@@ -137,7 +137,7 @@ namespace EHR.Impostor
             foreach (var x in ManipulatedPlayers)
             {
                 var pc = GetPlayerById(x.Key);
-                if (pc.IsAlive()) pc.Suicide(realKiller: Mastermind_);
+                if (pc.IsAlive()) pc.Suicide(realKiller: MastermindPC);
             }
 
             ManipulateDelays.Clear();
@@ -184,9 +184,9 @@ namespace EHR.Impostor
         private void NotifyMastermindTargetSurvived()
         {
             if (!IsEnable) return;
-            Mastermind_.Notify(GetString("ManipulatedKilled"));
+            MastermindPC.Notify(GetString("ManipulatedKilled"));
             if (Main.KillTimers[MastermindId] > KillCooldown.GetFloat())
-                Mastermind_.SetKillCooldown(time: KillCooldown.GetFloat());
+                MastermindPC.SetKillCooldown(time: KillCooldown.GetFloat());
         }
     }
 }

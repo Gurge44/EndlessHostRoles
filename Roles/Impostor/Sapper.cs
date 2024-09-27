@@ -13,7 +13,7 @@ namespace EHR.Impostor
     public class Sapper : RoleBase
     {
         private const int Id = 643000;
-        public static List<byte> playerIdList = [];
+        public static List<byte> PlayerIdList = [];
 
         public static OptionItem ShapeshiftCooldown;
         private static OptionItem Delay;
@@ -21,7 +21,7 @@ namespace EHR.Impostor
 
         public static Dictionary<Vector2, long> Bombs = [];
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
@@ -36,13 +36,13 @@ namespace EHR.Impostor
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             Bombs = [];
         }
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)

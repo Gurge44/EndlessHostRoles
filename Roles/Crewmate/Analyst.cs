@@ -10,7 +10,7 @@ namespace EHR.Crewmate
     internal class Analyst : RoleBase
     {
         private const int Id = 643100;
-        private static byte playerId = byte.MaxValue;
+        private static byte PlayerId = byte.MaxValue;
 
         private static OptionItem UseLimitOpt;
         private static OptionItem CD;
@@ -25,7 +25,7 @@ namespace EHR.Crewmate
         public static Dictionary<byte, int> VentCount = [];
         public (byte ID, long TIME) CurrentTarget = (byte.MaxValue, Utils.TimeStamp);
 
-        public override bool IsEnable => playerId != byte.MaxValue;
+        public override bool IsEnable => PlayerId != byte.MaxValue;
 
         public override void SetupCustomOption()
         {
@@ -74,14 +74,14 @@ namespace EHR.Crewmate
 
         public override void Init()
         {
-            playerId = byte.MaxValue;
+            PlayerId = byte.MaxValue;
             VentCount = [];
             CurrentTarget = (byte.MaxValue, Utils.TimeStamp);
         }
 
         public override void Add(byte id)
         {
-            playerId = id;
+            PlayerId = id;
             id.SetAbilityUseLimit(UseLimitOpt.GetInt());
             CurrentTarget = (byte.MaxValue, Utils.TimeStamp);
         }

@@ -19,36 +19,42 @@ public class Sniper : RoleBase
     private static OptionItem SniperPrecisionShooting;
     private static OptionItem SniperAimAssist;
     private static OptionItem SniperAimAssistOnshot;
-    public static OptionItem ShapeshiftDuration;
-    public static OptionItem CanKillWithBullets;
+    private static OptionItem ShapeshiftDuration;
+    private static OptionItem CanKillWithBullets;
 
-    private static bool meetingReset;
-    private static int maxBulletCount;
-    private static bool precisionShooting;
+    private static bool MeetingReset;
+    private static int MaxBulletCount;
+    private static bool PrecisionShooting;
     private static bool AimAssist;
     private static bool AimAssistOneshot;
 
     public static bool On;
     private float AimTime;
-    public int bulletCount;
+    private int bulletCount;
     public bool IsAim;
     private Vector3 LastPosition;
     private List<byte> shotNotify = [];
     private Vector3 snipeBasePosition;
 
-    public byte snipeTarget;
+    private byte snipeTarget;
     public override bool IsEnable => On;
 
     public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Sniper);
-        SniperBulletCount = new IntegerOptionItem(Id + 10, "SniperBulletCount", new(1, 10, 1), 2, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper])
+        SniperBulletCount = new IntegerOptionItem(Id + 10, "SniperBulletCount", new(1, 10, 1), 2, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper])
             .SetValueFormat(OptionFormat.Pieces);
-        SniperPrecisionShooting = new BooleanOptionItem(Id + 11, "SniperPrecisionShooting", false, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
-        SniperAimAssist = new BooleanOptionItem(Id + 12, "SniperAimAssist", true, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
-        SniperAimAssistOnshot = new BooleanOptionItem(Id + 13, "SniperAimAssistOneshot", false, TabGroup.ImpostorRoles).SetParent(SniperAimAssist);
-        CanKillWithBullets = new BooleanOptionItem(Id + 14, "SniperCanKill", true, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
-        ShapeshiftDuration = new FloatOptionItem(Id + 15, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper])
+        SniperPrecisionShooting = new BooleanOptionItem(Id + 11, "SniperPrecisionShooting", false, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
+        SniperAimAssist = new BooleanOptionItem(Id + 12, "SniperAimAssist", true, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
+        SniperAimAssistOnshot = new BooleanOptionItem(Id + 13, "SniperAimAssistOneshot", false, TabGroup.ImpostorRoles)
+            .SetParent(SniperAimAssist);
+        CanKillWithBullets = new BooleanOptionItem(Id + 14, "SniperCanKill", true, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
+        ShapeshiftDuration = new FloatOptionItem(Id + 15, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper])
             .SetValueFormat(OptionFormat.Seconds);
     }
 
@@ -66,7 +72,7 @@ public class Sniper : RoleBase
         shotNotify = [];
         IsAim = false;
         AimTime = 0f;
-        meetingReset = false;
+        MeetingReset = false;
     }
 
     public override void Add(byte playerId)
@@ -74,22 +80,22 @@ public class Sniper : RoleBase
         PlayerIdList.Add(playerId);
         On = true;
 
-        maxBulletCount = SniperBulletCount.GetInt();
-        precisionShooting = SniperPrecisionShooting.GetBool();
+        MaxBulletCount = SniperBulletCount.GetInt();
+        PrecisionShooting = SniperPrecisionShooting.GetBool();
         AimAssist = SniperAimAssist.GetBool();
         AimAssistOneshot = SniperAimAssistOnshot.GetBool();
 
         snipeBasePosition = new();
         LastPosition = new();
         snipeTarget = 0x7F;
-        bulletCount = maxBulletCount;
+        bulletCount = MaxBulletCount;
         shotNotify = [];
         IsAim = false;
         AimTime = 0f;
-        meetingReset = false;
+        MeetingReset = false;
     }
 
-    public static bool IsThisRole(byte playerId) => PlayerIdList.Contains(playerId);
+    private static bool IsThisRole(byte playerId) => PlayerIdList.Contains(playerId);
 
     void SendRPC(byte sniperId)
     {
@@ -151,7 +157,7 @@ public class Sniper : RoleBase
             var target_dir = target_pos.normalized;
             var target_dot = Vector3.Dot(dir, target_dir);
             if (target_dot < 0.995) continue;
-            if (precisionShooting)
+            if (PrecisionShooting)
             {
                 var err = Vector3.Cross(dir, target_pos).magnitude;
                 if (err < 0.5)
@@ -200,7 +206,7 @@ public class Sniper : RoleBase
 
         if (shapeshifting)
         {
-            meetingReset = false;
+            MeetingReset = false;
 
             snipeBasePosition = sniper.transform.position;
 
@@ -214,9 +220,9 @@ public class Sniper : RoleBase
         IsAim = false;
         AimTime = 0f;
 
-        if (meetingReset)
+        if (MeetingReset)
         {
-            meetingReset = false;
+            MeetingReset = false;
             return false;
         }
 
@@ -315,7 +321,7 @@ public class Sniper : RoleBase
 
     public override void OnReportDeadBody()
     {
-        meetingReset = true;
+        MeetingReset = true;
     }
 
     public static bool TryGetSniper(byte targetId, ref PlayerControl sniper)

@@ -7,7 +7,7 @@ namespace EHR.Impostor;
 public class Silencer : RoleBase
 {
     private const int Id = 643050;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     public static OptionItem SkillCooldown;
     public static OptionItem SilenceMode;
@@ -20,7 +20,7 @@ public class Silencer : RoleBase
         "Shapeshift"
     ];
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -34,13 +34,13 @@ public class Silencer : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         ForSilencer = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
     }
 
     public override void ApplyGameOptions(IGameOptions opt, byte id)

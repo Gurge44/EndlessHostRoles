@@ -11,7 +11,7 @@ namespace EHR.Neutral
         public static PlayerControl NecromancerPC;
 
         private static OptionItem CD;
-        public static OptionItem DKCD;
+        public static OptionItem Dkcd;
         private static OptionItem KnowTargetRole;
         public static OptionItem UndeadCountMode;
 
@@ -33,7 +33,7 @@ namespace EHR.Neutral
             CD = new FloatOptionItem(Id + 2, "NecromancerCD", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer])
                 .SetValueFormat(OptionFormat.Seconds);
-            DKCD = new FloatOptionItem(Id + 10, "DKCD", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles)
+            Dkcd = new FloatOptionItem(Id + 10, "DKCD", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer])
                 .SetValueFormat(OptionFormat.Seconds);
             KnowTargetRole = new BooleanOptionItem(Id + 13, "NecromancerKnowTargetRole", true, TabGroup.NeutralRoles)
@@ -50,7 +50,7 @@ namespace EHR.Neutral
             PartiallyRecruitedIds.Clear();
 
             Deathknight.DeathknightId = byte.MaxValue;
-            Deathknight.Deathknight_ = null;
+            Deathknight.DeathknightPC = null;
         }
 
         public override void Add(byte playerId)
@@ -102,7 +102,7 @@ namespace EHR.Neutral
                 killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Necromancer), GetString("NecromancerRecruitedPlayer")));
 
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-                Utils.NotifyRoles(SpecifySeer: Deathknight.Deathknight_, SpecifyTarget: target);
+                Utils.NotifyRoles(SpecifySeer: Deathknight.DeathknightPC, SpecifyTarget: target);
 
                 killer.SetKillCooldown();
 
@@ -118,12 +118,12 @@ namespace EHR.Neutral
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || !IsEnable || NecromancerPC.IsAlive() || !Deathknight.Deathknight_.IsAlive()) return;
+            if (!GameStates.IsInTask || !IsEnable || NecromancerPC.IsAlive() || !Deathknight.DeathknightPC.IsAlive()) return;
 
-            Deathknight.Deathknight_.RpcSetCustomRole(CustomRoles.Necromancer);
+            Deathknight.DeathknightPC.RpcSetCustomRole(CustomRoles.Necromancer);
             Add(Deathknight.DeathknightId);
 
-            Deathknight.Deathknight_ = null;
+            Deathknight.DeathknightPC = null;
             Deathknight.DeathknightId = byte.MaxValue;
         }
 
@@ -142,7 +142,7 @@ namespace EHR.Neutral
     internal class Deathknight : RoleBase
     {
         public static byte DeathknightId = byte.MaxValue;
-        public static PlayerControl Deathknight_;
+        public static PlayerControl DeathknightPC;
 
         public override bool IsEnable => DeathknightId != byte.MaxValue;
 
@@ -153,17 +153,17 @@ namespace EHR.Neutral
         public override void Init()
         {
             DeathknightId = byte.MaxValue;
-            Deathknight_ = null;
+            DeathknightPC = null;
         }
 
         public override void Add(byte playerId)
         {
             DeathknightId = playerId;
-            Deathknight_ = Utils.GetPlayerById(playerId);
+            DeathknightPC = Utils.GetPlayerById(playerId);
             // if (!UsePets.GetBool()) Deathknight_.ChangeRoleBasis(RoleTypes.Impostor);
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Necromancer.DKCD.GetFloat();
+        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Necromancer.Dkcd.GetFloat();
 
         public override bool CanUseKillButton(PlayerControl player) => player.IsAlive();
 

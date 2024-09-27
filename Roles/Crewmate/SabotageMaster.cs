@@ -11,18 +11,18 @@ namespace EHR.Crewmate;
 public class SabotageMaster : RoleBase
 {
     private const int Id = 7000;
-    public static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     public static OptionItem SkillLimit;
-    public static OptionItem FixesDoors;
-    public static OptionItem FixesReactors;
-    public static OptionItem FixesOxygens;
-    public static OptionItem FixesComms;
-    public static OptionItem FixesElectrical;
-    public static OptionItem SMAbilityUseGainWithEachTaskCompleted;
+    private static OptionItem FixesDoors;
+    private static OptionItem FixesReactors;
+    private static OptionItem FixesOxygens;
+    private static OptionItem FixesComms;
+    private static OptionItem FixesElectrical;
+    public static OptionItem SmAbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
-    public static OptionItem UsesUsedWhenFixingReactorOrO2;
-    public static OptionItem UsesUsedWhenFixingLightsOrComms;
+    private static OptionItem UsesUsedWhenFixingReactorOrO2;
+    private static OptionItem UsesUsedWhenFixingLightsOrComms;
 
     private static bool DoorsProgressing;
     private bool fixedSabotage;
@@ -30,19 +30,25 @@ public class SabotageMaster : RoleBase
 
     public float UsedSkillCount;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.SabotageMaster);
-        SkillLimit = new IntegerOptionItem(Id + 10, "SabotageMasterSkillLimit", new(0, 80, 1), 2, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
+        SkillLimit = new IntegerOptionItem(Id + 10, "SabotageMasterSkillLimit", new(0, 80, 1), 2, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
             .SetValueFormat(OptionFormat.Times);
-        FixesDoors = new BooleanOptionItem(Id + 11, "SabotageMasterFixesDoors", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
-        FixesReactors = new BooleanOptionItem(Id + 12, "SabotageMasterFixesReactors", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
-        FixesOxygens = new BooleanOptionItem(Id + 13, "SabotageMasterFixesOxygens", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
-        FixesComms = new BooleanOptionItem(Id + 14, "SabotageMasterFixesCommunications", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
-        FixesElectrical = new BooleanOptionItem(Id + 15, "SabotageMasterFixesElectrical", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
-        SMAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 16, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 3f, TabGroup.CrewmateRoles)
+        FixesDoors = new BooleanOptionItem(Id + 11, "SabotageMasterFixesDoors", true, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
+        FixesReactors = new BooleanOptionItem(Id + 12, "SabotageMasterFixesReactors", true, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
+        FixesOxygens = new BooleanOptionItem(Id + 13, "SabotageMasterFixesOxygens", true, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
+        FixesComms = new BooleanOptionItem(Id + 14, "SabotageMasterFixesCommunications", true, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
+        FixesElectrical = new BooleanOptionItem(Id + 15, "SabotageMasterFixesElectrical", true, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
+        SmAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 16, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 3f, TabGroup.CrewmateRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
             .SetValueFormat(OptionFormat.Times);
         AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 19, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
@@ -58,14 +64,14 @@ public class SabotageMaster : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         UsedSkillCount = 0;
         SMId = byte.MaxValue;
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         UsedSkillCount = 0;
         SMId = playerId;
     }

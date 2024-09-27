@@ -20,9 +20,9 @@ namespace EHR.Crewmate
         public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> FarseerTimer = [];
         public static Dictionary<(byte, byte), bool> IsRevealed = [];
 
-        public static OptionItem FarseerCooldown;
-        public static OptionItem FarseerRevealTime;
-        public static OptionItem Vision;
+        private static OptionItem FarseerCooldown;
+        private static OptionItem FarseerRevealTime;
+        private static OptionItem Vision;
         public static OptionItem UsePet;
 
         public static readonly Dictionary<int, string> RandomRole = [];

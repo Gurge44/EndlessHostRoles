@@ -15,7 +15,7 @@ namespace EHR.Crewmate
     public class NiceHacker : RoleBase
     {
         private const int Id = 641000;
-        public static Dictionary<byte, bool> playerIdList = [];
+        public static Dictionary<byte, bool> PlayerIdList = [];
         public static Dictionary<byte, float> UseLimit = [];
         public static Dictionary<byte, float> UseLimitSeconds = [];
 
@@ -29,7 +29,7 @@ namespace EHR.Crewmate
         public static OptionItem ModdedClientCanMoveWhileViewingMap;
         public static OptionItem VanillaClientSeesInfoFor;
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
@@ -54,7 +54,7 @@ namespace EHR.Crewmate
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             UseLimit = [];
             UseLimitSeconds = [];
             LastUpdate = [];
@@ -62,7 +62,7 @@ namespace EHR.Crewmate
 
         public override void Add(byte playerId)
         {
-            playerIdList.TryAdd(playerId, GetPlayerById(playerId).IsModClient());
+            PlayerIdList.TryAdd(playerId, GetPlayerById(playerId).IsModClient());
             if (!GetPlayerById(playerId).IsModClient()) UseLimit.Add(playerId, UseLimitOpt.GetInt());
             else UseLimitSeconds.Add(playerId, UseLimitOpt.GetInt() * ModdedClientAbilityUseSecondsMultiplier.GetInt());
         }

@@ -8,8 +8,8 @@ namespace EHR.Neutral
 
         public static OptionItem OppoImmuneToAttacksWhenTasksDone;
         public static OptionItem CanVent;
-        public static OptionItem VentCooldown;
-        public static OptionItem MaxInVentTime;
+        private static OptionItem VentCooldown;
+        private static OptionItem MaxInVentTime;
         public override bool IsEnable => On;
 
         public override void Add(byte playerId)

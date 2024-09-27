@@ -10,7 +10,7 @@ namespace EHR.Neutral;
 public class Vulture : RoleBase
 {
     private const int Id = 11600;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     public static List<byte> UnreportablePlayers = [];
 
@@ -38,7 +38,7 @@ public class Vulture : RoleBase
     private long LastReport;
     byte VultureId;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -64,13 +64,13 @@ public class Vulture : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         UnreportablePlayers = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         BodyReportCount = 0;
         playerId.SetAbilityUseLimit(MaxEaten.GetInt());
         LastReport = Utils.TimeStamp;
@@ -93,7 +93,7 @@ public class Vulture : RoleBase
 
     public static void Clear()
     {
-        foreach (byte apc in playerIdList)
+        foreach (byte apc in PlayerIdList)
         {
             LocateArrow.RemoveAllTarget(apc);
         }
@@ -102,7 +102,7 @@ public class Vulture : RoleBase
     public override void AfterMeetingTasks()
     {
         Clear();
-        foreach (byte apc in playerIdList)
+        foreach (byte apc in PlayerIdList)
         {
             var player = Utils.GetPlayerById(apc);
             if (player == null) continue;
@@ -126,7 +126,7 @@ public class Vulture : RoleBase
     {
         if (!ArrowsPointingToDeadBody.GetBool() || target.Data.Disconnected) return;
 
-        foreach (byte pc in playerIdList)
+        foreach (byte pc in PlayerIdList)
         {
             var player = Utils.GetPlayerById(pc);
             if (player == null || !player.IsAlive()) continue;
@@ -144,7 +144,7 @@ public class Vulture : RoleBase
         pc.RpcRemoveAbilityUse();
         if (target.Object != null)
         {
-            foreach (byte apc in playerIdList)
+            foreach (byte apc in PlayerIdList)
             {
                 LocateArrow.Remove(apc, target.Object.transform.position);
             }

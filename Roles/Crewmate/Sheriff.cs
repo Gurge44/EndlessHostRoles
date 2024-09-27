@@ -41,23 +41,21 @@ public class Sheriff : RoleBase
     public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Sheriff);
-        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 60f, 2.5f), 22.5f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff])
-            .SetValueFormat(OptionFormat.Seconds);
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 60f, 2.5f), 22.5f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]).SetValueFormat(OptionFormat.Seconds);
         MisfireKillsTarget = new BooleanOptionItem(Id + 11, "SheriffMisfireKillsTarget", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
-        ShotLimitOpt = new IntegerOptionItem(Id + 12, "SheriffShotLimit", new(1, 15, 1), 5, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff])
-            .SetValueFormat(OptionFormat.Times);
+        ShotLimitOpt = new IntegerOptionItem(Id + 12, "SheriffShotLimit", new(1, 15, 1), 5, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]).SetValueFormat(OptionFormat.Times);
         ShowShotLimit = new BooleanOptionItem(Id + 13, "SheriffShowShotLimit", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
-        CanKillAllAlive = new BooleanOptionItem(Id + 15, "SheriffCanKillAllAlive", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
+        CanKillAllAlive = new BooleanOptionItem(Id + 15, "SheriffCanKillAllAlive", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillMadmate = new BooleanOptionItem(Id + 17, "SheriffCanKillMadmate", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillCharmed = new BooleanOptionItem(Id + 22, "SheriffCanKillCharmed", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
-        CanKillLovers = new BooleanOptionItem(Id + 24, "SheriffCanKillLovers", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
+        CanKillLovers = new BooleanOptionItem(Id + 24, "SheriffCanKillLovers", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillSidekicks = new BooleanOptionItem(Id + 23, "SheriffCanKillSidekick", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillContagious = new BooleanOptionItem(Id + 27, "SheriffCanKillContagious", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillNeutrals = new BooleanOptionItem(Id + 16, "SheriffCanKillNeutrals", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         CanKillNeutralsMode = new StringOptionItem(Id + 14, "SheriffCanKillNeutralsMode", KillOption, 0, TabGroup.CrewmateRoles).SetParent(CanKillNeutrals);
         SetUpNeutralOptions(Id + 30);
         SidekickSheriffCanGoBerserk = new BooleanOptionItem(Id + 28, "SidekickSheriffCanGoBerserk", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
-        SetNonCrewCanKill = new BooleanOptionItem(Id + 18, "SheriffSetMadCanKill", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
+        SetNonCrewCanKill = new BooleanOptionItem(Id + 18, "SheriffSetMadCanKill", true, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sheriff]);
         NonCrewCanKillImp = new BooleanOptionItem(Id + 19, "SheriffMadCanKillImp", true, TabGroup.CrewmateRoles).SetParent(SetNonCrewCanKill);
         NonCrewCanKillCrew = new BooleanOptionItem(Id + 21, "SheriffMadCanKillCrew", true, TabGroup.CrewmateRoles).SetParent(SetNonCrewCanKill);
         NonCrewCanKillNeutral = new BooleanOptionItem(Id + 20, "SheriffMadCanKillNeutral", true, TabGroup.CrewmateRoles).SetParent(SetNonCrewCanKill);
@@ -111,17 +109,7 @@ public class Sheriff : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (CanBeKilledBySheriff(target)
-            || (killer.Is(CustomRoles.Recruit) && SidekickSheriffCanGoBerserk.GetBool())
-            || (SetNonCrewCanKill.GetBool() &&
-                (
-                    killer.Is(CustomRoles.Madmate)
-                    || killer.Is(CustomRoles.Charmed)
-                    || killer.Is(CustomRoles.Contagious)
-                    || killer.Is(CustomRoles.Undead)
-                )
-                && ((target.IsImpostor() && NonCrewCanKillImp.GetBool()) || (target.IsCrewmate() && NonCrewCanKillCrew.GetBool()) || (target.GetCustomRole().IsNeutral() && NonCrewCanKillNeutral.GetBool()))
-            ))
+        if (CanBeKilledBySheriff(target) || (killer.Is(CustomRoles.Recruit) && SidekickSheriffCanGoBerserk.GetBool()) || (SetNonCrewCanKill.GetBool() && (killer.IsMadmate() || killer.IsConverted()) && ((target.IsImpostor() && NonCrewCanKillImp.GetBool()) || (target.IsCrewmate() && NonCrewCanKillCrew.GetBool()) || (target.GetCustomRole().IsNeutral() && NonCrewCanKillNeutral.GetBool()))))
         {
             SetKillCooldown(killer.PlayerId);
             return true;

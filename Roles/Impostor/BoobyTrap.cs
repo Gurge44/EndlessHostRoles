@@ -7,12 +7,11 @@ namespace EHR.Impostor
     internal class BoobyTrap : RoleBase
     {
         private static List<byte> BoobyTrapBody = [];
-        private static List<byte> BoobyTrapKiller = [];
         private static Dictionary<byte, byte> KillerOfBoobyTrapBody = [];
 
         public static bool On;
 
-        private static OptionItem BTKillCooldown;
+        private static OptionItem BtKillCooldown;
         private static OptionItem TrapOnlyWorksOnTheBodyBoobyTrap;
         private static OptionItem TrapConsecutiveBodies;
         public override bool IsEnable => On;
@@ -20,7 +19,7 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(16500, TabGroup.ImpostorRoles, CustomRoles.BoobyTrap);
-            BTKillCooldown = new FloatOptionItem(16510, "KillCooldown", new(2.5f, 180f, 2.5f), 20f, TabGroup.ImpostorRoles)
+            BtKillCooldown = new FloatOptionItem(16510, "KillCooldown", new(2.5f, 180f, 2.5f), 20f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.BoobyTrap])
                 .SetValueFormat(OptionFormat.Seconds);
             TrapOnlyWorksOnTheBodyBoobyTrap = new BooleanOptionItem(16511, "TrapOnlyWorksOnTheBodyBoobyTrap", true, TabGroup.ImpostorRoles)
@@ -43,7 +42,7 @@ namespace EHR.Impostor
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = BTKillCooldown.GetFloat();
+            Main.AllPlayerKillCooldown[id] = BtKillCooldown.GetFloat();
         }
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
@@ -51,7 +50,6 @@ namespace EHR.Impostor
             if (TrapOnlyWorksOnTheBodyBoobyTrap.GetBool() && !GameStates.IsMeeting)
             {
                 BoobyTrapBody.Add(target.PlayerId);
-                BoobyTrapKiller.Add(target.PlayerId);
             }
 
             return true;

@@ -9,25 +9,25 @@ namespace EHR.Neutral;
 public class Succubus : RoleBase
 {
     private const int Id = 11200;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
-    public static OptionItem CharmCooldown;
-    public static OptionItem CharmCooldownIncrese;
-    public static OptionItem CharmMax;
-    public static OptionItem KnowTargetRole;
+    private static OptionItem CharmCooldown;
+    private static OptionItem CharmCooldownIncrese;
+    private static OptionItem CharmMax;
+    private static OptionItem KnowTargetRole;
     public static OptionItem TargetKnowOtherTarget;
-    public static OptionItem CanCharmNeutral;
+    private static OptionItem CanCharmNeutral;
     public static OptionItem CharmedCountMode;
-    public static OptionItem CharmedDiesOnSuccubusDeath;
+    private static OptionItem CharmedDiesOnSuccubusDeath;
 
-    public static readonly string[] CharmedCountModeStrings =
+    private static readonly string[] CharmedCountModeStrings =
     [
         "CharmedCountMode.None",
         "CharmedCountMode.Succubus",
         "CharmedCountMode.Original"
     ];
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -55,12 +55,12 @@ public class Succubus : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(CharmMax.GetInt());
     }
 

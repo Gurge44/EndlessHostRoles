@@ -24,7 +24,7 @@ static class CheckForEndVotingPatch
     public static bool Prefix(MeetingHud __instance)
     {
         if (!AmongUsClient.Instance.AmHost) return true;
-        if (Medic.playerIdList.Count > 0) Medic.OnCheckMark();
+        if (Medic.PlayerIdList.Count > 0) Medic.OnCheckMark();
         //Meeting Skip with vote counting on keystroke (m + delete)
         bool shouldSkip = Input.GetKeyDown(KeyCode.F6);
 
@@ -501,8 +501,8 @@ static class CheckForEndVotingPatch
     {
         try
         {
-            if (Witch.playerIdList.Count > 0) Witch.OnCheckForEndVoting(deathReason, playerIds);
-            if (Virus.playerIdList.Count > 0) Virus.OnCheckForEndVoting(deathReason, playerIds);
+            if (Witch.PlayerIdList.Count > 0) Witch.OnCheckForEndVoting(deathReason, playerIds);
+            if (Virus.PlayerIdList.Count > 0) Virus.OnCheckForEndVoting(deathReason, playerIds);
             if (deathReason == PlayerState.DeathReason.Vote) Gaslighter.OnExile(playerIds);
             foreach (var playerId in playerIds)
             {
@@ -700,7 +700,7 @@ static class MeetingHudStartPatch
                 Main.AllAlivePlayerControls.Where(x => x.GetRealKiller()?.PlayerId == pc1.PlayerId).Do(x => MimicMsg += $"\n{x.GetNameWithRole(true)}");
             }
 
-            if (Mortician.msgToSend.TryGetValue(pc.PlayerId, out string value2))
+            if (Mortician.MsgToSend.TryGetValue(pc.PlayerId, out string value2))
                 AddMsg(value2, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mortician), GetString("MorticianCheckTitle")));
             if (Mediumshiper.ContactPlayer.ContainsValue(pc.PlayerId))
                 AddMsg(string.Format(GetString("MediumshipNotifySelf"), Main.AllPlayerNames[Mediumshiper.ContactPlayer.FirstOrDefault(x => x.Value == pc.PlayerId).Key], pc.GetAbilityUseLimit()), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mediumshiper), GetString("MediumshipTitle")));
@@ -735,7 +735,7 @@ static class MeetingHudStartPatch
         Detective.DetectiveNotify.Clear();
         Main.SleuthMsgs.Clear();
         Virus.VirusNotify.Clear();
-        Mortician.msgToSend.Clear();
+        Mortician.MsgToSend.Clear();
         Enigma.MsgToSend.Clear();
         return;
 

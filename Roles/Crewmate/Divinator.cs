@@ -11,7 +11,7 @@ public class Divinator : RoleBase
 {
     private const int Id = 6700;
     private const int RolesPerCategory = 5;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     public static OptionItem CheckLimitOpt;
     public static OptionItem AccurateCheckMode;
@@ -21,11 +21,11 @@ public class Divinator : RoleBase
     public static OptionItem AbilityChargesWhenFinishedTasks;
     public static OptionItem CancelVote;
 
-    public static List<byte> didVote = [];
+    public static readonly List<byte> DidVote = [];
 
     private static Dictionary<byte, HashSet<CustomRoles>> AllPlayerRoleList = [];
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -51,13 +51,13 @@ public class Divinator : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         AllPlayerRoleList = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(CheckLimitOpt.GetInt());
 
         LateTask.New(() =>
@@ -81,8 +81,8 @@ public class Divinator : RoleBase
     public override bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null) return false;
-        if (didVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
-        didVote.Add(player.PlayerId);
+        if (DidVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
+        DidVote.Add(player.PlayerId);
 
         if (player.GetAbilityUseLimit() < 1)
         {

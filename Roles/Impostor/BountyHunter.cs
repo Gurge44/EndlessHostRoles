@@ -10,40 +10,44 @@ namespace EHR.Impostor;
 public class BountyHunter : RoleBase
 {
     private const int Id = 800;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     private static OptionItem OptionTargetChangeTime;
     private static OptionItem OptionSuccessKillCooldown;
     private static OptionItem OptionFailureKillCooldown;
     private static OptionItem OptionShowTargetArrow;
 
-    public static float TargetChangeTime;
+    private static float TargetChangeTime;
     private static float SuccessKillCooldown;
     private static float FailureKillCooldown;
     private static bool ShowTargetArrow;
     private byte BountyId;
-    public float ChangeTimer;
-    public byte Target;
+    private float ChangeTimer;
+    private byte Target;
 
     private int Timer;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.BountyHunter);
-        OptionTargetChangeTime = new FloatOptionItem(Id + 10, "BountyTargetChangeTime", new(10f, 180f, 2.5f), 60f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.BountyHunter])
+        OptionTargetChangeTime = new FloatOptionItem(Id + 10, "BountyTargetChangeTime", new(10f, 180f, 2.5f), 50f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.BountyHunter])
             .SetValueFormat(OptionFormat.Seconds);
-        OptionSuccessKillCooldown = new FloatOptionItem(Id + 11, "BountySuccessKillCooldown", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.BountyHunter])
+        OptionSuccessKillCooldown = new FloatOptionItem(Id + 11, "BountySuccessKillCooldown", new(0f, 180f, 0.5f), 3f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.BountyHunter])
             .SetValueFormat(OptionFormat.Seconds);
-        OptionFailureKillCooldown = new FloatOptionItem(Id + 12, "BountyFailureKillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.BountyHunter])
+        OptionFailureKillCooldown = new FloatOptionItem(Id + 12, "BountyFailureKillCooldown", new(0f, 180f, 2.5f), 35f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.BountyHunter])
             .SetValueFormat(OptionFormat.Seconds);
-        OptionShowTargetArrow = new BooleanOptionItem(Id + 13, "BountyShowTargetArrow", true, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.BountyHunter]);
+        OptionShowTargetArrow = new BooleanOptionItem(Id + 13, "BountyShowTargetArrow", true, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.BountyHunter]);
     }
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
 
         Target = byte.MaxValue;
         ChangeTimer = OptionTargetChangeTime.GetFloat();
@@ -53,7 +57,7 @@ public class BountyHunter : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         BountyId = playerId;
 
         TargetChangeTime = OptionTargetChangeTime.GetFloat();
@@ -148,7 +152,7 @@ public class BountyHunter : RoleBase
         return targetId;
     }
 
-    public byte ResetTarget(PlayerControl player)
+    private byte ResetTarget(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost) return 0xff;
 
@@ -182,7 +186,7 @@ public class BountyHunter : RoleBase
 
     public override void AfterMeetingTasks()
     {
-        foreach (byte id in playerIdList.ToArray())
+        foreach (byte id in PlayerIdList.ToArray())
         {
             if (!Main.PlayerStates[id].IsDead)
             {

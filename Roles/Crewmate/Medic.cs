@@ -9,7 +9,7 @@ namespace EHR.Crewmate;
 public class Medic : RoleBase
 {
     private const int Id = 7100;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
     public static List<byte> ProtectList = [];
     public static List<byte> TempMarkProtectedList = [];
     public static int SkillLimit;
@@ -42,7 +42,7 @@ public class Medic : RoleBase
         "DeactivationIsVisibleOFF"
     ];
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -76,7 +76,7 @@ public class Medic : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         ProtectList = [];
         TempMarkProtectedList = [];
         SkillLimit = AmountOfShields.GetInt();
@@ -84,7 +84,7 @@ public class Medic : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(SkillLimit);
     }
 
@@ -160,11 +160,11 @@ public class Medic : RoleBase
         {
             case 0:
                 target.RpcGuardAndKill(target);
-                Main.AllPlayerControls.Where(x => playerIdList.Contains(x.PlayerId) && !x.Data.IsDead).Do(x => x.Notify(Translator.GetString("MedicKillerTryBrokenShieldTargetForMedic")));
+                Main.AllPlayerControls.Where(x => PlayerIdList.Contains(x.PlayerId) && !x.Data.IsDead).Do(x => x.Notify(Translator.GetString("MedicKillerTryBrokenShieldTargetForMedic")));
                 Main.AllPlayerControls.Where(x => ProtectList.Contains(x.PlayerId)).Do(x => x.Notify(Translator.GetString("MedicKillerTryBrokenShieldTargetForTarget")));
                 break;
             case 1:
-                Main.AllPlayerControls.Where(x => playerIdList.Contains(x.PlayerId) && !x.Data.IsDead).Do(x => x.Notify(Translator.GetString("MedicKillerTryBrokenShieldTargetForMedic")));
+                Main.AllPlayerControls.Where(x => PlayerIdList.Contains(x.PlayerId) && !x.Data.IsDead).Do(x => x.Notify(Translator.GetString("MedicKillerTryBrokenShieldTargetForMedic")));
                 break;
             case 2:
                 target.RpcGuardAndKill(target);
@@ -195,7 +195,7 @@ public class Medic : RoleBase
 
         if (notify)
         {
-            foreach (byte id in playerIdList)
+            foreach (byte id in PlayerIdList)
             {
                 foreach (byte id2 in ProtectList)
                 {
@@ -285,6 +285,6 @@ public class Medic : RoleBase
     {
         Immediately,
         AfterMeeting,
-        OFF
+        Off
     }
 }

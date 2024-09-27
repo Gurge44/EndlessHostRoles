@@ -8,7 +8,7 @@ namespace EHR.Impostor
     public class Chronomancer : RoleBase
     {
         private const int Id = 642100;
-        public static List<byte> playerIdList = [];
+        public static List<byte> PlayerIdList = [];
 
         private static OptionItem KCD;
         private static OptionItem ChargeInterval;
@@ -18,7 +18,7 @@ namespace EHR.Impostor
 
         private bool IsRampaging;
         private long LastUpdate;
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
@@ -54,7 +54,7 @@ namespace EHR.Impostor
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             IsRampaging = false;
             ChargePercent = 0;
             LastUpdate = Utils.TimeStamp + 30;
@@ -63,7 +63,7 @@ namespace EHR.Impostor
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             IsRampaging = false;
             ChargePercent = 0;
             LastUpdate = Utils.TimeStamp + 10;

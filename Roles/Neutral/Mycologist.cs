@@ -22,7 +22,7 @@ namespace EHR.Neutral
 
         private static OptionItem KillCooldown;
         private static OptionItem HasImpostorVision;
-        public static OptionItem SpreadAction;
+        private static OptionItem SpreadAction;
         private static OptionItem CD;
         private static OptionItem InfectRadius;
         private static OptionItem InfectTime;
@@ -31,7 +31,7 @@ namespace EHR.Neutral
         private byte MycologistId = byte.MaxValue;
         private static int Id => 643210;
 
-        private PlayerControl Mycologist_ => GetPlayerById(MycologistId);
+        private PlayerControl MycologistPC => GetPlayerById(MycologistId);
 
         public override bool IsEnable => MycologistId != byte.MaxValue;
 
@@ -152,19 +152,19 @@ namespace EHR.Neutral
 
         void SpreadSpores()
         {
-            if (!IsEnable || Mycologist_.HasAbilityCD()) return;
-            Mycologist_.AddAbilityCD(CD.GetInt());
+            if (!IsEnable || MycologistPC.HasAbilityCD()) return;
+            MycologistPC.AddAbilityCD(CD.GetInt());
             LateTask.New(() =>
             {
-                InfectedPlayers.AddRange(GetPlayersInRadius(InfectRadius.GetFloat(), Mycologist_.Pos()).Select(x => x.PlayerId));
+                InfectedPlayers.AddRange(GetPlayersInRadius(InfectRadius.GetFloat(), MycologistPC.Pos()).Select(x => x.PlayerId));
                 SendRPC();
-                NotifyRoles(SpecifySeer: Mycologist_);
+                NotifyRoles(SpecifySeer: MycologistPC);
             }, InfectTime.GetFloat(), "Mycologist Infect Time");
-            Mycologist_.Notify(GetString("MycologistNotify"));
+            MycologistPC.Notify(GetString("MycologistNotify"));
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target) => IsEnable && target != null && InfectedPlayers.Contains(target.PlayerId);
-        public override void AfterMeetingTasks() => Mycologist_.AddAbilityCD(CD.GetInt());
+        public override void AfterMeetingTasks() => MycologistPC.AddAbilityCD(CD.GetInt());
         public override bool CanUseImpostorVentButton(PlayerControl pc) => true;
         public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (SpreadAction.GetValue() == 1 && pc.IsAlive());
     }

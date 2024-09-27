@@ -9,7 +9,7 @@ namespace EHR.Neutral
     public class Spiritcaller : RoleBase
     {
         private const int Id = 13400;
-        private static List<byte> playerIdList = [];
+        private static List<byte> PlayerIdList = [];
 
         private static Dictionary<byte, long> PlayersHaunted = [];
 
@@ -25,39 +25,48 @@ namespace EHR.Neutral
 
         private static long ProtectTimeStamp;
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Spiritcaller);
-            KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 60f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
+            KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 60f, 0.5f), 22.5f, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
                 .SetValueFormat(OptionFormat.Seconds);
-            CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller]);
-            ImpostorVision = new BooleanOptionItem(Id + 12, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller]);
-            SpiritMax = new IntegerOptionItem(Id + 13, "SpiritcallerSpiritMax", new(1, 15, 1), 2, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
+            CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller]);
+            ImpostorVision = new BooleanOptionItem(Id + 12, "ImpostorVision", true, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller]);
+            SpiritMax = new IntegerOptionItem(Id + 13, "SpiritcallerSpiritMax", new(1, 15, 1), 2, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
                 .SetValueFormat(OptionFormat.Times);
-            SpiritAbilityCooldown = new FloatOptionItem(Id + 14, "SpiritcallerSpiritAbilityCooldown", new(5f, 90f, 1f), 30f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
+            SpiritAbilityCooldown = new FloatOptionItem(Id + 14, "SpiritcallerSpiritAbilityCooldown", new(5f, 90f, 1f), 30f, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
                 .SetValueFormat(OptionFormat.Seconds);
-            SpiritFreezeTime = new FloatOptionItem(Id + 15, "SpiritcallerFreezeTime", new(0f, 30f, 1f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
+            SpiritFreezeTime = new FloatOptionItem(Id + 15, "SpiritcallerFreezeTime", new(0f, 30f, 1f), 3f, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
                 .SetValueFormat(OptionFormat.Seconds);
-            SpiritProtectTime = new FloatOptionItem(Id + 16, "SpiritcallerProtectTime", new(0f, 30f, 1f), 5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
+            SpiritProtectTime = new FloatOptionItem(Id + 16, "SpiritcallerProtectTime", new(0f, 30f, 1f), 5f, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
                 .SetValueFormat(OptionFormat.Seconds);
-            SpiritCauseVision = new FloatOptionItem(Id + 17, "SpiritcallerCauseVision", new(0f, 5f, 0.05f), 0.4f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
+            SpiritCauseVision = new FloatOptionItem(Id + 17, "SpiritcallerCauseVision", new(0f, 5f, 0.05f), 0.4f, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
                 .SetValueFormat(OptionFormat.Multiplier);
-            SpiritCauseVisionTime = new FloatOptionItem(Id + 18, "SpiritcallerCauseVisionTime", new(0f, 45f, 1f), 10f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
+            SpiritCauseVisionTime = new FloatOptionItem(Id + 18, "SpiritcallerCauseVisionTime", new(0f, 45f, 1f), 10f, TabGroup.NeutralRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             ProtectTimeStamp = 0;
             PlayersHaunted = [];
         }
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(SpiritMax.GetInt());
             ProtectTimeStamp = 0;
         }

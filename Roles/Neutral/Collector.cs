@@ -10,29 +10,30 @@ public class Collector : RoleBase
 {
     private const int Id = 11100;
     public static OptionItem CollectorCollectAmount;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
     public static Dictionary<byte, byte> CollectorVoteFor = [];
     public static Dictionary<byte, int> CollectVote = [];
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Collector);
-        CollectorCollectAmount = new IntegerOptionItem(Id + 13, "CollectorCollectAmount", new(1, 60, 1), 30, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Collector])
+        CollectorCollectAmount = new IntegerOptionItem(Id + 13, "CollectorCollectAmount", new(1, 60, 1), 30, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Collector])
             .SetValueFormat(OptionFormat.Votes);
     }
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         CollectorVoteFor = [];
         CollectVote = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         CollectVote.TryAdd(playerId, 0);
     }
 

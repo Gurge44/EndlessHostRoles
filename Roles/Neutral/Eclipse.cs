@@ -8,7 +8,7 @@ namespace EHR.Neutral;
 public class Eclipse : RoleBase
 {
     private const int Id = 648200;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     private static OptionItem KillCooldown;
     public static OptionItem CanVent;
@@ -18,7 +18,7 @@ public class Eclipse : RoleBase
 
     private float Vision;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -39,12 +39,12 @@ public class Eclipse : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         Vision = StartVision.GetFloat();
     }
 

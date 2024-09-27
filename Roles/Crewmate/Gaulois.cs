@@ -7,7 +7,7 @@ namespace EHR.Crewmate
     public class Gaulois : RoleBase
     {
         private const int Id = 643070;
-        private static List<byte> playerIdList = [];
+        private static List<byte> PlayerIdList = [];
 
         private static OptionItem CD;
         private static OptionItem AdditionalSpeed;
@@ -16,7 +16,7 @@ namespace EHR.Crewmate
 
         public static List<byte> IncreasedSpeedPlayerList = [];
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
@@ -35,13 +35,13 @@ namespace EHR.Crewmate
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             IncreasedSpeedPlayerList = [];
         }
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
         }
 

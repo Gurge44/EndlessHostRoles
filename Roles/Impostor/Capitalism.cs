@@ -5,8 +5,8 @@ namespace EHR.Impostor
 {
     internal class Capitalism : RoleBase
     {
-        public static Dictionary<byte, int> CapitalismAddTask = [];
-        public static Dictionary<byte, int> CapitalismAssignTask = [];
+        private static readonly Dictionary<byte, int> CapitalismAddTask = [];
+        public static readonly Dictionary<byte, int> CapitalismAssignTask = [];
         public static bool On;
         public override bool IsEnable => On;
 

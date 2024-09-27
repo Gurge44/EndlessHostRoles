@@ -15,13 +15,13 @@ namespace EHR.Impostor
     {
         public static bool On;
 
-        public static OptionItem WarlockCanKillAllies;
-        public static OptionItem WarlockCanKillSelf;
-        public static OptionItem KillCooldown;
-        public static OptionItem CurseCooldown;
+        private static OptionItem WarlockCanKillAllies;
+        private static OptionItem WarlockCanKillSelf;
+        private static OptionItem KillCooldown;
+        private static OptionItem CurseCooldown;
         public static OptionItem ShapeshiftCooldown;
-        public static OptionItem FreezeAfterCurseKill;
-        public static OptionItem FreezeDurationAfterCurseKill;
+        private static OptionItem FreezeAfterCurseKill;
+        private static OptionItem FreezeDurationAfterCurseKill;
 
         public static Dictionary<byte, float> WarlockTimer = [];
         public static Dictionary<byte, PlayerControl> CursedPlayers = [];
@@ -40,10 +40,10 @@ namespace EHR.Impostor
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock]);
             WarlockCanKillSelf = new BooleanOptionItem(4611, "CanKillSelf", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock]);
-            KillCooldown = new FloatOptionItem(4613, "KillCooldown", new(0f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
+            KillCooldown = new FloatOptionItem(4613, "KillCooldown", new(0f, 180f, 1f), 25f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
                 .SetValueFormat(OptionFormat.Seconds);
-            CurseCooldown = new FloatOptionItem(4614, "CurseCooldown", new(0f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
+            CurseCooldown = new FloatOptionItem(4614, "CurseCooldown", new(0f, 180f, 1f), 15f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Warlock])
                 .SetValueFormat(OptionFormat.Seconds);
             ShapeshiftCooldown = new FloatOptionItem(4612, "ShapeshiftCooldown", new(0f, 180f, 1f), 30f, TabGroup.ImpostorRoles)

@@ -11,7 +11,7 @@ namespace EHR.Impostor
     public class RiftMaker : RoleBase
     {
         private const int Id = 640900;
-        public static List<byte> playerIdList = [];
+        public static List<byte> PlayerIdList = [];
 
         public static OptionItem KillCooldown;
         public static OptionItem ShapeshiftCooldown;
@@ -19,7 +19,7 @@ namespace EHR.Impostor
 
         public List<Vector2> Marks = [];
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
@@ -32,13 +32,13 @@ namespace EHR.Impostor
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             Marks = [];
         }
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             LastTP = TimeStamp;
             Marks = [];
         }

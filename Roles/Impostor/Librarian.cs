@@ -12,9 +12,9 @@ namespace EHR.Impostor
     public class Librarian : RoleBase
     {
         private const int Id = 643150;
-        private static List<byte> playerIdList = [];
+        private static List<byte> PlayerIdList = [];
 
-        private static List<byte> sssh = [];
+        private static List<byte> Sssh = [];
 
         private static OptionItem Radius;
         private static OptionItem ShowSSAnimation;
@@ -25,7 +25,7 @@ namespace EHR.Impostor
 
         private (bool SILENCING, long LAST_CHANGE) IsInSilencingMode = (false, 0);
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
@@ -50,14 +50,14 @@ namespace EHR.Impostor
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             IsInSilencingMode = (false, 0);
-            sssh = [];
+            Sssh = [];
         }
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             IsInSilencingMode = (false, TimeStamp);
         }
 
@@ -93,12 +93,12 @@ namespace EHR.Impostor
 
         public static bool OnAnyoneReport(PlayerControl reporter)
         {
-            if (reporter == null || playerIdList.Count == 0) return true;
+            if (reporter == null || PlayerIdList.Count == 0) return true;
 
             PlayerControl librarian = null;
             float silenceRadius = Radius.GetFloat();
 
-            foreach (var id in playerIdList)
+            foreach (var id in PlayerIdList)
             {
                 if (Main.PlayerStates[id].Role is not Librarian lr) continue;
                 if (!lr.IsInSilencingMode.SILENCING) continue;
@@ -117,11 +117,11 @@ namespace EHR.Impostor
             if (librarian.RpcCheckAndMurder(reporter))
             {
                 Logger.Info(" Counter kill (report during and in range of silence)", "Librarian");
-                sssh.Add(librarian.PlayerId);
+                Sssh.Add(librarian.PlayerId);
                 NotifyRoles(SpecifyTarget: librarian);
                 LateTask.New(() =>
                 {
-                    sssh.Remove(librarian.PlayerId);
+                    Sssh.Remove(librarian.PlayerId);
                     NotifyRoles(SpecifyTarget: librarian);
                 }, NameDuration.GetInt(), "Librarian sssh text");
             }
@@ -173,7 +173,7 @@ namespace EHR.Impostor
         {
             if (!IsEnable) return;
             IsInSilencingMode = (false, TimeStamp);
-            sssh.Clear();
+            Sssh.Clear();
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
@@ -188,7 +188,7 @@ namespace EHR.Impostor
         {
             if (Main.PlayerStates[playerId].Role is not Librarian lr) return string.Empty;
 
-            return lr.IsEnable && lr.IsInSilencingMode.SILENCING && sssh.Contains(playerId) && GameStates.IsInTask
+            return lr.IsEnable && lr.IsInSilencingMode.SILENCING && Sssh.Contains(playerId) && GameStates.IsInTask
                 ? GetString("LibrarianNameText")
                 : string.Empty;
         }

@@ -11,7 +11,7 @@ namespace EHR.Impostor;
 internal class Assassin : RoleBase
 {
     private const int Id = 700;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     private static OptionItem MarkCooldownOpt;
     public static OptionItem AssassinateCooldownOpt;
@@ -24,7 +24,7 @@ internal class Assassin : RoleBase
 
     public byte MarkedPlayer;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -41,14 +41,14 @@ internal class Assassin : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         MarkedPlayer = byte.MaxValue;
         IsUndertaker = false;
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         MarkedPlayer = byte.MaxValue;
         IsUndertaker = Main.PlayerStates[playerId].MainRole == CustomRoles.Undertaker;
 
