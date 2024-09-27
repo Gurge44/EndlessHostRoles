@@ -13,7 +13,7 @@ namespace EHR.Neutral
         private static OptionItem Time;
         private byte EndermanId = byte.MaxValue;
 
-        private (Vector2 POSITION, long MARK_TIMESTAMP, bool TP) MarkedPosition = (Vector2.zero, 0, false);
+        private (Vector2 Position, long MarkTimeStamp, bool TP) MarkedPosition = (Vector2.zero, 0, false);
         private static int Id => 643200;
 
         private PlayerControl EndermanPC => GetPlayerById(EndermanId);
@@ -87,16 +87,16 @@ namespace EHR.Neutral
         {
             if (!IsEnable || EndermanPC.HasAbilityCD()) return;
             EndermanPC.AddAbilityCD(Time.GetInt() + 2);
-            MarkedPosition.MARK_TIMESTAMP = TimeStamp;
-            MarkedPosition.POSITION = EndermanPC.Pos();
+            MarkedPosition.MarkTimeStamp = TimeStamp;
+            MarkedPosition.Position = EndermanPC.Pos();
             MarkedPosition.TP = true;
             EndermanPC.Notify(GetString("MarkDone"));
         }
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!IsEnable || !GameStates.IsInTask || !MarkedPosition.TP || !EndermanPC.IsAlive() || MarkedPosition.MARK_TIMESTAMP + Time.GetInt() >= TimeStamp) return;
-            EndermanPC.TP(MarkedPosition.POSITION);
+            if (!IsEnable || !GameStates.IsInTask || !MarkedPosition.TP || !EndermanPC.IsAlive() || MarkedPosition.MarkTimeStamp + Time.GetInt() >= TimeStamp) return;
+            EndermanPC.TP(MarkedPosition.Position);
             MarkedPosition.TP = false;
         }
 
