@@ -1794,6 +1794,7 @@
   "Alive": "Жив",
   "Win": " Победил!",
   "Last-": "Последний-",
+  "NotifyGameEnding": "<#ff0000>GAME END NOTIFY</color>\\n<#ffff00>This game has already ended. If it didn't end for you, please leave the game and rejoin the lobby. This is a vanilla bug. Sorry for the inconvenience.</color>",
   "DiedR1Warning": "<size=1.7><#ffff00>(Умер 1-ым в прош. игре)</color>",
   "GLHF": "Удачной игры!",
   "DeputyHandcuffCooldown": "Откат наручников",
