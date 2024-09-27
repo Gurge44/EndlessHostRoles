@@ -169,8 +169,12 @@ internal class ControllerManagerUpdatePatch
             Logger.IsAlsoInGame = !Logger.IsAlsoInGame;
             Logger.SendInGame($"In-game output log：{Logger.IsAlsoInGame}");
         }
+        
+        if (!Options.NoGameEnd.GetBool()) return;
 
-        if (!DebugModeManager.AmDebugger || !Options.NoGameEnd.GetBool()) return;
+#if RELEASE
+        return;
+#endif
 
         if (KeysDown(KeyCode.Return, KeyCode.F, KeyCode.LeftShift))
         {

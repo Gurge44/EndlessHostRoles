@@ -1876,7 +1876,7 @@ public static class Utils
 
     public static void NotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
     {
-        if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModClient()) || !AmongUsClient.Instance.AmHost || Main.AllPlayerControls == null || (GameStates.IsMeeting && !isForMeeting) || GameStates.IsLobby)) return;
+        if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModClient() && Options.CurrentGameMode == CustomGameMode.Standard) || !AmongUsClient.Instance.AmHost || Main.AllPlayerControls == null || (GameStates.IsMeeting && !isForMeeting) || GameStates.IsLobby)) return;
         DoNotifyRoles(isForMeeting, SpecifySeer, SpecifyTarget, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup);
     }
 
@@ -1888,13 +1888,15 @@ public static class Utils
         StringBuilder seerLogInfo = new();
         StringBuilder targetLogInfo = new();
 
+        var now = TimeStamp;
+        
         // seer: Players who can see changes made here
         // target: Players subject to changes that seer can see
         foreach (PlayerControl seer in seerList)
         {
             try
             {
-                if (seer == null || seer.Data.Disconnected || seer.IsModClient()) continue;
+                if (seer == null || seer.Data.Disconnected || (seer.IsModClient() && Options.CurrentGameMode == CustomGameMode.Standard)) continue;
 
                 seerLogInfo.Append($"{seer.GetRealName()}, ");
 
@@ -1955,9 +1957,9 @@ public static class Utils
 
                     if (!isForMeeting)
                     {
-                        if (Options.UsePets.GetBool() && Main.AbilityCD.TryGetValue(seer.PlayerId, out var time) && !seer.IsModClient())
+                        if (Options.UsePets.GetBool() && Main.AbilityCD.TryGetValue(seer.PlayerId, out var time))
                         {
-                            var remainingCD = time.TotalCooldown - (TimeStamp - time.StartTimeStamp) + 1;
+                            var remainingCD = time.TotalCooldown - (now - time.StartTimeStamp) + 1;
                             SelfSuffix.Append(string.Format(GetString("CDPT"), remainingCD > 60 ? "> 60" : remainingCD));
                         }
 
@@ -2000,7 +2002,7 @@ public static class Utils
                         case CustomGameMode.MoveAndStop:
                             SelfSuffix.Append(MoveAndStopManager.GetSuffixText(seer));
                             break;
-                        case CustomGameMode.HotPotato when seer.IsAlive() && !seer.IsModClient():
+                        case CustomGameMode.HotPotato when seer.IsAlive():
                             SelfSuffix.Append(HotPotatoManager.GetSuffixText(seer.PlayerId));
                             break;
                         case CustomGameMode.Speedrun:
@@ -2395,7 +2397,13 @@ public static class Utils
             }
             catch (Exception ex)
             {
-                Logger.Error($"Error for {seer.GetNameWithRole()}: {ex}", "NR");
+                if (LastNotifyRolesErrorTS != now)
+                {
+                    Logger.Error($"Error for {seer.GetNameWithRole()}:", "NR");
+                    ThrowException(ex);
+                    LastNotifyRolesErrorTS = now;
+                }
+                else Logger.Error($"Error for {seer.GetNameWithRole()}: {ex}", "NR");
             }
         }
 
@@ -2405,6 +2413,8 @@ public static class Utils
         if (targets.Length == 0) targets = "\u2205";
         Logger.Info($" Seers: {seers} ---- Targets: {targets}", "NR");
     }
+
+    private static long LastNotifyRolesErrorTS = TimeStamp;
 
     public static void MarkEveryoneDirtySettings()
     {

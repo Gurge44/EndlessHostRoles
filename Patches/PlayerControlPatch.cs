@@ -1165,6 +1165,7 @@ static class FixedUpdatePatch
     private static readonly Dictionary<byte, int> DeadBufferTime = [];
     private static readonly Dictionary<byte, long> LastUpdate = [];
     private static long LastAddAbilityTime;
+    private static long LastErrorTS;
     private static bool ChatOpen;
 
     public static void Postfix(PlayerControl __instance)
@@ -1252,6 +1253,13 @@ static class FixedUpdatePatch
         }
         catch (Exception ex)
         {
+            var now = TimeStamp;
+            if (LastErrorTS != now)
+            {
+                Logger.Error($"Error for {__instance.GetNameWithRole()}:", "FixedUpdatePatch");
+                ThrowException(ex);
+                LastErrorTS = now;
+            }
             Logger.Error($"Error for {__instance.GetNameWithRole()}: {ex}", "FixedUpdatePatch");
         }
     }
@@ -1395,7 +1403,7 @@ static class FixedUpdatePatch
                 {
                     if (Main.AbilityCD.TryGetValue(playerId, out var timer))
                     {
-                        if (timer.StartTimeStamp + timer.TotalCooldown < TimeStamp || !alive)
+                        if (timer.StartTimeStamp + timer.TotalCooldown < now || !alive)
                         {
                             player.RemoveAbilityCD();
                         }
@@ -1473,6 +1481,13 @@ static class FixedUpdatePatch
 
             if (GameStates.IsInGame)
             {
+                if (!AmongUsClient.Instance.AmHost && Options.CurrentGameMode != CustomGameMode.Standard)
+                {
+                    RoleText.text = string.Empty;
+                    RoleText.enabled = false;
+                    return;
+                }
+                
                 bool shouldSeeTargetAddons = playerId == lpId || new[] { PlayerControl.LocalPlayer, player }.All(x => x.Is(Team.Impostor));
 
                 var RoleTextData = GetRoleText(lpId, playerId, seeTargetBetrayalAddons: shouldSeeTargetAddons);

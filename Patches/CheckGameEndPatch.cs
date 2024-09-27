@@ -888,3 +888,16 @@ static class CheckGameEndPatch
         return false;
     }
 }
+
+[HarmonyPatch(typeof(GameManager), nameof(GameManager.RpcEndGame))]
+static class RpcEndGamePatch
+{
+    public static void Prefix()
+    {
+        if (!AmongUsClient.Instance.AmHost) return;
+        var msg = GetString("NotifyGameEnding");
+        Main.AllPlayerControls.DoIf(
+            x => x.GetClient() != null && !x.Data.Disconnected,
+            x => ChatUpdatePatch.SendMessage(PlayerControl.LocalPlayer, "\n", x.PlayerId, msg));
+    }
+}
