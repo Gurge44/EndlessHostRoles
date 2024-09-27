@@ -9,7 +9,7 @@ namespace EHR.Neutral
     internal class Enderman : RoleBase
     {
         private static OptionItem KillCooldown;
-        public static OptionItem CanVent;
+        private static OptionItem CanVent;
         private static OptionItem Time;
         private byte EndermanId = byte.MaxValue;
 
