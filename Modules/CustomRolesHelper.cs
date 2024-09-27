@@ -47,7 +47,8 @@ internal static class CustomRolesHelper
         CustomRoles.Potato or
         CustomRoles.Runner or
         CustomRoles.CTFPlayer or
-        CustomRoles.NDPlayer;
+        CustomRoles.NDPlayer or
+        CustomRoles.RRPlayer;
 
     public static RoleBase GetRoleClass(this CustomRoles role)
     {
@@ -329,6 +330,9 @@ internal static class CustomRolesHelper
             CustomRoles.Venter => CustomRoles.Impostor,
             CustomRoles.Agent => CustomRoles.Impostor,
             CustomRoles.Taskinator => CustomRoles.Crewmate,
+            
+            // Room Rush
+            CustomRoles.RRPlayer => CustomRoles.Crewmate,
 
             _ => role.IsImpostor() ? CustomRoles.Impostor : CustomRoles.Crewmate
         };

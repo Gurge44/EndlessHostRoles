@@ -63,11 +63,14 @@ namespace EHR
                     Name: Utils.ColorString(Main.PlayerColors.GetValueOrDefault(kvp.Key, Color.white), pc.GetRealName()),
                     CompletedTasks: kvp.Value.TaskState.CompletedTasksCount,
                     AllTasks: kvp.Value.TaskState.AllTasksCount))
-                .Select(x => $"{x.Name}: {x.CompletedTasks}/{x.AllTasks}"));
+                .OrderByDescending(x => x.CompletedTasks)
+                .Select(x => x.CompletedTasks < x.AllTasks ? $"{x.Name}: {x.CompletedTasks}/{x.AllTasks}" : $"{x.Name}: {Translator.GetString("Speedrun_KillingPlayer")}"));
         }
 
         public static string GetSuffixText(PlayerControl pc)
         {
+            if (!pc.IsAlive()) return string.Empty;
+            
             int time = Timers[pc.PlayerId];
             int alive = Main.AllAlivePlayerControls.Length;
             int apc = Main.AllPlayerControls.Length;

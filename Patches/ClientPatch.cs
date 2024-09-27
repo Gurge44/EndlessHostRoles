@@ -12,11 +12,11 @@ using static EHR.Translator;
 namespace EHR;
 
 [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.MakePublic))]
-internal class MakePublicPatch
+static class MakePublicPatch
 {
     public static bool Prefix()
     {
-        if (ModUpdater.IsBroken || (ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || !VersionChecker.IsSupported)
+        if (ModUpdater.IsBroken || ModUpdater.HasUpdate && ModUpdater.ForceUpdate || !VersionChecker.IsSupported)
         {
             var message = string.Empty;
             if (!VersionChecker.IsSupported) message = GetString("UnsupportedVersion");
@@ -33,11 +33,11 @@ internal class MakePublicPatch
 
 [HarmonyPatch(typeof(MMOnlineManager), nameof(MMOnlineManager.Start))]
 // ReSharper disable once InconsistentNaming
-internal class MMOnlineManagerStartPatch
+static class MMOnlineManagerStartPatch
 {
     public static void Postfix()
     {
-        if (!((ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || ModUpdater.IsBroken)) return;
+        if (!(ModUpdater.HasUpdate && ModUpdater.ForceUpdate || ModUpdater.IsBroken)) return;
         var obj = GameObject.Find("FindGameButton");
         if (obj)
         {
@@ -54,7 +54,7 @@ internal class MMOnlineManagerStartPatch
 }
 
 [HarmonyPatch(typeof(SplashManager), nameof(SplashManager.Update))]
-internal class SplashLogoAnimatorPatch
+static class SplashLogoAnimatorPatch
 {
     public static void Prefix(SplashManager __instance)
     {
@@ -64,7 +64,7 @@ internal class SplashLogoAnimatorPatch
 }
 
 [HarmonyPatch(typeof(EOSManager), nameof(EOSManager.IsAllowedOnline))]
-internal class RunLoginPatch
+static class RunLoginPatch
 {
     public const int ClickCount = 0;
 
@@ -76,7 +76,7 @@ internal class RunLoginPatch
 }
 
 [HarmonyPatch(typeof(BanMenu), nameof(BanMenu.SetVisible))]
-internal class BanMenuSetVisiblePatch
+static class BanMenuSetVisiblePatch
 {
     public static bool Prefix(BanMenu __instance, bool show)
     {
@@ -90,7 +90,7 @@ internal class BanMenuSetVisiblePatch
 }
 
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.CanBan))]
-internal class InnerNetClientCanBanPatch
+static class InnerNetClientCanBanPatch
 {
     public static bool Prefix(InnerNetClient __instance, ref bool __result)
     {
@@ -100,7 +100,7 @@ internal class InnerNetClientCanBanPatch
 }
 
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.KickPlayer))]
-internal class KickPlayerPatch
+static class KickPlayerPatch
 {
     public static bool Prefix( /*InnerNetClient __instance,*/ int clientId, bool ban)
     {
@@ -120,7 +120,7 @@ internal class KickPlayerPatch
 }
 
 [HarmonyPatch(typeof(ResolutionManager), nameof(ResolutionManager.SetResolution))]
-internal class SetResolutionManager
+static class SetResolutionManager
 {
     public static void Postfix()
     {
@@ -130,7 +130,7 @@ internal class SetResolutionManager
 }
 
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.SendAllStreamedObjects))]
-internal class InnerNetObjectSerializePatch
+static class InnerNetObjectSerializePatch
 {
     public static void Prefix()
     {
@@ -140,7 +140,7 @@ internal class InnerNetObjectSerializePatch
 }
 
 [HarmonyPatch(typeof(InnerNetClient))]
-public static class InnerNetClientPatch
+public class InnerNetClientPatch
 {
     [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.SendInitialData))]
     [HarmonyPrefix]
@@ -156,7 +156,7 @@ public static class InnerNetClientPatch
         List<InnerNetObject> obj = __instance.allObjects;
         lock (obj)
         {
-            HashSet<GameObject> hashSet = new();
+            System.Collections.Generic.HashSet<GameObject> hashSet = [];
             for (int i = 0; i < __instance.allObjects.Count; i++)
             {
                 InnerNetObject innerNetObject = __instance.allObjects[i]; // False error
@@ -174,12 +174,10 @@ public static class InnerNetClientPatch
                     }
                 }
             }
-
             messageWriter.EndMessage();
             __instance.SendOrDisconnect(messageWriter);
             messageWriter.Recycle();
         }
-
         DelaySpawnPlayerInfo(__instance, clientId);
         return false;
     }
@@ -187,9 +185,7 @@ public static class InnerNetClientPatch
     // InnerSloth vanilla officials send PlayerInfo in spilt reliable packets
     private static void DelaySpawnPlayerInfo(InnerNetClient __instance, int clientId)
     {
-        var players = GameData.Instance.AllPlayers.ToArray().ToList();
-
-        foreach (var player in players)
+        foreach (var player in GameData.Instance.AllPlayers)
         {
             if (player != null && player.ClientId != clientId && !player.Disconnected)
             {
@@ -235,7 +231,6 @@ public static class InnerNetClientPatch
                         {
                             messageWriter.CancelMessage();
                         }
-
                         if (innerNetObject.Chunked && innerNetObject.IsDirty)
                         {
                             __result = true;
@@ -249,7 +244,6 @@ public static class InnerNetClientPatch
                 }
             }
         }
-
         for (int j = 0; j < __instance.Streams.Length; j++)
         {
             MessageWriter messageWriter2 = __instance.Streams[j];
@@ -262,7 +256,6 @@ public static class InnerNetClientPatch
                 messageWriter2.Write(__instance.GameId);
             }
         }
-
         return false;
     }
 
@@ -270,12 +263,11 @@ public static class InnerNetClientPatch
     [HarmonyPostfix]
     public static void FixedUpdatePostfix(InnerNetClient __instance)
     {
-        // Send it with None calls. Who cares?
+        // Just send it with None calls. Who cares?
         if (!Constants.IsVersionModded() || GameStates.IsInGame || __instance.NetworkMode != NetworkModes.OnlineGame) return;
         if (!__instance.AmHost || __instance.Streams == null) return;
 
-        var players = GameData.Instance.AllPlayers.ToArray();
-        foreach (var player in players)
+        foreach (var player in GameData.Instance.AllPlayers)
         {
             if (player.IsDirty)
             {
@@ -296,7 +288,6 @@ public static class InnerNetClientPatch
                         player.ClearDirtyBits();
                         continue;
                     }
-
                     messageWriter.EndMessage();
                     __instance.SendOrDisconnect(messageWriter);
                     messageWriter.Recycle();

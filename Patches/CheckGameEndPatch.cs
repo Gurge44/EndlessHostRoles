@@ -390,6 +390,7 @@ static class GameEndChecker
     public static void SetPredicateToHideAndSeek() => Predicate = new HideAndSeekGameEndPredicate();
     public static void SetPredicateToCaptureTheFlag() => Predicate = new CaptureTheFlagGameEndPredicate();
     public static void SetPredicateToNaturalDisasters() => Predicate = new NaturalDisastersGameEndPredicate();
+    public static void SetPredicateToRoomRush() => Predicate = new RoomRushGameEndPredicate();
 
     class NormalGameEndPredicate : GameEndPredicate
     {
@@ -409,12 +410,6 @@ static class GameEndChecker
             if (CustomRoles.Sunnyboy.RoleExist() && aapc.Length > 1) return false;
 
             if (CustomTeamManager.CheckCustomTeamGameEnd()) return true;
-
-            if (aapc.Length == 0 && !Main.HasJustStarted)
-            {
-                ResetAndSetWinner(CustomWinner.None);
-                return true;
-            }
 
             if (aapc.All(x => Main.LoversPlayers.Exists(l => l.PlayerId == x.PlayerId)) && (!Main.LoversPlayers.TrueForAll(x => x.Is(Team.Crewmate)) || !Lovers.CrewLoversWinWithCrew.GetBool()))
             {
@@ -779,6 +774,37 @@ static class GameEndChecker
             }
         }
     }
+    
+    class RoomRushGameEndPredicate : GameEndPredicate
+    {
+        public override bool CheckForEndGame(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorByKill;
+            return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
+        }
+
+        private static bool CheckGameEndByLivingPlayers(out GameOverReason reason)
+        {
+            reason = GameOverReason.ImpostorByKill;
+
+            var appc = Main.AllAlivePlayerControls;
+            switch (appc.Length)
+            {
+                case 1:
+                    var winner = appc[0];
+                    Logger.Info($"Winner: {winner.GetRealName().RemoveHtmlTags()}", "RoomRush");
+                    WinnerIds = [winner.PlayerId];
+                    Main.DoBlockNameChange = true;
+                    return true;
+                case 0:
+                    ResetAndSetWinner(CustomWinner.None);
+                    Logger.Warn("No players alive. Force ending the game", "RoomRush");
+                    return true;
+                default:
+                    return false;
+            }
+        }
+    }
 
     public abstract class GameEndPredicate
     {
@@ -860,5 +886,18 @@ static class CheckGameEndPatch
 
         __result = GameEndChecker.Predicate?.CheckGameEndByTask(out _) ?? false;
         return false;
+    }
+}
+
+[HarmonyPatch(typeof(GameManager), nameof(GameManager.RpcEndGame))]
+static class RpcEndGamePatch
+{
+    public static void Prefix()
+    {
+        if (!AmongUsClient.Instance.AmHost) return;
+        var msg = GetString("NotifyGameEnding");
+        Main.AllPlayerControls.DoIf(
+            x => x.GetClient() != null && !x.Data.Disconnected,
+            x => ChatUpdatePatch.SendMessage(PlayerControl.LocalPlayer, "\n", x.PlayerId, msg));
     }
 }

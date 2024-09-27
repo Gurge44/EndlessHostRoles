@@ -439,6 +439,7 @@ static class SetHudActivePatch
                 __instance.SabotageButton?.ToggleVisible(false);
                 __instance.AbilityButton?.ToggleVisible(false);
                 return;
+            case CustomGameMode.RoomRush:
             case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.HideAndSeek:
                 __instance.ReportButton?.ToggleVisible(false);
@@ -537,7 +538,8 @@ static class MapTaskOverlayShowPatch
     public static void Postfix()
     {
         if (GameStates.IsMeeting)
-            GuessManager.DestroyIDLabels();
+        {
+        }
     }
 }
 
@@ -547,7 +549,8 @@ static class MapTaskOverlayHidePatch
     public static void Postfix()
     {
         if (GameStates.IsMeeting && !DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening)
-            GuessManager.CreateIDLabels(MeetingHud.Instance);
+        {
+        }
     }
 }
 
@@ -761,6 +764,17 @@ static class TaskPanelBehaviourPatch
 
                     AllText += "</size>";
                     break;
+                
+                case CustomGameMode.RoomRush:
+
+                    AllText += Main.AllPlayerControls
+                        .Select(x => (pc: x, alive: x.IsAlive(), time: RoomRush.GetSurvivalTime(x.PlayerId)))
+                        .OrderByDescending(x => x.alive)
+                        .ThenByDescending(x => x.time)
+                        .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {(x.alive ? $"<#00ff00>{GetString("Alive")}</color>" : $"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), x.time)}")}");
+
+                    AllText += "</size>";
+                    break;
             }
 
             __instance.taskText.text = AllText;
@@ -788,7 +802,8 @@ static class DialogueBoxShowPatch
     public static void Postfix()
     {
         if (GameStates.IsMeeting)
-            GuessManager.DestroyIDLabels();
+        {
+        }
     }
 }
 
@@ -798,7 +813,8 @@ static class DialogueBoxHidePatch
     public static void Postfix()
     {
         if (GameStates.IsMeeting && !DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening)
-            GuessManager.CreateIDLabels(MeetingHud.Instance);
+        {
+        }
     }
 }
 

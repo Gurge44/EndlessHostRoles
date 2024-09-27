@@ -28,6 +28,9 @@ namespace EHR.Crewmate
         private Dictionary<Buff, float> BuffValues;
         private Dictionary<byte, Dictionary<Buff, float>> PlayerBuffs;
         private Buff SelectedBuff;
+        
+        private bool TaskMode;
+        private int Count;
 
         private byte WizardId;
 
@@ -63,6 +66,8 @@ namespace EHR.Crewmate
             };
             PlayerBuffs = [];
             SelectedBuff = default;
+            TaskMode = false;
+            Count = 0;
             playerId.SetAbilityUseLimit(AbilityUseLimit.GetInt());
         }
 
@@ -162,19 +167,28 @@ namespace EHR.Crewmate
             Utils.SendRPC(CustomRPC.SyncRoleData, 3, target.PlayerId);
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
 
-            if (killer.GetAbilityUseLimit() < 1f)
-            {
-                killer.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
-                killer.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
-            }
-
             return false;
         }
 
-        public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
+        public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (pc.GetAbilityUseLimit() >= 1f || (completedTaskCount + 1) >= totalTaskCount)
-                pc.RpcChangeRoleBasis(CustomRoles.Wizard);
+            if (!GameStates.IsInTask || ExileController.Instance) return;
+            
+            if (Count++ < 40) return;
+            Count = 0;
+
+            switch (TaskMode)
+            {
+                case true when pc.GetAbilityUseLimit() >= 1 || pc.GetTaskState().IsTaskFinished:
+                    pc.RpcChangeRoleBasis(CustomRoles.Wizard);
+                    TaskMode = false;
+                    break;
+                case false when pc.GetAbilityUseLimit() < 1:
+                    pc.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
+                    pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
+                    TaskMode = true;
+                    break;
+            }
         }
 
         public void ReceiveRPC(MessageReader reader)

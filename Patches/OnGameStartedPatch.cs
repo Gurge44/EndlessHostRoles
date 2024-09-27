@@ -770,6 +770,9 @@ internal static class StartGameHostPatch
                 case CustomGameMode.NaturalDisasters:
                     NaturalDisasters.OnGameStart();
                     break;
+                case CustomGameMode.RoomRush:
+                    RoomRush.OnGameStart();
+                    break;
             }
 
             HudManager.Instance.SetHudActive(true);
@@ -816,6 +819,9 @@ internal static class StartGameHostPatch
                     break;
                 case CustomGameMode.NaturalDisasters:
                     GameEndChecker.SetPredicateToNaturalDisasters();
+                    break;
+                case CustomGameMode.RoomRush:
+                    GameEndChecker.SetPredicateToRoomRush();
                     break;
             }
 
@@ -978,7 +984,7 @@ internal static class StartGameHostPatch
                 playerInfo.IsDead = data;
             }
 
-            var stream = MessageWriter.Get();
+            var stream = MessageWriter.Get(SendOption.Reliable);
             stream.StartMessage(5);
             stream.Write(AmongUsClient.Instance.GameId);
             {

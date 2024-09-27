@@ -57,6 +57,7 @@ class SetRecommendationsPatch
         {
             case CustomGameMode.SoloKombat:
             case CustomGameMode.FFA:
+            case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.HotPotato:
             case CustomGameMode.CaptureTheFlag:

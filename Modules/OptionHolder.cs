@@ -28,6 +28,7 @@ public enum CustomGameMode
     Speedrun = 0x07,
     CaptureTheFlag = 0x08,
     NaturalDisasters = 0x09,
+    RoomRush = 0x0A,
     All = int.MaxValue
 }
 
@@ -62,7 +63,8 @@ public static class Options
         "HideAndSeek",
         "Speedrun",
         "CaptureTheFlag",
-        "NaturalDisasters"
+        "NaturalDisasters",
+        "RoomRush"
     ];
 
     private static Dictionary<CustomRoles, int> roleCounts;
@@ -788,6 +790,7 @@ public static class Options
             6 => CustomGameMode.Speedrun,
             7 => CustomGameMode.CaptureTheFlag,
             8 => CustomGameMode.NaturalDisasters,
+            9 => CustomGameMode.RoomRush,
             _ => CustomGameMode.Standard
         };
 
@@ -1213,7 +1216,7 @@ public static class Options
         CheatResponses = new StringOptionItem(19319, "CheatResponses", CheatResponsesName, 2, TabGroup.SystemSettings)
             .SetHeader(true);
 
-        EnableMovementChecking = new BooleanOptionItem(19329, "EnableMovementChecking", true, TabGroup.SystemSettings)
+        EnableMovementChecking = new BooleanOptionItem(19329, "EnableMovementChecking", false, TabGroup.SystemSettings)
             .SetHeader(true);
 
 
@@ -1284,6 +1287,8 @@ public static class Options
         CTFManager.SetupCustomOption();
         // Natural Disasters
         NaturalDisasters.SetupCustomOption();
+        // Room Rush
+        RoomRush.SetupCustomOption();
 
         yield return null;
 

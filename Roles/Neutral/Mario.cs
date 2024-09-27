@@ -15,10 +15,10 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(18300, TabGroup.NeutralRoles, CustomRoles.Mario);
-            MarioVentNumWin = new IntegerOptionItem(18310, "MarioVentNumWin", new(0, 900, 5), 40, TabGroup.NeutralRoles)
+            MarioVentNumWin = new IntegerOptionItem(18310, "MarioVentNumWin", new(0, 900, 5), 80, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mario])
                 .SetValueFormat(OptionFormat.Times);
-            MarioVentCD = new FloatOptionItem(18311, "VentCooldown", new(0f, 180f, 1f), 15f, TabGroup.NeutralRoles)
+            MarioVentCD = new FloatOptionItem(18311, "VentCooldown", new(0f, 180f, 1f), 0f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mario])
                 .SetValueFormat(OptionFormat.Seconds);
         }

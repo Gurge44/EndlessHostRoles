@@ -99,6 +99,17 @@ static class SetUpRoleTextPatch
                     __instance.RoleBlurbText.text = GetString("NDPlayerInfo");
                     break;
                 }
+                case CustomGameMode.RoomRush:
+                {
+                    var color = ColorUtility.TryParseHtmlString("#ffab1b", out var c) ? c : new(255, 255, 255, 255);
+                    CustomRoles role = lp.GetCustomRole();
+                    __instance.YouAreText.color = color;
+                    __instance.RoleText.text = GetString("RRPlayer");
+                    __instance.RoleText.color = color;
+                    __instance.RoleBlurbText.color = color;
+                    __instance.RoleBlurbText.text = GetString("RRPlayerInfo");
+                    break;
+                }
                 default:
                 {
                     CustomRoles role = lp.GetCustomRole();
@@ -597,6 +608,15 @@ static class BeginCrewmatePatch
                 PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.GuardianAngel);
                 __instance.ImpostorText.gameObject.SetActive(true);
                 __instance.ImpostorText.text = GetString("NDPlayerInfo");
+                break;
+            }
+            case CustomGameMode.RoomRush:
+            {
+                __instance.TeamTitle.text = GetString("RRPlayer");
+                __instance.TeamTitle.color = __instance.BackgroundBar.material.color = new Color32(255, 171, 27, byte.MaxValue);
+                PlayerControl.LocalPlayer.Data.Role.IntroSound = GetIntroSound(RoleTypes.Impostor);
+                __instance.ImpostorText.gameObject.SetActive(true);
+                __instance.ImpostorText.text = GetString("RRPlayerInfo");
                 break;
             }
         }

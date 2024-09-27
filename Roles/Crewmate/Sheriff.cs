@@ -78,8 +78,7 @@ public class Sheriff : RoleBase
     public static void SetUpKillTargetOption(CustomRoles role, int id, bool defaultValue = true, OptionItem parent = null)
     {
         parent ??= Options.CustomRoleSpawnChances[CustomRoles.Sheriff];
-        var roleName = Utils.GetRoleName(role);
-        Dictionary<string, string> replacementDic = new() { { "%role%", Utils.ColorString(Utils.GetRoleColor(role), roleName) } };
+        Dictionary<string, string> replacementDic = new() { { "%role%", role.ToColoredString() } };
         KillTargetOptions[role] = new BooleanOptionItem(id, "SheriffCanKill%role%", defaultValue, TabGroup.CrewmateRoles).SetParent(parent);
         KillTargetOptions[role].ReplacementDictionary = replacementDic;
     }

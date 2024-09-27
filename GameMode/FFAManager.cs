@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
 using HarmonyLib;
-using Hazel;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -156,36 +155,6 @@ internal static class FFAManager
         }
     }
 
-    private static void SendRPCSyncFFAPlayer(byte playerId)
-    {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncFFAPlayer, SendOption.Reliable);
-        writer.Write(playerId);
-        writer.Write(KillCount[playerId]);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
-    public static void ReceiveRPCSyncFFAPlayer(MessageReader reader)
-    {
-        byte PlayerId = reader.ReadByte();
-        KillCount[PlayerId] = reader.ReadInt32();
-    }
-
-    public static void SendRPCSyncNameNotify(PlayerControl pc)
-    {
-        if (pc.AmOwner || !pc.IsModClient()) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncFFANameNotify, SendOption.Reliable, pc.GetClientId());
-        writer.Write(NameNotify.TryGetValue(pc.PlayerId, out (string TEXT, long TIMESTAMP) value) ? value.TEXT : string.Empty);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
-    public static void ReceiveRPCSyncNameNotify(MessageReader reader)
-    {
-        var name = reader.ReadString();
-        NameNotify.Remove(PlayerControl.LocalPlayer.PlayerId);
-        if (!string.IsNullOrEmpty(name))
-            NameNotify.Add(PlayerControl.LocalPlayer.PlayerId, (name, 0));
-    }
-
     public static void GetNameNotify(PlayerControl player, ref string name)
     {
         if (Options.CurrentGameMode != CustomGameMode.FFA || player == null) return;
@@ -246,8 +215,6 @@ internal static class FFAManager
         }
 
         OnPlayerKill(killer);
-
-        SendRPCSyncFFAPlayer(target.PlayerId);
 
         if (totalalive == 3)
         {
@@ -433,7 +400,6 @@ internal static class FFAManager
                 foreach (var pc in Main.AllPlayerControls.Where(pc => NameNotify.TryGetValue(pc.PlayerId, out var nn) && nn.TIMESTAMP < now).ToArray())
                 {
                     NameNotify.Remove(pc.PlayerId);
-                    SendRPCSyncNameNotify(pc);
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 }
 

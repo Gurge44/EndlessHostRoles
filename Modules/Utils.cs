@@ -716,6 +716,7 @@ public static class Utils
             case CustomGameMode.Speedrun: return true;
             case CustomGameMode.CaptureTheFlag: return false;
             case CustomGameMode.NaturalDisasters: return false;
+            case CustomGameMode.RoomRush: return false;
             case CustomGameMode.HideAndSeek: return HnSManager.HasTasks(p);
         }
 
@@ -910,7 +911,7 @@ public static class Utils
 
     public static bool IsRoleTextEnabled(PlayerControl __instance)
     {
-        if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters) return false;
+        if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush) return false;
         if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun || (Options.CurrentGameMode == CustomGameMode.HideAndSeek && HnSManager.IsRoleTextEnabled(PlayerControl.LocalPlayer, __instance)) || Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool() || PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) return true;
         if (CustomRoles.Altruist.RoleExist() && Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId)) return false;
 
@@ -1414,6 +1415,7 @@ public static class Utils
                 }
 
                 break;
+            case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.CaptureTheFlag:
             case CustomGameMode.Speedrun:
@@ -1747,6 +1749,7 @@ public static class Utils
                     CustomGameMode.HideAndSeek => $"<color=#345eeb><size=1.7>{modeText}</size></color>\r\n{name}",
                     CustomGameMode.CaptureTheFlag => $"<color=#1313c2><size=1.7>{modeText}</size></color>\r\n{name}",
                     CustomGameMode.NaturalDisasters => $"<color=#03fc4a><size=1.7>{modeText}</size></color>\r\n{name}",
+                    CustomGameMode.RoomRush => $"<color=#ffab1b><size=1.7>{modeText}</size></color>\r\n{name}",
                     CustomGameMode.Speedrun => ColorString(GetRoleColor(CustomRoles.Speedrunner), $"<size=1.7>{modeText}</size>\r\n") + name,
                     _ => name
                 };
@@ -1873,7 +1876,7 @@ public static class Utils
 
     public static void NotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
     {
-        if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModClient()) || !AmongUsClient.Instance.AmHost || Main.AllPlayerControls == null || (GameStates.IsMeeting && !isForMeeting) || GameStates.IsLobby)) return;
+        if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModClient() && Options.CurrentGameMode == CustomGameMode.Standard) || !AmongUsClient.Instance.AmHost || Main.AllPlayerControls == null || (GameStates.IsMeeting && !isForMeeting) || GameStates.IsLobby)) return;
         DoNotifyRoles(isForMeeting, SpecifySeer, SpecifyTarget, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup);
     }
 
@@ -1885,13 +1888,15 @@ public static class Utils
         StringBuilder seerLogInfo = new();
         StringBuilder targetLogInfo = new();
 
+        var now = TimeStamp;
+        
         // seer: Players who can see changes made here
         // target: Players subject to changes that seer can see
         foreach (PlayerControl seer in seerList)
         {
             try
             {
-                if (seer == null || seer.Data.Disconnected || seer.IsModClient()) continue;
+                if (seer == null || seer.Data.Disconnected || (seer.IsModClient() && Options.CurrentGameMode == CustomGameMode.Standard)) continue;
 
                 seerLogInfo.Append($"{seer.GetRealName()}, ");
 
@@ -1952,9 +1957,9 @@ public static class Utils
 
                     if (!isForMeeting)
                     {
-                        if (Options.UsePets.GetBool() && Main.AbilityCD.TryGetValue(seer.PlayerId, out var time) && !seer.IsModClient())
+                        if (Options.UsePets.GetBool() && Main.AbilityCD.TryGetValue(seer.PlayerId, out var time))
                         {
-                            var remainingCD = time.TotalCooldown - (TimeStamp - time.StartTimeStamp) + 1;
+                            var remainingCD = time.TotalCooldown - (now - time.StartTimeStamp) + 1;
                             SelfSuffix.Append(string.Format(GetString("CDPT"), remainingCD > 60 ? "> 60" : remainingCD));
                         }
 
@@ -1997,7 +2002,7 @@ public static class Utils
                         case CustomGameMode.MoveAndStop:
                             SelfSuffix.Append(MoveAndStopManager.GetSuffixText(seer));
                             break;
-                        case CustomGameMode.HotPotato when seer.IsAlive() && !seer.IsModClient():
+                        case CustomGameMode.HotPotato when seer.IsAlive():
                             SelfSuffix.Append(HotPotatoManager.GetSuffixText(seer.PlayerId));
                             break;
                         case CustomGameMode.Speedrun:
@@ -2012,6 +2017,9 @@ public static class Utils
                         case CustomGameMode.NaturalDisasters:
                             SelfSuffix.Append(NaturalDisasters.SuffixText());
                             break;
+                        case CustomGameMode.RoomRush:
+                            SelfSuffix.Append(RoomRush.GetSuffix(seer));
+                            break;
                     }
                 }
 
@@ -2022,7 +2030,7 @@ public static class Utils
                     if (Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFATeamMode.GetBool())
                         SeerRealName = SeerRealName.ApplyNameColorData(seer, seer, isForMeeting);
 
-                    if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters)
+                    if (!isForMeeting && MeetingStates.FirstMeeting && Options.ChangeNameToRoleInfo.GetBool() && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush)
                     {
                         var team = CustomTeamManager.GetCustomTeam(seer.PlayerId);
                         if (team != null)
@@ -2270,7 +2278,7 @@ public static class Utils
                                     : string.Empty;
 
                             if (CustomRoles.Altruist.RoleExist() && Main.DiedThisRound.Contains(seer.PlayerId)) TargetRoleText = string.Empty;
-                            if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters) TargetRoleText = string.Empty;
+                            if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush) TargetRoleText = string.Empty;
 
                             if (!GameStates.IsLobby)
                             {
@@ -2389,7 +2397,13 @@ public static class Utils
             }
             catch (Exception ex)
             {
-                Logger.Error($"Error for {seer.GetNameWithRole()}: {ex}", "NR");
+                if (LastNotifyRolesErrorTS != now)
+                {
+                    Logger.Error($"Error for {seer.GetNameWithRole()}:", "NR");
+                    ThrowException(ex);
+                    LastNotifyRolesErrorTS = now;
+                }
+                else Logger.Error($"Error for {seer.GetNameWithRole()}: {ex}", "NR");
             }
         }
 
@@ -2399,6 +2413,8 @@ public static class Utils
         if (targets.Length == 0) targets = "\u2205";
         Logger.Info($" Seers: {seers} ---- Targets: {targets}", "NR");
     }
+
+    private static long LastNotifyRolesErrorTS = TimeStamp;
 
     public static void MarkEveryoneDirtySettings()
     {
@@ -2959,6 +2975,10 @@ public static class Utils
             case CustomGameMode.NaturalDisasters:
                 int time2 = NaturalDisasters.SurvivalTime(id);
                 summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time2 == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time2}</color>s")}</color>  ({GetVitalText(id, true)})";
+                break;
+            case CustomGameMode.RoomRush:
+                int time3 = RoomRush.GetSurvivalTime(id);
+                summary = $"{ColorString(Main.PlayerColors[id], name)} - <#e8cd46>{GetString("SurvivedTimePrefix")}: <#ffffff>{(time3 == 0 ? $"{GetString("SurvivedUntilTheEnd")}</color>" : $"{time3}</color>s")}</color>  ({GetVitalText(id, true)})";
                 break;
             case CustomGameMode.CaptureTheFlag:
                 summary = $"{ColorString(Main.PlayerColors[id], name)}: {CTFManager.GetStatistics(id)}";

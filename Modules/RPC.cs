@@ -17,33 +17,17 @@ namespace EHR.Modules;
 
 public enum CustomRPC
 {
-    VersionCheck = 78,
-    RequestRetryVersionCheck = 79,
-    SyncCustomSettings = 80,
+    VersionCheck = 102,
+    RequestRetryVersionCheck,
+    SyncCustomSettings,
     SetDeathReason,
     EndGame,
     PlaySound,
     SetCustomRole,
-    SetBountyTarget,
-    SetKillOrSpell,
-    SetDousedPlayer,
-    SetPlaguedPlayer,
     SetNameColorData,
-    DoSpell,
-    SniperSync,
-    SetLoversPlayers,
-    SetExecutionerTarget,
-    RemoveExecutionerTarget,
-    SetLawyerTarget,
-    RemoveLawyerTarget,
-    SendFireWorksState,
-    SetCurrentDousingTarget,
-    SetEvilTrackerTarget,
     SetRealKiller,
     ShowChat,
     SyncLobbyTimer,
-
-    // EHR
     AntiBlackout,
     PlayCustomSound,
     SetKillTimer,
@@ -59,9 +43,23 @@ public enum CustomRPC
     FixModdedClientCNO,
     SyncAbilityCD,
     SyncGeneralOptions,
+    SyncRoleData,
 
     // Roles
-    SyncRoleData,
+    DoSpell,
+    SniperSync,
+    SetLoversPlayers,
+    SetExecutionerTarget,
+    RemoveExecutionerTarget,
+    SetLawyerTarget,
+    RemoveLawyerTarget,
+    SendFireWorksState,
+    SetCurrentDousingTarget,
+    SetEvilTrackerTarget,
+    SetBountyTarget,
+    SetKillOrSpell,
+    SetDousedPlayer,
+    SetPlaguedPlayer,
     SetDrawPlayer,
     SyncHeadHunter,
     SyncRabbit,
@@ -69,6 +67,10 @@ public enum CustomRPC
     SyncMycologist,
     SyncBubble,
     AddTornado,
+    
+    // BAU should always be 150
+    BAU = 150,
+    
     SyncHookshot,
     SyncStressedTimer,
     SetLibrarianMode,
@@ -116,7 +118,6 @@ public enum CustomRPC
     Guess,
     MeetingKill,
     MafiaRevenge,
-    RetributionistRevenge,
     SetSwooperTimer,
     SetBanditStealLimit,
     SetBKTimer,
@@ -134,14 +135,7 @@ public enum CustomRPC
     SyncTiger,
     SyncSentry,
     SyncBargainer,
-    SyncOverheat,
-
-    // Other Game Modes
-    SyncKBPlayer,
-    SyncKBBackCountdown,
-    SyncKBNameNotify,
-    SyncFFAPlayer,
-    SyncFFANameNotify
+    SyncOverheat
 }
 
 public enum Sounds
@@ -153,11 +147,11 @@ public enum Sounds
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.HandleRpc))]
-internal class RPCHandlerPatch
+static class RPCHandlerPatch
 {
     public static readonly Dictionary<byte, int> ReportDeadBodyRPCs = [];
 
-    private static bool TrustedRpc(byte id) => (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.RetributionistRevenge;
+    private static bool TrustedRpc(byte id) => (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.BAU;
 
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
     {
@@ -847,37 +841,12 @@ internal class RPCHandlerPatch
                 PlayerControl.LocalPlayer.SetKillTimer(time);
                 break;
             }
-            case CustomRPC.SyncKBPlayer:
-            {
-                SoloKombatManager.ReceiveRPCSyncKBPlayer(reader);
-                break;
-            }
-            case CustomRPC.SyncFFAPlayer:
-            {
-                FFAManager.ReceiveRPCSyncFFAPlayer(reader);
-                break;
-            }
             case CustomRPC.SyncAllPlayerNames:
             {
                 Main.AllPlayerNames = [];
                 int num = reader.ReadInt32();
                 for (int i = 0; i < num; i++)
                     Main.AllPlayerNames.TryAdd(reader.ReadByte(), reader.ReadString());
-                break;
-            }
-            case CustomRPC.SyncKBBackCountdown:
-            {
-                SoloKombatManager.ReceiveRPCSyncBackCountdown(reader);
-                break;
-            }
-            case CustomRPC.SyncKBNameNotify:
-            {
-                SoloKombatManager.ReceiveRPCSyncNameNotify(reader);
-                break;
-            }
-            case CustomRPC.SyncFFANameNotify:
-            {
-                FFAManager.ReceiveRPCSyncNameNotify(reader);
                 break;
             }
             case CustomRPC.SyncMafiosoData:

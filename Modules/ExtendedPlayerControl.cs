@@ -229,7 +229,9 @@ static class ExtendedPlayerControl
             return CountTypes.None;
         }
 
-        return Main.PlayerStates.TryGetValue(player.PlayerId, out var State) ? State.SubRoles.Contains(CustomRoles.Bloodlust) ? CountTypes.Bloodlust : State.countTypes : CountTypes.None;
+        if (!Main.PlayerStates.TryGetValue(player.PlayerId, out var state)) return CountTypes.None;
+        if (!player.IsConverted() && player.Is(CustomRoles.Bloodlust)) return CountTypes.Bloodlust;
+        return state.countTypes;
     }
 
     public static void RpcSetNameEx(this PlayerControl player, string name)
@@ -776,6 +778,8 @@ static class ExtendedPlayerControl
 
     public static void Suicide(this PlayerControl pc, PlayerState.DeathReason deathReason = PlayerState.DeathReason.Suicide, PlayerControl realKiller = null)
     {
+        if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
+        
         var state = Main.PlayerStates[pc.PlayerId];
         if (realKiller != null && state.Role is SchrodingersCat cat)
         {
@@ -944,7 +948,7 @@ static class ExtendedPlayerControl
 
     public static string GetNameWithRole(this PlayerControl player, bool forUser = false)
     {
-        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
+        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
     }
 
     public static string GetRoleColorCode(this PlayerControl player)
@@ -1059,7 +1063,7 @@ static class ExtendedPlayerControl
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.HotPotato or CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters:
+            case CustomGameMode.HotPotato or CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush:
             case CustomGameMode.Speedrun when !SpeedrunManager.CanKill.Contains(pc.PlayerId):
                 return false;
             case CustomGameMode.CaptureTheFlag:
@@ -1127,6 +1131,8 @@ static class ExtendedPlayerControl
             CustomRoles.CTFPlayer => false,
             // Natural Disasters
             CustomRoles.NDPlayer => false,
+            // Room Rush
+            CustomRoles.RRPlayer => RoomRush.VentLimit[pc.PlayerId] > 0,
 
             _ => Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseImpostorVentButton(pc)
         };
