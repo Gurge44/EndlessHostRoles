@@ -16,7 +16,7 @@ namespace EHR
         private static OptionItem TimeWhenFirstPlayerEntersRoom;
         private static OptionItem VentTimes;
 
-        public static HashSet<string> HasPlayedFriendCodes = [];
+        public static readonly HashSet<string> HasPlayedFriendCodes = [];
 
         public static Dictionary<byte, int> VentLimit = [];
 
@@ -34,6 +34,9 @@ namespace EHR
         {
             [MapNames.Skeld] = new()
             {
+                [(SystemTypes.Admin, SystemTypes.Nav)] = 2,
+                [(SystemTypes.Admin, SystemTypes.Comms)] = 2,
+                [(SystemTypes.Admin, SystemTypes.Shields)] = 3,
                 [(SystemTypes.Admin, SystemTypes.LifeSupp)] = 4,
                 [(SystemTypes.Electrical, SystemTypes.MedBay)] = 3,
                 [(SystemTypes.Electrical, SystemTypes.Security)] = 3
@@ -106,8 +109,6 @@ namespace EHR
             }
         };
 
-        // TODO: Fix vent button not active for host
-
         public static void SetupCustomOption()
         {
             int id = 69_217_001;
@@ -132,7 +133,8 @@ namespace EHR
 
         public static int GetSurvivalTime(byte id)
         {
-            if (!Main.PlayerStates.TryGetValue(id, out var state)) return 0;
+            if (!Main.PlayerStates.TryGetValue(id, out var state)) return -1;
+            if (!state.IsDead) return 0;
             DateTime died = state.RealKiller.TimeStamp;
             TimeSpan time = died - GameStartDateTime;
             return (int)time.TotalSeconds;
@@ -299,9 +301,9 @@ namespace EHR
                     {
                         Logger.Info($"{pc.GetRealName()} entered the correct room", "RoomRush");
 
-                        if (DonePlayers.Count == 2)
+                        int timeLeft = TimeWhenFirstPlayerEntersRoom.GetInt();
+                        if (DonePlayers.Count == 2 && timeLeft < TimeLeft)
                         {
-                            int timeLeft = TimeWhenFirstPlayerEntersRoom.GetInt();
                             Logger.Info($"Two players entered the correct room, setting the timer to {timeLeft}", "RoomRush");
                             TimeLeft = timeLeft;
                             LastUpdate = now;

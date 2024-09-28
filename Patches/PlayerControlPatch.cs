@@ -565,7 +565,7 @@ static class MurderPlayerPatch
             return false;
         }
 
-        if (RandomSpawn.CustomNetworkTransformPatch.NumOfTP.TryGetValue(__instance.PlayerId, out var num) && num > 2) RandomSpawn.CustomNetworkTransformPatch.NumOfTP[__instance.PlayerId] = 3;
+        RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Add(__instance.PlayerId);
 
         if (!target.IsProtected() && !Doppelganger.DoppelVictim.ContainsKey(target.PlayerId) && !Camouflage.ResetSkinAfterDeathPlayers.Contains(target.PlayerId))
         {
@@ -1166,7 +1166,6 @@ static class FixedUpdatePatch
     private static readonly Dictionary<byte, long> LastUpdate = [];
     private static long LastAddAbilityTime;
     private static long LastErrorTS;
-    private static bool ChatOpen;
 
     public static void Postfix(PlayerControl __instance)
     {
@@ -1174,6 +1173,9 @@ static class FixedUpdatePatch
 
         if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId)
             CustomNetObject.FixedUpdate();
+
+        if (__instance.IsAlive())
+            VentilationSystemDeterioratePatch.CheckVentInteraction(__instance);
 
         byte id = __instance.PlayerId;
         if (AmongUsClient.Instance.AmHost && GameStates.IsInTask && ReportDeadBodyPatch.CanReport[id] && ReportDeadBodyPatch.WaitReport[id].Count > 0)
@@ -1213,23 +1215,6 @@ static class FixedUpdatePatch
             else if (!Main.HasJustStarted && GameStates.IsInTask && GhostRolesManager.ShouldHaveGhostRole(__instance))
             {
                 GhostRolesManager.AssignGhostRole(__instance);
-            }
-        }
-
-        if (GameStates.IsMeeting)
-        {
-            switch (ChatOpen)
-            {
-                case false when DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening:
-                    ChatOpen = true;
-                    break;
-                case true when DestroyableSingleton<HudManager>.Instance.Chat.IsClosedOrClosing:
-                    ChatOpen = false;
-                    if (GameStates.IsVoting)
-                    {
-                    }
-
-                    break;
             }
         }
 
@@ -1287,7 +1272,6 @@ static class FixedUpdatePatch
 
         if (!lowLoad)
         {
-            VentilationSystemDeterioratePatch.CheckVentInteraction(player);
             NameNotifyManager.OnFixedUpdate(player);
             TargetArrow.OnFixedUpdate(player);
             LocateArrow.OnFixedUpdate(player);

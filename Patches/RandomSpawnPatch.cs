@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using EHR.Impostor;
 using HarmonyLib;
+using Hazel;
 using UnityEngine;
 
 namespace EHR;
 
-class RandomSpawn
+abstract class RandomSpawn
 {
     public static void TP(CustomNetworkTransform nt, Vector2 location)
     {
@@ -18,12 +19,10 @@ class RandomSpawn
         //AmongUsClient.Instance.FinishRpcImmediately(writer);
         Utils.TP(nt, location);
     }
-
+/*
     [HarmonyPatch(typeof(CustomNetworkTransform), nameof(CustomNetworkTransform.SnapTo), typeof(Vector2), typeof(ushort))]
-    public class CustomNetworkTransformPatch
+    public class CustomNetworkTransformHandleRpcPatch
     {
-        public static Dictionary<byte, int> NumOfTP = [];
-
         public static void Postfix(CustomNetworkTransform __instance, [HarmonyArgument(0)] Vector2 position)
         {
             if (!AmongUsClient.Instance.AmHost) return;
@@ -50,11 +49,84 @@ class RandomSpawn
             }
         }
     }
+*/
+
+    // Thanks: https://github.com/tukasa0001/TownOfHost/blob/main/Patches/RandomSpawnPatch.cs
+    [HarmonyPatch(typeof(CustomNetworkTransform), nameof(CustomNetworkTransform.HandleRpc))]
+    public class CustomNetworkTransformHandleRpcPatch
+    {
+        public static HashSet<byte> HasSpawned = [];
+
+        private static readonly HashSet<(int x, int y)> DecupleVanillaSpawnPositions =
+        [
+            (-7, 85),
+            (-7, -10),
+            (-70, -115),
+            (335, -15),
+            (200, 105),
+            (155, 0)
+        ];
+
+        public static bool Prefix(CustomNetworkTransform __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
+        {
+            if (!AmongUsClient.Instance.AmHost) return true;
+
+            if (!__instance.isActiveAndEnabled) return false;
+            if ((RpcCalls)callId == RpcCalls.SnapTo && (MapNames)Main.NormalOptions.MapId == MapNames.Airship)
+            {
+                var player = __instance.myPlayer;
+                if (!HasSpawned.Contains(player.PlayerId))
+                {
+                    Vector2 position;
+                    {
+                        var newReader = MessageReader.Get(reader);
+                        position = NetHelpers.ReadVector2(newReader);
+                        newReader.Recycle();
+                    }
+                    Logger.Info($"SnapTo: {player.GetRealName()}, ({position.x}, {position.y})", "RandomSpawn");
+                    if (IsAirshipVanillaSpawnPosition(position))
+                    {
+                        AirshipSpawn(player);
+                        return !Options.RandomSpawn.GetBool();
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private static bool IsAirshipVanillaSpawnPosition(Vector2 position)
+        {
+            var decupleXFloat = position.x * 10f;
+            var decupleYFloat = position.y * 10f;
+            var decupleXInt = Mathf.RoundToInt(decupleXFloat);
+
+            if (Mathf.Abs(decupleXInt - decupleXFloat) >= 0.09f) return false;
+            var decupleYInt = Mathf.RoundToInt(decupleYFloat);
+            if (Mathf.Abs(decupleYInt - decupleYFloat) >= 0.09f) return false;
+            var decuplePosition = (decupleXInt, decupleYInt);
+            return DecupleVanillaSpawnPositions.Contains(decuplePosition);
+        }
+
+        private static void AirshipSpawn(PlayerControl player)
+        {
+            Logger.Info($"Spawn: {player.GetRealName()}", "RandomSpawn");
+            if (AmongUsClient.Instance.AmHost)
+            {
+                if (player.Is(CustomRoles.Penguin)) Penguin.OnSpawnAirship();
+                player.RpcResetAbilityCooldown();
+                if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled) player.SetKillCooldown(Main.AllPlayerKillCooldown[player.PlayerId]);
+                if (Options.RandomSpawn.GetBool() || player.Is(CustomRoles.GM)) new AirshipSpawnMap().RandomTeleport(player);
+            }
+
+            HasSpawned.Add(player.PlayerId);
+        }
+    }
 
     public abstract class SpawnMap
     {
         public abstract Dictionary<SystemTypes, Vector2> Positions { get; }
-        
+
         public virtual void RandomTeleport(PlayerControl player)
         {
             var spawn = GetLocation();

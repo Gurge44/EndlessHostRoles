@@ -230,7 +230,7 @@ internal class ChangeRoleSettings
             ShipStatusBeginPatch.RolesIsAssigned = false;
             GameEndChecker.ShowAllRolesWhenGameEnd = false;
 
-            RandomSpawn.CustomNetworkTransformPatch.NumOfTP = [];
+            RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned = [];
 
             AFKDetector.ShieldedPlayers.Clear();
 
@@ -292,7 +292,7 @@ internal class ChangeRoleSettings
                 VentilationSystemDeterioratePatch.LastClosestVent[pc.PlayerId] = 0;
                 RoleResult[pc.PlayerId] = CustomRoles.NotAssigned;
                 pc.cosmetics.nameText.text = pc.name;
-                RandomSpawn.CustomNetworkTransformPatch.NumOfTP.Add(pc.PlayerId, 0);
+                RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Clear();
                 var outfit = pc.Data.DefaultOutfit;
                 Camouflage.PlayerSkins[pc.PlayerId] = new NetworkedPlayerInfo.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId, outfit.NamePlateId);
                 Main.ClientIdList.Add(pc.GetClientId());

@@ -67,7 +67,7 @@ static class ExtendedPlayerControl
 
     public static bool CanUseVent(this PlayerControl player, int ventId)
     {
-        return GameStates.IsInTask && (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer || player.inVent) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId));
+        return GameStates.IsInTask && (player.inVent || (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId)));
     }
 
     // Next 3: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs

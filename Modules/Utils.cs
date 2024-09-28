@@ -2408,6 +2408,8 @@ public static class Utils
             }
         }
 
+        if (Options.CurrentGameMode != CustomGameMode.Standard) return;
+
         string seers = seerLogInfo.ToString().TrimEnd(',', ' ');
         string targets = targetLogInfo.ToString().TrimEnd(',', ' ');
         if (seers.Length == 0) seers = "\u2205";

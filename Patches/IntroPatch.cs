@@ -769,13 +769,15 @@ static class IntroCutsceneDestroyPatch
                 }
             }
 
-            bool chat = Options.CurrentGameMode switch
+            switch (Options.CurrentGameMode)
             {
-                CustomGameMode.FFA => FFAManager.FFAChatDuringGame.GetBool(),
-                CustomGameMode.HotPotato => HotPotatoManager.IsChatDuringGame,
-                _ => false
-            };
-            if (chat) Utils.SetChatVisibleForAll();
+                case CustomGameMode.FFA when FFAManager.FFAChatDuringGame.GetBool():
+                    Utils.SetChatVisibleForAll();
+                    break;
+                case CustomGameMode.HotPotato when HotPotatoManager.IsChatDuringGame:
+                    LateTask.New(Utils.SetChatVisibleForAll, 3f, log: false);
+                    break;
+            }
 
             // LateTask.New(() => Main.AllPlayerControls.Do(pc ⇒ pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 

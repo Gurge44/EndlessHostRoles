@@ -822,7 +822,7 @@ static class MeetingHudStartPatch
 
             var suffix = Main.PlayerStates[seer.PlayerId].Role.GetSuffix(seer, target, meeting: true);
             if (roleTextMeeting.text.Length > 0 && suffix.Length > 0) roleTextMeeting.text += "\n" + suffix;
-            
+
             // Thanks BAU (By D1GQ) - are you happy now?
             var playerLevel = pva.transform.Find("PlayerLevel");
             var levelDisplay = Object.Instantiate(playerLevel, pva.transform);
@@ -1077,7 +1077,7 @@ static class MeetingHudOnDestroyPatch
         if (AmongUsClient.Instance.AmHost)
         {
             AntiBlackout.SetIsDead();
-            Main.AllPlayerControls.Do(pc => RandomSpawn.CustomNetworkTransformPatch.NumOfTP[pc.PlayerId] = 0);
+            RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Clear();
 
             Main.LastVotedPlayerInfo = null;
         }

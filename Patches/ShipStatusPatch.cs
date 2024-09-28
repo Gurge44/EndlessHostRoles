@@ -614,7 +614,7 @@ static class VentilationSystemDeterioratePatch
             return;
         }
 
-        bool canUse = pc.CanUseVent();
+        bool canUse = pc.CanUseVent(closestVent);
 
         if (!LastCanUseVent.TryGetValue(pc.PlayerId, out bool couldUse))
         {
@@ -625,7 +625,7 @@ static class VentilationSystemDeterioratePatch
         if (couldUse != canUse || lastClosestVent != closestVent)
         {
             LastCanUseVent[pc.PlayerId] = canUse;
-            SerializeV2(ShipStatus.Instance.Systems[SystemTypes.Ventilation].Cast<VentilationSystem>(), pc);
+            pc.RpcSetVentInteraction();
         }
     }
 }
