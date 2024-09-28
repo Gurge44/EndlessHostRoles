@@ -4135,7 +4135,7 @@
   "RR_VentTimes": "Times each player can vent",
   "RR_Tutorial_1": "<#ffab1b><size=80%>Tutorial</size></color>\\nHello! Welcome to Room Rush!\\n",
   "RR_Tutorial_2": "The goal of this gamemode is to get to the room you see under your name as fast as possible.",
-  "RR_Tutorial_3": "When the first two players enter the correct room, the time limit is set to 5 seconds.",
+  "RR_Tutorial_3": "When the first two players enter the correct room, the time limit is set to a few seconds.",
   "RR_Tutorial_4": "If you are last to or don't get to the room in time, you die.\\nGood luck!",
   "RR_VentsRemaining": "<size=80%>Remaining vent uses: {0}</size>",
   "RR_YouWereLast": "<#ff1919>You were the last to get to the room</color>",
@@ -5027,5 +5027,6 @@
   "RoleSelected": "<b>El rol de {0} en el próximo juego será{1}</b>",
   "UpReplacedMessage": "/up fue remplazado por /setrole que te permite establecer el rol de cualquiera para cualquier juego escribiendo '/setrole (ID) (ROL)'. Puedes ver ID's con /id.\nPara establecer tu propio rol como con /up, debes hacer '/setrole 0 (ROL)'.",
   "PingText": "Ping",
-  "SettingsForRoleText": "Configuraciones"
+  "SettingsForRoleText": "Configuraciones",
+  "NotAssigned": "-"
 }
