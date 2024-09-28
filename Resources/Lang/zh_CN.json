@@ -4135,7 +4135,7 @@
   "RR_VentTimes": "每个玩家能使用通风管道的时间",
   "RR_Tutorial_1": "<#ffab1b><size=80%>教程</size></color>：\\n你好!新玩家!欢迎来到抢椅子!\\n",
   "RR_Tutorial_2": "这个游戏模式的目标是尽快到达你名字下的房间。",
-  "RR_Tutorial_3": "当前两名玩家进入正确的房间时，时间限制设置为5秒。",
+  "RR_Tutorial_3": "When the first two players enter the correct room, the time limit is set to a few seconds.",
   "RR_Tutorial_4": "贻逸时，误亦死\\n愿君好运!",
   "RR_VentsRemaining": "<size=80%>剩余通风管道使用量： {0}</size>",
   "RR_YouWereLast": "<#ff1919>你是最后一个到达房间的</color>",
@@ -5027,5 +5027,6 @@
   "RoleSelected": "<b>下次游戏中 {0} 的职业将是{1}</b>",
   "UpReplacedMessage": "/up 被 /setrole 取代，它允许您输入“/setrole (ID) (职业)”来设置任何人的职业。 您可以使用 /id 查看 ID。\n设置您自己的职业与 /up 相似，您需要执行 '/setrole 0 (职业)'。",
   "PingText": "延迟",
-  "SettingsForRoleText": "设置给"
+  "SettingsForRoleText": "设置给",
+  "NotAssigned": "-"
 }
