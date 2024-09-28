@@ -778,7 +778,7 @@ static class ExtendedPlayerControl
 
     public static void Suicide(this PlayerControl pc, PlayerState.DeathReason deathReason = PlayerState.DeathReason.Suicide, PlayerControl realKiller = null)
     {
-        if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
+        if (!pc.IsAlive() || pc.Data.IsDead || !GameStates.IsInTask || ExileController.Instance) return;
 
         var state = Main.PlayerStates[pc.PlayerId];
         if (realKiller != null && state.Role is SchrodingersCat cat)
@@ -1014,7 +1014,8 @@ static class ExtendedPlayerControl
     {
         try
         {
-            return isMeeting ? player.Data.PlayerName : player.name;
+            var name = isMeeting ? player.Data.PlayerName : player.name;
+            return name.RemoveHtmlTags();
         }
         catch (NullReferenceException nullReferenceException)
         {

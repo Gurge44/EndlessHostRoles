@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -104,7 +105,7 @@ namespace EHR
                 [(SystemTypes.MiningPit, SystemTypes.Cafeteria)] = 2
             }
         };
-        
+
         // TODO: Fix vent button not active for host
 
         public static void SetupCustomOption()
@@ -112,7 +113,7 @@ namespace EHR
             int id = 69_217_001;
             Color color = Utils.GetRoleColor(CustomRoles.RRPlayer);
             const CustomGameMode gameMode = CustomGameMode.RoomRush;
-            
+
             GlobalTimeMultiplier = new FloatOptionItem(id++, "RR_GlobalTimeMultiplier", new(0.05f, 2f, 0.05f), 1f, TabGroup.GameSettings)
                 .SetHeader(true)
                 .SetColor(color)
@@ -128,7 +129,7 @@ namespace EHR
                 .SetGameMode(gameMode)
                 .SetValueFormat(OptionFormat.Times);
         }
-        
+
         public static int GetSurvivalTime(byte id)
         {
             if (!Main.PlayerStates.TryGetValue(id, out var state)) return 0;
@@ -143,7 +144,7 @@ namespace EHR
             Main.Instance.StartCoroutine(GameStartTasks());
         }
 
-        private static System.Collections.IEnumerator GameStartTasks()
+        private static IEnumerator GameStartTasks()
         {
             GameGoing = false;
 
@@ -154,7 +155,7 @@ namespace EHR
             AllRooms.Remove(SystemTypes.Hallway);
             AllRooms.Remove(SystemTypes.Outside);
             AllRooms.RemoveWhere(x => x.ToString().Contains("Decontamination"));
-            
+
             DonePlayers = [];
 
             Map = Main.CurrentMap switch
@@ -168,8 +169,8 @@ namespace EHR
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-            yield return new WaitForSeconds(Main.CurrentMap == MapNames.Airship ? 20f : 12f);
-            
+            yield return new WaitForSeconds(Main.CurrentMap == MapNames.Airship ? 22f : 14f);
+
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
             aapc.Do(x => x.RpcSetCustomRole(CustomRoles.RRPlayer));
 
@@ -185,7 +186,7 @@ namespace EHR
 
                 yield return new WaitForSeconds(4f);
             }
-            
+
             NameNotifyManager.Reset();
             aapc.Do(x => x.Notify(Translator.GetString("RR_ReadyQM")));
 
@@ -198,7 +199,7 @@ namespace EHR
                 aapc.Do(x => x.Notify(time.ToString()));
                 yield return new WaitForSeconds(1f);
             }
-            
+
             if (ventLimit > 0) aapc.Without(PlayerControl.LocalPlayer).Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
 
             NameNotifyManager.Reset();
@@ -209,7 +210,6 @@ namespace EHR
 
         private static void StartNewRound(bool initial = false)
         {
-            Logger.Info("Starting a new round", "RoomRush");
             DonePlayers.Clear();
             SystemTypes previous = RoomGoal;
             RoomGoal = AllRooms.Without(previous).RandomElement();
@@ -243,6 +243,7 @@ namespace EHR
             }
 
             TimeLeft = (int)Math.Round(time * GlobalTimeMultiplier.GetFloat());
+            Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())}, to: {Translator.GetString(RoomGoal.ToString())} - Time: {TimeLeft}", "RoomRush");
             Utils.NotifyRoles();
         }
 
@@ -258,12 +259,12 @@ namespace EHR
             sb.AppendLine(Utils.ColorString(color, Translator.GetString(RoomGoal.ToString())));
             color = done ? Color.white : Color.yellow;
             sb.AppendLine(Utils.ColorString(color, TimeLeft.ToString()));
-            
+
             sb.AppendLine();
-            
+
             int vents = VentLimit.GetValueOrDefault(seer.PlayerId);
             sb.Append(string.Format(Translator.GetString("RR_VentsRemaining"), vents));
-            
+
             return sb.ToString();
         }
 
@@ -286,7 +287,7 @@ namespace EHR
                     if (pc.IsAlive() && !pc.inMovingPlat && room != null && room.RoomId == RoomGoal && DonePlayers.Add(pc.PlayerId))
                     {
                         Logger.Info($"{pc.GetRealName()} entered the correct room", "RoomRush");
-                    
+
                         if (DonePlayers.Count == 2)
                         {
                             int timeLeft = TimeWhenFirstPlayerEntersRoom.GetInt();
@@ -307,7 +308,7 @@ namespace EHR
                     }
                     else if (room == null || room.RoomId != RoomGoal) DonePlayers.Remove(pc.PlayerId);
                 }
-                
+
                 if (LastUpdate == now) return;
                 LastUpdate = now;
 
@@ -327,7 +328,7 @@ namespace EHR
     public class RRPlayer : RoleBase
     {
         public override bool IsEnable => Options.CurrentGameMode == CustomGameMode.RoomRush;
-        
+
         public override void Init()
         {
         }

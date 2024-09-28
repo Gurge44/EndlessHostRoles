@@ -26,11 +26,11 @@ namespace EHR.Crewmate
         };
 
         private Dictionary<Buff, float> BuffValues;
+        private int Count;
         private Dictionary<byte, Dictionary<Buff, float>> PlayerBuffs;
         private Buff SelectedBuff;
-        
+
         private bool TaskMode;
-        private int Count;
 
         private byte WizardId;
 
@@ -173,7 +173,7 @@ namespace EHR.Crewmate
         public override void OnFixedUpdate(PlayerControl pc)
         {
             if (!GameStates.IsInTask || ExileController.Instance) return;
-            
+
             if (Count++ < 40) return;
             Count = 0;
 
@@ -183,7 +183,7 @@ namespace EHR.Crewmate
                     pc.RpcChangeRoleBasis(CustomRoles.Wizard);
                     TaskMode = false;
                     break;
-                case false when pc.GetAbilityUseLimit() < 1:
+                case false when pc.GetAbilityUseLimit() < 1 || !pc.IsAlive():
                     pc.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
                     pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
                     TaskMode = true;

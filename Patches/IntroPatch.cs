@@ -193,6 +193,7 @@ static class CoBeginPatch
 
         sb.Append("-------------Other Information-------------\n");
         sb.Append($"Number of players: {Main.AllPlayerControls.Length}\n");
+        sb.Append($"Game mode: {GetString(Options.CurrentGameMode.ToString())}\n");
         sb.Append($"Map: {Main.CurrentMap}");
 
         Logger.Info("\n" + sb, "GameInfo", multiLine: true);
