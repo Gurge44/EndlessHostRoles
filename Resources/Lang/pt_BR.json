@@ -4135,7 +4135,7 @@
   "RR_VentTimes": "Vezes que cada jogador pode usar os dutos",
   "RR_Tutorial_1": "<#ffab1b><size=80%>Tutorial</size></color>\\nOlá! Bem-vindo ao Modo Corrida entre Salas!\\n",
   "RR_Tutorial_2": "O objetivo desse modo de jogo é chegar a sala que você vê sob seu nome o mais rápido possível.",
-  "RR_Tutorial_3": "Quando os dois primeiros jogadores entrarem na sala correta, o limite de tempo é definido para 5 segundos.",
+  "RR_Tutorial_3": "When the first two players enter the correct room, the time limit is set to a few seconds.",
   "RR_Tutorial_4": "Se você for o último a chegar ou não chegar na sala a tempo, você morre.\\nBoa sorte!",
   "RR_VentsRemaining": "<size=80%>Usos restantes de dutos: {0}</size>",
   "RR_YouWereLast": "<#ff1919>Você foi o último a chegar à sala</color>",
@@ -5027,5 +5027,6 @@
   "RoleSelected": "<b>No próximo jogo, a função de {0} será{1}</b>",
   "UpReplacedMessage": "O /up foi substituído por /setrole que permite definir a função de qualquer um em qualquer jogo usando '/setrole (ID) (FUNÇÂO)'. Você pode ver os IDs com /id. \nPara definir sua própria função como /up, você precisa usar '/setrole 0 (FUNÇÃO)'.",
   "PingText": "Latência",
-  "SettingsForRoleText": "Configurações para"
+  "SettingsForRoleText": "Configurações para",
+  "NotAssigned": "-"
 }
