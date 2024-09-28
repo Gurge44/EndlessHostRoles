@@ -457,6 +457,8 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             AURoleOptions.ProtectionDurationSeconds = 0f;
             AURoleOptions.ImpostorsCanSeeProtect = false;
 
+            Logger.Info($"Updated vision for {player.GetNameWithRole()}: Crew = {opt.GetFloat(FloatOptionNames.CrewLightMod)}, Impostor = {opt.GetFloat(FloatOptionNames.ImpostorLightMod)}", "BuildGameOptions");
+
             return opt;
 
             void SetMaxVision()

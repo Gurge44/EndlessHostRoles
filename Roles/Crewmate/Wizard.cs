@@ -179,11 +179,15 @@ namespace EHR.Crewmate
 
             switch (TaskMode)
             {
-                case true when pc.GetAbilityUseLimit() >= 1 || pc.GetTaskState().IsTaskFinished:
+                case true when (pc.GetAbilityUseLimit() >= 1 || pc.GetTaskState().IsTaskFinished) && pc.IsAlive():
                     pc.RpcChangeRoleBasis(CustomRoles.Wizard);
                     TaskMode = false;
                     break;
-                case false when pc.GetAbilityUseLimit() < 1 || !pc.IsAlive():
+                case false when !pc.IsAlive():
+                    pc.RpcSetRoleDesync(RoleTypes.CrewmateGhost, pc.GetClientId());
+                    TaskMode = true;
+                    break;
+                case false when pc.GetAbilityUseLimit() < 1 && pc.IsAlive():
                     pc.RpcChangeRoleBasis(CustomRoles.CrewmateEHR);
                     pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
                     TaskMode = true;

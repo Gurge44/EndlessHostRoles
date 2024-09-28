@@ -312,6 +312,7 @@ public static class GuessManager
                         case CustomRoles.Pestilence:
                             if (!isUI) Utils.SendMessage(GetString("GuessPestilence"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessPestilence"));
+                            if (DoubleShot.CheckGuess(pc, isUI)) return true;
                             guesserSuicide = true;
                             break;
                         case CustomRoles.Phantasm:
@@ -367,7 +368,11 @@ public static class GuessManager
                         if (!isUI) Utils.SendMessage(GetString("GuessOnbound"), pc.PlayerId);
                         else pc.ShowPopUp(GetString("GuessOnbound"));
 
-                        if (Onbound.GuesserSuicides.GetBool()) guesserSuicide = true;
+                        if (Onbound.GuesserSuicides.GetBool())
+                        {
+                            if (DoubleShot.CheckGuess(pc, isUI)) return true;
+                            guesserSuicide = true;
+                        }
                         else return true;
                     }
 
@@ -466,18 +471,14 @@ public static class GuessManager
                         if (DoubleShot.CheckGuess(pc, isUI)) return true;
                         guesserSuicide = true;
                     }
-                    else if (pc.Is(CustomRoles.NiceGuesser) && target.Is(CustomRoleTypes.Crewmate) && !Options.GGCanGuessCrew.GetBool() && !pc.Is(CustomRoles.Madmate))
+                    else if (pc.Is(CustomRoles.NiceGuesser) && target.IsCrewmate() && !Options.GGCanGuessCrew.GetBool() && !pc.Is(CustomRoles.Madmate))
                     {
-                        if (DoubleShot.CheckGuess(pc, isUI)) return true;
-
                         if (!isUI) Utils.SendMessage(GetString("GuessCrewRole"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromGurge44")));
                         else pc.ShowPopUp(Utils.ColorString(Color.cyan, GetString("MessageFromGurge44")) + "\n" + GetString("GuessCrewRole"));
                         return true;
                     }
-                    else if (pc.Is(CustomRoles.EvilGuesser) && target.Is(CustomRoleTypes.Impostor) && !Options.EGCanGuessImp.GetBool())
+                    else if (pc.Is(CustomRoles.EvilGuesser) && target.IsImpostor() && !Options.EGCanGuessImp.GetBool())
                     {
-                        if (DoubleShot.CheckGuess(pc, isUI)) return true;
-
                         if (!isUI) Utils.SendMessage(GetString("GuessImpRole"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromGurge44")));
                         else pc.ShowPopUp(Utils.ColorString(Color.cyan, GetString("MessageFromGurge44")) + "\n" + GetString("GuessImpRole"));
                         return true;

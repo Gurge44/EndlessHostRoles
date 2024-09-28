@@ -671,7 +671,7 @@ static class TaskPanelBehaviourPatch
 
                 case CustomGameMode.FFA:
 
-                    AllText += Main.PlayerStates.Keys.OrderBy(FFAManager.GetRankOfScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{FFAManager.GetRankOfScore(x)}. {x.ColoredPlayerName()} -{string.Format(GetString("KillCount"), FFAManager.KillCount.GetValueOrDefault(x, 0))}");
+                    AllText += Main.PlayerStates.Keys.OrderBy(FFAManager.GetRankFromScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{FFAManager.GetRankFromScore(x)}. {x.ColoredPlayerName()} -{string.Format(GetString("KillCount"), FFAManager.KillCount.GetValueOrDefault(x, 0))}");
 
                     AllText += "</size>";
                     break;
@@ -764,7 +764,7 @@ static class TaskPanelBehaviourPatch
 
                     AllText += "</size>";
                     break;
-                
+
                 case CustomGameMode.RoomRush:
 
                     AllText += Main.AllPlayerControls

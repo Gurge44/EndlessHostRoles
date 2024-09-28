@@ -52,8 +52,6 @@ internal static class FFAManager
     public static OptionItem FFATeamMode;
     public static OptionItem FFATeamNumber;
 
-    public static Dictionary<byte, (string TEXT, long TIMESTAMP)> NameNotify = [];
-
     public static void SetupCustomOption()
     {
         FFAGameTime = new IntegerOptionItem(67_223_001, "FFA_GameTime", new(30, 600, 10), 300, TabGroup.GameSettings)
@@ -151,26 +149,17 @@ internal static class FFAManager
                 }
             }
 
-            LateTask.New(() => { Utils.NotifyRoles(NoCache: true, ForceLoop: true); }, 10f, log: false);
+            LateTask.New(() => Utils.NotifyRoles(NoCache: true, ForceLoop: true), 10f, log: false);
         }
     }
 
-    public static void GetNameNotify(PlayerControl player, ref string name)
-    {
-        if (Options.CurrentGameMode != CustomGameMode.FFA || player == null) return;
-        if (NameNotify.TryGetValue(player.PlayerId, out (string TEXT, long TIMESTAMP) value))
-        {
-            name = value.TEXT;
-        }
-    }
-
-    public static int GetRankOfScore(byte playerId)
+    public static int GetRankFromScore(byte playerId)
     {
         try
         {
             int ms = KillCount[playerId];
             int rank = 1 + KillCount.Values.Count(x => x > ms);
-            rank += KillCount.Where(x => x.Value == ms).ToList().IndexOf(new(playerId, ms));
+            rank += KillCount.Where(x => x.Value == ms).Select(x => x.Key).ToList().IndexOf(playerId); // In the old version, the struct 'KeyValuePair' was checked for equality using the inefficient runtime-provided implementation
             return rank;
         }
         catch
@@ -396,12 +385,6 @@ internal static class FFAManager
                 LastFixedUpdate = now;
 
                 RoundTime--;
-
-                foreach (var pc in Main.AllPlayerControls.Where(pc => NameNotify.TryGetValue(pc.PlayerId, out var nn) && nn.TIMESTAMP < now).ToArray())
-                {
-                    NameNotify.Remove(pc.PlayerId);
-                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                }
 
                 var rd = IRandom.Instance;
                 byte FFAdoTPdecider = (byte)rd.Next(0, 100);

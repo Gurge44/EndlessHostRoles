@@ -417,7 +417,7 @@ internal static class StartGameHostPatch
         while (true)
         {
             bool stopWaiting = true;
-            int maxTimer = GameOptionsManager.Instance.CurrentGameOptions.MapId is 5 or 4 ? 20 : 15;
+            int maxTimer = GameOptionsManager.Instance.CurrentGameOptions.MapId is 5 or 4 ? 17 : 12;
             lock (AUClient.allClients)
             {
                 // For loop is necessary, or else when a client times out, a foreach loop will throw:
@@ -840,10 +840,10 @@ internal static class StartGameHostPatch
 
             if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && Main.GM.Value)
             {
-                LateTask.New(() => { PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)); }, 15f, "GM Auto-TP Failsafe"); // TP to Main Hall
+                LateTask.New(() => PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)), 15f, "GM Auto-TP Failsafe"); // TP to Main Hall
             }
 
-            LateTask.New(() => { Main.HasJustStarted = false; }, 10f, "HasJustStarted to false");
+            LateTask.New(() => Main.HasJustStarted = false, 12f, "HasJustStarted to false");
         }
         catch (Exception ex)
         {

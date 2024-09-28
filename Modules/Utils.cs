@@ -1383,7 +1383,7 @@ public static class Utils
                 break;
             case CustomGameMode.FFA:
                 List<(int, byte)> list2 = [];
-                list2.AddRange(cloneRoles.Select(id => (FFAManager.GetRankOfScore(id), id)));
+                list2.AddRange(cloneRoles.Select(id => (FFAManager.GetRankFromScore(id), id)));
 
                 list2.Sort();
                 foreach ((int, byte) id in list2)
@@ -2130,7 +2130,6 @@ public static class Utils
                             SelfName = $"<size={fontSize}>{SelfTaskText}</size>\r\n{SelfName}";
                             break;
                         case CustomGameMode.FFA:
-                            FFAManager.GetNameNotify(seer, ref SelfName);
                             SelfName = $"<size={fontSize}>{SelfTaskText}</size>\r\n{SelfName}";
                             break;
                         default:

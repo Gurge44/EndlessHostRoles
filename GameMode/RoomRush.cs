@@ -210,8 +210,19 @@ namespace EHR
 
         private static void StartNewRound(bool initial = false)
         {
+            SystemTypes previous = !initial
+                ? RoomGoal
+                : Main.CurrentMap switch
+                {
+                    MapNames.Skeld => SystemTypes.Cafeteria,
+                    MapNames.Mira => SystemTypes.Launchpad,
+                    MapNames.Dleks => SystemTypes.Cafeteria,
+                    MapNames.Polus => SystemTypes.Dropship,
+                    MapNames.Airship => SystemTypes.MainHall,
+                    MapNames.Fungle => SystemTypes.Dropship,
+                    _ => throw new ArgumentOutOfRangeException(Main.CurrentMap.ToString(), "Invalid map")
+                };
             DonePlayers.Clear();
-            SystemTypes previous = RoomGoal;
             RoomGoal = AllRooms.Without(previous).RandomElement();
             Vector2 goalPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
             Vector2 previousPos = Map.Positions.GetValueOrDefault(previous, initial ? Main.AllAlivePlayerControls.RandomElement().Pos() : previous.GetRoomClass().transform.position);

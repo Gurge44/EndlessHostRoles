@@ -1171,7 +1171,7 @@ static class FixedUpdatePatch
     public static void Postfix(PlayerControl __instance)
     {
         if (__instance == null || __instance.PlayerId == 255) return;
-        
+
         if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId)
             CustomNetObject.FixedUpdate();
 
@@ -1260,6 +1260,7 @@ static class FixedUpdatePatch
                 ThrowException(ex);
                 LastErrorTS = now;
             }
+
             Logger.Error($"Error for {__instance.GetNameWithRole()}: {ex}", "FixedUpdatePatch");
         }
     }
@@ -1487,7 +1488,7 @@ static class FixedUpdatePatch
                     RoleText.enabled = false;
                     return;
                 }
-                
+
                 bool shouldSeeTargetAddons = playerId == lpId || new[] { PlayerControl.LocalPlayer, player }.All(x => x.Is(Team.Impostor));
 
                 var RoleTextData = GetRoleText(lpId, playerId, seeTargetBetrayalAddons: shouldSeeTargetAddons);
@@ -1555,7 +1556,6 @@ static class FixedUpdatePatch
                             SoloKombatManager.GetNameNotify(target, ref RealName);
                             break;
                         case CustomGameMode.FFA:
-                            FFAManager.GetNameNotify(target, ref RealName);
                             break;
                     }
 
@@ -1956,6 +1956,8 @@ static class CoEnterVentPatch
         {
             Main.KillTimers[__instance.myPlayer.PlayerId] = timer + 0.5f;
         }
+
+        CheckInvalidMovementPatch.ExemptedPlayers.Add(__instance.myPlayer.PlayerId);
 
         switch (Options.CurrentGameMode)
         {

@@ -42,7 +42,7 @@ public static class Camouflage
     public static bool BlockCamouflage;
     public static Dictionary<byte, NetworkedPlayerInfo.PlayerOutfit> PlayerSkins = [];
     public static List<byte> ResetSkinAfterDeathPlayers = [];
-    public static HashSet<byte> WaitingForSkinChange = [];
+    private static HashSet<byte> WaitingForSkinChange = [];
 
     public static void Init()
     {

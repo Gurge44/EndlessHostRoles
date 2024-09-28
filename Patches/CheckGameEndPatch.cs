@@ -564,7 +564,7 @@ static class GameEndChecker
 
             if (FFAManager.RoundTime <= 0)
             {
-                var winner = Main.GM.Value && Main.AllPlayerControls.Length == 1 ? PlayerControl.LocalPlayer : Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => FFAManager.GetRankOfScore(x.PlayerId)).First();
+                var winner = Main.GM.Value && Main.AllPlayerControls.Length == 1 ? PlayerControl.LocalPlayer : Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => FFAManager.GetRankFromScore(x.PlayerId)).First();
 
                 byte winnerId = winner.PlayerId;
 
@@ -644,7 +644,7 @@ static class GameEndChecker
             }
 
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
-            
+
             if (aapc.Any(x => x.GetTaskState().IsTaskFinished))
             {
                 SetWinner(aapc.First(x => x.GetTaskState().IsTaskFinished));
@@ -774,7 +774,7 @@ static class GameEndChecker
             }
         }
     }
-    
+
     class RoomRushGameEndPredicate : GameEndPredicate
     {
         public override bool CheckForEndGame(out GameOverReason reason)

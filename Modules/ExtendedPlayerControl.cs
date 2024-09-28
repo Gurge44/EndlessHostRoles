@@ -302,6 +302,8 @@ static class ExtendedPlayerControl
         player.RpcResetAbilityCooldown();
         player.SyncGeneralOptions();
 
+        if (Camouflage.IsCamouflage) Camouflage.RpcSetSkin(player);
+
         NotifyRoles(SpecifySeer: player, NoCache: true);
         NotifyRoles(SpecifyTarget: player, NoCache: true);
     }
