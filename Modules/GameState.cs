@@ -144,7 +144,7 @@ public class PlayerState(byte playerId)
             if (role == CustomRoles.Sidekick && Jackal.Instances.FindFirst(x => x.SidekickId == byte.MaxValue || x.SidekickId.GetPlayer() == null, out var jackal))
                 jackal.SidekickId = PlayerId;
 
-            Player.CheckAndSetUnshiftState();
+            LateTask.New(() => Player.CheckAndSetUnshiftState(), 1f, log: false);
         }
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);

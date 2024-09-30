@@ -1376,6 +1376,7 @@ static class ExtendedPlayerControl
         var role = pc.GetCustomRole();
         if (force || role.AlwaysUsesUnshift() || (role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool())))
         {
+            Logger.Info($"Set Unshift State For {pc.GetNameWithRole()}", "CheckAndSetUnshiftState");
             var target = Main.AllAlivePlayerControls.Without(pc).RandomElement();
             var outfit = pc.Data.DefaultOutfit;
             var process = Main.ProcessShapeshifts;
