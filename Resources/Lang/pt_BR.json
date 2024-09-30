@@ -2164,7 +2164,6 @@
   "Message.HostLeftGameInLobby": "★ Aviso ★ O anfitrião saiu do jogo, na próxima vez o jogo não iniciaria normalmente. Se o novo anfitrião tiver o EHR, você precisará entrar novamente no lobby para jogar normalmente.",
   "Message.LobbyShared": "O lobby foi compartilhado com sucesso!",
   "Message.LobbyShareFailed": "EHR-Chan não parece estar online (falha ao compartilhar o lobby)",
-  "Message.YTPlanDisabled": "<color=#ff1919><size=150%><b>ERRO</b></size></color>\n\n<color=#ff1919>Por favor, ative <b>{0}</b> nas configurações.</color>",
   "Message.YTPlanSelected": "No próximo jogo, sua função será <b>{0}</b>.",
   "Message.YTPlanSelectFailed": "Você não pode ser designado como {0}.\nIsso pode acontecer porque você não possui essa função habilitada ou porque essa função não suporta ser atribuída.",
   "Message.YTPlanCanNotFindRoleThePlayerEnter": "Não foi possível encontrar a função que você está procurando.\nUse o comando /r para mostrar a lista de funções disponíveis.",
