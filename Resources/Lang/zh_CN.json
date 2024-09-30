@@ -975,7 +975,7 @@
   "AutoDisplayLastRoles": "结束后自动显示上局职业",
   "AutoDisplayLastAddOns": "显示上局的附加职业",
   "AutoDisplayLastResult": "自动显示最终结果",
-  "EnableYTPlan": "启用创作者保护计划",
+  "Message.NoPermissionSetRoleOthers": "You don't have permission to set roles for others",
   "KickLowLevelPlayer": "踢出没有达到指定等级的玩家",
   "AutoKickStart": "踢出催开始的人",
   "AutoKickStartTimes": "踢出前警告次数",
