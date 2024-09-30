@@ -774,9 +774,6 @@ static class IntroCutsceneDestroyPatch
                 case CustomGameMode.FFA when FFAManager.FFAChatDuringGame.GetBool():
                     Utils.SetChatVisibleForAll();
                     break;
-                case CustomGameMode.HotPotato when HotPotatoManager.IsChatDuringGame:
-                    LateTask.New(Utils.SetChatVisibleForAll, 3f, log: false);
-                    break;
             }
 
             // LateTask.New(() => Main.AllPlayerControls.Do(pc ⇒ pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");

@@ -1,25 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using HarmonyLib;
 using UnityEngine;
 
 namespace EHR
 {
-    internal class HotPotatoManager
+    internal static class HotPotatoManager
     {
         private static OptionItem Time;
         private static OptionItem HolderSpeed;
-        private static OptionItem Chat;
         private static OptionItem Range;
 
         private static (byte HolderID, byte LastHolderID, int TimeLeft, int RoundNum) HotPotatoState;
         private static Dictionary<byte, int> SurvivalTimes;
         private static float DefaultSpeed;
 
-        public static bool IsChatDuringGame => Chat.GetBool();
-
-        public static (byte HolderID, byte LastHolderID, int TimeLeft, int RoundNum) GetState() => HotPotatoState;
+        public static (byte HolderID, byte LastHolderID) GetState() => (HotPotatoState.HolderID, HotPotatoState.LastHolderID);
 
         public static void SetupCustomOption()
         {
@@ -32,9 +30,6 @@ namespace EHR
                 .SetGameMode(CustomGameMode.HotPotato)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new Color32(232, 205, 70, byte.MaxValue));
-            Chat = new BooleanOptionItem(69_213_003, "FFA_ChatDuringGame", false, TabGroup.GameSettings)
-                .SetGameMode(CustomGameMode.HotPotato)
-                .SetColor(new Color32(232, 205, 70, byte.MaxValue));
             Range = new FloatOptionItem(69_213_004, "HotPotato_Range", new(0.25f, 5f, 0.25f), 1f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HotPotato)
                 .SetValueFormat(OptionFormat.Multiplier)
@@ -45,7 +40,7 @@ namespace EHR
         {
             FixedUpdatePatch.Return = true;
 
-            HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 25, 1);
+            HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 40, 1);
             SurvivalTimes = [];
             foreach (var pc in Main.AllPlayerControls) SurvivalTimes[pc.PlayerId] = 0;
 
@@ -55,7 +50,7 @@ namespace EHR
         public static void OnGameStart()
         {
             LateTask.New(() => { FixedUpdatePatch.Return = false; }, 7f, log: false);
-            HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 5, 1);
+            HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 20, 1);
         }
 
         public static int GetSurvivalTime(byte id) => SurvivalTimes.GetValueOrDefault(id, 1);
@@ -63,12 +58,13 @@ namespace EHR
         public static string GetSuffixText(byte id) => $"{(HotPotatoState.HolderID == id ? $"{Translator.GetString("HotPotato_HoldingNotify")}\n" : string.Empty)}{Translator.GetString("HotPotato_TimeLeftSuffix")}{HotPotatoState.TimeLeft}s";
 
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-        class FixedUpdatePatch
+        static class FixedUpdatePatch
         {
             private static float UpdateDelay;
             private static long LastFixedUpdate;
             public static bool Return;
 
+            [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void Postfix(PlayerControl __instance)
             {
                 if (Options.CurrentGameMode != CustomGameMode.HotPotato || Return || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask) return;

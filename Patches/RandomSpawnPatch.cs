@@ -10,47 +10,6 @@ namespace EHR;
 
 abstract class RandomSpawn
 {
-    public static void TP(CustomNetworkTransform nt, Vector2 location)
-    {
-        //if (AmongUsClient.Instance.AmHost) nt.SnapTo(location);
-        //MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(nt.NetId, (byte)RpcCalls.SnapTo, SendOption.None);
-        //NetHelpers.WriteVector2(location, writer);
-        //writer.Write(nt.lastSequenceId);
-        //AmongUsClient.Instance.FinishRpcImmediately(writer);
-        Utils.TP(nt, location);
-    }
-/*
-    [HarmonyPatch(typeof(CustomNetworkTransform), nameof(CustomNetworkTransform.SnapTo), typeof(Vector2), typeof(ushort))]
-    public class CustomNetworkTransformHandleRpcPatch
-    {
-        public static void Postfix(CustomNetworkTransform __instance, [HarmonyArgument(0)] Vector2 position)
-        {
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (position == new Vector2(-25f, 40f)) return;
-            if (GameStates.IsInTask)
-            {
-                var player = Main.AllPlayerControls.FirstOrDefault(p => p.NetTransform == __instance);
-                if (player == null) return;
-
-                if (player.Is(CustomRoles.GM)) return;
-
-                NumOfTP[player.PlayerId]++;
-
-                if (NumOfTP[player.PlayerId] == 2)
-                {
-                    if (Main.NormalOptions.MapId != 4) return;
-                    player.RpcResetAbilityCooldown();
-                    if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled) player.SetKillCooldown(Main.AllPlayerKillCooldown[player.PlayerId]);
-                    else if (Options.StartingKillCooldown.GetInt() != 10) player.SetKillCooldown(Options.StartingKillCooldown.GetInt());
-                    if (!Options.RandomSpawn.GetBool()) return;
-                    new AirshipSpawnMap().RandomTeleport(player);
-                    Penguin.OnSpawnAirship();
-                }
-            }
-        }
-    }
-*/
-
     // Thanks: https://github.com/tukasa0001/TownOfHost/blob/main/Patches/RandomSpawnPatch.cs
     [HarmonyPatch(typeof(CustomNetworkTransform), nameof(CustomNetworkTransform.HandleRpc))]
     public class CustomNetworkTransformHandleRpcPatch

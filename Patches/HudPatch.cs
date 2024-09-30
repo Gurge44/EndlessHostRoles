@@ -764,7 +764,7 @@ static class TaskPanelBehaviourPatch
 
                     AllText += "</size>";
                     break;
-
+                
                 case CustomGameMode.RoomRush:
 
                     AllText += Main.AllPlayerControls

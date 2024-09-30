@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EHR.Modules;
 using HarmonyLib;
@@ -19,7 +20,7 @@ internal static class FFAManager
     public static Dictionary<byte, int> KillCount = [];
     public static int RoundTime;
 
-    public static string LatestChatMessage = string.Empty;
+    private static string LatestChatMessage = string.Empty;
 
     public static Dictionary<byte, int> PlayerTeams = [];
 
@@ -334,7 +335,7 @@ internal static class FFAManager
         killer.Kill(target);
     }
 
-    public static void OnPlayerKill(PlayerControl killer)
+    private static void OnPlayerKill(PlayerControl killer)
     {
         if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
             PlayerControl.LocalPlayer.KillFlash();
@@ -373,7 +374,8 @@ internal static class FFAManager
     {
         private static long LastFixedUpdate;
 
-        public static void Postfix( /*PlayerControl __instance*/)
+        [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        public static void Postfix()
         {
             if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.FFA) return;
 

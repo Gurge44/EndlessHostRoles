@@ -149,7 +149,7 @@ internal static class ChatCommands
             new(["exe", "выкинуть"], "{id}", GetString("CommandDescription.Exe"), Command.UsageLevels.Host, Command.UsageTimes.Always, ExeCommand, true, [GetString("CommandArgs.Exe.Id")]),
             new(["kill", "убить"], "{id}", GetString("CommandDescription.Kill"), Command.UsageLevels.Host, Command.UsageTimes.Always, KillCommand, true, [GetString("CommandArgs.Kill.Id")]),
             new(["colour", "color", "цвет"], "{color}", GetString("CommandDescription.Colour"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ColorCommand, true, [GetString("CommandArgs.Colour.Color")]),
-            new(["xf", "испр"], "", GetString("CommandDescription.XF"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, XFCommand, true),
+            new(["xf", "испр"], "", GetString("CommandDescription.XF"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, XFCommand, true),
             new(["id", "guesslist", "айди"], "", GetString("CommandDescription.ID"), Command.UsageLevels.Everyone, Command.UsageTimes.Always, IDCommand, true),
             new(["changerole", "измроль"], "{role}", GetString("CommandDescription.ChangeRole"), Command.UsageLevels.Host, Command.UsageTimes.InGame, ChangeRoleCommand, true, [GetString("CommandArgs.ChangeRole.Role")]),
             new(["end", "завершить"], "", GetString("CommandDescription.End"), Command.UsageLevels.Host, Command.UsageTimes.InGame, EndCommand, true),
@@ -733,7 +733,7 @@ internal static class ChatCommands
 
     private static void XFCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        if (!GameStates.IsInGame)
+        if (!GameStates.IsInGame && !player.IsHost())
         {
             Utils.SendMessage(GetString("Message.CanNotUseInLobby"), player.PlayerId);
             return;

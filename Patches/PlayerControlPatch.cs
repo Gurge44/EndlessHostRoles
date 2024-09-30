@@ -1170,7 +1170,7 @@ static class FixedUpdatePatch
     public static void Postfix(PlayerControl __instance)
     {
         if (__instance == null || __instance.PlayerId == 255) return;
-
+        
         if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId)
             CustomNetObject.FixedUpdate();
 
@@ -1472,7 +1472,7 @@ static class FixedUpdatePatch
                     RoleText.enabled = false;
                     return;
                 }
-
+                
                 bool shouldSeeTargetAddons = playerId == lpId || new[] { PlayerControl.LocalPlayer, player }.All(x => x.Is(Team.Impostor));
 
                 var RoleTextData = GetRoleText(lpId, playerId, seeTargetBetrayalAddons: shouldSeeTargetAddons);
