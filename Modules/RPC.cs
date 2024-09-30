@@ -67,10 +67,10 @@ public enum CustomRPC
     SyncMycologist,
     SyncBubble,
     AddTornado,
-    
+
     // BAU should always be 150
     BAU = 150,
-    
+
     SyncHookshot,
     SyncStressedTimer,
     SetLibrarianMode,
@@ -81,7 +81,6 @@ public enum CustomRPC
     SyncMafiosoPistolCD,
     SyncDamoclesTimer,
     SyncChronomancer,
-    StealthDarken,
     PenguinSync,
     SyncPlagueDoctor,
     SetAlchemistPotion,
@@ -94,14 +93,14 @@ public enum CustomRPC
     SetSabotageMasterLimit,
     SetNiceHackerLimit,
     SetCurrentDrawTarget,
-    SetCPTasksDone,
+    SetCpTasksDone,
     SetGamerHealth,
     SetPelicanEtenNum,
     SwordsManKill,
     SetGhostPlayer,
     SetDarkHiderKillCount,
     SetEvilDiviner,
-    SetGreedierOE,
+    SetGreedierOe,
     SetCollectorVotes,
     SetQuickShooterShotLimit,
     GuessKill,
@@ -112,7 +111,7 @@ public enum CustomRPC
     SetJailorTarget,
     SetDoppelgangerStealLimit,
     SetJailorExeLimit,
-    SetWWTimer,
+    SetWwTimer,
     SetNiceSwapperVotes,
     Judge,
     Guess,
@@ -120,7 +119,7 @@ public enum CustomRPC
     MafiaRevenge,
     SetSwooperTimer,
     SetBanditStealLimit,
-    SetBKTimer,
+    SetBkTimer,
     SyncTotocalcioTargetAndTimes,
     SyncRomanticTarget,
     SyncVengefulRomanticTarget,
@@ -499,7 +498,7 @@ static class RPCHandlerPatch
                 Witch.ReceiveRPC(reader, false);
                 break;
             }
-            case CustomRPC.SetCPTasksDone:
+            case CustomRPC.SetCpTasksDone:
             {
                 Crewpostor.RecieveRPC(reader);
                 break;
@@ -789,7 +788,7 @@ static class RPCHandlerPatch
                 DarkHide.ReceiveRPC(reader);
                 break;
             }
-            case CustomRPC.SetGreedierOE:
+            case CustomRPC.SetGreedierOe:
             {
                 byte id = reader.ReadByte();
                 bool isOdd = reader.ReadBoolean();
@@ -897,7 +896,7 @@ static class RPCHandlerPatch
                 Alchemist.ReceiveRPC(reader);
                 break;
             }
-            case CustomRPC.SetBKTimer:
+            case CustomRPC.SetBkTimer:
             {
                 Wildling.ReceiveRPC(reader);
                 break;
@@ -963,11 +962,6 @@ static class RPCHandlerPatch
                 Cleanser.ReceiveRPC(reader);
                 break;
             }
-            case CustomRPC.StealthDarken:
-            {
-                Stealth.ReceiveRPC(reader);
-                break;
-            }
             case CustomRPC.SetJailorExeLimit:
             {
                 Jailor.ReceiveRPC(reader, setTarget: false);
@@ -978,7 +972,7 @@ static class RPCHandlerPatch
                 Jailor.ReceiveRPC(reader, setTarget: true);
                 break;
             }
-            case CustomRPC.SetWWTimer:
+            case CustomRPC.SetWwTimer:
             {
                 byte id = reader.ReadByte();
                 (Main.PlayerStates[id].Role as Werewolf)?.ReceiveRPC(reader);

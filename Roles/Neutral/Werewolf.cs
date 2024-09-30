@@ -87,7 +87,7 @@ public class Werewolf : RoleBase
     void SendRPC()
     {
         if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWWTimer, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWwTimer, SendOption.Reliable);
         writer.Write(WWId);
         writer.Write(RampageTime.ToString());
         writer.Write(lastTime.ToString());
