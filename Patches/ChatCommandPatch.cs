@@ -1218,6 +1218,12 @@ internal static class ChatCommands
             Utils.SendMessage($"{GetString("InvalidArguments")}", player.PlayerId);
             return;
         }
+        
+        if (resultId != 0 && !player.FriendCode.GetDevUser().IsUp)
+        {
+            Utils.SendMessage($"{GetString("Message.NoPermissionSetRoleOthers")}", player.PlayerId);
+            return;
+        }
 
         var targetPc = Utils.GetPlayerById(resultId);
         if (targetPc == null) return;
