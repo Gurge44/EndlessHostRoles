@@ -757,7 +757,7 @@ internal static class ChatCommands
             return;
         }
 
-        if (!player.IsHost() && !Options.PlayerCanSetColor.GetBool() && !IsPlayerVIP(player.FriendCode))
+        if (!player.IsHost() && !Options.PlayerCanSetColor.GetBool() && !IsPlayerVIP(player.FriendCode) && !player.FriendCode.GetDevUser().IsUp)
         {
             Utils.SendMessage(GetString("DisableUseCommand"), player.PlayerId);
             return;
