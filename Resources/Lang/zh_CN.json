@@ -2164,7 +2164,6 @@
   "Message.HostLeftGameInLobby": "★警告★ 房主已退出游戏，接下来游戏将无法正常运行，若新房主已安装EHR，需要至少重开一次房间游戏才能正常运行.",
   "Message.LobbyShared": "房间已成功共享！",
   "Message.LobbyShareFailed": "车队姬似乎不在线捏(T_T)",
-  "Message.YTPlanDisabled": "请启用<b>{0}</b>\\n该设定项在设置里.",
   "Message.YTPlanSelected": "您下一局将被分配为<b>{0}</b>",
   "Message.YTPlanSelectFailed": "无法将您分配为<b>{0}</b>.\\n可能是因为您没有启用该职业或该职业不支持被指定",
   "Message.YTPlanCanNotFindRoleThePlayerEnter": "无法找到您搜索的职业，检查是否正确输入\\n使用 /r 查询职业列表^_^",
