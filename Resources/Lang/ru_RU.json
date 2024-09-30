@@ -975,7 +975,7 @@
   "AutoDisplayLastRoles": "Отображать роли прошлой игры",
   "AutoDisplayLastAddOns": "Отображать атрибуты прошлой игры",
   "AutoDisplayLastResult": "Авто-отображение результата прошлой игры",
-  "EnableYTPlan": "Включить Ютуб-план",
+  "Message.NoPermissionSetRoleOthers": "You don't have permission to set roles for others",
   "KickLowLevelPlayer": "Кикнуть игроков, чей уровень ниже",
   "AutoKickStart": "Кикнуть игроков, которые просят начать игру",
   "AutoKickStartTimes": "Кол-во предупреждений до кика",
