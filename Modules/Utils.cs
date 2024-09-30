@@ -52,6 +52,8 @@ public static class Utils
 
     private static readonly Dictionary<string, Sprite> CachedSprites = [];
 
+    private static long LastNotifyRolesErrorTS = TimeStamp;
+
     public static long TimeStamp => (long)(DateTime.Now.ToUniversalTime() - TimeStampStartTime).TotalSeconds;
     public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModClient() && !x.IsHost());
     public static int TotalTaskCount => Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
@@ -176,14 +178,14 @@ public static class Utils
 
     public static bool IsActive(SystemTypes type)
     {
-        if (GameStates.IsLobby) return false;
+        if (GameStates.IsLobby || !ShipStatus.Instance.Systems.TryGetValue(type, out var systemType)) return false;
         int mapId = Main.NormalOptions.MapId;
         switch (type)
         {
             case SystemTypes.Electrical:
             {
                 if (mapId == 5) return false; // if The Fungle return false
-                var SwitchSystem = ShipStatus.Instance.Systems[type].Cast<SwitchSystem>();
+                var SwitchSystem = systemType.Cast<SwitchSystem>();
                 return SwitchSystem is { IsActive: true };
             }
             case SystemTypes.Reactor:
@@ -195,12 +197,12 @@ public static class Utils
                     // Only Airhip
                     case 4:
                     {
-                        var HeliSabotageSystem = ShipStatus.Instance.Systems[type].Cast<HeliSabotageSystem>();
+                        var HeliSabotageSystem = systemType.Cast<HeliSabotageSystem>();
                         return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
                     }
                     default:
                     {
-                        var ReactorSystemType = ShipStatus.Instance.Systems[type].Cast<ReactorSystemType>();
+                        var ReactorSystemType = systemType.Cast<ReactorSystemType>();
                         return ReactorSystemType is { IsActive: true };
                     }
                 }
@@ -208,36 +210,36 @@ public static class Utils
             case SystemTypes.Laboratory:
             {
                 if (mapId != 2) return false; // Only Polus
-                var ReactorSystemType = ShipStatus.Instance.Systems[type].Cast<ReactorSystemType>();
+                var ReactorSystemType = systemType.Cast<ReactorSystemType>();
                 return ReactorSystemType is { IsActive: true };
             }
             case SystemTypes.LifeSupp:
             {
                 if (mapId is 2 or 4 or 5) return false; // Only Skeld & Mira HQ
-                var LifeSuppSystemType = ShipStatus.Instance.Systems[type].Cast<LifeSuppSystemType>();
+                var LifeSuppSystemType = systemType.Cast<LifeSuppSystemType>();
                 return LifeSuppSystemType is { IsActive: true };
             }
             case SystemTypes.Comms:
             {
                 if (mapId is 1 or 5) // Only Mira HQ & The Fungle
                 {
-                    var HqHudSystemType = ShipStatus.Instance.Systems[type].Cast<HqHudSystemType>();
+                    var HqHudSystemType = systemType.Cast<HqHudSystemType>();
                     return HqHudSystemType is { IsActive: true };
                 }
 
-                var HudOverrideSystemType = ShipStatus.Instance.Systems[type].Cast<HudOverrideSystemType>();
+                var HudOverrideSystemType = systemType.Cast<HudOverrideSystemType>();
                 return HudOverrideSystemType is { IsActive: true };
             }
             case SystemTypes.HeliSabotage:
             {
                 if (mapId != 4) return false; // Only Airhip
-                var HeliSabotageSystem = ShipStatus.Instance.Systems[type].Cast<HeliSabotageSystem>();
+                var HeliSabotageSystem = systemType.Cast<HeliSabotageSystem>();
                 return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
             }
             case SystemTypes.MushroomMixupSabotage:
             {
                 if (mapId != 5) return false; // Only The Fungle
-                var MushroomMixupSabotageSystem = ShipStatus.Instance.Systems[type].Cast<MushroomMixupSabotageSystem>();
+                var MushroomMixupSabotageSystem = systemType.Cast<MushroomMixupSabotageSystem>();
                 return MushroomMixupSabotageSystem != null && MushroomMixupSabotageSystem.IsActive;
             }
             default:
@@ -1381,7 +1383,7 @@ public static class Utils
                 break;
             case CustomGameMode.FFA:
                 List<(int, byte)> list2 = [];
-                list2.AddRange(cloneRoles.Select(id => (FFAManager.GetRankOfScore(id), id)));
+                list2.AddRange(cloneRoles.Select(id => (FFAManager.GetRankFromScore(id), id)));
 
                 list2.Sort();
                 foreach ((int, byte) id in list2)
@@ -1876,7 +1878,7 @@ public static class Utils
 
     public static void NotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
     {
-        if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModClient() && Options.CurrentGameMode == CustomGameMode.Standard) || !AmongUsClient.Instance.AmHost || Main.AllPlayerControls == null || (GameStates.IsMeeting && !isForMeeting) || GameStates.IsLobby)) return;
+        if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModClient() && (Options.CurrentGameMode == CustomGameMode.Standard || SpecifySeer.IsHost())) || !AmongUsClient.Instance.AmHost || Main.AllPlayerControls == null || (GameStates.IsMeeting && !isForMeeting))) return;
         DoNotifyRoles(isForMeeting, SpecifySeer, SpecifyTarget, NoCache, ForceLoop, CamouflageIsForMeeting, GuesserIsForMeeting, MushroomMixup);
     }
 
@@ -1896,7 +1898,7 @@ public static class Utils
         {
             try
             {
-                if (seer == null || seer.Data.Disconnected || (seer.IsModClient() && Options.CurrentGameMode == CustomGameMode.Standard)) continue;
+                if (seer == null || seer.Data.Disconnected || (seer.IsModClient() && (seer.IsHost() || Options.CurrentGameMode == CustomGameMode.Standard))) continue;
 
                 seerLogInfo.Append($"{seer.GetRealName()}, ");
 
@@ -1914,6 +1916,13 @@ public static class Utils
                     SelfName = $"{selfTeamName}\r\n<size=150%>{seerRole.ToColoredString()}</size>{roleNameUp}";
 
                     seer.RpcSetNamePrivate(SelfName, seer);
+                    continue;
+                }
+
+                if (GameStates.IsLobby)
+                {
+                    SelfName = seer.GetRealName();
+                    seer.RpcSetNameEx(SelfName);
                     continue;
                 }
 
@@ -2128,7 +2137,6 @@ public static class Utils
                             SelfName = $"<size={fontSize}>{SelfTaskText}</size>\r\n{SelfName}";
                             break;
                         case CustomGameMode.FFA:
-                            FFAManager.GetNameNotify(seer, ref SelfName);
                             SelfName = $"<size={fontSize}>{SelfTaskText}</size>\r\n{SelfName}";
                             break;
                         default:
@@ -2407,14 +2415,14 @@ public static class Utils
             }
         }
 
+        if (Options.CurrentGameMode != CustomGameMode.Standard) return;
+
         string seers = seerLogInfo.ToString().TrimEnd(',', ' ');
         string targets = targetLogInfo.ToString().TrimEnd(',', ' ');
         if (seers.Length == 0) seers = "\u2205";
         if (targets.Length == 0) targets = "\u2205";
         Logger.Info($" Seers: {seers} ---- Targets: {targets}", "NR");
     }
-
-    private static long LastNotifyRolesErrorTS = TimeStamp;
 
     public static void MarkEveryoneDirtySettings()
     {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EHR.Modules;
 using HarmonyLib;
@@ -19,7 +20,7 @@ internal static class FFAManager
     public static Dictionary<byte, int> KillCount = [];
     public static int RoundTime;
 
-    public static string LatestChatMessage = string.Empty;
+    private static string LatestChatMessage = string.Empty;
 
     public static Dictionary<byte, int> PlayerTeams = [];
 
@@ -51,8 +52,6 @@ internal static class FFAManager
     public static OptionItem FFAChatDuringGame;
     public static OptionItem FFATeamMode;
     public static OptionItem FFATeamNumber;
-
-    public static Dictionary<byte, (string TEXT, long TIMESTAMP)> NameNotify = [];
 
     public static void SetupCustomOption()
     {
@@ -151,26 +150,17 @@ internal static class FFAManager
                 }
             }
 
-            LateTask.New(() => { Utils.NotifyRoles(NoCache: true, ForceLoop: true); }, 10f, log: false);
+            LateTask.New(() => Utils.NotifyRoles(NoCache: true, ForceLoop: true), 10f, log: false);
         }
     }
 
-    public static void GetNameNotify(PlayerControl player, ref string name)
-    {
-        if (Options.CurrentGameMode != CustomGameMode.FFA || player == null) return;
-        if (NameNotify.TryGetValue(player.PlayerId, out (string TEXT, long TIMESTAMP) value))
-        {
-            name = value.TEXT;
-        }
-    }
-
-    public static int GetRankOfScore(byte playerId)
+    public static int GetRankFromScore(byte playerId)
     {
         try
         {
             int ms = KillCount[playerId];
             int rank = 1 + KillCount.Values.Count(x => x > ms);
-            rank += KillCount.Where(x => x.Value == ms).ToList().IndexOf(new(playerId, ms));
+            rank += KillCount.Where(x => x.Value == ms).Select(x => x.Key).ToList().IndexOf(playerId); // In the old version, the struct 'KeyValuePair' was checked for equality using the inefficient runtime-provided implementation
             return rank;
         }
         catch
@@ -345,7 +335,7 @@ internal static class FFAManager
         killer.Kill(target);
     }
 
-    public static void OnPlayerKill(PlayerControl killer)
+    private static void OnPlayerKill(PlayerControl killer)
     {
         if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
             PlayerControl.LocalPlayer.KillFlash();
@@ -384,7 +374,8 @@ internal static class FFAManager
     {
         private static long LastFixedUpdate;
 
-        public static void Postfix( /*PlayerControl __instance*/)
+        [SuppressMessage("ReSharper", "UnusedMember.Local")]
+        public static void Postfix()
         {
             if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.FFA) return;
 
@@ -396,12 +387,6 @@ internal static class FFAManager
                 LastFixedUpdate = now;
 
                 RoundTime--;
-
-                foreach (var pc in Main.AllPlayerControls.Where(pc => NameNotify.TryGetValue(pc.PlayerId, out var nn) && nn.TIMESTAMP < now).ToArray())
-                {
-                    NameNotify.Remove(pc.PlayerId);
-                    Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                }
 
                 var rd = IRandom.Instance;
                 byte FFAdoTPdecider = (byte)rd.Next(0, 100);

@@ -430,7 +430,7 @@ class SetEverythingUpPatch
             case CustomGameMode.FFA:
             {
                 List<(int, byte)> list = [];
-                list.AddRange(cloneRoles.Select(id => (FFAManager.GetRankOfScore(id), id)));
+                list.AddRange(cloneRoles.Select(id => (FFAManager.GetRankFromScore(id), id)));
 
                 list.Sort();
                 foreach (var id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2)))

@@ -7,8 +7,8 @@ namespace EHR.Neutral
 {
     internal class Necromancer : RoleBase
     {
-        public static byte NecromancerId = byte.MaxValue;
-        public static PlayerControl NecromancerPC;
+        private static byte NecromancerId = byte.MaxValue;
+        private static PlayerControl NecromancerPC;
 
         private static OptionItem CD;
         public static OptionItem Dkcd;
@@ -76,7 +76,7 @@ namespace EHR.Neutral
         {
             if (Deathknight.DeathknightId == byte.MaxValue)
             {
-                if (!target.HasKillButton()) target.RpcChangeRoleBasis(CustomRoles.Deathknight);
+                target.RpcChangeRoleBasis(CustomRoles.Deathknight);
                 target.RpcSetCustomRole(CustomRoles.Deathknight);
 
                 killer.SetKillCooldown();

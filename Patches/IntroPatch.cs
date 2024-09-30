@@ -193,6 +193,7 @@ static class CoBeginPatch
 
         sb.Append("-------------Other Information-------------\n");
         sb.Append($"Number of players: {Main.AllPlayerControls.Length}\n");
+        sb.Append($"Game mode: {GetString(Options.CurrentGameMode.ToString())}\n");
         sb.Append($"Map: {Main.CurrentMap}");
 
         Logger.Info("\n" + sb, "GameInfo", multiLine: true);
@@ -768,13 +769,12 @@ static class IntroCutsceneDestroyPatch
                 }
             }
 
-            bool chat = Options.CurrentGameMode switch
+            switch (Options.CurrentGameMode)
             {
-                CustomGameMode.FFA => FFAManager.FFAChatDuringGame.GetBool(),
-                CustomGameMode.HotPotato => HotPotatoManager.IsChatDuringGame,
-                _ => false
-            };
-            if (chat) Utils.SetChatVisibleForAll();
+                case CustomGameMode.FFA when FFAManager.FFAChatDuringGame.GetBool():
+                    Utils.SetChatVisibleForAll();
+                    break;
+            }
 
             // LateTask.New(() => Main.AllPlayerControls.Do(pc ⇒ pc.RpcSetRoleDesync(RoleTypes.Shapeshifter, -3)), 2f, "SetImpostorForServer");
 

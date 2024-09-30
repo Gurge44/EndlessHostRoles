@@ -70,7 +70,7 @@ namespace EHR
         public static string GetSuffixText(PlayerControl pc)
         {
             if (!pc.IsAlive()) return string.Empty;
-            
+
             int time = Timers[pc.PlayerId];
             int alive = Main.AllAlivePlayerControls.Length;
             int apc = Main.AllPlayerControls.Length;
@@ -84,7 +84,7 @@ namespace EHR
         public static bool CheckForGameEnd(out GameOverReason reason)
         {
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
-            
+
             if (TaskFinishWins.GetBool())
             {
                 var player = aapc.FirstOrDefault(x => x.GetTaskState().IsTaskFinished);
@@ -95,7 +95,7 @@ namespace EHR
                     return true;
                 }
             }
-            
+
             switch (aapc.Length)
             {
                 case 1:
@@ -114,7 +114,7 @@ namespace EHR
         }
 
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-        class FixedUpdatePatch
+        static class FixedUpdatePatch
         {
             private static long LastUpdate;
 
@@ -128,9 +128,10 @@ namespace EHR
                 if (LastUpdate == now) return;
                 LastUpdate = now;
 
-                //Timers.Keys.ToArray().Do(x => Timers[x]--);
                 Timers.AdjustAllValues(x => x - 1);
                 Utils.NotifyRoles();
+
+                CanKill.RemoveWhere(x => x.GetPlayer() == null || !x.GetPlayer().IsAlive());
             }
         }
     }

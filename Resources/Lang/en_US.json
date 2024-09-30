@@ -975,7 +975,7 @@
   "AutoDisplayLastRoles": "Display Last Roles",
   "AutoDisplayLastAddOns": "Display Last Add-ons",
   "AutoDisplayLastResult": "Auto Display Last Result",
-  "EnableYTPlan": "Enable Youtuber Plan",
+  "Message.NoPermissionSetRoleOthers": "You don't have permission to set roles for others",
   "KickLowLevelPlayer": "Kick players whose level is lower than",
   "AutoKickStart": "Kick players that say start",
   "AutoKickStartTimes": "Number of warnings before kick",
@@ -2164,7 +2164,6 @@
   "Message.HostLeftGameInLobby": "★Warning★ Host left the game, in next time game wouldn't start normally. If new host has EHR, you need to re-enter the lobby to play normally.",
   "Message.LobbyShared": "The lobby has successfully been shared!",
   "Message.LobbyShareFailed": "EHR-Chan does not seem to be online (failed to share lobby)",
-  "Message.YTPlanDisabled": "Please enable <b>{0}</b>\\nin the Settings",
   "Message.YTPlanSelected": "In the next game, your role will be <b>{0}</b>",
   "Message.YTPlanSelectFailed": "You cannot be assigned as <b>{0}</b>.\\nIt may be because you don't have this role enabled, or this role does not support being assigned.",
   "Message.YTPlanCanNotFindRoleThePlayerEnter": "Could not find the role you searching\\nUse command /r to show role list",
@@ -4135,7 +4134,7 @@
   "RR_VentTimes": "Times each player can vent",
   "RR_Tutorial_1": "<#ffab1b><size=80%>Tutorial</size></color>\\nHello! Welcome to Room Rush!\\n",
   "RR_Tutorial_2": "The goal of this gamemode is to get to the room you see under your name as fast as possible.",
-  "RR_Tutorial_3": "When the first two players enter the correct room, the time limit is set to 5 seconds.",
+  "RR_Tutorial_3": "When the first two players enter the correct room, the time limit is set to a few seconds.",
   "RR_Tutorial_4": "If you are last to or don't get to the room in time, you die.\\nGood luck!",
   "RR_VentsRemaining": "<size=80%>Remaining vent uses: {0}</size>",
   "RR_YouWereLast": "<#ff1919>You were the last to get to the room</color>",
@@ -5027,5 +5026,6 @@
   "RoleSelected": "<b>The role of {0} in the next game will be{1}</b>",
   "UpReplacedMessage": "/up was replaced by /setrole which allows you to set anyone's role for any game by typing '/setrole (ID) (ROLE)'. You can view ID's with /id.\nTo set your own role like with /up, you need to do '/setrole 0 (ROLE)'.",
   "PingText": "Ping",
-  "SettingsForRoleText": "Settings for"
+  "SettingsForRoleText": "Settings for",
+  "NotAssigned": "-"
 }

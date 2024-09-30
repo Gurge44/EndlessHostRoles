@@ -330,7 +330,7 @@ internal static class CustomRolesHelper
             CustomRoles.Venter => CustomRoles.Impostor,
             CustomRoles.Agent => CustomRoles.Impostor,
             CustomRoles.Taskinator => CustomRoles.Crewmate,
-            
+
             // Room Rush
             CustomRoles.RRPlayer => CustomRoles.Crewmate,
 
@@ -1174,6 +1174,7 @@ internal static class CustomRolesHelper
         CustomRoles.Technician => RoleOptionType.Neutral_Benign,
         CustomRoles.Tank => RoleOptionType.Neutral_Benign,
         CustomRoles.Totocalcio => RoleOptionType.Neutral_Benign,
+        CustomRoles.Arsonist => RoleOptionType.Neutral_Evil,
         CustomRoles.Jester => RoleOptionType.Neutral_Evil,
         CustomRoles.Gaslighter => RoleOptionType.Neutral_Evil,
         CustomRoles.God => RoleOptionType.Neutral_Evil,

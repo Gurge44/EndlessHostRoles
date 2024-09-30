@@ -565,7 +565,7 @@ static class MurderPlayerPatch
             return false;
         }
 
-        if (RandomSpawn.CustomNetworkTransformPatch.NumOfTP.TryGetValue(__instance.PlayerId, out var num) && num > 2) RandomSpawn.CustomNetworkTransformPatch.NumOfTP[__instance.PlayerId] = 3;
+        RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Add(__instance.PlayerId);
 
         if (!target.IsProtected() && !Doppelganger.DoppelVictim.ContainsKey(target.PlayerId) && !Camouflage.ResetSkinAfterDeathPlayers.Contains(target.PlayerId))
         {
@@ -1166,7 +1166,6 @@ static class FixedUpdatePatch
     private static readonly Dictionary<byte, long> LastUpdate = [];
     private static long LastAddAbilityTime;
     private static long LastErrorTS;
-    private static bool ChatOpen;
 
     public static void Postfix(PlayerControl __instance)
     {
@@ -1174,6 +1173,9 @@ static class FixedUpdatePatch
         
         if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId)
             CustomNetObject.FixedUpdate();
+
+        if (__instance.IsAlive())
+            VentilationSystemDeterioratePatch.CheckVentInteraction(__instance);
 
         byte id = __instance.PlayerId;
         if (AmongUsClient.Instance.AmHost && GameStates.IsInTask && ReportDeadBodyPatch.CanReport[id] && ReportDeadBodyPatch.WaitReport[id].Count > 0)
@@ -1216,23 +1218,6 @@ static class FixedUpdatePatch
             }
         }
 
-        if (GameStates.IsMeeting)
-        {
-            switch (ChatOpen)
-            {
-                case false when DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening:
-                    ChatOpen = true;
-                    break;
-                case true when DestroyableSingleton<HudManager>.Instance.Chat.IsClosedOrClosing:
-                    ChatOpen = false;
-                    if (GameStates.IsVoting)
-                    {
-                    }
-
-                    break;
-            }
-        }
-
         if (Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && (!Altruist.On || !CustomRoles.Altruist.RoleExist() || Main.PlayerStates[id].Role is not Altruist at || at.ReviveStartTS == 0))
         {
             DeadBufferTime.TryAdd(id, 30);
@@ -1260,6 +1245,7 @@ static class FixedUpdatePatch
                 ThrowException(ex);
                 LastErrorTS = now;
             }
+
             Logger.Error($"Error for {__instance.GetNameWithRole()}: {ex}", "FixedUpdatePatch");
         }
     }
@@ -1286,7 +1272,6 @@ static class FixedUpdatePatch
 
         if (!lowLoad)
         {
-            VentilationSystemDeterioratePatch.CheckVentInteraction(player);
             NameNotifyManager.OnFixedUpdate(player);
             TargetArrow.OnFixedUpdate(player);
             LocateArrow.OnFixedUpdate(player);
@@ -1555,7 +1540,6 @@ static class FixedUpdatePatch
                             SoloKombatManager.GetNameNotify(target, ref RealName);
                             break;
                         case CustomGameMode.FFA:
-                            FFAManager.GetNameNotify(target, ref RealName);
                             break;
                     }
 
@@ -1956,6 +1940,8 @@ static class CoEnterVentPatch
         {
             Main.KillTimers[__instance.myPlayer.PlayerId] = timer + 0.5f;
         }
+
+        CheckInvalidMovementPatch.ExemptedPlayers.Add(__instance.myPlayer.PlayerId);
 
         switch (Options.CurrentGameMode)
         {

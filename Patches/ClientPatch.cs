@@ -139,9 +139,10 @@ static class InnerNetObjectSerializePatch
     }
 }
 
-[HarmonyPatch(typeof(InnerNetClient))]
-public class InnerNetClientPatch
+static class InnerNetClientPatch
 {
+    private static byte Timer;
+
     [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.SendInitialData))]
     [HarmonyPrefix]
     public static bool SendInitialDataPrefix(InnerNetClient __instance, int clientId)
@@ -174,32 +175,33 @@ public class InnerNetClientPatch
                     }
                 }
             }
+
             messageWriter.EndMessage();
             __instance.SendOrDisconnect(messageWriter);
             messageWriter.Recycle();
         }
+
         DelaySpawnPlayerInfo(__instance, clientId);
         return false;
     }
 
-    // InnerSloth vanilla officials send PlayerInfo in spilt reliable packets
     private static void DelaySpawnPlayerInfo(InnerNetClient __instance, int clientId)
     {
-        foreach (var player in GameData.Instance.AllPlayers)
+        var players = GameData.Instance.AllPlayers.ToArray();
+
+        // We send 5 players at a time to prevent too large packets
+        foreach (var batch in players.Chunk(5))
         {
-            if (player != null && player.ClientId != clientId && !player.Disconnected)
-            {
-                MessageWriter messageWriter = MessageWriter.Get(SendOption.Reliable);
-                messageWriter.StartMessage(6);
-                messageWriter.Write(__instance.GameId);
-                messageWriter.WritePacked(clientId);
+            MessageWriter messageWriter = MessageWriter.Get(SendOption.Reliable);
+            messageWriter.StartMessage(6);
+            messageWriter.Write(__instance.GameId);
+            messageWriter.WritePacked(clientId);
 
-                __instance.WriteSpawnMessage(player, player.OwnerId, player.SpawnFlags, messageWriter);
-                messageWriter.EndMessage();
+            batch.DoIf(p => p != null && p.ClientId != clientId && !p.Disconnected, p => __instance.WriteSpawnMessage(p, p.OwnerId, p.SpawnFlags, messageWriter));
 
-                __instance.SendOrDisconnect(messageWriter);
-                messageWriter.Recycle();
-            }
+            messageWriter.EndMessage();
+            __instance.SendOrDisconnect(messageWriter);
+            messageWriter.Recycle();
         }
     }
 
@@ -223,18 +225,11 @@ public class InnerNetClientPatch
                     messageWriter.WritePacked(innerNetObject.NetId);
                     try
                     {
-                        if (innerNetObject.Serialize(messageWriter, false))
-                        {
-                            messageWriter.EndMessage();
-                        }
-                        else
-                        {
-                            messageWriter.CancelMessage();
-                        }
+                        if (innerNetObject.Serialize(messageWriter, false)) messageWriter.EndMessage();
+                        else messageWriter.CancelMessage();
+
                         if (innerNetObject.Chunked && innerNetObject.IsDirty)
-                        {
                             __result = true;
-                        }
                     }
                     catch (Exception ex)
                     {
@@ -244,6 +239,7 @@ public class InnerNetClientPatch
                 }
             }
         }
+
         for (int j = 0; j < __instance.Streams.Length; j++)
         {
             MessageWriter messageWriter2 = __instance.Streams[j];
@@ -256,6 +252,7 @@ public class InnerNetClientPatch
                 messageWriter2.Write(__instance.GameId);
             }
         }
+
         return false;
     }
 
@@ -263,41 +260,45 @@ public class InnerNetClientPatch
     [HarmonyPostfix]
     public static void FixedUpdatePostfix(InnerNetClient __instance)
     {
-        // Just send it with None calls. Who cares?
-        if (!Constants.IsVersionModded() || GameStates.IsInGame || __instance.NetworkMode != NetworkModes.OnlineGame) return;
-        if (!__instance.AmHost || __instance.Streams == null) return;
+        if (!Constants.IsVersionModded() || GameStates.IsInGame || !__instance.AmHost || __instance.Streams == null || __instance.NetworkMode != NetworkModes.OnlineGame) return;
 
-        foreach (var player in GameData.Instance.AllPlayers)
+        if (Timer == 0)
         {
-            if (player.IsDirty)
+            Timer = 1;
+            return;
+        }
+
+        var player = GameData.Instance.AllPlayers.ToArray().FirstOrDefault(x => x.IsDirty);
+        if (player != null)
+        {
+            Timer = 0;
+            MessageWriter messageWriter = MessageWriter.Get(SendOption.Reliable);
+            messageWriter.StartMessage(5);
+            messageWriter.Write(__instance.GameId);
+            messageWriter.StartMessage(1);
+            messageWriter.WritePacked(player.NetId);
+            try
             {
-                MessageWriter messageWriter = MessageWriter.Get();
-                messageWriter.StartMessage(5);
-                messageWriter.Write(__instance.GameId);
-                messageWriter.StartMessage(1);
-                messageWriter.WritePacked(player.NetId);
-                try
+                if (player.Serialize(messageWriter, false))
                 {
-                    if (player.Serialize(messageWriter, false))
-                    {
-                        messageWriter.EndMessage();
-                    }
-                    else
-                    {
-                        messageWriter.CancelMessage();
-                        player.ClearDirtyBits();
-                        continue;
-                    }
                     messageWriter.EndMessage();
-                    __instance.SendOrDisconnect(messageWriter);
-                    messageWriter.Recycle();
                 }
-                catch (Exception ex)
+                else
                 {
-                    Logger.Exception(ex, "FixedUpdatePostfix");
                     messageWriter.CancelMessage();
                     player.ClearDirtyBits();
+                    return;
                 }
+
+                messageWriter.EndMessage();
+                __instance.SendOrDisconnect(messageWriter);
+                messageWriter.Recycle();
+            }
+            catch (Exception ex)
+            {
+                Logger.Exception(ex, "FixedUpdatePostfix");
+                messageWriter.CancelMessage();
+                player.ClearDirtyBits();
             }
         }
     }

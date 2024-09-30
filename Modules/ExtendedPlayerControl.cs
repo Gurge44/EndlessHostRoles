@@ -67,7 +67,7 @@ static class ExtendedPlayerControl
 
     public static bool CanUseVent(this PlayerControl player, int ventId)
     {
-        return GameStates.IsInTask && (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer || player.inVent) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId));
+        return GameStates.IsInTask && (player.inVent || (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId)));
     }
 
     // Next 3: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs
@@ -301,6 +301,8 @@ static class ExtendedPlayerControl
         player.SetKillCooldown();
         player.RpcResetAbilityCooldown();
         player.SyncGeneralOptions();
+
+        if (Camouflage.IsCamouflage) Camouflage.RpcSetSkin(player);
 
         NotifyRoles(SpecifySeer: player, NoCache: true);
         NotifyRoles(SpecifyTarget: player, NoCache: true);
@@ -778,7 +780,7 @@ static class ExtendedPlayerControl
 
     public static void Suicide(this PlayerControl pc, PlayerState.DeathReason deathReason = PlayerState.DeathReason.Suicide, PlayerControl realKiller = null)
     {
-        if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
+        if (!pc.IsAlive() || pc.Data.IsDead || !GameStates.IsInTask || ExileController.Instance) return;
 
         var state = Main.PlayerStates[pc.PlayerId];
         if (realKiller != null && state.Role is SchrodingersCat cat)
@@ -1014,7 +1016,8 @@ static class ExtendedPlayerControl
     {
         try
         {
-            return isMeeting ? player.Data.PlayerName : player.name;
+            var name = isMeeting ? player.Data.PlayerName : player.name;
+            return name.RemoveHtmlTags();
         }
         catch (NullReferenceException nullReferenceException)
         {

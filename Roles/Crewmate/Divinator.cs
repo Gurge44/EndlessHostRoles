@@ -62,7 +62,7 @@ public class Divinator : RoleBase
 
         LateTask.New(() =>
         {
-            var players = Main.AllAlivePlayerControls;
+            var players = Main.AllPlayerControls;
             int rolesNeeded = players.Length * (RolesPerCategory - 1);
             var roleList = Enum.GetValues<CustomRoles>()
                 .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.GM and not CustomRoles.Convict and not CustomRoles.NotAssigned && !x.IsForOtherGameMode() && !CustomRoleSelector.RoleResult.ContainsValue(x))
@@ -75,7 +75,7 @@ public class Divinator : RoleBase
             AllPlayerRoleList = roleList.ToDictionary(x => x.Player.PlayerId, x => x.RoleList.ToHashSet());
 
             Logger.Info(string.Join(" ---- ", AllPlayerRoleList.Select(x => $"ID {x.Key} ({x.Key.GetPlayer().GetNameWithRole()}): {string.Join(", ", x.Value)}")), "Divinator Roles");
-        }, 3f, log: false);
+        }, 8f, log: false);
     }
 
     public override bool OnVote(PlayerControl player, PlayerControl target)

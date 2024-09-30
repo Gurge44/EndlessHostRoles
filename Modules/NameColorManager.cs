@@ -48,7 +48,7 @@ public static class NameColorManager
                 color = "#ffffff";
                 return true;
             case CustomGameMode.HotPotato:
-                (byte HolderID, byte LastHolderID, _, _) = HotPotatoManager.GetState();
+                (byte HolderID, byte LastHolderID) = HotPotatoManager.GetState();
                 if (target.PlayerId == HolderID) color = "#000000";
                 else if (target.PlayerId == LastHolderID) color = "#00ffff";
                 else color = "#ffffff";
@@ -231,7 +231,7 @@ public static class NameColorManager
                || Main.PlayerStates.Values.Any(x => x.Role.KnowRole(seer, target));
     }
 
-    public static bool TryGetData(PlayerControl seer, PlayerControl target, out string colorCode)
+    private static bool TryGetData(PlayerControl seer, PlayerControl target, out string colorCode)
     {
         colorCode = "";
         var state = Main.PlayerStates[seer.PlayerId];
@@ -256,7 +256,7 @@ public static class NameColorManager
         SendRPC(seerId, targetId, colorCode);
     }
 
-    public static void Remove(byte seerId, byte targetId)
+    private static void Remove(byte seerId, byte targetId)
     {
         var state = Main.PlayerStates[seerId];
         if (!state.TargetColorData.ContainsKey(targetId)) return;
@@ -265,7 +265,7 @@ public static class NameColorManager
         SendRPC(seerId, targetId);
     }
 
-    public static void RemoveAll(byte seerId)
+    private static void RemoveAll(byte seerId)
     {
         Main.PlayerStates[seerId].TargetColorData.Clear();
 

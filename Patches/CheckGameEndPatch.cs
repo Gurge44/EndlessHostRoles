@@ -38,7 +38,7 @@ static class GameEndChecker
 
         ShowAllRolesWhenGameEnd = false;
 
-        Predicate.CheckForEndGame(out GameOverReason reason);
+        Predicate.CheckForGameEnd(out GameOverReason reason);
 
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
@@ -394,7 +394,7 @@ static class GameEndChecker
 
     class NormalGameEndPredicate : GameEndPredicate
     {
-        public override bool CheckForEndGame(out GameOverReason reason)
+        public override bool CheckForGameEnd(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
             if (WinnerTeam != CustomWinner.Default) return false;
@@ -525,7 +525,7 @@ static class GameEndChecker
 
     class SoloKombatGameEndPredicate : GameEndPredicate
     {
-        public override bool CheckForEndGame(out GameOverReason reason)
+        public override bool CheckForGameEnd(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
             return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
@@ -552,7 +552,7 @@ static class GameEndChecker
 
     class FFAGameEndPredicate : GameEndPredicate
     {
-        public override bool CheckForEndGame(out GameOverReason reason)
+        public override bool CheckForGameEnd(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
             return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
@@ -564,7 +564,7 @@ static class GameEndChecker
 
             if (FFAManager.RoundTime <= 0)
             {
-                var winner = Main.GM.Value && Main.AllPlayerControls.Length == 1 ? PlayerControl.LocalPlayer : Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => FFAManager.GetRankOfScore(x.PlayerId)).First();
+                var winner = Main.GM.Value && Main.AllPlayerControls.Length == 1 ? PlayerControl.LocalPlayer : Main.AllPlayerControls.Where(x => !x.Is(CustomRoles.GM) && x != null).OrderBy(x => FFAManager.GetRankFromScore(x.PlayerId)).First();
 
                 byte winnerId = winner.PlayerId;
 
@@ -626,7 +626,7 @@ static class GameEndChecker
 
     class MoveAndStopGameEndPredicate : GameEndPredicate
     {
-        public override bool CheckForEndGame(out GameOverReason reason)
+        public override bool CheckForGameEnd(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
             return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
@@ -644,7 +644,7 @@ static class GameEndChecker
             }
 
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
-            
+
             if (aapc.Any(x => x.GetTaskState().IsTaskFinished))
             {
                 SetWinner(aapc.First(x => x.GetTaskState().IsTaskFinished));
@@ -675,7 +675,7 @@ static class GameEndChecker
 
     class HotPotatoGameEndPredicate : GameEndPredicate
     {
-        public override bool CheckForEndGame(out GameOverReason reason)
+        public override bool CheckForGameEnd(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
             return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
@@ -705,7 +705,7 @@ static class GameEndChecker
 
     class HideAndSeekGameEndPredicate : GameEndPredicate
     {
-        public override bool CheckForEndGame(out GameOverReason reason)
+        public override bool CheckForGameEnd(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
             return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
@@ -719,7 +719,7 @@ static class GameEndChecker
 
     class SpeedrunGameEndPredicate : GameEndPredicate
     {
-        public override bool CheckForEndGame(out GameOverReason reason)
+        public override bool CheckForGameEnd(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
             return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
@@ -733,7 +733,7 @@ static class GameEndChecker
 
     class CaptureTheFlagGameEndPredicate : GameEndPredicate
     {
-        public override bool CheckForEndGame(out GameOverReason reason)
+        public override bool CheckForGameEnd(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
             return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
@@ -747,7 +747,7 @@ static class GameEndChecker
 
     class NaturalDisastersGameEndPredicate : GameEndPredicate
     {
-        public override bool CheckForEndGame(out GameOverReason reason)
+        public override bool CheckForGameEnd(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
             return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
@@ -774,10 +774,10 @@ static class GameEndChecker
             }
         }
     }
-    
+
     class RoomRushGameEndPredicate : GameEndPredicate
     {
-        public override bool CheckForEndGame(out GameOverReason reason)
+        public override bool CheckForGameEnd(out GameOverReason reason)
         {
             reason = GameOverReason.ImpostorByKill;
             return WinnerIds.Count <= 0 && CheckGameEndByLivingPlayers(out reason);
@@ -811,7 +811,7 @@ static class GameEndChecker
         /// <summary>Checks the game ending condition and stores the value in CustomWinnerHolder. </summary>
         /// <params name="reason">GameOverReason used for vanilla game end processing</params>
         /// <returns>Whether the conditions for ending the game are met</returns>
-        public abstract bool CheckForEndGame(out GameOverReason reason);
+        public abstract bool CheckForGameEnd(out GameOverReason reason);
 
         /// <summary>Determine whether the task can be won based on GameData.TotalTasks and CompletedTasks.</summary>
         public virtual bool CheckGameEndByTask(out GameOverReason reason)
