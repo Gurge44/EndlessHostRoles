@@ -975,7 +975,7 @@
   "AutoDisplayLastRoles": "Exibição Automática das Funções Passadas",
   "AutoDisplayLastAddOns": "Exibição Automática dos Atributos Passados",
   "AutoDisplayLastResult": "Exibição Automática do Último Resultado",
-  "EnableYTPlan": "Plano YouTuber",
+  "Message.NoPermissionSetRoleOthers": "You don't have permission to set roles for others",
   "KickLowLevelPlayer": "Expulsar jogadores cujo nível seja inferior a",
   "AutoKickStart": "Expulsar jogadores que falem começa",
   "AutoKickStartTimes": "Número de avisos antes de expulsar",
