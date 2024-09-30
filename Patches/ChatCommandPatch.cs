@@ -1900,7 +1900,7 @@ internal static class ChatCommands
         return false;
     }
 
-    public static void SendRolesInfo(string role, byte playerId, bool isDev = false, bool isUp = false)
+    private static void SendRolesInfo(string role, byte playerId, bool isDev = false, bool isUp = false)
     {
         if (Options.CurrentGameMode != CustomGameMode.Standard)
         {
@@ -1970,6 +1970,17 @@ internal static class ChatCommands
                     Utils.ShowChildrenSettings(stringOptionItem, ref settings, disableColor: false);
                     settings.Append("</size>");
                 }
+            }
+        }
+
+        foreach (var gameMode in Enum.GetValues<CustomGameMode>())
+        {
+            var gmString = GetString(gameMode.ToString());
+            var match = gmString.ToLower().Trim().TrimStart('*').Replace(" ", string.Empty);
+            if (role.Equals(match, StringComparison.OrdinalIgnoreCase))
+            {
+                Utils.SendMessage(GetString($"ModeDescribe.{gameMode}"), playerId, gmString);
+                return;
             }
         }
 
