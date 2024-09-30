@@ -975,7 +975,7 @@
   "AutoDisplayLastRoles": "Mostrar Roles Pasados",
   "AutoDisplayLastAddOns": "Mostrar Complementos Pasados",
   "AutoDisplayLastResult": "Auto Mostrar Último Resultado",
-  "EnableYTPlan": "Activar Plan de Youtuber",
+  "Message.NoPermissionSetRoleOthers": "You don't have permission to set roles for others",
   "KickLowLevelPlayer": "Expulsar jugadores cuyo nivel es menor que",
   "AutoKickStart": "Expulsar jugadores que dicen inicia",
   "AutoKickStartTimes": "Número de advertencias antes de expulsar",
