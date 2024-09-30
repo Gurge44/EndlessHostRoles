@@ -93,10 +93,10 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!IsTeleported || !pc.IsAlive() || !GameStates.IsInTask || Vector2.Distance(pc.Pos(), CameraPosition) <= DisableDevice.UsableDistance) return;
+            if (!IsTeleported || !TPBackWhenMoveAway.GetBool() || !pc.IsAlive() || !GameStates.IsInTask || Vector2.Distance(pc.Pos(), CameraPosition) <= DisableDevice.UsableDistance) return;
 
-            pc.TP(BasePos);
             IsTeleported = false;
+            LateTask.New(() => pc.TP(BasePos), 2f, "CameraMan Teleport Back");
         }
 
         public override void OnReportDeadBody()

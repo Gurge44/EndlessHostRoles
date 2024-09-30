@@ -54,10 +54,11 @@ public static class Utils
 
     private static long LastNotifyRolesErrorTS = TimeStamp;
 
+    public static long GameStartTimeStamp;
     public static long TimeStamp => (long)(DateTime.Now.ToUniversalTime() - TimeStampStartTime).TotalSeconds;
     public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModClient() && !x.IsHost());
     public static int TotalTaskCount => Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
-    public static int AllPlayersCount => Main.PlayerStates.Values.Count(state => state.countTypes != CountTypes.OutOfGame);
+    private static int AllPlayersCount => Main.PlayerStates.Values.Count(state => state.countTypes != CountTypes.OutOfGame);
     public static int AllAlivePlayersCount => Main.AllAlivePlayerControls.Count(pc => !pc.Is(CountTypes.OutOfGame));
     public static bool IsAllAlive => Main.PlayerStates.Values.All(state => state.countTypes == CountTypes.OutOfGame || !state.IsDead);
     public static long GetTimeStamp(DateTime? dateTime = null) => (long)((dateTime ?? DateTime.Now).ToUniversalTime() - TimeStampStartTime).TotalSeconds;
@@ -1891,7 +1892,7 @@ public static class Utils
         StringBuilder targetLogInfo = new();
 
         var now = TimeStamp;
-        
+
         // seer: Players who can see changes made here
         // target: Players subject to changes that seer can see
         foreach (PlayerControl seer in seerList)
@@ -2064,6 +2065,7 @@ public static class Utils
                         else
                         {
                             var longInfo = seer.GetRoleInfo(InfoLong: true).Split("\n\n")[0];
+                            if (longInfo.Contains("):\n")) longInfo = longInfo.Split("):\n")[1];
                             bool tooLong = false;
                             bool showLongInfo = Options.ShowLongInfo.GetBool();
                             if (showLongInfo)
@@ -2077,12 +2079,22 @@ public static class Utils
 
                                 for (int i = 50; i < longInfo.Length; i += 50)
                                 {
+                                    if (tooLong && i > 296) break;
                                     int index = longInfo.LastIndexOf(' ', i);
                                     if (index != -1) longInfo = longInfo.Insert(index + 1, "\n");
                                 }
                             }
 
                             longInfo = $"<#ffffff>{longInfo}</color>";
+
+                            if (showLongInfo)
+                            {
+                                var lines = longInfo.Count(x => x == '\n');
+                                var readTime = 30 + (lines * 5);
+
+                                if (GameStartTimeStamp + readTime <= now)
+                                    showLongInfo = false;
+                            }
 
                             var mHelp = (!showLongInfo || tooLong) && Options.CurrentGameMode == CustomGameMode.Standard ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
 

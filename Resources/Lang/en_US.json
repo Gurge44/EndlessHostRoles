@@ -1375,6 +1375,7 @@
   "PrivateChat": "Enable Private Chat for <color=#ff9ace>Lovers</color> <#ffff00>(VERY EXPERIMENTAL!!!!)</color> (REQUIRES DOUBLE EJECTION SCREEN)",
   "GuessAbility": "Guessers Can Guess <color=#ff9ace>Lovers</color>",
   "AddonCanBeGuessed": "Can be Guessed",
+  "ConvertedAddonCanBeGuessed": "{role} can be guessed",
   "Untouched": "Global Setting Decides",
   "GuessLovers": "Sorry, host's settings do not allow to guess <color=#ff9ace>Lovers</color>.",
   "VanillaCrewmateCannotBeGuessed": "Crewmate role cannot be guessed",

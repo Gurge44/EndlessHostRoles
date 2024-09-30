@@ -13,6 +13,12 @@ namespace EHR.Crewmate
         private static List<Wizard> Instances = [];
 
         private static OptionItem Vision;
+        private static OptionItem MinSpeedValue;
+        private static OptionItem MaxSpeedValue;
+        private static OptionItem MinVisionValue;
+        private static OptionItem MaxVisionValue;
+        private static OptionItem MinKCDValue;
+        private static OptionItem MaxKCDValue;
         private static OptionItem AbilityCooldown;
         private static OptionItem AbilityUseLimit;
         public static OptionItem AbilityUseGainWithEachTaskCompleted;
@@ -23,6 +29,13 @@ namespace EHR.Crewmate
             [Buff.Speed] = 3f,
             [Buff.Vision] = 1.2f,
             [Buff.KCD] = 40f
+        };
+
+        private static readonly Dictionary<Buff, float> MinBuffValues = new()
+        {
+            [Buff.Speed] = 0.6f,
+            [Buff.Vision] = 0.3f,
+            [Buff.KCD] = 5f
         };
 
         private Dictionary<Buff, float> BuffValues;
@@ -40,6 +53,12 @@ namespace EHR.Crewmate
         {
             StartSetup(648250)
                 .AutoSetupOption(ref Vision, 0.5f, new FloatValueRule(0f, 1.3f, 0.1f), OptionFormat.Multiplier)
+                .AutoSetupOption(ref MinSpeedValue, 0.6f, new FloatValueRule(0.3f, 3f, 0.3f), OptionFormat.Multiplier)
+                .AutoSetupOption(ref MaxSpeedValue, 3f, new FloatValueRule(0.3f, 3f, 0.3f), OptionFormat.Multiplier)
+                .AutoSetupOption(ref MinVisionValue, 0.3f, new FloatValueRule(0f, 1.35f, 0.15f), OptionFormat.Multiplier)
+                .AutoSetupOption(ref MaxVisionValue, 1.2f, new FloatValueRule(0f, 1.35f, 0.15f), OptionFormat.Multiplier)
+                .AutoSetupOption(ref MinKCDValue, 5f, new FloatValueRule(0f, 60f, 5f), OptionFormat.Seconds)
+                .AutoSetupOption(ref MaxKCDValue, 40f, new FloatValueRule(0f, 60f, 5f), OptionFormat.Seconds)
                 .AutoSetupOption(ref AbilityCooldown, 15, new IntegerValueRule(0, 120, 1), OptionFormat.Seconds)
                 .AutoSetupOption(ref AbilityUseLimit, 1, new IntegerValueRule(0, 20, 1), OptionFormat.Times)
                 .AutoSetupOption(ref AbilityUseGainWithEachTaskCompleted, 0.3f, new FloatValueRule(0f, 5f, 0.05f), OptionFormat.Times)
@@ -51,6 +70,14 @@ namespace EHR.Crewmate
         {
             On = false;
             Instances = [];
+
+            MaxBuffValues[Buff.Speed] = MaxSpeedValue.GetFloat();
+            MaxBuffValues[Buff.Vision] = MaxVisionValue.GetFloat();
+            MaxBuffValues[Buff.KCD] = MaxKCDValue.GetFloat();
+
+            MinBuffValues[Buff.Speed] = MinSpeedValue.GetFloat();
+            MinBuffValues[Buff.Vision] = MinVisionValue.GetFloat();
+            MinBuffValues[Buff.KCD] = MinKCDValue.GetFloat();
         }
 
         public override void Add(byte playerId)
@@ -142,7 +169,7 @@ namespace EHR.Crewmate
             };
 
             if (BuffValues[SelectedBuff] > MaxBuffValues[SelectedBuff])
-                BuffValues[SelectedBuff] = 0f;
+                BuffValues[SelectedBuff] = MinBuffValues[SelectedBuff];
             else BuffValues[SelectedBuff] = (float)Math.Round(BuffValues[SelectedBuff], 1);
 
             Utils.SendRPC(CustomRPC.SyncRoleData, WizardId, 2, BuffValues[SelectedBuff]);

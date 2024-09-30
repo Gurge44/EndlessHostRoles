@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Impostor;
 using EHR.Modules;
 using Hazel;
@@ -16,6 +17,7 @@ public class Doppelganger : RoleBase
 
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
+    private static OptionItem ImpostorVision;
     private static OptionItem MaxSteals;
     private static OptionItem ResetMode;
     private static OptionItem ResetTimer;
@@ -46,6 +48,8 @@ public class Doppelganger : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger])
             .SetValueFormat(OptionFormat.Seconds);
         CanVent = new BooleanOptionItem(Id + 14, "CanVent", false, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
+        ImpostorVision = new BooleanOptionItem(Id + 15, "ImpostorVision", false, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
         ResetMode = new StringOptionItem(Id + 12, "DGResetMode", ResetModes, 0, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
@@ -96,6 +100,7 @@ public class Doppelganger : RoleBase
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(ImpostorVision.GetBool());
 
     private static NetworkedPlayerInfo.PlayerOutfit Set(NetworkedPlayerInfo.PlayerOutfit instance, string playerName, int colorId, string hatId, string skinId, string visorId, string petId, string nameplateId)
     {

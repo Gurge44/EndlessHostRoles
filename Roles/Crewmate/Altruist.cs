@@ -71,7 +71,7 @@ namespace EHR.Crewmate
 
         public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
         {
-            if (!RevivingMode) return true;
+            if (!RevivingMode || target.Disconnected) return true;
 
             var state = Main.PlayerStates[reporter.PlayerId];
             state.deathReason = PlayerState.DeathReason.Sacrifice;

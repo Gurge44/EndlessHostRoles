@@ -697,9 +697,15 @@ public static class Options
     public static OptionItem NameDisplayAddons;
     public static OptionItem AddBracketsToAddons;
     public static OptionItem NoLimitAddonsNumMax;
+
+    public static OptionItem CharmedCanBeGuessed;
+    public static OptionItem RecruitCanBeGuessed;
+    public static OptionItem ContagiousCanBeGuessed;
+    public static OptionItem UndeadCanBeGuessed;
+    public static OptionItem EgoistCanBeGuessed;
+
     public static OptionItem BewilderVision;
     public static OptionItem SunglassesVision;
-
     public static OptionItem MadmateSpawnMode;
     public static OptionItem MadmateCountMode;
     public static OptionItem SheriffCanBeMadmate;
@@ -1003,6 +1009,23 @@ public static class Options
             .SetHeader(true);
         NoLimitAddonsNumMax = new IntegerOptionItem(211, "NoLimitAddonsNumMax", new(1, 90, 1), 1, TabGroup.Addons)
             .SetGameMode(CustomGameMode.Standard);
+
+        CharmedCanBeGuessed = new StringOptionItem(213, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)
+            .SetHeader(true)
+            .SetGameMode(CustomGameMode.Standard)
+            .AddReplacement(("{role}", CustomRoles.Charmed.ToColoredString()));
+        RecruitCanBeGuessed = new StringOptionItem(214, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)
+            .SetGameMode(CustomGameMode.Standard)
+            .AddReplacement(("{role}", CustomRoles.Recruit.ToColoredString()));
+        ContagiousCanBeGuessed = new StringOptionItem(215, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)
+            .SetGameMode(CustomGameMode.Standard)
+            .AddReplacement(("{role}", CustomRoles.Contagious.ToColoredString()));
+        UndeadCanBeGuessed = new StringOptionItem(216, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)
+            .SetGameMode(CustomGameMode.Standard)
+            .AddReplacement(("{role}", CustomRoles.Undead.ToColoredString()));
+        EgoistCanBeGuessed = new StringOptionItem(217, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)
+            .SetGameMode(CustomGameMode.Standard)
+            .AddReplacement(("{role}", CustomRoles.Egoist.ToColoredString()));
 
 
         RoleLoadingText = "Add-ons\n.";

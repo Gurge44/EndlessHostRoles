@@ -142,6 +142,8 @@ internal class ChangeRoleSettings
 
             if (Main.NormalOptions.MapId > 5) Logger.SendInGame(GetString("UnsupportedMap"));
 
+            Utils.GameStartTimeStamp = Utils.TimeStamp;
+
             try
             {
                 Main.AllRoleClasses.Do(x => x.Init());
