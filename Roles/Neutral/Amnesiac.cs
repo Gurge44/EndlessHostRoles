@@ -65,12 +65,12 @@ public class Amnesiac : RoleBase
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = RememberCooldown.GetFloat();
-    public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && RememberMode.GetValue() == 0;
+    public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && RememberMode.GetValue() == 1;
     public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
 
     public static void OnAnyoneDeath(PlayerControl target)
     {
-        if (RememberMode.GetValue() == 1)
+        if (RememberMode.GetValue() == 0)
         {
             foreach (Amnesiac instance in Instances)
             {
@@ -83,7 +83,7 @@ public class Amnesiac : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (RememberMode.GetValue() == 0)
+        if (RememberMode.GetValue() == 1)
         {
             RememberRole(killer, target);
         }
@@ -93,7 +93,7 @@ public class Amnesiac : RoleBase
 
     public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
     {
-        if (RememberMode.GetValue() == 1)
+        if (RememberMode.GetValue() == 0)
         {
             RememberRole(reporter, target.Object);
             return false;
@@ -212,7 +212,7 @@ public class Amnesiac : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        ActionButton amneButton = RememberMode.GetValue() == 0 ? hud.KillButton : hud.ReportButton;
+        ActionButton amneButton = RememberMode.GetValue() == 1 ? hud.KillButton : hud.ReportButton;
         amneButton?.OverrideText(GetString("RememberButtonText"));
     }
 

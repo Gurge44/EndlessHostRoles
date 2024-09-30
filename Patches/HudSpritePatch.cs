@@ -100,7 +100,7 @@ public static class HudSpritePatch
                     newAbilityButton = CustomButton.Get("Commander");
                     break;
                 case CustomRoles.Amnesiac:
-                    if (Amnesiac.RememberMode.GetValue() == 0) newKillButton = CustomButton.Get("AmnesiacKill");
+                    if (Amnesiac.RememberMode.GetValue() == 1) newKillButton = CustomButton.Get("AmnesiacKill");
                     else newReportButton = CustomButton.Get("AmnesiacReport");
                     break;
                 case CustomRoles.Assassin:
