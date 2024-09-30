@@ -673,7 +673,6 @@ public static class Options
     public static OptionItem UsePhantomBasis;
     public static OptionItem UsePhantomBasisForNKs;
     public static OptionItem UseVoteCancelling;
-    public static OptionItem EnableUpMode;
     public static OptionItem AutoKickStart;
     public static OptionItem AutoKickStartAsBan;
     public static OptionItem AutoKickStartTimes;
@@ -1257,11 +1256,6 @@ public static class Options
             .SetColor(new Color32(255, 192, 203, byte.MaxValue));
 
         LoadingPercentage = 64;
-
-
-        EnableUpMode = new BooleanOptionItem(19600, "EnableYTPlan", false, TabGroup.SystemSettings)
-            .SetColor(Color.cyan)
-            .SetHeader(true);
 
         #endregion
 

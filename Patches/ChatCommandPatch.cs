@@ -1206,12 +1206,6 @@ internal static class ChatCommands
     private static void SetRoleCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         string subArgs = text.Remove(0, 8);
-        if (!player.FriendCode.GetDevUser().IsUp) return;
-        if (!Options.EnableUpMode.GetBool())
-        {
-            Utils.SendMessage(string.Format(GetString("Message.YTPlanDisabled"), GetString("EnableYTPlan")), player.PlayerId);
-            return;
-        }
 
         if (!GameStates.IsLobby)
         {
@@ -1244,7 +1238,6 @@ internal static class ChatCommands
 
     private static void UpCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        if (!player.FriendCode.GetDevUser().IsUp) return;
         Utils.SendMessage($"{GetString("UpReplacedMessage")}", player.PlayerId);
     }
 
