@@ -2164,7 +2164,6 @@
   "Message.HostLeftGameInLobby": "★Warning★ Host left the game, in next time game wouldn't start normally. If new host has EHR, you need to re-enter the lobby to play normally.",
   "Message.LobbyShared": "The lobby has successfully been shared!",
   "Message.LobbyShareFailed": "EHR-Chan does not seem to be online (failed to share lobby)",
-  "Message.YTPlanDisabled": "Please enable <b>{0}</b>\\nin the Settings",
   "Message.YTPlanSelected": "In the next game, your role will be <b>{0}</b>",
   "Message.YTPlanSelectFailed": "You cannot be assigned as <b>{0}</b>.\\nIt may be because you don't have this role enabled, or this role does not support being assigned.",
   "Message.YTPlanCanNotFindRoleThePlayerEnter": "Could not find the role you searching\\nUse command /r to show role list",
