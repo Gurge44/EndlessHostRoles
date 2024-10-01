@@ -4133,6 +4133,8 @@
   "RR_GlobalTimeMultiplier": "全局限时时间(用来增加难度)",
   "RR_TimeWhenTwoPlayersEntersRoom": "当前两名玩家进入正确的房间时，时间限制设置为",
   "RR_VentTimes": "每个玩家能使用通风管道的时间",
+  "RR_DisplayRoomName": "Display the Name of the Room to Get to",
+  "RR_DisplayArrowToRoom": "Display an Arrow to the Room to Get to",
   "RR_Tutorial_1": "<#ffab1b><size=80%>教程</size></color>：\\n你好!新玩家!欢迎来到抢椅子!\\n",
   "RR_Tutorial_2": "这个游戏模式的目标是尽快到达你名字下的房间。",
   "RR_Tutorial_3": "当前两名玩家进入正确的房间时，时间设置为限制的几秒钟。",
