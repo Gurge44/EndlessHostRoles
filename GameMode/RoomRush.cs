@@ -15,6 +15,8 @@ namespace EHR
         private static OptionItem GlobalTimeMultiplier;
         private static OptionItem TimeWhenFirstPlayerEntersRoom;
         private static OptionItem VentTimes;
+        private static OptionItem DisplayRoomName;
+        private static OptionItem DisplayArrowToRoom;
 
         public static readonly HashSet<string> HasPlayedFriendCodes = [];
 
@@ -125,10 +127,18 @@ namespace EHR
                 .SetGameMode(gameMode)
                 .SetValueFormat(OptionFormat.Seconds);
 
-            VentTimes = new IntegerOptionItem(id, "RR_VentTimes", new(0, 90, 1), 1, TabGroup.GameSettings)
+            VentTimes = new IntegerOptionItem(id++, "RR_VentTimes", new(0, 90, 1), 1, TabGroup.GameSettings)
                 .SetColor(color)
                 .SetGameMode(gameMode)
                 .SetValueFormat(OptionFormat.Times);
+
+            DisplayRoomName = new BooleanOptionItem(id++, "RR_DisplayRoomName", true, TabGroup.GameSettings)
+                .SetColor(color)
+                .SetGameMode(gameMode);
+            
+            DisplayArrowToRoom = new BooleanOptionItem(id, "RR_DisplayArrowToRoom", false, TabGroup.GameSettings)
+                .SetColor(color)
+                .SetGameMode(gameMode);
         }
 
         public static int GetSurvivalTime(byte id)
@@ -257,6 +267,8 @@ namespace EHR
 
             TimeLeft = (int)Math.Round(time * GlobalTimeMultiplier.GetFloat());
             Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())}, to: {Translator.GetString(RoomGoal.ToString())} - Time: {TimeLeft}", "RoomRush");
+            Main.AllPlayerControls.Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
+            if (DisplayArrowToRoom.GetBool()) Main.AllAlivePlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
             Utils.NotifyRoles();
         }
 
@@ -269,9 +281,12 @@ namespace EHR
             var sb = new StringBuilder();
             var done = DonePlayers.Contains(seer.PlayerId);
             var color = done ? Color.green : Color.yellow;
-            sb.AppendLine(Utils.ColorString(color, Translator.GetString(RoomGoal.ToString())));
+            if (DisplayRoomName.GetBool()) sb.AppendLine(Utils.ColorString(color, Translator.GetString(RoomGoal.ToString())));
+            if (DisplayArrowToRoom.GetBool()) sb.AppendLine(Utils.ColorString(color, LocateArrow.GetArrows(seer)));
             color = done ? Color.white : Color.yellow;
             sb.AppendLine(Utils.ColorString(color, TimeLeft.ToString()));
+
+            if (VentTimes.GetInt() == 0) return sb.ToString();
 
             sb.AppendLine();
 

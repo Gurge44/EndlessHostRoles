@@ -2101,12 +2101,6 @@ static class PlayerControlCompleteTaskPatch
                 NameColorManager.Add(impostor.PlayerId, __instance.PlayerId, "#ff1919");
             NotifyRoles(SpecifySeer: __instance, ForceLoop: true);
         }
-
-        if (isTaskFinish && __instance.GetCustomRole() is CustomRoles.Doctor or CustomRoles.Sunnyboy or CustomRoles.SpeedBooster)
-        {
-            // Execute CustomSyncAllSettings at the end of the task only for matches with sunnyboy, speed booster, or doctor.
-            MarkEveryoneDirtySettings();
-        }
     }
 }
 

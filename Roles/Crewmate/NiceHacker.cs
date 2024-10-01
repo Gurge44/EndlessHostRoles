@@ -157,12 +157,12 @@ namespace EHR.Crewmate
             }
             else
             {
-                opts.Mode = MapOptions.Modes.Normal;
+                opts.Mode = pc.IsMadmate() ? MapOptions.Modes.Sabotage : MapOptions.Modes.Normal;
                 pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
             }
         }
 
-        public static void MapCountdown(PlayerControl pc, MapBehaviour map, MapOptions opts, int seconds)
+        private static void MapCountdown(PlayerControl pc, MapBehaviour map, MapOptions opts, int seconds)
         {
             if (!map.IsOpen)
             {
@@ -173,7 +173,7 @@ namespace EHR.Crewmate
             {
                 map.Close();
                 pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-                opts.Mode = MapOptions.Modes.Normal;
+                opts.Mode = pc.IsMadmate() ? MapOptions.Modes.Sabotage : MapOptions.Modes.Normal;
                 return;
             }
 
