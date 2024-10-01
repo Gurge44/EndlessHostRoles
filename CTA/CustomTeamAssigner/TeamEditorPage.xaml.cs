@@ -29,7 +29,6 @@ namespace CustomTeamAssigner
             InitializeMembersGrid();
             InitializeComboBox();
             InitializeEditorFields();
-            MainWindow.ApplyAllImages();
         }
 
         void InitializeEditorFields()
@@ -91,14 +90,12 @@ namespace CustomTeamAssigner
 
             MainWindow.Instance.Navigator.NavigationService.Navigate(new PlaySetListerPage());
             Utils.SetMainWindowContents(Visibility.Collapsed);
-            MainWindow.ApplyAllImages();
         }
 
         void Cancel(object sender, RoutedEventArgs e)
         {
             MainWindow.Instance.Navigator.NavigationService.Navigate(new PlaySetListerPage());
             Utils.SetMainWindowContents(Visibility.Collapsed);
-            MainWindow.ApplyAllImages();
         }
 
         void Delete(object sender, RoutedEventArgs e)
@@ -106,7 +103,6 @@ namespace CustomTeamAssigner
             Utils.Teams.Remove(EditingTeam);
             MainWindow.Instance.Navigator.NavigationService.Navigate(new PlaySetListerPage());
             Utils.SetMainWindowContents(Visibility.Collapsed);
-            MainWindow.ApplyAllImages();
         }
 
         void AddMember(object sender, RoutedEventArgs e)
