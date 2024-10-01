@@ -4133,6 +4133,8 @@
   "RR_GlobalTimeMultiplier": "Глобальный Множитель Времени (для настройки сложности)",
   "RR_TimeWhenTwoPlayersEntersRoom": "Когда первые 2 игроки добегают до комнаты, лимит времени сокращается до",
   "RR_VentTimes": "Каждый игрок может использовать люк столько раз",
+  "RR_DisplayRoomName": "Display the Name of the Room to Get to",
+  "RR_DisplayArrowToRoom": "Display an Arrow to the Room to Get to",
   "RR_Tutorial_1": "<#ffab1b><size=80%>Туториал</size></color>\\nДобро пожаловать в Забег На Скорость!\\n",
   "RR_Tutorial_2": "Цель режима - добраться до указанной комнаты как можно скорее",
   "RR_Tutorial_3": "Когда первые 2 игроки добегают до комнаты, лимит времени сокращается",
