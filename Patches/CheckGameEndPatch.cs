@@ -312,8 +312,14 @@ static class GameEndChecker
 
     private static void StartEndGame(GameOverReason reason)
     {
+        var msg = GetString("NotifyGameEnding");
+        Main.AllPlayerControls.DoIf(
+            x => x.GetClient() != null && !x.Data.Disconnected,
+            x => ChatUpdatePatch.SendMessage(PlayerControl.LocalPlayer, "\n", x.PlayerId, msg));
+        
         SetEverythingUpPatch.LastWinsReason = WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor ? GetString($"GameOverReason.{reason}") : string.Empty;
-        AmongUsClient.Instance.StartCoroutine(CoEndGame(AmongUsClient.Instance, reason).WrapToIl2Cpp());
+        AmongUsClient self = AmongUsClient.Instance;
+        self.StartCoroutine(CoEndGame(self, reason).WrapToIl2Cpp());
     }
 
     private static IEnumerator CoEndGame(InnerNetClient self, GameOverReason reason)
@@ -370,7 +376,7 @@ static class GameEndChecker
                 playerInfo.IsDead = false;
                 // transmission
                 playerInfo.SetDirtyBit(0b_1u << playerId);
-                AmongUsClient.Instance.SendAllStreamedObjects();
+                self.SendAllStreamedObjects();
             }
 
             // Delay to ensure that the end of the game is delivered at the end of the game
@@ -886,18 +892,5 @@ static class CheckGameEndPatch
 
         __result = GameEndChecker.Predicate?.CheckGameEndByTask(out _) ?? false;
         return false;
-    }
-}
-
-[HarmonyPatch(typeof(GameManager), nameof(GameManager.RpcEndGame))]
-static class RpcEndGamePatch
-{
-    public static void Prefix()
-    {
-        if (!AmongUsClient.Instance.AmHost) return;
-        var msg = GetString("NotifyGameEnding");
-        Main.AllPlayerControls.DoIf(
-            x => x.GetClient() != null && !x.Data.Disconnected,
-            x => ChatUpdatePatch.SendMessage(PlayerControl.LocalPlayer, "\n", x.PlayerId, msg));
     }
 }

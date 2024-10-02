@@ -34,7 +34,6 @@ namespace CustomTeamAssigner
 
             MainWindow.Instance.Navigator.NavigationService.Navigate(new TeamEditorPage(Utils.Teams.ElementAt(TeamListBox.SelectedIndex)));
             Utils.SetMainWindowContents(Visibility.Collapsed);
-            MainWindow.ApplyAllImages();
         }
 
         void DeleteTeam(object sender, RoutedEventArgs e)
@@ -56,7 +55,6 @@ namespace CustomTeamAssigner
             Utils.Teams.Add(team);
             MainWindow.Instance.Navigator.NavigationService.Navigate(new TeamEditorPage(team));
             Utils.SetMainWindowContents(Visibility.Collapsed);
-            MainWindow.ApplyAllImages();
         }
 
         void SavePlaySet(object sender, RoutedEventArgs e)

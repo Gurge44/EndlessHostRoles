@@ -11,6 +11,7 @@ README file in the root directory of this source tree.
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
       mc:Ignorable="d"
       d:DesignHeight="720" d:DesignWidth="1280" FontSize="24"
       Title="Team Editor">
@@ -325,7 +326,7 @@ README file in the root directory of this source tree.
                     <ScaleTransform/>
                 </Button.RenderTransform>
                 <StackPanel Orientation="Horizontal">
-                    <Image Source="Resources/add.svg" Name="AddButtonImage" Width="30" Height="30" Margin="15"/>
+                    <svgc:SvgViewbox Source="Resources/add.svg" Width="30" Height="30" Margin="15"/>
                     <TextBlock Text="Add Member"/>
                 </StackPanel>
             </Button>
@@ -337,7 +338,7 @@ README file in the root directory of this source tree.
                 <ScaleTransform/>
             </Button.RenderTransform>
             <StackPanel Orientation="Horizontal">
-                <Image Source="Resources/discard.svg" Name="DiscardButtonImage" Width="30" Height="30" Margin="0,0,15,0"/>
+                <svgc:SvgViewbox Source="Resources/discard.svg" Width="30" Height="30" Margin="0,0,15,0"/>
                 <TextBlock Text="Cancel"/>
             </StackPanel>
         </Button>
@@ -346,7 +347,7 @@ README file in the root directory of this source tree.
                 <ScaleTransform/>
             </Button.RenderTransform>
             <StackPanel Orientation="Horizontal">
-                <Image Source="Resources/delete.svg" Name="DeleteButtonImage" Width="30" Height="30" Margin="0,0,15,0"/>
+                <svgc:SvgViewbox Source="Resources/delete.svg" Width="30" Height="30" Margin="0,0,15,0"/>
                 <TextBlock Text="Delete"/>
             </StackPanel>
         </Button>
@@ -355,7 +356,7 @@ README file in the root directory of this source tree.
                 <ScaleTransform/>
             </Button.RenderTransform>
             <StackPanel Orientation="Horizontal">
-                <Image Source="Resources/save.svg" Name="SaveButtonImage" Width="30" Height="30" Margin="0,0,15,0"/>
+                <svgc:SvgViewbox Source="Resources/save.svg" Width="30" Height="30" Margin="0,0,15,0"/>
                 <TextBlock Text="Save"/>
             </StackPanel>
         </Button>

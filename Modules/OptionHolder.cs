@@ -2220,13 +2220,13 @@ public static class Options
         CustomRoleCounts.Add(role, countOption);
     }
 
-    public static void SetupAdtRoleOptions(int id, CustomRoles role, CustomGameMode customGameMode = CustomGameMode.Standard, bool canSetNum = false, TabGroup tab = TabGroup.Addons, bool canSetChance = true, bool teamSpawnOptions = false)
+    public static void SetupAdtRoleOptions(int id, CustomRoles role, CustomGameMode customGameMode = CustomGameMode.Standard, bool canSetNum = false, TabGroup tab = TabGroup.Addons, bool canSetChance = true, bool teamSpawnOptions = false, bool allowZeroCount = false)
     {
         var spawnOption = new StringOptionItem(id, role.ToString(), RatesZeroOne, 0, tab).SetColor(Utils.GetRoleColor(role))
             .SetHeader(true)
             .SetGameMode(customGameMode) as StringOptionItem;
 
-        var countOption = new IntegerOptionItem(id + 1, "Maximum", new(1, canSetNum ? 15 : 1, 1), 1, tab)
+        var countOption = new IntegerOptionItem(id + 1, "Maximum", new(allowZeroCount ? 0 : 1, canSetNum ? 15 : 1, 1), 1, tab)
             .SetParent(spawnOption)
             .SetValueFormat(OptionFormat.Players)
             .SetHidden(!canSetNum)

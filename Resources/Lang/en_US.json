@@ -4133,6 +4133,8 @@
   "RR_GlobalTimeMultiplier": "Global Time Multiplier (for adjusting the difficulty)",
   "RR_TimeWhenTwoPlayersEntersRoom": "When the first two players enter the correct room, the time limit is set to",
   "RR_VentTimes": "Times each player can vent",
+  "RR_DisplayRoomName": "Display the Name of the Room to Get to",
+  "RR_DisplayArrowToRoom": "Display an Arrow to the Room to Get to",
   "RR_Tutorial_1": "<#ffab1b><size=80%>Tutorial</size></color>\\nHello! Welcome to Room Rush!\\n",
   "RR_Tutorial_2": "The goal of this gamemode is to get to the room you see under your name as fast as possible.",
   "RR_Tutorial_3": "When the first two players enter the correct room, the time limit is set to a few seconds.",

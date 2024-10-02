@@ -11,7 +11,6 @@ namespace EHR.Crewmate
     {
         private const int Id = 640400;
         private static List<byte> PlayerIdList = [];
-        private static bool Change;
         public static Dictionary<byte, long> SpyRedNameList = [];
 
         private static OptionItem SpyRedNameDur;
@@ -42,14 +41,13 @@ namespace EHR.Crewmate
         {
             PlayerIdList = [];
             SpyRedNameList = [];
-            Change = false;
         }
 
         public override void Add(byte playerId)
         {
+            LastUpdate = TimeStamp;
             PlayerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
-            Change = false;
         }
 
         private static void SendRPC(int operate, byte id = byte.MaxValue, bool changeColor = false)
@@ -84,7 +82,7 @@ namespace EHR.Crewmate
                     return;
                 case 3:
                     SpyRedNameList.Remove(reader.ReadByte());
-                    Change = reader.ReadBoolean();
+                    reader.ReadBoolean();
                     return;
             }
         }
@@ -101,24 +99,24 @@ namespace EHR.Crewmate
             return false;
         }
 
+        private long LastUpdate;
+
         public override void OnFixedUpdate(PlayerControl pc)
         {
             if (pc == null || !pc.Is(CustomRoles.Spy) || SpyRedNameList.Count == 0) return;
 
+            long now = TimeStamp;
+            if (now == LastUpdate) return;
+            LastUpdate = now;
+            
             foreach (var x in SpyRedNameList)
             {
-                if (x.Value + SpyRedNameDur.GetInt() < TimeStamp || !GameStates.IsInTask)
+                if (x.Value + SpyRedNameDur.GetInt() < now || !GameStates.IsInTask)
                 {
                     SpyRedNameList.Remove(x.Key);
-                    Change = true;
                     SendRPC(3, id: x.Key, changeColor: true);
+                    NotifyRoles(SpecifySeer: pc, SpecifyTarget: x.Key.GetPlayer());
                 }
-            }
-
-            if (Change && GameStates.IsInTask)
-            {
-                NotifyRoles(SpecifySeer: pc);
-                Change = false;
             }
         }
     }

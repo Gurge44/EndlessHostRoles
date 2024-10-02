@@ -78,6 +78,7 @@ namespace EHR.Crewmate
             state.RealKiller = (DateTime.Now, target.PlayerId);
             state.SetDead();
             reporter.RpcExileV2();
+            FixedUpdatePatch.LoversSuicide(reporter.PlayerId);
 
             RevivingMode = false;
             ReviveTarget = target.PlayerId;

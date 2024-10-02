@@ -11,6 +11,7 @@ README file in the root directory of this source tree.
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
         mc:Ignorable="d"
         Title="EHR Control Panel" Height="720" Width="1280" FontSize="20" MinHeight="640" MinWidth="1024" WindowStartupLocation="CenterScreen" Background="#1C1C1C">
 
@@ -123,7 +124,7 @@ README file in the root directory of this source tree.
                         <ScaleTransform/>
                     </Button.RenderTransform>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="Resources/add.svg" Name="AddButtonImage" Width="30" Height="30"/>
+                        <svgc:SvgViewbox Source="Resources/add.svg" Width="30" Height="30"/>
                         <TextBlock Text="Create New Play-Set" VerticalAlignment="Center" Margin="10,0,0,0"/>
                     </StackPanel>
                 </Button>
@@ -132,7 +133,7 @@ README file in the root directory of this source tree.
                         <ScaleTransform/>
                     </Button.RenderTransform>
                     <StackPanel Orientation="Horizontal">
-                        <Image Source="Resources/import.svg" Name="ImportButtonImage" Width="30" Height="30"/>
+                        <svgc:SvgViewbox Source="Resources/import.svg" Width="30" Height="30"/>
                         <TextBlock Text="Import Play-Set" VerticalAlignment="Center" Margin="10,0,0,0"/>
                     </StackPanel>
                 </Button>
@@ -144,7 +145,7 @@ README file in the root directory of this source tree.
                 <ScaleTransform/>
             </Button.RenderTransform>
             <StackPanel Orientation="Horizontal">
-                <Image Source="Resources/question.svg" Name="QuestionButtonImage" Width="30" Height="30"/>
+                <svgc:SvgViewbox Source="Resources/question.svg" Width="30" Height="30"/>
                 <TextBlock Text="Quiz Master Questions" VerticalAlignment="Center" Margin="10,0,0,0"/>
             </StackPanel>
         </Button>
@@ -154,7 +155,7 @@ README file in the root directory of this source tree.
                 <ScaleTransform/>
             </Button.RenderTransform>
             <StackPanel Orientation="Horizontal">
-                <Image Source="Resources/search.svg" Name="SearchButtonImage" Width="30" Height="30"/>
+                <svgc:SvgViewbox Source="Resources/search.svg" Width="30" Height="30"/>
                 <TextBlock Text="Role Description Finder" VerticalAlignment="Center" Margin="10,0,0,0"/>
             </StackPanel>
         </Button>
@@ -164,11 +165,9 @@ README file in the root directory of this source tree.
                 <ScaleTransform/>
             </Button.RenderTransform>
             <StackPanel Orientation="Horizontal">
-                <Image Source="Resources/template.svg" Name="TemplateButtonImage" Width="30" Height="30"/>
+                <svgc:SvgViewbox Source="Resources/template.svg" Width="30" Height="30"/>
                 <TextBlock Text="Template Creator" VerticalAlignment="Center" Margin="10,0,0,0"/>
             </StackPanel>
         </Button>
-        
-        <Label Grid.Column="0" Grid.Row="9" Content="Loading SVG Images...." Name="LoadingLabel"></Label>
     </Grid>
 </Window>

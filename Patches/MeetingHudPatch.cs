@@ -192,11 +192,10 @@ static class CheckForEndVotingPatch
                 }
             }
 
-            if (RunRoleCode)
-            {
-                Blackmailer.OnCheckForEndVoting();
-                NiceSwapper.OnCheckForEndVoting();
-            }
+            if (!RunRoleCode) return false;
+
+            Blackmailer.OnCheckForEndVoting();
+            NiceSwapper.OnCheckForEndVoting();
 
             states = [.. statesList];
 
