@@ -1218,12 +1218,13 @@ static class FixedUpdatePatch
             }
         }
 
-        if (Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && (!Altruist.On || !CustomRoles.Altruist.RoleExist() || Main.PlayerStates[id].Role is not Altruist at || at.ReviveStartTS == 0))
+        if (Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && (!Altruist.On || Main.PlayerStates[id].Role is not Altruist at || at.ReviveStartTS == 0))
         {
-            DeadBufferTime.TryAdd(id, 30);
+            var buffer = Options.DeepLowLoad.GetBool() ? 30 : 10;
+            DeadBufferTime.TryAdd(id, buffer);
             DeadBufferTime[id]--;
             if (DeadBufferTime[id] > 0) return;
-            DeadBufferTime[id] = 30;
+            DeadBufferTime[id] = buffer;
         }
 
         if (Options.LowLoadMode.GetBool())
@@ -1261,7 +1262,7 @@ static class FixedUpdatePatch
         if (Options.LowLoadMode.GetBool())
         {
             if (BufferTime[playerId] > 0) lowLoad = true;
-            else BufferTime[playerId] = 10;
+            else BufferTime[playerId] = Options.DeepLowLoad.GetBool() ? 30 : 10;
         }
 
         if (localPlayer)
