@@ -358,6 +358,46 @@ internal class ChangeRoleSettings
             MeetingStates.MeetingCalled = false;
             MeetingStates.FirstMeeting = true;
             GameStates.AlreadyDied = false;
+
+            try
+            {
+                Utils.LongRoleDescriptions.Clear();
+
+                foreach (var seer in Main.AllPlayerControls)
+                {
+                    var longInfo = seer.GetRoleInfo(InfoLong: true).Split("\n\n")[0];
+                    if (longInfo.Contains("):\n")) longInfo = longInfo.Split("):\n")[1];
+                    bool tooLong = false;
+                    bool showLongInfo = Options.ShowLongInfo.GetBool();
+                    if (showLongInfo)
+                    {
+                        if (longInfo.Length > 296)
+                        {
+                            longInfo = longInfo[..296];
+                            longInfo += "...";
+                            tooLong = true;
+                        }
+
+                        for (int i = 50; i < longInfo.Length; i += 50)
+                        {
+                            if (tooLong && i > 296) break;
+                            int index = longInfo.LastIndexOf(' ', i);
+                            if (index != -1) longInfo = longInfo.Insert(index + 1, "\n");
+                        }
+                    }
+
+                    longInfo = $"<#ffffff>{longInfo}</color>";
+
+                    var lines = longInfo.Count(x => x == '\n');
+                    var readTime = 30 + (lines * 5);
+
+                    Utils.LongRoleDescriptions[seer.PlayerId] = (longInfo, readTime, tooLong);
+                }
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
         }
         catch (Exception ex)
         {

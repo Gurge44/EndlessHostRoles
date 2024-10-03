@@ -55,6 +55,8 @@ public static class Utils
     private static long LastNotifyRolesErrorTS = TimeStamp;
 
     public static long GameStartTimeStamp;
+
+    public static readonly Dictionary<byte, (string Text, int Duration, bool Long)> LongRoleDescriptions = [];
     public static long TimeStamp => (long)(DateTime.Now.ToUniversalTime() - TimeStampStartTime).TotalSeconds;
     public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModClient() && !x.IsHost());
     public static int TotalTaskCount => Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
@@ -2064,48 +2066,17 @@ public static class Utils
                         }
                         else
                         {
-                            var longInfo = seer.GetRoleInfo(InfoLong: true).Split("\n\n")[0];
-                            if (longInfo.Contains("):\n")) longInfo = longInfo.Split("):\n")[1];
-                            bool tooLong = false;
-                            bool showLongInfo = Options.ShowLongInfo.GetBool();
-                            if (showLongInfo)
-                            {
-                                if (longInfo.Length > 296)
-                                {
-                                    longInfo = longInfo[..296];
-                                    longInfo += "...";
-                                    tooLong = true;
-                                }
-
-                                for (int i = 50; i < longInfo.Length; i += 50)
-                                {
-                                    if (tooLong && i > 296) break;
-                                    int index = longInfo.LastIndexOf(' ', i);
-                                    if (index != -1) longInfo = longInfo.Insert(index + 1, "\n");
-                                }
-                            }
-
-                            longInfo = $"<#ffffff>{longInfo}</color>";
-
-                            if (showLongInfo)
-                            {
-                                var lines = longInfo.Count(x => x == '\n');
-                                var readTime = 30 + (lines * 5);
-
-                                if (GameStartTimeStamp + readTime <= now)
-                                    showLongInfo = false;
-                            }
-
-                            var mHelp = (!showLongInfo || tooLong) && Options.CurrentGameMode == CustomGameMode.Standard ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
+                            var showLongInfo = LongRoleDescriptions.TryGetValue(seer.PlayerId, out var description) && GameStartTimeStamp + description.Duration > now;
+                            var mHelp = (!showLongInfo || description.Long) && Options.CurrentGameMode == CustomGameMode.Standard ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
 
                             SeerRealName = !Options.ChangeNameToRoleInfo.GetBool()
                                 ? SeerRealName
                                 : seerTeam switch
                                 {
-                                    Team.Impostor when seer.IsMadmate() => $"<size=150%><color=#ff1919>{GetString("YouAreMadmate")}</size></color>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
-                                    Team.Impostor => $"\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
-                                    Team.Crewmate => $"<size=150%><color=#8cffff>{GetString("YouAreCrewmate")}</size></color>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
-                                    Team.Neutral => $"<size=150%><color=#ffab1b>{GetString("YouAreNeutral")}</size></color>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Impostor when seer.IsMadmate() => $"<size=150%><color=#ff1919>{GetString("YouAreMadmate")}</size></color>\n<size=90%>{(showLongInfo ? description.Text : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Impostor => $"\n<size=90%>{(showLongInfo ? description.Text : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Crewmate => $"<size=150%><color=#8cffff>{GetString("YouAreCrewmate")}</size></color>\n<size=90%>{(showLongInfo ? description.Text : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Neutral => $"<size=150%><color=#ffab1b>{GetString("YouAreNeutral")}</size></color>\n<size=90%>{(showLongInfo ? description.Text : seer.GetRoleInfo()) + mHelp}</size>",
                                     _ => SeerRealName
                                 };
                         }

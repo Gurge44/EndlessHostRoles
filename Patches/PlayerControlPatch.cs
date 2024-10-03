@@ -1170,8 +1170,8 @@ static class FixedUpdatePatch
     public static void Postfix(PlayerControl __instance)
     {
         if (__instance == null || __instance.PlayerId == 255) return;
-        
-        if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId)
+
+        if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId && CustomNetObject.AllObjects.Count > 0)
             CustomNetObject.FixedUpdate();
 
         if (__instance.IsAlive())
@@ -1275,11 +1275,11 @@ static class FixedUpdatePatch
             NameNotifyManager.OnFixedUpdate(player);
             TargetArrow.OnFixedUpdate(player);
             LocateArrow.OnFixedUpdate(player);
-            AFKDetector.OnFixedUpdate(player);
 
             if (AmongUsClient.Instance.AmHost)
             {
                 Camouflage.OnFixedUpdate(player);
+                AFKDetector.OnFixedUpdate(player);
             }
 
             if (RPCHandlerPatch.ReportDeadBodyRPCs.Remove(playerId))
@@ -1472,7 +1472,7 @@ static class FixedUpdatePatch
                     RoleText.enabled = false;
                     return;
                 }
-                
+
                 bool shouldSeeTargetAddons = playerId == lpId || new[] { PlayerControl.LocalPlayer, player }.All(x => x.Is(Team.Impostor));
 
                 var RoleTextData = GetRoleText(lpId, playerId, seeTargetBetrayalAddons: shouldSeeTargetAddons);

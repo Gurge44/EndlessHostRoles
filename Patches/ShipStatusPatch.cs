@@ -462,6 +462,7 @@ static class VentilationSystemDeterioratePatch
     public static Dictionary<byte, int> LastClosestVent = [];
     private static readonly Dictionary<byte, bool> LastCanUseVent = [];
     private static readonly Dictionary<byte, int> LastClosestVentForUpdate = [];
+    private static readonly Dictionary<byte, long> LastVentInteractionCheck = [];
 
     public static void Postfix(VentilationSystem __instance)
     {
@@ -606,6 +607,16 @@ static class VentilationSystemDeterioratePatch
     public static void CheckVentInteraction(PlayerControl pc)
     {
         if (!GameStates.IsInTask || ExileController.Instance) return;
+
+        if (!LastVentInteractionCheck.TryGetValue(pc.PlayerId, out long lastCheck))
+        {
+            LastVentInteractionCheck[pc.PlayerId] = Utils.TimeStamp;
+            return;
+        }
+
+        if (Utils.TimeStamp == lastCheck) return;
+        LastVentInteractionCheck[pc.PlayerId] = Utils.TimeStamp;
+
 
         int closestVent = pc.GetClosestVent().Id;
         if (!LastClosestVentForUpdate.TryGetValue(pc.PlayerId, out int lastClosestVent))
