@@ -44,22 +44,27 @@ namespace EHR.Impostor
 
             CheckForEndVotingPatch.RunRoleCode = false;
 
-            var bmState = Main.PlayerStates.FirstOrDefault(x => x.Value.MainRole == CustomRoles.Blackmailer);
-            if (bmState.Value.Role is not Blackmailer { IsEnable: true } bm || bm.BlackmailedPlayerId == byte.MaxValue) return;
-
-            var bmVotedForTemp = MeetingHud.Instance.playerStates.FirstOrDefault(x => x.TargetPlayerId == bmState.Key)?.VotedFor;
-            if (bmVotedForTemp == null) return;
-            var bmVotedFor = (byte)bmVotedForTemp;
-
-            MeetingHud.Instance.playerStates.DoIf(x => x.TargetPlayerId == bm.BlackmailedPlayerId, x =>
+            try
             {
-                x.UnsetVote();
-                if (x.TargetPlayerId.IsHost()) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, bmVotedFor);
-                else MeetingHud.Instance.CastVote(x.TargetPlayerId, bmVotedFor);
-                x.VotedFor = bmVotedFor;
-            });
+                var bmState = Main.PlayerStates.FirstOrDefault(x => x.Value.MainRole == CustomRoles.Blackmailer);
+                if (bmState.Value.Role is not Blackmailer { IsEnable: true } bm || bm.BlackmailedPlayerId == byte.MaxValue) return;
 
-            CheckForEndVotingPatch.RunRoleCode = true;
+                var bmVotedForTemp = MeetingHud.Instance.playerStates.FirstOrDefault(x => x.TargetPlayerId == bmState.Key)?.VotedFor;
+                if (bmVotedForTemp == null) return;
+                var bmVotedFor = (byte)bmVotedForTemp;
+
+                MeetingHud.Instance.playerStates.DoIf(x => x.TargetPlayerId == bm.BlackmailedPlayerId, x =>
+                {
+                    x.UnsetVote();
+                    if (x.TargetPlayerId.IsHost()) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, bmVotedFor);
+                    else MeetingHud.Instance.CastVote(x.TargetPlayerId, bmVotedFor);
+                    x.VotedFor = bmVotedFor;
+                });
+            }
+            finally
+            {
+                CheckForEndVotingPatch.RunRoleCode = true;
+            }
         }
     }
 }

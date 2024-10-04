@@ -192,7 +192,12 @@ static class CheckForEndVotingPatch
                 }
             }
 
-            if (!RunRoleCode) return false;
+            if ((Blackmailer.On || NiceSwapper.On) && !RunRoleCode)
+            {
+                Logger.Warn($"Running role code is disabled, skipping the rest of the process (Blackmailer.On: {Blackmailer.On}, NiceSwapper.On: {NiceSwapper.On}, RunRoleCode: {RunRoleCode})", "Vote");
+                if (shouldSkip) LateTask.New(() => RunRoleCode = true, 0.5f, "Enable RunRoleCode");
+                return false;
+            }
 
             Blackmailer.OnCheckForEndVoting();
             NiceSwapper.OnCheckForEndVoting();
@@ -598,6 +603,8 @@ static class MeetingHudStartPatch
     private static void NotifyRoleSkillOnMeetingStart()
     {
         if (!AmongUsClient.Instance.AmHost) return;
+        
+        CheckForEndVotingPatch.RunRoleCode = true;
 
         List<(string Message, byte TargetID, string Title)> msgToSend = [];
 
