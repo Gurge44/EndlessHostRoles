@@ -530,7 +530,7 @@ public static class Utils
         if (targetSubRoles.Contains(CustomRoles.Bloodlust) && (self || pure || seeTargetBetrayalAddons))
         {
             RoleColor = GetRoleColor(CustomRoles.Bloodlust);
-            RoleText = GetString("Prefix.Bloodlust") + RoleText;
+            RoleText = $"{GetString("Prefix.Bloodlust")} {RoleText}";
         }
 
         return (RoleText, RoleColor);

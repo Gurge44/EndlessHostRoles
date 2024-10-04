@@ -74,6 +74,8 @@ public class Greedier : RoleBase // Also used for Imitator as the NK version of 
         opt.SetVision(HasImpVision);
     }
 
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => !IsImitator || Imitator.CanVent.GetBool();
+
     void SendRPC(byte playerId)
     {
         if (!Utils.DoRPC) return;

@@ -49,6 +49,7 @@ namespace EHR.Impostor
 
         public static void OnVotingEnd(Dictionary<byte, int> voteNum)
         {
+            if (!On) return;
             foreach (Assumer instance in Instances)
             {
                 if (instance.HasAssumed && voteNum.TryGetValue(instance.Assumption.Id, out var num) && num == instance.Assumption.VoteNum)

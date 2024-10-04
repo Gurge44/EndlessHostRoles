@@ -48,6 +48,11 @@ namespace EHR.Crewmate
             hud.KillButton?.OverrideText(Translator.GetString("WitnessButtonText"));
         }
 
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return pc.IsAlive();
+        }
+
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             killer.SetKillCooldown();
