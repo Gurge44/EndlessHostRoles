@@ -31,7 +31,7 @@ public static class GameStartManagerUpdatePatch
     }
 }
 
-public class GameStartManagerPatch
+public static class GameStartManagerPatch
 {
     public static float Timer { get; set; } = 600f;
 
@@ -240,6 +240,12 @@ public class GameStartManagerPatch
                 if (instance.startState == GameStartManager.StartingStates.Countdown)
                 {
                     instance.StartButton.ChangeButtonText(GetString("Cancel"));
+
+                    instance.StartButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new(0.8f, 0f, 0f, 1f);
+                    instance.StartButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.red;
+                    var inactiveShine = instance.StartButton.inactiveSprites.transform.Find("Shine");
+                    if (inactiveShine) inactiveShine.gameObject.SetActive(false);
+                    instance.StartButton.activeTextColor = instance.StartButton.inactiveTextColor = Color.white;
                     int num = Mathf.CeilToInt(instance.countDownTimer);
                     instance.countDownTimer -= Time.deltaTime;
                     int num2 = Mathf.CeilToInt(instance.countDownTimer);
@@ -252,6 +258,11 @@ public class GameStartManagerPatch
                 else
                 {
                     instance.StartButton.ChangeButtonText(DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.StartLabel));
+                    instance.StartButton.inactiveSprites.GetComponent<SpriteRenderer>().color = Color.black;
+                    instance.StartButton.activeSprites.GetComponent<SpriteRenderer>().color = new(0.2f, 0.2f, 0.2f, 1f);
+                    var inactiveShine = instance.StartButton.inactiveSprites.transform.Find("Shine");
+                    if (inactiveShine) inactiveShine.gameObject.SetActive(false);
+                    instance.StartButton.activeTextColor = instance.StartButton.inactiveTextColor = Color.white;
                     instance.GameStartTextParent.SetActive(false);
                     instance.GameStartText.text = string.Empty;
                 }
@@ -305,7 +316,7 @@ public class GameStartManagerPatch
                 __instance.RulesPresetText.text = GetString($"Preset_{OptionItem.CurrentPreset + 1}");
 
                 // Lobby timer
-                if (!AmongUsClient.Instance.AmHost || !GameData.Instance || AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame) return;
+                if (!GameData.Instance || AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame) return;
 
                 Timer = Mathf.Max(0f, Timer -= Time.deltaTime);
                 int minutes = (int)Timer / 60;
