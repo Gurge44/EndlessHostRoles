@@ -2348,7 +2348,7 @@
   "LoadingHint.8": "Você sabia\nHackers geralmente não tem um código de amigo, então você pode facilmente ativar essa proteção nas Configurações!",
   "LoadingHint.9": "<color=#08FA99>Você sabia?</color>\nVocê pode rapidamente mudar as configurações do jogo sem usar o menu de opções usando /changesetting (/cs)!\nExemplo: /cs map polus",
   "LoadingHint.10": "<color=#08FA99>Você sabia?</color>\nVocê provavelmente percebeu uma tag \"EHR\" ao lado do seu nome, você pode customizar ela usando Arquivos de Tradução Personalizados",
-  "LoadingHint.11": "Você sabia que pode obter acesso ao comando /setrole (formalmente /up) só por hospedar salas com mod EHR semanalmente?\nCaso você for elegível, envie seu código de amigo para o desenvolvedor, e é isso!",
+  "LoadingHint.11": "Did you know?\nYou can set your role for the next game using /setrole as the host!",
   "LoadingHint.12": "Confuso sobre sua morte? Não sabe quem te matou?\nUse /death ou /d após morrer!",
   "LoadingHint.13": "Nomes de função bloqueando nomes na reunião?\nUse /xf!",
   "LoadingHint.14": "Cansado de esperar no lobby ou apos morrer rapidamente?\nUse /gno para jogar um jogo simples de Adivinhe o Número para ajudar a passar o tempo!",
