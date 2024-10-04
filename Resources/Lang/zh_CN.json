@@ -2348,7 +2348,7 @@
   "LoadingHint.8": "您知道吗？\n黑客通常没有代码，所以您可以轻松地在设置中启用保护！",
   "LoadingHint.9": "您知道吗？\n您可以快速更改游戏设置，而无需使用 /changesette (/cs)打开菜单！\n示例：/cs map pols",
   "LoadingHint.10": "您知道吗？\n您可以自定义大厅标签！",
-  "LoadingHint.11": "您每周举办 EHR 大厅活动就可以得到执行/setrole（以前称为 /up）的权力！\n如果您符合条件，请将您的好友代码直接发送给开发人员，就是这样！",
+  "LoadingHint.11": "Did you know?\nYou can set your role for the next game using /setrole as the host!",
   "LoadingHint.12": "对自己的死感到困惑吗？不知道是谁杀了你？\n死后使用 /death 或 /d查询原因!",
   "LoadingHint.13": "想要修复职业名称遮挡了玩家名称的问题?\n使用/xf !",
   "LoadingHint.14": "厌倦了等待或英年早逝？\n使用 /gno 玩一个简单的 Guess The Number 小游戏来消磨时间！",
