@@ -2348,7 +2348,7 @@
   "LoadingHint.8": "¿Sabías que?\nLos hackers usualmente no tienen un código de amigo, ¡así que puedes activar fácilmente la protección en Configuraciones del Sistema!",
   "LoadingHint.9": "Did you know?\nYou can quickly change game settings without opening the menu using /changesetting (/cs)!\nExample: /cs map polus",
   "LoadingHint.10": "Did you know?\nYou can customize your lobby tag using custom translation files!",
-  "LoadingHint.11": "You can get access to the /setrole (formerly /up) command by just hosting EHR lobbies weekly?\nIf you're eligible, DM your friend code to the developer and that's it!",
+  "LoadingHint.11": "Did you know?\nYou can set your role for the next game using /setrole as the host!",
   "LoadingHint.12": "Confused about your death? Don't know who killed you?\nUse /death or /d after you die!",
   "LoadingHint.13": "Role text covering up names in meetings?\nUse /xf!",
   "LoadingHint.14": "Bored of waiting in lobby or after dying early?\nUse /gno to play a simple Guess The Number minigame to speed up time!",
