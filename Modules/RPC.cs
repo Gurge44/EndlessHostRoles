@@ -1042,7 +1042,7 @@ internal static class RPC
 
         var amountAllOptions = OptionItem.AllOptions.Count;
 
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, 80, SendOption.Reliable, targetId);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncCustomSettings, SendOption.Reliable, targetId);
         writer.Write(startAmount);
         writer.Write(lastAmount);
 
@@ -1058,7 +1058,7 @@ internal static class RPC
         Logger.Msg($"StartAmount: {startAmount} - LastAmount: {lastAmount} ({startAmount}/{lastAmount}) :--: ListOptionsCount: {countListOptions} - AllOptions: {amountAllOptions} ({countListOptions}/{amountAllOptions})", "SyncCustomSettings");
 
         // Sync Settings
-        foreach (var option in listOptions.ToArray())
+        foreach (var option in listOptions)
         {
             writer.WritePacked(option.GetValue());
         }
