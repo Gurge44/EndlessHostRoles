@@ -31,6 +31,11 @@ namespace EHR.Impostor
             opt.SetVision(true);
         }
 
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return pc.IsAlive();
+        }
+
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
             return !killer.Is(CustomRoleTypes.Impostor);

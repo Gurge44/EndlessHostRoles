@@ -887,6 +887,13 @@ static class IntroCutsceneDestroyPatch
 
             LateTask.New(() => Utils.NotifyRoles(NoCache: true), 3f, log: false);
         }
+        else
+        {
+            foreach (var player in Main.AllPlayerControls)
+            {
+                Main.PlayerStates[player.PlayerId].InitTask(player);
+            }
+        }
 
         Logger.Info("OnDestroy", "IntroCutscene");
     }
