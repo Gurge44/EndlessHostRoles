@@ -257,13 +257,12 @@ static class ExtendedPlayerControl
         if (seer == null || player == null) return;
 
         var clientId = seer.GetClientId();
+        if (clientId == -1) return;
 
-        var sender = CustomRpcSender.Create(name: "SetNamePrivate");
-        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, clientId)
-            .Write(seer.Data.NetId)
-            .Write(name)
-            .EndRpc();
-        sender.SendMessage();
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetName, SendOption.Reliable, clientId);
+        writer.Write(seer.Data.NetId);
+        writer.Write(name);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
     public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId)

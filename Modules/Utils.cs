@@ -22,6 +22,7 @@ using Hazel;
 using Il2CppInterop.Runtime.InteropTypes;
 using InnerNet;
 using Newtonsoft.Json;
+using TMPro;
 using UnityEngine;
 using static EHR.Translator;
 
@@ -55,6 +56,8 @@ public static class Utils
     private static long LastNotifyRolesErrorTS = TimeStamp;
 
     public static long GameStartTimeStamp;
+
+    public static readonly Dictionary<byte, (string Text, int Duration, bool Long)> LongRoleDescriptions = [];
     public static long TimeStamp => (long)(DateTime.Now.ToUniversalTime() - TimeStampStartTime).TotalSeconds;
     public static bool DoRPC => AmongUsClient.Instance.AmHost && Main.AllPlayerControls.Any(x => x.IsModClient() && !x.IsHost());
     public static int TotalTaskCount => Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumLongTasks) + Main.RealOptionsData.GetInt(Int32OptionNames.NumShortTasks);
@@ -2064,48 +2067,17 @@ public static class Utils
                         }
                         else
                         {
-                            var longInfo = seer.GetRoleInfo(InfoLong: true).Split("\n\n")[0];
-                            if (longInfo.Contains("):\n")) longInfo = longInfo.Split("):\n")[1];
-                            bool tooLong = false;
-                            bool showLongInfo = Options.ShowLongInfo.GetBool();
-                            if (showLongInfo)
-                            {
-                                if (longInfo.Length > 296)
-                                {
-                                    longInfo = longInfo[..296];
-                                    longInfo += "...";
-                                    tooLong = true;
-                                }
-
-                                for (int i = 50; i < longInfo.Length; i += 50)
-                                {
-                                    if (tooLong && i > 296) break;
-                                    int index = longInfo.LastIndexOf(' ', i);
-                                    if (index != -1) longInfo = longInfo.Insert(index + 1, "\n");
-                                }
-                            }
-
-                            longInfo = $"<#ffffff>{longInfo}</color>";
-
-                            if (showLongInfo)
-                            {
-                                var lines = longInfo.Count(x => x == '\n');
-                                var readTime = 30 + (lines * 5);
-
-                                if (GameStartTimeStamp + readTime <= now)
-                                    showLongInfo = false;
-                            }
-
-                            var mHelp = (!showLongInfo || tooLong) && Options.CurrentGameMode == CustomGameMode.Standard ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
+                            var showLongInfo = LongRoleDescriptions.TryGetValue(seer.PlayerId, out var description) && GameStartTimeStamp + description.Duration > now;
+                            var mHelp = (!showLongInfo || description.Long) && Options.CurrentGameMode == CustomGameMode.Standard ? "\n" + GetString("MyRoleCommandHelp") : string.Empty;
 
                             SeerRealName = !Options.ChangeNameToRoleInfo.GetBool()
                                 ? SeerRealName
                                 : seerTeam switch
                                 {
-                                    Team.Impostor when seer.IsMadmate() => $"<size=150%><color=#ff1919>{GetString("YouAreMadmate")}</size></color>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
-                                    Team.Impostor => $"\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
-                                    Team.Crewmate => $"<size=150%><color=#8cffff>{GetString("YouAreCrewmate")}</size></color>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
-                                    Team.Neutral => $"<size=150%><color=#ffab1b>{GetString("YouAreNeutral")}</size></color>\n<size=90%>{(showLongInfo ? longInfo : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Impostor when seer.IsMadmate() => $"<size=150%><color=#ff1919>{GetString("YouAreMadmate")}</size></color>\n<size=90%>{(showLongInfo ? description.Text : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Impostor => $"\n<size=90%>{(showLongInfo ? description.Text : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Crewmate => $"<size=150%><color=#8cffff>{GetString("YouAreCrewmate")}</size></color>\n<size=90%>{(showLongInfo ? description.Text : seer.GetRoleInfo()) + mHelp}</size>",
+                                    Team.Neutral => $"<size=150%><color=#ffab1b>{GetString("YouAreNeutral")}</size></color>\n<size=90%>{(showLongInfo ? description.Text : seer.GetRoleInfo()) + mHelp}</size>",
                                     _ => SeerRealName
                                 };
                         }
@@ -2934,6 +2906,44 @@ public static class Utils
         }
 
         return (draw, all);
+    }
+
+    // Will be used for displaying achievement completions later
+    /// <summary>
+    /// Displays a chat bubble with a message and a title during the round for the local player.
+    /// </summary>
+    /// <param name="message">The message to display in the chat bubble.</param>
+    /// <param name="title">The title of the chat bubble.</param>
+    public static void ShowChatBubbleInRound(string message, string title)
+    {
+        var chat = DestroyableSingleton<HudManager>.Instance.Chat;
+        var data = PlayerControl.LocalPlayer.Data;
+        var bubble = chat.GetPooledBubble();
+        try
+        {
+            bubble.transform.SetParent(chat.scroller.Inner);
+            bubble.transform.localScale = Vector3.one;
+            bubble.SetCosmetics(data);
+            bubble.gameObject.transform.Find("PoolablePlayer").gameObject.SetActive(false);
+            bubble.ColorBlindName.gameObject.SetActive(false);
+            bubble.SetLeft();
+            bubble.gameObject.transform.Find("NameText (TMP)").transform.localPosition += new Vector3(-0.7f, 0f);
+            bubble.gameObject.transform.Find("ChatText (TMP)").transform.localPosition += new Vector3(-0.7f, 0f);
+            chat.SetChatBubbleName(bubble, data, data.IsDead, false, PlayerNameColor.Get(data));
+            bubble.SetText(message);
+            bubble.AlignChildren();
+            chat.AlignAllBubbles();
+            bubble.NameText.text = title;
+            bubble.transform.Find("ChatText (TMP)").GetComponent<TextMeshPro>().color = new(1f, 1f, 1f, 1f);
+            bubble.transform.Find("Background").GetComponent<SpriteRenderer>().color = new(0.05f, 0.05f, 0.05f, 1f);
+            var xMark = bubble.transform.Find("PoolablePlayer/xMark");
+            if (xMark && xMark.GetComponent<SpriteRenderer>().enabled) bubble.transform.Find("Background").GetComponent<SpriteRenderer>().color = new(0.05f, 0.05f, 0.05f, 0.5f);
+        }
+        catch (Exception e)
+        {
+            chat.chatBubblePool.Reclaim(bubble);
+            ThrowException(e);
+        }
     }
 
     public static string SummaryTexts(byte id, bool disableColor = true, bool check = false)

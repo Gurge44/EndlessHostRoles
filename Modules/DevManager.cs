@@ -108,6 +108,7 @@ public static class DevManager
             new(code: "pocketdoor#9080", color: "null", tag: "null", isUp: true, deBug: false), // Imnot
             new(code: "motorstack#2287", color: "#E34234", tag: "Foxfire", isUp: true, deBug: false), // Esrazraft
             new(code: "motorlace#4741", color: "#DFB722", tag: "\u2756 Assistant Tester \u2756", isUp: true, deBug: false), // PEPPERcula
+            new(code: "keyrunning#8720", color: "#00ffff", tag: "Miku", isUp: true, deBug: false), // EverMortal_1455
 
             // Sponsor
             new(code: "recentduct#6068", color: "#FF00FF", tag: "高冷男模法师", isUp: false, deBug: true),
