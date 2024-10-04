@@ -64,7 +64,8 @@ namespace EHR
                 [(SystemTypes.Storage, SystemTypes.Office)] = 2,
                 [(SystemTypes.Security, SystemTypes.LifeSupp)] = 2,
                 [(SystemTypes.Security, SystemTypes.Comms)] = 2,
-                [(SystemTypes.Security, SystemTypes.Electrical)] = 2
+                [(SystemTypes.Security, SystemTypes.Electrical)] = 2,
+                [(SystemTypes.Comms, SystemTypes.Electrical)] = 2
             },
             [MapNames.Airship] = new()
             {
@@ -260,13 +261,13 @@ namespace EHR
                 case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
                     time += (int)(8 / speed);
                     break;
-                case MapNames.Polus when RoomGoal == SystemTypes.Laboratory || (previous == SystemTypes.Laboratory && RoomGoal is not SystemTypes.Office and not SystemTypes.Storage):
-                    time -= (int)(7 * speed);
+                case MapNames.Polus when (RoomGoal == SystemTypes.Laboratory && previous is not SystemTypes.Storage and not SystemTypes.Specimens) || (previous == SystemTypes.Laboratory && RoomGoal is not SystemTypes.Office and not SystemTypes.Storage and not SystemTypes.Electrical):
+                    time -= (int)(5 * speed);
                     break;
             }
 
-            TimeLeft = (int)Math.Round(time * GlobalTimeMultiplier.GetFloat());
-            Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())}, to: {Translator.GetString(RoomGoal.ToString())} - Time: {TimeLeft}", "RoomRush");
+            TimeLeft = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 4);
+            Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())}, to: {Translator.GetString(RoomGoal.ToString())} - Time: {TimeLeft}  ({Main.CurrentMap})", "RoomRush");
             Main.AllPlayerControls.Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
             if (DisplayArrowToRoom.GetBool()) Main.AllAlivePlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
             Utils.NotifyRoles();

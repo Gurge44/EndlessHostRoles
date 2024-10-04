@@ -512,7 +512,7 @@ internal static class StartGameHostPatch
 
                         if (kp.Value.IsCrewmate())
                         {
-                            if (!bloodlustBanned && !kp.Value.IsTasklessCrewmate()) bloodlustList.Add(player.PlayerId);
+                            if (!bloodlustBanned && !kp.Value.IsTaskBasedCrewmate()) bloodlustList.Add(player.PlayerId);
                             if (!nimbleBanned) nimbleList.Add(player.PlayerId);
                             if (kp.Value.GetRoleTypes() == RoleTypes.Crewmate)
                             {
