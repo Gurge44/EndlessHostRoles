@@ -189,7 +189,7 @@ public static class Utils
             case SystemTypes.Electrical:
             {
                 if (mapId == 5) return false; // if The Fungle return false
-                var SwitchSystem = systemType.Cast<SwitchSystem>();
+                var SwitchSystem = systemType.TryCast<SwitchSystem>();
                 return SwitchSystem is { IsActive: true };
             }
             case SystemTypes.Reactor:
@@ -201,12 +201,12 @@ public static class Utils
                     // Only Airhip
                     case 4:
                     {
-                        var HeliSabotageSystem = systemType.Cast<HeliSabotageSystem>();
+                        var HeliSabotageSystem = systemType.TryCast<HeliSabotageSystem>();
                         return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
                     }
                     default:
                     {
-                        var ReactorSystemType = systemType.Cast<ReactorSystemType>();
+                        var ReactorSystemType = systemType.TryCast<ReactorSystemType>();
                         return ReactorSystemType is { IsActive: true };
                     }
                 }
@@ -214,36 +214,36 @@ public static class Utils
             case SystemTypes.Laboratory:
             {
                 if (mapId != 2) return false; // Only Polus
-                var ReactorSystemType = systemType.Cast<ReactorSystemType>();
+                var ReactorSystemType = systemType.TryCast<ReactorSystemType>();
                 return ReactorSystemType is { IsActive: true };
             }
             case SystemTypes.LifeSupp:
             {
                 if (mapId is 2 or 4 or 5) return false; // Only Skeld & Mira HQ
-                var LifeSuppSystemType = systemType.Cast<LifeSuppSystemType>();
+                var LifeSuppSystemType = systemType.TryCast<LifeSuppSystemType>();
                 return LifeSuppSystemType is { IsActive: true };
             }
             case SystemTypes.Comms:
             {
                 if (mapId is 1 or 5) // Only Mira HQ & The Fungle
                 {
-                    var HqHudSystemType = systemType.Cast<HqHudSystemType>();
+                    var HqHudSystemType = systemType.TryCast<HqHudSystemType>();
                     return HqHudSystemType is { IsActive: true };
                 }
 
-                var HudOverrideSystemType = systemType.Cast<HudOverrideSystemType>();
+                var HudOverrideSystemType = systemType.TryCast<HudOverrideSystemType>();
                 return HudOverrideSystemType is { IsActive: true };
             }
             case SystemTypes.HeliSabotage:
             {
                 if (mapId != 4) return false; // Only Airhip
-                var HeliSabotageSystem = systemType.Cast<HeliSabotageSystem>();
+                var HeliSabotageSystem = systemType.TryCast<HeliSabotageSystem>();
                 return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
             }
             case SystemTypes.MushroomMixupSabotage:
             {
                 if (mapId != 5) return false; // Only The Fungle
-                var MushroomMixupSabotageSystem = systemType.Cast<MushroomMixupSabotageSystem>();
+                var MushroomMixupSabotageSystem = systemType.TryCast<MushroomMixupSabotageSystem>();
                 return MushroomMixupSabotageSystem != null && MushroomMixupSabotageSystem.IsActive;
             }
             default:
@@ -1667,7 +1667,21 @@ public static class Utils
 
     public static void SendMessage(string text, byte sendTo = byte.MaxValue, string title = "", bool noSplit = false)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            if (sendTo == PlayerControl.LocalPlayer.PlayerId)
+            {
+                var w = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestSendMessage);
+                w.Write(text);
+                w.Write(sendTo);
+                w.Write(title);
+                w.Write(noSplit);
+                w.EndMessage();
+            }
+
+            return;
+        }
+
         if (title == "") title = "<color=#8b32a8>" + GetString("DefaultSystemMessageTitle") + "</color>";
         if (title.Count(x => x == '\u2605') == 2 && !title.Contains('\n'))
         {

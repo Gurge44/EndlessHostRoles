@@ -204,7 +204,7 @@ internal class MoveAndStopManager
     private static int DefaultMaxValue => 30;
 
     public static string HUDText => string.Format(GetString("KBTimeRemain"), RoundTime.ToString());
-    private static int StartingGreenTime(PlayerControl pc) => (MapNames)Main.NormalOptions.MapId == MapNames.Airship ? Tutorial && !HasPlayed.Contains(pc.FriendCode) ? 60 : 40 : Tutorial && !HasPlayed.Contains(pc.FriendCode) ? 50 : 30;
+    private static int StartingGreenTime(PlayerControl pc) => (MapNames)Main.NormalOptions.MapId == MapNames.Airship ? Tutorial && !HasPlayed.Contains(pc.FriendCode) ? 70 : 50 : Tutorial && !HasPlayed.Contains(pc.FriendCode) ? 60 : 40;
 
     public static int RandomRedTime(char direction) => direction switch
     {
