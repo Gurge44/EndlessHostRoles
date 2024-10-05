@@ -565,6 +565,7 @@
   "TrapperInfo": "Ваш убийца будет заморожен на несколько секунд",
   "OnboundInfo": "Вас нельзя угадать",
   "AsthmaticInfo": "Тише едешь - дальше будешь",
+  "KnightedInfo": "You have an extra vote (from the Monarch)",
   "MagnetInfo": "Ваши жертвы телепортируются к вам",
   "SleuthInfo": "Вы знаете роли тех, кого зарепортили",
   "AntiTPInfo": "Вас нельзя телепортировать",
