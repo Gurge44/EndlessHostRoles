@@ -266,7 +266,7 @@ internal static class CustomRolesHelper
             CustomRoles.BallLightning => CustomRoles.Impostor,
             CustomRoles.Greedier => CustomRoles.Impostor,
             CustomRoles.Workaholic => CustomRoles.Engineer,
-            CustomRoles.Amnesiac => Amnesiac.RoleBasis.GetValue() == 0 ? CustomRoles.Engineer : CustomRoles.Crewmate,
+            CustomRoles.Amnesiac => Amnesiac.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Speedrunner => CustomRoles.Crewmate,
             CustomRoles.CursedWolf => CustomRoles.Impostor,
             CustomRoles.Collector => CustomRoles.Crewmate,
