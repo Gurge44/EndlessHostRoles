@@ -1902,11 +1902,10 @@ public static class Utils
 
     public static void DoNotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
     {
-        PlayerControl[] seerList = SpecifySeer != null ? [SpecifySeer] : Main.AllPlayerControls;
-        PlayerControl[] targetList = SpecifyTarget != null ? [SpecifyTarget] : Main.AllPlayerControls;
+        var apc = Main.AllPlayerControls;
 
-        StringBuilder seerLogInfo = new();
-        StringBuilder targetLogInfo = new();
+        PlayerControl[] seerList = SpecifySeer != null ? [SpecifySeer] : apc;
+        PlayerControl[] targetList = SpecifyTarget != null ? [SpecifyTarget] : apc;
 
         var now = TimeStamp;
 
@@ -1917,8 +1916,6 @@ public static class Utils
             try
             {
                 if (seer == null || seer.Data.Disconnected || (seer.IsModClient() && (seer.IsHost() || Options.CurrentGameMode == CustomGameMode.Standard))) continue;
-
-                seerLogInfo.Append($"{seer.GetRealName()}, ");
 
                 // During intro scene, set team name for non-modded clients and skip the rest.
                 string SelfName;
@@ -2154,8 +2151,6 @@ public static class Utils
                     foreach (PlayerControl target in targetList)
                     {
                         if (target.PlayerId == seer.PlayerId) continue;
-
-                        targetLogInfo.Append($"{target.GetRealName()}, ");
 
                         if (target.Is(CustomRoles.Car))
                         {
@@ -2415,8 +2410,8 @@ public static class Utils
 
         if (Options.CurrentGameMode != CustomGameMode.Standard) return;
 
-        string seers = seerLogInfo.ToString().TrimEnd(',', ' ');
-        string targets = targetLogInfo.ToString().TrimEnd(',', ' ');
+        string seers = seerList.Length == apc.Length ? "Everyone" : string.Join(", ", seerList.Select(x => x.GetRealName()));
+        string targets = targetList.Length == apc.Length ? "Everyone" : string.Join(", ", targetList.Select(x => x.GetRealName()));
         if (seers.Length == 0) seers = "\u2205";
         if (targets.Length == 0) targets = "\u2205";
         Logger.Info($" Seers: {seers} ---- Targets: {targets}", "NR");

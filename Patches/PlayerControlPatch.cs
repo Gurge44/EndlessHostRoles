@@ -1951,11 +1951,10 @@ static class CoEnterVentPatch
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.FFA when FFAManager.FFADisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Length <= 2:
-                var pc = __instance.myPlayer;
                 LateTask.New(() =>
                 {
-                    pc?.Notify(GetString("FFA-NoVentingBecauseTwoPlayers"), 7f);
-                    pc?.MyPhysics?.RpcBootFromVent(id);
+                    __instance.myPlayer?.Notify(GetString("FFA-NoVentingBecauseTwoPlayers"), 7f);
+                    __instance.RpcBootFromVent(id);
                 }, 0.5f, "FFA-NoVentingWhenTwoPlayersAlive");
                 return true;
             case CustomGameMode.FFA when FFAManager.FFADisableVentingWhenKcdIsUp.GetBool() && Main.KillTimers[__instance.myPlayer.PlayerId] <= 0:
@@ -1975,6 +1974,8 @@ static class CoEnterVentPatch
             case CustomGameMode.HideAndSeek:
                 HnSManager.OnCoEnterVent(__instance, id);
                 break;
+            case CustomGameMode.RoomRush:
+                return true;
         }
 
         if (__instance.myPlayer.IsRoleBlocked())

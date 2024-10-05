@@ -136,7 +136,7 @@ namespace EHR
             DisplayRoomName = new BooleanOptionItem(id++, "RR_DisplayRoomName", true, TabGroup.GameSettings)
                 .SetColor(color)
                 .SetGameMode(gameMode);
-            
+
             DisplayArrowToRoom = new BooleanOptionItem(id, "RR_DisplayArrowToRoom", false, TabGroup.GameSettings)
                 .SetColor(color)
                 .SetGameMode(gameMode);
@@ -373,6 +373,11 @@ namespace EHR
         public override void OnExitVent(PlayerControl pc, Vent vent)
         {
             RoomRush.VentLimit[pc.PlayerId]--;
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return !pc.IsHost() && CanUseVent(pc, 0);
         }
 
         public override bool CanUseVent(PlayerControl pc, int ventId) => RoomRush.GameGoing && (pc.inVent || RoomRush.VentLimit[pc.PlayerId] > 0);

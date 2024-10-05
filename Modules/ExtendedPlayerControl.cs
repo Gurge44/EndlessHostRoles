@@ -67,7 +67,7 @@ static class ExtendedPlayerControl
 
     public static bool CanUseVent(this PlayerControl player, int ventId)
     {
-        return GameStates.IsInTask && (player.inVent || (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId)));
+        return GameStates.IsInTask && ((player.inVent && !player.GetCustomRole().BlocksVentMovement()) || (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId)));
     }
 
     // Next 3: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs
@@ -1481,7 +1481,7 @@ static class ExtendedPlayerControl
     public static RoleTypes GetRoleTypes(this PlayerControl pc) => pc.GetCustomSubRoles() switch
     {
         { } x when x.Contains(CustomRoles.Bloodlust) => RoleTypes.Impostor,
-        { } x when x.Contains(CustomRoles.Nimble) => RoleTypes.Engineer,
+        { } x when x.Contains(CustomRoles.Nimble) && !pc.HasDesyncRole() => RoleTypes.Engineer,
         { } x when x.Contains(CustomRoles.Physicist) => RoleTypes.Scientist,
         { } x when x.Contains(CustomRoles.Finder) => RoleTypes.Tracker,
         { } x when x.Contains(CustomRoles.Noisy) => RoleTypes.Noisemaker,
