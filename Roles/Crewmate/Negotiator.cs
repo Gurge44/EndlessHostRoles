@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.Modules;
 
 namespace EHR.Crewmate
 {
@@ -10,11 +11,12 @@ namespace EHR.Crewmate
         public static bool On;
         private static List<Negotiator> Instances = [];
 
+        private static OptionItem MinVotingTimeLeftToNegotiate;
         private static OptionItem LowVision;
         private static OptionItem LowSpeed;
         private static OptionItem AbilityUseLimit;
-        public static OptionItem AbilityUseGainWithEachTaskCompleted;
-        public static OptionItem AbilityChargesWhenFinishedTasks;
+        private static OptionItem AbilityUseGainWithEachTaskCompleted;
+        private static OptionItem AbilityChargesWhenFinishedTasks;
         private byte NegotiatorId;
         private NegotiationType Penalty;
         private Dictionary<byte, HashSet<NegotiationType>> PermanentPenalties;
@@ -25,6 +27,7 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             StartSetup(647950)
+                .AutoSetupOption(ref MinVotingTimeLeftToNegotiate, 10, new IntegerValueRule(0, 30, 1), OptionFormat.Seconds)
                 .AutoSetupOption(ref LowVision, 0.4f, new FloatValueRule(0f, 1f, 0.05f), OptionFormat.Multiplier)
                 .AutoSetupOption(ref LowSpeed, 0.9f, new FloatValueRule(0.1f, 2f, 0.1f), OptionFormat.Multiplier)
                 .AutoSetupOption(ref AbilityUseLimit, 0, new IntegerValueRule(0, 20, 1), OptionFormat.Times)
@@ -85,7 +88,7 @@ namespace EHR.Crewmate
                 switch (Penalty)
                 {
                     case NegotiationType.Suicide:
-                        target.Suicide(PlayerState.DeathReason.Negotiation, negotiator);
+                        LateTask.New(() => target.Suicide(PlayerState.DeathReason.Negotiation, negotiator), 1f, log: false);
                         break;
                     case NegotiationType.HarmfulAddon:
                         var addon = Options.GroupedAddons[AddonTypes.Harmful].Shuffle().FirstOrDefault(x => CustomRolesHelper.CheckAddonConflict(x, target));
@@ -104,7 +107,7 @@ namespace EHR.Crewmate
 
         public override bool OnVote(PlayerControl voter, PlayerControl target)
         {
-            if (target == null || voter == null || voter.PlayerId == target.PlayerId || TargetId != byte.MaxValue || voter.GetAbilityUseLimit() < 1f || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
+            if (target == null || voter == null || voter.PlayerId == target.PlayerId || TargetId != byte.MaxValue || voter.GetAbilityUseLimit() < 1f || MinVotingTimeLeftToNegotiate.GetInt() > MeetingTimeManager.VotingTimeLeft || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
 
             TargetId = target.PlayerId;
             Penalty = NegotiationType.Suicide;

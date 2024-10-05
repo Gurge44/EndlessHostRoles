@@ -756,6 +756,7 @@ internal static class CustomRolesHelper
 
     public static bool IsTaskBasedCrewmate(this CustomRoles role) => role is
         CustomRoles.Snitch or
+        CustomRoles.Speedrunner or
         CustomRoles.Marshall or
         CustomRoles.TimeManager or
         CustomRoles.Ignitor or
@@ -774,6 +775,17 @@ internal static class CustomRolesHelper
         CustomRoles.Glitch or
         CustomRoles.Pickpocket or
         CustomRoles.TicketsStealer;
+
+    public static bool IsNotAssignableMidGame(this CustomRoles role) => role is
+        CustomRoles.Egoist or
+        CustomRoles.Workhorse or
+        CustomRoles.Cleansed or
+        CustomRoles.Busy or
+        CustomRoles.Lovers or
+        CustomRoles.Stressed or
+        CustomRoles.Lazy or
+        CustomRoles.Rascal or
+        CustomRoles.LastImpostor;
 
     public static bool ForceCancelShapeshift(this CustomRoles role) => role is
         CustomRoles.Echo or

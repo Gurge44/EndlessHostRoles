@@ -1840,7 +1840,7 @@ public static class Utils
 
     public static float GetSettingNameAndValueForRole(CustomRoles role, string settingName)
     {
-        const BindingFlags flags = BindingFlags.Public | BindingFlags.Static;
+        const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
         var types = Assembly.GetExecutingAssembly().GetTypes();
         var field = types.SelectMany(x => x.GetFields(flags)).FirstOrDefault(x => x.Name == $"{role}{settingName}");
         if (field == null)

@@ -1306,14 +1306,18 @@ static class FixedUpdatePatch
                     LevelKickBufferTime = 20;
                     if (player.GetClient().ProductUserId != "")
                     {
-                        if (!BanManager.TempBanWhiteList.Contains(player.GetClient().GetHashedPuid()))
-                            BanManager.TempBanWhiteList.Add(player.GetClient().GetHashedPuid());
+                        var hashedPuid = player.GetClient().GetHashedPuid();
+                        if (!BanManager.TempBanWhiteList.Contains(hashedPuid))
+                            BanManager.TempBanWhiteList.Add(hashedPuid);
                     }
 
-                    string msg = string.Format(GetString("KickBecauseLowLevel"), player.GetRealName().RemoveHtmlTags());
-                    Logger.SendInGame(msg);
-                    AmongUsClient.Instance.KickPlayer(player.GetClientId(), true);
-                    Logger.Info(msg, "Low Level Temp Ban");
+                    if (!Main.AllPlayerControls.All(x => x.Data.PlayerLevel <= 1))
+                    {
+                        string msg = string.Format(GetString("KickBecauseLowLevel"), player.GetRealName().RemoveHtmlTags());
+                        Logger.SendInGame(msg);
+                        AmongUsClient.Instance.KickPlayer(player.GetClientId(), true);
+                        Logger.Info(msg, "Low Level Temp Ban");
+                    }
                 }
             }
 
