@@ -257,9 +257,15 @@ static class RPCHandlerPatch
                     string tag = reader.ReadString();
                     string forkId = reader.ReadString();
 
-                    if (!Main.PlayerVersion.ContainsKey(__instance.PlayerId))
+                    try
                     {
-                        RPC.RpcVersionCheck();
+                        if (!Main.PlayerVersion.ContainsKey(__instance.PlayerId))
+                        {
+                            RPC.RpcVersionCheck();
+                        }
+                    }
+                    catch
+                    {
                     }
 
                     Main.PlayerVersion[__instance.PlayerId] = new(version, tag, forkId);
@@ -280,9 +286,11 @@ static class RPCHandlerPatch
                     }
                     // Kick Unmached Player End
                 }
-                catch
+                catch (Exception e)
                 {
                     Logger.Warn($"{__instance?.Data?.PlayerName}({__instance?.PlayerId}): error during version check", "RpcVersionCheck");
+                    Utils.ThrowException(e);
+                    if (GameStates.InGame || AmongUsClient.Instance.IsGameStarted) break;
                     LateTask.New(() =>
                     {
                         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, __instance.GetClientId());

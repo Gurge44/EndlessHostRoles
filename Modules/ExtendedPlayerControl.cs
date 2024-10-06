@@ -74,7 +74,7 @@ static class ExtendedPlayerControl
     public static Vent GetClosestVent(this PlayerControl player)
     {
         var pos = player.Pos();
-        return ShipStatus.Instance.AllVents.Where(x => x != null).MinBy(x => Vector2.Distance(pos, x.transform.position));
+        return ShipStatus.Instance?.AllVents?.Where(x => x != null).MinBy(x => Vector2.Distance(pos, x.transform.position));
     }
 
     public static List<Vent> GetVentsFromClosest(this PlayerControl player)
@@ -262,6 +262,23 @@ static class ExtendedPlayerControl
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetName, SendOption.Reliable, clientId);
         writer.Write(seer.Data.NetId);
         writer.Write(name);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+
+    // By TommyXL
+    public static void RpcSetPetDesync(this PlayerControl player, string petId, PlayerControl seer)
+    {
+        var clientId = seer.GetClientId();
+        if (clientId == -1) return;
+        if (AmongUsClient.Instance.ClientId == clientId)
+        {
+            player.SetPet(petId);
+            return;
+        }
+
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetPetStr, SendOption.Reliable, clientId);
+        writer.Write(petId);
+        writer.Write(player.GetNextRpcSequenceId(RpcCalls.SetPetStr));
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -1364,7 +1381,7 @@ static class ExtendedPlayerControl
     public static void NoCheckStartMeeting(this PlayerControl reporter, NetworkedPlayerInfo target, bool force = false)
     {
         if (Options.DisableMeeting.GetBool() && !force) return;
-        ReportDeadBodyPatch.AfterReportTasks(reporter, target);
+        ReportDeadBodyPatch.AfterReportTasks(reporter, target, true);
         MeetingRoomManager.Instance.AssignSelf(reporter, target);
         DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
         reporter.RpcStartMeeting(target);

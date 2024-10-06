@@ -60,7 +60,10 @@ class Command(string[] commandForms, string arguments, string description, Comma
 
     public bool CanUseCommand(PlayerControl pc, bool checkTime = true)
     {
-        if (UsageLevel == UsageLevels.Everyone && UsageTime == UsageTimes.Always) return true;
+        if (UsageLevel == UsageLevels.Everyone && UsageTime == UsageTimes.Always && !Lovers.PrivateChat.GetBool()) return true;
+
+        if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.Exists(x => x.PlayerId == pc.PlayerId) && GameStates.IsInTask && pc.IsAlive())
+            return false;
 
         switch (UsageLevel)
         {
@@ -1218,7 +1221,7 @@ internal static class ChatCommands
             Utils.SendMessage($"{GetString("InvalidArguments")}", player.PlayerId);
             return;
         }
-        
+
         if (resultId != 0 && !player.FriendCode.GetDevUser().IsUp)
         {
             Utils.SendMessage($"{GetString("Message.NoPermissionSetRoleOthers")}", player.PlayerId);

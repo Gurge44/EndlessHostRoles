@@ -1000,7 +1000,7 @@ static class ReportDeadBodyPatch
         return true;
     }
 
-    public static void AfterReportTasks(PlayerControl player, NetworkedPlayerInfo target)
+    public static void AfterReportTasks(PlayerControl player, NetworkedPlayerInfo target, bool force = false)
     {
         //====================================================================================
         //    Hereinafter, it is assumed that it is confirmed that the button is pressed.
@@ -1135,7 +1135,7 @@ static class ReportDeadBodyPatch
                 pc.FixMixedUpOutfit();
             }
 
-            PhantomRolePatch.OnReportBody(pc);
+            PhantomRolePatch.OnReportDeadBody(pc, force);
         }
 
         MeetingTimeManager.OnReportDeadBody();
@@ -1311,7 +1311,7 @@ static class FixedUpdatePatch
                             BanManager.TempBanWhiteList.Add(hashedPuid);
                     }
 
-                    if (!Main.AllPlayerControls.All(x => x.Data.PlayerLevel <= 1))
+                    if (!Main.AllPlayerControls.All(x => x.Data.PlayerLevel <= 1) && !LobbyPatch.IsGlitchedRoomCode())
                     {
                         string msg = string.Format(GetString("KickBecauseLowLevel"), player.GetRealName().RemoveHtmlTags());
                         Logger.SendInGame(msg);

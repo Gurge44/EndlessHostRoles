@@ -5,6 +5,7 @@ using AmongUs.GameOptions;
 using EHR.Impostor;
 using EHR.Neutral;
 using HarmonyLib;
+using Hazel;
 using UnityEngine;
 
 namespace EHR.Patches;
@@ -70,7 +71,17 @@ static class ExternalRpcPetPatch
             && !Pelican.IsEaten(pc.PlayerId)
             && GameStates.IsInTask
             && pc.GetCustomRole().PetActivatedAbility())
-            physics.CancelPet();
+        {
+            CancelPet();
+            LateTask.New(CancelPet, 0.4f, log: false);
+
+            void CancelPet()
+            {
+                physics.CancelPet();
+                var w = AmongUsClient.Instance.StartRpcImmediately(physics.NetId, (byte)RpcCalls.CancelPet, SendOption.None);
+                AmongUsClient.Instance.FinishRpcImmediately(w);
+            }
+        }
 
         if (!LastProcess.ContainsKey(pc.PlayerId)) LastProcess.TryAdd(pc.PlayerId, Utils.TimeStamp - 2);
         if (LastProcess[pc.PlayerId] + 1 >= Utils.TimeStamp) return;

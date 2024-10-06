@@ -35,7 +35,7 @@ internal class ControllerManagerUpdatePatch
 
             if (KeysDown(KeyCode.Return) && GameSettingMenu.Instance != null && GameSettingMenu.Instance.isActiveAndEnabled)
             {
-                GameSettingMenuPatch._SearchForOptions?.Invoke();
+                GameSettingMenuPatch.SearchForOptionsAction?.Invoke();
             }
         }
 
@@ -119,7 +119,7 @@ internal class ControllerManagerUpdatePatch
             GameStartManager.Instance.countDownTimer = 0;
         }
 
-        if (Input.GetKeyDown(KeyCode.C) && GameStates.IsCountDown)
+        if (Input.GetKeyDown(KeyCode.C) && GameStates.IsCountDown && GameStates.IsLobby)
         {
             GameStartManager.Instance.ResetStartState();
             Logger.SendInGame(GetString("CancelStartCountDown"));
@@ -169,7 +169,7 @@ internal class ControllerManagerUpdatePatch
             Logger.IsAlsoInGame = !Logger.IsAlsoInGame;
             Logger.SendInGame($"In-game output log：{Logger.IsAlsoInGame}");
         }
-        
+
         if (!Options.NoGameEnd.GetBool()) return;
 
 #if RELEASE
@@ -381,7 +381,7 @@ public static class InGameRoleInfoMenu
         sb.Append("<size=90%>");
         sb.Append(player.GetRoleInfo(true).TrimStart());
         if (Options.CustomRoleSpawnChances.TryGetValue(role, out var opt))
-            Utils.ShowChildrenSettings(opt, ref settings, disableColor: false);
+            Utils.ShowChildrenSettings(opt, ref settings, f1: true, disableColor: false);
         settings.Append("</size>");
         if (settings.Length > 0) addons.Append($"{settings}\n\n");
         if (role.PetActivatedAbility()) sb.Append($"<size=80%>{GetString("SupportsPetMessage")}</size>");

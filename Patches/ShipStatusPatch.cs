@@ -479,8 +479,9 @@ static class VentilationSystemDeterioratePatch
                         ++players;
                 }
 
-                if (pc.GetClosestVent().Id == LastClosestVent[pc.PlayerId] && players >= 3) continue;
-                LastClosestVent[pc.PlayerId] = pc.GetClosestVent().Id;
+                int closestVentId = pc.GetClosestVent().Id;
+                if (closestVentId == LastClosestVent[pc.PlayerId] && players >= 3) continue;
+                LastClosestVent[pc.PlayerId] = closestVentId;
                 MessageWriter writer = MessageWriter.Get();
                 writer.StartMessage(6);
                 writer.Write(AmongUsClient.Instance.GameId);
@@ -606,7 +607,7 @@ static class VentilationSystemDeterioratePatch
 
     public static void CheckVentInteraction(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || ExileController.Instance) return;
+        if (!GameStates.IsInTask || ExileController.Instance || !ShipStatus.Instance) return;
 
         const int bufferTimeWait = 10;
 
