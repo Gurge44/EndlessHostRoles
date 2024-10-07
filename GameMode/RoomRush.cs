@@ -41,7 +41,11 @@ namespace EHR
                 [(SystemTypes.Admin, SystemTypes.Shields)] = 3,
                 [(SystemTypes.Admin, SystemTypes.LifeSupp)] = 4,
                 [(SystemTypes.Electrical, SystemTypes.MedBay)] = 3,
-                [(SystemTypes.Electrical, SystemTypes.Security)] = 3
+                [(SystemTypes.Electrical, SystemTypes.Security)] = 3,
+                [(SystemTypes.MedBay, SystemTypes.Security)] = 3,
+                [(SystemTypes.Admin, SystemTypes.Security)] = 2,
+                [(SystemTypes.Storage, SystemTypes.Security)] = 2,
+                [(SystemTypes.Storage, SystemTypes.MedBay)] = 2
             },
             [MapNames.Mira] = new()
             {
@@ -62,6 +66,7 @@ namespace EHR
                 [(SystemTypes.Laboratory, SystemTypes.Admin)] = 2,
                 [(SystemTypes.Storage, SystemTypes.Comms)] = 2,
                 [(SystemTypes.Storage, SystemTypes.Office)] = 2,
+                [(SystemTypes.Storage, SystemTypes.Admin)] = 2,
                 [(SystemTypes.Security, SystemTypes.LifeSupp)] = 2,
                 [(SystemTypes.Security, SystemTypes.Comms)] = 2,
                 [(SystemTypes.Security, SystemTypes.Electrical)] = 2,
