@@ -7,7 +7,7 @@ using UnityEngine;
 namespace EHR.Patches;
 
 [HarmonyPatch(typeof(TextBoxTMP), nameof(TextBoxTMP.SetText))]
-class TextBoxTMPSetTextPatch
+static class TextBoxTMPSetTextPatch
 {
     private static TextMeshPro PlaceHolderText;
     private static TextMeshPro CommandInfoText;
@@ -17,77 +17,78 @@ class TextBoxTMPSetTextPatch
     // The only characters to treat specially are \r, \n and \b, allow all other characters to be written
     public static bool Prefix(TextBoxTMP __instance, [HarmonyArgument(0)] string input, [HarmonyArgument(1)] string inputCompo = "")
     {
-        bool flag = false;
-        char ch = ' ';
-        __instance.AdjustCaretPosition(input.Length - __instance.text.Length);
-        __instance.tempTxt.Clear();
-
-        foreach (char c in input)
-        {
-            char upperInvariant = c;
-            if (ch == ' ' && upperInvariant == ' ')
-            {
-                __instance.AdjustCaretPosition(-1);
-            }
-            else
-            {
-                switch (upperInvariant)
-                {
-                    case '\r':
-                    case '\n':
-                        flag = true;
-                        break;
-                    case '\b':
-                        __instance.tempTxt.Length = Math.Max(__instance.tempTxt.Length - 1, 0);
-                        __instance.AdjustCaretPosition(-2);
-                        break;
-                }
-
-                if (__instance.ForceUppercase) upperInvariant = char.ToUpperInvariant(upperInvariant);
-                if (upperInvariant is not '\r' and not '\n' and not '\b')
-                {
-                    __instance.tempTxt.Append(upperInvariant);
-                    ch = upperInvariant;
-                }
-            }
-        }
-
-        if (!__instance.tempTxt.ToString().Equals(DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.EnterName), StringComparison.OrdinalIgnoreCase) && __instance.characterLimit > 0)
-        {
-            int length = __instance.tempTxt.Length;
-            __instance.tempTxt.Length = Math.Min(__instance.tempTxt.Length, __instance.characterLimit);
-            __instance.AdjustCaretPosition(-(length - __instance.tempTxt.Length));
-        }
-
-        input = __instance.tempTxt.ToString();
-        if (!input.Equals(__instance.text) || !inputCompo.Equals(__instance.compoText))
-        {
-            __instance.text = input;
-            __instance.compoText = inputCompo;
-            string str = __instance.text;
-            string compoText = __instance.compoText;
-
-            if (__instance.Hidden)
-            {
-                str = "";
-                for (int index = 0; index < __instance.text.Length; ++index)
-                    str += "*";
-            }
-
-            __instance.outputText.text = str + compoText;
-            __instance.outputText.ForceMeshUpdate(true, true);
-            if (__instance.keyboard != null) __instance.keyboard.text = __instance.text;
-            __instance.OnChange.Invoke();
-        }
-
-        if (flag) __instance.OnEnter.Invoke();
-
         try
         {
+            bool flag = false;
+            char ch = ' ';
+            __instance.AdjustCaretPosition(input.Length - __instance.text.Length);
+            __instance.tempTxt.Clear();
+
+            foreach (char c in input)
+            {
+                char upperInvariant = c;
+                if (ch == ' ' && upperInvariant == ' ')
+                {
+                    __instance.AdjustCaretPosition(-1);
+                }
+                else
+                {
+                    switch (upperInvariant)
+                    {
+                        case '\r':
+                        case '\n':
+                            flag = true;
+                            break;
+                        case '\b':
+                            __instance.tempTxt.Length = Math.Max(__instance.tempTxt.Length - 1, 0);
+                            __instance.AdjustCaretPosition(-2);
+                            break;
+                    }
+
+                    if (__instance.ForceUppercase) upperInvariant = char.ToUpperInvariant(upperInvariant);
+                    if (upperInvariant is not '\r' and not '\n' and not '\b')
+                    {
+                        __instance.tempTxt.Append(upperInvariant);
+                        ch = upperInvariant;
+                    }
+                }
+            }
+
+            if (!__instance.tempTxt.ToString().Equals(DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.EnterName), StringComparison.OrdinalIgnoreCase) && __instance.characterLimit > 0)
+            {
+                int length = __instance.tempTxt.Length;
+                __instance.tempTxt.Length = Math.Min(__instance.tempTxt.Length, __instance.characterLimit);
+                __instance.AdjustCaretPosition(-(length - __instance.tempTxt.Length));
+            }
+
+            input = __instance.tempTxt.ToString();
+            if (!input.Equals(__instance.text) || !inputCompo.Equals(__instance.compoText))
+            {
+                __instance.text = input;
+                __instance.compoText = inputCompo;
+                string str = __instance.text;
+                string compoText = __instance.compoText;
+
+                if (__instance.Hidden)
+                {
+                    str = "";
+                    for (int index = 0; index < __instance.text.Length; ++index)
+                        str += "*";
+                }
+
+                __instance.outputText.text = str + compoText;
+                __instance.outputText.ForceMeshUpdate(true, true);
+                if (__instance.keyboard != null) __instance.keyboard.text = __instance.text;
+                __instance.OnChange.Invoke();
+            }
+
+            if (flag) __instance.OnEnter.Invoke();
+
             __instance.SetPipePosition();
         }
-        catch
+        catch (Exception e)
         {
+            Utils.ThrowException(e);
         }
 
         return false;
@@ -249,6 +250,9 @@ class TextBoxTMPSetTextPatch
 
             PlaceHolderText.text = text;
             CommandInfoText.text = info;
+
+            PlaceHolderText.enabled = true;
+            CommandInfoText.enabled = true;
         }
         catch
         {
@@ -261,14 +265,12 @@ class TextBoxTMPSetTextPatch
         {
             if (PlaceHolderText != null)
             {
-                Object.Destroy(PlaceHolderText);
-                PlaceHolderText = null;
+                PlaceHolderText.enabled = false;
             }
 
             if (CommandInfoText != null)
             {
-                Object.Destroy(CommandInfoText);
-                CommandInfoText = null;
+                CommandInfoText.enabled = false;
             }
         }
     }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using EHR;
@@ -93,6 +92,7 @@ namespace EHR
             }
             catch (Exception e)
             {
+                if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters) return;
                 Utils.ThrowException(e);
             }
         }

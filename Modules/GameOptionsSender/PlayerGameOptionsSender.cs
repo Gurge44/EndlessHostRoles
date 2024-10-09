@@ -174,6 +174,10 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     SetMaxVision();
                     NaturalDisasters.ApplyGameOptions(opt, player.PlayerId);
                     break;
+                case CustomGameMode.RoomRush when RoomRush.VentLimit[player.PlayerId] > 0:
+                    AURoleOptions.EngineerCooldown = 0.01f;
+                    AURoleOptions.EngineerInVentMaxTime = 0f;
+                    goto case CustomGameMode.RoomRush;
                 case CustomGameMode.RoomRush:
                 case CustomGameMode.Speedrun:
                 case CustomGameMode.HotPotato:
@@ -192,8 +196,6 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
                     AURoleOptions.GuardianAngelCooldown = Spiritcaller.SpiritAbilityCooldown.GetFloat();
                     break;
                 case CustomRoleTypes.Neutral:
-                    AURoleOptions.GuardianAngelCooldown = Spiritcaller.SpiritAbilityCooldown.GetFloat();
-                    break;
                 case CustomRoleTypes.Crewmate:
                     AURoleOptions.GuardianAngelCooldown = Spiritcaller.SpiritAbilityCooldown.GetFloat();
                     break;

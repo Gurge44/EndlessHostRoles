@@ -24,7 +24,7 @@ public static class ModGameOptionsMenu
 [HarmonyPatch(typeof(GameOptionsMenu))]
 public static class GameOptionsMenuPatch
 {
-    public static GameOptionsMenu Instance;
+    private static GameOptionsMenu Instance;
 
     [HarmonyPatch(nameof(GameOptionsMenu.Initialize)), HarmonyPrefix]
     private static bool InitializePrefix(GameOptionsMenu __instance)
@@ -47,7 +47,26 @@ public static class GameOptionsMenuPatch
     [HarmonyPatch(nameof(GameOptionsMenu.Initialize)), HarmonyPostfix]
     private static void InitializePostfix()
     {
-        GameObject.Find("PlayerOptionsMenu(Clone)")?.transform.FindChild("Background")?.gameObject.SetActive(false);
+        var optionMenu = GameObject.Find("PlayerOptionsMenu(Clone)");
+        optionMenu?.transform.FindChild("Background")?.gameObject.SetActive(false);
+
+        // By TommyXL
+        LateTask.New(() =>
+        {
+            var menuDescription = optionMenu?.transform.FindChild("What Is This?");
+            if (menuDescription == null) return;
+            var infoImage = menuDescription.transform.FindChild("InfoImage");
+            infoImage.transform.localPosition = new(-4.65f, 0.16f, -1f);
+            infoImage.transform.localScale = new(0.2202f, 0.2202f, 0.3202f);
+            var infoText = menuDescription.transform.FindChild("InfoText");
+            infoText.transform.localPosition = new(-3.5f, 0.83f, -2f);
+            infoText.transform.localScale = new(1f, 1f, 1f);
+            var cubeObject = menuDescription.transform.FindChild("Cube");
+            cubeObject.transform.localPosition = new(-3.2f, 0.55f, -0.1f);
+            cubeObject.transform.localScale = new(0.61f, 0.64f, 1f);
+            var menuDescriptionText = GameSettingMenu.Instance.MenuDescriptionText;
+            menuDescriptionText.m_marginWidth = 2.5f;
+        }, 0.1f, log: false);
     }
 
     [HarmonyPatch(nameof(GameOptionsMenu.CreateSettings)), HarmonyPrefix]
@@ -654,7 +673,7 @@ public static class StringOptionPatch
                         infoLong = str;
                     }
 
-                    var info = $"<size=70%>{value.ToColoredString()}: {infoLong}</size>";
+                    var info = $"{value.ToColoredString()}: {infoLong}";
                     GameSettingMenu.Instance.MenuDescriptionText.text = info;
                 }
             }
@@ -790,7 +809,7 @@ public class GameSettingMenuPatch
 
     public static FreeChatInputField InputField;
     private static System.Collections.Generic.List<OptionItem> HiddenBySearch = [];
-    public static Action _SearchForOptions;
+    public static Action SearchForOptionsAction;
 
     [HarmonyPatch(nameof(GameSettingMenu.Start)), HarmonyPrefix]
     [HarmonyPriority(Priority.First)]
@@ -1011,7 +1030,7 @@ public class GameSettingMenuPatch
         passiveButton.OnClick = new();
         passiveButton.OnClick.AddListener((Action)(() => SearchForOptions(field)));
 
-        _SearchForOptions = (() =>
+        SearchForOptionsAction = (() =>
         {
             if (field.textArea.text != string.Empty)
                 SearchForOptions(field);

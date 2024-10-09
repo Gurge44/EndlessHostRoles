@@ -41,7 +41,11 @@ namespace EHR
                 [(SystemTypes.Admin, SystemTypes.Shields)] = 3,
                 [(SystemTypes.Admin, SystemTypes.LifeSupp)] = 4,
                 [(SystemTypes.Electrical, SystemTypes.MedBay)] = 3,
-                [(SystemTypes.Electrical, SystemTypes.Security)] = 3
+                [(SystemTypes.Electrical, SystemTypes.Security)] = 3,
+                [(SystemTypes.MedBay, SystemTypes.Security)] = 3,
+                [(SystemTypes.Admin, SystemTypes.Security)] = 2,
+                [(SystemTypes.Storage, SystemTypes.Security)] = 2,
+                [(SystemTypes.Storage, SystemTypes.MedBay)] = 2
             },
             [MapNames.Mira] = new()
             {
@@ -62,6 +66,7 @@ namespace EHR
                 [(SystemTypes.Laboratory, SystemTypes.Admin)] = 2,
                 [(SystemTypes.Storage, SystemTypes.Comms)] = 2,
                 [(SystemTypes.Storage, SystemTypes.Office)] = 2,
+                [(SystemTypes.Storage, SystemTypes.Admin)] = 2,
                 [(SystemTypes.Security, SystemTypes.LifeSupp)] = 2,
                 [(SystemTypes.Security, SystemTypes.Comms)] = 2,
                 [(SystemTypes.Security, SystemTypes.Electrical)] = 2,
@@ -136,7 +141,7 @@ namespace EHR
             DisplayRoomName = new BooleanOptionItem(id++, "RR_DisplayRoomName", true, TabGroup.GameSettings)
                 .SetColor(color)
                 .SetGameMode(gameMode);
-            
+
             DisplayArrowToRoom = new BooleanOptionItem(id, "RR_DisplayArrowToRoom", false, TabGroup.GameSettings)
                 .SetColor(color)
                 .SetGameMode(gameMode);
@@ -373,6 +378,11 @@ namespace EHR
         public override void OnExitVent(PlayerControl pc, Vent vent)
         {
             RoomRush.VentLimit[pc.PlayerId]--;
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return !pc.IsHost() && CanUseVent(pc, 0);
         }
 
         public override bool CanUseVent(PlayerControl pc, int ventId) => RoomRush.GameGoing && (pc.inVent || RoomRush.VentLimit[pc.PlayerId] > 0);

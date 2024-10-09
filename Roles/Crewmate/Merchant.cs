@@ -75,7 +75,8 @@ namespace EHR.Crewmate
 
             if (OptionSellOnlyEnabledAddons.GetBool()) Addons.RemoveAll(x => x.GetMode() == 0);
 
-            Addons.RemoveAll(x => x is CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust or CustomRoles.Finder or CustomRoles.Noisy);
+            Addons.RemoveAll(StartGameHostPatch.BasisChangingAddons.ContainsKey);
+            Addons.RemoveAll(x => x.IsNotAssignableMidGame());
         }
 
         public override void Add(byte playerId)
@@ -101,33 +102,33 @@ namespace EHR.Crewmate
 
             CustomRoles addon = Addons.RandomElement();
 
-            var AllAlivePlayer =
+            var availableTargets =
                 Main.AllAlivePlayerControls.Where(x =>
                     x.PlayerId != player.PlayerId
                     && !Pelican.IsEaten(x.PlayerId)
                     && !x.Is(addon)
-                    && !CustomRolesHelper.CheckAddonConflict(addon, x)
+                    && CustomRolesHelper.CheckAddonConflict(addon, x)
                     && (Cleanser.CleansedCanGetAddon.GetBool() || (!Cleanser.CleansedCanGetAddon.GetBool() && !x.Is(CustomRoles.Cleansed)))
                     && ((OptionCanTargetCrew.GetBool() && x.IsCrewmate()) ||
                         (OptionCanTargetImpostor.GetBool() && x.GetCustomRole().IsImpostor()) ||
                         (OptionCanTargetNeutral.GetBool() && (x.GetCustomRole().IsNeutral() || x.IsNeutralKiller())))
                 ).ToList();
 
-            if (AllAlivePlayer.Count <= 0) return;
+            if (availableTargets.Count <= 0) return;
 
             bool helpfulAddon = GroupedAddons.TryGetValue(AddonTypes.Helpful, out var helpful) && helpful.Contains(addon);
             bool harmfulAddon = GroupedAddons.TryGetValue(AddonTypes.Harmful, out var harmful) && harmful.Contains(addon);
 
-            if (helpfulAddon && OptionSellOnlyHarmfulToEvil.GetBool()) AllAlivePlayer.RemoveAll(x => !x.Is(Team.Crewmate));
-            if (harmfulAddon && OptionSellOnlyHelpfulToCrew.GetBool()) AllAlivePlayer.RemoveAll(x => x.Is(Team.Crewmate));
+            if (helpfulAddon && OptionSellOnlyHarmfulToEvil.GetBool()) availableTargets.RemoveAll(x => !x.Is(Team.Crewmate));
+            if (harmfulAddon && OptionSellOnlyHelpfulToCrew.GetBool()) availableTargets.RemoveAll(x => x.Is(Team.Crewmate));
 
-            if (AllAlivePlayer.Count == 0)
+            if (availableTargets.Count == 0)
             {
                 player.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Merchant), GetString("MerchantAddonSellFail")));
                 return;
             }
 
-            PlayerControl target = AllAlivePlayer.RandomElement();
+            PlayerControl target = availableTargets.RandomElement();
 
             target.RpcSetCustomRole(addon);
             target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Merchant), GetString("MerchantAddonSell")));

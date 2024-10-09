@@ -100,7 +100,7 @@ internal static class CustomRolesHelper
             CustomRoles.SabotageMaster => CustomRoles.Engineer,
             CustomRoles.Mafia => Options.LegacyMafia.GetBool() ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
             CustomRoles.Terrorist => CustomRoles.Engineer,
-            CustomRoles.Executioner => Executioner.CRoleChangeRoles[Executioner.ChangeRolesAfterTargetKilled.GetValue()].GetVNRole(checkDesyncRole: true),
+            CustomRoles.Executioner => CustomRoles.Crewmate,
             CustomRoles.Lawyer => CustomRoles.Crewmate,
             CustomRoles.NiceSwapper => CustomRoles.Crewmate,
             CustomRoles.Ignitor => CustomRoles.Crewmate,
@@ -379,7 +379,6 @@ internal static class CustomRolesHelper
             // Natural Disasters
             CustomRoles.NDPlayer => RoleTypes.Crewmate,
             // Standard
-            CustomRoles.Executioner => Executioner.CRoleChangeRoles[Executioner.ChangeRolesAfterTargetKilled.GetValue()].GetDYRole(),
             CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Crusader => UsePets && Crusader.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.CopyCat => UsePets && CopyCat.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
@@ -756,6 +755,7 @@ internal static class CustomRolesHelper
 
     public static bool IsTaskBasedCrewmate(this CustomRoles role) => role is
         CustomRoles.Snitch or
+        CustomRoles.Speedrunner or
         CustomRoles.Marshall or
         CustomRoles.TimeManager or
         CustomRoles.Ignitor or
@@ -774,6 +774,17 @@ internal static class CustomRolesHelper
         CustomRoles.Glitch or
         CustomRoles.Pickpocket or
         CustomRoles.TicketsStealer;
+
+    public static bool IsNotAssignableMidGame(this CustomRoles role) => role is
+        CustomRoles.Egoist or
+        CustomRoles.Workhorse or
+        CustomRoles.Cleansed or
+        CustomRoles.Busy or
+        CustomRoles.Lovers or
+        CustomRoles.Stressed or
+        CustomRoles.Lazy or
+        CustomRoles.Rascal or
+        CustomRoles.LastImpostor;
 
     public static bool ForceCancelShapeshift(this CustomRoles role) => role is
         CustomRoles.Echo or
@@ -820,6 +831,12 @@ internal static class CustomRolesHelper
         CustomRoles.Chemist or
         CustomRoles.Simon or
         CustomRoles.Patroller;
+
+    public static bool BlocksVentMovement(this CustomRoles role) => role switch
+    {
+        CustomRoles.Jester => Jester.BlockVentMovement.GetBool(),
+        _ => false
+    };
 
     public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc) => role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out var bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out var o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && (!role.IsImpOnlyAddon() || pc.IsImpostor()) && role switch
     {

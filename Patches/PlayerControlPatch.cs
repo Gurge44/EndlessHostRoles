@@ -1000,7 +1000,7 @@ static class ReportDeadBodyPatch
         return true;
     }
 
-    public static void AfterReportTasks(PlayerControl player, NetworkedPlayerInfo target)
+    public static void AfterReportTasks(PlayerControl player, NetworkedPlayerInfo target, bool force = false)
     {
         //====================================================================================
         //    Hereinafter, it is assumed that it is confirmed that the button is pressed.
@@ -1135,7 +1135,7 @@ static class ReportDeadBodyPatch
                 pc.FixMixedUpOutfit();
             }
 
-            PhantomRolePatch.OnReportBody(pc);
+            PhantomRolePatch.OnReportDeadBody(pc, force);
         }
 
         MeetingTimeManager.OnReportDeadBody();
@@ -1306,14 +1306,18 @@ static class FixedUpdatePatch
                     LevelKickBufferTime = 20;
                     if (player.GetClient().ProductUserId != "")
                     {
-                        if (!BanManager.TempBanWhiteList.Contains(player.GetClient().GetHashedPuid()))
-                            BanManager.TempBanWhiteList.Add(player.GetClient().GetHashedPuid());
+                        var hashedPuid = player.GetClient().GetHashedPuid();
+                        if (!BanManager.TempBanWhiteList.Contains(hashedPuid))
+                            BanManager.TempBanWhiteList.Add(hashedPuid);
                     }
 
-                    string msg = string.Format(GetString("KickBecauseLowLevel"), player.GetRealName().RemoveHtmlTags());
-                    Logger.SendInGame(msg);
-                    AmongUsClient.Instance.KickPlayer(player.GetClientId(), true);
-                    Logger.Info(msg, "Low Level Temp Ban");
+                    if (!Main.AllPlayerControls.All(x => x.Data.PlayerLevel <= 1) && !LobbyPatch.IsGlitchedRoomCode())
+                    {
+                        string msg = string.Format(GetString("KickBecauseLowLevel"), player.GetRealName().RemoveHtmlTags());
+                        Logger.SendInGame(msg);
+                        AmongUsClient.Instance.KickPlayer(player.GetClientId(), true);
+                        Logger.Info(msg, "Low Level Temp Ban");
+                    }
                 }
             }
 
@@ -1947,11 +1951,10 @@ static class CoEnterVentPatch
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.FFA when FFAManager.FFADisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Length <= 2:
-                var pc = __instance.myPlayer;
                 LateTask.New(() =>
                 {
-                    pc?.Notify(GetString("FFA-NoVentingBecauseTwoPlayers"), 7f);
-                    pc?.MyPhysics?.RpcBootFromVent(id);
+                    __instance.myPlayer?.Notify(GetString("FFA-NoVentingBecauseTwoPlayers"), 7f);
+                    __instance.RpcBootFromVent(id);
                 }, 0.5f, "FFA-NoVentingWhenTwoPlayersAlive");
                 return true;
             case CustomGameMode.FFA when FFAManager.FFADisableVentingWhenKcdIsUp.GetBool() && Main.KillTimers[__instance.myPlayer.PlayerId] <= 0:
@@ -1971,6 +1974,8 @@ static class CoEnterVentPatch
             case CustomGameMode.HideAndSeek:
                 HnSManager.OnCoEnterVent(__instance, id);
                 break;
+            case CustomGameMode.RoomRush:
+                return true;
         }
 
         if (__instance.myPlayer.IsRoleBlocked())

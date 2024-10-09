@@ -140,6 +140,17 @@ static class HudManagerPatch
 
                 OverriddenRolesText.enabled = OverriddenRolesText.text != string.Empty;
             }
+            else if (GameStates.IsLobby)
+            {
+                new ActionButton[]
+                {
+                    __instance.ReportButton,
+                    __instance.KillButton,
+                    __instance.AbilityButton,
+                    __instance.ImpostorVentButton,
+                    __instance.SabotageButton
+                }.Do(x => x?.Hide());
+            }
 
             // The following will not be executed unless the game is in progress
             if (!AmongUsClient.Instance.IsGameStarted) return;
@@ -285,7 +296,7 @@ static class HudManagerPatch
                     __instance.ImpostorVentButton?.ToggleVisible((player.CanUseImpostorVentButton() || (player.inVent && player.GetRoleTypes() != RoleTypes.Engineer)) && GameStates.IsInTask);
                     player.Data.Role.CanVent = player.CanUseVent();
 
-                    if (usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer)
+                    if ((usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer) || player.Is(CustomRoles.GM))
                         __instance.AbilityButton.SetEnabled();
                 }
                 else
@@ -764,7 +775,7 @@ static class TaskPanelBehaviourPatch
 
                     AllText += "</size>";
                     break;
-                
+
                 case CustomGameMode.RoomRush:
 
                     AllText += Main.AllPlayerControls

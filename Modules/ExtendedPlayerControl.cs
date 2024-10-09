@@ -67,14 +67,14 @@ static class ExtendedPlayerControl
 
     public static bool CanUseVent(this PlayerControl player, int ventId)
     {
-        return GameStates.IsInTask && (player.inVent || (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId)));
+        return GameStates.IsInTask && ((player.inVent && !player.GetCustomRole().BlocksVentMovement()) || (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId)));
     }
 
     // Next 3: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs
     public static Vent GetClosestVent(this PlayerControl player)
     {
         var pos = player.Pos();
-        return ShipStatus.Instance.AllVents.Where(x => x != null).MinBy(x => Vector2.Distance(pos, x.transform.position));
+        return ShipStatus.Instance?.AllVents?.Where(x => x != null).MinBy(x => Vector2.Distance(pos, x.transform.position));
     }
 
     public static List<Vent> GetVentsFromClosest(this PlayerControl player)
@@ -262,6 +262,23 @@ static class ExtendedPlayerControl
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetName, SendOption.Reliable, clientId);
         writer.Write(seer.Data.NetId);
         writer.Write(name);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+
+    // By TommyXL
+    public static void RpcSetPetDesync(this PlayerControl player, string petId, PlayerControl seer)
+    {
+        var clientId = seer.GetClientId();
+        if (clientId == -1) return;
+        if (AmongUsClient.Instance.ClientId == clientId)
+        {
+            player.SetPet(petId);
+            return;
+        }
+
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetPetStr, SendOption.Reliable, clientId);
+        writer.Write(petId);
+        writer.Write(player.GetNextRpcSequenceId(RpcCalls.SetPetStr));
         AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
@@ -1364,7 +1381,7 @@ static class ExtendedPlayerControl
     public static void NoCheckStartMeeting(this PlayerControl reporter, NetworkedPlayerInfo target, bool force = false)
     {
         if (Options.DisableMeeting.GetBool() && !force) return;
-        ReportDeadBodyPatch.AfterReportTasks(reporter, target);
+        ReportDeadBodyPatch.AfterReportTasks(reporter, target, true);
         MeetingRoomManager.Instance.AssignSelf(reporter, target);
         DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
         reporter.RpcStartMeeting(target);
@@ -1481,7 +1498,7 @@ static class ExtendedPlayerControl
     public static RoleTypes GetRoleTypes(this PlayerControl pc) => pc.GetCustomSubRoles() switch
     {
         { } x when x.Contains(CustomRoles.Bloodlust) => RoleTypes.Impostor,
-        { } x when x.Contains(CustomRoles.Nimble) => RoleTypes.Engineer,
+        { } x when x.Contains(CustomRoles.Nimble) && !pc.HasDesyncRole() => RoleTypes.Engineer,
         { } x when x.Contains(CustomRoles.Physicist) => RoleTypes.Scientist,
         { } x when x.Contains(CustomRoles.Finder) => RoleTypes.Tracker,
         { } x when x.Contains(CustomRoles.Noisy) => RoleTypes.Noisemaker,

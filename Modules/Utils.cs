@@ -17,6 +17,7 @@ using EHR.Crewmate;
 using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
+using EHR.Patches;
 using HarmonyLib;
 using Hazel;
 using Il2CppInterop.Runtime.InteropTypes;
@@ -917,6 +918,7 @@ public static class Utils
 
     public static bool IsRoleTextEnabled(PlayerControl __instance)
     {
+        if (PlayerControl.LocalPlayer.Is(CustomRoles.GM) && (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId || Options.CurrentGameMode == CustomGameMode.Standard)) return true;
         if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush) return false;
         if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun || (Options.CurrentGameMode == CustomGameMode.HideAndSeek && HnSManager.IsRoleTextEnabled(PlayerControl.LocalPlayer, __instance)) || Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool() || PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) return true;
         if (CustomRoles.Altruist.RoleExist() && Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId)) return false;
@@ -1303,16 +1305,10 @@ public static class Utils
         SendMessage(addonsb.Append("\n.").ToString(), PlayerId, GetString("AddonRoles"));
     }
 
-    public static void ShowChildrenSettings(OptionItem option, ref StringBuilder sb, int deep = 0, bool command = false, bool disableColor = true)
+    public static void ShowChildrenSettings(OptionItem option, ref StringBuilder sb, int deep = 0, bool f1 = false, bool disableColor = true)
     {
         foreach (var opt in option.Children.Select((v, i) => new { Value = v, Index = i + 1 }))
         {
-            if (command)
-            {
-                sb.Append("\n\n");
-                command = false;
-            }
-
             switch (opt.Value.Name)
             {
                 case "DisableSkeldDevices" when Main.CurrentMap is not MapNames.Skeld and not MapNames.Dleks:
@@ -1321,7 +1317,7 @@ public static class Utils
                 case "DisableAirshipDevices" when Main.CurrentMap != MapNames.Airship:
                 case "PolusReactorTimeLimit" when Main.CurrentMap != MapNames.Polus:
                 case "AirshipReactorTimeLimit" when Main.CurrentMap != MapNames.Airship:
-                case "ImpCanBeRole" or "CrewCanBeRole" or "NeutralCanBeRole":
+                case "ImpCanBeRole" or "CrewCanBeRole" or "NeutralCanBeRole" when f1:
                     continue;
             }
 
@@ -1741,7 +1737,6 @@ public static class Utils
     public static void ApplySuffix(PlayerControl player)
     {
         if (!AmongUsClient.Instance.AmHost || player == null) return;
-        if (Main.HostRealName == string.Empty) Main.HostRealName = PlayerControl.LocalPlayer.name;
         if (!player.AmOwner && !player.FriendCode.GetDevUser().HasTag() && !ChatCommands.IsPlayerModerator(player.FriendCode) && !ChatCommands.IsPlayerVIP(player.FriendCode)) return;
         string name = Main.AllPlayerNames.TryGetValue(player.PlayerId, out var n) ? n : string.Empty;
         if (Main.NickName != string.Empty && player.AmOwner) name = Main.NickName;
@@ -1840,7 +1835,7 @@ public static class Utils
 
     public static float GetSettingNameAndValueForRole(CustomRoles role, string settingName)
     {
-        const BindingFlags flags = BindingFlags.Public | BindingFlags.Static;
+        const BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
         var types = Assembly.GetExecutingAssembly().GetTypes();
         var field = types.SelectMany(x => x.GetFields(flags)).FirstOrDefault(x => x.Name == $"{role}{settingName}");
         if (field == null)
@@ -1902,11 +1897,10 @@ public static class Utils
 
     public static void DoNotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
     {
-        PlayerControl[] seerList = SpecifySeer != null ? [SpecifySeer] : Main.AllPlayerControls;
-        PlayerControl[] targetList = SpecifyTarget != null ? [SpecifyTarget] : Main.AllPlayerControls;
+        var apc = Main.AllPlayerControls;
 
-        StringBuilder seerLogInfo = new();
-        StringBuilder targetLogInfo = new();
+        PlayerControl[] seerList = SpecifySeer != null ? [SpecifySeer] : apc;
+        PlayerControl[] targetList = SpecifyTarget != null ? [SpecifyTarget] : apc;
 
         var now = TimeStamp;
 
@@ -1917,8 +1911,6 @@ public static class Utils
             try
             {
                 if (seer == null || seer.Data.Disconnected || (seer.IsModClient() && (seer.IsHost() || Options.CurrentGameMode == CustomGameMode.Standard))) continue;
-
-                seerLogInfo.Append($"{seer.GetRealName()}, ");
 
                 // During intro scene, set team name for non-modded clients and skip the rest.
                 string SelfName;
@@ -2154,8 +2146,6 @@ public static class Utils
                     foreach (PlayerControl target in targetList)
                     {
                         if (target.PlayerId == seer.PlayerId) continue;
-
-                        targetLogInfo.Append($"{target.GetRealName()}, ");
 
                         if (target.Is(CustomRoles.Car))
                         {
@@ -2415,8 +2405,8 @@ public static class Utils
 
         if (Options.CurrentGameMode != CustomGameMode.Standard) return;
 
-        string seers = seerLogInfo.ToString().TrimEnd(',', ' ');
-        string targets = targetLogInfo.ToString().TrimEnd(',', ' ');
+        string seers = seerList.Length == apc.Length ? "Everyone" : string.Join(", ", seerList.Select(x => x.GetRealName()));
+        string targets = targetList.Length == apc.Length ? "Everyone" : string.Join(", ", targetList.Select(x => x.GetRealName()));
         if (seers.Length == 0) seers = "\u2205";
         if (targets.Length == 0) targets = "\u2205";
         Logger.Info($" Seers: {seers} ---- Targets: {targets}", "NR");
@@ -2699,6 +2689,7 @@ public static class Utils
 
         DoorsReset.ResetDoors();
         RoleBlockManager.Reset();
+        PhantomRolePatch.AfterMeeting();
 
         if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer.Is(CustomRoles.GM))
         {
