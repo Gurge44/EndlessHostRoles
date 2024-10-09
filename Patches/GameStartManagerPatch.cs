@@ -206,7 +206,14 @@ public static class GameStartManagerPatch
         {
             if (!GameData.Instance || !GameManager.Instance) return;
 
-            instance.UpdateMapImage((MapNames)GameManager.Instance.LogicOptions.MapId);
+            try
+            {
+                instance.UpdateMapImage((MapNames)GameManager.Instance.LogicOptions.MapId);
+            }
+            catch (Exception e)
+            {
+                Utils.ThrowException(e);
+            }
             instance.CheckSettingsDiffs();
             instance.StartButton.gameObject.SetActive(true);
             instance.RulesPresetText.text = DestroyableSingleton<TranslationController>.Instance.GetString(GameOptionsManager.Instance.CurrentGameOptions.GetRulesPresetTitle());

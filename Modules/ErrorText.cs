@@ -145,7 +145,7 @@ public class ErrorText : MonoBehaviour
         }
 
         public float Timer { get; private set; }
-        public string Message => GetString(ToString());
+        public string Message => $"<b>{GetString(ToString())}</b>";
 
         public override string ToString()
         {
@@ -210,7 +210,8 @@ public enum ErrorCode
     Main_DictionaryError = 0010003, // 001-000-3 Main Dictionary Error
 
     // 002 Support related
-    UnsupportedVersion = 002_000_1, // 002-000-1 AmongUs version is outdated
+    UnsupportedVersion = 002_000_3, // 002-000-1 AmongUs version is outdated
+    UnsupportedMap = 002_000_2, // 002-000-2 Unsupported Map
 
     // ==========
     // 000 Test
@@ -220,8 +221,8 @@ public enum ErrorCode
     TestError2 = 0009202, // 000-920-2 Test Error 2
     TestError3 = 0009303, // 000-930-3 Test Error 3
     HnsUnload = 000_804_1, // 000-804-1 Unloaded By HnS
-    CheatDetected = 000_666_2, // 000-666-2 疑似存在作弊玩家
-    SBDetected = 000_666_1, // 000-666-1 傻逼外挂司马东西
+    CheatDetected = 000_666_2, // 000-666-2
+    SBDetected = 000_666_1, // 000-666-1
 
     // ==========
     LoadingHint = 000_999_3 // 000-999-3 Loading Hint

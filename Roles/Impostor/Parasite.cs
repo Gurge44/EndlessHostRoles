@@ -57,5 +57,10 @@ namespace EHR.Impostor
         {
             return pc.IsAlive();
         }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return pc.IsAlive();
+        }
     }
 }
