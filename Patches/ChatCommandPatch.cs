@@ -62,7 +62,7 @@ class Command(string[] commandForms, string arguments, string description, Comma
     {
         if (UsageLevel == UsageLevels.Everyone && UsageTime == UsageTimes.Always && !Lovers.PrivateChat.GetBool()) return true;
 
-        if (Lovers.PrivateChat.GetBool() && Main.LoversPlayers.Exists(x => x.PlayerId == pc.PlayerId) && GameStates.IsInTask && pc.IsAlive())
+        if (Lovers.PrivateChat.GetBool() && GameStates.IsInTask && pc.IsAlive())
             return false;
 
         switch (UsageLevel)
