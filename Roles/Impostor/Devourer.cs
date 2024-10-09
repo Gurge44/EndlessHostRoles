@@ -125,24 +125,28 @@ namespace EHR.Impostor
                 .EndRpc();
 
             target.SetHat(outfit.HatId, outfit.ColorId);
+            target.Data.DefaultOutfit.HatSequenceId += 10;
             sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetHatStr)
                 .Write(outfit.HatId)
                 .Write(target.GetNextRpcSequenceId(RpcCalls.SetHatStr))
                 .EndRpc();
 
             target.SetSkin(outfit.SkinId, outfit.ColorId);
+            target.Data.DefaultOutfit.SkinSequenceId += 10;
             sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetSkinStr)
                 .Write(outfit.SkinId)
                 .Write(target.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
                 .EndRpc();
 
             target.SetVisor(outfit.VisorId, outfit.ColorId);
+            target.Data.DefaultOutfit.VisorSequenceId += 10;
             sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetVisorStr)
                 .Write(outfit.VisorId)
                 .Write(target.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
                 .EndRpc();
 
             target.SetPet(outfit.PetId);
+            target.Data.DefaultOutfit.PetSequenceId += 10;
             sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetPetStr)
                 .Write(outfit.PetId)
                 .Write(target.GetNextRpcSequenceId(RpcCalls.SetPetStr))

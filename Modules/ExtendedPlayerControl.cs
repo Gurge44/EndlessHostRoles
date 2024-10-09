@@ -276,6 +276,7 @@ static class ExtendedPlayerControl
             return;
         }
 
+        player.Data.DefaultOutfit.PetSequenceId += 10;
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetPetStr, SendOption.Reliable, clientId);
         writer.Write(petId);
         writer.Write(player.GetNextRpcSequenceId(RpcCalls.SetPetStr));

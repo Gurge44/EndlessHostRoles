@@ -265,10 +265,10 @@ public static class GameStartManagerPatch
                 else
                 {
                     instance.StartButton.ChangeButtonText(DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.StartLabel));
-                    instance.StartButton.inactiveSprites.GetComponent<SpriteRenderer>().color = Color.black;
-                    instance.StartButton.activeSprites.GetComponent<SpriteRenderer>().color = new(0.2f, 0.2f, 0.2f, 1f);
+                    instance.StartButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new(0.2f, 0.2f, 0.2f, 1f);
+                    instance.StartButton.activeSprites.GetComponent<SpriteRenderer>().color = new(0.4f, 0.4f, 0.4f, 1f);
                     var inactiveShine = instance.StartButton.inactiveSprites.transform.Find("Shine");
-                    if (inactiveShine) inactiveShine.gameObject.SetActive(false);
+                    if (!inactiveShine) inactiveShine.gameObject.SetActive(true);
                     instance.StartButton.activeTextColor = instance.StartButton.inactiveTextColor = Color.white;
                     instance.GameStartTextParent.SetActive(false);
                     instance.GameStartText.text = string.Empty;

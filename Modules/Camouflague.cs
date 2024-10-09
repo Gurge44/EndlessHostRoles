@@ -161,24 +161,28 @@ public static class Camouflage
             .EndRpc();
 
         target.SetHat(newOutfit.HatId, newOutfit.ColorId);
+        target.Data.DefaultOutfit.HatSequenceId += 10;
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetHatStr)
             .Write(newOutfit.HatId)
             .Write(target.GetNextRpcSequenceId(RpcCalls.SetHatStr))
             .EndRpc();
 
         target.SetSkin(newOutfit.SkinId, newOutfit.ColorId);
+        target.Data.DefaultOutfit.SkinSequenceId += 10;
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetSkinStr)
             .Write(newOutfit.SkinId)
             .Write(target.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
             .EndRpc();
 
         target.SetVisor(newOutfit.VisorId, newOutfit.ColorId);
+        target.Data.DefaultOutfit.VisorSequenceId += 10;
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetVisorStr)
             .Write(newOutfit.VisorId)
             .Write(target.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
             .EndRpc();
 
         target.SetPet(newOutfit.PetId);
+        target.Data.DefaultOutfit.PetSequenceId += 10;
         sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetPetStr)
             .Write(newOutfit.PetId)
             .Write(target.GetNextRpcSequenceId(RpcCalls.SetPetStr))

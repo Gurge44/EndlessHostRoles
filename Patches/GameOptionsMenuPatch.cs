@@ -66,7 +66,7 @@ public static class GameOptionsMenuPatch
             cubeObject.transform.localScale = new(0.61f, 0.64f, 1f);
             var menuDescriptionText = GameSettingMenu.Instance.MenuDescriptionText;
             menuDescriptionText.m_marginWidth = 2.5f;
-        }, 0.1f, log: false);
+        }, 0.2f, log: false);
     }
 
     [HarmonyPatch(nameof(GameOptionsMenu.CreateSettings)), HarmonyPrefix]
@@ -443,6 +443,7 @@ public static class ToggleOptionPatch
         {
             var item = OptionItem.AllOptions[index];
             item.SetValue(__instance.GetBool() ? 1 : 0);
+            NotificationPopperPatch.AddSettingsChangeMessage(index, item, true);
             return false;
         }
 
@@ -528,6 +529,7 @@ public static class NumberOptionPatch
                     break;
             }
 
+            NotificationPopperPatch.AddSettingsChangeMessage(index, item, true);
             return false;
         }
 
@@ -710,12 +712,13 @@ public static class StringOptionPatch
         {
             var item = OptionItem.AllOptions[index];
             item.SetValue(__instance.GetInt());
+            var name = item.GetName();
             if (item.Name == "GameMode") GameOptionsMenuPatch.ReloadUI(ModGameOptionsMenu.TabIndex);
 
-            var name = item.GetName();
             string name1 = name;
             if (Enum.GetValues<CustomRoles>().FindFirst(x => Translator.GetString($"{x}") == name1.RemoveHtmlTags(), out var role))
             {
+                if (role.ToString().Contains("GuardianAngel")) role = CustomRoles.GA;
                 name = name.RemoveHtmlTags();
                 if (Options.UsePets.GetBool() && role.PetActivatedAbility()) name += Translator.GetString("SupportsPetIndicator");
                 if (!Options.UsePets.GetBool() && role.OnlySpawnsWithPets()) name += Translator.GetString("RequiresPetIndicator");
@@ -726,7 +729,9 @@ public static class StringOptionPatch
                 __instance.LabelBackground.color = Utils.GetRoleColor(role);
                 __instance.TitleText.color = Color.white;
                 name = $"<size=3.5>{name}</size>";
+                NotificationPopperPatch.AddRoleSettingsChangeMessage(index, item, role, true);
             }
+            else NotificationPopperPatch.AddSettingsChangeMessage(index, item, true);
 
             __instance.TitleText.text = name;
             return false;

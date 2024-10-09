@@ -12,6 +12,7 @@ public static class PetsPatch
         var sender = CustomRpcSender.Create(name: "Remove Pet From Dead Player");
 
         pc.SetPet("");
+        pc.Data.DefaultOutfit.PetSequenceId += 10;
         sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetPetStr)
             .Write("")
             .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))

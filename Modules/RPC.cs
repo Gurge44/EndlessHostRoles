@@ -8,6 +8,7 @@ using EHR.AddOns.Impostor;
 using EHR.Crewmate;
 using EHR.Impostor;
 using EHR.Neutral;
+using EHR.Patches;
 using HarmonyLib;
 using Hazel;
 using InnerNet;
@@ -45,6 +46,7 @@ public enum CustomRPC
     SyncGeneralOptions,
     SyncRoleData,
     RequestSendMessage,
+    NotificationPopper,
 
     // Roles
     DoSpell,
@@ -66,11 +68,11 @@ public enum CustomRPC
     SyncRabbit,
     SyncSoulHunter,
     SyncMycologist,
-    SyncBubble,
 
     // BAU should always be 150
     BAU = 150,
 
+    SyncBubble,
     AddTornado,
     SyncHookshot,
     SyncStressedTimer,
@@ -470,6 +472,25 @@ static class RPCHandlerPatch
                 string title = reader.ReadString();
                 bool noSplit = reader.ReadBoolean();
                 Utils.SendMessage(text, sendTo, title, noSplit);
+                break;
+            }
+            case CustomRPC.NotificationPopper:
+            {
+                var typeId = reader.ReadByte();
+                var item = reader.ReadPackedInt32();
+                var customRole = reader.ReadPackedInt32();
+                var playSound = reader.ReadBoolean();
+                var key = OptionItem.AllOptions[item];
+                switch (typeId)
+                {
+                    case 0:
+                        NotificationPopperPatch.AddSettingsChangeMessage(item, key, playSound);
+                        break;
+                    case 1:
+                        NotificationPopperPatch.AddRoleSettingsChangeMessage(item, key, (CustomRoles)customRole, playSound);
+                        break;
+                }
+                
                 break;
             }
             case CustomRPC.SyncPostman:

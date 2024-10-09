@@ -2343,3 +2343,16 @@ public static class PlayerControlFixMixedUpOutfitPatch
         __instance.cosmetics.ToggleNameVisible(true);
     }
 }
+
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ShouldProcessRpc))]
+static class ShouldProcessRpcPatch
+{
+    // Since the stupid AU code added a check for RPC processing for outfit players, we need to patch this
+    // Always return true because the check is absolutely pointless
+    public static bool Prefix(PlayerControl __instance, RpcCalls rpc, byte sequenceId, ref bool __result)
+    {
+        Logger.Info($"{__instance.PlayerId} old skin sequenceId {__instance.Data.DefaultOutfit.SkinSequenceId} - new skin sequenceId {rpc} - sequenceId {sequenceId}", "Test");
+        __result = true;
+        return false;
+    }
+}
