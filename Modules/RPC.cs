@@ -137,7 +137,10 @@ public enum CustomRPC
     SyncTiger,
     SyncSentry,
     SyncBargainer,
-    SyncOverheat
+    SyncOverheat,
+    
+    // Game Modes
+    RoomRushDataSync
 }
 
 public enum Sounds

@@ -5,7 +5,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using HarmonyLib;
+using Hazel;
 using UnityEngine;
 
 namespace EHR
@@ -168,6 +170,7 @@ namespace EHR
 
             int ventLimit = VentTimes.GetInt();
             VentLimit = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => ventLimit);
+            Utils.SendRPC(CustomRPC.RoomRushDataSync, 1);
 
             AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).ToHashSet();
             AllRooms.Remove(SystemTypes.Hallway);
@@ -357,6 +360,22 @@ namespace EHR
                 }
             }
         }
+
+        public static void ReceiveRPC(MessageReader reader)
+        {
+            switch (reader.ReadPackedInt32())
+            {
+                case 1:
+                    int ventLimit = VentTimes.GetInt();
+                    VentLimit = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => ventLimit);
+                    break;
+                case 2:
+                    int limit = reader.ReadPackedInt32();
+                    byte id = reader.ReadByte();
+                    VentLimit[id] = limit;
+                    break;
+            }
+        }
     }
 
     public class RRPlayer : RoleBase
@@ -378,6 +397,7 @@ namespace EHR
         public override void OnExitVent(PlayerControl pc, Vent vent)
         {
             RoomRush.VentLimit[pc.PlayerId]--;
+            Utils.SendRPC(CustomRPC.RoomRushDataSync, 2, RoomRush.VentLimit[pc.PlayerId], pc.PlayerId);
         }
 
         public override bool CanUseImpostorVentButton(PlayerControl pc)

@@ -16,7 +16,7 @@ internal static class FFAManager
     private static Dictionary<byte, long> FFADecreasedSpeedList = [];
     public static Dictionary<byte, long> FFALowerVisionList = [];
 
-    private static Dictionary<byte, float> originalSpeed = [];
+    private static Dictionary<byte, float> OriginalSpeed = [];
     public static Dictionary<byte, int> KillCount = [];
     public static int RoundTime;
 
@@ -122,7 +122,7 @@ internal static class FFAManager
         FFALowerVisionList = [];
         FFAShieldedList = [];
 
-        originalSpeed = [];
+        OriginalSpeed = [];
         KillCount = [];
         RoundTime = FFAGameTime.GetInt() + 8;
 
@@ -250,7 +250,7 @@ internal static class FFAManager
                             else
                             {
                                 FFAIncreasedSpeedList.TryAdd(killer.PlayerId, Utils.TimeStamp);
-                                originalSpeed.TryAdd(killer.PlayerId, Main.AllPlayerSpeed[killer.PlayerId]);
+                                OriginalSpeed.TryAdd(killer.PlayerId, Main.AllPlayerSpeed[killer.PlayerId]);
                                 Main.AllPlayerSpeed[killer.PlayerId] = FFAIncreasedSpeed.GetFloat();
                             }
 
@@ -286,7 +286,7 @@ internal static class FFAManager
                             else
                             {
                                 FFADecreasedSpeedList.TryAdd(killer.PlayerId, Utils.TimeStamp);
-                                originalSpeed.TryAdd(killer.PlayerId, Main.AllPlayerSpeed[killer.PlayerId]);
+                                OriginalSpeed.TryAdd(killer.PlayerId, Main.AllPlayerSpeed[killer.PlayerId]);
                                 Main.AllPlayerSpeed[killer.PlayerId] = FFADecreasedSpeed.GetFloat();
                             }
 
@@ -370,103 +370,100 @@ internal static class FFAManager
     }
 
     [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-    class FixedUpdatePatch
+    static class FixedUpdatePatch
     {
         private static long LastFixedUpdate;
 
         [SuppressMessage("ReSharper", "UnusedMember.Local")]
         public static void Postfix()
         {
-            if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.FFA) return;
+            if (!GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.FFA || !AmongUsClient.Instance.AmHost) return;
 
-            if (AmongUsClient.Instance.AmHost)
+            var now = Utils.TimeStamp;
+
+            if (LastFixedUpdate == now) return;
+            LastFixedUpdate = now;
+
+            RoundTime--;
+
+            var rd = IRandom.Instance;
+            byte FFAdoTPdecider = (byte)rd.Next(0, 100);
+            bool FFAdoTP = FFAdoTPdecider == 0;
+
+            if (FFAEnableRandomTwists.GetBool() && FFAdoTP)
             {
-                var now = Utils.TimeStamp;
+                Logger.Info("Swap everyone with someone", "FFA");
 
-                if (LastFixedUpdate == now) return;
-                LastFixedUpdate = now;
-
-                RoundTime--;
-
-                var rd = IRandom.Instance;
-                byte FFAdoTPdecider = (byte)rd.Next(0, 100);
-                bool FFAdoTP = FFAdoTPdecider == 0;
-
-                if (FFAEnableRandomTwists.GetBool() && FFAdoTP)
-                {
-                    Logger.Info("Swap everyone with someone", "FFA");
-
-                    List<byte> changePositionPlayers = [];
-
-                    foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                    {
-                        if (changePositionPlayers.Contains(pc.PlayerId) || !pc.IsAlive() || pc.onLadder || pc.inVent || pc.inMovingPlat) continue;
-
-                        var filtered = Main.AllAlivePlayerControls.Where(a =>
-                            pc.IsAlive() && !pc.inVent && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
-                        if (filtered.Length == 0) break;
-
-                        PlayerControl target = filtered.RandomElement();
-
-                        if (pc.inVent || target.inVent) continue;
-
-                        changePositionPlayers.Add(target.PlayerId);
-                        changePositionPlayers.Add(pc.PlayerId);
-
-                        pc.RPCPlayCustomSound("Teleport");
-
-                        var originPs = target.Pos();
-                        target.TP(pc.Pos());
-                        pc.TP(originPs);
-
-                        target.Notify(Utils.ColorString(new(0, 255, 165, byte.MaxValue), string.Format(GetString("FFA-Event-RandomTP"), pc.GetRealName())));
-                        pc.Notify(Utils.ColorString(new(0, 255, 165, byte.MaxValue), string.Format(GetString("FFA-Event-RandomTP"), target.GetRealName())));
-                    }
-
-                    changePositionPlayers.Clear();
-                }
-
-                if (Main.NormalOptions.MapId == 4) return;
+                List<byte> changePositionPlayers = [];
 
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
-                    if (pc == null) return;
+                    if (changePositionPlayers.Contains(pc.PlayerId) || !pc.IsAlive() || pc.onLadder || pc.inVent || pc.inMovingPlat) continue;
 
-                    bool sync = false;
+                    var filtered = Main.AllAlivePlayerControls.Where(a =>
+                        pc.IsAlive() && !pc.inVent && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
+                    if (filtered.Length == 0) break;
 
-                    if (FFADecreasedSpeedList.TryGetValue(pc.PlayerId, out var dstime) && dstime + FFAModifiedSpeedDuration.GetInt() < now)
-                    {
-                        Logger.Info(pc.GetRealName() + "'s decreased speed expired", "FFA");
-                        FFADecreasedSpeedList.Remove(pc.PlayerId);
-                        Main.AllPlayerSpeed[pc.PlayerId] = originalSpeed[pc.PlayerId];
-                        originalSpeed.Remove(pc.PlayerId);
-                        sync = true;
-                    }
+                    PlayerControl target = filtered.RandomElement();
 
-                    if (FFAIncreasedSpeedList.TryGetValue(pc.PlayerId, out var istime) && istime + FFAModifiedSpeedDuration.GetInt() < now)
-                    {
-                        Logger.Info(pc.GetRealName() + "'s increased speed expired", "FFA");
-                        FFAIncreasedSpeedList.Remove(pc.PlayerId);
-                        Main.AllPlayerSpeed[pc.PlayerId] = originalSpeed[pc.PlayerId];
-                        originalSpeed.Remove(pc.PlayerId);
-                        sync = true;
-                    }
+                    if (pc.inVent || target.inVent) continue;
 
-                    if (FFALowerVisionList.TryGetValue(pc.PlayerId, out var lvtime) && lvtime + FFAModifiedVisionDuration.GetInt() < now)
-                    {
-                        Logger.Info(pc.GetRealName() + "'s lower vision effect expired", "FFA");
-                        FFALowerVisionList.Remove(pc.PlayerId);
-                        sync = true;
-                    }
+                    changePositionPlayers.Add(target.PlayerId);
+                    changePositionPlayers.Add(pc.PlayerId);
 
-                    if (FFAShieldedList.TryGetValue(pc.PlayerId, out var stime) && stime + FFAShieldDuration.GetInt() < now)
-                    {
-                        Logger.Info(pc.GetRealName() + "'s shield expired", "FFA");
-                        FFAShieldedList.Remove(pc.PlayerId);
-                    }
+                    pc.RPCPlayCustomSound("Teleport");
 
-                    if (sync) pc.MarkDirtySettings();
+                    var originPs = target.Pos();
+                    target.TP(pc.Pos());
+                    pc.TP(originPs);
+
+                    target.Notify(Utils.ColorString(new(0, 255, 165, byte.MaxValue), string.Format(GetString("FFA-Event-RandomTP"), pc.GetRealName())));
+                    pc.Notify(Utils.ColorString(new(0, 255, 165, byte.MaxValue), string.Format(GetString("FFA-Event-RandomTP"), target.GetRealName())));
                 }
+
+                changePositionPlayers.Clear();
+            }
+
+            if (Main.NormalOptions.MapId == 4) return;
+
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            {
+                if (pc == null) return;
+
+                bool sync = false;
+
+                if (FFADecreasedSpeedList.TryGetValue(pc.PlayerId, out var dstime) && dstime + FFAModifiedSpeedDuration.GetInt() < now)
+                {
+                    Logger.Info(pc.GetRealName() + "'s decreased speed expired", "FFA");
+                    FFADecreasedSpeedList.Remove(pc.PlayerId);
+                    Main.AllPlayerSpeed[pc.PlayerId] = OriginalSpeed[pc.PlayerId];
+                    OriginalSpeed.Remove(pc.PlayerId);
+                    sync = true;
+                }
+
+                if (FFAIncreasedSpeedList.TryGetValue(pc.PlayerId, out var istime) && istime + FFAModifiedSpeedDuration.GetInt() < now)
+                {
+                    Logger.Info(pc.GetRealName() + "'s increased speed expired", "FFA");
+                    FFAIncreasedSpeedList.Remove(pc.PlayerId);
+                    Main.AllPlayerSpeed[pc.PlayerId] = OriginalSpeed[pc.PlayerId];
+                    OriginalSpeed.Remove(pc.PlayerId);
+                    sync = true;
+                }
+
+                if (FFALowerVisionList.TryGetValue(pc.PlayerId, out var lvtime) && lvtime + FFAModifiedVisionDuration.GetInt() < now)
+                {
+                    Logger.Info(pc.GetRealName() + "'s lower vision effect expired", "FFA");
+                    FFALowerVisionList.Remove(pc.PlayerId);
+                    sync = true;
+                }
+
+                if (FFAShieldedList.TryGetValue(pc.PlayerId, out var stime) && stime + FFAShieldDuration.GetInt() < now)
+                {
+                    Logger.Info(pc.GetRealName() + "'s shield expired", "FFA");
+                    FFAShieldedList.Remove(pc.PlayerId);
+                }
+
+                if (sync) pc.MarkDirtySettings();
             }
         }
     }

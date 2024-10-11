@@ -151,6 +151,10 @@ static class HudManagerPatch
                     __instance.SabotageButton
                 }.Do(x => x?.Hide());
             }
+            else if (Options.CurrentGameMode != CustomGameMode.Standard)
+            {
+                __instance.ReportButton?.Hide();
+            }
 
             // The following will not be executed unless the game is in progress
             if (!AmongUsClient.Instance.IsGameStarted) return;
@@ -540,28 +544,6 @@ static class MapBehaviourShowPatch
         if (Main.GodMode.Value) opts.ShowLivePlayerPosition = true;
 
         return true;
-    }
-}
-
-[HarmonyPatch(typeof(MapTaskOverlay), nameof(MapTaskOverlay.Show))]
-static class MapTaskOverlayShowPatch
-{
-    public static void Postfix()
-    {
-        if (GameStates.IsMeeting)
-        {
-        }
-    }
-}
-
-[HarmonyPatch(typeof(MapTaskOverlay), nameof(MapTaskOverlay.Hide))]
-static class MapTaskOverlayHidePatch
-{
-    public static void Postfix()
-    {
-        if (GameStates.IsMeeting && !DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening)
-        {
-        }
     }
 }
 

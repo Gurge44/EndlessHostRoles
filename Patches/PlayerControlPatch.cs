@@ -1536,8 +1536,6 @@ static class FixedUpdatePatch
                         case CustomGameMode.SoloKombat:
                             SoloKombatManager.GetNameNotify(target, ref RealName);
                             break;
-                        case CustomGameMode.FFA:
-                            break;
                     }
 
                     if (Deathpact.IsInActiveDeathpact(seer))
