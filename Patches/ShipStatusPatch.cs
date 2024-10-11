@@ -381,7 +381,7 @@ static class ShipStatusSpawnPlayerPatch
         Vector2 direction = Vector2.up.Rotate((player.PlayerId - 1) * (360f / numPlayers));
         Vector2 position = __instance.MeetingSpawnCenter + direction * __instance.SpawnRadius + new Vector2(0.0f, 0.3636f);
 
-        player.TP(position, log: false);
+        player.TP(position, noCheckState: true, log: false);
         return false;
     }
 }
@@ -407,7 +407,7 @@ static class PolusShipStatusSpawnPlayerPatch
             ? __instance.MeetingSpawnCenter2 + Vector2.right * (num2 - num1) * 0.6f
             : __instance.MeetingSpawnCenter + Vector2.right * num2 * 0.6f;
 
-        player.TP(position, log: false);
+        player.TP(position, noCheckState: true, log: false);
         return false;
     }
 }

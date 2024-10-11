@@ -131,14 +131,17 @@ public static class Utils
         }
     }
 
-    public static bool TP(CustomNetworkTransform nt, Vector2 location, bool log = true)
+    public static bool TP(CustomNetworkTransform nt, Vector2 location, bool noCheckState = false, bool log = true)
     {
         var pc = nt.myPlayer;
-        if (pc.Is(CustomRoles.AntiTP)) return false;
-        if (pc.inVent || pc.inMovingPlat || pc.onLadder || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation())
+        if (!noCheckState)
         {
-            if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is in an un-teleportable state - Teleporting canceled", "TP");
-            return false;
+            if (pc.Is(CustomRoles.AntiTP)) return false;
+            if (pc.inVent || pc.inMovingPlat || pc.onLadder || !pc.IsAlive() || pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() || pc.MyPhysics.Animations.IsPlayingEnterVentAnimation())
+            {
+                if (log) Logger.Warn($"Target ({pc.GetNameWithRole().RemoveHtmlTags()}) is in an un-teleportable state - Teleporting canceled", "TP");
+                return false;
+            }
         }
 
         if (AmongUsClient.Instance.AmHost)
