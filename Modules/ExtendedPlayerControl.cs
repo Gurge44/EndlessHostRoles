@@ -1324,14 +1324,14 @@ static class ExtendedPlayerControl
         return (pos, roomName);
     }
 
-    public static bool TP(this PlayerControl pc, PlayerControl target, bool log = true)
+    public static bool TP(this PlayerControl pc, PlayerControl target, bool noCheckState = false,  bool log = true)
     {
-        return Utils.TP(pc.NetTransform, target.Pos(), log);
+        return Utils.TP(pc.NetTransform, target.Pos(), noCheckState, log);
     }
 
-    public static bool TP(this PlayerControl pc, Vector2 location, bool log = true)
+    public static bool TP(this PlayerControl pc, Vector2 location, bool noCheckState = false, bool log = true)
     {
-        return Utils.TP(pc.NetTransform, location, log);
+        return Utils.TP(pc.NetTransform, location, noCheckState, log);
     }
 
     // ReSharper disable once InconsistentNaming
