@@ -69,6 +69,7 @@ internal static class CustomRolesHelper
             CustomRoles.Ritualist => new EvilDiviner(),
             CustomRoles.Wraith => new Swooper(),
             CustomRoles.Goose => new Penguin(),
+            CustomRoles.Monitor => new AntiAdminer(),
 
             // Else, the role class is the role name - if the class doesn't exist, it defaults to VanillaRole
             _ => Main.AllRoleClasses.FirstOrDefault(x => x.GetType().Name.Equals(role.ToString(), StringComparison.OrdinalIgnoreCase)) ?? new VanillaRole()
@@ -753,6 +754,10 @@ internal static class CustomRolesHelper
 
     public static bool IsImpOnlyAddon(this CustomRoles role) => Options.GroupedAddons[AddonTypes.ImpOnly].Contains(role);
 
+    public static bool NeedsUpdateAfterDeath(this CustomRoles role) => role is
+        CustomRoles.Altruist or
+        CustomRoles.Duellist;
+    
     public static bool IsTaskBasedCrewmate(this CustomRoles role) => role is
         CustomRoles.Snitch or
         CustomRoles.Speedrunner or

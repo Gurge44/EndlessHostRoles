@@ -148,9 +148,14 @@ public class Swooper : RoleBase
         SendRPC();
     }
 
+    private int Count;
+
     public override void OnFixedUpdate(PlayerControl player)
     {
         if (!GameStates.IsInTask || !IsEnable || player == null) return;
+        
+        if (Count++ < 10) return;
+        Count = 0;
 
         var now = Utils.TimeStamp;
 

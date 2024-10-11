@@ -435,10 +435,6 @@ static class CheckMurderPatch
         if (SoulHunter.IsSoulHunterTarget(killer.PlayerId) && target.Is(CustomRoles.SoulHunter))
         {
             Notify("SoulHunterTargetNotifyNoKill");
-            LateTask.New(() =>
-            {
-                if (SoulHunter.IsSoulHunterTarget(killer.PlayerId)) killer.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter.GetSoulHunter(killer.PlayerId).SoulHunter_.GetRealName()), 300f);
-            }, 4f, log: false);
             return false;
         }
 
@@ -927,10 +923,6 @@ static class ReportDeadBodyPatch
                 if (SoulHunter.IsSoulHunterTarget(__instance.PlayerId))
                 {
                     __instance.Notify(GetString("SoulHunterTargetNotifyNoMeeting"));
-                    LateTask.New(() =>
-                    {
-                        if (SoulHunter.IsSoulHunterTarget(__instance.PlayerId)) __instance.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter.GetSoulHunter(__instance.PlayerId).SoulHunter_.GetRealName()), 300f);
-                    }, 4f, log: false);
                     return false;
                 }
             }
@@ -1218,7 +1210,7 @@ static class FixedUpdatePatch
             }
         }
 
-        if (Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && (!Altruist.On || Main.PlayerStates[id].Role is not Altruist at || at.ReviveStartTS == 0))
+        if (Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && !__instance.GetCustomRole().NeedsUpdateAfterDeath())
         {
             var buffer = Options.DeepLowLoad.GetBool() ? 30 : 10;
             DeadBufferTime.TryAdd(id, buffer);
@@ -2006,10 +1998,6 @@ static class CoEnterVentPatch
             {
                 __instance.myPlayer?.Notify(GetString("SoulHunterTargetNotifyNoVent"));
                 __instance.RpcBootFromVent(id);
-                LateTask.New(() =>
-                {
-                    if (SoulHunter.IsSoulHunterTarget(__instance.myPlayer.PlayerId)) __instance.myPlayer.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter.GetSoulHunter(__instance.myPlayer.PlayerId).SoulHunter_.GetRealName()), 300f);
-                }, 4f, log: false);
             }, 0.5f, "SoulHunterTargetBootFromVent");
             return true;
         }

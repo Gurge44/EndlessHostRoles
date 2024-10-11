@@ -41,9 +41,13 @@ namespace EHR.Crewmate
 
         public static bool IsAffectedPlayer(byte id) => Utils.IsActive(SystemTypes.Electrical) && AffectedPlayers.Contains(id);
 
+        private int Count;
         public override void OnCheckPlayerPosition(PlayerControl pc)
         {
             if (!GameStates.IsInTask || pc == null) return;
+            
+            if (Count++ < 10) return;
+            Count = 0;
 
             long now = Utils.TimeStamp;
             if (LastChange.TryGetValue(pc.PlayerId, out var ts) && ts == now) return;
