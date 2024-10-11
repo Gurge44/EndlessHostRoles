@@ -26,7 +26,6 @@ using Newtonsoft.Json;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
-using static Il2CppSystem.Uri;
 
 namespace EHR;
 
