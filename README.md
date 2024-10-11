@@ -239,6 +239,8 @@ Source language: English
 - You can also press TAB to autocomplete commands.
 - Some hints and tips are displayed during the loading screen and ejection animations, which can help you discover new
   features.
+- EHR has 10 unique custom game modes, which can be played with any number of players, some even alone.
+- You can make lobbies with more than 15 players on modded servers, just type /cs players 100 - for example - to set the player limit to 100.
 - I, the main developer of EHR, care about user feedback and suggestions, and I try to implement them as much as
   possible.
 - If this wasn't convincing enough, you can always try EHR and see if you like it better than TOHE.
