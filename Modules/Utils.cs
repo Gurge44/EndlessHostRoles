@@ -2533,8 +2533,8 @@ public static class Utils
         var checkDict = clairvoyant ? Clairvoyant.Settings : Options.GameStateSettings;
         nums[Options.GameStateInfo.Tasks] = GameData.Instance.CompletedTasks;
         var states = nums.ToDictionary(x => x.Key, x => x.Key == Options.GameStateInfo.RomanticState ? GetString($"GSRomanticState.{x.Value}") : (object)x.Value);
-        states.DoIf(x => checkDict[x.Key].GetBool(), x => sb.AppendLine(string.Format(GetString($"GSInfo.{x.Key}"), x.Value)));
-        return sb.ToString().TrimEnd();
+        states.DoIf(x => checkDict[x.Key].GetBool(), x => sb.AppendLine(string.Format(GetString($"GSInfo.{x.Key}"), x.Value, GameData.Instance.TotalTasks)));
+        return "<#ffffff>" + sb.ToString().TrimEnd() + "</color>";
     }
 
     public static void AddAbilityCD(CustomRoles role, byte playerId, bool includeDuration = true)
