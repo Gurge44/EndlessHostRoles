@@ -32,10 +32,7 @@
 
 # Installation
 
-Whichever is easier for you:
-
-- Through [Mod Manager](https://goodloss.fr/mm)
-- or follow the manual guide on our website: [EHR](https://sites.google.com/view/ehr-au)
+Follow the manual guide on our website: [EHR](https://sites.google.com/view/ehr-au)
 
 <br>
 
