@@ -230,7 +230,7 @@ Source language: English
 - If you switch to EHR, you will have access to all features without paying for anything.
 - Test builds are available for free in our Discord server, and you can report bugs and suggest features there as well.
 - /up was reworked to /setrole, allowing you to set anyone's role for the next game, not only yours.
-- You can gain access to /setrole by just hosting EHR lobbies weekly or uploading EHR content to YouTube.
+- You can fully gain access to /setrole by just hosting EHR lobbies weekly or uploading EHR content to YouTube, but everyone can use /setrole to set their own role without any requirements (essentially /up).
 - EHR has a custom team assigner application, which is a unique feature that no other mod has.
 - You can force or ban certain role/add-on combinations directly in the game using /combo.
 - Not sure how to use commands? Use /help to see a list of all available commands.
