@@ -3026,7 +3026,7 @@
   "Adrenaline.Suffix": "<size=80%><#ffff00>你被攻擊了!\\n如果沒有在<#ffffff>{0}秒內</color>召開會議的話，你將會死亡!</color></size>",
   "Sentry": "哨兵",
   "SentryInfo": "巡視每個房間",
-  "SentryInfoLong": "(Crewmates):\\nAs the Sentry, you can monitor a room by petting. When you pet in the future, you get information from that room, including:<size=80%>\\n- The players currently in that room\\n- Who is dead in that room (if any)</size>\\nYou also get a notification when someone uses a vent or shapeshifts in that room.\\n\\nDepending on the settings, players may know if a room is monitored, and you may not be able to view this info during Comms Sabotages.",
+  "SentryInfoLong": "(船員陣營):\\n哨兵可以使用撫摸寵物來監視當前房間。監視時哨兵會知道房間內的資訊:<size=80%>\\n- 目前在該房間中的玩家\\n- 該房間中誰死了(如果有)</size>\\n當有人在該房間使用通風口或變形也會收到通知。\\n\\n根據設置，玩家可能知道房間是否受到監控，並且你可能無法在通訊破壞期間查看資訊。",
   "Sentry.ShowInfoDuration": "Info is Visible for",
   "Sentry.PlayersKnowAboutCamera": "Players Know if the Room is Monitored",
   "Sentry.CannotSeeInfoDuringComms": "Cannot See Info During Comms Sabotages",
