@@ -231,6 +231,7 @@ namespace EHR
 
         private static void StartNewRound(bool initial = false)
         {
+            if (GameStates.IsEnded) return;
             SystemTypes previous = !initial
                 ? RoomGoal
                 : Main.CurrentMap switch
@@ -279,23 +280,32 @@ namespace EHR
             Main.AllPlayerControls.Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
             if (DisplayArrowToRoom.GetBool()) Main.AllAlivePlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
             Utils.NotifyRoles();
+
+            Main.AllPlayerSpeed[PlayerControl.LocalPlayer.PlayerId] = Main.MinSpeed;
+            PlayerControl.LocalPlayer.SyncSettings();
+            LateTask.New(() =>
+            {
+                Main.AllPlayerSpeed[PlayerControl.LocalPlayer.PlayerId] = speed;
+                PlayerControl.LocalPlayer.SyncSettings();
+            }, (AmongUsClient.Instance.Ping / 1000f) * 2);
         }
 
         private static PlainShipRoom GetRoomClass(this SystemTypes systemTypes) => ShipStatus.Instance.AllRooms.First(x => x.RoomId == systemTypes);
 
         public static string GetSuffix(PlayerControl seer)
         {
-            if (!GameGoing || Main.HasJustStarted || seer == null || !seer.IsAlive()) return string.Empty;
+            if (!GameGoing || Main.HasJustStarted || seer == null) return string.Empty;
 
             var sb = new StringBuilder();
-            var done = DonePlayers.Contains(seer.PlayerId);
+            var dead = !seer.IsAlive();
+            var done = dead || DonePlayers.Contains(seer.PlayerId);
             var color = done ? Color.green : Color.yellow;
             if (DisplayRoomName.GetBool()) sb.AppendLine(Utils.ColorString(color, Translator.GetString(RoomGoal.ToString())));
             if (DisplayArrowToRoom.GetBool()) sb.AppendLine(Utils.ColorString(color, LocateArrow.GetArrows(seer)));
             color = done ? Color.white : Color.yellow;
             sb.AppendLine(Utils.ColorString(color, TimeLeft.ToString()));
 
-            if (VentTimes.GetInt() == 0) return sb.ToString();
+            if (VentTimes.GetInt() == 0 || dead) return sb.ToString();
 
             sb.AppendLine();
 
@@ -303,6 +313,22 @@ namespace EHR
             sb.Append(string.Format(Translator.GetString("RR_VentsRemaining"), vents));
 
             return sb.ToString();
+        }
+
+        public static void ReceiveRPC(MessageReader reader)
+        {
+            switch (reader.ReadPackedInt32())
+            {
+                case 1:
+                    int ventLimit = VentTimes.GetInt();
+                    VentLimit = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => ventLimit);
+                    break;
+                case 2:
+                    int limit = reader.ReadPackedInt32();
+                    byte id = reader.ReadByte();
+                    VentLimit[id] = limit;
+                    break;
+            }
         }
 
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
@@ -355,25 +381,12 @@ namespace EHR
                 if (TimeLeft <= 0)
                 {
                     Logger.Info("Time is up, killing everyone who didn't enter the correct room", "RoomRush");
-                    Main.AllAlivePlayerControls.ExceptBy(DonePlayers, x => x.PlayerId).Do(x => x.Suicide());
+                    var lateAapc = Main.AllAlivePlayerControls;
+                    var playersOutsideRoom = lateAapc.ExceptBy(DonePlayers, x => x.PlayerId).ToArray();
+                    if (playersOutsideRoom.Length == lateAapc.Length) CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
+                    playersOutsideRoom.Do(x => x.Suicide());
                     StartNewRound();
                 }
-            }
-        }
-
-        public static void ReceiveRPC(MessageReader reader)
-        {
-            switch (reader.ReadPackedInt32())
-            {
-                case 1:
-                    int ventLimit = VentTimes.GetInt();
-                    VentLimit = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => ventLimit);
-                    break;
-                case 2:
-                    int limit = reader.ReadPackedInt32();
-                    byte id = reader.ReadByte();
-                    VentLimit[id] = limit;
-                    break;
             }
         }
     }

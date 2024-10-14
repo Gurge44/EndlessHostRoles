@@ -324,7 +324,7 @@ static class CheckForEndVotingPatch
 
         var player = Utils.GetPlayerById(exiledPlayer.PlayerId);
         var crole = exiledPlayer.GetCustomRole();
-        var coloredRole = Utils.GetDisplayRoleName(exileId, true);
+        var coloredRole = Utils.GetDisplayRoleName(exileId, true, true);
 
         if (crole == CustomRoles.LovingImpostor && !Options.ConfirmLoversOnEject.GetBool())
         {
@@ -827,7 +827,12 @@ static class MeetingHudStartPatch
             }
 
             var suffix = Main.PlayerStates[seer.PlayerId].Role.GetSuffix(seer, target, meeting: true);
-            if (roleTextMeeting.text.Length > 0 && suffix.Length > 0) roleTextMeeting.text += "\n" + suffix;
+            if (suffix.Length > 0)
+            {
+                if (roleTextMeeting.text.Length > 0) roleTextMeeting.text += "\n";
+                roleTextMeeting.text += suffix;
+                roleTextMeeting.enabled = true;
+            }
 
             // Thanks BAU (By D1GQ) - are you happy now?
             var playerLevel = pva.transform.Find("PlayerLevel");

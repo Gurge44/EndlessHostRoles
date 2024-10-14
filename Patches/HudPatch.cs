@@ -249,7 +249,7 @@ static class HudManagerPatch
                         CustomGameMode.FFA when player.IsHost() => FFAManager.GetHudText(),
                         CustomGameMode.MoveAndStop when player.IsHost() => MoveAndStopManager.HUDText,
                         CustomGameMode.HotPotato when player.IsHost() => HotPotatoManager.GetSuffixText(player.PlayerId),
-                        CustomGameMode.HideAndSeek when player.IsHost() => HnSManager.GetSuffixText(player, player, isHUD: true),
+                        CustomGameMode.HideAndSeek when player.IsHost() => HnSManager.GetSuffixText(player, player, hud: true),
                         CustomGameMode.NaturalDisasters => NaturalDisasters.SuffixText(),
                         CustomGameMode.Standard => state.Role.GetSuffix(player, player, true, GameStates.IsMeeting) + GetAddonSuffixes(),
                         _ => string.Empty
@@ -824,7 +824,7 @@ static class CoShowIntroPatch
 
         LateTask.New(() =>
         {
-            if (!(AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.ShowAllRolesWhenGameEnd))
+            if (!(AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended))
             {
                 StartGameHostPatch.RpcSetDisconnected(disconnected: false);
 
@@ -837,7 +837,7 @@ static class CoShowIntroPatch
         {
             try
             {
-                if (!(AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.ShowAllRolesWhenGameEnd))
+                if (!(AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended))
                 {
                     ShipStatusBeginPatch.RolesIsAssigned = true;
 
@@ -855,7 +855,7 @@ static class CoShowIntroPatch
             }
             catch
             {
-                Logger.Warn($"Game ended? {AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.ShowAllRolesWhenGameEnd}", "ShipStatus.Begin");
+                Logger.Warn($"Game ended? {AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended}", "ShipStatus.Begin");
             }
         }, 4f, "Assign Tasks");
     }

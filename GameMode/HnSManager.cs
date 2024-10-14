@@ -283,10 +283,10 @@ namespace EHR
             return targetRole.Interface.Team == Team.Impostor && (targetRole.Role != CustomRoles.Agent || seerRole.Interface.Team == Team.Impostor);
         }
 
-        public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool isHUD = false)
+        public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool hud = false)
         {
             if (GameStates.IsLobby || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted) return string.Empty;
-            if (seer.PlayerId != target.PlayerId) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud)) return string.Empty;
 
             string dangerMeter = GetDangerMeter(seer);
 
@@ -304,7 +304,7 @@ namespace EHR
             var remainingMinutes = TimeLeft / 60;
             var remainingSeconds = $"{(TimeLeft % 60) + 1}";
             if (remainingSeconds.Length == 1) remainingSeconds = $"0{remainingSeconds}";
-            return dangerMeter + "\n" + (isHUD ? $"{remainingMinutes}:{remainingSeconds}" : $"{string.Format(Translator.GetString("MinutesLeft"), $"{remainingMinutes}-{remainingMinutes + 1}")}");
+            return dangerMeter + "\n" + (hud ? $"{remainingMinutes}:{remainingSeconds}" : $"{string.Format(Translator.GetString("MinutesLeft"), $"{remainingMinutes}-{remainingMinutes + 1}")}");
         }
 
         private static string GetDangerMeter(PlayerControl seer)

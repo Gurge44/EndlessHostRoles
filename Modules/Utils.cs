@@ -290,7 +290,6 @@ public static class Utils
         }
     }
 
-    //誰かが死亡したときのメソッド
     public static void TargetDies(PlayerControl killer, PlayerControl target)
     {
         if (!target.Data.IsDead || GameStates.IsMeeting) return;
@@ -725,9 +724,9 @@ public static class Utils
         {
             case CustomGameMode.SoloKombat: return false;
             case CustomGameMode.FFA: return false;
-            case CustomGameMode.MoveAndStop: return true;
+            case CustomGameMode.MoveAndStop: return !p.IsDead;
             case CustomGameMode.HotPotato: return false;
-            case CustomGameMode.Speedrun: return true;
+            case CustomGameMode.Speedrun: return !p.IsDead;
             case CustomGameMode.CaptureTheFlag: return false;
             case CustomGameMode.NaturalDisasters: return false;
             case CustomGameMode.RoomRush: return false;
@@ -925,10 +924,18 @@ public static class Utils
 
     public static bool IsRoleTextEnabled(PlayerControl __instance)
     {
-        if (PlayerControl.LocalPlayer.Is(CustomRoles.GM) && (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId || Options.CurrentGameMode == CustomGameMode.Standard)) return true;
-        if (Options.CurrentGameMode is CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush) return false;
-        if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId || Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun || (Options.CurrentGameMode == CustomGameMode.HideAndSeek && HnSManager.IsRoleTextEnabled(PlayerControl.LocalPlayer, __instance)) || Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool() || PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) return true;
-        if (CustomRoles.Altruist.RoleExist() && Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId)) return false;
+        switch (Options.CurrentGameMode)
+        {
+            case CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush:
+            case CustomGameMode.Standard when CustomRoles.Altruist.RoleExist() && Main.DiedThisRound.Contains(PlayerControl.LocalPlayer.PlayerId):
+                return PlayerControl.LocalPlayer.Is(CustomRoles.GM);
+            case CustomGameMode.FFA or CustomGameMode.SoloKombat or CustomGameMode.MoveAndStop or CustomGameMode.HotPotato or CustomGameMode.Speedrun:
+            case CustomGameMode.HideAndSeek when HnSManager.IsRoleTextEnabled(PlayerControl.LocalPlayer, __instance):
+                return true;
+        }
+
+        if (Main.VisibleTasksCount && PlayerControl.LocalPlayer.Data.IsDead && Options.GhostCanSeeOtherRoles.GetBool() || PlayerControl.LocalPlayer.Is(CustomRoles.Mimic) && Main.VisibleTasksCount && __instance.Data.IsDead && Options.MimicCanSeeDeadRoles.GetBool()) return true;
+        if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId) return true;
 
         switch (__instance.GetCustomRole())
         {
@@ -2707,9 +2714,11 @@ public static class Utils
         {
             LateTask.New(() => { PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)); }, 11f, "GM Auto-TP Failsafe"); // TP to Main Hall
         }
+
+        LateTask.New(() => Asthmatic.RunChecks = true, 2f, log: false);
     }
 
-    public static void AfterPlayerDeathTasks(PlayerControl target, bool onMeeting = false)
+    public static void AfterPlayerDeathTasks(PlayerControl target, bool onMeeting = false, bool disconnect = false)
     {
         try
         {
@@ -2721,7 +2730,7 @@ public static class Utils
 
             switch (target.GetCustomRole())
             {
-                case CustomRoles.Terrorist:
+                case CustomRoles.Terrorist when !disconnect:
                     Logger.Info(target?.Data?.PlayerName + "Terrorist died", "MurderPlayer");
                     CheckTerroristWin(target?.Data);
                     break;
@@ -2741,10 +2750,10 @@ public static class Utils
                     }
 
                     break;
-                case CustomRoles.PlagueDoctor:
+                case CustomRoles.PlagueDoctor when !disconnect:
                     PlagueDoctor.OnPDdeath(target.GetRealKiller(), target);
                     break;
-                case CustomRoles.CyberStar:
+                case CustomRoles.CyberStar when !disconnect:
                     if (GameStates.IsMeeting)
                     {
                         foreach (PlayerControl pc in Main.AllPlayerControls)
@@ -2769,7 +2778,7 @@ public static class Utils
                 case CustomRoles.Devourer:
                     Devourer.OnDevourerDied(target.PlayerId);
                     break;
-                case CustomRoles.Markseeker:
+                case CustomRoles.Markseeker when !disconnect:
                     Markseeker.OnDeath(target);
                     break;
                 case CustomRoles.Medic:
@@ -2779,34 +2788,37 @@ public static class Utils
 
             if (target == null) return;
 
-            Randomizer.OnAnyoneDeath(target);
+            if (!disconnect) Randomizer.OnAnyoneDeath(target);
 
             if (Executioner.Target.ContainsValue(target.PlayerId))
                 Executioner.ChangeRoleByTarget(target);
             if (Lawyer.Target.ContainsValue(target.PlayerId))
                 Lawyer.ChangeRoleByTarget(target);
-            if (target.Is(CustomRoles.Stained))
+            if (!disconnect && target.Is(CustomRoles.Stained))
                 Stained.OnDeath(target, target.GetRealKiller());
-            if (target.Is(CustomRoles.Spurt))
-            {
-                Spurt.DeathTask(target);
-            }
+            if (!disconnect && target.Is(CustomRoles.Spurt)) Spurt.DeathTask(target);
 
             Postman.CheckAndResetTargets(target, isDeath: true);
             Hitman.CheckAndResetTargets();
 
-            Hacker.AddDeadBody(target);
-            Mortician.OnPlayerDead(target);
-            Bloodhound.OnPlayerDead(target);
-            Tracefinder.OnPlayerDead(target);
-            Vulture.OnPlayerDead(target);
-            Scout.OnPlayerDeath(target);
+            if (!disconnect && !onMeeting)
+            {
+                Hacker.AddDeadBody(target);
+                Mortician.OnPlayerDead(target);
+                Bloodhound.OnPlayerDead(target);
+                Tracefinder.OnPlayerDead(target);
+                Vulture.OnPlayerDead(target);
+                Scout.OnPlayerDeath(target);
+                Amnesiac.OnAnyoneDeath(target);
+                Dad.OnAnyoneDeath(target);
+                Crewmate.Sentry.OnAnyoneMurder(target);
+                Soothsayer.OnAnyoneDeath(target.GetRealKiller(), target);
+
+                TargetDies(target.GetRealKiller(), target);
+            }
+
             Adventurer.OnAnyoneDead(target);
-            Soothsayer.OnAnyoneDeath(target.GetRealKiller(), target);
-            Amnesiac.OnAnyoneDeath(target);
-            Dad.OnAnyoneDeath(target);
             Whisperer.OnAnyoneDied(target);
-            Crewmate.Sentry.OnAnyoneMurder(target);
 
             if (QuizMaster.On) QuizMaster.Data.NumPlayersDeadThisRound++;
 

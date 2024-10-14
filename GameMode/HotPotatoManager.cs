@@ -95,7 +95,7 @@ namespace EHR
                 PlayerControl[] aapc = Main.AllAlivePlayerControls;
                 if (HotPotatoState.HolderID != __instance.PlayerId || !aapc.Any(x => x.PlayerId != HotPotatoState.HolderID && (x.PlayerId != HotPotatoState.LastHolderID || aapc.Length == 2) && Vector2.Distance(x.Pos(), Holder.Pos()) <= Range.GetFloat())) return;
 
-                float wait = aapc.Length <= 2 ? 0.4f : 0.1f;
+                float wait = aapc.Length <= 2 ? 0.4f : 0.05f;
                 UpdateDelay += UnityEngine.Time.fixedDeltaTime;
                 if (UpdateDelay < wait) return;
                 UpdateDelay = 0;

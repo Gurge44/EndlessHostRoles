@@ -10,6 +10,8 @@ namespace EHR.AddOns.GhostRoles
         private static OptionItem DieOnMeetingCall;
 
         private static readonly Dictionary<byte, long> ScheduledDeaths = [];
+
+        private long LastUpdate;
         public Team Team => Team.Impostor | Team.Neutral;
         public int Cooldown => Duration.GetInt() + CD.GetInt();
 
@@ -17,6 +19,7 @@ namespace EHR.AddOns.GhostRoles
         {
             Main.AllPlayerSpeed[pc.PlayerId] = Speed.GetFloat();
             pc.MarkDirtySettings();
+            LastUpdate = Utils.TimeStamp;
         }
 
         public void OnProtect(PlayerControl pc, PlayerControl target)
@@ -41,16 +44,20 @@ namespace EHR.AddOns.GhostRoles
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Bloodmoon]);
         }
 
-        public static void Update(PlayerControl pc)
+        public static void Update(PlayerControl pc, Bloodmoon instance)
         {
-            if (!GameStates.IsInTask) return;
+            if (!GameStates.IsInTask || ExileController.Instance) return;
+
+            var now = Utils.TimeStamp;
+            if (now == instance.LastUpdate) return;
+            instance.LastUpdate = now;
 
             foreach (var death in ScheduledDeaths)
             {
                 var player = Utils.GetPlayerById(death.Key);
                 if (player == null || !player.IsAlive()) continue;
 
-                if (Utils.TimeStamp - death.Value < Duration.GetInt())
+                if (now - death.Value < Duration.GetInt())
                 {
                     Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                     continue;

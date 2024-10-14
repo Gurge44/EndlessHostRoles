@@ -704,7 +704,6 @@ static class MurderPlayerPatch
         CountAlivePlayers(true);
 
         Camouflager.IsDead(target);
-        TargetDies(__instance, target);
 
         if (Options.LowLoadMode.GetBool())
         {
@@ -998,6 +997,8 @@ static class ReportDeadBodyPatch
         //    Hereinafter, it is assumed that it is confirmed that the button is pressed.
         //====================================================================================
 
+        Asthmatic.RunChecks = false;
+
         Damocles.CountRepairSabotage = false;
         Stressed.CountRepairSabotage = false;
 
@@ -1199,8 +1200,8 @@ static class FixedUpdatePatch
                     case Haunter haunter:
                         haunter.Update(__instance);
                         break;
-                    case Bloodmoon:
-                        Bloodmoon.Update(__instance);
+                    case Bloodmoon bloodmoon:
+                        Bloodmoon.Update(__instance, bloodmoon);
                         break;
                 }
             }
@@ -1210,7 +1211,7 @@ static class FixedUpdatePatch
             }
         }
 
-        if (Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && !__instance.GetCustomRole().NeedsUpdateAfterDeath())
+        if (Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && !__instance.GetCustomRole().NeedsUpdateAfterDeath() && Options.CurrentGameMode != CustomGameMode.RoomRush)
         {
             var buffer = Options.DeepLowLoad.GetBool() ? 30 : 10;
             DeadBufferTime.TryAdd(id, buffer);

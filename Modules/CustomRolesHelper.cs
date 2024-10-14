@@ -757,7 +757,7 @@ internal static class CustomRolesHelper
     public static bool NeedsUpdateAfterDeath(this CustomRoles role) => role is
         CustomRoles.Altruist or
         CustomRoles.Duellist;
-    
+
     public static bool IsTaskBasedCrewmate(this CustomRoles role) => role is
         CustomRoles.Snitch or
         CustomRoles.Speedrunner or
@@ -1021,7 +1021,7 @@ internal static class CustomRolesHelper
     public static CustomRoleTypes GetCustomRoleTypes(this CustomRoles role)
     {
         CustomRoleTypes type = CustomRoleTypes.Crewmate;
-        if (role.IsImpostor()) type = CustomRoleTypes.Impostor;
+        if (role.IsImpostor() || role.IsMadmate()) type = CustomRoleTypes.Impostor;
         if (role.IsNeutral()) type = CustomRoleTypes.Neutral;
         if (role.IsAdditionRole()) type = CustomRoleTypes.Addon;
         return type;

@@ -230,7 +230,7 @@ internal class ChangeRoleSettings
 
             Main.IntroDestroyed = false;
             ShipStatusBeginPatch.RolesIsAssigned = false;
-            GameEndChecker.ShowAllRolesWhenGameEnd = false;
+            GameEndChecker.Ended = false;
 
             RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned = [];
 
@@ -375,7 +375,7 @@ internal static class StartGameHostPatch
     public static readonly Dictionary<CustomRoles, List<byte>> BasisChangingAddons = [];
     private static Dictionary<RoleTypes, int> RoleTypeNums = [];
 
-    private static readonly Dictionary<byte, bool> DataDisconnected = [];
+    public static readonly Dictionary<byte, bool> DataDisconnected = [];
 
     private static RoleOptionsCollectionV08 RoleOpt => Main.NormalOptions.roleOptions;
 
@@ -455,7 +455,7 @@ internal static class StartGameHostPatch
 
     private static System.Collections.IEnumerator AssignRoles()
     {
-        if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.ShowAllRolesWhenGameEnd) yield break;
+        if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended) yield break;
 
         RpcSetRoleReplacer.Initialize();
 

@@ -94,6 +94,11 @@ namespace EHR.Impostor
             return false;
         }
 
+        public override bool CanUseSabotage(PlayerControl pc)
+        {
+            return false;
+        }
+
         public static void SendRPC(byte cpID, int tasksDone)
         {
             if (PlayerControl.LocalPlayer.PlayerId == cpID)

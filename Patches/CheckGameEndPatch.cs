@@ -26,7 +26,7 @@ static class GameEndChecker
     private const float EndGameDelay = 0.2f;
     public static GameEndPredicate Predicate;
     public static bool ShouldNotCheck = false;
-    public static bool ShowAllRolesWhenGameEnd;
+    public static bool Ended;
 
     public static bool Prefix()
     {
@@ -36,7 +36,7 @@ static class GameEndChecker
 
         if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return false;
 
-        ShowAllRolesWhenGameEnd = false;
+        Ended = false;
 
         Predicate.CheckForGameEnd(out GameOverReason reason);
 
@@ -59,7 +59,7 @@ static class GameEndChecker
 
             Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, ForceRevert: true, RevertToDefault: true, GameEnd: true));
 
-            ShowAllRolesWhenGameEnd = true;
+            Ended = true;
 
             if (reason == GameOverReason.ImpostorBySabotage && Options.NKWinsBySabotageIfNoImpAlive.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.IsImpostor()) && Main.AllAlivePlayerControls.Count(x => x.IsNeutralKiller()) == 1)
             {

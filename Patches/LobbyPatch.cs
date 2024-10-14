@@ -36,7 +36,10 @@ public static class HostInfoPanelSetUpPatch
     public static void Postfix(HostInfoPanel __instance)
     {
         if (HostText == null) HostText = __instance.content.transform.FindChild("Name").GetComponent<TextMeshPro>();
-        var text = AmongUsClient.Instance.AmHost ? Translator.GetString("YouAreHostSuffix") : GameData.Instance.GetHost().PlayerName;
+        var icon = Translator.GetString("Icon");
+        var text = AmongUsClient.Instance.AmHost
+            ? Translator.GetString("YouAreHostSuffix")
+            : GameData.Instance.GetHost().PlayerName.RemoveHtmlTags().Split('\n').First(x => x.Contains(icon)).Split(icon)[^1];
         HostText.text = Utils.ColorString(Palette.PlayerColors[__instance.player.ColorId], text);
     }
 }

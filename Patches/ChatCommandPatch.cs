@@ -820,7 +820,7 @@ internal static class ChatCommands
     private static void BanKickCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         // Check if the kick command is enabled in the settings
-        if (Options.ApplyModeratorList.GetValue() == 0 && !player.IsHost())
+        if (!Options.ApplyModeratorList.GetBool() && !player.IsHost())
         {
             Utils.SendMessage(GetString("KickCommandDisabled"), player.PlayerId);
             return;

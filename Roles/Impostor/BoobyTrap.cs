@@ -73,7 +73,7 @@ namespace EHR.Impostor
                 {
                     var killerID = KillerOfBoobyTrapBody[target.PlayerId];
 
-                    reporter.Suicide(PlayerState.DeathReason.Bombed, Utils.GetPlayerById(killerID));
+                    reporter.Suicide(PlayerState.DeathReason.Trapped, Utils.GetPlayerById(killerID));
                     RPC.PlaySoundRPC(killerID, Sounds.KillSound);
 
                     if (!BoobyTrapBody.Contains(reporter.PlayerId) && TrapConsecutiveBodies.GetBool()) BoobyTrapBody.Add(reporter.PlayerId);
@@ -83,7 +83,7 @@ namespace EHR.Impostor
 
                 var killerID2 = target.PlayerId;
 
-                reporter.Suicide(PlayerState.DeathReason.Bombed, Utils.GetPlayerById(killerID2));
+                reporter.Suicide(PlayerState.DeathReason.Trapped, Utils.GetPlayerById(killerID2));
                 RPC.PlaySoundRPC(killerID2, Sounds.KillSound);
                 return false;
             }

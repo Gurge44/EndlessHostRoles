@@ -328,7 +328,7 @@ static class ExtendedPlayerControl
     // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/ExtendedPlayerControl.cs
     public static void RpcChangeRoleBasis(this PlayerControl player, CustomRoles newCustomRole, bool loggerRoleMap = false)
     {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || player == null) return;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || player == null || !player.IsAlive()) return;
 
         var playerId = player.PlayerId;
         var playerClientId = player.GetClientId();
@@ -1055,16 +1055,34 @@ static class ExtendedPlayerControl
     public static bool IsHost(this InnerNetObject ino) => ino.OwnerId == AmongUsClient.Instance.HostId;
     public static bool IsHost(this byte id) => GetPlayerById(id)?.OwnerId == AmongUsClient.Instance.HostId;
 
-    public static void RpcShowScanAnimation(this PlayerControl target, PlayerControl seer, bool IsActive)
+    public static void RpcShowScanAnimationDesync(this PlayerControl target, PlayerControl seer, bool IsActive)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            var caller = new StackFrame(1, false);
+            var callerMethod = caller.GetMethod();
+            string callerMethodName = callerMethod?.Name;
+            string callerClassName = callerMethod?.DeclaringType?.FullName;
+            Logger.Warn($"Modded non-host client activated RpcShowScanAnimation from {callerClassName}.{callerMethodName}", "RpcShowScanAnimation");
+            return;
+        }
 
-        byte cnt = ++PlayerControl.LocalPlayer.scannerCount;
+        if (target == null || seer == null) return;
 
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.SetScanner, SendOption.Reliable, seer.GetClientId());
+        var seerClientId = seer.GetClientId();
+        if (seerClientId == -1) return;
+        byte cnt = ++target.scannerCount;
+        if (AmongUsClient.Instance.ClientId == seerClientId)
+        {
+            target.SetScanner(IsActive, cnt);
+            return;
+        }
+
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.SetScanner, SendOption.Reliable, seerClientId);
         messageWriter.Write(IsActive);
         messageWriter.Write(cnt);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+        target.scannerCount = cnt;
     }
 
     public static bool HasKillButton(this PlayerControl pc)
@@ -1313,6 +1331,7 @@ static class ExtendedPlayerControl
         player.Exiled();
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.None);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
+        FixedUpdatePatch.LoversSuicide(player.PlayerId);
     }
 
     public static (Vector2 Location, string RoomName) GetPositionInfo(this PlayerControl pc)
@@ -1324,7 +1343,7 @@ static class ExtendedPlayerControl
         return (pos, roomName);
     }
 
-    public static bool TP(this PlayerControl pc, PlayerControl target, bool noCheckState = false,  bool log = true)
+    public static bool TP(this PlayerControl pc, PlayerControl target, bool noCheckState = false, bool log = true)
     {
         return Utils.TP(pc.NetTransform, target.Pos(), noCheckState, log);
     }

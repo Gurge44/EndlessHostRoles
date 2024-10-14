@@ -51,8 +51,6 @@ namespace EHR.AddOns.Common
 
         public static void DeathTask(PlayerControl player)
         {
-            if (!player.Is(CustomRoles.Spurt)) return;
-
             Main.AllPlayerSpeed[player.PlayerId] = StartingSpeed[player.PlayerId];
             player.MarkDirtySettings();
         }
