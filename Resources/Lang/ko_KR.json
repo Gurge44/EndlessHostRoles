@@ -1779,6 +1779,7 @@
   "DeathReason.Asthma": "Asthma",
   "DeathReason.Assumed": "Assumed",
   "DeathReason.Negotiation": "Negotiation",
+  "DeathReason.Trapped": "Trapped",
   "DeathReason.Meteor": "Meteor Strike",
   "DeathReason.Lava": "Lava",
   "DeathReason.Tornado": "Tornado",
