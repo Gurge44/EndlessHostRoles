@@ -138,7 +138,7 @@ public enum CustomRPC
     SyncSentry,
     SyncBargainer,
     SyncOverheat,
-    
+
     // Game Modes
     RoomRushDataSync
 }
@@ -493,7 +493,7 @@ static class RPCHandlerPatch
                         NotificationPopperPatch.AddRoleSettingsChangeMessage(item, key, (CustomRoles)customRole, playSound);
                         break;
                 }
-                
+
                 break;
             }
             case CustomRPC.SyncPostman:
@@ -1035,6 +1035,11 @@ static class RPCHandlerPatch
             case CustomRPC.SetTrackerTarget:
             {
                 Scout.ReceiveRPC(reader);
+                break;
+            }
+            case CustomRPC.RoomRushDataSync:
+            {
+                RoomRush.ReceiveRPC(reader);
                 break;
             }
         }

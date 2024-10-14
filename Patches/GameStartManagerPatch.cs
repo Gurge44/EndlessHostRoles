@@ -212,8 +212,10 @@ public static class GameStartManagerPatch
             }
             catch (Exception e)
             {
+                ErrorText.Instance.AddError(ErrorCode.UnsupportedMap);
                 Utils.ThrowException(e);
             }
+
             instance.CheckSettingsDiffs();
             instance.StartButton.gameObject.SetActive(true);
             instance.RulesPresetText.text = DestroyableSingleton<TranslationController>.Instance.GetString(GameOptionsManager.Instance.CurrentGameOptions.GetRulesPresetTitle());
