@@ -29,7 +29,6 @@ static class CheckForEndVotingPatch
         //Meeting Skip with vote counting on keystroke (m + delete)
         bool shouldSkip = Input.GetKeyDown(KeyCode.F6);
 
-        //
         var voteLog = Logger.Handler("Vote");
         try
         {
@@ -78,13 +77,14 @@ static class CheckForEndVotingPatch
                     return true;
                 }
 
-                if (pva.DidVote && pva.VotedFor < 253 && pc.Data?.IsDead == false)
+                if (pva.DidVote && pva.VotedFor < 253 && pc.IsAlive())
                 {
                     var voteTarget = Utils.GetPlayerById(pva.VotedFor);
                     if (voteTarget == null || !voteTarget.IsAlive() || voteTarget.Data == null || voteTarget.Data.Disconnected)
                     {
-                        __instance.UpdateButtons();
+                        pva.UnsetVote();
                         __instance.RpcClearVote(pc.GetClientId());
+                        __instance.UpdateButtons();
                     }
                     else if (voteTarget != null && !pc.GetCustomRole().CancelsVote())
                         Main.PlayerStates[pc.PlayerId].Role.OnVote(pc, voteTarget);
@@ -192,7 +192,12 @@ static class CheckForEndVotingPatch
                 }
             }
 
-            if (!RunRoleCode) return false;
+            if ((Blackmailer.On || NiceSwapper.On) && !RunRoleCode)
+            {
+                Logger.Warn($"Running role code is disabled, skipping the rest of the process (Blackmailer.On: {Blackmailer.On}, NiceSwapper.On: {NiceSwapper.On}, RunRoleCode: {RunRoleCode})", "Vote");
+                if (shouldSkip) LateTask.New(() => RunRoleCode = true, 0.5f, "Enable RunRoleCode");
+                return false;
+            }
 
             Blackmailer.OnCheckForEndVoting();
             NiceSwapper.OnCheckForEndVoting();
@@ -598,6 +603,8 @@ static class MeetingHudStartPatch
     private static void NotifyRoleSkillOnMeetingStart()
     {
         if (!AmongUsClient.Instance.AmHost) return;
+
+        CheckForEndVotingPatch.RunRoleCode = true;
 
         List<(string Message, byte TargetID, string Title)> msgToSend = [];
 
@@ -1125,17 +1132,17 @@ static class MeetingHudCastVotePatch
             isSkip = true;
         }
 
-        bool isVoteCanceled = false;
+        bool voteCanceled = false;
 
         if (!Main.DontCancelVoteList.Contains(srcPlayerId) && !isSkip && pc_src.GetCustomRole().CancelsVote() && Main.PlayerStates[srcPlayerId].Role.OnVote(pc_src, pc_target))
         {
             ShouldCancelVoteList.TryAdd(srcPlayerId, (__instance, pva_src, pc_src));
-            isVoteCanceled = true;
+            voteCanceled = true;
         }
 
-        Logger.Info($"{pc_src.GetNameWithRole().RemoveHtmlTags()} => {(isSkip ? "Skip" : pc_target.GetNameWithRole().RemoveHtmlTags())}{(isVoteCanceled ? " (Canceled)" : string.Empty)}", "Vote");
+        Logger.Info($"{pc_src.GetNameWithRole().RemoveHtmlTags()} => {(isSkip ? "Skip" : pc_target.GetNameWithRole().RemoveHtmlTags())}{(voteCanceled ? " (Canceled)" : string.Empty)}", "Vote");
 
-        return isSkip || !isVoteCanceled; // return false to use the vote as a trigger; skips and invalid votes are never canceled
+        return isSkip || !voteCanceled; // return false to use the vote as a trigger; skips and invalid votes are never canceled
     }
 
     public static void Postfix([HarmonyArgument(0)] byte srcPlayerId)

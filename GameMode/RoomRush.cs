@@ -5,7 +5,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using AmongUs.GameOptions;
+using EHR.Modules;
 using HarmonyLib;
+using Hazel;
 using UnityEngine;
 
 namespace EHR
@@ -41,7 +43,11 @@ namespace EHR
                 [(SystemTypes.Admin, SystemTypes.Shields)] = 3,
                 [(SystemTypes.Admin, SystemTypes.LifeSupp)] = 4,
                 [(SystemTypes.Electrical, SystemTypes.MedBay)] = 3,
-                [(SystemTypes.Electrical, SystemTypes.Security)] = 3
+                [(SystemTypes.Electrical, SystemTypes.Security)] = 3,
+                [(SystemTypes.MedBay, SystemTypes.Security)] = 3,
+                [(SystemTypes.Admin, SystemTypes.Security)] = 2,
+                [(SystemTypes.Storage, SystemTypes.Security)] = 2,
+                [(SystemTypes.Storage, SystemTypes.MedBay)] = 2
             },
             [MapNames.Mira] = new()
             {
@@ -62,9 +68,11 @@ namespace EHR
                 [(SystemTypes.Laboratory, SystemTypes.Admin)] = 2,
                 [(SystemTypes.Storage, SystemTypes.Comms)] = 2,
                 [(SystemTypes.Storage, SystemTypes.Office)] = 2,
+                [(SystemTypes.Storage, SystemTypes.Admin)] = 2,
                 [(SystemTypes.Security, SystemTypes.LifeSupp)] = 2,
                 [(SystemTypes.Security, SystemTypes.Comms)] = 2,
-                [(SystemTypes.Security, SystemTypes.Electrical)] = 2
+                [(SystemTypes.Security, SystemTypes.Electrical)] = 2,
+                [(SystemTypes.Comms, SystemTypes.Electrical)] = 2
             },
             [MapNames.Airship] = new()
             {
@@ -135,7 +143,7 @@ namespace EHR
             DisplayRoomName = new BooleanOptionItem(id++, "RR_DisplayRoomName", true, TabGroup.GameSettings)
                 .SetColor(color)
                 .SetGameMode(gameMode);
-            
+
             DisplayArrowToRoom = new BooleanOptionItem(id, "RR_DisplayArrowToRoom", false, TabGroup.GameSettings)
                 .SetColor(color)
                 .SetGameMode(gameMode);
@@ -162,6 +170,7 @@ namespace EHR
 
             int ventLimit = VentTimes.GetInt();
             VentLimit = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => ventLimit);
+            Utils.SendRPC(CustomRPC.RoomRushDataSync, 1);
 
             AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).ToHashSet();
             AllRooms.Remove(SystemTypes.Hallway);
@@ -260,13 +269,13 @@ namespace EHR
                 case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
                     time += (int)(8 / speed);
                     break;
-                case MapNames.Polus when RoomGoal == SystemTypes.Laboratory || (previous == SystemTypes.Laboratory && RoomGoal is not SystemTypes.Office and not SystemTypes.Storage):
-                    time -= (int)(7 * speed);
+                case MapNames.Polus when (RoomGoal == SystemTypes.Laboratory && previous is not SystemTypes.Storage and not SystemTypes.Specimens) || (previous == SystemTypes.Laboratory && RoomGoal is not SystemTypes.Office and not SystemTypes.Storage and not SystemTypes.Electrical):
+                    time -= (int)(5 * speed);
                     break;
             }
 
-            TimeLeft = (int)Math.Round(time * GlobalTimeMultiplier.GetFloat());
-            Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())}, to: {Translator.GetString(RoomGoal.ToString())} - Time: {TimeLeft}", "RoomRush");
+            TimeLeft = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 4);
+            Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())}, to: {Translator.GetString(RoomGoal.ToString())} - Time: {TimeLeft}  ({Main.CurrentMap})", "RoomRush");
             Main.AllPlayerControls.Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
             if (DisplayArrowToRoom.GetBool()) Main.AllAlivePlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
             Utils.NotifyRoles();
@@ -351,6 +360,22 @@ namespace EHR
                 }
             }
         }
+
+        public static void ReceiveRPC(MessageReader reader)
+        {
+            switch (reader.ReadPackedInt32())
+            {
+                case 1:
+                    int ventLimit = VentTimes.GetInt();
+                    VentLimit = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => ventLimit);
+                    break;
+                case 2:
+                    int limit = reader.ReadPackedInt32();
+                    byte id = reader.ReadByte();
+                    VentLimit[id] = limit;
+                    break;
+            }
+        }
     }
 
     public class RRPlayer : RoleBase
@@ -372,6 +397,12 @@ namespace EHR
         public override void OnExitVent(PlayerControl pc, Vent vent)
         {
             RoomRush.VentLimit[pc.PlayerId]--;
+            Utils.SendRPC(CustomRPC.RoomRushDataSync, 2, RoomRush.VentLimit[pc.PlayerId], pc.PlayerId);
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return !pc.IsHost() && CanUseVent(pc, 0);
         }
 
         public override bool CanUseVent(PlayerControl pc, int ventId) => RoomRush.GameGoing && (pc.inVent || RoomRush.VentLimit[pc.PlayerId] > 0);

@@ -340,14 +340,14 @@ static class InnerNetClientSpawnPatch
                 AmongUsClient.Instance.FinishRpcImmediately(sender);
             }, 3f, "RPC Request Retry Version Check");
 
-            if (GameStates.IsOnlineGame)
+            if (GameStates.IsOnlineGame && !client.Character.IsHost())
             {
                 LateTask.New(() =>
                 {
                     if (GameStates.IsLobby && client.Character != null && LobbyBehaviour.Instance != null && GameStates.IsVanillaServer)
                     {
                         // Only for vanilla
-                        if (!client.Character.IsHost() && !client.Character.IsModClient())
+                        if (!client.Character.IsModClient())
                         {
                             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(LobbyBehaviour.Instance.NetId, (byte)RpcCalls.LobbyTimeExpiring, SendOption.None, client.Id);
                             writer.WritePacked((int)GameStartManagerPatch.Timer);
@@ -355,7 +355,7 @@ static class InnerNetClientSpawnPatch
                             AmongUsClient.Instance.FinishRpcImmediately(writer);
                         }
                         // Non-host modded client
-                        else if (!client.Character.IsHost() && client.Character.IsModClient())
+                        else
                         {
                             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncLobbyTimer, SendOption.Reliable, client.Id);
                             writer.WritePacked((int)GameStartManagerPatch.Timer);

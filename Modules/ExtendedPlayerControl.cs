@@ -67,14 +67,14 @@ static class ExtendedPlayerControl
 
     public static bool CanUseVent(this PlayerControl player, int ventId)
     {
-        return GameStates.IsInTask && (player.inVent || (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId)));
+        return GameStates.IsInTask && ((player.inVent && !player.GetCustomRole().BlocksVentMovement()) || (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId)));
     }
 
     // Next 3: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs
     public static Vent GetClosestVent(this PlayerControl player)
     {
         var pos = player.Pos();
-        return ShipStatus.Instance.AllVents.Where(x => x != null).MinBy(x => Vector2.Distance(pos, x.transform.position));
+        return ShipStatus.Instance?.AllVents?.Where(x => x != null).MinBy(x => Vector2.Distance(pos, x.transform.position));
     }
 
     public static List<Vent> GetVentsFromClosest(this PlayerControl player)
@@ -257,13 +257,30 @@ static class ExtendedPlayerControl
         if (seer == null || player == null) return;
 
         var clientId = seer.GetClientId();
+        if (clientId == -1) return;
 
-        var sender = CustomRpcSender.Create(name: "SetNamePrivate");
-        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, clientId)
-            .Write(seer.Data.NetId)
-            .Write(name)
-            .EndRpc();
-        sender.SendMessage();
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetName, SendOption.Reliable, clientId);
+        writer.Write(seer.Data.NetId);
+        writer.Write(name);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+
+    // By TommyXL
+    public static void RpcSetPetDesync(this PlayerControl player, string petId, PlayerControl seer)
+    {
+        var clientId = seer.GetClientId();
+        if (clientId == -1) return;
+        if (AmongUsClient.Instance.ClientId == clientId)
+        {
+            player.SetPet(petId);
+            return;
+        }
+
+        player.Data.DefaultOutfit.PetSequenceId += 10;
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetPetStr, SendOption.Reliable, clientId);
+        writer.Write(petId);
+        writer.Write(player.GetNextRpcSequenceId(RpcCalls.SetPetStr));
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
     public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId)
@@ -1307,14 +1324,14 @@ static class ExtendedPlayerControl
         return (pos, roomName);
     }
 
-    public static bool TP(this PlayerControl pc, PlayerControl target, bool log = true)
+    public static bool TP(this PlayerControl pc, PlayerControl target, bool noCheckState = false,  bool log = true)
     {
-        return Utils.TP(pc.NetTransform, target.Pos(), log);
+        return Utils.TP(pc.NetTransform, target.Pos(), noCheckState, log);
     }
 
-    public static bool TP(this PlayerControl pc, Vector2 location, bool log = true)
+    public static bool TP(this PlayerControl pc, Vector2 location, bool noCheckState = false, bool log = true)
     {
-        return Utils.TP(pc.NetTransform, location, log);
+        return Utils.TP(pc.NetTransform, location, noCheckState, log);
     }
 
     // ReSharper disable once InconsistentNaming
@@ -1365,7 +1382,7 @@ static class ExtendedPlayerControl
     public static void NoCheckStartMeeting(this PlayerControl reporter, NetworkedPlayerInfo target, bool force = false)
     {
         if (Options.DisableMeeting.GetBool() && !force) return;
-        ReportDeadBodyPatch.AfterReportTasks(reporter, target);
+        ReportDeadBodyPatch.AfterReportTasks(reporter, target, true);
         MeetingRoomManager.Instance.AssignSelf(reporter, target);
         DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
         reporter.RpcStartMeeting(target);
@@ -1482,7 +1499,7 @@ static class ExtendedPlayerControl
     public static RoleTypes GetRoleTypes(this PlayerControl pc) => pc.GetCustomSubRoles() switch
     {
         { } x when x.Contains(CustomRoles.Bloodlust) => RoleTypes.Impostor,
-        { } x when x.Contains(CustomRoles.Nimble) => RoleTypes.Engineer,
+        { } x when x.Contains(CustomRoles.Nimble) && !pc.HasDesyncRole() => RoleTypes.Engineer,
         { } x when x.Contains(CustomRoles.Physicist) => RoleTypes.Scientist,
         { } x when x.Contains(CustomRoles.Finder) => RoleTypes.Tracker,
         { } x when x.Contains(CustomRoles.Noisy) => RoleTypes.Noisemaker,

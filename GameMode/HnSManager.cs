@@ -270,6 +270,7 @@ namespace EHR
 
         public static bool HasTasks(NetworkedPlayerInfo playerInfo)
         {
+            if (!AmongUsClient.Instance.AmHost && playerInfo.PlayerId == PlayerControl.LocalPlayer.PlayerId) return PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.Taskinator or CustomRoles.Hider or CustomRoles.Jet or CustomRoles.Detector or CustomRoles.Jumper;
             if (!PlayerRoles.TryGetValue(playerInfo.PlayerId, out var role)) return false;
             return role.Interface.Team == Team.Crewmate || role.Role == CustomRoles.Taskinator;
         }
@@ -295,7 +296,6 @@ namespace EHR
                 dangerMeter += TargetArrow.GetArrows(seer, agent);
             }
 
-            if (!isHUD && seer.IsModClient()) return string.Empty;
             if (TimeLeft <= 60)
             {
                 return $"{dangerMeter}\n<color={Main.RoleColors[CustomRoles.Hider]}>{Translator.GetString("TimeLeft")}:</color> {TimeLeft}s";

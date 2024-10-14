@@ -381,7 +381,7 @@ static class ShipStatusSpawnPlayerPatch
         Vector2 direction = Vector2.up.Rotate((player.PlayerId - 1) * (360f / numPlayers));
         Vector2 position = __instance.MeetingSpawnCenter + direction * __instance.SpawnRadius + new Vector2(0.0f, 0.3636f);
 
-        player.TP(position, log: false);
+        player.TP(position, noCheckState: true, log: false);
         return false;
     }
 }
@@ -407,7 +407,7 @@ static class PolusShipStatusSpawnPlayerPatch
             ? __instance.MeetingSpawnCenter2 + Vector2.right * (num2 - num1) * 0.6f
             : __instance.MeetingSpawnCenter + Vector2.right * num2 * 0.6f;
 
-        player.TP(position, log: false);
+        player.TP(position, noCheckState: true, log: false);
         return false;
     }
 }
@@ -462,7 +462,7 @@ static class VentilationSystemDeterioratePatch
     public static Dictionary<byte, int> LastClosestVent = [];
     private static readonly Dictionary<byte, bool> LastCanUseVent = [];
     private static readonly Dictionary<byte, int> LastClosestVentForUpdate = [];
-    private static readonly Dictionary<byte, long> LastVentInteractionCheck = [];
+    private static readonly Dictionary<byte, int> CheckBufferTime = [];
 
     public static void Postfix(VentilationSystem __instance)
     {
@@ -479,8 +479,9 @@ static class VentilationSystemDeterioratePatch
                         ++players;
                 }
 
-                if (pc.GetClosestVent().Id == LastClosestVent[pc.PlayerId] && players >= 3) continue;
-                LastClosestVent[pc.PlayerId] = pc.GetClosestVent().Id;
+                int closestVentId = pc.GetClosestVent().Id;
+                if (closestVentId == LastClosestVent[pc.PlayerId] && players >= 3) continue;
+                LastClosestVent[pc.PlayerId] = closestVentId;
                 MessageWriter writer = MessageWriter.Get();
                 writer.StartMessage(6);
                 writer.Write(AmongUsClient.Instance.GameId);
@@ -606,16 +607,23 @@ static class VentilationSystemDeterioratePatch
 
     public static void CheckVentInteraction(PlayerControl pc)
     {
-        if (!GameStates.IsInTask || ExileController.Instance) return;
+        if (!GameStates.IsInTask || ExileController.Instance || !ShipStatus.Instance) return;
 
-        if (!LastVentInteractionCheck.TryGetValue(pc.PlayerId, out long lastCheck))
+        const int bufferTimeWait = 10;
+
+        if (!CheckBufferTime.TryGetValue(pc.PlayerId, out int bufferTime))
         {
-            LastVentInteractionCheck[pc.PlayerId] = Utils.TimeStamp;
+            CheckBufferTime[pc.PlayerId] = bufferTimeWait;
             return;
         }
 
-        if (Utils.TimeStamp == lastCheck) return;
-        LastVentInteractionCheck[pc.PlayerId] = Utils.TimeStamp;
+        if (bufferTime > 0)
+        {
+            CheckBufferTime[pc.PlayerId]--;
+            return;
+        }
+
+        CheckBufferTime[pc.PlayerId] = bufferTimeWait;
 
 
         int closestVent = pc.GetClosestVent().Id;

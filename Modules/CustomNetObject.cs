@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using EHR;
@@ -93,6 +92,7 @@ namespace EHR
             }
             catch (Exception e)
             {
+                if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters) return;
                 Utils.ThrowException(e);
             }
         }
@@ -764,7 +764,7 @@ static class RawSetNamePatch
                     EHR.Logger.Msg($"Successfully set name for {__instance.GetRealName()}", "RawSetNamePatch");
                     break;
                 case true:
-                    EHR.Logger.Error("Failed to set name for player", "RawSetNamePatch");
+                    // Complete error, don't log this or it will spam the console
                     break;
             }
         }, 0.5f, log: false);

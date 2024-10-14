@@ -107,7 +107,7 @@ public class Vampire : RoleBase
 
     public override void OnFixedUpdate(PlayerControl vampire)
     {
-        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask) return;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || ExileController.Instance) return;
 
         var vampireID = vampire.PlayerId;
         if (!IsThisRole(vampire.PlayerId)) return;

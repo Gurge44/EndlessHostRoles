@@ -120,16 +120,16 @@ static class GameEndChecker
                 {
                     switch (pc.GetCustomRole())
                     {
-                        case CustomRoles.DarkHide when !pc.Data.IsDead && ((WinnerTeam == CustomWinner.Impostor && !reason.Equals(GameOverReason.ImpostorBySabotage)) || WinnerTeam == CustomWinner.DarkHide || (WinnerTeam == CustomWinner.Crewmate && !reason.Equals(GameOverReason.HumansByTask) && Main.PlayerStates[pc.PlayerId].Role is DarkHide { IsWinKill: true } && DarkHide.SnatchesWin.GetBool())):
+                        case CustomRoles.DarkHide when pc.IsAlive() && ((WinnerTeam == CustomWinner.Impostor && !reason.Equals(GameOverReason.ImpostorBySabotage)) || WinnerTeam == CustomWinner.DarkHide || (WinnerTeam == CustomWinner.Crewmate && !reason.Equals(GameOverReason.HumansByTask) && Main.PlayerStates[pc.PlayerId].Role is DarkHide { IsWinKill: true } && DarkHide.SnatchesWin.GetBool())):
                             ResetAndSetWinner(CustomWinner.DarkHide);
                             WinnerIds.Add(pc.PlayerId);
                             break;
-                        case CustomRoles.Phantasm when pc.GetTaskState().IsTaskFinished && pc.Data.IsDead && Options.PhantomSnatchesWin.GetBool():
+                        case CustomRoles.Phantasm when pc.GetTaskState().RemainingTasksCount <= 0 && !pc.IsAlive() && Options.PhantomSnatchesWin.GetBool():
                             reason = GameOverReason.ImpostorByKill;
                             ResetAndSetWinner(CustomWinner.Phantom);
                             WinnerIds.Add(pc.PlayerId);
                             break;
-                        case CustomRoles.Phantasm when !Options.PhantomSnatchesWin.GetBool() && !pc.IsAlive() && pc.GetTaskState().IsTaskFinished:
+                        case CustomRoles.Phantasm when pc.GetTaskState().RemainingTasksCount <= 0 && !pc.IsAlive() && !Options.PhantomSnatchesWin.GetBool():
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.Phantom);
                             break;
@@ -316,7 +316,7 @@ static class GameEndChecker
         Main.AllPlayerControls.DoIf(
             x => x.GetClient() != null && !x.Data.Disconnected,
             x => ChatUpdatePatch.SendMessage(PlayerControl.LocalPlayer, "\n", x.PlayerId, msg));
-        
+
         SetEverythingUpPatch.LastWinsReason = WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor ? GetString($"GameOverReason.{reason}") : string.Empty;
         AmongUsClient self = AmongUsClient.Instance;
         self.StartCoroutine(CoEndGame(self, reason).WrapToIl2Cpp());

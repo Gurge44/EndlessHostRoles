@@ -1114,15 +1114,15 @@ public static class GuessManager
 
     public static void ReceiveRPC(MessageReader reader, PlayerControl pc)
     {
-        Logger.Msg($"{reader}", "MessageReader reader");
-        Logger.Msg($"{pc}", "PlayerControl pc");
+        Logger.Msg($"{reader}", "GuessManager - MessageReader reader");
+        Logger.Msg($"{pc}", "GuessManager - PlayerControl pc");
 
         int PlayerId = reader.ReadInt32();
-        Logger.Msg($"{PlayerId}", "Player Id");
+        Logger.Msg($"{PlayerId}", "GuessManager - Player Id");
 
         CustomRoles role = (CustomRoles)reader.ReadInt32();
-        Logger.Msg($"{role}", "Role Int32");
-        Logger.Msg($"{GetString(role.ToString())}", "Role String");
+        Logger.Msg($"{role}", "GuessManager - Role Int32");
+        Logger.Msg($"{GetString(role.ToString())}", "GuessManager - Role String");
 
         GuesserMsg(pc, $"/bt {PlayerId} {GetString(role.ToString())}", true);
     }

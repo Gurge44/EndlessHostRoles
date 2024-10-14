@@ -54,7 +54,6 @@ public class Main : BasePlugin
     public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
     public static bool ChangedRole = false;
     public static OptionBackupData RealOptionsData;
-    public static string HostRealName = string.Empty;
     public static Dictionary<byte, float> KillTimers = [];
     public static Dictionary<byte, PlayerState> PlayerStates = [];
     public static Dictionary<byte, string> AllPlayerNames = [];

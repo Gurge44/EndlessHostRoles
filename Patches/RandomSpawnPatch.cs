@@ -90,7 +90,7 @@ abstract class RandomSpawn
         {
             var spawn = GetLocation();
             Logger.Info($"{player.Data.PlayerName} => {Translator.GetString(spawn.Key.ToString())} {spawn.Value}", "RandomSpawn");
-            player.TP(spawn.Value, log: false);
+            player.TP(spawn.Value, noCheckState: true, log: false);
         }
 
         protected abstract KeyValuePair<SystemTypes, Vector2> GetLocation();

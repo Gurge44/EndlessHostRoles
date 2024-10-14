@@ -40,7 +40,7 @@ namespace EHR
         {
             FixedUpdatePatch.Return = true;
 
-            HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 40, 1);
+            HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 50, 1);
             SurvivalTimes = [];
             foreach (var pc in Main.AllPlayerControls) SurvivalTimes[pc.PlayerId] = 0;
 
@@ -50,7 +50,7 @@ namespace EHR
         public static void OnGameStart()
         {
             LateTask.New(() => { FixedUpdatePatch.Return = false; }, 7f, log: false);
-            HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 20, 1);
+            HotPotatoState = (byte.MaxValue, byte.MaxValue, Time.GetInt() + 30, 1);
         }
 
         public static int GetSurvivalTime(byte id) => SurvivalTimes.GetValueOrDefault(id, 1);

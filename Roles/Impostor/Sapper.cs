@@ -118,6 +118,7 @@ namespace EHR.Impostor
                 Bombs.Remove(bomb.Key);
                 pc.Notify(GetString("MagicianBombExploded"));
                 if (b)
+                {
                     LateTask.New(() =>
                     {
                         if (!GameStates.IsEnded)
@@ -125,6 +126,7 @@ namespace EHR.Impostor
                             pc.Suicide(PlayerState.DeathReason.Bombed);
                         }
                     }, 0.5f, "Sapper Bomb Suicide");
+                }
             }
 
             var sb = new StringBuilder();
@@ -133,7 +135,7 @@ namespace EHR.Impostor
                 sb.Append(string.Format(GetString("MagicianBombExlodesIn"), Delay.GetInt() - (TimeStamp - x) + 1));
             }
 
-            pc.Notify(sb.ToString());
+            pc.Notify(sb.ToString(), overrideAll: true);
         }
 
         public override void OnReportDeadBody()

@@ -25,6 +25,7 @@ public class NiceSwapper : RoleBase
     private static byte NiceSwapperId = byte.MaxValue;
 
     public override bool IsEnable => NiceSwapperId != byte.MaxValue;
+    public static bool On => NiceSwapperId != byte.MaxValue;
 
     public override void SetupCustomOption()
     {
@@ -165,35 +166,41 @@ public class NiceSwapper : RoleBase
 
     public static void OnCheckForEndVoting()
     {
-        if (SwapTargets.Item1 == byte.MaxValue || SwapTargets.Item2 == byte.MaxValue) return;
+        if (NiceSwapperId == byte.MaxValue || SwapTargets.Item1 == byte.MaxValue || SwapTargets.Item2 == byte.MaxValue) return;
 
         CheckForEndVotingPatch.RunRoleCode = false;
 
-        var playerStates = MeetingHud.Instance.playerStates;
-        var votedFor2 = playerStates.Where(x => x.VotedFor == SwapTargets.Item2).ToList();
-
-        playerStates.DoIf(x => x.VotedFor == SwapTargets.Item1, x =>
+        try
         {
-            x.UnsetVote();
-            if (x.TargetPlayerId.IsHost()) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, SwapTargets.Item2);
-            else MeetingHud.Instance.CastVote(x.TargetPlayerId, SwapTargets.Item2);
-            x.VotedFor = SwapTargets.Item2;
-        });
-        playerStates.DoIf(votedFor2.Contains, x =>
+            var playerStates = MeetingHud.Instance.playerStates;
+            var votedFor2 = playerStates.Where(x => x.VotedFor == SwapTargets.Item2).ToList();
+
+            playerStates.DoIf(x => x.VotedFor == SwapTargets.Item1, x =>
+            {
+                x.UnsetVote();
+                if (x.TargetPlayerId.IsHost()) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, SwapTargets.Item2);
+                else MeetingHud.Instance.CastVote(x.TargetPlayerId, SwapTargets.Item2);
+                x.VotedFor = SwapTargets.Item2;
+            });
+            playerStates.DoIf(votedFor2.Contains, x =>
+            {
+                x.UnsetVote();
+                if (x.TargetPlayerId.IsHost()) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, SwapTargets.Item1);
+                else MeetingHud.Instance.CastVote(x.TargetPlayerId, SwapTargets.Item1);
+                x.VotedFor = SwapTargets.Item1;
+            });
+
+            PlayerControl Target1 = Utils.GetPlayerById(SwapTargets.Item1);
+            PlayerControl Target2 = Utils.GetPlayerById(SwapTargets.Item2);
+            if (Target1 == null || Target2 == null) return;
+
+            Utils.SendMessage(string.Format(GetString("SwapVote"), Target1.GetRealName(), Target2.GetRealName()), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceSwapper), GetString("SwapTitle")));
+
+        }
+        finally
         {
-            x.UnsetVote();
-            if (x.TargetPlayerId.IsHost()) MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, SwapTargets.Item1);
-            else MeetingHud.Instance.CastVote(x.TargetPlayerId, SwapTargets.Item1);
-            x.VotedFor = SwapTargets.Item1;
-        });
-
-        PlayerControl Target1 = Utils.GetPlayerById(SwapTargets.Item1);
-        PlayerControl Target2 = Utils.GetPlayerById(SwapTargets.Item2);
-        if (Target1 == null || Target2 == null) return;
-
-        Utils.SendMessage(string.Format(GetString("SwapVote"), Target1.GetRealName(), Target2.GetRealName()), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceSwapper), GetString("SwapTitle")));
-
-        CheckForEndVotingPatch.RunRoleCode = true;
+            CheckForEndVotingPatch.RunRoleCode = true;
+        }
     }
 
     private static bool CheckCommand(ref string msg, string command, bool exact = true)

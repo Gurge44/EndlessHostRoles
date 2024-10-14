@@ -135,6 +135,8 @@ internal static class CustomRoleSelector
             else Roles[RoleAssignType.Crewmate].Add(info);
         }
 
+        LoversData.OneIsImp &= Roles[RoleAssignType.Impostor].Count(x => x.SpawnChance == 100) < optImpNum;
+
         if (LoversData.Spawning)
         {
             if (LoversData.OneIsImp)

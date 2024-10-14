@@ -435,10 +435,6 @@ static class CheckMurderPatch
         if (SoulHunter.IsSoulHunterTarget(killer.PlayerId) && target.Is(CustomRoles.SoulHunter))
         {
             Notify("SoulHunterTargetNotifyNoKill");
-            LateTask.New(() =>
-            {
-                if (SoulHunter.IsSoulHunterTarget(killer.PlayerId)) killer.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter.GetSoulHunter(killer.PlayerId).SoulHunter_.GetRealName()), 300f);
-            }, 4f, log: false);
             return false;
         }
 
@@ -927,10 +923,6 @@ static class ReportDeadBodyPatch
                 if (SoulHunter.IsSoulHunterTarget(__instance.PlayerId))
                 {
                     __instance.Notify(GetString("SoulHunterTargetNotifyNoMeeting"));
-                    LateTask.New(() =>
-                    {
-                        if (SoulHunter.IsSoulHunterTarget(__instance.PlayerId)) __instance.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter.GetSoulHunter(__instance.PlayerId).SoulHunter_.GetRealName()), 300f);
-                    }, 4f, log: false);
                     return false;
                 }
             }
@@ -1000,7 +992,7 @@ static class ReportDeadBodyPatch
         return true;
     }
 
-    public static void AfterReportTasks(PlayerControl player, NetworkedPlayerInfo target)
+    public static void AfterReportTasks(PlayerControl player, NetworkedPlayerInfo target, bool force = false)
     {
         //====================================================================================
         //    Hereinafter, it is assumed that it is confirmed that the button is pressed.
@@ -1135,7 +1127,7 @@ static class ReportDeadBodyPatch
                 pc.FixMixedUpOutfit();
             }
 
-            PhantomRolePatch.OnReportBody(pc);
+            PhantomRolePatch.OnReportDeadBody(pc, force);
         }
 
         MeetingTimeManager.OnReportDeadBody();
@@ -1212,18 +1204,19 @@ static class FixedUpdatePatch
                         break;
                 }
             }
-            else if (!Main.HasJustStarted && GameStates.IsInTask && GhostRolesManager.ShouldHaveGhostRole(__instance))
+            else if (!Main.HasJustStarted && GameStates.IsInTask && !ExileController.Instance && GhostRolesManager.ShouldHaveGhostRole(__instance))
             {
                 GhostRolesManager.AssignGhostRole(__instance);
             }
         }
 
-        if (Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && (!Altruist.On || !CustomRoles.Altruist.RoleExist() || Main.PlayerStates[id].Role is not Altruist at || at.ReviveStartTS == 0))
+        if (Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && !__instance.GetCustomRole().NeedsUpdateAfterDeath())
         {
-            DeadBufferTime.TryAdd(id, 30);
+            var buffer = Options.DeepLowLoad.GetBool() ? 30 : 10;
+            DeadBufferTime.TryAdd(id, buffer);
             DeadBufferTime[id]--;
             if (DeadBufferTime[id] > 0) return;
-            DeadBufferTime[id] = 30;
+            DeadBufferTime[id] = buffer;
         }
 
         if (Options.LowLoadMode.GetBool())
@@ -1261,7 +1254,7 @@ static class FixedUpdatePatch
         if (Options.LowLoadMode.GetBool())
         {
             if (BufferTime[playerId] > 0) lowLoad = true;
-            else BufferTime[playerId] = 10;
+            else BufferTime[playerId] = Options.DeepLowLoad.GetBool() ? 30 : 10;
         }
 
         if (localPlayer)
@@ -1305,14 +1298,18 @@ static class FixedUpdatePatch
                     LevelKickBufferTime = 20;
                     if (player.GetClient().ProductUserId != "")
                     {
-                        if (!BanManager.TempBanWhiteList.Contains(player.GetClient().GetHashedPuid()))
-                            BanManager.TempBanWhiteList.Add(player.GetClient().GetHashedPuid());
+                        var hashedPuid = player.GetClient().GetHashedPuid();
+                        if (!BanManager.TempBanWhiteList.Contains(hashedPuid))
+                            BanManager.TempBanWhiteList.Add(hashedPuid);
                     }
 
-                    string msg = string.Format(GetString("KickBecauseLowLevel"), player.GetRealName().RemoveHtmlTags());
-                    Logger.SendInGame(msg);
-                    AmongUsClient.Instance.KickPlayer(player.GetClientId(), true);
-                    Logger.Info(msg, "Low Level Temp Ban");
+                    if (!Main.AllPlayerControls.All(x => x.Data.PlayerLevel <= 1) && !LobbyPatch.IsGlitchedRoomCode())
+                    {
+                        string msg = string.Format(GetString("KickBecauseLowLevel"), player.GetRealName().RemoveHtmlTags());
+                        Logger.SendInGame(msg);
+                        AmongUsClient.Instance.KickPlayer(player.GetClientId(), true);
+                        Logger.Info(msg, "Low Level Temp Ban");
+                    }
                 }
             }
 
@@ -1538,8 +1535,6 @@ static class FixedUpdatePatch
                     {
                         case CustomGameMode.SoloKombat:
                             SoloKombatManager.GetNameNotify(target, ref RealName);
-                            break;
-                        case CustomGameMode.FFA:
                             break;
                     }
 
@@ -1946,11 +1941,10 @@ static class CoEnterVentPatch
         switch (Options.CurrentGameMode)
         {
             case CustomGameMode.FFA when FFAManager.FFADisableVentingWhenTwoPlayersAlive.GetBool() && Main.AllAlivePlayerControls.Length <= 2:
-                var pc = __instance.myPlayer;
                 LateTask.New(() =>
                 {
-                    pc?.Notify(GetString("FFA-NoVentingBecauseTwoPlayers"), 7f);
-                    pc?.MyPhysics?.RpcBootFromVent(id);
+                    __instance.myPlayer?.Notify(GetString("FFA-NoVentingBecauseTwoPlayers"), 7f);
+                    __instance.RpcBootFromVent(id);
                 }, 0.5f, "FFA-NoVentingWhenTwoPlayersAlive");
                 return true;
             case CustomGameMode.FFA when FFAManager.FFADisableVentingWhenKcdIsUp.GetBool() && Main.KillTimers[__instance.myPlayer.PlayerId] <= 0:
@@ -1970,6 +1964,8 @@ static class CoEnterVentPatch
             case CustomGameMode.HideAndSeek:
                 HnSManager.OnCoEnterVent(__instance, id);
                 break;
+            case CustomGameMode.RoomRush:
+                return true;
         }
 
         if (__instance.myPlayer.IsRoleBlocked())
@@ -2000,10 +1996,6 @@ static class CoEnterVentPatch
             {
                 __instance.myPlayer?.Notify(GetString("SoulHunterTargetNotifyNoVent"));
                 __instance.RpcBootFromVent(id);
-                LateTask.New(() =>
-                {
-                    if (SoulHunter.IsSoulHunterTarget(__instance.myPlayer.PlayerId)) __instance.myPlayer.Notify(string.Format(GetString("SoulHunterTargetNotify"), SoulHunter.GetSoulHunter(__instance.myPlayer.PlayerId).SoulHunter_.GetRealName()), 300f);
-                }, 4f, log: false);
             }, 0.5f, "SoulHunterTargetBootFromVent");
             return true;
         }
@@ -2335,5 +2327,18 @@ public static class PlayerControlFixMixedUpOutfitPatch
     {
         if (!__instance.IsAlive()) return;
         __instance.cosmetics.ToggleNameVisible(true);
+    }
+}
+
+[HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.ShouldProcessRpc))]
+static class ShouldProcessRpcPatch
+{
+    // Since the stupid AU code added a check for RPC processing for outfit players, we need to patch this
+    // Always return true because the check is absolutely pointless
+    public static bool Prefix(PlayerControl __instance, RpcCalls rpc, byte sequenceId, ref bool __result)
+    {
+        Logger.Info($"{__instance.PlayerId} old skin sequenceId {__instance.Data.DefaultOutfit.SkinSequenceId} - new skin sequenceId {rpc} - sequenceId {sequenceId}", "Test");
+        __result = true;
+        return false;
     }
 }

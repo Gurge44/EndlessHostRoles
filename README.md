@@ -32,10 +32,7 @@
 
 # Installation
 
-Whichever is easier for you:
-
-- Through [Mod Manager](https://goodloss.fr/mm)
-- or follow the manual guide on our website: [EHR](https://sites.google.com/view/ehr-au)
+Follow the manual guide on our website: [EHR](https://sites.google.com/view/ehr-au)
 
 <br>
 
@@ -233,7 +230,7 @@ Source language: English
 - If you switch to EHR, you will have access to all features without paying for anything.
 - Test builds are available for free in our Discord server, and you can report bugs and suggest features there as well.
 - /up was reworked to /setrole, allowing you to set anyone's role for the next game, not only yours.
-- You can gain access to /setrole by just hosting EHR lobbies weekly or uploading EHR content to YouTube.
+- You can fully gain access to /setrole by just hosting EHR lobbies weekly or uploading EHR content to YouTube, but everyone can use /setrole to set their own role without any requirements (essentially /up).
 - EHR has a custom team assigner application, which is a unique feature that no other mod has.
 - You can force or ban certain role/add-on combinations directly in the game using /combo.
 - Not sure how to use commands? Use /help to see a list of all available commands.
@@ -242,6 +239,8 @@ Source language: English
 - You can also press TAB to autocomplete commands.
 - Some hints and tips are displayed during the loading screen and ejection animations, which can help you discover new
   features.
+- EHR has 10 unique custom game modes, which can be played with any number of players, some even alone.
+- You can make lobbies with more than 15 players on modded servers, just type /cs players 100 - for example - to set the player limit to 100.
 - I, the main developer of EHR, care about user feedback and suggestions, and I try to implement them as much as
   possible.
 - If this wasn't convincing enough, you can always try EHR and see if you like it better than TOHE.

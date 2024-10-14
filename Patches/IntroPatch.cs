@@ -200,9 +200,54 @@ static class CoBeginPatch
 
         RPC.RpcVersionCheck();
 
+        SetupLongRoleDescriptions();
+
         Utils.NotifyRoles(NoCache: true);
 
         GameStates.InGame = true;
+    }
+
+    private static void SetupLongRoleDescriptions()
+    {
+        try
+        {
+            Utils.LongRoleDescriptions.Clear();
+
+            foreach (var seer in Main.AllPlayerControls)
+            {
+                var longInfo = seer.GetRoleInfo(InfoLong: true).Split("\n\n")[0];
+                if (longInfo.Contains("):\n")) longInfo = longInfo.Split("):\n")[1];
+                bool tooLong = false;
+                bool showLongInfo = Options.ShowLongInfo.GetBool();
+                if (showLongInfo)
+                {
+                    if (longInfo.Length > 296)
+                    {
+                        longInfo = longInfo[..296];
+                        longInfo += "...";
+                        tooLong = true;
+                    }
+
+                    for (int i = 50; i < longInfo.Length; i += 50)
+                    {
+                        if (tooLong && i > 296) break;
+                        int index = longInfo.LastIndexOf(' ', i);
+                        if (index != -1) longInfo = longInfo.Insert(index + 1, "\n");
+                    }
+                }
+
+                longInfo = $"<#ffffff>{longInfo}</color>";
+
+                var lines = longInfo.Count(x => x == '\n');
+                var readTime = 30 + (lines * 5);
+
+                Utils.LongRoleDescriptions[seer.PlayerId] = (longInfo, readTime, tooLong);
+            }
+        }
+        catch (Exception e)
+        {
+            Utils.ThrowException(e);
+        }
     }
 }
 
@@ -798,7 +843,7 @@ static class IntroCutsceneDestroyPatch
                     {
                         if (pc.Is(CustomRoles.GM)) continue;
                         string petId = pet == "pet_RANDOM_FOR_EVERYONE" ? pets[r.Next(0, pets.Length - 1)] : pet;
-                        PetsPatch.SetPet(pc, petId);
+                        pc.RpcSetPetDesync(petId, pc);
                         Logger.Info($"{pc.GetNameWithRole()} => {GetString(petId)} Pet", "PetAssign");
                     }
 
@@ -886,6 +931,13 @@ static class IntroCutsceneDestroyPatch
             }
 
             LateTask.New(() => Utils.NotifyRoles(NoCache: true), 3f, log: false);
+        }
+        else
+        {
+            foreach (var player in Main.AllPlayerControls)
+            {
+                Main.PlayerStates[player.PlayerId].InitTask(player);
+            }
         }
 
         Logger.Info("OnDestroy", "IntroCutscene");

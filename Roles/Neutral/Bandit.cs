@@ -111,16 +111,7 @@ public class Bandit : RoleBase
         return addon;
     }
 
-    private static bool IsBlacklistedAddon(CustomRoles role) => (role.IsImpOnlyAddon() && !CanStealImpOnlyAddon.GetBool()) || (role.IsBetrayalAddon() && !CanStealBetrayalAddon.GetBool()) || StartGameHostPatch.BasisChangingAddons.ContainsKey(role) || role is
-        CustomRoles.Egoist or
-        CustomRoles.Workhorse or
-        CustomRoles.Cleansed or
-        CustomRoles.Busy or
-        CustomRoles.Lovers or
-        CustomRoles.Stressed or
-        CustomRoles.Lazy or
-        CustomRoles.Rascal or
-        CustomRoles.LastImpostor;
+    private static bool IsBlacklistedAddon(CustomRoles role) => (role.IsImpOnlyAddon() && !CanStealImpOnlyAddon.GetBool()) || (role.IsBetrayalAddon() && !CanStealBetrayalAddon.GetBool()) || StartGameHostPatch.BasisChangingAddons.ContainsKey(role) || role.IsNotAssignableMidGame();
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {

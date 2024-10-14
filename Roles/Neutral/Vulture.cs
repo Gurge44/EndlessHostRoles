@@ -14,14 +14,14 @@ public class Vulture : RoleBase
 
     public static List<byte> UnreportablePlayers = [];
 
-    public static OptionItem ArrowsPointingToDeadBody;
-    public static OptionItem NumberOfReportsToWin;
+    private static OptionItem ArrowsPointingToDeadBody;
+    private static OptionItem NumberOfReportsToWin;
     public static OptionItem CanVent;
-    public static OptionItem VultureReportCD;
-    public static OptionItem MaxEaten;
-    public static OptionItem HasImpVision;
-    public static OptionItem ChangeRoleWhenCantWin;
-    public static OptionItem ChangeRole;
+    private static OptionItem VultureReportCD;
+    private static OptionItem MaxEaten;
+    private static OptionItem HasImpVision;
+    private static OptionItem ChangeRoleWhenCantWin;
+    private static OptionItem ChangeRole;
 
     private static readonly CustomRoles[] ChangeRoles =
     [
@@ -76,9 +76,10 @@ public class Vulture : RoleBase
         LastReport = Utils.TimeStamp;
         LateTask.New(() =>
         {
-            if (GameStates.IsInTask)
+            var player = playerId.GetPlayer();
+            if (player != null && player.Is(CustomRoles.Vulture) && GameStates.IsInTask)
             {
-                Utils.GetPlayerById(playerId).Notify(GetString("VultureCooldownUp"));
+                player.Notify(GetString("VultureCooldownUp"));
             }
         }, VultureReportCD.GetFloat() + 8f, "Vulture CD");
         VultureId = playerId;
@@ -166,7 +167,7 @@ public class Vulture : RoleBase
 
     public override void OnFixedUpdate(PlayerControl pc)
     {
-        if (!pc.IsAlive()) return;
+        if (!pc.IsAlive() || Main.HasJustStarted) return;
 
         var playerId = pc.PlayerId;
         if (BodyReportCount >= NumberOfReportsToWin.GetInt() && GameStates.IsInTask)
