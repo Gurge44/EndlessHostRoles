@@ -118,7 +118,7 @@ public class Werewolf : RoleBase
             if (!player.IsModClient())
             {
                 var cooldown = lastTime + (long)RampageCD.GetFloat() - now;
-                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f);
+                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f, overrideAll: true);
                 CD = (int)cooldown;
             }
 
@@ -149,7 +149,7 @@ public class Werewolf : RoleBase
                     refresh = true;
                     break;
                 case <= 10 when !player.IsModClient():
-                    player.Notify(string.Format(GetString("WWRampageCountdown"), remainTime + 1));
+                    player.Notify(string.Format(GetString("WWRampageCountdown"), remainTime + 1), overrideAll: true);
                     break;
             }
 

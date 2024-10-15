@@ -33,7 +33,11 @@
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             var newTarget = Utils.GetPlayerById(Target);
-            if (newTarget == null || !newTarget.IsAlive() || !killer.RpcCheckAndMurder(newTarget, check: true)) return true;
+            if (newTarget == null || !newTarget.IsAlive() || !killer.RpcCheckAndMurder(newTarget, check: true))
+            {
+                killer.Notify(string.Format(Translator.GetString("AugmenterFail"), Target.ColoredPlayerName()));
+                return true;
+            }
 
             var pos = newTarget.Pos();
             newTarget.TP(target);
