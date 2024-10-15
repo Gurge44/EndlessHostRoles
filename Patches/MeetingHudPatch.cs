@@ -12,6 +12,7 @@ using HarmonyLib;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
+// ReSharper disable AccessToModifiedClosure
 
 
 namespace EHR.Patches;
@@ -733,7 +734,7 @@ static class MeetingHudStartPatch
 
         if (msgToSend.Count > 0)
         {
-            LateTask.New(() => { msgToSend.Do(x => Utils.SendMessage(x.Message, x.TargetID, x.Title)); }, 6f, "Meeting Start Notify");
+            LateTask.New(() => msgToSend.Do(x => Utils.SendMessage(x.Message, x.TargetID, x.Title)), 6f, "Meeting Start Notify");
         }
 
         Main.CyberStarDead.Clear();
@@ -829,7 +830,9 @@ static class MeetingHudStartPatch
             var suffix = Main.PlayerStates[seer.PlayerId].Role.GetSuffix(seer, target, meeting: true);
             if (suffix.Length > 0)
             {
-                if (roleTextMeeting.text.Length > 0) roleTextMeeting.text += "\n";
+                if (roleTextMeeting.enabled) roleTextMeeting.text += "\n";
+                else roleTextMeeting.text = string.Empty;
+
                 roleTextMeeting.text += suffix;
                 roleTextMeeting.enabled = true;
             }
@@ -838,7 +841,7 @@ static class MeetingHudStartPatch
             var playerLevel = pva.transform.Find("PlayerLevel");
             var levelDisplay = Object.Instantiate(playerLevel, pva.transform);
             levelDisplay.localPosition = new(-1.21f, -0.15f, playerLevel.transform.localPosition.z);
-            levelDisplay.transform.SetSiblingIndex(pva.transform.Find("PlayerLevel").GetSiblingIndex() + 1);
+            levelDisplay.transform.SetSiblingIndex(playerLevel.GetSiblingIndex() + 1);
             levelDisplay.gameObject.name = "PlayerId";
             levelDisplay.GetComponent<SpriteRenderer>().color = Palette.Purple;
             var idLabel = levelDisplay.transform.Find("LevelLabel");

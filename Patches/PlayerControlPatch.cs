@@ -90,11 +90,18 @@ static class CmdCheckMurderPatch
         {
             __instance.CheckMurder(target);
         }
-        else
+        else if (Options.CurrentGameMode != CustomGameMode.FFA)
         {
             MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(__instance.NetId, (byte)RpcCalls.CheckMurder, SendOption.Reliable);
             messageWriter.WriteNetObject(target);
             AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+        }
+        else
+        {
+            MessageWriter writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FFAKill);
+            writer.WriteNetObject(__instance);
+            writer.WriteNetObject(target);
+            writer.EndMessage();
         }
 
         return false;

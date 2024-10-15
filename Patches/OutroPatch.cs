@@ -131,7 +131,7 @@ static class EndGamePatch
 }
 
 [HarmonyPatch(typeof(EndGameManager), nameof(EndGameManager.SetEverythingUp))]
-class SetEverythingUpPatch
+static class SetEverythingUpPatch
 {
     public static string LastWinsText = string.Empty;
     public static string LastWinsReason = string.Empty;
