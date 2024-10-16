@@ -6,7 +6,6 @@ using System.Text;
 using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
-using EHR.GameMode.HideAndSeekRoles;
 using EHR.Neutral;
 
 
@@ -84,13 +83,6 @@ namespace EHR
 
         public virtual void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
-            if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && HnSManager.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
-            {
-                int time = Hider.TimeDecreaseOnTaskComplete.GetInt();
-                HnSManager.TimeLeft -= time;
-                pc.Notify(Translator.GetString("TimeDecreased"));
-                if (60 - (HnSManager.TimeLeft % 60) <= time) Utils.NotifyRoles();
-            }
         }
 
         public virtual void OnCoEnterVent(PlayerPhysics physics, int ventId)

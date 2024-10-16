@@ -382,10 +382,8 @@ static class ExtendedPlayerControl
                     (RoleTypes seerRoleType, CustomRoles seerCustomRole) = seer.GetRoleMap();
                     if (seer.IsAlive())
                     {
-                        if (seerCustomRole.IsDesyncRole())
-                            remeberRoleType = seerIsHost ? RoleTypes.Crewmate : RoleTypes.Scientist;
-                        else
-                            remeberRoleType = seerRoleType;
+                        if (seerCustomRole.IsDesyncRole()) remeberRoleType = seerIsHost ? RoleTypes.Crewmate : RoleTypes.Scientist;
+                        else remeberRoleType = seerRoleType;
                     }
                     else
                     {

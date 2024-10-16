@@ -80,6 +80,7 @@ namespace EHR
 
         public static void StartSeekerBlindTime()
         {
+            Main.AllPlayerKillCooldown.SetAllValues(Seeker.KillCooldown.GetFloat());
             IsBlindTime = true;
             Utils.MarkEveryoneDirtySettingsV4();
             LateTask.New(() =>
@@ -238,10 +239,10 @@ namespace EHR
         public static void ApplyGameOptions(IGameOptions opt, PlayerControl pc)
         {
             var role = PlayerRoles.GetValueOrDefault(pc.PlayerId);
-            bool isBlind = role.Interface.Team == Team.Impostor && IsBlindTime;
-            Main.AllPlayerSpeed[pc.PlayerId] = isBlind ? Main.MinSpeed : role.Interface.RoleSpeed;
-            opt.SetFloat(FloatOptionNames.CrewLightMod, isBlind ? 0f : role.Interface.RoleVision);
-            opt.SetFloat(FloatOptionNames.ImpostorLightMod, isBlind ? 0f : role.Interface.RoleVision);
+            bool blind = role.Interface.Team == Team.Impostor && IsBlindTime;
+            Main.AllPlayerSpeed[pc.PlayerId] = blind ? Main.MinSpeed : role.Interface.RoleSpeed;
+            opt.SetFloat(FloatOptionNames.CrewLightMod, blind ? 0f : role.Interface.RoleVision);
+            opt.SetFloat(FloatOptionNames.ImpostorLightMod, blind ? 0f : role.Interface.RoleVision);
             opt.SetFloat(FloatOptionNames.PlayerSpeedMod, Main.AllPlayerSpeed[pc.PlayerId]);
         }
 

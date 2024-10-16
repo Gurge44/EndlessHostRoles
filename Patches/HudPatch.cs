@@ -743,7 +743,7 @@ static class TaskPanelBehaviourPatch
                         AllText += $"<size=70%>\r\n{text}\r\n</size>";
                     }
 
-                    AllText += $"\r\n{SpeedrunManager.GetTaskBarText()}";
+                    AllText += $"\r\n<size=90%>{SpeedrunManager.GetTaskBarText()}</size>";
 
                     break;
 
@@ -790,24 +790,6 @@ static class DialogueBoxShowPatch
             Minigame.Instance.Close();
         __instance.gameObject.SetActive(true);
         return false;
-    }
-
-    public static void Postfix()
-    {
-        if (GameStates.IsMeeting)
-        {
-        }
-    }
-}
-
-[HarmonyPatch(typeof(DialogueBox), nameof(DialogueBox.Hide))]
-static class DialogueBoxHidePatch
-{
-    public static void Postfix()
-    {
-        if (GameStates.IsMeeting && !DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening)
-        {
-        }
     }
 }
 
