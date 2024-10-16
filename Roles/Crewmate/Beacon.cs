@@ -6,6 +6,8 @@ namespace EHR.Crewmate
 {
     internal class Beacon : RoleBase
     {
+        private static List<PlayerControl> Beacons = [];
+        
         private static OptionItem VisionIncrease;
         private static OptionItem Radius;
         private static List<byte> AffectedPlayers = [];
@@ -29,6 +31,7 @@ namespace EHR.Crewmate
 
         public override void Init()
         {
+            Beacons = [];
             AffectedPlayers = [];
             LastChange = [];
             On = false;
@@ -37,34 +40,33 @@ namespace EHR.Crewmate
         public override void Add(byte playerId)
         {
             On = true;
+            Beacons.Add(playerId.GetPlayer());
         }
 
         public static bool IsAffectedPlayer(byte id) => Utils.IsActive(SystemTypes.Electrical) && AffectedPlayers.Contains(id);
 
-        private int Count;
         public override void OnCheckPlayerPosition(PlayerControl pc)
         {
             if (!GameStates.IsInTask || pc == null) return;
-            
-            if (Count++ < 10) return;
-            Count = 0;
 
             long now = Utils.TimeStamp;
             if (LastChange.TryGetValue(pc.PlayerId, out var ts) && ts == now) return;
 
-            bool isBeaconNearby = Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoles.Beacon) && Vector2.Distance(x.Pos(), pc.Pos()) <= Radius.GetFloat());
-            bool isAffectedPlayer = AffectedPlayers.Contains(pc.PlayerId);
+            var pos = pc.Pos();
+            var radius = Radius.GetFloat();
+            bool beaconNearby = Beacons.Any(x => Vector2.Distance(x.Pos(), pos) <= radius);
+            bool affectedPlayer = AffectedPlayers.Contains(pc.PlayerId);
 
-            switch (isAffectedPlayer)
+            switch (affectedPlayer)
             {
-                case true when !isBeaconNearby:
+                case true when !beaconNearby:
                 {
                     AffectedPlayers.Remove(pc.PlayerId);
                     if (Utils.IsActive(SystemTypes.Electrical)) pc.MarkDirtySettings();
                     LastChange[pc.PlayerId] = now;
                     break;
                 }
-                case false when isBeaconNearby:
+                case false when beaconNearby:
                 {
                     AffectedPlayers.Add(pc.PlayerId);
                     if (Utils.IsActive(SystemTypes.Electrical)) pc.MarkDirtySettings();

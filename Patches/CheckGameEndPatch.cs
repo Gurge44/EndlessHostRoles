@@ -32,7 +32,7 @@ static class GameEndChecker
     {
         if (!AmongUsClient.Instance.AmHost) return true;
 
-        if (Predicate == null || ShouldNotCheck) return false;
+        if (Predicate == null || ShouldNotCheck || Main.HasJustStarted) return false;
 
         if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return false;
 

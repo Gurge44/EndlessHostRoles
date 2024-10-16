@@ -170,7 +170,6 @@ namespace EHR
 
             int ventLimit = VentTimes.GetInt();
             VentLimit = Main.AllPlayerControls.ToDictionary(x => x.PlayerId, _ => ventLimit);
-            Utils.SendRPC(CustomRPC.RoomRushDataSync, 1);
 
             AllRooms = ShipStatus.Instance.AllRooms.Select(x => x.RoomId).ToHashSet();
             AllRooms.Remove(SystemTypes.Hallway);
@@ -222,6 +221,7 @@ namespace EHR
             }
 
             if (ventLimit > 0) aapc.Without(PlayerControl.LocalPlayer).Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
+            Utils.SendRPC(CustomRPC.RoomRushDataSync, 1);
 
             NameNotifyManager.Reset();
             StartNewRound(true);
@@ -287,7 +287,7 @@ namespace EHR
             {
                 Main.AllPlayerSpeed[PlayerControl.LocalPlayer.PlayerId] = speed;
                 PlayerControl.LocalPlayer.SyncSettings();
-            }, (AmongUsClient.Instance.Ping / 1000f) * 2);
+            }, (AmongUsClient.Instance.Ping / 1000f) * 2f);
         }
 
         private static PlainShipRoom GetRoomClass(this SystemTypes systemTypes) => ShipStatus.Instance.AllRooms.First(x => x.RoomId == systemTypes);

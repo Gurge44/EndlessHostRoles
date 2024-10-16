@@ -108,8 +108,13 @@ namespace EHR.Impostor
             }
         }
 
+        private int Count;
+
         public override void OnFixedUpdate(PlayerControl pc)
         {
+            if (Count++ < 3) return;
+            Count = 0;
+            
             var abyssbringer = AbyssbringerId.GetPlayer();
             int count = BlackHoles.Count;
             for (int i = 0; i < count; i++)

@@ -279,26 +279,26 @@ internal class AntiAdminer : RoleBase
             }
         }
 
-        var isChange = false;
+        var change = false;
 
-        isChange |= IsAdminWatch != Admin;
+        change |= IsAdminWatch != Admin;
         IsAdminWatch = Admin;
-        isChange |= IsVitalWatch != Vital;
+        change |= IsVitalWatch != Vital;
         IsVitalWatch = Vital;
-        isChange |= IsDoorLogWatch != DoorLog;
+        change |= IsDoorLogWatch != DoorLog;
         IsDoorLogWatch = DoorLog;
         if (IsMonitor ? Monitor.CanCheckCamera.GetBool() : CanCheckCamera.GetBool())
         {
-            isChange |= IsCameraWatch != Camera;
+            change |= IsCameraWatch != Camera;
             IsCameraWatch = Camera;
         }
 
-        if (notify || isChange)
+        if (notify || change)
         {
             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
         }
 
-        if (isChange)
+        if (change)
         {
             FixedUpdatePatch.DoPostfix(player);
         }

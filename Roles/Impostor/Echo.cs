@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using AmongUs.GameOptions;
 
 namespace EHR.Impostor
 {
@@ -9,6 +10,7 @@ namespace EHR.Impostor
 
         private static OptionItem ShapeshiftCooldown;
         private static OptionItem ShapeshiftDuration;
+        private static OptionItem DisableVentingWhileControlling;
 
         public PlayerControl EchoPC;
         public override bool IsEnable => On;
@@ -26,6 +28,8 @@ namespace EHR.Impostor
             ShapeshiftDuration = new FloatOptionItem(++id, "ShapeshiftDuration", new(0f, 180f, 0.5f), 10f, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Seconds);
+            DisableVentingWhileControlling = new BooleanOptionItem(++id, "Echo.DisableVentingWhileControlling", true, tab)
+                .SetParent(parent);
         }
 
         public override void Init()
@@ -49,6 +53,18 @@ namespace EHR.Impostor
         }
 
         public override bool CanUseKillButton(PlayerControl pc) => false;
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
+            AURoleOptions.ShapeshifterDuration = ShapeshiftDuration.GetFloat();
+            AURoleOptions.ShapeshifterLeaveSkin = false;
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return !DisableVentingWhileControlling.GetBool() || !pc.IsShifted();
+        }
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
@@ -99,6 +115,14 @@ namespace EHR.Impostor
                 killer.RpcCheckAndMurder(EchoPC);
                 target.Suicide(PlayerState.DeathReason.Kill, EchoPC);
             }, 0.2f, log: false);
+        }
+
+        public override void OnReportDeadBody()
+        {
+            if (!EchoPC.IsShifted()) return;
+            var ssTarget = ((byte)EchoPC.shapeshiftTargetPlayerId).GetPlayer();
+            if (ssTarget == null || !ssTarget.IsAlive()) return;
+            ssTarget.Suicide(PlayerState.DeathReason.Kill, EchoPC);
         }
     }
 }

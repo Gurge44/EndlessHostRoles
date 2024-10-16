@@ -1146,29 +1146,21 @@ static class ExtendedPlayerControl
     {
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Penguin.IsVictim(pc)) return false;
         if (pc.GetRoleTypes() == RoleTypes.Engineer) return false;
-        if (CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId)) return true;
 
-        if (pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool()) return true;
-        if (pc.Is(CustomRoles.Bloodlust) || pc.Is(CustomRoles.Refugee)) return true;
-
-        return pc.GetCustomRole() switch
+        return Options.CurrentGameMode switch
         {
-            // SoloKombat
-            CustomRoles.KB_Normal => true,
-            // FFA
-            CustomRoles.Killer => true,
-            // Move And Stop
-            CustomRoles.Tasker => false,
-            // Hot Potato
-            CustomRoles.Potato => false,
-            // Speedrun
-            CustomRoles.Runner => false,
-            // Capture The Flag
-            CustomRoles.CTFPlayer => false,
-            // Natural Disasters
-            CustomRoles.NDPlayer => false,
-            // Room Rush
-            CustomRoles.RRPlayer => RoomRush.VentLimit[pc.PlayerId] > 0,
+            CustomGameMode.SoloKombat => true,
+            CustomGameMode.FFA => true,
+            CustomGameMode.MoveAndStop => false,
+            CustomGameMode.HotPotato => false,
+            CustomGameMode.Speedrun => false,
+            CustomGameMode.CaptureTheFlag => false,
+            CustomGameMode.NaturalDisasters => false,
+            CustomGameMode.RoomRush => RoomRush.VentLimit[pc.PlayerId] > 0,
+            
+            CustomGameMode.Standard when (CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId)) => true,
+            CustomGameMode.Standard when (pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool()) => true,
+            CustomGameMode.Standard when (pc.Is(CustomRoles.Bloodlust) || pc.Is(CustomRoles.Refugee)) => true,
 
             _ => Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseImpostorVentButton(pc)
         };
