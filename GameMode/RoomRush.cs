@@ -61,7 +61,8 @@ namespace EHR
                 [(SystemTypes.Cafeteria, SystemTypes.MedBay)] = 3,
                 [(SystemTypes.Balcony, SystemTypes.MedBay)] = 5,
                 [(SystemTypes.Storage, SystemTypes.LockerRoom)] = 2,
-                [(SystemTypes.Balcony, SystemTypes.LockerRoom)] = 2
+                [(SystemTypes.Balcony, SystemTypes.LockerRoom)] = 2,
+                [(SystemTypes.Launchpad, SystemTypes.Storage)] = 2
             },
             [MapNames.Polus] = new()
             {

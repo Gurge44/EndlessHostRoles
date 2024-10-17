@@ -1156,8 +1156,8 @@ static class ExtendedPlayerControl
             CustomGameMode.Speedrun => false,
             CustomGameMode.CaptureTheFlag => false,
             CustomGameMode.NaturalDisasters => false,
-            CustomGameMode.RoomRush => RoomRush.VentLimit[pc.PlayerId] > 0,
-            
+            CustomGameMode.RoomRush => !Main.HasJustStarted && RoomRush.VentLimit[pc.PlayerId] > 0,
+
             CustomGameMode.Standard when (CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId)) => true,
             CustomGameMode.Standard when (pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool()) => true,
             CustomGameMode.Standard when (pc.Is(CustomRoles.Bloodlust) || pc.Is(CustomRoles.Refugee)) => true,
