@@ -257,7 +257,6 @@ public static class Options
     public static OptionItem ArsonistMinPlayersToIgnite;
     public static OptionItem ArsonistMaxPlayersToIgnite;
     public static OptionItem LegacyMafia;
-    public static OptionItem NotifyGodAlive;
     public static OptionItem MarioVentNumWin;
     public static OptionItem MarioVentCD;
     public static OptionItem VeteranSkillCooldown;
@@ -642,7 +641,6 @@ public static class Options
     // Guess Restrictions //
     public static OptionItem TerroristCanGuess;
     public static OptionItem PhantomCanGuess;
-    public static OptionItem GodCanGuess;
 
     public static OptionItem ShowAntiBlackoutWarning;
     public static OptionItem AllowConsole;

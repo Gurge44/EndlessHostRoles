@@ -67,7 +67,7 @@ namespace EHR
             pc.RpcChangeRoleBasis(CustomRoles.Runner);
             pc.Notify(Translator.GetString("Speedrun_CompletedTasks"));
             pc.SyncSettings();
-            pc.SetKillCooldown();
+            pc.SetKillCooldown(KillCooldown.GetInt());
         }
 
         public static string GetTaskBarText()

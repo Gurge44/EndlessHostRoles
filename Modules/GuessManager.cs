@@ -241,7 +241,7 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("GuessDisabled"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessDisabled"));
                             return true;
-                        case CustomRoles.God when !Options.GodCanGuess.GetBool():
+                        case CustomRoles.God when !God.GodCanGuess.GetBool():
                             if (!isUI) Utils.SendMessage(GetString("GuessDisabled"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessDisabled"));
                             return true;

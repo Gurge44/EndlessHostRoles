@@ -73,7 +73,7 @@ public static class NameColorManager
         if (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoleTypes.Impostor) && Options.MadmateKnowWhosImp.GetBool()) color = Main.ImpostorColor;
         if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Madmate) && Options.ImpKnowWhosMadmate.GetBool()) color = Main.RoleColors[CustomRoles.Madmate];
         if (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool()) color = Main.RoleColors[CustomRoles.Madmate];
-        if (Blackmailer.On && seerRoleClass is Blackmailer { IsEnable: true } bm && bm.BlackmailedPlayerId == target.PlayerId) color = Main.RoleColors[CustomRoles.Electric];
+        if (Blackmailer.On && seerRoleClass is Blackmailer { IsEnable: true } bm && bm.BlackmailedPlayerIds.Contains(target.PlayerId)) color = Main.RoleColors[CustomRoles.BloodKnight];
         if (Commander.On && seer.Is(Team.Impostor))
         {
             if (Commander.PlayerList.Any(x => x.MarkedPlayer == target.PlayerId)) color = Main.RoleColors[CustomRoles.Sprayer];
@@ -160,6 +160,13 @@ public static class NameColorManager
             CustomRoles.Socialite when ((Socialite)seerRoleClass).MarkedPlayerId == target.PlayerId => Main.RoleColors[seerRole],
             CustomRoles.Beehive when ((Beehive)seerRoleClass).StungPlayers.ContainsKey(target.PlayerId) => "000000",
             CustomRoles.Dad when ((Dad)seerRoleClass).DrunkPlayers.Contains(target.PlayerId) => "000000",
+            CustomRoles.God when God.KnowInfo.GetValue() == 1 => target.GetTeam() switch
+            {
+                Team.Impostor => Main.ImpostorColor,
+                Team.Crewmate => Main.CrewmateColor,
+                Team.Neutral => Main.NeutralColor,
+                _ => color
+            },
             _ => color
         };
 
@@ -213,7 +220,7 @@ public static class NameColorManager
                || (seer.Is(CustomRoles.Mimic) && Main.PlayerStates[target.Data.PlayerId].IsDead && target.Data.IsDead && !target.IsAlive() && Options.MimicCanSeeDeadRoles.GetBool())
                || target.Is(CustomRoles.GM)
                || seer.Is(CustomRoles.GM)
-               || seer.Is(CustomRoles.God)
+               || (seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2)
                || (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor))
                || (seer.Is(CustomRoles.Traitor) && target.Is(Team.Impostor))
                || (seer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Sidekick))

@@ -12,6 +12,7 @@ using HarmonyLib;
 using TMPro;
 using UnityEngine;
 using static EHR.Translator;
+
 // ReSharper disable AccessToModifiedClosure
 
 
@@ -155,7 +156,7 @@ static class CheckForEndVotingPatch
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Scout) && Scout.HideVote.GetBool()) continue;
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Oracle) && Oracle.HideVote.GetBool()) continue;
 
-                if (ps.TargetPlayerId == ps.VotedFor && Options.MadmateSpawnMode.GetInt() == 2) continue;
+                if (ps.TargetPlayerId == ps.VotedFor && Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.IsEnable() && MeetingStates.FirstMeeting) continue;
 
                 AddVote();
 
@@ -196,7 +197,7 @@ static class CheckForEndVotingPatch
             if ((Blackmailer.On || NiceSwapper.On) && !RunRoleCode)
             {
                 Logger.Warn($"Running role code is disabled, skipping the rest of the process (Blackmailer.On: {Blackmailer.On}, NiceSwapper.On: {NiceSwapper.On}, RunRoleCode: {RunRoleCode})", "Vote");
-                if (shouldSkip) LateTask.New(() => RunRoleCode = true, 0.5f, "Enable RunRoleCode");
+                LateTask.New(() => RunRoleCode = true, 0.5f, "Enable RunRoleCode");
                 return false;
             }
 
@@ -588,7 +589,7 @@ static class ExtendedMeetingHud
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Pickpocket)) VoteNum += (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Pickpocket.VotesPerKill.GetFloat());
                 if (Main.PlayerStates[ps.TargetPlayerId].Role is Adventurer { IsEnable: true } av && av.ActiveWeapons.Contains(Adventurer.Weapon.Proxy)) VoteNum++;
                 if (Main.PlayerStates[ps.TargetPlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk)) VoteNum = 0;
-                if (ps.TargetPlayerId == ps.VotedFor && Options.MadmateSpawnMode.GetInt() == 2) VoteNum = 0;
+                if (ps.TargetPlayerId == ps.VotedFor && Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.IsEnable() && MeetingStates.FirstMeeting) VoteNum = 0;
 
                 dic[ps.VotedFor] = !dic.TryGetValue(ps.VotedFor, out int num) ? VoteNum : num + VoteNum;
             }
@@ -648,10 +649,10 @@ static class MeetingHudStartPatch
             LateTask.New(() => { msgToSend.Do(x => Utils.SendMessage(x.Message, x.TargetID, x.Title)); }, 3f, "Skill Description First Meeting");
         }
 
-        if (Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.GetCount() > 0)
+        if (Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.IsEnable() && MeetingStates.FirstMeeting)
             AddMsg(string.Format(GetString("Message.MadmateSelfVoteModeNotify"), GetString("MadmateSpawnMode.SelfVote")));
 
-        if (CustomRoles.God.RoleExist() && Options.NotifyGodAlive.GetBool())
+        if (CustomRoles.God.RoleExist() && God.NotifyGodAlive.GetBool())
             AddMsg(GetString("GodNoticeAlive"), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.God), GetString("GodAliveTitle")));
 
         if (MeetingStates.FirstMeeting && CustomRoles.Workaholic.RoleExist() && Workaholic.WorkaholicGiveAdviceAlive.GetBool() && !Workaholic.WorkaholicCannotWinAtDeath.GetBool() /* && !Options.GhostIgnoreTasks.GetBool()*/)
@@ -804,7 +805,7 @@ static class MeetingHudStartPatch
                 Main.PlayerStates.Values.Any(x => x.Role.KnowRole(seer, target)) ||
                 Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == target.PlayerId) ||
                 seer.IsRevealedPlayer(target) ||
-                seer.Is(CustomRoles.God) ||
+                seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2 ||
                 seer.Is(CustomRoles.GM) ||
                 Main.GodMode.Value;
 

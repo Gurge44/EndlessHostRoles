@@ -214,7 +214,8 @@ namespace EHR
         {
             try
             {
-                var name = overrideName == "" ? IsGeneralOption() ? fieldName : $"{role}.{fieldName}" : overrideName;
+                var generalOption = !Translator.GetString(fieldName).Contains("INVALID");
+                var name = overrideName == "" ? generalOption ? fieldName : $"{role}.{fieldName}" : overrideName;
                 field = (valueRule, defaultValue) switch
                 {
                     (null, bool bdv) => new BooleanOptionItem(++_id, name, bdv, tab),
@@ -235,18 +236,8 @@ namespace EHR
             }
 
             return this;
-
-            bool IsGeneralOption() => !Translator.GetString(fieldName).Contains("INVALID");
         }
 
         public void CreateOverrideTasksData() => Options.OverrideTasksData.Create(++_id, tab, role);
-    }
-
-    public enum OptionType
-    {
-        Boolean,
-        Int,
-        Float,
-        String
     }
 }

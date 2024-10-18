@@ -261,7 +261,7 @@ namespace EHR
             var targetTeam = PlayerTeams[target.PlayerId];
             if (!ValidTag || PlayerTeams[killer.PlayerId] == targetTeam || TeamData.Values.Any(x => x.FlagCarrier == killer.PlayerId)) return;
 
-            new[] { killer, target }.Do(x => x.SetKillCooldown());
+            new[] { killer, target }.Do(x => x.SetKillCooldown(TagCooldown.GetFloat()));
 
             if (TeamData.FindFirst(x => x.Value.FlagCarrier == target.PlayerId, out var kvp))
             {
