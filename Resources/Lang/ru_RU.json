@@ -1423,6 +1423,8 @@
   "SansMinKillCooldown": "Мин. откат убийства",
   "BomberRadius": "Радиус бомбы (5x это примерно половина Столовой)",
   "NotifyGodAlive": "Сообщать игрокам на собраниях, что Бог ещё жив",
+  "God.KnowInfo": "God knows players'",
+  "Alignments": "Alignments",
   "TransporterTeleportMax": "Кол-во телепортаций",
   "TriggerKill": "Убийство",
   "ExperimentalRoleIndicator": "    <color=#ffff00>ЭКСПЕРИМЕНТАЛЬНО</color>",
