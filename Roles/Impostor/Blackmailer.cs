@@ -55,6 +55,7 @@ namespace EHR.Impostor
                 BlackmailedPlayerIds.Add(target.PlayerId);
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 killer.SetKillCooldown(3f);
+                killer.RpcRemoveAbilityUse();
                 NumBlackmailedThisRound++;
             });
         }
