@@ -1423,6 +1423,8 @@
   "SansMinKillCooldown": "Minimum kill cooldown",
   "BomberRadius": "Bomb radius (5x is about half a Cafeteria)",
   "NotifyGodAlive": "Inform players at meetings that God is still alive",
+  "God.KnowInfo": "God knows players'",
+  "Alignments": "Alignments",
   "TransporterTeleportMax": "Max number of teleports",
   "TriggerKill": "擊殺",
   "ExperimentalRoleIndicator": "    <color=#ffff00>EXPERIMENTAL</color>",
