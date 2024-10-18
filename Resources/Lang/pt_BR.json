@@ -1423,6 +1423,8 @@
   "SansMinKillCooldown": "Recarga Mínima de Abate",
   "BomberRadius": "Raio da Bomba (5x é aproximadamente metade da Cafeteria)",
   "NotifyGodAlive": "Informar jogadores nas reuniões que Deus ainda está vivo",
+  "God.KnowInfo": "God knows players'",
+  "Alignments": "Alignments",
   "TransporterTeleportMax": "Número máximo de teletransportes",
   "TriggerKill": "Abate",
   "ExperimentalRoleIndicator": "    <color=#ffff00>EXPERIMENTAL</color>",
