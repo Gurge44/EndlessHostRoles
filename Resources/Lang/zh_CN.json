@@ -1423,6 +1423,8 @@
   "SansMinKillCooldown": "击杀冷却时间下限",
   "BomberRadius": "爆炸范围(5x大约能炸半个食堂)",
   "NotifyGodAlive": "在会议上告诉玩家神还活着",
+  "God.KnowInfo": "God knows players'",
+  "Alignments": "Alignments",
   "TransporterTeleportMax": "传送次数上限",
   "TriggerKill": "触发击杀",
   "ExperimentalRoleIndicator": "    <color=#ffff00>实验性职业</color>",
