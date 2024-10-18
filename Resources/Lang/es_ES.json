@@ -1423,6 +1423,8 @@
   "SansMinKillCooldown": "Tiempo de reutilización de asesinato mínimo",
   "BomberRadius": "Radio de bomba (5x es como media Cafetería)",
   "NotifyGodAlive": "Informar jugadores en las reuniones que Dios sigue vivo",
+  "God.KnowInfo": "God knows players'",
+  "Alignments": "Alignments",
   "TransporterTeleportMax": "Número máximo de teletransportes",
   "TriggerKill": "Matar",
   "ExperimentalRoleIndicator": "    <color=#ffff00>EXPERIMENTAL</color>",
