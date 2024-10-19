@@ -2252,6 +2252,7 @@
   "CommandDescription.Draft": "Escolha uma função no modo Todos Escolhem",
   "CommandDescription.ReadyCheck": "Inicie uma verificação de prontidão (verifique quem está AFK) (resultados após 30s)",
   "CommandDescription.Ready": "Marque você mesmo como pronto",
+  "CommandDescription.EnableAllRoles": "Enables all roles and add-ons (⚠ freezes the game for a few seconds ⚠)",
   "CommandArgs.ChangeSetting.Name": "A configuração para mudar (deixe em branco para ver todas as configurações)",
   "CommandArgs.ChangeSetting.UnknownValue": "(deixe em branco para ver o que colocar aqui)",
   "CommandArgs.Rename.Name": "Seu novo nome",
