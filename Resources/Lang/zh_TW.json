@@ -4339,6 +4339,7 @@
   "NegotiatorInfoLong": "(Crewmates):\\nAs the Negotiator, you can negotiate with someone by voting for them in a meeting. Your target then has to choose between suiciding, receiving a harmful add-on, permanently getting low vision or low speed.\\n\\nIf they don't pick, the default action is suicide. They can use <b>/neg {index}</b> to pick.\\nYou can only negotiate once per meeting. After the meeting, you'll know what your target picked.",
   "Negotiator.LowVision": "Low vision",
   "Negotiator.LowSpeed": "Low speed",
+  "Negotiator.MinVotingTimeLeftToNegotiate": "Minimum Voting Time Left to Negotiate",
   "Negotiator.Type.Suicide": "自殺",
   "Negotiator.Type.HarmfulAddon": "Receive a Harmful Add-on",
   "Negotiator.Type.LowVision": "Get Permanent low vision",
