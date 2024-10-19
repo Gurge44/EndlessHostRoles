@@ -3749,7 +3749,7 @@
   "RecklessInfo": "Avoid Meetings at all cost",
   "RecklessInfoLong": "(Neutral):\\nAs the Reckless, your cooldown decreases with each kill you get. However, this isn't permanent. Your kill cooldown resets back to its default value at every meeting.",
   "Ignitor": "點火者",
-  "IgnitorInfo": "Light Candles for High Vision",
+  "IgnitorInfo": "點燃蠟燭",
   "IgnitorInfoLong": "(船員陣營):\\n點火者完成任務後將點燃一根蠟燭，點燃後點火者的視野將達到最大值。但是點火者的視野會隨著時間而慢慢減少。由於你使用的是蠟燭，所以不受燈光破壞的影響。",
   "CandleLighterStartVision": "Starting Vision (Highest)",
   "CandleLighterCountStartTime": "Time to Start Changing Vision",
