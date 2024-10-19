@@ -4339,6 +4339,7 @@
   "NegotiatorInfoLong": "(船员职业):\\n谈判专家可以通过在会议上投给某人来与之谈判.然后,你的目标必须在自杀,接受有害附加职业,永久性低视力或低速度之间做出选择.\\n\\n如果他们不选,默认自杀.他们可以使用<b>/neg {index}</b>去选择.\\n每次会议只能谈判一次.会后,您就会知道您的目标选择了什么.",
   "Negotiator.LowVision": "低视野大小",
   "Negotiator.LowSpeed": "低速度",
+  "Negotiator.MinVotingTimeLeftToNegotiate": "Minimum Voting Time Left to Negotiate",
   "Negotiator.Type.Suicide": "自杀了",
   "Negotiator.Type.HarmfulAddon": "有害的附加职业",
   "Negotiator.Type.LowVision": "获得永久性低视野",
