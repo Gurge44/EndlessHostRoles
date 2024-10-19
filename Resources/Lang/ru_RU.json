@@ -2252,6 +2252,7 @@
   "CommandDescription.Draft": "Выбрать роли во время драфтинга",
   "CommandDescription.ReadyCheck": "Начать проверку готовности игроков к игре (этим можно проверить кто в афк) (результат появится через 30с)",
   "CommandDescription.Ready": "Отметить себя готовым к игре",
+  "CommandDescription.EnableAllRoles": "Enables all roles and add-ons (⚠ freezes the game for a few seconds ⚠)",
   "CommandArgs.ChangeSetting.Name": "Название настройки (оставьте пустым для просмотра всех названий)",
   "CommandArgs.ChangeSetting.UnknownValue": "(оставьте пустым для просмотра, что сюда вставить)",
   "CommandArgs.Rename.Name": "Новый никнейм",
