@@ -2252,6 +2252,7 @@
   "CommandDescription.Draft": "选择您心仪的职业",
   "CommandDescription.ReadyCheck": "临行前的准备(即确认谁在挂机)(30S后显示结果)",
   "CommandDescription.Ready": "将自己标记为已准备",
+  "CommandDescription.EnableAllRoles": "Enables all roles and add-ons (⚠ freezes the game for a few seconds ⚠)",
   "CommandArgs.ChangeSetting.Name": "要更改的设置名称(留空可查看所有设置)",
   "CommandArgs.ChangeSetting.UnknownValue": "（留空可查看此处放置的内容）",
   "CommandArgs.Rename.Name": "你的新名字",
