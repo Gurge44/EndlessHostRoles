@@ -160,6 +160,7 @@ public static class NameColorManager
             CustomRoles.Socialite when ((Socialite)seerRoleClass).MarkedPlayerId == target.PlayerId => Main.RoleColors[seerRole],
             CustomRoles.Beehive when ((Beehive)seerRoleClass).StungPlayers.ContainsKey(target.PlayerId) => "000000",
             CustomRoles.Dad when ((Dad)seerRoleClass).DrunkPlayers.Contains(target.PlayerId) => "000000",
+            CustomRoles.Wasp when seerRoleClass is Wasp wasp && (wasp.DelayedKills.ContainsKey(target.PlayerId) || wasp.MeetingKills.Contains(target.PlayerId)) => "000000",
             CustomRoles.God when God.KnowInfo.GetValue() == 1 => target.GetTeam() switch
             {
                 Team.Impostor => Main.ImpostorColor,

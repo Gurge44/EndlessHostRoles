@@ -745,6 +745,7 @@ public static class Utils
             case CustomRoles.Eclipse:
             case CustomRoles.Pyromaniac:
             case CustomRoles.NSerialKiller:
+            case CustomRoles.Vortex:
             case CustomRoles.Beehive:
             case CustomRoles.RouleteGrandeur:
             case CustomRoles.Nonplus:
@@ -2020,6 +2021,7 @@ public static class Utils
                     else
                     {
                         SelfMark.Append(Witch.GetSpelledMark(seer.PlayerId, isForMeeting));
+                        if (isForMeeting) SelfMark.Append(Wasp.GetStungMark(seer.PlayerId));
                     }
 
                     GameMode:
@@ -2176,6 +2178,7 @@ public static class Utils
                             if (Options.CurrentGameMode != CustomGameMode.Standard || GameStates.IsLobby) goto BeforeEnd2;
 
                             TargetMark.Append(Witch.GetSpelledMark(target.PlayerId, isForMeeting));
+                            if (isForMeeting) TargetMark.Append(Wasp.GetStungMark(target.PlayerId));
 
                             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.SuperStar), "★"));

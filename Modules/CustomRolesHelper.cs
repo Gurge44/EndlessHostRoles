@@ -121,6 +121,7 @@ internal static class CustomRolesHelper
             CustomRoles.Dictator => CustomRoles.Crewmate,
             CustomRoles.Inhibitor => CustomRoles.Impostor,
             CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
+            CustomRoles.Wasp => CustomRoles.Impostor,
             CustomRoles.Assumer => CustomRoles.Impostor,
             CustomRoles.Augmenter => CustomRoles.Shapeshifter,
             CustomRoles.Ventriloquist => CustomRoles.Impostor,
@@ -419,6 +420,7 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Vortex => RoleTypes.Impostor,
             CustomRoles.Beehive => RoleTypes.Impostor,
             CustomRoles.RouleteGrandeur => RoleTypes.Impostor,
             CustomRoles.Nonplus => RoleTypes.Impostor,
@@ -510,6 +512,7 @@ internal static class CustomRolesHelper
         CustomRoles.Rogue or
         CustomRoles.Parasite or
         CustomRoles.NSerialKiller or
+        CustomRoles.Vortex or
         CustomRoles.Beehive or
         CustomRoles.RouleteGrandeur or
         CustomRoles.Nonplus or
@@ -583,6 +586,7 @@ internal static class CustomRolesHelper
         CustomRoles.Augmenter or
         CustomRoles.Inhibitor or
         CustomRoles.Kidnapper or
+        CustomRoles.Wasp or
         CustomRoles.Hypnotist or
         CustomRoles.Assumer or
         CustomRoles.Generator or
@@ -1237,6 +1241,7 @@ internal static class CustomRolesHelper
         CustomRoles.Sniper => RoleOptionType.Impostor_Killing,
         CustomRoles.BoobyTrap => RoleOptionType.Impostor_Killing,
         CustomRoles.Underdog => RoleOptionType.Impostor_Killing,
+        CustomRoles.Wasp => RoleOptionType.Impostor_Killing,
         CustomRoles.Witch => RoleOptionType.Impostor_Killing,
         CustomRoles.Zombie => RoleOptionType.Impostor_Killing,
         CustomRoles.Bard => RoleOptionType.Impostor_Support,
@@ -1493,6 +1498,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     NSerialKiller,
+    Vortex,
     Beehive,
     RouleteGrandeur,
     Nonplus,

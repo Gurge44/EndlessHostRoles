@@ -67,6 +67,7 @@ static class ExtendedPlayerControl
 
     public static bool CanUseVent(this PlayerControl player, int ventId)
     {
+        if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
         return GameStates.IsInTask && ((player.inVent && player.GetClosestVent()?.Id == ventId) || (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId)));
     }
 
@@ -1169,6 +1170,12 @@ static class ExtendedPlayerControl
     public static bool CanUseSabotage(this PlayerControl pc)
     {
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
+        if (pc.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting)
+        {
+            pc.Notify(GetString("TraineeNotify"));
+            return false;
+        }
+
         return Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseSabotage(pc);
     }
 

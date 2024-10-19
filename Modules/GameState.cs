@@ -57,6 +57,7 @@ public class PlayerState(byte playerId)
         Assumed,
         Negotiation,
         Trapped,
+        Stung,
 
         // Natural Disasters
         Meteor,

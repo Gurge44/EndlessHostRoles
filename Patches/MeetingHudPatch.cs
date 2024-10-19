@@ -511,6 +511,7 @@ static class CheckForEndVotingPatch
             if (Witch.PlayerIdList.Count > 0) Witch.OnCheckForEndVoting(deathReason, playerIds);
             if (Virus.PlayerIdList.Count > 0) Virus.OnCheckForEndVoting(deathReason, playerIds);
             if (deathReason == PlayerState.DeathReason.Vote) Gaslighter.OnExile(playerIds);
+            if (Wasp.On && deathReason == PlayerState.DeathReason.Vote) Wasp.OnExile(playerIds);
             foreach (var playerId in playerIds)
             {
                 try
@@ -960,6 +961,7 @@ static class MeetingHudStartPatch
             }
 
             sb.Append(Witch.GetSpelledMark(target.PlayerId, true));
+            sb.Append(Wasp.GetStungMark(target.PlayerId));
 
             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.SuperStar), "★"));

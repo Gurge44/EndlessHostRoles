@@ -760,7 +760,15 @@ static class ShapeshiftPatch
 
         var shapeshifting = shapeshifter.PlayerId != target.PlayerId;
 
-        if (AmongUsClient.Instance.AmHost && shapeshifting && !Rhapsode.CheckAbilityUse(shapeshifter)) return false;
+        if (AmongUsClient.Instance.AmHost && shapeshifting)
+        {
+            if (!Rhapsode.CheckAbilityUse(shapeshifter)) return false;
+            if (shapeshifter.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting)
+            {
+                shapeshifter.Notify(GetString("TraineeNotify"));
+                return false;
+            }
+        }
 
         Main.CheckShapeshift[shapeshifter.PlayerId] = shapeshifting;
         Main.ShapeshiftTarget[shapeshifter.PlayerId] = target.PlayerId;
