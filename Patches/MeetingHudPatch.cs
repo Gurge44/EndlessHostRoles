@@ -835,7 +835,7 @@ static class MeetingHudStartPatch
                 if (roleTextMeeting.enabled) roleTextMeeting.text += "\n";
                 else roleTextMeeting.text = string.Empty;
 
-                roleTextMeeting.text += suffix;
+                roleTextMeeting.text += $"<#ffffff>{suffix}</color>";
                 roleTextMeeting.enabled = true;
             }
 

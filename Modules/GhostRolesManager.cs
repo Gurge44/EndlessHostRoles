@@ -146,5 +146,12 @@ namespace EHR.Modules
                 return null;
             }
         }
+
+        public static void RemoveGhostRole(byte id)
+        {
+            if (!AssignedGhostRoles.TryGetValue(id, out var ghostRole)) return;
+            Main.PlayerStates[id].RemoveSubRole(ghostRole.Role);
+            AssignedGhostRoles.Remove(id);
+        }
     }
 }

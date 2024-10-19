@@ -311,6 +311,7 @@ static class ExtendedPlayerControl
             return;
         }
 
+        GhostRolesManager.RemoveGhostRole(player.PlayerId);
         Main.PlayerStates[player.PlayerId].IsDead = false;
         Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.etc;
         player.RpcChangeRoleBasis(player.GetRoleMap().CustomRole, true);
