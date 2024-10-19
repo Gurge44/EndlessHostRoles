@@ -2252,6 +2252,7 @@
   "CommandDescription.Draft": "Choose a role in the draft",
   "CommandDescription.ReadyCheck": "Start a ready check (check who is AFK) (results displayed after 30s)",
   "CommandDescription.Ready": "Mark yourself as ready",
+  "CommandDescription.EnableAllRoles": "Enables all roles and add-ons (⚠ freezes the game for a few seconds ⚠)",
   "CommandArgs.ChangeSetting.Name": "The setting's name to change (leave blank to view all settings)",
   "CommandArgs.ChangeSetting.UnknownValue": "(leave blank to view what to put here)",
   "CommandArgs.Rename.Name": "Your new name",
