@@ -2252,6 +2252,7 @@
   "CommandDescription.Draft": "Elegir un rol en el reclutamiento",
   "CommandDescription.ReadyCheck": "Iniciar una revisión de listos (revisa quien está AFK) (resultados mostrados después de 30s)",
   "CommandDescription.Ready": "Marcarte como listo",
+  "CommandDescription.EnableAllRoles": "Enables all roles and add-ons (⚠ freezes the game for a few seconds ⚠)",
   "CommandArgs.ChangeSetting.Name": "El nombre de la configuración al cambiar (dejar en blanco para ver todas las configuraciones)",
   "CommandArgs.ChangeSetting.UnknownValue": "(dejar en blanco para ver que poner aquí)",
   "CommandArgs.Rename.Name": "Tu nuevo nombre",
