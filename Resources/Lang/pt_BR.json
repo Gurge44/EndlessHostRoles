@@ -4339,7 +4339,7 @@
   "NegotiatorInfoLong": "(Tripulantes):\\nComo Negociador, você pode negociar com alguém votando neles numa reunião. Seu alvo tem que escolher entre suicidar, receber um atributo ruim, receber permanentemente uma baixa visão ou baixa velocidade.\\n\\nSe eles não escolherem, a ação padrão é suicídio. Eles podem usar <b>/neg {index}</b> para escolher.\\nVocê só pode negociar uma vez por reunião. Depois da reunião, você saberá o que o seu alvo escolheu.",
   "Negotiator.LowVision": "Visão Reduzida",
   "Negotiator.LowSpeed": "Velocidade Reduzida",
-  "Negotiator.MinVotingTimeLeftToNegotiate": "Minimum Voting Time Left to Negotiate",
+  "Negotiator.MinVotingTimeLeftToNegotiate": "Tempo mínimo de votação restante para negociar",
   "Negotiator.Type.Suicide": "Suicídio",
   "Negotiator.Type.HarmfulAddon": "Receber um atributo ruim",
   "Negotiator.Type.LowVision": "Obter uma visão baixa permanente",
