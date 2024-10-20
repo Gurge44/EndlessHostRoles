@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using EHR.Neutral;
 using UnityEngine;
 using Monitor = EHR.Crewmate.Monitor;
 
@@ -138,11 +137,11 @@ internal class AntiAdminer : RoleBase
         float usableDistance = DisableDevice.UsableDistance;
         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
         {
-            if (Pelican.IsEaten(pc.PlayerId) || pc.inVent || pc.GetCustomRole().IsImpostor()) continue;
+            if (pc.inVent || (pc.IsImpostor() && !IsMonitor)) continue;
             try
             {
                 Vector2 PlayerPos = pc.Pos();
-                bool isNearDevice = false;
+                bool nearDevice = false;
 
                 switch (Main.NormalOptions.MapId)
                 {
@@ -151,14 +150,14 @@ internal class AntiAdminer : RoleBase
                         {
                             bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["SkeldAdmin"]) <= usableDistance;
                             Admin |= near;
-                            isNearDevice |= near;
+                            nearDevice |= near;
                         }
 
                         if (!Options.DisableSkeldCamera.GetBool())
                         {
                             bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["SkeldCamera"]) <= usableDistance;
                             Camera |= near;
-                            isNearDevice |= near;
+                            nearDevice |= near;
                         }
 
                         break;
@@ -167,14 +166,14 @@ internal class AntiAdminer : RoleBase
                         {
                             bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["MiraHQAdmin"]) <= usableDistance;
                             Admin |= near;
-                            isNearDevice |= near;
+                            nearDevice |= near;
                         }
 
                         if (!Options.DisableMiraHQDoorLog.GetBool())
                         {
                             bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["MiraHQDoorLog"]) <= usableDistance;
                             DoorLog |= near;
-                            isNearDevice |= near;
+                            nearDevice |= near;
                         }
 
                         break;
@@ -183,24 +182,24 @@ internal class AntiAdminer : RoleBase
                         {
                             bool nearLeft = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["PolusLeftAdmin"]) <= usableDistance;
                             Admin |= nearLeft;
-                            isNearDevice |= nearLeft;
+                            nearDevice |= nearLeft;
                             bool nearRight = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["PolusRightAdmin"]) <= usableDistance;
                             Admin |= nearRight;
-                            isNearDevice |= nearRight;
+                            nearDevice |= nearRight;
                         }
 
                         if (!Options.DisablePolusCamera.GetBool())
                         {
                             bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["PolusCamera"]) <= usableDistance;
                             Camera |= near;
-                            isNearDevice |= near;
+                            nearDevice |= near;
                         }
 
                         if (!Options.DisablePolusVital.GetBool())
                         {
                             bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["PolusVital"]) <= usableDistance;
                             Vital |= near;
-                            isNearDevice |= near;
+                            nearDevice |= near;
                         }
 
                         break;
@@ -209,14 +208,14 @@ internal class AntiAdminer : RoleBase
                         {
                             bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["DleksAdmin"]) <= usableDistance;
                             Admin |= near;
-                            isNearDevice |= near;
+                            nearDevice |= near;
                         }
 
                         if (!Options.DisableSkeldCamera.GetBool())
                         {
                             bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["DleksCamera"]) <= usableDistance;
                             Camera |= near;
-                            isNearDevice |= near;
+                            nearDevice |= near;
                         }
 
                         break;
@@ -225,28 +224,28 @@ internal class AntiAdminer : RoleBase
                         {
                             bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["AirshipCockpitAdmin"]) <= usableDistance;
                             Admin |= near;
-                            isNearDevice |= near;
+                            nearDevice |= near;
                         }
 
                         if (!Options.DisableAirshipRecordsAdmin.GetBool())
                         {
                             bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["AirshipRecordsAdmin"]) <= usableDistance;
                             Admin |= near;
-                            isNearDevice |= near;
+                            nearDevice |= near;
                         }
 
                         if (!Options.DisableAirshipCamera.GetBool())
                         {
                             bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["AirshipCamera"]) <= usableDistance;
                             Camera |= near;
-                            isNearDevice |= near;
+                            nearDevice |= near;
                         }
 
                         if (!Options.DisableAirshipVital.GetBool())
                         {
                             bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["AirshipVital"]) <= usableDistance;
                             Vital |= near;
-                            isNearDevice |= near;
+                            nearDevice |= near;
                         }
 
                         break;
@@ -255,20 +254,20 @@ internal class AntiAdminer : RoleBase
                         {
                             bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["FungleCamera"]) <= usableDistance;
                             Camera |= near;
-                            isNearDevice |= near;
+                            nearDevice |= near;
                         }
 
                         if (!Options.DisableFungleVital.GetBool())
                         {
                             bool near = Vector2.Distance(PlayerPos, DisableDevice.DevicePos["FungleVital"]) <= usableDistance;
                             Vital |= near;
-                            isNearDevice |= near;
+                            nearDevice |= near;
                         }
 
                         break;
                 }
 
-                if (isNearDevice)
+                if (nearDevice)
                 {
                     PlayersNearDevices.Add(pc.PlayerId);
                 }
@@ -296,11 +295,6 @@ internal class AntiAdminer : RoleBase
         if (notify || change)
         {
             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-        }
-
-        if (change)
-        {
-            FixedUpdatePatch.DoPostfix(player);
         }
     }
 

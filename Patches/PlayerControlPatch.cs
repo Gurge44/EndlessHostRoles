@@ -637,8 +637,7 @@ static class MurderPlayerPatch
         if (target.Is(CustomRoles.Stained))
             Stained.OnDeath(target, killer);
 
-        Witness.AllKillers.Remove(killer.PlayerId);
-        Witness.AllKillers.Add(killer.PlayerId, TimeStamp);
+        Witness.AllKillers[killer.PlayerId] = TimeStamp;
 
         killer.AddKillTimerToDict();
 
@@ -1093,7 +1092,6 @@ static class ReportDeadBodyPatch
         Deadlined.OnMeetingStart();
 
         Main.LastVotedPlayerInfo = null;
-        Witness.AllKillers.Clear();
         Arsonist.ArsonistTimer.Clear();
         Farseer.FarseerTimer.Clear();
         Puppeteer.PuppeteerList.Clear();
@@ -1431,7 +1429,6 @@ static class FixedUpdatePatch
                 AddExtraAbilityUsesOnFinishedTasks(player);
             }
 
-            if (Witness.AllKillers.TryGetValue(playerId, out var ktime) && ktime + Options.WitnessTime.GetInt() < now) Witness.AllKillers.Remove(playerId);
             if (inTask && alive && Options.LadderDeath.GetBool()) FallFromLadder.FixedUpdate(player);
             if (localPlayer && GameStates.IsInGame) LoversSuicide();
 

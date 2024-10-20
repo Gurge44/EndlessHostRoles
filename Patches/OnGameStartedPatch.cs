@@ -189,7 +189,6 @@ internal class ChangeRoleSettings
             Workaholic.WorkaholicAlive = [];
             Virus.VirusNotify = [];
             Veteran.VeteranInProtect = [];
-            Witness.AllKillers = [];
             Grenadier.GrenadierBlinding = [];
             SecurityGuard.BlockSabo = [];
             Ventguard.BlockedVents = [];
