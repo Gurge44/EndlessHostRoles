@@ -6,7 +6,7 @@
 
         public void SetupCustomOption()
         {
-            Options.SetupAdtRoleOptions(647844, CustomRoles.Trainee, canSetNum: true, teamSpawnOptions: true);
+            Options.SetupAdtRoleOptions(647843, CustomRoles.Trainee, canSetNum: true, teamSpawnOptions: true);
         }
     }
 }
