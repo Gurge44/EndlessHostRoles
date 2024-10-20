@@ -71,13 +71,14 @@ namespace EHR.Crewmate
 
         public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
         {
-            if (!RevivingMode) return true;
+            if (!RevivingMode || target.Disconnected) return true;
 
             var state = Main.PlayerStates[reporter.PlayerId];
             state.deathReason = PlayerState.DeathReason.Sacrifice;
             state.RealKiller = (DateTime.Now, target.PlayerId);
             state.SetDead();
             reporter.RpcExileV2();
+            FixedUpdatePatch.LoversSuicide(reporter.PlayerId);
 
             RevivingMode = false;
             ReviveTarget = target.PlayerId;

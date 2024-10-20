@@ -6,37 +6,39 @@ namespace EHR.Crewmate;
 public class Crusader : RoleBase
 {
     private const int Id = 20050;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     public static List<byte> ForCrusade = [];
 
-    public static OptionItem SkillLimitOpt;
-    public static OptionItem SkillCooldown;
+    private static OptionItem SkillLimitOpt;
+    private static OptionItem SkillCooldown;
     public static OptionItem UsePet;
 
-    public float CurrentKillCooldown;
+    private float CurrentKillCooldown;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Crusader);
-        SkillCooldown = new FloatOptionItem(Id + 10, "CrusaderSkillCooldown", new(2.5f, 60f, 2.5f), 20f, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Crusader])
+        SkillCooldown = new FloatOptionItem(Id + 10, "CrusaderSkillCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Crusader])
             .SetValueFormat(OptionFormat.Seconds);
-        SkillLimitOpt = new IntegerOptionItem(Id + 11, "CrusaderSkillLimit", new(1, 10, 1), 2, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Crusader])
+        SkillLimitOpt = new IntegerOptionItem(Id + 11, "CrusaderSkillLimit", new(1, 10, 1), 1, TabGroup.CrewmateRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Crusader])
             .SetValueFormat(OptionFormat.Times);
         UsePet = Options.CreatePetUseSetting(Id + 12, CustomRoles.Crusader);
     }
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         CurrentKillCooldown = SkillCooldown.GetFloat();
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(SkillLimitOpt.GetInt());
         CurrentKillCooldown = SkillCooldown.GetFloat();
     }

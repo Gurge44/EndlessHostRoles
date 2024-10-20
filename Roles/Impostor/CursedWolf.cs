@@ -16,8 +16,8 @@ namespace EHR.Impostor
 
         public override void SetupCustomOption()
         {
-            Options.SetupRoleOptions(1000, TabGroup.ImpostorRoles, CustomRoles.CursedWolf); //TOH_Y
-            Options.GuardSpellTimes = new IntegerOptionItem(1010, "GuardSpellTimes", new(1, 15, 1), 3, TabGroup.ImpostorRoles)
+            Options.SetupRoleOptions(1000, TabGroup.ImpostorRoles, CustomRoles.CursedWolf); // From TOH_Y
+            Options.GuardSpellTimes = new IntegerOptionItem(1010, "GuardSpellTimes", new(1, 15, 1), 1, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.CursedWolf])
                 .SetValueFormat(OptionFormat.Times);
             Options.killAttacker = new BooleanOptionItem(1011, "killAttacker", true, TabGroup.ImpostorRoles)

@@ -8,15 +8,15 @@ namespace EHR.Crewmate
     public class Enigma : RoleBase
     {
         private const int Id = 8460;
-        public static List<byte> playerIdList = [];
+        public static List<byte> PlayerIdList = [];
         private static Dictionary<byte, List<EnigmaClue>> ShownClues = [];
 
-        public static OptionItem EnigmaClueStage1Tasks;
-        public static OptionItem EnigmaClueStage2Tasks;
-        public static OptionItem EnigmaClueStage3Tasks;
-        public static OptionItem EnigmaClueStage2Probability;
-        public static OptionItem EnigmaClueStage3Probability;
-        public static OptionItem EnigmaGetCluesWithoutReporting;
+        private static OptionItem EnigmaClueStage1Tasks;
+        private static OptionItem EnigmaClueStage2Tasks;
+        private static OptionItem EnigmaClueStage3Tasks;
+        private static OptionItem EnigmaClueStage2Probability;
+        private static OptionItem EnigmaClueStage3Probability;
+        private static OptionItem EnigmaGetCluesWithoutReporting;
 
         public static Dictionary<byte, string> MsgToSend = [];
         public static Dictionary<byte, string> MsgToSendTitle = [];
@@ -49,29 +49,35 @@ namespace EHR.Crewmate
             new EnigmaFriendCodeClue { ClueStage = 3, EnigmaClueType = EnigmaClueType.FriendCodeClue }
         ];
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Enigma);
-            EnigmaClueStage1Tasks = new FloatOptionItem(Id + 11, "EnigmaClueStage1Tasks", new(0f, 10f, 1f), 1f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
+            EnigmaClueStage1Tasks = new FloatOptionItem(Id + 11, "EnigmaClueStage1Tasks", new(0f, 10f, 1f), 1f, TabGroup.CrewmateRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
                 .SetValueFormat(OptionFormat.Times);
-            EnigmaClueStage2Tasks = new FloatOptionItem(Id + 12, "EnigmaClueStage2Tasks", new(0f, 10f, 1f), 3f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
+            EnigmaClueStage2Tasks = new FloatOptionItem(Id + 12, "EnigmaClueStage2Tasks", new(0f, 10f, 1f), 3f, TabGroup.CrewmateRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
                 .SetValueFormat(OptionFormat.Times);
-            EnigmaClueStage3Tasks = new FloatOptionItem(Id + 13, "EnigmaClueStage3Tasks", new(0f, 10f, 1f), 7f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
+            EnigmaClueStage3Tasks = new FloatOptionItem(Id + 13, "EnigmaClueStage3Tasks", new(0f, 10f, 1f), 7f, TabGroup.CrewmateRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
                 .SetValueFormat(OptionFormat.Times);
-            EnigmaClueStage2Probability = new IntegerOptionItem(Id + 14, "EnigmaClueStage2Probability", new(0, 100, 5), 75, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
+            EnigmaClueStage2Probability = new IntegerOptionItem(Id + 14, "EnigmaClueStage2Probability", new(0, 100, 5), 75, TabGroup.CrewmateRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
                 .SetValueFormat(OptionFormat.Percent);
-            EnigmaClueStage3Probability = new IntegerOptionItem(Id + 15, "EnigmaClueStage3Probability", new(0, 100, 5), 60, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
+            EnigmaClueStage3Probability = new IntegerOptionItem(Id + 15, "EnigmaClueStage3Probability", new(0, 100, 5), 60, TabGroup.CrewmateRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
                 .SetValueFormat(OptionFormat.Percent);
-            EnigmaGetCluesWithoutReporting = new BooleanOptionItem(Id + 16, "EnigmaClueGetCluesWithoutReporting", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Enigma]);
+            EnigmaGetCluesWithoutReporting = new BooleanOptionItem(Id + 16, "EnigmaClueGetCluesWithoutReporting", true, TabGroup.CrewmateRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Enigma]);
 
             OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Enigma);
         }
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             ShownClues = [];
             MsgToSend = [];
             MsgToSendTitle = [];
@@ -79,7 +85,7 @@ namespace EHR.Crewmate
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             ShownClues.Add(playerId, []);
         }
 
@@ -95,7 +101,7 @@ namespace EHR.Crewmate
 
             var rd = IRandom.Instance;
 
-            foreach (byte playerId in playerIdList)
+            foreach (byte playerId in PlayerIdList)
             {
                 if (!EnigmaGetCluesWithoutReporting.GetBool() && playerId != player.PlayerId) continue;
 

@@ -12,7 +12,7 @@ namespace EHR.Neutral;
 public class Werewolf : RoleBase
 {
     private const int Id = 12850;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     private static OptionItem KillCooldown;
     private static OptionItem HasImpostorVision;
@@ -20,13 +20,13 @@ public class Werewolf : RoleBase
     private static OptionItem RampageDur;
     private static int CD;
 
-    private static long lastFixedTime;
+    private static long LastFixedTime;
     private long lastTime;
 
     private long RampageTime;
     private byte WWId;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     bool CanRampage => GameStates.IsInTask && RampageTime == -10 && lastTime == -10;
     bool IsRampaging => RampageTime != -10;
@@ -45,7 +45,7 @@ public class Werewolf : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         RampageTime = -10;
         lastTime = -10;
         CD = 0;
@@ -54,7 +54,7 @@ public class Werewolf : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         WWId = playerId;
 
         RampageTime = -10;
@@ -87,7 +87,7 @@ public class Werewolf : RoleBase
     void SendRPC()
     {
         if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWWTimer, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWwTimer, SendOption.Reliable);
         writer.Write(WWId);
         writer.Write(RampageTime.ToString());
         writer.Write(lastTime.ToString());
@@ -118,7 +118,7 @@ public class Werewolf : RoleBase
             if (!player.IsModClient())
             {
                 var cooldown = lastTime + (long)RampageCD.GetFloat() - now;
-                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f);
+                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f, overrideAll: true);
                 CD = (int)cooldown;
             }
 
@@ -133,9 +133,9 @@ public class Werewolf : RoleBase
             }
         }
 
-        if (lastFixedTime != now && RampageTime != -10)
+        if (LastFixedTime != now && RampageTime != -10)
         {
-            lastFixedTime = now;
+            LastFixedTime = now;
             bool refresh = false;
             var remainTime = RampageTime + (long)RampageDur.GetFloat() - now;
             switch (remainTime)
@@ -149,7 +149,7 @@ public class Werewolf : RoleBase
                     refresh = true;
                     break;
                 case <= 10 when !player.IsModClient():
-                    player.Notify(string.Format(GetString("WWRampageCountdown"), remainTime + 1));
+                    player.Notify(string.Format(GetString("WWRampageCountdown"), remainTime + 1), overrideAll: true);
                     break;
             }
 

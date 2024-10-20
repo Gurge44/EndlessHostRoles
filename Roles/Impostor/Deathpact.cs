@@ -13,7 +13,7 @@ namespace EHR.Impostor
     public class Deathpact : RoleBase
     {
         private const int Id = 1100;
-        public static List<byte> playerIdList = [];
+        public static List<byte> PlayerIdList = [];
 
         public static List<byte> ActiveDeathpacts = [];
 
@@ -30,29 +30,37 @@ namespace EHR.Impostor
 
         public List<PlayerControl> PlayersInDeathpact = [];
 
-        public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
+        public override bool IsEnable => PlayerIdList.Count > 0 || Randomizer.Exists;
 
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Deathpact);
-            KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
+            KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
                 .SetValueFormat(OptionFormat.Seconds);
-            ShapeshiftCooldown = new FloatOptionItem(Id + 11, "DeathPactCooldown", new(0f, 180f, 2.5f), 15f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
+            ShapeshiftCooldown = new FloatOptionItem(Id + 11, "DeathPactCooldown", new(0f, 180f, 2.5f), 5f, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
                 .SetValueFormat(OptionFormat.Seconds);
-            DeathpactDuration = new FloatOptionItem(Id + 13, "DeathpactDuration", new(0f, 180f, 2.5f), 17.5f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
+            DeathpactDuration = new FloatOptionItem(Id + 13, "DeathpactDuration", new(0f, 180f, 2.5f), 17.5f, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
                 .SetValueFormat(OptionFormat.Seconds);
-            NumberOfPlayersInPact = new IntegerOptionItem(Id + 14, "DeathpactNumberOfPlayersInPact", new(2, 5, 1), 2, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
+            NumberOfPlayersInPact = new IntegerOptionItem(Id + 14, "DeathpactNumberOfPlayersInPact", new(2, 5, 1), 2, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
                 .SetValueFormat(OptionFormat.Times);
-            ShowArrowsToOtherPlayersInPact = new BooleanOptionItem(Id + 15, "DeathpactShowArrowsToOtherPlayersInPact", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact]);
-            ReduceVisionWhileInPact = new BooleanOptionItem(Id + 16, "DeathpactReduceVisionWhileInPact", false, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact]);
-            VisionWhileInPact = new FloatOptionItem(Id + 17, "DeathpactVisionWhileInPact", new(0f, 5f, 0.05f), 0.4f, TabGroup.ImpostorRoles).SetParent(ReduceVisionWhileInPact)
+            ShowArrowsToOtherPlayersInPact = new BooleanOptionItem(Id + 15, "DeathpactShowArrowsToOtherPlayersInPact", true, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact]);
+            ReduceVisionWhileInPact = new BooleanOptionItem(Id + 16, "DeathpactReduceVisionWhileInPact", false, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact]);
+            VisionWhileInPact = new FloatOptionItem(Id + 17, "DeathpactVisionWhileInPact", new(0f, 5f, 0.05f), 0.4f, TabGroup.ImpostorRoles)
+                .SetParent(ReduceVisionWhileInPact)
                 .SetValueFormat(OptionFormat.Multiplier);
-            KillDeathpactPlayersOnMeeting = new BooleanOptionItem(Id + 18, "DeathpactKillPlayersInDeathpactOnMeeting", false, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact]);
+            KillDeathpactPlayersOnMeeting = new BooleanOptionItem(Id + 18, "DeathpactKillPlayersInDeathpactOnMeeting", false, TabGroup.ImpostorRoles)
+                .SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact]);
         }
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             PlayersInDeathpact = [];
             DeathpactTime = 0;
             ActiveDeathpacts = [];
@@ -61,7 +69,7 @@ namespace EHR.Impostor
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             PlayersInDeathpact = [];
             DeathpactTime = 0;
             DeathPactId = playerId;

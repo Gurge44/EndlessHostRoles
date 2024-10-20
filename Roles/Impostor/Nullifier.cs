@@ -7,13 +7,13 @@ namespace EHR.Impostor
     internal class Nullifier : RoleBase
     {
         private const int Id = 642000;
-        public static List<byte> playerIdList = [];
+        public static List<byte> PlayerIdList = [];
 
         public static OptionItem NullCD;
         private static OptionItem KCD;
         private static OptionItem Delay;
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
@@ -31,12 +31,12 @@ namespace EHR.Impostor
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
         }
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KCD.GetFloat();

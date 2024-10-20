@@ -11,11 +11,11 @@ namespace EHR.Impostor
     public class Duellist : RoleBase
     {
         private const int Id = 642850;
-        private static List<byte> playerIdList = [];
+        private static List<byte> PlayerIdList = [];
         private static Dictionary<byte, byte> DuelPair = [];
         private static OptionItem SSCD;
 
-        public override bool IsEnable => playerIdList.Count > 0 || Randomizer.Exists;
+        public override bool IsEnable => PlayerIdList.Count > 0 || Randomizer.Exists;
 
         public override void SetupCustomOption()
         {
@@ -27,13 +27,13 @@ namespace EHR.Impostor
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             DuelPair = [];
         }
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
@@ -66,9 +66,14 @@ namespace EHR.Impostor
             return false;
         }
 
-        public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
+        private int Count;
+
+        public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (lowLoad || DuelPair.Count == 0) return;
+            if (DuelPair.Count == 0) return;
+            
+            if (Count++ < 40) return;
+            Count = 0;
 
             foreach (var pair in DuelPair)
             {

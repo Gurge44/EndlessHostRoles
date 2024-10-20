@@ -12,14 +12,14 @@ namespace EHR.Impostor;
 public class Wildling : RoleBase
 {
     private const int Id = 4700;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     private static OptionItem ProtectDurationOpt;
     private static OptionItem CanVentOpt;
     public static OptionItem CanShapeshiftOpt;
     private static OptionItem ShapeshiftCDOpt;
     private static OptionItem ShapeshiftDurOpt;
-    
+
     private bool CanShapeshift;
     private bool CanVent;
     private bool HasImpostorVision;
@@ -33,32 +33,37 @@ public class Wildling : RoleBase
 
     private CustomRoles UsedRole;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     bool InProtect => TimeStamp > Utils.TimeStamp;
 
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Wildling);
-        ProtectDurationOpt = new FloatOptionItem(Id + 14, "BKProtectDuration", new(1f, 30f, 1f), 15f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling])
+        ProtectDurationOpt = new FloatOptionItem(Id + 14, "BKProtectDuration", new(1f, 30f, 1f), 15f, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Wildling])
             .SetValueFormat(OptionFormat.Seconds);
-        CanVentOpt = new BooleanOptionItem(Id + 15, "CanVent", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling]);
-        CanShapeshiftOpt = new BooleanOptionItem(Id + 16, "CanShapeshift", false, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Wildling]);
-        ShapeshiftCDOpt = new FloatOptionItem(Id + 17, "ShapeshiftCooldown", new(1f, 60f, 1f), 30f, TabGroup.ImpostorRoles).SetParent(CanShapeshiftOpt)
+        CanVentOpt = new BooleanOptionItem(Id + 15, "CanVent", true, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Wildling]);
+        CanShapeshiftOpt = new BooleanOptionItem(Id + 16, "CanShapeshift", false, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Wildling]);
+        ShapeshiftCDOpt = new FloatOptionItem(Id + 17, "ShapeshiftCooldown", new(1f, 60f, 1f), 30f, TabGroup.ImpostorRoles)
+            .SetParent(CanShapeshiftOpt)
             .SetValueFormat(OptionFormat.Seconds);
-        ShapeshiftDurOpt = new FloatOptionItem(Id + 18, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles).SetParent(CanShapeshiftOpt)
+        ShapeshiftDurOpt = new FloatOptionItem(Id + 18, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles)
+            .SetParent(CanShapeshiftOpt)
             .SetValueFormat(OptionFormat.Seconds);
     }
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         TimeStamp = 0;
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         TimeStamp = 0;
 
         UsedRole = Main.PlayerStates[playerId].MainRole;
@@ -103,7 +108,7 @@ public class Wildling : RoleBase
     void SendRPC(byte playerId)
     {
         if (!IsEnable || !Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBKTimer, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBkTimer, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(TimeStamp.ToString());
         AmongUsClient.Instance.FinishRpcImmediately(writer);

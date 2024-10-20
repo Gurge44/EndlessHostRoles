@@ -42,12 +42,13 @@ public static class NameColorManager
             case CustomGameMode.FFA when FFAManager.FFATeamMode.GetBool():
                 color = FFAManager.TeamColors[FFAManager.PlayerTeams[target.PlayerId]];
                 return true;
+            case CustomGameMode.RoomRush:
             case CustomGameMode.NaturalDisasters:
             case CustomGameMode.MoveAndStop:
                 color = "#ffffff";
                 return true;
             case CustomGameMode.HotPotato:
-                (byte HolderID, byte LastHolderID, _, _) = HotPotatoManager.GetState();
+                (byte HolderID, byte LastHolderID) = HotPotatoManager.GetState();
                 if (target.PlayerId == HolderID) color = "#000000";
                 else if (target.PlayerId == LastHolderID) color = "#00ffff";
                 else color = "#ffffff";
@@ -72,7 +73,7 @@ public static class NameColorManager
         if (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoleTypes.Impostor) && Options.MadmateKnowWhosImp.GetBool()) color = Main.ImpostorColor;
         if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Madmate) && Options.ImpKnowWhosMadmate.GetBool()) color = Main.RoleColors[CustomRoles.Madmate];
         if (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool()) color = Main.RoleColors[CustomRoles.Madmate];
-        if (Blackmailer.On && seerRoleClass is Blackmailer { IsEnable: true } bm && bm.BlackmailedPlayerId == target.PlayerId) color = Main.RoleColors[CustomRoles.Electric];
+        if (Blackmailer.On && seerRoleClass is Blackmailer { IsEnable: true } bm && bm.BlackmailedPlayerIds.Contains(target.PlayerId)) color = Main.RoleColors[CustomRoles.BloodKnight];
         if (Commander.On && seer.Is(Team.Impostor))
         {
             if (Commander.PlayerList.Any(x => x.MarkedPlayer == target.PlayerId)) color = Main.RoleColors[CustomRoles.Sprayer];
@@ -159,6 +160,14 @@ public static class NameColorManager
             CustomRoles.Socialite when ((Socialite)seerRoleClass).MarkedPlayerId == target.PlayerId => Main.RoleColors[seerRole],
             CustomRoles.Beehive when ((Beehive)seerRoleClass).StungPlayers.ContainsKey(target.PlayerId) => "000000",
             CustomRoles.Dad when ((Dad)seerRoleClass).DrunkPlayers.Contains(target.PlayerId) => "000000",
+            CustomRoles.Wasp when seerRoleClass is Wasp wasp && (wasp.DelayedKills.ContainsKey(target.PlayerId) || wasp.MeetingKills.Contains(target.PlayerId)) => "000000",
+            CustomRoles.God when God.KnowInfo.GetValue() == 1 => target.GetTeam() switch
+            {
+                Team.Impostor => Main.ImpostorColor,
+                Team.Crewmate => Main.CrewmateColor,
+                Team.Neutral => Main.NeutralColor,
+                _ => color
+            },
             _ => color
         };
 
@@ -208,11 +217,11 @@ public static class NameColorManager
         return seer == target
                || (Main.GodMode.Value && seer.AmOwner)
                || (Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop)
-               || (Main.PlayerStates[seer.Data.PlayerId].IsDead && seer.Data.IsDead && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool())
+               || (Main.PlayerStates[seer.Data.PlayerId].IsDead && seer.Data.IsDead && !seer.IsAlive() && Options.GhostCanSeeOtherRoles.GetBool() && (!CustomRoles.Altruist.RoleExist() || !Main.DiedThisRound.Contains(seer.PlayerId)))
                || (seer.Is(CustomRoles.Mimic) && Main.PlayerStates[target.Data.PlayerId].IsDead && target.Data.IsDead && !target.IsAlive() && Options.MimicCanSeeDeadRoles.GetBool())
                || target.Is(CustomRoles.GM)
                || seer.Is(CustomRoles.GM)
-               || seer.Is(CustomRoles.God)
+               || (seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2)
                || (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor))
                || (seer.Is(CustomRoles.Traitor) && target.Is(Team.Impostor))
                || (seer.Is(CustomRoles.Jackal) && target.Is(CustomRoles.Sidekick))
@@ -230,7 +239,7 @@ public static class NameColorManager
                || Main.PlayerStates.Values.Any(x => x.Role.KnowRole(seer, target));
     }
 
-    public static bool TryGetData(PlayerControl seer, PlayerControl target, out string colorCode)
+    private static bool TryGetData(PlayerControl seer, PlayerControl target, out string colorCode)
     {
         colorCode = "";
         var state = Main.PlayerStates[seer.PlayerId];
@@ -255,7 +264,7 @@ public static class NameColorManager
         SendRPC(seerId, targetId, colorCode);
     }
 
-    public static void Remove(byte seerId, byte targetId)
+    private static void Remove(byte seerId, byte targetId)
     {
         var state = Main.PlayerStates[seerId];
         if (!state.TargetColorData.ContainsKey(targetId)) return;
@@ -264,7 +273,7 @@ public static class NameColorManager
         SendRPC(seerId, targetId);
     }
 
-    public static void RemoveAll(byte seerId)
+    private static void RemoveAll(byte seerId)
     {
         Main.PlayerStates[seerId].TargetColorData.Clear();
 

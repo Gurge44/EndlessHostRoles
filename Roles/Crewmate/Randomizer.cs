@@ -381,7 +381,6 @@ namespace EHR.Crewmate
             }
             catch (Exception ex)
             {
-                Logger.CurrentMethod();
                 Logger.Exception(ex, "Randomizer");
             }
         }
@@ -439,7 +438,7 @@ namespace EHR.Crewmate
         public static int MaximumEffectDuration;
         private static bool Notify;
 
-        public static Dictionary<byte, Dictionary<Effect, (long StartTimeStamp, int Duration)>> CurrentEffects = [];
+        private static Dictionary<byte, Dictionary<Effect, (long StartTimeStamp, int Duration)>> CurrentEffects = [];
         public static Dictionary<byte, float> AllPlayerDefaultSpeed = [];
 
         public static Dictionary<Vector2, Vector2> Rifts = [];
@@ -452,7 +451,6 @@ namespace EHR.Crewmate
 
         public static bool Exists;
 
-        byte RandomizerId;
         private static int Id => 643490;
 
         private static string RNGString => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Randomizer), Translator.GetString("RNGHasSpoken"));
@@ -516,7 +514,6 @@ namespace EHR.Crewmate
             Exists = true;
             PlayerIdList.Add(playerId);
             AllPlayerDefaultSpeed = Main.AllPlayerSpeed.ToDictionary(x => x.Key, x => x.Value);
-            RandomizerId = playerId;
         }
 
         public static PlayerControl PickRandomPlayer()
@@ -570,7 +567,6 @@ namespace EHR.Crewmate
             }
             catch (Exception e)
             {
-                Logger.CurrentMethod();
                 Logger.Exception(e, "Randomizer");
             }
         }
@@ -589,7 +585,6 @@ namespace EHR.Crewmate
             }
             catch (Exception e)
             {
-                Logger.CurrentMethod();
                 Logger.Exception(e, "Randomizer");
             }
         }
@@ -608,7 +603,6 @@ namespace EHR.Crewmate
             }
             catch (Exception e)
             {
-                Logger.CurrentMethod();
                 Logger.Exception(e, "Randomizer");
             }
         }
@@ -620,7 +614,7 @@ namespace EHR.Crewmate
             LastDeathEffect = Utils.TimeStamp;
             Rifts.Clear();
             Bombs.Clear();
-            Utils.SendRPC(CustomRPC.SyncRoleData, PlayerIdList.First(), 3);
+            Utils.SendRPC(CustomRPC.SyncRoleData, PlayerIdList[0], 3);
             foreach (var pc in Main.AllPlayerControls)
             {
                 RevertSpeedChangesForPlayer(pc, false);
@@ -639,7 +633,7 @@ namespace EHR.Crewmate
         {
             try
             {
-                if (lowLoad || !Exists || !GameStates.IsInTask || Bombs.Count == 0) return;
+                if (lowLoad || !Exists || !GameStates.IsInTask || Bombs.Count == 0 || Main.HasJustStarted) return;
 
                 var now = Utils.TimeStamp;
                 var randomizer = Utils.GetPlayerById(PlayerIdList.FirstOrDefault());
@@ -661,7 +655,6 @@ namespace EHR.Crewmate
             }
             catch (Exception ex)
             {
-                Logger.CurrentMethod();
                 Logger.Exception(ex, "Randomizer");
             }
         }
@@ -694,7 +687,7 @@ namespace EHR.Crewmate
         {
             try
             {
-                if (!IsEnable || !GameStates.IsInTask) return;
+                if (!IsEnable || !GameStates.IsInTask || Main.HasJustStarted) return;
 
                 TimeSinceLastMeeting += Time.fixedDeltaTime;
 
@@ -711,7 +704,6 @@ namespace EHR.Crewmate
             }
             catch (Exception ex)
             {
-                Logger.CurrentMethod();
                 Logger.Exception(ex, "Randomizer");
             }
         }
@@ -720,7 +712,7 @@ namespace EHR.Crewmate
         {
             try
             {
-                if (!IsEnable || !GameStates.IsInTask) return;
+                if (!IsEnable || !GameStates.IsInTask || Main.HasJustStarted) return;
 
                 var now = Utils.TimeStamp;
                 if (LastTP[pc.PlayerId] + 5 > now) return;
@@ -746,7 +738,6 @@ namespace EHR.Crewmate
             }
             catch (Exception ex)
             {
-                Logger.CurrentMethod();
                 Logger.Exception(ex, "Randomizer");
             }
         }
@@ -755,13 +746,13 @@ namespace EHR.Crewmate
         {
             try
             {
-                if (!Exists || pc == null || !pc.IsAlive() || !GameStates.IsInTask) return;
+                if (!Exists || pc == null || !pc.IsAlive() || !GameStates.IsInTask || Main.HasJustStarted) return;
 
                 if (CurrentEffects.TryGetValue(pc.PlayerId, out var effects))
                 {
                     var now = Utils.TimeStamp;
 
-                    foreach (var item in effects)
+                    foreach (var item in effects.ToArray())
                     {
                         if (item.Value.StartTimeStamp + item.Value.Duration < now)
                         {
@@ -782,7 +773,6 @@ namespace EHR.Crewmate
             }
             catch (Exception ex)
             {
-                Logger.CurrentMethod();
                 Logger.Exception(ex, "Randomizer");
             }
         }

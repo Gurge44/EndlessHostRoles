@@ -9,7 +9,7 @@ namespace EHR.Crewmate
     public class Ricochet : RoleBase
     {
         private const int Id = 640100;
-        public static List<byte> playerIdList = [];
+        public static List<byte> PlayerIdList = [];
 
         public static OptionItem UseLimitOpt;
         public static OptionItem RicochetAbilityUseGainWithEachTaskCompleted;
@@ -19,7 +19,7 @@ namespace EHR.Crewmate
         public byte ProtectAgainst = byte.MaxValue;
         private byte RicochetId;
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
@@ -37,14 +37,14 @@ namespace EHR.Crewmate
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             ProtectAgainst = byte.MaxValue;
             RicochetId = byte.MaxValue;
         }
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             ProtectAgainst = byte.MaxValue;
             RicochetId = playerId;

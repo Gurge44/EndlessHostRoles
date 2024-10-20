@@ -7,33 +7,34 @@ namespace EHR.Crewmate;
 public class Mortician : RoleBase
 {
     private const int Id = 7400;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     private static OptionItem ShowArrows;
 
-    private static Dictionary<byte, string> lastPlayerName = [];
-    public static Dictionary<byte, string> msgToSend = [];
+    private static Dictionary<byte, string> LastPlayerName = [];
+    public static Dictionary<byte, string> MsgToSend = [];
 
     byte MorticianId;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mortician);
-        ShowArrows = new BooleanOptionItem(Id + 2, "ShowArrows", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Mortician]);
+        ShowArrows = new BooleanOptionItem(Id + 2, "ShowArrows", false, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Mortician]);
     }
 
     public override void Init()
     {
-        playerIdList = [];
-        lastPlayerName = [];
-        msgToSend = [];
+        PlayerIdList = [];
+        LastPlayerName = [];
+        MsgToSend = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         MorticianId = playerId;
     }
 
@@ -53,8 +54,8 @@ public class Mortician : RoleBase
             }
         }
 
-        lastPlayerName.TryAdd(target.PlayerId, minName);
-        foreach (byte pc in playerIdList)
+        LastPlayerName.TryAdd(target.PlayerId, minName);
+        foreach (byte pc in PlayerIdList)
         {
             var player = Utils.GetPlayerById(pc);
             if (player == null || !player.IsAlive()) continue;
@@ -64,14 +65,14 @@ public class Mortician : RoleBase
 
     public static void OnReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target)
     {
-        foreach (byte apc in playerIdList)
+        foreach (byte apc in PlayerIdList)
         {
             LocateArrow.RemoveAllTarget(apc);
         }
 
         if (!pc.Is(CustomRoles.Mortician) || target == null || pc.PlayerId == target.PlayerId) return;
-        lastPlayerName.TryGetValue(target.PlayerId, out var name);
-        msgToSend.Add(pc.PlayerId, name == "" ? string.Format(Translator.GetString("MorticianGetNoInfo"), target.PlayerName) : string.Format(Translator.GetString("MorticianGetInfo"), target.PlayerName, name));
+        LastPlayerName.TryGetValue(target.PlayerId, out var name);
+        MsgToSend.Add(pc.PlayerId, name == "" ? string.Format(Translator.GetString("MorticianGetNoInfo"), target.PlayerName) : string.Format(Translator.GetString("MorticianGetInfo"), target.PlayerName, name));
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)

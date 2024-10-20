@@ -173,8 +173,6 @@ public static class AntiBlackout
 
             target.RpcSetRoleDesync(changedRoleType, seer.GetClientId());
         }
-
-        ResetAllCooldowns();
     }
 
     private static void ResetAllCooldowns()
@@ -183,10 +181,13 @@ public static class AntiBlackout
         {
             if (seer.IsAlive())
             {
-                seer.SetKillCooldown();
                 seer.RpcResetAbilityCooldown();
+                seer.ResetKillCooldown();
+
+                if (Main.AllPlayerKillCooldown.TryGetValue(seer.PlayerId, out var kcd) && kcd >= 2f)
+                    seer.SetKillCooldown(kcd - 2f);
             }
-            else if (seer.GetCustomRole().IsGhostRole() || seer.HasGhostRole())
+            else if (seer.HasGhostRole())
             {
                 seer.RpcResetAbilityCooldown();
             }
@@ -197,6 +198,7 @@ public static class AntiBlackout
     {
         SkipTasks = false;
         ExilePlayerId = -1;
+        ResetAllCooldowns();
     }
 
     public static void Reset()

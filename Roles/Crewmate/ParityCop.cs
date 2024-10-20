@@ -14,43 +14,51 @@ namespace EHR.Crewmate;
 public class ParityCop : RoleBase
 {
     private const int Id = 6900;
-    private static List<byte> playerIdList = [];
-    public static Dictionary<byte, int> RoundCheckLimit = [];
-    public static Dictionary<byte, byte> FirstPick = [];
+    private static List<byte> PlayerIdList = [];
+    private static Dictionary<byte, int> RoundCheckLimit = [];
+    private static Dictionary<byte, byte> FirstPick = [];
 
-    public static readonly string[] PcEgoistCountMode =
+    private static readonly string[] PcEgoistCountMode =
     [
         "EgoistCountMode.Original",
         "EgoistCountMode.Neutral"
     ];
 
     private static OptionItem TryHideMsg;
-    public static OptionItem ParityCheckLimitMax;
-    public static OptionItem ParityCheckLimitPerMeeting;
+    private static OptionItem ParityCheckLimitMax;
+    private static OptionItem ParityCheckLimitPerMeeting;
     private static OptionItem ParityCheckTargetKnow;
     private static OptionItem ParityCheckOtherTargetKnow;
-    public static OptionItem ParityCheckEgoistCountType;
+    private static OptionItem ParityCheckEgoistCountType;
     public static OptionItem ParityCheckBaitCountType;
-    public static OptionItem ParityCheckRevealTargetTeam;
+    private static OptionItem ParityCheckRevealTargetTeam;
     public static OptionItem ParityAbilityUseGainWithEachTaskCompleted;
     public static OptionItem AbilityChargesWhenFinishedTasks;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.ParityCop);
-        TryHideMsg = new BooleanOptionItem(Id + 10, "ParityCopTryHideMsg", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
+        TryHideMsg = new BooleanOptionItem(Id + 10, "ParityCopTryHideMsg", true, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
             .SetColor(Color.green);
-        ParityCheckLimitMax = new IntegerOptionItem(Id + 11, "MaxParityCheckLimit", new(0, 20, 1), 2, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
+        ParityCheckLimitMax = new IntegerOptionItem(Id + 11, "MaxParityCheckLimit", new(0, 20, 1), 2, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
             .SetValueFormat(OptionFormat.Times);
-        ParityCheckLimitPerMeeting = new IntegerOptionItem(Id + 12, "ParityCheckLimitPerMeeting", new(1, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
+        ParityCheckLimitPerMeeting = new IntegerOptionItem(Id + 12, "ParityCheckLimitPerMeeting", new(1, 20, 1), 1, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
             .SetValueFormat(OptionFormat.Times);
-        ParityCheckEgoistCountType = new StringOptionItem(Id + 13, "ParityCheckEgoistickCountMode", PcEgoistCountMode, 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
-        ParityCheckBaitCountType = new BooleanOptionItem(Id + 14, "ParityCheckBaitCountMode", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
-        ParityCheckTargetKnow = new BooleanOptionItem(Id + 15, "ParityCheckTargetKnow", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
-        ParityCheckOtherTargetKnow = new BooleanOptionItem(Id + 16, "ParityCheckOtherTargetKnow", true, TabGroup.CrewmateRoles).SetParent(ParityCheckTargetKnow);
-        ParityCheckRevealTargetTeam = new BooleanOptionItem(Id + 17, "ParityCheckRevealTarget", false, TabGroup.CrewmateRoles).SetParent(ParityCheckOtherTargetKnow);
+        ParityCheckEgoistCountType = new StringOptionItem(Id + 13, "ParityCheckEgoistickCountMode", PcEgoistCountMode, 0, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
+        ParityCheckBaitCountType = new BooleanOptionItem(Id + 14, "ParityCheckBaitCountMode", true, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
+        ParityCheckTargetKnow = new BooleanOptionItem(Id + 15, "ParityCheckTargetKnow", true, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
+        ParityCheckOtherTargetKnow = new BooleanOptionItem(Id + 16, "ParityCheckOtherTargetKnow", true, TabGroup.CrewmateRoles)
+            .SetParent(ParityCheckTargetKnow);
+        ParityCheckRevealTargetTeam = new BooleanOptionItem(Id + 17, "ParityCheckRevealTarget", false, TabGroup.CrewmateRoles)
+            .SetParent(ParityCheckOtherTargetKnow);
         ParityAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 18, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1.5f, TabGroup.CrewmateRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
             .SetValueFormat(OptionFormat.Times);
@@ -64,14 +72,14 @@ public class ParityCop : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         RoundCheckLimit = [];
         FirstPick = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(ParityCheckLimitMax.GetInt());
         RoundCheckLimit.Add(playerId, ParityCheckLimitPerMeeting.GetInt());
     }
@@ -79,7 +87,7 @@ public class ParityCop : RoleBase
     public override void OnReportDeadBody()
     {
         RoundCheckLimit.Clear();
-        foreach (byte pc in playerIdList)
+        foreach (byte pc in PlayerIdList)
         {
             RoundCheckLimit.Add(pc, ParityCheckLimitPerMeeting.GetInt());
         }

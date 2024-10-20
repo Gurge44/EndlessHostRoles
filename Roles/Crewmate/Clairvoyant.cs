@@ -8,7 +8,7 @@ namespace EHR.Crewmate
     {
         public static bool On;
 
-        public static Dictionary<Options.GameStateInfo, OptionItem> Settings = [];
+        public static readonly Dictionary<Options.GameStateInfo, OptionItem> Settings = [];
         public override bool IsEnable => On;
 
         public override void SetupCustomOption()

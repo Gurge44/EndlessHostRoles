@@ -2,15 +2,18 @@
 using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Impostor;
+using HarmonyLib;
 
 namespace EHR.Modules;
 
-public class MeetingTimeManager
+public static class MeetingTimeManager
 {
     private static int DiscussionTime;
     private static int VotingTime;
     private static int DefaultDiscussionTime;
     private static int DefaultVotingTime;
+
+    public static int VotingTimeLeft;
 
     public static void Init()
     {
@@ -48,13 +51,13 @@ public class MeetingTimeManager
         int MeetingTimeMinTimeManager = 0;
         int MeetingTimeMax = 300;
 
-        if (TimeThief.playerIdList.Count > 0)
+        if (TimeThief.PlayerIdList.Count > 0)
         {
             MeetingTimeMinTimeThief = TimeThief.LowerLimitVotingTime.GetInt();
             BonusMeetingTime += TimeThief.TotalDecreasedMeetingTime();
         }
 
-        if (TimeManager.playerIdList.Count > 0)
+        if (TimeManager.PlayerIdList.Count > 0)
         {
             MeetingTimeMinTimeManager = TimeManager.MadMinMeetingTimeLimit.GetInt();
             MeetingTimeMax = TimeManager.MeetingTimeLimit.GetInt();
@@ -63,9 +66,9 @@ public class MeetingTimeManager
 
         int TotalMeetingTime = DiscussionTime + VotingTime;
 
-        if (TimeManager.playerIdList.Count > 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeManager, MeetingTimeMax) - TotalMeetingTime;
-        if (TimeThief.playerIdList.Count > 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
-        if (TimeManager.playerIdList.Count == 0 && TimeThief.playerIdList.Count == 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
+        if (TimeManager.PlayerIdList.Count > 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeManager, MeetingTimeMax) - TotalMeetingTime;
+        if (TimeThief.PlayerIdList.Count > 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
+        if (TimeManager.PlayerIdList.Count == 0 && TimeThief.PlayerIdList.Count == 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
 
         if (BonusMeetingTime >= 0)
         {
@@ -83,4 +86,10 @@ public class MeetingTimeManager
 
         Logger.Info($"Discussion Time: {DiscussionTime}s, Voting Time: {VotingTime}s", "MeetingTimeManager.OnReportDeadBody");
     }
+}
+
+[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.UpdateTimerText))]
+static class MeetingHudUpdateTimerTextPatch
+{
+    public static void Postfix([HarmonyArgument(1)] int value) => MeetingTimeManager.VotingTimeLeft = value;
 }

@@ -10,7 +10,7 @@ namespace EHR.Neutral;
 public class PlagueBearer : RoleBase
 {
     private const int Id = 26000;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
     public static Dictionary<byte, List<byte>> PlaguedList = [];
     public static Dictionary<byte, float> PlagueBearerCD = [];
     public static List<byte> PestilenceList = [];
@@ -20,14 +20,16 @@ public class PlagueBearer : RoleBase
     public static OptionItem PestilenceCanVent;
     public static OptionItem PestilenceHasImpostorVision;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.PlagueBearer);
-        PlagueBearerCDOpt = new FloatOptionItem(Id + 10, "PlagueBearerCD", new(0f, 180f, 0.5f), 17.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer])
+        PlagueBearerCDOpt = new FloatOptionItem(Id + 10, "PlagueBearerCD", new(0f, 180f, 0.5f), 17.5f, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer])
             .SetValueFormat(OptionFormat.Seconds);
-        PestilenceCDOpt = new FloatOptionItem(Id + 11, "PestilenceCD", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer])
+        PestilenceCDOpt = new FloatOptionItem(Id + 11, "PestilenceCD", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer])
             .SetValueFormat(OptionFormat.Seconds);
         PestilenceCanVent = new BooleanOptionItem(Id + 12, "PestilenceCanVent", true, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer]);
@@ -37,7 +39,7 @@ public class PlagueBearer : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         PlaguedList = [];
         PlagueBearerCD = [];
         PestilenceList = [];
@@ -45,7 +47,7 @@ public class PlagueBearer : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         PlagueBearerCD.Add(playerId, PlagueBearerCDOpt.GetFloat());
         PlaguedList[playerId] = [];
     }

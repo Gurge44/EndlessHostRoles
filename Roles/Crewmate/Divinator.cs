@@ -11,7 +11,7 @@ public class Divinator : RoleBase
 {
     private const int Id = 6700;
     private const int RolesPerCategory = 5;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     public static OptionItem CheckLimitOpt;
     public static OptionItem AccurateCheckMode;
@@ -21,11 +21,11 @@ public class Divinator : RoleBase
     public static OptionItem AbilityChargesWhenFinishedTasks;
     public static OptionItem CancelVote;
 
-    public static List<byte> didVote = [];
+    public static readonly List<byte> DidVote = [];
 
     private static Dictionary<byte, HashSet<CustomRoles>> AllPlayerRoleList = [];
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -51,18 +51,18 @@ public class Divinator : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         AllPlayerRoleList = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(CheckLimitOpt.GetInt());
 
         LateTask.New(() =>
         {
-            var players = Main.AllAlivePlayerControls;
+            var players = Main.AllPlayerControls;
             int rolesNeeded = players.Length * (RolesPerCategory - 1);
             var roleList = Enum.GetValues<CustomRoles>()
                 .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.GM and not CustomRoles.Convict and not CustomRoles.NotAssigned && !x.IsForOtherGameMode() && !CustomRoleSelector.RoleResult.ContainsValue(x))
@@ -75,14 +75,14 @@ public class Divinator : RoleBase
             AllPlayerRoleList = roleList.ToDictionary(x => x.Player.PlayerId, x => x.RoleList.ToHashSet());
 
             Logger.Info(string.Join(" ---- ", AllPlayerRoleList.Select(x => $"ID {x.Key} ({x.Key.GetPlayer().GetNameWithRole()}): {string.Join(", ", x.Value)}")), "Divinator Roles");
-        }, 3f, log: false);
+        }, 8f, log: false);
     }
 
     public override bool OnVote(PlayerControl player, PlayerControl target)
     {
         if (player == null || target == null) return false;
-        if (didVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
-        didVote.Add(player.PlayerId);
+        if (DidVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
+        DidVote.Add(player.PlayerId);
 
         if (player.GetAbilityUseLimit() < 1)
         {

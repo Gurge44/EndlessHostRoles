@@ -65,18 +65,17 @@ static class ExtendedPlayerControl
         return CanUseVent(player, GetClosestVent(player)?.Id ?? int.MaxValue);
     }
 
-    // VentId is unused for now, but it can be used to block specific vents
-    // ReSharper disable once UnusedParameter.Global
     public static bool CanUseVent(this PlayerControl player, int ventId)
     {
-        return GameStates.IsInTask && (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer || player.inVent);
+        if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
+        return GameStates.IsInTask && ((player.inVent && player.GetClosestVent()?.Id == ventId) || (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId)));
     }
 
     // Next 3: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs
     public static Vent GetClosestVent(this PlayerControl player)
     {
         var pos = player.Pos();
-        return ShipStatus.Instance.AllVents.Where(x => x != null).MinBy(x => Vector2.Distance(pos, x.transform.position));
+        return ShipStatus.Instance?.AllVents?.Where(x => x != null).MinBy(x => Vector2.Distance(pos, x.transform.position));
     }
 
     public static List<Vent> GetVentsFromClosest(this PlayerControl player)
@@ -84,6 +83,15 @@ static class ExtendedPlayerControl
         Vector2 playerpos = player.transform.position;
         List<Vent> vents = ShipStatus.Instance.AllVents.ToList();
         vents.Sort((v1, v2) => Vector2.Distance(playerpos, v1.transform.position).CompareTo(Vector2.Distance(playerpos, v2.transform.position)));
+
+        if ((player.walkingToVent || player.inVent) && vents[0] != null)
+        {
+            var nextvents = vents[0].NearbyVents.ToList();
+            nextvents.RemoveAll(v => v == null);
+            nextvents.ForEach(v => vents.Remove(v));
+            vents.InsertRange(0, nextvents);
+        }
+
         return vents;
     }
 
@@ -222,7 +230,9 @@ static class ExtendedPlayerControl
             return CountTypes.None;
         }
 
-        return Main.PlayerStates.TryGetValue(player.PlayerId, out var State) ? State.SubRoles.Contains(CustomRoles.Bloodlust) ? CountTypes.Bloodlust : State.countTypes : CountTypes.None;
+        if (!Main.PlayerStates.TryGetValue(player.PlayerId, out var state)) return CountTypes.None;
+        if (!player.IsConverted() && state.SubRoles.Contains(CustomRoles.Bloodlust)) return CountTypes.Bloodlust;
+        return state.countTypes;
     }
 
     public static void RpcSetNameEx(this PlayerControl player, string name)
@@ -248,13 +258,30 @@ static class ExtendedPlayerControl
         if (seer == null || player == null) return;
 
         var clientId = seer.GetClientId();
+        if (clientId == -1) return;
 
-        var sender = CustomRpcSender.Create(name: "SetNamePrivate");
-        sender.AutoStartRpc(player.NetId, (byte)RpcCalls.SetName, clientId)
-            .Write(seer.Data.NetId)
-            .Write(name)
-            .EndRpc();
-        sender.SendMessage();
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetName, SendOption.Reliable, clientId);
+        writer.Write(seer.Data.NetId);
+        writer.Write(name);
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
+    }
+
+    // By TommyXL
+    public static void RpcSetPetDesync(this PlayerControl player, string petId, PlayerControl seer)
+    {
+        var clientId = seer.GetClientId();
+        if (clientId == -1) return;
+        if (AmongUsClient.Instance.ClientId == clientId)
+        {
+            player.SetPet(petId);
+            return;
+        }
+
+        player.Data.DefaultOutfit.PetSequenceId += 10;
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.SetPetStr, SendOption.Reliable, clientId);
+        writer.Write(petId);
+        writer.Write(player.GetNextRpcSequenceId(RpcCalls.SetPetStr));
+        AmongUsClient.Instance.FinishRpcImmediately(writer);
     }
 
     public static void RpcSetRoleDesync(this PlayerControl player, RoleTypes role, int clientId)
@@ -284,6 +311,7 @@ static class ExtendedPlayerControl
             return;
         }
 
+        GhostRolesManager.RemoveGhostRole(player.PlayerId);
         Main.PlayerStates[player.PlayerId].IsDead = false;
         Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.etc;
         player.RpcChangeRoleBasis(player.GetRoleMap().CustomRole, true);
@@ -293,6 +321,8 @@ static class ExtendedPlayerControl
         player.RpcResetAbilityCooldown();
         player.SyncGeneralOptions();
 
+        if (Camouflage.IsCamouflage) Camouflage.RpcSetSkin(player);
+
         NotifyRoles(SpecifySeer: player, NoCache: true);
         NotifyRoles(SpecifyTarget: player, NoCache: true);
     }
@@ -300,17 +330,18 @@ static class ExtendedPlayerControl
     // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/ExtendedPlayerControl.cs
     public static void RpcChangeRoleBasis(this PlayerControl player, CustomRoles newCustomRole, bool loggerRoleMap = false)
     {
-        if (!GameStates.IsInGame || !AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost || !GameStates.IsInGame || player == null || !player.IsAlive()) return;
 
         var playerId = player.PlayerId;
+        var playerClientId = player.GetClientId();
         var playerRole = Utils.GetRoleMap(playerId).CustomRole;
         var newRoleType = newCustomRole.GetRoleTypes();
         RoleTypes remeberRoleType;
 
         newRoleType = Options.CurrentGameMode switch
         {
-            CustomGameMode.Speedrun when newCustomRole == CustomRoles.Runner => SpeedrunManager.CanKill.Contains(player.PlayerId) ? RoleTypes.Impostor : RoleTypes.Crewmate,
-            CustomGameMode.Standard when StartGameHostPatch.BasisChangingAddons.FindFirst(x => x.Value.Contains(player.PlayerId), out var kvp) => kvp.Key switch
+            CustomGameMode.Speedrun when newCustomRole == CustomRoles.Runner => SpeedrunManager.CanKill.Contains(playerId) ? RoleTypes.Impostor : RoleTypes.Crewmate,
+            CustomGameMode.Standard when StartGameHostPatch.BasisChangingAddons.FindFirst(x => x.Value.Contains(playerId), out var kvp) => kvp.Key switch
             {
                 CustomRoles.Bloodlust when newRoleType is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Scientist => RoleTypes.Impostor,
                 CustomRoles.Nimble when newRoleType is RoleTypes.Crewmate or RoleTypes.Scientist => RoleTypes.Engineer,
@@ -325,6 +356,9 @@ static class ExtendedPlayerControl
         var oldRoleIsDesync = playerRole.IsDesyncRole();
         var newRoleIsDesync = newCustomRole.IsDesyncRole();
 
+        var newRoleVN = newCustomRole.GetVNRole();
+        var newRoleDY = newCustomRole.GetDYRole();
+
         switch (oldRoleIsDesync, newRoleIsDesync)
         {
             // Desync role to normal role
@@ -334,13 +368,40 @@ static class ExtendedPlayerControl
                 {
                     var seerClientId = seer.GetClientId();
                     if (seerClientId == -1) continue;
+                    var seerIsHost = seer.IsHost();
+                    var self = player.PlayerId == seer.PlayerId;
 
-                    if (player.PlayerId != seer.PlayerId && seer.HasDesyncRole() && !seer.IsHost())
-                        remeberRoleType = newCustomRole.GetVNRole() is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
+                    if (!self && seer.HasDesyncRole() && !seerIsHost)
+                        remeberRoleType = newRoleVN is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
                     else remeberRoleType = newRoleType;
 
+                    // Set role type for seer
                     StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, playerId)] = (remeberRoleType, newCustomRole);
                     player.RpcSetRoleDesync(remeberRoleType, seerClientId);
+
+                    if (self) continue;
+
+                    (RoleTypes seerRoleType, CustomRoles seerCustomRole) = seer.GetRoleMap();
+                    if (seer.IsAlive())
+                    {
+                        if (seerCustomRole.IsDesyncRole()) remeberRoleType = seerIsHost ? RoleTypes.Crewmate : RoleTypes.Scientist;
+                        else remeberRoleType = seerRoleType;
+                    }
+                    else
+                    {
+                        var playerIsKiller = playerRole.IsImpostor();
+
+                        remeberRoleType = RoleTypes.CrewmateGhost;
+                        if (!playerIsKiller && seer.Is(Team.Impostor)) remeberRoleType = RoleTypes.ImpostorGhost;
+
+                        StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(playerId, seer.PlayerId)] = (seerCustomRole.IsDesyncRole() ? seerIsHost ? RoleTypes.Crewmate : RoleTypes.Scientist : seerRoleType, seerCustomRole);
+                        seer.RpcSetRoleDesync(remeberRoleType, playerClientId);
+                        continue;
+                    }
+
+                    // Set role type for player
+                    StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(playerId, seer.PlayerId)] = (remeberRoleType, seerCustomRole);
+                    seer.RpcSetRoleDesync(remeberRoleType, playerClientId);
                 }
 
                 break;
@@ -352,23 +413,43 @@ static class ExtendedPlayerControl
                 {
                     var seerClientId = seer.GetClientId();
                     if (seerClientId == -1) continue;
+                    var self = player.PlayerId == seer.PlayerId;
 
-                    if (player.PlayerId == seer.PlayerId)
+                    if (self)
                     {
                         remeberRoleType = player.IsHost() ? RoleTypes.Crewmate : RoleTypes.Impostor;
 
                         // For Desync Shapeshifter
-                        if (newCustomRole.GetDYRole() is RoleTypes.Shapeshifter)
+                        if (newRoleDY is RoleTypes.Shapeshifter)
                             remeberRoleType = RoleTypes.Shapeshifter;
                     }
                     else
                     {
-                        if (!player.IsHost() && seer.HasDesyncRole()) remeberRoleType = newCustomRole.GetVNRole() is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
-                        else remeberRoleType = newRoleType;
+                        remeberRoleType = newRoleVN is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
                     }
 
                     StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(seer.PlayerId, playerId)] = (remeberRoleType, newCustomRole);
                     player.RpcSetRoleDesync(remeberRoleType, seerClientId);
+
+                    if (self) continue;
+
+                    var seerCustomRole = seer.GetRoleMap().CustomRole;
+                    if (seer.IsAlive())
+                    {
+                        remeberRoleType = newRoleVN is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist;
+                    }
+                    else
+                    {
+                        remeberRoleType = RoleTypes.CrewmateGhost;
+
+                        StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(playerId, seer.PlayerId)] = (seerCustomRole.GetVNRole() is CustomRoles.Noisemaker ? RoleTypes.Noisemaker : RoleTypes.Scientist, seerCustomRole);
+                        seer.RpcSetRoleDesync(remeberRoleType, playerClientId);
+                        continue;
+                    }
+
+                    // Set role type for player
+                    StartGameHostPatch.RpcSetRoleReplacer.RoleMap[(playerId, seer.PlayerId)] = (remeberRoleType, seerCustomRole);
+                    seer.RpcSetRoleDesync(remeberRoleType, playerClientId);
                 }
 
                 break;
@@ -399,17 +480,19 @@ static class ExtendedPlayerControl
         {
             foreach (var seer in Main.AllPlayerControls)
             {
+                var seerData = seer.Data;
                 foreach (var target in Main.AllPlayerControls)
                 {
-                    if (StartGameHostPatch.RpcSetRoleReplacer.RoleMap.TryGetValue((seer.PlayerId, target.PlayerId), out var map))
-                        Logger.Info($"seer {seer.Data?.PlayerName}-{seer.PlayerId}, target {target.Data?.PlayerName}-{target.PlayerId} => {map.RoleType}, {map.CustomRole}", "Role Map");
+                    var targetData = target.Data;
+                    (RoleTypes roleType, CustomRoles customRole) = seer.GetRoleMap(targetData.PlayerId);
+                    Logger.Info($"seer {seerData?.PlayerName}-{seerData?.PlayerId}, target {targetData.PlayerName}-{targetData.PlayerId} => {roleType}, {customRole}", "Role Map");
                 }
             }
         }
 
-        Main.ChangedRole = true;
-
         Logger.Info($"{player.GetNameWithRole()}'s role basis was changed to {newRoleType} ({newCustomRole}) (from role: {playerRole}) - oldRoleIsDesync: {oldRoleIsDesync}, newRoleIsDesync: {newRoleIsDesync}", "RpcChangeRoleBasis");
+
+        Main.ChangedRole = true;
     }
 
     // https://github.com/Ultradragon005/TownofHost-Enhanced/blob/ea5f1e8ea87e6c19466231c305d6d36d511d5b2d/Modules/Utils.cs
@@ -714,6 +797,8 @@ static class ExtendedPlayerControl
 
     public static void Suicide(this PlayerControl pc, PlayerState.DeathReason deathReason = PlayerState.DeathReason.Suicide, PlayerControl realKiller = null)
     {
+        if (!pc.IsAlive() || pc.Data.IsDead || !GameStates.IsInTask || ExileController.Instance) return;
+
         var state = Main.PlayerStates[pc.PlayerId];
         if (realKiller != null && state.Role is SchrodingersCat cat)
         {
@@ -882,7 +967,7 @@ static class ExtendedPlayerControl
 
     public static string GetNameWithRole(this PlayerControl player, bool forUser = false)
     {
-        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
+        return $"{player?.Data?.PlayerName}" + (GameStates.IsInGame && Options.CurrentGameMode is not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush ? $" ({player?.GetAllRoleName(forUser).RemoveHtmlTags().Replace('\n', ' ')})" : string.Empty);
     }
 
     public static string GetRoleColorCode(this PlayerControl player)
@@ -948,7 +1033,8 @@ static class ExtendedPlayerControl
     {
         try
         {
-            return isMeeting ? player.Data.PlayerName : player.name;
+            var name = isMeeting ? player.Data.PlayerName : player.name;
+            return name.RemoveHtmlTags();
         }
         catch (NullReferenceException nullReferenceException)
         {
@@ -969,16 +1055,34 @@ static class ExtendedPlayerControl
     public static bool IsHost(this InnerNetObject ino) => ino.OwnerId == AmongUsClient.Instance.HostId;
     public static bool IsHost(this byte id) => GetPlayerById(id)?.OwnerId == AmongUsClient.Instance.HostId;
 
-    public static void RpcShowScanAnimation(this PlayerControl target, PlayerControl seer, bool IsActive)
+    public static void RpcShowScanAnimationDesync(this PlayerControl target, PlayerControl seer, bool IsActive)
     {
-        if (!AmongUsClient.Instance.AmHost) return;
+        if (!AmongUsClient.Instance.AmHost)
+        {
+            var caller = new StackFrame(1, false);
+            var callerMethod = caller.GetMethod();
+            string callerMethodName = callerMethod?.Name;
+            string callerClassName = callerMethod?.DeclaringType?.FullName;
+            Logger.Warn($"Modded non-host client activated RpcShowScanAnimation from {callerClassName}.{callerMethodName}", "RpcShowScanAnimation");
+            return;
+        }
 
-        byte cnt = ++PlayerControl.LocalPlayer.scannerCount;
+        if (target == null || seer == null) return;
 
-        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.SetScanner, SendOption.Reliable, seer.GetClientId());
+        var seerClientId = seer.GetClientId();
+        if (seerClientId == -1) return;
+        byte cnt = ++target.scannerCount;
+        if (AmongUsClient.Instance.ClientId == seerClientId)
+        {
+            target.SetScanner(IsActive, cnt);
+            return;
+        }
+
+        MessageWriter messageWriter = AmongUsClient.Instance.StartRpcImmediately(target.NetId, (byte)RpcCalls.SetScanner, SendOption.Reliable, seerClientId);
         messageWriter.Write(IsActive);
         messageWriter.Write(cnt);
         AmongUsClient.Instance.FinishRpcImmediately(messageWriter);
+        target.scannerCount = cnt;
     }
 
     public static bool HasKillButton(this PlayerControl pc)
@@ -997,7 +1101,7 @@ static class ExtendedPlayerControl
 
         switch (Options.CurrentGameMode)
         {
-            case CustomGameMode.HotPotato or CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters:
+            case CustomGameMode.HotPotato or CustomGameMode.MoveAndStop or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush:
             case CustomGameMode.Speedrun when !SpeedrunManager.CanKill.Contains(pc.PlayerId):
                 return false;
             case CustomGameMode.CaptureTheFlag:
@@ -1044,27 +1148,21 @@ static class ExtendedPlayerControl
     {
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel || Penguin.IsVictim(pc)) return false;
         if (pc.GetRoleTypes() == RoleTypes.Engineer) return false;
-        if (CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId)) return true;
 
-        if (pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool()) return true;
-        if (pc.Is(CustomRoles.Bloodlust) || pc.Is(CustomRoles.Refugee)) return true;
-
-        return pc.GetCustomRole() switch
+        return Options.CurrentGameMode switch
         {
-            // SoloKombat
-            CustomRoles.KB_Normal => true,
-            // FFA
-            CustomRoles.Killer => true,
-            // Move And Stop
-            CustomRoles.Tasker => false,
-            // Hot Potato
-            CustomRoles.Potato => false,
-            // Speedrun
-            CustomRoles.Runner => false,
-            // Capture The Flag
-            CustomRoles.CTFPlayer => false,
-            // Natural Disasters
-            CustomRoles.NDPlayer => false,
+            CustomGameMode.SoloKombat => true,
+            CustomGameMode.FFA => true,
+            CustomGameMode.MoveAndStop => false,
+            CustomGameMode.HotPotato => false,
+            CustomGameMode.Speedrun => false,
+            CustomGameMode.CaptureTheFlag => false,
+            CustomGameMode.NaturalDisasters => false,
+            CustomGameMode.RoomRush => !Main.HasJustStarted && RoomRush.VentLimit[pc.PlayerId] > 0,
+
+            CustomGameMode.Standard when (CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId)) => true,
+            CustomGameMode.Standard when (pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool()) => true,
+            CustomGameMode.Standard when (pc.Is(CustomRoles.Bloodlust) || pc.Is(CustomRoles.Refugee)) => true,
 
             _ => Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseImpostorVentButton(pc)
         };
@@ -1073,6 +1171,12 @@ static class ExtendedPlayerControl
     public static bool CanUseSabotage(this PlayerControl pc)
     {
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
+        if (pc.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting)
+        {
+            pc.Notify(GetString("TraineeNotify"));
+            return false;
+        }
+
         return Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseSabotage(pc);
     }
 
@@ -1225,6 +1329,7 @@ static class ExtendedPlayerControl
         player.Exiled();
         MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(player.NetId, (byte)RpcCalls.Exiled, SendOption.None);
         AmongUsClient.Instance.FinishRpcImmediately(writer);
+        FixedUpdatePatch.LoversSuicide(player.PlayerId);
     }
 
     public static (Vector2 Location, string RoomName) GetPositionInfo(this PlayerControl pc)
@@ -1236,14 +1341,14 @@ static class ExtendedPlayerControl
         return (pos, roomName);
     }
 
-    public static bool TP(this PlayerControl pc, PlayerControl target, bool log = true)
+    public static bool TP(this PlayerControl pc, PlayerControl target, bool noCheckState = false, bool log = true)
     {
-        return Utils.TP(pc.NetTransform, target.Pos(), log);
+        return Utils.TP(pc.NetTransform, target.Pos(), noCheckState, log);
     }
 
-    public static bool TP(this PlayerControl pc, Vector2 location, bool log = true)
+    public static bool TP(this PlayerControl pc, Vector2 location, bool noCheckState = false, bool log = true)
     {
-        return Utils.TP(pc.NetTransform, location, log);
+        return Utils.TP(pc.NetTransform, location, noCheckState, log);
     }
 
     // ReSharper disable once InconsistentNaming
@@ -1273,6 +1378,8 @@ static class ExtendedPlayerControl
         if (target.Is(CustomRoles.Jackal))
             Jackal.Instances.Do(x => x.PromoteSidekick());
 
+        Main.DiedThisRound.Add(target.PlayerId);
+
         switch (killer.PlayerId == target.PlayerId)
         {
             case true when killer.shapeshifting:
@@ -1292,7 +1399,7 @@ static class ExtendedPlayerControl
     public static void NoCheckStartMeeting(this PlayerControl reporter, NetworkedPlayerInfo target, bool force = false)
     {
         if (Options.DisableMeeting.GetBool() && !force) return;
-        ReportDeadBodyPatch.AfterReportTasks(reporter, target);
+        ReportDeadBodyPatch.AfterReportTasks(reporter, target, true);
         MeetingRoomManager.Instance.AssignSelf(reporter, target);
         DestroyableSingleton<HudManager>.Instance.OpenMeetingRoom(reporter);
         reporter.RpcStartMeeting(target);
@@ -1303,6 +1410,7 @@ static class ExtendedPlayerControl
         var role = pc.GetCustomRole();
         if (force || role.AlwaysUsesUnshift() || (role.SimpleAbilityTrigger() && Options.UseUnshiftTrigger.GetBool() && (!pc.IsNeutralKiller() || Options.UseUnshiftTriggerForNKs.GetBool())))
         {
+            Logger.Info($"Set Unshift State For {pc.GetNameWithRole()}", "CheckAndSetUnshiftState");
             var target = Main.AllAlivePlayerControls.Without(pc).RandomElement();
             var outfit = pc.Data.DefaultOutfit;
             var process = Main.ProcessShapeshifts;
@@ -1408,7 +1516,7 @@ static class ExtendedPlayerControl
     public static RoleTypes GetRoleTypes(this PlayerControl pc) => pc.GetCustomSubRoles() switch
     {
         { } x when x.Contains(CustomRoles.Bloodlust) => RoleTypes.Impostor,
-        { } x when x.Contains(CustomRoles.Nimble) => RoleTypes.Engineer,
+        { } x when x.Contains(CustomRoles.Nimble) && !pc.HasDesyncRole() => RoleTypes.Engineer,
         { } x when x.Contains(CustomRoles.Physicist) => RoleTypes.Scientist,
         { } x when x.Contains(CustomRoles.Finder) => RoleTypes.Tracker,
         { } x when x.Contains(CustomRoles.Noisy) => RoleTypes.Noisemaker,

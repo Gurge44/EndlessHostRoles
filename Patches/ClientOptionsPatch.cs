@@ -183,6 +183,7 @@ public static class OptionsMenuBehaviourClosePatch
         ClientOptionItem.CustomBackground?.gameObject.SetActive(false);
 
         if (GameStates.InGame && GameStates.IsVoting && !DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening)
-            GuessManager.CreateIDLabels(MeetingHud.Instance);
+        {
+        }
     }
 }

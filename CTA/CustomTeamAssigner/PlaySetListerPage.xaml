@@ -11,6 +11,7 @@ README file in the root directory of this source tree.
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
       mc:Ignorable="d" 
       d:DesignHeight="720" d:DesignWidth="1280"
       Title="Play-Set Lister">
@@ -69,54 +70,54 @@ README file in the root directory of this source tree.
         </Style>
         
         <Style TargetType="ListBoxItem">
-        <Setter Property="Background" Value="#2D2D2D"/>
-        <Setter Property="Foreground" Value="White"/>
-        <Setter Property="FontSize" Value="20"/>
-        <Setter Property="FontFamily" Value="Segoe UI"/>
-        <Setter Property="FontWeight" Value="Regular"/>
-        <Setter Property="BorderThickness" Value="0"/>
-        <Setter Property="Padding" Value="8"/>
-        <Setter Property="Margin" Value="4"/>
-        <Setter Property="Width" Value="Auto"/>
-        <Setter Property="Height" Value="Auto"/>
-        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-        <Setter Property="HorizontalAlignment" Value="Stretch"/>
-        <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="ListBoxItem">
-                    <Border x:Name="BorderElement" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
-                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#3C3C3C"/>
-                <Setter Property="Opacity" Value="0.9"/>
-                <Trigger.EnterActions>
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                            From="#2D2D2D" To="#3C3C3C" Duration="0:0:0.2"/>
-                        </Storyboard>
-                    </BeginStoryboard>
-                </Trigger.EnterActions>
-                <Trigger.ExitActions>
-                    <BeginStoryboard>
-                        <Storyboard>
-                            <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                            From="#3C3C3C" To="#2D2D2D" Duration="0:0:0.2"/>
-                        </Storyboard>
-                    </BeginStoryboard>
-                </Trigger.ExitActions>
-            </Trigger>
-            <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="#1F1F1F"/>
-            </Trigger>
-        </Style.Triggers>
-    </Style>
+            <Setter Property="Background" Value="#2D2D2D"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="MinWidth" Value="400"/>
+            <Setter Property="MinHeight" Value="60"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Border x:Name="BorderElement" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#3C3C3C"/>
+                    <Setter Property="Opacity" Value="0.9"/>
+                    <Trigger.EnterActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                From="#2D2D2D" To="#3C3C3C" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                From="#3C3C3C" To="#2D2D2D" Duration="0:0:0.2"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.ExitActions>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#1F1F1F"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
         
         <Style TargetType="ScrollViewer">
             <Setter Property="Background" Value="#2D2D2D"/>
@@ -179,30 +180,50 @@ README file in the root directory of this source tree.
         <ScrollViewer Grid.RowSpan="7">
             <ListBox Name="TeamListBox" d:ItemsSource="{d:SampleData ItemCount=20}" SelectionChanged="ChangeSelection"/>
         </ScrollViewer>
-        <Button Grid.Row="1" Grid.Column="1" Content="Add Team" Click="AddNewTeam">
+        <Button Grid.Row="1" Grid.Column="1" Click="AddNewTeam">
             <Button.RenderTransform>
                 <ScaleTransform/>
             </Button.RenderTransform>
+            <StackPanel Orientation="Horizontal">
+                <svgc:SvgViewbox Source="Resources/add.svg" Width="30" Height="30" Margin="0,0,15,0"/>
+                <TextBlock Text="Add"/>
+            </StackPanel>
         </Button>
-        <Button Grid.Row="2" Grid.Column="1" Content="Edit Team" Click="EditTeam" IsEnabled="False" Name="EditTeamButton">
+        <Button Grid.Row="2" Grid.Column="1" Click="EditTeam" IsEnabled="False" Name="EditTeamButton">
             <Button.RenderTransform>
                 <ScaleTransform/>
             </Button.RenderTransform>
+            <StackPanel Orientation="Horizontal">
+                <svgc:SvgViewbox Source="Resources/edit.svg" Width="30" Height="30" Margin="0,0,15,0"/>
+                <TextBlock Text="Edit"/>
+            </StackPanel>
         </Button>
-        <Button Grid.Row="3" Grid.Column="1" Content="Delete Team" Click="DeleteTeam" IsEnabled="False" Name="DeleteTeamButton">
+        <Button Grid.Row="3" Grid.Column="1" Click="DeleteTeam" IsEnabled="False" Name="DeleteTeamButton">
             <Button.RenderTransform>
                 <ScaleTransform/>
             </Button.RenderTransform>
+            <StackPanel Orientation="Horizontal">
+                <svgc:SvgViewbox Source="Resources/delete.svg" Width="30" Height="30" Margin="0,0,15,0"/>
+                <TextBlock Text="Delete"/>
+            </StackPanel>
         </Button>
-        <Button Grid.Row="4" Grid.Column="1" Content="Save" Click="SavePlaySet">
+        <Button Grid.Row="4" Grid.Column="1" Click="SavePlaySet">
             <Button.RenderTransform>
                 <ScaleTransform/>
             </Button.RenderTransform>
+            <StackPanel Orientation="Horizontal">
+                <svgc:SvgViewbox Source="Resources/save-as.svg" Width="30" Height="30" Margin="0,0,15,0"/>
+                <TextBlock Text="Save"/>
+            </StackPanel>
         </Button>
-        <Button Grid.Row="6" Grid.Column="1" Content="Go Back" Click="Back">
+        <Button Grid.Row="6" Grid.Column="1" Click="Back">
             <Button.RenderTransform>
                 <ScaleTransform/>
             </Button.RenderTransform>
+            <StackPanel Orientation="Horizontal">
+                <svgc:SvgViewbox Source="Resources/back.svg" Width="30" Height="30" Margin="0,0,15,0"/>
+                <TextBlock Text="Go Back"/>
+            </StackPanel>
         </Button>
     </Grid>
 </Page>

@@ -66,8 +66,8 @@ public class CopyCat : RoleBase
                 Cleanser.DidVote.Remove(CopyCatPC.PlayerId);
                 break;
             case CustomRoles.Merchant:
-                Merchant.addonsSold.Remove(CopyCatPC.PlayerId);
-                Merchant.bribedKiller.Remove(CopyCatPC.PlayerId);
+                Merchant.AddonsSold.Remove(CopyCatPC.PlayerId);
+                Merchant.BribedKiller.Remove(CopyCatPC.PlayerId);
                 break;
             case CustomRoles.Paranoia:
                 Paranoia.ParaUsedButtonCount.Remove(CopyCatPC.PlayerId);

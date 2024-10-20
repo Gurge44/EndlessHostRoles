@@ -30,8 +30,6 @@ public static class GuessManager
     public static TextMeshPro TextTemplate;
     private static readonly int Mask = Shader.PropertyToID("_Mask");
 
-    private static List<GameObject> IDPanels = [];
-
     public static string GetFormatString()
     {
         string text = GetString("PlayerIdList");
@@ -192,7 +190,27 @@ public static class GuessManager
                         return true;
                     }
 
-                    bool forceAllowGuess = (hasGuessSetting && guessSetting.GetValue() == 0) || (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Lovers && Lovers.GuessAbility.GetValue() == 2);
+                    OptionItem convertedGuessSetting = null;
+                    if (role == CustomRoles.Egoist || role.IsConverted())
+                    {
+                        convertedGuessSetting = role switch
+                        {
+                            CustomRoles.Charmed => Options.CharmedCanBeGuessed,
+                            CustomRoles.Recruit => Options.RecruitCanBeGuessed,
+                            CustomRoles.Contagious => Options.ContagiousCanBeGuessed,
+                            CustomRoles.Undead => Options.UndeadCanBeGuessed,
+                            CustomRoles.Egoist => Options.EgoistCanBeGuessed,
+                            _ => null
+                        };
+                        if (convertedGuessSetting?.GetValue() == 1)
+                        {
+                            if (!isUI) Utils.SendMessage(GetString("GuessDisabledAddonOverride"), pc.PlayerId);
+                            else pc.ShowPopUp(GetString("GuessDisabledAddonOverride"));
+                            return true;
+                        }
+                    }
+
+                    bool forceAllowGuess = (hasGuessSetting && guessSetting.GetValue() == 0) || (convertedGuessSetting?.GetValue() == 0) || (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Lovers && Lovers.GuessAbility.GetValue() == 2);
 
                     if (role == CustomRoles.Lovers && Lovers.GuessAbility.GetValue() == 0)
                     {
@@ -223,7 +241,7 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("GuessDisabled"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessDisabled"));
                             return true;
-                        case CustomRoles.God when !Options.GodCanGuess.GetBool():
+                        case CustomRoles.God when !God.GodCanGuess.GetBool():
                             if (!isUI) Utils.SendMessage(GetString("GuessDisabled"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessDisabled"));
                             return true;
@@ -314,6 +332,7 @@ public static class GuessManager
                         case CustomRoles.Pestilence:
                             if (!isUI) Utils.SendMessage(GetString("GuessPestilence"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessPestilence"));
+                            if (DoubleShot.CheckGuess(pc, isUI)) return true;
                             guesserSuicide = true;
                             break;
                         case CustomRoles.Phantasm:
@@ -369,7 +388,11 @@ public static class GuessManager
                         if (!isUI) Utils.SendMessage(GetString("GuessOnbound"), pc.PlayerId);
                         else pc.ShowPopUp(GetString("GuessOnbound"));
 
-                        if (Onbound.GuesserSuicides.GetBool()) guesserSuicide = true;
+                        if (Onbound.GuesserSuicides.GetBool())
+                        {
+                            if (DoubleShot.CheckGuess(pc, isUI)) return true;
+                            guesserSuicide = true;
+                        }
                         else return true;
                     }
 
@@ -380,14 +403,14 @@ public static class GuessManager
                         return true;
                     }
 
-                    if (Jailor.playerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == target.PlayerId))
+                    if (Jailor.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == target.PlayerId))
                     {
                         if (!isUI) Utils.SendMessage(GetString("CantGuessJailed"), pc.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
                         else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")) + "\n" + GetString("CantGuessJailed"));
                         return true;
                     }
 
-                    if (Jailor.playerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == pc.PlayerId && role != CustomRoles.Jailor))
+                    if (Jailor.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == pc.PlayerId && role != CustomRoles.Jailor))
                     {
                         if (!isUI) Utils.SendMessage(GetString("JailedCanOnlyGuessJailor"), pc.PlayerId, title: Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
                         else pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")) + "\n" + GetString("JailedCanOnlyGuessJailor"));
@@ -468,18 +491,14 @@ public static class GuessManager
                         if (DoubleShot.CheckGuess(pc, isUI)) return true;
                         guesserSuicide = true;
                     }
-                    else if (pc.Is(CustomRoles.NiceGuesser) && target.Is(CustomRoleTypes.Crewmate) && !Options.GGCanGuessCrew.GetBool() && !pc.Is(CustomRoles.Madmate))
+                    else if (pc.Is(CustomRoles.NiceGuesser) && target.IsCrewmate() && !Options.GGCanGuessCrew.GetBool() && !pc.Is(CustomRoles.Madmate))
                     {
-                        if (DoubleShot.CheckGuess(pc, isUI)) return true;
-
                         if (!isUI) Utils.SendMessage(GetString("GuessCrewRole"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromGurge44")));
                         else pc.ShowPopUp(Utils.ColorString(Color.cyan, GetString("MessageFromGurge44")) + "\n" + GetString("GuessCrewRole"));
                         return true;
                     }
-                    else if (pc.Is(CustomRoles.EvilGuesser) && target.Is(CustomRoleTypes.Impostor) && !Options.EGCanGuessImp.GetBool())
+                    else if (pc.Is(CustomRoles.EvilGuesser) && target.IsImpostor() && !Options.EGCanGuessImp.GetBool())
                     {
-                        if (DoubleShot.CheckGuess(pc, isUI)) return true;
-
                         if (!isUI) Utils.SendMessage(GetString("GuessImpRole"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromGurge44")));
                         else pc.ShowPopUp(Utils.ColorString(Color.cyan, GetString("MessageFromGurge44")) + "\n" + GetString("GuessImpRole"));
                         return true;
@@ -771,38 +790,6 @@ public static class GuessManager
         }
     }
 
-    public static void CreateIDLabels(MeetingHud __instance)
-    {
-        DestroyIDLabels();
-        if (__instance == null) return;
-        const int max = 2;
-        foreach (var pva in __instance.playerStates)
-        {
-            var levelDisplay = pva.transform.FindChild("PlayerLevel").gameObject;
-            var panel = Object.Instantiate(levelDisplay, pva.transform, true);
-            var panelTransform = panel.transform;
-            var background = panel.GetComponent<SpriteRenderer>();
-            background.color = Palette.Purple;
-            background.sortingOrder = max - 1;
-            panelTransform.SetAsFirstSibling();
-            panelTransform.localPosition = new(-1.21f, -0.05f, 0f);
-            var levelLabel = panelTransform.FindChild("LevelLabel").GetComponents<TextMeshPro>()[0];
-            levelLabel.DestroyTranslator();
-            levelLabel.text = "ID";
-            levelLabel.sortingOrder = max;
-            var levelNumber = panelTransform.FindChild("LevelNumber").GetComponent<TextMeshPro>();
-            levelNumber.text = pva.TargetPlayerId.ToString();
-            levelNumber.sortingOrder = max;
-            IDPanels.Add(panel);
-        }
-    }
-
-    public static void DestroyIDLabels()
-    {
-        IDPanels.ForEach(Object.Destroy);
-        IDPanels = [];
-    }
-
     static void GuesserSelectRole(CustomRoleTypes Role, bool SetPage = true)
     {
         CurrentTeamType = Role;
@@ -1038,7 +1025,6 @@ public static class GuessManager
                     or CustomRoles.Paranoia
                     or CustomRoles.SuperStar
                     or CustomRoles.Konan
-                    or CustomRoles.Oblivious
                     or CustomRoles.GuardianAngelEHR
                    ) continue;
 
@@ -1128,15 +1114,15 @@ public static class GuessManager
 
     public static void ReceiveRPC(MessageReader reader, PlayerControl pc)
     {
-        Logger.Msg($"{reader}", "MessageReader reader");
-        Logger.Msg($"{pc}", "PlayerControl pc");
+        Logger.Msg($"{reader}", "GuessManager - MessageReader reader");
+        Logger.Msg($"{pc}", "GuessManager - PlayerControl pc");
 
         int PlayerId = reader.ReadInt32();
-        Logger.Msg($"{PlayerId}", "Player Id");
+        Logger.Msg($"{PlayerId}", "GuessManager - Player Id");
 
         CustomRoles role = (CustomRoles)reader.ReadInt32();
-        Logger.Msg($"{role}", "Role Int32");
-        Logger.Msg($"{GetString(role.ToString())}", "Role String");
+        Logger.Msg($"{role}", "GuessManager - Role Int32");
+        Logger.Msg($"{GetString(role.ToString())}", "GuessManager - Role String");
 
         GuesserMsg(pc, $"/bt {PlayerId} {GetString(role.ToString())}", true);
     }
@@ -1184,7 +1170,7 @@ public static class GuessManager
     */
 
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
-    class StartMeetingPatch
+    static class StartMeetingPatch
     {
         public static void Postfix(MeetingHud __instance)
         {
@@ -1224,13 +1210,11 @@ public static class GuessManager
                 if (alive && lp.Is(CustomRoles.Guesser))
                     CreateGuesserButton(__instance);
             }
-
-            CreateIDLabels(__instance);
         }
     }
 
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.OnDestroy))]
-    class MeetingHudOnDestroyGuesserUIClose
+    static class MeetingHudOnDestroyGuesserUIClose
     {
         public static void Postfix()
         {

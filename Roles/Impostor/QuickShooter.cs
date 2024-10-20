@@ -10,35 +10,38 @@ namespace EHR.Impostor;
 internal class QuickShooter : RoleBase
 {
     private const int Id = 1800;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
     private static OptionItem KillCooldown;
     private static OptionItem MeetingReserved;
     public static OptionItem ShapeshiftCooldown;
 
     public static Dictionary<byte, int> ShotLimit = [];
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
         Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.QuickShooter);
-        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.QuickShooter])
+        KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.QuickShooter])
             .SetValueFormat(OptionFormat.Seconds);
-        ShapeshiftCooldown = new FloatOptionItem(Id + 12, "QuickShooterShapeshiftCooldown", new(0f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.QuickShooter])
+        ShapeshiftCooldown = new FloatOptionItem(Id + 12, "QuickShooterShapeshiftCooldown", new(0f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.QuickShooter])
             .SetValueFormat(OptionFormat.Seconds);
-        MeetingReserved = new IntegerOptionItem(Id + 14, "MeetingReserved", new(0, 15, 1), 1, TabGroup.ImpostorRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.QuickShooter])
+        MeetingReserved = new IntegerOptionItem(Id + 14, "MeetingReserved", new(0, 15, 1), 1, TabGroup.ImpostorRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.QuickShooter])
             .SetValueFormat(OptionFormat.Pieces);
     }
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         ShotLimit = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         ShotLimit.TryAdd(playerId, 0);
     }
 
@@ -117,14 +120,13 @@ internal class QuickShooter : RoleBase
         }
     }
 
-    public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+    public override void OnMurder(PlayerControl killer, PlayerControl target)
     {
         ShotLimit.TryAdd(killer.PlayerId, 0);
-        if (ShotLimit[killer.PlayerId] > 0) LateTask.New(() => { killer.SetKillCooldown(0.01f); }, 0.01f, "QuickShooterKill: Set KCD to 0s");
+        if (ShotLimit[killer.PlayerId] > 0) LateTask.New(() => killer.SetKillCooldown(0.01f), 0.01f, "QuickShooterKill: Set KCD to 0s");
         ShotLimit[killer.PlayerId]--;
         ShotLimit[killer.PlayerId] = Math.Max(ShotLimit[killer.PlayerId], 0);
         SendRPC(killer.PlayerId);
-        return true;
     }
 
     public override string GetProgressText(byte playerId, bool comms) => Utils.ColorString(ShotLimit.ContainsKey(playerId) && ShotLimit[playerId] > 0 ? Utils.GetRoleColor(CustomRoles.QuickShooter).ShadeColor(0.25f) : Color.gray, ShotLimit.TryGetValue(playerId, out var shotLimit) ? $"({shotLimit})" : "Invalid");

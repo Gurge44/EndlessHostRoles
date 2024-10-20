@@ -21,7 +21,7 @@ public class Disperser : RoleBase
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Disperser);
-        DisperserShapeshiftCooldown = new FloatOptionItem(Id + 5, "ShapeshiftCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles)
+        DisperserShapeshiftCooldown = new FloatOptionItem(Id + 5, "ShapeshiftCooldown", new(1f, 60f, 1f), 15f, TabGroup.ImpostorRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Disperser])
             .SetValueFormat(OptionFormat.Seconds);
         DisperserShapeshiftDuration = new FloatOptionItem(Id + 6, "ShapeshiftDuration", new(1f, 30f, 1f), 1f, TabGroup.ImpostorRoles)
@@ -60,7 +60,7 @@ public class Disperser : RoleBase
     public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
     {
         if (shapeshifter == null || (!shapeshifting && !UseUnshiftTrigger.GetBool())) return false;
-        if (shapeshifter.GetAbilityUseLimit() < 1)
+        if (shapeshifter.GetAbilityUseLimit() < 1 && !DisableShapeshiftAnimations.GetBool())
         {
             shapeshifter.SetKillCooldown(DisperserShapeshiftDuration.GetFloat() + 1f);
             return false;

@@ -10,7 +10,7 @@ namespace EHR.Crewmate
     public class Addict : RoleBase
     {
         private const int Id = 5200;
-        private static List<byte> playerIdList = [];
+        private static List<byte> PlayerIdList = [];
 
         public static OptionItem VentCooldown;
         public static OptionItem TimeLimit;
@@ -25,7 +25,7 @@ namespace EHR.Crewmate
 
         private float SuicideTimer = -10f;
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
@@ -44,7 +44,7 @@ namespace EHR.Crewmate
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             SuicideTimer = -10f;
             ImmortalTimer = 420f;
             DefaultSpeed = new();
@@ -52,7 +52,7 @@ namespace EHR.Crewmate
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             SuicideTimer = -10f;
             ImmortalTimer = 420f;
             DefaultSpeed = Main.AllPlayerSpeed[playerId];
@@ -62,7 +62,7 @@ namespace EHR.Crewmate
 
         public override void OnReportDeadBody()
         {
-            foreach (byte player in playerIdList.ToArray())
+            foreach (byte player in PlayerIdList.ToArray())
             {
                 SuicideTimer = -10f;
                 ImmortalTimer = 420f;

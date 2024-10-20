@@ -62,7 +62,7 @@ static class Logger
 
     private static void SendToFile(string text, LogLevel level = LogLevel.Info, string tag = "", bool escapeCRLF = true, int lineNumber = 0, string fileName = "", bool multiLine = false)
     {
-        if (!IsEnable || DisableList.Contains(tag)) return;
+        if (!IsEnable || DisableList.Contains(tag) || (level == LogLevel.Debug && !DebugModeManager.AmDebugger)) return;
         var logger = Main.Logger;
 
         if (SendToGameList.Contains(tag) || IsAlsoInGame)

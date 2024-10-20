@@ -4,7 +4,6 @@ using System.Linq;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
-using Hazel;
 using UnityEngine;
 using static EHR.RandomSpawn;
 
@@ -22,7 +21,7 @@ internal static class SoloKombatManager
     public static Dictionary<byte, int> KBScore = [];
     public static int RoundTime;
 
-    private static readonly Dictionary<byte, (string TEXT, long TIMESTAMP)> NameNotify = [];
+    private static readonly Dictionary<byte, (string Text, long TimeStamp)> NameNotify = [];
 
     private static Dictionary<byte, int> BackCountdown = [];
     private static Dictionary<byte, long> LastHurt = [];
@@ -99,66 +98,6 @@ internal static class SoloKombatManager
         }
     }
 
-    private static void SendRPCSyncKBBackCountdown(PlayerControl player)
-    {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncKBBackCountdown, SendOption.Reliable, player.GetClientId());
-        int x = BackCountdown.GetValueOrDefault(player.PlayerId, -1);
-        writer.Write(x);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
-    public static void ReceiveRPCSyncBackCountdown(MessageReader reader)
-    {
-        int num = reader.ReadInt32();
-        if (num == -1)
-            BackCountdown.Remove(PlayerControl.LocalPlayer.PlayerId);
-        else
-        {
-            BackCountdown.TryAdd(PlayerControl.LocalPlayer.PlayerId, num);
-            BackCountdown[PlayerControl.LocalPlayer.PlayerId] = num;
-        }
-    }
-
-    private static void SendRPCSyncKBPlayer(byte playerId)
-    {
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncKBPlayer, SendOption.Reliable);
-        writer.Write(playerId);
-        writer.Write(PlayerHPMax[playerId]);
-        writer.Write(PlayerHP[playerId]);
-        writer.Write(PlayerHPReco[playerId]);
-        writer.Write(PlayerATK[playerId]);
-        writer.Write(PlayerDF[playerId]);
-        writer.Write(KBScore[playerId]);
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
-    public static void ReceiveRPCSyncKBPlayer(MessageReader reader)
-    {
-        byte PlayerId = reader.ReadByte();
-        PlayerHPMax[PlayerId] = reader.ReadSingle();
-        PlayerHP[PlayerId] = reader.ReadSingle();
-        PlayerHPReco[PlayerId] = reader.ReadSingle();
-        PlayerATK[PlayerId] = reader.ReadSingle();
-        PlayerDF[PlayerId] = reader.ReadSingle();
-        KBScore[PlayerId] = reader.ReadInt32();
-    }
-
-    private static void SendRPCSyncNameNotify(PlayerControl pc)
-    {
-        if (pc.AmOwner || !pc.IsModClient()) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncKBNameNotify, SendOption.Reliable, pc.GetClientId());
-        writer.Write(NameNotify.TryGetValue(pc.PlayerId, out (string TEXT, long TIMESTAMP) value) ? value.TEXT : "");
-        AmongUsClient.Instance.FinishRpcImmediately(writer);
-    }
-
-    public static void ReceiveRPCSyncNameNotify(MessageReader reader)
-    {
-        var name = reader.ReadString();
-        NameNotify.Remove(PlayerControl.LocalPlayer.PlayerId);
-        if (!string.IsNullOrEmpty(name))
-            NameNotify.Add(PlayerControl.LocalPlayer.PlayerId, (name, 0));
-    }
-
     public static string GetDisplayHealth(PlayerControl pc)
         => pc.SoloAlive() ? Utils.ColorString(GetHealthColor(pc), $"{(int)PlayerHP[pc.PlayerId]}/{(int)PlayerHPMax[pc.PlayerId]}") : string.Empty;
 
@@ -183,9 +122,9 @@ internal static class SoloKombatManager
             return;
         }
 
-        if (NameNotify.TryGetValue(player.PlayerId, out (string TEXT, long TIMESTAMP) value1))
+        if (NameNotify.TryGetValue(player.PlayerId, out (string Text, long TimeStamp) value1))
         {
-            name = value1.TEXT;
+            name = value1.Text;
         }
     }
 
@@ -225,13 +164,14 @@ internal static class SoloKombatManager
 
         LastHurt[target.PlayerId] = Utils.TimeStamp;
 
-        killer.SetKillCooldown(KB_ATKCooldown.GetFloat(), target);
+        var kcd = KB_ATKCooldown.GetFloat();
+        if (killer.IsHost()) kcd += (AmongUsClient.Instance.Ping / 1000f) * 2f;
+        killer.SetKillCooldown(kcd, target);
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
         if (!target.IsModClient() && !target.AmOwner)
             target.RpcGuardAndKill();
 
-        SendRPCSyncKBPlayer(target.PlayerId);
         Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
     }
@@ -240,7 +180,6 @@ internal static class SoloKombatManager
     {
         BackCountdown.Remove(pc.PlayerId);
         PlayerHP[pc.PlayerId] = PlayerHPMax[pc.PlayerId];
-        SendRPCSyncKBPlayer(pc.PlayerId);
 
         LastHurt[pc.PlayerId] = Utils.TimeStamp;
         Main.AllPlayerSpeed[pc.PlayerId] = OriginalSpeed[pc.PlayerId];
@@ -278,7 +217,6 @@ internal static class SoloKombatManager
         target.MarkDirtySettings();
 
         BackCountdown.TryAdd(target.PlayerId, KB_ResurrectionWaitingTime.GetInt());
-        SendRPCSyncKBBackCountdown(target);
     }
 
     private static void OnPlayerKill(PlayerControl killer)
@@ -322,8 +260,6 @@ internal static class SoloKombatManager
     {
         NameNotify.Remove(pc.PlayerId);
         NameNotify.Add(pc.PlayerId, (text, Utils.TimeStamp + time));
-        SendRPCSyncNameNotify(pc);
-        SendRPCSyncKBPlayer(pc.PlayerId);
         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
     }
 
@@ -334,61 +270,56 @@ internal static class SoloKombatManager
 
         public static void Postfix( /*PlayerControl __instance*/)
         {
-            if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.SoloKombat) return;
+            if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.SoloKombat || !AmongUsClient.Instance.AmHost) return;
 
-            if (AmongUsClient.Instance.AmHost)
+            foreach (var pc in Main.AllPlayerControls)
             {
-                foreach (var pc in Main.AllPlayerControls.Where(pc => !pc.SoloAlive()).ToArray())
+                if (!pc.SoloAlive())
                 {
                     if (pc.inVent && KB_BootVentWhenDead.GetBool()) pc.MyPhysics.RpcExitVent(2);
                     var pos = Pelican.GetBlackRoomPS();
                     var dis = Vector2.Distance(pos, pc.Pos());
                     if (dis > 1f) pc.TP(pos);
                 }
+            }
 
-                if (LastFixedUpdate == Utils.TimeStamp) return;
-                LastFixedUpdate = Utils.TimeStamp;
+            if (LastFixedUpdate == Utils.TimeStamp) return;
+            LastFixedUpdate = Utils.TimeStamp;
 
-                RoundTime--;
+            RoundTime--;
 
-                if (!AmongUsClient.Instance.AmHost) return;
-
-                foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in Main.AllPlayerControls)
+            {
+                bool notifyRoles = false;
+                if (LastHurt[pc.PlayerId] + KB_RecoverAfterSecond.GetInt() < Utils.TimeStamp && PlayerHP[pc.PlayerId] < PlayerHPMax[pc.PlayerId] && pc.SoloAlive() && !pc.inVent)
                 {
-                    bool notifyRoles = false;
-                    if (LastHurt[pc.PlayerId] + KB_RecoverAfterSecond.GetInt() < Utils.TimeStamp && PlayerHP[pc.PlayerId] < PlayerHPMax[pc.PlayerId] && pc.SoloAlive() && !pc.inVent)
-                    {
-                        PlayerHP[pc.PlayerId] += PlayerHPReco[pc.PlayerId];
-                        PlayerHP[pc.PlayerId] = Math.Min(PlayerHPMax[pc.PlayerId], PlayerHP[pc.PlayerId]);
-                        SendRPCSyncKBPlayer(pc.PlayerId);
-                        notifyRoles = true;
-                    }
-
-                    if (pc.SoloAlive() && !pc.inVent)
-                    {
-                        var pos = Pelican.GetBlackRoomPS();
-                        var dis = Vector2.Distance(pos, pc.Pos());
-                        if (dis < 1.1f) PlayerRandomSpwan(pc);
-                    }
-
-                    if (BackCountdown.ContainsKey(pc.PlayerId))
-                    {
-                        BackCountdown[pc.PlayerId]--;
-                        if (BackCountdown[pc.PlayerId] <= 0)
-                            OnPlayerBack(pc);
-                        SendRPCSyncKBBackCountdown(pc);
-                        notifyRoles = true;
-                    }
-
-                    if (NameNotify.ContainsKey(pc.PlayerId) && NameNotify[pc.PlayerId].TIMESTAMP < Utils.TimeStamp)
-                    {
-                        NameNotify.Remove(pc.PlayerId);
-                        SendRPCSyncNameNotify(pc);
-                        notifyRoles = true;
-                    }
-
-                    if (notifyRoles) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                    PlayerHP[pc.PlayerId] += PlayerHPReco[pc.PlayerId];
+                    PlayerHP[pc.PlayerId] = Math.Min(PlayerHPMax[pc.PlayerId], PlayerHP[pc.PlayerId]);
+                    notifyRoles = true;
                 }
+
+                if (pc.SoloAlive() && !pc.inVent)
+                {
+                    var pos = Pelican.GetBlackRoomPS();
+                    var dis = Vector2.Distance(pos, pc.Pos());
+                    if (dis < 1.1f) PlayerRandomSpwan(pc);
+                }
+
+                if (BackCountdown.ContainsKey(pc.PlayerId))
+                {
+                    BackCountdown[pc.PlayerId]--;
+                    if (BackCountdown[pc.PlayerId] <= 0)
+                        OnPlayerBack(pc);
+                    notifyRoles = true;
+                }
+
+                if (NameNotify.ContainsKey(pc.PlayerId) && NameNotify[pc.PlayerId].TimeStamp < Utils.TimeStamp)
+                {
+                    NameNotify.Remove(pc.PlayerId);
+                    notifyRoles = true;
+                }
+
+                if (notifyRoles) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }
         }
     }

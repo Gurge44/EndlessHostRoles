@@ -260,7 +260,7 @@ static class CloseDoorsPatch
 {
     public static bool Prefix( /*ShipStatus __instance, */ [HarmonyArgument(0)] SystemTypes room)
     {
-        bool allow = !Options.DisableSabotage.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters;
+        bool allow = !Options.DisableSabotage.GetBool() && Options.CurrentGameMode is not CustomGameMode.SoloKombat and not CustomGameMode.FFA and not CustomGameMode.MoveAndStop and not CustomGameMode.HotPotato and not CustomGameMode.Speedrun and not CustomGameMode.CaptureTheFlag and not CustomGameMode.NaturalDisasters and not CustomGameMode.RoomRush;
 
         if (SecurityGuard.BlockSabo.Count > 0) allow = false;
         if (Options.DisableCloseDoor.GetBool()) allow = false;
@@ -375,10 +375,13 @@ static class ShipStatusSpawnPlayerPatch
     {
         if (!AmongUsClient.Instance.AmHost || initialSpawn || !player.IsAlive()) return true;
 
+        // Lazy doesn't teleport to the meeting table
+        if (player.Is(CustomRoles.Lazy)) return false;
+
         Vector2 direction = Vector2.up.Rotate((player.PlayerId - 1) * (360f / numPlayers));
         Vector2 position = __instance.MeetingSpawnCenter + direction * __instance.SpawnRadius + new Vector2(0.0f, 0.3636f);
 
-        player.TP(position, log: false);
+        player.TP(position, noCheckState: true, log: false);
         return false;
     }
 }
@@ -394,6 +397,9 @@ static class PolusShipStatusSpawnPlayerPatch
     {
         if (!AmongUsClient.Instance.AmHost || initialSpawn || !player.IsAlive()) return true;
 
+        // Lazy doesn't teleport to the meeting table
+        if (player.Is(CustomRoles.Lazy)) return false;
+
         int num1 = Mathf.FloorToInt(numPlayers / 2f);
         int num2 = player.PlayerId % 15;
 
@@ -401,7 +407,7 @@ static class PolusShipStatusSpawnPlayerPatch
             ? __instance.MeetingSpawnCenter2 + Vector2.right * (num2 - num1) * 0.6f
             : __instance.MeetingSpawnCenter + Vector2.right * num2 * 0.6f;
 
-        player.TP(position, log: false);
+        player.TP(position, noCheckState: true, log: false);
         return false;
     }
 }
@@ -455,6 +461,8 @@ static class VentilationSystemDeterioratePatch
 {
     public static Dictionary<byte, int> LastClosestVent = [];
     private static readonly Dictionary<byte, bool> LastCanUseVent = [];
+    private static readonly Dictionary<byte, int> LastClosestVentForUpdate = [];
+    private static readonly Dictionary<byte, int> CheckBufferTime = [];
 
     public static void Postfix(VentilationSystem __instance)
     {
@@ -471,8 +479,9 @@ static class VentilationSystemDeterioratePatch
                         ++players;
                 }
 
-                if (pc.GetClosestVent().Id == LastClosestVent[pc.PlayerId] && players >= 3) continue;
-                LastClosestVent[pc.PlayerId] = pc.GetClosestVent().Id;
+                int closestVentId = pc.GetClosestVent().Id;
+                if (closestVentId == LastClosestVent[pc.PlayerId] && players >= 3) continue;
+                LastClosestVent[pc.PlayerId] = closestVentId;
                 MessageWriter writer = MessageWriter.Get();
                 writer.StartMessage(6);
                 writer.Write(AmongUsClient.Instance.GameId);
@@ -598,9 +607,33 @@ static class VentilationSystemDeterioratePatch
 
     public static void CheckVentInteraction(PlayerControl pc)
     {
-        if (!GameStates.IsInTask) return;
+        if (!GameStates.IsInTask || ExileController.Instance || !ShipStatus.Instance) return;
 
-        bool canUse = pc.CanUseVent();
+        const int bufferTimeWait = 10;
+
+        if (!CheckBufferTime.TryGetValue(pc.PlayerId, out int bufferTime))
+        {
+            CheckBufferTime[pc.PlayerId] = bufferTimeWait;
+            return;
+        }
+
+        if (bufferTime > 0)
+        {
+            CheckBufferTime[pc.PlayerId]--;
+            return;
+        }
+
+        CheckBufferTime[pc.PlayerId] = bufferTimeWait;
+
+
+        int closestVent = pc.GetClosestVent().Id;
+        if (!LastClosestVentForUpdate.TryGetValue(pc.PlayerId, out int lastClosestVent))
+        {
+            LastClosestVentForUpdate[pc.PlayerId] = closestVent;
+            return;
+        }
+
+        bool canUse = pc.CanUseVent(closestVent);
 
         if (!LastCanUseVent.TryGetValue(pc.PlayerId, out bool couldUse))
         {
@@ -608,10 +641,28 @@ static class VentilationSystemDeterioratePatch
             return;
         }
 
-        if (couldUse != canUse)
+        if (couldUse != canUse || lastClosestVent != closestVent)
         {
             LastCanUseVent[pc.PlayerId] = canUse;
-            SerializeV2(ShipStatus.Instance.Systems[SystemTypes.Ventilation].Cast<VentilationSystem>(), pc);
+            pc.RpcSetVentInteraction();
         }
+    }
+}
+
+[HarmonyPatch(typeof(VentilationSystem), nameof(VentilationSystem.IsVentCurrentlyBeingCleaned))]
+static class VentSystemIsVentCurrentlyBeingCleanedPatch
+{
+    // Patch block use vent for host becouse host always skips RpcSerializeVent
+    public static bool Prefix([HarmonyArgument(0)] int id, ref bool __result)
+    {
+        if (!AmongUsClient.Instance.AmHost) return true;
+
+        if (!PlayerControl.LocalPlayer.CanUseVent(id))
+        {
+            __result = true;
+            return false;
+        }
+
+        return true;
     }
 }

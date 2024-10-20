@@ -12,7 +12,7 @@ namespace EHR.Neutral;
 public class Totocalcio : RoleBase
 {
     private const int Id = 9800;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     private static OptionItem MaxBetTimes;
     public static OptionItem BetCooldown;
@@ -24,7 +24,7 @@ public class Totocalcio : RoleBase
     public byte BetPlayer;
     private int BetTimes;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -49,14 +49,14 @@ public class Totocalcio : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         BetTimes = MaxBetTimes.GetInt();
         BetPlayer = byte.MaxValue;
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         BetTimes = MaxBetTimes.GetInt();
         BetPlayer = byte.MaxValue;
     }

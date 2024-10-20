@@ -6,17 +6,17 @@ namespace EHR.Impostor
     {
         public static bool On;
 
-        public static OptionItem MNKillCooldown;
-        public static OptionItem BypassShields;
+        private static OptionItem MnKillCooldown;
+        private static OptionItem BypassShields;
         public override bool IsEnable => On;
 
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(16300, TabGroup.ImpostorRoles, CustomRoles.Minimalism);
-            MNKillCooldown = new FloatOptionItem(16310, "KillCooldown", new(2.5f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles)
+            MnKillCooldown = new FloatOptionItem(16310, "KillCooldown", new(2.5f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minimalism])
                 .SetValueFormat(OptionFormat.Seconds);
-            BypassShields = new BooleanOptionItem(16311, "BypassShields", false, TabGroup.ImpostorRoles)
+            BypassShields = new BooleanOptionItem(16311, "BypassShields", true, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minimalism]);
         }
 
@@ -39,7 +39,7 @@ namespace EHR.Impostor
 
         public override void SetKillCooldown(byte id)
         {
-            Main.AllPlayerKillCooldown[id] = MNKillCooldown.GetFloat();
+            Main.AllPlayerKillCooldown[id] = MnKillCooldown.GetFloat();
         }
 
         public override bool CanUseImpostorVentButton(PlayerControl pc)

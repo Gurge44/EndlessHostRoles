@@ -9,14 +9,14 @@ namespace EHR.Neutral
     internal class Enderman : RoleBase
     {
         private static OptionItem KillCooldown;
-        public static OptionItem CanVent;
+        private static OptionItem CanVent;
         private static OptionItem Time;
         private byte EndermanId = byte.MaxValue;
 
-        private (Vector2 POSITION, long MARK_TIMESTAMP, bool TP) MarkedPosition = (Vector2.zero, 0, false);
+        private (Vector2 Position, long MarkTimeStamp, bool TP) MarkedPosition = (Vector2.zero, 0, false);
         private static int Id => 643200;
 
-        private PlayerControl Enderman_ => GetPlayerById(EndermanId);
+        private PlayerControl EndermanPC => GetPlayerById(EndermanId);
 
         public override bool IsEnable => EndermanId != byte.MaxValue;
 
@@ -85,18 +85,18 @@ namespace EHR.Neutral
 
         void MarkPosition()
         {
-            if (!IsEnable || Enderman_.HasAbilityCD()) return;
-            Enderman_.AddAbilityCD(Time.GetInt() + 2);
-            MarkedPosition.MARK_TIMESTAMP = TimeStamp;
-            MarkedPosition.POSITION = Enderman_.Pos();
+            if (!IsEnable || EndermanPC.HasAbilityCD()) return;
+            EndermanPC.AddAbilityCD(Time.GetInt() + 2);
+            MarkedPosition.MarkTimeStamp = TimeStamp;
+            MarkedPosition.Position = EndermanPC.Pos();
             MarkedPosition.TP = true;
-            Enderman_.Notify(GetString("MarkDone"));
+            EndermanPC.Notify(GetString("MarkDone"));
         }
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!IsEnable || !GameStates.IsInTask || !MarkedPosition.TP || !Enderman_.IsAlive() || MarkedPosition.MARK_TIMESTAMP + Time.GetInt() >= TimeStamp) return;
-            Enderman_.TP(MarkedPosition.POSITION);
+            if (!IsEnable || !GameStates.IsInTask || !MarkedPosition.TP || !EndermanPC.IsAlive() || MarkedPosition.MarkTimeStamp + Time.GetInt() >= TimeStamp) return;
+            EndermanPC.TP(MarkedPosition.Position);
             MarkedPosition.TP = false;
         }
 

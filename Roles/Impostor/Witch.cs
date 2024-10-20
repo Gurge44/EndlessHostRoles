@@ -13,13 +13,6 @@ namespace EHR.Impostor;
 
 public class Witch : RoleBase
 {
-    public enum SwitchTrigger
-    {
-        Kill,
-        Vent,
-        DoubleTrigger
-    }
-
     private const int Id = 2000;
 
     public static readonly string[] SwitchTriggerText =
@@ -29,27 +22,28 @@ public class Witch : RoleBase
         "TriggerDouble"
     ];
 
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
-    public static OptionItem ModeSwitchAction;
-    public static SwitchTrigger NowSwitchTrigger;
+    private static OptionItem ModeSwitchAction;
+    private static SwitchTrigger NowSwitchTrigger;
 
     private bool IsHM;
-    public List<byte> SpelledPlayer = [];
+    private List<byte> SpelledPlayer = [];
 
-    public bool SpellMode;
+    private bool SpellMode;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Witch);
-        ModeSwitchAction = new StringOptionItem(Id + 10, "WitchModeSwitchAction", SwitchTriggerText, 2, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Witch]);
+        ModeSwitchAction = new StringOptionItem(Id + 10, "WitchModeSwitchAction", SwitchTriggerText, 2, TabGroup.ImpostorRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Witch]);
     }
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         SpellMode = false;
         SpelledPlayer = [];
         IsHM = false;
@@ -57,7 +51,7 @@ public class Witch : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         SpellMode = false;
         SpelledPlayer = [];
 
@@ -156,7 +150,7 @@ public class Witch : RoleBase
 
     public static void RemoveSpelledPlayer()
     {
-        foreach (byte witch in playerIdList)
+        foreach (byte witch in PlayerIdList)
         {
             if (Main.PlayerStates[witch].Role is not Witch wc) continue;
             wc.SpelledPlayer.Clear();
@@ -170,7 +164,7 @@ public class Witch : RoleBase
 
         if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger)
         {
-            return killer.CheckDoubleTrigger(target, () => { SetSpelled(killer, target); });
+            return killer.CheckDoubleTrigger(target, () => SetSpelled(killer, target));
         }
 
         if (!SpellMode)
@@ -193,7 +187,7 @@ public class Witch : RoleBase
             if (deathReason != PlayerState.DeathReason.Vote) return;
             foreach (byte id in exileIds)
             {
-                if (playerIdList.Contains(id))
+                if (PlayerIdList.Contains(id))
                 {
                     if (Main.PlayerStates[id].Role is not Witch wc) continue;
                     wc.SpelledPlayer.Clear();
@@ -203,7 +197,7 @@ public class Witch : RoleBase
             var spelledIdList = new List<byte>();
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                foreach (var witchId in playerIdList)
+                foreach (var witchId in PlayerIdList)
                 {
                     if (Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId)) continue;
                     if (Main.PlayerStates[witchId].Role is not Witch wc) continue;
@@ -233,7 +227,7 @@ public class Witch : RoleBase
     public static string GetSpelledMark(byte target, bool isMeeting)
     {
         if (!isMeeting) return string.Empty;
-        foreach (var id in playerIdList)
+        foreach (var id in PlayerIdList)
         {
             if (Main.PlayerStates[id].Role is Witch { IsEnable: true } wc && wc.IsSpelled(target))
             {
@@ -246,33 +240,22 @@ public class Witch : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer == null || meeting || seer.PlayerId != target.PlayerId || !seer.Is(CustomRoles.Witch)) return string.Empty;
+        if (seer == null || meeting || seer.PlayerId != target.PlayerId || !seer.Is(CustomRoles.Witch) || (seer.IsModClient() && !hud)) return string.Empty;
 
         var str = new StringBuilder();
-        if (hud)
-        {
-            str.Append($"<color=#00ffa5>{GetString("WitchCurrentMode")}:</color> <b>");
-        }
-        else
-        {
-            str.Append($"{GetString("Mode")}: ");
-        }
 
-        if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger)
-        {
-            str.Append(GetString("WitchModeDouble"));
-        }
-        else
-        {
-            str.Append(IsSpellMode(seer.PlayerId) ? GetString("WitchModeSpell") : GetString("WitchModeKill"));
-        }
+        if (hud) str.Append($"<size=90%><color=#00ffa5>{GetString("WitchCurrentMode")}:</color> <b>");
+        else str.Append($"{GetString("Mode")}: ");
+
+        if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger) str.Append(GetString("WitchModeDouble"));
+        else str.Append(SpellMode ? GetString("WitchModeSpell") : GetString("WitchModeKill"));
 
         return str.ToString();
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        if (IsSpellMode(PlayerControl.LocalPlayer.PlayerId) && NowSwitchTrigger != SwitchTrigger.DoubleTrigger)
+        if (SpellMode && NowSwitchTrigger != SwitchTrigger.DoubleTrigger)
         {
             hud.KillButton.OverrideText(GetString("WitchSpellButtonText"));
         }
@@ -282,17 +265,22 @@ public class Witch : RoleBase
         }
     }
 
-    static bool IsSpellMode(byte id) => Main.PlayerStates[id].Role is Witch { IsEnable: true, SpellMode: true };
-
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
         if (!AmongUsClient.Instance.AmHost) return;
-        if (playerIdList.Contains(pc.PlayerId))
+        if (PlayerIdList.Contains(pc.PlayerId))
         {
             if (NowSwitchTrigger is SwitchTrigger.Vent)
             {
                 SwitchSpellMode(pc.PlayerId, false);
             }
         }
+    }
+
+    private enum SwitchTrigger
+    {
+        Kill,
+        Vent,
+        DoubleTrigger
     }
 }

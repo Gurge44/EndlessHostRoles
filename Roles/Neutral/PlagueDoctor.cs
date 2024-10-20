@@ -12,7 +12,7 @@ namespace EHR.Neutral
     public class PlagueDoctor : RoleBase
     {
         private const int Id = 641700;
-        private static List<byte> playerIdList = [];
+        private static List<byte> PlayerIdList = [];
 
         private static OptionItem OptionInfectLimit;
         private static OptionItem OptionInfectWhenKilled;
@@ -34,7 +34,7 @@ namespace EHR.Neutral
         private static bool InfectActive;
         private static bool LateCheckWin;
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
@@ -60,7 +60,7 @@ namespace EHR.Neutral
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             InfectInfos = [];
         }
 
@@ -81,7 +81,7 @@ namespace EHR.Neutral
                 // Fixed airship respawn selection delay
                 InfectInactiveTime += 5f;
 
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
@@ -102,7 +102,7 @@ namespace EHR.Neutral
         {
             if (!IsEnable) return false;
             // Not a plague doctor, or capable of self-infection and infected person created
-            return player.PlayerId != playerIdList[0] || (CanInfectSelf && player.GetAbilityUseLimit() == 0);
+            return player.PlayerId != PlayerIdList[0] || (CanInfectSelf && player.GetAbilityUseLimit() == 0);
         }
 
         void SendRPC(byte targetId, float rate)
@@ -274,12 +274,12 @@ namespace EHR.Neutral
 
         void DirectInfect(PlayerControl player)
         {
-            if (playerIdList.Count == 0 || player == null) return;
+            if (PlayerIdList.Count == 0 || player == null) return;
             Logger.Info($"InfectRate [{player.GetNameWithRole()}]: 100%", "PlagueDoctor");
             InfectInfos[player.PlayerId] = 100;
             SendRPC(player.PlayerId, 100);
             Utils.NotifyRoles(SpecifySeer: player);
-            Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(playerIdList[0]));
+            Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(PlayerIdList[0]));
             CheckWin();
         }
 

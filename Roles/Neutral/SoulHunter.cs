@@ -75,7 +75,6 @@ namespace EHR.Neutral
         public override bool CanUseKillButton(PlayerControl pc) => pc.IsAlive();
 
         public static bool IsSoulHunterTarget(byte id) => Main.PlayerStates.Any(x => x.Value.Role is SoulHunter { IsEnable: true, IsTargetBlocked: true } sh && sh.CurrentTarget.ID == id);
-        public static SoulHunter GetSoulHunter(byte targetId) => Main.PlayerStates.FirstOrDefault(x => x.Value.Role is SoulHunter { IsEnable: true, IsTargetBlocked: true } sh && sh.CurrentTarget.ID == targetId).Value.Role as SoulHunter;
 
         void SendRPC()
         {

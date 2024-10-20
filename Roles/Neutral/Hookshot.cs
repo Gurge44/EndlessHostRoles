@@ -11,14 +11,14 @@ namespace EHR.Neutral
         private static OptionItem KillCooldown;
         private static OptionItem HasImpostorVision;
         private static OptionItem CanVent;
-        
+
         private byte HookshotId = byte.MaxValue;
         public byte MarkedPlayerId = byte.MaxValue;
 
         private bool ToTargetTP = true;
         private static int Id => 643230;
 
-        private PlayerControl Hookshot_ => GetPlayerById(HookshotId);
+        private PlayerControl HookshotPC => GetPlayerById(HookshotId);
 
         public override bool IsEnable => HookshotId != byte.MaxValue;
 
@@ -114,7 +114,7 @@ namespace EHR.Neutral
                 return;
             }
 
-            bool isTPsuccess = ToTargetTP ? Hookshot_.TP(markedPlayer) : markedPlayer.TP(Hookshot_);
+            bool isTPsuccess = ToTargetTP ? HookshotPC.TP(markedPlayer) : markedPlayer.TP(HookshotPC);
 
             if (isTPsuccess)
             {
@@ -127,18 +127,18 @@ namespace EHR.Neutral
         {
             ToTargetTP = !ToTargetTP;
             SendRPC();
-            NotifyRoles(SpecifySeer: Hookshot_, SpecifyTarget: Hookshot_);
+            NotifyRoles(SpecifySeer: HookshotPC, SpecifyTarget: HookshotPC);
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (target == null) return false;
 
-            return Hookshot_.CheckDoubleTrigger(target, () =>
+            return HookshotPC.CheckDoubleTrigger(target, () =>
             {
                 MarkedPlayerId = target.PlayerId;
                 SendRPC();
-                Hookshot_.SetKillCooldown(5f);
+                HookshotPC.SetKillCooldown(5f);
             });
         }
 

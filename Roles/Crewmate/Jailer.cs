@@ -10,36 +10,38 @@ namespace EHR.Crewmate;
 public class Jailor : RoleBase
 {
     private const int Id = 63420;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
-    public static OptionItem JailCooldown;
-    public static OptionItem notifyJailedOnMeeting;
+    private static OptionItem JailCooldown;
+    private static OptionItem NotifyJailedOnMeeting;
     public static OptionItem UsePet;
-    public bool JailorDidVote;
+    private bool JailorDidVote;
 
     public byte JailorTarget;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Jailor);
-        JailCooldown = new FloatOptionItem(Id + 10, "JailorJailCooldown", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jailor])
+        JailCooldown = new FloatOptionItem(Id + 10, "JailorJailCooldown", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Jailor])
             .SetValueFormat(OptionFormat.Seconds);
-        notifyJailedOnMeeting = new BooleanOptionItem(Id + 18, "notifyJailedOnMeeting", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Jailor]);
+        NotifyJailedOnMeeting = new BooleanOptionItem(Id + 18, "notifyJailedOnMeeting", true, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Jailor]);
         UsePet = CreatePetUseSetting(Id + 11, CustomRoles.Jailor);
     }
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         JailorTarget = byte.MaxValue;
         JailorDidVote = false;
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         JailorTarget = byte.MaxValue;
         JailorDidVote = false;
     }
@@ -101,7 +103,7 @@ public class Jailor : RoleBase
 
     public override void OnReportDeadBody()
     {
-        if (!notifyJailedOnMeeting.GetBool()) return;
+        if (!NotifyJailedOnMeeting.GetBool()) return;
         if (JailorTarget == byte.MaxValue) return;
         var tpc = Utils.GetPlayerById(JailorTarget);
         if (tpc == null) return;

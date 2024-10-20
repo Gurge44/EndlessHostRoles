@@ -10,7 +10,7 @@ namespace EHR.Crewmate
     public class Ignitor : RoleBase // Candle Lighter from TOHY
     {
         private const int Id = 5280;
-        private static List<byte> playerIdList = [];
+        private static List<byte> PlayerIdList = [];
 
         private static OptionItem OptionTaskStartVision;
         private static OptionItem OptionCountStartTime;
@@ -23,7 +23,7 @@ namespace EHR.Crewmate
 
         private float UpdateTime;
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
@@ -50,13 +50,13 @@ namespace EHR.Crewmate
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             Active = true;
         }
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             Active = true;
             UpdateTime = 1.0f;
             ElapsedTime = OptionTaskEndVisionTime.GetInt() + OptionCountStartTime.GetInt();

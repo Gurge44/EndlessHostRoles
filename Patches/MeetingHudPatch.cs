@@ -9,8 +9,11 @@ using EHR.Impostor;
 using EHR.Modules;
 using EHR.Neutral;
 using HarmonyLib;
+using TMPro;
 using UnityEngine;
 using static EHR.Translator;
+
+// ReSharper disable AccessToModifiedClosure
 
 
 namespace EHR.Patches;
@@ -24,11 +27,10 @@ static class CheckForEndVotingPatch
     public static bool Prefix(MeetingHud __instance)
     {
         if (!AmongUsClient.Instance.AmHost) return true;
-        if (Medic.playerIdList.Count > 0) Medic.OnCheckMark();
+        if (Medic.PlayerIdList.Count > 0) Medic.OnCheckMark();
         //Meeting Skip with vote counting on keystroke (m + delete)
         bool shouldSkip = Input.GetKeyDown(KeyCode.F6);
 
-        //
         var voteLog = Logger.Handler("Vote");
         try
         {
@@ -77,13 +79,14 @@ static class CheckForEndVotingPatch
                     return true;
                 }
 
-                if (pva.DidVote && pva.VotedFor < 253 && pc.Data?.IsDead == false)
+                if (pva.DidVote && pva.VotedFor < 253 && pc.IsAlive())
                 {
                     var voteTarget = Utils.GetPlayerById(pva.VotedFor);
                     if (voteTarget == null || !voteTarget.IsAlive() || voteTarget.Data == null || voteTarget.Data.Disconnected)
                     {
-                        __instance.UpdateButtons();
+                        pva.UnsetVote();
                         __instance.RpcClearVote(pc.GetClientId());
+                        __instance.UpdateButtons();
                     }
                     else if (voteTarget != null && !pc.GetCustomRole().CancelsVote())
                         Main.PlayerStates[pc.PlayerId].Role.OnVote(pc, voteTarget);
@@ -153,7 +156,7 @@ static class CheckForEndVotingPatch
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Scout) && Scout.HideVote.GetBool()) continue;
                 if (CheckRole(ps.TargetPlayerId, CustomRoles.Oracle) && Oracle.HideVote.GetBool()) continue;
 
-                if (ps.TargetPlayerId == ps.VotedFor && Options.MadmateSpawnMode.GetInt() == 2) continue;
+                if (ps.TargetPlayerId == ps.VotedFor && Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.IsEnable() && MeetingStates.FirstMeeting) continue;
 
                 AddVote();
 
@@ -191,11 +194,15 @@ static class CheckForEndVotingPatch
                 }
             }
 
-            if (RunRoleCode)
+            if ((Blackmailer.On || NiceSwapper.On) && !RunRoleCode)
             {
-                Blackmailer.OnCheckForEndVoting();
-                NiceSwapper.OnCheckForEndVoting();
+                Logger.Warn($"Running role code is disabled, skipping the rest of the process (Blackmailer.On: {Blackmailer.On}, NiceSwapper.On: {NiceSwapper.On}, RunRoleCode: {RunRoleCode})", "Vote");
+                LateTask.New(() => RunRoleCode = true, 0.5f, "Enable RunRoleCode");
+                return false;
             }
+
+            Blackmailer.OnCheckForEndVoting();
+            NiceSwapper.OnCheckForEndVoting();
 
             states = [.. statesList];
 
@@ -287,12 +294,13 @@ static class CheckForEndVotingPatch
             __instance.RpcVotingComplete(states.ToArray(), exiledPlayer, tie);
 
             CheckForDeathOnExile(PlayerState.DeathReason.Vote, exileId);
+            Utils.CheckAndSpawnAdditionalRefugee(exiledPlayer);
 
             Main.LastVotedPlayerInfo = exiledPlayer;
-            AntiBlackout.ExilePlayerId = exiledPlayer.PlayerId;
+            AntiBlackout.ExilePlayerId = exileId;
             if (Main.LastVotedPlayerInfo != null)
             {
-                AntiBlackout.ExilePlayerId = exiledPlayer.PlayerId;
+                AntiBlackout.ExilePlayerId = exileId;
                 ConfirmEjections(Main.LastVotedPlayerInfo, braked);
             }
 
@@ -318,7 +326,7 @@ static class CheckForEndVotingPatch
 
         var player = Utils.GetPlayerById(exiledPlayer.PlayerId);
         var crole = exiledPlayer.GetCustomRole();
-        var coloredRole = Utils.GetDisplayRoleName(exileId, true);
+        var coloredRole = Utils.GetDisplayRoleName(exileId, true, true);
 
         if (crole == CustomRoles.LovingImpostor && !Options.ConfirmLoversOnEject.GetBool())
         {
@@ -500,9 +508,10 @@ static class CheckForEndVotingPatch
     {
         try
         {
-            Witch.OnCheckForEndVoting(deathReason, playerIds);
-            Virus.OnCheckForEndVoting(deathReason, playerIds);
+            if (Witch.PlayerIdList.Count > 0) Witch.OnCheckForEndVoting(deathReason, playerIds);
+            if (Virus.PlayerIdList.Count > 0) Virus.OnCheckForEndVoting(deathReason, playerIds);
             if (deathReason == PlayerState.DeathReason.Vote) Gaslighter.OnExile(playerIds);
+            if (Wasp.On && deathReason == PlayerState.DeathReason.Vote) Wasp.OnExile(playerIds);
             foreach (var playerId in playerIds)
             {
                 try
@@ -581,7 +590,7 @@ static class ExtendedMeetingHud
                 if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Pickpocket)) VoteNum += (int)(Main.AllPlayerControls.Count(x => x.GetRealKiller()?.PlayerId == ps.TargetPlayerId) * Pickpocket.VotesPerKill.GetFloat());
                 if (Main.PlayerStates[ps.TargetPlayerId].Role is Adventurer { IsEnable: true } av && av.ActiveWeapons.Contains(Adventurer.Weapon.Proxy)) VoteNum++;
                 if (Main.PlayerStates[ps.TargetPlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk)) VoteNum = 0;
-                if (ps.TargetPlayerId == ps.VotedFor && Options.MadmateSpawnMode.GetInt() == 2) VoteNum = 0;
+                if (ps.TargetPlayerId == ps.VotedFor && Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.IsEnable() && MeetingStates.FirstMeeting) VoteNum = 0;
 
                 dic[ps.VotedFor] = !dic.TryGetValue(ps.VotedFor, out int num) ? VoteNum : num + VoteNum;
             }
@@ -597,6 +606,8 @@ static class MeetingHudStartPatch
     private static void NotifyRoleSkillOnMeetingStart()
     {
         if (!AmongUsClient.Instance.AmHost) return;
+
+        CheckForEndVotingPatch.RunRoleCode = true;
 
         List<(string Message, byte TargetID, string Title)> msgToSend = [];
 
@@ -639,10 +650,10 @@ static class MeetingHudStartPatch
             LateTask.New(() => { msgToSend.Do(x => Utils.SendMessage(x.Message, x.TargetID, x.Title)); }, 3f, "Skill Description First Meeting");
         }
 
-        if (Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.GetCount() > 0)
+        if (Options.MadmateSpawnMode.GetInt() == 2 && CustomRoles.Madmate.IsEnable() && MeetingStates.FirstMeeting)
             AddMsg(string.Format(GetString("Message.MadmateSelfVoteModeNotify"), GetString("MadmateSpawnMode.SelfVote")));
 
-        if (CustomRoles.God.RoleExist() && Options.NotifyGodAlive.GetBool())
+        if (CustomRoles.God.RoleExist() && God.NotifyGodAlive.GetBool())
             AddMsg(GetString("GodNoticeAlive"), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.God), GetString("GodAliveTitle")));
 
         if (MeetingStates.FirstMeeting && CustomRoles.Workaholic.RoleExist() && Workaholic.WorkaholicGiveAdviceAlive.GetBool() && !Workaholic.WorkaholicCannotWinAtDeath.GetBool() /* && !Options.GhostIgnoreTasks.GetBool()*/)
@@ -699,7 +710,7 @@ static class MeetingHudStartPatch
                 Main.AllAlivePlayerControls.Where(x => x.GetRealKiller()?.PlayerId == pc1.PlayerId).Do(x => MimicMsg += $"\n{x.GetNameWithRole(true)}");
             }
 
-            if (Mortician.msgToSend.TryGetValue(pc.PlayerId, out string value2))
+            if (Mortician.MsgToSend.TryGetValue(pc.PlayerId, out string value2))
                 AddMsg(value2, pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mortician), GetString("MorticianCheckTitle")));
             if (Mediumshiper.ContactPlayer.ContainsValue(pc.PlayerId))
                 AddMsg(string.Format(GetString("MediumshipNotifySelf"), Main.AllPlayerNames[Mediumshiper.ContactPlayer.FirstOrDefault(x => x.Value == pc.PlayerId).Key], pc.GetAbilityUseLimit()), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mediumshiper), GetString("MediumshipTitle")));
@@ -725,7 +736,7 @@ static class MeetingHudStartPatch
 
         if (msgToSend.Count > 0)
         {
-            LateTask.New(() => { msgToSend.Do(x => Utils.SendMessage(x.Message, x.TargetID, x.Title)); }, 6f, "Meeting Start Notify");
+            LateTask.New(() => msgToSend.Do(x => Utils.SendMessage(x.Message, x.TargetID, x.Title)), 6f, "Meeting Start Notify");
         }
 
         Main.CyberStarDead.Clear();
@@ -734,7 +745,7 @@ static class MeetingHudStartPatch
         Detective.DetectiveNotify.Clear();
         Main.SleuthMsgs.Clear();
         Virus.VirusNotify.Clear();
-        Mortician.msgToSend.Clear();
+        Mortician.MsgToSend.Clear();
         Enigma.MsgToSend.Clear();
         return;
 
@@ -795,7 +806,7 @@ static class MeetingHudStartPatch
                 Main.PlayerStates.Values.Any(x => x.Role.KnowRole(seer, target)) ||
                 Markseeker.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Markseeker { IsEnable: true, TargetRevealed: true } ms && ms.MarkedId == target.PlayerId) ||
                 seer.IsRevealedPlayer(target) ||
-                seer.Is(CustomRoles.God) ||
+                seer.Is(CustomRoles.God) && God.KnowInfo.GetValue() == 2 ||
                 seer.Is(CustomRoles.GM) ||
                 Main.GodMode.Value;
 
@@ -819,7 +830,29 @@ static class MeetingHudStartPatch
             }
 
             var suffix = Main.PlayerStates[seer.PlayerId].Role.GetSuffix(seer, target, meeting: true);
-            if (roleTextMeeting.text.Length > 0 && suffix.Length > 0) roleTextMeeting.text += "\n" + suffix;
+            if (suffix.Length > 0)
+            {
+                if (roleTextMeeting.enabled) roleTextMeeting.text += "\n";
+                else roleTextMeeting.text = string.Empty;
+
+                roleTextMeeting.text += $"<#ffffff>{suffix}</color>";
+                roleTextMeeting.enabled = true;
+            }
+
+            // Thanks BAU (By D1GQ) - are you happy now?
+            var playerLevel = pva.transform.Find("PlayerLevel");
+            var levelDisplay = Object.Instantiate(playerLevel, pva.transform);
+            levelDisplay.localPosition = new(-1.21f, -0.15f, playerLevel.transform.localPosition.z);
+            levelDisplay.transform.SetSiblingIndex(playerLevel.GetSiblingIndex() + 1);
+            levelDisplay.gameObject.name = "PlayerId";
+            levelDisplay.GetComponent<SpriteRenderer>().color = Palette.Purple;
+            var idLabel = levelDisplay.transform.Find("LevelLabel");
+            var idNumber = levelDisplay.transform.Find("LevelNumber");
+            Object.Destroy(idLabel.GetComponent<TextTranslatorTMP>());
+            idLabel.GetComponent<TextMeshPro>().text = "ID";
+            idNumber.GetComponent<TextMeshPro>().text = pva.TargetPlayerId.ToString();
+            idLabel.name = "IdLabel";
+            idNumber.name = "IdNumber";
         }
 
         if (Options.SyncButtonMode.GetBool())
@@ -928,6 +961,7 @@ static class MeetingHudStartPatch
             }
 
             sb.Append(Witch.GetSpelledMark(target.PlayerId, true));
+            sb.Append(Wasp.GetStungMark(target.PlayerId));
 
             if (target.Is(CustomRoles.SuperStar) && Options.EveryOneKnowSuperStar.GetBool())
                 sb.Append(Utils.ColorString(Utils.GetRoleColor(CustomRoles.SuperStar), "★"));
@@ -959,25 +993,21 @@ static class MeetingHudStartPatch
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Update))]
 static class MeetingHudUpdatePatch
 {
-    private static int bufferTime = 10;
+    private static int BufferTime = 10;
 
-    private static void ClearShootButton(MeetingHud __instance, bool forceAll = false)
-        => __instance.playerStates.ToList().ForEach(x =>
-        {
-            if ((forceAll || !Main.PlayerStates.TryGetValue(x.TargetPlayerId, out var ps) || ps.IsDead) && x.transform.FindChild("ShootButton") != null) Object.Destroy(x.transform.FindChild("ShootButton").gameObject);
-        });
+    private static void ClearShootButton(MeetingHud __instance, bool forceAll = false) => __instance.playerStates.DoIf(
+        x => (forceAll || !Main.PlayerStates.TryGetValue(x.TargetPlayerId, out var ps) || ps.IsDead) && x.transform.FindChild("ShootButton") != null,
+        x => Object.Destroy(x.transform.FindChild("ShootButton").gameObject));
 
     public static void Postfix(MeetingHud __instance)
     {
         try
         {
-            // Meeting Skip with vote counting on keystroke (m + delete)
+            // Meeting Skip with vote counting on keystroke (F6)
             if (AmongUsClient.Instance.AmHost && Input.GetKeyDown(KeyCode.F6))
             {
                 __instance.CheckForEndVoting();
             }
-
-            //if (Options.DisableCrackedGlass.GetBool()) __instance.CrackedGlass = null;
 
             if (AmongUsClient.Instance.AmHost && Input.GetMouseButtonUp(1) && Input.GetKey(KeyCode.LeftControl))
             {
@@ -990,7 +1020,7 @@ static class MeetingHudUpdatePatch
                         player.RpcExileV2();
                         Main.PlayerStates[player.PlayerId].SetDead();
                         Utils.SendMessage(string.Format(GetString("Message.Executed"), player.Data.PlayerName));
-                        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}を処刑しました", "Execution");
+                        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} was executed by the host", "Execution");
                         __instance.CheckForEndVoting();
                     }
                 });
@@ -998,7 +1028,6 @@ static class MeetingHudUpdatePatch
 
             if (DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening)
             {
-                GuessManager.DestroyIDLabels();
             }
 
             if (!GameStates.IsVoting && __instance.lastSecond < 1)
@@ -1007,10 +1036,10 @@ static class MeetingHudUpdatePatch
                 return;
             }
 
-            bufferTime--;
-            if (bufferTime < 0 && __instance.discussionTimer > 0)
+            BufferTime--;
+            if (BufferTime < 0 && __instance.discussionTimer > 0)
             {
-                bufferTime = 10;
+                BufferTime = 10;
                 var myRole = PlayerControl.LocalPlayer.GetCustomRole();
 
                 __instance.playerStates.Where(x => (!Main.PlayerStates.TryGetValue(x.TargetPlayerId, out var ps) || ps.IsDead) && !x.AmDead).Do(x => x.SetDead(x.DidReport, true));
@@ -1044,7 +1073,7 @@ static class MeetingHudUpdatePatch
 }
 
 [HarmonyPatch(typeof(PlayerVoteArea), nameof(PlayerVoteArea.SetHighlighted))]
-class SetHighlightedPatch
+static class SetHighlightedPatch
 {
     public static bool Prefix(PlayerVoteArea __instance, bool value)
     {
@@ -1056,7 +1085,7 @@ class SetHighlightedPatch
 }
 
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.OnDestroy))]
-class MeetingHudOnDestroyPatch
+static class MeetingHudOnDestroyPatch
 {
     public static void Postfix()
     {
@@ -1065,7 +1094,7 @@ class MeetingHudOnDestroyPatch
         if (AmongUsClient.Instance.AmHost)
         {
             AntiBlackout.SetIsDead();
-            Main.AllPlayerControls.Do(pc => RandomSpawn.CustomNetworkTransformPatch.NumOfTP[pc.PlayerId] = 0);
+            RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Clear();
 
             Main.LastVotedPlayerInfo = null;
         }
@@ -1073,7 +1102,7 @@ class MeetingHudOnDestroyPatch
 }
 
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CastVote))]
-class MeetingHudCastVotePatch
+static class MeetingHudCastVotePatch
 {
     private static readonly Dictionary<byte, (MeetingHud MeetingHud, PlayerVoteArea SourcePVA, PlayerControl SourcePC)> ShouldCancelVoteList = [];
 
@@ -1114,17 +1143,17 @@ class MeetingHudCastVotePatch
             isSkip = true;
         }
 
-        bool isVoteCanceled = false;
+        bool voteCanceled = false;
 
         if (!Main.DontCancelVoteList.Contains(srcPlayerId) && !isSkip && pc_src.GetCustomRole().CancelsVote() && Main.PlayerStates[srcPlayerId].Role.OnVote(pc_src, pc_target))
         {
             ShouldCancelVoteList.TryAdd(srcPlayerId, (__instance, pva_src, pc_src));
-            isVoteCanceled = true;
+            voteCanceled = true;
         }
 
-        Logger.Info($"{pc_src.GetNameWithRole().RemoveHtmlTags()} => {(isSkip ? "Skip" : pc_target.GetNameWithRole().RemoveHtmlTags())}{(isVoteCanceled ? " (Canceled)" : string.Empty)}", "Vote");
+        Logger.Info($"{pc_src.GetNameWithRole().RemoveHtmlTags()} => {(isSkip ? "Skip" : pc_target.GetNameWithRole().RemoveHtmlTags())}{(voteCanceled ? " (Canceled)" : string.Empty)}", "Vote");
 
-        return isSkip || !isVoteCanceled; // return false to use the vote as a trigger; skips and invalid votes are never canceled
+        return isSkip || !voteCanceled; // return false to use the vote as a trigger; skips and invalid votes are never canceled
     }
 
     public static void Postfix([HarmonyArgument(0)] byte srcPlayerId)

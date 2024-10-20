@@ -11,7 +11,7 @@ namespace EHR.Neutral;
 public class HeadHunter : RoleBase
 {
     private const int Id = 12870;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     private static OptionItem KillCooldown;
     public static OptionItem CanVent;
@@ -26,7 +26,7 @@ public class HeadHunter : RoleBase
 
     public List<byte> Targets = [];
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -50,14 +50,14 @@ public class HeadHunter : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         Targets = [];
         HeadHunterId = byte.MaxValue;
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         HeadHunterId = playerId;
         Targets = [];
         LateTask.New(ResetTargets, 8f, log: false);

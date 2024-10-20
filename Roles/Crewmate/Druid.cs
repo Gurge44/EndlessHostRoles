@@ -14,7 +14,7 @@ namespace EHR.Crewmate
     public class Druid : RoleBase
     {
         private const int Id = 642800;
-        private static List<byte> playerIdList = [];
+        private static List<byte> PlayerIdList = [];
 
         public static OptionItem VentCooldown;
         private static OptionItem TriggerPlaceDelay;
@@ -28,7 +28,7 @@ namespace EHR.Crewmate
         private Dictionary<Vector2, int> TriggerIds = [];
         private Dictionary<Vector2, string> Triggers = [];
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
@@ -52,7 +52,7 @@ namespace EHR.Crewmate
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             TriggerDelay = 0;
             Triggers = [];
             lastUpdate = TimeStamp;
@@ -60,7 +60,7 @@ namespace EHR.Crewmate
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             DruidPC = GetPlayerById(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
             lastUpdate = TimeStamp;
@@ -146,7 +146,7 @@ namespace EHR.Crewmate
 
         public override void OnCheckPlayerPosition(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || Triggers.Count <= 0 || playerIdList.Contains(pc.PlayerId)) return;
+            if (!GameStates.IsInTask || Triggers.Count <= 0 || PlayerIdList.Contains(pc.PlayerId)) return;
 
             foreach (var trigger in Triggers.Where(trigger => Vector2.Distance(trigger.Key, pc.Pos()) <= 1.5f))
             {

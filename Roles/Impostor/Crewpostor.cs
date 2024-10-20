@@ -18,7 +18,7 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(4800, TabGroup.ImpostorRoles, CustomRoles.Crewpostor);
-            CrewpostorCanKillAllies = new BooleanOptionItem(4810, "CanKillAllies", true, TabGroup.ImpostorRoles)
+            CrewpostorCanKillAllies = new BooleanOptionItem(4810, "CanKillAllies", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
             CrewpostorKnowsAllies = new BooleanOptionItem(4811, "CrewpostorKnowsAllies", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Crewpostor]);
@@ -94,6 +94,11 @@ namespace EHR.Impostor
             return false;
         }
 
+        public override bool CanUseSabotage(PlayerControl pc)
+        {
+            return false;
+        }
+
         public static void SendRPC(byte cpID, int tasksDone)
         {
             if (PlayerControl.LocalPlayer.PlayerId == cpID)
@@ -103,7 +108,7 @@ namespace EHR.Impostor
             }
             else
             {
-                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCPTasksDone, SendOption.Reliable);
+                MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCpTasksDone, SendOption.Reliable);
                 writer.Write(cpID);
                 writer.Write(tasksDone);
                 AmongUsClient.Instance.FinishRpcImmediately(writer);

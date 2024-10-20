@@ -58,16 +58,16 @@ namespace EHR.Neutral
             switch (targetRole)
             {
                 case CustomRoles.Enigma:
-                    Enigma.playerIdList.Remove(target.PlayerId);
+                    Enigma.PlayerIdList.Remove(target.PlayerId);
                     break;
                 case CustomRoles.Mediumshiper:
-                    Mediumshiper.playerIdList.Remove(target.PlayerId);
+                    Mediumshiper.PlayerIdList.Remove(target.PlayerId);
                     break;
                 case CustomRoles.Mortician:
-                    Mortician.playerIdList.Remove(target.PlayerId);
+                    Mortician.PlayerIdList.Remove(target.PlayerId);
                     break;
                 case CustomRoles.Spiritualist:
-                    Spiritualist.playerIdList.Remove(target.PlayerId);
+                    Spiritualist.PlayerIdList.Remove(target.PlayerId);
                     break;
             }
 

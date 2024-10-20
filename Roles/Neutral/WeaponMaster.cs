@@ -12,7 +12,7 @@ namespace EHR.Neutral;
 public class WeaponMaster : RoleBase
 {
     private const int Id = 641200;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     private static OptionItem KillCooldown;
     private static OptionItem CanVent;
@@ -24,7 +24,7 @@ public class WeaponMaster : RoleBase
     private bool shieldUsed;
     private byte WMId;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     /*
      * 0 = Kill (Sword) ~ Normal Kill
@@ -53,7 +53,7 @@ public class WeaponMaster : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         Mode = 0;
         shieldUsed = false;
         WMId = byte.MaxValue;
@@ -61,7 +61,7 @@ public class WeaponMaster : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         WMId = playerId;
 
         Mode = 0;
@@ -129,7 +129,7 @@ public class WeaponMaster : RoleBase
 
     void SwitchMode()
     {
-        var id = playerIdList[0];
+        var id = PlayerIdList[0];
         var WM = Utils.GetPlayerById(id);
 
         if (WM == null || !WM.IsAlive()) return;

@@ -10,7 +10,7 @@ namespace EHR.Impostor
     public class Hitman : RoleBase
     {
         private const int Id = 640800;
-        public static List<byte> playerIdList = [];
+        public static List<byte> PlayerIdList = [];
 
         private static OptionItem KillCooldown;
         private static OptionItem SuccessKCD;
@@ -19,7 +19,7 @@ namespace EHR.Impostor
         private byte HitmanId = byte.MaxValue;
         public byte TargetId = byte.MaxValue;
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
@@ -34,14 +34,14 @@ namespace EHR.Impostor
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             TargetId = byte.MaxValue;
             HitmanId = byte.MaxValue;
         }
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
             HitmanId = playerId;
             TargetId = byte.MaxValue;
         }
@@ -88,7 +88,7 @@ namespace EHR.Impostor
 
         public static void CheckAndResetTargets()
         {
-            foreach (var id in playerIdList)
+            foreach (var id in PlayerIdList)
             {
                 if (Main.PlayerStates[id].Role is Hitman { IsEnable: true } hm)
                 {

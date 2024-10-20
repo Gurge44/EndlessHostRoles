@@ -71,10 +71,10 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(9500, TabGroup.CrewmateRoles, CustomRoles.Mayor);
-            MayorAdditionalVote = new IntegerOptionItem(9510, "MayorAdditionalVote", new(0, 90, 1), 3, TabGroup.CrewmateRoles)
+            MayorAdditionalVote = new IntegerOptionItem(9510, "MayorAdditionalVote", new(0, 90, 1), 2, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor])
                 .SetValueFormat(OptionFormat.Votes);
-            MayorHasPortableButton = new BooleanOptionItem(9511, "MayorHasPortableButton", false, TabGroup.CrewmateRoles)
+            MayorHasPortableButton = new BooleanOptionItem(9511, "MayorHasPortableButton", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
             MayorNumOfUseButton = new IntegerOptionItem(9512, "MayorNumOfUseButton", new(1, 90, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(MayorHasPortableButton)
@@ -83,7 +83,7 @@ namespace EHR.Crewmate
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
             MayorRevealWhenDoneTasks = new BooleanOptionItem(9514, "MayorRevealWhenDoneTasks", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
-            MayorSeesVoteColorsWhenDoneTasks = new BooleanOptionItem(9515, "MayorSeesVoteColorsWhenDoneTasks", false, TabGroup.CrewmateRoles)
+            MayorSeesVoteColorsWhenDoneTasks = new BooleanOptionItem(9515, "MayorSeesVoteColorsWhenDoneTasks", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mayor]);
             OverrideTasksData.Create(9516, TabGroup.CrewmateRoles, CustomRoles.Mayor);
         }

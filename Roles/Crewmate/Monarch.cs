@@ -8,13 +8,13 @@ namespace EHR.Crewmate;
 public class Monarch : RoleBase
 {
     private const int Id = 9600;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     public static OptionItem KnightCooldown;
     public static OptionItem KnightMax;
     public static OptionItem UsePet;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -30,12 +30,12 @@ public class Monarch : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         playerId.SetAbilityUseLimit(KnightMax.GetInt());
     }
 

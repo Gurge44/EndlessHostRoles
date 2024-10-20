@@ -21,10 +21,11 @@ namespace EHR.Crewmate
 
         public static void OnKilled(PlayerControl killer)
         {
-            if (killer == null) return;
-            if (!killer.GetCustomRole().IsImpostor()) return;
+            if (killer == null || killer.Is(CustomRoles.Bloodlust)) return;
 
-            killer.RpcSetCustomRole(killer.Is(RoleTypes.Shapeshifter) ? CustomRoles.ShapeshifterEHR : killer.IsImpostor() ? CustomRoles.ImpostorEHR : CustomRoles.Amnesiac);
+            var erasedRole = killer.IsImpostor() ? CustomRoles.ImpostorEHR : killer.IsCrewmate() ? CustomRoles.CrewmateEHR : CustomRoles.Amnesiac;
+            killer.RpcSetCustomRole(erasedRole);
+            killer.RpcChangeRoleBasis(erasedRole);
         }
     }
 }

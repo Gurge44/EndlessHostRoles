@@ -8,15 +8,15 @@ namespace EHR.Neutral;
 public class Doomsayer : RoleBase
 {
     private const int Id = 27000;
-    public static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
     public static List<CustomRoles> GuessedRoles = [];
     public static Dictionary<byte, int> GuessingToWin = [];
 
-    public static int GuessesCount;
+    private static int GuessesCount;
     public static int GuessesCountPerMeeting;
     public static bool CantGuess;
 
-    public static OptionItem DoomsayerAmountOfGuessesToWin;
+    private static OptionItem DoomsayerAmountOfGuessesToWin;
     public static OptionItem DCanGuessImpostors;
     public static OptionItem DCanGuessCrewmates;
     public static OptionItem DCanGuessNeutrals;
@@ -28,7 +28,7 @@ public class Doomsayer : RoleBase
     public static OptionItem MisguessRolePrevGuessRoleUntilNextMeeting;
     public static OptionItem DoomsayerTryHideMsg;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -63,7 +63,7 @@ public class Doomsayer : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         GuessedRoles = [];
         GuessingToWin = [];
         GuessesCount = 0;
@@ -73,7 +73,7 @@ public class Doomsayer : RoleBase
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         GuessingToWin.TryAdd(playerId, GuessesCount);
 
         GuessesCount = 0;

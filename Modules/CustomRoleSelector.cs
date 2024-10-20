@@ -65,6 +65,9 @@ internal static class CustomRoleSelector
             case CustomGameMode.NaturalDisasters:
                 AssignRoleToEveryone(CustomRoles.NDPlayer);
                 return;
+            case CustomGameMode.RoomRush:
+                AssignRoleToEveryone(CustomRoles.RRPlayer);
+                return;
             case CustomGameMode.HideAndSeek:
                 HnSManager.AssignRoles();
                 RoleResult = HnSManager.PlayerRoles.ToDictionary(x => x.Key, x => x.Value.Role);
@@ -131,6 +134,8 @@ internal static class CustomRoleSelector
             else if (role.IsNonNK()) Roles[RoleAssignType.NonKillingNeutral].Add(info);
             else Roles[RoleAssignType.Crewmate].Add(info);
         }
+
+        LoversData.OneIsImp &= Roles[RoleAssignType.Impostor].Count(x => x.SpawnChance == 100) < optImpNum;
 
         if (LoversData.Spawning)
         {

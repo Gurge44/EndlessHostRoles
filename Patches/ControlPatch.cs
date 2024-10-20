@@ -35,7 +35,7 @@ internal class ControllerManagerUpdatePatch
 
             if (KeysDown(KeyCode.Return) && GameSettingMenu.Instance != null && GameSettingMenu.Instance.isActiveAndEnabled)
             {
-                GameSettingMenuPatch._SearchForOptions?.Invoke();
+                GameSettingMenuPatch.SearchForOptionsAction?.Invoke();
             }
         }
 
@@ -119,7 +119,7 @@ internal class ControllerManagerUpdatePatch
             GameStartManager.Instance.countDownTimer = 0;
         }
 
-        if (Input.GetKeyDown(KeyCode.C) && GameStates.IsCountDown)
+        if (Input.GetKeyDown(KeyCode.C) && GameStates.IsCountDown && GameStates.IsLobby)
         {
             GameStartManager.Instance.ResetStartState();
             Logger.SendInGame(GetString("CancelStartCountDown"));
@@ -170,7 +170,11 @@ internal class ControllerManagerUpdatePatch
             Logger.SendInGame($"In-game output log：{Logger.IsAlsoInGame}");
         }
 
-        if (!DebugModeManager.IsDebugMode) return;
+        if (!Options.NoGameEnd.GetBool()) return;
+
+#if RELEASE
+        return;
+#endif
 
         if (KeysDown(KeyCode.Return, KeyCode.F, KeyCode.LeftShift))
         {
@@ -209,30 +213,25 @@ internal class ControllerManagerUpdatePatch
                 PlayerControl.LocalPlayer.RpcCompleteTask(task.Id);
         }
 
-        if (Input.GetKeyDown(KeyCode.Y))
+        if (Input.GetKeyDown(KeyCode.Y) && !GameStates.IsMeeting)
         {
             RPC.SyncCustomSettingsRPC();
             Logger.SendInGame(GetString("SyncCustomSettingsRPC"));
         }
 
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            HudManager.Instance.StartCoroutine(HudManager.Instance.CoFadeFullScreen(Color.clear, Color.black));
-            HudManager.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoShowIntro());
-        }
-
-        if (Input.GetKeyDown(KeyCode.Equals))
+        if (Input.GetKeyDown(KeyCode.Equals) && !GameStates.IsMeeting)
         {
             Main.VisibleTasksCount = !Main.VisibleTasksCount;
             DestroyableSingleton<HudManager>.Instance.Notifier.AddDisconnectMessage($"VisibleTaskCount changed to {Main.VisibleTasksCount}.");
         }
 
-        if (Input.GetKeyDown(KeyCode.I))
+        if (Input.GetKeyDown(KeyCode.I) && !GameStates.IsMeeting)
         {
             Logger.SendInGame(PlayerControl.LocalPlayer.Pos().ToString());
+            Logger.SendInGame(PlayerControl.LocalPlayer.GetPlainShipRoom()?.RoomId.ToString() ?? "null");
         }
 
-        if (Input.GetKeyDown(KeyCode.C))
+        if (Input.GetKeyDown(KeyCode.C) && !GameStates.IsMeeting)
         {
             foreach (var pc in PlayerControl.AllPlayerControls)
             {
@@ -240,7 +239,7 @@ internal class ControllerManagerUpdatePatch
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.V))
+        if (Input.GetKeyDown(KeyCode.V) && !GameStates.IsMeeting)
         {
             Vector2 pos = PlayerControl.LocalPlayer.NetTransform.transform.position;
             foreach (var pc in PlayerControl.AllPlayerControls)
@@ -253,7 +252,7 @@ internal class ControllerManagerUpdatePatch
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.B))
+        if (Input.GetKeyDown(KeyCode.B) && !GameStates.IsMeeting)
         {
             foreach (var pc in PlayerControl.AllPlayerControls)
             {
@@ -261,7 +260,7 @@ internal class ControllerManagerUpdatePatch
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.N))
+        if (Input.GetKeyDown(KeyCode.N) && !GameStates.IsMeeting)
         {
             VentilationSystem.Update(VentilationSystem.Operation.StartCleaning, 0);
         }
@@ -382,7 +381,7 @@ public static class InGameRoleInfoMenu
         sb.Append("<size=90%>");
         sb.Append(player.GetRoleInfo(true).TrimStart());
         if (Options.CustomRoleSpawnChances.TryGetValue(role, out var opt))
-            Utils.ShowChildrenSettings(opt, ref settings, disableColor: false);
+            Utils.ShowChildrenSettings(opt, ref settings, f1: true, disableColor: false);
         settings.Append("</size>");
         if (settings.Length > 0) addons.Append($"{settings}\n\n");
         if (role.PetActivatedAbility()) sb.Append($"<size=80%>{GetString("SupportsPetMessage")}</size>");
@@ -416,7 +415,9 @@ public static class InGameRoleInfoMenu
             Fill?.SetActive(true);
             Menu?.SetActive(true);
 
-            if (GameStates.IsMeeting) GuessManager.DestroyIDLabels();
+            if (GameStates.IsMeeting)
+            {
+            }
         }
     }
 
@@ -427,7 +428,9 @@ public static class InGameRoleInfoMenu
             Fill?.SetActive(false);
             Menu?.SetActive(false);
 
-            if (GameStates.IsVoting) GuessManager.CreateIDLabels(MeetingHud.Instance);
+            if (GameStates.IsVoting)
+            {
+            }
         }
     }
 }

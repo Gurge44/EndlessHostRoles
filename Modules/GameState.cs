@@ -56,6 +56,8 @@ public class PlayerState(byte playerId)
         Asthma,
         Assumed,
         Negotiation,
+        Trapped,
+        Stung,
 
         // Natural Disasters
         Meteor,
@@ -144,7 +146,7 @@ public class PlayerState(byte playerId)
             if (role == CustomRoles.Sidekick && Jackal.Instances.FindFirst(x => x.SidekickId == byte.MaxValue || x.SidekickId.GetPlayer() == null, out var jackal))
                 jackal.SidekickId = PlayerId;
 
-            Player.CheckAndSetUnshiftState();
+            LateTask.New(() => Player.CheckAndSetUnshiftState(), 1f, log: false);
         }
 
         CheckMurderPatch.TimeSinceLastKill.Remove(PlayerId);
@@ -363,7 +365,7 @@ public class TaskState
                 {
                     case CustomRoles.SabotageMaster:
                         if (Main.PlayerStates[player.PlayerId].Role is not SabotageMaster sm) break;
-                        sm.UsedSkillCount -= SabotageMaster.SMAbilityUseGainWithEachTaskCompleted.GetFloat();
+                        sm.UsedSkillCount -= SabotageMaster.SmAbilityUseGainWithEachTaskCompleted.GetFloat();
                         sm.SendRPC();
                         break;
                     case CustomRoles.NiceHacker:
@@ -422,31 +424,32 @@ public class TaskState
     }
 }
 
-public class PlayerVersion(Version ver, string tag_str, string forkId)
+public class PlayerVersion(Version ver, string tagStr, string forkId)
 {
     public readonly string forkId = forkId;
-    public readonly string tag = tag_str;
+    public readonly string tag = tagStr;
     public readonly Version version = ver;
 
-    public PlayerVersion(string ver, string tag_str, string forkId) : this(Version.Parse(ver), tag_str, forkId)
+    public PlayerVersion(string ver, string tagStr, string forkId) : this(Version.Parse(ver), tagStr, forkId)
     {
     }
 
-    public bool IsEqual(PlayerVersion pv)
+    public override bool Equals(object obj)
     {
-        return pv.version == version && pv.tag == tag;
-    }
-#pragma warning disable CA1041 // Provide ObsoleteAttribute message
-    [Obsolete]
-    public PlayerVersion(string ver, string tag_str) : this(Version.Parse(ver), tag_str, string.Empty)
-    {
+        if (obj is null) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        return obj.GetType() == GetType() && Equals((PlayerVersion)obj);
     }
 
-    [Obsolete]
-    public PlayerVersion(Version ver, string tag_str) : this(ver, tag_str, string.Empty)
+    private bool Equals(PlayerVersion other)
     {
+        return forkId == other.forkId && tag == other.tag && Equals(version, other.version);
     }
-#pragma warning restore CA1041 // Provide ObsoleteAttribute message
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(forkId, tag, version);
+    }
 }
 
 public static class GameStates
@@ -456,7 +459,7 @@ public static class GameStates
     public static bool IsModHost => PlayerControl.AllPlayerControls.ToArray().Any(x => x.IsHost() && x.IsModClient());
     public static bool IsLobby => AmongUsClient.Instance.GameState == InnerNetClient.GameStates.Joined;
     public static bool IsInGame => InGame;
-    public static bool IsEnded => AmongUsClient.Instance.GameState == InnerNetClient.GameStates.Ended;
+    public static bool IsEnded => GameEndChecker.Ended || AmongUsClient.Instance.GameState == InnerNetClient.GameStates.Ended;
     public static bool IsNotJoined => AmongUsClient.Instance.GameState == InnerNetClient.GameStates.NotJoined;
     public static bool IsOnlineGame => AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame;
     public static bool IsLocalGame => AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame;

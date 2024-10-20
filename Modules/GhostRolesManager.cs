@@ -49,7 +49,7 @@ namespace EHR.Modules
 
             var pc = Utils.GetPlayerById(id);
             if (set) pc.RpcSetRole(RoleTypes.GuardianAngel);
-            
+
             IGhostRole instance = CreateGhostRoleInstance(role);
             instance.OnAssign(pc);
             Main.ResetCamPlayerList.Add(pc.PlayerId);
@@ -93,7 +93,13 @@ namespace EHR.Modules
             {
                 if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
                 if (AssignedGhostRoles.Count >= GhostRoles.Count) return false;
-                if (pc.IsAlive() || pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame || pc.Is(CustomRoles.EvilSpirit) || pc.Is(CustomRoles.Backstabber)) return false;
+                if (pc.IsAlive() || pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame || pc.Is(CustomRoles.EvilSpirit)) return false;
+
+                switch (pc.GetCustomRole())
+                {
+                    case CustomRoles.Backstabber: return false;
+                    case CustomRoles.Workaholic when !Workaholic.WorkaholicCannotWinAtDeath.GetBool(): return false;
+                }
 
                 var suitableRole = GetSuitableGhostRole(pc);
                 return suitableRole switch
@@ -139,6 +145,13 @@ namespace EHR.Modules
                 if (!check) Utils.ThrowException(e);
                 return null;
             }
+        }
+
+        public static void RemoveGhostRole(byte id)
+        {
+            if (!AssignedGhostRoles.TryGetValue(id, out var ghostRole)) return;
+            Main.PlayerStates[id].RemoveSubRole(ghostRole.Role);
+            AssignedGhostRoles.Remove(id);
         }
     }
 }

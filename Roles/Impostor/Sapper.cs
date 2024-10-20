@@ -13,7 +13,7 @@ namespace EHR.Impostor
     public class Sapper : RoleBase
     {
         private const int Id = 643000;
-        public static List<byte> playerIdList = [];
+        public static List<byte> PlayerIdList = [];
 
         public static OptionItem ShapeshiftCooldown;
         private static OptionItem Delay;
@@ -21,7 +21,7 @@ namespace EHR.Impostor
 
         public static Dictionary<Vector2, long> Bombs = [];
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
@@ -36,13 +36,13 @@ namespace EHR.Impostor
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             Bombs = [];
         }
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            PlayerIdList.Add(playerId);
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
@@ -118,6 +118,7 @@ namespace EHR.Impostor
                 Bombs.Remove(bomb.Key);
                 pc.Notify(GetString("MagicianBombExploded"));
                 if (b)
+                {
                     LateTask.New(() =>
                     {
                         if (!GameStates.IsEnded)
@@ -125,6 +126,7 @@ namespace EHR.Impostor
                             pc.Suicide(PlayerState.DeathReason.Bombed);
                         }
                     }, 0.5f, "Sapper Bomb Suicide");
+                }
             }
 
             var sb = new StringBuilder();
@@ -133,7 +135,7 @@ namespace EHR.Impostor
                 sb.Append(string.Format(GetString("MagicianBombExlodesIn"), Delay.GetInt() - (TimeStamp - x) + 1));
             }
 
-            pc.Notify(sb.ToString());
+            pc.Notify(sb.ToString(), overrideAll: true);
         }
 
         public override void OnReportDeadBody()

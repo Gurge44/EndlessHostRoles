@@ -43,41 +43,42 @@ namespace EHR
         {
             int id = 69_216_001;
             Color color = Utils.GetRoleColor(CustomRoles.NDPlayer);
+            const CustomGameMode gameMode = CustomGameMode.NaturalDisasters;
 
             DisasterFrequency = new IntegerOptionItem(id++, "ND_DisasterFrequency", new(1, 20, 1), 2, TabGroup.GameSettings)
                 .SetHeader(true)
-                .SetGameMode(CustomGameMode.NaturalDisasters)
+                .SetGameMode(gameMode)
                 .SetColor(color)
                 .SetValueFormat(OptionFormat.Seconds);
 
             DisasterWarningTime = new IntegerOptionItem(id++, "ND_DisasterWarningTime", new(1, 30, 1), 5, TabGroup.GameSettings)
-                .SetGameMode(CustomGameMode.NaturalDisasters)
+                .SetGameMode(gameMode)
                 .SetColor(color)
                 .SetValueFormat(OptionFormat.Seconds);
 
             LimitMaximumDisastersAtOnce = new BooleanOptionItem(id++, "ND_LimitMaximumDisastersAtOnce", false, TabGroup.GameSettings)
-                .SetGameMode(CustomGameMode.NaturalDisasters)
+                .SetGameMode(gameMode)
                 .SetColor(color);
 
             MaximumDisastersAtOnce = new IntegerOptionItem(id++, "ND_MaximumDisastersAtOnce", new(1, 120, 1), 20, TabGroup.GameSettings)
-                .SetGameMode(CustomGameMode.NaturalDisasters)
+                .SetGameMode(gameMode)
                 .SetParent(LimitMaximumDisastersAtOnce)
                 .SetColor(color);
 
             WhenLimitIsReached = new StringOptionItem(id++, "ND_WhenLimitIsReached", LimitReachedOptions, 2, TabGroup.GameSettings)
-                .SetGameMode(CustomGameMode.NaturalDisasters)
+                .SetGameMode(gameMode)
                 .SetParent(LimitMaximumDisastersAtOnce)
                 .SetColor(color);
 
             PreferRemovingThunderstorm = new BooleanOptionItem(id++, "ND_PreferRemovingThunderstorm", true, TabGroup.GameSettings)
-                .SetGameMode(CustomGameMode.NaturalDisasters)
+                .SetGameMode(gameMode)
                 .SetParent(WhenLimitIsReached)
                 .SetColor(color);
 
             LoadAllDisasters();
 
             AllDisasters.ConvertAll(x => x.Name).ForEach(x => DisasterSpawnChances[x] = new IntegerOptionItem(id++, "ND_Disaster.SpawnChance", new(0, 100, 5), 50, TabGroup.GameSettings)
-                .SetGameMode(CustomGameMode.NaturalDisasters)
+                .SetGameMode(gameMode)
                 .SetColor(color)
                 .SetValueFormat(OptionFormat.Percent)
                 .AddReplacement(("{disaster}", Translator.GetString($"ND_{x}"))));
@@ -468,7 +469,7 @@ namespace EHR
                     this.NetObject.RpcChangeSprite(newSprite);
                 }
 
-                var range = Range - ((Phases - Phase) * 0.05f);
+                var range = Range - ((Phases - Phase) * 0.4f);
                 KillNearbyPlayers(PlayerState.DeathReason.Lava, range);
             }
         }

@@ -10,16 +10,15 @@ namespace EHR.Crewmate
     public class Spy : RoleBase
     {
         private const int Id = 640400;
-        private static List<byte> playerIdList = [];
-        public static bool change;
+        private static List<byte> PlayerIdList = [];
         public static Dictionary<byte, long> SpyRedNameList = [];
 
-        public static OptionItem SpyRedNameDur;
-        public static OptionItem UseLimitOpt;
+        private static OptionItem SpyRedNameDur;
+        private static OptionItem UseLimitOpt;
         public static OptionItem SpyAbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
 
-        public override bool IsEnable => playerIdList.Count > 0;
+        public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
         {
@@ -40,19 +39,18 @@ namespace EHR.Crewmate
 
         public override void Init()
         {
-            playerIdList = [];
+            PlayerIdList = [];
             SpyRedNameList = [];
-            change = false;
         }
 
         public override void Add(byte playerId)
         {
-            playerIdList.Add(playerId);
+            LastUpdate = TimeStamp;
+            PlayerIdList.Add(playerId);
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
-            change = false;
         }
 
-        public static void SendRPC(int operate, byte id = byte.MaxValue, bool changeColor = false)
+        private static void SendRPC(int operate, byte id = byte.MaxValue, bool changeColor = false)
         {
             if (!DoRPC) return;
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncSpy, SendOption.Reliable);
@@ -84,7 +82,7 @@ namespace EHR.Crewmate
                     return;
                 case 3:
                     SpyRedNameList.Remove(reader.ReadByte());
-                    change = reader.ReadBoolean();
+                    reader.ReadBoolean();
                     return;
             }
         }
@@ -101,24 +99,24 @@ namespace EHR.Crewmate
             return false;
         }
 
+        private long LastUpdate;
+
         public override void OnFixedUpdate(PlayerControl pc)
         {
             if (pc == null || !pc.Is(CustomRoles.Spy) || SpyRedNameList.Count == 0) return;
 
+            long now = TimeStamp;
+            if (now == LastUpdate) return;
+            LastUpdate = now;
+            
             foreach (var x in SpyRedNameList)
             {
-                if (x.Value + SpyRedNameDur.GetInt() < TimeStamp || !GameStates.IsInTask)
+                if (x.Value + SpyRedNameDur.GetInt() < now || !GameStates.IsInTask)
                 {
                     SpyRedNameList.Remove(x.Key);
-                    change = true;
                     SendRPC(3, id: x.Key, changeColor: true);
+                    NotifyRoles(SpecifySeer: pc, SpecifyTarget: x.Key.GetPlayer());
                 }
-            }
-
-            if (change && GameStates.IsInTask)
-            {
-                NotifyRoles(SpecifySeer: pc);
-                change = false;
             }
         }
     }

@@ -11,7 +11,7 @@ namespace EHR.Impostor;
 internal class Assassin : RoleBase
 {
     private const int Id = 700;
-    public static List<byte> playerIdList = [];
+    public static List<byte> PlayerIdList = [];
 
     private static OptionItem MarkCooldownOpt;
     public static OptionItem AssassinateCooldownOpt;
@@ -24,7 +24,7 @@ internal class Assassin : RoleBase
 
     public byte MarkedPlayer;
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
@@ -41,14 +41,14 @@ internal class Assassin : RoleBase
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         MarkedPlayer = byte.MaxValue;
         IsUndertaker = false;
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         MarkedPlayer = byte.MaxValue;
         IsUndertaker = Main.PlayerStates[playerId].MainRole == CustomRoles.Undertaker;
 
@@ -139,6 +139,13 @@ internal class Assassin : RoleBase
     public override bool OnVanish(PlayerControl pc)
     {
         if (pc == null || !pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
+
+        if (!IsUndertaker)
+        {
+            LateTask.New(() => Take(pc), 1.5f, "Ninja Vanish");
+            return true;
+        }
+
         Take(pc);
         return false;
     }
@@ -148,10 +155,9 @@ internal class Assassin : RoleBase
         if (MarkedPlayer != byte.MaxValue)
         {
             var target = Utils.GetPlayerById(MarkedPlayer);
-            if (IsUndertaker) target.TP(pc);
-            else pc.TP(target);
+            var tpSuccess = IsUndertaker ? target.TP(pc) : pc.TP(target);
 
-            if (!(target == null || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask) && pc.RpcCheckAndMurder(target))
+            if (!(target == null || !target.IsAlive() || Pelican.IsEaten(target.PlayerId) || target.inVent || !GameStates.IsInTask) && tpSuccess && pc.RpcCheckAndMurder(target))
             {
                 MarkedPlayer = byte.MaxValue;
                 SendRPC(pc.PlayerId);
@@ -159,6 +165,7 @@ internal class Assassin : RoleBase
                 pc.SyncSettings();
                 pc.SetKillCooldown(DefaultKillCooldown);
             }
+            else if (!tpSuccess) pc.Notify(GetString("TargetCannotBeTeleported"));
         }
     }
 

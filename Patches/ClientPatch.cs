@@ -12,11 +12,11 @@ using static EHR.Translator;
 namespace EHR;
 
 [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.MakePublic))]
-internal class MakePublicPatch
+static class MakePublicPatch
 {
     public static bool Prefix()
     {
-        if (ModUpdater.IsBroken || (ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || !VersionChecker.IsSupported)
+        if (ModUpdater.IsBroken || ModUpdater.HasUpdate && ModUpdater.ForceUpdate || !VersionChecker.IsSupported)
         {
             var message = string.Empty;
             if (!VersionChecker.IsSupported) message = GetString("UnsupportedVersion");
@@ -33,11 +33,11 @@ internal class MakePublicPatch
 
 [HarmonyPatch(typeof(MMOnlineManager), nameof(MMOnlineManager.Start))]
 // ReSharper disable once InconsistentNaming
-internal class MMOnlineManagerStartPatch
+static class MMOnlineManagerStartPatch
 {
     public static void Postfix()
     {
-        if (!((ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || ModUpdater.IsBroken)) return;
+        if (!(ModUpdater.HasUpdate && ModUpdater.ForceUpdate || ModUpdater.IsBroken)) return;
         var obj = GameObject.Find("FindGameButton");
         if (obj)
         {
@@ -54,7 +54,7 @@ internal class MMOnlineManagerStartPatch
 }
 
 [HarmonyPatch(typeof(SplashManager), nameof(SplashManager.Update))]
-internal class SplashLogoAnimatorPatch
+static class SplashLogoAnimatorPatch
 {
     public static void Prefix(SplashManager __instance)
     {
@@ -64,7 +64,7 @@ internal class SplashLogoAnimatorPatch
 }
 
 [HarmonyPatch(typeof(EOSManager), nameof(EOSManager.IsAllowedOnline))]
-internal class RunLoginPatch
+static class RunLoginPatch
 {
     public const int ClickCount = 0;
 
@@ -76,7 +76,7 @@ internal class RunLoginPatch
 }
 
 [HarmonyPatch(typeof(BanMenu), nameof(BanMenu.SetVisible))]
-internal class BanMenuSetVisiblePatch
+static class BanMenuSetVisiblePatch
 {
     public static bool Prefix(BanMenu __instance, bool show)
     {
@@ -90,7 +90,7 @@ internal class BanMenuSetVisiblePatch
 }
 
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.CanBan))]
-internal class InnerNetClientCanBanPatch
+static class InnerNetClientCanBanPatch
 {
     public static bool Prefix(InnerNetClient __instance, ref bool __result)
     {
@@ -100,7 +100,7 @@ internal class InnerNetClientCanBanPatch
 }
 
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.KickPlayer))]
-internal class KickPlayerPatch
+static class KickPlayerPatch
 {
     public static bool Prefix( /*InnerNetClient __instance,*/ int clientId, bool ban)
     {
@@ -120,21 +120,17 @@ internal class KickPlayerPatch
 }
 
 [HarmonyPatch(typeof(ResolutionManager), nameof(ResolutionManager.SetResolution))]
-internal class SetResolutionManager
+static class SetResolutionManager
 {
     public static void Postfix()
     {
-        //if (MainMenuManagerPatch.qqButton != null)
-        //    MainMenuManagerPatch.qqButton.transform.localPosition = Vector3.Reflect(MainMenuManagerPatch.template.transform.localPosition, Vector3.left);
-        //if (MainMenuManagerPatch.discordButton != null)
-        //    MainMenuManagerPatch.discordButton.transform.localPosition = Vector3.Reflect(MainMenuManagerPatch.template.transform.localPosition, Vector3.left);
         if (MainMenuManagerPatch.UpdateButton != null)
             MainMenuManagerPatch.UpdateButton.transform.localPosition = MainMenuManagerPatch.Template.transform.localPosition + new Vector3(0.25f, 0.75f);
     }
 }
 
 [HarmonyPatch(typeof(InnerNetClient), nameof(InnerNetClient.SendAllStreamedObjects))]
-internal class InnerNetObjectSerializePatch
+static class InnerNetObjectSerializePatch
 {
     public static void Prefix()
     {
@@ -143,7 +139,7 @@ internal class InnerNetObjectSerializePatch
     }
 }
 
-public static class InnerNetClientPatch
+static class InnerNetClientPatch
 {
     private static byte Timer;
 
@@ -151,7 +147,7 @@ public static class InnerNetClientPatch
     [HarmonyPrefix]
     public static bool SendInitialDataPrefix(InnerNetClient __instance, int clientId)
     {
-        if (!Constants.IsVersionModded() || __instance.NetworkMode != NetworkModes.OnlineGame) return true;
+        if (!Constants.IsVersionModded() || GameStates.IsInGame || __instance.NetworkMode != NetworkModes.OnlineGame) return true;
         // We make sure other stuff like PlayerControl and LobbyBehavior is spawned properly
         // Then we spawn the networked data for new clients
         MessageWriter messageWriter = MessageWriter.Get(SendOption.Reliable);
@@ -164,7 +160,7 @@ public static class InnerNetClientPatch
             System.Collections.Generic.HashSet<GameObject> hashSet = [];
             for (int i = 0; i < __instance.allObjects.Count; i++)
             {
-                InnerNetObject innerNetObject = __instance.allObjects[i];
+                InnerNetObject innerNetObject = __instance.allObjects[i]; // False error
                 if (innerNetObject && (innerNetObject.OwnerId != -4 || __instance.AmModdedHost) && hashSet.Add(innerNetObject.gameObject))
                 {
                     GameManager gameManager = innerNetObject as GameManager;
@@ -221,7 +217,7 @@ public static class InnerNetClientPatch
         {
             for (int i = 0; i < __instance.allObjects.Count; i++)
             {
-                InnerNetObject innerNetObject = __instance.allObjects[i];
+                InnerNetObject innerNetObject = __instance.allObjects[i]; // False error
                 if (innerNetObject && innerNetObject is not NetworkedPlayerInfo && innerNetObject.IsDirty && (innerNetObject.AmOwner || (innerNetObject.OwnerId == -2 && __instance.AmHost)))
                 {
                     MessageWriter messageWriter = __instance.Streams[(int)innerNetObject.sendMode];
@@ -233,9 +229,7 @@ public static class InnerNetClientPatch
                         else messageWriter.CancelMessage();
 
                         if (innerNetObject.Chunked && innerNetObject.IsDirty)
-                        {
                             __result = true;
-                        }
                     }
                     catch (Exception ex)
                     {
@@ -266,7 +260,7 @@ public static class InnerNetClientPatch
     [HarmonyPostfix]
     public static void FixedUpdatePostfix(InnerNetClient __instance)
     {
-        if (!__instance.AmHost || __instance.Streams == null || __instance.NetworkMode != NetworkModes.OnlineGame) return;
+        if (!Constants.IsVersionModded() || GameStates.IsInGame || !__instance.AmHost || __instance.Streams == null || __instance.NetworkMode != NetworkModes.OnlineGame) return;
 
         if (Timer == 0)
         {
@@ -310,18 +304,8 @@ public static class InnerNetClientPatch
     }
 }
 
-[HarmonyPatch(typeof(GameData), nameof(GameData.DirtyAllData))]
-internal class DirtyAllDataPatch
-{
-    // Currently, this function only occurs in CreatePlayer.
-    // It's believed to lag the host, delay the PlayerControl spawn message, blackout new clients
-    // and send huge packets to all clients while there's completely no need to run this.
-    // Temporarily disable it until Innersloth gets a better fix.
-    public static bool Prefix() => false;
-}
-
 [HarmonyPatch]
-internal class AuthTimeoutPatch
+internal static class AuthTimeoutPatch
 {
     [HarmonyPatch(typeof(AuthManager._CoConnect_d__4), nameof(AuthManager._CoConnect_d__4.MoveNext))]
     [HarmonyPatch(typeof(AuthManager._CoWaitForNonce_d__6), nameof(AuthManager._CoWaitForNonce_d__6.MoveNext))]
@@ -339,7 +323,7 @@ internal class AuthTimeoutPatch
         return false;
     }
 
-    // If you don't patch this, you still need to wait for 5s.
+    // If you don't patch this, you still need to wait for 5 s.
     // I have no idea why this is happening
     [HarmonyPatch(typeof(AmongUsClient._CoJoinOnlinePublicGame_d__1), nameof(AmongUsClient._CoJoinOnlinePublicGame_d__1.MoveNext))]
     [HarmonyPrefix]

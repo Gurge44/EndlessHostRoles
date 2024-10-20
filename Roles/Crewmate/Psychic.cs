@@ -11,7 +11,7 @@ namespace EHR.Crewmate;
 public class Psychic : RoleBase
 {
     private const int Id = 7900;
-    private static List<byte> playerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     private static OptionItem CanSeeNum;
     private static OptionItem Fresh;
@@ -22,29 +22,34 @@ public class Psychic : RoleBase
 
     private List<byte> RedPlayer = [];
 
-    public override bool IsEnable => playerIdList.Count > 0;
+    public override bool IsEnable => PlayerIdList.Count > 0;
 
     public override void SetupCustomOption()
     {
         SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Psychic);
-        CanSeeNum = new IntegerOptionItem(Id + 2, "PsychicCanSeeNum", new(1, 10, 1), 3, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Psychic])
+        CanSeeNum = new IntegerOptionItem(Id + 2, "PsychicCanSeeNum", new(1, 10, 1), 3, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Psychic])
             .SetValueFormat(OptionFormat.Pieces);
-        Fresh = new BooleanOptionItem(Id + 6, "PsychicFresh", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Psychic]);
-        CkshowEvil = new BooleanOptionItem(Id + 3, "CrewKillingRed", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Psychic]);
-        NBshowEvil = new BooleanOptionItem(Id + 4, "NBareRed", false, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Psychic]);
-        NEshowEvil = new BooleanOptionItem(Id + 5, "NEareRed", true, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Psychic]);
+        Fresh = new BooleanOptionItem(Id + 6, "PsychicFresh", false, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Psychic]);
+        CkshowEvil = new BooleanOptionItem(Id + 3, "CrewKillingRed", true, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Psychic]);
+        NBshowEvil = new BooleanOptionItem(Id + 4, "NBareRed", false, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Psychic]);
+        NEshowEvil = new BooleanOptionItem(Id + 5, "NEareRed", true, TabGroup.CrewmateRoles)
+            .SetParent(CustomRoleSpawnChances[CustomRoles.Psychic]);
     }
 
     public override void Init()
     {
-        playerIdList = [];
+        PlayerIdList = [];
         RedPlayer = [];
         PsychicId = byte.MaxValue;
     }
 
     public override void Add(byte playerId)
     {
-        playerIdList.Add(playerId);
+        PlayerIdList.Add(playerId);
         RedPlayer = [];
         PsychicId = playerId;
     }

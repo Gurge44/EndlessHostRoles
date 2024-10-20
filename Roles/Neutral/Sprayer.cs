@@ -28,7 +28,7 @@ namespace EHR.Neutral
         private static readonly Dictionary<byte, long> LastUpdate = [];
         private static int Id => 643240;
 
-        private static PlayerControl Sprayer_ => GetPlayerById(SprayerId);
+        private static PlayerControl SprayerPC => GetPlayerById(SprayerId);
 
         public override bool IsEnable => SprayerId != byte.MaxValue;
 
@@ -118,15 +118,15 @@ namespace EHR.Neutral
 
         void PlaceTrap()
         {
-            if (!IsEnable || SprayerId.GetAbilityUseLimit() <= 0 || Sprayer_.HasAbilityCD()) return;
+            if (!IsEnable || SprayerId.GetAbilityUseLimit() <= 0 || SprayerPC.HasAbilityCD()) return;
 
-            Vector2 pos = Sprayer_.Pos();
+            Vector2 pos = SprayerPC.Pos();
             Traps[pos] = new(pos, [SprayerId]);
-            Sprayer_.RpcRemoveAbilityUse();
+            SprayerPC.RpcRemoveAbilityUse();
 
-            if (SprayerId.GetAbilityUseLimit() > 0) Sprayer_.AddAbilityCD(CD.GetInt());
+            if (SprayerId.GetAbilityUseLimit() > 0) SprayerPC.AddAbilityCD(CD.GetInt());
 
-            Sprayer_.Notify(GetString("SprayerNotify"));
+            SprayerPC.Notify(GetString("SprayerNotify"));
         }
 
         public override void OnCheckPlayerPosition(PlayerControl pc)
@@ -152,7 +152,7 @@ namespace EHR.Neutral
                     TrappedCount[playerId]++;
                     if (TrappedCount[playerId] > MaxTrappedTimes.GetInt())
                     {
-                        pc.Suicide(realKiller: Sprayer_);
+                        pc.Suicide(realKiller: SprayerPC);
                         TrappedCount.Remove(playerId);
                     }
                     else
@@ -179,7 +179,7 @@ namespace EHR.Neutral
         {
             if (SprayerId.GetAbilityUseLimit() > 0)
             {
-                Sprayer_.AddAbilityCD(Math.Max(15, CD.GetInt()));
+                SprayerPC.AddAbilityCD(Math.Max(15, CD.GetInt()));
             }
         }
     }

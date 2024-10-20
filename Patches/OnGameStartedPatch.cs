@@ -142,6 +142,8 @@ internal class ChangeRoleSettings
 
             if (Main.NormalOptions.MapId > 5) Logger.SendInGame(GetString("UnsupportedMap"));
 
+            Utils.GameStartTimeStamp = Utils.TimeStamp;
+
             try
             {
                 Main.AllRoleClasses.Do(x => x.Init());
@@ -187,7 +189,6 @@ internal class ChangeRoleSettings
             Workaholic.WorkaholicAlive = [];
             Virus.VirusNotify = [];
             Veteran.VeteranInProtect = [];
-            Witness.AllKillers = [];
             Grenadier.GrenadierBlinding = [];
             SecurityGuard.BlockSabo = [];
             Ventguard.BlockedVents = [];
@@ -203,7 +204,6 @@ internal class ChangeRoleSettings
             Revolutionist.RevolutionistLastTime = [];
             Revolutionist.RevolutionistCountdown = [];
             TimeMaster.TimeMasterBackTrack = [];
-            TimeMaster.TimeMasterNum = [];
             Farseer.FarseerTimer = [];
             Warlock.CursedPlayers = [];
             Mafia.MafiaRevenged = [];
@@ -229,9 +229,9 @@ internal class ChangeRoleSettings
 
             Main.IntroDestroyed = false;
             ShipStatusBeginPatch.RolesIsAssigned = false;
-            GameEndChecker.ShowAllRolesWhenGameEnd = false;
+            GameEndChecker.Ended = false;
 
-            RandomSpawn.CustomNetworkTransformPatch.NumOfTP = [];
+            RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned = [];
 
             AFKDetector.ShieldedPlayers.Clear();
 
@@ -255,14 +255,18 @@ internal class ChangeRoleSettings
 
             Camouflage.BlockCamouflage = false;
             Camouflage.Init();
-            var invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).Select(p => $"{p.name}").ToArray();
-            if (invalidColor.Length > 0)
+
+            if (AmongUsClient.Instance.AmHost)
             {
-                var msg = GetString("Error.InvalidColor");
-                Logger.SendInGame(msg);
-                msg += "\n" + string.Join(",", invalidColor);
-                Utils.SendMessage(msg);
-                Logger.Error(msg, "CoStartGame");
+                var invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).Select(p => $"{p.name}").ToArray();
+                if (invalidColor.Length > 0)
+                {
+                    var msg = GetString("Error.InvalidColor");
+                    Logger.SendInGame(msg);
+                    msg += "\n" + string.Join(",", invalidColor);
+                    Utils.SendMessage(msg);
+                    Logger.Error(msg, "CoStartGame");
+                }
             }
 
             RoleResult = [];
@@ -289,7 +293,7 @@ internal class ChangeRoleSettings
                 VentilationSystemDeterioratePatch.LastClosestVent[pc.PlayerId] = 0;
                 RoleResult[pc.PlayerId] = CustomRoles.NotAssigned;
                 pc.cosmetics.nameText.text = pc.name;
-                RandomSpawn.CustomNetworkTransformPatch.NumOfTP.Add(pc.PlayerId, 0);
+                RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned.Clear();
                 var outfit = pc.Data.DefaultOutfit;
                 Camouflage.PlayerSkins[pc.PlayerId] = new NetworkedPlayerInfo.PlayerOutfit().Set(outfit.PlayerName, outfit.ColorId, outfit.HatId, outfit.SkinId, outfit.VisorId, outfit.PetId, outfit.NamePlateId);
                 Main.ClientIdList.Add(pc.GetClientId());
@@ -370,7 +374,7 @@ internal static class StartGameHostPatch
     public static readonly Dictionary<CustomRoles, List<byte>> BasisChangingAddons = [];
     private static Dictionary<RoleTypes, int> RoleTypeNums = [];
 
-    private static readonly Dictionary<byte, bool> DataDisconnected = [];
+    public static readonly Dictionary<byte, bool> DataDisconnected = [];
 
     private static RoleOptionsCollectionV08 RoleOpt => Main.NormalOptions.roleOptions;
 
@@ -414,7 +418,7 @@ internal static class StartGameHostPatch
         while (true)
         {
             bool stopWaiting = true;
-            int maxTimer = GameOptionsManager.Instance.CurrentGameOptions.MapId is 5 or 4 ? 20 : 15;
+            int maxTimer = GameOptionsManager.Instance.CurrentGameOptions.MapId is 5 or 4 ? 17 : 12;
             lock (AUClient.allClients)
             {
                 // For loop is necessary, or else when a client times out, a foreach loop will throw:
@@ -450,7 +454,7 @@ internal static class StartGameHostPatch
 
     private static System.Collections.IEnumerator AssignRoles()
     {
-        if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.ShowAllRolesWhenGameEnd) yield break;
+        if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended) yield break;
 
         RpcSetRoleReplacer.Initialize();
 
@@ -507,7 +511,7 @@ internal static class StartGameHostPatch
 
                         if (kp.Value.IsCrewmate())
                         {
-                            if (!bloodlustBanned && !kp.Value.IsTasklessCrewmate()) bloodlustList.Add(player.PlayerId);
+                            if (!bloodlustBanned && !kp.Value.IsTaskBasedCrewmate()) bloodlustList.Add(player.PlayerId);
                             if (!nimbleBanned) nimbleList.Add(player.PlayerId);
                             if (kp.Value.GetRoleTypes() == RoleTypes.Crewmate)
                             {
@@ -767,6 +771,9 @@ internal static class StartGameHostPatch
                 case CustomGameMode.NaturalDisasters:
                     NaturalDisasters.OnGameStart();
                     break;
+                case CustomGameMode.RoomRush:
+                    RoomRush.OnGameStart();
+                    break;
             }
 
             HudManager.Instance.SetHudActive(true);
@@ -814,6 +821,9 @@ internal static class StartGameHostPatch
                 case CustomGameMode.NaturalDisasters:
                     GameEndChecker.SetPredicateToNaturalDisasters();
                     break;
+                case CustomGameMode.RoomRush:
+                    GameEndChecker.SetPredicateToRoomRush();
+                    break;
             }
 
             // Add players with unclassified roles to the list of players who require ResetCam.
@@ -831,10 +841,10 @@ internal static class StartGameHostPatch
 
             if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && Main.GM.Value)
             {
-                LateTask.New(() => { PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)); }, 15f, "GM Auto-TP Failsafe"); // TP to Main Hall
+                LateTask.New(() => PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)), 15f, "GM Auto-TP Failsafe"); // TP to Main Hall
             }
 
-            LateTask.New(() => { Main.HasJustStarted = false; }, 10f, "HasJustStarted to false");
+            LateTask.New(() => Main.HasJustStarted = false, 12f, "HasJustStarted to false");
         }
         catch (Exception ex)
         {
@@ -975,7 +985,7 @@ internal static class StartGameHostPatch
                 playerInfo.IsDead = data;
             }
 
-            var stream = MessageWriter.Get();
+            var stream = MessageWriter.Get(SendOption.Reliable);
             stream.StartMessage(5);
             stream.Write(AmongUsClient.Instance.GameId);
             {
