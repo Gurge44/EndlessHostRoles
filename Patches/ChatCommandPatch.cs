@@ -886,6 +886,7 @@ internal static class ChatCommands
         if (IRandom.Instance.Next(100) < Inquirer.FailChance.GetInt()) hasRole = !hasRole;
         if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
         LateTask.New(() => Utils.SendMessage(GetString(hasRole ? "Inquirer.MessageTrue" : "Inquirer.MessageFalse"), player.PlayerId), 0.2f, log: false);
+        player.RpcRemoveAbilityUse();
     }
 
     private static void ChatCommand(ChatController __instance, PlayerControl player, string text, string[] args)
