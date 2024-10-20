@@ -151,13 +151,18 @@ static class ExileControllerWrapUpPatch
                     Utils.AfterPlayerDeathTasks(player);
                 });
                 Main.AfterMeetingDeathPlayers.Clear();
-                AntiBlackout.ResetAfterMeeting();
                 Utils.AfterMeetingTasks();
                 Utils.SyncAllSettings();
                 Utils.NotifyRoles(NoCache: true);
                 Utils.CheckAndSetVentInteractions();
             }, 1.2f, "AfterMeetingDeathPlayers Task");
         }
+
+        LateTask.New(() =>
+        {
+            if (GameStates.IsEnded) return;
+            AntiBlackout.ResetAfterMeeting();
+        }, 2f, "Reset Cooldown After Meeting");
 
         GameStates.AlreadyDied |= !Utils.IsAllAlive;
         RemoveDisableDevicesPatch.UpdateDisableDevices();
