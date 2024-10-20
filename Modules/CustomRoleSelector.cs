@@ -153,6 +153,12 @@ internal static class CustomRoleSelector
             Logger.Warn("Adding Vanilla Impostor", "CustomRoleSelector");
         }
 
+        if (Roles[RoleAssignType.Crewmate].Count == 0 && optNeutralKillingNum == 0 && optNonNeutralKillingNum == 0 && !Main.SetRoles.Values.Any(x => x.IsCrewmate()))
+        {
+            Roles[RoleAssignType.Crewmate].Add(new(CustomRoles.CrewmateEHR, 100, playerCount));
+            Logger.Warn("Adding Vanilla Crewmates", "CustomRoleSelector");
+        }
+
         Logger.Info($"Number of NKs: {optNeutralKillingNum}, Number of NNKs: {optNonNeutralKillingNum}", "NeutralNum");
         Logger.Msg("=====================================================", "AllActiveRoles");
         Logger.Info(string.Join(", ", Roles[RoleAssignType.Impostor].Select(x => $"{x.Role}: {x.SpawnChance}% - {x.MaxCount}")), "ImpRoles");
