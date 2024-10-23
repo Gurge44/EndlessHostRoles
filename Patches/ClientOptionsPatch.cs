@@ -97,13 +97,20 @@ public static class OptionsMenuBehaviourStartPatch
                     Zoom.SetZoomSize(reset: true);
                     AmongUsClient.Instance.ExitGame(DisconnectReasons.ExitGame);
                     SceneChanger.ChangeScene("MainMenu");
-                    HudManager.Instance.ShowPopUp(Translator.GetString("RejoinRequiredDueToVanillaSwitch"));
+                    LateTask.New(() => HudManager.Instance.ShowPopUp(Translator.GetString("RejoinRequiredDueToVanillaSwitch")), 1.9f, log: false);
+                    LateTask.New(Unload, 2f, log: false);
                 }
+                else Unload();
 
-                MainMenuManagerPatch.ShowRightPanelImmediately();
+                return;
 
-                Harmony.UnpatchAll();
-                Main.Instance.Unload();
+                static void Unload()
+                {
+                    MainMenuManagerPatch.ShowRightPanelImmediately();
+
+                    Harmony.UnpatchAll();
+                    Main.Instance.Unload();
+                }
             }
         }
 

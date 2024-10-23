@@ -227,6 +227,8 @@ namespace EHR
                 .ToDictionary(x => x.GetType().Name, x => x);
             PlayerRoles = result.ToDictionary(x => x.Key.PlayerId, x => (roleInterfaces[x.Value.ToString()], x.Value));
 
+            LateTask.New(() => result.IntersectBy(Main.PlayerStates.Keys, x => x.Key.PlayerId).Do(x => x.Key.RpcSetCustomRole(x.Value)), 5f, log: false);
+
             // ==================================================================================================================
 
             if (result.ContainsValue(CustomRoles.Agent))

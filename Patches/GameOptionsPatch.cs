@@ -11,14 +11,14 @@ static class SwitchGameModePatch
 
     public static bool Prefix(GameModes gameMode)
     {
-        if (!AmongUsClient.Instance.AmHost || gameMode != GameModes.HideNSeek || Warned) return true;
+        if ((!AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer != null) || gameMode != GameModes.HideNSeek || Warned) return true;
         HudManager.Instance.ShowPopUp(Translator.GetString("HnSUnloadWarning"));
         return false;
     }
 
     public static void Postfix(GameModes gameMode)
     {
-        if (!AmongUsClient.Instance.AmHost || gameMode != GameModes.HideNSeek) return;
+        if ((!AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer != null) || gameMode != GameModes.HideNSeek) return;
 
         if (!Warned)
         {

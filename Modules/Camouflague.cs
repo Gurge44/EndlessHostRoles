@@ -77,7 +77,7 @@ public static class Camouflage
 
     public static bool CheckCamouflage()
     {
-        if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On)) return;
+        if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On)) return false;
 
         var oldIsCamouflage = IsCamouflage;
 

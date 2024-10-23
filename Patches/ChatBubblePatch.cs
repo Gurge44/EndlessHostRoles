@@ -29,10 +29,10 @@ static class ChatBubbleSetNamePatch
 
         if (Main.DarkTheme.Value)
         {
-            __instance.Background.color = Color.black;
+            __instance.Background.color = new(0.1f, 0.1f, 0.1f, 1f);
             __instance.TextArea.color = Color.white;
             if (!__instance.playerInfo.Object.IsAlive() && GameStates.InGame)
-                __instance.Background.color = new(0f, 0f, 0f, 0.7f);
+                __instance.Background.color = new(0.1f, 0.1f, 0.1f, 0.7f);
         }
     }
 }

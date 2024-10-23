@@ -56,6 +56,7 @@ public static class GameStartManagerPatch
                     __instance.GameStartTextParent.GetComponent<SpriteRenderer>().sprite = null;
                     __instance.StartButton.ChangeButtonText(DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.StartLabel));
                     __instance.GameStartText.transform.localPosition = new(__instance.GameStartText.transform.localPosition.x, 2f, __instance.GameStartText.transform.localPosition.z);
+                    __instance.StartButton.activeTextColor = __instance.StartButton.inactiveTextColor = Color.white;
                 }
 
                 if (AmongUsClient.Instance == null || AmongUsClient.Instance.IsGameStarted || GameStates.IsInGame || __instance.startState == GameStartManager.StartingStates.Starting) return;
@@ -252,8 +253,7 @@ public static class GameStartManagerPatch
 
                     instance.StartButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new(0.8f, 0f, 0f, 1f);
                     instance.StartButton.activeSprites.GetComponent<SpriteRenderer>().color = Color.red;
-                    var inactiveShine = instance.StartButton.inactiveSprites.transform.Find("Shine");
-                    if (inactiveShine) inactiveShine.gameObject.SetActive(false);
+                    instance.StartButton.inactiveSprites.transform.Find("Shine").GetComponent<SpriteRenderer>().color = new(0.8f, 0.4f, 0.4f, 1f);
                     instance.StartButton.activeTextColor = instance.StartButton.inactiveTextColor = Color.white;
                     int num = Mathf.CeilToInt(instance.countDownTimer);
                     instance.countDownTimer -= Time.deltaTime;
@@ -267,10 +267,9 @@ public static class GameStartManagerPatch
                 else
                 {
                     instance.StartButton.ChangeButtonText(DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.StartLabel));
-                    instance.StartButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new(0.2f, 0.2f, 0.2f, 1f);
-                    instance.StartButton.activeSprites.GetComponent<SpriteRenderer>().color = new(0.4f, 0.4f, 0.4f, 1f);
-                    var inactiveShine = instance.StartButton.inactiveSprites.transform.Find("Shine");
-                    if (!inactiveShine) inactiveShine.gameObject.SetActive(true);
+                    instance.StartButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new(0.1f, 0.1f, 0.1f, 1f);
+                    instance.StartButton.activeSprites.GetComponent<SpriteRenderer>().color = new(0.2f, 0.2f, 0.2f, 1f);
+                    instance.StartButton.inactiveSprites.transform.Find("Shine").GetComponent<SpriteRenderer>().color = new(0.3f, 0.3f, 0.3f, 0.5f);
                     instance.StartButton.activeTextColor = instance.StartButton.inactiveTextColor = Color.white;
                     instance.GameStartTextParent.SetActive(false);
                     instance.GameStartText.text = string.Empty;
