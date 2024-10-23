@@ -52,6 +52,7 @@ namespace EHR.Neutral
             }
 
             LateTask.New(() => target.Suicide(PlayerState.DeathReason.Kill, killer), 0.2f, log: false);
+            killer.SetKillCooldown();
             return false;
         }
     }

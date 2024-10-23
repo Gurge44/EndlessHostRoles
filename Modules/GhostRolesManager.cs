@@ -66,7 +66,7 @@ namespace EHR.Modules
             var text = $"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{info.Message}</size>";
             var notifyText = $"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{info.Split}</size>";
             Utils.SendMessage(title: text, sendTo: pc.PlayerId, text: "\n");
-            pc.Notify(notifyText, 5 * text.Count(x => x == '\n'));
+            pc.Notify(notifyText, 5 + (5 * text.Count(x => x == '\n')));
             return;
 
             (string Split, string Message) GetMessage(string baseMessage)

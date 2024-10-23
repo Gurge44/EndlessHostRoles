@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -614,8 +615,8 @@ public static class Utils
                     case Vector3 v:
                         w.Write(v);
                         break;
-                    case PlayerControl pc:
-                        w.WriteNetObject(pc);
+                    case InnerNetObject ino:
+                        w.WriteNetObject(ino);
                         break;
                     default:
                         try
@@ -953,7 +954,7 @@ public static class Utils
             case CustomRoles.Workaholic when Workaholic.WorkaholicVisibleToEveryone.GetBool():
             case CustomRoles.Doctor when !__instance.HasEvilAddon() && Options.DoctorVisibleToEveryone.GetBool():
             case CustomRoles.Mayor when Mayor.MayorRevealWhenDoneTasks.GetBool() && __instance.GetTaskState().IsTaskFinished:
-            case CustomRoles.Marshall when PlayerControl.LocalPlayer.Is(CustomRoleTypes.Crewmate) && __instance.GetTaskState().IsTaskFinished:
+            case CustomRoles.Marshall when Marshall.CanSeeMarshall(PlayerControl.LocalPlayer) && __instance.GetTaskState().IsTaskFinished:
                 return true;
         }
 
@@ -1456,8 +1457,9 @@ public static class Utils
                 {
                     try
                     {
-                        if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
-                        sb.Append("\n\u3000 ").Append(EndGamePatch.SummaryText[id]);
+                        if (!EndGamePatch.SummaryText.TryGetValue(id, out var summaryText)) continue;
+                        if (summaryText.Contains("<INVALID:NotAssigned>")) continue;
+                        sb.Append("\n\u3000 ").Append(summaryText);
                     }
                     catch (Exception ex)
                     {
@@ -1904,6 +1906,20 @@ public static class Utils
 
     public static NetworkedPlayerInfo GetPlayerInfoById(int PlayerId) => GameData.Instance.AllPlayers.ToArray().FirstOrDefault(info => info.PlayerId == PlayerId);
 
+    public static IEnumerator NotifyEveryoneAsync()
+    {
+        int count = 0;
+        PlayerControl[] aapc = Main.AllAlivePlayerControls;
+        foreach (var seer in aapc)
+        {
+            foreach (var target in aapc)
+            {
+                NotifyRoles(SpecifySeer: seer, SpecifyTarget: target);
+                if (count++ % 2 == 0) yield return null;
+            }
+        }
+    }
+
     public static void NotifyRoles(bool isForMeeting = false, PlayerControl SpecifySeer = null, PlayerControl SpecifyTarget = null, bool NoCache = false, bool ForceLoop = false, bool CamouflageIsForMeeting = false, bool GuesserIsForMeeting = false, bool MushroomMixup = false)
     {
         if (!SetUpRoleTextPatch.IsInIntro && ((SpecifySeer != null && SpecifySeer.IsModClient() && (Options.CurrentGameMode == CustomGameMode.Standard || SpecifySeer.IsHost())) || !AmongUsClient.Instance.AmHost || Main.AllPlayerControls == null || (GameStates.IsMeeting && !isForMeeting))) return;
@@ -2275,7 +2291,7 @@ public static class Utils
                                 (target.Is(CustomRoles.Workaholic) && Workaholic.WorkaholicVisibleToEveryone.GetBool()) ||
                                 (target.Is(CustomRoles.Doctor) && !target.HasEvilAddon() && Options.DoctorVisibleToEveryone.GetBool()) ||
                                 (target.Is(CustomRoles.Mayor) && Mayor.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished) ||
-                                (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished) ||
+                                (Marshall.CanSeeMarshall(seer) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished) ||
                                 (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
                                 CustomTeamManager.AreInSameCustomTeam(seer.PlayerId, target.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(seer.PlayerId, CTAOption.KnowRoles) ||
                                 Main.PlayerStates.Values.Any(x => x.Role.KnowRole(seer, target)) ||
@@ -2346,7 +2362,7 @@ public static class Utils
 
                             if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Snitch) && target.Is(CustomRoles.Madmate) && target.GetTaskState().IsTaskFinished)
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Impostor), "★"));
-                            if (seer.Is(CustomRoleTypes.Crewmate) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished)
+                            if (Marshall.CanSeeMarshall(seer) && target.Is(CustomRoles.Marshall) && target.GetTaskState().IsTaskFinished)
                                 TargetMark.Append(ColorString(GetRoleColor(CustomRoles.Marshall), "★"));
 
                             TargetMark.Append(Executioner.TargetMark(seer, target));
@@ -2380,7 +2396,7 @@ public static class Utils
 
                                 Main.PlayerStates.Values.Do(x => TargetSuffix.Append(x.Role.GetSuffix(seer, target, meeting: isForMeeting)));
 
-                                if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.SoloKombat or CustomGameMode.FFA)
+                                if (MeetingStates.FirstMeeting && Main.ShieldPlayer == target.FriendCode && !string.IsNullOrEmpty(target.FriendCode) && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.FFA or CustomGameMode.Speedrun)
                                     TargetSuffix.Append(GetString("DiedR1Warning"));
 
                                 TargetSuffix.Append(AFKDetector.GetSuffix(seer, target));
@@ -2603,6 +2619,7 @@ public static class Utils
             CustomRoles.Tiger => Tiger.EnrageCooldown.GetInt() + (includeDuration ? Tiger.EnrageDuration.GetInt() : 0),
             CustomRoles.Nonplus => Nonplus.BlindCooldown.GetInt() + (includeDuration ? Nonplus.BlindDuration.GetInt() : 0),
             CustomRoles.Cherokious => Cherokious.KillCooldown.GetInt(),
+            CustomRoles.Shifter => Shifter.KillCooldown.GetInt(),
             _ => -1
         };
         if (CD == -1) return;

@@ -800,7 +800,7 @@ static class MeetingHudStartPatch
                 (target.Is(CustomRoles.Workaholic) && Workaholic.WorkaholicVisibleToEveryone.GetBool()) ||
                 (target.Is(CustomRoles.Doctor) && !target.HasEvilAddon() && Options.DoctorVisibleToEveryone.GetBool()) ||
                 (target.Is(CustomRoles.Mayor) && Mayor.MayorRevealWhenDoneTasks.GetBool() && target.GetTaskState().IsTaskFinished) ||
-                (target.Is(CustomRoles.Marshall) && seer.Is(CustomRoleTypes.Crewmate) && target.GetTaskState().IsTaskFinished) ||
+                (target.Is(CustomRoles.Marshall) && Marshall.CanSeeMarshall(seer) && target.GetTaskState().IsTaskFinished) ||
                 (Main.PlayerStates[target.PlayerId].deathReason == PlayerState.DeathReason.Vote && Options.SeeEjectedRolesInMeeting.GetBool()) ||
                 CustomTeamManager.AreInSameCustomTeam(target.PlayerId, seer.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(target.PlayerId, CTAOption.KnowRoles) ||
                 Main.PlayerStates.Values.Any(x => x.Role.KnowRole(seer, target)) ||

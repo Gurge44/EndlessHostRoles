@@ -599,21 +599,8 @@ internal static class StartGameHostPatch
 
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                //pc.Data.IsDead = false;
                 if (Main.PlayerStates[pc.PlayerId].MainRole != CustomRoles.NotAssigned) continue;
-                var role = pc.Data.Role.Role switch
-                {
-                    RoleTypes.Crewmate => CustomRoles.Crewmate,
-                    RoleTypes.Impostor => CustomRoles.Impostor,
-                    RoleTypes.Scientist => CustomRoles.Scientist,
-                    RoleTypes.Engineer => CustomRoles.Engineer,
-                    RoleTypes.GuardianAngel => CustomRoles.GuardianAngel,
-                    RoleTypes.Shapeshifter => CustomRoles.Shapeshifter,
-                    RoleTypes.Noisemaker => CustomRoles.Noisemaker,
-                    RoleTypes.Phantom => CustomRoles.Phantom,
-                    RoleTypes.Tracker => CustomRoles.Tracker,
-                    _ => CustomRoles.NotAssigned
-                };
+                var role = Enum.TryParse($"{pc.Data.Role.Role}EHR", out CustomRoles parsedRole) ? parsedRole : CustomRoles.NotAssigned;
                 if (role == CustomRoles.NotAssigned) Logger.SendInGame(string.Format(GetString("Error.InvalidRoleAssignment"), pc?.Data?.PlayerName));
                 Main.PlayerStates[pc.PlayerId].SetMainRole(role);
             }

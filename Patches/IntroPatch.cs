@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Linq;
 using System.Text;
 using AmongUs.GameOptions;
@@ -214,6 +213,7 @@ static class CoBeginPatch
         {
             Utils.LongRoleDescriptions.Clear();
 
+            int charsInOneLine = GetUserTrueLang() is SupportedLangs.Russian or SupportedLangs.SChinese or SupportedLangs.TChinese or SupportedLangs.Japanese or SupportedLangs.Korean ? 35 : 50;
             foreach (var seer in Main.AllPlayerControls)
             {
                 var longInfo = seer.GetRoleInfo(InfoLong: true).Split("\n\n")[0];
@@ -229,7 +229,7 @@ static class CoBeginPatch
                         tooLong = true;
                     }
 
-                    for (int i = 50; i < longInfo.Length; i += 50)
+                    for (int i = charsInOneLine; i < longInfo.Length; i += charsInOneLine)
                     {
                         if (tooLong && i > 296) break;
                         int index = longInfo.LastIndexOf(' ', i);
@@ -937,7 +937,7 @@ static class IntroCutsceneDestroyPatch
                 LateTask.New(() => aapc.Do(AFKDetector.RecordPosition), 1f, log: false);
             }
 
-            LateTask.New(() => Main.Instance.StartCoroutine(NotifyEveryone()), 3f, log: false);
+            LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 3f, log: false);
         }
         else
         {
@@ -948,18 +948,5 @@ static class IntroCutsceneDestroyPatch
         }
 
         Logger.Info("OnDestroy", "IntroCutscene");
-
-        IEnumerator NotifyEveryone()
-        {
-            int count = 0;
-            foreach (var seer in aapc)
-            {
-                foreach (var target in aapc)
-                {
-                    Utils.NotifyRoles(SpecifySeer: seer, SpecifyTarget: target);
-                    if (count++ % 2 == 0) yield return null;
-                }
-            }
-        }
     }
 }

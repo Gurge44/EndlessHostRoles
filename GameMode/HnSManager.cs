@@ -91,6 +91,8 @@ namespace EHR
                     .Join(PlayerRoles, x => x.PlayerId, x => x.Key, (pc, role) => (pc, role.Value.Interface))
                     .Where(x => x.Interface.Team == Team.Impostor)
                     .Do(x => x.pc.MarkDirtySettings());
+
+                LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 3f, log: false);
             }, Seeker.BlindTime.GetFloat() + 8f, "Blind Time Expire");
         }
 
@@ -225,8 +227,6 @@ namespace EHR
                 .ToDictionary(x => x.GetType().Name, x => x);
             PlayerRoles = result.ToDictionary(x => x.Key.PlayerId, x => (roleInterfaces[x.Value.ToString()], x.Value));
 
-            result.IntersectBy(Main.PlayerStates.Keys, x => x.Key.PlayerId).Do(x => x.Key.RpcSetCustomRole(x.Value));
-
             // ==================================================================================================================
 
             if (result.ContainsValue(CustomRoles.Agent))
@@ -248,10 +248,10 @@ namespace EHR
 
         public static bool KnowTargetRoleColor(PlayerControl seer, PlayerControl target, ref string color)
         {
-            if (seer.PlayerId == target.PlayerId || PlayersSeeRoles.GetBool()) return true;
+            if (seer.PlayerId == target.PlayerId) return true;
 
-            var targetRole = PlayerRoles[target.PlayerId];
-            var seerRole = PlayerRoles[seer.PlayerId];
+            if (!PlayerRoles.TryGetValue(target.PlayerId, out var targetRole)) return false;
+            if (!PlayerRoles.TryGetValue(seer.PlayerId, out var seerRole)) return false;
 
             if (PlayersSeeRoles.GetBool())
             {
@@ -279,8 +279,8 @@ namespace EHR
         public static bool IsRoleTextEnabled(PlayerControl seer, PlayerControl target)
         {
             if (seer.PlayerId == target.PlayerId || PlayersSeeRoles.GetBool()) return true;
-            var targetRole = PlayerRoles[target.PlayerId];
-            var seerRole = PlayerRoles[seer.PlayerId];
+            if (!PlayerRoles.TryGetValue(target.PlayerId, out var targetRole)) return false;
+            if (!PlayerRoles.TryGetValue(seer.PlayerId, out var seerRole)) return false;
             return targetRole.Interface.Team == Team.Impostor && (targetRole.Role != CustomRoles.Agent || seerRole.Interface.Team == Team.Impostor);
         }
 
@@ -291,9 +291,9 @@ namespace EHR
 
             string dangerMeter = GetDangerMeter(seer);
 
-            if (PlayerRoles[seer.PlayerId].Interface.Team == Team.Impostor && PlayerRoles.Values.Any(x => x.Role == CustomRoles.Agent))
+            if (PlayerRoles.TryGetValue(seer.PlayerId, out var seerRole) && seerRole.Interface.Team == Team.Impostor && PlayerRoles.FindFirst(x => x.Value.Role == CustomRoles.Agent, out var kvp))
             {
-                var agent = PlayerRoles.First(x => x.Value.Role == CustomRoles.Agent).Key;
+                var agent = kvp.Key;
                 dangerMeter += TargetArrow.GetArrows(seer, agent);
             }
 

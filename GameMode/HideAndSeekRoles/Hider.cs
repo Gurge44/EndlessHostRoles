@@ -61,9 +61,9 @@ namespace EHR.GameMode.HideAndSeekRoles
         public static void OnSpecificTaskComplete(PlayerControl pc, PlayerTask task)
         {
             int time = 0;
-            if (ShipStatus.Instance.ShortTasks.Any(x => x.Id == task.Id)) time = TimeDecreaseOnShortTaskComplete.GetInt();
-            else if (ShipStatus.Instance.CommonTasks.Any(x => x.Id == task.Id)) time = TimeDecreaseOnCommonTaskComplete.GetInt();
-            else if (ShipStatus.Instance.LongTasks.Any(x => x.Id == task.Id)) time = TimeDecreaseOnLongTaskComplete.GetInt();
+            if (ShipStatus.Instance.ShortTasks.Any(x => x.TaskType == task.TaskType)) time = TimeDecreaseOnShortTaskComplete.GetInt();
+            else if (ShipStatus.Instance.CommonTasks.Any(x => x.TaskType == task.TaskType)) time = TimeDecreaseOnCommonTaskComplete.GetInt();
+            else if (ShipStatus.Instance.LongTasks.Any(x => x.TaskType == task.TaskType)) time = TimeDecreaseOnLongTaskComplete.GetInt();
 
             HnSManager.TimeLeft -= time;
             pc.Notify(string.Format(Translator.GetString("TimeDecreased"), time));

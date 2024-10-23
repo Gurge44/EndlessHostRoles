@@ -1178,10 +1178,10 @@ static class FixedUpdatePatch
     {
         if (__instance == null || __instance.PlayerId == 255) return;
 
-        if (__instance.PlayerId == PlayerControl.LocalPlayer.PlayerId && CustomNetObject.AllObjects.Count > 0)
+        if (AmongUsClient.Instance.AmHost && __instance.AmOwner)
             CustomNetObject.FixedUpdate();
 
-        if (__instance.IsAlive())
+        if (AmongUsClient.Instance.AmHost && __instance.IsAlive())
             VentilationSystemDeterioratePatch.CheckVentInteraction(__instance);
 
         byte id = __instance.PlayerId;
@@ -1225,7 +1225,7 @@ static class FixedUpdatePatch
             }
         }
 
-        if (Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && !__instance.GetCustomRole().NeedsUpdateAfterDeath() && Options.CurrentGameMode != CustomGameMode.RoomRush)
+        if (GameStates.InGame && Options.DontUpdateDeadPlayers.GetBool() && !__instance.IsAlive() && !__instance.GetCustomRole().NeedsUpdateAfterDeath() && Options.CurrentGameMode != CustomGameMode.RoomRush)
         {
             var buffer = Options.DeepLowLoad.GetBool() ? 30 : 10;
             DeadBufferTime.TryAdd(id, buffer);
@@ -1258,7 +1258,7 @@ static class FixedUpdatePatch
         }
     }
 
-    public static void DoPostfix(PlayerControl __instance)
+    private static void DoPostfix(PlayerControl __instance)
     {
         var player = __instance;
         var playerId = player.PlayerId;
@@ -1893,7 +1893,7 @@ static class EnterVentPatch
     {
         Logger.Info($" {pc.GetNameWithRole()}, Vent ID: {__instance.Id} ({__instance.name})", "EnterVent");
 
-        if (!pc.CanUseVent() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !pc.Is(CustomRoles.Nimble) && !pc.Is(CustomRoles.Bloodlust))
+        if (AmongUsClient.Instance.AmHost && !pc.CanUseVent() && Options.CurrentGameMode is CustomGameMode.Standard or CustomGameMode.HideAndSeek && !pc.Is(CustomRoles.Nimble) && !pc.Is(CustomRoles.Bloodlust))
         {
             pc.MyPhysics?.RpcBootFromVent(__instance.Id);
             return;
@@ -1906,7 +1906,7 @@ static class EnterVentPatch
         switch (pc.GetCustomRole())
         {
             case CustomRoles.Mayor when !Options.UsePets.GetBool() && Mayor.MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count2) && count2 < Mayor.MayorNumOfUseButton.GetInt():
-                pc.MyPhysics?.RpcBootFromVent(__instance.Id);
+                if (AmongUsClient.Instance.AmHost) pc.MyPhysics?.RpcBootFromVent(__instance.Id);
                 pc.ReportDeadBody(null);
                 break;
         }

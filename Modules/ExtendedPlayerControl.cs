@@ -237,13 +237,19 @@ static class ExtendedPlayerControl
 
     public static void RpcSetNameEx(this PlayerControl player, string name)
     {
+        if (player == null)
+        {
+            Logger.Warn("The player is null", "RpcSetNameEx");
+            return;
+        }
+
         foreach (PlayerControl seer in Main.AllPlayerControls)
         {
             Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
         }
 
-        Logger.Info($"Set: {player?.Data?.PlayerName} => {name} for Everyone", "RpcSetNameEx");
-        player?.RpcSetName(name);
+        if (player.Data != null) Logger.Info($"Set: {player.Data.PlayerName} => {name} for Everyone", "RpcSetNameEx");
+        player.RpcSetName(name);
     }
 
     public static void RpcSetNamePrivate(this PlayerControl player, string name, PlayerControl seer = null, bool force = false)

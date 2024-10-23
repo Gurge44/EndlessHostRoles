@@ -796,11 +796,13 @@ internal static class CustomRolesHelper
         CustomRoles.LastImpostor;
 
     public static bool ForceCancelShapeshift(this CustomRoles role) => role is
+        CustomRoles.Swapster or
         CustomRoles.Echo or
         CustomRoles.Hangman or
         CustomRoles.Generator;
 
     public static bool IsNoAnimationShifter(this CustomRoles role) => role is
+        CustomRoles.Generator or
         CustomRoles.Echo;
 
     public static bool AlwaysUsesUnshift(this CustomRoles role) => role is

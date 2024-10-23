@@ -92,7 +92,14 @@ namespace EHR
             }
             catch (Exception e)
             {
-                if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters) return;
+                if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters)
+                {
+                    if (HiddenList.Contains(PlayerControl.LocalPlayer.PlayerId)) return;
+                    Logger.Warn("Error during despawn, hiding instead", "CNO.Despawn");
+                    Main.AllPlayerControls.Do(Hide);
+                    return;
+                }
+
                 Utils.ThrowException(e);
             }
         }
@@ -289,7 +296,7 @@ namespace EHR
 
         protected void CreateNetObject(string sprite, Vector2 position)
         {
-            Logger.Info($" Create Custom Net Object {this.GetType().Name} (ID {Id}) at {position}", "CNO.CreateNetObject");
+            Logger.Info($" Create Custom Net Object {this.GetType().Name} (ID {MaxId + 1}) at {position}", "CNO.CreateNetObject");
             playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
             playerControl.PlayerId = 255;
             playerControl.isNew = false;
@@ -407,7 +414,14 @@ namespace EHR
             LateTask.New(() => Utils.SendRPC(CustomRPC.FixModdedClientCNO, playerControl), 0.4f); // Fix for Non-Host Modded
         }
 
-        public static void FixedUpdate() => AllObjects.ToArray().Do(x => x.OnFixedUpdate());
+        public static void FixedUpdate()
+        {
+            foreach (var cno in AllObjects.ToArray())
+            {
+                cno?.OnFixedUpdate();
+            }
+        }
+
         public static CustomNetObject Get(int id) => AllObjects.FirstOrDefault(x => x.Id == id);
 
         public static void Reset()
@@ -679,19 +693,14 @@ namespace EHR
         public float SpawnTimer { get; private set; }
         private DisasterWarningTimer WarningTimer { get; }
 
-        private void RemoveWarningAndSpawn()
-        {
-            WarningTimer.Despawn();
-            CreateNetObject(Sprite, WarningTimer.Position);
-        }
-
         public void Update()
         {
             if (float.IsNaN(SpawnTimer)) return;
             SpawnTimer -= Time.fixedDeltaTime;
             if (SpawnTimer <= 0f)
             {
-                RemoveWarningAndSpawn();
+                WarningTimer.Despawn();
+                CreateNetObject(Sprite, WarningTimer.Position);
                 SpawnTimer = float.NaN;
             }
         }

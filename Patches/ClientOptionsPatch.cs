@@ -92,7 +92,16 @@ public static class OptionsMenuBehaviourStartPatch
 
             static void SwitchVanillaButtonToggle()
             {
-                if (PlayerControl.LocalPlayer == null) MainMenuManagerPatch.ShowRightPanelImmediately();
+                if (PlayerControl.LocalPlayer != null)
+                {
+                    Zoom.SetZoomSize(reset: true);
+                    AmongUsClient.Instance.ExitGame(DisconnectReasons.ExitGame);
+                    SceneChanger.ChangeScene("MainMenu");
+                    HudManager.Instance.ShowPopUp(Translator.GetString("RejoinRequiredDueToVanillaSwitch"));
+                }
+
+                MainMenuManagerPatch.ShowRightPanelImmediately();
+
                 Harmony.UnpatchAll();
                 Main.Instance.Unload();
             }

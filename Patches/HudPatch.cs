@@ -232,6 +232,8 @@ static class HudManagerPatch
                             break;
                     }
 
+                    if (role.PetActivatedAbility()) __instance.AbilityButton?.Hide();
+
                     if (LowerInfoText == null)
                     {
                         LowerInfoText = Object.Instantiate(__instance.KillButton.cooldownTimerText, __instance.transform, true);

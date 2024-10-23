@@ -1119,6 +1119,8 @@
   "ConfirmEgoistOnEject": "Confirm <color=#5600ff>Egoists</color> on ejection",
   "ConfirmLoversOnEject": "Confirm <color=#ff9ace>Lovers</color> on ejection",
   "ShowTeamNextToRoleNameOnEject": "Show what team the ejected player's role is on",
+  "HnSUnloadWarning": "<#ffff00><b>WARNING:</b></color>\\nEHR doesn't support vanilla Hide And Seek and will unload if you enable it.\\nYou can use EHR's Custom Hide And Seek game mode with unique roles instead.",
+  "RejoinRequiredDueToVanillaSwitch": "You've decided to switch to vanilla mode, so it was required to disconnect you from the current game, or it would've caused issues. Please rejoin the game.",
   "Addon": "Add-on",
   "Ban": "Ban",
   "Kick": "Kick",
