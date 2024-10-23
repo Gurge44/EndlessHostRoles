@@ -1119,6 +1119,8 @@
   "ConfirmEgoistOnEject": "确认<color=#5600ff>利己主义者们</color>的数量",
   "ConfirmLoversOnEject": "确认<color=#ff9ace>恋人们</color>数量",
   "ShowTeamNextToRoleNameOnEject": "显示被驱逐的玩家的阵营",
+  "HnSUnloadWarning": "<#ffff00><b>WARNING:</b></color>\\nEHR doesn't support vanilla Hide And Seek and will unload if you enable it.\\nYou can use EHR's Custom Hide And Seek game mode with unique roles instead.",
+  "RejoinRequiredDueToVanillaSwitch": "You've decided to switch to vanilla mode, so it was required to disconnect you from the current game, or it would've caused issues. Please rejoin the game.",
   "Addon": "附加职业",
   "Ban": "封禁",
   "Kick": "踢出",
