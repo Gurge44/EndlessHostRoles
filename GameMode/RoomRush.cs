@@ -288,7 +288,7 @@ namespace EHR
             {
                 Main.AllPlayerSpeed[PlayerControl.LocalPlayer.PlayerId] = speed;
                 PlayerControl.LocalPlayer.SyncSettings();
-            }, (AmongUsClient.Instance.Ping / 1000f) * 2f);
+            }, (AmongUsClient.Instance.Ping / 1000f) * 4f);
         }
 
         private static PlainShipRoom GetRoomClass(this SystemTypes systemTypes) => ShipStatus.Instance.AllRooms.First(x => x.RoomId == systemTypes);

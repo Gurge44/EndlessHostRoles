@@ -58,6 +58,7 @@ public class PlayerState(byte playerId)
         Negotiation,
         Trapped,
         Stung,
+        Scavenged,
 
         // Natural Disasters
         Meteor,
@@ -325,7 +326,7 @@ public class TaskState
 
     public void Init(PlayerControl player)
     {
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags().RemoveHtmlTags()}: InitTask", "TaskState.Init");
+        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: InitTask", "TaskState.Init");
         if (player == null || player.Data?.Tasks == null) return;
         if (!Utils.HasTasks(player.Data, false))
         {
@@ -335,7 +336,7 @@ public class TaskState
 
         HasTasks = true;
         AllTasksCount = player.Data.Tasks.Count;
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Init");
+        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Init");
     }
 
     public void Update(PlayerControl player)

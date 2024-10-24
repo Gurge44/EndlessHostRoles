@@ -57,6 +57,16 @@ public static class GameStartManagerPatch
                     __instance.StartButton.ChangeButtonText(DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.StartLabel));
                     __instance.GameStartText.transform.localPosition = new(__instance.GameStartText.transform.localPosition.x, 2f, __instance.GameStartText.transform.localPosition.z);
                     __instance.StartButton.activeTextColor = __instance.StartButton.inactiveTextColor = Color.white;
+
+                    __instance.EditButton.activeTextColor = __instance.EditButton.inactiveTextColor = Color.black;
+                    __instance.EditButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new(0f, 0.647f, 1f, 1f);
+                    __instance.EditButton.activeSprites.GetComponent<SpriteRenderer>().color = new(0f, 0.847f, 1f, 1f);
+                    __instance.EditButton.inactiveSprites.transform.Find("Shine").GetComponent<SpriteRenderer>().color = new(0f, 1f, 1f, 0.5f);
+
+                    __instance.HostViewButton.activeTextColor = __instance.HostViewButton.inactiveTextColor = Color.black;
+                    __instance.HostViewButton.inactiveSprites.GetComponent<SpriteRenderer>().color = new(0f, 0.647f, 1f, 1f);
+                    __instance.HostViewButton.activeSprites.GetComponent<SpriteRenderer>().color = new(0f, 0.847f, 1f, 1f);
+                    __instance.HostViewButton.inactiveSprites.transform.Find("Shine").GetComponent<SpriteRenderer>().color = new(0f, 1f, 1f, 0.5f);
                 }
 
                 if (AmongUsClient.Instance == null || AmongUsClient.Instance.IsGameStarted || GameStates.IsInGame || __instance.startState == GameStartManager.StartingStates.Starting) return;
@@ -330,10 +340,7 @@ public static class GameStartManagerPatch
                 int minutes = (int)Timer / 60;
                 int seconds = (int)Timer % 60;
                 string suffix = $"{minutes:00}:{seconds:00}";
-                if (Timer <= 60) suffix = Utils.ColorString(Color.red, suffix);
-
-                if (Mathf.Approximately(Timer, 60f) && AmongUsClient.Instance.AmHost)
-                    PlayerControl.LocalPlayer.ShowPopUp(GetString("Warning.OneMinuteLeft"));
+                if (Timer <= 60) suffix = Utils.ColorString((int)Timer % 2 == 0 ? Color.yellow : Color.red, suffix);
 
                 TextMeshPro tmp = GameStartManagerStartPatch.GameCountdown;
 
@@ -343,6 +350,7 @@ public static class GameStartManagerPatch
                     tmp.fontSize = tmp.fontSizeMin = tmp.fontSizeMax = 3f;
                     tmp.autoSizeTextContainer = true;
                     tmp.alignment = TextAlignmentOptions.Center;
+                    tmp.color = Color.cyan;
                     tmp.outlineColor = Color.black;
                     tmp.outlineWidth = 0.4f;
                     tmp.transform.localPosition += new Vector3(-0.8f, -0.42f, 0f);
@@ -424,9 +432,8 @@ public class GameStartRandomMap
         return false;
     }
 
-    public static bool Prefix( /*GameStartRandomMap __instance*/)
+    public static void Prefix( /*GameStartRandomMap __instance*/)
     {
-        bool continueStart = true;
         if (Options.RandomMapsMode.GetBool())
         {
             Main.NormalOptions.MapId = SelectRandomMap();
@@ -436,8 +443,6 @@ public class GameStartRandomMap
         {
             Main.NormalOptions.MapId = 3;
         }
-
-        return continueStart;
     }
 
     public static byte SelectRandomMap()

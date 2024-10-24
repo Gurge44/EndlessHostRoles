@@ -5,6 +5,7 @@ using System.Reflection;
 using AmongUs.GameOptions;
 using EHR.GameMode.HideAndSeekRoles;
 using HarmonyLib;
+using Il2CppSystem.Text;
 using UnityEngine;
 
 namespace EHR
@@ -289,7 +290,7 @@ namespace EHR
         public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool hud = false)
         {
             if (GameStates.IsLobby || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted) return string.Empty;
-            if (seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud)) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud) || TimeLeft < 0) return string.Empty;
 
             string dangerMeter = GetDangerMeter(seer);
 
@@ -304,10 +305,9 @@ namespace EHR
                 return $"{dangerMeter}\n<color={Main.RoleColors[CustomRoles.Hider]}>{Translator.GetString("TimeLeft")}:</color> {TimeLeft}s";
             }
 
-            var remainingMinutes = TimeLeft / 60;
-            var remainingSeconds = $"{(TimeLeft % 60) + 1}";
-            if (remainingSeconds.Length == 1) remainingSeconds = $"0{remainingSeconds}";
-            return dangerMeter + "\n" + (hud ? $"{remainingMinutes}:{remainingSeconds}" : $"{string.Format(Translator.GetString("MinutesLeft"), $"{remainingMinutes}-{remainingMinutes + 1}")}");
+            int minutes = TimeLeft / 60;
+            int seconds = TimeLeft % 60;
+            return dangerMeter + "\n" + (hud ? $"{minutes:00}:{seconds:00}" : $"{string.Format(Translator.GetString("MinutesLeft"), $"{minutes}-{minutes + 1}")}");
         }
 
         private static string GetDangerMeter(PlayerControl seer)
@@ -393,7 +393,8 @@ namespace EHR
 
         public static string GetTaskBarText()
         {
-            var text = Main.PlayerStates.IntersectBy(PlayerRoles.Keys, x => x.Key).Aggregate("<size=80%>", (current, state) => $"{current}{GetStateText(state)}\n");
+            var text = HasTasks(PlayerControl.LocalPlayer.Data) ? $"<size=65%>{GetTaskText()}</size>\r\n\r\n" : string.Empty;
+            text += Main.PlayerStates.IntersectBy(PlayerRoles.Keys, x => x.Key).Aggregate("<size=80%>", (current, state) => $"{current}{GetStateText(state)}\n");
             return $"{text}</size>\r\n\r\n<#00ffa5>{Translator.GetString("HNS.TaskCount")}</color> {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}";
 
             static string GetStateText(KeyValuePair<byte, PlayerState> state)
@@ -414,6 +415,28 @@ namespace EHR
 
                 CustomRoles GetRole() => state.Value.MainRole == CustomRoles.Agent ? CustomRoles.Hider : state.Value.MainRole;
                 string GetTaskCount() => CustomRoles.Agent.IsEnable() || !ts.HasTasks ? string.Empty : $" ({ts.CompletedTasksCount}/{ts.AllTasksCount})";
+            }
+
+            static string GetTaskText()
+            {
+                StringBuilder sb = new();
+                bool flag = PlayerControl.LocalPlayer.Data.Role != null && PlayerControl.LocalPlayer.Data.Role.IsImpostor;
+                foreach (var task in PlayerControl.LocalPlayer.myTasks)
+                {
+                    if (task != null)
+                    {
+                        if (task.TaskType == TaskTypes.FixComms && !flag)
+                        {
+                            sb.Clear();
+                            task.AppendTaskText(sb);
+                            break;
+                        }
+
+                        task.AppendTaskText(sb);
+                    }
+                }
+
+                return sb.ToString();
             }
         }
 

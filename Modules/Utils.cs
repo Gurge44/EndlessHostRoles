@@ -2748,8 +2748,11 @@ public static class Utils
 
             switch (target.GetCustomRole())
             {
+                case CustomRoles.Camouflager when Camouflager.IsActive:
+                    Camouflager.IsDead();
+                    break;
                 case CustomRoles.Terrorist when !disconnect:
-                    Logger.Info(target?.Data?.PlayerName + "Terrorist died", "MurderPlayer");
+                    Logger.Info(target?.Data?.PlayerName + " Terrorist died", "MurderPlayer");
                     CheckTerroristWin(target?.Data);
                     break;
                 case CustomRoles.Executioner:

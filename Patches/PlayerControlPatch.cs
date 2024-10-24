@@ -710,8 +710,6 @@ static class MurderPlayerPatch
         target.SetRealKiller(killer, true);
         CountAlivePlayers(true);
 
-        Camouflager.IsDead(target);
-
         if (Options.LowLoadMode.GetBool())
         {
             __instance.MarkDirtySettings();
@@ -801,7 +799,6 @@ static class ShapeshiftPatch
         forceCancel |= unshiftTrigger;
         isSSneeded &= !ctf;
 
-        if (shapeshifter.Is(CustomRoles.Camouflager) && !shapeshifting) Camouflager.Reset();
         if (Changeling.ChangedRole.TryGetValue(shapeshifter.PlayerId, out var changed) && changed && shapeshifter.GetRoleTypes() != RoleTypes.Shapeshifter)
         {
             forceCancel = true;
@@ -1422,7 +1419,7 @@ static class FixedUpdatePatch
 
             // Ability Use Gain every 5 seconds
 
-            if (inTask && alive && Main.PlayerStates.TryGetValue(playerId, out var state) && state.TaskState.IsTaskFinished && LastAddAbilityTime + 5 < now)
+            if (inTask && alive && Main.PlayerStates.TryGetValue(playerId, out var state) && state.TaskState.RemainingTasksCount <= 0 && LastAddAbilityTime + 5 < now)
             {
                 LastAddAbilityTime = now;
 

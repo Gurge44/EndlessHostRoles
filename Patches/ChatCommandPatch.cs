@@ -2091,6 +2091,7 @@ internal static class ChatCommands
                     LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max(AmongUsClient.Instance.Ping / 1000f * 2f, Main.MessageWait.Value + 0.5f), log: false);
                 }, 0.2f, log: false);
             }
+            else LateTask.New(() => Utils.SendMessage(GetString("LoversChatCannotTalkMsg"), player.PlayerId, GetString("LoversChatCannotTalkTitle")), 0.5f, log: false);
         }
 
         if (isCommand) LastSentCommand[player.PlayerId] = now;
@@ -2185,7 +2186,7 @@ internal class UpdateCharCountPatch
         __instance.charCountText.enableWordWrapping = false;
         if (length < (AmongUsClient.Instance.AmHost ? 1700 : 250))
             __instance.charCountText.color = Color.black;
-        else if (length < (AmongUsClient.Instance.AmHost ? 2000 : 300))
+        else if (length < (AmongUsClient.Instance.AmHost ? 2000 : 500))
             __instance.charCountText.color = new(1f, 1f, 0f, 1f);
         else
             __instance.charCountText.color = Color.red;

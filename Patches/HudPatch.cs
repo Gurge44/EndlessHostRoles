@@ -630,7 +630,7 @@ static class TaskPanelBehaviourPatch
                     foreach (string eachLine in lines)
                     {
                         var line = eachLine.Trim();
-                        if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb.Length < 1 && !line.Contains('(')) continue;
+                        if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb.Length < 1 && !line.Contains('(') && !line.Contains(DestroyableSingleton<TranslationController>.Instance.GetString(TaskTypes.FixComms))) continue;
                         sb.Append(line + "\r\n");
                     }
 
@@ -639,9 +639,11 @@ static class TaskPanelBehaviourPatch
                         var text = sb.ToString().TrimEnd('\n').TrimEnd('\r');
                         if (!Utils.HasTasks(player.Data, false) && sb.ToString().Count(s => s == '\n') >= 2)
                             text = $"<size=55%>{Utils.ColorString(Utils.GetRoleColor(player.GetCustomRole()).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}</size>";
+                        else if (player.myTasks.ToArray().Any(x => x.TaskType == TaskTypes.FixComms)) goto Skip;
                         AllText += $"\r\n\r\n<size=65%>{text}</size>";
                     }
 
+                    Skip:
                     if (MeetingStates.FirstMeeting)
                     {
                         AllText += $"\r\n\r\n</color><size=60%>{GetString("PressF1ShowMainRoleDes")}";
