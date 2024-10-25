@@ -4128,7 +4128,7 @@
   "CTF_EnemyFlagTaken": "你方夺取了敌方的旗帜!",
   "CTF_BlueTeamWins": "蓝队赢了！",
   "CTF_YellowTeamWins": "黄队赢了！",
-  "CTF_PlayerStats": "<#00ffa5>Carried For: <#ffffff>{0}s</color> | Tags: <#ffffff>{1}</color></color>",
+  "CTF_PlayerStats": "<#00ffa5>总运旗时间:<#ffffff>{0}s</color> - T标签总数: <#ffffff>{1}</color></color>",
   "CTF_Notify_EnemyTeamRoom": "敌方处于 <#00ffa5>{0}</color>",
   "CTF_TeamMemberFallen": "{0} 倒下了!",
   "CTF_ButtonText": "捡起",
