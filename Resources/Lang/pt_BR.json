@@ -4128,7 +4128,7 @@
   "CTF_EnemyFlagTaken": "Sua equipe pegou a bandeira do inimigo!",
   "CTF_BlueTeamWins": "O Time Azul Venceu!",
   "CTF_YellowTeamWins": "O Time Amarelo Venceu!",
-  "CTF_PlayerStats": "<#00ffa5>Carried For: <#ffffff>{0}s</color> | Tags: <#ffffff>{1}</color></color>",
+  "CTF_PlayerStats": "<#00ffa5>Tempo Total Carregando a Bandeira: <#ffffff>{0}s</color> - Total de Marcações: <#ffffff>{1}</color></color>",
   "CTF_Notify_EnemyTeamRoom": "Um Procurador está em <#00ffa5>{0}</color>",
   "CTF_TeamMemberFallen": "{0} caiu!",
   "CTF_ButtonText": "PEGAR",
