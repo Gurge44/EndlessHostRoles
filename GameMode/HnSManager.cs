@@ -85,6 +85,7 @@ namespace EHR
             LateTask.New(() =>
             {
                 IsBlindTime = false;
+                Utils.MarkEveryoneDirtySettingsV4();
 
                 Main.AllAlivePlayerControls
                     .Join(PlayerRoles, x => x.PlayerId, x => x.Key, (pc, role) => (pc, role.Value.Interface))

@@ -183,7 +183,9 @@ namespace EHR
             LateTask.New(() =>
             {
                 // Assign players to teams
-                List<PlayerControl> players = Main.AllAlivePlayerControls.ToList();
+                List<PlayerControl> players = Main.AllAlivePlayerControls.Shuffle().ToList();
+                if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
+
                 int blueCount = players.Count / 2;
                 HashSet<byte> bluePlayers = [];
                 HashSet<byte> yellowPlayers = [];
@@ -378,7 +380,6 @@ namespace EHR
                 }
                 catch
                 {
-                    
                 }
             }
 
