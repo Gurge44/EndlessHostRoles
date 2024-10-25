@@ -67,7 +67,8 @@ static class ExtendedPlayerControl
 
     public static bool CanUseVent(this PlayerControl player, int ventId)
     {
-        return GameStates.IsInTask && ((player.inVent && !player.GetCustomRole().BlocksVentMovement()) || (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId)));
+        if (player.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting) return false;
+        return GameStates.IsInTask && ((player.inVent && player.GetClosestVent()?.Id == ventId) || (player.CanUseImpostorVentButton() || player.GetRoleTypes() == RoleTypes.Engineer) && Main.PlayerStates.Values.All(x => x.Role.CanUseVent(player, ventId)));
     }
 
     // Next 3: https://github.com/Rabek009/MoreGamemodes/blob/master/Modules/ExtendedPlayerControl.cs
@@ -236,13 +237,19 @@ static class ExtendedPlayerControl
 
     public static void RpcSetNameEx(this PlayerControl player, string name)
     {
+        if (player == null)
+        {
+            Logger.Warn("The player is null", "RpcSetNameEx");
+            return;
+        }
+
         foreach (PlayerControl seer in Main.AllPlayerControls)
         {
             Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
         }
 
-        Logger.Info($"Set: {player?.Data?.PlayerName} => {name} for Everyone", "RpcSetNameEx");
-        player?.RpcSetName(name);
+        if (player.Data != null) Logger.Info($"Set: {player.Data.PlayerName} => {name} for Everyone", "RpcSetNameEx");
+        player.RpcSetName(name);
     }
 
     public static void RpcSetNamePrivate(this PlayerControl player, string name, PlayerControl seer = null, bool force = false)
@@ -310,6 +317,7 @@ static class ExtendedPlayerControl
             return;
         }
 
+        GhostRolesManager.RemoveGhostRole(player.PlayerId);
         Main.PlayerStates[player.PlayerId].IsDead = false;
         Main.PlayerStates[player.PlayerId].deathReason = PlayerState.DeathReason.etc;
         player.RpcChangeRoleBasis(player.GetRoleMap().CustomRole, true);
@@ -382,10 +390,8 @@ static class ExtendedPlayerControl
                     (RoleTypes seerRoleType, CustomRoles seerCustomRole) = seer.GetRoleMap();
                     if (seer.IsAlive())
                     {
-                        if (seerCustomRole.IsDesyncRole())
-                            remeberRoleType = seerIsHost ? RoleTypes.Crewmate : RoleTypes.Scientist;
-                        else
-                            remeberRoleType = seerRoleType;
+                        if (seerCustomRole.IsDesyncRole()) remeberRoleType = seerIsHost ? RoleTypes.Crewmate : RoleTypes.Scientist;
+                        else remeberRoleType = seerRoleType;
                     }
                     else
                     {
@@ -1158,8 +1164,8 @@ static class ExtendedPlayerControl
             CustomGameMode.Speedrun => false,
             CustomGameMode.CaptureTheFlag => false,
             CustomGameMode.NaturalDisasters => false,
-            CustomGameMode.RoomRush => RoomRush.VentLimit[pc.PlayerId] > 0,
-            
+            CustomGameMode.RoomRush => !Main.HasJustStarted && RoomRush.VentLimit[pc.PlayerId] > 0,
+
             CustomGameMode.Standard when (CopyCat.Instances.Any(x => x.CopyCatPC.PlayerId == pc.PlayerId)) => true,
             CustomGameMode.Standard when (pc.Is(CustomRoles.Nimble) || Options.EveryoneCanVent.GetBool()) => true,
             CustomGameMode.Standard when (pc.Is(CustomRoles.Bloodlust) || pc.Is(CustomRoles.Refugee)) => true,
@@ -1171,6 +1177,12 @@ static class ExtendedPlayerControl
     public static bool CanUseSabotage(this PlayerControl pc)
     {
         if (!pc.IsAlive() || pc.Data.Role.Role == RoleTypes.GuardianAngel) return false;
+        if (pc.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting)
+        {
+            pc.Notify(GetString("TraineeNotify"));
+            return false;
+        }
+
         return Main.PlayerStates.TryGetValue(pc.PlayerId, out var state) && state.Role.CanUseSabotage(pc);
     }
 

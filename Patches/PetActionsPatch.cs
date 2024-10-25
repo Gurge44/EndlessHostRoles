@@ -122,6 +122,12 @@ static class ExternalRpcPetPatch
             return;
         }
 
+        if (pc.Is(CustomRoles.Trainee) && MeetingStates.FirstMeeting)
+        {
+            pc.Notify(Translator.GetString("TraineeNotify"));
+            return;
+        }
+
         if (pc.HasAbilityCD())
         {
             if (!pc.IsHost()) pc.Notify(Translator.GetString("AbilityOnCooldown"));

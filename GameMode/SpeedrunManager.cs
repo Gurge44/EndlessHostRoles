@@ -10,6 +10,8 @@ namespace EHR
         private static OptionItem TaskFinishWins;
         private static OptionItem TimeStacksUp;
         private static OptionItem TimeLimit;
+        private static OptionItem KillCooldown;
+        private static OptionItem KillersCanKillTaskingPlayers;
 
         public static HashSet<byte> CanKill = [];
 
@@ -28,16 +30,25 @@ namespace EHR
                 .SetGameMode(CustomGameMode.Speedrun)
                 .SetColor(color);
 
-            TimeLimit = new IntegerOptionItem(id + 2, "Speedrun_TimeLimit", new(1, 90, 1), 30, TabGroup.GameSettings)
+            TimeLimit = new IntegerOptionItem(id + 2, "Speedrun_TimeLimit", new(1, 90, 1), 25, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Speedrun)
                 .SetValueFormat(OptionFormat.Seconds)
+                .SetColor(color);
+
+            KillCooldown = new IntegerOptionItem(id + 3, "KillCooldown", new(0, 60, 1), 10, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Speedrun)
+                .SetValueFormat(OptionFormat.Seconds)
+                .SetColor(color);
+
+            KillersCanKillTaskingPlayers = new BooleanOptionItem(id + 4, "Speedrun_KillersCanKillTaskingPlayers", true, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.Speedrun)
                 .SetColor(color);
         }
 
         public static void Init()
         {
             CanKill = [];
-            Timers = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, _ => TimeLimit.GetInt());
+            Timers = Main.AllAlivePlayerControls.ToDictionary(x => x.PlayerId, _ => TimeLimit.GetInt() + 5);
         }
 
         public static void ResetTimer(PlayerControl pc)
@@ -52,8 +63,11 @@ namespace EHR
             if (TaskFinishWins.GetBool()) return;
 
             CanKill.Add(pc.PlayerId);
+            Main.AllPlayerKillCooldown[pc.PlayerId] = KillCooldown.GetInt();
             pc.RpcChangeRoleBasis(CustomRoles.Runner);
             pc.Notify(Translator.GetString("Speedrun_CompletedTasks"));
+            pc.SyncSettings();
+            pc.SetKillCooldown(KillCooldown.GetInt());
         }
 
         public static string GetTaskBarText()
@@ -62,9 +76,10 @@ namespace EHR
                 .Join(Main.AllAlivePlayerControls, x => x.Key, x => x.PlayerId, (kvp, pc) => (
                     Name: Utils.ColorString(Main.PlayerColors.GetValueOrDefault(kvp.Key, Color.white), pc.GetRealName()),
                     CompletedTasks: kvp.Value.TaskState.CompletedTasksCount,
-                    AllTasks: kvp.Value.TaskState.AllTasksCount))
+                    AllTasks: kvp.Value.TaskState.AllTasksCount,
+                    Time: Timers.GetValueOrDefault(pc.PlayerId)))
                 .OrderByDescending(x => x.CompletedTasks)
-                .Select(x => x.CompletedTasks < x.AllTasks ? $"{x.Name}: {x.CompletedTasks}/{x.AllTasks}" : $"{x.Name}: {Translator.GetString("Speedrun_KillingPlayer")}"));
+                .Select(x => x.CompletedTasks < x.AllTasks ? $"{x.Name}: {x.CompletedTasks}/{x.AllTasks} ({x.Time}s)" : $"{x.Name}: {Translator.GetString("Speedrun_KillingPlayer")} ({x.Time}s)"));
         }
 
         public static string GetSuffixText(PlayerControl pc)
@@ -113,6 +128,12 @@ namespace EHR
             return keys.Any(Input.GetKeyDown) && keys.All(Input.GetKey);
         }
 
+        public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        {
+            if (!CanKill.Contains(killer.PlayerId)) return false;
+            return CanKill.Contains(target.PlayerId) || KillersCanKillTaskingPlayers.GetBool();
+        }
+
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
         static class FixedUpdatePatch
         {
@@ -133,6 +154,28 @@ namespace EHR
 
                 CanKill.RemoveWhere(x => x.GetPlayer() == null || !x.GetPlayer().IsAlive());
             }
+        }
+    }
+
+    public class Runner : RoleBase
+    {
+        public override bool IsEnable => false;
+
+        public override void Init()
+        {
+        }
+
+        public override void Add(byte playerId)
+        {
+        }
+
+        public override void SetupCustomOption()
+        {
+        }
+
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return false;
         }
     }
 }

@@ -17,6 +17,7 @@ namespace EHR
         private static OptionItem TaggedPlayersGet;
         private static OptionItem WhenFlagCarrierGetsTagged;
         private static OptionItem SpeedReductionForFlagCarrier;
+        private static OptionItem TagCooldown;
 
         private static readonly string[] TaggedPlayersGetOptions =
         [
@@ -98,6 +99,11 @@ namespace EHR
             SpeedReductionForFlagCarrier = new FloatOptionItem(id + 6, "CTF_SpeedReductionForFlagCarrier", new(0f, 1f, 0.05f), 0.25f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.CaptureTheFlag)
                 .SetValueFormat(OptionFormat.Multiplier)
+                .SetColor(color);
+
+            TagCooldown = new FloatOptionItem(id + 7, "CTF_TagCooldown", new(0f, 10f, 0.5f), 2f, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.CaptureTheFlag)
+                .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(color);
         }
 
@@ -182,6 +188,8 @@ namespace EHR
 
             LateTask.New(() =>
             {
+                Main.AllPlayerKillCooldown.SetAllValues(TagCooldown.GetFloat());
+
                 // Assign players to teams
                 List<PlayerControl> players = Main.AllAlivePlayerControls.ToList();
                 int blueCount = players.Count / 2;
@@ -253,7 +261,7 @@ namespace EHR
             var targetTeam = PlayerTeams[target.PlayerId];
             if (!ValidTag || PlayerTeams[killer.PlayerId] == targetTeam || TeamData.Values.Any(x => x.FlagCarrier == killer.PlayerId)) return;
 
-            new[] { killer, target }.Do(x => x.SetKillCooldown());
+            new[] { killer, target }.Do(x => x.SetKillCooldown(TagCooldown.GetFloat()));
 
             if (TeamData.FindFirst(x => x.Value.FlagCarrier == target.PlayerId, out var kvp))
             {
@@ -378,7 +386,6 @@ namespace EHR
                 }
                 catch
                 {
-                    
                 }
             }
 

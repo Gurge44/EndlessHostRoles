@@ -15,14 +15,17 @@ static class AllMapIconsPatch
         {
             if (__instance == null) return;
 
-            if (Main.NormalOptions.MapId == 3)
+            LateTask.New(() =>
             {
-                Main.NormalOptions.MapId = 0;
-                __instance.UpdateMapImage(MapNames.Skeld);
+                if (Main.NormalOptions.MapId == 3)
+                {
+                    Main.NormalOptions.MapId = 0;
+                    __instance.UpdateMapImage(MapNames.Skeld);
 
-                if (!Options.RandomMapsMode.GetBool())
-                    CreateOptionsPickerPatch.SetDleks = true;
-            }
+                    if (!Options.RandomMapsMode.GetBool())
+                        CreateOptionsPickerPatch.SetDleks = true;
+                }
+            }, AmongUsClient.Instance.AmHost ? 1f : 4f, "Set Skeld Icon For Dleks Map");
 
             MapIconByName dleksIcon = Object.Instantiate(__instance, __instance.gameObject.transform).AllMapIcons[0];
             dleksIcon.Name = MapNames.Dleks;

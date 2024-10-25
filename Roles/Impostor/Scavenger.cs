@@ -47,7 +47,7 @@ namespace EHR.Impostor
                 {
                     if (Vector2.Distance(killer.Pos(), target.Pos()) > 2f) return;
                     target.TP(Pelican.GetBlackRoomPS());
-                    target.Suicide(PlayerState.DeathReason.Kill, killer);
+                    target.Suicide(PlayerState.DeathReason.Scavenged, killer);
                     if (target.Is(CustomRoles.Pelican)) Pelican.OnPelicanDied(target.PlayerId);
                     killer.SetKillCooldown();
                     RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);

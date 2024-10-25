@@ -88,11 +88,7 @@ static class RepairSystemPatch
 
         if ((Options.CurrentGameMode != CustomGameMode.Standard || Options.DisableSabotage.GetBool()) && systemType == SystemTypes.Sabotage) return false;
 
-        // Note: "SystemTypes.Laboratory" сauses bugs in the Host, it is better not to use
-        if (player.Is(CustomRoles.Fool) && (systemType is SystemTypes.Comms or SystemTypes.Electrical))
-        {
-            return false;
-        }
+        if (player.Is(CustomRoles.Fool) && (systemType is SystemTypes.Comms or SystemTypes.Electrical)) return false;
 
         switch (player.GetCustomRole())
         {
@@ -215,13 +211,14 @@ static class RepairSystemPatch
 
     public static void Postfix([HarmonyArgument(0)] SystemTypes systemType, [HarmonyArgument(1)] PlayerControl player)
     {
-        Camouflage.CheckCamouflage();
-
         switch (systemType)
         {
+            case SystemTypes.Comms:
+                if (!Camouflage.CheckCamouflage())
+                    Utils.NotifyRoles();
+                goto case SystemTypes.Electrical;
             case SystemTypes.Reactor:
             case SystemTypes.LifeSupp:
-            case SystemTypes.Comms:
             case SystemTypes.Laboratory:
             case SystemTypes.HeliSabotage:
             case SystemTypes.Electrical:

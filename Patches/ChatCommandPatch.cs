@@ -177,6 +177,7 @@ internal static class ChatCommands
             new(["draft", "драфт"], "{number}", GetString("CommandDescription.Draft"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, DraftCommand, true, [GetString("CommandArgs.Draft.Number")]),
             new(["readycheck", "rc", "проверитьготовность"], "", GetString("CommandDescription.ReadyCheck"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, ReadyCheckCommand, true),
             new(["ready", "готов"], "", GetString("CommandDescription.Ready"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ReadyCommand, true),
+            new(["enableallroles", "всероли"], "", GetString("CommandDescription.EnableAllRoles"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, EnableAllRolesCommand, true),
 
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -304,6 +305,11 @@ internal static class ChatCommands
     }
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
+
+    private static void EnableAllRolesCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        Options.CustomRoleSpawnChances.Values.DoIf(x => x.GetValue() == 0, x => x.SetValue(1));
+    }
 
     private static void ReadyCheckCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
@@ -874,12 +880,13 @@ internal static class ChatCommands
 
     private static void CheckCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        if (!player.IsAlive() || !player.Is(CustomRoles.Inquirer)) return;
+        if (!player.IsAlive() || !player.Is(CustomRoles.Inquirer) || player.GetAbilityUseLimit() < 1) return;
         if (args.Length < 3 || !GuessManager.MsgToPlayerAndRole(text[6..], out byte checkId, out CustomRoles checkRole, out _)) return;
         bool hasRole = Utils.GetPlayerById(checkId).Is(checkRole);
         if (IRandom.Instance.Next(100) < Inquirer.FailChance.GetInt()) hasRole = !hasRole;
         if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
         LateTask.New(() => Utils.SendMessage(GetString(hasRole ? "Inquirer.MessageTrue" : "Inquirer.MessageFalse"), player.PlayerId), 0.2f, log: false);
+        player.RpcRemoveAbilityUse();
     }
 
     private static void ChatCommand(ChatController __instance, PlayerControl player, string text, string[] args)
@@ -2083,6 +2090,7 @@ internal static class ChatCommands
                     LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max(AmongUsClient.Instance.Ping / 1000f * 2f, Main.MessageWait.Value + 0.5f), log: false);
                 }, 0.2f, log: false);
             }
+            else LateTask.New(() => Utils.SendMessage(GetString("LoversChatCannotTalkMsg"), player.PlayerId, GetString("LoversChatCannotTalkTitle")), 0.5f, log: false);
         }
 
         if (isCommand) LastSentCommand[player.PlayerId] = now;
@@ -2105,7 +2113,7 @@ internal class ChatUpdatePatch
         if (Main.DarkTheme.Value)
         {
             chatBubble.TextArea.color = Color.white;
-            chatBubble.Background.color = Color.black;
+            chatBubble.Background.color = new(0.1f, 0.1f, 0.1f, 1f);
         }
 
         LastMessages.RemoveAll(x => Utils.TimeStamp - x.SendTimeStamp > 10);
@@ -2177,7 +2185,7 @@ internal class UpdateCharCountPatch
         __instance.charCountText.enableWordWrapping = false;
         if (length < (AmongUsClient.Instance.AmHost ? 1700 : 250))
             __instance.charCountText.color = Color.black;
-        else if (length < (AmongUsClient.Instance.AmHost ? 2000 : 300))
+        else if (length < (AmongUsClient.Instance.AmHost ? 2000 : 500))
             __instance.charCountText.color = new(1f, 1f, 0f, 1f);
         else
             __instance.charCountText.color = Color.red;

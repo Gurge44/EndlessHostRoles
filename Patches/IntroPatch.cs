@@ -213,6 +213,7 @@ static class CoBeginPatch
         {
             Utils.LongRoleDescriptions.Clear();
 
+            int charsInOneLine = GetUserTrueLang() is SupportedLangs.Russian or SupportedLangs.SChinese or SupportedLangs.TChinese or SupportedLangs.Japanese or SupportedLangs.Korean ? 35 : 50;
             foreach (var seer in Main.AllPlayerControls)
             {
                 var longInfo = seer.GetRoleInfo(InfoLong: true).Split("\n\n")[0];
@@ -228,7 +229,7 @@ static class CoBeginPatch
                         tooLong = true;
                     }
 
-                    for (int i = 50; i < longInfo.Length; i += 50)
+                    for (int i = charsInOneLine; i < longInfo.Length; i += charsInOneLine)
                     {
                         if (tooLong && i > 296) break;
                         int index = longInfo.LastIndexOf(' ', i);
@@ -782,7 +783,7 @@ static class IntroCutsceneDestroyPatch
         // Set roleAssigned as false for overriding roles for modded players
         // for vanilla clients we use "Data.Disconnected"
         Main.AllPlayerControls.Do(x => x.roleAssigned = false);
-        
+
         var aapc = Main.AllAlivePlayerControls;
 
         if (AmongUsClient.Instance.AmHost)
@@ -798,20 +799,24 @@ static class IntroCutsceneDestroyPatch
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, NoCache: true);
                 }
 
-                if (Options.StartingKillCooldown.GetInt() is not 10 and > 0)
+                var kcd = Options.StartingKillCooldown.GetInt();
+                if (kcd is not 10 and > 0 && Options.CurrentGameMode != CustomGameMode.FFA)
                 {
                     LateTask.New(() =>
                     {
-                        Main.AllPlayerControls.Do(x => x.ResetKillCooldown());
-                        Main.AllPlayerControls.Do(pc => pc.SetKillCooldown(Options.StartingKillCooldown.GetInt() - 2));
+                        foreach (var pc in aapc)
+                        {
+                            pc.ResetKillCooldown();
+                            pc.SetKillCooldown(kcd - 2);
+                        }
                     }, 2f, "FixKillCooldownTask");
                 }
                 else if (Options.FixFirstKillCooldown.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard)
                 {
                     LateTask.New(() =>
                     {
-                        Main.AllPlayerControls.Do(x => x.ResetKillCooldown());
-                        Main.AllPlayerControls.Where(x => (Main.AllPlayerKillCooldown[x.PlayerId] - 2f) > 0f).Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
+                        aapc.Do(x => x.ResetKillCooldown());
+                        aapc.Where(x => (Main.AllPlayerKillCooldown[x.PlayerId] - 2f) > 0f).Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
                     }, 2f, "FixKillCooldownTask");
                 }
             }
@@ -932,7 +937,7 @@ static class IntroCutsceneDestroyPatch
                 LateTask.New(() => aapc.Do(AFKDetector.RecordPosition), 1f, log: false);
             }
 
-            LateTask.New(() => Main.Instance.StartCoroutine(NotifyEveryone()), 3f, log: false);
+            LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 3f, log: false);
         }
         else
         {
@@ -943,18 +948,5 @@ static class IntroCutsceneDestroyPatch
         }
 
         Logger.Info("OnDestroy", "IntroCutscene");
-
-        System.Collections.IEnumerator NotifyEveryone()
-        {
-            int count = 0;
-            foreach (var seer in aapc)
-            {
-                foreach (var target in aapc)
-                {
-                    Utils.NotifyRoles(SpecifySeer: seer, SpecifyTarget: target);
-                    if (count++ % 2 == 0) yield return null;
-                }
-            }
-        }
     }
 }

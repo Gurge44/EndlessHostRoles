@@ -78,5 +78,10 @@ namespace EHR.Crewmate
             if (VentguardBlocksResetOnMeeting.GetBool())
                 BlockedVents.Clear();
         }
+
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return !BlockedVents.Contains(ventId) || (pc.IsCrewmate() && VentguardBlockDoesNotAffectCrew.GetBool());
+        }
     }
 }

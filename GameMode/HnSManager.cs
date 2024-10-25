@@ -5,6 +5,7 @@ using System.Reflection;
 using AmongUs.GameOptions;
 using EHR.GameMode.HideAndSeekRoles;
 using HarmonyLib;
+using Il2CppSystem.Text;
 using UnityEngine;
 
 namespace EHR
@@ -80,6 +81,7 @@ namespace EHR
 
         public static void StartSeekerBlindTime()
         {
+            Main.AllPlayerKillCooldown.SetAllValues(Seeker.KillCooldown.GetFloat());
             IsBlindTime = true;
             Utils.MarkEveryoneDirtySettingsV4();
             LateTask.New(() =>
@@ -90,6 +92,8 @@ namespace EHR
                     .Join(PlayerRoles, x => x.PlayerId, x => x.Key, (pc, role) => (pc, role.Value.Interface))
                     .Where(x => x.Interface.Team == Team.Impostor)
                     .Do(x => x.pc.MarkDirtySettings());
+
+                LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 3f, log: false);
             }, Seeker.BlindTime.GetFloat() + 8f, "Blind Time Expire");
         }
 
@@ -224,7 +228,7 @@ namespace EHR
                 .ToDictionary(x => x.GetType().Name, x => x);
             PlayerRoles = result.ToDictionary(x => x.Key.PlayerId, x => (roleInterfaces[x.Value.ToString()], x.Value));
 
-            result.IntersectBy(Main.PlayerStates.Keys, x => x.Key.PlayerId).Do(x => x.Key.RpcSetCustomRole(x.Value));
+            LateTask.New(() => result.IntersectBy(Main.PlayerStates.Keys, x => x.Key.PlayerId).Do(x => x.Key.RpcSetCustomRole(x.Value)), 5f, log: false);
 
             // ==================================================================================================================
 
@@ -238,19 +242,19 @@ namespace EHR
         public static void ApplyGameOptions(IGameOptions opt, PlayerControl pc)
         {
             var role = PlayerRoles.GetValueOrDefault(pc.PlayerId);
-            bool isBlind = role.Interface.Team == Team.Impostor && IsBlindTime;
-            Main.AllPlayerSpeed[pc.PlayerId] = isBlind ? Main.MinSpeed : role.Interface.RoleSpeed;
-            opt.SetFloat(FloatOptionNames.CrewLightMod, isBlind ? 0f : role.Interface.RoleVision);
-            opt.SetFloat(FloatOptionNames.ImpostorLightMod, isBlind ? 0f : role.Interface.RoleVision);
+            bool blind = role.Interface.Team == Team.Impostor && IsBlindTime;
+            Main.AllPlayerSpeed[pc.PlayerId] = blind ? Main.MinSpeed : role.Interface.RoleSpeed;
+            opt.SetFloat(FloatOptionNames.CrewLightMod, blind ? 0f : role.Interface.RoleVision);
+            opt.SetFloat(FloatOptionNames.ImpostorLightMod, blind ? 0f : role.Interface.RoleVision);
             opt.SetFloat(FloatOptionNames.PlayerSpeedMod, Main.AllPlayerSpeed[pc.PlayerId]);
         }
 
         public static bool KnowTargetRoleColor(PlayerControl seer, PlayerControl target, ref string color)
         {
-            if (seer.PlayerId == target.PlayerId || PlayersSeeRoles.GetBool()) return true;
+            if (seer.PlayerId == target.PlayerId) return true;
 
-            var targetRole = PlayerRoles[target.PlayerId];
-            var seerRole = PlayerRoles[seer.PlayerId];
+            if (!PlayerRoles.TryGetValue(target.PlayerId, out var targetRole)) return false;
+            if (!PlayerRoles.TryGetValue(seer.PlayerId, out var seerRole)) return false;
 
             if (PlayersSeeRoles.GetBool())
             {
@@ -278,21 +282,21 @@ namespace EHR
         public static bool IsRoleTextEnabled(PlayerControl seer, PlayerControl target)
         {
             if (seer.PlayerId == target.PlayerId || PlayersSeeRoles.GetBool()) return true;
-            var targetRole = PlayerRoles[target.PlayerId];
-            var seerRole = PlayerRoles[seer.PlayerId];
+            if (!PlayerRoles.TryGetValue(target.PlayerId, out var targetRole)) return false;
+            if (!PlayerRoles.TryGetValue(seer.PlayerId, out var seerRole)) return false;
             return targetRole.Interface.Team == Team.Impostor && (targetRole.Role != CustomRoles.Agent || seerRole.Interface.Team == Team.Impostor);
         }
 
         public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool hud = false)
         {
             if (GameStates.IsLobby || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted) return string.Empty;
-            if (seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud)) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud) || TimeLeft < 0) return string.Empty;
 
             string dangerMeter = GetDangerMeter(seer);
 
-            if (PlayerRoles[seer.PlayerId].Interface.Team == Team.Impostor && PlayerRoles.Values.Any(x => x.Role == CustomRoles.Agent))
+            if (PlayerRoles.TryGetValue(seer.PlayerId, out var seerRole) && seerRole.Interface.Team == Team.Impostor && PlayerRoles.FindFirst(x => x.Value.Role == CustomRoles.Agent, out var kvp))
             {
-                var agent = PlayerRoles.First(x => x.Value.Role == CustomRoles.Agent).Key;
+                var agent = kvp.Key;
                 dangerMeter += TargetArrow.GetArrows(seer, agent);
             }
 
@@ -301,10 +305,9 @@ namespace EHR
                 return $"{dangerMeter}\n<color={Main.RoleColors[CustomRoles.Hider]}>{Translator.GetString("TimeLeft")}:</color> {TimeLeft}s";
             }
 
-            var remainingMinutes = TimeLeft / 60;
-            var remainingSeconds = $"{(TimeLeft % 60) + 1}";
-            if (remainingSeconds.Length == 1) remainingSeconds = $"0{remainingSeconds}";
-            return dangerMeter + "\n" + (hud ? $"{remainingMinutes}:{remainingSeconds}" : $"{string.Format(Translator.GetString("MinutesLeft"), $"{remainingMinutes}-{remainingMinutes + 1}")}");
+            int minutes = TimeLeft / 60;
+            int seconds = TimeLeft % 60;
+            return dangerMeter + "\n" + (hud ? $"{minutes:00}:{seconds:00}" : $"{string.Format(Translator.GetString("MinutesLeft"), $"{minutes}-{minutes + 1}")}");
         }
 
         private static string GetDangerMeter(PlayerControl seer)
@@ -390,7 +393,8 @@ namespace EHR
 
         public static string GetTaskBarText()
         {
-            var text = Main.PlayerStates.IntersectBy(PlayerRoles.Keys, x => x.Key).Aggregate("<size=80%>", (current, state) => $"{current}{GetStateText(state)}\n");
+            var text = HasTasks(PlayerControl.LocalPlayer.Data) ? $"<size=65%>{GetTaskText()}</size>\r\n\r\n" : string.Empty;
+            text += Main.PlayerStates.IntersectBy(PlayerRoles.Keys, x => x.Key).Aggregate("<size=80%>", (current, state) => $"{current}{GetStateText(state)}\n");
             return $"{text}</size>\r\n\r\n<#00ffa5>{Translator.GetString("HNS.TaskCount")}</color> {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}";
 
             static string GetStateText(KeyValuePair<byte, PlayerState> state)
@@ -411,6 +415,28 @@ namespace EHR
 
                 CustomRoles GetRole() => state.Value.MainRole == CustomRoles.Agent ? CustomRoles.Hider : state.Value.MainRole;
                 string GetTaskCount() => CustomRoles.Agent.IsEnable() || !ts.HasTasks ? string.Empty : $" ({ts.CompletedTasksCount}/{ts.AllTasksCount})";
+            }
+
+            static string GetTaskText()
+            {
+                StringBuilder sb = new();
+                bool flag = PlayerControl.LocalPlayer.Data.Role != null && PlayerControl.LocalPlayer.Data.Role.IsImpostor;
+                foreach (var task in PlayerControl.LocalPlayer.myTasks)
+                {
+                    if (task != null)
+                    {
+                        if (task.TaskType == TaskTypes.FixComms && !flag)
+                        {
+                            sb.Clear();
+                            task.AppendTaskText(sb);
+                            break;
+                        }
+
+                        task.AppendTaskText(sb);
+                    }
+                }
+
+                return sb.ToString();
             }
         }
 

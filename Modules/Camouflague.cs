@@ -75,9 +75,9 @@ public static class Camouflage
         }
     }
 
-    public static void CheckCamouflage()
+    public static bool CheckCamouflage()
     {
-        if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On)) return;
+        if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On)) return false;
 
         var oldIsCamouflage = IsCamouflage;
 
@@ -106,7 +106,10 @@ public static class Camouflage
             }
 
             Utils.NotifyRoles(NoCache: true);
+            return true;
         }
+
+        return false;
     }
 
     public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false, bool GameEnd = false)

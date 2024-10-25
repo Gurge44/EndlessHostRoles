@@ -105,6 +105,7 @@ public enum CustomRoles
     Vindicator,
     Visionary,
     Warlock,
+    Wasp,
     Wildling,
     Witch,
     YinYanger,
@@ -341,6 +342,7 @@ public enum CustomRoles
     Vengeance,
     VengefulRomantic,
     Virus,
+    Vortex,
     Vulture,
     Wraith,
     Werewolf,
@@ -381,7 +383,7 @@ public enum CustomRoles
 
     // Natural Disasters
     NDPlayer,
-    
+
     // Room Rush
     RRPlayer,
 
@@ -457,6 +459,7 @@ public enum CustomRoles
     Reach,
     Recruit,
     Rookie,
+    Trainee,
     DualPersonality, // Schizophrenic
     Seer,
     Sleuth,

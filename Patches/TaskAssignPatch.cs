@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.GhostRoles;
@@ -5,101 +6,108 @@ using EHR.Impostor;
 using EHR.Modules;
 using HarmonyLib;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
-using Il2CppSystem.Collections.Generic;
 using Random = UnityEngine.Random;
 
 namespace EHR;
 
 [HarmonyPatch(typeof(ShipStatus), nameof(ShipStatus.AddTasksFromList))]
-class AddTasksFromListPatch
+static class AddTasksFromListPatch
 {
+    public static Dictionary<TaskTypes, OptionItem> DisableTasksSettings = [];
+
     public static void Prefix( /*ShipStatus __instance,*/
-        [HarmonyArgument(4)] List<NormalPlayerTask> unusedTasks)
+        [HarmonyArgument(4)] Il2CppSystem.Collections.Generic.List<NormalPlayerTask> unusedTasks)
     {
         if (!AmongUsClient.Instance.AmHost) return;
 
-        if (!Options.DisableShortTasks.GetBool() && !Options.DisableCommonTasks.GetBool() && !Options.DisableLongTasks.GetBool() && !Options.DisableOtherTasks.GetBool()) return;
-        System.Collections.Generic.List<NormalPlayerTask> disabledTasks = [];
-        for (var i = 0; i < unusedTasks.Count; i++)
+        if (DisableTasksSettings.Count == 0)
         {
-            var task = unusedTasks[i];
-            switch (task.TaskType)
+            DisableTasksSettings = new()
             {
-                case TaskTypes.SwipeCard when Options.DisableSwipeCard.GetBool():
-                case TaskTypes.SubmitScan when Options.DisableSubmitScan.GetBool():
-                case TaskTypes.UnlockSafe when Options.DisableUnlockSafe.GetBool():
-                case TaskTypes.UploadData when Options.DisableUploadData.GetBool():
-                case TaskTypes.StartReactor when Options.DisableStartReactor.GetBool():
-                case TaskTypes.ResetBreakers when Options.DisableResetBreaker.GetBool():
-                case TaskTypes.VentCleaning when Options.DisableCleanVent.GetBool():
-                case TaskTypes.CalibrateDistributor when Options.DisableCalibrateDistributor.GetBool():
-                case TaskTypes.ChartCourse when Options.DisableChartCourse.GetBool():
-                case TaskTypes.StabilizeSteering when Options.DisableStabilizeSteering.GetBool():
-                case TaskTypes.CleanO2Filter when Options.DisableCleanO2Filter.GetBool():
-                case TaskTypes.UnlockManifolds when Options.DisableUnlockManifolds.GetBool():
-                case TaskTypes.PrimeShields when Options.DisablePrimeShields.GetBool():
-                case TaskTypes.MeasureWeather when Options.DisableMeasureWeather.GetBool():
-                case TaskTypes.BuyBeverage when Options.DisableBuyBeverage.GetBool():
-                case TaskTypes.AssembleArtifact when Options.DisableAssembleArtifact.GetBool():
-                case TaskTypes.SortSamples when Options.DisableSortSamples.GetBool():
-                case TaskTypes.ProcessData when Options.DisableProcessData.GetBool():
-                case TaskTypes.RunDiagnostics when Options.DisableRunDiagnostics.GetBool():
-                case TaskTypes.RepairDrill when Options.DisableRepairDrill.GetBool():
-                case TaskTypes.AlignTelescope when Options.DisableAlignTelescope.GetBool():
-                case TaskTypes.RecordTemperature when Options.DisableRecordTemperature.GetBool():
-                case TaskTypes.FillCanisters when Options.DisableFillCanisters.GetBool():
-                case TaskTypes.MonitorOxygen when Options.DisableMonitorTree.GetBool():
-                case TaskTypes.StoreArtifacts when Options.DisableStoreArtifacts.GetBool():
-                case TaskTypes.PutAwayPistols when Options.DisablePutAwayPistols.GetBool():
-                case TaskTypes.PutAwayRifles when Options.DisablePutAwayRifles.GetBool():
-                case TaskTypes.MakeBurger when Options.DisableMakeBurger.GetBool():
-                case TaskTypes.CleanToilet when Options.DisableCleanToilet.GetBool():
-                case TaskTypes.Decontaminate when Options.DisableDecontaminate.GetBool():
-                case TaskTypes.SortRecords when Options.DisableSortRecords.GetBool():
-                case TaskTypes.FixShower when Options.DisableFixShower.GetBool():
-                case TaskTypes.PickUpTowels when Options.DisablePickUpTowels.GetBool():
-                case TaskTypes.PolishRuby when Options.DisablePolishRuby.GetBool():
-                case TaskTypes.DressMannequin when Options.DisableDressMannequin.GetBool():
-                case TaskTypes.AlignEngineOutput when Options.DisableAlignEngineOutput.GetBool():
-                case TaskTypes.InspectSample when Options.DisableInspectSample.GetBool():
-                case TaskTypes.EmptyChute when Options.DisableEmptyChute.GetBool():
-                case TaskTypes.ClearAsteroids when Options.DisableClearAsteroids.GetBool():
-                case TaskTypes.WaterPlants when Options.DisableWaterPlants.GetBool():
-                case TaskTypes.OpenWaterways when Options.DisableOpenWaterways.GetBool():
-                case TaskTypes.ReplaceWaterJug when Options.DisableReplaceWaterJug.GetBool():
-                case TaskTypes.RebootWifi when Options.DisableRebootWifi.GetBool():
-                case TaskTypes.DevelopPhotos when Options.DisableDevelopPhotos.GetBool():
-                case TaskTypes.RewindTapes when Options.DisableRewindTapes.GetBool():
-                case TaskTypes.StartFans when Options.DisableStartFans.GetBool():
-                case TaskTypes.FixWiring when Options.DisableFixWiring.GetBool():
-                case TaskTypes.EnterIdCode when Options.DisableEnterIdCode.GetBool():
-                case TaskTypes.InsertKeys when Options.DisableInsertKeys.GetBool():
-                case TaskTypes.ScanBoardingPass when Options.DisableScanBoardingPass.GetBool():
-                case TaskTypes.EmptyGarbage when Options.DisableEmptyGarbage.GetBool():
-                case TaskTypes.FuelEngines when Options.DisableFuelEngines.GetBool():
-                case TaskTypes.DivertPower when Options.DisableDivertPower.GetBool():
-                case TaskTypes.FixWeatherNode when Options.DisableActivateWeatherNodes.GetBool():
-                case TaskTypes.RoastMarshmallow when Options.DisableRoastMarshmallow.GetBool():
-                case TaskTypes.CollectSamples when Options.DisableCollectSamples.GetBool():
-                case TaskTypes.ReplaceParts when Options.DisableReplaceParts.GetBool():
-                case TaskTypes.CollectVegetables when Options.DisableCollectVegetables.GetBool():
-                case TaskTypes.MineOres when Options.DisableMineOres.GetBool():
-                case TaskTypes.ExtractFuel when Options.DisableExtractFuel.GetBool():
-                case TaskTypes.CatchFish when Options.DisableCatchFish.GetBool():
-                case TaskTypes.PolishGem when Options.DisablePolishGem.GetBool():
-                case TaskTypes.HelpCritter when Options.DisableHelpCritter.GetBool():
-                case TaskTypes.HoistSupplies when Options.DisableHoistSupplies.GetBool():
-                case TaskTypes.FixAntenna when Options.DisableFixAntenna.GetBool():
-                case TaskTypes.BuildSandcastle when Options.DisableBuildSandcastle.GetBool():
-                case TaskTypes.CrankGenerator when Options.DisableCrankGenerator.GetBool():
-                case TaskTypes.MonitorMushroom when Options.DisableMonitorMushroom.GetBool():
-                case TaskTypes.PlayVideogame when Options.DisablePlayVideoGame.GetBool():
-                case TaskTypes.TuneRadio when Options.DisableFindSignal.GetBool():
-                case TaskTypes.TestFrisbee when Options.DisableThrowFisbee.GetBool():
-                case TaskTypes.LiftWeights when Options.DisableLiftWeights.GetBool():
-                case TaskTypes.CollectShells when Options.DisableCollectShells.GetBool():
-                    disabledTasks.Add(task);
-                    break;
+                [TaskTypes.SwipeCard] = Options.DisableSwipeCard,
+                [TaskTypes.SubmitScan] = Options.DisableSubmitScan,
+                [TaskTypes.UnlockSafe] = Options.DisableUnlockSafe,
+                [TaskTypes.UploadData] = Options.DisableUploadData,
+                [TaskTypes.StartReactor] = Options.DisableStartReactor,
+                [TaskTypes.ResetBreakers] = Options.DisableResetBreaker,
+                [TaskTypes.VentCleaning] = Options.DisableCleanVent,
+                [TaskTypes.CalibrateDistributor] = Options.DisableCalibrateDistributor,
+                [TaskTypes.ChartCourse] = Options.DisableChartCourse,
+                [TaskTypes.StabilizeSteering] = Options.DisableStabilizeSteering,
+                [TaskTypes.CleanO2Filter] = Options.DisableCleanO2Filter,
+                [TaskTypes.UnlockManifolds] = Options.DisableUnlockManifolds,
+                [TaskTypes.PrimeShields] = Options.DisablePrimeShields,
+                [TaskTypes.MeasureWeather] = Options.DisableMeasureWeather,
+                [TaskTypes.BuyBeverage] = Options.DisableBuyBeverage,
+                [TaskTypes.AssembleArtifact] = Options.DisableAssembleArtifact,
+                [TaskTypes.SortSamples] = Options.DisableSortSamples,
+                [TaskTypes.ProcessData] = Options.DisableProcessData,
+                [TaskTypes.RunDiagnostics] = Options.DisableRunDiagnostics,
+                [TaskTypes.RepairDrill] = Options.DisableRepairDrill,
+                [TaskTypes.AlignTelescope] = Options.DisableAlignTelescope,
+                [TaskTypes.RecordTemperature] = Options.DisableRecordTemperature,
+                [TaskTypes.FillCanisters] = Options.DisableFillCanisters,
+                [TaskTypes.MonitorOxygen] = Options.DisableMonitorTree,
+                [TaskTypes.StoreArtifacts] = Options.DisableStoreArtifacts,
+                [TaskTypes.PutAwayPistols] = Options.DisablePutAwayPistols,
+                [TaskTypes.PutAwayRifles] = Options.DisablePutAwayRifles,
+                [TaskTypes.MakeBurger] = Options.DisableMakeBurger,
+                [TaskTypes.CleanToilet] = Options.DisableCleanToilet,
+                [TaskTypes.Decontaminate] = Options.DisableDecontaminate,
+                [TaskTypes.SortRecords] = Options.DisableSortRecords,
+                [TaskTypes.FixShower] = Options.DisableFixShower,
+                [TaskTypes.PickUpTowels] = Options.DisablePickUpTowels,
+                [TaskTypes.PolishRuby] = Options.DisablePolishRuby,
+                [TaskTypes.DressMannequin] = Options.DisableDressMannequin,
+                [TaskTypes.AlignEngineOutput] = Options.DisableAlignEngineOutput,
+                [TaskTypes.InspectSample] = Options.DisableInspectSample,
+                [TaskTypes.EmptyChute] = Options.DisableEmptyChute,
+                [TaskTypes.ClearAsteroids] = Options.DisableClearAsteroids,
+                [TaskTypes.WaterPlants] = Options.DisableWaterPlants,
+                [TaskTypes.OpenWaterways] = Options.DisableOpenWaterways,
+                [TaskTypes.ReplaceWaterJug] = Options.DisableReplaceWaterJug,
+                [TaskTypes.RebootWifi] = Options.DisableRebootWifi,
+                [TaskTypes.DevelopPhotos] = Options.DisableDevelopPhotos,
+                [TaskTypes.RewindTapes] = Options.DisableRewindTapes,
+                [TaskTypes.StartFans] = Options.DisableStartFans,
+                [TaskTypes.FixWiring] = Options.DisableFixWiring,
+                [TaskTypes.EnterIdCode] = Options.DisableEnterIdCode,
+                [TaskTypes.InsertKeys] = Options.DisableInsertKeys,
+                [TaskTypes.ScanBoardingPass] = Options.DisableScanBoardingPass,
+                [TaskTypes.EmptyGarbage] = Options.DisableEmptyGarbage,
+                [TaskTypes.FuelEngines] = Options.DisableFuelEngines,
+                [TaskTypes.DivertPower] = Options.DisableDivertPower,
+                [TaskTypes.FixWeatherNode] = Options.DisableActivateWeatherNodes,
+                [TaskTypes.RoastMarshmallow] = Options.DisableRoastMarshmallow,
+                [TaskTypes.CollectSamples] = Options.DisableCollectSamples,
+                [TaskTypes.ReplaceParts] = Options.DisableReplaceParts,
+                [TaskTypes.CollectVegetables] = Options.DisableCollectVegetables,
+                [TaskTypes.MineOres] = Options.DisableMineOres,
+                [TaskTypes.ExtractFuel] = Options.DisableExtractFuel,
+                [TaskTypes.CatchFish] = Options.DisableCatchFish,
+                [TaskTypes.PolishGem] = Options.DisablePolishGem,
+                [TaskTypes.HelpCritter] = Options.DisableHelpCritter,
+                [TaskTypes.HoistSupplies] = Options.DisableHoistSupplies,
+                [TaskTypes.FixAntenna] = Options.DisableFixAntenna,
+                [TaskTypes.BuildSandcastle] = Options.DisableBuildSandcastle,
+                [TaskTypes.CrankGenerator] = Options.DisableCrankGenerator,
+                [TaskTypes.MonitorMushroom] = Options.DisableMonitorMushroom,
+                [TaskTypes.PlayVideogame] = Options.DisablePlayVideoGame,
+                [TaskTypes.TuneRadio] = Options.DisableFindSignal,
+                [TaskTypes.TestFrisbee] = Options.DisableThrowFisbee,
+                [TaskTypes.LiftWeights] = Options.DisableLiftWeights,
+                [TaskTypes.CollectShells] = Options.DisableCollectShells
+            };
+        }
+
+        if (!Options.DisableShortTasks.GetBool() && !Options.DisableCommonTasks.GetBool() && !Options.DisableLongTasks.GetBool() && !Options.DisableOtherTasks.GetBool()) return;
+
+        List<NormalPlayerTask> disabledTasks = [];
+        foreach (var task in unusedTasks)
+        {
+            if (DisableTasksSettings.TryGetValue(task.TaskType, out var setting) && setting.GetBool())
+            {
+                disabledTasks.Add(task);
             }
         }
 
@@ -189,7 +197,7 @@ class RpcSetTasksPatch
 
         // List containing IDs of assignable tasks
         // Clone of the second argument of the original RpcSetTasks
-        List<byte> TasksList = new();
+        Il2CppSystem.Collections.Generic.List<byte> TasksList = new();
         foreach (var num in taskTypeIds)
         {
             TasksList.Add(num);
@@ -205,18 +213,18 @@ class RpcSetTasksPatch
 
         // HashSet where assigned tasks will be placed
         // Prevent multiple assignments of the same task
-        HashSet<TaskTypes> usedTaskTypes = new();
+        Il2CppSystem.Collections.Generic.HashSet<TaskTypes> usedTaskTypes = new();
         int start2 = 0;
         int start3 = 0;
 
         // List of assignable long tasks
-        List<NormalPlayerTask> LongTasks = new();
+        Il2CppSystem.Collections.Generic.List<NormalPlayerTask> LongTasks = new();
         foreach (var task in ShipStatus.Instance.LongTasks)
             LongTasks.Add(task);
         Shuffle(LongTasks);
 
         // List of assignable short tasks
-        List<NormalPlayerTask> ShortTasks = new();
+        Il2CppSystem.Collections.Generic.List<NormalPlayerTask> ShortTasks = new();
         foreach (var task in ShipStatus.Instance.ShortTasks)
             ShortTasks.Add(task);
         Shuffle(ShortTasks);
@@ -245,7 +253,7 @@ class RpcSetTasksPatch
         }
     }
 
-    private static void Shuffle<T>(List<T> list)
+    private static void Shuffle<T>(Il2CppSystem.Collections.Generic.List<T> list)
     {
         for (int i = 0; i < list.Count - 1; i++)
         {

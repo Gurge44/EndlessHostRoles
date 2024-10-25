@@ -92,9 +92,25 @@ public static class OptionsMenuBehaviourStartPatch
 
             static void SwitchVanillaButtonToggle()
             {
-                if (PlayerControl.LocalPlayer == null) MainMenuManagerPatch.ShowRightPanelImmediately();
-                Harmony.UnpatchAll();
-                Main.Instance.Unload();
+                if (PlayerControl.LocalPlayer != null)
+                {
+                    Zoom.SetZoomSize(reset: true);
+                    AmongUsClient.Instance.ExitGame(DisconnectReasons.ExitGame);
+                    SceneChanger.ChangeScene("MainMenu");
+                    LateTask.New(() => HudManager.Instance.ShowPopUp(Translator.GetString("RejoinRequiredDueToVanillaSwitch")), 1.9f, log: false);
+                    LateTask.New(Unload, 2f, log: false);
+                }
+                else Unload();
+
+                return;
+
+                static void Unload()
+                {
+                    MainMenuManagerPatch.ShowRightPanelImmediately();
+
+                    Harmony.UnpatchAll();
+                    Main.Instance.Unload();
+                }
             }
         }
 
