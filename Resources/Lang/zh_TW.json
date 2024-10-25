@@ -4573,6 +4573,7 @@
   "AntidoteCDOpt": "冷卻時間減少",
   "AntidoteCDReset": "會議後冷卻時間恢復至正常",
   "HackButtonText": "變形",
+  "BomberCooldownsResetEachOther": "Kill Cooldown & Bomb Cooldown Reset Each Other When Used",
   "BomberDiesInExplosion": "<color=#ff1919>自爆兵</color>會在爆炸中死亡",
   "ImpostorsSurviveBombs": "<color=#ff1919>偽裝者</color>可以在爆炸中倖存",
   "NukeRadius": "核爆半徑範圍 (12x超級大)",
