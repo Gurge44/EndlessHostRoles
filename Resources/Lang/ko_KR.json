@@ -4573,6 +4573,7 @@
   "AntidoteCDOpt": "Decrease the cooldown by",
   "AntidoteCDReset": "Cooldown returns to normal after a meeting",
   "HackButtonText": "미믹",
+  "BomberCooldownsResetEachOther": "Kill Cooldown & Bomb Cooldown Reset Each Other When Used",
   "BomberDiesInExplosion": "<color=#ff1919>Bomber</color> dies in their explosion",
   "ImpostorsSurviveBombs": "<color=#ff1919>Impostors</color> survive bombs",
   "NukeRadius": "Nuke radius (12x is very large)",
