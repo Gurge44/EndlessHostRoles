@@ -190,7 +190,27 @@ public static class GuessManager
                         return true;
                     }
 
-                    bool forceAllowGuess = (hasGuessSetting && guessSetting.GetValue() == 0) || (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Lovers && Lovers.GuessAbility.GetValue() == 2);
+                    OptionItem convertedGuessSetting = null;
+                    if (role == CustomRoles.Egoist || role.IsConverted())
+                    {
+                        convertedGuessSetting = role switch
+                        {
+                            CustomRoles.Charmed => Options.CharmedCanBeGuessed,
+                            CustomRoles.Recruit => Options.RecruitCanBeGuessed,
+                            CustomRoles.Contagious => Options.ContagiousCanBeGuessed,
+                            CustomRoles.Undead => Options.UndeadCanBeGuessed,
+                            CustomRoles.Egoist => Options.EgoistCanBeGuessed,
+                            _ => null
+                        };
+                        if (convertedGuessSetting?.GetValue() == 1)
+                        {
+                            if (!isUI) Utils.SendMessage(GetString("GuessDisabledAddonOverride"), pc.PlayerId);
+                            else pc.ShowPopUp(GetString("GuessDisabledAddonOverride"));
+                            return true;
+                        }
+                    }
+
+                    bool forceAllowGuess = (hasGuessSetting && guessSetting.GetValue() == 0) || (convertedGuessSetting?.GetValue() == 0) || (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor or CustomRoles.Lovers && Lovers.GuessAbility.GetValue() == 2);
 
                     if (role == CustomRoles.Lovers && Lovers.GuessAbility.GetValue() == 0)
                     {
@@ -221,7 +241,7 @@ public static class GuessManager
                             if (!isUI) Utils.SendMessage(GetString("GuessDisabled"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessDisabled"));
                             return true;
-                        case CustomRoles.God when !Options.GodCanGuess.GetBool():
+                        case CustomRoles.God when !God.GodCanGuess.GetBool():
                             if (!isUI) Utils.SendMessage(GetString("GuessDisabled"), pc.PlayerId);
                             else pc.ShowPopUp(GetString("GuessDisabled"));
                             return true;
@@ -1094,15 +1114,15 @@ public static class GuessManager
 
     public static void ReceiveRPC(MessageReader reader, PlayerControl pc)
     {
-        Logger.Msg($"{reader}", "MessageReader reader");
-        Logger.Msg($"{pc}", "PlayerControl pc");
+        Logger.Msg($"{reader}", "GuessManager - MessageReader reader");
+        Logger.Msg($"{pc}", "GuessManager - PlayerControl pc");
 
         int PlayerId = reader.ReadInt32();
-        Logger.Msg($"{PlayerId}", "Player Id");
+        Logger.Msg($"{PlayerId}", "GuessManager - Player Id");
 
         CustomRoles role = (CustomRoles)reader.ReadInt32();
-        Logger.Msg($"{role}", "Role Int32");
-        Logger.Msg($"{GetString(role.ToString())}", "Role String");
+        Logger.Msg($"{role}", "GuessManager - Role Int32");
+        Logger.Msg($"{GetString(role.ToString())}", "GuessManager - Role String");
 
         GuesserMsg(pc, $"/bt {PlayerId} {GetString(role.ToString())}", true);
     }
@@ -1150,7 +1170,7 @@ public static class GuessManager
     */
 
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
-    class StartMeetingPatch
+    static class StartMeetingPatch
     {
         public static void Postfix(MeetingHud __instance)
         {
@@ -1194,7 +1214,7 @@ public static class GuessManager
     }
 
     [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.OnDestroy))]
-    class MeetingHudOnDestroyGuesserUIClose
+    static class MeetingHudOnDestroyGuesserUIClose
     {
         public static void Postfix()
         {

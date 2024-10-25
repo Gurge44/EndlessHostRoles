@@ -26,17 +26,17 @@ static class GameEndChecker
     private const float EndGameDelay = 0.2f;
     public static GameEndPredicate Predicate;
     public static bool ShouldNotCheck = false;
-    public static bool ShowAllRolesWhenGameEnd;
+    public static bool Ended;
 
     public static bool Prefix()
     {
         if (!AmongUsClient.Instance.AmHost) return true;
 
-        if (Predicate == null || ShouldNotCheck) return false;
+        if (Predicate == null || ShouldNotCheck || Main.HasJustStarted) return false;
 
         if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return false;
 
-        ShowAllRolesWhenGameEnd = false;
+        Ended = false;
 
         Predicate.CheckForGameEnd(out GameOverReason reason);
 
@@ -59,7 +59,7 @@ static class GameEndChecker
 
             Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, ForceRevert: true, RevertToDefault: true, GameEnd: true));
 
-            ShowAllRolesWhenGameEnd = true;
+            Ended = true;
 
             if (reason == GameOverReason.ImpostorBySabotage && Options.NKWinsBySabotageIfNoImpAlive.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.IsImpostor()) && Main.AllAlivePlayerControls.Count(x => x.IsNeutralKiller()) == 1)
             {
@@ -120,16 +120,16 @@ static class GameEndChecker
                 {
                     switch (pc.GetCustomRole())
                     {
-                        case CustomRoles.DarkHide when !pc.Data.IsDead && ((WinnerTeam == CustomWinner.Impostor && !reason.Equals(GameOverReason.ImpostorBySabotage)) || WinnerTeam == CustomWinner.DarkHide || (WinnerTeam == CustomWinner.Crewmate && !reason.Equals(GameOverReason.HumansByTask) && Main.PlayerStates[pc.PlayerId].Role is DarkHide { IsWinKill: true } && DarkHide.SnatchesWin.GetBool())):
+                        case CustomRoles.DarkHide when pc.IsAlive() && ((WinnerTeam == CustomWinner.Impostor && !reason.Equals(GameOverReason.ImpostorBySabotage)) || WinnerTeam == CustomWinner.DarkHide || (WinnerTeam == CustomWinner.Crewmate && !reason.Equals(GameOverReason.HumansByTask) && Main.PlayerStates[pc.PlayerId].Role is DarkHide { IsWinKill: true } && DarkHide.SnatchesWin.GetBool())):
                             ResetAndSetWinner(CustomWinner.DarkHide);
                             WinnerIds.Add(pc.PlayerId);
                             break;
-                        case CustomRoles.Phantasm when pc.GetTaskState().IsTaskFinished && pc.Data.IsDead && Options.PhantomSnatchesWin.GetBool():
+                        case CustomRoles.Phantasm when pc.GetTaskState().RemainingTasksCount <= 0 && !pc.IsAlive() && Options.PhantomSnatchesWin.GetBool():
                             reason = GameOverReason.ImpostorByKill;
                             ResetAndSetWinner(CustomWinner.Phantom);
                             WinnerIds.Add(pc.PlayerId);
                             break;
-                        case CustomRoles.Phantasm when !Options.PhantomSnatchesWin.GetBool() && !pc.IsAlive() && pc.GetTaskState().IsTaskFinished:
+                        case CustomRoles.Phantasm when pc.GetTaskState().RemainingTasksCount <= 0 && !pc.IsAlive() && !Options.PhantomSnatchesWin.GetBool():
                             WinnerIds.Add(pc.PlayerId);
                             AdditionalWinnerTeams.Add(AdditionalWinners.Phantom);
                             break;
@@ -312,8 +312,14 @@ static class GameEndChecker
 
     private static void StartEndGame(GameOverReason reason)
     {
+        var msg = GetString("NotifyGameEnding");
+        Main.AllPlayerControls.DoIf(
+            x => x.GetClient() != null && !x.Data.Disconnected,
+            x => ChatUpdatePatch.SendMessage(PlayerControl.LocalPlayer, "\n", x.PlayerId, msg));
+
         SetEverythingUpPatch.LastWinsReason = WinnerTeam is CustomWinner.Crewmate or CustomWinner.Impostor ? GetString($"GameOverReason.{reason}") : string.Empty;
-        AmongUsClient.Instance.StartCoroutine(CoEndGame(AmongUsClient.Instance, reason).WrapToIl2Cpp());
+        AmongUsClient self = AmongUsClient.Instance;
+        self.StartCoroutine(CoEndGame(self, reason).WrapToIl2Cpp());
     }
 
     private static IEnumerator CoEndGame(InnerNetClient self, GameOverReason reason)
@@ -370,7 +376,7 @@ static class GameEndChecker
                 playerInfo.IsDead = false;
                 // transmission
                 playerInfo.SetDirtyBit(0b_1u << playerId);
-                AmongUsClient.Instance.SendAllStreamedObjects();
+                self.SendAllStreamedObjects();
             }
 
             // Delay to ensure that the end of the game is delivered at the end of the game
@@ -886,18 +892,5 @@ static class CheckGameEndPatch
 
         __result = GameEndChecker.Predicate?.CheckGameEndByTask(out _) ?? false;
         return false;
-    }
-}
-
-[HarmonyPatch(typeof(GameManager), nameof(GameManager.RpcEndGame))]
-static class RpcEndGamePatch
-{
-    public static void Prefix()
-    {
-        if (!AmongUsClient.Instance.AmHost) return;
-        var msg = GetString("NotifyGameEnding");
-        Main.AllPlayerControls.DoIf(
-            x => x.GetClient() != null && !x.Data.Disconnected,
-            x => ChatUpdatePatch.SendMessage(PlayerControl.LocalPlayer, "\n", x.PlayerId, msg));
     }
 }

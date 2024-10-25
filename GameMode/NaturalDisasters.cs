@@ -44,7 +44,7 @@ namespace EHR
             int id = 69_216_001;
             Color color = Utils.GetRoleColor(CustomRoles.NDPlayer);
             const CustomGameMode gameMode = CustomGameMode.NaturalDisasters;
-            
+
             DisasterFrequency = new IntegerOptionItem(id++, "ND_DisasterFrequency", new(1, 20, 1), 2, TabGroup.GameSettings)
                 .SetHeader(true)
                 .SetGameMode(gameMode)
@@ -469,7 +469,7 @@ namespace EHR
                     this.NetObject.RpcChangeSprite(newSprite);
                 }
 
-                var range = Range - ((Phases - Phase) * 0.05f);
+                var range = Range - ((Phases - Phase) * 0.4f);
                 KillNearbyPlayers(PlayerState.DeathReason.Lava, range);
             }
         }

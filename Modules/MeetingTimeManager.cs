@@ -2,15 +2,18 @@
 using AmongUs.GameOptions;
 using EHR.Crewmate;
 using EHR.Impostor;
+using HarmonyLib;
 
 namespace EHR.Modules;
 
-public class MeetingTimeManager
+public static class MeetingTimeManager
 {
     private static int DiscussionTime;
     private static int VotingTime;
     private static int DefaultDiscussionTime;
     private static int DefaultVotingTime;
+
+    public static int VotingTimeLeft;
 
     public static void Init()
     {
@@ -83,4 +86,10 @@ public class MeetingTimeManager
 
         Logger.Info($"Discussion Time: {DiscussionTime}s, Voting Time: {VotingTime}s", "MeetingTimeManager.OnReportDeadBody");
     }
+}
+
+[HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.UpdateTimerText))]
+static class MeetingHudUpdateTimerTextPatch
+{
+    public static void Postfix([HarmonyArgument(1)] int value) => MeetingTimeManager.VotingTimeLeft = value;
 }

@@ -365,13 +365,10 @@ namespace EHR.Impostor
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer == null || seer.PlayerId != target.PlayerId) return string.Empty;
-            if (Main.PlayerStates.TryGetValue(seer.PlayerId, out var state) && state.Role is Penguin pg && pg.AbductVictim != null)
-            {
-                return $"\u21b9 {(int)(pg.AbductTimer + 1f)}s";
-            }
+            if (seer == null || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud)) return string.Empty;
+            if (!Main.PlayerStates.TryGetValue(seer.PlayerId, out var state) || state.Role is not Penguin pg || pg.AbductVictim == null) return string.Empty;
 
-            return string.Empty;
+            return $"\u21b9 {(int)(pg.AbductTimer + 1f)}s";
         }
     }
 }

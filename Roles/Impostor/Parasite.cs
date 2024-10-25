@@ -52,5 +52,15 @@ namespace EHR.Impostor
             AURoleOptions.ShapeshifterCooldown = SSCD;
             AURoleOptions.ShapeshifterDuration = SSDur;
         }
+
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return pc.IsAlive();
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return pc.IsAlive();
+        }
     }
 }

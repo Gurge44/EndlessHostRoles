@@ -2,6 +2,7 @@ using System;
 using HarmonyLib;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace EHR;
 
@@ -41,7 +42,7 @@ public static class MainMenuManagerPatch
         ShowingPanel = true;
         TitleLogoPatch.RightPanel.transform.localPosition = TitleLogoPatch.RightPanelOp;
         Instance.OpenGameModeMenu();
-        Instance.playButton.OnClick.AddListener((UnityEngine.Events.UnityAction)ShowRightPanelImmediately);
+        Instance.playButton.OnClick.AddListener((UnityAction)ShowRightPanelImmediately);
     }
 
     [HarmonyPatch(typeof(SignInStatusComponent), nameof(SignInStatusComponent.SetOnline)), HarmonyPostfix]
@@ -160,6 +161,8 @@ public static class MainMenuManagerPatch
             buttonText.DestroyTranslator();
             buttonText.text = Translator.GetString($"MainMenu.{buttonName.Replace(" ", "")}");
         }
+
+        __instance.PlayOnlineButton.OnClick.AddListener((UnityAction)(() => GameOptionsManager.Instance.Initialize()));
     }
 
     private static PassiveButton CreateButton(string name, Vector3 localPosition, Color32 normalColor, Color32 hoverColor, Action action, string label, Vector2? scale = null)

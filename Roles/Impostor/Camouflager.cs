@@ -60,45 +60,46 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool())
+            var unshift = Options.UseUnshiftTrigger.GetBool();
+
+            if (!shapeshifting && !unshift)
             {
+                IsActive = false;
                 Camouflage.CheckCamouflage();
                 return true;
             }
 
-            if (pc.GetAbilityUseLimit() < 1 && !Options.DisableShapeshiftAnimations.GetBool())
-            {
+            if (pc.GetAbilityUseLimit() < 1 && !Options.DisableShapeshiftAnimations.GetBool() && !unshift)
                 pc.SetKillCooldown(CamouflageDuration.GetFloat() + 1f);
-            }
 
             pc.RpcRemoveAbilityUse();
             IsActive = true;
             Camouflage.CheckCamouflage();
 
-            return !Options.UseUnshiftTrigger.GetBool();
+            if (unshift)
+            {
+                LateTask.New(() =>
+                {
+                    if (!IsActive) return;
+                    IsActive = false;
+                    Camouflage.CheckCamouflage();
+                }, CamouflageDuration.GetFloat());
+            }
+
+            return !unshift;
         }
 
         public override void OnReportDeadBody()
-        {
-            Reset();
-        }
-
-        public static void Reset()
         {
             IsActive = false;
             Camouflage.CheckCamouflage();
         }
 
-        public static void IsDead(PlayerControl target)
+        public static void IsDead()
         {
-            if (!target.IsAlive() || GameStates.IsMeeting) return;
-
-            if (target.Is(CustomRoles.Camouflager))
-            {
-                IsActive = false;
-                Camouflage.CheckCamouflage();
-                Utils.NotifyRoles(ForceLoop: true);
-            }
+            IsActive = false;
+            Camouflage.CheckCamouflage();
+            Utils.NotifyRoles(ForceLoop: true);
         }
 
         public override void SetButtonTexts(HudManager hud, byte id)

@@ -51,7 +51,6 @@ public class Magician : RoleBase
         SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Magician);
         KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
             .SetValueFormat(OptionFormat.Seconds);
-
         SlownessValue = new FloatOptionItem(Id + 11, "MagicianSlownessValue", new(0f, 1f, 0.05f), 1f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
             .SetValueFormat(OptionFormat.Multiplier);
         SlownessRadius = new FloatOptionItem(Id + 12, "MagicianSlownessRadius", new(0f, 10f, 0.25f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])

@@ -31,6 +31,7 @@ namespace EHR.Crewmate
         public override void Init()
         {
             On = false;
+            AllKillers = [];
         }
 
         public override void SetKillCooldown(byte id)
@@ -48,11 +49,27 @@ namespace EHR.Crewmate
             hud.KillButton?.OverrideText(Translator.GetString("WitnessButtonText"));
         }
 
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return pc.IsAlive();
+        }
+
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             killer.SetKillCooldown();
             killer.Notify(AllKillers.ContainsKey(target.PlayerId) ? Translator.GetString("WitnessFoundKiller") : Translator.GetString("WitnessFoundInnocent"));
             return false;
+        }
+
+        public override void OnReportDeadBody()
+        {
+            AllKillers.Clear();
+        }
+
+        public override void OnFixedUpdate(PlayerControl pc)
+        {
+            if (AllKillers.TryGetValue(pc.PlayerId, out var ktime) && ktime + WitnessTime.GetInt() < Utils.TimeStamp)
+                AllKillers.Remove(pc.PlayerId);
         }
     }
 }

@@ -56,7 +56,7 @@ namespace EHR.Crewmate
             PullEveryone(physics.myPlayer, ventId);
         }
 
-        public static void PullEveryone(PlayerControl pc, int ventId = 0, bool isPet = false)
+        private static void PullEveryone(PlayerControl pc, int ventId = 0, bool isPet = false)
         {
             if (pc == null || pc.GetAbilityUseLimit() < 1f) return;
 
@@ -66,8 +66,8 @@ namespace EHR.Crewmate
             }
             else
             {
-                LateTask.New(() => { pc.MyPhysics.RpcBootFromVent(ventId); }, 0.5f, "Convener RpcBootFromVent");
-                LateTask.New(() => { Utils.TPAll(pc.Pos()); }, 1f, "Convener TP");
+                LateTask.New(() => pc.MyPhysics.RpcBootFromVent(ventId), 0.5f, "Convener RpcBootFromVent");
+                LateTask.New(() => Utils.TPAll(pc.Pos()), 1f, "Convener TP");
             }
 
             pc.RpcRemoveAbilityUse();

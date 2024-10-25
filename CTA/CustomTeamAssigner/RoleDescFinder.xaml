@@ -3,6 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
       mc:Ignorable="d"
       d:DesignHeight="680" d:DesignWidth="1260" FontSize="24"
       Title="Role Description Finder">
@@ -121,7 +122,7 @@
                 <ScaleTransform/>
             </Button.RenderTransform>
             <StackPanel Orientation="Horizontal">
-                <Image Source="Resources/search.svg" Name="SearchButtonImage" Width="30" Height="30" Margin="15"/>
+                <svgc:SvgViewbox Source="Resources/search.svg" Width="30" Height="30" Margin="15"/>
                 <TextBlock Text="Find Description"/>
             </StackPanel>
         </Button>
@@ -134,7 +135,7 @@
                 <ScaleTransform/>
             </Button.RenderTransform>
             <StackPanel Orientation="Horizontal">
-                <Image Source="Resources/back.svg" Name="BackButtonImage" Width="30" Height="30" Margin="0,0,15,0"/>
+                <svgc:SvgViewbox Source="Resources/back.svg" Width="30" Height="30" Margin="0,0,15,0"/>
                 <TextBlock Text="Back"/>
             </StackPanel>
         </Button>

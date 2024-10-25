@@ -31,9 +31,9 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "4.8.0";
-    public const string PluginDisplayVersion = "4.8.0";
-    public const bool TestBuild = true;
+    public const string PluginVersion = "5.0.1";
+    public const string PluginDisplayVersion = "5.0.1";
+    public const bool TestBuild = false;
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
     public const string CrewmateColor = "#8cffff";
@@ -54,7 +54,6 @@ public class Main : BasePlugin
     public static Dictionary<byte, PlayerVersion> PlayerVersion = [];
     public static bool ChangedRole = false;
     public static OptionBackupData RealOptionsData;
-    public static string HostRealName = string.Empty;
     public static Dictionary<byte, float> KillTimers = [];
     public static Dictionary<byte, PlayerState> PlayerStates = [];
     public static Dictionary<byte, string> AllPlayerNames = [];
@@ -154,6 +153,7 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> LongMode { get; private set; }
     public static ConfigEntry<bool> ShowPlayerInfoInLobby { get; private set; }
     public static ConfigEntry<bool> LobbyMusic { get; private set; }
+    public static ConfigEntry<bool> EnableCommandHelper { get; private set; }
 
     // Preset Name Options
     public static ConfigEntry<string> Preset1 { get; private set; }
@@ -244,6 +244,7 @@ public class Main : BasePlugin
         LongMode = Config.Bind("Client Options", "LongMode", false);
         ShowPlayerInfoInLobby = Config.Bind("Client Options", "ShowPlayerInfoInLobby", false);
         LobbyMusic = Config.Bind("Client Options", "LobbyMusic", false);
+        EnableCommandHelper = Config.Bind("Client Options", "EnableCommandHelper", true);
 
         Logger = BepInEx.Logging.Logger.CreateLogSource("EHR");
         coroutines = AddComponent<Coroutines>();
@@ -476,6 +477,7 @@ public class Main : BasePlugin
                 { CustomRoles.HexMaster, "#ff00ff" },
                 { CustomRoles.Wraith, "#4B0082" },
                 { CustomRoles.NSerialKiller, "#233fcc" },
+                { CustomRoles.Vortex, "#a83293" },
                 { CustomRoles.Beehive, "#ffff00" },
                 { CustomRoles.RouleteGrandeur, "#a88332" },
                 { CustomRoles.Nonplus, "#09632f" },
@@ -560,6 +562,7 @@ public class Main : BasePlugin
                 { CustomRoles.AntiTP, "#fcba03" },
                 { CustomRoles.Deadlined, "#ffa500" },
                 { CustomRoles.Rookie, "#bf671f" },
+                { CustomRoles.Trainee, "#4287f5" },
                 { CustomRoles.Taskcounter, "#ff1919" },
                 { CustomRoles.Stained, "#e6bf91" },
                 { CustomRoles.Clumsy, "#b8b8b8" },
@@ -805,6 +808,7 @@ public enum CustomWinner
     Necromancer = CustomRoles.Necromancer,
     Wraith = CustomRoles.Wraith,
     SerialKiller = CustomRoles.NSerialKiller,
+    Vortex = CustomRoles.Vortex,
     Beehive = CustomRoles.Beehive,
     RouleteGrandeur = CustomRoles.RouleteGrandeur,
     Nonplus = CustomRoles.Nonplus,

@@ -10,19 +10,19 @@ namespace EHR.Neutral;
 public class Lawyer : RoleBase
 {
     private const int Id = 9900;
-    public static List<byte> PlayerIdList = [];
+    private static List<byte> PlayerIdList = [];
 
     private static OptionItem CanTargetImpostor;
     private static OptionItem CanTargetNeutralKiller;
     private static OptionItem CanTargetCrewmate;
     private static OptionItem CanTargetJester;
-    public static OptionItem ChangeRolesAfterTargetKilled;
-    public static OptionItem KnowTargetRole;
-    public static OptionItem TargetKnowsLawyer;
+    private static OptionItem ChangeRolesAfterTargetKilled;
+    private static OptionItem KnowTargetRole;
+    private static OptionItem TargetKnowsLawyer;
 
     public static Dictionary<byte, byte> Target = [];
 
-    public static readonly CustomRoles[] CRoleChangeRoles =
+    private static readonly CustomRoles[] CRoleChangeRoles =
     [
         CustomRoles.CrewmateEHR,
         CustomRoles.Jester,
@@ -131,6 +131,7 @@ public class Lawyer : RoleBase
         });
         PlayerControl lawyer = Utils.GetPlayerById(Lawyer);
         var newRole = CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()];
+        lawyer.RpcChangeRoleBasis(newRole);
         lawyer.RpcSetCustomRole(newRole);
         Target.Remove(Lawyer);
         SendRPC(Lawyer);
@@ -158,9 +159,10 @@ public class Lawyer : RoleBase
         return GetValue && targetId == target.PlayerId ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), "§") : string.Empty;
     }
 
-    public static void ChangeRole(PlayerControl lawyer)
+    private static void ChangeRole(PlayerControl lawyer)
     {
         var newRole = CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()];
+        lawyer.RpcChangeRoleBasis(newRole);
         lawyer.RpcSetCustomRole(newRole);
         Target.Remove(lawyer.PlayerId);
         SendRPC(lawyer.PlayerId);

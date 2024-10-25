@@ -5,23 +5,38 @@ using HarmonyLib;
 namespace EHR.Patches;
 
 [HarmonyPatch(typeof(GameOptionsManager), nameof(GameOptionsManager.SwitchGameMode))]
-class SwitchGameModePatch
+static class SwitchGameModePatch
 {
+    private static bool Warned;
+
+    public static bool Prefix(GameModes gameMode)
+    {
+        if ((!AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer != null) || gameMode != GameModes.HideNSeek || Warned) return true;
+        HudManager.Instance.ShowPopUp(Translator.GetString("HnSUnloadWarning"));
+        return false;
+    }
+
     public static void Postfix(GameModes gameMode)
     {
-        if (gameMode == GameModes.HideNSeek)
+        if ((!AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer != null) || gameMode != GameModes.HideNSeek) return;
+
+        if (!Warned)
         {
-            ErrorText.Instance.HnSFlag = true;
-            ErrorText.Instance.AddError(ErrorCode.HnsUnload);
-            Harmony.UnpatchAll();
-            Main.Instance.Unload();
+            Warned = true;
+            return;
         }
+
+        ErrorText.Instance.HnSFlag = true;
+        ErrorText.Instance.AddError(ErrorCode.HnsUnload);
+        Zoom.SetZoomSize(reset: true);
+        Harmony.UnpatchAll();
+        Main.Instance.Unload();
     }
 }
 
-[HarmonyPatch(typeof(NormalGameOptionsV08), nameof(NormalGameOptionsV08.SetRecommendations), [typeof(int), typeof(bool), typeof(RulesPresets)])]
-[HarmonyPatch(typeof(NormalGameOptionsV08), nameof(NormalGameOptionsV08.SetRecommendations), [typeof(int), typeof(bool)])]
-class SetRecommendationsPatch
+[HarmonyPatch(typeof(NormalGameOptionsV08), nameof(NormalGameOptionsV08.SetRecommendations), typeof(int), typeof(bool), typeof(RulesPresets))]
+[HarmonyPatch(typeof(NormalGameOptionsV08), nameof(NormalGameOptionsV08.SetRecommendations), typeof(int), typeof(bool))]
+static class SetRecommendationsPatch
 {
     public static void Postfix(NormalGameOptionsV08 __instance,
         [HarmonyArgument(0)] int numPlayers,

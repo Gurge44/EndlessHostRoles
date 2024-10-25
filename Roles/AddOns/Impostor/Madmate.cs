@@ -8,7 +8,7 @@ namespace EHR.AddOns.Impostor
 
         public void SetupCustomOption()
         {
-            SetupAdtRoleOptions(15800, CustomRoles.Madmate, canSetNum: true, canSetChance: false);
+            SetupAdtRoleOptions(15800, CustomRoles.Madmate, canSetNum: true, canSetChance: false, allowZeroCount: true);
             MadmateSpawnMode = new StringOptionItem(15810, "MadmateSpawnMode", MadmateSpawnModeStrings, 0, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Madmate]);
             MadmateCountMode = new StringOptionItem(15811, "MadmateCountMode", MadmateCountModeStrings, 0, TabGroup.Addons)

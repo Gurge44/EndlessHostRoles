@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using AmongUs.GameOptions;
 using static EHR.Translator;
 
 namespace EHR.Impostor;
@@ -126,15 +128,17 @@ internal class Eraser : RoleBase
 
     public override void AfterMeetingTasks()
     {
-        foreach (byte pc in PlayerToErase)
+        foreach (byte id in PlayerToErase)
         {
-            var player = Utils.GetPlayerById(pc);
-            if (player == null) continue;
-            player.RpcSetCustomRole(player.GetCustomRole().GetErasedRole());
-            player.Notify(GetString("LostRoleByEraser"));
-            Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()} lost their role", "Eraser");
-            player.MarkDirtySettings();
-            ErasedPlayers.Add(pc);
+            var pc = Utils.GetPlayerById(id);
+            if (pc == null || !pc.IsAlive() || pc.Is(CustomRoles.Bloodlust)) continue;
+            var erasedRole = pc.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Noisemaker or RoleTypes.Scientist or RoleTypes.Tracker ? CustomRoles.CrewmateEHR : CustomRoles.ImpostorEHR;
+            pc.RpcSetCustomRole(erasedRole);
+            pc.RpcChangeRoleBasis(erasedRole);
+            pc.Notify(GetString("LostRoleByEraser"));
+            Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} lost their role", "Eraser");
+            pc.MarkDirtySettings();
+            ErasedPlayers.Add(id);
         }
 
         PlayerToErase = [];

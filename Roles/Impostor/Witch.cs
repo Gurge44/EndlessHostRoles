@@ -13,13 +13,6 @@ namespace EHR.Impostor;
 
 public class Witch : RoleBase
 {
-    public enum SwitchTrigger
-    {
-        Kill,
-        Vent,
-        DoubleTrigger
-    }
-
     private const int Id = 2000;
 
     public static readonly string[] SwitchTriggerText =
@@ -171,7 +164,7 @@ public class Witch : RoleBase
 
         if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger)
         {
-            return killer.CheckDoubleTrigger(target, () => { SetSpelled(killer, target); });
+            return killer.CheckDoubleTrigger(target, () => SetSpelled(killer, target));
         }
 
         if (!SpellMode)
@@ -247,33 +240,22 @@ public class Witch : RoleBase
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
-        if (seer == null || meeting || seer.PlayerId != target.PlayerId || !seer.Is(CustomRoles.Witch)) return string.Empty;
+        if (seer == null || meeting || seer.PlayerId != target.PlayerId || !seer.Is(CustomRoles.Witch) || (seer.IsModClient() && !hud)) return string.Empty;
 
         var str = new StringBuilder();
-        if (hud)
-        {
-            str.Append($"<color=#00ffa5>{GetString("WitchCurrentMode")}:</color> <b>");
-        }
-        else
-        {
-            str.Append($"{GetString("Mode")}: ");
-        }
 
-        if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger)
-        {
-            str.Append(GetString("WitchModeDouble"));
-        }
-        else
-        {
-            str.Append(IsSpellMode(seer.PlayerId) ? GetString("WitchModeSpell") : GetString("WitchModeKill"));
-        }
+        if (hud) str.Append($"<size=90%><color=#00ffa5>{GetString("WitchCurrentMode")}:</color> <b>");
+        else str.Append($"{GetString("Mode")}: ");
+
+        if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger) str.Append(GetString("WitchModeDouble"));
+        else str.Append(SpellMode ? GetString("WitchModeSpell") : GetString("WitchModeKill"));
 
         return str.ToString();
     }
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        if (IsSpellMode(PlayerControl.LocalPlayer.PlayerId) && NowSwitchTrigger != SwitchTrigger.DoubleTrigger)
+        if (SpellMode && NowSwitchTrigger != SwitchTrigger.DoubleTrigger)
         {
             hud.KillButton.OverrideText(GetString("WitchSpellButtonText"));
         }
@@ -282,8 +264,6 @@ public class Witch : RoleBase
             hud.KillButton.OverrideText(GetString("KillButtonText"));
         }
     }
-
-    static bool IsSpellMode(byte id) => Main.PlayerStates[id].Role is Witch { IsEnable: true, SpellMode: true };
 
     public override void OnEnterVent(PlayerControl pc, Vent vent)
     {
@@ -295,5 +275,12 @@ public class Witch : RoleBase
                 SwitchSpellMode(pc.PlayerId, false);
             }
         }
+    }
+
+    private enum SwitchTrigger
+    {
+        Kill,
+        Vent,
+        DoubleTrigger
     }
 }

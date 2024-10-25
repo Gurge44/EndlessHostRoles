@@ -14,8 +14,9 @@ public class Pelican : RoleBase
     private static List<byte> PlayerIdList = [];
     private static Dictionary<byte, List<byte>> EatenList = [];
     private static readonly Dictionary<byte, float> OriginalSpeed = [];
-    public static OptionItem KillCooldown;
-    public static OptionItem CanVent;
+    private static OptionItem KillCooldown;
+    private static OptionItem CanVent;
+    private static OptionItem ImpostorVision;
 
     private int Count;
 
@@ -28,6 +29,8 @@ public class Pelican : RoleBase
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican])
             .SetValueFormat(OptionFormat.Seconds);
         CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles)
+            .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican]);
+        ImpostorVision = new BooleanOptionItem(Id + 12, "ImpostorVision", false, TabGroup.NeutralRoles)
             .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican]);
     }
 
@@ -43,7 +46,7 @@ public class Pelican : RoleBase
     }
 
     public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
-    public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(ImpostorVision.GetBool());
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
 
     private static void SyncEatenList( /*byte playerId*/)
@@ -115,7 +118,7 @@ public class Pelican : RoleBase
             3 => new(27f, 3.3f), // dlekS ehT
             4 => new(-16.8f, -6.2f), // Airship
             5 => new(9.6f, 23.2f), // The Fungle
-            _ => throw new NotImplementedException()
+            _ => throw new ArgumentOutOfRangeException(Main.NormalOptions.MapId.ToString(), "Unsupported map")
         };
     }
 

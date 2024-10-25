@@ -74,10 +74,12 @@ public class Greedier : RoleBase // Also used for Imitator as the NK version of 
         opt.SetVision(HasImpVision);
     }
 
+    public override bool CanUseImpostorVentButton(PlayerControl pc) => !IsImitator || Imitator.CanVent.GetBool();
+
     void SendRPC(byte playerId)
     {
         if (!Utils.DoRPC) return;
-        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGreedierOE, SendOption.Reliable);
+        MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGreedierOe, SendOption.Reliable);
         writer.Write(playerId);
         writer.Write(IsOdd);
         AmongUsClient.Instance.FinishRpcImmediately(writer);

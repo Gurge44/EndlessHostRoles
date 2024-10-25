@@ -16,7 +16,9 @@ public class Amnesiac : RoleBase
     private static OptionItem CanRememberCrewPower;
     private static OptionItem IncompatibleNeutralMode;
     public static OptionItem RememberMode;
-    public static OptionItem RoleBasis;
+    public static OptionItem CanVent;
+    private static OptionItem VentCooldown;
+    private static OptionItem VentDuration;
 
     private static readonly CustomRoles[] AmnesiacIncompatibleNeutralMode =
     [
@@ -48,8 +50,14 @@ public class Amnesiac : RoleBase
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
         IncompatibleNeutralMode = new StringOptionItem(Id + 12, "IncompatibleNeutralMode", AmnesiacIncompatibleNeutralMode.Select(x => x.ToColoredString()).ToArray(), 0, TabGroup.NeutralRoles, noTranslation: true)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
-        RoleBasis = new StringOptionItem(Id + 14, "AmnesiacRoleBasis", [CustomRoles.Engineer.ToColoredString(), CustomRoles.Crewmate.ToColoredString()], 1, TabGroup.NeutralRoles, noTranslation: true)
+        CanVent = new BooleanOptionItem(Id + 13, "CanVent", false, TabGroup.NeutralRoles)
             .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
+        VentCooldown = new FloatOptionItem(Id + 14, "VentCooldown", new(0f, 180f, 0.5f), 5f, TabGroup.NeutralRoles)
+            .SetParent(CanVent)
+            .SetValueFormat(OptionFormat.Seconds);
+        VentDuration = new FloatOptionItem(Id + 15, "MaxInVentTime", new(0f, 180f, 0.5f), 5f, TabGroup.NeutralRoles)
+            .SetParent(CanVent)
+            .SetValueFormat(OptionFormat.Seconds);
     }
 
     public override void Init()
@@ -65,12 +73,21 @@ public class Amnesiac : RoleBase
     }
 
     public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = RememberCooldown.GetFloat();
-    public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && RememberMode.GetValue() == 0;
-    public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
+    public override bool CanUseKillButton(PlayerControl player) => !player.Data.IsDead && RememberMode.GetValue() == 1;
+    
+    public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+    {
+        opt.SetVision(false);
+        if (CanVent.GetBool())
+        {
+            AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
+            AURoleOptions.EngineerInVentMaxTime = VentDuration.GetFloat();
+        }
+    }
 
     public static void OnAnyoneDeath(PlayerControl target)
     {
-        if (RememberMode.GetValue() == 1)
+        if (RememberMode.GetValue() == 0)
         {
             foreach (Amnesiac instance in Instances)
             {
@@ -83,7 +100,7 @@ public class Amnesiac : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        if (RememberMode.GetValue() == 0)
+        if (RememberMode.GetValue() == 1)
         {
             RememberRole(killer, target);
         }
@@ -93,7 +110,7 @@ public class Amnesiac : RoleBase
 
     public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
     {
-        if (RememberMode.GetValue() == 1)
+        if (RememberMode.GetValue() == 0)
         {
             RememberRole(reporter, target.Object);
             return false;
@@ -212,7 +229,7 @@ public class Amnesiac : RoleBase
 
     public override void SetButtonTexts(HudManager hud, byte id)
     {
-        ActionButton amneButton = RememberMode.GetValue() == 0 ? hud.KillButton : hud.ReportButton;
+        ActionButton amneButton = RememberMode.GetValue() == 1 ? hud.KillButton : hud.ReportButton;
         amneButton?.OverrideText(GetString("RememberButtonText"));
     }
 

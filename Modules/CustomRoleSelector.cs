@@ -135,6 +135,8 @@ internal static class CustomRoleSelector
             else Roles[RoleAssignType.Crewmate].Add(info);
         }
 
+        LoversData.OneIsImp &= Roles[RoleAssignType.Impostor].Count(x => x.SpawnChance == 100) < optImpNum;
+
         if (LoversData.Spawning)
         {
             if (LoversData.OneIsImp)
@@ -149,6 +151,12 @@ internal static class CustomRoleSelector
         {
             Roles[RoleAssignType.Impostor].Add(new(CustomRoles.ImpostorEHR, 100, optImpNum));
             Logger.Warn("Adding Vanilla Impostor", "CustomRoleSelector");
+        }
+
+        if (Roles[RoleAssignType.Crewmate].Count == 0 && optNeutralKillingNum == 0 && optNonNeutralKillingNum == 0 && !Main.SetRoles.Values.Any(x => x.IsCrewmate()))
+        {
+            Roles[RoleAssignType.Crewmate].Add(new(CustomRoles.CrewmateEHR, 100, playerCount));
+            Logger.Warn("Adding Vanilla Crewmates", "CustomRoleSelector");
         }
 
         Logger.Info($"Number of NKs: {optNeutralKillingNum}, Number of NNKs: {optNonNeutralKillingNum}", "NeutralNum");

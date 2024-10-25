@@ -9,8 +9,8 @@ public static class DoorsReset
         RandomByDoor
     }
 
-    private static bool isEnabled;
-    private static ResetMode mode;
+    private static bool IsEnabled;
+    private static ResetMode Mode;
     private static DoorsSystemType DoorsSystem => ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Doors, out var system) ? system.TryCast<DoorsSystemType>() : null;
 
     public static void Initialize()
@@ -18,26 +18,26 @@ public static class DoorsReset
         // Not supported except for Airship, Polus and Fungle
         if ((MapNames)Main.NormalOptions.MapId is not (MapNames.Airship or MapNames.Polus or MapNames.Fungle))
         {
-            isEnabled = false;
+            IsEnabled = false;
             return;
         }
 
-        isEnabled = Options.ResetDoorsEveryTurns.GetBool();
-        mode = (ResetMode)Options.DoorsResetMode.GetValue();
-        Logger.Info($"Initalization: [ {isEnabled}, {mode} ]", "DoorsReset");
+        IsEnabled = Options.ResetDoorsEveryTurns.GetBool();
+        Mode = (ResetMode)Options.DoorsResetMode.GetValue();
+        Logger.Info($"Initalization: [ {IsEnabled}, {Mode} ]", "DoorsReset");
     }
 
     /// <summary>Reset door status according to settings</summary>
     public static void ResetDoors()
     {
-        if (!isEnabled || DoorsSystem == null)
+        if (!IsEnabled || DoorsSystem == null)
         {
             return;
         }
 
         Logger.Info("Reset Completed", "DoorsReset");
 
-        switch (mode)
+        switch (Mode)
         {
             case ResetMode.AllOpen:
                 OpenAllDoors();
@@ -49,7 +49,7 @@ public static class DoorsReset
                 OpenOrCloseAllDoorsRandomly();
                 break;
             default:
-                Logger.Warn($"Invalid Reset Doors Mode: {mode}", "DoorsReset");
+                Logger.Warn($"Invalid Reset Doors Mode: {Mode}", "DoorsReset");
                 break;
         }
     }

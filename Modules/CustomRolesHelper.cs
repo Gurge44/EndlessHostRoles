@@ -69,6 +69,7 @@ internal static class CustomRolesHelper
             CustomRoles.Ritualist => new EvilDiviner(),
             CustomRoles.Wraith => new Swooper(),
             CustomRoles.Goose => new Penguin(),
+            CustomRoles.Monitor => new AntiAdminer(),
 
             // Else, the role class is the role name - if the class doesn't exist, it defaults to VanillaRole
             _ => Main.AllRoleClasses.FirstOrDefault(x => x.GetType().Name.Equals(role.ToString(), StringComparison.OrdinalIgnoreCase)) ?? new VanillaRole()
@@ -100,7 +101,7 @@ internal static class CustomRolesHelper
             CustomRoles.SabotageMaster => CustomRoles.Engineer,
             CustomRoles.Mafia => Options.LegacyMafia.GetBool() ? CustomRoles.Shapeshifter : CustomRoles.Impostor,
             CustomRoles.Terrorist => CustomRoles.Engineer,
-            CustomRoles.Executioner => Executioner.CRoleChangeRoles[Executioner.ChangeRolesAfterTargetKilled.GetValue()].GetVNRole(checkDesyncRole: true),
+            CustomRoles.Executioner => CustomRoles.Crewmate,
             CustomRoles.Lawyer => CustomRoles.Crewmate,
             CustomRoles.NiceSwapper => CustomRoles.Crewmate,
             CustomRoles.Ignitor => CustomRoles.Crewmate,
@@ -120,6 +121,7 @@ internal static class CustomRolesHelper
             CustomRoles.Dictator => CustomRoles.Crewmate,
             CustomRoles.Inhibitor => CustomRoles.Impostor,
             CustomRoles.Kidnapper => CustomRoles.Shapeshifter,
+            CustomRoles.Wasp => CustomRoles.Impostor,
             CustomRoles.Assumer => CustomRoles.Impostor,
             CustomRoles.Augmenter => CustomRoles.Shapeshifter,
             CustomRoles.Ventriloquist => CustomRoles.Impostor,
@@ -266,7 +268,7 @@ internal static class CustomRolesHelper
             CustomRoles.BallLightning => CustomRoles.Impostor,
             CustomRoles.Greedier => CustomRoles.Impostor,
             CustomRoles.Workaholic => CustomRoles.Engineer,
-            CustomRoles.Amnesiac => Amnesiac.RoleBasis.GetValue() == 0 ? CustomRoles.Engineer : CustomRoles.Crewmate,
+            CustomRoles.Amnesiac => Amnesiac.CanVent.GetBool() ? CustomRoles.Engineer : CustomRoles.Crewmate,
             CustomRoles.Speedrunner => CustomRoles.Crewmate,
             CustomRoles.CursedWolf => CustomRoles.Impostor,
             CustomRoles.Collector => CustomRoles.Crewmate,
@@ -379,7 +381,6 @@ internal static class CustomRolesHelper
             // Natural Disasters
             CustomRoles.NDPlayer => RoleTypes.Crewmate,
             // Standard
-            CustomRoles.Executioner => Executioner.CRoleChangeRoles[Executioner.ChangeRolesAfterTargetKilled.GetValue()].GetDYRole(),
             CustomRoles.Sheriff => UsePets && Sheriff.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Crusader => UsePets && Crusader.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.CopyCat => UsePets && CopyCat.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
@@ -393,7 +394,7 @@ internal static class CustomRolesHelper
             CustomRoles.Sidekick => RoleTypes.Impostor,
             CustomRoles.SwordsMan => UsePets && SwordsMan.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Innocent => RoleTypes.Impostor,
-            CustomRoles.Amnesiac when Amnesiac.RememberMode.GetValue() == 0 => RoleTypes.Impostor,
+            CustomRoles.Amnesiac when Amnesiac.RememberMode.GetValue() == 1 => RoleTypes.Impostor,
             CustomRoles.Pelican => RoleTypes.Impostor,
             CustomRoles.Aid => UsePets && Aid.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
             CustomRoles.Socialite => UsePets && Socialite.UsePet.GetBool() ? RoleTypes.GuardianAngel : RoleTypes.Impostor,
@@ -419,6 +420,7 @@ internal static class CustomRolesHelper
             CustomRoles.BloodKnight => RoleTypes.Impostor,
             CustomRoles.Poisoner => RoleTypes.Impostor,
             CustomRoles.NSerialKiller => RoleTypes.Impostor,
+            CustomRoles.Vortex => RoleTypes.Impostor,
             CustomRoles.Beehive => RoleTypes.Impostor,
             CustomRoles.RouleteGrandeur => RoleTypes.Impostor,
             CustomRoles.Nonplus => RoleTypes.Impostor,
@@ -510,6 +512,7 @@ internal static class CustomRolesHelper
         CustomRoles.Rogue or
         CustomRoles.Parasite or
         CustomRoles.NSerialKiller or
+        CustomRoles.Vortex or
         CustomRoles.Beehive or
         CustomRoles.RouleteGrandeur or
         CustomRoles.Nonplus or
@@ -583,6 +586,7 @@ internal static class CustomRolesHelper
         CustomRoles.Augmenter or
         CustomRoles.Inhibitor or
         CustomRoles.Kidnapper or
+        CustomRoles.Wasp or
         CustomRoles.Hypnotist or
         CustomRoles.Assumer or
         CustomRoles.Generator or
@@ -754,8 +758,13 @@ internal static class CustomRolesHelper
 
     public static bool IsImpOnlyAddon(this CustomRoles role) => Options.GroupedAddons[AddonTypes.ImpOnly].Contains(role);
 
+    public static bool NeedsUpdateAfterDeath(this CustomRoles role) => role is
+        CustomRoles.Altruist or
+        CustomRoles.Duellist;
+
     public static bool IsTaskBasedCrewmate(this CustomRoles role) => role is
         CustomRoles.Snitch or
+        CustomRoles.Speedrunner or
         CustomRoles.Marshall or
         CustomRoles.TimeManager or
         CustomRoles.Ignitor or
@@ -775,12 +784,25 @@ internal static class CustomRolesHelper
         CustomRoles.Pickpocket or
         CustomRoles.TicketsStealer;
 
+    public static bool IsNotAssignableMidGame(this CustomRoles role) => role is
+        CustomRoles.Egoist or
+        CustomRoles.Workhorse or
+        CustomRoles.Cleansed or
+        CustomRoles.Busy or
+        CustomRoles.Lovers or
+        CustomRoles.Stressed or
+        CustomRoles.Lazy or
+        CustomRoles.Rascal or
+        CustomRoles.LastImpostor;
+
     public static bool ForceCancelShapeshift(this CustomRoles role) => role is
+        CustomRoles.Swapster or
         CustomRoles.Echo or
         CustomRoles.Hangman or
         CustomRoles.Generator;
 
     public static bool IsNoAnimationShifter(this CustomRoles role) => role is
+        CustomRoles.Generator or
         CustomRoles.Echo;
 
     public static bool AlwaysUsesUnshift(this CustomRoles role) => role is
@@ -832,7 +854,7 @@ internal static class CustomRolesHelper
         CustomRoles.Nimble when pc.Is(CustomRoles.Oxyman) => false,
         CustomRoles.Magnet when pc.Is(Team.Impostor) => false,
         CustomRoles.Swift when pc.Is(CustomRoles.Magnet) => false,
-        CustomRoles.Oblivious when pc.Is(CustomRoles.Amnesiac) && Amnesiac.RememberMode.GetValue() == 1 => false,
+        CustomRoles.Oblivious when pc.Is(CustomRoles.Amnesiac) && Amnesiac.RememberMode.GetValue() == 0 => false,
         CustomRoles.Rookie when !pc.CanUseKillButton() => false,
         CustomRoles.Energetic when !Options.UsePets.GetBool() => false,
         CustomRoles.Madmate when pc.Is(CustomRoles.Sidekick) => false,
@@ -999,7 +1021,7 @@ internal static class CustomRolesHelper
     public static CustomRoleTypes GetCustomRoleTypes(this CustomRoles role)
     {
         CustomRoleTypes type = CustomRoleTypes.Crewmate;
-        if (role.IsImpostor()) type = CustomRoleTypes.Impostor;
+        if (role.IsImpostor() || role.IsMadmate()) type = CustomRoleTypes.Impostor;
         if (role.IsNeutral()) type = CustomRoleTypes.Neutral;
         if (role.IsAdditionRole()) type = CustomRoleTypes.Addon;
         return type;
@@ -1221,6 +1243,7 @@ internal static class CustomRolesHelper
         CustomRoles.Sniper => RoleOptionType.Impostor_Killing,
         CustomRoles.BoobyTrap => RoleOptionType.Impostor_Killing,
         CustomRoles.Underdog => RoleOptionType.Impostor_Killing,
+        CustomRoles.Wasp => RoleOptionType.Impostor_Killing,
         CustomRoles.Witch => RoleOptionType.Impostor_Killing,
         CustomRoles.Zombie => RoleOptionType.Impostor_Killing,
         CustomRoles.Bard => RoleOptionType.Impostor_Support,
@@ -1477,6 +1500,7 @@ public enum CountTypes
     HexMaster,
     Wraith,
     NSerialKiller,
+    Vortex,
     Beehive,
     RouleteGrandeur,
     Nonplus,

@@ -3,6 +3,7 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
       mc:Ignorable="d"
       Title="RichTextEditor" Height="680" Width="1260">
     
@@ -174,7 +175,7 @@
                 <ScaleTransform/>
             </Button.RenderTransform>
             <StackPanel Orientation="Horizontal">
-                <Image Source="Resources/back.svg" Name="BackButtonImage" Width="30" Height="30" Margin="0,0,15,0"/>
+                <svgc:SvgViewbox Source="Resources/back.svg" Width="30" Height="30" Margin="0,0,15,0"/>
                 <TextBlock Text="Back"/>
             </StackPanel>
         </Button>

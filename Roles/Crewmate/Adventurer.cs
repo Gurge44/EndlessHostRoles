@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Patches;
 using Hazel;
@@ -65,16 +66,18 @@ namespace EHR.Crewmate
         public List<Weapon> ActiveWeapons;
 
         private PlayerControl AdventurerPC;
-        public bool InCraftingMode;
+
+        private int Count;
+        private bool InCraftingMode;
         private long LastGroupingResourceTimeStamp;
 
         private long LastRandomResourceTimeStamp;
 
-        public List<Weapon> OrderedWeapons;
+        private List<Weapon> OrderedWeapons;
         private Dictionary<Resource, Vector2> ResourceLocations;
-        public HashSet<byte> RevealedPlayers;
+        private HashSet<byte> RevealedPlayers;
         private Weapon SelectedWeaponToCraft;
-        public HashSet<byte> ShieldedPlayers;
+        private HashSet<byte> ShieldedPlayers;
         public override bool IsEnable => On;
 
         static void HideObject(Resource resource) => CustomNetObject.AllObjects.FirstOrDefault(x => x is AdventurerItem a && a.Resource == resource)?.Despawn();
@@ -126,6 +129,12 @@ namespace EHR.Crewmate
                 .Where(x => x.Value.GetBool())
                 .Select(x => x.Key)
                 .ToList();
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            AURoleOptions.EngineerCooldown = 1f;
+            AURoleOptions.EngineerInVentMaxTime = 1f;
         }
 
         public override void OnExitVent(PlayerControl pc, Vent vent)
@@ -189,7 +198,7 @@ namespace EHR.Crewmate
                             break;
                         case Weapon.Lantern:
                             Utils.MarkEveryoneDirtySettings();
-                            LateTask.New(() => { ActiveWeapons.Remove(Weapon.Lantern); }, IncreasedVisionDuration.GetInt(), log: false);
+                            LateTask.New(() => ActiveWeapons.Remove(Weapon.Lantern), IncreasedVisionDuration.GetInt(), log: false);
                             break;
                         case Weapon.Wrench:
                             if (Utils.IsActive(SystemTypes.Electrical))
@@ -294,6 +303,9 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
+            if (Count++ < 10) return;
+            Count = 0;
+
             foreach ((Resource resource, Vector2 location) in ResourceLocations)
             {
                 if (Vector2.Distance(pc.Pos(), location) < 2f)

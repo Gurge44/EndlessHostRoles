@@ -1,4 +1,7 @@
-﻿using HarmonyLib;
+﻿using System.Linq;
+using System.Threading.Tasks;
+using HarmonyLib;
+using InnerNet;
 using TMPro;
 using UnityEngine;
 
@@ -27,14 +30,29 @@ public static class LobbyFixedUpdatePatch
 }
 
 [HarmonyPatch(typeof(HostInfoPanel), nameof(HostInfoPanel.SetUp))]
-public static class HostInfoPanelUpdatePatch
+public static class HostInfoPanelSetUpPatch
 {
     private static TextMeshPro HostText;
 
     public static void Postfix(HostInfoPanel __instance)
     {
         if (HostText == null) HostText = __instance.content.transform.FindChild("Name").GetComponent<TextMeshPro>();
-        var text = Main.HostRealName + (AmongUsClient.Instance.AmHost ? Translator.GetString("YouAreHostSuffix") : string.Empty);
+        var icon = Translator.GetString("Icon");
+        var name = GameData.Instance?.GetHost()?.PlayerName?.RemoveHtmlTags()?.Split('\n').FirstOrDefault(x => x.Contains(icon))?.Split(icon)[^1] ?? string.Empty;
+        if (name == string.Empty) return;
+        var text = AmongUsClient.Instance.AmHost
+            ? Translator.GetString("YouAreHostSuffix")
+            : name;
         HostText.text = Utils.ColorString(Palette.PlayerColors[__instance.player.ColorId], text);
+    }
+}
+
+public static class LobbyPatch
+{
+    public static bool IsGlitchedRoomCode()
+    {
+        string roomCode = GameCode.IntToGameName(AmongUsClient.Instance.GameId).ToUpper();
+        string[] badEndings = ["IJPG", "SZAF", "LDQG", "ALGG", "UMPG", "GFXG", "JTFG", "PATG", "WMPG", "FUGG", "YTHG", "UFLG", "FBGG", "ZCQG", "RGGG", "ZHLG", "PJDG", "KJQG", "VDXG", "LCAF"];
+        return badEndings.Any(roomCode.EndsWith);
     }
 }

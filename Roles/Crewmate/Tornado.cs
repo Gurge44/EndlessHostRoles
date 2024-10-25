@@ -21,7 +21,7 @@ namespace EHR.Crewmate
         private static readonly Dictionary<string, string> ReplacementDict = new() { { "Tornado", ColorString(GetRoleColor(CustomRoles.Tornado), "Tornado") } };
 
         private static RandomSpawn.SpawnMap Map;
-        private static readonly Dictionary<(Vector2 LOCATION, string ROOM_NAME), long> Tornados = [];
+        private static readonly Dictionary<(Vector2 Location, string RoomName), long> Tornados = [];
         private static long LastNotify = TimeStamp;
         private static bool CanUseMap;
         private PlayerControl TornadoPC;
@@ -63,11 +63,11 @@ namespace EHR.Crewmate
                     MapNames.Dleks => new RandomSpawn.DleksSpawnMap(),
                     MapNames.Airship => new RandomSpawn.AirshipSpawnMap(),
                     MapNames.Fungle => new RandomSpawn.FungleSpawnMap(),
-                    _ => throw new NotImplementedException()
+                    _ => throw new ArgumentOutOfRangeException(Main.CurrentMap.ToString(), "Unsupported Map")
                 };
                 CanUseMap = true;
             }
-            catch (NotImplementedException)
+            catch (ArgumentOutOfRangeException)
             {
                 Logger.CurrentMethod();
                 Logger.Error("Unsupported Map", "Torando");
@@ -141,16 +141,10 @@ namespace EHR.Crewmate
 
                 foreach (var tornado in Tornados)
                 {
-                    if (Vector2.Distance(tornado.Key.LOCATION, pc.Pos()) <= tornadoRange)
+                    if (Vector2.Distance(tornado.Key.Location, pc.Pos()) <= tornadoRange)
                     {
-                        if (!CanUseMap || Random.Next(0, 100) < 50)
-                        {
-                            pc.TPtoRndVent();
-                        }
-                        else
-                        {
-                            Map.RandomTeleport(pc);
-                        }
+                        if (!CanUseMap || Random.Next(0, 100) < 50) pc.TPtoRndVent();
+                        else Map.RandomTeleport(pc);
 
                         pc.Notify(NotifyString);
                     }
@@ -158,7 +152,7 @@ namespace EHR.Crewmate
                     if (tornado.Value + tornadoDuration < now)
                     {
                         Tornados.Remove(tornado.Key);
-                        SendRPCAddTornado(false, tornado.Key.LOCATION, tornado.Key.ROOM_NAME);
+                        SendRPCAddTornado(false, tornado.Key.Location, tornado.Key.RoomName);
                         NotifyRoles(SpecifySeer: TornadoPC, SpecifyTarget: TornadoPC);
                     }
                 }
@@ -174,7 +168,7 @@ namespace EHR.Crewmate
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
             if (seer.PlayerId != target.PlayerId || !IsEnable || (seer.IsModClient() && !hud) || seer.PlayerId != TornadoPC.PlayerId) return string.Empty;
-            return string.Join(hud ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.ROOM_NAME)} {GetFormattedVectorText(x.Key.LOCATION)} ({(int)(TornadoDuration.GetInt() - (TimeStamp - x.Value) + 1)}s)"));
+            return string.Join(hud ? "\n" : ", ", Tornados.Select(x => $"Tornado {GetFormattedRoomName(x.Key.RoomName)} {GetFormattedVectorText(x.Key.Location)} ({(int)(TornadoDuration.GetInt() - (TimeStamp - x.Value) + 1)}s)"));
         }
     }
 }

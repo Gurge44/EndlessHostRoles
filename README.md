@@ -32,10 +32,8 @@
 
 # Installation
 
-Whichever is easier for you:
-
-- Through [Mod Manager](https://goodloss.fr/mm)
-- or follow the manual guide on our website: [EHR](https://sites.google.com/view/ehr-au)
+- Follow the manual guide on our website: [EHR](https://sites.google.com/view/ehr-au)
+- Or watch the tutorial by AnonWorks: [YouTube](https://youtu.be/AOLqWCbbrHM?si=nRRsNgz5-Z8XvFrs)
 
 <br>
 
@@ -61,7 +59,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 
 ### Visit this website to find role descriptions: [Role description finder](https://gurge44.pythonanywhere.com/)
 
-#### Over 400 roles and add-ons, 9 custom game modes, and a custom team assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
+#### Over 400 roles and add-ons, 10 custom game modes, and a custom team assigner application, making EHR the most extensive mod for Among Us. And it's all free, and only the host needs to have the mod installed for the entire lobby to play!
 
 ## List of Roles <span style="font-size: 12px;">(excluding Hide and Seek roles and vanilla roles)</span>
 
@@ -69,95 +67,96 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 |-------------------|-----------------|-------------------|----------------|
 | Addict            | Abyssbringer    | Agitator          | Antidote       |
 | Adrenaline        | Anonymous       | Amnesiac          | Anti-TP        |
-| Adventurer        | Anti Adminer    | Arsonist          | Asthmatic      |
+| Adventurer        | Anti-Adminer    | Arsonist          | Asthmatic      |
 | Aid               | Arrogance       | Backstabber       | Autopsy        |
 | Alchemist         | Assumer         | Bandit            | Avenger        |
-| Bane              | Augmenter       | Bargainer         | Bait           |
+| Altruist          | Augmenter       | Bargainer         | Bait           |
 | Analyst           | Bard            | Beehive           | Busy           |
 | Autocrat          | Blackmailer     | Blood Knight      | Beartrap       |
-| Beacon            | Bomber          | Bubble            | Bewilder       |
-| Benefactor        | Bounty Hunter   | Chemist           | Bloodlust      |
-| Bodyguard         | Butcher         | Cherokious        | Bloodmoon      |
-| Camera Man        | Camouflager     | Collector         | Charmed        |
-| Car               | Capitalist      | Deathknight       | Circumvent     |
-| Catcher           | Cantankerous    | Demon             | Cleansed       |
-| Celebrity         | Changeling      | Doppelganger      | Clumsy         |
-| Chameleon         | Chronomancer    | Doomsayer         | Contagious     |
-| Chef              | Cleaner         | Eclipse           | Damocles       |
-| Clairvoyant       | Commander       | Enderman          | Deadlined      |
-| Cleanser          | Consigliere     | Evolver           | Deadly Quota   |
-| Convener          | Consort         | Executioner       | Disco          |
-| Copycat           | Councillor      | Follower          | Diseased       |
-| Coroner           | Crewpostor      | The Glitch        | Dynamo         |
-| Crusader          | Cursed Wolf     | God               | Disregarded    |
-| Dad               | Deathpact       | Hater             | Double Shot    |
-| Demolitionist     | Devourer        | Head Hunter       | Egoist         |
-| Deputy            | Disperser       | Hex Master        | Energetic      |
-| Detective         | Duellist        | Hookshot          | Evil Spirit    |
-| Detour            | Dazzler         | Imitator          | Finder         |
-| Dictator          | Echo            | Impartial         | Flash          |
-| Doctor            | Escapist        | Innocent          | Fool           |
-| Donut Delivery    | Eraser          | Jackal            | Giant          |
-| Door Master       | Evil Guesser    | Jester            | Glow           |
-| Pacifist          | Evil Tracker    | Jinx              | Gravestone     |
-| Drainer           | Fireworker      | Juggernaut        | Guardian Angel |
-| Druid             | Framer          | Lawyer            | Guesser        |
-| Electric          | Freezer         | Magician          | Haste          |
-| Enigma            | Gambler         | Vector            | Haunter        |
-| Escort            | Gangster        | Maverick          | Knighted       |
-| Express           | Generator       | Medusa            | Last Impostor  |
-| Investigator      | Godfather       | Mycologist        | Lazy           |
-| Fortune Teller    | Greedy          | Necromancer       | Lovers         |
-| Gaulois           | Hangman         | Nonplus           | Loyal          |
-| Goose             | Hitman          | Opportunist       | Lucky          |
-| Grappler          | Hypnotist       | Patroller         | Madmate        |
-| Grenadier         | Inhibitor       | Pelican           | Magnet         |
-| Guess Manager     | Kamikaze        | Pestilence        | Mare           |
-| Guardian          | Kidnapper       | Specter           | Messenger      |
-| Ignitor           | Killing Machine | Pickpocket        | Mimic          |
-| Insight           | Lightning       | Plaguebearer      | Minion         |
-| Inspector         | Librarian       | Infection         | Mischievous    |
-| Inquirer          | Lurker          | Poisoner          | Necroview      |
-| Jailor            | Mafioso         | Postman           | Nimble         |
-| Journalist        | Mastermind      | Predator          | Noisy          |
-| Judge             | Nemesis         | Provocateur       | Oblivious      |
-| Lazy Guy          | Mercenary       | Pursuer           | Onbound        |
-| Lighter           | Miner           | Pyromaniac        | Spurt          |
-| Lookout           | Morphling       | Quiz Master       | Sleep          |
-| Luckey            | Ninja           | Reckless          | Phantasm       |
-| Lyncher           | Nuker           | Revolutionist     | Physicist      |
-| Markseeker        | Nullifier       | Ritualist         | Rascal         |
-| Marshall          | Overheat        | Rogue             | Reach          |
-| Mathematician     | Parasite        | Romantic          | Recruit        |
-| Mayor             | Penguin         | Roulette Grandeur | Rookie         |
-| Mechanic          | Puppeteer       | Ruthless Romantic | Schizophrenic  |
-| Medic             | Quick Shooter   | Samurai           | Seer           |
-| Medium            | Renegade        | Schrödinger's Cat | Sleuth         |
-| Merchant          | Rift Maker      | Serial Killer     | Sonar          |
-| Telecommunication | Saboteur        | Shifter           | Stained        |
-| Mole              | Sapper          | Sidekick          | Taskcounter    |
-| Monarch           | Scavenger       | Simon             | Stealer        |
-| Mortician         | Silencer        | Soul Hunter       | Stressed       |
-| Nice Eraser       | Sniper          | Spiritcaller      | Swift          |
-| Nice Guesser      | Soul Catcher    | Sprayer           | Sunglasses     |
-| Hacker            | Swapster        | Stalker           | Tiebreaker     |
-| Swapper           | Swiftclaw       | Cultist           | Torch          |
-| Nightmare         | Swooper         | Sunnyboy          | Truant         |
-| Negotiator        | Stealth         | Tank              | Undead         |
-| Observer          | Time Thief      | Terrorist         | Unlucky        |
-| Oracle            | Trapster        | Tiger             | Warden         |
-| Oxyman            | Trickster       | Traitor           | Watcher        |
-| Paranoid          | Twister         | Tremor            | Workhorse      |
-| Perceiver         | Underdog        | Vengeance         | YouTuber       |
-| President         | Undertaker      | Vengeful Romantic |                |
-| Psychic           | Vampire         | Virus             |                |
-| Rabbit            | Ventriloquist   | Vulture           |                |
-| Randomizer        | Vindicator      | Wraith            |                |
-| Rhapsode          | Visionary       | Werewolf          |                |
-| Ricochet          | Warlock         | Weapon Master     |                |
-| Safeguard         | Wildling        | Workaholic        |                |
-| Scout             | Witch           |                   |                |
-| Security Guard    | Yin Yanger      |                   |                |
+| Bane              | Bomber          | Bubble            | Bewilder       |
+| Beacon            | Bounty Hunter   | Chemist           | Bloodlust      |
+| Benefactor        | Butcher         | Cherokious        | Bloodmoon      |
+| Bodyguard         | Camouflager     | Collector         | Charmed        |
+| Camera Man        | Capitalist      | Deathknight       | Circumvent     |
+| Car               | Cantankerous    | Demon             | Cleansed       |
+| Catcher           | Changeling      | Doppelganger      | Clumsy         |
+| Celebrity         | Chronomancer    | Doomsayer         | Contagious     |
+| Chameleon         | Cleaner         | Eclipse           | Damocles       |
+| Chef              | Commander       | Enderman          | Deadlined      |
+| Clairvoyant       | Consigliere     | Evolver           | Deadly Quota   |
+| Cleanser          | Consort         | Executioner       | Disco          |
+| Convener          | Councillor      | Follower          | Diseased       |
+| Copycat           | Crewpostor      | Gaslighter        | Dynamo         |
+| Coroner           | Cursed Wolf     | The Glitch        | Disregarded    |
+| Crusader          | Deathpact       | God               | Double Shot    |
+| Dad               | Devourer        | Hater             | Egoist         |
+| Demolitionist     | Disperser       | Head Hunter       | Energetic      |
+| Deputy            | Duellist        | Hex Master        | Evil Spirit    |
+| Detective         | Dazzler         | Hookshot          | Finder         |
+| Detour            | Echo            | Imitator          | Flash          |
+| Dictator          | Escapist        | Impartial         | Fool           |
+| Doctor            | Evil Eraser     | Innocent          | Giant          |
+| Donut Delivery    | Evil Guesser    | Jackal            | Glow           |
+| Door Master       | Evil Tracker    | Jester            | Gravestone     |
+| Pacifist          | Fireworker      | Jinx              | Guardian Angel |
+| Drainer           | Framer          | Juggernaut        | Guesser        |
+| Druid             | Freezer         | Lawyer            | Haste          |
+| Electric          | Gambler         | Magician          | Haunter        |
+| Enigma            | Gangster        | Vector            | Knighted       |
+| Escort            | Generator       | Maverick          | Last Impostor  |
+| Express           | Godfather       | Medusa            | Lazy           |
+| Investigator      | Greedy          | Mycologist        | Lovers         |
+| Fortune Teller    | Hangman         | Necromancer       | Loyal          |
+| Gaulois           | Hitman          | Nonplus           | Lucky          |
+| Goose             | Hypnotist       | Opportunist       | Madmate        |
+| Grappler          | Inhibitor       | Patroller         | Magnet         |
+| Grenadier         | Kamikaze        | Pelican           | Mare           |
+| Guess Manager     | Kidnapper       | Pestilence        | Messenger      |
+| Guardian          | Killing Machine | Specter           | Mimic          |
+| Ignitor           | Lightning       | Pickpocket        | Minion         |
+| Insight           | Librarian       | Plaguebearer      | Mischievous    |
+| Inspector         | Lurker          | Infection         | Necroview      |
+| Inquirer          | Mafioso         | Poisoner          | Nimble         |
+| Jailor            | Mastermind      | Postman           | Noisy          |
+| Journalist        | Nemesis         | Predator          | Oblivious      |
+| Judge             | Mercenary       | Provocateur       | Onbound        |
+| Lazy Guy          | Miner           | Pursuer           | Spurt          |
+| Lighter           | Morphling       | Pyromaniac        | Sleep          |
+| Lookout           | Ninja           | Quiz Master       | Phantasm       |
+| Luckey            | Nuker           | Reckless          | Physicist      |
+| Lyncher           | Nullifier       | Revolutionist     | Rascal         |
+| Markseeker        | Overheat        | Ritualist         | Reach          |
+| Marshall          | Parasite        | Rogue             | Recruit        |
+| Mathematician     | Penguin         | Romantic          | Rookie         |
+| Mayor             | Puppeteer       | Roulette Grandeur | Trainee        |
+| Mechanic          | Quick Shooter   | Ruthless Romantic | Schizophrenic  |
+| Medic             | Renegade        | Samurai           | Seer           |
+| Medium            | Rift Maker      | Schrödinger's Cat | Sleuth         |
+| Merchant          | Saboteur        | Serial Killer     | Sonar          |
+| Telecommunication | Sapper          | Shifter           | Stained        |
+| Mole              | Scavenger       | Sidekick          | Taskcounter    |
+| Monarch           | Silencer        | Simon             | Stealer        |
+| Mortician         | Sniper          | Soul Hunter       | Stressed       |
+| Nice Eraser       | Soul Catcher    | Spiritcaller      | Swift          |
+| Nice Guesser      | Swapster        | Sprayer           | Sunglasses     |
+| Hacker            | Swiftclaw       | Stalker           | Tiebreaker     |
+| Swapper           | Swooper         | Cultist           | Torch          |
+| Nightmare         | Stealth         | Sunnyboy          | Truant         |
+| Negotiator        | Time Thief      | Technician        | Undead         |
+| Observer          | Trapster        | Tank              | Unlucky        |
+| Oracle            | Trickster       | Terrorist         | Warden         |
+| Oxyman            | Twister         | Tiger             | Watcher        |
+| Paranoid          | Underdog        | Traitor           | Workhorse      |
+| Perceiver         | Undertaker      | Tremor            | YouTuber       |
+| President         | Vampire         | Vengeance         |                |
+| Psychic           | Ventriloquist   | Vengeful Romantic |                |
+| Rabbit            | Vindicator      | Virus             |                |
+| Randomizer        | Visionary       | Vortex            |                |
+| Rhapsode          | Warlock         | Vulture           |                |
+| Ricochet          | Wasp            | Wraith            |                |
+| Safeguard         | Wildling        | Werewolf          |                |
+| Scout             | Witch           | Weapon Master     |                |
+| Security Guard    | Yin Yanger      | Workaholic        |                |
 | Sentinel          | Zombie          |                   |                |
 | Sentry            |                 |                   |                |
 | Sheriff           |                 |                   |                |
@@ -186,6 +185,7 @@ You can also report bugs and suggest features in the #bug-reports and #suggestio
 | Vigilante         |                 |                   |                |
 | Whisperer         |                 |                   |                |
 | Witness           |                 |                   |                |
+| Wizard            |                 |                   |                |
 
 ## VIP and Moderator perks
 
@@ -215,11 +215,13 @@ Source language: English
 
 #### Translation progress
 
-![es-ES translation](https://img.shields.io/badge/dynamic/json?color=blue&label=es-ES&style=for-the-badge&logo=crowdin&query=%24.progress[?(@.data.languageId==%27es-ES%27)].data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15788979-676754.json)
-![ko translation](https://img.shields.io/badge/dynamic/json?color=blue&label=ko&style=for-the-badge&logo=crowdin&query=%24.progress[?(@.data.languageId==%27ko%27)].data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15788979-676754.json)
-![pt-BR translation](https://img.shields.io/badge/dynamic/json?color=blue&label=pt-BR&style=for-the-badge&logo=crowdin&query=%24.progress[?(@.data.languageId==%27pt-BR%27)].data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15788979-676754.json)
-![ru translation](https://img.shields.io/badge/dynamic/json?color=blue&label=ru&style=for-the-badge&logo=crowdin&query=%24.progress[?(@.data.languageId==%27ru%27)].data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15788979-676754.json)
-![zh-CN translation](https://img.shields.io/badge/dynamic/json?color=blue&label=zh-CN&style=for-the-badge&logo=crowdin&query=%24.progress[?(@.data.languageId==%27zh-CN%27)].data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15788979-676754.json)
+[![es-ES translation](https://img.shields.io/badge/dynamic/json?color=blue&label=es-ES&style=for-the-badge&logo=crowdin&query=%24.progress[?(@.data.languageId==%27es-ES%27)].data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15788979-676754.json)](https://crowdin.com/project/ehr)
+[![fr translation](https://img.shields.io/badge/dynamic/json?color=blue&label=fr&style=for-the-badge&logo=crowdin&query=%24.progress[?(@.data.languageId==%27fr%27)].data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15788979-676754.json)](https://crowdin.com/project/ehr)
+[![ko translation](https://img.shields.io/badge/dynamic/json?color=blue&label=ko&style=for-the-badge&logo=crowdin&query=%24.progress[?(@.data.languageId==%27ko%27)].data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15788979-676754.json)](https://crowdin.com/project/ehr)
+[![pt-BR translation](https://img.shields.io/badge/dynamic/json?color=blue&label=pt-BR&style=for-the-badge&logo=crowdin&query=%24.progress[?(@.data.languageId==%27pt-BR%27)].data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15788979-676754.json)](https://crowdin.com/project/ehr)
+[![ru translation](https://img.shields.io/badge/dynamic/json?color=blue&label=ru&style=for-the-badge&logo=crowdin&query=%24.progress[?(@.data.languageId==%27ru%27)].data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15788979-676754.json)](https://crowdin.com/project/ehr)
+[![zh-CN translation](https://img.shields.io/badge/dynamic/json?color=blue&label=zh-CN&style=for-the-badge&logo=crowdin&query=%24.progress[?(@.data.languageId==%27zh-CN%27)].data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15788979-676754.json)](https://crowdin.com/project/ehr)
+[![zh-TW translation](https://img.shields.io/badge/dynamic/json?color=blue&label=zh-TW&style=for-the-badge&logo=crowdin&query=%24.progress[?(@.data.languageId==%27zh-TW%27)].data.translationProgress&url=https%3A%2F%2Fbadges.awesome-crowdin.com%2Fstats-15788979-676754.json)](https://crowdin.com/project/ehr)
 
 [![Graph](https://badges.awesome-crowdin.com/translation-15788979-676754.png)](https://crowdin.com/project/ehr)
 
@@ -233,7 +235,7 @@ Source language: English
 - If you switch to EHR, you will have access to all features without paying for anything.
 - Test builds are available for free in our Discord server, and you can report bugs and suggest features there as well.
 - /up was reworked to /setrole, allowing you to set anyone's role for the next game, not only yours.
-- You can gain access to /setrole by just hosting EHR lobbies weekly or uploading EHR content to YouTube.
+- You can fully gain access to /setrole by just hosting EHR lobbies weekly or uploading EHR content to YouTube, but everyone can use /setrole to set their own role without any requirements (essentially /up).
 - EHR has a custom team assigner application, which is a unique feature that no other mod has.
 - You can force or ban certain role/add-on combinations directly in the game using /combo.
 - Not sure how to use commands? Use /help to see a list of all available commands.
@@ -242,6 +244,8 @@ Source language: English
 - You can also press TAB to autocomplete commands.
 - Some hints and tips are displayed during the loading screen and ejection animations, which can help you discover new
   features.
+- EHR has 10 unique custom game modes, which can be played with any number of players, some even alone.
+- You can make lobbies with more than 15 players on modded servers, just type /cs players 100 - for example - to set the player limit to 100.
 - I, the main developer of EHR, care about user feedback and suggestions, and I try to implement them as much as
   possible.
 - If this wasn't convincing enough, you can always try EHR and see if you like it better than TOHE.

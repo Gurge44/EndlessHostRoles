@@ -36,11 +36,11 @@
 
             killer.SetKillCooldown(5f);
 
-            killer.Notify(string.Format(Translator.GetString("SchrodingersCat.Notify.KillerRecruited"), target.GetRealName(), CustomRoles.SchrodingersCat.ToColoredString()));
+            killer.Notify(string.Format(Translator.GetString("SchrodingersCat.Notify.KillerRecruited"), target.GetRealName(), CustomRoles.SchrodingersCat.ToColoredString()), 10f);
             target.Notify(string.Format(Translator.GetString("SchrodingersCat.Notify.RecruitedByKiller"), killer.GetRealName(), killerRole.ToColoredString()));
 
-            Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
-            Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
+            Utils.NotifyRoles(SpecifySeer: killer, ForceLoop: true);
+            Utils.NotifyRoles(SpecifySeer: target, ForceLoop: true);
 
             return false;
         }

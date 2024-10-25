@@ -66,9 +66,14 @@ namespace EHR.Impostor
             return false;
         }
 
-        public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
+        private int Count;
+
+        public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (lowLoad || DuelPair.Count == 0) return;
+            if (DuelPair.Count == 0) return;
+            
+            if (Count++ < 40) return;
+            Count = 0;
 
             foreach (var pair in DuelPair)
             {

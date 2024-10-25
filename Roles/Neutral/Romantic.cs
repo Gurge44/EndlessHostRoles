@@ -154,7 +154,7 @@ public class Romantic : RoleBase
             if (BetTargetKnowRomantic.GetBool()) target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), GetString("RomanticBetOnYou")));
 
             if (RomanticGetsPartnerConvertedAddons.GetBool() && Partner.IsConverted())
-                Partner.GetCustomSubRoles().DoIf(x => x.IsConverted() && !Partner.Is(x), x => RomanticPC.RpcSetCustomRole(x));
+                Partner.GetCustomSubRoles().DoIf(x => x.IsConverted() && !RomanticPC.Is(x), x => RomanticPC.RpcSetCustomRole(x));
 
             if (Arrows.GetBool())
             {
@@ -286,6 +286,9 @@ public class Romantic : RoleBase
             VengefulRomantic.Target = killer.PlayerId;
             VengefulRomantic.SendRPC();
         }
+
+        if (RomanticGetsPartnerConvertedAddons.GetBool() && Partner.IsConverted())
+            Partner.GetCustomSubRoles().DoIf(x => x.IsConverted() && !RomanticPC.Is(x), x => RomanticPC.RpcSetCustomRole(x));
 
         RomanticPC.SetKillCooldown();
     }

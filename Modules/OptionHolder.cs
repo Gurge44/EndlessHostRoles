@@ -259,7 +259,6 @@ public static class Options
     public static OptionItem ArsonistMinPlayersToIgnite;
     public static OptionItem ArsonistMaxPlayersToIgnite;
     public static OptionItem LegacyMafia;
-    public static OptionItem NotifyGodAlive;
     public static OptionItem MarioVentNumWin;
     public static OptionItem MarioVentCD;
     public static OptionItem VeteranSkillCooldown;
@@ -644,7 +643,6 @@ public static class Options
     // Guess Restrictions //
     public static OptionItem TerroristCanGuess;
     public static OptionItem PhantomCanGuess;
-    public static OptionItem GodCanGuess;
 
     public static OptionItem ShowAntiBlackoutWarning;
     public static OptionItem AllowConsole;
@@ -673,7 +671,6 @@ public static class Options
     public static OptionItem UsePhantomBasis;
     public static OptionItem UsePhantomBasisForNKs;
     public static OptionItem UseVoteCancelling;
-    public static OptionItem EnableUpMode;
     public static OptionItem AutoKickStart;
     public static OptionItem AutoKickStartAsBan;
     public static OptionItem AutoKickStartTimes;
@@ -698,9 +695,15 @@ public static class Options
     public static OptionItem NameDisplayAddons;
     public static OptionItem AddBracketsToAddons;
     public static OptionItem NoLimitAddonsNumMax;
+
+    public static OptionItem CharmedCanBeGuessed;
+    public static OptionItem RecruitCanBeGuessed;
+    public static OptionItem ContagiousCanBeGuessed;
+    public static OptionItem UndeadCanBeGuessed;
+    public static OptionItem EgoistCanBeGuessed;
+
     public static OptionItem BewilderVision;
     public static OptionItem SunglassesVision;
-
     public static OptionItem MadmateSpawnMode;
     public static OptionItem MadmateCountMode;
     public static OptionItem SheriffCanBeMadmate;
@@ -1005,6 +1008,23 @@ public static class Options
         NoLimitAddonsNumMax = new IntegerOptionItem(211, "NoLimitAddonsNumMax", new(1, 90, 1), 1, TabGroup.Addons)
             .SetGameMode(CustomGameMode.Standard);
 
+        CharmedCanBeGuessed = new StringOptionItem(213, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)
+            .SetHeader(true)
+            .SetGameMode(CustomGameMode.Standard)
+            .AddReplacement(("{role}", CustomRoles.Charmed.ToColoredString()));
+        RecruitCanBeGuessed = new StringOptionItem(214, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)
+            .SetGameMode(CustomGameMode.Standard)
+            .AddReplacement(("{role}", CustomRoles.Recruit.ToColoredString()));
+        ContagiousCanBeGuessed = new StringOptionItem(215, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)
+            .SetGameMode(CustomGameMode.Standard)
+            .AddReplacement(("{role}", CustomRoles.Contagious.ToColoredString()));
+        UndeadCanBeGuessed = new StringOptionItem(216, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)
+            .SetGameMode(CustomGameMode.Standard)
+            .AddReplacement(("{role}", CustomRoles.Undead.ToColoredString()));
+        EgoistCanBeGuessed = new StringOptionItem(217, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)
+            .SetGameMode(CustomGameMode.Standard)
+            .AddReplacement(("{role}", CustomRoles.Egoist.ToColoredString()));
+
 
         RoleLoadingText = "Add-ons\n.";
 
@@ -1258,11 +1278,6 @@ public static class Options
 
         LoadingPercentage = 64;
 
-
-        EnableUpMode = new BooleanOptionItem(19600, "EnableYTPlan", false, TabGroup.SystemSettings)
-            .SetColor(Color.cyan)
-            .SetHeader(true);
-
         #endregion
 
         yield return null;
@@ -1314,7 +1329,7 @@ public static class Options
 
         LoadingPercentage = 66;
 
-        ShowTeamNextToRoleNameOnEject = new BooleanOptionItem(19812, "ShowTeamNextToRoleNameOnEject", false, TabGroup.GameSettings)
+        ShowTeamNextToRoleNameOnEject = new BooleanOptionItem(19812, "ShowTeamNextToRoleNameOnEject", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 238, 232, byte.MaxValue));
         ConfirmEgoistOnEject = new BooleanOptionItem(19813, "ConfirmEgoistOnEject", true, TabGroup.GameSettings)
@@ -2203,13 +2218,13 @@ public static class Options
         CustomRoleCounts.Add(role, countOption);
     }
 
-    public static void SetupAdtRoleOptions(int id, CustomRoles role, CustomGameMode customGameMode = CustomGameMode.Standard, bool canSetNum = false, TabGroup tab = TabGroup.Addons, bool canSetChance = true, bool teamSpawnOptions = false)
+    public static void SetupAdtRoleOptions(int id, CustomRoles role, CustomGameMode customGameMode = CustomGameMode.Standard, bool canSetNum = false, TabGroup tab = TabGroup.Addons, bool canSetChance = true, bool teamSpawnOptions = false, bool allowZeroCount = false)
     {
         var spawnOption = new StringOptionItem(id, role.ToString(), RatesZeroOne, 0, tab).SetColor(Utils.GetRoleColor(role))
             .SetHeader(true)
             .SetGameMode(customGameMode) as StringOptionItem;
 
-        var countOption = new IntegerOptionItem(id + 1, "Maximum", new(1, canSetNum ? 15 : 1, 1), 1, tab)
+        var countOption = new IntegerOptionItem(id + 1, "Maximum", new(allowZeroCount ? 0 : 1, canSetNum ? 15 : 1, 1), 1, tab)
             .SetParent(spawnOption)
             .SetValueFormat(OptionFormat.Players)
             .SetHidden(!canSetNum)
