@@ -4573,6 +4573,7 @@
   "AntidoteCDOpt": "Diminuir a Recarga para",
   "AntidoteCDReset": "Recarga volta ao normal após a reunião",
   "HackButtonText": "Hackear",
+  "BomberCooldownsResetEachOther": "Kill Cooldown & Bomb Cooldown Reset Each Other When Used",
   "BomberDiesInExplosion": "O <color=#ff1919>Bombardeiro</color> morre ao explodir",
   "ImpostorsSurviveBombs": "<color=#ff1919>Impostores</color> sobrevivem à bomba",
   "NukeRadius": "Distância da Bomba Nuclear (12x é bem longe)",
