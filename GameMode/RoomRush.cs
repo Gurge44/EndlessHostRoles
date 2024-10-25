@@ -279,7 +279,7 @@ namespace EHR
             TimeLeft = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 4);
             Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())}, to: {Translator.GetString(RoomGoal.ToString())} - Time: {TimeLeft}  ({Main.CurrentMap})", "RoomRush");
             Main.AllPlayerControls.Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
-            if (DisplayArrowToRoom.GetBool()) Main.AllAlivePlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
+            if (DisplayArrowToRoom.GetBool()) Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
             Utils.NotifyRoles();
 
             Main.AllPlayerSpeed[PlayerControl.LocalPlayer.PlayerId] = Main.MinSpeed;
