@@ -181,6 +181,7 @@ namespace EHR.Neutral
             EnsureStatLimits();
             if (GameStates.IsInTask)
             {
+                EvolverPC.ResetKillCooldown();
                 EvolverPC.SyncSettings();
                 if (Main.KillTimers[EvolverPC.PlayerId] > Stats.KillCooldown) EvolverPC.SetKillCooldown();
                 if (PlayerControl.LocalPlayer.PlayerId == EvolverPC.PlayerId) HudManager.Instance.SetHudActive(EvolverPC, EvolverPC.Data.Role, true);
@@ -219,9 +220,9 @@ namespace EHR.Neutral
         {
             var w = Utils.CreateRPC(CustomRPC.SyncRoleData);
             w.Write(EvolverPC.PlayerId);
-            w.Write(1);
+            w.WritePacked(1);
             w.Write(Upgrades.Count);
-            Upgrades.ForEach(x => w.Write((int)x));
+            Upgrades.ForEach(x => w.WritePacked((int)x));
             Utils.EndRPC(w);
         }
 

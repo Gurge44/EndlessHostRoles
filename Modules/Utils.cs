@@ -2624,8 +2624,12 @@ public static class Utils
 
     public static void AfterMeetingTasks()
     {
-        bool loversChat = Lovers.PrivateChat.GetBool();
-        if (!Lovers.IsChatActivated && loversChat && !GameStates.IsEnded && Options.CurrentGameMode == CustomGameMode.Standard)
+        bool loversChat = Lovers.PrivateChat.GetBool() && Main.LoversPlayers.TrueForAll(x => x.IsAlive());
+        if (loversChat && Lovers.PrivateChatForLoversOnly.GetBool())
+        {
+            Main.LoversPlayers.ForEach(x => x.SetChatVisible());
+        }
+        else if (!Lovers.IsChatActivated && loversChat && !GameStates.IsEnded && Options.CurrentGameMode == CustomGameMode.Standard)
         {
             LateTask.New(SetChatVisibleForAll, 0.5f, log: false);
             Lovers.IsChatActivated = true;

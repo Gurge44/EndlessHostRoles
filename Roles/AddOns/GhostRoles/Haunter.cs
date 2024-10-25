@@ -54,7 +54,7 @@ namespace EHR.AddOns.GhostRoles
 
         public void SetupCustomOption()
         {
-            Options.SetupRoleOptions(649300, TabGroup.OtherRoles, CustomRoles.Haunter, zeroOne: true);
+            Options.SetupRoleOptions(649300, TabGroup.OtherRoles, CustomRoles.Haunter);
             TasksBeforeBeingKnown = new IntegerOptionItem(649302, "Haunter.TasksBeforeBeingKnown", new(1, 10, 1), 1, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Haunter]);
             RevealNeutralKillers = new BooleanOptionItem(649303, "Haunter.RevealNeutralKillers", true, TabGroup.OtherRoles)
