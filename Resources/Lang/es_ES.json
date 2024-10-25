@@ -4573,6 +4573,7 @@
   "AntidoteCDOpt": "Disminuye el tiempo de reutilización en",
   "AntidoteCDReset": "Tiempo de reutilización vuelve a la normalidad después de una reunión",
   "HackButtonText": "Imitar",
+  "BomberCooldownsResetEachOther": "Kill Cooldown & Bomb Cooldown Reset Each Other When Used",
   "BomberDiesInExplosion": "El <color=#ff1919>Bombardero</color> muere en su explosión",
   "ImpostorsSurviveBombs": "<color=#ff1919>Impostores</color> sobreviven bombas",
   "NukeRadius": "Radio de detonación (12x es muy grande)",
