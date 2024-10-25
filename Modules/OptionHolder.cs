@@ -283,15 +283,6 @@ public static class Options
     public static OptionItem ExpressSpeedDur;
     public static OptionItem EveryOneKnowSuperStar;
     public static OptionItem MafiaCanKillNum;
-    public static OptionItem BomberRadius;
-    public static OptionItem BomberCanKill;
-    public static OptionItem BomberKillCD;
-    public static OptionItem BombCooldown;
-    public static OptionItem ImpostorsSurviveBombs;
-    public static OptionItem BomberDiesInExplosion;
-    public static OptionItem NukerChance;
-    public static OptionItem NukeRadius;
-    public static OptionItem NukeCooldown;
     public static OptionItem ReportBaitAtAllCost;
 
     public static OptionItem GuesserDoesntDieOnMisguess;
