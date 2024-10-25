@@ -4573,6 +4573,7 @@
   "AntidoteCDOpt": "冷却时间减少",
   "AntidoteCDReset": "会议结束后冷却恢复正常",
   "HackButtonText": "宝箱怪",
+  "BomberCooldownsResetEachOther": "Kill Cooldown & Bomb Cooldown Reset Each Other When Used",
   "BomberDiesInExplosion": "<color=#ff1919>自爆兵</color>在爆炸中死亡",
   "ImpostorsSurviveBombs": "<color=#ff1919>内鬼</color>在爆炸中幸存",
   "NukeRadius": "打击半径(12x已经是大出天界了)",
