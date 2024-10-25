@@ -121,7 +121,7 @@ namespace EHR
             if (seer.PlayerId != target.PlayerId) return string.Empty;
             var arrows = TargetArrow.GetAllArrows(seer);
             arrows = arrows.Length > 0 ? $"{arrows}\n" : string.Empty;
-            return $"{arrows}<size=1.4>{GetStatistics(target.PlayerId).Replace(" - ", "\n")}</size>";
+            return $"{arrows}<size=1.4>{GetStatistics(target.PlayerId).Replace(" | ", "\n")}</size>";
         }
 
         public static string GetStatistics(byte id)
@@ -237,11 +237,11 @@ namespace EHR
                         switch (team)
                         {
                             case CTFTeam.Blue:
-                                Loop.Times(3, _ => pc.TP(blueFlagBase.Position));
+                                pc.TP(blueFlagBase.Position);
                                 pc.Notify(string.Format(Translator.GetString("CTF_Notify_EnemyTeamRoom"), yellowFlagBase.RoomName));
                                 break;
                             case CTFTeam.Yellow:
-                                Loop.Times(3, _ => pc.TP(yellowFlagBase.Position));
+                                pc.TP(yellowFlagBase.Position);
                                 pc.Notify(string.Format(Translator.GetString("CTF_Notify_EnemyTeamRoom"), blueFlagBase.RoomName));
                                 break;
                         }
@@ -275,7 +275,7 @@ namespace EHR
             switch (TaggedPlayersGet.GetValue())
             {
                 case 0:
-                    Loop.Times(3, _ => target.TP(targetTeam.GetFlagBase().Position));
+                    target.TP(targetTeam.GetFlagBase().Position);
                     Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                     target.MarkDirtySettings();
                     break;

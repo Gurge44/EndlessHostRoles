@@ -459,7 +459,7 @@ public sealed class PlayerGameOptionsSender(PlayerControl player) : GameOptionsS
             AURoleOptions.ProtectionDurationSeconds = 0f;
             AURoleOptions.ImpostorsCanSeeProtect = false;
 
-            Logger.Info($"Updated vision for {player.GetNameWithRole()}: Crew = {opt.GetFloat(FloatOptionNames.CrewLightMod)}, Impostor = {opt.GetFloat(FloatOptionNames.ImpostorLightMod)}", "BuildGameOptions");
+            Logger.Info($"Updated settings for {player.GetNameWithRole()}: Crew Vision = {opt.GetFloat(FloatOptionNames.CrewLightMod)}, Impostor Vision = {opt.GetFloat(FloatOptionNames.ImpostorLightMod)}, Speed = {opt.GetFloat(FloatOptionNames.PlayerSpeedMod)}", "BuildGameOptions");
 
             return opt;
 

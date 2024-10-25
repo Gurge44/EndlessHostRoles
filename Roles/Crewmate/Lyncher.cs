@@ -50,7 +50,7 @@ namespace EHR.Crewmate
             Instances = [];
             AllRoleNames = [];
             KnownCharacters = [];
-            LateTask.New(() => AllRoleNames = Main.PlayerStates.ToDictionary(x => x.Key, x => Translator.GetString($"{x.Value.MainRole}").ToUpper().Shuffle()), 3f, log: false);
+            LateTask.New(() => AllRoleNames = Main.PlayerStates.ToDictionary(x => x.Key, x => Translator.GetString($"{x.Value.MainRole}").ToUpper().Shuffle()), 10f, log: false);
         }
 
         public override void Add(byte playerId)
@@ -61,7 +61,7 @@ namespace EHR.Crewmate
             TasksCompleted = 0;
             Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 1, TasksCompleted);
 
-            if (Main.HasJustStarted) LateTask.New(Action, 4f, log: false);
+            if (Main.HasJustStarted) LateTask.New(Action, 12f, log: false);
             else Action();
 
             return;

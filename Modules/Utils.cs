@@ -191,72 +191,80 @@ public static class Utils
 
     public static bool IsActive(SystemTypes type)
     {
-        if (GameStates.IsLobby || !ShipStatus.Instance.Systems.TryGetValue(type, out var systemType)) return false;
-        int mapId = Main.NormalOptions.MapId;
-        switch (type)
+        try
         {
-            case SystemTypes.Electrical:
+            if (GameStates.IsLobby || !ShipStatus.Instance.Systems.TryGetValue(type, out var systemType)) return false;
+            int mapId = Main.NormalOptions.MapId;
+            switch (type)
             {
-                if (mapId == 5) return false; // if The Fungle return false
-                var SwitchSystem = systemType.TryCast<SwitchSystem>();
-                return SwitchSystem is { IsActive: true };
-            }
-            case SystemTypes.Reactor:
-            {
-                switch (mapId)
+                case SystemTypes.Electrical:
                 {
-                    case 2:
-                        return false; // if Polus return false
-                    // Only Airhip
-                    case 4:
+                    if (mapId == 5) return false; // if The Fungle return false
+                    var SwitchSystem = systemType.TryCast<SwitchSystem>();
+                    return SwitchSystem is { IsActive: true };
+                }
+                case SystemTypes.Reactor:
+                {
+                    switch (mapId)
                     {
-                        var HeliSabotageSystem = systemType.TryCast<HeliSabotageSystem>();
-                        return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
-                    }
-                    default:
-                    {
-                        var ReactorSystemType = systemType.TryCast<ReactorSystemType>();
-                        return ReactorSystemType is { IsActive: true };
+                        case 2:
+                            return false; // if Polus return false
+                        // Only Airhip
+                        case 4:
+                        {
+                            var HeliSabotageSystem = systemType.TryCast<HeliSabotageSystem>();
+                            return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
+                        }
+                        default:
+                        {
+                            var ReactorSystemType = systemType.TryCast<ReactorSystemType>();
+                            return ReactorSystemType is { IsActive: true };
+                        }
                     }
                 }
-            }
-            case SystemTypes.Laboratory:
-            {
-                if (mapId != 2) return false; // Only Polus
-                var ReactorSystemType = systemType.TryCast<ReactorSystemType>();
-                return ReactorSystemType is { IsActive: true };
-            }
-            case SystemTypes.LifeSupp:
-            {
-                if (mapId is 2 or 4 or 5) return false; // Only Skeld & Mira HQ
-                var LifeSuppSystemType = systemType.TryCast<LifeSuppSystemType>();
-                return LifeSuppSystemType is { IsActive: true };
-            }
-            case SystemTypes.Comms:
-            {
-                if (mapId is 1 or 5) // Only Mira HQ & The Fungle
+                case SystemTypes.Laboratory:
                 {
-                    var HqHudSystemType = systemType.TryCast<HqHudSystemType>();
-                    return HqHudSystemType is { IsActive: true };
+                    if (mapId != 2) return false; // Only Polus
+                    var ReactorSystemType = systemType.TryCast<ReactorSystemType>();
+                    return ReactorSystemType is { IsActive: true };
                 }
+                case SystemTypes.LifeSupp:
+                {
+                    if (mapId is 2 or 4 or 5) return false; // Only Skeld & Mira HQ
+                    var LifeSuppSystemType = systemType.TryCast<LifeSuppSystemType>();
+                    return LifeSuppSystemType is { IsActive: true };
+                }
+                case SystemTypes.Comms:
+                {
+                    if (mapId is 1 or 5) // Only Mira HQ & The Fungle
+                    {
+                        var HqHudSystemType = systemType.TryCast<HqHudSystemType>();
+                        return HqHudSystemType is { IsActive: true };
+                    }
 
-                var HudOverrideSystemType = systemType.TryCast<HudOverrideSystemType>();
-                return HudOverrideSystemType is { IsActive: true };
+                    var HudOverrideSystemType = systemType.TryCast<HudOverrideSystemType>();
+                    return HudOverrideSystemType is { IsActive: true };
+                }
+                case SystemTypes.HeliSabotage:
+                {
+                    if (mapId != 4) return false; // Only Airhip
+                    var HeliSabotageSystem = systemType.TryCast<HeliSabotageSystem>();
+                    return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
+                }
+                case SystemTypes.MushroomMixupSabotage:
+                {
+                    if (mapId != 5) return false; // Only The Fungle
+                    var MushroomMixupSabotageSystem = systemType.TryCast<MushroomMixupSabotageSystem>();
+                    return MushroomMixupSabotageSystem != null && MushroomMixupSabotageSystem.IsActive;
+                }
+                default:
+                    return false;
             }
-            case SystemTypes.HeliSabotage:
-            {
-                if (mapId != 4) return false; // Only Airhip
-                var HeliSabotageSystem = systemType.TryCast<HeliSabotageSystem>();
-                return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
-            }
-            case SystemTypes.MushroomMixupSabotage:
-            {
-                if (mapId != 5) return false; // Only The Fungle
-                var MushroomMixupSabotageSystem = systemType.TryCast<MushroomMixupSabotageSystem>();
-                return MushroomMixupSabotageSystem != null && MushroomMixupSabotageSystem.IsActive;
-            }
-            default:
-                return false;
+        }
+        catch (Exception e)
+        {
+            ThrowException(e);
+            return false;
         }
     }
 

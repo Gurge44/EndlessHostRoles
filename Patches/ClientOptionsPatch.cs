@@ -20,6 +20,7 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem LongMode;
     private static ClientOptionItem ShowPlayerInfoInLobby;
     private static ClientOptionItem LobbyMusic;
+    private static ClientOptionItem EnableCommandHelper;
 #if DEBUG
     private static ClientOptionItem GodMode;
 #endif
@@ -180,6 +181,11 @@ public static class OptionsMenuBehaviourStartPatch
                     }, 5f, log: false);
                 }
             }
+        }
+
+        if (EnableCommandHelper == null || EnableCommandHelper.ToggleButton == null)
+        {
+            EnableCommandHelper = ClientOptionItem.Create("EnableCommandHelper", Main.EnableCommandHelper, __instance);
         }
 
 #if DEBUG

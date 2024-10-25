@@ -596,18 +596,25 @@ static class TaskPanelBehaviourPatch
         PlayerControl player = PlayerControl.LocalPlayer;
 
         var taskText = __instance.taskText.text;
-        if (taskText == "None" || GameStates.IsLobby) return;
+        if (taskText == "None" || GameStates.IsLobby || player == null) return;
 
-        if (!player.GetCustomRole().IsVanilla())
+        CustomRoles role = player.GetCustomRole();
+        if (!role.IsVanilla())
         {
             var roleInfo = player.GetRoleInfo();
-            var RoleWithInfo = $"<size=80%>{player.GetCustomRole().ToColoredString()}:\r\n{roleInfo}</size>";
+            var RoleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{roleInfo}</size>";
             if (Options.CurrentGameMode != CustomGameMode.Standard)
             {
                 var splitted = roleInfo.Split(' ');
                 RoleWithInfo = splitted.Length <= 3
                     ? $"<size=60%>{roleInfo}</size>\r\n"
                     : $"<size=60%>{string.Join(' ', splitted[..3])}\r\n{string.Join(' ', splitted[3..])}</size>\r\n";
+            }
+            else if (RoleWithInfo.RemoveHtmlTags().Length > 35)
+            {
+                var split = roleInfo.Split(' ');
+                var half = split.Length / 2;
+                RoleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{string.Join(' ', split[..half])}\r\n{string.Join(' ', split[half..])}</size>";
             }
 
             var finalText = Utils.ColorString(player.GetRoleColor(), RoleWithInfo);
@@ -639,7 +646,7 @@ static class TaskPanelBehaviourPatch
                     {
                         var text = sb.ToString().TrimEnd('\n').TrimEnd('\r');
                         if (!Utils.HasTasks(player.Data, false) && sb.ToString().Count(s => s == '\n') >= 2)
-                            text = $"<size=55%>{Utils.ColorString(Utils.GetRoleColor(player.GetCustomRole()).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}</size>";
+                            text = $"<size=55%>{Utils.ColorString(Utils.GetRoleColor(role).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}</size>";
                         else if (player.myTasks.ToArray().Any(x => x.TaskType == TaskTypes.FixComms)) goto Skip;
                         finalText += $"\r\n\r\n<size=65%>{text}</size>";
                     }
@@ -698,7 +705,7 @@ static class TaskPanelBehaviourPatch
                     {
                         var text = sb1.ToString().TrimEnd('\n').TrimEnd('\r');
                         if (!Utils.HasTasks(player.Data, false) && sb1.ToString().Count(s => s == '\n') >= 2)
-                            text = $"{Utils.ColorString(Utils.GetRoleColor(player.GetCustomRole()).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}";
+                            text = $"{Utils.ColorString(Utils.GetRoleColor(role).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}";
                         finalText += $"<size=70%>\r\n{text}\r\n</size>";
                     }
 
@@ -744,7 +751,7 @@ static class TaskPanelBehaviourPatch
                     {
                         var text = sb2.ToString().TrimEnd('\n').TrimEnd('\r');
                         if (!Utils.HasTasks(player.Data, false) && sb2.ToString().Count(s => s == '\n') >= 2)
-                            text = $"{Utils.ColorString(Utils.GetRoleColor(player.GetCustomRole()).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}";
+                            text = $"{Utils.ColorString(Utils.GetRoleColor(role).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}";
                         finalText += $"<size=70%>\r\n{text}\r\n</size>";
                     }
 
