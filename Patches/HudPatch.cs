@@ -232,7 +232,8 @@ static class HudManagerPatch
                             break;
                     }
 
-                    if (role.PetActivatedAbility()) __instance.AbilityButton?.Hide();
+                    if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard)
+                        __instance.AbilityButton?.Hide();
 
                     if (LowerInfoText == null)
                     {
@@ -609,7 +610,7 @@ static class TaskPanelBehaviourPatch
                     : $"<size=60%>{string.Join(' ', splitted[..3])}\r\n{string.Join(' ', splitted[3..])}</size>\r\n";
             }
 
-            var AllText = Utils.ColorString(player.GetRoleColor(), RoleWithInfo);
+            var finalText = Utils.ColorString(player.GetRoleColor(), RoleWithInfo);
 
             switch (Options.CurrentGameMode)
             {
@@ -620,9 +621,9 @@ static class TaskPanelBehaviourPatch
                     {
                         const int max = 3;
                         var s = subRoles.Take(max).Select(x => Utils.ColorString(Utils.GetRoleColor(x), $"\r\n\r\n{x.ToColoredString()}:\r\n{GetString($"{x}Info")}"));
-                        AllText += s.Aggregate("<size=70%>", (current, next) => current + next) + "</size>";
+                        finalText += s.Aggregate("<size=70%>", (current, next) => current + next) + "</size>";
                         int chunk = subRoles.Any(x => GetString(x.ToString()).Contains(' ')) ? 3 : 4;
-                        if (subRoles.Count > max) AllText += $"\r\n<size=70%>....\r\n({subRoles.Skip(max).Chunk(chunk).Select(x => x.Join(r => r.ToColoredString())).Join(delimiter: ",\r\n")})</size>";
+                        if (subRoles.Count > max) finalText += $"\r\n<size=70%>....\r\n({subRoles.Skip(max).Chunk(chunk).Select(x => x.Join(r => r.ToColoredString())).Join(delimiter: ",\r\n")})</size>";
                     }
 
                     var lines = taskText.Split("\r\n</color>\n")[0].Split("\r\n\n")[0].Split("\r\n");
@@ -640,13 +641,13 @@ static class TaskPanelBehaviourPatch
                         if (!Utils.HasTasks(player.Data, false) && sb.ToString().Count(s => s == '\n') >= 2)
                             text = $"<size=55%>{Utils.ColorString(Utils.GetRoleColor(player.GetCustomRole()).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}</size>";
                         else if (player.myTasks.ToArray().Any(x => x.TaskType == TaskTypes.FixComms)) goto Skip;
-                        AllText += $"\r\n\r\n<size=65%>{text}</size>";
+                        finalText += $"\r\n\r\n<size=65%>{text}</size>";
                     }
 
                     Skip:
                     if (MeetingStates.FirstMeeting)
                     {
-                        AllText += $"\r\n\r\n</color><size=60%>{GetString("PressF1ShowMainRoleDes")}";
+                        finalText += $"\r\n\r\n</color><size=60%>{GetString("PressF1ShowMainRoleDes")}";
                     }
 
                     break;
@@ -655,22 +656,22 @@ static class TaskPanelBehaviourPatch
 
                     var lpc = PlayerControl.LocalPlayer;
 
-                    AllText += "\r\n<size=90%>";
-                    AllText += $"\r\n{GetString("PVP.ATK")}: {SoloKombatManager.PlayerATK[lpc.PlayerId]:N1}";
-                    AllText += $"\r\n{GetString("PVP.DF")}: {SoloKombatManager.PlayerDF[lpc.PlayerId]:N1}";
-                    AllText += $"\r\n{GetString("PVP.RCO")}: {SoloKombatManager.PlayerHPReco[lpc.PlayerId]:N1}";
-                    AllText += "\r\n</size>";
+                    finalText += "\r\n<size=90%>";
+                    finalText += $"\r\n{GetString("PVP.ATK")}: {SoloKombatManager.PlayerATK[lpc.PlayerId]:N1}";
+                    finalText += $"\r\n{GetString("PVP.DF")}: {SoloKombatManager.PlayerDF[lpc.PlayerId]:N1}";
+                    finalText += $"\r\n{GetString("PVP.RCO")}: {SoloKombatManager.PlayerHPReco[lpc.PlayerId]:N1}";
+                    finalText += "\r\n</size>";
 
-                    AllText += Main.PlayerStates.Keys.OrderBy(SoloKombatManager.GetRankOfScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{SoloKombatManager.GetRankOfScore(x)}. {x.ColoredPlayerName()} - {string.Format(GetString("KillCount").TrimStart(' '), SoloKombatManager.KBScore.GetValueOrDefault(x, 0))}");
+                    finalText += Main.PlayerStates.Keys.OrderBy(SoloKombatManager.GetRankOfScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{SoloKombatManager.GetRankOfScore(x)}. {x.ColoredPlayerName()} - {string.Format(GetString("KillCount").TrimStart(' '), SoloKombatManager.KBScore.GetValueOrDefault(x, 0))}");
 
-                    AllText += "</size>";
+                    finalText += "</size>";
                     break;
 
                 case CustomGameMode.FFA:
 
-                    AllText += Main.PlayerStates.Keys.OrderBy(FFAManager.GetRankFromScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{FFAManager.GetRankFromScore(x)}. {x.ColoredPlayerName()} -{string.Format(GetString("KillCount"), FFAManager.KillCount.GetValueOrDefault(x, 0))}");
+                    finalText += Main.PlayerStates.Keys.OrderBy(FFAManager.GetRankFromScore).Aggregate("<size=70%>", (s, x) => $"{s}\r\n{FFAManager.GetRankFromScore(x)}. {x.ColoredPlayerName()} -{string.Format(GetString("KillCount"), FFAManager.KillCount.GetValueOrDefault(x, 0))}");
 
-                    AllText += "</size>";
+                    finalText += "</size>";
                     break;
 
                 case CustomGameMode.MoveAndStop:
@@ -698,7 +699,7 @@ static class TaskPanelBehaviourPatch
                         var text = sb1.ToString().TrimEnd('\n').TrimEnd('\r');
                         if (!Utils.HasTasks(player.Data, false) && sb1.ToString().Count(s => s == '\n') >= 2)
                             text = $"{Utils.ColorString(Utils.GetRoleColor(player.GetCustomRole()).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}";
-                        AllText += $"<size=70%>\r\n{text}\r\n</size>";
+                        finalText += $"<size=70%>\r\n{text}\r\n</size>";
                     }
 
                     List<(int, byte)> list3 = [];
@@ -708,7 +709,7 @@ static class TaskPanelBehaviourPatch
                     foreach (var id in list3.Where(x => SummaryText3.ContainsKey(x.Item2)).ToArray())
                     {
                         bool alive = Utils.GetPlayerById(id.Item2).IsAlive();
-                        AllText += $"{(!alive ? "<#777777>" : string.Empty)}<size=1.6>\r\n{(alive ? SummaryText3[id.Item2] : SummaryText3[id.Item2].RemoveHtmlTags())}{(!alive ? $"  <#ff0000>{GetString("Dead")}</color>" : string.Empty)}</size>";
+                        finalText += $"{(!alive ? "<#777777>" : string.Empty)}<size=1.6>\r\n{(alive ? SummaryText3[id.Item2] : SummaryText3[id.Item2].RemoveHtmlTags())}{(!alive ? $"  <#ff0000>{GetString("Dead")}</color>" : string.Empty)}</size>";
                     }
 
                     break;
@@ -718,13 +719,13 @@ static class TaskPanelBehaviourPatch
                     List<string> SummaryText4 = [];
                     SummaryText4.AddRange(from pc in Main.AllPlayerControls let alive = pc.IsAlive() select $"{(!alive ? "<size=80%><#777777>" : "<size=80%>")}{HotPotatoManager.GetIndicator(pc.PlayerId)}{pc.PlayerId.ColoredPlayerName()}{(!alive ? $"</color>  <#ff0000>{GetString("Dead")}</color></size>" : "</size>")}");
 
-                    AllText += $"\r\n\r\n{string.Join('\n', SummaryText4)}";
+                    finalText += $"\r\n\r\n{string.Join('\n', SummaryText4)}";
 
                     break;
 
                 case CustomGameMode.HideAndSeek:
 
-                    AllText += $"\r\n\r\n{HnSManager.GetTaskBarText()}";
+                    finalText += $"\r\n\r\n{HnSManager.GetTaskBarText()}";
 
                     break;
 
@@ -744,37 +745,37 @@ static class TaskPanelBehaviourPatch
                         var text = sb2.ToString().TrimEnd('\n').TrimEnd('\r');
                         if (!Utils.HasTasks(player.Data, false) && sb2.ToString().Count(s => s == '\n') >= 2)
                             text = $"{Utils.ColorString(Utils.GetRoleColor(player.GetCustomRole()).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}";
-                        AllText += $"<size=70%>\r\n{text}\r\n</size>";
+                        finalText += $"<size=70%>\r\n{text}\r\n</size>";
                     }
 
-                    AllText += $"\r\n<size=90%>{SpeedrunManager.GetTaskBarText()}</size>";
+                    finalText += $"\r\n<size=90%>{SpeedrunManager.GetTaskBarText()}</size>";
 
                     break;
 
                 case CustomGameMode.NaturalDisasters:
 
-                    AllText += Main.AllPlayerControls
+                    finalText += Main.AllPlayerControls
                         .Select(x => (pc: x, alive: x.IsAlive(), time: NaturalDisasters.SurvivalTime(x.PlayerId)))
                         .OrderByDescending(x => x.alive)
                         .ThenByDescending(x => x.time)
                         .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {(x.alive ? $"<#00ff00>{GetString("Alive")}</color>" : $"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), x.time)}")}");
 
-                    AllText += "</size>";
+                    finalText += "</size>";
                     break;
 
                 case CustomGameMode.RoomRush:
 
-                    AllText += Main.AllPlayerControls
+                    finalText += Main.AllPlayerControls
                         .Select(x => (pc: x, alive: x.IsAlive(), time: RoomRush.GetSurvivalTime(x.PlayerId)))
                         .OrderByDescending(x => x.alive)
                         .ThenByDescending(x => x.time)
                         .Aggregate("<size=70%>", (s, x) => $"{s}\r\n{x.pc.PlayerId.ColoredPlayerName()} - {(x.alive ? $"<#00ff00>{GetString("Alive")}</color>" : $"{GetString("Dead")}: {string.Format(GetString("SurvivalTime"), x.time)}")}");
 
-                    AllText += "</size>";
+                    finalText += "</size>";
                     break;
             }
 
-            __instance.taskText.text = AllText;
+            __instance.taskText.text = finalText;
         }
 
         if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
