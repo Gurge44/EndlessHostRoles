@@ -36,7 +36,7 @@ namespace EHR.AddOns.GhostRoles
 
         public void SetupCustomOption()
         {
-            Options.SetupRoleOptions(649100, TabGroup.OtherRoles, CustomRoles.Specter, zeroOne: true);
+            Options.SetupRoleOptions(649100, TabGroup.OtherRoles, CustomRoles.Specter);
             SnatchWin = new BooleanOptionItem(649102, "SnatchWin", false, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Specter]);
             Options.OverrideTasksData.Create(649103, TabGroup.OtherRoles, CustomRoles.Specter);

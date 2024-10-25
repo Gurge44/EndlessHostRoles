@@ -1086,7 +1086,7 @@ internal static class ChatCommands
             case "ban":
                 if (GetRoleByName(args[2], out CustomRoles mainRole) && GetRoleByName(args[3], out CustomRoles addOn))
                 {
-                    if (mainRole.IsAdditionRole() || !addOn.IsAdditionRole() || addOn == CustomRoles.Lovers) break;
+                    if (mainRole.IsAdditionRole() || !addOn.IsAdditionRole() || (addOn == CustomRoles.Lovers && args[1] == "add")) break;
                     if (args[1] == "add")
                     {
                         if (!Main.AlwaysSpawnTogetherCombos.ContainsKey(OptionItem.CurrentPreset)) Main.AlwaysSpawnTogetherCombos[OptionItem.CurrentPreset] = [];
@@ -1133,7 +1133,6 @@ internal static class ChatCommands
                 {
                     if (mainRole2.IsAdditionRole() || !addOn2.IsAdditionRole()) break;
 
-                    // If the text ends with " all", remove the combo from all presets
                     if (text.EndsWith(" all"))
                     {
                         for (var preset = 0; preset < OptionItem.NumPresets; preset++)

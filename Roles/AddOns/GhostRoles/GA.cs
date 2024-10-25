@@ -25,7 +25,7 @@ namespace EHR.AddOns.GhostRoles
 
         public void SetupCustomOption()
         {
-            Options.SetupRoleOptions(649600, TabGroup.OtherRoles, CustomRoles.GA, zeroOne: true);
+            Options.SetupRoleOptions(649600, TabGroup.OtherRoles, CustomRoles.GA);
             ProtectDuration = new IntegerOptionItem(649602, "BKProtectDuration", new(1, 90, 1), 5, TabGroup.OtherRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.GA])
                 .SetValueFormat(OptionFormat.Seconds);
