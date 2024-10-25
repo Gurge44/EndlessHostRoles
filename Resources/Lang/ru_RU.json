@@ -4573,7 +4573,7 @@
   "AntidoteCDOpt": "Уменьшить откат на",
   "AntidoteCDReset": "Откат возвращается к нормальному значению после собрания",
   "HackButtonText": "Имитация",
-  "BomberCooldownsResetEachOther": "Kill Cooldown & Bomb Cooldown Reset Each Other When Used",
+  "BomberCooldownsResetEachOther": "Откат убийства и откат бомбы сбрасывают друг друга после использования",
   "BomberDiesInExplosion": "<color=#ff1919>Бомбер</color> умирает от взрыва",
   "ImpostorsSurviveBombs": "<color=#ff1919>Предатели</color> выживают при взрыве бомбы",
   "NukeRadius": "Радиус взрыва (12x это очень много)",
