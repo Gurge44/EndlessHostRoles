@@ -221,7 +221,7 @@ namespace EHR
                 yield return new WaitForSeconds(1f);
             }
 
-            if (ventLimit > 0) aapc.Without(PlayerControl.LocalPlayer).Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
+            if (ventLimit > 0) aapc.Without(PlayerControl.LocalPlayer).DoIf(x => !x.IsNonHostModClient(), x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
             Utils.SendRPC(CustomRPC.RoomRushDataSync, 1);
 
             NameNotifyManager.Reset();
@@ -412,6 +412,7 @@ namespace EHR
         {
             RoomRush.VentLimit[pc.PlayerId]--;
             Utils.SendRPC(CustomRPC.RoomRushDataSync, 2, RoomRush.VentLimit[pc.PlayerId], pc.PlayerId);
+            if (RoomRush.VentLimit[pc.PlayerId] <= 0) pc.RpcChangeRoleBasis(CustomRoles.RRPlayer);
         }
 
         public override bool CanUseImpostorVentButton(PlayerControl pc)

@@ -83,11 +83,28 @@ namespace EHR.Crewmate
                 {
                     BasePos = pc.Pos();
                     if (pc.TP(CameraPosition)) IsTeleported = true;
-                }, UsePets.GetBool() ? 0.1f : 2f, "CameraMan Teleport");
+                }, 2f, "CameraMan Teleport");
             }
             else
             {
-                if (!NameNotifyManager.Notifies.ContainsKey(pc.PlayerId)) pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
+                pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
+            }
+        }
+
+        public override void OnPet(PlayerControl pc)
+        {
+            if (pc == null) return;
+
+            if (pc.GetAbilityUseLimit() >= 1)
+            {
+                pc.RpcRemoveAbilityUse();
+
+                BasePos = pc.Pos();
+                if (pc.TP(CameraPosition)) IsTeleported = true;
+            }
+            else
+            {
+                pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
             }
         }
 

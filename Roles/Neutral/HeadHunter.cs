@@ -100,13 +100,18 @@ public class HeadHunter : RoleBase
         float tempkcd = KCD;
         if (Targets.Contains(target.PlayerId)) Math.Clamp(KCD -= SuccessKillCooldown.GetFloat(), MinKCD.GetFloat(), MaxKCD.GetFloat());
         else Math.Clamp(KCD += FailureKillCooldown.GetFloat(), MinKCD.GetFloat(), MaxKCD.GetFloat());
-        if (Math.Abs(KCD - tempkcd) > 0.5f)
+        if (Math.Abs(KCD - tempkcd) > 0.1f)
         {
             killer.ResetKillCooldown();
             killer.SyncSettings();
         }
 
         return true;
+    }
+
+    public override void OnMurder(PlayerControl killer, PlayerControl target)
+    {
+        killer.SetKillCooldown(KCD);
     }
 
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
@@ -119,7 +124,7 @@ public class HeadHunter : RoleBase
         {
             byte playerId = hh.Targets[i];
             if (i != 0) output += ", ";
-            output += Utils.GetPlayerById(playerId).GetRealName();
+            output += playerId.ColoredPlayerName();
         }
 
         return targetId != 0xff ? $"<color=#00ffa5>Targets:</color> <b>{output}</b>" : string.Empty;
