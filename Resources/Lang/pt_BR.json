@@ -2186,6 +2186,7 @@
   "Warning.NoModHost": "Mod EHR não está instalado no anfitrião.",
   "Warning.MismatchedVersion": "<b>{0}</b> tem uma versão diferente de <b>{1}</b>",
   "Warning.AutoExitAtMismatchedVersion": "O anfitrião não possui ou tem uma versão diferente de {0}\nVocê será expulso em {1}",
+  "EnabledGMWarning": "You have enabled Game Master. This will make you a ghost at the start of every game. Due to an unknown issue, games may end with the 'Everyone died' reason instantly, if this happens, please disable Game Master.",
   "Commands.NoAccess": "Você não tem acesso a esse comando ou não pode usá-lo atualmente",
   "CommandDescription.LT": "Ver o temporizador do lobby",
   "CommandDescription.Dump": "Salva um arquivo Log no Desktop",
