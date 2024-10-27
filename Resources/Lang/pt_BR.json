@@ -2186,6 +2186,7 @@
   "Warning.NoModHost": "Mod EHR não está instalado no anfitrião.",
   "Warning.MismatchedVersion": "<b>{0}</b> tem uma versão diferente de <b>{1}</b>",
   "Warning.AutoExitAtMismatchedVersion": "O anfitrião não possui ou tem uma versão diferente de {0}\nVocê será expulso em {1}",
+  "EnabledGMWarning": "Você ativou o Modo Mestre. Isso fará com que você comece cada partida como um fantasma. Devido a um problema desconhecido, as partidas podem terminar instantaneamente com a mensagem \"Todos morreram\". Se isso acontecer, desative o Modo Mestre, por favor.",
   "Commands.NoAccess": "Você não tem acesso a esse comando ou não pode usá-lo atualmente",
   "CommandDescription.LT": "Ver o temporizador do lobby",
   "CommandDescription.Dump": "Salva um arquivo Log no Desktop",

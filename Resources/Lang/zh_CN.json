@@ -2186,6 +2186,7 @@
   "Warning.NoModHost": "房主没装EHR",
   "Warning.MismatchedVersion": "<b>{0}</b>和<b>{1}</b>具有不同版本",
   "Warning.AutoExitAtMismatchedVersion": "房主与{0}的版本不同\\n你将被踢出在{1}秒内",
+  "EnabledGMWarning": "You have enabled Game Master. This will make you a ghost at the start of every game. Due to an unknown issue, games may end with the 'Everyone died' reason instantly, if this happens, please disable Game Master.",
   "Commands.NoAccess": "您没有使用此命令的权限或当前无法使用它",
   "CommandDescription.LT": "查看大厅计时器",
   "CommandDescription.Dump": "将日志文件导出到桌面",
