@@ -4752,7 +4752,7 @@
   "President.Reveal.ConvertedPresidentCanReveal": "<#ffab1b>被招募</color> 的 <#30916f>總統</color> 可以使用揭示法令",
   "President.GovernmentRecruiting.RecruitedRole": "被招募的職業",
   "President.Help": "指令用法: /decree {decree ID}\\n你可以透過使用/decree來看到每條法令的代號",
-  "President.Recruit.TargetNotifyMessage": "You have been recruited by the <#30916f>President</color>!",
+  "President.Recruit.TargetNotifyMessage": "你被<#30916f>總統</color>招募了!",
   "President.UsedDecreeMessage.Everyone": "The <#30916f>President</color> has used the <#ffab1b>{0}</color>!",
   "President.DecreeAlreadyUsedMessage": "You have already used this decree or it isn't enabled!",
   "President.DecreeAlreadyChosenThisMeetingMessage": "You have already chosen a decree this meeting!",
