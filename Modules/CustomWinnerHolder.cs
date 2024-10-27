@@ -28,12 +28,14 @@ public static class CustomWinnerHolder
         AdditionalWinnerTeams = [];
         WinnerRoles = [];
         WinnerIds = [];
+        Logger.Info("Reset", "CustomWinnerHolder");
     }
 
     public static void ClearWinners()
     {
         WinnerRoles.Clear();
         WinnerIds.Clear();
+        Logger.Info("ClearWinners", "CustomWinnerHolder");
     }
 
     /// <summary><para>Assign a value to WinnerTeam. </para><para>Add to AdditionalWinnerTeams if already assigned.</para></summary>
@@ -41,6 +43,7 @@ public static class CustomWinnerHolder
     {
         if (WinnerTeam == CustomWinner.Default) WinnerTeam = winner;
         else AdditionalWinnerTeams.Add((AdditionalWinners)winner);
+        Logger.Info($"WinnerTeam: {WinnerTeam}, AdditionalWinnerTeams: {string.Join(", ", AdditionalWinnerTeams)}", "CustomWinnerHolder.SetWinnerOrAdditonalWinner");
     }
 
     /// <summary><para>Assign a value to WinnerTeam. </para><para>If it is already assigned, add the existing value to AdditionalWinnerTeams and then assign it.</para></summary>
@@ -49,6 +52,7 @@ public static class CustomWinnerHolder
         if (WinnerTeam != CustomWinner.Default)
             AdditionalWinnerTeams.Add((AdditionalWinners)WinnerTeam);
         WinnerTeam = winner;
+        Logger.Info($"WinnerTeam: {WinnerTeam}, AdditionalWinnerTeams: {string.Join(", ", AdditionalWinnerTeams)}", "CustomWinnerHolder.ShiftWinnerAndSetWinner");
     }
 
     /// <summary><para>Delete any existing values and then assign the values to WinnerTeam.</para></summary>
@@ -56,6 +60,7 @@ public static class CustomWinnerHolder
     {
         Reset();
         WinnerTeam = winner;
+        Logger.Info($"WinnerTeam: {WinnerTeam}", "CustomWinnerHolder.ResetAndSetWinner");
     }
 
     public static MessageWriter WriteTo(MessageWriter writer)
