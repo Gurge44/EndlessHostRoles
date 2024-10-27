@@ -2186,7 +2186,7 @@
   "Warning.NoModHost": "У хоста лобби не установлен мод EHR",
   "Warning.MismatchedVersion": "Версия EHR у <b>{0}</b> не соответствует версии у хоста <b>{1}</b>",
   "Warning.AutoExitAtMismatchedVersion": "У хоста нету/есть другая версия {0}\\nВы будете кикнуты через {1}",
-  "EnabledGMWarning": "You have enabled Game Master. This will make you a ghost at the start of every game. Due to an unknown issue, games may end with the 'Everyone died' reason instantly, if this happens, please disable Game Master.",
+  "EnabledGMWarning": "Вы включили режим Мастера Игры. Это сделает вас призраком в начале каждой игры. Из-за неизвестной проблемы игры могут мгновенно завершиться с причиной «Все погибли». Если это произойдет, пожалуйста, отключите режим Мастера Игры.",
   "Commands.NoAccess": "У вас нет доступа к этой команде или вы не можете использовать эту команду сейчас",
   "CommandDescription.LT": "Показать таймер лобби",
   "CommandDescription.Dump": "Создать лог-файл на рабочем столе",
