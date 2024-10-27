@@ -26,17 +26,17 @@ static class GameEndChecker
     private const float EndGameDelay = 0.2f;
     public static GameEndPredicate Predicate;
     public static bool ShouldNotCheck = false;
-    public static bool ShowAllRolesWhenGameEnd;
+    public static bool Ended;
 
     public static bool Prefix()
     {
         if (!AmongUsClient.Instance.AmHost) return true;
 
-        if (Predicate == null || ShouldNotCheck) return false;
+        if (Predicate == null || ShouldNotCheck || Main.HasJustStarted) return false;
 
         if (Options.NoGameEnd.GetBool() && WinnerTeam is not CustomWinner.Draw and not CustomWinner.Error) return false;
 
-        ShowAllRolesWhenGameEnd = false;
+        Ended = false;
 
         Predicate.CheckForGameEnd(out GameOverReason reason);
 
@@ -59,7 +59,7 @@ static class GameEndChecker
 
             Main.AllPlayerControls.Do(pc => Camouflage.RpcSetSkin(pc, ForceRevert: true, RevertToDefault: true, GameEnd: true));
 
-            ShowAllRolesWhenGameEnd = true;
+            Ended = true;
 
             if (reason == GameOverReason.ImpostorBySabotage && Options.NKWinsBySabotageIfNoImpAlive.GetBool() && !Main.AllAlivePlayerControls.Any(x => x.IsImpostor()) && Main.AllAlivePlayerControls.Count(x => x.IsNeutralKiller()) == 1)
             {
@@ -411,6 +411,8 @@ static class GameEndChecker
         {
             reason = GameOverReason.ImpostorByKill;
 
+            if (Main.HasJustStarted) return false;
+
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
             if (CustomRoles.Sunnyboy.RoleExist() && aapc.Length > 1) return false;
@@ -486,6 +488,7 @@ static class GameEndChecker
                 }
                 else return false;
 
+                Logger.Info($"Crew: {Crew}, Imp: {Imp}", "CheckGameEndPatch.CheckGameEndByLivingPlayers");
                 ResetAndSetWinner((CustomWinner)winner);
                 return true;
             }

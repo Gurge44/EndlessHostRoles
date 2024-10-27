@@ -138,9 +138,10 @@ public enum CustomRPC
     SyncSentry,
     SyncBargainer,
     SyncOverheat,
-    
+
     // Game Modes
-    RoomRushDataSync
+    RoomRushDataSync,
+    FFAKill
 }
 
 public enum Sounds
@@ -156,7 +157,7 @@ static class RPCHandlerPatch
 {
     public static readonly Dictionary<byte, int> ReportDeadBodyRPCs = [];
 
-    private static bool TrustedRpc(byte id) => (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.BAU;
+    private static bool TrustedRpc(byte id) => (CustomRPC)id is CustomRPC.VersionCheck or CustomRPC.RequestRetryVersionCheck or CustomRPC.AntiBlackout or CustomRPC.SyncNameNotify or CustomRPC.RequestSendMessage or CustomRPC.Judge or CustomRPC.SetNiceSwapperVotes or CustomRPC.MeetingKill or CustomRPC.Guess or CustomRPC.MafiaRevenge or CustomRPC.BAU or CustomRPC.FFAKill;
 
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
     {
@@ -493,7 +494,7 @@ static class RPCHandlerPatch
                         NotificationPopperPatch.AddRoleSettingsChangeMessage(item, key, (CustomRoles)customRole, playSound);
                         break;
                 }
-                
+
                 break;
             }
             case CustomRPC.SyncPostman:
@@ -1037,6 +1038,28 @@ static class RPCHandlerPatch
                 Scout.ReceiveRPC(reader);
                 break;
             }
+            case CustomRPC.RoomRushDataSync:
+            {
+                RoomRush.ReceiveRPC(reader);
+                break;
+            }
+            case CustomRPC.FFAKill:
+            {
+                if (Options.CurrentGameMode != CustomGameMode.FFA)
+                {
+                    EAC.WarnHost();
+                    EAC.Report(__instance, "FFA RPC when game mode is not FFA");
+                    break;
+                }
+
+                PlayerControl killer = reader.ReadNetObject<PlayerControl>();
+                PlayerControl target = reader.ReadNetObject<PlayerControl>();
+
+                if (!killer.IsAlive() || !target.IsAlive() || AntiBlackout.SkipTasks || target.inMovingPlat || target.onLadder || target.inVent || MeetingHud.Instance) break;
+
+                FFAManager.OnPlayerAttack(killer, target);
+                break;
+            }
         }
     }
 }
@@ -1171,7 +1194,7 @@ internal static class RPC
             while (PlayerControl.LocalPlayer == null) yield return null;
             if (AmongUsClient.Instance.AmHost)
             {
-                Utils.SendRPC(CustomRPC.VersionCheck, Main.PlayerVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
+                Utils.SendRPC(CustomRPC.VersionCheck, Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
             }
             else
             {
@@ -1183,9 +1206,6 @@ internal static class RPC
             }
 
             Main.PlayerVersion[PlayerControl.LocalPlayer.PlayerId] = new(Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
-
-            if (GameStates.IsModHost)
-                Main.HostClientId = Utils.GetPlayerById(0)?.GetClientId() ?? -1;
         }
     }
 

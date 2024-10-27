@@ -22,7 +22,7 @@ static class OnGameJoinedPatch
     {
         while (!Options.IsLoaded) Task.Delay(1);
         Logger.Info($"{__instance.GameId} joined lobby", "OnGameJoined");
-        if (AmongUsClient.Instance.AmHost) Main.HostClientId = __instance.ClientId;
+
         Main.PlayerVersion = [];
         RPC.RpcVersionCheck();
         SoundManager.Instance?.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
@@ -175,6 +175,8 @@ static class OnPlayerLeftPatch
     {
         try
         {
+            if (data != null && data.Character != null) StartGameHostPatch.DataDisconnected[data.Character.PlayerId] = true;
+
             if (GameStates.IsInGame)
             {
                 if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) HnSManager.PlayerRoles.Remove(data.Character.PlayerId);
@@ -206,11 +208,11 @@ static class OnPlayerLeftPatch
                 Postman.CheckAndResetTargets(data.Character);
                 GhostRolesManager.AssignedGhostRoles.Remove(data.Character.PlayerId);
 
-                Utils.AfterPlayerDeathTasks(data.Character, GameStates.IsMeeting);
-
                 PlayerState state = Main.PlayerStates[data.Character.PlayerId];
                 if (state.deathReason == PlayerState.DeathReason.etc) state.deathReason = PlayerState.DeathReason.Disconnected;
                 if (!state.IsDead) state.SetDead();
+
+                Utils.AfterPlayerDeathTasks(data.Character, GameStates.IsMeeting, disconnect: true);
 
                 NameNotifyManager.Notifies.Remove(data.Character.PlayerId);
                 data.Character.RpcSetName(data.Character.GetRealName(isMeeting: true));

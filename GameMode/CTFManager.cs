@@ -17,6 +17,7 @@ namespace EHR
         private static OptionItem TaggedPlayersGet;
         private static OptionItem WhenFlagCarrierGetsTagged;
         private static OptionItem SpeedReductionForFlagCarrier;
+        private static OptionItem TagCooldown;
 
         private static readonly string[] TaggedPlayersGetOptions =
         [
@@ -99,6 +100,11 @@ namespace EHR
                 .SetGameMode(CustomGameMode.CaptureTheFlag)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(color);
+
+            TagCooldown = new FloatOptionItem(id + 7, "CTF_TagCooldown", new(0f, 10f, 0.5f), 2f, TabGroup.GameSettings)
+                .SetGameMode(CustomGameMode.CaptureTheFlag)
+                .SetValueFormat(OptionFormat.Seconds)
+                .SetColor(color);
         }
 
         public static bool KnowTargetRoleColor(PlayerControl seer, PlayerControl target, ref string color)
@@ -115,7 +121,7 @@ namespace EHR
             if (seer.PlayerId != target.PlayerId) return string.Empty;
             var arrows = TargetArrow.GetAllArrows(seer);
             arrows = arrows.Length > 0 ? $"{arrows}\n" : string.Empty;
-            return $"{arrows}<size=1.4>{GetStatistics(target.PlayerId).Replace(" - ", "\n")}</size>";
+            return $"{arrows}<size=1.4>{GetStatistics(target.PlayerId).Replace(" | ", "\n")}</size>";
         }
 
         public static string GetStatistics(byte id)
@@ -182,8 +188,12 @@ namespace EHR
 
             LateTask.New(() =>
             {
+                Main.AllPlayerKillCooldown.SetAllValues(TagCooldown.GetFloat());
+
                 // Assign players to teams
-                List<PlayerControl> players = Main.AllAlivePlayerControls.ToList();
+                List<PlayerControl> players = Main.AllAlivePlayerControls.Shuffle().ToList();
+                if (Main.GM.Value) players.RemoveAll(x => x.IsHost());
+
                 int blueCount = players.Count / 2;
                 HashSet<byte> bluePlayers = [];
                 HashSet<byte> yellowPlayers = [];
@@ -229,11 +239,11 @@ namespace EHR
                         switch (team)
                         {
                             case CTFTeam.Blue:
-                                Loop.Times(3, _ => pc.TP(blueFlagBase.Position));
+                                pc.TP(blueFlagBase.Position);
                                 pc.Notify(string.Format(Translator.GetString("CTF_Notify_EnemyTeamRoom"), yellowFlagBase.RoomName));
                                 break;
                             case CTFTeam.Yellow:
-                                Loop.Times(3, _ => pc.TP(yellowFlagBase.Position));
+                                pc.TP(yellowFlagBase.Position);
                                 pc.Notify(string.Format(Translator.GetString("CTF_Notify_EnemyTeamRoom"), blueFlagBase.RoomName));
                                 break;
                         }
@@ -253,7 +263,7 @@ namespace EHR
             var targetTeam = PlayerTeams[target.PlayerId];
             if (!ValidTag || PlayerTeams[killer.PlayerId] == targetTeam || TeamData.Values.Any(x => x.FlagCarrier == killer.PlayerId)) return;
 
-            new[] { killer, target }.Do(x => x.SetKillCooldown());
+            new[] { killer, target }.Do(x => x.SetKillCooldown(TagCooldown.GetFloat()));
 
             if (TeamData.FindFirst(x => x.Value.FlagCarrier == target.PlayerId, out var kvp))
             {
@@ -267,7 +277,7 @@ namespace EHR
             switch (TaggedPlayersGet.GetValue())
             {
                 case 0:
-                    Loop.Times(3, _ => target.TP(targetTeam.GetFlagBase().Position));
+                    target.TP(targetTeam.GetFlagBase().Position);
                     Main.AllPlayerSpeed[target.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
                     target.MarkDirtySettings();
                     break;
@@ -378,7 +388,6 @@ namespace EHR
                 }
                 catch
                 {
-                    
                 }
             }
 

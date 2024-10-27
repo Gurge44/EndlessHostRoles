@@ -169,14 +169,15 @@ internal static class ChatCommands
             new(["deletevip", "удвип", "убрвип", "удалитьвип", "убратьвип"], "{id}", GetString("CommandDescription.DeleteVIP"), Command.UsageLevels.Host, Command.UsageTimes.Always, DeleteVIPCommand, true, [GetString("CommandArgs.DeleteVIP.Id")]),
             new(["assume", "предположить"], "{id} {number}", GetString("CommandDescription.Assume"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, AssumeCommand, true, [GetString("CommandArgs.Assume.Id"), GetString("CommandArgs.Assume.Number")]),
             new(["note", "заметка"], "{action} [?]", GetString("CommandDescription.Note"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NoteCommand, true, [GetString("CommandArgs.Note.Action"), GetString("CommandArgs.Note.UnknownValue")]),
-            new(["os", "optionset", "шансроли", "опция"], "{chance} {role}", GetString("CommandDescription.OS"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, OSCommand, true, [GetString("CommandArgs.OS.Chance"), GetString("CommandArgs.OS.Role")]),
+            new(["os", "optionset", "шансроли"], "{chance} {role}", GetString("CommandDescription.OS"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, OSCommand, true, [GetString("CommandArgs.OS.Chance"), GetString("CommandArgs.OS.Role")]),
             new(["negotiation", "neg", "наказание"], "{number}", GetString("CommandDescription.Negotiation"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, NegotiationCommand, true, [GetString("CommandArgs.Negotiation.Number")]),
             new(["mute", "мут"], "{id} [duration]", GetString("CommandDescription.Mute"), Command.UsageLevels.HostOrModerator, Command.UsageTimes.AfterDeathOrLobby, MuteCommand, true, [GetString("CommandArgs.Mute.Id"), GetString("CommandArgs.Mute.Duration")]),
             new(["unmute", "размут"], "{id}", GetString("CommandDescription.Unmute"), Command.UsageLevels.Host, Command.UsageTimes.Always, UnmuteCommand, true, [GetString("CommandArgs.Unmute.Id")]),
             new(["draftstart", "ds", "драфтстарт"], "", GetString("CommandDescription.DraftStart"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, DraftStartCommand, true),
             new(["draft", "драфт"], "{number}", GetString("CommandDescription.Draft"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, DraftCommand, true, [GetString("CommandArgs.Draft.Number")]),
-            new(["readycheck", "rc", "готов"], "", GetString("CommandDescription.ReadyCheck"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, ReadyCheckCommand, true),
-            new(["ready", "готов", "г"], "", GetString("CommandDescription.Ready"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ReadyCommand, true),
+            new(["readycheck", "rc", "проверитьготовность"], "", GetString("CommandDescription.ReadyCheck"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, ReadyCheckCommand, true),
+            new(["ready", "готов"], "", GetString("CommandDescription.Ready"), Command.UsageLevels.Everyone, Command.UsageTimes.InLobby, ReadyCommand, true),
+            new(["enableallroles", "всероли"], "", GetString("CommandDescription.EnableAllRoles"), Command.UsageLevels.Host, Command.UsageTimes.InLobby, EnableAllRolesCommand, true),
 
             // Commands with action handled elsewhere
             new(["shoot", "guess", "bet", "bt", "st", "угадать", "бт"], "{id} {role}", GetString("CommandDescription.Guess"), Command.UsageLevels.Everyone, Command.UsageTimes.InMeeting, (_, _, _, _) => { }, true, [GetString("CommandArgs.Guess.Id"), GetString("CommandArgs.Guess.Role")]),
@@ -304,6 +305,11 @@ internal static class ChatCommands
     }
 
     // ---------------------------------------------------------------------------------------------------------------------------------------------
+
+    private static void EnableAllRolesCommand(ChatController __instance, PlayerControl player, string text, string[] args)
+    {
+        Options.CustomRoleSpawnChances.Values.DoIf(x => x.GetValue() == 0, x => x.SetValue(1));
+    }
 
     private static void ReadyCheckCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
@@ -820,7 +826,7 @@ internal static class ChatCommands
     private static void BanKickCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
         // Check if the kick command is enabled in the settings
-        if (Options.ApplyModeratorList.GetValue() == 0 && !player.IsHost())
+        if (!Options.ApplyModeratorList.GetBool() && !player.IsHost())
         {
             Utils.SendMessage(GetString("KickCommandDisabled"), player.PlayerId);
             return;
@@ -874,12 +880,13 @@ internal static class ChatCommands
 
     private static void CheckCommand(ChatController __instance, PlayerControl player, string text, string[] args)
     {
-        if (!player.IsAlive() || !player.Is(CustomRoles.Inquirer)) return;
+        if (!player.IsAlive() || !player.Is(CustomRoles.Inquirer) || player.GetAbilityUseLimit() < 1) return;
         if (args.Length < 3 || !GuessManager.MsgToPlayerAndRole(text[6..], out byte checkId, out CustomRoles checkRole, out _)) return;
         bool hasRole = Utils.GetPlayerById(checkId).Is(checkRole);
         if (IRandom.Instance.Next(100) < Inquirer.FailChance.GetInt()) hasRole = !hasRole;
         if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
         LateTask.New(() => Utils.SendMessage(GetString(hasRole ? "Inquirer.MessageTrue" : "Inquirer.MessageFalse"), player.PlayerId), 0.2f, log: false);
+        player.RpcRemoveAbilityUse();
     }
 
     private static void ChatCommand(ChatController __instance, PlayerControl player, string text, string[] args)
@@ -1079,7 +1086,7 @@ internal static class ChatCommands
             case "ban":
                 if (GetRoleByName(args[2], out CustomRoles mainRole) && GetRoleByName(args[3], out CustomRoles addOn))
                 {
-                    if (mainRole.IsAdditionRole() || !addOn.IsAdditionRole() || addOn == CustomRoles.Lovers) break;
+                    if (mainRole.IsAdditionRole() || !addOn.IsAdditionRole() || (addOn == CustomRoles.Lovers && args[1] == "add")) break;
                     if (args[1] == "add")
                     {
                         if (!Main.AlwaysSpawnTogetherCombos.ContainsKey(OptionItem.CurrentPreset)) Main.AlwaysSpawnTogetherCombos[OptionItem.CurrentPreset] = [];
@@ -1126,7 +1133,6 @@ internal static class ChatCommands
                 {
                     if (mainRole2.IsAdditionRole() || !addOn2.IsAdditionRole()) break;
 
-                    // If the text ends with " all", remove the combo from all presets
                     if (text.EndsWith(" all"))
                     {
                         for (var preset = 0; preset < OptionItem.NumPresets; preset++)
@@ -2084,6 +2090,7 @@ internal static class ChatCommands
                     LateTask.New(() => ChatUpdatePatch.LoversMessage = false, Math.Max(AmongUsClient.Instance.Ping / 1000f * 2f, Main.MessageWait.Value + 0.5f), log: false);
                 }, 0.2f, log: false);
             }
+            else LateTask.New(() => Utils.SendMessage(GetString("LoversChatCannotTalkMsg"), player.PlayerId, GetString("LoversChatCannotTalkTitle")), 0.5f, log: false);
         }
 
         if (isCommand) LastSentCommand[player.PlayerId] = now;
@@ -2106,7 +2113,7 @@ internal class ChatUpdatePatch
         if (Main.DarkTheme.Value)
         {
             chatBubble.TextArea.color = Color.white;
-            chatBubble.Background.color = Color.black;
+            chatBubble.Background.color = new(0.1f, 0.1f, 0.1f, 1f);
         }
 
         LastMessages.RemoveAll(x => Utils.TimeStamp - x.SendTimeStamp > 10);
@@ -2178,7 +2185,7 @@ internal class UpdateCharCountPatch
         __instance.charCountText.enableWordWrapping = false;
         if (length < (AmongUsClient.Instance.AmHost ? 1700 : 250))
             __instance.charCountText.color = Color.black;
-        else if (length < (AmongUsClient.Instance.AmHost ? 2000 : 300))
+        else if (length < (AmongUsClient.Instance.AmHost ? 2000 : 500))
             __instance.charCountText.color = new(1f, 1f, 0f, 1f);
         else
             __instance.charCountText.color = Color.red;

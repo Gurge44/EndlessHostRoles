@@ -17,7 +17,7 @@ public static class Zoom
         try
         {
             if (Camera.main == null) return;
-            if (((GameStates.IsShip && !GameStates.IsMeeting && GameStates.IsCanMove && PlayerControl.LocalPlayer.Data.IsDead) || (GameStates.IsLobby && GameStates.IsCanMove)) && !InGameRoleInfoMenu.Showing)
+            if (((GameStates.IsShip && !GameStates.IsMeeting && GameStates.IsCanMove && PlayerControl.LocalPlayer.Data != null && PlayerControl.LocalPlayer.Data.IsDead) || (GameStates.IsLobby && GameStates.IsCanMove)) && !InGameRoleInfoMenu.Showing)
             {
                 if (Camera.main.orthographicSize > 3.0f)
                     ResetButtons = true;
@@ -60,7 +60,7 @@ public static class Zoom
         }
     }
 
-    private static void SetZoomSize(bool times = false, bool reset = false)
+    public static void SetZoomSize(bool times = false, bool reset = false)
     {
         if (Camera.main == null) return;
 
@@ -79,7 +79,7 @@ public static class Zoom
             HudManager.Instance.UICamera.orthographicSize *= size;
         }
 
-        DestroyableSingleton<HudManager>.Instance?.ShadowQuad?.gameObject?.SetActive((reset || Mathf.Approximately(Camera.main.orthographicSize, 3.0f)) && PlayerControl.LocalPlayer.IsAlive());
+        DestroyableSingleton<HudManager>.Instance?.ShadowQuad?.gameObject.SetActive((reset || Mathf.Approximately(Camera.main.orthographicSize, 3.0f)) && PlayerControl.LocalPlayer.IsAlive());
 
         if (ResetButtons)
         {

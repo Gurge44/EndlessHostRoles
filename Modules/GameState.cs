@@ -56,6 +56,9 @@ public class PlayerState(byte playerId)
         Asthma,
         Assumed,
         Negotiation,
+        Trapped,
+        Stung,
+        Scavenged,
 
         // Natural Disasters
         Meteor,
@@ -323,7 +326,7 @@ public class TaskState
 
     public void Init(PlayerControl player)
     {
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags().RemoveHtmlTags()}: InitTask", "TaskState.Init");
+        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: InitTask", "TaskState.Init");
         if (player == null || player.Data?.Tasks == null) return;
         if (!Utils.HasTasks(player.Data, false))
         {
@@ -333,7 +336,7 @@ public class TaskState
 
         HasTasks = true;
         AllTasksCount = player.Data.Tasks.Count;
-        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Init");
+        Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: TaskCounts = {CompletedTasksCount}/{AllTasksCount}", "TaskState.Init");
     }
 
     public void Update(PlayerControl player)
@@ -457,7 +460,7 @@ public static class GameStates
     public static bool IsModHost => PlayerControl.AllPlayerControls.ToArray().Any(x => x.IsHost() && x.IsModClient());
     public static bool IsLobby => AmongUsClient.Instance.GameState == InnerNetClient.GameStates.Joined;
     public static bool IsInGame => InGame;
-    public static bool IsEnded => AmongUsClient.Instance.GameState == InnerNetClient.GameStates.Ended;
+    public static bool IsEnded => GameEndChecker.Ended || AmongUsClient.Instance.GameState == InnerNetClient.GameStates.Ended;
     public static bool IsNotJoined => AmongUsClient.Instance.GameState == InnerNetClient.GameStates.NotJoined;
     public static bool IsOnlineGame => AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame;
     public static bool IsLocalGame => AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame;

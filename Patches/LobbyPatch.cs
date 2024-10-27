@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using HarmonyLib;
 using InnerNet;
 using TMPro;
@@ -36,7 +37,12 @@ public static class HostInfoPanelSetUpPatch
     public static void Postfix(HostInfoPanel __instance)
     {
         if (HostText == null) HostText = __instance.content.transform.FindChild("Name").GetComponent<TextMeshPro>();
-        var text = AmongUsClient.Instance.AmHost ? Translator.GetString("YouAreHostSuffix") : GameData.Instance.GetHost().PlayerName;
+        var icon = Translator.GetString("Icon");
+        var name = GameData.Instance?.GetHost()?.PlayerName?.RemoveHtmlTags()?.Split('\n').FirstOrDefault(x => x.Contains(icon))?.Split(icon)[^1] ?? string.Empty;
+        if (name == string.Empty) return;
+        var text = AmongUsClient.Instance.AmHost
+            ? Translator.GetString("YouAreHostSuffix")
+            : name;
         HostText.text = Utils.ColorString(Palette.PlayerColors[__instance.player.ColorId], text);
     }
 }

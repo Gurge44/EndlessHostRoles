@@ -90,11 +90,6 @@ namespace EHR.Neutral
                     ? string.Format(Translator.GetString("PatrollerNotify"), roomName, Translator.GetString($"PatrollerBoost.{RoomBoosts.First(x => x.Value == room).Key}"))
                     : string.Format(Translator.GetString("PatrollerNotifyNoBoost"), roomName), 300f);
             }
-            else
-            {
-                NameNotifyManager.Notifies.Remove(pc.PlayerId);
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            }
 
             pc.MarkDirtySettings();
 

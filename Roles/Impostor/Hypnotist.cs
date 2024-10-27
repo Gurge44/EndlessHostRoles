@@ -75,19 +75,23 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
+            if (ActivateTS == 0) return;
+
             bool notify = false;
             int timeLeft = (int)(ActivateTS + AbilityDuration.GetInt() - Utils.TimeStamp);
-            if (ActivateTS != 0 && timeLeft <= 0)
+            switch (timeLeft)
             {
-                ActivateTS = 0;
-                notify = true;
-                pc.RpcResetAbilityCooldown();
-                if (DoReportAfterHypnosisEnds.GetBool()) ReportDeadBodyPatch.CanReport.SetAllValues(true);
-            }
-            else if (ActivateTS != 0 && Count++ >= 30 && timeLeft <= 6)
-            {
-                Count = 0;
-                notify = true;
+                case <= 0:
+                    ActivateTS = 0;
+                    notify = true;
+                    pc.RpcResetAbilityCooldown();
+                    Utils.SendRPC(CustomRPC.SyncRoleData, HypnotistId, ActivateTS);
+                    if (DoReportAfterHypnosisEnds.GetBool()) ReportDeadBodyPatch.CanReport.SetAllValues(true);
+                    break;
+                case <= 6 when Count++ >= 30:
+                    Count = 0;
+                    notify = true;
+                    break;
             }
 
             if (notify) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);

@@ -6,7 +6,6 @@ using System.Text;
 using AmongUs.GameOptions;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
-using EHR.GameMode.HideAndSeekRoles;
 using EHR.Neutral;
 
 
@@ -63,7 +62,7 @@ namespace EHR
 
         public virtual bool CanUseSabotage(PlayerControl pc)
         {
-            return pc.Is(Team.Impostor) || pc.Is(CustomRoles.Trickster) || pc.Is(CustomRoles.Mischievous) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool()) && pc.IsAlive();
+            return pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoles.Trickster) || pc.Is(CustomRoles.Mischievous) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool()) && pc.IsAlive();
         }
 
         public virtual void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -84,13 +83,6 @@ namespace EHR
 
         public virtual void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
-            if (Options.CurrentGameMode == CustomGameMode.HideAndSeek && HnSManager.PlayerRoles[pc.PlayerId].Interface.Team == Team.Crewmate && pc.IsAlive())
-            {
-                int time = Hider.TimeDecreaseOnTaskComplete.GetInt();
-                HnSManager.TimeLeft -= time;
-                pc.Notify(Translator.GetString("TimeDecreased"));
-                if (60 - (HnSManager.TimeLeft % 60) <= time) Utils.NotifyRoles();
-            }
         }
 
         public virtual void OnCoEnterVent(PlayerPhysics physics, int ventId)
@@ -222,7 +214,8 @@ namespace EHR
         {
             try
             {
-                var name = overrideName == "" ? IsGeneralOption() ? fieldName : $"{role}.{fieldName}" : overrideName;
+                var generalOption = !Translator.GetString(fieldName).Contains("INVALID");
+                var name = overrideName == "" ? generalOption ? fieldName : $"{role}.{fieldName}" : overrideName;
                 field = (valueRule, defaultValue) switch
                 {
                     (null, bool bdv) => new BooleanOptionItem(++_id, name, bdv, tab),
@@ -243,18 +236,8 @@ namespace EHR
             }
 
             return this;
-
-            bool IsGeneralOption() => !Translator.GetString(fieldName).Contains("INVALID");
         }
 
         public void CreateOverrideTasksData() => Options.OverrideTasksData.Create(++_id, tab, role);
-    }
-
-    public enum OptionType
-    {
-        Boolean,
-        Int,
-        Float,
-        String
     }
 }

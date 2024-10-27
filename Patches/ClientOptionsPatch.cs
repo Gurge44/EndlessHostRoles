@@ -20,6 +20,7 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem LongMode;
     private static ClientOptionItem ShowPlayerInfoInLobby;
     private static ClientOptionItem LobbyMusic;
+    private static ClientOptionItem EnableCommandHelper;
 #if DEBUG
     private static ClientOptionItem GodMode;
 #endif
@@ -38,7 +39,15 @@ public static class OptionsMenuBehaviourStartPatch
 
         if (GM == null || GM.ToggleButton == null)
         {
-            GM = ClientOptionItem.Create("GM", Main.GM, __instance);
+            GM = ClientOptionItem.Create("GM", Main.GM, __instance, GMButtonToggle);
+
+            static void GMButtonToggle()
+            {
+                if (Main.GM.Value)
+                {
+                    HudManager.Instance.ShowPopUp(Translator.GetString("EnabledGMWarning"));
+                }
+            }
         }
 
         if (UnlockFPS == null || UnlockFPS.ToggleButton == null)
@@ -92,9 +101,25 @@ public static class OptionsMenuBehaviourStartPatch
 
             static void SwitchVanillaButtonToggle()
             {
-                if (PlayerControl.LocalPlayer == null) MainMenuManagerPatch.ShowRightPanelImmediately();
-                Harmony.UnpatchAll();
-                Main.Instance.Unload();
+                if (PlayerControl.LocalPlayer != null)
+                {
+                    Zoom.SetZoomSize(reset: true);
+                    AmongUsClient.Instance.ExitGame(DisconnectReasons.ExitGame);
+                    SceneChanger.ChangeScene("MainMenu");
+                    LateTask.New(() => HudManager.Instance.ShowPopUp(Translator.GetString("RejoinRequiredDueToVanillaSwitch")), 1.9f, log: false);
+                    LateTask.New(Unload, 2f, log: false);
+                }
+                else Unload();
+
+                return;
+
+                static void Unload()
+                {
+                    MainMenuManagerPatch.ShowRightPanelImmediately();
+
+                    Harmony.UnpatchAll();
+                    Main.Instance.Unload();
+                }
             }
         }
 
@@ -164,6 +189,11 @@ public static class OptionsMenuBehaviourStartPatch
                     }, 5f, log: false);
                 }
             }
+        }
+
+        if (EnableCommandHelper == null || EnableCommandHelper.ToggleButton == null)
+        {
+            EnableCommandHelper = ClientOptionItem.Create("EnableCommandHelper", Main.EnableCommandHelper, __instance);
         }
 
 #if DEBUG

@@ -156,8 +156,6 @@ namespace EHR.Crewmate
         {
             if (Main.PlayerStates[player.PlayerId].Role is not Alchemist am) return;
 
-            NameNotifyManager.Notifies.Remove(player.PlayerId);
-
             switch (am.PotionID)
             {
                 case 1: // Shield
@@ -252,7 +250,6 @@ namespace EHR.Crewmate
             if (PotionID != 6) return;
             PotionID = 10;
             var pc = instance.myPlayer;
-            NameNotifyManager.Notifies.Remove(pc.PlayerId);
             if (!AmongUsClient.Instance.AmHost) return;
             LateTask.New(() =>
             {
@@ -289,7 +286,7 @@ namespace EHR.Crewmate
                         InvisTime = -10;
                         break;
                     case <= 10 when !player.IsModClient():
-                        player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1));
+                        player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1), overrideAll: true);
                         break;
                 }
 

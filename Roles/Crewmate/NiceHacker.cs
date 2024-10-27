@@ -122,8 +122,7 @@ namespace EHR.Crewmate
             }
             else
             {
-                if (!NameNotifyManager.Notifies.ContainsKey(pc.PlayerId))
-                    pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
+                pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
             }
         }
 

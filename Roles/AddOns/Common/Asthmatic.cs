@@ -14,6 +14,8 @@ namespace EHR.AddOns.Common
         private static int MaxRedTime;
         private static int MinGreenTime;
         private static int MaxGreenTime;
+
+        public static bool RunChecks = true;
         public AddonTypes Type => AddonTypes.Harmful;
 
         public void SetupCustomOption()
@@ -84,7 +86,7 @@ namespace EHR.AddOns.Common
 
         public static void OnCheckPlayerPosition(PlayerControl pc)
         {
-            if (!pc.Is(CustomRoles.Asthmatic) || ExileController.Instance || !Timers.TryGetValue(pc.PlayerId, out Counter counter)) return;
+            if (!pc.Is(CustomRoles.Asthmatic) || ExileController.Instance || !RunChecks || !Timers.TryGetValue(pc.PlayerId, out Counter counter)) return;
 
             Vector2 currentPosition = pc.transform.position;
 

@@ -98,6 +98,12 @@ static class TextBoxTMPSetTextPatch
     {
         try
         {
+            if (!Main.EnableCommandHelper.Value)
+            {
+                Destroy();
+                return;
+            }
+
             string input = __instance.outputText.text.Trim().Replace("\b", "");
             if (!input.StartsWith('/') || input.Length < 2)
             {

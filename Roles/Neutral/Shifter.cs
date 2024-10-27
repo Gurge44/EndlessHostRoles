@@ -13,7 +13,7 @@ namespace EHR.Neutral
 
         public static List<byte> WasShifter = [];
 
-        private static OptionItem KillCooldown;
+        public static OptionItem KillCooldown;
         private static OptionItem CanVent;
         private static OptionItem HasImpostorVision;
 
@@ -43,6 +43,13 @@ namespace EHR.Neutral
         public override void Add(byte playerId)
         {
             On = true;
+
+            var pc = playerId.GetPlayer();
+            if (pc == null) return;
+            pc.AddAbilityCD();
+            pc.ResetKillCooldown();
+            pc.SyncSettings();
+            pc.SetKillCooldown();
         }
 
         public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();

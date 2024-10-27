@@ -8,9 +8,9 @@ class LateTask
 {
     private static readonly List<LateTask> Tasks = [];
     private readonly Action action;
+    private readonly string callerData;
     private readonly bool log;
     private readonly string name;
-    private readonly string callerData;
     private float timer;
 
     private LateTask(Action action, float time, string name, bool log, string callerData)
@@ -45,7 +45,7 @@ class LateTask
     /// <param name="name">The name of the task</param>
     /// <param name="log">Whether to send log of the creation and completion of the Late Task</param>
     public static void New(Action action, float time, string name = "No Name Task", bool log = true, [CallerFilePath] string path = "", [CallerMemberName] string member = "", [CallerLineNumber] int line = 0)
-        => _ = new LateTask(action, time, name, log, $"created at {path}, by member {member}, at line {line}");
+        => _ = new LateTask(action, time, name, log, $"created at {path.Split('\\')[^1]}, by member {member}, at line {line}");
 
     public static void Update(float deltaTime)
     {

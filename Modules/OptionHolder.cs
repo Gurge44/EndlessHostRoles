@@ -259,7 +259,6 @@ public static class Options
     public static OptionItem ArsonistMinPlayersToIgnite;
     public static OptionItem ArsonistMaxPlayersToIgnite;
     public static OptionItem LegacyMafia;
-    public static OptionItem NotifyGodAlive;
     public static OptionItem MarioVentNumWin;
     public static OptionItem MarioVentCD;
     public static OptionItem VeteranSkillCooldown;
@@ -284,15 +283,6 @@ public static class Options
     public static OptionItem ExpressSpeedDur;
     public static OptionItem EveryOneKnowSuperStar;
     public static OptionItem MafiaCanKillNum;
-    public static OptionItem BomberRadius;
-    public static OptionItem BomberCanKill;
-    public static OptionItem BomberKillCD;
-    public static OptionItem BombCooldown;
-    public static OptionItem ImpostorsSurviveBombs;
-    public static OptionItem BomberDiesInExplosion;
-    public static OptionItem NukerChance;
-    public static OptionItem NukeRadius;
-    public static OptionItem NukeCooldown;
     public static OptionItem ReportBaitAtAllCost;
 
     public static OptionItem GuesserDoesntDieOnMisguess;
@@ -644,7 +634,6 @@ public static class Options
     // Guess Restrictions //
     public static OptionItem TerroristCanGuess;
     public static OptionItem PhantomCanGuess;
-    public static OptionItem GodCanGuess;
 
     public static OptionItem ShowAntiBlackoutWarning;
     public static OptionItem AllowConsole;
@@ -1331,7 +1320,7 @@ public static class Options
 
         LoadingPercentage = 66;
 
-        ShowTeamNextToRoleNameOnEject = new BooleanOptionItem(19812, "ShowTeamNextToRoleNameOnEject", false, TabGroup.GameSettings)
+        ShowTeamNextToRoleNameOnEject = new BooleanOptionItem(19812, "ShowTeamNextToRoleNameOnEject", true, TabGroup.GameSettings)
             .SetGameMode(CustomGameMode.Standard)
             .SetColor(new Color32(255, 238, 232, byte.MaxValue));
         ConfirmEgoistOnEject = new BooleanOptionItem(19813, "ConfirmEgoistOnEject", true, TabGroup.GameSettings)

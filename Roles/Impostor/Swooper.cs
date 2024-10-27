@@ -164,7 +164,7 @@ public class Swooper : RoleBase
             if (!player.IsModClient())
             {
                 var cooldown = lastTime + (long)Cooldown - now;
-                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f);
+                if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f, overrideAll: true);
                 CD = (int)cooldown;
             }
 
@@ -195,7 +195,7 @@ public class Swooper : RoleBase
                     LateTask.New(() => { player.TP(pos); }, 0.5f, log: false);
                     break;
                 case <= 10 when !player.IsModClient():
-                    player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1));
+                    player.Notify(string.Format(GetString("SwooperInvisStateCountdown"), remainTime + 1), overrideAll: true);
                     break;
             }
 

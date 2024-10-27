@@ -21,7 +21,7 @@ internal static class SoloKombatManager
     public static Dictionary<byte, int> KBScore = [];
     public static int RoundTime;
 
-    private static readonly Dictionary<byte, (string TEXT, long TIMESTAMP)> NameNotify = [];
+    private static readonly Dictionary<byte, (string Text, long TimeStamp)> NameNotify = [];
 
     private static Dictionary<byte, int> BackCountdown = [];
     private static Dictionary<byte, long> LastHurt = [];
@@ -122,9 +122,9 @@ internal static class SoloKombatManager
             return;
         }
 
-        if (NameNotify.TryGetValue(player.PlayerId, out (string TEXT, long TIMESTAMP) value1))
+        if (NameNotify.TryGetValue(player.PlayerId, out (string Text, long TimeStamp) value1))
         {
-            name = value1.TEXT;
+            name = value1.Text;
         }
     }
 
@@ -164,7 +164,9 @@ internal static class SoloKombatManager
 
         LastHurt[target.PlayerId] = Utils.TimeStamp;
 
-        killer.SetKillCooldown(KB_ATKCooldown.GetFloat(), target);
+        var kcd = KB_ATKCooldown.GetFloat();
+        if (killer.IsHost()) kcd += (AmongUsClient.Instance.Ping / 1000f) * 2f;
+        killer.SetKillCooldown(kcd, target);
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
         if (!target.IsModClient() && !target.AmOwner)
@@ -268,58 +270,56 @@ internal static class SoloKombatManager
 
         public static void Postfix( /*PlayerControl __instance*/)
         {
-            if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.SoloKombat) return;
+            if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.SoloKombat || !AmongUsClient.Instance.AmHost) return;
 
-            if (AmongUsClient.Instance.AmHost)
+            foreach (var pc in Main.AllPlayerControls)
             {
-                foreach (var pc in Main.AllPlayerControls.Where(pc => !pc.SoloAlive()).ToArray())
+                if (!pc.SoloAlive())
                 {
                     if (pc.inVent && KB_BootVentWhenDead.GetBool()) pc.MyPhysics.RpcExitVent(2);
                     var pos = Pelican.GetBlackRoomPS();
                     var dis = Vector2.Distance(pos, pc.Pos());
                     if (dis > 1f) pc.TP(pos);
                 }
+            }
 
-                if (LastFixedUpdate == Utils.TimeStamp) return;
-                LastFixedUpdate = Utils.TimeStamp;
+            if (LastFixedUpdate == Utils.TimeStamp) return;
+            LastFixedUpdate = Utils.TimeStamp;
 
-                RoundTime--;
+            RoundTime--;
 
-                if (!AmongUsClient.Instance.AmHost) return;
-
-                foreach (var pc in Main.AllPlayerControls)
+            foreach (var pc in Main.AllPlayerControls)
+            {
+                bool notifyRoles = false;
+                if (LastHurt[pc.PlayerId] + KB_RecoverAfterSecond.GetInt() < Utils.TimeStamp && PlayerHP[pc.PlayerId] < PlayerHPMax[pc.PlayerId] && pc.SoloAlive() && !pc.inVent)
                 {
-                    bool notifyRoles = false;
-                    if (LastHurt[pc.PlayerId] + KB_RecoverAfterSecond.GetInt() < Utils.TimeStamp && PlayerHP[pc.PlayerId] < PlayerHPMax[pc.PlayerId] && pc.SoloAlive() && !pc.inVent)
-                    {
-                        PlayerHP[pc.PlayerId] += PlayerHPReco[pc.PlayerId];
-                        PlayerHP[pc.PlayerId] = Math.Min(PlayerHPMax[pc.PlayerId], PlayerHP[pc.PlayerId]);
-                        notifyRoles = true;
-                    }
-
-                    if (pc.SoloAlive() && !pc.inVent)
-                    {
-                        var pos = Pelican.GetBlackRoomPS();
-                        var dis = Vector2.Distance(pos, pc.Pos());
-                        if (dis < 1.1f) PlayerRandomSpwan(pc);
-                    }
-
-                    if (BackCountdown.ContainsKey(pc.PlayerId))
-                    {
-                        BackCountdown[pc.PlayerId]--;
-                        if (BackCountdown[pc.PlayerId] <= 0)
-                            OnPlayerBack(pc);
-                        notifyRoles = true;
-                    }
-
-                    if (NameNotify.ContainsKey(pc.PlayerId) && NameNotify[pc.PlayerId].TIMESTAMP < Utils.TimeStamp)
-                    {
-                        NameNotify.Remove(pc.PlayerId);
-                        notifyRoles = true;
-                    }
-
-                    if (notifyRoles) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+                    PlayerHP[pc.PlayerId] += PlayerHPReco[pc.PlayerId];
+                    PlayerHP[pc.PlayerId] = Math.Min(PlayerHPMax[pc.PlayerId], PlayerHP[pc.PlayerId]);
+                    notifyRoles = true;
                 }
+
+                if (pc.SoloAlive() && !pc.inVent)
+                {
+                    var pos = Pelican.GetBlackRoomPS();
+                    var dis = Vector2.Distance(pos, pc.Pos());
+                    if (dis < 1.1f) PlayerRandomSpwan(pc);
+                }
+
+                if (BackCountdown.ContainsKey(pc.PlayerId))
+                {
+                    BackCountdown[pc.PlayerId]--;
+                    if (BackCountdown[pc.PlayerId] <= 0)
+                        OnPlayerBack(pc);
+                    notifyRoles = true;
+                }
+
+                if (NameNotify.ContainsKey(pc.PlayerId) && NameNotify[pc.PlayerId].TimeStamp < Utils.TimeStamp)
+                {
+                    NameNotify.Remove(pc.PlayerId);
+                    notifyRoles = true;
+                }
+
+                if (notifyRoles) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }
         }
     }

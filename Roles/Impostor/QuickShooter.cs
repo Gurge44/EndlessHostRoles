@@ -93,6 +93,14 @@ internal class QuickShooter : RoleBase
         return false;
     }
 
+    public override void OnPet(PlayerControl pc)
+    {
+        if (Main.KillTimers[pc.PlayerId] <= 0)
+        {
+            Store(pc);
+        }
+    }
+
     private static void Store(PlayerControl pc)
     {
         ShotLimit[pc.PlayerId]++;

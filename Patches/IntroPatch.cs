@@ -213,6 +213,7 @@ static class CoBeginPatch
         {
             Utils.LongRoleDescriptions.Clear();
 
+            int charsInOneLine = GetUserTrueLang() is SupportedLangs.Russian or SupportedLangs.SChinese or SupportedLangs.TChinese or SupportedLangs.Japanese or SupportedLangs.Korean ? 35 : 50;
             foreach (var seer in Main.AllPlayerControls)
             {
                 var longInfo = seer.GetRoleInfo(InfoLong: true).Split("\n\n")[0];
@@ -228,7 +229,7 @@ static class CoBeginPatch
                         tooLong = true;
                     }
 
-                    for (int i = 50; i < longInfo.Length; i += 50)
+                    for (int i = charsInOneLine; i < longInfo.Length; i += charsInOneLine)
                     {
                         if (tooLong && i > 296) break;
                         int index = longInfo.LastIndexOf(' ', i);
@@ -783,11 +784,13 @@ static class IntroCutsceneDestroyPatch
         // for vanilla clients we use "Data.Disconnected"
         Main.AllPlayerControls.Do(x => x.roleAssigned = false);
 
+        var aapc = Main.AllAlivePlayerControls;
+
         if (AmongUsClient.Instance.AmHost)
         {
             if (Main.NormalOptions.MapId != 4)
             {
-                foreach (var pc in Main.AllAlivePlayerControls)
+                foreach (var pc in aapc)
                 {
                     pc.SyncSettings();
                     pc.RpcResetAbilityCooldown();
@@ -796,20 +799,24 @@ static class IntroCutsceneDestroyPatch
                     Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, NoCache: true);
                 }
 
-                if (Options.StartingKillCooldown.GetInt() is not 10 and > 0)
+                var kcd = Options.StartingKillCooldown.GetInt();
+                if (kcd is not 10 and > 0 && Options.CurrentGameMode != CustomGameMode.FFA)
                 {
                     LateTask.New(() =>
                     {
-                        Main.AllPlayerControls.Do(x => x.ResetKillCooldown());
-                        Main.AllPlayerControls.Do(pc => pc.SetKillCooldown(Options.StartingKillCooldown.GetInt() - 2));
+                        foreach (var pc in aapc)
+                        {
+                            pc.ResetKillCooldown();
+                            pc.SetKillCooldown(kcd - 2);
+                        }
                     }, 2f, "FixKillCooldownTask");
                 }
                 else if (Options.FixFirstKillCooldown.GetBool() && Options.CurrentGameMode == CustomGameMode.Standard)
                 {
                     LateTask.New(() =>
                     {
-                        Main.AllPlayerControls.Do(x => x.ResetKillCooldown());
-                        Main.AllPlayerControls.Where(x => (Main.AllPlayerKillCooldown[x.PlayerId] - 2f) > 0f).Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
+                        aapc.Do(x => x.ResetKillCooldown());
+                        aapc.Where(x => (Main.AllPlayerKillCooldown[x.PlayerId] - 2f) > 0f).Do(pc => pc.SetKillCooldown(Main.AllPlayerKillCooldown[pc.PlayerId] - 2f));
                     }, 2f, "FixKillCooldownTask");
                 }
             }
@@ -839,7 +846,7 @@ static class IntroCutsceneDestroyPatch
 
                 LateTask.New(() =>
                 {
-                    foreach (var pc in Main.AllAlivePlayerControls)
+                    foreach (var pc in aapc)
                     {
                         if (pc.Is(CustomRoles.GM)) continue;
                         string petId = pet == "pet_RANDOM_FOR_EVERYONE" ? pets[r.Next(0, pets.Length - 1)] : pet;
@@ -856,7 +863,7 @@ static class IntroCutsceneDestroyPatch
                         try
                         {
                             lp.Notify(GetString("GLHF"), 2f);
-                            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+                            foreach (PlayerControl pc in aapc)
                             {
                                 if (pc.IsHost()) continue; // Skip the host
                                 try
@@ -885,14 +892,16 @@ static class IntroCutsceneDestroyPatch
 
             if (Options.UseUnshiftTrigger.GetBool() || Main.PlayerStates.Values.Any(x => x.MainRole.AlwaysUsesUnshift()))
             {
-                LateTask.New(() => Main.AllAlivePlayerControls.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
+                LateTask.New(() => aapc.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
             }
 
-            if (Main.GM.Value)
+            if (Main.GM.Value && lp.Is(CustomRoles.GM))
             {
-                lp.RpcExile();
-                lp.RpcSetCustomRole(CustomRoles.GM);
-                Main.PlayerStates[lp.PlayerId].SetDead();
+                LateTask.New(() =>
+                {
+                    lp.RpcExile();
+                    Main.PlayerStates[lp.PlayerId].SetDead();
+                }, 1f, "Set GM Dead");
             }
 
             if (Options.RandomSpawn.GetBool())
@@ -906,7 +915,7 @@ static class IntroCutsceneDestroyPatch
                     5 => new RandomSpawn.FungleSpawnMap(),
                     _ => null
                 };
-                if (map != null && AmongUsClient.Instance.AmHost) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
+                if (map != null && AmongUsClient.Instance.AmHost) aapc.Do(map.RandomTeleport);
             }
 
             if (lp.HasDesyncRole())
@@ -927,10 +936,10 @@ static class IntroCutsceneDestroyPatch
 
             if (AFKDetector.ActivateOnStart.GetBool())
             {
-                LateTask.New(() => Main.AllAlivePlayerControls.Do(AFKDetector.RecordPosition), 1f, log: false);
+                LateTask.New(() => aapc.Do(AFKDetector.RecordPosition), 1f, log: false);
             }
 
-            LateTask.New(() => Utils.NotifyRoles(NoCache: true), 3f, log: false);
+            LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 3f, log: false);
         }
         else
         {

@@ -189,7 +189,6 @@ internal class ChangeRoleSettings
             Workaholic.WorkaholicAlive = [];
             Virus.VirusNotify = [];
             Veteran.VeteranInProtect = [];
-            Witness.AllKillers = [];
             Grenadier.GrenadierBlinding = [];
             SecurityGuard.BlockSabo = [];
             Ventguard.BlockedVents = [];
@@ -230,7 +229,7 @@ internal class ChangeRoleSettings
 
             Main.IntroDestroyed = false;
             ShipStatusBeginPatch.RolesIsAssigned = false;
-            GameEndChecker.ShowAllRolesWhenGameEnd = false;
+            GameEndChecker.Ended = false;
 
             RandomSpawn.CustomNetworkTransformHandleRpcPatch.HasSpawned = [];
 
@@ -289,6 +288,7 @@ internal class ChangeRoleSettings
                 Main.PlayerStates[pc.PlayerId] = new(pc.PlayerId);
                 Main.PlayerColors[pc.PlayerId] = Palette.PlayerColors[colorId];
                 Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                Main.AllPlayerKillCooldown[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown);
                 ReportDeadBodyPatch.CanReport[pc.PlayerId] = true;
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId] = [];
                 VentilationSystemDeterioratePatch.LastClosestVent[pc.PlayerId] = 0;
@@ -375,7 +375,7 @@ internal static class StartGameHostPatch
     public static readonly Dictionary<CustomRoles, List<byte>> BasisChangingAddons = [];
     private static Dictionary<RoleTypes, int> RoleTypeNums = [];
 
-    private static readonly Dictionary<byte, bool> DataDisconnected = [];
+    public static readonly Dictionary<byte, bool> DataDisconnected = [];
 
     private static RoleOptionsCollectionV08 RoleOpt => Main.NormalOptions.roleOptions;
 
@@ -455,7 +455,7 @@ internal static class StartGameHostPatch
 
     private static System.Collections.IEnumerator AssignRoles()
     {
-        if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.ShowAllRolesWhenGameEnd) yield break;
+        if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended) yield break;
 
         RpcSetRoleReplacer.Initialize();
 
@@ -600,21 +600,8 @@ internal static class StartGameHostPatch
 
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
-                //pc.Data.IsDead = false;
                 if (Main.PlayerStates[pc.PlayerId].MainRole != CustomRoles.NotAssigned) continue;
-                var role = pc.Data.Role.Role switch
-                {
-                    RoleTypes.Crewmate => CustomRoles.Crewmate,
-                    RoleTypes.Impostor => CustomRoles.Impostor,
-                    RoleTypes.Scientist => CustomRoles.Scientist,
-                    RoleTypes.Engineer => CustomRoles.Engineer,
-                    RoleTypes.GuardianAngel => CustomRoles.GuardianAngel,
-                    RoleTypes.Shapeshifter => CustomRoles.Shapeshifter,
-                    RoleTypes.Noisemaker => CustomRoles.Noisemaker,
-                    RoleTypes.Phantom => CustomRoles.Phantom,
-                    RoleTypes.Tracker => CustomRoles.Tracker,
-                    _ => CustomRoles.NotAssigned
-                };
+                var role = Enum.TryParse($"{pc.Data.Role.Role}EHR", out CustomRoles parsedRole) ? parsedRole : CustomRoles.NotAssigned;
                 if (role == CustomRoles.NotAssigned) Logger.SendInGame(string.Format(GetString("Error.InvalidRoleAssignment"), pc?.Data?.PlayerName));
                 Main.PlayerStates[pc.PlayerId].SetMainRole(role);
             }
@@ -1025,7 +1012,7 @@ internal static class StartGameHostPatch
             return;
         }
 
-        var allPlayers = Main.AllPlayerControls.Where(pc => !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && !pc.Is(CustomRoles.Dictator) && !pc.Is(CustomRoles.God) && !pc.Is(CustomRoles.FFF) && !pc.Is(CustomRoles.Bomber) && !pc.Is(CustomRoles.Nuker) && !pc.Is(CustomRoles.Provocateur) && (!pc.IsCrewmate() || Lovers.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Lovers.NeutralCanBeInLove.GetBool()) && (!pc.IsImpostor() || Lovers.ImpCanBeInLove.GetBool())).ToList();
+        var allPlayers = Main.AllPlayerControls.Where(pc => (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var bannedCombos) || bannedCombos.All(x => !pc.Is(x.Key) || !x.Value.Contains(CustomRoles.Lovers))) && !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && !pc.Is(CustomRoles.Dictator) && !pc.Is(CustomRoles.God) && !pc.Is(CustomRoles.FFF) && !pc.Is(CustomRoles.Bomber) && !pc.Is(CustomRoles.Nuker) && !pc.Is(CustomRoles.Provocateur) && !pc.Is(CustomRoles.Altruist) && (!pc.IsCrewmate() || Lovers.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Lovers.NeutralCanBeInLove.GetBool()) && (!pc.IsImpostor() || Lovers.ImpCanBeInLove.GetBool())).ToList();
         const CustomRoles role = CustomRoles.Lovers;
         var count = Math.Clamp(RawCount, 0, allPlayers.Count);
         if (RawCount == -1) count = Math.Clamp(role.GetCount(), 0, allPlayers.Count);

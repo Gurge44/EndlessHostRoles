@@ -155,7 +155,7 @@ public class Postman : RoleBase
     public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
     {
         if (hud) return GetHudText(seer);
-        if (seer.IsModClient() || Main.PlayerStates[seer.PlayerId].Role is not Postman { IsEnable: true } pm) return string.Empty;
+        if (seer.IsModClient() || seer.PlayerId != target.PlayerId || Main.PlayerStates[seer.PlayerId].Role is not Postman { IsEnable: true } pm) return string.Empty;
         return !pm.IsFinished ? string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(pm.Target).GetRealName()) : "<color=#00ff00>✓</color>";
     }
 

@@ -134,17 +134,24 @@ public static class PhantomRolePatch
 
     public static void OnReportDeadBody(PlayerControl seer, bool force)
     {
-        if (InvisibilityList.Count == 0 || !seer.IsAlive() || seer.Data.Role.Role is RoleTypes.Phantom || seer.AmOwner || !seer.HasDesyncRole()) return;
-
-        foreach (var phantom in InvisibilityList)
+        try
         {
-            if (!phantom.IsAlive())
-            {
-                InvisibilityList.Remove(phantom);
-                continue;
-            }
+            if (InvisibilityList.Count == 0 || !seer.IsAlive() || seer.Data.Role.Role is RoleTypes.Phantom || seer.AmOwner || !seer.HasDesyncRole()) return;
 
-            Main.Instance.StartCoroutine(CoRevertInvisible(phantom, seer, force));
+            foreach (var phantom in InvisibilityList)
+            {
+                if (!phantom.IsAlive())
+                {
+                    InvisibilityList.Remove(phantom);
+                    continue;
+                }
+
+                Main.Instance.StartCoroutine(CoRevertInvisible(phantom, seer, force));
+            }
+        }
+        catch (Exception e)
+        {
+            Utils.ThrowException(e);
         }
     }
 

@@ -89,7 +89,7 @@ public static class GameOptionsMenuPatch
                 var option = OptionItem.AllOptions[index];
                 if (option.Tab != modTab) continue;
 
-                var enabled = !option.IsHiddenOn(Options.CurrentGameMode) && (option.Parent == null || (!option.Parent.IsHiddenOn(Options.CurrentGameMode) && option.Parent.GetBool()));
+                var enabled = !option.IsHiddenOn(Options.CurrentGameMode) && (option.Parent == null || (!option.Parent.IsHiddenOn(Options.CurrentGameMode) && option.Parent.GetBool())) && (option.Parent?.Parent == null || (!option.Parent.Parent.IsHiddenOn(Options.CurrentGameMode) && option.Parent.Parent.GetBool())) && (option.Parent?.Parent?.Parent == null || (!option.Parent.Parent.Parent.IsHiddenOn(Options.CurrentGameMode) && option.Parent.Parent.Parent.GetBool()));
 
                 if (option is TextOptionItem)
                 {
