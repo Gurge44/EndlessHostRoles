@@ -895,11 +895,13 @@ static class IntroCutsceneDestroyPatch
                 LateTask.New(() => aapc.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
             }
 
-            if (Main.GM.Value)
+            if (Main.GM.Value && lp.Is(CustomRoles.GM))
             {
-                lp.RpcExile();
-                lp.RpcSetCustomRole(CustomRoles.GM);
-                Main.PlayerStates[lp.PlayerId].SetDead();
+                LateTask.New(() =>
+                {
+                    lp.RpcExile();
+                    Main.PlayerStates[lp.PlayerId].SetDead();
+                }, 1f, "Set GM Dead");
             }
 
             if (Options.RandomSpawn.GetBool())

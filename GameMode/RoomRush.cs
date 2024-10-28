@@ -221,7 +221,7 @@ namespace EHR
                 yield return new WaitForSeconds(1f);
             }
 
-            if (ventLimit > 0) aapc.Without(PlayerControl.LocalPlayer).Do(x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
+            if (ventLimit > 0) aapc.Without(PlayerControl.LocalPlayer).DoIf(x => !x.IsNonHostModClient(), x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
             Utils.SendRPC(CustomRPC.RoomRushDataSync, 1);
 
             NameNotifyManager.Reset();
@@ -279,7 +279,7 @@ namespace EHR
             TimeLeft = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 4);
             Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())}, to: {Translator.GetString(RoomGoal.ToString())} - Time: {TimeLeft}  ({Main.CurrentMap})", "RoomRush");
             Main.AllPlayerControls.Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
-            if (DisplayArrowToRoom.GetBool()) Main.AllAlivePlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
+            if (DisplayArrowToRoom.GetBool()) Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
             Utils.NotifyRoles();
 
             Main.AllPlayerSpeed[PlayerControl.LocalPlayer.PlayerId] = Main.MinSpeed;
@@ -412,6 +412,7 @@ namespace EHR
         {
             RoomRush.VentLimit[pc.PlayerId]--;
             Utils.SendRPC(CustomRPC.RoomRushDataSync, 2, RoomRush.VentLimit[pc.PlayerId], pc.PlayerId);
+            if (RoomRush.VentLimit[pc.PlayerId] <= 0) pc.RpcChangeRoleBasis(CustomRoles.RRPlayer);
         }
 
         public override bool CanUseImpostorVentButton(PlayerControl pc)

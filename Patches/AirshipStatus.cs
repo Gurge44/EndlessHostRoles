@@ -8,6 +8,6 @@ public static class AirshipStatusPrespawnStepPatch
 {
     public static bool Prefix()
     {
-        return !PlayerControl.LocalPlayer.Is(CustomRoles.GM); // GMは湧き画面をスキップ
+        return !PlayerControl.LocalPlayer.Is(CustomRoles.GM);
     }
 }

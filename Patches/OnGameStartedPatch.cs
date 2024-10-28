@@ -288,6 +288,7 @@ internal class ChangeRoleSettings
                 Main.PlayerStates[pc.PlayerId] = new(pc.PlayerId);
                 Main.PlayerColors[pc.PlayerId] = Palette.PlayerColors[colorId];
                 Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                Main.AllPlayerKillCooldown[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown);
                 ReportDeadBodyPatch.CanReport[pc.PlayerId] = true;
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId] = [];
                 VentilationSystemDeterioratePatch.LastClosestVent[pc.PlayerId] = 0;

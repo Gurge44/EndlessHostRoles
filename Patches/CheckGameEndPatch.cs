@@ -411,6 +411,8 @@ static class GameEndChecker
         {
             reason = GameOverReason.ImpostorByKill;
 
+            if (Main.HasJustStarted) return false;
+
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
 
             if (CustomRoles.Sunnyboy.RoleExist() && aapc.Length > 1) return false;
@@ -486,6 +488,7 @@ static class GameEndChecker
                 }
                 else return false;
 
+                Logger.Info($"Crew: {Crew}, Imp: {Imp}", "CheckGameEndPatch.CheckGameEndByLivingPlayers");
                 ResetAndSetWinner((CustomWinner)winner);
                 return true;
             }

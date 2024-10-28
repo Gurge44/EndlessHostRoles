@@ -10,6 +10,17 @@ namespace EHR.Impostor
     internal class Bomber : RoleBase
     {
         public static bool On;
+
+        public static OptionItem BomberRadius;
+        public static OptionItem BomberCanKill;
+        public static OptionItem CooldownsResetEachOther;
+        public static OptionItem BomberKillCD;
+        public static OptionItem BombCooldown;
+        public static OptionItem ImpostorsSurviveBombs;
+        public static OptionItem BomberDiesInExplosion;
+        public static OptionItem NukerChance;
+        public static OptionItem NukeRadius;
+        public static OptionItem NukeCooldown;
         private bool IsNuker;
         public override bool IsEnable => On;
 
@@ -24,6 +35,8 @@ namespace EHR.Impostor
             BomberKillCD = new FloatOptionItem(2020, "KillCooldown", new(0f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles)
                 .SetParent(BomberCanKill)
                 .SetValueFormat(OptionFormat.Seconds);
+            CooldownsResetEachOther = new BooleanOptionItem(2021, "BomberCooldownsResetEachOther", false, TabGroup.ImpostorRoles)
+                .SetParent(BomberCanKill);
             BombCooldown = new FloatOptionItem(2030, "BombCooldown", new(5f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -87,6 +100,12 @@ namespace EHR.Impostor
             else hud.AbilityButton?.OverrideText(Translator.GetString("BomberShapeshiftText"));
         }
 
+        public override void OnMurder(PlayerControl killer, PlayerControl target)
+        {
+            if (CooldownsResetEachOther.GetBool())
+                killer.RpcResetAbilityCooldown();
+        }
+
         public override void OnPet(PlayerControl pc)
         {
             Bomb(pc);
@@ -135,6 +154,9 @@ namespace EHR.Impostor
 
                 Utils.NotifyRoles(ForceLoop: true);
             }, 1.5f, "Bomber Suiscide");
+
+            if (CooldownsResetEachOther.GetBool() && BomberCanKill.GetBool())
+                pc.SetKillCooldown();
         }
     }
 }

@@ -87,11 +87,12 @@ namespace EHR
             LateTask.New(() =>
             {
                 IsBlindTime = false;
+                Utils.MarkEveryoneDirtySettingsV4();
 
                 Main.AllAlivePlayerControls
                     .Join(PlayerRoles, x => x.PlayerId, x => x.Key, (pc, role) => (pc, role.Value.Interface))
                     .Where(x => x.Interface.Team == Team.Impostor)
-                    .Do(x => x.pc.MarkDirtySettings());
+                    .Do(x => x.pc.SetKillCooldown());
 
                 LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 3f, log: false);
             }, Seeker.BlindTime.GetFloat() + 8f, "Blind Time Expire");

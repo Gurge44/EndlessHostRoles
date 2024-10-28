@@ -232,7 +232,7 @@ static class HudManagerPatch
                             break;
                     }
 
-                    if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard)
+                    if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey))
                         __instance.AbilityButton?.Hide();
 
                     if (LowerInfoText == null)

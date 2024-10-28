@@ -528,7 +528,7 @@ static class VentilationSystemDeterioratePatch
 
     public static bool BlockVentInteraction(PlayerControl pc)
     {
-        return !pc.AmOwner && !pc.IsModClient() && !pc.Data.IsDead && (pc.IsImpostor() || pc.GetRoleTypes() is RoleTypes.Engineer or RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom) && ShipStatus.Instance.AllVents.Any(vent => !pc.CanUseVent(vent.Id));
+        return !pc.AmOwner && (!pc.IsModClient() || (!pc.IsHost() && Options.CurrentGameMode == CustomGameMode.RoomRush)) && !pc.Data.IsDead && (pc.IsImpostor() || pc.GetRoleTypes() is RoleTypes.Engineer or RoleTypes.Impostor or RoleTypes.Shapeshifter or RoleTypes.Phantom) && ShipStatus.Instance.AllVents.Any(vent => !pc.CanUseVent(vent.Id));
     }
 
     public static void SerializeV2(VentilationSystem __instance, PlayerControl player = null)

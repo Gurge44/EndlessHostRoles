@@ -39,7 +39,15 @@ public static class OptionsMenuBehaviourStartPatch
 
         if (GM == null || GM.ToggleButton == null)
         {
-            GM = ClientOptionItem.Create("GM", Main.GM, __instance);
+            GM = ClientOptionItem.Create("GM", Main.GM, __instance, GMButtonToggle);
+
+            static void GMButtonToggle()
+            {
+                if (Main.GM.Value)
+                {
+                    HudManager.Instance.ShowPopUp(Translator.GetString("EnabledGMWarning"));
+                }
+            }
         }
 
         if (UnlockFPS == null || UnlockFPS.ToggleButton == null)

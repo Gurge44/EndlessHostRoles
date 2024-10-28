@@ -1867,6 +1867,9 @@ static class ExitVentPatch
 
         if (!AmongUsClient.Instance.AmHost) return;
 
+        if (Main.KillTimers.ContainsKey(pc.PlayerId))
+            Main.KillTimers[pc.PlayerId] += 0.5f;
+
         Drainer.OnAnyoneExitVent(pc);
 
         Main.PlayerStates[pc.PlayerId].Role.OnExitVent(pc, __instance);
@@ -1942,10 +1945,8 @@ static class CoEnterVentPatch
 
         Logger.Info($" {__instance.myPlayer.GetNameWithRole()}, Vent ID: {id}", "CoEnterVent");
 
-        if (Main.KillTimers.TryGetValue(__instance.myPlayer.PlayerId, out var timer))
-        {
-            Main.KillTimers[__instance.myPlayer.PlayerId] = timer + 0.5f;
-        }
+        if (Main.KillTimers.ContainsKey(__instance.myPlayer.PlayerId))
+            Main.KillTimers[__instance.myPlayer.PlayerId] += 0.5f;
 
         CheckInvalidMovementPatch.ExemptedPlayers.Add(__instance.myPlayer.PlayerId);
 

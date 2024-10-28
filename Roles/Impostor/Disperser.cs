@@ -80,6 +80,13 @@ public class Disperser : RoleBase
         return false;
     }
 
+    public override void OnPet(PlayerControl pc)
+    {
+        if (pc == null || pc.GetAbilityUseLimit() < 1) return;
+
+        Disperse(pc);
+    }
+
     private static void Disperse(PlayerControl player)
     {
         player.RpcRemoveAbilityUse();
