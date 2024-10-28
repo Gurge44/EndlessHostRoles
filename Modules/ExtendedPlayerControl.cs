@@ -1553,7 +1553,7 @@ static class ExtendedPlayerControl
     public static bool Is(this PlayerControl target, Team team) => team switch
     {
         Team.Impostor => (target.IsMadmate() || target.GetCustomRole().IsImpostorTeamV2() || Framer.FramedPlayers.Contains(target.PlayerId)) && !target.Is(CustomRoles.Bloodlust),
-        Team.Neutral => target.GetCustomRole().IsNeutralTeamV2() || target.Is(CustomRoles.Bloodlust),
+        Team.Neutral => target.GetCustomRole().IsNeutralTeamV2() || target.Is(CustomRoles.Bloodlust) || target.IsConverted(),
         Team.Crewmate => target.GetCustomRole().IsCrewmateTeamV2(),
         Team.None => target.Is(CustomRoles.GM) || target.Is(CountTypes.None) || target.Is(CountTypes.OutOfGame),
         _ => false
@@ -1563,7 +1563,7 @@ static class ExtendedPlayerControl
     {
         if (Framer.FramedPlayers.Contains(target.PlayerId)) return Team.Impostor;
         var subRoles = target.GetCustomSubRoles();
-        if (target.Is(CustomRoles.Bloodlust) || subRoles.Any(x => x.IsConverted())) return Team.Neutral;
+        if (subRoles.Contains(CustomRoles.Bloodlust) || target.IsConverted()) return Team.Neutral;
         if (subRoles.Contains(CustomRoles.Madmate)) return Team.Impostor;
         var role = target.GetCustomRole();
         if (role.IsImpostorTeamV2()) return Team.Impostor;

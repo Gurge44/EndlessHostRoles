@@ -186,6 +186,7 @@ public enum CustomRoles
     Journalist,
     Judge,
     Needy, // Lazy Guy
+    Leery,
     Lighter,
     Lookout,
     Luckey,

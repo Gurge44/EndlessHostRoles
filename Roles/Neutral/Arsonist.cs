@@ -9,7 +9,7 @@ namespace EHR.Neutral
 {
     internal class Arsonist : RoleBase
     {
-        public static Dictionary<byte, (PlayerControl PLAYER, float TIMER)> ArsonistTimer = [];
+        public static Dictionary<byte, (PlayerControl Player, float Timer)> ArsonistTimer = [];
         public static Dictionary<(byte, byte), bool> IsDoused = [];
         public static byte CurrentDousingTarget = byte.MaxValue;
 
@@ -119,7 +119,7 @@ namespace EHR.Neutral
                     pc.KillFlash();
                 }
 
-                CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist); //焼殺で勝利した人も勝利させる
+                CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
                 CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
                 return;
             }
@@ -141,13 +141,13 @@ namespace EHR.Neutral
                     switch (apc)
                     {
                         case 1:
-                            CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
+                            CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Arsonist);
                             CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
                             break;
                         case 2:
                             if (Main.AllAlivePlayerControls.Where(x => x.PlayerId != physics.myPlayer.PlayerId).All(x => x.GetCountTypes() == CountTypes.Crew))
                             {
-                                CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Arsonist);
+                                CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Arsonist);
                                 CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
                             }
 
@@ -162,7 +162,7 @@ namespace EHR.Neutral
             var playerId = player.PlayerId;
             if (GameStates.IsInTask && ArsonistTimer.ContainsKey(playerId))
             {
-                var arTarget = ArsonistTimer[playerId].PLAYER;
+                var arTarget = ArsonistTimer[playerId].Player;
                 if (!player.IsAlive() || Pelican.IsEaten(playerId))
                 {
                     ArsonistTimer.Remove(playerId);
@@ -171,8 +171,8 @@ namespace EHR.Neutral
                 }
                 else
                 {
-                    var ar_target = ArsonistTimer[playerId].PLAYER;
-                    var ar_time = ArsonistTimer[playerId].TIMER;
+                    var ar_target = ArsonistTimer[playerId].Player;
+                    var ar_time = ArsonistTimer[playerId].Timer;
                     if (!ar_target.IsAlive())
                     {
                         ArsonistTimer.Remove(playerId);
@@ -196,6 +196,7 @@ namespace EHR.Neutral
                         }
                         else
                         {
+                            player.SetKillCooldown(0.01f);
                             ArsonistTimer.Remove(playerId);
                             Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: arTarget, ForceLoop: true);
                             RPC.ResetCurrentDousingTarget(playerId);

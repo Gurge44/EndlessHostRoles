@@ -361,6 +361,7 @@ public class Main : BasePlugin
                 { CustomRoles.Convener, "#34eb7a" },
                 { CustomRoles.Mathematician, "#eb3474" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Leery, "#32a852" },
                 { CustomRoles.Wizard, "#FD05CC" },
                 { CustomRoles.Negotiator, "#00c3ff" },
                 { CustomRoles.Grappler, "#befc03" },

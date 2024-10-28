@@ -2236,7 +2236,7 @@ public static class Utils
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>▲</color>");
                                     }
 
-                                    else if (Arsonist.ArsonistTimer.TryGetValue(seer.PlayerId, out var ar_kvp) && ar_kvp.PLAYER == target)
+                                    else if (Arsonist.ArsonistTimer.TryGetValue(seer.PlayerId, out var ar_kvp) && ar_kvp.Player == target)
                                     {
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>△</color>");
                                     }
