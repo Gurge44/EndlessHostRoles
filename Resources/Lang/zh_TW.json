@@ -4760,7 +4760,7 @@
   "GuessPresident": "你不能猜測已揭示自己職業的<#30916f>總統</color>",
   "GuessErased": "你不能猜測已被抹除的玩家",
   "Alchemist": "藥劑師",
-  "AlchemistInfo": "Make potions by completing tasks",
+  "AlchemistInfo": "完成任務來釀造藥水",
   "AlchemistInfoLong": "(Crewmates):\\nAs the Alchemist, you create a potion by completing a task. The potion you made will show up under your role name with its corresponding description and instructions. You can get 7 different potions.",
   "AlchemistShieldDur": "Shield Potion Duration",
   "AlchemistInvisDur": "Invisibility Potion Duration",
