@@ -434,6 +434,7 @@ public enum CustomRoles
     Guesser,
     Haste,
     Haunter, // Ghost role
+    Introvert,
     Knighted,
     LastImpostor,
     Lazy,

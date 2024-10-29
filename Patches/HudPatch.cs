@@ -265,6 +265,7 @@ static class HudManagerPatch
                             CustomRoles.Asthmatic => Asthmatic.GetSuffixText(player.PlayerId),
                             CustomRoles.Spurt => Spurt.GetSuffix(player, true),
                             CustomRoles.Deadlined => Deadlined.GetSuffix(player, true),
+                            CustomRoles.Introvert => Introvert.GetSelfSuffix(player),
                             _ => string.Empty
                         });
                         return string.Join(string.Empty, suffixes);

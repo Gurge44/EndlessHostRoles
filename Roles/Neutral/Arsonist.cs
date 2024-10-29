@@ -56,7 +56,7 @@ namespace EHR.Neutral
 
         public override bool CanUseImpostorVentButton(PlayerControl pc)
         {
-            return pc.IsDouseDone() || (ArsonistCanIgniteAnytime.GetBool() && (Utils.GetDousedPlayerCount(pc.PlayerId).Item1 >= ArsonistMinPlayersToIgnite.GetInt() || pc.inVent));
+            return pc.IsDouseDone() || (ArsonistCanIgniteAnytime.GetBool() && !UsePets.GetBool() && (Utils.GetDousedPlayerCount(pc.PlayerId).Item1 >= ArsonistMinPlayersToIgnite.GetInt() || pc.inVent));
         }
 
         public override void SetKillCooldown(byte id)
@@ -133,9 +133,10 @@ namespace EHR.Neutral
                     foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                     {
                         if (!physics.myPlayer.IsDousedPlayer(pc)) continue;
-                        pc.KillFlash();
                         pc.Suicide(PlayerState.DeathReason.Torched, physics.myPlayer);
                     }
+
+                    physics.myPlayer.KillFlash();
 
                     var apc = Main.AllAlivePlayerControls.Length;
                     switch (apc)
@@ -211,7 +212,8 @@ namespace EHR.Neutral
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             hud.KillButton?.OverrideText(Translator.GetString("ArsonistDouseButtonText"));
-            hud.ImpostorVentButton?.OverrideText(Translator.GetString("ArsonistVentButtonText"));
+            ActionButton usedButton = UsePets.GetBool() ? hud.PetButton : hud.KillButton;
+            usedButton?.OverrideText(Translator.GetString("ArsonistVentButtonText"));
         }
     }
 }

@@ -1389,6 +1389,7 @@ static class FixedUpdatePatch
                         if (subRoles.Contains(CustomRoles.Clumsy)) Clumsy.OnFixedUpdate(player);
                         if (subRoles.Contains(CustomRoles.Sonar)) Sonar.OnFixedUpdate(player);
                         if (subRoles.Contains(CustomRoles.Sleep)) Sleep.CheckGlowNearby(player);
+                        if (subRoles.Contains(CustomRoles.Introvert)) Introvert.OnFixedUpdate(player);
                     }
                 }
 
@@ -1876,7 +1877,7 @@ static class ExitVentPatch
 
         if (Options.WhackAMole.GetBool())
         {
-            LateTask.New(() => pc.TPtoRndVent(), 0.5f, "Whack-A-Mole TP");
+            LateTask.New(() => pc.TPToRandomVent(), 0.5f, "Whack-A-Mole TP");
         }
 
         if (!pc.IsModClient() && pc.Is(CustomRoles.Haste))

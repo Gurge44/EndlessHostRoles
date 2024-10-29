@@ -184,7 +184,7 @@ public class Magician : RoleBase
                 CardId = byte.MaxValue;
                 break;
             case 3: // TP to random vent
-                pc.TPtoRndVent();
+                pc.TPToRandomVent();
                 CardId = byte.MaxValue;
                 break;
             case 4: // Create Rift Maker portal

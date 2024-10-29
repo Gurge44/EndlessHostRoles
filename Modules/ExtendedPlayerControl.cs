@@ -1371,10 +1371,9 @@ static class ExtendedPlayerControl
         return Utils.TP(pc.NetTransform, location, noCheckState, log);
     }
 
-    // ReSharper disable once InconsistentNaming
-    public static bool TPtoRndVent(this PlayerControl pc, bool log = true)
+    public static bool TPToRandomVent(this PlayerControl pc, bool log = true)
     {
-        return Utils.TPtoRndVent(pc.NetTransform, log);
+        return Utils.TPToRandomVent(pc.NetTransform, log);
     }
 
     public static void Kill(this PlayerControl killer, PlayerControl target)

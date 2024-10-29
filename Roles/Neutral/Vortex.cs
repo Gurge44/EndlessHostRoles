@@ -45,7 +45,7 @@ namespace EHR.Neutral
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             if (!killer.RpcCheckAndMurder(target, check: true)) return false;
-            if (!target.TPtoRndVent())
+            if (!target.TPToRandomVent())
             {
                 killer.Notify(Translator.GetString("TargetCannotBeTeleported"));
                 return IfTargetCannotBeTeleported.GetValue() == 1;

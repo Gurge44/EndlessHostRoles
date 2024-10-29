@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
 using EHR.Crewmate;
@@ -138,6 +139,7 @@ public enum CustomRPC
     SyncSentry,
     SyncBargainer,
     SyncOverheat,
+    SyncIntrovert,
 
     // Game Modes
     RoomRushDataSync,
@@ -529,6 +531,11 @@ static class RPCHandlerPatch
             case CustomRPC.SyncOverheat:
             {
                 ((Overheat)Main.PlayerStates[reader.ReadByte()].Role).Temperature = reader.ReadPackedInt32();
+                break;
+            }
+            case CustomRPC.SyncIntrovert:
+            {
+                Introvert.ReceiveRPC(reader);
                 break;
             }
             case CustomRPC.SetBountyTarget:

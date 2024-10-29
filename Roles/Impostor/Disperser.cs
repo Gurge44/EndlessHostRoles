@@ -102,7 +102,7 @@ public class Disperser : RoleBase
             }
 
             pc.RPCPlayCustomSound("Teleport");
-            pc.TPtoRndVent();
+            pc.TPToRandomVent();
             pc.Notify(ColorString(GetRoleColor(CustomRoles.Disperser), string.Format(GetString("TeleportedInRndVentByDisperser"), pc.GetRealName())));
         }
     }

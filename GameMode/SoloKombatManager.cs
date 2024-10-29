@@ -165,7 +165,7 @@ internal static class SoloKombatManager
         LastHurt[target.PlayerId] = Utils.TimeStamp;
 
         var kcd = KB_ATKCooldown.GetFloat();
-        if (killer.IsHost()) kcd += (AmongUsClient.Instance.Ping / 1000f) * 2f;
+        if (killer.IsHost()) kcd += (AmongUsClient.Instance.Ping / 1000f) * 4f;
         killer.SetKillCooldown(kcd, target);
         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
         RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);

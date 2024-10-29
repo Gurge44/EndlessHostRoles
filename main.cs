@@ -560,6 +560,7 @@ public class Main : BasePlugin
                 { CustomRoles.Messenger, "#28b573" },
                 { CustomRoles.Dynamo, "#ebe534" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Introvert, "#6293e3" },
                 { CustomRoles.Deadlined, "#ffa500" },
                 { CustomRoles.Rookie, "#bf671f" },
                 { CustomRoles.Trainee, "#4287f5" },

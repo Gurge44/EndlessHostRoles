@@ -2,7 +2,6 @@
 using System.Linq;
 using EHR.Modules;
 using Hazel;
-using UnityEngine;
 
 namespace EHR.Crewmate
 {
@@ -53,7 +52,15 @@ namespace EHR.Crewmate
             var pos = pc.Pos();
             var radius = Radius.GetFloat();
             var nearbyPlayers = Utils.GetPlayersInRadius(radius, pos).Without(pc).ToArray();
-            if (nearbyPlayers.Length == 0) return;
+
+            if (nearbyPlayers.Length == 0)
+            {
+                CurrentTarget = byte.MaxValue;
+                InvestigationEndTS = 0;
+                SendRPC();
+                return;
+            }
+
             var nearestPlayer = nearbyPlayers.MinBy(p => Vector2.Distance(pos, p.Pos()));
 
             if (nearestPlayer.PlayerId == CurrentTarget && InvestigationEndTS == 0) return;

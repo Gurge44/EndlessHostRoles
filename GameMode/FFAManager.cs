@@ -314,7 +314,7 @@ internal static class FFAManager
                 }
                 // Mixed
                 default:
-                    LateTask.New(() => { killer.TPtoRndVent(); }, 0.5f, "FFA-Event-TP");
+                    LateTask.New(() => { killer.TPToRandomVent(); }, 0.5f, "FFA-Event-TP");
                     killer.Notify(GetString("FFA-Event-GetTP"));
                     Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
                     break;

@@ -33,12 +33,12 @@ namespace EHR.Crewmate
         public override void OnExitVent(PlayerControl pc, Vent vent)
         {
             if (UsePets.GetBool()) return;
-            LateTask.New(() => { pc.TPtoRndVent(); }, 0.5f, "Mole TP");
+            LateTask.New(() => { pc.TPToRandomVent(); }, 0.5f, "Mole TP");
         }
 
         public override void OnPet(PlayerControl pc)
         {
-            pc.TPtoRndVent();
+            pc.TPToRandomVent();
         }
     }
 }

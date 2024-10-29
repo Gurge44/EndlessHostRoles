@@ -1,4 +1,5 @@
 ﻿global using Object = UnityEngine.Object;
+global using Vector2 = UnityEngine.Vector2;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
