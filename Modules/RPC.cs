@@ -140,6 +140,7 @@ public enum CustomRPC
     SyncBargainer,
     SyncOverheat,
     SyncIntrovert,
+    SyncAllergic,
 
     // Game Modes
     RoomRushDataSync,
@@ -536,6 +537,11 @@ static class RPCHandlerPatch
             case CustomRPC.SyncIntrovert:
             {
                 Introvert.ReceiveRPC(reader);
+                break;
+            }
+            case CustomRPC.SyncAllergic:
+            {
+                Allergic.ReceiveRPC(reader);
                 break;
             }
             case CustomRPC.SetBountyTarget:

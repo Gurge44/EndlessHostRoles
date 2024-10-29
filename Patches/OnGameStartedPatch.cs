@@ -731,6 +731,7 @@ internal static class StartGameHostPatch
                 Circumvent.Add();
                 Dynamo.Add();
                 Spurt.Add();
+                Allergic.Init();
                 Lovers.Init();
             }
             catch (Exception e)

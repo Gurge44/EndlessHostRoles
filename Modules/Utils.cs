@@ -2027,6 +2027,7 @@ public static class Utils
                         if (seer.Is(CustomRoles.Sonar)) SelfSuffix.Append(Sonar.GetSuffix(seer, isForMeeting));
                         if (seer.Is(CustomRoles.Deadlined)) SelfSuffix.Append(Deadlined.GetSuffix(seer));
                         if (seer.Is(CustomRoles.Introvert)) SelfSuffix.Append(Introvert.GetSelfSuffix(seer));
+                        if (seer.Is(CustomRoles.Allergic)) SelfSuffix.Append(Allergic.GetSelfSuffix(seer));
 
                         SelfSuffix.Append(Bloodmoon.GetSuffix(seer));
                         SelfSuffix.Append(Haunter.GetSuffix(seer));

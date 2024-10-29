@@ -397,6 +397,7 @@ public enum CustomRoles
 
     // Sub-role after 500
     NotAssigned = 500,
+    Allergic,
     Antidote,
     AntiTP,
     Asthmatic,

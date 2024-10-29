@@ -26,7 +26,7 @@ namespace EHR.AddOns.Common
 
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (ExileController.Instance) return;
+            if (Main.HasJustStarted || ExileController.Instance) return;
 
             var pos = pc.Pos();
             var radius = Radius.GetFloat();
@@ -90,7 +90,7 @@ namespace EHR.AddOns.Common
 
         public static string GetSelfSuffix(PlayerControl seer)
         {
-            if (!TeleportAwayDelays.TryGetValue(seer.PlayerId, out var endTS)) return string.Empty;
+            if (!seer.IsAlive() || !TeleportAwayDelays.TryGetValue(seer.PlayerId, out var endTS)) return string.Empty;
             return string.Format(Translator.GetString("Introvert.Suffix"), endTS - Utils.TimeStamp);
         }
     }

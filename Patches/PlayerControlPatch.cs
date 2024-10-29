@@ -1390,6 +1390,7 @@ static class FixedUpdatePatch
                         if (subRoles.Contains(CustomRoles.Sonar)) Sonar.OnFixedUpdate(player);
                         if (subRoles.Contains(CustomRoles.Sleep)) Sleep.CheckGlowNearby(player);
                         if (subRoles.Contains(CustomRoles.Introvert)) Introvert.OnFixedUpdate(player);
+                        if (subRoles.Contains(CustomRoles.Allergic)) Allergic.OnFixedUpdate(player);
                     }
                 }
 
@@ -1711,6 +1712,7 @@ static class FixedUpdatePatch
                     if (seer.Is(CustomRoles.Asthmatic)) Suffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
                     if (seer.Is(CustomRoles.Sonar)) Suffix.Append(Sonar.GetSuffix(seer, GameStates.IsMeeting));
                     if (seer.Is(CustomRoles.Deadlined)) Suffix.Append(Deadlined.GetSuffix(seer));
+                    if (seer.Is(CustomRoles.Allergic)) Suffix.Append(Allergic.GetSelfSuffix(seer));
                 }
 
                 switch (Options.CurrentGameMode)

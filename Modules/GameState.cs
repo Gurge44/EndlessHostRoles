@@ -59,6 +59,7 @@ public class PlayerState(byte playerId)
         Trapped,
         Stung,
         Scavenged,
+        Allergy,
 
         // Natural Disasters
         Meteor,
