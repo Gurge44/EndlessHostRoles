@@ -617,14 +617,14 @@ namespace EHR
                     var hit = new Vector2(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Bottom, MapBounds.Y.Top));
                     var cno = new Lightning(hit);
                     if (cno.playerControl.GetPlainShipRoom() != default(PlainShipRoom)) cno.Despawn();
-                    foreach (var pc in Main.AllAlivePlayerControls)
-                    {
-                        if (pc.GetPlainShipRoom() != default(PlainShipRoom)) continue;
-                        if (Vector2.Distance(pc.Pos(), hit) <= Range)
+                    else
+                        foreach (var pc in Main.AllAlivePlayerControls)
                         {
-                            pc.Suicide(PlayerState.DeathReason.Lightning);
+                            if (Vector2.Distance(pc.Pos(), hit) <= Range / 2f)
+                            {
+                                pc.Suicide(PlayerState.DeathReason.Lightning);
+                            }
                         }
-                    }
                 }
             }
 
