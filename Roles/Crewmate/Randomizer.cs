@@ -50,7 +50,7 @@ namespace EHR.Crewmate
                     {
                         foreach (var pc in Main.AllAlivePlayerControls)
                         {
-                            pc.TPtoRndVent();
+                            pc.TPToRandomVent();
                             NotifyAboutRNG(pc);
                         }
                     }

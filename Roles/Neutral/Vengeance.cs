@@ -64,7 +64,7 @@ public class Vengeance : RoleBase
         if (killer.PlayerId == target.PlayerId) return true;
         if (IsRevenge) return true;
 
-        LateTask.New(() => { target.TPtoRndVent(); }, 0.01f, log: false);
+        LateTask.New(() => { target.TPToRandomVent(); }, 0.01f, log: false);
 
         Timer = RevengeTime.GetInt();
         Countdown(Timer, target);

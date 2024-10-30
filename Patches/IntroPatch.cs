@@ -240,7 +240,7 @@ static class CoBeginPatch
                 longInfo = $"<#ffffff>{longInfo}</color>";
 
                 var lines = longInfo.Count(x => x == '\n');
-                var readTime = 30 + (lines * 5);
+                var readTime = 20 + (lines * 5);
 
                 Utils.LongRoleDescriptions[seer.PlayerId] = (longInfo, readTime, tooLong);
             }
@@ -895,11 +895,13 @@ static class IntroCutsceneDestroyPatch
                 LateTask.New(() => aapc.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
             }
 
-            if (Main.GM.Value)
+            if (Main.GM.Value && lp.Is(CustomRoles.GM))
             {
-                lp.RpcExile();
-                lp.RpcSetCustomRole(CustomRoles.GM);
-                Main.PlayerStates[lp.PlayerId].SetDead();
+                LateTask.New(() =>
+                {
+                    lp.RpcExile();
+                    Main.PlayerStates[lp.PlayerId].SetDead();
+                }, Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFAChatDuringGame.GetBool() ? 12.5f : 1f, "Set GM Dead");
             }
 
             if (Options.RandomSpawn.GetBool())

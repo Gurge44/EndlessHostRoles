@@ -22,7 +22,7 @@ static class OnGameJoinedPatch
     {
         while (!Options.IsLoaded) Task.Delay(1);
         Logger.Info($"{__instance.GameId} joined lobby", "OnGameJoined");
-        if (AmongUsClient.Instance.AmHost) Main.HostClientId = __instance.ClientId;
+
         Main.PlayerVersion = [];
         RPC.RpcVersionCheck();
         SoundManager.Instance?.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);

@@ -186,6 +186,7 @@ public enum CustomRoles
     Journalist,
     Judge,
     Needy, // Lazy Guy
+    Leery,
     Lighter,
     Lookout,
     Luckey,
@@ -396,6 +397,7 @@ public enum CustomRoles
 
     // Sub-role after 500
     NotAssigned = 500,
+    Allergic,
     Antidote,
     AntiTP,
     Asthmatic,
@@ -433,6 +435,7 @@ public enum CustomRoles
     Guesser,
     Haste,
     Haunter, // Ghost role
+    Introvert,
     Knighted,
     LastImpostor,
     Lazy,

@@ -181,7 +181,7 @@ namespace EHR.Neutral
                     .Distinct()
                     .Zip(Enum.GetValues<Factory>()[1..])
                     .ToDictionary(x => x.First, x => x.Second);
-            }, 10f, log: false);
+            }, 20f, log: false);
         }
 
         public override void Add(byte playerId)

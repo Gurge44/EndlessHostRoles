@@ -87,6 +87,7 @@ static class CheckForEndVotingPatch
                         pva.UnsetVote();
                         __instance.RpcClearVote(pc.GetClientId());
                         __instance.UpdateButtons();
+                        pva.VotedFor = byte.MaxValue;
                     }
                     else if (voteTarget != null && !pc.GetCustomRole().CancelsVote())
                         Main.PlayerStates[pc.PlayerId].Role.OnVote(pc, voteTarget);
@@ -1174,12 +1175,14 @@ static class MeetingHudCastVotePatch
 
         __instance.RpcClearVote(pc_src.GetClientId());
 
+        pva_src.VotedFor = byte.MaxValue;
+
         ShouldCancelVoteList.Remove(srcPlayerId);
     }
 }
 
 [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.CmdCastVote))]
-class MeetingHudCmdCastVotePatch
+static class MeetingHudCmdCastVotePatch
 {
     public static bool Prefix(MeetingHud __instance, [HarmonyArgument(0)] byte srcPlayerId, [HarmonyArgument(1)] byte suspectPlayerId)
     {

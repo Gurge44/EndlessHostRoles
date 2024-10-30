@@ -11,7 +11,7 @@ static class CanUsePatch
     {
         canUse = couldUse = false;
         // Even if you return this with false, usable items other than tasks will remain usable (buttons, etc.)
-        if (Main.GM.Value && GameStates.InGame) return false;
+        if (Main.GM.Value && AmongUsClient.Instance.AmHost && GameStates.InGame) return false;
         var lp = PlayerControl.LocalPlayer;
         return __instance.AllowImpostor || (Utils.HasTasks(lp.Data, false) && (!lp.Is(CustomRoles.Wizard) || HasTasksAsWizard()));
 

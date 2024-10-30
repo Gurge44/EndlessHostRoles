@@ -184,7 +184,7 @@ public class Magician : RoleBase
                 CardId = byte.MaxValue;
                 break;
             case 3: // TP to random vent
-                pc.TPtoRndVent();
+                pc.TPToRandomVent();
                 CardId = byte.MaxValue;
                 break;
             case 4: // Create Rift Maker portal
@@ -269,7 +269,6 @@ public class Magician : RoleBase
                 CardId = byte.MaxValue;
                 break;
             case 10: // Admin map
-                NameNotifyManager.Notifies.Remove(pc.PlayerId);
                 var rooms = GetAllPlayerLocationsCount();
                 var sb = new StringBuilder();
                 foreach (var location in rooms)

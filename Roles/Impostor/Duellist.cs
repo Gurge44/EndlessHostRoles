@@ -15,6 +15,8 @@ namespace EHR.Impostor
         private static Dictionary<byte, byte> DuelPair = [];
         private static OptionItem SSCD;
 
+        private int Count;
+
         public override bool IsEnable => PlayerIdList.Count > 0 || Randomizer.Exists;
 
         public override void SetupCustomOption()
@@ -66,12 +68,10 @@ namespace EHR.Impostor
             return false;
         }
 
-        private int Count;
-
         public override void OnFixedUpdate(PlayerControl pc)
         {
             if (DuelPair.Count == 0) return;
-            
+
             if (Count++ < 40) return;
             Count = 0;
 
@@ -89,11 +89,11 @@ namespace EHR.Impostor
                         break;
                     case true when !TAlive:
                         DuelPair.Remove(pair.Key);
-                        LateTask.New(() => { duellist.TPtoRndVent(); }, 0.5f, log: false);
+                        LateTask.New(() => { duellist.TPToRandomVent(); }, 0.5f, log: false);
                         break;
                     case false:
                         DuelPair.Remove(pair.Key);
-                        LateTask.New(() => { target.TPtoRndVent(); }, 0.5f, log: false);
+                        LateTask.New(() => { target.TPToRandomVent(); }, 0.5f, log: false);
                         break;
                 }
             }

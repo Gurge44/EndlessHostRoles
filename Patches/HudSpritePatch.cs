@@ -193,7 +193,12 @@ public static class HudSpritePatch
                     break;
                 case CustomRoles.Arsonist:
                     newKillButton = CustomButton.Get("Douse");
-                    if (player.IsDouseDone() || (Options.ArsonistCanIgniteAnytime.GetBool() && Utils.GetDousedPlayerCount(player.PlayerId).Item1 >= Options.ArsonistMinPlayersToIgnite.GetInt())) newVentButton = CustomButton.Get("Ignite");
+                    if (player.IsDouseDone() || (Options.ArsonistCanIgniteAnytime.GetBool() && Utils.GetDousedPlayerCount(player.PlayerId).Item1 >= Options.ArsonistMinPlayersToIgnite.GetInt()))
+                    {
+                        if (Options.UsePets.GetBool()) newPetButton = CustomButton.Get("Ignite");
+                        else newVentButton = CustomButton.Get("Ignite");
+                    }
+
                     break;
                 case CustomRoles.Pyromaniac:
                     newKillButton = CustomButton.Get("Pyromaniac");

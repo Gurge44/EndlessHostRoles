@@ -6,7 +6,6 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using EHR.Neutral;
 using Hazel;
-using UnityEngine;
 
 namespace EHR.Crewmate
 {
@@ -317,7 +316,7 @@ namespace EHR.Crewmate
                 MilkTimer--;
                 if (MilkTimer <= 0)
                 {
-                    pc.TPtoRndVent();
+                    pc.TPToRandomVent();
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Crewmate);
                     CustomWinnerHolder.WinnerIds.UnionWith(Main.AllPlayerControls.Where(x => x.Is(Team.Crewmate)).Select(x => x.PlayerId));
                 }

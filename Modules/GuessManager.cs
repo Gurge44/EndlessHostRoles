@@ -139,6 +139,8 @@ public static class GuessManager
                     (pc.GetCustomRole().IsNonNK() && !Options.PassiveNeutralsCanGuess.GetBool() && !pc.Is(CustomRoles.Guesser) && !pc.Is(CustomRoles.Doomsayer)) ||
                     (pc.Is(CustomRoles.Lyncher) && Lyncher.GuessMode.GetValue() == 0))
                 {
+                    if (pc.IsConverted() && Options.BetrayalAddonsCanGuess.GetBool()) goto SkipCheck;
+
                     if (!isUI) Utils.SendMessage(GetString("GuessNotAllowed"), pc.PlayerId);
                     else pc.ShowPopUp(GetString("GuessNotAllowed"));
                     return true;
@@ -1175,41 +1177,26 @@ public static class GuessManager
         public static void Postfix(MeetingHud __instance)
         {
             var lp = PlayerControl.LocalPlayer;
-            bool alive = lp.IsAlive();
-            if (Options.GuesserMode.GetBool())
+            if (!lp.IsAlive()) return;
+
+            var canGuess = lp.Is(CustomRoles.Guesser) || lp.GetCustomRole() switch
             {
-                CustomRoles role = lp.GetCustomRole();
-                if (alive && role.IsImpostor() && Options.ImpostorsCanGuess.GetBool())
-                    CreateGuesserButton(__instance);
-                else if (role is CustomRoles.EvilGuesser && !Options.ImpostorsCanGuess.GetBool())
-                    CreateGuesserButton(__instance);
+                CustomRoles.EvilGuesser => true,
+                CustomRoles.NiceGuesser => true,
+                CustomRoles.Doomsayer when !Doomsayer.CantGuess => true,
+                CustomRoles.Lyncher when Lyncher.GuessMode.GetValue() == 2 => true,
+                _ when Options.GuesserMode.GetBool() => lp.GetTeam() switch
+                {
+                    Team.Impostor => Options.ImpostorsCanGuess.GetBool(),
+                    Team.Crewmate => Options.CrewmatesCanGuess.GetBool(),
+                    Team.Neutral when lp.IsNeutralKiller() => Options.NeutralKillersCanGuess.GetBool(),
+                    Team.Neutral => Options.PassiveNeutralsCanGuess.GetBool(),
+                    _ => false
+                },
+                _ => false
+            };
 
-                if (alive && lp.IsCrewmate() && Options.CrewmatesCanGuess.GetBool())
-                    CreateGuesserButton(__instance);
-                else if (role is CustomRoles.NiceGuesser && !Options.CrewmatesCanGuess.GetBool())
-                    CreateGuesserButton(__instance);
-
-                if (alive && lp.IsNeutralKiller() && Options.NeutralKillersCanGuess.GetBool())
-                    CreateGuesserButton(__instance);
-                if (alive && role.IsNonNK() && Options.PassiveNeutralsCanGuess.GetBool())
-                    CreateGuesserButton(__instance);
-                else if (role is CustomRoles.Doomsayer && !Options.PassiveNeutralsCanGuess.GetBool() && !Doomsayer.CantGuess)
-                    CreateGuesserButton(__instance);
-            }
-            else
-            {
-                if (alive && lp.Is(CustomRoles.EvilGuesser))
-                    CreateGuesserButton(__instance);
-
-                if (alive && lp.Is(CustomRoles.NiceGuesser))
-                    CreateGuesserButton(__instance);
-
-                if (alive && lp.Is(CustomRoles.Doomsayer) && !Doomsayer.CantGuess)
-                    CreateGuesserButton(__instance);
-
-                if (alive && lp.Is(CustomRoles.Guesser))
-                    CreateGuesserButton(__instance);
-            }
+            if (canGuess) CreateGuesserButton(__instance);
         }
     }
 

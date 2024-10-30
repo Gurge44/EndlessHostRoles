@@ -20,6 +20,7 @@ public static class OptionsMenuBehaviourStartPatch
     private static ClientOptionItem LongMode;
     private static ClientOptionItem ShowPlayerInfoInLobby;
     private static ClientOptionItem LobbyMusic;
+    private static ClientOptionItem EnableCommandHelper;
 #if DEBUG
     private static ClientOptionItem GodMode;
 #endif
@@ -38,7 +39,15 @@ public static class OptionsMenuBehaviourStartPatch
 
         if (GM == null || GM.ToggleButton == null)
         {
-            GM = ClientOptionItem.Create("GM", Main.GM, __instance);
+            GM = ClientOptionItem.Create("GM", Main.GM, __instance, GMButtonToggle);
+
+            static void GMButtonToggle()
+            {
+                if (Main.GM.Value)
+                {
+                    HudManager.Instance.ShowPopUp(Translator.GetString("EnabledGMWarning"));
+                }
+            }
         }
 
         if (UnlockFPS == null || UnlockFPS.ToggleButton == null)
@@ -180,6 +189,11 @@ public static class OptionsMenuBehaviourStartPatch
                     }, 5f, log: false);
                 }
             }
+        }
+
+        if (EnableCommandHelper == null || EnableCommandHelper.ToggleButton == null)
+        {
+            EnableCommandHelper = ClientOptionItem.Create("EnableCommandHelper", Main.EnableCommandHelper, __instance);
         }
 
 #if DEBUG

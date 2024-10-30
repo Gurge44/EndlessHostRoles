@@ -27,7 +27,7 @@ namespace EHR.Crewmate
 
         private float PatrolRadius => patrolRadius;
 
-        public PlayerControl[] NearbyKillers => GetPlayersInRadius(PatrolRadius, StartingPosition).Where(x => !x.Is(Team.Crewmate) && SentinelId != x.PlayerId).ToArray();
+        public PlayerControl[] NearbyKillers => GetPlayersInRadius(PatrolRadius, StartingPosition).Where(x => !x.Is(Team.Crewmate) && (!Sentinel.IsMadmate() || !x.Is(Team.Impostor)) && SentinelId != x.PlayerId).ToArray();
 
         public void SetPlayer() => Sentinel = GetPlayerById(SentinelId);
 

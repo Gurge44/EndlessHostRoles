@@ -1389,6 +1389,8 @@ static class FixedUpdatePatch
                         if (subRoles.Contains(CustomRoles.Clumsy)) Clumsy.OnFixedUpdate(player);
                         if (subRoles.Contains(CustomRoles.Sonar)) Sonar.OnFixedUpdate(player);
                         if (subRoles.Contains(CustomRoles.Sleep)) Sleep.CheckGlowNearby(player);
+                        if (subRoles.Contains(CustomRoles.Introvert)) Introvert.OnFixedUpdate(player);
+                        if (subRoles.Contains(CustomRoles.Allergic)) Allergic.OnFixedUpdate(player);
                     }
                 }
 
@@ -1710,6 +1712,7 @@ static class FixedUpdatePatch
                     if (seer.Is(CustomRoles.Asthmatic)) Suffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
                     if (seer.Is(CustomRoles.Sonar)) Suffix.Append(Sonar.GetSuffix(seer, GameStates.IsMeeting));
                     if (seer.Is(CustomRoles.Deadlined)) Suffix.Append(Deadlined.GetSuffix(seer));
+                    if (seer.Is(CustomRoles.Allergic)) Suffix.Append(Allergic.GetSelfSuffix(seer));
                 }
 
                 switch (Options.CurrentGameMode)
@@ -1867,13 +1870,16 @@ static class ExitVentPatch
 
         if (!AmongUsClient.Instance.AmHost) return;
 
+        if (Main.KillTimers.ContainsKey(pc.PlayerId))
+            Main.KillTimers[pc.PlayerId] += 0.5f;
+
         Drainer.OnAnyoneExitVent(pc);
 
         Main.PlayerStates[pc.PlayerId].Role.OnExitVent(pc, __instance);
 
         if (Options.WhackAMole.GetBool())
         {
-            LateTask.New(() => pc.TPtoRndVent(), 0.5f, "Whack-A-Mole TP");
+            LateTask.New(() => pc.TPToRandomVent(), 0.5f, "Whack-A-Mole TP");
         }
 
         if (!pc.IsModClient() && pc.Is(CustomRoles.Haste))
@@ -1942,10 +1948,8 @@ static class CoEnterVentPatch
 
         Logger.Info($" {__instance.myPlayer.GetNameWithRole()}, Vent ID: {id}", "CoEnterVent");
 
-        if (Main.KillTimers.TryGetValue(__instance.myPlayer.PlayerId, out var timer))
-        {
-            Main.KillTimers[__instance.myPlayer.PlayerId] = timer + 0.5f;
-        }
+        if (Main.KillTimers.ContainsKey(__instance.myPlayer.PlayerId))
+            Main.KillTimers[__instance.myPlayer.PlayerId] += 0.5f;
 
         CheckInvalidMovementPatch.ExemptedPlayers.Add(__instance.myPlayer.PlayerId);
 

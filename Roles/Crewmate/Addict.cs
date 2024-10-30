@@ -119,9 +119,6 @@ namespace EHR.Crewmate
 
             Main.AllPlayerSpeed[pc.PlayerId] = SpeedWhileImmortal.GetFloat();
             pc.MarkDirtySettings();
-
-            if (NameNotifyManager.Notifies.Remove(pc.PlayerId))
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
         private static void AddictGetDown(PlayerControl addict)

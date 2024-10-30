@@ -288,6 +288,7 @@ internal class ChangeRoleSettings
                 Main.PlayerStates[pc.PlayerId] = new(pc.PlayerId);
                 Main.PlayerColors[pc.PlayerId] = Palette.PlayerColors[colorId];
                 Main.AllPlayerSpeed[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
+                Main.AllPlayerKillCooldown[pc.PlayerId] = Main.RealOptionsData.GetFloat(FloatOptionNames.KillCooldown);
                 ReportDeadBodyPatch.CanReport[pc.PlayerId] = true;
                 ReportDeadBodyPatch.WaitReport[pc.PlayerId] = [];
                 VentilationSystemDeterioratePatch.LastClosestVent[pc.PlayerId] = 0;
@@ -605,18 +606,17 @@ internal static class StartGameHostPatch
                 Main.PlayerStates[pc.PlayerId].SetMainRole(role);
             }
 
-            // For other gamemodes:
+            foreach (var kv in RoleResult)
+            {
+                if (kv.Value.IsDesyncRole() || IsBasisChangingPlayer(kv.Key, CustomRoles.Bloodlust)) continue;
+                Main.PlayerStates[kv.Key].SetMainRole(kv.Value);
+            }
+
             if (Options.CurrentGameMode != CustomGameMode.Standard)
             {
                 foreach (var pair in Main.PlayerStates)
                     ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
                 goto EndOfSelectRolePatch;
-            }
-
-            foreach (var kv in RoleResult)
-            {
-                if (kv.Value.IsDesyncRole() || IsBasisChangingPlayer(kv.Key, CustomRoles.Bloodlust)) continue;
-                AssignCustomRole(kv.Value, kv.Key);
             }
 
             BasisChangingAddons.Do(x => x.Value.Do(y => Main.PlayerStates[y].SetSubRole(x.Key)));
@@ -731,6 +731,7 @@ internal static class StartGameHostPatch
                 Circumvent.Add();
                 Dynamo.Add();
                 Spurt.Add();
+                Allergic.Init();
                 Lovers.Init();
             }
             catch (Exception e)
@@ -985,12 +986,6 @@ internal static class StartGameHostPatch
             AmongUsClient.Instance.SendOrDisconnect(stream);
             stream.Recycle();
         }
-    }
-
-    private static void AssignCustomRole(CustomRoles role, byte id)
-    {
-        Main.PlayerStates[id].countTypes = role.GetCountTypes();
-        Main.PlayerStates[id].SetMainRole(role);
     }
 
     private static void AssignLoversRolesFromList()

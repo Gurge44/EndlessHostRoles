@@ -31,9 +31,9 @@ public class Main : BasePlugin
     private const string DebugKeyHash = "c0fd562955ba56af3ae20d7ec9e64c664f0facecef4b3e366e109306adeae29d";
     private const string DebugKeySalt = "59687b";
     private const string PluginGuid = "com.gurge44.endlesshostroles";
-    public const string PluginVersion = "5.0.1";
-    public const string PluginDisplayVersion = "5.0.1";
-    public const bool TestBuild = false;
+    public const string PluginVersion = "5.0.3";
+    public const string PluginDisplayVersion = "5.0.3";
+    public const bool TestBuild = true;
     public const string NeutralColor = "#ffab1b";
     public const string ImpostorColor = "#ff1919";
     public const string CrewmateColor = "#8cffff";
@@ -118,7 +118,6 @@ public class Main : BasePlugin
 
 
     public static string OverrideWelcomeMsg = string.Empty;
-    public static int HostClientId;
 
     public static readonly Dictionary<byte, List<int>> GuessNumber = [];
 
@@ -126,7 +125,7 @@ public class Main : BasePlugin
 
     // ReSharper disable once StringLiteralTypo
     public static readonly List<string> NameSnacksEn = ["Ice cream", "Milk tea", "Chocolate", "Cake", "Donut", "Coke", "Lemonade", "Candied haws", "Jelly", "Candy", "Milk", "Matcha", "Burning Grass Jelly", "Pineapple Bun", "Pudding", "Coconut Jelly", "Cookies", "Red Bean Toast", "Three Color Dumplings", "Wormwood Dumplings", "Puffs", "Can be Crepe", "Peach Crisp", "Mochi", "Egg Waffle", "Macaron", "Snow Plum Niang", "Fried Yogurt", "Egg Tart", "Muffin", "Sago Dew", "panna cotta", "soufflé", "croissant", "toffee"];
-    public Coroutines coroutines;
+    private Coroutines coroutines;
 
     private static HashAuth DebugKeyAuth { get; set; }
     private static ConfigEntry<string> DebugKeyInput { get; set; }
@@ -153,6 +152,7 @@ public class Main : BasePlugin
     public static ConfigEntry<bool> LongMode { get; private set; }
     public static ConfigEntry<bool> ShowPlayerInfoInLobby { get; private set; }
     public static ConfigEntry<bool> LobbyMusic { get; private set; }
+    public static ConfigEntry<bool> EnableCommandHelper { get; private set; }
 
     // Preset Name Options
     public static ConfigEntry<string> Preset1 { get; private set; }
@@ -243,6 +243,7 @@ public class Main : BasePlugin
         LongMode = Config.Bind("Client Options", "LongMode", false);
         ShowPlayerInfoInLobby = Config.Bind("Client Options", "ShowPlayerInfoInLobby", false);
         LobbyMusic = Config.Bind("Client Options", "LobbyMusic", false);
+        EnableCommandHelper = Config.Bind("Client Options", "EnableCommandHelper", true);
 
         Logger = BepInEx.Logging.Logger.CreateLogSource("EHR");
         coroutines = AddComponent<Coroutines>();
@@ -359,6 +360,7 @@ public class Main : BasePlugin
                 { CustomRoles.Convener, "#34eb7a" },
                 { CustomRoles.Mathematician, "#eb3474" },
                 { CustomRoles.Transmitter, "#c9a11e" },
+                { CustomRoles.Leery, "#32a852" },
                 { CustomRoles.Wizard, "#FD05CC" },
                 { CustomRoles.Negotiator, "#00c3ff" },
                 { CustomRoles.Grappler, "#befc03" },
@@ -558,6 +560,8 @@ public class Main : BasePlugin
                 { CustomRoles.Messenger, "#28b573" },
                 { CustomRoles.Dynamo, "#ebe534" },
                 { CustomRoles.AntiTP, "#fcba03" },
+                { CustomRoles.Allergic, "#e3bd56" },
+                { CustomRoles.Introvert, "#6293e3" },
                 { CustomRoles.Deadlined, "#ffa500" },
                 { CustomRoles.Rookie, "#bf671f" },
                 { CustomRoles.Trainee, "#4287f5" },

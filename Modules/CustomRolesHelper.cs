@@ -200,6 +200,7 @@ internal static class CustomRolesHelper
             CustomRoles.GuessManagerRole => CustomRoles.Crewmate,
             CustomRoles.Bane => CustomRoles.Crewmate,
             CustomRoles.Transmitter => CustomRoles.Crewmate,
+            CustomRoles.Leery => CustomRoles.Crewmate,
             CustomRoles.Altruist => UsePets ? CustomRoles.Crewmate : CustomRoles.Engineer,
             CustomRoles.Negotiator => CustomRoles.Crewmate,
             CustomRoles.Grappler => CustomRoles.Crewmate,
@@ -845,6 +846,7 @@ internal static class CustomRolesHelper
 
     public static bool CheckAddonConflict(CustomRoles role, PlayerControl pc) => role.IsAdditionRole() && (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out var neverList) || !neverList.TryGetValue(pc.GetCustomRole(), out var bannedAddonList) || !bannedAddonList.Contains(role)) && pc.GetCustomRole() is not CustomRoles.GuardianAngelEHR and not CustomRoles.God && !pc.Is(CustomRoles.Madmate) && !pc.Is(CustomRoles.GM) && role is not CustomRoles.Lovers && !pc.Is(CustomRoles.Needy) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && (!Options.AddonCanBeSettings.TryGetValue(role, out var o) || ((o.Imp.GetBool() || !pc.GetCustomRole().IsImpostor()) && (o.Neutral.GetBool() || !pc.GetCustomRole().IsNeutral()) && (o.Crew.GetBool() || !pc.IsCrewmate()))) && (!role.IsImpOnlyAddon() || pc.IsImpostor()) && role switch
     {
+        CustomRoles.Introvert when pc.GetCustomRole() is CustomRoles.Leery or CustomRoles.Samurai or CustomRoles.Arsonist or CustomRoles.Revolutionist or CustomRoles.Farseer or CustomRoles.Scavenger or CustomRoles.Analyst => false,
         CustomRoles.Circumvent when pc.GetCustomRole() is CustomRoles.Swooper or CustomRoles.RiftMaker => false,
         CustomRoles.Oblivious when pc.Is(CustomRoles.Altruist) => false,
         CustomRoles.AntiTP when pc.GetCustomRole() is CustomRoles.Transmitter or CustomRoles.Miner or CustomRoles.Escapee or CustomRoles.Tunneler => false,
@@ -1343,6 +1345,7 @@ internal static class CustomRolesHelper
         CustomRoles.Insight => RoleOptionType.Crewmate_Investigate,
         CustomRoles.ParityCop => RoleOptionType.Crewmate_Investigate,
         CustomRoles.Inquirer => RoleOptionType.Crewmate_Investigate,
+        CustomRoles.Leery => RoleOptionType.Crewmate_Investigate,
         CustomRoles.Lighter => RoleOptionType.Crewmate_Investigate,
         CustomRoles.Lookout => RoleOptionType.Crewmate_Investigate,
         CustomRoles.Lyncher => RoleOptionType.Crewmate_Investigate,

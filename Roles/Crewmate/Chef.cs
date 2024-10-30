@@ -3,7 +3,6 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using UnityEngine;
 
 namespace EHR.Crewmate
 {
@@ -103,7 +102,7 @@ namespace EHR.Crewmate
                                 NotifyAboutRandomFood(target, "ChefBoost.TP");
                                 break;
                             case 1:
-                                target.TPtoRndVent();
+                                target.TPToRandomVent();
                                 NotifyAboutRandomFood(target, "ChefBoost.TPToVent");
                                 break;
                         }

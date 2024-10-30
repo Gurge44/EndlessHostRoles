@@ -36,7 +36,7 @@ public static class GameStartManagerPatch
     public static float Timer { get; set; } = 600f;
 
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Start))]
-    public class GameStartManagerStartPatch
+    public static class GameStartManagerStartPatch
     {
         public static TextMeshPro HideName;
         public static TextMeshPro GameCountdown;
@@ -48,7 +48,7 @@ public static class GameStartManagerPatch
                 if (__instance == null) return;
 
                 var temp = __instance.PlayerCounter;
-                GameCountdown = Object.Instantiate(temp, __instance.StartButton.transform);
+                GameCountdown = Object.Instantiate(temp, AmongUsClient.Instance.AmHost ? __instance.StartButton.transform : __instance.HostInfoPanel.transform);
                 GameCountdown.text = string.Empty;
 
                 if (AmongUsClient.Instance.AmHost)
@@ -106,7 +106,7 @@ public static class GameStartManagerPatch
     }
 
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.Update))]
-    public class GameStartManagerUpdatePatch
+    public static class GameStartManagerUpdatePatch
     {
         public static float ExitTimer = -1f;
         private static float MinWait, MaxWait;
@@ -215,7 +215,7 @@ public static class GameStartManagerPatch
 
         private static void VanillaUpdate(GameStartManager instance)
         {
-            if (!GameData.Instance || !GameManager.Instance) return;
+            if (!GameData.Instance || !GameManager.Instance || !AmongUsClient.Instance.AmHost) return;
 
             try
             {
@@ -388,7 +388,7 @@ public static class GameStartManagerPatch
 }
 
 [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.BeginGame))]
-public class GameStartRandomMap
+public static class GameStartRandomMap
 {
     public static bool Prefix(GameStartManager __instance)
     {
@@ -484,7 +484,7 @@ public class GameStartRandomMap
 }
 
 [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.ResetStartState))]
-class ResetStartStatePatch
+static class ResetStartStatePatch
 {
     public static void Prefix(GameStartManager __instance)
     {
@@ -499,7 +499,7 @@ class ResetStartStatePatch
 }
 
 [HarmonyPatch(typeof(IGameOptionsExtensions), nameof(IGameOptionsExtensions.GetAdjustedNumImpostors))]
-class UnrestrictedNumImpostorsPatch
+static class UnrestrictedNumImpostorsPatch
 {
     public static bool Prefix(ref int __result)
     {
@@ -511,7 +511,7 @@ class UnrestrictedNumImpostorsPatch
 public static class GameStartManagerBeginPatch
 {
     [HarmonyPatch(typeof(GameStartManager), nameof(GameStartManager.ReallyBegin))]
-    public class GameStartManagerStartPatch
+    public static class GameStartManagerStartPatch
     {
         public static bool Prefix(GameStartManager __instance)
         {

@@ -80,6 +80,13 @@ public class Disperser : RoleBase
         return false;
     }
 
+    public override void OnPet(PlayerControl pc)
+    {
+        if (pc == null || pc.GetAbilityUseLimit() < 1) return;
+
+        Disperse(pc);
+    }
+
     private static void Disperse(PlayerControl player)
     {
         player.RpcRemoveAbilityUse();
@@ -95,7 +102,7 @@ public class Disperser : RoleBase
             }
 
             pc.RPCPlayCustomSound("Teleport");
-            pc.TPtoRndVent();
+            pc.TPToRandomVent();
             pc.Notify(ColorString(GetRoleColor(CustomRoles.Disperser), string.Format(GetString("TeleportedInRndVentByDisperser"), pc.GetRealName())));
         }
     }

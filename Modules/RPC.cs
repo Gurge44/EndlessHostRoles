@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
+using EHR.AddOns.Common;
 using EHR.AddOns.Crewmate;
 using EHR.AddOns.Impostor;
 using EHR.Crewmate;
@@ -138,6 +139,8 @@ public enum CustomRPC
     SyncSentry,
     SyncBargainer,
     SyncOverheat,
+    SyncIntrovert,
+    SyncAllergic,
 
     // Game Modes
     RoomRushDataSync,
@@ -529,6 +532,16 @@ static class RPCHandlerPatch
             case CustomRPC.SyncOverheat:
             {
                 ((Overheat)Main.PlayerStates[reader.ReadByte()].Role).Temperature = reader.ReadPackedInt32();
+                break;
+            }
+            case CustomRPC.SyncIntrovert:
+            {
+                Introvert.ReceiveRPC(reader);
+                break;
+            }
+            case CustomRPC.SyncAllergic:
+            {
+                Allergic.ReceiveRPC(reader);
                 break;
             }
             case CustomRPC.SetBountyTarget:
@@ -1051,12 +1064,12 @@ static class RPCHandlerPatch
                     EAC.Report(__instance, "FFA RPC when game mode is not FFA");
                     break;
                 }
-                
+
                 PlayerControl killer = reader.ReadNetObject<PlayerControl>();
                 PlayerControl target = reader.ReadNetObject<PlayerControl>();
-                
+
                 if (!killer.IsAlive() || !target.IsAlive() || AntiBlackout.SkipTasks || target.inMovingPlat || target.onLadder || target.inVent || MeetingHud.Instance) break;
-                
+
                 FFAManager.OnPlayerAttack(killer, target);
                 break;
             }
@@ -1206,9 +1219,6 @@ internal static class RPC
             }
 
             Main.PlayerVersion[PlayerControl.LocalPlayer.PlayerId] = new(Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
-
-            if (GameStates.IsModHost)
-                Main.HostClientId = Utils.GetPlayerById(0)?.GetClientId() ?? -1;
         }
     }
 

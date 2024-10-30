@@ -3,7 +3,7 @@ using HarmonyLib;
 
 namespace EHR;
 
-public class AirshipElectricalDoors
+public static class AirshipElectricalDoors
 {
     private static ElectricalDoors Instance
         => ShipStatus.Instance.Systems[SystemTypes.Decontamination].Cast<ElectricalDoors>();
@@ -42,7 +42,7 @@ public class AirshipElectricalDoors
 }
 
 [HarmonyPatch(typeof(ElectricalDoors), nameof(ElectricalDoors.Initialize))]
-class ElectricalDoorsInitializePatch
+static class ElectricalDoorsInitializePatch
 {
     public static void Postfix( /*ElectricalDoors __instance*/)
     {

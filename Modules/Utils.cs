@@ -165,8 +165,7 @@ public static class Utils
         return true;
     }
 
-    // ReSharper disable once InconsistentNaming
-    public static bool TPtoRndVent(CustomNetworkTransform nt, bool log = true)
+    public static bool TPToRandomVent(CustomNetworkTransform nt, bool log = true)
     {
         var vents = ShipStatus.Instance.AllVents;
         var vent = vents.RandomElement();
@@ -191,72 +190,80 @@ public static class Utils
 
     public static bool IsActive(SystemTypes type)
     {
-        if (GameStates.IsLobby || !ShipStatus.Instance.Systems.TryGetValue(type, out var systemType)) return false;
-        int mapId = Main.NormalOptions.MapId;
-        switch (type)
+        try
         {
-            case SystemTypes.Electrical:
+            if (GameStates.IsLobby || !ShipStatus.Instance.Systems.TryGetValue(type, out var systemType)) return false;
+            int mapId = Main.NormalOptions.MapId;
+            switch (type)
             {
-                if (mapId == 5) return false; // if The Fungle return false
-                var SwitchSystem = systemType.TryCast<SwitchSystem>();
-                return SwitchSystem is { IsActive: true };
-            }
-            case SystemTypes.Reactor:
-            {
-                switch (mapId)
+                case SystemTypes.Electrical:
                 {
-                    case 2:
-                        return false; // if Polus return false
-                    // Only Airhip
-                    case 4:
+                    if (mapId == 5) return false; // if The Fungle return false
+                    var SwitchSystem = systemType.TryCast<SwitchSystem>();
+                    return SwitchSystem is { IsActive: true };
+                }
+                case SystemTypes.Reactor:
+                {
+                    switch (mapId)
                     {
-                        var HeliSabotageSystem = systemType.TryCast<HeliSabotageSystem>();
-                        return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
-                    }
-                    default:
-                    {
-                        var ReactorSystemType = systemType.TryCast<ReactorSystemType>();
-                        return ReactorSystemType is { IsActive: true };
+                        case 2:
+                            return false; // if Polus return false
+                        // Only Airhip
+                        case 4:
+                        {
+                            var HeliSabotageSystem = systemType.TryCast<HeliSabotageSystem>();
+                            return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
+                        }
+                        default:
+                        {
+                            var ReactorSystemType = systemType.TryCast<ReactorSystemType>();
+                            return ReactorSystemType is { IsActive: true };
+                        }
                     }
                 }
-            }
-            case SystemTypes.Laboratory:
-            {
-                if (mapId != 2) return false; // Only Polus
-                var ReactorSystemType = systemType.TryCast<ReactorSystemType>();
-                return ReactorSystemType is { IsActive: true };
-            }
-            case SystemTypes.LifeSupp:
-            {
-                if (mapId is 2 or 4 or 5) return false; // Only Skeld & Mira HQ
-                var LifeSuppSystemType = systemType.TryCast<LifeSuppSystemType>();
-                return LifeSuppSystemType is { IsActive: true };
-            }
-            case SystemTypes.Comms:
-            {
-                if (mapId is 1 or 5) // Only Mira HQ & The Fungle
+                case SystemTypes.Laboratory:
                 {
-                    var HqHudSystemType = systemType.TryCast<HqHudSystemType>();
-                    return HqHudSystemType is { IsActive: true };
+                    if (mapId != 2) return false; // Only Polus
+                    var ReactorSystemType = systemType.TryCast<ReactorSystemType>();
+                    return ReactorSystemType is { IsActive: true };
                 }
+                case SystemTypes.LifeSupp:
+                {
+                    if (mapId is 2 or 4 or 5) return false; // Only Skeld & Mira HQ
+                    var LifeSuppSystemType = systemType.TryCast<LifeSuppSystemType>();
+                    return LifeSuppSystemType is { IsActive: true };
+                }
+                case SystemTypes.Comms:
+                {
+                    if (mapId is 1 or 5) // Only Mira HQ & The Fungle
+                    {
+                        var HqHudSystemType = systemType.TryCast<HqHudSystemType>();
+                        return HqHudSystemType is { IsActive: true };
+                    }
 
-                var HudOverrideSystemType = systemType.TryCast<HudOverrideSystemType>();
-                return HudOverrideSystemType is { IsActive: true };
+                    var HudOverrideSystemType = systemType.TryCast<HudOverrideSystemType>();
+                    return HudOverrideSystemType is { IsActive: true };
+                }
+                case SystemTypes.HeliSabotage:
+                {
+                    if (mapId != 4) return false; // Only Airhip
+                    var HeliSabotageSystem = systemType.TryCast<HeliSabotageSystem>();
+                    return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
+                }
+                case SystemTypes.MushroomMixupSabotage:
+                {
+                    if (mapId != 5) return false; // Only The Fungle
+                    var MushroomMixupSabotageSystem = systemType.TryCast<MushroomMixupSabotageSystem>();
+                    return MushroomMixupSabotageSystem != null && MushroomMixupSabotageSystem.IsActive;
+                }
+                default:
+                    return false;
             }
-            case SystemTypes.HeliSabotage:
-            {
-                if (mapId != 4) return false; // Only Airhip
-                var HeliSabotageSystem = systemType.TryCast<HeliSabotageSystem>();
-                return HeliSabotageSystem != null && HeliSabotageSystem.IsActive;
-            }
-            case SystemTypes.MushroomMixupSabotage:
-            {
-                if (mapId != 5) return false; // Only The Fungle
-                var MushroomMixupSabotageSystem = systemType.TryCast<MushroomMixupSabotageSystem>();
-                return MushroomMixupSabotageSystem != null && MushroomMixupSabotageSystem.IsActive;
-            }
-            default:
-                return false;
+        }
+        catch (Exception e)
+        {
+            ThrowException(e);
+            return false;
         }
     }
 
@@ -1287,13 +1294,14 @@ public static class Utils
         var neutralsb = new StringBuilder();
         var crewsb = new StringBuilder();
         var addonsb = new StringBuilder();
+        var ghostsb = new StringBuilder();
 
         foreach (var role in Options.CurrentGameMode == CustomGameMode.HideAndSeek ? HnSManager.AllHnSRoles : Enum.GetValues<CustomRoles>().Except(HnSManager.AllHnSRoles))
         {
             string mode;
             try
             {
-                mode = !role.IsAdditionRole()
+                mode = !role.IsAdditionRole() || role.IsGhostRole()
                     ? GetString($"Rate{role.GetMode()}")
                     : GetString($"Rate{Options.CustomAdtRoleSpawnRate[role].GetInt()}");
             }
@@ -1306,8 +1314,9 @@ public static class Utils
 
             if (role.IsEnable())
             {
-                var roleDisplay = $"\n{GetRoleName(role)}: {mode} x{role.GetCount()}";
-                if (role.IsAdditionRole()) addonsb.Append(roleDisplay);
+                var roleDisplay = $"\n{ColorString(GetRoleColor(role).ShadeColor(0.25f), GetString(role.ToString()))}: {mode} x{role.GetCount()}";
+                if (role.IsGhostRole()) ghostsb.Append(roleDisplay);
+                else if (role.IsAdditionRole()) addonsb.Append(roleDisplay);
                 else if (role.IsCrewmate()) crewsb.Append(roleDisplay);
                 else if (role.IsImpostor() || role.IsMadmate()) impsb.Append(roleDisplay);
                 else if (role.IsNeutral()) neutralsb.Append(roleDisplay);
@@ -1318,6 +1327,7 @@ public static class Utils
         SendMessage(impsb.Append("\n.").ToString(), PlayerId, ColorString(GetRoleColor(CustomRoles.Impostor), GetString("ImpostorRoles")));
         SendMessage(crewsb.Append("\n.").ToString(), PlayerId, ColorString(GetRoleColor(CustomRoles.Crewmate), GetString("CrewmateRoles")));
         SendMessage(neutralsb.Append("\n.").ToString(), PlayerId, GetString("NeutralRoles"));
+        SendMessage(ghostsb.Append("\n.").ToString(), PlayerId, GetString("GhostRoles"));
         SendMessage(addonsb.Append("\n.").ToString(), PlayerId, GetString("AddonRoles"));
     }
 
@@ -2016,6 +2026,8 @@ public static class Utils
                         if (seer.Is(CustomRoles.Asthmatic)) SelfSuffix.Append(Asthmatic.GetSuffixText(seer.PlayerId));
                         if (seer.Is(CustomRoles.Sonar)) SelfSuffix.Append(Sonar.GetSuffix(seer, isForMeeting));
                         if (seer.Is(CustomRoles.Deadlined)) SelfSuffix.Append(Deadlined.GetSuffix(seer));
+                        if (seer.Is(CustomRoles.Introvert)) SelfSuffix.Append(Introvert.GetSelfSuffix(seer));
+                        if (seer.Is(CustomRoles.Allergic)) SelfSuffix.Append(Allergic.GetSelfSuffix(seer));
 
                         SelfSuffix.Append(Bloodmoon.GetSuffix(seer));
                         SelfSuffix.Append(Haunter.GetSuffix(seer));
@@ -2228,7 +2240,7 @@ public static class Utils
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>▲</color>");
                                     }
 
-                                    else if (Arsonist.ArsonistTimer.TryGetValue(seer.PlayerId, out var ar_kvp) && ar_kvp.PLAYER == target)
+                                    else if (Arsonist.ArsonistTimer.TryGetValue(seer.PlayerId, out var ar_kvp) && ar_kvp.Player == target)
                                     {
                                         TargetMark.Append($"<color={GetRoleColorCode(CustomRoles.Arsonist)}>△</color>");
                                     }
@@ -2561,7 +2573,7 @@ public static class Utils
         nums[Options.GameStateInfo.Tasks] = GameData.Instance.CompletedTasks;
         var states = nums.ToDictionary(x => x.Key, x => x.Key == Options.GameStateInfo.RomanticState ? GetString($"GSRomanticState.{x.Value}") : (object)x.Value);
         states.DoIf(x => checkDict[x.Key].GetBool(), x => sb.AppendLine(string.Format(GetString($"GSInfo.{x.Key}"), x.Value, GameData.Instance.TotalTasks)));
-        return "<#ffffff>" + sb.ToString().TrimEnd() + "</color>";
+        return $"<#ffffff><size=90%>{sb.ToString().TrimEnd()}</size></color>";
     }
 
     public static void AddAbilityCD(CustomRoles role, byte playerId, bool includeDuration = true)
@@ -2603,8 +2615,8 @@ public static class Utils
             CustomRoles.Sniper => Options.DefaultShapeshiftCooldown.GetInt(),
             CustomRoles.Assassin => Assassin.AssassinateCooldownOpt.GetInt(),
             CustomRoles.Undertaker => Undertaker.UndertakerAssassinateCooldown.GetInt(),
-            CustomRoles.Bomber => Options.BombCooldown.GetInt(),
-            CustomRoles.Nuker => Options.NukeCooldown.GetInt(),
+            CustomRoles.Bomber => Bomber.BombCooldown.GetInt(),
+            CustomRoles.Nuker => Bomber.NukeCooldown.GetInt(),
             CustomRoles.Sapper => Sapper.ShapeshiftCooldown.GetInt(),
             CustomRoles.Miner => Options.MinerSSCD.GetInt(),
             CustomRoles.Escapee => Options.EscapeeSSCD.GetInt(),
@@ -3177,16 +3189,16 @@ public static class Utils
         return null;
     }
 
-    public static string ColorString(Color32 color, string str) => $"<color=#{color.r:x2}{color.g:x2}{color.b:x2}{color.a:x2}>{str}</color>";
+    public static string ColorString(Color32 color, string str) => $"<#{color.r:x2}{color.g:x2}{color.b:x2}{color.a:x2}>{str}</color>";
 
     /// <summary>
     /// Darkness:Mix black and original color in a ratio of 1. If it is negative, it will be mixed with white.
     /// </summary>
     public static Color ShadeColor(this Color color, float Darkness = 0)
     {
-        bool IsDarker = Darkness >= 0; //黒と混ぜる
+        bool IsDarker = Darkness >= 0;
         if (!IsDarker) Darkness = -Darkness;
-        float Weight = IsDarker ? 0 : Darkness; //黒/白の比率
+        float Weight = IsDarker ? 0 : Darkness;
         float R = (color.r + Weight) / (Darkness + 1);
         float G = (color.g + Weight) / (Darkness + 1);
         float B = (color.b + Weight) / (Darkness + 1);

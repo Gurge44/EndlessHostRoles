@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using EHR.Modules;
 using Hazel;
-using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -143,7 +142,7 @@ namespace EHR.Crewmate
                 {
                     if (Vector2.Distance(tornado.Key.Location, pc.Pos()) <= tornadoRange)
                     {
-                        if (!CanUseMap || Random.Next(0, 100) < 50) pc.TPtoRndVent();
+                        if (!CanUseMap || Random.Next(0, 100) < 50) pc.TPToRandomVent();
                         else Map.RandomTeleport(pc);
 
                         pc.Notify(NotifyString);

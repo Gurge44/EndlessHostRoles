@@ -129,6 +129,7 @@ internal static class FFAManager
         PlayerTeams = [];
 
         var allPlayers = Main.AllAlivePlayerControls;
+        if (Main.GM.Value && AmongUsClient.Instance.AmHost) allPlayers = allPlayers.Without(PlayerControl.LocalPlayer).ToArray();
 
         foreach (PlayerControl pc in allPlayers)
         {
@@ -314,7 +315,7 @@ internal static class FFAManager
                 }
                 // Mixed
                 default:
-                    LateTask.New(() => { killer.TPtoRndVent(); }, 0.5f, "FFA-Event-TP");
+                    LateTask.New(() => { killer.TPToRandomVent(); }, 0.5f, "FFA-Event-TP");
                     killer.Notify(GetString("FFA-Event-GetTP"));
                     Main.AllPlayerKillCooldown[killer.PlayerId] = FFAKcd.GetFloat();
                     break;

@@ -237,19 +237,33 @@ static class ExtendedPlayerControl
 
     public static void RpcSetNameEx(this PlayerControl player, string name)
     {
-        if (player == null)
+        try
         {
-            Logger.Warn("The player is null", "RpcSetNameEx");
-            return;
-        }
+            if (player == null)
+            {
+                Logger.Warn("The player is null", "RpcSetNameEx");
+                return;
+            }
 
-        foreach (PlayerControl seer in Main.AllPlayerControls)
+            foreach (PlayerControl seer in Main.AllPlayerControls)
+            {
+                try
+                {
+                    Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
+                }
+                catch (Exception e)
+                {
+                    ThrowException(e);
+                }
+            }
+
+            if (player.Data != null) Logger.Info($"Set: {player.Data.PlayerName} => {name} for Everyone", "RpcSetNameEx");
+            player.RpcSetName(name);
+        }
+        catch (Exception e)
         {
-            Main.LastNotifyNames[(player.PlayerId, seer.PlayerId)] = name;
+            ThrowException(e);
         }
-
-        if (player.Data != null) Logger.Info($"Set: {player.Data.PlayerName} => {name} for Everyone", "RpcSetNameEx");
-        player.RpcSetName(name);
     }
 
     public static void RpcSetNamePrivate(this PlayerControl player, string name, PlayerControl seer = null, bool force = false)
@@ -1357,10 +1371,9 @@ static class ExtendedPlayerControl
         return Utils.TP(pc.NetTransform, location, noCheckState, log);
     }
 
-    // ReSharper disable once InconsistentNaming
-    public static bool TPtoRndVent(this PlayerControl pc, bool log = true)
+    public static bool TPToRandomVent(this PlayerControl pc, bool log = true)
     {
-        return Utils.TPtoRndVent(pc.NetTransform, log);
+        return Utils.TPToRandomVent(pc.NetTransform, log);
     }
 
     public static void Kill(this PlayerControl killer, PlayerControl target)
@@ -1539,7 +1552,7 @@ static class ExtendedPlayerControl
     public static bool Is(this PlayerControl target, Team team) => team switch
     {
         Team.Impostor => (target.IsMadmate() || target.GetCustomRole().IsImpostorTeamV2() || Framer.FramedPlayers.Contains(target.PlayerId)) && !target.Is(CustomRoles.Bloodlust),
-        Team.Neutral => target.GetCustomRole().IsNeutralTeamV2() || target.Is(CustomRoles.Bloodlust),
+        Team.Neutral => target.GetCustomRole().IsNeutralTeamV2() || target.Is(CustomRoles.Bloodlust) || target.IsConverted(),
         Team.Crewmate => target.GetCustomRole().IsCrewmateTeamV2(),
         Team.None => target.Is(CustomRoles.GM) || target.Is(CountTypes.None) || target.Is(CountTypes.OutOfGame),
         _ => false
@@ -1549,7 +1562,7 @@ static class ExtendedPlayerControl
     {
         if (Framer.FramedPlayers.Contains(target.PlayerId)) return Team.Impostor;
         var subRoles = target.GetCustomSubRoles();
-        if (target.Is(CustomRoles.Bloodlust) || subRoles.Any(x => x.IsConverted())) return Team.Neutral;
+        if (subRoles.Contains(CustomRoles.Bloodlust) || target.IsConverted()) return Team.Neutral;
         if (subRoles.Contains(CustomRoles.Madmate)) return Team.Impostor;
         var role = target.GetCustomRole();
         if (role.IsImpostorTeamV2()) return Team.Impostor;
