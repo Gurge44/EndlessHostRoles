@@ -61,7 +61,10 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!pc.IsAlive() || !GameStates.IsInTask || Main.HasJustStarted) return;
+            if (!pc.IsAlive() || !GameStates.IsInTask || Main.HasJustStarted)
+            {
+                return;
+            }
 
             long now = Utils.TimeStamp;
             if (now - LastReduce > ZombieSpeedReduceInterval.GetInt())

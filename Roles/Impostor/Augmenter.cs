@@ -25,21 +25,25 @@
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting) return true;
+            if (!shapeshifting)
+            {
+                return true;
+            }
+
             Target = target.PlayerId;
             return false;
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            var newTarget = Utils.GetPlayerById(Target);
-            if (newTarget == null || !newTarget.IsAlive() || !killer.RpcCheckAndMurder(newTarget, check: true))
+            PlayerControl newTarget = Utils.GetPlayerById(Target);
+            if (newTarget == null || !newTarget.IsAlive() || !killer.RpcCheckAndMurder(newTarget, true))
             {
                 killer.Notify(string.Format(Translator.GetString("AugmenterFail"), Target.ColoredPlayerName()));
                 return true;
             }
 
-            var pos = newTarget.Pos();
+            Vector2 pos = newTarget.Pos();
             newTarget.TP(target);
             target.TP(pos);
 

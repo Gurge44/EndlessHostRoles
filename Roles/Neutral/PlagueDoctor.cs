@@ -79,14 +79,27 @@ namespace EHR.Neutral
             InfectActive = true;
             if (Main.NormalOptions.MapId == 4)
                 // Fixed airship respawn selection delay
+            {
                 InfectInactiveTime += 5f;
+            }
 
             PlayerIdList.Add(playerId);
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
-        public override bool CanUseKillButton(PlayerControl pc) => pc.GetAbilityUseLimit() != 0;
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => false;
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
+        }
+
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return pc.GetAbilityUseLimit() != 0;
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return false;
+        }
 
         public override string GetProgressText(byte id, bool comms)
         {
@@ -98,16 +111,24 @@ namespace EHR.Neutral
             opt.SetVision(false);
         }
 
-        bool CanInfect(PlayerControl player)
+        private bool CanInfect(PlayerControl player)
         {
-            if (!IsEnable) return false;
+            if (!IsEnable)
+            {
+                return false;
+            }
+
             // Not a plague doctor, or capable of self-infection and infected person created
             return player.PlayerId != PlayerIdList[0] || (CanInfectSelf && player.GetAbilityUseLimit() == 0);
         }
 
-        void SendRPC(byte targetId, float rate)
+        private void SendRPC(byte targetId, float rate)
         {
-            if (!IsEnable || !Utils.DoRPC) return;
+            if (!IsEnable || !Utils.DoRPC)
+            {
+                return;
+            }
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncPlagueDoctor, SendOption.Reliable);
             writer.Write(targetId);
             writer.Write(rate);
@@ -116,8 +137,8 @@ namespace EHR.Neutral
 
         public static void ReceiveRPC(MessageReader reader)
         {
-            var targetId = reader.ReadByte();
-            var rate = reader.ReadSingle();
+            byte targetId = reader.ReadByte();
+            float rate = reader.ReadSingle();
             InfectInfos[targetId] = rate;
         }
 
@@ -135,7 +156,11 @@ namespace EHR.Neutral
 
         public static void OnPDdeath(PlayerControl killer, PlayerControl target)
         {
-            if (Main.PlayerStates[target.PlayerId].Role is not PlagueDoctor { IsEnable: true } pd) return;
+            if (Main.PlayerStates[target.PlayerId].Role is not PlagueDoctor { IsEnable: true } pd)
+            {
+                return;
+            }
+
             if (InfectWhenKilled && target.GetAbilityUseLimit() > 0)
             {
                 target.SetAbilityUseLimit(0);
@@ -156,10 +181,21 @@ namespace EHR.Neutral
 
         public override void OnCheckPlayerPosition(PlayerControl player)
         {
-            if (!IsEnable) return;
-            if (!AmongUsClient.Instance.AmHost) return;
+            if (!IsEnable)
+            {
+                return;
+            }
 
-            if (!GameStates.IsInTask) return;
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                return;
+            }
+
+            if (!GameStates.IsInTask)
+            {
+                return;
+            }
+
             if (LateCheckWin)
             {
                 // After hanging/killing, check the victory conditions just to be sure.
@@ -167,30 +203,46 @@ namespace EHR.Neutral
                 CheckWin();
             }
 
-            if (!player.IsAlive() || !InfectActive) return;
+            if (!player.IsAlive() || !InfectActive)
+            {
+                return;
+            }
 
-            if (InfectInfos.TryGetValue(player.PlayerId, out var rate) && rate >= 100)
+            if (InfectInfos.TryGetValue(player.PlayerId, out float rate) && rate >= 100)
             {
                 // In case of an infected person
-                var changed = false;
-                var inVent = player.inVent;
+                bool changed = false;
+                bool inVent = player.inVent;
                 List<PlayerControl> updates = [];
                 foreach (PlayerControl target in Main.AllAlivePlayerControls)
                 {
                     // Plague doctors are excluded if they cannot infect themselves.
-                    if (!CanInfect(target)) continue;
-                    // Excluded if inside or outside the vent
-                    if (!CanInfectVent && target.inVent != inVent) continue;
+                    if (!CanInfect(target))
+                    {
+                        continue;
+                    }
 
-                    InfectInfos.TryGetValue(target.PlayerId, out var oldRate);
+                    // Excluded if inside or outside the vent
+                    if (!CanInfectVent && target.inVent != inVent)
+                    {
+                        continue;
+                    }
+
+                    InfectInfos.TryGetValue(target.PlayerId, out float oldRate);
                     // Exclude infected people
-                    if (oldRate >= 100) continue;
+                    if (oldRate >= 100)
+                    {
+                        continue;
+                    }
 
                     // Exclude players outside the range
-                    var distance = Vector3.Distance(player.transform.position, target.transform.position);
-                    if (distance > InfectDistance) continue;
+                    float distance = Vector3.Distance(player.transform.position, target.transform.position);
+                    if (distance > InfectDistance)
+                    {
+                        continue;
+                    }
 
-                    var newRate = oldRate + Time.fixedDeltaTime / InfectTime * 100;
+                    float newRate = oldRate + (Time.fixedDeltaTime / InfectTime * 100);
                     newRate = Math.Clamp(newRate, 0, 100);
                     InfectInfos[target.PlayerId] = newRate;
                     if ((oldRate < 50 && newRate >= 50) || newRate >= 100)
@@ -229,24 +281,54 @@ namespace EHR.Neutral
 
         public static string GetMarkOthers(PlayerControl seer, PlayerControl seen = null)
         {
-            if (Main.PlayerStates[seer.PlayerId].Role is not PlagueDoctor { IsEnable: true } pd) return string.Empty;
+            if (Main.PlayerStates[seer.PlayerId].Role is not PlagueDoctor { IsEnable: true } pd)
+            {
+                return string.Empty;
+            }
+
             seen ??= seer;
-            if (!pd.CanInfect(seen)) return string.Empty;
-            if (!seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive()) return string.Empty;
+            if (!pd.CanInfect(seen))
+            {
+                return string.Empty;
+            }
+
+            if (!seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive())
+            {
+                return string.Empty;
+            }
+
             return Utils.ColorString(Utils.GetRoleColor(CustomRoles.PlagueDoctor), GetInfectRateCharactor(seen, pd));
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId && seer.IsAlive()) return string.Empty;
-            if (!seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive()) return string.Empty;
-            if (!hud && seer.IsModClient()) return string.Empty;
-            if (Main.PlayerStates[seer.PlayerId].Role is not PlagueDoctor { IsEnable: true } pd) return string.Empty;
-            var str = new StringBuilder(40);
+            if (seer.PlayerId != target.PlayerId && seer.IsAlive())
+            {
+                return string.Empty;
+            }
+
+            if (!seer.Is(CustomRoles.PlagueDoctor) && seer.IsAlive())
+            {
+                return string.Empty;
+            }
+
+            if (!hud && seer.IsModClient())
+            {
+                return string.Empty;
+            }
+
+            if (Main.PlayerStates[seer.PlayerId].Role is not PlagueDoctor { IsEnable: true } pd)
+            {
+                return string.Empty;
+            }
+
+            StringBuilder str = new StringBuilder(40);
             foreach (PlayerControl player in Main.AllAlivePlayerControls)
             {
                 if (!player.Is(CustomRoles.PlagueDoctor))
+                {
                     str.Append(GetInfectRateCharactor(player, pd));
+                }
             }
 
             return Utils.ColorString(Utils.GetRoleColor(CustomRoles.PlagueDoctor), str.ToString());
@@ -254,15 +336,27 @@ namespace EHR.Neutral
 
         public static bool IsInfected(byte playerId)
         {
-            InfectInfos.TryGetValue(playerId, out var rate);
+            InfectInfos.TryGetValue(playerId, out float rate);
             return rate >= 100;
         }
 
         public static string GetInfectRateCharactor(PlayerControl player, PlagueDoctor pd)
         {
-            if (!pd.IsEnable) return string.Empty;
-            if (!pd.CanInfect(player) || !player.IsAlive()) return string.Empty;
-            if (!InfectInfos.TryGetValue(player.PlayerId, out var rate)) return string.Empty;
+            if (!pd.IsEnable)
+            {
+                return string.Empty;
+            }
+
+            if (!pd.CanInfect(player) || !player.IsAlive())
+            {
+                return string.Empty;
+            }
+
+            if (!InfectInfos.TryGetValue(player.PlayerId, out float rate))
+            {
+                return string.Empty;
+            }
+
             return rate switch
             {
                 < 50 => "\u2581",
@@ -272,9 +366,13 @@ namespace EHR.Neutral
             };
         }
 
-        void DirectInfect(PlayerControl player)
+        private void DirectInfect(PlayerControl player)
         {
-            if (PlayerIdList.Count == 0 || player == null) return;
+            if (PlayerIdList.Count == 0 || player == null)
+            {
+                return;
+            }
+
             Logger.Info($"InfectRate [{player.GetNameWithRole()}]: 100%", "PlagueDoctor");
             InfectInfos[player.PlayerId] = 100;
             SendRPC(player.PlayerId, 100);
@@ -283,26 +381,41 @@ namespace EHR.Neutral
             CheckWin();
         }
 
-        void CheckWin()
+        private void CheckWin()
         {
-            if (!IsEnable) return;
-            if (!AmongUsClient.Instance.AmHost) return;
+            if (!IsEnable)
+            {
+                return;
+            }
+
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                return;
+            }
+
             // Invalid if someone's victory is being processed
-            if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return;
+            if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default)
+            {
+                return;
+            }
 
             if (Main.AllAlivePlayerControls.All(p => p.Is(CustomRoles.PlagueDoctor) || IsInfected(p.PlayerId)))
             {
                 InfectActive = false;
 
-                var pd = Main.AllPlayerControls.FirstOrDefault(x => x.Is(CustomRoles.PlagueDoctor));
+                PlayerControl pd = Main.AllPlayerControls.FirstOrDefault(x => x.Is(CustomRoles.PlagueDoctor));
                 foreach (PlayerControl player in Main.AllAlivePlayerControls)
                 {
-                    if (player.Is(CustomRoles.PlagueDoctor)) continue;
+                    if (player.Is(CustomRoles.PlagueDoctor))
+                    {
+                        continue;
+                    }
+
                     player.Suicide(PlayerState.DeathReason.Curse, pd);
                 }
 
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.PlagueDoctor);
-                foreach (var plagueDoctor in Main.AllPlayerControls.Where(p => p.Is(CustomRoles.PlagueDoctor)).ToArray())
+                foreach (PlayerControl plagueDoctor in Main.AllPlayerControls.Where(p => p.Is(CustomRoles.PlagueDoctor)).ToArray())
                 {
                     CustomWinnerHolder.WinnerIds.Add(plagueDoctor.PlayerId);
                 }

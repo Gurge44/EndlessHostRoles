@@ -38,11 +38,21 @@ namespace EHR.Neutral
 
         public override void OnPet(PlayerControl pc)
         {
-            if (pc.GetAbilityUseLimit() < 1) return;
-            var target = ExternalRpcPetPatch.SelectKillButtonTarget(pc);
-            if (target != null && pc.RpcCheckAndMurder(target)) pc.RpcRemoveAbilityUse();
+            if (pc.GetAbilityUseLimit() < 1)
+            {
+                return;
+            }
+
+            PlayerControl target = ExternalRpcPetPatch.SelectKillButtonTarget(pc);
+            if (target != null && pc.RpcCheckAndMurder(target))
+            {
+                pc.RpcRemoveAbilityUse();
+            }
         }
 
-        public override bool CanUseKillButton(PlayerControl pc) => false;
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return false;
+        }
     }
 }

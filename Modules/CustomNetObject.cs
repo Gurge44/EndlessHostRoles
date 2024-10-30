@@ -29,17 +29,21 @@ namespace EHR
 
         public void RpcChangeSprite(string sprite)
         {
-            if (this is not DisasterWarningTimer) Logger.Info($" Change Custom Net Object {this.GetType().Name} (ID {Id}) sprite", "CNO.RpcChangeSprite");
+            if (this is not DisasterWarningTimer)
+            {
+                Logger.Info($" Change Custom Net Object {GetType().Name} (ID {Id}) sprite", "CNO.RpcChangeSprite");
+            }
+
             Sprite = sprite;
             LateTask.New(() =>
             {
                 playerControl.RawSetName(sprite);
-                var name = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName;
-                var colorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId;
-                var hatId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId;
-                var skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
-                var petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
-                var visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
+                string name = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName;
+                int colorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId;
+                string hatId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId;
+                string skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
+                string petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
+                string visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
                 CustomRpcSender sender = CustomRpcSender.Create("SetFakeData");
                 MessageWriter writer = sender.stream;
                 sender.StartMessage();
@@ -84,7 +88,7 @@ namespace EHR
 
         public void Despawn()
         {
-            Logger.Info($" Despawn Custom Net Object {this.GetType().Name} (ID {Id})", "CNO.Despawn");
+            Logger.Info($" Despawn Custom Net Object {GetType().Name} (ID {Id})", "CNO.Despawn");
             try
             {
                 playerControl.Despawn();
@@ -94,7 +98,11 @@ namespace EHR
             {
                 if (Options.CurrentGameMode == CustomGameMode.NaturalDisasters)
                 {
-                    if (HiddenList.Contains(PlayerControl.LocalPlayer.PlayerId)) return;
+                    if (HiddenList.Contains(PlayerControl.LocalPlayer.PlayerId))
+                    {
+                        return;
+                    }
+
                     Logger.Warn("Error during despawn, hiding instead", "CNO.Despawn");
                     Main.AllPlayerControls.Do(Hide);
                     return;
@@ -106,7 +114,7 @@ namespace EHR
 
         protected void Hide(PlayerControl player)
         {
-            Logger.Info($" Hide Custom Net Object {this.GetType().Name} (ID {Id}) from {player.GetNameWithRole()}", "CNO.Hide");
+            Logger.Info($" Hide Custom Net Object {GetType().Name} (ID {Id}) from {player.GetNameWithRole()}", "CNO.Hide");
 
             HiddenList.Add(player.PlayerId);
             if (player.AmOwner)
@@ -118,7 +126,7 @@ namespace EHR
 
             LateTask.New(() =>
             {
-                CustomRpcSender sender = CustomRpcSender.Create("FixModdedClientCNOText", sendOption: SendOption.Reliable);
+                CustomRpcSender sender = CustomRpcSender.Create("FixModdedClientCNOText", SendOption.Reliable);
                 sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO, player.GetClientId())
                     .WriteNetObject(playerControl)
                     .Write(false)
@@ -143,7 +151,7 @@ namespace EHR
             PlayerControlTimer += Time.fixedDeltaTime;
             if (PlayerControlTimer > 20f)
             {
-                Logger.Info($" Recreate Custom Net Object {this.GetType().Name} (ID {Id})", "CNO.OnFixedUpdate");
+                Logger.Info($" Recreate Custom Net Object {GetType().Name} (ID {Id})", "CNO.OnFixedUpdate");
                 PlayerControl oldPlayerControl = playerControl;
                 playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
                 playerControl.PlayerId = 255;
@@ -175,17 +183,20 @@ namespace EHR
                 AmongUsClient.Instance.SendOrDisconnect(msg);
                 msg.Recycle();
                 if (PlayerControl.AllPlayerControls.Contains(playerControl))
+                {
                     PlayerControl.AllPlayerControls.Remove(playerControl);
+                }
+
                 LateTask.New(() =>
                 {
                     playerControl.NetTransform.RpcSnapTo(Position);
                     playerControl.RawSetName(Sprite);
-                    var name = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName;
-                    var colorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId;
-                    var hatId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId;
-                    var skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
-                    var petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
-                    var visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
+                    string name = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName;
+                    int colorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId;
+                    string hatId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId;
+                    string skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
+                    string petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
+                    string visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
                     CustomRpcSender sender = CustomRpcSender.Create("SetFakeData");
                     MessageWriter writer = sender.stream;
                     sender.StartMessage();
@@ -223,9 +234,13 @@ namespace EHR
                 LateTask.New(() => oldPlayerControl.Despawn(), 0.3f);
                 //playerControl.cosmetics.currentBodySprite.BodySprite.color = Color.clear;
                 //playerControl.cosmetics.colorBlindText.color = Color.clear;
-                foreach (var pc in Main.AllPlayerControls)
+                foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
-                    if (pc.AmOwner) continue;
+                    if (pc.AmOwner)
+                    {
+                        continue;
+                    }
+
                     LateTask.New(() =>
                     {
                         CustomRpcSender sender = CustomRpcSender.Create("SetFakeData");
@@ -252,7 +267,7 @@ namespace EHR
                     }, 0.1f);
                 }
 
-                foreach (var pc in Main.AllPlayerControls)
+                foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
                     if (HiddenList.Contains(pc.PlayerId))
                     {
@@ -264,14 +279,16 @@ namespace EHR
                 {
                     // Fix for Host
                     if (!HiddenList.Contains(PlayerControl.LocalPlayer.PlayerId))
+                    {
                         playerControl.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(true);
+                    }
                 }, 0.1f);
                 LateTask.New(() =>
                 {
                     // Fix for Non-Host Modded
-                    foreach (var visiblePC in Main.AllPlayerControls.ExceptBy(HiddenList, x => x.PlayerId))
+                    foreach (PlayerControl visiblePC in Main.AllPlayerControls.ExceptBy(HiddenList, x => x.PlayerId))
                     {
-                        CustomRpcSender sender = CustomRpcSender.Create("FixModdedClientCNOText", sendOption: SendOption.Reliable);
+                        CustomRpcSender sender = CustomRpcSender.Create("FixModdedClientCNOText", SendOption.Reliable);
                         sender.AutoStartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.FixModdedClientCNO, visiblePC.GetClientId())
                             .WriteNetObject(playerControl)
                             .Write(true)
@@ -296,7 +313,7 @@ namespace EHR
 
         protected void CreateNetObject(string sprite, Vector2 position)
         {
-            Logger.Info($" Create Custom Net Object {this.GetType().Name} (ID {MaxId + 1}) at {position}", "CNO.CreateNetObject");
+            Logger.Info($" Create Custom Net Object {GetType().Name} (ID {MaxId + 1}) at {position}", "CNO.CreateNetObject");
             playerControl = Object.Instantiate(AmongUsClient.Instance.PlayerPrefab, Vector2.zero, Quaternion.identity);
             playerControl.PlayerId = 255;
             playerControl.isNew = false;
@@ -327,17 +344,20 @@ namespace EHR
             AmongUsClient.Instance.SendOrDisconnect(msg);
             msg.Recycle();
             if (PlayerControl.AllPlayerControls.Contains(playerControl))
+            {
                 PlayerControl.AllPlayerControls.Remove(playerControl);
+            }
+
             LateTask.New(() =>
             {
                 playerControl.NetTransform.RpcSnapTo(position);
                 playerControl.RawSetName(sprite);
-                var name = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName;
-                var colorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId;
-                var hatId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId;
-                var skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
-                var petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
-                var visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
+                string name = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PlayerName;
+                int colorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].ColorId;
+                string hatId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].HatId;
+                string skinId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].SkinId;
+                string petId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].PetId;
+                string visorId = PlayerControl.LocalPlayer.Data.Outfits[PlayerOutfitType.Default].VisorId;
                 CustomRpcSender sender = CustomRpcSender.Create("SetFakeData");
                 MessageWriter writer = sender.stream;
                 sender.StartMessage();
@@ -379,11 +399,19 @@ namespace EHR
             Sprite = sprite;
             ++MaxId;
             Id = MaxId;
-            if (MaxId == int.MaxValue) MaxId = int.MinValue;
-            AllObjects.Add(this);
-            foreach (var pc in Main.AllPlayerControls)
+            if (MaxId == int.MaxValue)
             {
-                if (pc.AmOwner) continue;
+                MaxId = int.MinValue;
+            }
+
+            AllObjects.Add(this);
+            foreach (PlayerControl pc in Main.AllPlayerControls)
+            {
+                if (pc.AmOwner)
+                {
+                    continue;
+                }
+
                 LateTask.New(() =>
                 {
                     CustomRpcSender sender = CustomRpcSender.Create("SetFakeData");
@@ -416,13 +444,16 @@ namespace EHR
 
         public static void FixedUpdate()
         {
-            foreach (var cno in AllObjects.ToArray())
+            foreach (CustomNetObject cno in AllObjects.ToArray())
             {
                 cno?.OnFixedUpdate();
             }
         }
 
-        public static CustomNetObject Get(int id) => AllObjects.FirstOrDefault(x => x.Id == id);
+        public static CustomNetObject Get(int id)
+        {
+            return AllObjects.FirstOrDefault(x => x.Id == id);
+        }
 
         public static void Reset()
         {
@@ -548,7 +579,11 @@ namespace EHR
 
             try
             {
-                if (Gone) return;
+                if (Gone)
+                {
+                    return;
+                }
+
                 if (SpawnTimeStamp + Tornado.TornadoDuration.GetInt() < Utils.TimeStamp)
                 {
                     Gone = true;
@@ -586,7 +621,7 @@ namespace EHR
         internal AdventurerItem(Vector2 position, Adventurer.Resource resource, IEnumerable<byte> visibleList)
         {
             Resource = resource;
-            var data = Adventurer.ResourceDisplayData[resource];
+            (char Icon, Color Color) data = Adventurer.ResourceDisplayData[resource];
             CreateNetObject($"<size=300%><font=\"VCR SDF\"><line-height=67%>{Utils.ColorString(data.Color, data.Icon.ToString())}</line-height></font></size>", position);
             Main.AllAlivePlayerControls.ExceptBy(visibleList, x => x.PlayerId).Do(Hide);
         }
@@ -668,7 +703,7 @@ namespace EHR
         protected override void OnFixedUpdate()
         {
             base.OnFixedUpdate();
-            var oldTime = Time;
+            int oldTime = Time;
             Timer -= UnityEngine.Time.fixedDeltaTime;
             if (Time != oldTime)
             {
@@ -695,7 +730,11 @@ namespace EHR
 
         public void Update()
         {
-            if (float.IsNaN(SpawnTimer)) return;
+            if (float.IsNaN(SpawnTimer))
+            {
+                return;
+            }
+
             SpawnTimer -= Time.fixedDeltaTime;
             if (SpawnTimer <= 0f)
             {
@@ -728,11 +767,14 @@ namespace EHR
 }
 
 [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.RawSetName))]
-static class RawSetNamePatch
+internal static class RawSetNamePatch
 {
     public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] string name)
     {
-        if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters) return true;
+        if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters)
+        {
+            return true;
+        }
 
         bool exception = false;
 

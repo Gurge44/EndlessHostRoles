@@ -38,8 +38,11 @@ namespace EHR.AddOns.GhostRoles
             HaunterId = pc.PlayerId;
             LateTask.New(() =>
             {
-                var taskState = pc.GetTaskState();
-                if (taskState == null) return;
+                TaskState taskState = pc.GetTaskState();
+                if (taskState == null)
+                {
+                    return;
+                }
 
                 taskState.HasTasks = true;
                 taskState.CompletedTasksCount = 0;
@@ -70,10 +73,13 @@ namespace EHR.AddOns.GhostRoles
 
         public void OnOneTaskLeft(PlayerControl pc)
         {
-            if (WarnedImps.Count > 0) return;
+            if (WarnedImps.Count > 0)
+            {
+                return;
+            }
 
             WarnedImps = [];
-            var filtered = Main.AllAlivePlayerControls.Where(x =>
+            IEnumerable<PlayerControl> filtered = Main.AllAlivePlayerControls.Where(x =>
             {
                 return x.GetTeam() switch
                 {
@@ -83,7 +89,7 @@ namespace EHR.AddOns.GhostRoles
                     _ => false
                 };
             });
-            foreach (var imp in filtered)
+            foreach (PlayerControl imp in filtered)
             {
                 TargetArrow.Add(imp.PlayerId, pc.PlayerId);
                 WarnedImps.Add(imp.PlayerId);
@@ -95,14 +101,17 @@ namespace EHR.AddOns.GhostRoles
 
         public void OnFinishedTasks(PlayerControl pc)
         {
-            if (WarnedImps.Count == 0) return;
+            if (WarnedImps.Count == 0)
+            {
+                return;
+            }
 
             List<byte> targets = [];
             int numOfReveals = NumberOfReveals.GetInt();
             for (int i = 0; i < numOfReveals; i++)
             {
-                var index = IRandom.Instance.Next(WarnedImps.Count);
-                var target = WarnedImps[index];
+                int index = IRandom.Instance.Next(WarnedImps.Count);
+                byte target = WarnedImps[index];
                 targets.Add(target);
                 WarnedImps.Remove(target);
                 TargetArrow.Remove(target, pc.PlayerId);
@@ -118,11 +127,14 @@ namespace EHR.AddOns.GhostRoles
 
         public void Update(PlayerControl pc)
         {
-            if (WarnedImps.Count == 0 || WarnTimeStamp == Utils.TimeStamp) return;
+            if (WarnedImps.Count == 0 || WarnTimeStamp == Utils.TimeStamp)
+            {
+                return;
+            }
 
             if (WarnedImps.Any(imp => TargetArrow.GetArrows(Utils.GetPlayerById(imp), pc.PlayerId) == "・"))
             {
-                foreach (var imp in WarnedImps)
+                foreach (byte imp in WarnedImps)
                 {
                     TargetArrow.Remove(imp, pc.PlayerId);
                     Utils.GetPlayerById(imp)?.Notify(Translator.GetString("HaunterStopped"), 7f);
@@ -137,10 +149,18 @@ namespace EHR.AddOns.GhostRoles
 
         public static string GetSuffix(PlayerControl seer)
         {
-            foreach (var role in GhostRolesManager.AssignedGhostRoles.Values)
+            foreach ((CustomRoles Role, IGhostRole Instance) role in GhostRolesManager.AssignedGhostRoles.Values)
             {
-                if (role.Instance is not Haunter haunter) continue;
-                if (!haunter.WarnedImps.Contains(seer.PlayerId)) continue;
+                if (role.Instance is not Haunter haunter)
+                {
+                    continue;
+                }
+
+                if (!haunter.WarnedImps.Contains(seer.PlayerId))
+                {
+                    continue;
+                }
+
                 return TargetArrow.GetArrows(seer, haunter.HaunterId);
             }
 

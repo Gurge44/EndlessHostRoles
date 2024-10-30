@@ -35,8 +35,15 @@ namespace EHR.AddOns.Common
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
-        public static int RandomRedTime() => IRandom.Instance.Next(MinRedTime, MaxRedTime);
-        public static int RandomGreenTime() => IRandom.Instance.Next(MinGreenTime, MaxGreenTime);
+        public static int RandomRedTime()
+        {
+            return IRandom.Instance.Next(MinRedTime, MaxRedTime);
+        }
+
+        public static int RandomGreenTime()
+        {
+            return IRandom.Instance.Next(MinGreenTime, MaxGreenTime);
+        }
 
         public static void Init()
         {
@@ -54,9 +61,9 @@ namespace EHR.AddOns.Common
         {
             LateTask.New(() =>
             {
-                var r = IRandom.Instance;
-                var now = Utils.TimeStamp;
-                foreach (var pc in Main.AllAlivePlayerControls)
+                IRandom r = IRandom.Instance;
+                long now = Utils.TimeStamp;
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
                     if (pc.Is(CustomRoles.Asthmatic))
                     {
@@ -68,7 +75,7 @@ namespace EHR.AddOns.Common
 
         public static void OnFixedUpdate()
         {
-            foreach (var kvp in Timers.ToArray())
+            foreach (KeyValuePair<byte, Counter> kvp in Timers.ToArray())
             {
                 PlayerState state = Main.PlayerStates[kvp.Key];
                 if (state.IsDead || !state.SubRoles.Contains(CustomRoles.Asthmatic))
@@ -86,7 +93,10 @@ namespace EHR.AddOns.Common
 
         public static void OnCheckPlayerPosition(PlayerControl pc)
         {
-            if (!pc.Is(CustomRoles.Asthmatic) || ExileController.Instance || !RunChecks || !Timers.TryGetValue(pc.PlayerId, out Counter counter)) return;
+            if (!pc.Is(CustomRoles.Asthmatic) || ExileController.Instance || !RunChecks || !Timers.TryGetValue(pc.PlayerId, out Counter counter))
+            {
+                return;
+            }
 
             Vector2 currentPosition = pc.transform.position;
 
@@ -112,7 +122,7 @@ namespace EHR.AddOns.Common
             {
                 switch (counter.IsRed)
                 {
-                    case true when (distanceY > limit || distanceY < -limit || distanceX > limit || distanceX < -limit):
+                    case true when distanceY > limit || distanceY < -limit || distanceX > limit || distanceX < -limit:
                         pc.Suicide(PlayerState.DeathReason.Asthma);
                         Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Asthmatic);
                         Timers.Remove(pc.PlayerId);
@@ -127,7 +137,7 @@ namespace EHR.AddOns.Common
 
             string suffix = GetSuffixText(pc.PlayerId);
 
-            if (!pc.IsModClient() && (!LastSuffix.TryGetValue(pc.PlayerId, out var beforeSuffix) || beforeSuffix != suffix))
+            if (!pc.IsModClient() && (!LastSuffix.TryGetValue(pc.PlayerId, out string beforeSuffix) || beforeSuffix != suffix))
             {
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             }
@@ -135,6 +145,9 @@ namespace EHR.AddOns.Common
             LastSuffix[pc.PlayerId] = suffix;
         }
 
-        public static string GetSuffixText(byte id) => id.GetPlayer().IsAlive() && Timers.TryGetValue(id, out Counter counter) ? $"{counter.ColoredArrow} {counter.ColoredTimerString}" : string.Empty;
+        public static string GetSuffixText(byte id)
+        {
+            return id.GetPlayer().IsAlive() && Timers.TryGetValue(id, out Counter counter) ? $"{counter.ColoredArrow} {counter.ColoredTimerString}" : string.Empty;
+        }
     }
 }

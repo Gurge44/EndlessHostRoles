@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 using static EHR.Options;
 
 namespace EHR.Crewmate
@@ -36,16 +35,25 @@ namespace EHR.Crewmate
 
         public static bool OnAnyoneCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer.IsCrewmate()) return true;
+            if (killer.IsCrewmate())
+            {
+                return true;
+            }
 
             if (killer.PlayerId != target.PlayerId)
             {
-                foreach (var bodyguard in Instances)
+                foreach (Bodyguard bodyguard in Instances)
                 {
-                    if (bodyguard.BodyguardPC.PlayerId == target.PlayerId) continue;
+                    if (bodyguard.BodyguardPC.PlayerId == target.PlayerId)
+                    {
+                        continue;
+                    }
 
                     float dis = Vector2.Distance(bodyguard.BodyguardPC.Pos(), target.Pos());
-                    if (dis > BodyguardProtectRadius.GetFloat()) return true;
+                    if (dis > BodyguardProtectRadius.GetFloat())
+                    {
+                        return true;
+                    }
 
                     if (bodyguard.BodyguardPC.IsMadmate() && killer.Is(Team.Impostor))
                     {
@@ -53,8 +61,15 @@ namespace EHR.Crewmate
                         continue;
                     }
 
-                    if (BodyguardKillsKiller.GetBool() && bodyguard.BodyguardPC.RpcCheckAndMurder(killer, check: true)) bodyguard.BodyguardPC.Kill(killer);
-                    else killer.SetKillCooldown();
+                    if (BodyguardKillsKiller.GetBool() && bodyguard.BodyguardPC.RpcCheckAndMurder(killer, true))
+                    {
+                        bodyguard.BodyguardPC.Kill(killer);
+                    }
+                    else
+                    {
+                        killer.SetKillCooldown();
+                    }
+
                     bodyguard.BodyguardPC.Suicide(PlayerState.DeathReason.Sacrifice, killer);
                     Logger.Info($"{bodyguard.BodyguardPC.GetRealName()} stood up and died for {killer.GetRealName()}", "Bodyguard");
                     return false;

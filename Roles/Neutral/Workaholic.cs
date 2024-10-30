@@ -60,11 +60,11 @@ namespace EHR.Neutral
 
         public override void OnTaskComplete(PlayerControl player, int CompletedTasksCount, int AllTasksCount)
         {
-            if ((CompletedTasksCount + 1) >= AllTasksCount && (!WorkaholicCannotWinAtDeath.GetBool() || player.IsAlive()))
+            if (CompletedTasksCount + 1 >= AllTasksCount && (!WorkaholicCannotWinAtDeath.GetBool() || player.IsAlive()))
             {
                 Logger.Info("Workaholic Tasks Finished", "Workaholic");
                 RPC.PlaySoundRPC(player.PlayerId, Sounds.KillSound);
-                foreach (var pc in Main.AllAlivePlayerControls.Where(pc => pc.PlayerId != player.PlayerId).ToArray())
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls.Where(pc => pc.PlayerId != player.PlayerId).ToArray())
                 {
                     pc.Suicide(pc.PlayerId == player.PlayerId ? PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed, player);
                 }

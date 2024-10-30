@@ -11,9 +11,9 @@ namespace EHR.Crewmate
         public static OptionItem SpeedrunnerNotifyKillers;
         public static OptionItem SpeedrunnerNotifyAtXTasksLeft;
         public static OptionItem SpeedrunnerSpeed;
-        public override bool IsEnable => On;
 
         private static PlayerControl SpeedrunnerPC;
+        public override bool IsEnable => On;
 
         public override void Add(byte playerId)
         {
@@ -47,9 +47,12 @@ namespace EHR.Crewmate
 
         public override void OnTaskComplete(PlayerControl player, int CompletedTasksCount, int AllTasksCount)
         {
-            if (!player.IsAlive()) return;
+            if (!player.IsAlive())
+            {
+                return;
+            }
 
-            var completedTasks = CompletedTasksCount + 1;
+            int completedTasks = CompletedTasksCount + 1;
             if (completedTasks >= AllTasksCount)
             {
                 Logger.Info("Speedrunner finished tasks", "Speedrunner");
@@ -58,14 +61,17 @@ namespace EHR.Crewmate
                 Logger.Info($"TotalTaskCounts = {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}", "TaskState.Update");
                 LateTask.New(() =>
                 {
-                    if (!GameStates.IsEnded) CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Crewmate);
+                    if (!GameStates.IsEnded)
+                    {
+                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Crewmate);
+                    }
                 }, 1f, log: false);
             }
             else if (completedTasks >= SpeedrunnerNotifyAtXTasksLeft.GetInt() && SpeedrunnerNotifyKillers.GetBool())
             {
                 LateTask.New(() =>
                 {
-                    foreach (var pc in Main.AllAlivePlayerControls)
+                    foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                     {
                         if (!pc.Is(Team.Crewmate))
                         {
@@ -78,11 +84,17 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.Is(Team.Crewmate) || meeting || SpeedrunnerPC == null) return string.Empty;
-            
+            if (seer.PlayerId != target.PlayerId || seer.Is(Team.Crewmate) || meeting || SpeedrunnerPC == null)
+            {
+                return string.Empty;
+            }
+
             TaskState ts = SpeedrunnerPC.GetTaskState();
-            if (ts.CompletedTasksCount < SpeedrunnerNotifyAtXTasksLeft.GetInt() || !SpeedrunnerNotifyKillers.GetBool()) return string.Empty;
-            
+            if (ts.CompletedTasksCount < SpeedrunnerNotifyAtXTasksLeft.GetInt() || !SpeedrunnerNotifyKillers.GetBool())
+            {
+                return string.Empty;
+            }
+
             string speedrunnerName = SpeedrunnerPC.PlayerId.ColoredPlayerName();
             string notifyString = Translator.GetString("SpeedrunnerHasXTasksLeft");
             return string.Format(notifyString, speedrunnerName, ts.RemainingTasksCount);

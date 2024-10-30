@@ -3,71 +3,99 @@ using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
 
-namespace EHR;
-
-public class OptionBackupData
+namespace EHR
 {
-    public List<OptionBackupValue> AllValues;
-
-    public OptionBackupData(IGameOptions option)
+    public class OptionBackupData
     {
-        AllValues = new(32);
+        public List<OptionBackupValue> AllValues;
 
-        foreach (var name in Enum.GetValues<ByteOptionNames>())
+        public OptionBackupData(IGameOptions option)
         {
-            if (option.TryGetByte(name, out var value))
-                AllValues.Add(new ByteOptionBackupValue(name, value));
+            AllValues = new(32);
+
+            foreach (ByteOptionNames name in Enum.GetValues<ByteOptionNames>())
+            {
+                if (option.TryGetByte(name, out byte value))
+                {
+                    AllValues.Add(new ByteOptionBackupValue(name, value));
+                }
+            }
+
+            foreach (BoolOptionNames name in Enum.GetValues<BoolOptionNames>())
+            {
+                if (option.TryGetBool(name, out bool value) && name != BoolOptionNames.GhostsDoTasks)
+                {
+                    AllValues.Add(new BoolOptionBackupValue(name, value));
+                }
+            }
+
+            foreach (FloatOptionNames name in Enum.GetValues<FloatOptionNames>())
+            {
+                if (option.TryGetFloat(name, out float value))
+                {
+                    AllValues.Add(new FloatOptionBackupValue(name, value));
+                }
+            }
+
+            foreach (Int32OptionNames name in Enum.GetValues<Int32OptionNames>())
+            {
+                if (option.TryGetInt(name, out int value))
+                {
+                    AllValues.Add(new IntOptionBackupValue(name, value));
+                }
+            }
+
+            // [Vanilla bug] Get the number of people in the room separately, since GetInt cannot get the number of people in the room
+            AllValues.Add(new IntOptionBackupValue(Int32OptionNames.MaxPlayers, option.MaxPlayers));
+            // Since TryGetUInt is not implemented, get it separately
+            AllValues.Add(new UIntOptionBackupValue(UInt32OptionNames.Keywords, (uint)option.Keywords));
+
+            RoleTypes[] array = [RoleTypes.Scientist, RoleTypes.Engineer, RoleTypes.GuardianAngel, RoleTypes.Shapeshifter, RoleTypes.Noisemaker, RoleTypes.Phantom, RoleTypes.Tracker];
+            foreach (RoleTypes role in array)
+            {
+                AllValues.Add(new RoleRateBackupValue(role, option.RoleOptions.GetNumPerGame(role), option.RoleOptions.GetChancePerGame(role)));
+            }
         }
 
-        foreach (var name in Enum.GetValues<BoolOptionNames>())
+        public IGameOptions Restore(IGameOptions option)
         {
-            if (option.TryGetBool(name, out var value) && name != BoolOptionNames.GhostsDoTasks)
-                AllValues.Add(new BoolOptionBackupValue(name, value));
+            AllValues.ForEach(o => o.Restore(option));
+            return option;
         }
 
-        foreach (var name in Enum.GetValues<FloatOptionNames>())
+        public byte GetByte(ByteOptionNames name)
         {
-            if (option.TryGetFloat(name, out var value))
-                AllValues.Add(new FloatOptionBackupValue(name, value));
+            return Get<ByteOptionNames, byte>(name);
         }
 
-        foreach (var name in Enum.GetValues<Int32OptionNames>())
+        public bool GetBool(BoolOptionNames name)
         {
-            if (option.TryGetInt(name, out var value))
-                AllValues.Add(new IntOptionBackupValue(name, value));
+            return Get<BoolOptionNames, bool>(name);
         }
 
-        // [Vanilla bug] Get the number of people in the room separately, since GetInt cannot get the number of people in the room
-        AllValues.Add(new IntOptionBackupValue(Int32OptionNames.MaxPlayers, option.MaxPlayers));
-        // Since TryGetUInt is not implemented, get it separately
-        AllValues.Add(new UIntOptionBackupValue(UInt32OptionNames.Keywords, (uint)option.Keywords));
-
-        RoleTypes[] array = [RoleTypes.Scientist, RoleTypes.Engineer, RoleTypes.GuardianAngel, RoleTypes.Shapeshifter, RoleTypes.Noisemaker, RoleTypes.Phantom, RoleTypes.Tracker];
-        foreach (RoleTypes role in array)
+        public float GetFloat(FloatOptionNames name)
         {
-            AllValues.Add(new RoleRateBackupValue(role, option.RoleOptions.GetNumPerGame(role), option.RoleOptions.GetChancePerGame(role)));
+            return Get<FloatOptionNames, float>(name);
         }
-    }
 
-    public IGameOptions Restore(IGameOptions option)
-    {
-        AllValues.ForEach(o => o.Restore(option));
-        return option;
-    }
+        public int GetInt(Int32OptionNames name)
+        {
+            return Get<Int32OptionNames, int>(name);
+        }
 
-    public byte GetByte(ByteOptionNames name) => Get<ByteOptionNames, byte>(name);
-    public bool GetBool(BoolOptionNames name) => Get<BoolOptionNames, bool>(name);
-    public float GetFloat(FloatOptionNames name) => Get<FloatOptionNames, float>(name);
-    public int GetInt(Int32OptionNames name) => Get<Int32OptionNames, int>(name);
-    public uint GetUInt(UInt32OptionNames name) => Get<UInt32OptionNames, uint>(name);
+        public uint GetUInt(UInt32OptionNames name)
+        {
+            return Get<UInt32OptionNames, uint>(name);
+        }
 
-    public TValue Get<TKey, TValue>(TKey name)
-        where TKey : Enum
-    {
-        var value = AllValues
-            .OfType<OptionBackupValueBase<TKey, TValue>>()
-            .FirstOrDefault(val => val.OptionName.Equals(name));
+        public TValue Get<TKey, TValue>(TKey name)
+            where TKey : Enum
+        {
+            OptionBackupValueBase<TKey, TValue> value = AllValues
+                .OfType<OptionBackupValueBase<TKey, TValue>>()
+                .FirstOrDefault(val => val.OptionName.Equals(name));
 
-        return value == null ? default : value.Value;
+            return value == null ? default : value.Value;
+        }
     }
 }

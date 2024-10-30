@@ -31,7 +31,7 @@ namespace EHR.Crewmate
             killer.KillFlash();
             LateTask.New(() =>
             {
-                if (!killer.inVent && (killer.PlayerId != target.PlayerId))
+                if (!killer.inVent && killer.PlayerId != target.PlayerId)
                 {
                     if ((DemolitionistKillerDiesOnMeetingCall.GetBool() || GameStates.IsInTask) && killer.IsAlive())
                     {
@@ -41,8 +41,15 @@ namespace EHR.Crewmate
                 }
                 else
                 {
-                    if (killer.IsModClient()) RPC.PlaySoundRPC(killer.PlayerId, Sounds.TaskComplete);
-                    else killer.RpcGuardAndKill(killer);
+                    if (killer.IsModClient())
+                    {
+                        RPC.PlaySoundRPC(killer.PlayerId, Sounds.TaskComplete);
+                    }
+                    else
+                    {
+                        killer.RpcGuardAndKill(killer);
+                    }
+
                     killer.SetKillCooldown(Main.AllPlayerKillCooldown[killer.PlayerId] - (DemolitionistVentTime.GetFloat() + 0.5f));
                 }
             }, DemolitionistVentTime.GetFloat() + 0.5f, "DemolitionistCheck");

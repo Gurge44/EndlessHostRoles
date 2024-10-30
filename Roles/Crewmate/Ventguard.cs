@@ -64,7 +64,11 @@ namespace EHR.Crewmate
             if (pc.GetAbilityUseLimit() >= 1)
             {
                 pc.RpcRemoveAbilityUse();
-                if (!BlockedVents.Contains(vent.Id)) BlockedVents.Add(vent.Id);
+                if (!BlockedVents.Contains(vent.Id))
+                {
+                    BlockedVents.Add(vent.Id);
+                }
+
                 pc.Notify(Translator.GetString("VentBlockSuccess"));
             }
             else
@@ -76,7 +80,9 @@ namespace EHR.Crewmate
         public override void AfterMeetingTasks()
         {
             if (VentguardBlocksResetOnMeeting.GetBool())
+            {
                 BlockedVents.Clear();
+            }
         }
 
         public override bool CanUseVent(PlayerControl pc, int ventId)

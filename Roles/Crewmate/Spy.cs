@@ -18,6 +18,8 @@ namespace EHR.Crewmate
         public static OptionItem SpyAbilityUseGainWithEachTaskCompleted;
         public static OptionItem AbilityChargesWhenFinishedTasks;
 
+        private long LastUpdate;
+
         public override bool IsEnable => PlayerIdList.Count > 0;
 
         public override void SetupCustomOption()
@@ -52,7 +54,11 @@ namespace EHR.Crewmate
 
         private static void SendRPC(int operate, byte id = byte.MaxValue, bool changeColor = false)
         {
-            if (!DoRPC) return;
+            if (!DoRPC)
+            {
+                return;
+            }
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncSpy, SendOption.Reliable);
             writer.Write(operate);
             switch (operate)
@@ -78,7 +84,11 @@ namespace EHR.Crewmate
                 case 1:
                     byte susId = reader.ReadByte();
                     string stimeStamp = reader.ReadString();
-                    if (long.TryParse(stimeStamp, out long timeStamp)) SpyRedNameList[susId] = timeStamp;
+                    if (long.TryParse(stimeStamp, out long timeStamp))
+                    {
+                        SpyRedNameList[susId] = timeStamp;
+                    }
+
                     return;
                 case 3:
                     SpyRedNameList.Remove(reader.ReadByte());
@@ -89,32 +99,40 @@ namespace EHR.Crewmate
 
         public static bool OnKillAttempt(PlayerControl killer, PlayerControl target) // Special handling for Spy ---- remains as a static method
         {
-            if (killer == null || target == null || !target.Is(CustomRoles.Spy) || killer.PlayerId == target.PlayerId || target.GetAbilityUseLimit() < 1) return true;
+            if (killer == null || target == null || !target.Is(CustomRoles.Spy) || killer.PlayerId == target.PlayerId || target.GetAbilityUseLimit() < 1)
+            {
+                return true;
+            }
 
             target.RpcRemoveAbilityUse();
             SpyRedNameList.TryAdd(killer.PlayerId, TimeStamp);
-            SendRPC(1, id: killer.PlayerId);
+            SendRPC(1, killer.PlayerId);
             NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
 
             return false;
         }
 
-        private long LastUpdate;
-
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (pc == null || !pc.Is(CustomRoles.Spy) || SpyRedNameList.Count == 0) return;
+            if (pc == null || !pc.Is(CustomRoles.Spy) || SpyRedNameList.Count == 0)
+            {
+                return;
+            }
 
             long now = TimeStamp;
-            if (now == LastUpdate) return;
+            if (now == LastUpdate)
+            {
+                return;
+            }
+
             LastUpdate = now;
-            
-            foreach (var x in SpyRedNameList)
+
+            foreach (KeyValuePair<byte, long> x in SpyRedNameList)
             {
                 if (x.Value + SpyRedNameDur.GetInt() < now || !GameStates.IsInTask)
                 {
                     SpyRedNameList.Remove(x.Key);
-                    SendRPC(3, id: x.Key, changeColor: true);
+                    SendRPC(3, x.Key, true);
                     NotifyRoles(SpecifySeer: pc, SpecifyTarget: x.Key.GetPlayer());
                 }
             }

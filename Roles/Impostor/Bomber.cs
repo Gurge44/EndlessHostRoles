@@ -2,7 +2,6 @@
 using EHR.Crewmate;
 using EHR.Modules;
 using EHR.Neutral;
-using UnityEngine;
 using static EHR.Options;
 
 namespace EHR.Impostor
@@ -81,10 +80,17 @@ namespace EHR.Impostor
         {
             try
             {
-                if (UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = IsNuker ? NukeCooldown.GetFloat() : BombCooldown.GetFloat();
+                if (UsePhantomBasis.GetBool())
+                {
+                    AURoleOptions.PhantomCooldown = IsNuker ? NukeCooldown.GetFloat() : BombCooldown.GetFloat();
+                }
                 else
                 {
-                    if (UsePets.GetBool()) return;
+                    if (UsePets.GetBool())
+                    {
+                        return;
+                    }
+
                     AURoleOptions.ShapeshifterCooldown = IsNuker ? NukeCooldown.GetFloat() : BombCooldown.GetFloat();
                     AURoleOptions.ShapeshifterDuration = 2f;
                 }
@@ -96,14 +102,22 @@ namespace EHR.Impostor
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            if (UsePets.GetBool()) hud.PetButton?.OverrideText(Translator.GetString("BomberShapeshiftText"));
-            else hud.AbilityButton?.OverrideText(Translator.GetString("BomberShapeshiftText"));
+            if (UsePets.GetBool())
+            {
+                hud.PetButton?.OverrideText(Translator.GetString("BomberShapeshiftText"));
+            }
+            else
+            {
+                hud.AbilityButton?.OverrideText(Translator.GetString("BomberShapeshiftText"));
+            }
         }
 
         public override void OnMurder(PlayerControl killer, PlayerControl target)
         {
             if (CooldownsResetEachOther.GetBool())
+            {
                 killer.RpcResetAbilityCooldown();
+            }
         }
 
         public override void OnPet(PlayerControl pc)
@@ -113,7 +127,11 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool())
+            {
+                return true;
+            }
+
             Bomb(shapeshifter);
 
             return false;
@@ -125,7 +143,7 @@ namespace EHR.Impostor
             return false;
         }
 
-        void Bomb(PlayerControl pc)
+        private void Bomb(PlayerControl pc)
         {
             Logger.Info("Bomber explosion", "Boom");
             CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
@@ -133,20 +151,35 @@ namespace EHR.Impostor
             float radius = IsNuker ? NukeRadius.GetFloat() : BomberRadius.GetFloat();
             foreach (PlayerControl tg in Main.AllPlayerControls)
             {
-                if (!tg.IsModClient()) tg.KillFlash();
-                var pos = pc.Pos();
-                var dis = Vector2.Distance(pos, tg.Pos());
+                if (!tg.IsModClient())
+                {
+                    tg.KillFlash();
+                }
 
-                if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
-                if (dis > radius) continue;
-                if (tg.PlayerId == pc.PlayerId) continue;
+                Vector2 pos = pc.Pos();
+                float dis = Vector2.Distance(pos, tg.Pos());
+
+                if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence))
+                {
+                    continue;
+                }
+
+                if (dis > radius)
+                {
+                    continue;
+                }
+
+                if (tg.PlayerId == pc.PlayerId)
+                {
+                    continue;
+                }
 
                 tg.Suicide(PlayerState.DeathReason.Bombed, pc);
             }
 
             LateTask.New(() =>
             {
-                var totalAlive = Main.AllAlivePlayerControls.Length;
+                int totalAlive = Main.AllAlivePlayerControls.Length;
                 if (BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded)
                 {
                     pc.Suicide(PlayerState.DeathReason.Bombed);
@@ -156,7 +189,9 @@ namespace EHR.Impostor
             }, 1.5f, "Bomber Suiscide");
 
             if (CooldownsResetEachOther.GetBool() && BomberCanKill.GetBool())
+            {
                 pc.SetKillCooldown();
+            }
         }
     }
 }

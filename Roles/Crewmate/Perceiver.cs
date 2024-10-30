@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using AmongUs.GameOptions;
-using UnityEngine;
 
 namespace EHR.Crewmate
 {
@@ -48,7 +47,11 @@ namespace EHR.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (Options.UsePets.GetBool()) return;
+            if (Options.UsePets.GetBool())
+            {
+                return;
+            }
+
             AURoleOptions.EngineerCooldown = CD.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1f;
         }
@@ -65,9 +68,12 @@ namespace EHR.Crewmate
 
         public static void UseAbility(PlayerControl pc)
         {
-            if (pc == null || pc.GetAbilityUseLimit() < 1f) return;
+            if (pc == null || pc.GetAbilityUseLimit() < 1f)
+            {
+                return;
+            }
 
-            var killers = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate) && x.HasKillButton() && Vector2.Distance(x.Pos(), pc.Pos()) <= Radius.GetFloat()).ToArray();
+            PlayerControl[] killers = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate) && x.HasKillButton() && Vector2.Distance(x.Pos(), pc.Pos()) <= Radius.GetFloat()).ToArray();
             pc.Notify(string.Format(Translator.GetString("PerceiverNotify"), killers.Length), 7f);
 
             pc.RpcRemoveAbilityUse();

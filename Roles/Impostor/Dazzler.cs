@@ -63,11 +63,17 @@ namespace EHR.Impostor
             AURoleOptions.ShapeshifterDuration = 1f;
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
 
         public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
         {
-            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId) || !shapeshifting) return false;
+            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId) || !shapeshifting)
+            {
+                return false;
+            }
 
             if (!PlayersDazzled.Contains(target.PlayerId) && PlayersDazzled.Count < pc.GetAbilityUseLimit())
             {
@@ -81,7 +87,7 @@ namespace EHR.Impostor
 
         public static void SetDazzled(PlayerControl player, IGameOptions opt)
         {
-            foreach (var state in Main.PlayerStates)
+            foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
             {
                 if (state.Value.Role is Dazzler { IsEnable: true } dz)
                 {

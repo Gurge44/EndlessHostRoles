@@ -5,14 +5,14 @@ using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
 
-namespace EHR;
-
-public static class AntiBlackout
+namespace EHR
 {
-    public static int ExilePlayerId = -1;
-    public static bool SkipTasks;
-    private static Dictionary<byte, (bool IsDead, bool Disconnected)> IsDeadCache = [];
-    private static readonly LogHandler Logger = EHR.Logger.Handler("AntiBlackout");
+    public static class AntiBlackout
+    {
+        public static int ExilePlayerId = -1;
+        public static bool SkipTasks;
+        private static Dictionary<byte, (bool IsDead, bool Disconnected)> IsDeadCache = [];
+        private static readonly LogHandler Logger = EHR.Logger.Handler("AntiBlackout");
 
 /*
     public static bool CheckBlackOut()
@@ -48,166 +48,226 @@ public static class AntiBlackout
     }
 */
 
-    private static bool IsCached { get; set; }
+        private static bool IsCached { get; set; }
 
-    public static void SetIsDead(bool doSend = true, [CallerMemberName] string callerMethodName = "")
-    {
-        SkipTasks = true;
-        RevivePlayersAndSetDummyImp();
-        Logger.Info($"SetIsDead is called from {callerMethodName}");
-        if (IsCached) return;
-        IsDeadCache.Clear();
-        foreach (var info in GameData.Instance.AllPlayers)
+        public static void SetIsDead(bool doSend = true, [CallerMemberName] string callerMethodName = "")
         {
-            if (info == null) continue;
-            IsDeadCache[info.PlayerId] = (info.IsDead, info.Disconnected);
-            info.IsDead = false;
-            info.Disconnected = false;
-        }
-
-        IsCached = true;
-        if (doSend) SendGameData();
-    }
-
-    private static void RevivePlayersAndSetDummyImp()
-    {
-        if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return;
-
-        PlayerControl dummyImp = Main.AllAlivePlayerControls.First(x => x.PlayerId != ExilePlayerId);
-
-        foreach (var seer in Main.AllPlayerControls)
-        {
-            if (seer.IsHost() || seer.IsModClient()) continue;
-            foreach (var target in Main.AllPlayerControls)
+            SkipTasks = true;
+            RevivePlayersAndSetDummyImp();
+            Logger.Info($"SetIsDead is called from {callerMethodName}");
+            if (IsCached)
             {
-                RoleTypes targetRoleType = target.PlayerId == dummyImp.PlayerId ? RoleTypes.Impostor : RoleTypes.Crewmate;
-                target.RpcSetRoleDesync(targetRoleType, seer.GetClientId());
+                return;
             }
-        }
-    }
 
-    public static void RestoreIsDead(bool doSend = true, [CallerMemberName] string callerMethodName = "")
-    {
-        Logger.Info($"RestoreIsDead is called from {callerMethodName}");
-        foreach (var info in GameData.Instance.AllPlayers)
-        {
-            if (info == null) continue;
-            if (IsDeadCache.TryGetValue(info.PlayerId, out var val))
+            IsDeadCache.Clear();
+            foreach (NetworkedPlayerInfo info in GameData.Instance.AllPlayers)
             {
-                info.IsDead = val.IsDead;
-                info.Disconnected = val.Disconnected;
-            }
-        }
-
-        IsDeadCache.Clear();
-        IsCached = false;
-        if (doSend) SendGameData();
-    }
-
-    public static void SendGameData([CallerMemberName] string callerMethodName = "")
-    {
-        Logger.Info($"SendGameData is called from {callerMethodName}");
-        foreach (var playerinfo in GameData.Instance.AllPlayers)
-        {
-            MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
-            writer.StartMessage(5); //0x05 GameData
-            {
-                writer.Write(AmongUsClient.Instance.GameId);
-                writer.StartMessage(1); //0x01 Data
+                if (info == null)
                 {
-                    writer.WritePacked(playerinfo.NetId);
-                    playerinfo.Serialize(writer, true);
+                    continue;
+                }
+
+                IsDeadCache[info.PlayerId] = (info.IsDead, info.Disconnected);
+                info.IsDead = false;
+                info.Disconnected = false;
+            }
+
+            IsCached = true;
+            if (doSend)
+            {
+                SendGameData();
+            }
+        }
+
+        private static void RevivePlayersAndSetDummyImp()
+        {
+            if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default)
+            {
+                return;
+            }
+
+            PlayerControl dummyImp = Main.AllAlivePlayerControls.First(x => x.PlayerId != ExilePlayerId);
+
+            foreach (PlayerControl seer in Main.AllPlayerControls)
+            {
+                if (seer.IsHost() || seer.IsModClient())
+                {
+                    continue;
+                }
+
+                foreach (PlayerControl target in Main.AllPlayerControls)
+                {
+                    RoleTypes targetRoleType = target.PlayerId == dummyImp.PlayerId ? RoleTypes.Impostor : RoleTypes.Crewmate;
+                    target.RpcSetRoleDesync(targetRoleType, seer.GetClientId());
+                }
+            }
+        }
+
+        public static void RestoreIsDead(bool doSend = true, [CallerMemberName] string callerMethodName = "")
+        {
+            Logger.Info($"RestoreIsDead is called from {callerMethodName}");
+            foreach (NetworkedPlayerInfo info in GameData.Instance.AllPlayers)
+            {
+                if (info == null)
+                {
+                    continue;
+                }
+
+                if (IsDeadCache.TryGetValue(info.PlayerId, out (bool IsDead, bool Disconnected) val))
+                {
+                    info.IsDead = val.IsDead;
+                    info.Disconnected = val.Disconnected;
+                }
+            }
+
+            IsDeadCache.Clear();
+            IsCached = false;
+            if (doSend)
+            {
+                SendGameData();
+            }
+        }
+
+        public static void SendGameData([CallerMemberName] string callerMethodName = "")
+        {
+            Logger.Info($"SendGameData is called from {callerMethodName}");
+            foreach (NetworkedPlayerInfo playerinfo in GameData.Instance.AllPlayers)
+            {
+                MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
+                writer.StartMessage(5); //0x05 GameData
+                {
+                    writer.Write(AmongUsClient.Instance.GameId);
+                    writer.StartMessage(1); //0x01 Data
+                    {
+                        writer.WritePacked(playerinfo.NetId);
+                        playerinfo.Serialize(writer, true);
+                    }
+                    writer.EndMessage();
                 }
                 writer.EndMessage();
+
+                AmongUsClient.Instance.SendOrDisconnect(writer);
+                writer.Recycle();
             }
-            writer.EndMessage();
-
-            AmongUsClient.Instance.SendOrDisconnect(writer);
-            writer.Recycle();
         }
-    }
 
-    public static void OnDisconnect(NetworkedPlayerInfo player)
-    {
-        // Execution conditions: Client is the host, IsDead is overridden, player is already disconnected
-        if (!AmongUsClient.Instance.AmHost || !IsCached || !player.Disconnected) return;
-        IsDeadCache[player.PlayerId] = (true, true);
-        RevivePlayersAndSetDummyImp();
-        player.IsDead = player.Disconnected = false;
-        SendGameData();
-    }
-
-    public static void SetRealPlayerRoles()
-    {
-        if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default) return;
-
-        foreach (((byte seerId, byte targetId), (RoleTypes roletype, _)) in StartGameHostPatch.RpcSetRoleReplacer.RoleMap)
+        public static void OnDisconnect(NetworkedPlayerInfo player)
         {
-            if (seerId == 0) continue; // Skip the host
-
-            var seer = Utils.GetPlayerById(seerId);
-            var target = Utils.GetPlayerById(targetId);
-
-            if (seer == null || target == null) continue;
-            if (seer.IsModClient()) continue;
-
-            var self = seerId == targetId;
-            var changedRoleType = roletype;
-            if (target.Data.IsDead)
+            // Execution conditions: Client is the host, IsDead is overridden, player is already disconnected
+            if (!AmongUsClient.Instance.AmHost || !IsCached || !player.Disconnected)
             {
-                if (self)
-                {
-                    target.RpcExile();
-
-                    if (target.GetCustomRole().IsGhostRole() || target.HasGhostRole()) changedRoleType = RoleTypes.GuardianAngel;
-                    else if (target.Is(Team.Impostor) || target.HasDesyncRole()) changedRoleType = RoleTypes.ImpostorGhost;
-                    else changedRoleType = RoleTypes.CrewmateGhost;
-                }
-                else
-                {
-                    var seerIsKiller = seer.Is(Team.Impostor) || seer.HasDesyncRole();
-                    if (!seerIsKiller && target.Is(Team.Impostor)) changedRoleType = RoleTypes.ImpostorGhost;
-                    else changedRoleType = RoleTypes.CrewmateGhost;
-                }
+                return;
             }
 
-            target.RpcSetRoleDesync(changedRoleType, seer.GetClientId());
+            IsDeadCache[player.PlayerId] = (true, true);
+            RevivePlayersAndSetDummyImp();
+            player.IsDead = player.Disconnected = false;
+            SendGameData();
         }
-    }
 
-    private static void ResetAllCooldowns()
-    {
-        foreach (var seer in Main.AllPlayerControls)
+        public static void SetRealPlayerRoles()
         {
-            if (seer.IsAlive())
+            if (CustomWinnerHolder.WinnerTeam != CustomWinner.Default)
             {
-                seer.RpcResetAbilityCooldown();
-                seer.ResetKillCooldown();
-
-                if (Main.AllPlayerKillCooldown.TryGetValue(seer.PlayerId, out var kcd) && kcd >= 2f)
-                    seer.SetKillCooldown(kcd - 2f);
+                return;
             }
-            else if (seer.HasGhostRole())
+
+            foreach (((byte seerId, byte targetId), (RoleTypes roletype, _)) in StartGameHostPatch.RpcSetRoleReplacer.RoleMap)
             {
-                seer.RpcResetAbilityCooldown();
+                if (seerId == 0)
+                {
+                    continue; // Skip the host
+                }
+
+                PlayerControl seer = Utils.GetPlayerById(seerId);
+                PlayerControl target = Utils.GetPlayerById(targetId);
+
+                if (seer == null || target == null)
+                {
+                    continue;
+                }
+
+                if (seer.IsModClient())
+                {
+                    continue;
+                }
+
+                bool self = seerId == targetId;
+                RoleTypes changedRoleType = roletype;
+                if (target.Data.IsDead)
+                {
+                    if (self)
+                    {
+                        target.RpcExile();
+
+                        if (target.GetCustomRole().IsGhostRole() || target.HasGhostRole())
+                        {
+                            changedRoleType = RoleTypes.GuardianAngel;
+                        }
+                        else if (target.Is(Team.Impostor) || target.HasDesyncRole())
+                        {
+                            changedRoleType = RoleTypes.ImpostorGhost;
+                        }
+                        else
+                        {
+                            changedRoleType = RoleTypes.CrewmateGhost;
+                        }
+                    }
+                    else
+                    {
+                        bool seerIsKiller = seer.Is(Team.Impostor) || seer.HasDesyncRole();
+                        if (!seerIsKiller && target.Is(Team.Impostor))
+                        {
+                            changedRoleType = RoleTypes.ImpostorGhost;
+                        }
+                        else
+                        {
+                            changedRoleType = RoleTypes.CrewmateGhost;
+                        }
+                    }
+                }
+
+                target.RpcSetRoleDesync(changedRoleType, seer.GetClientId());
             }
         }
-    }
 
-    public static void ResetAfterMeeting()
-    {
-        SkipTasks = false;
-        ExilePlayerId = -1;
-        ResetAllCooldowns();
-    }
+        private static void ResetAllCooldowns()
+        {
+            foreach (PlayerControl seer in Main.AllPlayerControls)
+            {
+                if (seer.IsAlive())
+                {
+                    seer.RpcResetAbilityCooldown();
+                    seer.ResetKillCooldown();
 
-    public static void Reset()
-    {
-        Logger.Info("==Reset==");
-        IsDeadCache ??= [];
-        IsDeadCache.Clear();
-        IsCached = false;
-        ExilePlayerId = -1;
-        SkipTasks = false;
+                    if (Main.AllPlayerKillCooldown.TryGetValue(seer.PlayerId, out float kcd) && kcd >= 2f)
+                    {
+                        seer.SetKillCooldown(kcd - 2f);
+                    }
+                }
+                else if (seer.HasGhostRole())
+                {
+                    seer.RpcResetAbilityCooldown();
+                }
+            }
+        }
+
+        public static void ResetAfterMeeting()
+        {
+            SkipTasks = false;
+            ExilePlayerId = -1;
+            ResetAllCooldowns();
+        }
+
+        public static void Reset()
+        {
+            Logger.Info("==Reset==");
+            IsDeadCache ??= [];
+            IsDeadCache.Clear();
+            IsCached = false;
+            ExilePlayerId = -1;
+            SkipTasks = false;
+        }
     }
 }

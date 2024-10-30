@@ -42,7 +42,7 @@ namespace EHR.Impostor
         {
             if (shapeshifting)
             {
-                var beforeSpeed = Main.AllPlayerSpeed[target.PlayerId];
+                float beforeSpeed = Main.AllPlayerSpeed[target.PlayerId];
                 Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
                 target.MarkDirtySettings();
                 LateTask.New(() =>

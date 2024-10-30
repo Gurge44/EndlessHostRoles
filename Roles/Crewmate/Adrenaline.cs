@@ -55,7 +55,10 @@ namespace EHR.Crewmate
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
-            if (!base.OnCheckMurderAsTarget(killer, target) || target.GetAbilityUseLimit() < 1 || target.GetTaskState().CompletedTasksCount < MinTasksRequired.GetInt()) return true;
+            if (!base.OnCheckMurderAsTarget(killer, target) || target.GetAbilityUseLimit() < 1 || target.GetTaskState().CompletedTasksCount < MinTasksRequired.GetInt())
+            {
+                return true;
+            }
 
             target.RpcRemoveAbilityUse();
             Timer = Time.GetInt();
@@ -67,7 +70,10 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (Timer == 0 || !pc.IsAlive()) return;
+            if (Timer == 0 || !pc.IsAlive())
+            {
+                return;
+            }
 
             if (GameStates.IsMeeting)
             {
@@ -78,7 +84,11 @@ namespace EHR.Crewmate
             }
 
             long now = Utils.TimeStamp;
-            if (now == LastUpdate) return;
+            if (now == LastUpdate)
+            {
+                return;
+            }
+
             LastUpdate = now;
 
             Timer--;
@@ -93,7 +103,10 @@ namespace EHR.Crewmate
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
-        public static bool CanCallMeeting(PlayerControl pc) => Main.PlayerStates[pc.PlayerId].Role is Adrenaline an && (an.Timer == 0 || CanCallMeetingDuringTimer.GetBool());
+        public static bool CanCallMeeting(PlayerControl pc)
+        {
+            return Main.PlayerStates[pc.PlayerId].Role is Adrenaline an && (an.Timer == 0 || CanCallMeetingDuringTimer.GetBool());
+        }
 
         public void ReceiveRPC(MessageReader reader)
         {
@@ -102,7 +115,11 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != AdrenalineId || meeting || (seer.IsModClient() && !hud) || Timer == 0) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != AdrenalineId || meeting || (seer.IsModClient() && !hud) || Timer == 0)
+            {
+                return string.Empty;
+            }
+
             return string.Format(Translator.GetString("Adrenaline.Suffix"), Timer);
         }
     }

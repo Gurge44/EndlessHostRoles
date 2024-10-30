@@ -55,9 +55,13 @@ namespace EHR.Crewmate
             TetherId = playerId;
         }
 
-        void SendRPCSyncTarget()
+        private void SendRPCSyncTarget()
         {
-            if (!IsEnable || !Utils.DoRPC) return;
+            if (!IsEnable || !Utils.DoRPC)
+            {
+                return;
+            }
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTetherTarget, SendOption.Reliable);
             writer.Write(TetherId);
             writer.Write(Target);
@@ -67,7 +71,10 @@ namespace EHR.Crewmate
         public static void ReceiveRPCSyncTarget(MessageReader reader)
         {
             byte id = reader.ReadByte();
-            if (Main.PlayerStates[id].Role is not Tether th) return;
+            if (Main.PlayerStates[id].Role is not Tether th)
+            {
+                return;
+            }
 
             th.Target = reader.ReadByte();
         }
@@ -82,9 +89,12 @@ namespace EHR.Crewmate
             Teleport(pc, vent.Id);
         }
 
-        void Teleport(PlayerControl pc, int ventId, bool isPet = false)
+        private void Teleport(PlayerControl pc, int ventId, bool isPet = false)
         {
-            if (pc == null) return;
+            if (pc == null)
+            {
+                return;
+            }
 
             if (Target != byte.MaxValue)
             {
@@ -104,14 +114,21 @@ namespace EHR.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool()) return;
+            if (UsePets.GetBool())
+            {
+                return;
+            }
+
             AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1f;
         }
 
         public override bool OnVote(PlayerControl pc, PlayerControl target)
         {
-            if (pc == null || target == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
+            if (pc == null || target == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId))
+            {
+                return false;
+            }
 
             if (pc.GetAbilityUseLimit() >= 1)
             {
@@ -133,7 +150,7 @@ namespace EHR.Crewmate
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
 
             sb.Append(Utils.GetAbilityUseLimitDisplay(playerId, Target != byte.MaxValue));
             sb.Append(Utils.GetTaskCount(playerId, comms));
@@ -141,6 +158,9 @@ namespace EHR.Crewmate
             return sb.ToString();
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false) => Target != byte.MaxValue && seer.PlayerId == target.PlayerId && seer.PlayerId == TetherId ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(Target).GetRealName()}</color>" : string.Empty;
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
+        {
+            return Target != byte.MaxValue && seer.PlayerId == target.PlayerId && seer.PlayerId == TetherId ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(Target).GetRealName()}</color>" : string.Empty;
+        }
     }
 }

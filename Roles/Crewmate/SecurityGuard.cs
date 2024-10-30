@@ -45,14 +45,18 @@ namespace EHR.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool()) return;
+            if (UsePets.GetBool())
+            {
+                return;
+            }
+
             AURoleOptions.EngineerInVentMaxTime = 1;
             AURoleOptions.EngineerCooldown = SecurityGuardSkillCooldown.GetFloat();
         }
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            var ProgressText = new StringBuilder();
+            StringBuilder ProgressText = new StringBuilder();
 
             ProgressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, BlockSabo.ContainsKey(playerId)));
             ProgressText.Append(Utils.GetTaskCount(playerId, comms));
@@ -63,9 +67,13 @@ namespace EHR.Crewmate
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             if (UsePets.GetBool())
+            {
                 hud.PetButton.buttonLabelText.text = Translator.GetString("SecurityGuardVentButtonText");
+            }
             else
+            {
                 hud.AbilityButton.buttonLabelText.text = Translator.GetString("SecurityGuardVentButtonText");
+            }
         }
 
         public override void OnPet(PlayerControl pc)
@@ -78,9 +86,13 @@ namespace EHR.Crewmate
             Guard(pc);
         }
 
-        static void Guard(PlayerControl pc)
+        private static void Guard(PlayerControl pc)
         {
-            if (BlockSabo.ContainsKey(pc.PlayerId)) return;
+            if (BlockSabo.ContainsKey(pc.PlayerId))
+            {
+                return;
+            }
+
             if (pc.GetAbilityUseLimit() >= 1)
             {
                 BlockSabo.Remove(pc.PlayerId);
@@ -96,8 +108,8 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            var playerId = player.PlayerId;
-            if (BlockSabo.TryGetValue(playerId, out var stime) && stime + SecurityGuardSkillDuration.GetInt() < Utils.TimeStamp)
+            byte playerId = player.PlayerId;
+            if (BlockSabo.TryGetValue(playerId, out long stime) && stime + SecurityGuardSkillDuration.GetInt() < Utils.TimeStamp)
             {
                 BlockSabo.Remove(playerId);
                 player.RpcResetAbilityCooldown();

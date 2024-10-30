@@ -42,15 +42,18 @@ namespace EHR.Impostor
                 .SetValueFormat(OptionFormat.Seconds);
         }
 
-        static Color GetTemperatureColor(int temperature) => temperature switch
+        private static Color GetTemperatureColor(int temperature)
         {
-            <= 35 => Color.blue,
-            36 => Color.cyan,
-            37 => Color.green,
-            38 => Color.yellow,
-            39 => Palette.Orange,
-            >= 40 => Color.red
-        };
+            return temperature switch
+            {
+                <= 35 => Color.blue,
+                36 => Color.cyan,
+                37 => Color.green,
+                38 => Color.yellow,
+                39 => Palette.Orange,
+                >= 40 => Color.red
+            };
+        }
 
         public override void Add(byte playerId)
         {
@@ -68,24 +71,33 @@ namespace EHR.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (Options.UsePets.GetBool()) return;
+            if (Options.UsePets.GetBool())
+            {
+                return;
+            }
 
             AURoleOptions.ShapeshifterCooldown = 1f;
             AURoleOptions.ShapeshifterDuration = 1f;
         }
 
-        void SendRPC(byte id) => Utils.SendRPC(CustomRPC.SyncOverheat, id, Temperature);
+        private void SendRPC(byte id)
+        {
+            Utils.SendRPC(CustomRPC.SyncOverheat, id, Temperature);
+        }
 
         public override void SetKillCooldown(byte id)
         {
-            var kcd = Options.DefaultKillCooldown;
+            float kcd = Options.DefaultKillCooldown;
             kcd -= KCDDecreasePerIncreasedTemperature.GetFloat() * (Temperature - StartingTemperature);
             Main.AllPlayerKillCooldown[id] = kcd;
         }
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || !pc.IsAlive() || ExileController.Instance != null) return;
+            if (!GameStates.IsInTask || !pc.IsAlive() || ExileController.Instance != null)
+            {
+                return;
+            }
 
             ChanceIncreaseTimer += Time.fixedDeltaTime;
             RollChanceTimer += Time.fixedDeltaTime;
@@ -103,14 +115,14 @@ namespace EHR.Impostor
             if (RollChanceTimer >= OverheatRollChanceFrequency.GetFloat())
             {
                 RollChanceTimer = 0f;
-                if (IRandom.Instance.Next(100) < (Temperature - StartingTemperature))
+                if (IRandom.Instance.Next(100) < Temperature - StartingTemperature)
                 {
                     pc.Suicide();
                 }
             }
         }
 
-        void CoolDown(PlayerControl pc)
+        private void CoolDown(PlayerControl pc)
         {
             Temperature = StartingTemperature;
             SendRPC(pc.PlayerId);
@@ -140,11 +152,18 @@ namespace EHR.Impostor
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (Main.PlayerStates[seer.PlayerId].Role is not Overheat oh) return string.Empty;
-            if (seer.PlayerId != target.PlayerId) return string.Empty;
+            if (Main.PlayerStates[seer.PlayerId].Role is not Overheat oh)
+            {
+                return string.Empty;
+            }
 
-            var color = GetTemperatureColor(oh.Temperature);
-            var str = Translator.GetString("Overheat.Suffix");
+            if (seer.PlayerId != target.PlayerId)
+            {
+                return string.Empty;
+            }
+
+            Color color = GetTemperatureColor(oh.Temperature);
+            string str = Translator.GetString("Overheat.Suffix");
             return string.Format(str, Utils.ColorString(color, $"{oh.Temperature}°C"));
         }
     }

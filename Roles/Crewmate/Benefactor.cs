@@ -51,7 +51,11 @@ namespace EHR.Crewmate
 
         private static void SendRPC(byte benefactorId, int taskIndex = -1, bool isShield = false, bool clearAll = false, bool shieldExpire = false, byte shieldedId = byte.MaxValue)
         {
-            if (!Utils.DoRPC) return;
+            if (!Utils.DoRPC)
+            {
+                return;
+            }
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncBenefactorMarkedTask, SendOption.Reliable);
             writer.Write(benefactorId);
             writer.Write(taskIndex);
@@ -59,14 +63,21 @@ namespace EHR.Crewmate
             writer.Write(clearAll);
             writer.Write(shieldExpire);
             writer.Write(shieldedId);
-            if (!isShield) writer.Write(TaskMarkPerRound[benefactorId]);
+            if (!isShield)
+            {
+                writer.Write(TaskMarkPerRound[benefactorId]);
+            }
+
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
         public static void ReceiveRPC(MessageReader reader)
         {
             byte benefactorID = reader.ReadByte();
-            if (Main.PlayerStates[benefactorID].Role is not Benefactor { IsEnable: true }) return;
+            if (Main.PlayerStates[benefactorID].Role is not Benefactor { IsEnable: true })
+            {
+                return;
+            }
 
             int taskInd = reader.ReadInt32();
             bool IsShield = reader.ReadBoolean();
@@ -79,16 +90,27 @@ namespace EHR.Crewmate
                 TaskMarkPerRound[benefactorID] = uses;
                 if (!clearAll && !shieldExpire)
                 {
-                    if (!TaskIndex.ContainsKey(benefactorID)) TaskIndex[benefactorID] = [];
+                    if (!TaskIndex.ContainsKey(benefactorID))
+                    {
+                        TaskIndex[benefactorID] = [];
+                    }
+
                     TaskIndex[benefactorID].Add(taskInd);
                 }
             }
             else
             {
-                if (TaskIndex.ContainsKey(benefactorID)) TaskIndex[benefactorID].Remove(taskInd);
+                if (TaskIndex.ContainsKey(benefactorID))
+                {
+                    TaskIndex[benefactorID].Remove(taskInd);
+                }
             }
 
-            if (clearAll && TaskIndex.ContainsKey(benefactorID)) TaskIndex[benefactorID].Clear();
+            if (clearAll && TaskIndex.ContainsKey(benefactorID))
+            {
+                TaskIndex[benefactorID].Clear();
+            }
+
             if (IsShield)
             {
                 ShieldedPlayers.TryAdd(shieldedId, Utils.TimeStamp);
@@ -99,12 +121,19 @@ namespace EHR.Crewmate
                 ShieldedPlayers.Remove(shieldedId);
             }
 
-            if (clearAll && ShieldedPlayers.Count > 0) ShieldedPlayers.Clear();
+            if (clearAll && ShieldedPlayers.Count > 0)
+            {
+                ShieldedPlayers.Clear();
+            }
         }
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            if (!IsEnable) return string.Empty;
+            if (!IsEnable)
+            {
+                return string.Empty;
+            }
+
             TaskMarkPerRound.TryAdd(playerId, 0);
             int markedTasks = TaskMarkPerRound[playerId];
             int x = Math.Max(MaxTasksMarkedPerRound - markedTasks, 0);
@@ -113,21 +142,32 @@ namespace EHR.Crewmate
 
         public override void AfterMeetingTasks()
         {
-            if (!IsEnable) return;
+            if (!IsEnable)
+            {
+                return;
+            }
+
             ShieldedPlayers.Clear();
-            foreach (var playerId in TaskMarkPerRound.Keys.ToArray())
+            foreach (byte playerId in TaskMarkPerRound.Keys.ToArray())
             {
                 TaskMarkPerRound[playerId] = 0;
-                if (TaskIndex.ContainsKey(playerId)) TaskIndex[playerId].Clear();
+                if (TaskIndex.ContainsKey(playerId))
+                {
+                    TaskIndex[playerId].Clear();
+                }
+
                 SendRPC(playerId, clearAll: true);
             }
         }
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!IsEnable) return;
+            if (!IsEnable)
+            {
+                return;
+            }
 
-            foreach (var x in ShieldedPlayers.Where(x => x.Value + ShieldDuration.GetInt() < Utils.TimeStamp))
+            foreach (KeyValuePair<byte, long> x in ShieldedPlayers.Where(x => x.Value + ShieldDuration.GetInt() < Utils.TimeStamp))
             {
                 ShieldedPlayers.Remove(x.Key);
                 SendRPC(pc.PlayerId, shieldExpire: true, shieldedId: Utils.GetPlayerById(x.Key).PlayerId);
@@ -136,7 +176,11 @@ namespace EHR.Crewmate
 
         public static void OnTaskComplete(PlayerControl player, PlayerTask task) // Special case for Benefactor
         {
-            if (player == null) return;
+            if (player == null)
+            {
+                return;
+            }
+
             byte playerId = player.PlayerId;
             if (player.Is(CustomRoles.Benefactor))
             {
@@ -149,23 +193,30 @@ namespace EHR.Crewmate
                 }
 
                 TaskMarkPerRound[playerId]++;
-                if (!TaskIndex.ContainsKey(playerId)) TaskIndex[playerId] = [];
+                if (!TaskIndex.ContainsKey(playerId))
+                {
+                    TaskIndex[playerId] = [];
+                }
+
                 TaskIndex[playerId].Add(task.Index);
-                SendRPC(benefactorId: playerId, taskIndex: task.Index);
+                SendRPC(playerId, task.Index);
                 player.Notify(GetString("BenefactorTaskMarked"));
             }
             else
             {
-                foreach (var benefactorId in TaskIndex.Keys.ToArray())
+                foreach (byte benefactorId in TaskIndex.Keys.ToArray())
                 {
                     if (TaskIndex[benefactorId].Contains(task.Index))
                     {
-                        var benefactorPC = Utils.GetPlayerById(benefactorId);
-                        if (benefactorPC == null) continue;
+                        PlayerControl benefactorPC = Utils.GetPlayerById(benefactorId);
+                        if (benefactorPC == null)
+                        {
+                            continue;
+                        }
 
                         player.Notify(GetString("BenefactorTargetGotShieldNotify"));
                         TaskIndex[benefactorId].Remove(task.Index);
-                        SendRPC(benefactorId: benefactorId, taskIndex: task.Index, isShield: true, shieldedId: player.PlayerId);
+                        SendRPC(benefactorId, task.Index, true, shieldedId: player.PlayerId);
                         Logger.Info($"{player.GetAllRoleName()} got a shield because the task was marked by {benefactorPC.GetNameWithRole()}", "Benefactor");
                     }
                 }

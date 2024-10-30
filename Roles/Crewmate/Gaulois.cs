@@ -47,16 +47,30 @@ namespace EHR.Crewmate
 
         public override void SetKillCooldown(byte playerId)
         {
-            if (!IsEnable) return;
+            if (!IsEnable)
+            {
+                return;
+            }
+
             Main.AllPlayerKillCooldown[playerId] = playerId.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
         }
 
-        public override bool CanUseKillButton(PlayerControl pc) => pc.GetAbilityUseLimit() >= 1;
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return pc.GetAbilityUseLimit() >= 1;
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            opt.SetVision(false);
+        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0) return false;
+            if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0)
+            {
+                return false;
+            }
 
             Main.AllPlayerSpeed[target.PlayerId] += AdditionalSpeed.GetFloat();
             IncreasedSpeedPlayerList.Add(target.PlayerId);

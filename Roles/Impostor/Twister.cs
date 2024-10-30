@@ -47,7 +47,10 @@ namespace EHR.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
-            if (UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = ShapeshiftCooldown.GetFloat();
+            if (UsePhantomBasis.GetBool())
+            {
+                AURoleOptions.PhantomCooldown = ShapeshiftCooldown.GetFloat();
+            }
             else
             {
                 AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
@@ -72,21 +75,38 @@ namespace EHR.Impostor
             return false;
         }
 
-        static void TwistPlayers(PlayerControl shapeshifter, bool shapeshifting)
+        private static void TwistPlayers(PlayerControl shapeshifter, bool shapeshifting)
         {
-            if (shapeshifter == null) return;
-            if (shapeshifter.GetAbilityUseLimit() < 1) return;
-            if (!shapeshifting) return;
+            if (shapeshifter == null)
+            {
+                return;
+            }
+
+            if (shapeshifter.GetAbilityUseLimit() < 1)
+            {
+                return;
+            }
+
+            if (!shapeshifting)
+            {
+                return;
+            }
 
             List<byte> changePositionPlayers = [shapeshifter.PlayerId];
             shapeshifter.RpcRemoveAbilityUse();
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (changePositionPlayers.Contains(pc.PlayerId) || Pelican.IsEaten(pc.PlayerId) || pc.onLadder || pc.inMovingPlat || pc.inVent || GameStates.IsMeeting) continue;
+                if (changePositionPlayers.Contains(pc.PlayerId) || Pelican.IsEaten(pc.PlayerId) || pc.onLadder || pc.inMovingPlat || pc.inVent || GameStates.IsMeeting)
+                {
+                    continue;
+                }
 
-                var filtered = Main.AllAlivePlayerControls.Where(a => !a.inVent && !Pelican.IsEaten(a.PlayerId) && !a.onLadder && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
-                if (filtered.Length == 0) break;
+                PlayerControl[] filtered = Main.AllAlivePlayerControls.Where(a => !a.inVent && !Pelican.IsEaten(a.PlayerId) && !a.onLadder && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
+                if (filtered.Length == 0)
+                {
+                    break;
+                }
 
                 PlayerControl target = filtered.RandomElement();
 
@@ -95,7 +115,7 @@ namespace EHR.Impostor
 
                 pc.RPCPlayCustomSound("Teleport");
 
-                var originPs = target.Pos();
+                Vector2 originPs = target.Pos();
                 target.TP(pc.Pos());
                 pc.TP(originPs);
 

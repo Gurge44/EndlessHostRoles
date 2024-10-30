@@ -17,7 +17,7 @@ namespace EHR.Crewmate
         public static OptionItem UseLimitOpt;
         public static OptionItem UsePet;
         private static bool On;
-        byte AidId;
+        private byte AidId;
 
         public byte TargetId;
         public override bool IsEnable => On;
@@ -53,15 +53,37 @@ namespace EHR.Crewmate
             AidId = playerId;
         }
 
-        public override void SetKillCooldown(byte playerId) => Main.AllPlayerKillCooldown[playerId] = AidCD.GetInt();
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
-        public override bool CanUseKillButton(PlayerControl pc) => pc.GetAbilityUseLimit() >= 1;
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => pc.GetAbilityUseLimit() >= 1 && TargetId != byte.MaxValue;
+        public override void SetKillCooldown(byte playerId)
+        {
+            Main.AllPlayerKillCooldown[playerId] = AidCD.GetInt();
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            opt.SetVision(false);
+        }
+
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return pc.GetAbilityUseLimit() >= 1;
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return pc.GetAbilityUseLimit() >= 1 && TargetId != byte.MaxValue;
+        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null) return false;
-            if (target == null) return false;
+            if (killer == null)
+            {
+                return false;
+            }
+
+            if (target == null)
+            {
+                return false;
+            }
 
             TargetId = target.PlayerId;
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
@@ -70,11 +92,14 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (pc == null || !pc.Is(CustomRoles.Aid) || ShieldedPlayers.Count == 0) return;
+            if (pc == null || !pc.Is(CustomRoles.Aid) || ShieldedPlayers.Count == 0)
+            {
+                return;
+            }
 
             bool change = false;
 
-            foreach (var x in ShieldedPlayers.ToArray())
+            foreach (KeyValuePair<byte, long> x in ShieldedPlayers.ToArray())
             {
                 if (x.Value + AidDur.GetInt() <= Utils.TimeStamp || !GameStates.IsInTask)
                 {
@@ -92,13 +117,13 @@ namespace EHR.Crewmate
 
         public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
         {
-            var pc = physics.myPlayer;
+            PlayerControl pc = physics.myPlayer;
             if (pc.GetAbilityUseLimit() >= 1 && TargetId != byte.MaxValue)
             {
                 pc.RpcRemoveAbilityUse();
                 ShieldedPlayers[TargetId] = Utils.TimeStamp;
                 Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 0, TargetId);
-                var target = Utils.GetPlayerById(TargetId);
+                PlayerControl target = Utils.GetPlayerById(TargetId);
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: target);
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
                 TargetId = byte.MaxValue;
@@ -127,18 +152,22 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud)) return string.Empty;
-            if (TargetKnowsShield.GetBool() && ShieldedPlayers.TryGetValue(seer.PlayerId, out var ts))
+            if (seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud))
             {
-                var timeLeft = AidDur.GetInt() - (Utils.TimeStamp - ts);
+                return string.Empty;
+            }
+
+            if (TargetKnowsShield.GetBool() && ShieldedPlayers.TryGetValue(seer.PlayerId, out long ts))
+            {
+                long timeLeft = AidDur.GetInt() - (Utils.TimeStamp - ts);
                 return string.Format(Translator.GetString("AidCounterSelf"), timeLeft);
             }
 
             if (seer.PlayerId == AidId)
             {
-                var duration = AidDur.GetInt();
-                var now = Utils.TimeStamp;
-                var formatted = ShieldedPlayers.Select(x => string.Format(Translator.GetString("AidCounterTarget"), x.Key.ColoredPlayerName(), duration - (now - x.Value)));
+                int duration = AidDur.GetInt();
+                long now = Utils.TimeStamp;
+                IEnumerable<string> formatted = ShieldedPlayers.Select(x => string.Format(Translator.GetString("AidCounterTarget"), x.Key.ColoredPlayerName(), duration - (now - x.Value)));
                 return string.Join("\n", formatted);
             }
 

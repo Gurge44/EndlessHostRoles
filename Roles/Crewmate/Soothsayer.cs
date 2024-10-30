@@ -37,8 +37,15 @@ namespace EHR.Crewmate
 
         public override bool OnVote(PlayerControl player, PlayerControl target)
         {
-            if (player == null || target == null || player.PlayerId == target.PlayerId) return false;
-            if (Target != byte.MaxValue || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
+            if (player == null || target == null || player.PlayerId == target.PlayerId)
+            {
+                return false;
+            }
+
+            if (Target != byte.MaxValue || Main.DontCancelVoteList.Contains(player.PlayerId))
+            {
+                return false;
+            }
 
             Target = target.PlayerId;
 

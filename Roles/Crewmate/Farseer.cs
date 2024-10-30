@@ -76,7 +76,10 @@ namespace EHR.Crewmate
             return pc.IsAlive();
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = FarseerCooldown.GetFloat();
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = FarseerCooldown.GetFloat();
+        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
@@ -103,16 +106,23 @@ namespace EHR.Crewmate
                 }
                 else
                 {
-                    var arTarget = FarseerTimer[player.PlayerId].PLAYER;
-                    var arTime = FarseerTimer[player.PlayerId].TIMER;
+                    PlayerControl arTarget = FarseerTimer[player.PlayerId].PLAYER;
+                    float arTime = FarseerTimer[player.PlayerId].TIMER;
                     if (!arTarget.IsAlive())
                     {
                         FarseerTimer.Remove(player.PlayerId);
                     }
                     else if (arTime >= FarseerRevealTime.GetFloat())
                     {
-                        if (UsePets.GetBool() && UsePet.GetBool()) player.AddKCDAsAbilityCD();
-                        else player.SetKillCooldown();
+                        if (UsePets.GetBool() && UsePet.GetBool())
+                        {
+                            player.AddKCDAsAbilityCD();
+                        }
+                        else
+                        {
+                            player.SetKillCooldown();
+                        }
+
                         FarseerTimer.Remove(player.PlayerId);
                         IsRevealed[(player.PlayerId, arTarget.PlayerId)] = true;
                         player.RpcSetRevealtPlayer(arTarget, true);
@@ -142,25 +152,25 @@ namespace EHR.Crewmate
 
         public static string GetRandomCrewRoleString()
         {
-            var randomRole = RandomRolesForTrickster.RandomElement();
+            CustomRoles randomRole = RandomRolesForTrickster.RandomElement();
 
             return $"<size={FontSize}>{ColorString(GetRoleColor(randomRole), GetString(randomRole.ToString()))}</size>";
         }
 
         public static string GetTaskState()
         {
-            var playersWithTasks = Main.PlayerStates.Where(a => a.Value.TaskState.HasTasks).ToArray();
+            KeyValuePair<byte, PlayerState>[] playersWithTasks = Main.PlayerStates.Where(a => a.Value.TaskState.HasTasks).ToArray();
             if (playersWithTasks.Length == 0)
             {
                 return "\r\n";
             }
 
-            var randomPlayer = playersWithTasks.RandomElement();
-            var taskState = randomPlayer.Value.TaskState;
+            KeyValuePair<byte, PlayerState> randomPlayer = playersWithTasks.RandomElement();
+            TaskState taskState = randomPlayer.Value.TaskState;
 
-            var taskCompleteColor = Color.green;
-            var nonCompleteColor = Color.yellow;
-            var normalColor = taskState.IsTaskFinished ? taskCompleteColor : nonCompleteColor;
+            Color taskCompleteColor = Color.green;
+            Color nonCompleteColor = Color.yellow;
+            Color normalColor = taskState.IsTaskFinished ? taskCompleteColor : nonCompleteColor;
 
             Color textColor = Camouflager.IsActive ? Color.gray : normalColor;
             string completed = Camouflager.IsActive ? "?" : $"{taskState.CompletedTasksCount}";

@@ -14,7 +14,11 @@ namespace EHR.AddOns.GhostRoles
 
         public void OnProtect(PlayerControl pc, PlayerControl target)
         {
-            if (!BlindPlayers.Add(target.PlayerId)) return;
+            if (!BlindPlayers.Add(target.PlayerId))
+            {
+                return;
+            }
+
             target.MarkDirtySettings();
 
             LateTask.New(() =>

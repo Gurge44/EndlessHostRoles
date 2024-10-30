@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
-using UnityEngine;
 
 namespace EHR.Crewmate
 {
@@ -73,7 +72,10 @@ namespace EHR.Crewmate
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
-            if (pc == null) return;
+            if (pc == null)
+            {
+                return;
+            }
 
             if (pc.GetAbilityUseLimit() >= 1)
             {
@@ -82,7 +84,10 @@ namespace EHR.Crewmate
                 LateTask.New(() =>
                 {
                     BasePos = pc.Pos();
-                    if (pc.TP(CameraPosition)) IsTeleported = true;
+                    if (pc.TP(CameraPosition))
+                    {
+                        IsTeleported = true;
+                    }
                 }, 2f, "CameraMan Teleport");
             }
             else
@@ -93,14 +98,20 @@ namespace EHR.Crewmate
 
         public override void OnPet(PlayerControl pc)
         {
-            if (pc == null) return;
+            if (pc == null)
+            {
+                return;
+            }
 
             if (pc.GetAbilityUseLimit() >= 1)
             {
                 pc.RpcRemoveAbilityUse();
 
                 BasePos = pc.Pos();
-                if (pc.TP(CameraPosition)) IsTeleported = true;
+                if (pc.TP(CameraPosition))
+                {
+                    IsTeleported = true;
+                }
             }
             else
             {
@@ -110,7 +121,10 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!IsTeleported || !TPBackWhenMoveAway.GetBool() || !pc.IsAlive() || !GameStates.IsInTask || Vector2.Distance(pc.Pos(), CameraPosition) <= DisableDevice.UsableDistance) return;
+            if (!IsTeleported || !TPBackWhenMoveAway.GetBool() || !pc.IsAlive() || !GameStates.IsInTask || Vector2.Distance(pc.Pos(), CameraPosition) <= DisableDevice.UsableDistance)
+            {
+                return;
+            }
 
             IsTeleported = false;
             LateTask.New(() => pc.TP(BasePos), 2f, "CameraMan Teleport Back");

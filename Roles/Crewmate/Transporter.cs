@@ -31,15 +31,15 @@ namespace EHR.Crewmate
 
         public override void OnTaskComplete(PlayerControl player, int completedTaskCount, int totalTaskCount)
         {
-            if (player.IsAlive() && ((completedTaskCount + 1) <= Options.TransporterTeleportMax.GetInt()))
+            if (player.IsAlive() && completedTaskCount + 1 <= Options.TransporterTeleportMax.GetInt())
             {
                 List<PlayerControl> AllAlivePlayer = Main.AllAlivePlayerControls.Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder).ToList();
                 if (AllAlivePlayer.Count >= 2)
                 {
-                    var tar1 = AllAlivePlayer.RandomElement();
+                    PlayerControl tar1 = AllAlivePlayer.RandomElement();
                     AllAlivePlayer.Remove(tar1);
-                    var tar2 = AllAlivePlayer.RandomElement();
-                    var pos = tar1.Pos();
+                    PlayerControl tar2 = AllAlivePlayer.RandomElement();
+                    Vector2 pos = tar1.Pos();
                     tar1.TP(tar2);
                     tar2.TP(pos);
                     tar1.RPCPlayCustomSound("Teleport");

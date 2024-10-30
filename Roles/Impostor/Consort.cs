@@ -41,8 +41,15 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable || killer == null || target == null) return false;
-            if (killer.GetAbilityUseLimit() <= 0 || !killer.Is(CustomRoles.Consort)) return true;
+            if (!IsEnable || killer == null || target == null)
+            {
+                return false;
+            }
+
+            if (killer.GetAbilityUseLimit() <= 0 || !killer.Is(CustomRoles.Consort))
+            {
+                return true;
+            }
 
             return killer.CheckDoubleTrigger(target, () =>
             {

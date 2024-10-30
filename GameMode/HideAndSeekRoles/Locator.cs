@@ -65,20 +65,26 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!pc.IsAlive()) return;
+            if (!pc.IsAlive())
+            {
+                return;
+            }
 
             if (Status.TargetId == byte.MaxValue)
             {
                 if (Status.LastArrowEndTime + ArrowFrequency.GetInt() < Utils.TimeStamp)
                 {
-                    var target = HnSManager.PlayerRoles.Where(x => x.Value.Interface.Team != Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Where(x => x != null && x.IsAlive()).Shuffle().FirstOrDefault();
+                    PlayerControl target = HnSManager.PlayerRoles.Where(x => x.Value.Interface.Team != Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Where(x => x != null && x.IsAlive()).Shuffle().FirstOrDefault();
                     if (target != null)
                     {
                         Status.TargetId = target.PlayerId;
                         Status.LastArrowEndTime = Utils.TimeStamp + ArrowDuration.GetInt();
                         TargetArrow.Add(pc.PlayerId, target.PlayerId);
                         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                        if (HidersKnowTheyAreLocated.GetBool()) target.Notify(Translator.GetString("LocatorNotify"));
+                        if (HidersKnowTheyAreLocated.GetBool())
+                        {
+                            target.Notify(Translator.GetString("LocatorNotify"));
+                        }
                     }
                 }
             }
@@ -92,11 +98,15 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || hud || seer.PlayerId != LocatorId) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || hud || seer.PlayerId != LocatorId)
+            {
+                return string.Empty;
+            }
+
             return Status.TargetId == byte.MaxValue ? string.Empty : TargetArrow.GetArrows(seer, Status.TargetId);
         }
 
-        class LocateStatus
+        private class LocateStatus
         {
             public byte TargetId { get; set; } = byte.MaxValue;
             public long LastArrowEndTime { get; set; } = Utils.TimeStamp;

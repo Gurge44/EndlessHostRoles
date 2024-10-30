@@ -55,6 +55,9 @@ namespace EHR.Neutral
             opt.SetVision(JesterHasImpostorVision.GetBool());
         }
 
-        public override bool CanUseVent(PlayerControl pc, int ventId) => !BlockVentMovement.GetBool() || pc.GetClosestVent()?.Id == ventId;
+        public override bool CanUseVent(PlayerControl pc, int ventId)
+        {
+            return !BlockVentMovement.GetBool() || pc.GetClosestVent()?.Id == ventId;
+        }
     }
 }

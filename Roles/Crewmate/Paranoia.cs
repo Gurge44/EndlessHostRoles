@@ -35,9 +35,13 @@ namespace EHR.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool()) return;
+            if (UsePets.GetBool())
+            {
+                return;
+            }
+
             AURoleOptions.EngineerCooldown =
-                !ParaUsedButtonCount.TryGetValue(playerId, out var count2) || count2 < ParanoiaNumOfUseButton.GetInt()
+                !ParaUsedButtonCount.TryGetValue(playerId, out int count2) || count2 < ParanoiaNumOfUseButton.GetInt()
                     ? ParanoiaVentCooldown.GetFloat()
                     : 300f;
             AURoleOptions.EngineerInVentMaxTime = 1f;
@@ -46,9 +50,13 @@ namespace EHR.Crewmate
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             if (UsePets.GetBool())
+            {
                 hud.PetButton.buttonLabelText.text = Translator.GetString("ParanoiaVentButtonText");
+            }
             else
+            {
                 hud.AbilityButton.buttonLabelText.text = Translator.GetString("ParanoiaVentButtonText");
+            }
         }
 
         public override void OnPet(PlayerControl pc)
@@ -62,9 +70,9 @@ namespace EHR.Crewmate
             Panic(pc);
         }
 
-        static void Panic(PlayerControl pc)
+        private static void Panic(PlayerControl pc)
         {
-            if (ParaUsedButtonCount.TryGetValue(pc.PlayerId, out var count2) && count2 < ParanoiaNumOfUseButton.GetInt())
+            if (ParaUsedButtonCount.TryGetValue(pc.PlayerId, out int count2) && count2 < ParanoiaNumOfUseButton.GetInt())
             {
                 ParaUsedButtonCount[pc.PlayerId] += 1;
                 if (AmongUsClient.Instance.AmHost)

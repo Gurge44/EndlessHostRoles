@@ -39,22 +39,32 @@ namespace EHR.Impostor
             PlayerIdList.Add(playerId);
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KCD.GetFloat();
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KCD.GetFloat();
+        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable || killer == null || target == null) return false;
+            if (!IsEnable || killer == null || target == null)
+            {
+                return false;
+            }
 
             return killer.CheckDoubleTrigger(target, () =>
             {
-                killer.SetKillCooldown(time: NullCD.GetFloat());
+                killer.SetKillCooldown(NullCD.GetFloat());
                 killer.Notify(Translator.GetString("NullifierUseRemoved"));
                 LateTask.New(() =>
                 {
                     switch (target.GetCustomRole())
                     {
                         case CustomRoles.Cleanser:
-                            if (Main.PlayerStates[target.PlayerId].Role is not Cleanser { IsEnable: true } cs) return;
+                            if (Main.PlayerStates[target.PlayerId].Role is not Cleanser { IsEnable: true } cs)
+                            {
+                                return;
+                            }
+
                             cs.CleanserUses++;
                             cs.SendRPC(target.PlayerId);
                             break;
@@ -71,7 +81,11 @@ namespace EHR.Impostor
 
                             break;
                         case CustomRoles.SabotageMaster:
-                            if (Main.PlayerStates[target.PlayerId].Role is not SabotageMaster { IsEnable: true } sm) return;
+                            if (Main.PlayerStates[target.PlayerId].Role is not SabotageMaster { IsEnable: true } sm)
+                            {
+                                return;
+                            }
+
                             sm.UsedSkillCount++;
                             sm.SendRPC();
                             break;
@@ -84,7 +98,10 @@ namespace EHR.Impostor
                             break;
                     }
 
-                    if (GameStates.IsInTask) Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
+                    if (GameStates.IsInTask)
+                    {
+                        Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: target);
+                    }
                 }, Delay.GetInt(), "Nullifier Remove Ability Use");
             });
         }

@@ -61,7 +61,9 @@ namespace EHR.AddOns.Common
             float maxSpeed = MaxSpeed.GetFloat();
 
             if (Mathf.Approximately(minSpeed, maxSpeed))
+            {
                 return 100;
+            }
 
             return (int)((Main.AllPlayerSpeed[player.PlayerId] - minSpeed) / (maxSpeed - minSpeed) * 100);
         }
@@ -69,7 +71,9 @@ namespace EHR.AddOns.Common
         public static string GetSuffix(PlayerControl player, bool isforhud = false)
         {
             if (!player.Is(CustomRoles.Spurt) || !DisplaysCharge.GetBool() || GameStates.IsMeeting)
+            {
                 return string.Empty;
+            }
 
             int fontsize = isforhud ? 100 : 55;
 
@@ -78,7 +82,7 @@ namespace EHR.AddOns.Common
 
         public static void OnFixedUpdate(PlayerControl player)
         {
-            var pos = player.Pos();
+            Vector2 pos = player.Pos();
             bool moving = Vector2.Distance(pos, LastPos[player.PlayerId]) > 0f || player.MyPhysics.Animations.IsPlayingRunAnimation();
             LastPos[player.PlayerId] = pos;
 

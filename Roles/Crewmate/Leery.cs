@@ -46,12 +46,16 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || ExileController.Instance || !pc.IsAlive() || Count++ < 5) return;
+            if (!GameStates.IsInTask || ExileController.Instance || !pc.IsAlive() || Count++ < 5)
+            {
+                return;
+            }
+
             Count = 0;
 
-            var pos = pc.Pos();
-            var radius = Radius.GetFloat();
-            var nearbyPlayers = Utils.GetPlayersInRadius(radius, pos).Without(pc).ToArray();
+            Vector2 pos = pc.Pos();
+            float radius = Radius.GetFloat();
+            PlayerControl[] nearbyPlayers = Utils.GetPlayersInRadius(radius, pos).Without(pc).ToArray();
 
             if (nearbyPlayers.Length == 0)
             {
@@ -61,9 +65,12 @@ namespace EHR.Crewmate
                 return;
             }
 
-            var nearestPlayer = nearbyPlayers.MinBy(p => Vector2.Distance(pos, p.Pos()));
+            PlayerControl nearestPlayer = nearbyPlayers.MinBy(p => Vector2.Distance(pos, p.Pos()));
 
-            if (nearestPlayer.PlayerId == CurrentTarget && InvestigationEndTS == 0) return;
+            if (nearestPlayer.PlayerId == CurrentTarget && InvestigationEndTS == 0)
+            {
+                return;
+            }
 
             if (nearestPlayer.PlayerId != CurrentTarget)
             {
@@ -73,14 +80,23 @@ namespace EHR.Crewmate
                 return;
             }
 
-            if (Utils.TimeStamp < InvestigationEndTS) return;
+            if (Utils.TimeStamp < InvestigationEndTS)
+            {
+                return;
+            }
 
             InvestigationEndTS = 0;
             SendRPC();
-            if (!nearestPlayer.IsCrewmate()) pc.Notify(Translator.GetString("LeeryNotify"));
+            if (!nearestPlayer.IsCrewmate())
+            {
+                pc.Notify(Translator.GetString("LeeryNotify"));
+            }
         }
 
-        void SendRPC() => Utils.SendRPC(CustomRPC.SyncRoleData, LeeryId, CurrentTarget, InvestigationEndTS);
+        private void SendRPC()
+        {
+            Utils.SendRPC(CustomRPC.SyncRoleData, LeeryId, CurrentTarget, InvestigationEndTS);
+        }
 
         public void ReceiveRPC(MessageReader reader)
         {
@@ -90,10 +106,16 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != LeeryId || seer.PlayerId != target.PlayerId || meeting || hud || !ShowNearestPlayerName.GetBool() || InvestigationEndTS == 0) return string.Empty;
+            if (seer.PlayerId != LeeryId || seer.PlayerId != target.PlayerId || meeting || hud || !ShowNearestPlayerName.GetBool() || InvestigationEndTS == 0)
+            {
+                return string.Empty;
+            }
 
-            var text = string.Format(Translator.GetString("LeerySuffix"), CurrentTarget.ColoredPlayerName());
-            if (ShowProgress.GetBool()) text += $" {Math.Ceiling(InvestigationEndTS / (float)Utils.TimeStamp * 100)}%";
+            string text = string.Format(Translator.GetString("LeerySuffix"), CurrentTarget.ColoredPlayerName());
+            if (ShowProgress.GetBool())
+            {
+                text += $" {Math.Ceiling(InvestigationEndTS / (float)Utils.TimeStamp * 100)}%";
+            }
 
             return text;
         }

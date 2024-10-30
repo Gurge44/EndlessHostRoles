@@ -11,7 +11,7 @@ namespace EHR.Crewmate
     {
         public static bool On;
 
-        private static Dictionary<Level, OptionItem> LevelSettings = [];
+        private static readonly Dictionary<Level, OptionItem> LevelSettings = [];
         private static OptionItem IncrementByVenting;
         private static OptionItem DecreasementEachSecond;
         private static OptionItem IncreasedSpeed;
@@ -70,14 +70,20 @@ namespace EHR.Crewmate
 
         public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
         {
-            var pc = physics.myPlayer;
-            var previousLevel = GetCurrentLevel();
+            PlayerControl pc = physics.myPlayer;
+            Level previousLevel = GetCurrentLevel();
 
             OxygenLevel += IncrementByVenting.GetValue();
-            if (OxygenLevel > 100) OxygenLevel = 100;
+            if (OxygenLevel > 100)
+            {
+                OxygenLevel = 100;
+            }
 
-            var nowLevel = GetCurrentLevel();
-            if (nowLevel != previousLevel) ApplyLevelEffect(pc, nowLevel);
+            Level nowLevel = GetCurrentLevel();
+            if (nowLevel != previousLevel)
+            {
+                ApplyLevelEffect(pc, nowLevel);
+            }
 
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, OxygenLevel);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -85,10 +91,17 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
+            if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance)
+            {
+                return;
+            }
 
             long now = Utils.TimeStamp;
-            if (now == LastUpdate) return;
+            if (now == LastUpdate)
+            {
+                return;
+            }
+
             LastUpdate = now;
 
             if (OxygenLevel <= 0)
@@ -97,13 +110,13 @@ namespace EHR.Crewmate
                 return;
             }
 
-            var previousLevel = GetCurrentLevel();
+            Level previousLevel = GetCurrentLevel();
 
             OxygenLevel -= DecreasementEachSecond.GetInt();
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, OxygenLevel);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
-            var nowLevel = GetCurrentLevel();
+            Level nowLevel = GetCurrentLevel();
 
             if (nowLevel != previousLevel)
             {
@@ -144,25 +157,44 @@ namespace EHR.Crewmate
             return GetCurrentLevel() != Level.Invulnerable;
         }
 
-        Level GetCurrentLevel()
+        private Level GetCurrentLevel()
         {
             // ReSharper disable ConvertIfStatementToReturnStatement
-            if (OxygenLevel <= LevelSettings[Level.Blind].GetInt()) return Level.Blind;
-            if (OxygenLevel <= LevelSettings[Level.Slow].GetInt()) return Level.Slow;
-            if (OxygenLevel >= LevelSettings[Level.Invulnerable].GetInt()) return Level.Invulnerable;
-            if (OxygenLevel >= LevelSettings[Level.Fast].GetInt()) return Level.Fast;
+            if (OxygenLevel <= LevelSettings[Level.Blind].GetInt())
+            {
+                return Level.Blind;
+            }
+
+            if (OxygenLevel <= LevelSettings[Level.Slow].GetInt())
+            {
+                return Level.Slow;
+            }
+
+            if (OxygenLevel >= LevelSettings[Level.Invulnerable].GetInt())
+            {
+                return Level.Invulnerable;
+            }
+
+            if (OxygenLevel >= LevelSettings[Level.Fast].GetInt())
+            {
+                return Level.Fast;
+            }
+
             return Level.None;
             // ReSharper restore ConvertIfStatementToReturnStatement
         }
 
-        Color GetLevelColor() => GetCurrentLevel() switch
+        private Color GetLevelColor()
         {
-            Level.Blind => Palette.Orange,
-            Level.Slow => Color.yellow,
-            Level.Fast => Color.cyan,
-            Level.Invulnerable => Color.green,
-            _ => Color.white
-        };
+            return GetCurrentLevel() switch
+            {
+                Level.Blind => Palette.Orange,
+                Level.Slow => Color.yellow,
+                Level.Fast => Color.cyan,
+                Level.Invulnerable => Color.green,
+                _ => Color.white
+            };
+        }
 
         public void ReceiveRPC(MessageReader reader)
         {
@@ -171,11 +203,15 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != OxymanId || (seer.IsModClient() && !hud)) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != OxymanId || (seer.IsModClient() && !hud))
+            {
+                return string.Empty;
+            }
+
             return $"<#ff0000>O<sub>2</sub>:</color> {Utils.ColorString(GetLevelColor(), OxygenLevel.ToString())}%";
         }
 
-        enum Level
+        private enum Level
         {
             Blind,
             Slow,

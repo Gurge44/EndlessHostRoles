@@ -61,12 +61,21 @@ namespace EHR.Crewmate
             TasksCompleted = 0;
             Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 1, TasksCompleted);
 
-            if (Main.HasJustStarted) LateTask.New(Action, 12f, log: false);
-            else Action();
+            if (Main.HasJustStarted)
+            {
+                LateTask.New(Action, 12f, log: false);
+            }
+            else
+            {
+                Action();
+            }
 
             return;
 
-            void Action() => KnownCharacters = AllRoleNames.ToDictionary(x => x.Key, _ => new List<char>());
+            void Action()
+            {
+                KnownCharacters = AllRoleNames.ToDictionary(x => x.Key, _ => new List<char>());
+            }
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
@@ -78,7 +87,10 @@ namespace EHR.Crewmate
 
         public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
-            if (!pc.IsAlive()) return;
+            if (!pc.IsAlive())
+            {
+                return;
+            }
 
             TasksCompleted++;
             if (TasksCompleted >= TaskNum.GetInt())
@@ -87,14 +99,17 @@ namespace EHR.Crewmate
                 TasksCompleted = 0;
                 Utils.NotifyRoles(SpecifySeer: pc);
             }
-            else Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            else
+            {
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            }
 
             Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 1, TasksCompleted);
         }
 
-        void RevealLetter()
+        private void RevealLetter()
         {
-            var nextLetters = AllRoleNames.ToDictionary(x => x.Key, x => x.Value.Except(KnownCharacters[x.Key]).RandomElement());
+            Dictionary<byte, char> nextLetters = AllRoleNames.ToDictionary(x => x.Key, x => x.Value.Except(KnownCharacters[x.Key]).RandomElement());
             KnownCharacters.Do(x =>
             {
                 x.Value.Add(nextLetters[x.Key]);
@@ -105,9 +120,9 @@ namespace EHR.Crewmate
         public void OnRoleChange(byte id)
         {
             Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 3, id);
-            var newRole = Main.PlayerStates[id].MainRole;
+            CustomRoles newRole = Main.PlayerStates[id].MainRole;
             AllRoleNames[id] = Translator.GetString($"{newRole}").ToUpper().Shuffle();
-            var count = KnownCharacters[id].Count;
+            int count = KnownCharacters[id].Count;
             KnownCharacters[id] = AllRoleNames[id].Take(count).ToList();
             KnownCharacters[id].ForEach(x => Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 2, id, x));
         }
@@ -130,12 +145,15 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != LyncherId) return string.Empty;
+            if (seer.PlayerId != LyncherId)
+            {
+                return string.Empty;
+            }
 
             return (seer.PlayerId == target.PlayerId) switch
             {
-                false when KnownCharacters.TryGetValue(target.PlayerId, out var chars) && chars.Count > 0 => string.Join(' ', chars),
-                true when (!seer.IsModClient() || hud) => string.Format(Translator.GetString("Lyncher.Suffix"), TaskNum.GetInt() - TasksCompleted),
+                false when KnownCharacters.TryGetValue(target.PlayerId, out List<char> chars) && chars.Count > 0 => string.Join(' ', chars),
+                true when !seer.IsModClient() || hud => string.Format(Translator.GetString("Lyncher.Suffix"), TaskNum.GetInt() - TasksCompleted),
                 _ => string.Empty
             };
         }

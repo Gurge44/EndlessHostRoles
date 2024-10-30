@@ -24,7 +24,11 @@
 
         public override bool OnVote(PlayerControl voter, PlayerControl target)
         {
-            if (voter == null || target == null || voter.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
+            if (voter == null || target == null || voter.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(voter.PlayerId))
+            {
+                return false;
+            }
+
             GodfatherTarget = target.PlayerId;
             Main.DontCancelVoteList.Add(voter.PlayerId);
             return true;

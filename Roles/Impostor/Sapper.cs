@@ -3,7 +3,6 @@ using System.Linq;
 using System.Text;
 using AmongUs.GameOptions;
 using EHR.Neutral;
-using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -47,7 +46,10 @@ namespace EHR.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
-            if (UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = ShapeshiftCooldown.GetFloat();
+            if (UsePhantomBasis.GetBool())
+            {
+                AURoleOptions.PhantomCooldown = ShapeshiftCooldown.GetFloat();
+            }
             else
             {
                 AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
@@ -62,7 +64,11 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool())
+            {
+                return true;
+            }
+
             return PlaceBomb(shapeshifter);
         }
 
@@ -86,10 +92,17 @@ namespace EHR.Impostor
             return PlaceBomb(pc);
         }
 
-        static bool PlaceBomb(PlayerControl pc)
+        private static bool PlaceBomb(PlayerControl pc)
         {
-            if (pc == null) return false;
-            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
+            if (pc == null)
+            {
+                return false;
+            }
+
+            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId))
+            {
+                return false;
+            }
 
             Bombs.TryAdd(pc.Pos(), TimeStamp);
 
@@ -98,12 +111,15 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (pc == null || Bombs.Count == 0 || !GameStates.IsInTask || !pc.IsAlive()) return;
+            if (pc == null || Bombs.Count == 0 || !GameStates.IsInTask || !pc.IsAlive())
+            {
+                return;
+            }
 
-            foreach (var bomb in Bombs.Where(bomb => bomb.Value + Delay.GetInt() < TimeStamp))
+            foreach (KeyValuePair<Vector2, long> bomb in Bombs.Where(bomb => bomb.Value + Delay.GetInt() < TimeStamp))
             {
                 bool b = false;
-                var players = GetPlayersInRadius(Radius.GetFloat(), bomb.Key);
+                IEnumerable<PlayerControl> players = GetPlayersInRadius(Radius.GetFloat(), bomb.Key);
                 foreach (PlayerControl tg in players.ToArray())
                 {
                     if (tg.PlayerId == pc.PlayerId)
@@ -129,7 +145,7 @@ namespace EHR.Impostor
                 }
             }
 
-            var sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             foreach (long x in Bombs.Values)
             {
                 sb.Append(string.Format(GetString("MagicianBombExlodesIn"), Delay.GetInt() - (TimeStamp - x) + 1));
@@ -145,8 +161,14 @@ namespace EHR.Impostor
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            if (UsePets.GetBool()) hud.PetButton?.OverrideText(GetString("BomberShapeshiftText"));
-            else hud.AbilityButton?.OverrideText(GetString("BomberShapeshiftText"));
+            if (UsePets.GetBool())
+            {
+                hud.PetButton?.OverrideText(GetString("BomberShapeshiftText"));
+            }
+            else
+            {
+                hud.AbilityButton?.OverrideText(GetString("BomberShapeshiftText"));
+            }
         }
     }
 }

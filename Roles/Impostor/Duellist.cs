@@ -45,10 +45,17 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl duellist, PlayerControl target, bool shapeshifting)
         {
-            if (!IsEnable) return false;
-            if (duellist == null || target == null) return false;
+            if (!IsEnable)
+            {
+                return false;
+            }
 
-            var pos = Pelican.GetBlackRoomPS();
+            if (duellist == null || target == null)
+            {
+                return false;
+            }
+
+            Vector2 pos = Pelican.GetBlackRoomPS();
 
             if (target.TP(pos))
             {
@@ -70,17 +77,24 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (DuelPair.Count == 0) return;
+            if (DuelPair.Count == 0)
+            {
+                return;
+            }
 
-            if (Count++ < 40) return;
+            if (Count++ < 40)
+            {
+                return;
+            }
+
             Count = 0;
 
-            foreach (var pair in DuelPair)
+            foreach (KeyValuePair<byte, byte> pair in DuelPair)
             {
-                var duellist = GetPlayerById(pair.Key);
-                var target = GetPlayerById(pair.Value);
-                var DAlive = duellist.IsAlive();
-                var TAlive = target.IsAlive();
+                PlayerControl duellist = GetPlayerById(pair.Key);
+                PlayerControl target = GetPlayerById(pair.Value);
+                bool DAlive = duellist.IsAlive();
+                bool TAlive = target.IsAlive();
 
                 switch (DAlive)
                 {

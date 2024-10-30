@@ -46,14 +46,14 @@ namespace EHR.AddOns.Common
 
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            var pos = pc.Pos();
+            Vector2 pos = pc.Pos();
             bool moving = Vector2.Distance(pos, LastPosition[pc.PlayerId]) > 0.1f;
             LastPosition[pc.PlayerId] = pos;
 
             if (!moving || !pc.IsAlive() || !GameStates.IsInTask)
             {
-                var speed = Main.AllPlayerSpeed[pc.PlayerId];
-                var defaultSpeed = StartingSpeed[pc.PlayerId];
+                float speed = Main.AllPlayerSpeed[pc.PlayerId];
+                float defaultSpeed = StartingSpeed[pc.PlayerId];
                 if (Math.Abs(speed - defaultSpeed) > 0.1f)
                 {
                     Main.AllPlayerSpeed[pc.PlayerId] = defaultSpeed;
@@ -64,12 +64,20 @@ namespace EHR.AddOns.Common
             }
 
             SpeedIncreaseTimer[pc.PlayerId] += Time.fixedDeltaTime;
-            if (SpeedIncreaseTimer[pc.PlayerId] < IncreaseSpeedFrequency.GetFloat()) return;
+            if (SpeedIncreaseTimer[pc.PlayerId] < IncreaseSpeedFrequency.GetFloat())
+            {
+                return;
+            }
+
             SpeedIncreaseTimer[pc.PlayerId] = 0f;
 
             Main.AllPlayerSpeed[pc.PlayerId] += IncreaseSpeedBy.GetFloat();
             float maxSpeed = MaxSpeed.GetFloat();
-            if (Main.AllPlayerSpeed[pc.PlayerId] > maxSpeed) Main.AllPlayerSpeed[pc.PlayerId] = maxSpeed;
+            if (Main.AllPlayerSpeed[pc.PlayerId] > maxSpeed)
+            {
+                Main.AllPlayerSpeed[pc.PlayerId] = maxSpeed;
+            }
+
             pc.MarkDirtySettings();
         }
     }

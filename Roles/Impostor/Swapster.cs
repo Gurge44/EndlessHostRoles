@@ -17,7 +17,10 @@ namespace EHR.Impostor
             On = false;
         }
 
-        public override void Add(byte playerId) => On = true;
+        public override void Add(byte playerId)
+        {
+            On = true;
+        }
 
         public override void SetupCustomOption()
         {
@@ -35,11 +38,15 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl swapster, PlayerControl target, bool shapeshifting)
         {
-            if (swapster == null || target == null || swapster == target || !shapeshifting) return true;
-            if (FirstSwapTarget.TryGetValue(swapster.PlayerId, out var firstTargetId))
+            if (swapster == null || target == null || swapster == target || !shapeshifting)
             {
-                var firstTarget = Utils.GetPlayerById(firstTargetId);
-                var pos = firstTarget.Pos();
+                return true;
+            }
+
+            if (FirstSwapTarget.TryGetValue(swapster.PlayerId, out byte firstTargetId))
+            {
+                PlayerControl firstTarget = Utils.GetPlayerById(firstTargetId);
+                Vector2 pos = firstTarget.Pos();
                 firstTarget.TP(target);
                 target.TP(pos);
                 FirstSwapTarget.Remove(swapster.PlayerId);

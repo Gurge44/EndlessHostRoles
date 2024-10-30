@@ -57,14 +57,32 @@ namespace EHR.Neutral
             Delays = [];
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
-        public override bool CanUseKillButton(PlayerControl pc) => Target.Id == byte.MaxValue && pc.IsAlive();
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
+        {
+            opt.SetVision(HasImpostorVision.GetBool());
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return CanVent.GetBool();
+        }
+
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return Target.Id == byte.MaxValue && pc.IsAlive();
+        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (Target.Id != byte.MaxValue) return false;
+            if (Target.Id != byte.MaxValue)
+            {
+                return false;
+            }
 
             Target = (target.PlayerId, Utils.TimeStamp);
             return false;
@@ -72,28 +90,42 @@ namespace EHR.Neutral
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || ExileController.Instance != null) return;
+            if (!GameStates.IsInTask || ExileController.Instance != null)
+            {
+                return;
+            }
 
             long now = Utils.TimeStamp;
 
-            foreach (var kvp in Delays)
+            foreach (KeyValuePair<byte, long> kvp in Delays)
             {
-                var player = Utils.GetPlayerById(kvp.Key);
-                if (player == null || !player.IsAlive()) continue;
+                PlayerControl player = Utils.GetPlayerById(kvp.Key);
+                if (player == null || !player.IsAlive())
+                {
+                    continue;
+                }
 
                 if (kvp.Value + KillDelay.GetInt() <= now)
                 {
-                    if (pc.RpcCheckAndMurder(player, check: true))
+                    if (pc.RpcCheckAndMurder(player, true))
+                    {
                         player.Suicide(realKiller: pc);
+                    }
                 }
             }
 
-            if (Target.Id == byte.MaxValue || !pc.IsAlive()) return;
+            if (Target.Id == byte.MaxValue || !pc.IsAlive())
+            {
+                return;
+            }
 
-            var target = Utils.GetPlayerById(Target.Id);
-            if (target == null) return;
+            PlayerControl target = Utils.GetPlayerById(Target.Id);
+            if (target == null)
+            {
+                return;
+            }
 
-            if (Vector2.Distance(target.Pos(), pc.Pos()) > (NormalGameOptionsV08.KillDistances[Mathf.Clamp(pc.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f))
+            if (Vector2.Distance(target.Pos(), pc.Pos()) > NormalGameOptionsV08.KillDistances[Mathf.Clamp(pc.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f)
             {
                 Target = (byte.MaxValue, 0);
                 pc.RpcCheckAndMurder(target);
@@ -110,13 +142,18 @@ namespace EHR.Neutral
 
         public override void OnReportDeadBody()
         {
-            foreach (var id in Delays.Keys)
+            foreach (byte id in Delays.Keys)
             {
-                var player = Utils.GetPlayerById(id);
-                if (player == null || !player.IsAlive()) continue;
+                PlayerControl player = Utils.GetPlayerById(id);
+                if (player == null || !player.IsAlive())
+                {
+                    continue;
+                }
 
-                if (SamuraiPC.RpcCheckAndMurder(player, check: true))
+                if (SamuraiPC.RpcCheckAndMurder(player, true))
+                {
                     player.Suicide(realKiller: SamuraiPC);
+                }
             }
 
             Delays.Clear();

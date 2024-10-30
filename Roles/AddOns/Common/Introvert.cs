@@ -26,11 +26,14 @@ namespace EHR.AddOns.Common
 
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (Main.HasJustStarted || ExileController.Instance) return;
+            if (Main.HasJustStarted || ExileController.Instance)
+            {
+                return;
+            }
 
-            var pos = pc.Pos();
-            var radius = Radius.GetFloat();
-            var anyoneNear = Main.AllAlivePlayerControls.Without(pc).Any(x => Vector2.Distance(pos, x.Pos()) <= radius);
+            Vector2 pos = pc.Pos();
+            float radius = Radius.GetFloat();
+            bool anyoneNear = Main.AllAlivePlayerControls.Without(pc).Any(x => Vector2.Distance(pos, x.Pos()) <= radius);
 
             if (!anyoneNear)
             {
@@ -43,9 +46,9 @@ namespace EHR.AddOns.Common
                 return;
             }
 
-            if (!TeleportAwayDelays.TryGetValue(pc.PlayerId, out var endTS))
+            if (!TeleportAwayDelays.TryGetValue(pc.PlayerId, out long endTS))
             {
-                var time = Time.GetInt();
+                int time = Time.GetInt();
                 if (time == 0)
                 {
                     pc.TPToRandomVent();
@@ -90,7 +93,11 @@ namespace EHR.AddOns.Common
 
         public static string GetSelfSuffix(PlayerControl seer)
         {
-            if (!seer.IsAlive() || !TeleportAwayDelays.TryGetValue(seer.PlayerId, out var endTS)) return string.Empty;
+            if (!seer.IsAlive() || !TeleportAwayDelays.TryGetValue(seer.PlayerId, out long endTS))
+            {
+                return string.Empty;
+            }
+
             return string.Format(Translator.GetString("Introvert.Suffix"), endTS - Utils.TimeStamp);
         }
     }

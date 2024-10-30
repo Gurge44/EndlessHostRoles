@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using AmongUs.GameOptions;
-using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 
@@ -50,12 +49,20 @@ namespace EHR.Crewmate
             UsePet = CreatePetUseSetting(Id + 16, CustomRoles.Analyst);
         }
 
-        public override bool CanUseKillButton(PlayerControl pc) => CurrentTarget.ID == byte.MaxValue && pc.GetAbilityUseLimit() > 0;
-        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(false);
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return CurrentTarget.ID == byte.MaxValue && pc.GetAbilityUseLimit() > 0;
+        }
 
-        private static string GetRoleBasis(CustomRoles role) =>
-            SeeRoleBasis.GetBool()
-                ? role.GetVNRole(checkDesyncRole: true) switch
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
+        {
+            opt.SetVision(false);
+        }
+
+        private static string GetRoleBasis(CustomRoles role)
+        {
+            return SeeRoleBasis.GetBool()
+                ? role.GetVNRole(true) switch
                 {
                     CustomRoles.Impostor => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), GetString("Impostor")),
                     CustomRoles.Shapeshifter => Utils.ColorString(Utils.GetRoleColor(CustomRoles.Speedrunner), GetString("Shapeshifter")),
@@ -65,12 +72,22 @@ namespace EHR.Crewmate
                     _ => string.Empty
                 }
                 : string.Empty;
+        }
 
-        private static int GetKillCount(byte id) => SeeKillCount.GetBool() ? Main.PlayerStates.Count(x => x.Value.GetRealKiller() == id) : 0;
+        private static int GetKillCount(byte id)
+        {
+            return SeeKillCount.GetBool() ? Main.PlayerStates.Count(x => x.Value.GetRealKiller() == id) : 0;
+        }
 
-        private static int GetVentCount(byte id) => SeeVentCount.GetBool() ? VentCount.GetValueOrDefault(id, 0) : 0;
+        private static int GetVentCount(byte id)
+        {
+            return SeeVentCount.GetBool() ? VentCount.GetValueOrDefault(id, 0) : 0;
+        }
 
-        private static string GetAnalyzeResult(PlayerControl pc) => string.Format(GetString("AnalyzerResult"), pc.GetRealName().RemoveHtmlTags(), GetKillCount(pc.PlayerId), GetVentCount(pc.PlayerId), GetRoleBasis(pc.GetCustomRole()));
+        private static string GetAnalyzeResult(PlayerControl pc)
+        {
+            return string.Format(GetString("AnalyzerResult"), pc.GetRealName().RemoveHtmlTags(), GetKillCount(pc.PlayerId), GetVentCount(pc.PlayerId), GetRoleBasis(pc.GetCustomRole()));
+        }
 
         public override void Init()
         {
@@ -86,23 +103,48 @@ namespace EHR.Crewmate
             CurrentTarget = (byte.MaxValue, Utils.TimeStamp);
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = id.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = id.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
+        }
 
         public static void OnAnyoneEnterVent(PlayerControl pc)
         {
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (!VentCount.TryAdd(pc.PlayerId, 1)) VentCount[pc.PlayerId]++;
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                return;
+            }
+
+            if (!VentCount.TryAdd(pc.PlayerId, 1))
+            {
+                VentCount[pc.PlayerId]++;
+            }
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable) return false;
-            if (killer == null || target == null) return false;
-            if (killer.GetAbilityUseLimit() <= 0) return false;
-            if (CurrentTarget.ID != byte.MaxValue) return false;
+            if (!IsEnable)
+            {
+                return false;
+            }
+
+            if (killer == null || target == null)
+            {
+                return false;
+            }
+
+            if (killer.GetAbilityUseLimit() <= 0)
+            {
+                return false;
+            }
+
+            if (CurrentTarget.ID != byte.MaxValue)
+            {
+                return false;
+            }
 
             CurrentTarget = (target.PlayerId, Utils.TimeStamp);
-            killer.SetKillCooldown(time: Duration.GetFloat());
+            killer.SetKillCooldown(Duration.GetFloat());
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
 
             return false;
@@ -110,12 +152,26 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!IsEnable) return;
-            if (pc == null) return;
-            if (CurrentTarget.ID == byte.MaxValue) return;
+            if (!IsEnable)
+            {
+                return;
+            }
+
+            if (pc == null)
+            {
+                return;
+            }
+
+            if (CurrentTarget.ID == byte.MaxValue)
+            {
+                return;
+            }
 
             PlayerControl target = Utils.GetPlayerById(CurrentTarget.ID);
-            if (target == null) return;
+            if (target == null)
+            {
+                return;
+            }
 
             if (Vector2.Distance(target.Pos(), pc.Pos()) > (pc.Is(CustomRoles.Reach) ? 2.5f : 1.5f))
             {
@@ -135,7 +191,11 @@ namespace EHR.Crewmate
 
         public override void OnReportDeadBody()
         {
-            if (!IsEnable) return;
+            if (!IsEnable)
+            {
+                return;
+            }
+
             CurrentTarget.ID = byte.MaxValue;
         }
     }

@@ -49,7 +49,7 @@ namespace EHR.Impostor
                 {
                     if (!(!GameStates.IsInTask || !shapeshifter.IsAlive() || !target.IsAlive() || shapeshifter.inVent || target.inVent))
                     {
-                        var originPs = target.Pos();
+                        Vector2 originPs = target.Pos();
                         target.TP(shapeshifter.Pos());
                         shapeshifter.TP(originPs);
                     }

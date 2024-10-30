@@ -7,12 +7,15 @@ namespace EHR.Modules
     {
         public static Dictionary<byte, (long StartTimeStamp, float Duration)> RoleBlockedPlayers = [];
 
-        public static void Reset() => RoleBlockedPlayers = [];
+        public static void Reset()
+        {
+            RoleBlockedPlayers = [];
+        }
 
         public static void AddRoleBlock(PlayerControl pc, float duration)
         {
             long now = Utils.TimeStamp;
-            if (RoleBlockedPlayers.TryGetValue(pc.PlayerId, out var data) && (data.Duration - (now - data.StartTimeStamp) + 1) > duration)
+            if (RoleBlockedPlayers.TryGetValue(pc.PlayerId, out (long StartTimeStamp, float Duration) data) && data.Duration - (now - data.StartTimeStamp) + 1 > duration)
             {
                 Logger.Info($"{pc.GetNameWithRole()} got role blocked, but the duration is less than the previous one", "RoleBlockManager");
                 return;
@@ -24,7 +27,7 @@ namespace EHR.Modules
 
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (RoleBlockedPlayers.TryGetValue(pc.PlayerId, out var data))
+            if (RoleBlockedPlayers.TryGetValue(pc.PlayerId, out (long StartTimeStamp, float Duration) data))
             {
                 long now = Utils.TimeStamp;
                 if (now - data.StartTimeStamp >= data.Duration)

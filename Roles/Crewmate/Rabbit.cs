@@ -28,7 +28,10 @@ namespace EHR.Crewmate
             TaskTrigger = OptionTaskTrigger.GetInt();
         }
 
-        public override void Add(byte playerId) => RabbitStates[playerId] = new(Utils.GetPlayerById(playerId));
+        public override void Add(byte playerId)
+        {
+            RabbitStates[playerId] = new(Utils.GetPlayerById(playerId));
+        }
 
         public static void ReceiveRPC(MessageReader reader)
         {
@@ -39,18 +42,26 @@ namespace EHR.Crewmate
 
         public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
-            if (pc == null || !RabbitStates.TryGetValue(pc.PlayerId, out RabbitState state)) return;
+            if (pc == null || !RabbitStates.TryGetValue(pc.PlayerId, out RabbitState state))
+            {
+                return;
+            }
+
             state.OnTaskComplete();
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer == null || seer.PlayerId != target.PlayerId || !RabbitStates.TryGetValue(seer.PlayerId, out RabbitState state)) return string.Empty;
+            if (seer == null || seer.PlayerId != target.PlayerId || !RabbitStates.TryGetValue(seer.PlayerId, out RabbitState state))
+            {
+                return string.Empty;
+            }
+
             string suffix = state.Suffix;
             return hud ? $"<size=200%>{suffix}</size>" : suffix;
         }
 
-        class RabbitState(PlayerControl player)
+        private class RabbitState(PlayerControl player)
         {
             private bool HasArrow;
             private PlayerControl Player => player;
@@ -62,13 +73,19 @@ namespace EHR.Crewmate
 
             public void OnTaskComplete()
             {
-                if (!Player.IsAlive() || (MyTaskState.CompletedTasksCount < TaskTrigger && !MyTaskState.IsTaskFinished)) return;
+                if (!Player.IsAlive() || (MyTaskState.CompletedTasksCount < TaskTrigger && !MyTaskState.IsTaskFinished))
+                {
+                    return;
+                }
 
-                var impostors = Main.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor)).ToArray();
-                var target = impostors.RandomElement();
-                if (target == null) return;
+                PlayerControl[] impostors = Main.AllAlivePlayerControls.Where(pc => pc.Is(CustomRoleTypes.Impostor)).ToArray();
+                PlayerControl target = impostors.RandomElement();
+                if (target == null)
+                {
+                    return;
+                }
 
-                var pos = target.Pos();
+                Vector2 pos = target.Pos();
                 LocateArrow.Add(Player.PlayerId, pos);
                 HasArrow = true;
                 SendRPC();
@@ -84,9 +101,9 @@ namespace EHR.Crewmate
                 }, 5f, "Rabbit ShowArrow Empty");
             }
 
-            void SendRPC()
+            private void SendRPC()
             {
-                var writer = Utils.CreateRPC(CustomRPC.SyncRabbit);
+                MessageWriter writer = Utils.CreateRPC(CustomRPC.SyncRabbit);
                 writer.Write(Player.PlayerId);
                 writer.Write(HasArrow);
                 Utils.EndRPC(writer);

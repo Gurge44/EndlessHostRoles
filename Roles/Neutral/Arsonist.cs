@@ -71,7 +71,7 @@ namespace EHR.Neutral
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            var doused = Utils.GetDousedPlayerCount(playerId);
+            (int, int) doused = Utils.GetDousedPlayerCount(playerId);
             return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Arsonist).ShadeColor(0.25f), !ArsonistCanIgniteAnytime.GetBool() ? $"<color=#777777>-</color> {doused.Item1}/{doused.Item2}" : $"<color=#777777>-</color> {doused.Item1}/{ArsonistMaxPlayersToIgnite.GetInt()}");
         }
 
@@ -126,19 +126,27 @@ namespace EHR.Neutral
 
             if (ArsonistCanIgniteAnytime.GetBool())
             {
-                var douseCount = Utils.GetDousedPlayerCount(physics.myPlayer.PlayerId).Item1;
+                int douseCount = Utils.GetDousedPlayerCount(physics.myPlayer.PlayerId).Item1;
                 if (douseCount >= ArsonistMinPlayersToIgnite.GetInt()) // Don't check for max, since the player would not be able to ignite at all if they somehow get more players doused than the max
                 {
-                    if (douseCount > ArsonistMaxPlayersToIgnite.GetInt()) Logger.Warn("Arsonist Ignited with more players doused than the maximum amount in the settings", "Arsonist Ignite");
+                    if (douseCount > ArsonistMaxPlayersToIgnite.GetInt())
+                    {
+                        Logger.Warn("Arsonist Ignited with more players doused than the maximum amount in the settings", "Arsonist Ignite");
+                    }
+
                     foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                     {
-                        if (!physics.myPlayer.IsDousedPlayer(pc)) continue;
+                        if (!physics.myPlayer.IsDousedPlayer(pc))
+                        {
+                            continue;
+                        }
+
                         pc.Suicide(PlayerState.DeathReason.Torched, physics.myPlayer);
                     }
 
                     physics.myPlayer.KillFlash();
 
-                    var apc = Main.AllAlivePlayerControls.Length;
+                    int apc = Main.AllAlivePlayerControls.Length;
                     switch (apc)
                     {
                         case 1:
@@ -160,10 +168,10 @@ namespace EHR.Neutral
 
         public override void OnGlobalFixedUpdate(PlayerControl player, bool lowLoad)
         {
-            var playerId = player.PlayerId;
+            byte playerId = player.PlayerId;
             if (GameStates.IsInTask && ArsonistTimer.ContainsKey(playerId))
             {
-                var arTarget = ArsonistTimer[playerId].Player;
+                PlayerControl arTarget = ArsonistTimer[playerId].Player;
                 if (!player.IsAlive() || Pelican.IsEaten(playerId))
                 {
                     ArsonistTimer.Remove(playerId);
@@ -172,8 +180,8 @@ namespace EHR.Neutral
                 }
                 else
                 {
-                    var ar_target = ArsonistTimer[playerId].Player;
-                    var ar_time = ArsonistTimer[playerId].Timer;
+                    PlayerControl ar_target = ArsonistTimer[playerId].Player;
+                    float ar_time = ArsonistTimer[playerId].Timer;
                     if (!ar_target.IsAlive())
                     {
                         ArsonistTimer.Remove(playerId);

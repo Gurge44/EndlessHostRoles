@@ -59,8 +59,16 @@ namespace EHR.Impostor
         {
             if (!TrapOnlyWorksOnTheBodyBoobyTrap.GetBool() && killer != target)
             {
-                if (!BoobyTrapBody.Contains(target.PlayerId)) BoobyTrapBody.Add(target.PlayerId);
-                if (!KillerOfBoobyTrapBody.ContainsKey(target.PlayerId)) KillerOfBoobyTrapBody.Add(target.PlayerId, killer.PlayerId);
+                if (!BoobyTrapBody.Contains(target.PlayerId))
+                {
+                    BoobyTrapBody.Add(target.PlayerId);
+                }
+
+                if (!KillerOfBoobyTrapBody.ContainsKey(target.PlayerId))
+                {
+                    KillerOfBoobyTrapBody.Add(target.PlayerId, killer.PlayerId);
+                }
+
                 killer.Suicide();
             }
         }
@@ -71,17 +79,21 @@ namespace EHR.Impostor
             {
                 if (!TrapOnlyWorksOnTheBodyBoobyTrap.GetBool())
                 {
-                    var killerID = KillerOfBoobyTrapBody[target.PlayerId];
+                    byte killerID = KillerOfBoobyTrapBody[target.PlayerId];
 
                     reporter.Suicide(PlayerState.DeathReason.Trapped, Utils.GetPlayerById(killerID));
                     RPC.PlaySoundRPC(killerID, Sounds.KillSound);
 
-                    if (!BoobyTrapBody.Contains(reporter.PlayerId) && TrapConsecutiveBodies.GetBool()) BoobyTrapBody.Add(reporter.PlayerId);
+                    if (!BoobyTrapBody.Contains(reporter.PlayerId) && TrapConsecutiveBodies.GetBool())
+                    {
+                        BoobyTrapBody.Add(reporter.PlayerId);
+                    }
+
                     KillerOfBoobyTrapBody.TryAdd(reporter.PlayerId, killerID);
                     return false;
                 }
 
-                var killerID2 = target.PlayerId;
+                byte killerID2 = target.PlayerId;
 
                 reporter.Suicide(PlayerState.DeathReason.Trapped, Utils.GetPlayerById(killerID2));
                 RPC.PlaySoundRPC(killerID2, Sounds.KillSound);

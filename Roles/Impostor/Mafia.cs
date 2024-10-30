@@ -58,15 +58,38 @@ namespace EHR.Impostor
 
         public static bool MafiaMsgCheck(PlayerControl pc, string msg, bool isUI = false)
         {
-            if (!AmongUsClient.Instance.AmHost) return false;
-            if (!GameStates.IsInGame || pc == null) return false;
-            if (!pc.Is(CustomRoles.Mafia)) return false;
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                return false;
+            }
+
+            if (!GameStates.IsInGame || pc == null)
+            {
+                return false;
+            }
+
+            if (!pc.Is(CustomRoles.Mafia))
+            {
+                return false;
+            }
+
             msg = msg.Trim().ToLower().Replace(" ", string.Empty);
-            if (msg.Length < 3 || !msg.StartsWith("/rv")) return false;
+            if (msg.Length < 3 || !msg.StartsWith("/rv"))
+            {
+                return false;
+            }
+
             if (MafiaCanKillNum.GetInt() < 1)
             {
-                if (!isUI) Utils.SendMessage(GetString("MafiaKillDisable"), pc.PlayerId);
-                else pc.ShowPopUp(GetString("MafiaKillDisable"));
+                if (!isUI)
+                {
+                    Utils.SendMessage(GetString("MafiaKillDisable"), pc.PlayerId);
+                }
+                else
+                {
+                    pc.ShowPopUp(GetString("MafiaKillDisable"));
+                }
+
                 return true;
             }
 
@@ -89,8 +112,15 @@ namespace EHR.Impostor
             {
                 if (MafiaRevenged[pc.PlayerId] >= MafiaCanKillNum.GetInt())
                 {
-                    if (!isUI) Utils.SendMessage(GetString("MafiaKillMax"), pc.PlayerId);
-                    else pc.ShowPopUp(GetString("MafiaKillMax"));
+                    if (!isUI)
+                    {
+                        Utils.SendMessage(GetString("MafiaKillMax"), pc.PlayerId);
+                    }
+                    else
+                    {
+                        pc.ShowPopUp(GetString("MafiaKillMax"));
+                    }
+
                     return true;
                 }
             }
@@ -103,22 +133,43 @@ namespace EHR.Impostor
             }
             catch
             {
-                if (!isUI) Utils.SendMessage(GetString("MafiaKillDead"), pc.PlayerId);
-                else pc.ShowPopUp(GetString("MafiaKillDead"));
+                if (!isUI)
+                {
+                    Utils.SendMessage(GetString("MafiaKillDead"), pc.PlayerId);
+                }
+                else
+                {
+                    pc.ShowPopUp(GetString("MafiaKillDead"));
+                }
+
                 return true;
             }
 
             if (target == null || target.Data.IsDead)
             {
-                if (!isUI) Utils.SendMessage(GetString("MafiaKillDead"), pc.PlayerId);
-                else pc.ShowPopUp(GetString("MafiaKillDead"));
+                if (!isUI)
+                {
+                    Utils.SendMessage(GetString("MafiaKillDead"), pc.PlayerId);
+                }
+                else
+                {
+                    pc.ShowPopUp(GetString("MafiaKillDead"));
+                }
+
                 return true;
             }
 
             if (target.Is(CustomRoles.Pestilence))
             {
-                if (!isUI) Utils.SendMessage(GetString("PestilenceImmune"), pc.PlayerId);
-                else pc.ShowPopUp(GetString("PestilenceImmune"));
+                if (!isUI)
+                {
+                    Utils.SendMessage(GetString("PestilenceImmune"), pc.PlayerId);
+                }
+                else
+                {
+                    pc.ShowPopUp(GetString("PestilenceImmune"));
+                }
+
                 return true;
             }
 
@@ -142,7 +193,7 @@ namespace EHR.Impostor
                     //死者检查
                     Utils.AfterPlayerDeathTasks(target, true);
 
-                    Utils.NotifyRoles(isForMeeting: GameStates.IsMeeting, NoCache: true);
+                    Utils.NotifyRoles(GameStates.IsMeeting, NoCache: true);
                 }
                 else
                 {
@@ -171,18 +222,32 @@ namespace EHR.Impostor
         private static void MafiaOnClick(byte playerId /*, MeetingHud __instance*/)
         {
             Logger.Msg($"Click: ID {playerId}", "Mafia UI");
-            var pc = Utils.GetPlayerById(playerId);
-            if (pc == null || !pc.IsAlive() || !GameStates.IsVoting) return;
-            if (AmongUsClient.Instance.AmHost) MafiaMsgCheck(PlayerControl.LocalPlayer, $"/rv {playerId}", true);
-            else SendRPC(playerId);
+            PlayerControl pc = Utils.GetPlayerById(playerId);
+            if (pc == null || !pc.IsAlive() || !GameStates.IsVoting)
+            {
+                return;
+            }
+
+            if (AmongUsClient.Instance.AmHost)
+            {
+                MafiaMsgCheck(PlayerControl.LocalPlayer, $"/rv {playerId}", true);
+            }
+            else
+            {
+                SendRPC(playerId);
+            }
         }
 
         public static void CreateJudgeButton(MeetingHud __instance)
         {
             foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
             {
-                var pc = Utils.GetPlayerById(pva.TargetPlayerId);
-                if (pc == null || !pc.IsAlive()) continue;
+                PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
+                if (pc == null || !pc.IsAlive())
+                {
+                    continue;
+                }
+
                 GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
                 GameObject targetBox = Object.Instantiate(template, pva.transform);
                 targetBox.name = "ShootButton";
@@ -196,12 +261,14 @@ namespace EHR.Impostor
         }
 
         [HarmonyPatch(typeof(MeetingHud), nameof(MeetingHud.Start))]
-        class StartMeetingPatch
+        private class StartMeetingPatch
         {
             public static void Postfix(MeetingHud __instance)
             {
                 if (PlayerControl.LocalPlayer.Is(CustomRoles.Mafia) && !PlayerControl.LocalPlayer.IsAlive())
+                {
                     CreateJudgeButton(__instance);
+                }
             }
         }
     }

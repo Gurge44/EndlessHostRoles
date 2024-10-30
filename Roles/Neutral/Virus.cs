@@ -72,8 +72,15 @@ namespace EHR.Neutral
             playerId.SetAbilityUseLimit(InfectMax.GetInt());
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return CanVent.GetBool();
+        }
 
         public override bool CanUseKillButton(PlayerControl pc)
         {
@@ -87,13 +94,20 @@ namespace EHR.Neutral
 
         public override void OnMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer.GetAbilityUseLimit() < 1) return;
+            if (killer.GetAbilityUseLimit() < 1)
+            {
+                return;
+            }
+
             InfectedBodies.Add(target.PlayerId);
         }
 
         public static void OnKilledBodyReport(PlayerControl target)
         {
-            if (!CanBeInfected(target)) return;
+            if (!CanBeInfected(target))
+            {
+                return;
+            }
 
             Utils.GetPlayerById(PlayerIdList[0]).RpcRemoveAbilityUse();
 
@@ -116,10 +130,16 @@ namespace EHR.Neutral
         {
             try
             {
-                if (!KillInfectedPlayerAfterMeeting.GetBool()) return;
+                if (!KillInfectedPlayerAfterMeeting.GetBool())
+                {
+                    return;
+                }
 
                 PlayerControl virus = Main.AllAlivePlayerControls.FirstOrDefault(a => a.GetCustomRole() == CustomRoles.Virus);
-                if (virus == null || deathReason != PlayerState.DeathReason.Vote) return;
+                if (virus == null || deathReason != PlayerState.DeathReason.Vote)
+                {
+                    return;
+                }
 
                 if (exileIds.Contains(virus.PlayerId))
                 {
@@ -127,11 +147,14 @@ namespace EHR.Neutral
                     return;
                 }
 
-                var infectedIdList = new List<byte>();
+                List<byte> infectedIdList = new List<byte>();
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
                     bool isInfected = InfectedPlayer.Contains(pc.PlayerId);
-                    if (!isInfected) continue;
+                    if (!isInfected)
+                    {
+                        continue;
+                    }
 
                     if (virus.IsAlive())
                     {
@@ -158,9 +181,21 @@ namespace EHR.Neutral
 
         public override bool KnowRole(PlayerControl player, PlayerControl target)
         {
-            if (base.KnowRole(player, target)) return true;
-            if (player.Is(CustomRoles.Contagious) && target.Is(CustomRoles.Virus)) return true;
-            if (KnowTargetRole.GetBool() && player.Is(CustomRoles.Virus) && target.Is(CustomRoles.Contagious)) return true;
+            if (base.KnowRole(player, target))
+            {
+                return true;
+            }
+
+            if (player.Is(CustomRoles.Contagious) && target.Is(CustomRoles.Virus))
+            {
+                return true;
+            }
+
+            if (KnowTargetRole.GetBool() && player.Is(CustomRoles.Virus) && target.Is(CustomRoles.Contagious))
+            {
+                return true;
+            }
+
             return TargetKnowOtherTarget.GetBool() && player.Is(CustomRoles.Contagious) && target.Is(CustomRoles.Contagious);
         }
 

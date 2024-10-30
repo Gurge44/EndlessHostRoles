@@ -32,12 +32,12 @@ namespace EHR.AddOns.Common
 
             LateTask.New(() =>
             {
-                var aapc = Main.AllAlivePlayerControls;
-                foreach (var pc in aapc)
+                PlayerControl[] aapc = Main.AllAlivePlayerControls;
+                foreach (PlayerControl pc in aapc)
                 {
                     if (pc.Is(CustomRoles.Allergic))
                     {
-                        var target = aapc.RandomElement();
+                        PlayerControl target = aapc.RandomElement();
                         AllergicPlayers[pc.PlayerId] = target.PlayerId;
                     }
                 }
@@ -46,10 +46,17 @@ namespace EHR.AddOns.Common
 
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (Main.HasJustStarted || ExileController.Instance) return;
+            if (Main.HasJustStarted || ExileController.Instance)
+            {
+                return;
+            }
 
-            if (!AllergicPlayers.TryGetValue(pc.PlayerId, out var targetId)) return;
-            var target = targetId.GetPlayer();
+            if (!AllergicPlayers.TryGetValue(pc.PlayerId, out byte targetId))
+            {
+                return;
+            }
+
+            PlayerControl target = targetId.GetPlayer();
             if (target == null || !target.IsAlive() || Vector2.Distance(pc.Pos(), target.Pos()) > Range.GetFloat())
             {
                 if (AllergyMaxTS.Remove(pc.PlayerId))
@@ -61,7 +68,7 @@ namespace EHR.AddOns.Common
                 return;
             }
 
-            if (!AllergyMaxTS.TryGetValue(pc.PlayerId, out var endTS))
+            if (!AllergyMaxTS.TryGetValue(pc.PlayerId, out long endTS))
             {
                 endTS = Utils.TimeStamp + Time.GetInt();
                 AllergyMaxTS[pc.PlayerId] = endTS;
@@ -75,7 +82,10 @@ namespace EHR.AddOns.Common
                 AllergyMaxTS.Remove(pc.PlayerId);
                 pc.Suicide(PlayerState.DeathReason.Allergy);
             }
-            else Utils.NotifyRoles(SpecifyTarget: pc, SpecifySeer: pc);
+            else
+            {
+                Utils.NotifyRoles(SpecifyTarget: pc, SpecifySeer: pc);
+            }
         }
 
         public static void ReceiveRPC(MessageReader reader)
@@ -93,7 +103,11 @@ namespace EHR.AddOns.Common
 
         public static string GetSelfSuffix(PlayerControl seer)
         {
-            if (!seer.IsAlive() || !AllergyMaxTS.TryGetValue(seer.PlayerId, out var endTS)) return string.Empty;
+            if (!seer.IsAlive() || !AllergyMaxTS.TryGetValue(seer.PlayerId, out long endTS))
+            {
+                return string.Empty;
+            }
+
             return string.Format(Translator.GetString("Allergic.Suffix"), Math.Ceiling(endTS / (float)Utils.TimeStamp * 100));
         }
     }

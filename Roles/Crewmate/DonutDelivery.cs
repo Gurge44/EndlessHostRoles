@@ -21,7 +21,7 @@ namespace EHR.Crewmate
         private static OptionItem SEEvilsGetDecreased;
         private static OptionItem SEEvilsDecreaseAmount;
         public static OptionItem UsePet;
-        
+
         private byte DonutDeliveryId;
         private HashSet<byte> Players = [];
 
@@ -72,16 +72,26 @@ namespace EHR.Crewmate
             Main.AllPlayerKillCooldown[playerId] = playerId.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
         }
 
-        public override bool CanUseKillButton(PlayerControl pc) => pc.GetAbilityUseLimit() >= 1;
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return pc.GetAbilityUseLimit() >= 1;
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            opt.SetVision(false);
+        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0) return false;
+            if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0)
+            {
+                return false;
+            }
 
             killer.RpcRemoveAbilityUse();
 
-            var num1 = IRandom.Instance.Next(0, 19);
+            int num1 = IRandom.Instance.Next(0, 19);
             killer.Notify(GetString($"DonutDelivered-{num1}"));
             RandomNotifyTarget(target);
             Players.Add(target.PlayerId);
@@ -92,8 +102,15 @@ namespace EHR.Crewmate
             {
                 LateTask.New(() =>
                 {
-                    if (target.IsCrewmate() || target.GetCustomRole().IsNonNK() || !SEEvilsGetDecreased.GetBool()) Main.AllPlayerSpeed[target.PlayerId] += SEAmount.GetFloat();
-                    else Main.AllPlayerSpeed[target.PlayerId] -= SEEvilsDecreaseAmount.GetFloat();
+                    if (target.IsCrewmate() || target.GetCustomRole().IsNonNK() || !SEEvilsGetDecreased.GetBool())
+                    {
+                        Main.AllPlayerSpeed[target.PlayerId] += SEAmount.GetFloat();
+                    }
+                    else
+                    {
+                        Main.AllPlayerSpeed[target.PlayerId] -= SEEvilsDecreaseAmount.GetFloat();
+                    }
+
                     target.MarkDirtySettings();
 
                     LateTask.New(() =>
@@ -109,7 +126,7 @@ namespace EHR.Crewmate
 
         public static void RandomNotifyTarget(PlayerControl target)
         {
-            var num2 = IRandom.Instance.Next(0, 6);
+            int num2 = IRandom.Instance.Next(0, 6);
             target.Notify(GetString($"DonutGot-{num2}"));
         }
 
@@ -118,7 +135,9 @@ namespace EHR.Crewmate
             foreach (DonutDelivery instance in Instances)
             {
                 if (instance.DonutDeliveryId == target.PlayerId && instance.Players.Contains(guesser.PlayerId))
+                {
                     return true;
+                }
             }
 
             return false;

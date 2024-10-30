@@ -80,14 +80,20 @@ namespace EHR.Crewmate
 
         public static void OnPlayerDead(PlayerControl target)
         {
-            if (!ArrowsPointingToDeadBody.GetBool()) return;
+            if (!ArrowsPointingToDeadBody.GetBool())
+            {
+                return;
+            }
 
             foreach (byte id in PlayerIdList)
             {
-                var player = Utils.GetPlayerById(id);
-                if (player == null || !player.IsAlive()) continue;
+                PlayerControl player = Utils.GetPlayerById(id);
+                if (player == null || !player.IsAlive())
+                {
+                    continue;
+                }
 
-                var pos = target.Pos();
+                Vector2 pos = target.Pos();
                 LocateArrow.Add(id, pos);
             }
         }
@@ -101,7 +107,7 @@ namespace EHR.Crewmate
                     return false;
                 }
 
-                var pos = target.Object.Pos();
+                Vector2 pos = target.Object.Pos();
                 LocateArrow.Remove(pc.PlayerId, pos);
 
                 if (pc.GetAbilityUseLimit() >= 1)
@@ -117,7 +123,10 @@ namespace EHR.Crewmate
                         UnreportablePlayers.Add(target.PlayerId);
                     }
 
-                    if (NotifyKiller.GetBool()) killer.Notify(GetString("BloodhoundKillerNotify"));
+                    if (NotifyKiller.GetBool())
+                    {
+                        killer.Notify(GetString("BloodhoundKillerNotify"));
+                    }
                 }
                 else
                 {
@@ -134,9 +143,20 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
-            if (GameStates.IsMeeting || seer.PlayerId != BloodhoundId || hud) return string.Empty;
-            if (Main.PlayerStates[seer.PlayerId].Role is not Bloodhound bh) return string.Empty;
+            if (target != null && seer.PlayerId != target.PlayerId)
+            {
+                return string.Empty;
+            }
+
+            if (GameStates.IsMeeting || seer.PlayerId != BloodhoundId || hud)
+            {
+                return string.Empty;
+            }
+
+            if (Main.PlayerStates[seer.PlayerId].Role is not Bloodhound bh)
+            {
+                return string.Empty;
+            }
 
             return bh.BloodhoundTargets.Count > 0 ? bh.BloodhoundTargets.Select(targetId => TargetArrow.GetArrows(seer, targetId)).Aggregate(string.Empty, (current, arrow) => current + Utils.ColorString(seer.GetRoleColor(), arrow)) : Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
         }

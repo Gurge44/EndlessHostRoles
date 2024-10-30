@@ -65,37 +65,71 @@ namespace EHR.Crewmate
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             float Vision;
-            if (!Active) Vision = OptionTasksFinishedVision.GetFloat();
-            else if (ElapsedTime > OptionTaskEndVisionTime.GetInt()) Vision = OptionTaskStartVision.GetFloat();
-            else Vision = OptionTaskStartVision.GetFloat() * (ElapsedTime / OptionTaskEndVisionTime.GetInt());
+            if (!Active)
+            {
+                Vision = OptionTasksFinishedVision.GetFloat();
+            }
+            else if (ElapsedTime > OptionTaskEndVisionTime.GetInt())
+            {
+                Vision = OptionTaskStartVision.GetFloat();
+            }
+            else
+            {
+                Vision = OptionTaskStartVision.GetFloat() * (ElapsedTime / OptionTaskEndVisionTime.GetInt());
+            }
 
-            if (Vision <= OptionTaskEndVision.GetFloat()) Vision = OptionTaskEndVision.GetFloat();
+            if (Vision <= OptionTaskEndVision.GetFloat())
+            {
+                Vision = OptionTaskEndVision.GetFloat();
+            }
 
             opt.SetFloat(FloatOptionNames.CrewLightMod, Vision);
             if (Utils.IsActive(SystemTypes.Electrical))
+            {
                 opt.SetFloat(FloatOptionNames.CrewLightMod, Vision * 5);
+            }
         }
 
         public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
-            if ((completedTaskCount + 1) >= totalTaskCount) Active = false;
-            else ElapsedTime = OptionTaskEndVisionTime.GetInt();
+            if (completedTaskCount + 1 >= totalTaskCount)
+            {
+                Active = false;
+            }
+            else
+            {
+                ElapsedTime = OptionTaskEndVisionTime.GetInt();
+            }
+
             pc.MarkDirtySettings();
         }
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!GameStates.IsInTask && !OptionTaskTimeMoveMeeting.GetBool()) return;
-            if (!Active) return;
+            if (!GameStates.IsInTask && !OptionTaskTimeMoveMeeting.GetBool())
+            {
+                return;
+            }
+
+            if (!Active)
+            {
+                return;
+            }
 
             UpdateTime -= Time.fixedDeltaTime;
-            if (UpdateTime < 0) UpdateTime = 1.0f;
+            if (UpdateTime < 0)
+            {
+                UpdateTime = 1.0f;
+            }
 
             if (ElapsedTime > 0f)
             {
                 ElapsedTime -= Time.fixedDeltaTime;
 
-                if (Math.Abs(UpdateTime - 1.0f) < 0.01f) player.MarkDirtySettings();
+                if (Math.Abs(UpdateTime - 1.0f) < 0.01f)
+                {
+                    player.MarkDirtySettings();
+                }
             }
         }
     }

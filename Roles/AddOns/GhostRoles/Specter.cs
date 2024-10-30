@@ -16,8 +16,11 @@ namespace EHR.AddOns.GhostRoles
             IsWon = false;
             LateTask.New(() =>
             {
-                var taskState = pc.GetTaskState();
-                if (taskState == null) return;
+                TaskState taskState = pc.GetTaskState();
+                if (taskState == null)
+                {
+                    return;
+                }
 
                 taskState.HasTasks = true;
                 taskState.CompletedTasksCount = 0;

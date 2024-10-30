@@ -57,7 +57,11 @@ namespace EHR.AddOns.Impostor
         {
             byte id = pc.PlayerId;
             long now = Utils.TimeStamp;
-            if ((LastUpdate.TryGetValue(id, out var ts) && ts >= now) || !GameStates.IsInTask || pc == null) return;
+            if ((LastUpdate.TryGetValue(id, out long ts) && ts >= now) || !GameStates.IsInTask || pc == null)
+            {
+                return;
+            }
+
             if (!pc.IsAlive())
             {
                 Main.PlayerStates[id].RemoveSubRole(CustomRoles.Damocles);
@@ -65,7 +69,10 @@ namespace EHR.AddOns.Impostor
             }
 
             LastUpdate[id] = now;
-            if (!Timer.ContainsKey(id)) Timer[id] = StartingTime + 8;
+            if (!Timer.ContainsKey(id))
+            {
+                Timer[id] = StartingTime + 8;
+            }
 
             Timer[id]--;
 
@@ -75,21 +82,37 @@ namespace EHR.AddOns.Impostor
                 pc.Suicide();
             }
 
-            if (pc.IsNonHostModClient()) SendRPC(id);
-            if (!pc.IsModClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            if (pc.IsNonHostModClient())
+            {
+                SendRPC(id);
+            }
+
+            if (!pc.IsModClient())
+            {
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            }
         }
 
         public static void SendRPC(byte playerId)
         {
-            if (!Utils.DoRPC) return;
+            if (!Utils.DoRPC)
+            {
+                return;
+            }
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDamoclesTimer, SendOption.Reliable);
             writer.Write(playerId);
             writer.Write(Timer[playerId]);
             writer.Write(LastUpdate[playerId].ToString());
             writer.Write(PreviouslyEnteredVents[playerId].Count);
             if (PreviouslyEnteredVents[playerId].Count > 0)
-                foreach (var vent in PreviouslyEnteredVents[playerId].ToArray())
+            {
+                foreach (int vent in PreviouslyEnteredVents[playerId].ToArray())
+                {
                     writer.Write(vent);
+                }
+            }
+
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
@@ -98,10 +121,14 @@ namespace EHR.AddOns.Impostor
             byte playerId = reader.ReadByte();
             Timer[playerId] = reader.ReadInt32();
             LastUpdate[playerId] = long.Parse(reader.ReadString());
-            var elements = reader.ReadInt32();
+            int elements = reader.ReadInt32();
             if (elements > 0)
+            {
                 for (int i = 0; i < elements; i++)
+                {
                     PreviouslyEnteredVents[playerId].Add(reader.ReadInt32());
+                }
+            }
         }
 
         public static void OnMurder(byte id)
@@ -116,8 +143,15 @@ namespace EHR.AddOns.Impostor
 
         public static void OnEnterVent(byte id, int ventId)
         {
-            if (!PreviouslyEnteredVents.ContainsKey(id)) PreviouslyEnteredVents[id] = [];
-            if (PreviouslyEnteredVents[id].Contains(ventId)) return;
+            if (!PreviouslyEnteredVents.ContainsKey(id))
+            {
+                PreviouslyEnteredVents[id] = [];
+            }
+
+            if (PreviouslyEnteredVents[id].Contains(ventId))
+            {
+                return;
+            }
 
             PreviouslyEnteredVents[id].Add(ventId);
             Timer[id] += 10;
@@ -171,6 +205,9 @@ namespace EHR.AddOns.Impostor
             Timer.AdjustAllValues(x => (int)Math.Round(x * percent));
         }
 
-        public static string GetProgressText(byte id) => string.Format(GetString("DamoclesTimeLeft"), Timer.GetValueOrDefault(id, StartingTime));
+        public static string GetProgressText(byte id)
+        {
+            return string.Format(GetString("DamoclesTimeLeft"), Timer.GetValueOrDefault(id, StartingTime));
+        }
     }
 }

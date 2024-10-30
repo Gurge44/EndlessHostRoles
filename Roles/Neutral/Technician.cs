@@ -33,7 +33,7 @@ namespace EHR.Neutral
                 .AutoSetupOption(ref MaxInVentTime, 5f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds, overrideParent: CanVent);
 
             int i = 0;
-            foreach (var system in new[] { SystemTypes.Electrical, SystemTypes.Comms, SystemTypes.LifeSupp, SystemTypes.Reactor })
+            foreach (SystemTypes system in new[] { SystemTypes.Electrical, SystemTypes.Comms, SystemTypes.LifeSupp, SystemTypes.Reactor })
             {
                 PointGains[system] = new IntegerOptionItem(646960 + i, $"Technician.PointGain.{system}", new(0, 10, 1), 1, TabGroup.NeutralRoles)
                     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Technician]);
@@ -65,21 +65,34 @@ namespace EHR.Neutral
             }
         }
 
-        public override void OnReportDeadBody() => Ignore = true;
-        public override void AfterMeetingTasks() => Ignore = false;
-
-        private static SystemTypes GetActualSystemType(SystemTypes systemTypes) => systemTypes switch
+        public override void OnReportDeadBody()
         {
-            SystemTypes.Laboratory => SystemTypes.Reactor,
-            SystemTypes.HeliSabotage => SystemTypes.Reactor,
-            _ => systemTypes
-        };
+            Ignore = true;
+        }
 
-        private static bool GetsAnyPoint(SystemTypes systemType) => PointGains.TryGetValue(GetActualSystemType(systemType), out var pointGain) && pointGain.GetInt() > 0;
-
-        void IncreasePoints(SystemTypes systemType)
+        public override void AfterMeetingTasks()
         {
-            var actualSystemType = GetActualSystemType(systemType);
+            Ignore = false;
+        }
+
+        private static SystemTypes GetActualSystemType(SystemTypes systemTypes)
+        {
+            return systemTypes switch
+            {
+                SystemTypes.Laboratory => SystemTypes.Reactor,
+                SystemTypes.HeliSabotage => SystemTypes.Reactor,
+                _ => systemTypes
+            };
+        }
+
+        private static bool GetsAnyPoint(SystemTypes systemType)
+        {
+            return PointGains.TryGetValue(GetActualSystemType(systemType), out OptionItem pointGain) && pointGain.GetInt() > 0;
+        }
+
+        private void IncreasePoints(SystemTypes systemType)
+        {
+            SystemTypes actualSystemType = GetActualSystemType(systemType);
             TechnicianPC.RpcIncreaseAbilityUseLimitBy(PointGains[actualSystemType].GetInt());
             if (TechnicianPC.GetAbilityUseLimit() >= RequiredPoints.GetInt())
             {
@@ -88,15 +101,29 @@ namespace EHR.Neutral
                     CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Technician);
                     CustomWinnerHolder.WinnerIds.Add(TechnicianPC.PlayerId);
                 }
-                else IsWon = true;
+                else
+                {
+                    IsWon = true;
+                }
             }
         }
 
         public static void RepairSystem(byte playerId, SystemTypes systemType, byte amount)
         {
-            if (Main.PlayerStates[playerId].IsDead) return;
-            if (Main.PlayerStates[playerId].Role is not Technician technician) return;
-            if (!GetsAnyPoint(systemType) || technician.IsWon || technician.Ignore) return;
+            if (Main.PlayerStates[playerId].IsDead)
+            {
+                return;
+            }
+
+            if (Main.PlayerStates[playerId].Role is not Technician technician)
+            {
+                return;
+            }
+
+            if (!GetsAnyPoint(systemType) || technician.IsWon || technician.Ignore)
+            {
+                return;
+            }
 
             switch (systemType)
             {
@@ -113,7 +140,7 @@ namespace EHR.Neutral
                 }
                 case SystemTypes.HeliSabotage:
                 {
-                    var tags = (HeliSabotageSystem.Tags)(amount & HeliSabotageSystem.TagMask);
+                    HeliSabotageSystem.Tags tags = (HeliSabotageSystem.Tags)(amount & HeliSabotageSystem.TagMask);
                     if (tags == HeliSabotageSystem.Tags.ActiveBit)
                     {
                         technician.FixedSabotage = false;
@@ -122,8 +149,8 @@ namespace EHR.Neutral
                     if (!technician.FixedSabotage && tags == HeliSabotageSystem.Tags.FixBit)
                     {
                         technician.FixedSabotage = true;
-                        var consoleId = amount & HeliSabotageSystem.IdMask;
-                        var otherConsoleId = (consoleId + 1) % 2;
+                        int consoleId = amount & HeliSabotageSystem.IdMask;
+                        int otherConsoleId = (consoleId + 1) % 2;
                         ShipStatus.Instance.UpdateSystem(SystemTypes.HeliSabotage, playerId.GetPlayer(), (byte)(otherConsoleId | (int)HeliSabotageSystem.Tags.FixBit));
                         technician.IncreasePoints(systemType);
                     }
@@ -144,7 +171,7 @@ namespace EHR.Neutral
                 {
                     if (Main.CurrentMap is MapNames.Mira or MapNames.Fungle)
                     {
-                        var tags = (HqHudSystemType.Tags)(amount & HqHudSystemType.TagMask);
+                        HqHudSystemType.Tags tags = (HqHudSystemType.Tags)(amount & HqHudSystemType.TagMask);
                         if (tags == HqHudSystemType.Tags.ActiveBit)
                         {
                             technician.FixedSabotage = false;
@@ -153,13 +180,16 @@ namespace EHR.Neutral
                         if (!technician.FixedSabotage && tags == HqHudSystemType.Tags.FixBit)
                         {
                             technician.FixedSabotage = true;
-                            var consoleId = amount & HqHudSystemType.IdMask;
-                            var otherConsoleId = (consoleId + 1) % 2;
+                            int consoleId = amount & HqHudSystemType.IdMask;
+                            int otherConsoleId = (consoleId + 1) % 2;
                             ShipStatus.Instance.UpdateSystem(SystemTypes.Comms, playerId.GetPlayer(), (byte)(otherConsoleId | (int)HqHudSystemType.Tags.FixBit));
                             technician.IncreasePoints(systemType);
                         }
                     }
-                    else if (amount == 0) technician.IncreasePoints(systemType);
+                    else if (amount == 0)
+                    {
+                        technician.IncreasePoints(systemType);
+                    }
 
                     break;
                 }
@@ -168,12 +198,22 @@ namespace EHR.Neutral
 
         public static void SwitchSystemRepair(byte playerId, SwitchSystem switchSystem, byte amount)
         {
-            if (Main.PlayerStates[playerId].IsDead) return;
-            if (!GetsAnyPoint(SystemTypes.Electrical) || Main.PlayerStates[playerId].Role is not Technician technician) return;
+            if (Main.PlayerStates[playerId].IsDead)
+            {
+                return;
+            }
 
-            if (amount.HasBit(SwitchSystem.DamageSystem)) return;
+            if (!GetsAnyPoint(SystemTypes.Electrical) || Main.PlayerStates[playerId].Role is not Technician technician)
+            {
+                return;
+            }
 
-            var fixbit = 1 << amount;
+            if (amount.HasBit(SwitchSystem.DamageSystem))
+            {
+                return;
+            }
+
+            int fixbit = 1 << amount;
             switchSystem.ActualSwitches = (byte)(switchSystem.ExpectedSwitches ^ fixbit);
 
             technician.IncreasePoints(SystemTypes.Electrical);
@@ -181,9 +221,9 @@ namespace EHR.Neutral
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            var points = (int)Math.Round(playerId.GetAbilityUseLimit());
-            var needed = RequiredPoints.GetInt();
-            var color = points >= needed ? Color.green : Color.white;
+            int points = (int)Math.Round(playerId.GetAbilityUseLimit());
+            int needed = RequiredPoints.GetInt();
+            Color color = points >= needed ? Color.green : Color.white;
             return Utils.ColorString(color, $"{points}/{needed}");
         }
     }

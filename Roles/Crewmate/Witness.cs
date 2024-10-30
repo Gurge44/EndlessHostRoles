@@ -68,8 +68,10 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (AllKillers.TryGetValue(pc.PlayerId, out var ktime) && ktime + WitnessTime.GetInt() < Utils.TimeStamp)
+            if (AllKillers.TryGetValue(pc.PlayerId, out long ktime) && ktime + WitnessTime.GetInt() < Utils.TimeStamp)
+            {
                 AllKillers.Remove(pc.PlayerId);
+            }
         }
     }
 }

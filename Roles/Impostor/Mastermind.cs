@@ -63,13 +63,24 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable) return false;
-            if (killer == null) return false;
-            if (target == null) return false;
+            if (!IsEnable)
+            {
+                return false;
+            }
+
+            if (killer == null)
+            {
+                return false;
+            }
+
+            if (target == null)
+            {
+                return false;
+            }
 
             return killer.CheckDoubleTrigger(target, () =>
             {
-                killer.SetKillCooldown(time: ManipulateCD);
+                killer.SetKillCooldown(ManipulateCD);
                 ManipulateDelays.TryAdd(target.PlayerId, TimeStamp);
                 NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             });
@@ -77,11 +88,14 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl _)
         {
-            if (!IsEnable || GameStates.IsMeeting || (ManipulatedPlayers.Count == 0 && ManipulateDelays.Count == 0)) return;
-
-            foreach (var x in ManipulateDelays)
+            if (!IsEnable || GameStates.IsMeeting || (ManipulatedPlayers.Count == 0 && ManipulateDelays.Count == 0))
             {
-                var pc = GetPlayerById(x.Key);
+                return;
+            }
+
+            foreach (KeyValuePair<byte, long> x in ManipulateDelays)
+            {
+                PlayerControl pc = GetPlayerById(x.Key);
 
                 if (!pc.IsAlive())
                 {
@@ -97,17 +111,20 @@ namespace EHR.Impostor
                     if (pc.HasKillButton())
                     {
                         TempKCDs.TryAdd(pc.PlayerId, Main.KillTimers[pc.PlayerId]);
-                        pc.SetKillCooldown(time: 1f);
+                        pc.SetKillCooldown(1f);
                     }
-                    else pc.RpcChangeRoleBasis(CustomRoles.NSerialKiller);
+                    else
+                    {
+                        pc.RpcChangeRoleBasis(CustomRoles.NSerialKiller);
+                    }
 
                     NotifyRoles(SpecifySeer: MastermindPC, SpecifyTarget: pc);
                 }
             }
 
-            foreach (var x in ManipulatedPlayers)
+            foreach (KeyValuePair<byte, long> x in ManipulatedPlayers)
             {
-                var player = GetPlayerById(x.Key);
+                PlayerControl player = GetPlayerById(x.Key);
 
                 if (!player.IsAlive())
                 {
@@ -125,7 +142,7 @@ namespace EHR.Impostor
                     player.RpcChangeRoleBasis(player.GetCustomRole());
                 }
 
-                var time = TimeLimit.GetInt() - (TimeStamp - x.Value);
+                long time = TimeLimit.GetInt() - (TimeStamp - x.Value);
 
                 player.Notify(string.Format(GetString("ManipulateNotify"), time), 1.1f);
             }
@@ -133,11 +150,18 @@ namespace EHR.Impostor
 
         public override void OnReportDeadBody()
         {
-            if (!IsEnable) return;
-            foreach (var x in ManipulatedPlayers)
+            if (!IsEnable)
             {
-                var pc = GetPlayerById(x.Key);
-                if (pc.IsAlive()) pc.Suicide(realKiller: MastermindPC);
+                return;
+            }
+
+            foreach (KeyValuePair<byte, long> x in ManipulatedPlayers)
+            {
+                PlayerControl pc = GetPlayerById(x.Key);
+                if (pc.IsAlive())
+                {
+                    pc.Suicide(realKiller: MastermindPC);
+                }
             }
 
             ManipulateDelays.Clear();
@@ -147,12 +171,19 @@ namespace EHR.Impostor
 
         public static bool ForceKillForManipulatedPlayer(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null) return false;
-            if (target == null) return false;
+            if (killer == null)
+            {
+                return false;
+            }
+
+            if (target == null)
+            {
+                return false;
+            }
 
             ManipulatedPlayers.Remove(killer.PlayerId);
 
-            foreach (var id in PlayerIdList)
+            foreach (byte id in PlayerIdList)
             {
                 (Main.PlayerStates[id].Role as Mastermind)?.NotifyMastermindTargetSurvived();
             }
@@ -173,8 +204,8 @@ namespace EHR.Impostor
 
             LateTask.New(() =>
             {
-                var kcd = TempKCDs.TryGetValue(killer.PlayerId, out var cd) ? cd : Main.AllPlayerKillCooldown.GetValueOrDefault(killer.PlayerId, DefaultKillCooldown);
-                killer.SetKillCooldown(time: kcd);
+                float kcd = TempKCDs.TryGetValue(killer.PlayerId, out float cd) ? cd : Main.AllPlayerKillCooldown.GetValueOrDefault(killer.PlayerId, DefaultKillCooldown);
+                killer.SetKillCooldown(kcd);
                 TempKCDs.Remove(killer.PlayerId);
             }, 0.1f, "Set KCD for Manipulated Kill");
 
@@ -183,10 +214,16 @@ namespace EHR.Impostor
 
         private void NotifyMastermindTargetSurvived()
         {
-            if (!IsEnable) return;
+            if (!IsEnable)
+            {
+                return;
+            }
+
             MastermindPC.Notify(GetString("ManipulatedKilled"));
             if (Main.KillTimers[MastermindId] > KillCooldown.GetFloat())
-                MastermindPC.SetKillCooldown(time: KillCooldown.GetFloat());
+            {
+                MastermindPC.SetKillCooldown(KillCooldown.GetFloat());
+            }
         }
     }
 }

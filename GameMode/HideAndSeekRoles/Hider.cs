@@ -68,7 +68,7 @@
 
         public static void OnSpecificTaskComplete(PlayerControl pc, PlayerTask task)
         {
-            int time = !AddTasksFromListPatch.DisableTasksSettings.TryGetValue(task.TaskType, out var setting)
+            int time = !AddTasksFromListPatch.DisableTasksSettings.TryGetValue(task.TaskType, out OptionItem setting)
                 ? TimeDecreaseOnOtherTaskComplete.GetInt()
                 : setting.Parent.Name switch
                 {
@@ -81,7 +81,10 @@
 
             HnSManager.TimeLeft -= time;
             pc.Notify(string.Format(Translator.GetString("TimeDecreased"), time));
-            if (60 - (HnSManager.TimeLeft % 60) <= time) Utils.NotifyRoles();
+            if (60 - (HnSManager.TimeLeft % 60) <= time)
+            {
+                Utils.NotifyRoles();
+            }
         }
     }
 }

@@ -88,7 +88,7 @@ namespace EHR.AddOns.Crewmate
 
             LateTask.New(() =>
             {
-                foreach (var pc in Main.AllAlivePlayerControls)
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
                     if (pc.Is(CustomRoles.Stressed))
                     {
@@ -102,7 +102,7 @@ namespace EHR.AddOns.Crewmate
                         LastUpdates.Add(pc.PlayerId, now + 1);
                     }
                 }
-                
+
                 LogTimer();
             }, 8f, "Add Stressed Timers");
         }
@@ -110,7 +110,11 @@ namespace EHR.AddOns.Crewmate
         public static void Update(PlayerControl pc)
         {
             long now = Utils.TimeStamp;
-            if (pc == null || !LastUpdates.TryGetValue(pc.PlayerId, out var x) || x >= now || !Timers.ContainsKey(pc.PlayerId) || !IsEnable || !GameStates.IsInTask || !pc.Is(CustomRoles.Stressed)) return;
+            if (pc == null || !LastUpdates.TryGetValue(pc.PlayerId, out long x) || x >= now || !Timers.ContainsKey(pc.PlayerId) || !IsEnable || !GameStates.IsInTask || !pc.Is(CustomRoles.Stressed))
+            {
+                return;
+            }
+
             LastUpdates[pc.PlayerId] = now;
 
             TaskState ts = pc.GetTaskState();
@@ -130,13 +134,24 @@ namespace EHR.AddOns.Crewmate
                 pc.Suicide();
             }
 
-            if (pc.IsNonHostModClient()) SendRPC(pc.PlayerId, Timers[pc.PlayerId], LastUpdates[pc.PlayerId]);
-            if (!pc.IsModClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            if (pc.IsNonHostModClient())
+            {
+                SendRPC(pc.PlayerId, Timers[pc.PlayerId], LastUpdates[pc.PlayerId]);
+            }
+
+            if (!pc.IsModClient())
+            {
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            }
         }
 
         public static void SendRPC(byte id, int time, long lastUpdate)
         {
-            if (!Utils.DoRPC || !IsEnable) return;
+            if (!Utils.DoRPC || !IsEnable)
+            {
+                return;
+            }
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncStressedTimer, SendOption.Reliable);
             writer.Write(id);
             writer.Write(time);
@@ -146,7 +161,11 @@ namespace EHR.AddOns.Crewmate
 
         public static void ReceiveRPC(MessageReader reader)
         {
-            if (!IsEnable) return;
+            if (!IsEnable)
+            {
+                return;
+            }
+
             byte id = reader.ReadByte();
             int time = reader.ReadInt32();
             long lastUpdate = long.Parse(reader.ReadString());
@@ -154,72 +173,117 @@ namespace EHR.AddOns.Crewmate
             LastUpdates[id] = lastUpdate;
         }
 
-        static void LogTimer(byte id = byte.MaxValue, [CallerMemberName] string action = "")
+        private static void LogTimer(byte id = byte.MaxValue, [CallerMemberName] string action = "")
         {
-            if (Timers.TryGetValue(id, out var time)) Logger.Info($"{action} - Timer: {time} for {id.ColoredPlayerName()}", "Stressed");
-            else Timers.Do(x => Logger.Info($"{action} - Timer: {x.Value} for {x.Key.ColoredPlayerName()}", "Stressed"));
+            if (Timers.TryGetValue(id, out int time))
+            {
+                Logger.Info($"{action} - Timer: {time} for {id.ColoredPlayerName()}", "Stressed");
+            }
+            else
+            {
+                Timers.Do(x => Logger.Info($"{action} - Timer: {x.Value} for {x.Key.ColoredPlayerName()}", "Stressed"));
+            }
         }
 
         public static void OnTaskComplete(PlayerControl pc)
         {
-            if (!IsEnable) return;
+            if (!IsEnable)
+            {
+                return;
+            }
+
             Timers[pc.PlayerId] += TimeAfterTaskComplete;
             LogTimer(pc.PlayerId);
         }
 
         public static void AfterMeetingTasks()
         {
-            if (!IsEnable) return;
+            if (!IsEnable)
+            {
+                return;
+            }
+
             CountRepairSabotage = true;
         }
 
         public static void OnNonCrewmateDead()
         {
-            if (!IsEnable) return;
+            if (!IsEnable)
+            {
+                return;
+            }
+
             AdjustTime(TimeAfterImpDead);
             LogTimer();
         }
 
         public static void OnNonCrewmateEjected()
         {
-            if (!IsEnable) return;
+            if (!IsEnable)
+            {
+                return;
+            }
+
             AdjustTime(TimeAfterImpEject);
             LogTimer();
         }
 
         public static void OnCrewmateEjected()
         {
-            if (!IsEnable) return;
+            if (!IsEnable)
+            {
+                return;
+            }
+
             AdjustTime(TimeMinusAfterCrewEject);
             LogTimer();
         }
 
         public static void OnRepairSabotage(PlayerControl pc)
         {
-            if (!IsEnable) return;
+            if (!IsEnable)
+            {
+                return;
+            }
+
             Timers[pc.PlayerId] += TimeAfterSaboFix;
             LogTimer(pc.PlayerId);
         }
 
         public static void OnReport(PlayerControl pc)
         {
-            if (!IsEnable) return;
+            if (!IsEnable)
+            {
+                return;
+            }
+
             Timers[pc.PlayerId] += TimeAfterReport;
             LogTimer(pc.PlayerId);
         }
 
         public static void OnMeetingStart()
         {
-            if (!IsEnable) return;
+            if (!IsEnable)
+            {
+                return;
+            }
+
             AdjustTime(TimeAfterMeeting + 9);
             LogTimer();
         }
 
-        public static string GetProgressText(byte playerId) => Timers.TryGetValue(playerId, out var x) ? string.Format(GetString("DamoclesTimeLeft"), x) : string.Empty;
+        public static string GetProgressText(byte playerId)
+        {
+            return Timers.TryGetValue(playerId, out int x) ? string.Format(GetString("DamoclesTimeLeft"), x) : string.Empty;
+        }
 
         private static void AdjustTime(int change)
         {
-            if (!IsEnable) return;
+            if (!IsEnable)
+            {
+                return;
+            }
+
             Timers.AdjustAllValues(x => x + change);
         }
     }

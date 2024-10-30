@@ -47,14 +47,18 @@ namespace EHR.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool()) return;
+            if (UsePets.GetBool())
+            {
+                return;
+            }
+
             AURoleOptions.EngineerCooldown = VeteranSkillCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1;
         }
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            var ProgressText = new StringBuilder();
+            StringBuilder ProgressText = new StringBuilder();
 
             ProgressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, VeteranInProtect.ContainsKey(playerId)));
             ProgressText.Append(Utils.GetTaskCount(playerId, comms));
@@ -65,9 +69,13 @@ namespace EHR.Crewmate
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             if (UsePets.GetBool())
+            {
                 hud.PetButton.buttonLabelText.text = Translator.GetString("VeteranVentButtonText");
+            }
             else
+            {
                 hud.AbilityButton.buttonLabelText.text = Translator.GetString("VeteranVentButtonText");
+            }
         }
 
         public override void OnPet(PlayerControl pc)
@@ -80,9 +88,13 @@ namespace EHR.Crewmate
             Alert(pc);
         }
 
-        static void Alert(PlayerControl pc)
+        private static void Alert(PlayerControl pc)
         {
-            if (VeteranInProtect.ContainsKey(pc.PlayerId)) return;
+            if (VeteranInProtect.ContainsKey(pc.PlayerId))
+            {
+                return;
+            }
+
             if (pc.GetAbilityUseLimit() >= 1)
             {
                 VeteranInProtect[pc.PlayerId] = Utils.TimeStamp;
@@ -122,8 +134,8 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            var playerId = player.PlayerId;
-            if (VeteranInProtect.TryGetValue(playerId, out var vtime) && vtime + VeteranSkillDuration.GetInt() < Utils.TimeStamp)
+            byte playerId = player.PlayerId;
+            if (VeteranInProtect.TryGetValue(playerId, out long vtime) && vtime + VeteranSkillDuration.GetInt() < Utils.TimeStamp)
             {
                 VeteranInProtect.Remove(playerId);
                 player.RpcResetAbilityCooldown();

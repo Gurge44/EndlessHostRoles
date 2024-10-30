@@ -33,7 +33,11 @@ namespace EHR.Crewmate
 
         public override void OnTaskComplete(PlayerControl player, int completedTaskCount, int totalTaskCount)
         {
-            if (!SpeedUp.ContainsKey(player.PlayerId)) SpeedNormal[player.PlayerId] = Main.AllPlayerSpeed[player.PlayerId];
+            if (!SpeedUp.ContainsKey(player.PlayerId))
+            {
+                SpeedNormal[player.PlayerId] = Main.AllPlayerSpeed[player.PlayerId];
+            }
+
             Main.AllPlayerSpeed[player.PlayerId] = Options.ExpressSpeed.GetFloat();
             SpeedUp[player.PlayerId] = Utils.TimeStamp;
             player.MarkDirtySettings();
@@ -41,11 +45,14 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!GameStates.IsInTask) return;
+            if (!GameStates.IsInTask)
+            {
+                return;
+            }
 
-            var playerId = player.PlayerId;
-            var now = Utils.TimeStamp;
-            if (SpeedUp.TryGetValue(playerId, out var etime) && etime + Options.ExpressSpeedDur.GetInt() < now)
+            byte playerId = player.PlayerId;
+            long now = Utils.TimeStamp;
+            if (SpeedUp.TryGetValue(playerId, out long etime) && etime + Options.ExpressSpeedDur.GetInt() < now)
             {
                 SpeedUp.Remove(playerId);
                 Main.AllPlayerSpeed[playerId] = SpeedNormal[playerId];

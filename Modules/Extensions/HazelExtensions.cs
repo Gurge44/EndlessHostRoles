@@ -5,7 +5,10 @@ namespace EHR
 {
     public static class HazelExtensions
     {
-        public static void Write(this MessageWriter writer, Vector2 vector) => NetHelpers.WriteVector2(vector, writer);
+        public static void Write(this MessageWriter writer, Vector2 vector)
+        {
+            NetHelpers.WriteVector2(vector, writer);
+        }
 
         public static void Write(this MessageWriter writer, Vector3 vector)
         {
@@ -24,7 +27,10 @@ namespace EHR
 
         // -------------------------------------------------------------------------------------------------------------------------
 
-        public static Vector2 ReadVector2(this MessageReader reader) => NetHelpers.ReadVector2(reader);
+        public static Vector2 ReadVector2(this MessageReader reader)
+        {
+            return NetHelpers.ReadVector2(reader);
+        }
 
         public static Vector3 ReadVector3(this MessageReader reader)
         {

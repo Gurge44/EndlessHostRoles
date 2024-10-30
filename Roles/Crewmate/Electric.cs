@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using static EHR.Options;
 
 namespace EHR.Crewmate
@@ -31,13 +32,20 @@ namespace EHR.Crewmate
 
         public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
-            if (pc == null) return;
+            if (pc == null)
+            {
+                return;
+            }
 
-            var targetList = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate)).ToList();
-            if (targetList.Count == 0) return;
-            var target = targetList.RandomElement();
+            List<PlayerControl> targetList = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate)).ToList();
+            if (targetList.Count == 0)
+            {
+                return;
+            }
 
-            var beforeSpeed = Main.AllPlayerSpeed[target.PlayerId];
+            PlayerControl target = targetList.RandomElement();
+
+            float beforeSpeed = Main.AllPlayerSpeed[target.PlayerId];
             Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
             target.MarkDirtySettings();
             LateTask.New(() =>

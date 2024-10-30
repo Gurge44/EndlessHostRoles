@@ -27,7 +27,7 @@ namespace EHR.Impostor
 
         private static List<CustomRoles> Roles = [];
         public static bool On;
-        byte ChangelingId;
+        private byte ChangelingId;
 
         public CustomRoles CurrentRole;
         public override bool IsEnable => On;
@@ -49,11 +49,11 @@ namespace EHR.Impostor
                 IEnumerable<CustomRoles> result = AvailableRoles.GetValue() switch
                 {
                     0 => allRoles,
-                    1 => allRoles.Where(x => x.GetVNRole(checkDesyncRole: true) is CustomRoles.Impostor or CustomRoles.ImpostorEHR),
-                    2 => allRoles.Where(x => x.GetVNRole(checkDesyncRole: true) is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR),
+                    1 => allRoles.Where(x => x.GetVNRole(true) is CustomRoles.Impostor or CustomRoles.ImpostorEHR),
+                    2 => allRoles.Where(x => x.GetVNRole(true) is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR),
                     3 => allRoles.Where(x => x.GetMode() != 0),
-                    4 => allRoles.Where(x => x.GetVNRole(checkDesyncRole: true) is CustomRoles.Impostor or CustomRoles.ImpostorEHR && x.GetMode() != 0),
-                    5 => allRoles.Where(x => x.GetVNRole(checkDesyncRole: true) is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR && x.GetMode() != 0),
+                    4 => allRoles.Where(x => x.GetVNRole(true) is CustomRoles.Impostor or CustomRoles.ImpostorEHR && x.GetMode() != 0),
+                    5 => allRoles.Where(x => x.GetVNRole(true) is CustomRoles.Shapeshifter or CustomRoles.ShapeshifterEHR && x.GetMode() != 0),
                     _ => allRoles
                 };
 
@@ -62,7 +62,7 @@ namespace EHR.Impostor
                     result = result.Where(x => !CustomRoleSelector.RoleResult.ContainsValue(x));
                 }
 
-                var rolesList = result.ToList();
+                List<CustomRoles> rolesList = result.ToList();
                 rolesList.Remove(CustomRoles.Changeling);
                 rolesList.RemoveAll(x => !x.IsImpostor() || x.IsVanilla() || x.IsAdditionRole());
                 return rolesList;
@@ -97,15 +97,18 @@ namespace EHR.Impostor
             Roles = GetAvailableRoles();
         }
 
-        void SelectNextRole(PlayerControl pc)
+        private void SelectNextRole(PlayerControl pc)
         {
-            var currentIndex = Roles.IndexOf(CurrentRole);
+            int currentIndex = Roles.IndexOf(CurrentRole);
             CurrentRole = currentIndex == Roles.Count - 1 ? Roles.First() : Roles[currentIndex + 1];
             Utils.SendRPC(CustomRPC.SyncChangeling, pc.PlayerId, (int)CurrentRole);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
-        public override bool CanUseKillButton(PlayerControl pc) => CanKillBeforeRoleChange.GetBool();
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return CanKillBeforeRoleChange.GetBool();
+        }
 
         public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
         {
@@ -132,6 +135,9 @@ namespace EHR.Impostor
             return false;
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false) => seer.PlayerId != target.PlayerId || ChangelingId != seer.PlayerId ? string.Empty : string.Format(Translator.GetString("ChangelingCurrentRole"), CurrentRole.ToColoredString());
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
+        {
+            return seer.PlayerId != target.PlayerId || ChangelingId != seer.PlayerId ? string.Empty : string.Format(Translator.GetString("ChangelingCurrentRole"), CurrentRole.ToColoredString());
+        }
     }
 }

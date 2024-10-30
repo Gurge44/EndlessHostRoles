@@ -1,27 +1,28 @@
 ﻿using System;
 using UnityEngine;
 
-namespace EHR.Modules;
-
-// https://github.com/tukasa0001/TownOfHost/blob/main/Modules/VersionChecker.cs
-public static class VersionChecker
+namespace EHR.Modules
 {
-    public static bool IsSupported { get; private set; } = true;
-
-    public static void Check()
+    // https://github.com/tukasa0001/TownOfHost/blob/main/Modules/VersionChecker.cs
+    public static class VersionChecker
     {
-        var AmongUsVersion = Version.Parse(Application.version);
-        Logger.Info($" {AmongUsVersion}", "Among Us Version Check");
+        public static bool IsSupported { get; private set; } = true;
 
-        var SupportedVersion = Version.Parse(Main.SupportedAUVersion);
-        Logger.Info($" {SupportedVersion}", "Supported Version Check");
-
-        IsSupported = AmongUsVersion >= SupportedVersion;
-        Logger.Info($" {IsSupported}", "Version Is Supported?");
-
-        if (!IsSupported)
+        public static void Check()
         {
-            ErrorText.Instance.AddError(ErrorCode.UnsupportedVersion);
+            Version AmongUsVersion = Version.Parse(Application.version);
+            Logger.Info($" {AmongUsVersion}", "Among Us Version Check");
+
+            Version SupportedVersion = Version.Parse(Main.SupportedAUVersion);
+            Logger.Info($" {SupportedVersion}", "Supported Version Check");
+
+            IsSupported = AmongUsVersion >= SupportedVersion;
+            Logger.Info($" {IsSupported}", "Version Is Supported?");
+
+            if (!IsSupported)
+            {
+                ErrorText.Instance.AddError(ErrorCode.UnsupportedVersion);
+            }
         }
     }
 }

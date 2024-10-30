@@ -3,7 +3,6 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using UnityEngine;
 using static EHR.Options;
 
 namespace EHR.Impostor
@@ -39,7 +38,10 @@ namespace EHR.Impostor
 
         public override void OnTaskComplete(PlayerControl player, int completedTaskCount, int totalTaskCount)
         {
-            if (!TasksDone.TryAdd(player.PlayerId, 0)) TasksDone[player.PlayerId]++;
+            if (!TasksDone.TryAdd(player.PlayerId, 0))
+            {
+                TasksDone[player.PlayerId]++;
+            }
 
             SendRPC(player.PlayerId, TasksDone[player.PlayerId]);
 
@@ -55,7 +57,7 @@ namespace EHR.Impostor
             else
             {
                 list = [.. list.OrderBy(x => Vector2.Distance(player.Pos(), x.Pos()))];
-                var target = list[0];
+                PlayerControl target = list[0];
                 if (!target.Is(CustomRoles.Pestilence))
                 {
                     if (!CrewpostorLungeKill.GetBool())
@@ -104,7 +106,9 @@ namespace EHR.Impostor
             if (PlayerControl.LocalPlayer.PlayerId == cpID)
             {
                 if (!TasksDone.TryAdd(cpID, 0))
+                {
                     TasksDone[cpID] = tasksDone;
+                }
             }
             else
             {
@@ -120,7 +124,9 @@ namespace EHR.Impostor
             byte PlayerId = reader.ReadByte();
             int tasksDone = reader.ReadInt32();
             if (!TasksDone.TryAdd(PlayerId, 0))
+            {
                 TasksDone[PlayerId] = tasksDone;
+            }
         }
 
         public override void Init()

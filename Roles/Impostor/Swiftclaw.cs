@@ -42,9 +42,14 @@ namespace EHR.Impostor
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             if (Options.UsePhantomBasis.GetBool())
+            {
                 AURoleOptions.PhantomCooldown = DashCD.GetFloat() + DashDuration.GetFloat();
+            }
+
             if (Options.UseUnshiftTrigger.GetBool())
+            {
                 AURoleOptions.ShapeshifterCooldown = DashCD.GetFloat() + DashDuration.GetFloat();
+            }
         }
 
         public override void OnPet(PlayerControl pc)
@@ -60,14 +65,21 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
+            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool())
+            {
+                return true;
+            }
+
             Dash(shapeshifter);
             return false;
         }
 
         private static void Dash(PlayerControl pc)
         {
-            if (pc == null || DashStart.ContainsKey(pc.PlayerId)) return;
+            if (pc == null || DashStart.ContainsKey(pc.PlayerId))
+            {
+                return;
+            }
 
             DashStart[pc.PlayerId] = (Utils.TimeStamp, Main.AllPlayerSpeed[pc.PlayerId]);
             Main.AllPlayerSpeed[pc.PlayerId] = DashSpeed.GetFloat();
@@ -76,7 +88,10 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || pc == null || !DashStart.TryGetValue(pc.PlayerId, out var dashInfo) || dashInfo.StartTimeStamp + DashDuration.GetInt() > Utils.TimeStamp) return;
+            if (!GameStates.IsInTask || pc == null || !DashStart.TryGetValue(pc.PlayerId, out (long StartTimeStamp, float NormalSpeed) dashInfo) || dashInfo.StartTimeStamp + DashDuration.GetInt() > Utils.TimeStamp)
+            {
+                return;
+            }
 
             Main.AllPlayerSpeed[pc.PlayerId] = dashInfo.NormalSpeed;
             pc.MarkDirtySettings();
@@ -85,7 +100,7 @@ namespace EHR.Impostor
 
         public override void OnReportDeadBody()
         {
-            foreach (var item in DashStart)
+            foreach (KeyValuePair<byte, (long StartTimeStamp, float NormalSpeed)> item in DashStart)
             {
                 Main.AllPlayerSpeed[item.Key] = item.Value.NormalSpeed;
             }

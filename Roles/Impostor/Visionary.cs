@@ -60,8 +60,15 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting) return true;
-            if (RevealedPlayerIds.Contains(target.PlayerId) || shapeshifter.GetAbilityUseLimit() < 1) return false;
+            if (!shapeshifting)
+            {
+                return true;
+            }
+
+            if (RevealedPlayerIds.Contains(target.PlayerId) || shapeshifter.GetAbilityUseLimit() < 1)
+            {
+                return false;
+            }
 
             RevealedPlayerIds.Add(target.PlayerId);
             shapeshifter.RpcRemoveAbilityUse();

@@ -42,7 +42,11 @@ namespace EHR.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool()) return;
+            if (UsePets.GetBool())
+            {
+                return;
+            }
+
             AURoleOptions.EngineerCooldown = DovesOfNeaceCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1f;
         }
@@ -50,9 +54,13 @@ namespace EHR.Crewmate
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             if (UsePets.GetBool())
+            {
                 hud.PetButton.buttonLabelText.text = Translator.GetString("DovesOfNeaceVentButtonText");
+            }
             else
+            {
                 hud.AbilityButton.buttonLabelText.text = Translator.GetString("DovesOfNeaceVentButtonText");
+            }
         }
 
         public override void OnPet(PlayerControl pc)
@@ -65,7 +73,7 @@ namespace EHR.Crewmate
             ResetCooldowns(pc);
         }
 
-        static void ResetCooldowns(PlayerControl pc)
+        private static void ResetCooldowns(PlayerControl pc)
         {
             if (pc.GetAbilityUseLimit() < 1)
             {
@@ -76,7 +84,7 @@ namespace EHR.Crewmate
             pc.RpcRemoveAbilityUse();
             bool isMadMate = pc.Is(CustomRoles.Madmate);
             Main.AllAlivePlayerControls
-                .Where(x => isMadMate ? (x.CanUseKillButton() && x.IsCrewmate()) : x.CanUseKillButton())
+                .Where(x => isMadMate ? x.CanUseKillButton() && x.IsCrewmate() : x.CanUseKillButton())
                 .Do(x =>
                 {
                     x.RPCPlayCustomSound("Dove");

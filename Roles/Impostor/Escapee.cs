@@ -1,6 +1,5 @@
 ﻿using AmongUs.GameOptions;
 using EHR.Modules;
-using UnityEngine;
 
 namespace EHR.Impostor
 {
@@ -32,16 +31,29 @@ namespace EHR.Impostor
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            if (Options.UsePets.GetBool()) hud.PetButton?.OverrideText(Translator.GetString("EscapeeAbilityButtonText"));
-            else hud.AbilityButton?.OverrideText(Translator.GetString("EscapeeAbilityButtonText"));
+            if (Options.UsePets.GetBool())
+            {
+                hud.PetButton?.OverrideText(Translator.GetString("EscapeeAbilityButtonText"));
+            }
+            else
+            {
+                hud.AbilityButton?.OverrideText(Translator.GetString("EscapeeAbilityButtonText"));
+            }
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
-            if (Options.UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = Options.EscapeeSSCD.GetFloat();
+            if (Options.UsePhantomBasis.GetBool())
+            {
+                AURoleOptions.PhantomCooldown = Options.EscapeeSSCD.GetFloat();
+            }
             else
             {
-                if (Options.UsePets.GetBool()) return;
+                if (Options.UsePets.GetBool())
+                {
+                    return;
+                }
+
                 AURoleOptions.ShapeshifterCooldown = Options.EscapeeSSCD.GetFloat();
                 AURoleOptions.ShapeshifterDuration = 1f;
             }
@@ -62,7 +74,7 @@ namespace EHR.Impostor
         {
             if (EscapeeLocation != null)
             {
-                var position = (Vector2)EscapeeLocation;
+                Vector2 position = (Vector2)EscapeeLocation;
                 EscapeeLocation = null;
                 pc.TP(position);
                 pc.RPCPlayCustomSound("Teleport");

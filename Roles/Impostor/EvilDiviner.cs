@@ -76,9 +76,13 @@ namespace EHR.Impostor
             opt.SetVision(HasImpVision);
         }
 
-        static void SendRPC(byte playerId, byte targetId)
+        private static void SendRPC(byte playerId, byte targetId)
         {
-            if (!Utils.DoRPC) return;
+            if (!Utils.DoRPC)
+            {
+                return;
+            }
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetEvilDiviner, SendOption.Reliable);
             writer.Write(playerId);
             writer.Write(targetId);
@@ -100,7 +104,10 @@ namespace EHR.Impostor
             return !(killer.GetAbilityUseLimit() >= 1) || killer.CheckDoubleTrigger(target, () => { SetDivination(killer, target); });
         }
 
-        public bool IsDivination(byte target) => DivinationTarget.Contains(target);
+        public bool IsDivination(byte target)
+        {
+            return DivinationTarget.Contains(target);
+        }
 
         public void SetDivination(PlayerControl killer, PlayerControl target)
         {
@@ -118,7 +125,11 @@ namespace EHR.Impostor
 
         public override bool KnowRole(PlayerControl seer, PlayerControl target)
         {
-            if (base.KnowRole(seer, target)) return true;
+            if (base.KnowRole(seer, target))
+            {
+                return true;
+            }
+
             return Main.PlayerStates[seer.PlayerId].Role is EvilDiviner ed && ed.DivinationTarget.Contains(target.PlayerId);
         }
     }

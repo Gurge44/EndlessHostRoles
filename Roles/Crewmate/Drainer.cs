@@ -55,39 +55,64 @@ namespace EHR.Crewmate
 
         public static void OnAnyoneExitVent(PlayerControl pc)
         {
-            if (!AmongUsClient.Instance.AmHost) return;
-            if (pc != null) PlayersInVents.Remove(pc.PlayerId);
+            if (!AmongUsClient.Instance.AmHost)
+            {
+                return;
+            }
+
+            if (pc != null)
+            {
+                PlayersInVents.Remove(pc.PlayerId);
+            }
         }
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
-            if (pc.GetAbilityUseLimit() <= 0) return;
+            if (pc.GetAbilityUseLimit() <= 0)
+            {
+                return;
+            }
 
             pc.RpcRemoveAbilityUse();
 
-            var vents = vent.NearbyVents.Where(v => v != null).Append(vent).ToArray();
-            foreach (var ventToDrain in vents) KillPlayersInVent(pc, ventToDrain);
+            Vent[] vents = vent.NearbyVents.Where(v => v != null).Append(vent).ToArray();
+            foreach (Vent ventToDrain in vents)
+            {
+                KillPlayersInVent(pc, ventToDrain);
+            }
         }
 
         public static void OnAnyoneEnterVent(PlayerControl pc, Vent vent)
         {
-            if (!AmongUsClient.Instance.AmHost || pc == null || vent == null || pc.Is(CustomRoles.Drainer)) return;
+            if (!AmongUsClient.Instance.AmHost || pc == null || vent == null || pc.Is(CustomRoles.Drainer))
+            {
+                return;
+            }
 
             PlayersInVents[pc.PlayerId] = vent.Id;
         }
 
-        void KillPlayersInVent(PlayerControl pc, Vent vent)
+        private void KillPlayersInVent(PlayerControl pc, Vent vent)
         {
-            if (!IsEnable) return;
+            if (!IsEnable)
+            {
+                return;
+            }
 
             int ventId = vent.Id;
 
-            if (!PlayersInVents.ContainsValue(ventId)) return;
-
-            foreach (var venterId in PlayersInVents.Where(x => x.Value == ventId).ToArray())
+            if (!PlayersInVents.ContainsValue(ventId))
             {
-                var venter = Utils.GetPlayerById(venterId.Key);
-                if (venter == null) continue;
+                return;
+            }
+
+            foreach (KeyValuePair<byte, int> venterId in PlayersInVents.Where(x => x.Value == ventId).ToArray())
+            {
+                PlayerControl venter = Utils.GetPlayerById(venterId.Key);
+                if (venter == null)
+                {
+                    continue;
+                }
 
                 if (pc != null && pc.RpcCheckAndMurder(venter, true))
                 {
@@ -103,7 +128,11 @@ namespace EHR.Crewmate
 
         public override void OnReportDeadBody()
         {
-            if (!IsEnable) return;
+            if (!IsEnable)
+            {
+                return;
+            }
+
             PlayersInVents.Clear();
         }
     }

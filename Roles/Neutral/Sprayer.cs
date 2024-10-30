@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
-using UnityEngine;
 using static EHR.Options;
 using static EHR.Translator;
 using static EHR.Utils;
@@ -76,20 +75,39 @@ namespace EHR.Neutral
             SprayerId = playerId;
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
 
-            foreach (var pc in Main.AllAlivePlayerControls) TrappedCount[pc.PlayerId] = 0;
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
+            {
+                TrappedCount[pc.PlayerId] = 0;
+            }
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
-        public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (pc.IsAlive() && !(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()));
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return CanVent.GetBool();
+        }
+
+        public override bool CanUseSabotage(PlayerControl pc)
+        {
+            return base.CanUseSabotage(pc) || (pc.IsAlive() && !(UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()));
+        }
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             opt.SetVision(HasImpostorVision.GetBool());
             if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+            {
                 AURoleOptions.PhantomCooldown = CD.GetInt();
+            }
+
             if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
+            {
                 AURoleOptions.ShapeshifterCooldown = CD.GetInt();
+            }
         }
 
         public override bool OnSabotage(PlayerControl pc)
@@ -111,42 +129,62 @@ namespace EHR.Neutral
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool())
+            {
+                return true;
+            }
+
             PlaceTrap();
             return false;
         }
 
-        void PlaceTrap()
+        private void PlaceTrap()
         {
-            if (!IsEnable || SprayerId.GetAbilityUseLimit() <= 0 || SprayerPC.HasAbilityCD()) return;
+            if (!IsEnable || SprayerId.GetAbilityUseLimit() <= 0 || SprayerPC.HasAbilityCD())
+            {
+                return;
+            }
 
             Vector2 pos = SprayerPC.Pos();
             Traps[pos] = new(pos, [SprayerId]);
             SprayerPC.RpcRemoveAbilityUse();
 
-            if (SprayerId.GetAbilityUseLimit() > 0) SprayerPC.AddAbilityCD(CD.GetInt());
+            if (SprayerId.GetAbilityUseLimit() > 0)
+            {
+                SprayerPC.AddAbilityCD(CD.GetInt());
+            }
 
             SprayerPC.Notify(GetString("SprayerNotify"));
         }
 
         public override void OnCheckPlayerPosition(PlayerControl pc)
         {
-            if (!IsEnable || !GameStates.IsInTask || Traps.Count == 0) return;
+            if (!IsEnable || !GameStates.IsInTask || Traps.Count == 0)
+            {
+                return;
+            }
 
             long now = TimeStamp;
 
-            if (pc.PlayerId == SprayerId) return;
+            if (pc.PlayerId == SprayerId)
+            {
+                return;
+            }
 
             LastUpdate.TryAdd(pc.PlayerId, now);
-            if (LastUpdate[pc.PlayerId] + 3 > now) return;
+            if (LastUpdate[pc.PlayerId] + 3 > now)
+            {
+                return;
+            }
+
             LastUpdate[pc.PlayerId] = now;
 
-            foreach (var trap in Traps)
+            foreach (KeyValuePair<Vector2, SprayedArea> trap in Traps)
             {
                 if (Vector2.Distance(pc.Pos(), trap.Key) <= 2f)
                 {
                     byte playerId = pc.PlayerId;
-                    var tempSpeed = Main.AllPlayerSpeed[playerId];
+                    float tempSpeed = Main.AllPlayerSpeed[playerId];
                     Main.AllPlayerSpeed[playerId] = LoweredSpeed.GetFloat();
                     LowerVisionList.Add(playerId);
                     TrappedCount[playerId]++;
@@ -162,7 +200,10 @@ namespace EHR.Neutral
                         {
                             Main.AllPlayerSpeed[playerId] = tempSpeed;
                             LowerVisionList.Remove(playerId);
-                            if (GameStates.IsInTask) pc.MarkDirtySettings();
+                            if (GameStates.IsInTask)
+                            {
+                                pc.MarkDirtySettings();
+                            }
                         }, EffectDuration.GetFloat(), "Sprayer Revert Effects");
                     }
                 }

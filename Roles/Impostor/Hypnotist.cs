@@ -55,7 +55,10 @@ namespace EHR.Impostor
             AURoleOptions.ShapeshifterDuration = 1f;
         }
 
-        public static bool OnAnyoneReport() => Instances.All(x => x.ActivateTS == 0);
+        public static bool OnAnyoneReport()
+        {
+            return Instances.All(x => x.ActivateTS == 0);
+        }
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
@@ -70,12 +73,18 @@ namespace EHR.Impostor
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
             Utils.SendRPC(CustomRPC.SyncRoleData, HypnotistId, ActivateTS);
 
-            if (DoReportAfterHypnosisEnds.GetBool()) ReportDeadBodyPatch.CanReport.SetAllValues(false);
+            if (DoReportAfterHypnosisEnds.GetBool())
+            {
+                ReportDeadBodyPatch.CanReport.SetAllValues(false);
+            }
         }
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (ActivateTS == 0) return;
+            if (ActivateTS == 0)
+            {
+                return;
+            }
 
             bool notify = false;
             int timeLeft = (int)(ActivateTS + AbilityDuration.GetInt() - Utils.TimeStamp);
@@ -86,7 +95,11 @@ namespace EHR.Impostor
                     notify = true;
                     pc.RpcResetAbilityCooldown();
                     Utils.SendRPC(CustomRPC.SyncRoleData, HypnotistId, ActivateTS);
-                    if (DoReportAfterHypnosisEnds.GetBool()) ReportDeadBodyPatch.CanReport.SetAllValues(true);
+                    if (DoReportAfterHypnosisEnds.GetBool())
+                    {
+                        ReportDeadBodyPatch.CanReport.SetAllValues(true);
+                    }
+
                     break;
                 case <= 6 when Count++ >= 30:
                     Count = 0;
@@ -94,7 +107,10 @@ namespace EHR.Impostor
                     break;
             }
 
-            if (notify) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            if (notify)
+            {
+                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
+            }
         }
 
         public void ReceiveRPC(MessageReader reader)
@@ -104,7 +120,11 @@ namespace EHR.Impostor
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != HypnotistId || meeting || (seer.IsModClient() && !hud) || ActivateTS == 0) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != HypnotistId || meeting || (seer.IsModClient() && !hud) || ActivateTS == 0)
+            {
+                return string.Empty;
+            }
+
             int timeLeft = (int)(ActivateTS + AbilityDuration.GetInt() - Utils.TimeStamp);
             return timeLeft <= 5 ? $"\u25a9 ({timeLeft})" : "\u25a9";
         }

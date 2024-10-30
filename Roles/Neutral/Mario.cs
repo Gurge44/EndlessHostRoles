@@ -53,7 +53,7 @@ namespace EHR.Neutral
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            var playerId = pc.PlayerId;
+            byte playerId = pc.PlayerId;
             if (MarioVentCount[playerId] > MarioVentNumWin.GetInt() && GameStates.IsInTask)
             {
                 MarioVentCount[playerId] = MarioVentNumWin.GetInt();

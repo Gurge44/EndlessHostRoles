@@ -1,44 +1,54 @@
 using HarmonyLib;
 using Hazel;
 
-namespace EHR;
-
-[HarmonyPatch(typeof(GameManager), nameof(GameManager.Serialize))]
-class GameManagerSerializeFix
+namespace EHR
 {
-    public static bool Prefix(GameManager __instance, [HarmonyArgument(0)] MessageWriter writer, [HarmonyArgument(1)] bool initialState, ref bool __result)
+    [HarmonyPatch(typeof(GameManager), nameof(GameManager.Serialize))]
+    internal class GameManagerSerializeFix
     {
-        bool flag = false;
-        for (int index = 0; index < __instance.LogicComponents.Count; ++index)
+        public static bool Prefix(GameManager __instance, [HarmonyArgument(0)] MessageWriter writer, [HarmonyArgument(1)] bool initialState, ref bool __result)
         {
-            GameLogicComponent logicComponent = __instance.LogicComponents[index];
-            if (initialState || logicComponent.IsDirty)
+            bool flag = false;
+            for (int index = 0; index < __instance.LogicComponents.Count; ++index)
             {
-                flag = true;
-                writer.StartMessage((byte)index);
-                var hasBody = logicComponent.Serialize(writer, initialState);
-                if (hasBody) writer.EndMessage();
-                else writer.CancelMessage();
-                logicComponent.ClearDirtyFlag();
+                GameLogicComponent logicComponent = __instance.LogicComponents[index];
+                if (initialState || logicComponent.IsDirty)
+                {
+                    flag = true;
+                    writer.StartMessage((byte)index);
+                    bool hasBody = logicComponent.Serialize(writer, initialState);
+                    if (hasBody)
+                    {
+                        writer.EndMessage();
+                    }
+                    else
+                    {
+                        writer.CancelMessage();
+                    }
+
+                    logicComponent.ClearDirtyFlag();
+                }
             }
-        }
-        __instance.ClearDirtyBits();
-        __result = flag;
-        return false;
-    }
-}
-[HarmonyPatch(typeof(LogicOptions), nameof(LogicOptions.Serialize))]
-class LogicOptionsSerializePatch
-{
-    public static bool Prefix(ref bool __result, /*MessageWriter writer,*/ bool initialState)
-    {
-        // Block all but the first time and synchronize only with CustomSyncSettings
-        if (!initialState)
-        {
-            __result = false;
+
+            __instance.ClearDirtyBits();
+            __result = flag;
             return false;
         }
+    }
 
-        return true;
+    [HarmonyPatch(typeof(LogicOptions), nameof(LogicOptions.Serialize))]
+    internal class LogicOptionsSerializePatch
+    {
+        public static bool Prefix(ref bool __result, /*MessageWriter writer,*/ bool initialState)
+        {
+            // Block all but the first time and synchronize only with CustomSyncSettings
+            if (!initialState)
+            {
+                __result = false;
+                return false;
+            }
+
+            return true;
+        }
     }
 }

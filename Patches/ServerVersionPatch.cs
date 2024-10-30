@@ -1,32 +1,33 @@
 ﻿using HarmonyLib;
 
-namespace EHR.Patches;
-
-[HarmonyPatch(typeof(Constants), nameof(Constants.GetBroadcastVersion))]
-static class ServerUpdatePatch
+namespace EHR.Patches
 {
-    public static void Postfix(ref int __result)
+    [HarmonyPatch(typeof(Constants), nameof(Constants.GetBroadcastVersion))]
+    internal static class ServerUpdatePatch
     {
-        if (GameStates.IsLocalGame)
+        public static void Postfix(ref int __result)
         {
-            Logger.Info($"IsLocalGame: {__result}", "VersionServer");
-        }
+            if (GameStates.IsLocalGame)
+            {
+                Logger.Info($"IsLocalGame: {__result}", "VersionServer");
+            }
 
-        if (GameStates.IsOnlineGame)
-        {
-            // Changing server version for AU mods
-            __result += 25;
-            Logger.Info($"IsOnlineGame: {__result}", "VersionServer");
+            if (GameStates.IsOnlineGame)
+            {
+                // Changing server version for AU mods
+                __result += 25;
+                Logger.Info($"IsOnlineGame: {__result}", "VersionServer");
+            }
         }
     }
-}
 
-[HarmonyPatch(typeof(Constants), nameof(Constants.IsVersionModded))]
-public static class IsVersionModdedPatch
-{
-    public static bool Prefix(ref bool __result)
+    [HarmonyPatch(typeof(Constants), nameof(Constants.IsVersionModded))]
+    public static class IsVersionModdedPatch
     {
-        __result = true;
-        return false;
+        public static bool Prefix(ref bool __result)
+        {
+            __result = true;
+            return false;
+        }
     }
 }

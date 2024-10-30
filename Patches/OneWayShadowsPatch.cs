@@ -1,17 +1,19 @@
 using HarmonyLib;
 
-namespace EHR;
-
-[HarmonyPatch(typeof(OneWayShadows), nameof(OneWayShadows.IsIgnored))]
-public static class OneWayShadowsIsIgnoredPatch
+namespace EHR
 {
-    public static bool Prefix(OneWayShadows __instance, ref bool __result)
+    [HarmonyPatch(typeof(OneWayShadows), nameof(OneWayShadows.IsIgnored))]
+    public static class OneWayShadowsIsIgnoredPatch
     {
-        if (__instance.IgnoreImpostor && Main.ResetCamPlayerList.Contains(PlayerControl.LocalPlayer.PlayerId))
+        public static bool Prefix(OneWayShadows __instance, ref bool __result)
         {
-            __result = true;
-            return false;
+            if (__instance.IgnoreImpostor && Main.ResetCamPlayerList.Contains(PlayerControl.LocalPlayer.PlayerId))
+            {
+                __result = true;
+                return false;
+            }
+
+            return true;
         }
-        return true;
     }
 }

@@ -75,10 +75,17 @@ namespace EHR.Impostor
         {
             try
             {
-                if (UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = IsCursed ? 1f : ShapeshiftCooldown.GetFloat();
+                if (UsePhantomBasis.GetBool())
+                {
+                    AURoleOptions.PhantomCooldown = IsCursed ? 1f : ShapeshiftCooldown.GetFloat();
+                }
                 else
                 {
-                    if (UsePets.GetBool()) return;
+                    if (UsePets.GetBool())
+                    {
+                        return;
+                    }
+
                     AURoleOptions.ShapeshifterCooldown = IsCursed ? 1f : ShapeshiftCooldown.GetFloat();
                     AURoleOptions.ShapeshifterDuration = 1f;
                 }
@@ -97,22 +104,48 @@ namespace EHR.Impostor
         {
             bool curse = IsCurseAndKill.TryGetValue(id, out bool wcs) && wcs;
             bool shapeshifting = id.IsPlayerShifted();
-            if (!shapeshifting && !curse) hud.KillButton?.OverrideText(Translator.GetString("WarlockCurseButtonText"));
-            else hud.KillButton?.OverrideText(Translator.GetString("KillButtonText"));
-            if (!shapeshifting && curse) hud.AbilityButton?.OverrideText(Translator.GetString("WarlockShapeshiftButtonText"));
+            if (!shapeshifting && !curse)
+            {
+                hud.KillButton?.OverrideText(Translator.GetString("WarlockCurseButtonText"));
+            }
+            else
+            {
+                hud.KillButton?.OverrideText(Translator.GetString("KillButtonText"));
+            }
+
+            if (!shapeshifting && curse)
+            {
+                hud.AbilityButton?.OverrideText(Translator.GetString("WarlockShapeshiftButtonText"));
+            }
         }
 
-        void ResetCooldowns(bool killCooldown = false, bool curseCooldown = false, bool shapeshiftCooldown = false, PlayerControl warlock = null)
+        private void ResetCooldowns(bool killCooldown = false, bool curseCooldown = false, bool shapeshiftCooldown = false, PlayerControl warlock = null)
         {
-            if (killCooldown) KCD = KillCooldown.GetFloat();
-            if (curseCooldown) CurseCD = CurseCooldown.GetFloat();
+            if (killCooldown)
+            {
+                KCD = KillCooldown.GetFloat();
+            }
 
-            if (warlock == null) return;
+            if (curseCooldown)
+            {
+                CurseCD = CurseCooldown.GetFloat();
+            }
+
+            if (warlock == null)
+            {
+                return;
+            }
 
             if (shapeshiftCooldown)
             {
-                if (!UsePets.GetBool()) warlock.RpcResetAbilityCooldown();
-                else warlock.AddAbilityCD();
+                if (!UsePets.GetBool())
+                {
+                    warlock.RpcResetAbilityCooldown();
+                }
+                else
+                {
+                    warlock.AddAbilityCD();
+                }
             }
 
             if (KCD > 0f && CurseCD > 0f)
@@ -125,17 +158,27 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer.IsShifted()) return false;
+            if (killer.IsShifted())
+            {
+                return false;
+            }
 
             if (killer.CheckDoubleTrigger(target, () =>
                 {
-                    if (CurseCD > 0f) return;
+                    if (CurseCD > 0f)
+                    {
+                        return;
+                    }
 
                     IsCurseAndKill.TryAdd(killer.PlayerId, false);
 
                     if (!killer.IsShifted() && !IsCurseAndKill[killer.PlayerId])
                     {
-                        if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy)) return;
+                        if (target.Is(CustomRoles.Needy) || target.Is(CustomRoles.Lazy))
+                        {
+                            return;
+                        }
+
                         IsCursed = true;
                         killer.SetKillCooldown();
                         RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
@@ -144,17 +187,23 @@ namespace EHR.Impostor
                         WarlockTimer.Add(killer.PlayerId, 0f);
                         IsCurseAndKill[killer.PlayerId] = true;
 
-                        ResetCooldowns(killCooldown: true, curseCooldown: true, warlock: killer);
+                        ResetCooldowns(true, true, warlock: killer);
 
                         return;
                     }
 
-                    if (IsCurseAndKill[killer.PlayerId]) killer.RpcGuardAndKill(target);
+                    if (IsCurseAndKill[killer.PlayerId])
+                    {
+                        killer.RpcGuardAndKill(target);
+                    }
                 }))
             {
-                if (KCD > 0f) return false;
+                if (KCD > 0f)
+                {
+                    return false;
+                }
 
-                ResetCooldowns(killCooldown: true, curseCooldown: true, shapeshiftCooldown: true, warlock: killer);
+                ResetCooldowns(true, true, true, killer);
 
                 return true;
             }
@@ -169,7 +218,10 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool())
+            {
+                return true;
+            }
 
             Curse(shapeshifter);
 
@@ -182,23 +234,43 @@ namespace EHR.Impostor
             return false;
         }
 
-        void Curse(PlayerControl pc)
+        private void Curse(PlayerControl pc)
         {
             IsCurseAndKill.TryAdd(pc.PlayerId, false);
             if (CursedPlayers[pc.PlayerId] != null)
             {
                 if (!CursedPlayers[pc.PlayerId].Data.IsDead)
                 {
-                    var cp = CursedPlayers[pc.PlayerId];
+                    PlayerControl cp = CursedPlayers[pc.PlayerId];
                     Vector2 cppos = cp.Pos();
                     Dictionary<PlayerControl, float> cpdistance = [];
                     foreach (PlayerControl p in Main.AllAlivePlayerControls)
                     {
-                        if (p.PlayerId == cp.PlayerId) continue;
-                        if (!WarlockCanKillSelf.GetBool() && p.PlayerId == pc.PlayerId) continue;
-                        if (!WarlockCanKillAllies.GetBool() && p.GetCustomRole().IsImpostor()) continue;
-                        if (p.Is(CustomRoles.Pestilence)) continue;
-                        if (Pelican.IsEaten(p.PlayerId) || Medic.ProtectList.Contains(p.PlayerId)) continue;
+                        if (p.PlayerId == cp.PlayerId)
+                        {
+                            continue;
+                        }
+
+                        if (!WarlockCanKillSelf.GetBool() && p.PlayerId == pc.PlayerId)
+                        {
+                            continue;
+                        }
+
+                        if (!WarlockCanKillAllies.GetBool() && p.GetCustomRole().IsImpostor())
+                        {
+                            continue;
+                        }
+
+                        if (p.Is(CustomRoles.Pestilence))
+                        {
+                            continue;
+                        }
+
+                        if (Pelican.IsEaten(p.PlayerId) || Medic.ProtectList.Contains(p.PlayerId))
+                        {
+                            continue;
+                        }
+
                         float dis = Vector2.Distance(cppos, p.Pos());
                         cpdistance.Add(p, dis);
                         Logger.Info($"{p.Data?.PlayerName}'s distance: {dis}", "Warlock");
@@ -206,11 +278,11 @@ namespace EHR.Impostor
 
                     if (cpdistance.Count > 0)
                     {
-                        var min = cpdistance.OrderBy(c => c.Value).FirstOrDefault();
+                        KeyValuePair<PlayerControl, float> min = cpdistance.OrderBy(c => c.Value).FirstOrDefault();
                         PlayerControl targetw = min.Key;
                         if (cp.RpcCheckAndMurder(targetw, true))
                         {
-                            ResetCooldowns(killCooldown: true, curseCooldown: true, shapeshiftCooldown: true, warlock: pc);
+                            ResetCooldowns(true, true, true, pc);
 
                             targetw.SetRealKiller(pc);
                             Logger.Info($"{targetw.GetNameWithRole().RemoveHtmlTags()} was killed", "Warlock");
@@ -231,7 +303,10 @@ namespace EHR.Impostor
                             }
                         }
 
-                        if (!UsePets.GetBool()) LateTask.New(() => { pc.RpcShapeshift(pc, false); }, 1.5f, "Warlock RpcRevertShapeshift");
+                        if (!UsePets.GetBool())
+                        {
+                            LateTask.New(() => { pc.RpcShapeshift(pc, false); }, 1.5f, "Warlock RpcRevertShapeshift");
+                        }
                     }
                     else
                     {
@@ -259,7 +334,10 @@ namespace EHR.Impostor
                         player.MarkDirtySettings();
                         WarlockTimer.Remove(playerId);
                     }
-                    else WarlockTimer[playerId] += Time.fixedDeltaTime;
+                    else
+                    {
+                        WarlockTimer[playerId] += Time.fixedDeltaTime;
+                    }
                 }
                 else
                 {
@@ -270,15 +348,25 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || !pc.IsAlive() || pc.inVent) return;
+            if (!GameStates.IsInTask || !pc.IsAlive() || pc.inVent)
+            {
+                return;
+            }
 
-            var beforeKCD = KCD;
-            var beforeCCD = CurseCD;
+            float beforeKCD = KCD;
+            float beforeCCD = CurseCD;
 
-            if (KCD > 0f) KCD -= Time.fixedDeltaTime;
-            if (CurseCD > 0f) CurseCD -= Time.fixedDeltaTime;
+            if (KCD > 0f)
+            {
+                KCD -= Time.fixedDeltaTime;
+            }
 
-            var now = Utils.TimeStamp;
+            if (CurseCD > 0f)
+            {
+                CurseCD -= Time.fixedDeltaTime;
+            }
+
+            long now = Utils.TimeStamp;
             if ((Math.Abs(KCD - beforeKCD) > 0.01f || Math.Abs(beforeCCD - CurseCD) > 0.01f) && LastNotify != now)
             {
                 LastNotify = now;
@@ -288,18 +376,37 @@ namespace EHR.Impostor
 
         public override void AfterMeetingTasks()
         {
-            ResetCooldowns(killCooldown: true, curseCooldown: true);
+            ResetCooldowns(true, true);
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.IsModClient() && !hud) return string.Empty;
-            if (Main.PlayerStates[seer.PlayerId].Role is not Warlock { IsEnable: true } wl) return string.Empty;
-            if (seer.PlayerId != target.PlayerId) return string.Empty;
+            if (seer.IsModClient() && !hud)
+            {
+                return string.Empty;
+            }
 
-            var sb = new StringBuilder();
-            if (wl.KCD > 0f) sb.Append($"<#ffa500>{Translator.GetString("KillCooldown")}:</color> <#ffffff>{(int)Math.Round(wl.KCD)}s</color>");
-            if (wl.CurseCD > 0f) sb.Append($"{(sb.Length > 0 ? "\n" : string.Empty)}<#00ffa5>{Translator.GetString("CurseCooldown")}:</color> <#ffffff>{(int)Math.Round(wl.CurseCD)}s</color>");
+            if (Main.PlayerStates[seer.PlayerId].Role is not Warlock { IsEnable: true } wl)
+            {
+                return string.Empty;
+            }
+
+            if (seer.PlayerId != target.PlayerId)
+            {
+                return string.Empty;
+            }
+
+            StringBuilder sb = new StringBuilder();
+            if (wl.KCD > 0f)
+            {
+                sb.Append($"<#ffa500>{Translator.GetString("KillCooldown")}:</color> <#ffffff>{(int)Math.Round(wl.KCD)}s</color>");
+            }
+
+            if (wl.CurseCD > 0f)
+            {
+                sb.Append($"{(sb.Length > 0 ? "\n" : string.Empty)}<#00ffa5>{Translator.GetString("CurseCooldown")}:</color> <#ffffff>{(int)Math.Round(wl.CurseCD)}s</color>");
+            }
+
             return hud ? sb.ToString() : $"<size=1.7>{sb}</size>";
         }
     }

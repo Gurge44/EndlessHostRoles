@@ -34,11 +34,17 @@ namespace EHR.Impostor
             PlayerIdList.Add(playerId);
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = DefaultKillCooldown.GetFloat();
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = DefaultKillCooldown.GetFloat();
+        }
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
-            if (!pc.Is(CustomRoles.Lurker)) return;
+            if (!pc.Is(CustomRoles.Lurker))
+            {
+                return;
+            }
 
             float newCd = Main.AllPlayerKillCooldown[pc.PlayerId] - ReduceKillCooldown.GetFloat();
             if (newCd <= 0)

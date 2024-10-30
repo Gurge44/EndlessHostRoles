@@ -38,13 +38,28 @@ namespace EHR.Neutral
             On = true;
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
+        {
+            opt.SetVision(HasImpostorVision.GetBool());
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return CanVent.GetBool();
+        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!killer.RpcCheckAndMurder(target, check: true)) return false;
+            if (!killer.RpcCheckAndMurder(target, true))
+            {
+                return false;
+            }
+
             if (!target.TPToRandomVent())
             {
                 killer.Notify(Translator.GetString("TargetCannotBeTeleported"));

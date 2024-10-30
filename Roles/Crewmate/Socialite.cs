@@ -45,13 +45,27 @@ namespace EHR.Crewmate
             MarkedPlayerId = byte.MaxValue;
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = Cooldown.GetFloat();
-        public override bool CanUseKillButton(PlayerControl pc) => pc.IsAlive() && GuestList.Count < Main.PlayerStates.Count;
-        public override void ApplyGameOptions(IGameOptions opt, byte playerId) => opt.SetVision(false);
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = Cooldown.GetFloat();
+        }
+
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return pc.IsAlive() && GuestList.Count < Main.PlayerStates.Count;
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte playerId)
+        {
+            opt.SetVision(false);
+        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!base.OnCheckMurder(killer, target) || MarkedPlayerId != byte.MaxValue) return false;
+            if (!base.OnCheckMurder(killer, target) || MarkedPlayerId != byte.MaxValue)
+            {
+                return false;
+            }
 
             MarkedPlayerId = target.PlayerId;
             Utils.SendRPC(CustomRPC.SyncRoleData, SocialiteId, 1, MarkedPlayerId);
@@ -67,7 +81,7 @@ namespace EHR.Crewmate
 
         public static bool OnAnyoneCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            foreach (var socialite in Instances)
+            foreach (Socialite socialite in Instances)
             {
                 if (socialite.MarkedPlayerId == target.PlayerId && socialite.GuestList.Add(killer.PlayerId))
                 {
@@ -82,7 +96,10 @@ namespace EHR.Crewmate
 
         public override bool OnVote(PlayerControl pc, PlayerControl target)
         {
-            if (pc == null || target == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
+            if (pc == null || target == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId))
+            {
+                return false;
+            }
 
             if (GuestList.Add(target.PlayerId))
             {
@@ -109,7 +126,11 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != SocialiteId || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud)) return string.Empty;
+            if (seer.PlayerId != SocialiteId || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud))
+            {
+                return string.Empty;
+            }
+
             return string.Format(Translator.GetString("Socialite.Suffix"), MarkedPlayerId.ColoredPlayerName());
         }
     }

@@ -34,9 +34,13 @@ namespace EHR.Impostor
                 .SetValueFormat(OptionFormat.Percent);
         }
 
-        void SendRPC()
+        private void SendRPC()
         {
-            if (!Utils.DoRPC) return;
+            if (!Utils.DoRPC)
+            {
+                return;
+            }
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncChronomancer, SendOption.Reliable);
             writer.Write(ChronomancerId);
             writer.Write(IsRampaging);
@@ -70,11 +74,17 @@ namespace EHR.Impostor
             ChronomancerId = playerId;
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = IsRampaging ? 0.01f : KCD.GetFloat();
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = IsRampaging ? 0.01f : KCD.GetFloat();
+        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (ChargePercent <= 0) return base.OnCheckMurder(killer, target);
+            if (ChargePercent <= 0)
+            {
+                return base.OnCheckMurder(killer, target);
+            }
 
             if (!IsRampaging)
             {
@@ -89,15 +99,30 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (pc == null) return;
-            if (!pc.Is(CustomRoles.Chronomancer)) return;
-            if (!GameStates.IsInTask) return;
-            if (LastUpdate >= Utils.TimeStamp) return;
+            if (pc == null)
+            {
+                return;
+            }
+
+            if (!pc.Is(CustomRoles.Chronomancer))
+            {
+                return;
+            }
+
+            if (!GameStates.IsInTask)
+            {
+                return;
+            }
+
+            if (LastUpdate >= Utils.TimeStamp)
+            {
+                return;
+            }
 
             LastUpdate = Utils.TimeStamp;
 
             bool notify = false;
-            var beforeCharge = ChargePercent;
+            int beforeCharge = ChargePercent;
 
             if (IsRampaging)
             {
@@ -116,7 +141,11 @@ namespace EHR.Impostor
             else if (Main.KillTimers[pc.PlayerId] <= 0 && !MeetingStates.FirstMeeting)
             {
                 ChargePercent += ChargeInterval.GetInt();
-                if (ChargePercent > 100) ChargePercent = 100;
+                if (ChargePercent > 100)
+                {
+                    ChargePercent = 100;
+                }
+
                 notify = true;
             }
 
@@ -133,7 +162,11 @@ namespace EHR.Impostor
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!hud || seer.PlayerId != ChronomancerId) return string.Empty;
+            if (!hud || seer.PlayerId != ChronomancerId)
+            {
+                return string.Empty;
+            }
+
             return ChargePercent > 0 ? string.Format(Translator.GetString("ChronomancerPercent"), ChargePercent) : string.Empty;
         }
 

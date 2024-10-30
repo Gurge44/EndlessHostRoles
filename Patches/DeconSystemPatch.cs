@@ -1,30 +1,34 @@
 ﻿using HarmonyLib;
 
-namespace EHR.Patches;
-
-[HarmonyPatch(typeof(DeconSystem), nameof(DeconSystem.UpdateSystem))]
-public static class DeconSystemUpdateSystemPatch
+namespace EHR.Patches
 {
-    public static void Prefix(DeconSystem __instance)
+    [HarmonyPatch(typeof(DeconSystem), nameof(DeconSystem.UpdateSystem))]
+    public static class DeconSystemUpdateSystemPatch
     {
-        if (!AmongUsClient.Instance.AmHost) return;
-
-        if (Options.ChangeDecontaminationTime.GetBool())
+        public static void Prefix(DeconSystem __instance)
         {
-            var deconTime = Main.CurrentMap switch
+            if (!AmongUsClient.Instance.AmHost)
             {
-                MapNames.Mira => Options.DecontaminationTimeOnMiraHQ.GetFloat(),
-                MapNames.Polus => Options.DecontaminationTimeOnPolus.GetFloat(),
-                _ => 3f
-            };
+                return;
+            }
 
-            __instance.DoorOpenTime = deconTime;
-            __instance.DeconTime = deconTime;
-        }
-        else
-        {
-            __instance.DoorOpenTime = 3f;
-            __instance.DeconTime = 3f;
+            if (Options.ChangeDecontaminationTime.GetBool())
+            {
+                float deconTime = Main.CurrentMap switch
+                {
+                    MapNames.Mira => Options.DecontaminationTimeOnMiraHQ.GetFloat(),
+                    MapNames.Polus => Options.DecontaminationTimeOnPolus.GetFloat(),
+                    _ => 3f
+                };
+
+                __instance.DoorOpenTime = deconTime;
+                __instance.DeconTime = deconTime;
+            }
+            else
+            {
+                __instance.DoorOpenTime = 3f;
+                __instance.DeconTime = 3f;
+            }
         }
     }
 }

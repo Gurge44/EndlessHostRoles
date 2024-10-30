@@ -79,7 +79,10 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public override void OnPet(PlayerControl pc)
         {
-            if (pc.HasAbilityCD() || DashStatus.IsDashing || pc.GetAbilityUseLimit() < 1f) return;
+            if (pc.HasAbilityCD() || DashStatus.IsDashing || pc.GetAbilityUseLimit() < 1f)
+            {
+                return;
+            }
 
             DashStatus.IsDashing = true;
             DashStatus.DashEndTime = Utils.TimeStamp + DashStatus.Duration;
@@ -90,7 +93,10 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!DashStatus.IsDashing) return;
+            if (!DashStatus.IsDashing)
+            {
+                return;
+            }
 
             long now = Utils.TimeStamp;
             if (DashStatus.DashEndTime <= now)

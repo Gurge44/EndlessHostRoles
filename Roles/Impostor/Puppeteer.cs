@@ -99,11 +99,22 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (target.Is(CustomRoles.Needy) && PuppeteerManipulationBypassesLazyGuy.GetBool()) return false;
-            if (target.Is(CustomRoles.Lazy) && PuppeteerManipulationBypassesLazy.GetBool()) return false;
-            if (Medic.ProtectList.Contains(target.PlayerId)) return false;
+            if (target.Is(CustomRoles.Needy) && PuppeteerManipulationBypassesLazyGuy.GetBool())
+            {
+                return false;
+            }
 
-            if (!PuppeteerMaxPuppets.TryGetValue(killer.PlayerId, out var usesLeft))
+            if (target.Is(CustomRoles.Lazy) && PuppeteerManipulationBypassesLazy.GetBool())
+            {
+                return false;
+            }
+
+            if (Medic.ProtectList.Contains(target.PlayerId))
+            {
+                return false;
+            }
+
+            if (!PuppeteerMaxPuppets.TryGetValue(killer.PlayerId, out int usesLeft))
             {
                 usesLeft = PuppeteerMaxPuppetsOpt.GetInt();
                 PuppeteerMaxPuppets.Add(killer.PlayerId, usesLeft);
@@ -116,12 +127,15 @@ namespace EHR.Impostor
                     PuppeteerList[target.PlayerId] = killer.PlayerId;
                     PuppeteerDelayList[target.PlayerId] = Utils.TimeStamp;
                     PuppeteerDelay[target.PlayerId] = IRandom.Instance.Next(PuppeteerMinDelay.GetInt(), PuppeteerMaxDelay.GetInt());
-                    killer.SetKillCooldown(time: PuppeteerCD.GetFloat());
+                    killer.SetKillCooldown(PuppeteerCD.GetFloat());
                     if (usesLeft <= 1 && PuppeteerDiesAfterMaxPuppets.GetBool())
                     {
                         LateTask.New(() => { killer.Suicide(); }, 1.5f, "Puppeteer Max Uses Reached => Suicide");
                     }
-                    else killer.Notify(string.Format(Translator.GetString("PuppeteerUsesRemaining"), usesLeft - 1));
+                    else
+                    {
+                        killer.Notify(string.Format(Translator.GetString("PuppeteerUsesRemaining"), usesLeft - 1));
+                    }
 
                     PuppeteerMaxPuppets[killer.PlayerId]--;
                     killer.RPCPlayCustomSound("Line");
@@ -137,7 +151,10 @@ namespace EHR.Impostor
             {
                 LateTask.New(() => { killer.Suicide(); }, 1.5f, "Puppeteer Max Uses Reached => Suicide");
             }
-            else killer.Notify(string.Format(Translator.GetString("PuppeteerUsesRemaining"), usesLeft - 1));
+            else
+            {
+                killer.Notify(string.Format(Translator.GetString("PuppeteerUsesRemaining"), usesLeft - 1));
+            }
 
             PuppeteerMaxPuppets[killer.PlayerId]--;
             killer.RPCPlayCustomSound("Line");
@@ -147,7 +164,10 @@ namespace EHR.Impostor
 
         public override void OnGlobalFixedUpdate(PlayerControl player, bool lowLoad)
         {
-            if (player == null || lowLoad) return;
+            if (player == null || lowLoad)
+            {
+                return;
+            }
 
             byte playerId = player.PlayerId;
             long now = Utils.TimeStamp;
@@ -173,9 +193,20 @@ namespace EHR.Impostor
                     Dictionary<byte, float> targetDistance = [];
                     foreach (PlayerControl target in Main.AllAlivePlayerControls)
                     {
-                        if (target.PlayerId == playerId || target.Is(CustomRoles.Pestilence)) continue;
-                        if (target.Is(CustomRoles.Puppeteer) && !PuppeteerPuppetCanKillPuppeteer.GetBool()) continue;
-                        if (target.Is(CustomRoleTypes.Impostor) && !PuppeteerPuppetCanKillImpostors.GetBool()) continue;
+                        if (target.PlayerId == playerId || target.Is(CustomRoles.Pestilence))
+                        {
+                            continue;
+                        }
+
+                        if (target.Is(CustomRoles.Puppeteer) && !PuppeteerPuppetCanKillPuppeteer.GetBool())
+                        {
+                            continue;
+                        }
+
+                        if (target.Is(CustomRoleTypes.Impostor) && !PuppeteerPuppetCanKillImpostors.GetBool())
+                        {
+                            continue;
+                        }
 
                         float dis = Vector2.Distance(puppeteerPos, target.transform.position);
                         targetDistance.Add(target.PlayerId, dis);
@@ -183,19 +214,23 @@ namespace EHR.Impostor
 
                     if (targetDistance.Count > 0)
                     {
-                        var min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();
+                        KeyValuePair<byte, float> min = targetDistance.OrderBy(c => c.Value).FirstOrDefault();
                         PlayerControl target = Utils.GetPlayerById(min.Key);
-                        var KillRange = NormalGameOptionsV08.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
+                        float KillRange = NormalGameOptionsV08.KillDistances[Mathf.Clamp(Main.NormalOptions.KillDistance, 0, 2)];
                         if (min.Value <= KillRange && player.CanMove && target.CanMove)
                         {
                             if (player.RpcCheckAndMurder(target, true))
                             {
-                                var puppeteerId = PuppeteerList[playerId];
+                                byte puppeteerId = PuppeteerList[playerId];
                                 RPC.PlaySoundRPC(puppeteerId, Sounds.KillSound);
-                                var puppeteer = Utils.GetPlayerById(puppeteerId);
+                                PlayerControl puppeteer = Utils.GetPlayerById(puppeteerId);
                                 target.SetRealKiller(puppeteer);
                                 player.Kill(target);
-                                if (PuppetDiesAlongWithVictim.GetBool()) player.Suicide(realKiller: puppeteer);
+                                if (PuppetDiesAlongWithVictim.GetBool())
+                                {
+                                    player.Suicide(realKiller: puppeteer);
+                                }
+
                                 player.MarkDirtySettings();
                                 target.MarkDirtySettings();
                                 PuppeteerList.Remove(playerId);

@@ -41,7 +41,11 @@ namespace EHR.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (Options.UsePets.GetBool()) return;
+            if (Options.UsePets.GetBool())
+            {
+                return;
+            }
+
             AURoleOptions.EngineerCooldown = CD.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1f;
         }
@@ -58,7 +62,10 @@ namespace EHR.Crewmate
 
         private static void PullEveryone(PlayerControl pc, int ventId = 0, bool isPet = false)
         {
-            if (pc == null || pc.GetAbilityUseLimit() < 1f) return;
+            if (pc == null || pc.GetAbilityUseLimit() < 1f)
+            {
+                return;
+            }
 
             if (isPet)
             {

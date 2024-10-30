@@ -66,14 +66,24 @@ namespace EHR.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (Options.UsePets.GetBool()) return;
+            if (Options.UsePets.GetBool())
+            {
+                return;
+            }
+
             AURoleOptions.EngineerCooldown = AbilityCooldown.GetInt();
             AURoleOptions.EngineerInVentMaxTime = 1f;
         }
 
-        public override void OnCoEnterVent(PlayerPhysics physics, int ventId) => ActivateAbility(physics.myPlayer);
+        public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
+        {
+            ActivateAbility(physics.myPlayer);
+        }
 
-        public override void OnPet(PlayerControl pc) => ActivateAbility(pc);
+        public override void OnPet(PlayerControl pc)
+        {
+            ActivateAbility(pc);
+        }
 
         private void ActivateAbility(PlayerControl pc)
         {
@@ -86,7 +96,11 @@ namespace EHR.Crewmate
         public override void OnFixedUpdate(PlayerControl pc)
         {
             long now = Utils.TimeStamp;
-            if (now == LastUpdate) return;
+            if (now == LastUpdate)
+            {
+                return;
+            }
+
             LastUpdate = now;
 
             if (AbilityActive && Utils.TimeStamp - ActivateTimeStamp >= AbilityDuration.GetInt())
@@ -100,19 +114,30 @@ namespace EHR.Crewmate
 
         public static bool CheckAbilityUse(PlayerControl pc)
         {
-            if (pc.IsCrewmate() && ExcludeCrewmates.GetBool()) return true;
+            if (pc.IsCrewmate() && ExcludeCrewmates.GetBool())
+            {
+                return true;
+            }
+
             return !Instances.Any(x => x.AbilityActive);
         }
 
         public void ReceiveRPC(MessageReader reader)
         {
             AbilityActive = reader.ReadBoolean();
-            if (AbilityActive) ActivateTimeStamp = Utils.TimeStamp;
+            if (AbilityActive)
+            {
+                ActivateTimeStamp = Utils.TimeStamp;
+            }
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != RhapsodeId || hud || meeting || !AbilityActive) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != RhapsodeId || hud || meeting || !AbilityActive)
+            {
+                return string.Empty;
+            }
+
             return $"\u25b6 ({AbilityDuration.GetInt() - (Utils.TimeStamp - ActivateTimeStamp)}s)";
         }
     }

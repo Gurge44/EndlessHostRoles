@@ -39,14 +39,20 @@ namespace EHR.Impostor
             playerId.SetAbilityUseLimit(StartingPoints.GetInt());
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KCD.GetFloat();
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KCD.GetFloat();
+        }
 
-        public override bool CanUseKillButton(PlayerControl pc) => pc.GetAbilityUseLimit() > 0;
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return pc.GetAbilityUseLimit() > 0;
+        }
 
         public static void OnCrewmateEjected()
         {
-            var value = PointsGainedPerEjection.GetInt();
-            foreach (var state in Main.PlayerStates)
+            int value = PointsGainedPerEjection.GetInt();
+            foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
             {
                 if (state.Value.Role is Cantankerous)
                 {
@@ -57,9 +63,15 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!base.OnCheckMurder(killer, target)) return false;
+            if (!base.OnCheckMurder(killer, target))
+            {
+                return false;
+            }
 
-            if (killer.GetAbilityUseLimit() <= 0) return false;
+            if (killer.GetAbilityUseLimit() <= 0)
+            {
+                return false;
+            }
 
             killer.RpcRemoveAbilityUse();
 

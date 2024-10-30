@@ -58,7 +58,10 @@ namespace EHR.Crewmate
             DefaultSpeed = Main.AllPlayerSpeed[playerId];
         }
 
-        bool IsImmortal(PlayerControl player) => player.Is(CustomRoles.Addict) && ImmortalTimer <= ImmortalTimeAfterVent.GetFloat();
+        private bool IsImmortal(PlayerControl player)
+        {
+            return player.Is(CustomRoles.Addict) && ImmortalTimer <= ImmortalTimeAfterVent.GetFloat();
+        }
 
         public override void OnReportDeadBody()
         {
@@ -77,7 +80,10 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!GameStates.IsInTask || !IsEnable || Math.Abs(SuicideTimer - (-10f)) < 0.5f || !player.IsAlive()) return;
+            if (!GameStates.IsInTask || !IsEnable || Math.Abs(SuicideTimer - -10f) < 0.5f || !player.IsAlive())
+            {
+                return;
+            }
 
             if (SuicideTimer >= TimeLimit.GetFloat())
             {
@@ -112,7 +118,10 @@ namespace EHR.Crewmate
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
-            if (!pc.Is(CustomRoles.Addict)) return;
+            if (!pc.Is(CustomRoles.Addict))
+            {
+                return;
+            }
 
             SuicideTimer = 0f;
             ImmortalTimer = 0f;

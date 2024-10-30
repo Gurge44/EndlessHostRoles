@@ -56,7 +56,10 @@
             {
                 LateTask.New(() => { physics.RpcBootFromVent(ventId); }, 0.5f, "Venter no uses boot from vent");
             }
-            else physics.myPlayer.RpcRemoveAbilityUse();
+            else
+            {
+                physics.myPlayer.RpcRemoveAbilityUse();
+            }
         }
     }
 }

@@ -31,9 +31,13 @@ namespace EHR.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool()) return;
+            if (UsePets.GetBool())
+            {
+                return;
+            }
+
             AURoleOptions.EngineerCooldown =
-                !MayorUsedButtonCount.TryGetValue(playerId, out var count) || count < MayorNumOfUseButton.GetInt()
+                !MayorUsedButtonCount.TryGetValue(playerId, out int count) || count < MayorNumOfUseButton.GetInt()
                     ? opt.GetInt(Int32OptionNames.EmergencyCooldown)
                     : 300f;
             AURoleOptions.EngineerInVentMaxTime = 1f;
@@ -41,10 +45,19 @@ namespace EHR.Crewmate
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            if (!MayorHasPortableButton.GetBool()) return;
+            if (!MayorHasPortableButton.GetBool())
+            {
+                return;
+            }
 
-            if (UsePets.GetBool()) hud.PetButton.buttonLabelText.text = Translator.GetString("MayorVentButtonText");
-            else hud.AbilityButton.buttonLabelText.text = Translator.GetString("MayorVentButtonText");
+            if (UsePets.GetBool())
+            {
+                hud.PetButton.buttonLabelText.text = Translator.GetString("MayorVentButtonText");
+            }
+            else
+            {
+                hud.AbilityButton.buttonLabelText.text = Translator.GetString("MayorVentButtonText");
+            }
         }
 
         public override void OnPet(PlayerControl pc)
@@ -60,9 +73,12 @@ namespace EHR.Crewmate
 
         private static void Button(PlayerControl pc)
         {
-            if (!MayorHasPortableButton.GetBool()) return;
+            if (!MayorHasPortableButton.GetBool())
+            {
+                return;
+            }
 
-            if (MayorUsedButtonCount.TryGetValue(pc.PlayerId, out var count) && count < MayorNumOfUseButton.GetInt())
+            if (MayorUsedButtonCount.TryGetValue(pc.PlayerId, out int count) && count < MayorNumOfUseButton.GetInt())
             {
                 pc.ReportDeadBody(null);
             }

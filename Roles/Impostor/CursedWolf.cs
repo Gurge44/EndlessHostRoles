@@ -68,11 +68,22 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
-            if (target.GetAbilityUseLimit() <= 0) return true;
-            if (killer.Is(CustomRoles.Pestilence)) return true;
-            if (killer == target) return true;
+            if (target.GetAbilityUseLimit() <= 0)
+            {
+                return true;
+            }
 
-            var kcd = Main.KillTimers[target.PlayerId] + Main.AllPlayerKillCooldown[target.PlayerId];
+            if (killer.Is(CustomRoles.Pestilence))
+            {
+                return true;
+            }
+
+            if (killer == target)
+            {
+                return true;
+            }
+
+            float kcd = Main.KillTimers[target.PlayerId] + Main.AllPlayerKillCooldown[target.PlayerId];
 
             killer.RpcGuardAndKill(target);
             target.RpcRemoveAbilityUse();
@@ -83,7 +94,7 @@ namespace EHR.Impostor
                 Main.PlayerStates[killer.PlayerId].deathReason = PlayerState.DeathReason.Curse;
                 killer.SetRealKiller(target);
                 target.Kill(killer);
-                LateTask.New(() => { target.SetKillCooldown(time: kcd); }, 0.1f, log: false);
+                LateTask.New(() => { target.SetKillCooldown(kcd); }, 0.1f, log: false);
             }
 
             return false;

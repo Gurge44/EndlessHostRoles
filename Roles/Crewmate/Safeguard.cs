@@ -9,7 +9,7 @@ namespace EHR.Crewmate
 
         private static OptionItem ShieldDuration;
         private static OptionItem MinTasks;
-        byte SafeguardId;
+        private byte SafeguardId;
 
         private float Timer;
         private bool Shielded => Timer > 0;
@@ -45,7 +45,11 @@ namespace EHR.Crewmate
 
         public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
-            if (!pc.IsAlive()) return;
+            if (!pc.IsAlive())
+            {
+                return;
+            }
+
             if (completedTaskCount + 1 >= MinTasks.GetInt())
             {
                 Timer += ShieldDuration.GetFloat();
@@ -54,7 +58,11 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!pc.IsAlive()) return;
+            if (!pc.IsAlive())
+            {
+                return;
+            }
+
             if (Shielded)
             {
                 Timer -= Time.fixedDeltaTime;
@@ -72,7 +80,11 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != SafeguardId || meeting || (seer.IsModClient() && !hud) || !Shielded) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != SafeguardId || meeting || (seer.IsModClient() && !hud) || !Shielded)
+            {
+                return string.Empty;
+            }
+
             return seer.IsHost() ? string.Format(Translator.GetString("SafeguardSuffixTimer"), (int)Math.Ceiling(Timer)) : Translator.GetString("SafeguardSuffix");
         }
     }

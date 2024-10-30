@@ -81,7 +81,7 @@ namespace EHR.Neutral
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            var draw = Utils.GetDrawPlayerCount(playerId, out _);
+            (int, int) draw = Utils.GetDrawPlayerCount(playerId, out _);
             return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Revolutionist).ShadeColor(0.25f), $"<color=#777777>-</color> {draw.Item1}/{draw.Item2}");
         }
 
@@ -110,10 +110,14 @@ namespace EHR.Neutral
 
         public override void OnReportDeadBody()
         {
-            foreach (var x in RevolutionistStart)
+            foreach (KeyValuePair<byte, long> x in RevolutionistStart)
             {
-                var tar = Utils.GetPlayerById(x.Key);
-                if (tar == null) continue;
+                PlayerControl tar = Utils.GetPlayerById(x.Key);
+                if (tar == null)
+                {
+                    continue;
+                }
+
                 tar.Data.IsDead = true;
                 Main.PlayerStates[tar.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
                 tar.RpcExileV2();
@@ -127,11 +131,11 @@ namespace EHR.Neutral
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            var playerId = player.PlayerId;
+            byte playerId = player.PlayerId;
 
             if (GameStates.IsInTask && RevolutionistTimer.ContainsKey(playerId))
             {
-                var rvTarget = RevolutionistTimer[playerId].PLAYER;
+                PlayerControl rvTarget = RevolutionistTimer[playerId].PLAYER;
                 if (!player.IsAlive() || Pelican.IsEaten(playerId))
                 {
                     RevolutionistTimer.Remove(playerId);
@@ -140,8 +144,8 @@ namespace EHR.Neutral
                 }
                 else
                 {
-                    var rv_target = RevolutionistTimer[playerId].PLAYER;
-                    var rv_time = RevolutionistTimer[playerId].TIMER;
+                    PlayerControl rv_target = RevolutionistTimer[playerId].PLAYER;
+                    float rv_time = RevolutionistTimer[playerId].TIMER;
                     if (!rv_target.IsAlive())
                     {
                         RevolutionistTimer.Remove(playerId);
@@ -196,8 +200,8 @@ namespace EHR.Neutral
                         RevolutionistCountdown.Clear();
                         if (countdown <= 0)
                         {
-                            Utils.GetDrawPlayerCount(playerId, out var y);
-                            foreach (var pc in y.Where(x => x != null && x.IsAlive()))
+                            Utils.GetDrawPlayerCount(playerId, out List<PlayerControl> y);
+                            foreach (PlayerControl pc in y.Where(x => x != null && x.IsAlive()))
                             {
                                 pc.Suicide(PlayerState.DeathReason.Sacrifice);
                                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -227,7 +231,7 @@ namespace EHR.Neutral
             if (AmongUsClient.Instance.IsGameStarted && physics.myPlayer.IsDrawDone())
             {
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Revolutionist);
-                Utils.GetDrawPlayerCount(physics.myPlayer.PlayerId, out var x);
+                Utils.GetDrawPlayerCount(physics.myPlayer.PlayerId, out List<PlayerControl> x);
                 CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
                 foreach (PlayerControl apc in x)
                 {

@@ -37,7 +37,11 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer.GetAbilityUseLimit() < 1f) return true;
+            if (killer.GetAbilityUseLimit() < 1f)
+            {
+                return true;
+            }
+
             return killer.CheckDoubleTrigger(target, () =>
             {
                 FramedPlayers.Add(target.PlayerId);

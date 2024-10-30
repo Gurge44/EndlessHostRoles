@@ -114,15 +114,22 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null) return false;
-            if (target == null) return false;
+            if (killer == null)
+            {
+                return false;
+            }
+
+            if (target == null)
+            {
+                return false;
+            }
 
             if (EffectID != byte.MaxValue)
             {
                 return true;
             }
 
-            var rd = IRandom.Instance;
+            IRandom rd = IRandom.Instance;
             isPositiveEffect = rd.Next(1, 101) <= PositiveEffectChance.GetInt();
 
             if (isPositiveEffect)
@@ -140,7 +147,11 @@ namespace EHR.Impostor
                         break;
                     case 3: // No lunge (Swift kill)
                         killer.Notify(GetString("GamblerGet.NoLunge"));
-                        if (killer.RpcCheckAndMurder(target, true)) target.Kill(target);
+                        if (killer.RpcCheckAndMurder(target, true))
+                        {
+                            target.Kill(target);
+                        }
+
                         return false;
                     case 4: // Swap with random player
                         killer.Notify(GetString("GamblerGet.Swap"));
@@ -148,7 +159,7 @@ namespace EHR.Impostor
                         {
                             if (GameStates.IsInTask && killer.IsAlive())
                             {
-                                var list = Main.AllAlivePlayerControls.Where(a => !Pelican.IsEaten(a.PlayerId) && !a.inVent && a.PlayerId != killer.PlayerId).ToArray();
+                                PlayerControl[] list = Main.AllAlivePlayerControls.Where(a => !Pelican.IsEaten(a.PlayerId) && !a.inVent && a.PlayerId != killer.PlayerId).ToArray();
                                 TP(killer.NetTransform, list.RandomElement().Pos());
                             }
                         }, TPDelay.GetInt(), "Gambler Swap");
@@ -195,7 +206,7 @@ namespace EHR.Impostor
                 switch (EffectID)
                 {
                     case 1: // BSR
-                        var delay = Math.Max(0.15f, BsrDelay.GetFloat());
+                        float delay = Math.Max(0.15f, BsrDelay.GetFloat());
                         if (delay >= 1f)
                         {
                             killer.Notify(string.Format(GetString("GamblerGet.BSR"), BsrDelay.GetInt()));
@@ -203,7 +214,10 @@ namespace EHR.Impostor
 
                         LateTask.New(() =>
                         {
-                            if (GameStates.IsInTask) killer.CmdReportDeadBody(target.Data);
+                            if (GameStates.IsInTask)
+                            {
+                                killer.CmdReportDeadBody(target.Data);
+                            }
                         }, delay, "Gambler Self Report");
                         break;
                     case 2: // Freeze
@@ -234,13 +248,16 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!GameStates.IsInTask || player == null || !player.Is(CustomRoles.Gambler) || (WaitingDelayedKills.Count == 0 && IsSpeedChange.Count == 0 && IsVisionChange.Count == 0 && IsShielded.Count == 0)) return;
+            if (!GameStates.IsInTask || player == null || !player.Is(CustomRoles.Gambler) || (WaitingDelayedKills.Count == 0 && IsSpeedChange.Count == 0 && IsVisionChange.Count == 0 && IsShielded.Count == 0))
+            {
+                return;
+            }
 
             bool sync = false;
 
-            foreach (var x in WaitingDelayedKills)
+            foreach (KeyValuePair<byte, long> x in WaitingDelayedKills)
             {
-                var pc = GetPlayerById(x.Key);
+                PlayerControl pc = GetPlayerById(x.Key);
                 if (!pc.IsAlive())
                 {
                     WaitingDelayedKills.Remove(x.Key);
@@ -254,20 +271,20 @@ namespace EHR.Impostor
                 }
             }
 
-            if (IsSpeedChange.TryGetValue(player.PlayerId, out var p) && p.Item2 + SpeedDur.GetInt() < TimeStamp)
+            if (IsSpeedChange.TryGetValue(player.PlayerId, out (float, long) p) && p.Item2 + SpeedDur.GetInt() < TimeStamp)
             {
                 Main.AllPlayerSpeed[player.PlayerId] = p.Item1;
                 IsSpeedChange.Remove(player.PlayerId);
                 sync = true;
             }
 
-            if (IsVisionChange.TryGetValue(player.PlayerId, out var v) && v + LowVisionDur.GetInt() < TimeStamp)
+            if (IsVisionChange.TryGetValue(player.PlayerId, out long v) && v + LowVisionDur.GetInt() < TimeStamp)
             {
                 IsVisionChange.Remove(player.PlayerId);
                 sync = true;
             }
 
-            if (IsShielded.TryGetValue(player.PlayerId, out var shielded) && shielded + ShieldDur.GetInt() < TimeStamp)
+            if (IsShielded.TryGetValue(player.PlayerId, out long shielded) && shielded + ShieldDur.GetInt() < TimeStamp)
             {
                 IsShielded.Remove(player.PlayerId);
             }
@@ -283,10 +300,13 @@ namespace EHR.Impostor
             EffectID = byte.MaxValue;
             isPositiveEffect = true;
 
-            foreach (var playerId in WaitingDelayedKills.Keys.ToArray())
+            foreach (byte playerId in WaitingDelayedKills.Keys.ToArray())
             {
-                var pc = GetPlayerById(playerId);
-                if (pc.IsAlive()) pc.Kill(pc);
+                PlayerControl pc = GetPlayerById(playerId);
+                if (pc.IsAlive())
+                {
+                    pc.Kill(pc);
+                }
             }
 
             WaitingDelayedKills.Clear();

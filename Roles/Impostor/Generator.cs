@@ -7,17 +7,20 @@ namespace EHR.Impostor
 {
     internal static class GeneratorStatic
     {
-        private static int GetDefaultCost(this Action action) => action switch
+        private static int GetDefaultCost(this Action action)
         {
-            Action.Kill => 5,
-            Action.Shapeshift => 10,
-            Action.Vent => 20,
-            Action.Sabotage => 15,
+            return action switch
+            {
+                Action.Kill => 5,
+                Action.Shapeshift => 10,
+                Action.Vent => 20,
+                Action.Sabotage => 15,
 
-            _ => 15
-        };
+                _ => 15
+            };
+        }
 
-        enum Action
+        private enum Action
         {
             Kill,
             Shapeshift,
@@ -56,9 +59,9 @@ namespace EHR.Impostor
                 MaxChargesStored = new IntegerOptionItem(id + 5, "Generator.MaxChargesStored", new(0, 200, 1), 100, TabGroup.ImpostorRoles)
                     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Generator]);
 
-                foreach (var action in Enum.GetValues<Action>())
+                foreach (Action action in Enum.GetValues<Action>())
                 {
-                    var option = new IntegerOptionItem(id + 6 + (int)action, $"Generator.{action}.Cost", new(0, 100, 1), action.GetDefaultCost(), TabGroup.ImpostorRoles)
+                    OptionItem option = new IntegerOptionItem(id + 6 + (int)action, $"Generator.{action}.Cost", new(0, 100, 1), action.GetDefaultCost(), TabGroup.ImpostorRoles)
                         .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Generator]);
                     ActionCostSettings.Add(action, option);
                 }
@@ -88,17 +91,30 @@ namespace EHR.Impostor
 
             public override void OnFixedUpdate(PlayerControl pc)
             {
-                if (!GameStates.IsInTask || pc == null || !pc.IsAlive()) return;
+                if (!GameStates.IsInTask || pc == null || !pc.IsAlive())
+                {
+                    return;
+                }
 
                 long now = Utils.TimeStamp;
-                if (now <= LastUpdate) return;
+                if (now <= LastUpdate)
+                {
+                    return;
+                }
+
                 LastUpdate = now;
 
                 int beforeCharges = Charges;
                 bool shifted = pc.IsShifted();
 
-                if (shifted) Charges -= ChargesLostWhileShifted;
-                else Charges += Gain;
+                if (shifted)
+                {
+                    Charges -= ChargesLostWhileShifted;
+                }
+                else
+                {
+                    Charges += Gain;
+                }
 
                 Charges = Math.Clamp(Charges, 0, MaxChargesStored.GetInt());
 
@@ -109,7 +125,10 @@ namespace EHR.Impostor
                     pc.RpcResetAbilityCooldown();
                 }
 
-                if (beforeCharges != Charges) pc.SetAbilityUseLimit(Charges, log: false);
+                if (beforeCharges != Charges)
+                {
+                    pc.SetAbilityUseLimit(Charges, log: false);
+                }
             }
 
             public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
@@ -131,7 +150,10 @@ namespace EHR.Impostor
 
             public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
             {
-                if (!base.OnCheckMurder(killer, target)) return false;
+                if (!base.OnCheckMurder(killer, target))
+                {
+                    return false;
+                }
 
                 int cost = ActionCosts[Action.Kill];
                 if (Charges < cost)
@@ -150,7 +172,10 @@ namespace EHR.Impostor
 
             public override bool OnSabotage(PlayerControl pc)
             {
-                if (!pc.IsAlive()) return true;
+                if (!pc.IsAlive())
+                {
+                    return true;
+                }
 
                 int cost = ActionCosts[Action.Sabotage];
 
@@ -166,7 +191,10 @@ namespace EHR.Impostor
 
             public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
             {
-                if (!shapeshifting) return true;
+                if (!shapeshifting)
+                {
+                    return true;
+                }
 
                 int cost = ActionCosts[Action.Shapeshift];
 

@@ -15,7 +15,9 @@ namespace EHR.AddOns.GhostRoles
         public void OnProtect(PlayerControl pc, PlayerControl target)
         {
             if (ProtectionList.Add(target.PlayerId))
+            {
                 LateTask.New(() => ProtectionList.Remove(target.PlayerId), ProtectDuration.GetFloat());
+            }
         }
 
         public void OnAssign(PlayerControl pc)

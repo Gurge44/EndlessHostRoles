@@ -1,193 +1,195 @@
 ﻿using HarmonyLib;
+using Il2CppSystem;
 using static CosmeticsLayer;
 using Action = Il2CppSystem.Action;
 
-namespace EHR.Patches;
-
-[HarmonyPatch(typeof(AprilFoolsMode), nameof(AprilFoolsMode.ShouldShowAprilFoolsToggle))]
-public static class ShouldShowTogglePatch
+namespace EHR.Patches
 {
-    public static void Postfix(ref bool __result)
+    [HarmonyPatch(typeof(AprilFoolsMode), nameof(AprilFoolsMode.ShouldShowAprilFoolsToggle))]
+    public static class ShouldShowTogglePatch
     {
-        __result = false;
-    }
-}
-
-[HarmonyPatch(typeof(NormalGameManager), nameof(NormalGameManager.GetBodyType))]
-public static class GetNormalBodyTypePatch
-{
-    public static void Postfix(ref PlayerBodyTypes __result)
-    {
-        if (Main.HorseMode.Value)
+        public static void Postfix(ref bool __result)
         {
-            __result = PlayerBodyTypes.Horse;
-            return;
+            __result = false;
         }
-
-        if (Main.LongMode.Value)
-        {
-            __result = PlayerBodyTypes.Long;
-            return;
-        }
-
-        __result = PlayerBodyTypes.Normal;
     }
-}
 
-[HarmonyPatch(typeof(HideAndSeekManager), nameof(HideAndSeekManager.GetBodyType))]
-public static class GetHnsBodyTypePatch
-{
-    public static void Postfix(ref PlayerBodyTypes __result, [HarmonyArgument(0)] PlayerControl player)
+    [HarmonyPatch(typeof(NormalGameManager), nameof(NormalGameManager.GetBodyType))]
+    public static class GetNormalBodyTypePatch
     {
-        try
+        public static void Postfix(ref PlayerBodyTypes __result)
         {
-            if (player == null || player.Data == null || player.Data.Role == null)
+            if (Main.HorseMode.Value)
             {
-                if (Main.HorseMode.Value)
-                {
-                    __result = PlayerBodyTypes.Horse;
-                    return;
-                }
-
-                if (Main.LongMode.Value)
-                {
-                    __result = PlayerBodyTypes.Long;
-                    return;
-                }
-
-                __result = PlayerBodyTypes.Normal;
-            }
-            else if (Main.HorseMode.Value)
-            {
-                if (player.Data.Role.IsImpostor)
-                {
-                    __result = PlayerBodyTypes.Normal;
-                    return;
-                }
-
                 __result = PlayerBodyTypes.Horse;
+                return;
             }
-            else if (Main.LongMode.Value)
-            {
-                if (player.Data.Role.IsImpostor)
-                {
-                    __result = PlayerBodyTypes.LongSeeker;
-                    return;
-                }
 
+            if (Main.LongMode.Value)
+            {
                 __result = PlayerBodyTypes.Long;
+                return;
             }
-            else
+
+            __result = PlayerBodyTypes.Normal;
+        }
+    }
+
+    [HarmonyPatch(typeof(HideAndSeekManager), nameof(HideAndSeekManager.GetBodyType))]
+    public static class GetHnsBodyTypePatch
+    {
+        public static void Postfix(ref PlayerBodyTypes __result, [HarmonyArgument(0)] PlayerControl player)
+        {
+            try
             {
-                if (player.Data.Role.IsImpostor)
+                if (player == null || player.Data == null || player.Data.Role == null)
                 {
-                    __result = PlayerBodyTypes.Seeker;
-                    return;
+                    if (Main.HorseMode.Value)
+                    {
+                        __result = PlayerBodyTypes.Horse;
+                        return;
+                    }
+
+                    if (Main.LongMode.Value)
+                    {
+                        __result = PlayerBodyTypes.Long;
+                        return;
+                    }
+
+                    __result = PlayerBodyTypes.Normal;
+                }
+                else if (Main.HorseMode.Value)
+                {
+                    if (player.Data.Role.IsImpostor)
+                    {
+                        __result = PlayerBodyTypes.Normal;
+                        return;
+                    }
+
+                    __result = PlayerBodyTypes.Horse;
+                }
+                else if (Main.LongMode.Value)
+                {
+                    if (player.Data.Role.IsImpostor)
+                    {
+                        __result = PlayerBodyTypes.LongSeeker;
+                        return;
+                    }
+
+                    __result = PlayerBodyTypes.Long;
+                }
+                else
+                {
+                    if (player.Data.Role.IsImpostor)
+                    {
+                        __result = PlayerBodyTypes.Seeker;
+                        return;
+                    }
+
+                    __result = PlayerBodyTypes.Normal;
+                }
+            }
+            catch
+            {
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(LongBoiPlayerBody))]
+    public static class LongBoiPatches
+    {
+        [HarmonyPatch(nameof(LongBoiPlayerBody.Awake))]
+        [HarmonyPrefix]
+        public static bool LongBoyAwake_Patch(LongBoiPlayerBody __instance)
+        {
+            try
+            {
+                __instance.cosmeticLayer.OnSetBodyAsGhost += (Action)__instance.SetPoolableGhost;
+                __instance.cosmeticLayer.OnColorChange += (Action<int>)__instance.SetHeightFromColor;
+                __instance.cosmeticLayer.OnCosmeticSet += (Action<string, int, CosmeticKind>)__instance.OnCosmeticSet;
+                __instance.gameObject.layer = 8;
+            }
+            catch
+            {
+            }
+
+            return false;
+        }
+
+        [HarmonyPatch(nameof(LongBoiPlayerBody.Start))]
+        [HarmonyPrefix]
+        public static bool LongBoyStart_Patch(LongBoiPlayerBody __instance)
+        {
+            try
+            {
+                __instance.ShouldLongAround = true;
+                if (__instance.hideCosmeticsQC)
+                {
+                    __instance.cosmeticLayer.SetHatVisorVisible(false);
                 }
 
-                __result = PlayerBodyTypes.Normal;
-            }
-        }
-        catch
-        {
-        }
-    }
-}
-
-[HarmonyPatch(typeof(LongBoiPlayerBody))]
-public static class LongBoiPatches
-{
-    [HarmonyPatch(nameof(LongBoiPlayerBody.Awake))]
-    [HarmonyPrefix]
-    public static bool LongBoyAwake_Patch(LongBoiPlayerBody __instance)
-    {
-        try
-        {
-            __instance.cosmeticLayer.OnSetBodyAsGhost += (Action)__instance.SetPoolableGhost;
-            __instance.cosmeticLayer.OnColorChange += (Il2CppSystem.Action<int>)__instance.SetHeightFromColor;
-            __instance.cosmeticLayer.OnCosmeticSet += (Il2CppSystem.Action<string, int, CosmeticKind>)__instance.OnCosmeticSet;
-            __instance.gameObject.layer = 8;
-        }
-        catch
-        {
-        }
-
-        return false;
-    }
-
-    [HarmonyPatch(nameof(LongBoiPlayerBody.Start))]
-    [HarmonyPrefix]
-    public static bool LongBoyStart_Patch(LongBoiPlayerBody __instance)
-    {
-        try
-        {
-            __instance.ShouldLongAround = true;
-            if (__instance.hideCosmeticsQC)
-            {
-                __instance.cosmeticLayer.SetHatVisorVisible(false);
-            }
-
-            __instance.SetupNeckGrowth();
-            if (__instance.isExiledPlayer)
-            {
-                ShipStatus instance = ShipStatus.Instance;
-                if (instance == null || instance.Type != ShipStatus.MapType.Fungle)
+                __instance.SetupNeckGrowth();
+                if (__instance.isExiledPlayer)
                 {
-                    __instance.cosmeticLayer.AdjustCosmeticRotations(-17.75f);
+                    ShipStatus instance = ShipStatus.Instance;
+                    if (instance == null || instance.Type != ShipStatus.MapType.Fungle)
+                    {
+                        __instance.cosmeticLayer.AdjustCosmeticRotations(-17.75f);
+                    }
+                }
+
+                if (!__instance.isPoolablePlayer)
+                {
+                    __instance.cosmeticLayer.ValidateCosmetics();
+                }
+
+                if (__instance.myPlayerControl)
+                {
+                    __instance.StopAllCoroutines();
+                    __instance.SetHeightFromColor(__instance.myPlayerControl.Data.DefaultOutfit.ColorId);
                 }
             }
-
-            if (!__instance.isPoolablePlayer)
+            catch
             {
-                __instance.cosmeticLayer.ValidateCosmetics();
             }
 
-            if (__instance.myPlayerControl)
+            return false;
+        }
+
+        [HarmonyPatch(nameof(LongBoiPlayerBody.SetHeighFromDistanceHnS))]
+        [HarmonyPrefix]
+        public static bool LongBoyNeckSize_Patch(LongBoiPlayerBody __instance, ref float distance)
+        {
+            try
             {
-                __instance.StopAllCoroutines();
-                __instance.SetHeightFromColor(__instance.myPlayerControl.Data.DefaultOutfit.ColorId);
+                __instance.targetHeight = (distance / 10f) + 0.5f;
+                __instance.SetupNeckGrowth(true);
             }
-        }
-        catch
-        {
-        }
+            catch
+            {
+            }
 
-        return false;
-    }
-
-    [HarmonyPatch(nameof(LongBoiPlayerBody.SetHeighFromDistanceHnS))]
-    [HarmonyPrefix]
-    public static bool LongBoyNeckSize_Patch(LongBoiPlayerBody __instance, ref float distance)
-    {
-        try
-        {
-            __instance.targetHeight = distance / 10f + 0.5f;
-            __instance.SetupNeckGrowth(true);
-        }
-        catch
-        {
+            return false;
         }
 
-        return false;
-    }
-
-    [HarmonyPatch(typeof(HatManager), nameof(HatManager.CheckLongModeValidCosmetic))]
-    [HarmonyPrefix]
-    public static bool CheckLongMode_Patch(HatManager __instance, out bool __result, ref string cosmeticID, ref bool ignoreLongMode)
-    {
-        if (AprilFoolsMode.ShouldHorseAround() || AprilFoolsMode.ShouldLongAround())
+        [HarmonyPatch(typeof(HatManager), nameof(HatManager.CheckLongModeValidCosmetic))]
+        [HarmonyPrefix]
+        public static bool CheckLongMode_Patch(HatManager __instance, out bool __result, ref string cosmeticID, ref bool ignoreLongMode)
         {
+            if (AprilFoolsMode.ShouldHorseAround() || AprilFoolsMode.ShouldLongAround())
+            {
+                __result = true;
+                return false;
+            }
+
+            if (string.Equals("skin_rhm", cosmeticID))
+            {
+                __result = false;
+                return false;
+            }
+
             __result = true;
             return false;
         }
-
-        if (string.Equals("skin_rhm", cosmeticID))
-        {
-            __result = false;
-            return false;
-        }
-
-        __result = true;
-        return false;
     }
 }

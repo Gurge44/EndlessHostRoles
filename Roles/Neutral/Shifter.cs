@@ -33,7 +33,10 @@ namespace EHR.Neutral
 
         public override void Init()
         {
-            if (GameStates.InGame && !Main.HasJustStarted) return;
+            if (GameStates.InGame && !Main.HasJustStarted)
+            {
+                return;
+            }
 
             On = false;
 
@@ -44,24 +47,46 @@ namespace EHR.Neutral
         {
             On = true;
 
-            var pc = playerId.GetPlayer();
-            if (pc == null) return;
+            PlayerControl pc = playerId.GetPlayer();
+            if (pc == null)
+            {
+                return;
+            }
+
             pc.AddAbilityCD();
             pc.ResetKillCooldown();
             pc.SyncSettings();
             pc.SetKillCooldown();
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
-        public override bool CanUseKillButton(PlayerControl pc) => true;
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
+        {
+            opt.SetVision(HasImpostorVision.GetBool());
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return CanVent.GetBool();
+        }
+
+        public override bool CanUseKillButton(PlayerControl pc)
+        {
+            return true;
+        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!base.OnCheckMurder(killer, target)) return false;
+            if (!base.OnCheckMurder(killer, target))
+            {
+                return false;
+            }
 
-            var targetRole = target.GetCustomRole();
+            CustomRoles targetRole = target.GetCustomRole();
             switch (targetRole)
             {
                 case CustomRoles.Enigma:
@@ -81,13 +106,16 @@ namespace EHR.Neutral
             killer.RpcSetCustomRole(targetRole);
             killer.RpcChangeRoleBasis(targetRole);
 
-            var targetRoleBase = Main.PlayerStates[target.PlayerId].Role;
+            RoleBase targetRoleBase = Main.PlayerStates[target.PlayerId].Role;
             LateTask.New(() => Main.PlayerStates[killer.PlayerId].Role = targetRoleBase, 0.5f, "Change RoleBase");
 
             killer.SetAbilityUseLimit(target.GetAbilityUseLimit());
 
-            var taskState = target.GetTaskState();
-            if (taskState.HasTasks) Main.PlayerStates[killer.PlayerId].TaskState = taskState;
+            TaskState taskState = target.GetTaskState();
+            if (taskState.HasTasks)
+            {
+                Main.PlayerStates[killer.PlayerId].TaskState = taskState;
+            }
 
             killer.RemoveAbilityCD();
             killer.SyncSettings();

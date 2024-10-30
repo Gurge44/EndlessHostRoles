@@ -84,9 +84,9 @@ namespace EHR.Neutral
             AllColors = [];
             LateTask.New(() =>
             {
-                foreach (var pc in Main.AllPlayerControls)
+                foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
-                    var colorId = pc.Data.DefaultOutfit.ColorId;
+                    int colorId = pc.Data.DefaultOutfit.ColorId;
                     AllColors.Add(Palette.GetColorName(colorId));
                 }
             }, 10f, log: false);
@@ -96,12 +96,12 @@ namespace EHR.Neutral
 
             if (EnableCustomQuestions)
             {
-                var lines = File.ReadAllLines("./EHR_DATA/QuizMasterQuestions.txt");
-                var questions = lines.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x =>
+                string[] lines = File.ReadAllLines("./EHR_DATA/QuizMasterQuestions.txt");
+                IEnumerable<Question> questions = lines.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x =>
                 {
                     try
                     {
-                        var line = x.Split(';');
+                        string[] line = x.Split(';');
                         return new Question(line[0], line[1].Split(','), int.Parse(line[2]));
                     }
                     catch (Exception e)
@@ -124,9 +124,20 @@ namespace EHR.Neutral
             QuizMasterId = playerId;
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = CanKillWithDoubleClick.GetBool() ? KillCooldown.GetFloat() : MarkCooldown.GetFloat();
-        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = CanKillWithDoubleClick.GetBool() ? KillCooldown.GetFloat() : MarkCooldown.GetFloat();
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
+        {
+            opt.SetVision(HasImpostorVision.GetBool());
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return CanVent.GetBool();
+        }
 
         public override void AfterMeetingTasks()
         {
@@ -144,7 +155,10 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!base.OnCheckMurder(killer, target)) return false;
+            if (!base.OnCheckMurder(killer, target))
+            {
+                return false;
+            }
 
             if (!CanKillWithDoubleClick.GetBool())
             {
@@ -159,7 +173,7 @@ namespace EHR.Neutral
             });
         }
 
-        static Question GetQuestion()
+        private static Question GetQuestion()
         {
             List<int> allowedIndexes = [];
             List<int> allowedABCIndexes = [];
@@ -193,7 +207,7 @@ namespace EHR.Neutral
                 }
             }
 
-            var random = IRandom.Instance;
+            IRandom random = IRandom.Instance;
 
             if (EnableCustomQuestions && random.Next(100) < CustomQuestionChance.GetInt())
             {
@@ -204,7 +218,7 @@ namespace EHR.Neutral
             List<int> indexes = abc ? allowedABCIndexes : allowedIndexes;
             int index = indexes.RandomElement();
 
-            var randomRole = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && !x.IsAdditionRole() && !HnSManager.AllHnSRoles.Contains(x) && !x.IsForOtherGameMode()).Shuffle()[0];
+            CustomRoles randomRole = Enum.GetValues<CustomRoles>().Where(x => x.IsEnable() && !x.IsAdditionRole() && !HnSManager.AllHnSRoles.Contains(x) && !x.IsForOtherGameMode()).Shuffle()[0];
 
             string title = index switch
             {
@@ -218,7 +232,7 @@ namespace EHR.Neutral
             {
                 1 when abc => (Enum.GetValues<Team>().Skip(1).Where(x => x != Data.LastReportedPlayer.Player.GetTeam()).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{Data.LastReportedPlayer.Player.GetTeam()}")),
                 1 => (AllColors.Without(Data.LastReportedPlayer.ColorString).Shuffle().Take(2), Data.LastReportedPlayer.ColorString),
-                2 when abc => ((new[] { PlayerState.DeathReason.Suicide, PlayerState.DeathReason.Kill, PlayerState.DeathReason.etc }).Without(Main.PlayerStates[Data.LastReportedPlayer.Player!.PlayerId].deathReason).Select(x => Translator.GetString($"DeathReason.{x}")), Translator.GetString($"DeathReason.{Main.PlayerStates[Data.LastReportedPlayer.Player!.PlayerId].deathReason}")),
+                2 when abc => (new[] { PlayerState.DeathReason.Suicide, PlayerState.DeathReason.Kill, PlayerState.DeathReason.etc }.Without(Main.PlayerStates[Data.LastReportedPlayer.Player!.PlayerId].deathReason).Select(x => Translator.GetString($"DeathReason.{x}")), Translator.GetString($"DeathReason.{Main.PlayerStates[Data.LastReportedPlayer.Player!.PlayerId].deathReason}")),
                 2 => (GetTwoRandomNames(Data.LastPlayerPressedButtonName), Data.LastPlayerPressedButtonName),
                 3 when abc => (["Town Of Us", "Town Of Host Enhanced"], "Endless Host Roles"),
                 3 => (AllSabotages.Take(2).Select(x => Translator.GetString($"{x}")), Translator.GetString($"{Data.LastSabotage}")),
@@ -240,24 +254,34 @@ namespace EHR.Neutral
                 _ => ([], string.Empty)
             };
 
-            var allAnswersList = answers.WrongAnswers.Append(answers.CorrectAnswer).Shuffle();
-            var correctIndex = allAnswersList.IndexOf(answers.CorrectAnswer);
+            List<string> allAnswersList = answers.WrongAnswers.Append(answers.CorrectAnswer).Shuffle();
+            int correctIndex = allAnswersList.IndexOf(answers.CorrectAnswer);
 
             return new(title, allAnswersList.ToArray(), correctIndex);
 
-            IEnumerable<string> GetTwoRandomNames(string except) => Main.AllPlayerControls.Select(x => x?.GetRealName()).Without(except).Shuffle().TakeLast(2);
-            IEnumerable<string> GetTwoRandomNumbers(params int[] nums) => IRandom.SequenceUnique(3, nums[1], nums[2] + 1).Without(nums[0]).Take(2).Select(x => x.ToString());
+            IEnumerable<string> GetTwoRandomNames(string except)
+            {
+                return Main.AllPlayerControls.Select(x => x?.GetRealName()).Without(except).Shuffle().TakeLast(2);
+            }
+
+            IEnumerable<string> GetTwoRandomNumbers(params int[] nums)
+            {
+                return IRandom.SequenceUnique(3, nums[1], nums[2] + 1).Without(nums[0]).Take(2).Select(x => x.ToString());
+            }
         }
 
         public override void OnReportDeadBody()
         {
-            if (Target == byte.MaxValue) return;
+            if (Target == byte.MaxValue)
+            {
+                return;
+            }
 
             CurrentQuestion = GetQuestion();
 
-            var msgTitle = CurrentQuestion.QuestionText;
-            var answers = string.Join('\n', CurrentQuestion.Answers.Select((x, i) => $"{(char)(65 + i)}: <b>{x}</b>"));
-            var sample = string.Format(Translator.GetString("QuizMaster.QuestionSample"), msgTitle, answers);
+            string msgTitle = CurrentQuestion.QuestionText;
+            string answers = string.Join('\n', CurrentQuestion.Answers.Select((x, i) => $"{(char)(65 + i)}: <b>{x}</b>"));
+            string sample = string.Format(Translator.GetString("QuizMaster.QuestionSample"), msgTitle, answers);
 
             MessagesToSend[Target] = sample;
 
@@ -272,8 +296,11 @@ namespace EHR.Neutral
             {
                 index = answer[0] - 'A';
 
-                var name = Utils.GetPlayerById(Target)?.GetNameWithRole();
-                if (index != -1) Logger.Info($"Player {name} answered {CurrentQuestion.Answers[index]}", "QuizMaster");
+                string name = Utils.GetPlayerById(Target)?.GetNameWithRole();
+                if (index != -1)
+                {
+                    Logger.Info($"Player {name} answered {CurrentQuestion.Answers[index]}", "QuizMaster");
+                }
 
                 if (CurrentQuestion.CorrectAnswerIndex == index)
                 {
@@ -302,13 +329,16 @@ namespace EHR.Neutral
                 Utils.ThrowException(e);
             }
 
-            if (index == -1) return;
+            if (index == -1)
+            {
+                return;
+            }
 
             CurrentQuestion = default;
             Target = byte.MaxValue;
         }
 
-        class Question(string questionText, string[] answers, int correctAnswerIndex)
+        private class Question(string questionText, string[] answers, int correctAnswerIndex)
         {
             public readonly string[] Answers = answers;
             public readonly int CorrectAnswerIndex = correctAnswerIndex;

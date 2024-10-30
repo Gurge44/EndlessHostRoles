@@ -38,7 +38,10 @@ namespace EHR.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
-            if (Options.UsePhantomBasis.GetBool()) AURoleOptions.PhantomCooldown = CamouflageCooldown.GetFloat();
+            if (Options.UsePhantomBasis.GetBool())
+            {
+                AURoleOptions.PhantomCooldown = CamouflageCooldown.GetFloat();
+            }
             else
             {
                 AURoleOptions.ShapeshifterCooldown = CamouflageCooldown.GetFloat();
@@ -60,7 +63,7 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
         {
-            var unshift = Options.UseUnshiftTrigger.GetBool();
+            bool unshift = Options.UseUnshiftTrigger.GetBool();
 
             if (!shapeshifting && !unshift)
             {
@@ -70,7 +73,9 @@ namespace EHR.Impostor
             }
 
             if (pc.GetAbilityUseLimit() < 1 && !Options.DisableShapeshiftAnimations.GetBool() && !unshift)
+            {
                 pc.SetKillCooldown(CamouflageDuration.GetFloat() + 1f);
+            }
 
             pc.RpcRemoveAbilityUse();
             IsActive = true;
@@ -80,7 +85,11 @@ namespace EHR.Impostor
             {
                 LateTask.New(() =>
                 {
-                    if (!IsActive) return;
+                    if (!IsActive)
+                    {
+                        return;
+                    }
+
                     IsActive = false;
                     Camouflage.CheckCamouflage();
                 }, CamouflageDuration.GetFloat());

@@ -63,14 +63,20 @@ namespace EHR.Crewmate
             if (IsAbilityActive)
             {
                 opt.SetVision(false);
-                if (Utils.IsActive(SystemTypes.Electrical)) opt.SetFloat(FloatOptionNames.CrewLightMod, LighterVisionOnLightsOut.GetFloat() * 5);
-                else opt.SetFloat(FloatOptionNames.CrewLightMod, LighterVisionNormal.GetFloat());
+                if (Utils.IsActive(SystemTypes.Electrical))
+                {
+                    opt.SetFloat(FloatOptionNames.CrewLightMod, LighterVisionOnLightsOut.GetFloat() * 5);
+                }
+                else
+                {
+                    opt.SetFloat(FloatOptionNames.CrewLightMod, LighterVisionNormal.GetFloat());
+                }
             }
         }
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            var ProgressText = new StringBuilder();
+            StringBuilder ProgressText = new StringBuilder();
 
             ProgressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, IsAbilityActive));
             ProgressText.Append(Utils.GetTaskCount(playerId, comms));
@@ -81,9 +87,13 @@ namespace EHR.Crewmate
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             if (UsePets.GetBool())
+            {
                 hud.PetButton.buttonLabelText.text = Translator.GetString("LighterVentButtonText");
+            }
             else
+            {
                 hud.AbilityButton.buttonLabelText.text = Translator.GetString("LighterVentButtonText");
+            }
         }
 
         public override void OnPet(PlayerControl pc)
@@ -96,9 +106,13 @@ namespace EHR.Crewmate
             Light(pc);
         }
 
-        void Light(PlayerControl pc)
+        private void Light(PlayerControl pc)
         {
-            if (IsAbilityActive) return;
+            if (IsAbilityActive)
+            {
+                return;
+            }
+
             if (pc.GetAbilityUseLimit() >= 1)
             {
                 IsAbilityActive = true;
@@ -122,7 +136,10 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!GameStates.IsInTask) return;
+            if (!GameStates.IsInTask)
+            {
+                return;
+            }
 
             if (IsAbilityActive && ActivateTimeStamp + LighterSkillDuration.GetInt() < Utils.TimeStamp)
             {

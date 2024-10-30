@@ -46,7 +46,11 @@ namespace EHR.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool()) return;
+            if (UsePets.GetBool())
+            {
+                return;
+            }
+
             AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1f;
         }
@@ -61,10 +65,17 @@ namespace EHR.Crewmate
             OpenDoors(pc);
         }
 
-        static void OpenDoors(PlayerControl pc)
+        private static void OpenDoors(PlayerControl pc)
         {
-            if (pc == null) return;
-            if (!pc.Is(CustomRoles.Doormaster)) return;
+            if (pc == null)
+            {
+                return;
+            }
+
+            if (!pc.Is(CustomRoles.Doormaster))
+            {
+                return;
+            }
 
             if (pc.GetAbilityUseLimit() >= 1)
             {

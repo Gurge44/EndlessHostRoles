@@ -4,7 +4,6 @@ using System.Linq;
 using AmongUs.GameOptions;
 using EHR.Modules;
 using Hazel;
-using UnityEngine;
 
 namespace EHR.Neutral
 {
@@ -60,19 +59,33 @@ namespace EHR.Neutral
             StungPlayers = [];
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
-        public override void ApplyGameOptions(IGameOptions opt, byte id) => opt.SetVision(HasImpostorVision.GetBool());
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
+
+        public override void ApplyGameOptions(IGameOptions opt, byte id)
+        {
+            opt.SetVision(HasImpostorVision.GetBool());
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return CanVent.GetBool();
+        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!base.OnCheckMurder(killer, target)) return false;
+            if (!base.OnCheckMurder(killer, target))
+            {
+                return false;
+            }
 
             return killer.CheckDoubleTrigger(target, () =>
             {
                 Vector2 pos = target.Pos();
                 StungPlayers[target.PlayerId] = (Utils.TimeStamp, pos);
-                killer.SetKillCooldown(time: StingCooldown.GetFloat());
+                killer.SetKillCooldown(StingCooldown.GetFloat());
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                 Utils.SendRPC(CustomRPC.SyncRoleData, BeehiveId, 1, target.PlayerId, pos);
                 target.Notify(string.Format(Translator.GetString("Beehive.Notify"), Math.Round(Distance.GetFloat(), 1), Math.Round(Time.GetFloat(), 1)), 8f);
@@ -81,16 +94,21 @@ namespace EHR.Neutral
 
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
         {
-            if (lowLoad || !pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
+            if (lowLoad || !pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance)
+            {
+                return;
+            }
 
-            if (StungPlayers.TryGetValue(pc.PlayerId, out var sp))
+            if (StungPlayers.TryGetValue(pc.PlayerId, out (long TimeStamp, Vector2 InitialPosition) sp))
             {
                 if (Utils.TimeStamp - sp.TimeStamp >= Time.GetFloat())
                 {
                     StungPlayers.Remove(pc.PlayerId);
                     Utils.SendRPC(CustomRPC.SyncRoleData, BeehiveId, 2, pc.PlayerId);
                     if (Vector2.Distance(pc.Pos(), sp.InitialPosition) < Distance.GetFloat())
+                    {
                         pc.Suicide(realKiller: Utils.GetPlayerById(BeehiveId));
+                    }
                 }
 
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -124,13 +142,16 @@ namespace EHR.Neutral
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || meeting || hud || !StungPlayers.TryGetValue(seer.PlayerId, out var sp)) return string.Empty;
+            if (seer.PlayerId != target.PlayerId || meeting || hud || !StungPlayers.TryGetValue(seer.PlayerId, out (long TimeStamp, Vector2 InitialPosition) sp))
+            {
+                return string.Empty;
+            }
 
-            var walked = Math.Round(Vector2.Distance(seer.Pos(), sp.InitialPosition), 1);
-            var distance = Math.Round(Distance.GetFloat(), 1);
-            var time = Time.GetInt() - (Utils.TimeStamp - sp.TimeStamp);
-            var color = walked >= distance ? "<#00ffa5>" : "<#ffa500>";
-            var color2 = walked >= distance ? "<#00ffff>" : "<#ffff00>";
+            double walked = Math.Round(Vector2.Distance(seer.Pos(), sp.InitialPosition), 1);
+            double distance = Math.Round(Distance.GetFloat(), 1);
+            long time = Time.GetInt() - (Utils.TimeStamp - sp.TimeStamp);
+            string color = walked >= distance ? "<#00ffa5>" : "<#ffa500>";
+            string color2 = walked >= distance ? "<#00ffff>" : "<#ffff00>";
             return $"{color}{walked}</color>{color2}/{distance}</color> <#ffffff>({time}s)</color>";
         }
     }

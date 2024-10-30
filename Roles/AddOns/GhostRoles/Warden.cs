@@ -17,13 +17,25 @@ namespace EHR.AddOns.GhostRoles
 
         public void OnProtect(PlayerControl pc, PlayerControl target)
         {
-            if (SpeedList.ContainsKey(target.PlayerId)) return;
+            if (SpeedList.ContainsKey(target.PlayerId))
+            {
+                return;
+            }
+
             float speed = Main.AllPlayerSpeed[target.PlayerId];
             float targetSpeed = speed + ExtraSpeed.GetFloat();
-            if (Math.Abs(speed - targetSpeed) < 0.1f || speed > targetSpeed) return;
+            if (Math.Abs(speed - targetSpeed) < 0.1f || speed > targetSpeed)
+            {
+                return;
+            }
+
             Main.AllPlayerSpeed[target.PlayerId] += ExtraSpeed.GetFloat();
             target.MarkDirtySettings();
-            if (NotifyTarget.GetBool()) target.Notify(Translator.GetString("WardenNotify"));
+            if (NotifyTarget.GetBool())
+            {
+                target.Notify(Translator.GetString("WardenNotify"));
+            }
+
             SpeedList[target.PlayerId] = (Utils.TimeStamp, speed);
         }
 
@@ -54,7 +66,7 @@ namespace EHR.AddOns.GhostRoles
                 Main.AllPlayerSpeed[x.Key] = x.Value.OriginalSpeed;
                 pc.MarkDirtySettings();
                 SpeedList.Remove(x.Key);
-            }, fast: false);
+            }, false);
         }
     }
 }

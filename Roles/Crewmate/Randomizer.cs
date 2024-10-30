@@ -12,34 +12,44 @@ namespace EHR.Crewmate
 {
     internal static class EffectExtenstions
     {
-        public static bool IsSpeedChangingEffect(this Effect effect) => effect is
-            Effect.SuperSpeedForRandomPlayer or
-            Effect.SuperSpeedForAll or
-            Effect.FreezeRandomPlayer or
-            Effect.InvertControls;
+        public static bool IsSpeedChangingEffect(this Effect effect)
+        {
+            return effect is
+                Effect.SuperSpeedForRandomPlayer or
+                Effect.SuperSpeedForAll or
+                Effect.FreezeRandomPlayer or
+                Effect.InvertControls;
+        }
 
-        public static bool IsVisionChangingEffect(this Effect effect) => effect is
-            Effect.SuperVisionForRandomPlayer or
-            Effect.SuperVisionForAll or
-            Effect.BlindnessForRandomPlayer or
-            Effect.BlindnessForAll;
+        public static bool IsVisionChangingEffect(this Effect effect)
+        {
+            return effect is
+                Effect.SuperVisionForRandomPlayer or
+                Effect.SuperVisionForAll or
+                Effect.BlindnessForRandomPlayer or
+                Effect.BlindnessForAll;
+        }
 
         public static void Apply(this Effect effect, PlayerControl randomizer)
         {
-            if (!Exists) return;
+            if (!Exists)
+            {
+                return;
+            }
+
             try
             {
                 switch (effect)
                 {
                     case Effect.ShieldRandomPlayer:
                     {
-                        var pc = PickRandomPlayer();
+                        PlayerControl pc = PickRandomPlayer();
                         AddEffectForPlayer(pc, effect);
                     }
                         break;
                     case Effect.ShieldAll:
                     {
-                        foreach (var pc in Main.AllAlivePlayerControls)
+                        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                         {
                             AddEffectForPlayer(pc, effect);
                             NotifyAboutRNG(pc);
@@ -48,7 +58,7 @@ namespace EHR.Crewmate
                         break;
                     case Effect.TPEveryoneToVents:
                     {
-                        foreach (var pc in Main.AllAlivePlayerControls)
+                        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                         {
                             pc.TPToRandomVent();
                             NotifyAboutRNG(pc);
@@ -61,21 +71,27 @@ namespace EHR.Crewmate
                     case Effect.Twist:
                     {
                         List<byte> changePositionPlayers = [];
-                        foreach (var pc in Main.AllAlivePlayerControls)
+                        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                         {
-                            if (changePositionPlayers.Contains(pc.PlayerId) || Pelican.IsEaten(pc.PlayerId) || pc.onLadder || pc.inVent || pc.inMovingPlat || GameStates.IsMeeting) continue;
+                            if (changePositionPlayers.Contains(pc.PlayerId) || Pelican.IsEaten(pc.PlayerId) || pc.onLadder || pc.inVent || pc.inMovingPlat || GameStates.IsMeeting)
+                            {
+                                continue;
+                            }
 
-                            var filtered = Main.AllAlivePlayerControls.Where(a => !a.inVent && !Pelican.IsEaten(a.PlayerId) && !a.onLadder && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
-                            if (filtered.Length == 0) break;
+                            PlayerControl[] filtered = Main.AllAlivePlayerControls.Where(a => !a.inVent && !Pelican.IsEaten(a.PlayerId) && !a.onLadder && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
+                            if (filtered.Length == 0)
+                            {
+                                break;
+                            }
 
-                            var target = filtered.RandomElement();
+                            PlayerControl target = filtered.RandomElement();
 
                             changePositionPlayers.Add(target.PlayerId);
                             changePositionPlayers.Add(pc.PlayerId);
 
                             pc.RPCPlayCustomSound("Teleport");
 
-                            var originPs = target.Pos();
+                            Vector2 originPs = target.Pos();
                             target.TP(pc.Pos());
                             pc.TP(originPs);
 
@@ -86,7 +102,7 @@ namespace EHR.Crewmate
                         break;
                     case Effect.SuperSpeedForRandomPlayer:
                     {
-                        var pc = PickRandomPlayer();
+                        PlayerControl pc = PickRandomPlayer();
                         RevertSpeedChangesForPlayer(pc, false);
                         AddEffectForPlayer(pc, effect);
                         Main.AllPlayerSpeed[pc.PlayerId] = 5f;
@@ -96,7 +112,7 @@ namespace EHR.Crewmate
                         break;
                     case Effect.SuperSpeedForAll:
                     {
-                        foreach (var pc in Main.AllAlivePlayerControls)
+                        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                         {
                             RevertSpeedChangesForPlayer(pc, false);
                             AddEffectForPlayer(pc, effect);
@@ -109,7 +125,7 @@ namespace EHR.Crewmate
                         break;
                     case Effect.FreezeRandomPlayer:
                     {
-                        var pc = PickRandomPlayer();
+                        PlayerControl pc = PickRandomPlayer();
                         RevertSpeedChangesForPlayer(pc, false);
                         AddEffectForPlayer(pc, effect);
                         Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
@@ -119,7 +135,7 @@ namespace EHR.Crewmate
                         break;
                     case Effect.SuperVisionForRandomPlayer:
                     {
-                        var pc = PickRandomPlayer();
+                        PlayerControl pc = PickRandomPlayer();
                         RevertVisionChangesForPlayer(pc, false);
                         AddEffectForPlayer(pc, effect);
                         pc.MarkDirtySettings();
@@ -128,7 +144,7 @@ namespace EHR.Crewmate
                         break;
                     case Effect.SuperVisionForAll:
                     {
-                        foreach (var pc in Main.AllAlivePlayerControls)
+                        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                         {
                             RevertVisionChangesForPlayer(pc, false);
                             AddEffectForPlayer(pc, effect);
@@ -140,7 +156,7 @@ namespace EHR.Crewmate
                         break;
                     case Effect.BlindnessForRandomPlayer:
                     {
-                        var pc = PickRandomPlayer();
+                        PlayerControl pc = PickRandomPlayer();
                         RevertVisionChangesForPlayer(pc, false);
                         AddEffectForPlayer(pc, effect);
                         pc.MarkDirtySettings();
@@ -149,7 +165,7 @@ namespace EHR.Crewmate
                         break;
                     case Effect.BlindnessForAll:
                     {
-                        foreach (var pc in Main.AllAlivePlayerControls)
+                        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                         {
                             RevertVisionChangesForPlayer(pc, false);
                             AddEffectForPlayer(pc, effect);
@@ -161,7 +177,7 @@ namespace EHR.Crewmate
                         break;
                     case Effect.AllKCDsReset:
                     {
-                        foreach (var pc in Main.AllAlivePlayerControls)
+                        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                         {
                             if (pc.HasKillButton() && pc.CanUseKillButton())
                             {
@@ -173,7 +189,7 @@ namespace EHR.Crewmate
                         break;
                     case Effect.AllKCDsTo0:
                     {
-                        foreach (var pc in Main.AllAlivePlayerControls)
+                        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                         {
                             if (pc.HasKillButton() && pc.CanUseKillButton())
                             {
@@ -185,7 +201,7 @@ namespace EHR.Crewmate
                         break;
                     case Effect.Meeting when TimeSinceLastMeeting > Math.Max(Main.NormalOptions.EmergencyCooldown, 30):
                     {
-                        var pc = PickRandomPlayer();
+                        PlayerControl pc = PickRandomPlayer();
                         pc.CmdReportDeadBody(null);
                     }
                         break;
@@ -193,10 +209,10 @@ namespace EHR.Crewmate
                         Rifts.TryAdd(PickRandomPlayer().Pos(), PickRandomPlayer().Pos());
                         try
                         {
-                            var riftsToRemove = new List<Vector2>();
-                            foreach (var rift1 in Rifts)
+                            List<Vector2> riftsToRemove = new List<Vector2>();
+                            foreach (KeyValuePair<Vector2, Vector2> rift1 in Rifts)
                             {
-                                foreach (var rift2 in Rifts)
+                                foreach (KeyValuePair<Vector2, Vector2> rift2 in Rifts)
                                 {
                                     if (rift1.Key != rift2.Key && Vector2.Distance(rift1.Key, rift2.Key) <= 4f)
                                     {
@@ -205,7 +221,7 @@ namespace EHR.Crewmate
                                 }
                             }
 
-                            foreach (var rift in riftsToRemove)
+                            foreach (Vector2 rift in riftsToRemove)
                             {
                                 Rifts.Remove(rift);
                             }
@@ -225,8 +241,12 @@ namespace EHR.Crewmate
                         break;
                     case Effect.RevertToBaseRole when TimeSinceLastMeeting > 40f: // To make this less frequent than the others
                     {
-                        var pc = PickRandomPlayer();
-                        if (pc.PlayerId == randomizer.PlayerId) break;
+                        PlayerControl pc = PickRandomPlayer();
+                        if (pc.PlayerId == randomizer.PlayerId)
+                        {
+                            break;
+                        }
+
                         pc.RpcSetCustomRole(pc.GetCustomRole().GetErasedRole());
                         pc.SyncSettings();
                         NotifyAboutRNG(pc);
@@ -234,7 +254,7 @@ namespace EHR.Crewmate
                         break;
                     case Effect.InvertControls:
                     {
-                        foreach (var pc in Main.AllAlivePlayerControls)
+                        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                         {
                             RevertSpeedChangesForPlayer(pc, false);
                             AddEffectForPlayer(pc, effect);
@@ -247,10 +267,14 @@ namespace EHR.Crewmate
                         break;
                     case Effect.AddonAssign:
                     {
-                        var addons = Enum.GetValues<CustomRoles>().Where(x => x.IsAdditionRole() && x != CustomRoles.NotAssigned).ToArray();
-                        var pc = PickRandomPlayer();
-                        var addon = addons.RandomElement();
-                        if (Main.PlayerStates[pc.PlayerId].SubRoles.Contains(addon)) break;
+                        CustomRoles[] addons = Enum.GetValues<CustomRoles>().Where(x => x.IsAdditionRole() && x != CustomRoles.NotAssigned).ToArray();
+                        PlayerControl pc = PickRandomPlayer();
+                        CustomRoles addon = addons.RandomElement();
+                        if (Main.PlayerStates[pc.PlayerId].SubRoles.Contains(addon))
+                        {
+                            break;
+                        }
+
                         Main.PlayerStates[pc.PlayerId].SetSubRole(addon);
                         pc.MarkDirtySettings();
                         NotifyAboutRNG(pc);
@@ -258,10 +282,14 @@ namespace EHR.Crewmate
                         break;
                     case Effect.AddonRemove:
                     {
-                        var pc = PickRandomPlayer();
-                        var addons = Main.PlayerStates[pc.PlayerId].SubRoles;
-                        if (addons.Count == 0) break;
-                        var addon = addons.RandomElement();
+                        PlayerControl pc = PickRandomPlayer();
+                        List<CustomRoles> addons = Main.PlayerStates[pc.PlayerId].SubRoles;
+                        if (addons.Count == 0)
+                        {
+                            break;
+                        }
+
+                        CustomRoles addon = addons.RandomElement();
                         Main.PlayerStates[pc.PlayerId].RemoveSubRole(addon);
                         pc.MarkDirtySettings();
                         NotifyAboutRNG(pc);
@@ -269,7 +297,7 @@ namespace EHR.Crewmate
                         break;
                     case Effect.HandcuffRandomPlayer:
                     {
-                        var pc = PickRandomPlayer();
+                        PlayerControl pc = PickRandomPlayer();
                         AddEffectForPlayer(pc, effect);
                         pc.BlockRole(IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration));
                         NotifyAboutRNG(pc);
@@ -277,7 +305,7 @@ namespace EHR.Crewmate
                         break;
                     case Effect.HandcuffAll:
                     {
-                        foreach (var pc in Main.AllAlivePlayerControls)
+                        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                         {
                             AddEffectForPlayer(pc, effect);
                             pc.BlockRole(IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration));
@@ -287,7 +315,7 @@ namespace EHR.Crewmate
                         break;
                     case Effect.DonutForAll:
                     {
-                        foreach (var pc in Main.AllAlivePlayerControls)
+                        foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                         {
                             DonutDelivery.RandomNotifyTarget(pc);
                         }
@@ -325,24 +353,28 @@ namespace EHR.Crewmate
                         break;
                     case Effect.Patrol:
                     {
-                        var pc = PickRandomPlayer();
-                        var state = new PatrollingState(pc.PlayerId, IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration), RandomFloat, pc);
+                        PlayerControl pc = PickRandomPlayer();
+                        PatrollingState state = new PatrollingState(pc.PlayerId, IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration), RandomFloat, pc);
                         Sentinel.PatrolStates.Add(state);
                         state.StartPatrolling();
                     }
                         break;
                     case Effect.GhostPlayer when TimeSinceLastMeeting > Options.DefaultKillCooldown:
                     {
-                        var killer = PickRandomPlayer();
-                        var allPc = Main.AllAlivePlayerControls.Where(x => x.PlayerId != killer.PlayerId).ToArray();
-                        if (allPc.Length == 0) break;
-                        var target = allPc.RandomElement();
-                        BallLightning.CheckBallLightningMurder(killer, target, force: true);
+                        PlayerControl killer = PickRandomPlayer();
+                        PlayerControl[] allPc = Main.AllAlivePlayerControls.Where(x => x.PlayerId != killer.PlayerId).ToArray();
+                        if (allPc.Length == 0)
+                        {
+                            break;
+                        }
+
+                        PlayerControl target = allPc.RandomElement();
+                        BallLightning.CheckBallLightningMurder(killer, target, true);
                         NotifyAboutRNG(target);
                     }
                         break;
                     case Effect.Camouflage when TimeSinceLastMeeting > Camouflager.CamouflageCooldown.GetFloat():
-                        var camouflager = new Camouflager();
+                        Camouflager camouflager = new Camouflager();
                         camouflager.Init();
                         camouflager.Add(randomizer.PlayerId);
                         camouflager.OnShapeshift(randomizer, randomizer, true);
@@ -350,7 +382,7 @@ namespace EHR.Crewmate
                         break;
                     case Effect.Deathpact:
                     {
-                        var deathpact = new Deathpact();
+                        Deathpact deathpact = new Deathpact();
                         deathpact.Init();
                         deathpact.Add(randomizer.PlayerId);
                         deathpact.OnShapeshift(randomizer, PickRandomPlayer(), true);
@@ -358,7 +390,7 @@ namespace EHR.Crewmate
                         break;
                     case Effect.DevourRandomPlayer:
                     {
-                        var devourer = new Devourer();
+                        Devourer devourer = new Devourer();
                         devourer.Init();
                         devourer.Add(randomizer.PlayerId);
                         devourer.OnShapeshift(randomizer, PickRandomPlayer(), true);
@@ -366,11 +398,15 @@ namespace EHR.Crewmate
                         break;
                     case Effect.Duel:
                     {
-                        var pc1 = PickRandomPlayer();
-                        var allPc = Main.AllAlivePlayerControls.Where(x => x.CanUseKillButton() && x.PlayerId != pc1.PlayerId).ToArray();
-                        if (allPc.Length == 0) break;
-                        var pc2 = allPc.RandomElement();
-                        var duellist = new Duellist();
+                        PlayerControl pc1 = PickRandomPlayer();
+                        PlayerControl[] allPc = Main.AllAlivePlayerControls.Where(x => x.CanUseKillButton() && x.PlayerId != pc1.PlayerId).ToArray();
+                        if (allPc.Length == 0)
+                        {
+                            break;
+                        }
+
+                        PlayerControl pc2 = allPc.RandomElement();
+                        Duellist duellist = new Duellist();
                         duellist.OnShapeshift(pc1, pc2, true);
                     }
                         break;
@@ -461,13 +497,28 @@ namespace EHR.Crewmate
 
         public static void NotifyAboutRNG(PlayerControl pc)
         {
-            if (!Notify) return;
-            pc.Notify(text: RNGString, time: IRandom.Instance.Next(2, 7), log: false);
+            if (!Notify)
+            {
+                return;
+            }
+
+            pc.Notify(RNGString, IRandom.Instance.Next(2, 7), log: false);
         }
 
-        public static bool IsShielded(PlayerControl pc) => CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && (effects.ContainsKey(Effect.ShieldRandomPlayer) || effects.ContainsKey(Effect.ShieldAll));
-        public static bool HasSuperVision(PlayerControl pc) => CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && (effects.ContainsKey(Effect.SuperVisionForRandomPlayer) || effects.ContainsKey(Effect.SuperVisionForAll));
-        public static bool IsBlind(PlayerControl pc) => CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && (effects.ContainsKey(Effect.BlindnessForRandomPlayer) || effects.ContainsKey(Effect.BlindnessForAll));
+        public static bool IsShielded(PlayerControl pc)
+        {
+            return CurrentEffects.TryGetValue(pc.PlayerId, out Dictionary<Effect, (long StartTimeStamp, int Duration)> effects) && (effects.ContainsKey(Effect.ShieldRandomPlayer) || effects.ContainsKey(Effect.ShieldAll));
+        }
+
+        public static bool HasSuperVision(PlayerControl pc)
+        {
+            return CurrentEffects.TryGetValue(pc.PlayerId, out Dictionary<Effect, (long StartTimeStamp, int Duration)> effects) && (effects.ContainsKey(Effect.SuperVisionForRandomPlayer) || effects.ContainsKey(Effect.SuperVisionForAll));
+        }
+
+        public static bool IsBlind(PlayerControl pc)
+        {
+            return CurrentEffects.TryGetValue(pc.PlayerId, out Dictionary<Effect, (long StartTimeStamp, int Duration)> effects) && (effects.ContainsKey(Effect.BlindnessForRandomPlayer) || effects.ContainsKey(Effect.BlindnessForAll));
+        }
 
         public override void SetupCustomOption()
         {
@@ -487,7 +538,7 @@ namespace EHR.Crewmate
 
         public override void Init()
         {
-            var now = Utils.TimeStamp;
+            long now = Utils.TimeStamp;
 
             PlayerIdList = [];
             CurrentEffects = [];
@@ -518,16 +569,28 @@ namespace EHR.Crewmate
 
         public static PlayerControl PickRandomPlayer()
         {
-            var allPc = Main.AllAlivePlayerControls;
-            if (allPc.Length == 0) return null;
-            var pc = allPc.RandomElement();
+            PlayerControl[] allPc = Main.AllAlivePlayerControls;
+            if (allPc.Length == 0)
+            {
+                return null;
+            }
+
+            PlayerControl pc = allPc.RandomElement();
             return pc;
         }
 
         public static void AddEffectForPlayer(PlayerControl pc, Effect effect)
         {
-            if (pc == null || !Exists) return;
-            if (!CurrentEffects.ContainsKey(pc.PlayerId)) CurrentEffects[pc.PlayerId] = [];
+            if (pc == null || !Exists)
+            {
+                return;
+            }
+
+            if (!CurrentEffects.ContainsKey(pc.PlayerId))
+            {
+                CurrentEffects[pc.PlayerId] = [];
+            }
+
             int duration = IRandom.Instance.Next(MinimumEffectDuration, MaximumEffectDuration + 1);
             CurrentEffects[pc.PlayerId].TryAdd(effect, (Utils.TimeStamp, duration));
         }
@@ -538,12 +601,16 @@ namespace EHR.Crewmate
 
             LastEffectPick[id] = now;
 
-            var allEffects = Enum.GetValues<Effect>();
-            var effect = allEffects.RandomElement();
+            Effect[] allEffects = Enum.GetValues<Effect>();
+            Effect effect = allEffects.RandomElement();
 
             if (effect == Effect.GhostPlayer)
             {
-                if (LastDeathEffect + 60 > now) return Effect.AddonRemove;
+                if (LastDeathEffect + 60 > now)
+                {
+                    return Effect.AddonRemove;
+                }
+
                 LastDeathEffect = now;
             }
 
@@ -556,13 +623,21 @@ namespace EHR.Crewmate
         {
             try
             {
-                if (pc == null || !Exists) return;
-                if (CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && effects.Any(x => x.Key.IsSpeedChangingEffect()))
+                if (pc == null || !Exists)
+                {
+                    return;
+                }
+
+                if (CurrentEffects.TryGetValue(pc.PlayerId, out Dictionary<Effect, (long StartTimeStamp, int Duration)> effects) && effects.Any(x => x.Key.IsSpeedChangingEffect()))
                 {
                     Main.AllPlayerSpeed[pc.PlayerId] = AllPlayerDefaultSpeed[pc.PlayerId];
-                    if (sync) pc.MarkDirtySettings();
-                    var keys = effects.Keys.AsEnumerable();
-                    keys.DoIf(x => x.IsSpeedChangingEffect(), x => effects.Remove(x), fast: false);
+                    if (sync)
+                    {
+                        pc.MarkDirtySettings();
+                    }
+
+                    IEnumerable<Effect> keys = effects.Keys.AsEnumerable();
+                    keys.DoIf(x => x.IsSpeedChangingEffect(), x => effects.Remove(x), false);
                 }
             }
             catch (Exception e)
@@ -575,12 +650,19 @@ namespace EHR.Crewmate
         {
             try
             {
-                if (pc == null || !Exists) return;
-                if (CurrentEffects.TryGetValue(pc.PlayerId, out var effects) && effects.Any(x => x.Key.IsVisionChangingEffect()))
+                if (pc == null || !Exists)
                 {
-                    var keys = effects.Keys.AsEnumerable();
-                    keys.DoIf(x => x.IsVisionChangingEffect(), x => effects.Remove(x), fast: false);
-                    if (sync) pc.MarkDirtySettings();
+                    return;
+                }
+
+                if (CurrentEffects.TryGetValue(pc.PlayerId, out Dictionary<Effect, (long StartTimeStamp, int Duration)> effects) && effects.Any(x => x.Key.IsVisionChangingEffect()))
+                {
+                    IEnumerable<Effect> keys = effects.Keys.AsEnumerable();
+                    keys.DoIf(x => x.IsVisionChangingEffect(), x => effects.Remove(x), false);
+                    if (sync)
+                    {
+                        pc.MarkDirtySettings();
+                    }
                 }
             }
             catch (Exception e)
@@ -593,7 +675,10 @@ namespace EHR.Crewmate
         {
             try
             {
-                if (!Exists) return;
+                if (!Exists)
+                {
+                    return;
+                }
 
                 RevertSpeedChangesForPlayer(pc, false);
                 RevertVisionChangesForPlayer(pc, false);
@@ -609,13 +694,17 @@ namespace EHR.Crewmate
 
         public override void OnReportDeadBody()
         {
-            if (!IsEnable) return;
+            if (!IsEnable)
+            {
+                return;
+            }
+
             TimeSinceLastMeeting = 0;
             LastDeathEffect = Utils.TimeStamp;
             Rifts.Clear();
             Bombs.Clear();
             Utils.SendRPC(CustomRPC.SyncRoleData, PlayerIdList[0], 3);
-            foreach (var pc in Main.AllPlayerControls)
+            foreach (PlayerControl pc in Main.AllPlayerControls)
             {
                 RevertSpeedChangesForPlayer(pc, false);
                 RevertVisionChangesForPlayer(pc, false);
@@ -624,7 +713,11 @@ namespace EHR.Crewmate
 
         public override void AfterMeetingTasks()
         {
-            if (!IsEnable) return;
+            if (!IsEnable)
+            {
+                return;
+            }
+
             TimeSinceLastMeeting = 0;
             LastDeathEffect = Utils.TimeStamp;
         }
@@ -633,17 +726,20 @@ namespace EHR.Crewmate
         {
             try
             {
-                if (lowLoad || !Exists || !GameStates.IsInTask || Bombs.Count == 0 || Main.HasJustStarted) return;
+                if (lowLoad || !Exists || !GameStates.IsInTask || Bombs.Count == 0 || Main.HasJustStarted)
+                {
+                    return;
+                }
 
-                var now = Utils.TimeStamp;
-                var randomizer = Utils.GetPlayerById(PlayerIdList.FirstOrDefault());
+                long now = Utils.TimeStamp;
+                PlayerControl randomizer = Utils.GetPlayerById(PlayerIdList.FirstOrDefault());
 
-                foreach (var bomb in Bombs)
+                foreach (KeyValuePair<Vector2, (long PlaceTimeStamp, int ExplosionDelay)> bomb in Bombs)
                 {
                     if (bomb.Value.PlaceTimeStamp + bomb.Value.ExplosionDelay < now)
                     {
-                        var players = Utils.GetPlayersInRadius(radius: RandomFloat, from: bomb.Key);
-                        foreach (var pc in players)
+                        IEnumerable<PlayerControl> players = Utils.GetPlayersInRadius(RandomFloat, bomb.Key);
+                        foreach (PlayerControl pc in players)
                         {
                             pc.Suicide(PlayerState.DeathReason.RNG, randomizer);
                         }
@@ -677,9 +773,13 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer == null || seer.PlayerId != target.PlayerId || Bombs.Count == 0) return string.Empty;
-            var bomb = Bombs.FirstOrDefault(x => Vector2.Distance(x.Key, seer.Pos()) <= 5f);
-            var time = bomb.Value.ExplosionDelay - (Utils.TimeStamp - bomb.Value.PlaceTimeStamp) + 1;
+            if (seer == null || seer.PlayerId != target.PlayerId || Bombs.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            KeyValuePair<Vector2, (long PlaceTimeStamp, int ExplosionDelay)> bomb = Bombs.FirstOrDefault(x => Vector2.Distance(x.Key, seer.Pos()) <= 5f);
+            long time = bomb.Value.ExplosionDelay - (Utils.TimeStamp - bomb.Value.PlaceTimeStamp) + 1;
             return time < 0 ? string.Empty : $"<#ffff00>⚠ {time}</color>";
         }
 
@@ -687,20 +787,29 @@ namespace EHR.Crewmate
         {
             try
             {
-                if (!IsEnable || !GameStates.IsInTask || Main.HasJustStarted) return;
+                if (!IsEnable || !GameStates.IsInTask || Main.HasJustStarted)
+                {
+                    return;
+                }
 
                 TimeSinceLastMeeting += Time.fixedDeltaTime;
 
-                if (pc == null || !pc.IsAlive() || TimeSinceLastMeeting <= 10f) return;
+                if (pc == null || !pc.IsAlive() || TimeSinceLastMeeting <= 10f)
+                {
+                    return;
+                }
 
                 long now = Utils.TimeStamp;
 
-                if (LastEffectPick.TryGetValue(pc.PlayerId, out var ts) && ts + EffectFrequency <= now)
+                if (LastEffectPick.TryGetValue(pc.PlayerId, out long ts) && ts + EffectFrequency <= now)
                 {
                     Effect effect = PickRandomEffect(pc.PlayerId);
-                    effect.Apply(randomizer: pc);
+                    effect.Apply(pc);
                 }
-                else LastEffectPick.TryAdd(pc.PlayerId, now);
+                else
+                {
+                    LastEffectPick.TryAdd(pc.PlayerId, now);
+                }
             }
             catch (Exception ex)
             {
@@ -712,14 +821,20 @@ namespace EHR.Crewmate
         {
             try
             {
-                if (!IsEnable || !GameStates.IsInTask || Main.HasJustStarted) return;
+                if (!IsEnable || !GameStates.IsInTask || Main.HasJustStarted)
+                {
+                    return;
+                }
 
-                var now = Utils.TimeStamp;
-                if (LastTP[pc.PlayerId] + 5 > now) return;
+                long now = Utils.TimeStamp;
+                if (LastTP[pc.PlayerId] + 5 > now)
+                {
+                    return;
+                }
 
-                var pos = pc.Pos();
+                Vector2 pos = pc.Pos();
 
-                foreach (var rift in Rifts)
+                foreach (KeyValuePair<Vector2, Vector2> rift in Rifts)
                 {
                     if (Vector2.Distance(pos, rift.Key) < 2f)
                     {
@@ -746,13 +861,16 @@ namespace EHR.Crewmate
         {
             try
             {
-                if (!Exists || pc == null || !pc.IsAlive() || !GameStates.IsInTask || Main.HasJustStarted) return;
-
-                if (CurrentEffects.TryGetValue(pc.PlayerId, out var effects))
+                if (!Exists || pc == null || !pc.IsAlive() || !GameStates.IsInTask || Main.HasJustStarted)
                 {
-                    var now = Utils.TimeStamp;
+                    return;
+                }
 
-                    foreach (var item in effects.ToArray())
+                if (CurrentEffects.TryGetValue(pc.PlayerId, out Dictionary<Effect, (long StartTimeStamp, int Duration)> effects))
+                {
+                    long now = Utils.TimeStamp;
+
+                    foreach (KeyValuePair<Effect, (long StartTimeStamp, int Duration)> item in effects.ToArray())
                     {
                         if (item.Value.StartTimeStamp + item.Value.Duration < now)
                         {

@@ -53,14 +53,24 @@ namespace EHR
 
         public static void ResetTimer(PlayerControl pc)
         {
-            if (TimeStacksUp.GetBool()) Timers[pc.PlayerId] += TimeLimit.GetInt();
-            else Timers[pc.PlayerId] = TimeLimit.GetInt();
+            if (TimeStacksUp.GetBool())
+            {
+                Timers[pc.PlayerId] += TimeLimit.GetInt();
+            }
+            else
+            {
+                Timers[pc.PlayerId] = TimeLimit.GetInt();
+            }
+
             Logger.Info($" Timer for {pc.GetRealName()} set to {Timers[pc.PlayerId]}", "Speedrun");
         }
 
         public static void OnTaskFinish(PlayerControl pc)
         {
-            if (TaskFinishWins.GetBool()) return;
+            if (TaskFinishWins.GetBool())
+            {
+                return;
+            }
 
             CanKill.Add(pc.PlayerId);
             Main.AllPlayerKillCooldown[pc.PlayerId] = KillCooldown.GetInt();
@@ -84,7 +94,10 @@ namespace EHR
 
         public static string GetSuffixText(PlayerControl pc)
         {
-            if (!pc.IsAlive()) return string.Empty;
+            if (!pc.IsAlive())
+            {
+                return string.Empty;
+            }
 
             int time = Timers[pc.PlayerId];
             int alive = Main.AllAlivePlayerControls.Length;
@@ -92,7 +105,11 @@ namespace EHR
             int killers = CanKill.Count;
 
             // ReSharper disable once ConvertIfStatementToReturnStatement
-            if (CanKill.Contains(pc.PlayerId)) return string.Format(Translator.GetString("Speedrun_CanKillSuffixInfo"), alive, apc, killers - 1, time);
+            if (CanKill.Contains(pc.PlayerId))
+            {
+                return string.Format(Translator.GetString("Speedrun_CanKillSuffixInfo"), alive, apc, killers - 1, time);
+            }
+
             return string.Format(Translator.GetString("Speedrun_DoTasksSuffixInfo"), pc.GetTaskState().RemainingTasksCount, alive, apc, killers, time);
         }
 
@@ -102,7 +119,7 @@ namespace EHR
 
             if (TaskFinishWins.GetBool())
             {
-                var player = aapc.FirstOrDefault(x => x.GetTaskState().IsTaskFinished);
+                PlayerControl player = aapc.FirstOrDefault(x => x.GetTaskState().IsTaskFinished);
                 if (player != null)
                 {
                     CustomWinnerHolder.WinnerIds = [player.PlayerId];
@@ -124,29 +141,43 @@ namespace EHR
             }
 
             reason = GameOverReason.ImpostorByKill;
-            var keys = new[] { KeyCode.LeftShift, KeyCode.L, KeyCode.Return };
+            KeyCode[] keys = new[] { KeyCode.LeftShift, KeyCode.L, KeyCode.Return };
             return keys.Any(Input.GetKeyDown) && keys.All(Input.GetKey);
         }
 
         public static bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!CanKill.Contains(killer.PlayerId)) return false;
+            if (!CanKill.Contains(killer.PlayerId))
+            {
+                return false;
+            }
+
             return CanKill.Contains(target.PlayerId) || KillersCanKillTaskingPlayers.GetBool();
         }
 
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
-        static class FixedUpdatePatch
+        private static class FixedUpdatePatch
         {
             private static long LastUpdate;
 
             public static void Postfix(PlayerControl __instance)
             {
-                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.Speedrun || Main.HasJustStarted) return;
+                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.Speedrun || Main.HasJustStarted)
+                {
+                    return;
+                }
 
-                if (__instance.IsAlive() && Timers[__instance.PlayerId] <= 0) __instance.Suicide();
+                if (__instance.IsAlive() && Timers[__instance.PlayerId] <= 0)
+                {
+                    __instance.Suicide();
+                }
 
                 long now = Utils.TimeStamp;
-                if (LastUpdate == now) return;
+                if (LastUpdate == now)
+                {
+                    return;
+                }
+
                 LastUpdate = now;
 
                 Timers.AdjustAllValues(x => x - 1);

@@ -25,7 +25,7 @@
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
-            var rd = IRandom.Instance;
+            IRandom rd = IRandom.Instance;
             if (rd.Next(0, 100) < Options.LuckeyProbability.GetInt())
             {
                 killer.SetKillCooldown(15f);

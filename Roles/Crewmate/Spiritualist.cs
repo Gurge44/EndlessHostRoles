@@ -17,11 +17,11 @@ namespace EHR.Crewmate
         public static byte SpiritualistTarget;
         private long LastGhostArrowShowTime;
         private long ShowGhostArrowUntil;
-        byte SpiritualistId;
+        private byte SpiritualistId;
 
         public override bool IsEnable => PlayerIdList.Count > 0;
 
-        bool ShowArrow
+        private bool ShowArrow
         {
             get
             {
@@ -74,7 +74,9 @@ namespace EHR.Crewmate
             }
 
             if (SpiritualistTarget != byte.MaxValue)
+            {
                 RemoveTarget();
+            }
 
             SpiritualistTarget = target.PlayerId;
         }
@@ -102,7 +104,7 @@ namespace EHR.Crewmate
 
                 TargetArrow.Add(spiritualist, target.PlayerId);
 
-                var writer = CustomRpcSender.Create("SpiritualistSendMessage");
+                CustomRpcSender writer = CustomRpcSender.Create("SpiritualistSendMessage");
                 writer.StartMessage(target.GetClientId());
                 writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
                     .Write(target.Data.NetId)
@@ -122,9 +124,21 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!seer.IsAlive() || seer.PlayerId != SpiritualistId) return string.Empty;
-            if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
-            if (GameStates.IsMeeting) return string.Empty;
+            if (!seer.IsAlive() || seer.PlayerId != SpiritualistId)
+            {
+                return string.Empty;
+            }
+
+            if (target != null && seer.PlayerId != target.PlayerId)
+            {
+                return string.Empty;
+            }
+
+            if (GameStates.IsMeeting)
+            {
+                return string.Empty;
+            }
+
             return SpiritualistTarget != byte.MaxValue && ShowArrow ? Utils.ColorString(seer.GetRoleColor(), TargetArrow.GetArrows(seer, SpiritualistTarget)) : string.Empty;
         }
 

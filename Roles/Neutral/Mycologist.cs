@@ -68,35 +68,56 @@ namespace EHR.Neutral
             InfectedPlayers.Clear();
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             opt.SetVision(HasImpostorVision.GetBool());
             if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
+            {
                 AURoleOptions.PhantomCooldown = CD.GetInt();
+            }
+
             if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
+            {
                 AURoleOptions.ShapeshifterCooldown = CD.GetInt();
+            }
         }
 
-        void SendRPC()
+        private void SendRPC()
         {
-            if (!IsEnable || !DoRPC) return;
+            if (!IsEnable || !DoRPC)
+            {
+                return;
+            }
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncMycologist, SendOption.Reliable);
             writer.Write(MycologistId);
             writer.Write(InfectedPlayers.Count);
             if (InfectedPlayers.Count > 0)
-                foreach (var x in InfectedPlayers)
+            {
+                foreach (byte x in InfectedPlayers)
+                {
                     writer.Write(x);
+                }
+            }
+
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
         public static void ReceiveRPC(MessageReader reader)
         {
-            var playerId = reader.ReadByte();
-            if (Main.PlayerStates[playerId].Role is not Mycologist mg) return;
+            byte playerId = reader.ReadByte();
+            if (Main.PlayerStates[playerId].Role is not Mycologist mg)
+            {
+                return;
+            }
+
             mg.InfectedPlayers.Clear();
-            var length = reader.ReadInt32();
+            int length = reader.ReadInt32();
             for (int i = 0; i < length; i++)
             {
                 mg.InfectedPlayers.Add(reader.ReadByte());
@@ -141,7 +162,11 @@ namespace EHR.Neutral
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool())
+            {
+                return true;
+            }
+
             if (SpreadAction.GetValue() == 4)
             {
                 SpreadSpores();
@@ -150,9 +175,13 @@ namespace EHR.Neutral
             return false;
         }
 
-        void SpreadSpores()
+        private void SpreadSpores()
         {
-            if (!IsEnable || MycologistPC.HasAbilityCD()) return;
+            if (!IsEnable || MycologistPC.HasAbilityCD())
+            {
+                return;
+            }
+
             MycologistPC.AddAbilityCD(CD.GetInt());
             LateTask.New(() =>
             {
@@ -163,9 +192,24 @@ namespace EHR.Neutral
             MycologistPC.Notify(GetString("MycologistNotify"));
         }
 
-        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target) => IsEnable && target != null && InfectedPlayers.Contains(target.PlayerId);
-        public override void AfterMeetingTasks() => MycologistPC.AddAbilityCD(CD.GetInt());
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => true;
-        public override bool CanUseSabotage(PlayerControl pc) => base.CanUseSabotage(pc) || (SpreadAction.GetValue() == 1 && pc.IsAlive());
+        public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
+        {
+            return IsEnable && target != null && InfectedPlayers.Contains(target.PlayerId);
+        }
+
+        public override void AfterMeetingTasks()
+        {
+            MycologistPC.AddAbilityCD(CD.GetInt());
+        }
+
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return true;
+        }
+
+        public override bool CanUseSabotage(PlayerControl pc)
+        {
+            return base.CanUseSabotage(pc) || (SpreadAction.GetValue() == 1 && pc.IsAlive());
+        }
     }
 }

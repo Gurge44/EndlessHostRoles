@@ -65,11 +65,17 @@ namespace EHR.Impostor
             AURoleOptions.ShapeshifterDuration = 1f;
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = NowCooldown;
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = NowCooldown;
+        }
 
         public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
         {
-            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId) || !shapeshifting) return false;
+            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId) || !shapeshifting)
+            {
+                return false;
+            }
 
             if (!PlayerSkinsCosumed.Contains(target.PlayerId))
             {
@@ -98,7 +104,10 @@ namespace EHR.Impostor
 
         public static void OnDevourerDied(byte Devourer)
         {
-            if (Main.PlayerStates[Devourer].Role is not Devourer { IsEnable: true } dv) return;
+            if (Main.PlayerStates[Devourer].Role is not Devourer { IsEnable: true } dv)
+            {
+                return;
+            }
 
             foreach (byte player in dv.PlayerSkinsCosumed.ToArray())
             {
@@ -106,7 +115,11 @@ namespace EHR.Impostor
                 if (!Camouflage.IsCamouflage)
                 {
                     PlayerControl pc = Main.AllAlivePlayerControls.FirstOrDefault(a => a.PlayerId == player);
-                    if (pc == null) continue;
+                    if (pc == null)
+                    {
+                        continue;
+                    }
+
                     SetSkin(pc, OriginalPlayerSkins[player]);
                 }
             }
@@ -116,7 +129,7 @@ namespace EHR.Impostor
 
         private static void SetSkin(PlayerControl target, NetworkedPlayerInfo.PlayerOutfit outfit)
         {
-            var sender = CustomRpcSender.Create(name: $"Camouflage.RpcSetSkin({target.Data.PlayerName})");
+            CustomRpcSender sender = CustomRpcSender.Create($"Camouflage.RpcSetSkin({target.Data.PlayerName})");
 
             target.SetColor(outfit.ColorId);
             sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetColor)

@@ -7,7 +7,10 @@ namespace EHR.Crewmate
         public static bool On;
         public override bool IsEnable => On;
 
-        public override void SetupCustomOption() => Options.SetupRoleOptions(5575, TabGroup.CrewmateRoles, CustomRoles.TaskManager);
+        public override void SetupCustomOption()
+        {
+            Options.SetupRoleOptions(5575, TabGroup.CrewmateRoles, CustomRoles.TaskManager);
+        }
 
         public override void Add(byte playerId)
         {
@@ -21,7 +24,7 @@ namespace EHR.Crewmate
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            var ProgressText = new StringBuilder();
+            StringBuilder ProgressText = new StringBuilder();
 
             ProgressText.Append(Utils.GetTaskCount(playerId, comms));
 

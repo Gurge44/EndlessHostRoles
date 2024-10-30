@@ -26,9 +26,12 @@ namespace EHR.Modules
 
         public static void AssignGhostRole(PlayerControl pc)
         {
-            if (GhostRoles.Count == 0) return;
+            if (GhostRoles.Count == 0)
+            {
+                return;
+            }
 
-            var suitableRole = GetSuitableGhostRole(pc);
+            CustomRoles suitableRole = GetSuitableGhostRole(pc);
             Logger.Warn($"Assigning Ghost Role: {pc.GetNameWithRole()} => {suitableRole}", "GhostRolesManager");
 
             IGhostRole instance = CreateGhostRoleInstance(suitableRole);
@@ -38,17 +41,26 @@ namespace EHR.Modules
             Main.ResetCamPlayerList.Add(pc.PlayerId);
             AssignedGhostRoles[pc.PlayerId] = (suitableRole, instance);
 
-            if (suitableRole == CustomRoles.Haunter) GhostRoles.Remove(suitableRole);
+            if (suitableRole == CustomRoles.Haunter)
+            {
+                GhostRoles.Remove(suitableRole);
+            }
 
             NotifyAboutGhostRole(pc, true);
         }
 
         public static void SpecificAssignGhostRole(byte id, CustomRoles role, bool set)
         {
-            if (AssignedGhostRoles.Any(x => x.Key == id || x.Value.Role == role)) return;
+            if (AssignedGhostRoles.Any(x => x.Key == id || x.Value.Role == role))
+            {
+                return;
+            }
 
-            var pc = Utils.GetPlayerById(id);
-            if (set) pc.RpcSetRole(RoleTypes.GuardianAngel);
+            PlayerControl pc = Utils.GetPlayerById(id);
+            if (set)
+            {
+                pc.RpcSetRole(RoleTypes.GuardianAngel);
+            }
 
             IGhostRole instance = CreateGhostRoleInstance(role);
             instance.OnAssign(pc);
@@ -58,20 +70,27 @@ namespace EHR.Modules
 
         public static void NotifyAboutGhostRole(PlayerControl pc, bool first = false)
         {
-            if (!AssignedGhostRoles.TryGetValue(pc.PlayerId, out var ghostRole)) return;
-            if (!first && pc.IsModClient()) return;
+            if (!AssignedGhostRoles.TryGetValue(pc.PlayerId, out (CustomRoles Role, IGhostRole Instance) ghostRole))
+            {
+                return;
+            }
+
+            if (!first && pc.IsModClient())
+            {
+                return;
+            }
 
             CustomRoles role = ghostRole.Role;
-            var info = GetMessage(Translator.GetString($"{role}InfoLong").Split("\n")[1..].Join(delimiter: "\n"));
-            var text = $"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{info.Message}</size>";
-            var notifyText = $"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{info.Split}</size>";
+            (string Split, string Message) info = GetMessage(Translator.GetString($"{role}InfoLong").Split("\n")[1..].Join(delimiter: "\n"));
+            string text = $"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{info.Message}</size>";
+            string notifyText = $"{Translator.GetString("GotGhostRoleNotify")}\n<size=80%>{info.Split}</size>";
             Utils.SendMessage(title: text, sendTo: pc.PlayerId, text: "\n");
             pc.Notify(notifyText, 5 + (5 * text.Count(x => x == '\n')));
             return;
 
             (string Split, string Message) GetMessage(string baseMessage)
             {
-                var message = baseMessage;
+                string message = baseMessage;
                 for (int i = 50; i < message.Length; i += 50)
                 {
                     int index = message.LastIndexOf(' ', i);
@@ -83,7 +102,10 @@ namespace EHR.Modules
 
                 return (ApplyFormat(message), ApplyFormat(baseMessage));
 
-                string ApplyFormat(string m) => Utils.ColorString(Color.white, m.Replace(role.ToString(), role.ToColoredString()));
+                string ApplyFormat(string m)
+                {
+                    return Utils.ColorString(Color.white, m.Replace(role.ToString(), role.ToColoredString()));
+                }
             }
         }
 
@@ -91,9 +113,20 @@ namespace EHR.Modules
         {
             try
             {
-                if (Options.CurrentGameMode != CustomGameMode.Standard) return false;
-                if (AssignedGhostRoles.Count >= GhostRoles.Count) return false;
-                if (pc.IsAlive() || pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame || pc.Is(CustomRoles.EvilSpirit)) return false;
+                if (Options.CurrentGameMode != CustomGameMode.Standard)
+                {
+                    return false;
+                }
+
+                if (AssignedGhostRoles.Count >= GhostRoles.Count)
+                {
+                    return false;
+                }
+
+                if (pc.IsAlive() || pc.GetCountTypes() is CountTypes.None or CountTypes.OutOfGame || pc.Is(CustomRoles.EvilSpirit))
+                {
+                    return false;
+                }
 
                 switch (pc.GetCustomRole())
                 {
@@ -101,19 +134,22 @@ namespace EHR.Modules
                     case CustomRoles.Workaholic when !Workaholic.WorkaholicCannotWinAtDeath.GetBool(): return false;
                 }
 
-                var suitableRole = GetSuitableGhostRole(pc);
+                CustomRoles suitableRole = GetSuitableGhostRole(pc);
                 return suitableRole switch
                 {
                     CustomRoles.Specter when IsPartnerPickedRole() => false,
                     _ => suitableRole.IsGhostRole() && !AssignedGhostRoles.Any(x => x.Key == pc.PlayerId || x.Value.Role == suitableRole)
                 };
 
-                bool IsPartnerPickedRole() => Main.PlayerStates[pc.PlayerId].Role switch
+                bool IsPartnerPickedRole()
                 {
-                    Romantic when Romantic.HasPickedPartner => true,
-                    Totocalcio tc when tc.BetPlayer != byte.MaxValue => true,
-                    _ => false
-                };
+                    return Main.PlayerStates[pc.PlayerId].Role switch
+                    {
+                        Romantic when Romantic.HasPickedPartner => true,
+                        Totocalcio tc when tc.BetPlayer != byte.MaxValue => true,
+                        _ => false
+                    };
+                }
             }
             catch (Exception e)
             {
@@ -131,25 +167,37 @@ namespace EHR.Modules
         {
             try
             {
-                var ghostRoleClass = Assembly.GetExecutingAssembly().GetTypes().First(x => typeof(IGhostRole).IsAssignableFrom(x) && !x.IsInterface && x.Name == $"{ghostRole}");
-                var ghostRoleInstance = (IGhostRole)Activator.CreateInstance(ghostRoleClass);
+                Type ghostRoleClass = Assembly.GetExecutingAssembly().GetTypes().First(x => typeof(IGhostRole).IsAssignableFrom(x) && !x.IsInterface && x.Name == $"{ghostRole}");
+                IGhostRole ghostRoleInstance = (IGhostRole)Activator.CreateInstance(ghostRoleClass);
                 return ghostRoleInstance;
             }
             catch (InvalidOperationException)
             {
-                if (!check) Logger.Error($"Ghost role {ghostRole} not found", "CreateGhostRoleInstance");
+                if (!check)
+                {
+                    Logger.Error($"Ghost role {ghostRole} not found", "CreateGhostRoleInstance");
+                }
+
                 return null;
             }
             catch (Exception e)
             {
-                if (!check) Utils.ThrowException(e);
+                if (!check)
+                {
+                    Utils.ThrowException(e);
+                }
+
                 return null;
             }
         }
 
         public static void RemoveGhostRole(byte id)
         {
-            if (!AssignedGhostRoles.TryGetValue(id, out var ghostRole)) return;
+            if (!AssignedGhostRoles.TryGetValue(id, out (CustomRoles Role, IGhostRole Instance) ghostRole))
+            {
+                return;
+            }
+
             Main.PlayerStates[id].RemoveSubRole(ghostRole.Role);
             AssignedGhostRoles.Remove(id);
         }

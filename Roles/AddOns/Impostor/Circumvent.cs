@@ -35,11 +35,14 @@ namespace EHR.AddOns.Impostor
 
         public static void Add()
         {
-            if (VentPreventionMode.GetValue() == 0) return;
+            if (VentPreventionMode.GetValue() == 0)
+            {
+                return;
+            }
 
             LateTask.New(() =>
             {
-                foreach (var state in Main.PlayerStates)
+                foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
                 {
                     if (state.Value.SubRoles.Contains(CustomRoles.Circumvent))
                     {
@@ -66,16 +69,23 @@ namespace EHR.AddOns.Impostor
 
         public static void AfterMeetingTasks()
         {
-            if (VentPreventionMode.GetValue() != 2) return;
+            if (VentPreventionMode.GetValue() != 2)
+            {
+                return;
+            }
+
             Limits.SetAllValues(Limit.GetInt());
         }
 
         public static string GetProgressText(byte playerId)
         {
-            if (!Limits.TryGetValue(playerId, out var limit)) return string.Empty;
+            if (!Limits.TryGetValue(playerId, out int limit))
+            {
+                return string.Empty;
+            }
 
-            var mode = VentPreventionMode.GetValue();
-            var color = limit switch
+            int mode = VentPreventionMode.GetValue();
+            string color = limit switch
             {
                 > 11 => "#00ff00",
                 > 7 when mode == 2 => "#00ff00",
@@ -95,8 +105,12 @@ namespace EHR.AddOns.Impostor
 
         public static bool CanUseImpostorVentButton(PlayerControl pc)
         {
-            if (!pc.Is(CustomRoles.Circumvent)) return true;
-            return pc.inVent || (!Limits.TryGetValue(pc.PlayerId, out var limit) && VentPreventionMode.GetValue() != 0) || limit > 0;
+            if (!pc.Is(CustomRoles.Circumvent))
+            {
+                return true;
+            }
+
+            return pc.inVent || (!Limits.TryGetValue(pc.PlayerId, out int limit) && VentPreventionMode.GetValue() != 0) || limit > 0;
         }
     }
 }

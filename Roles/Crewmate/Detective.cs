@@ -42,9 +42,15 @@ namespace EHR.Crewmate
 
             if (DetectiveCanknowKiller.GetBool())
             {
-                var realKiller = tpc.GetRealKiller();
-                if (realKiller == null) msg += "；" + Translator.GetString("DetectiveNoticeKillerNotFound");
-                else msg += "；" + string.Format(Translator.GetString("DetectiveNoticeKiller"), realKiller.GetCustomRole().ToColoredString());
+                PlayerControl realKiller = tpc.GetRealKiller();
+                if (realKiller == null)
+                {
+                    msg += "；" + Translator.GetString("DetectiveNoticeKillerNotFound");
+                }
+                else
+                {
+                    msg += "；" + string.Format(Translator.GetString("DetectiveNoticeKiller"), realKiller.GetCustomRole().ToColoredString());
+                }
             }
 
             if (DetectiveCanknowDeathReason.GetBool())
@@ -59,9 +65,9 @@ namespace EHR.Crewmate
 
             if (DetectiveCanknowKillTime.GetBool())
             {
-                var deathTimeStamp = Main.PlayerStates[tpc.PlayerId].RealKiller.TimeStamp;
-                var now = DateTime.Now;
-                var timeSpanSeconds = (now - deathTimeStamp).TotalSeconds;
+                DateTime deathTimeStamp = Main.PlayerStates[tpc.PlayerId].RealKiller.TimeStamp;
+                DateTime now = DateTime.Now;
+                double timeSpanSeconds = (now - deathTimeStamp).TotalSeconds;
                 msg += "；" + string.Format(Translator.GetString("DetectiveNoticeKillTime"), (int)timeSpanSeconds);
             }
 

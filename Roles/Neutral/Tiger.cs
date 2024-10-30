@@ -72,9 +72,14 @@ namespace EHR.Neutral
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool())
+            {
                 AURoleOptions.PhantomCooldown = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
+            }
+
             if (Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool())
+            {
                 AURoleOptions.ShapeshifterCooldown = EnrageCooldown.GetFloat() + EnrageDuration.GetFloat();
+            }
         }
 
         public override bool OnSabotage(PlayerControl pc)
@@ -106,7 +111,10 @@ namespace EHR.Neutral
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
+            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool())
+            {
+                return true;
+            }
 
             if (CooldownTimer <= 0f)
             {
@@ -117,7 +125,7 @@ namespace EHR.Neutral
             return false;
         }
 
-        void StartEnraging()
+        private void StartEnraging()
         {
             EnrageTimer = EnrageDuration.GetFloat();
         }
@@ -129,12 +137,19 @@ namespace EHR.Neutral
                 CooldownTimer -= Time.fixedDeltaTime;
             }
 
-            if (float.IsNaN(EnrageTimer)) return;
+            if (float.IsNaN(EnrageTimer))
+            {
+                return;
+            }
 
             EnrageTimer -= Time.fixedDeltaTime;
 
             Count++;
-            if (Count < 10) return;
+            if (Count < 10)
+            {
+                return;
+            }
+
             Count = 0;
 
             Utils.SendRPC(CustomRPC.SyncTiger, pc.PlayerId, EnrageTimer);
@@ -153,12 +168,18 @@ namespace EHR.Neutral
 
         public override void OnMurder(PlayerControl killer, PlayerControl target)
         {
-            if (float.IsNaN(EnrageTimer)) return;
+            if (float.IsNaN(EnrageTimer))
+            {
+                return;
+            }
 
-            var victim = Main.AllAlivePlayerControls.Where(x => x.PlayerId != killer.PlayerId && x.PlayerId != target.PlayerId).MinBy(x => Vector2.Distance(killer.Pos(), x.Pos()));
-            if (victim == null || Vector2.Distance(killer.Pos(), victim.Pos()) > Radius.GetFloat()) return;
+            PlayerControl victim = Main.AllAlivePlayerControls.Where(x => x.PlayerId != killer.PlayerId && x.PlayerId != target.PlayerId).MinBy(x => Vector2.Distance(killer.Pos(), x.Pos()));
+            if (victim == null || Vector2.Distance(killer.Pos(), victim.Pos()) > Radius.GetFloat())
+            {
+                return;
+            }
 
-            if (killer.RpcCheckAndMurder(victim, check: true))
+            if (killer.RpcCheckAndMurder(victim, true))
             {
                 victim.Suicide(realKiller: killer);
             }
@@ -166,9 +187,21 @@ namespace EHR.Neutral
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId) return string.Empty;
-            if (Main.PlayerStates[seer.PlayerId].Role is not Tiger { IsEnable: true } tg) return string.Empty;
-            if (float.IsNaN(tg.EnrageTimer)) return string.Empty;
+            if (seer.PlayerId != target.PlayerId)
+            {
+                return string.Empty;
+            }
+
+            if (Main.PlayerStates[seer.PlayerId].Role is not Tiger { IsEnable: true } tg)
+            {
+                return string.Empty;
+            }
+
+            if (float.IsNaN(tg.EnrageTimer))
+            {
+                return string.Empty;
+            }
+
             return tg.EnrageTimer > 5 ? "\u25a9" : $"\u25a9 ({(int)(tg.EnrageTimer + 1)}s)";
         }
     }

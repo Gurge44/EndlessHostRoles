@@ -47,16 +47,16 @@ namespace EHR.Neutral
             {
                 RolesToKill = [];
 
-                var allRoles = Enum.GetValues<CustomRoles>().ToList();
-                allRoles.RemoveAll(x => x == CustomRoles.Predator || x >= CustomRoles.NotAssigned || !x.RoleExist(countDead: true));
+                List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().ToList();
+                allRoles.RemoveAll(x => x == CustomRoles.Predator || x >= CustomRoles.NotAssigned || !x.RoleExist(true));
 
-                var r = IRandom.Instance;
-                var impRoles = 0;
+                IRandom r = IRandom.Instance;
+                int impRoles = 0;
 
                 for (int i = 0; i < NumOfRolesToKill.GetInt(); i++)
                 {
-                    var index = r.Next(allRoles.Count);
-                    var role = allRoles[index];
+                    int index = r.Next(allRoles.Count);
+                    CustomRoles role = allRoles[index];
                     allRoles.RemoveAt(index);
 
                     if (role.Is(Team.Impostor))
@@ -75,10 +75,10 @@ namespace EHR.Neutral
 
                 Logger.Info($"Predator Roles: {RolesToKill.Join()}", "Predator");
 
-                var w = Utils.CreateRPC(CustomRPC.SyncRoleData);
+                MessageWriter w = Utils.CreateRPC(CustomRPC.SyncRoleData);
                 w.WritePacked(1);
                 w.WritePacked(RolesToKill.Count);
-                foreach (var role in RolesToKill)
+                foreach (CustomRoles role in RolesToKill)
                 {
                     w.WritePacked((int)role);
                 }
@@ -94,7 +94,7 @@ namespace EHR.Neutral
             {
                 case 1:
                     RolesToKill = [];
-                    var count = reader.ReadPackedInt32();
+                    int count = reader.ReadPackedInt32();
                     for (int i = 0; i < count; i++)
                     {
                         RolesToKill.Add((CustomRoles)reader.ReadPackedInt32());
@@ -134,13 +134,20 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (IsWon) return false;
+            if (IsWon)
+            {
+                return false;
+            }
 
-            var targetRole = target.GetCustomRole();
+            CustomRoles targetRole = target.GetCustomRole();
             if (RolesToKill.Contains(targetRole))
             {
                 IsWon = true;
-                if (!killer.IsModClient()) killer.Notify(string.Format(Translator.GetString("PredatorCorrectKill"), Translator.GetString($"{targetRole}")));
+                if (!killer.IsModClient())
+                {
+                    killer.Notify(string.Format(Translator.GetString("PredatorCorrectKill"), Translator.GetString($"{targetRole}")));
+                }
+
                 return true;
             }
 
@@ -150,11 +157,27 @@ namespace EHR.Neutral
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId) return string.Empty;
-            if (seer.IsModClient() && !hud) return string.Empty;
-            if (Main.PlayerStates[seer.PlayerId].Role is not Predator { IsEnable: true } pt) return string.Empty;
-            if (pt.IsWon) return !hud ? "<#00ff00>\u2713</color>" : Translator.GetString("PredatorDone");
-            var text = pt.RolesToKill.Join(x => x.ToColoredString());
+            if (seer.PlayerId != target.PlayerId)
+            {
+                return string.Empty;
+            }
+
+            if (seer.IsModClient() && !hud)
+            {
+                return string.Empty;
+            }
+
+            if (Main.PlayerStates[seer.PlayerId].Role is not Predator { IsEnable: true } pt)
+            {
+                return string.Empty;
+            }
+
+            if (pt.IsWon)
+            {
+                return !hud ? "<#00ff00>\u2713</color>" : Translator.GetString("PredatorDone");
+            }
+
+            string text = pt.RolesToKill.Join(x => x.ToColoredString());
             return hud ? text : $"<size=1.7>{text}</size>";
         }
     }

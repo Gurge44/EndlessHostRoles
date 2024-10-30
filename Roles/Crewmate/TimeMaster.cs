@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 using AmongUs.GameOptions;
-using UnityEngine;
 using static EHR.Options;
 
 namespace EHR.Crewmate
@@ -46,14 +45,18 @@ namespace EHR.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool()) return;
+            if (UsePets.GetBool())
+            {
+                return;
+            }
+
             AURoleOptions.EngineerCooldown = TimeMasterSkillCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1f;
         }
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            var ProgressText = new StringBuilder();
+            StringBuilder ProgressText = new StringBuilder();
 
             ProgressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, TimeMasterInProtect.ContainsKey(playerId)));
             ProgressText.Append(Utils.GetTaskCount(playerId, comms));
@@ -64,9 +67,13 @@ namespace EHR.Crewmate
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             if (UsePets.GetBool())
+            {
                 hud.PetButton.buttonLabelText.text = Translator.GetString("TimeMasterVentButtonText");
+            }
             else
+            {
                 hud.AbilityButton.buttonLabelText.text = Translator.GetString("TimeMasterVentButtonText");
+            }
         }
 
         public override void OnPet(PlayerControl pc)
@@ -80,9 +87,13 @@ namespace EHR.Crewmate
             Rewind(pc);
         }
 
-        static void Rewind(PlayerControl pc)
+        private static void Rewind(PlayerControl pc)
         {
-            if (TimeMasterInProtect.ContainsKey(pc.PlayerId)) return;
+            if (TimeMasterInProtect.ContainsKey(pc.PlayerId))
+            {
+                return;
+            }
+
             if (pc.GetAbilityUseLimit() >= 1)
             {
                 pc.RpcRemoveAbilityUse();
@@ -91,7 +102,7 @@ namespace EHR.Crewmate
                 pc.Notify(Translator.GetString("TimeMasterOnGuard"), TimeMasterSkillDuration.GetFloat());
                 foreach (PlayerControl player in Main.AllPlayerControls)
                 {
-                    if (TimeMasterBackTrack.TryGetValue(player.PlayerId, out var position))
+                    if (TimeMasterBackTrack.TryGetValue(player.PlayerId, out Vector2 position))
                     {
                         if (!pc.inVent && !pc.inMovingPlat && pc.IsAlive() && !pc.onLadder && pc.MyPhysics != null && !pc.MyPhysics.Animations.IsPlayingAnyLadderAnimation() && !pc.MyPhysics.Animations.IsPlayingEnterVentAnimation() && player.PlayerId != pc.PlayerId)
                         {
@@ -99,7 +110,7 @@ namespace EHR.Crewmate
                         }
                         else if (pc.PlayerId == player.PlayerId)
                         {
-                            player.MyPhysics?.RpcBootFromVent(Main.LastEnteredVent.TryGetValue(player.PlayerId, out var vent) ? vent.Id : player.PlayerId);
+                            player.MyPhysics?.RpcBootFromVent(Main.LastEnteredVent.TryGetValue(player.PlayerId, out Vent vent) ? vent.Id : player.PlayerId);
                         }
 
                         TimeMasterBackTrack.Remove(player.PlayerId);
@@ -118,11 +129,11 @@ namespace EHR.Crewmate
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
-            if (killer.PlayerId != target.PlayerId && TimeMasterInProtect.TryGetValue(target.PlayerId, out var ts) && ts + TimeMasterSkillDuration.GetInt() >= Utils.TimeStamp)
+            if (killer.PlayerId != target.PlayerId && TimeMasterInProtect.TryGetValue(target.PlayerId, out long ts) && ts + TimeMasterSkillDuration.GetInt() >= Utils.TimeStamp)
             {
-                foreach (var player in Main.AllPlayerControls)
+                foreach (PlayerControl player in Main.AllPlayerControls)
                 {
-                    if (!killer.Is(CustomRoles.Pestilence) && TimeMasterBackTrack.TryGetValue(player.PlayerId, out var pos))
+                    if (!killer.Is(CustomRoles.Pestilence) && TimeMasterBackTrack.TryGetValue(player.PlayerId, out Vector2 pos))
                     {
                         player.TP(pos);
                     }
@@ -137,8 +148,8 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            var playerId = player.PlayerId;
-            if (TimeMasterInProtect.TryGetValue(playerId, out var ttime) && ttime + TimeMasterSkillDuration.GetInt() < Utils.TimeStamp)
+            byte playerId = player.PlayerId;
+            if (TimeMasterInProtect.TryGetValue(playerId, out long ttime) && ttime + TimeMasterSkillDuration.GetInt() < Utils.TimeStamp)
             {
                 TimeMasterInProtect.Remove(playerId);
                 player.RpcResetAbilityCooldown();

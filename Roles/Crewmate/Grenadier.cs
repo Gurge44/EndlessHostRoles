@@ -53,14 +53,18 @@ namespace EHR.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool()) return;
+            if (UsePets.GetBool())
+            {
+                return;
+            }
+
             AURoleOptions.EngineerCooldown = GrenadierSkillCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1;
         }
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            var ProgressText = new StringBuilder();
+            StringBuilder ProgressText = new StringBuilder();
 
             ProgressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, GrenadierBlinding.ContainsKey(playerId)));
             ProgressText.Append(Utils.GetTaskCount(playerId, comms));
@@ -71,9 +75,13 @@ namespace EHR.Crewmate
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             if (UsePets.GetBool())
+            {
                 hud.PetButton.buttonLabelText.text = Translator.GetString("GrenadierVentButtonText");
+            }
             else
+            {
                 hud.AbilityButton.buttonLabelText.text = Translator.GetString("GrenadierVentButtonText");
+            }
         }
 
         public override void OnPet(PlayerControl pc)
@@ -88,12 +96,15 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!GameStates.IsInTask) return;
+            if (!GameStates.IsInTask)
+            {
+                return;
+            }
 
-            var playerId = player.PlayerId;
-            var now = Utils.TimeStamp;
+            byte playerId = player.PlayerId;
+            long now = Utils.TimeStamp;
 
-            if (GrenadierBlinding.TryGetValue(playerId, out var gtime) && gtime + GrenadierSkillDuration.GetInt() < now)
+            if (GrenadierBlinding.TryGetValue(playerId, out long gtime) && gtime + GrenadierSkillDuration.GetInt() < now)
             {
                 GrenadierBlinding.Remove(playerId);
                 player.RpcResetAbilityCooldown();
@@ -101,7 +112,7 @@ namespace EHR.Crewmate
                 Utils.MarkEveryoneDirtySettingsV3();
             }
 
-            if (MadGrenadierBlinding.TryGetValue(playerId, out var mgtime) && mgtime + GrenadierSkillDuration.GetInt() < now)
+            if (MadGrenadierBlinding.TryGetValue(playerId, out long mgtime) && mgtime + GrenadierSkillDuration.GetInt() < now)
             {
                 MadGrenadierBlinding.Remove(playerId);
                 player.RpcResetAbilityCooldown();
@@ -110,9 +121,13 @@ namespace EHR.Crewmate
             }
         }
 
-        static void BlindPlayers(PlayerControl pc)
+        private static void BlindPlayers(PlayerControl pc)
         {
-            if (GrenadierBlinding.ContainsKey(pc.PlayerId) || MadGrenadierBlinding.ContainsKey(pc.PlayerId)) return;
+            if (GrenadierBlinding.ContainsKey(pc.PlayerId) || MadGrenadierBlinding.ContainsKey(pc.PlayerId))
+            {
+                return;
+            }
+
             if (pc.GetAbilityUseLimit() >= 1)
             {
                 if (pc.Is(CustomRoles.Madmate))

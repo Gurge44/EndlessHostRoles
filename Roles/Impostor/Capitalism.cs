@@ -56,9 +56,9 @@ namespace EHR.Impostor
 
         public static bool AddTaskForPlayer(PlayerControl player)
         {
-            if (CapitalismAddTask.TryGetValue(player.PlayerId, out var amount))
+            if (CapitalismAddTask.TryGetValue(player.PlayerId, out int amount))
             {
-                var taskState = player.GetTaskState();
+                TaskState taskState = player.GetTaskState();
                 taskState.AllTasksCount += amount;
                 CapitalismAddTask.Remove(player.PlayerId);
                 taskState.CompletedTasksCount++;

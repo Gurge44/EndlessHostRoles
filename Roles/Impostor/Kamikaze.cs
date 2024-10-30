@@ -53,8 +53,16 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null) return false;
-            if (killer.GetAbilityUseLimit() < 1) return true;
+            if (killer == null || target == null)
+            {
+                return false;
+            }
+
+            if (killer.GetAbilityUseLimit() < 1)
+            {
+                return true;
+            }
+
             return killer.CheckDoubleTrigger(target, () =>
             {
                 MarkedPlayers.Add(target.PlayerId);
@@ -65,25 +73,35 @@ namespace EHR.Impostor
 
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
         {
-            if (lowLoad || !On) return;
+            if (lowLoad || !On)
+            {
+                return;
+            }
 
-            foreach (var kkId in PlayerIdList)
+            foreach (byte kkId in PlayerIdList)
             {
                 if (Main.PlayerStates[kkId].Role is Kamikaze { IsEnable: true } kk)
                 {
-                    var kamikazePc = GetPlayerById(kk.KamikazeId);
+                    PlayerControl kamikazePc = GetPlayerById(kk.KamikazeId);
                     if (kamikazePc == null)
                     {
                         LateTask.New(() => PlayerIdList.Remove(kkId), 0.001f, log: false);
                         continue;
                     }
 
-                    if (kamikazePc.IsAlive() || kk.MarkedPlayers.Count == 0) continue;
-
-                    foreach (var id in kk.MarkedPlayers)
+                    if (kamikazePc.IsAlive() || kk.MarkedPlayers.Count == 0)
                     {
-                        var victim = GetPlayerById(id);
-                        if (victim == null || !victim.IsAlive()) continue;
+                        continue;
+                    }
+
+                    foreach (byte id in kk.MarkedPlayers)
+                    {
+                        PlayerControl victim = GetPlayerById(id);
+                        if (victim == null || !victim.IsAlive())
+                        {
+                            continue;
+                        }
+
                         victim.Suicide(PlayerState.DeathReason.Kamikazed, kamikazePc);
                     }
 

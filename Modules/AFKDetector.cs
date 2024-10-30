@@ -37,7 +37,10 @@ namespace EHR.Modules
 
         public static void RecordPosition(PlayerControl pc)
         {
-            if (!EnableDetector.GetBool() || !GameStates.IsInTask || pc == null || ExemptedPlayers.Contains(pc.PlayerId)) return;
+            if (!EnableDetector.GetBool() || !GameStates.IsInTask || pc == null || ExemptedPlayers.Contains(pc.PlayerId))
+            {
+                return;
+            }
 
             PlayerData[pc.PlayerId] = new()
             {
@@ -48,7 +51,10 @@ namespace EHR.Modules
 
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (!EnableDetector.GetBool() || !GameStates.IsInTask || Main.AllAlivePlayerControls.Length < MinPlayersToActivate.GetInt() || pc == null || !PlayerData.TryGetValue(pc.PlayerId, out var data)) return;
+            if (!EnableDetector.GetBool() || !GameStates.IsInTask || Main.AllAlivePlayerControls.Length < MinPlayersToActivate.GetInt() || pc == null || !PlayerData.TryGetValue(pc.PlayerId, out Data data))
+            {
+                return;
+            }
 
             if (Vector2.Distance(pc.Pos(), data.LastPosition) > 0.1f)
             {
@@ -66,7 +72,11 @@ namespace EHR.Modules
                 switch (data.CurrentPhase)
                 {
                     case Data.Phase.Detection:
-                        if (!pc.IsModClient()) NumAFK++;
+                        if (!pc.IsModClient())
+                        {
+                            NumAFK++;
+                        }
+
                         data.CurrentPhase = Data.Phase.Warning;
                         data.Timer = 15f;
                         break;
@@ -91,11 +101,15 @@ namespace EHR.Modules
 
         public static string GetSuffix(PlayerControl seer, PlayerControl target)
         {
-            if (seer.PlayerId == target.PlayerId && seer.IsAlive() && PlayerData.TryGetValue(seer.PlayerId, out var seerData) && seerData.CurrentPhase > Data.Phase.Detection)
+            if (seer.PlayerId == target.PlayerId && seer.IsAlive() && PlayerData.TryGetValue(seer.PlayerId, out Data seerData) && seerData.CurrentPhase > Data.Phase.Detection)
+            {
                 return seerData.CurrentPhase == Data.Phase.Warning ? string.Format(Translator.GetString("AFKWarning"), (int)Math.Round(seerData.Timer)) : Translator.GetString("AFKSuffix");
+            }
 
-            if (target.IsAlive() && PlayerData.TryGetValue(target.PlayerId, out var targetData) && targetData.CurrentPhase > Data.Phase.Detection)
+            if (target.IsAlive() && PlayerData.TryGetValue(target.PlayerId, out Data targetData) && targetData.CurrentPhase > Data.Phase.Detection)
+            {
                 return Translator.GetString("AFKSuffix");
+            }
 
             return string.Empty;
         }
@@ -123,7 +137,7 @@ namespace EHR.Modules
             PlayerData.Remove(pc.PlayerId);
         }
 
-        enum Consequence
+        private enum Consequence
         {
             Nothing,
             Shield,

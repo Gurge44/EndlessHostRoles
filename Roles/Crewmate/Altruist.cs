@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using AmongUs.GameOptions;
-using UnityEngine;
 
 // ReSharper disable ConvertIfStatementToReturnStatement
 
@@ -65,15 +64,22 @@ namespace EHR.Crewmate
 
         public static bool OnAnyoneCheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target)
         {
-            if (ReviveTargetCanReportTheirOwnBody.GetBool()) return true;
+            if (ReviveTargetCanReportTheirOwnBody.GetBool())
+            {
+                return true;
+            }
+
             return !RevivedPlayers.Contains(reporter.PlayerId) || target.PlayerId != reporter.PlayerId;
         }
 
         public override bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
         {
-            if (!RevivingMode || target.Disconnected) return true;
+            if (!RevivingMode || target.Disconnected)
+            {
+                return true;
+            }
 
-            var state = Main.PlayerStates[reporter.PlayerId];
+            PlayerState state = Main.PlayerStates[reporter.PlayerId];
             state.deathReason = PlayerState.DeathReason.Sacrifice;
             state.RealKiller = (DateTime.Now, target.PlayerId);
             state.SetDead();
@@ -90,24 +96,32 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (pc.IsAlive() || !GameStates.IsInTask || ReviveStartTS == 0 || ReviveTarget == byte.MaxValue) return;
+            if (pc.IsAlive() || !GameStates.IsInTask || ReviveStartTS == 0 || ReviveTarget == byte.MaxValue)
+            {
+                return;
+            }
+
             if (Utils.TimeStamp - ReviveStartTS < ReviveTime.GetInt())
             {
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 return;
             }
 
-            var rtg = ReviveTarget.GetPlayer();
+            PlayerControl rtg = ReviveTarget.GetPlayer();
             rtg?.RpcRevive();
             rtg?.TP(ReviveTargetPos);
             rtg?.Notify(Translator.GetString("RevivedByAltruist"), 15f);
 
             RevivedPlayers.Add(ReviveTarget);
 
-            var killer = rtg?.GetRealKiller();
+            PlayerControl killer = rtg?.GetRealKiller();
             if (killer != null && ReviveTargetsKillerGetsAlert.GetBool())
             {
-                if (ReviveTargetsKillerGetsArrow.GetBool()) TargetArrow.Add(killer.PlayerId, ReviveTarget);
+                if (ReviveTargetsKillerGetsArrow.GetBool())
+                {
+                    TargetArrow.Add(killer.PlayerId, ReviveTarget);
+                }
+
                 killer.KillFlash();
                 killer.Notify(string.Format(Translator.GetString("AltruistKillerAlert"), ReviveTarget.ColoredPlayerName()), 10f);
             }
@@ -119,10 +133,14 @@ namespace EHR.Crewmate
 
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
         {
-            if (lowLoad || !ReviveTargetsKillerGetsArrow.GetBool() || GameStates.IsMeeting || ExileController.Instance) return;
-            if (RevivedPlayers.FindFirst(x => x.GetPlayer()?.GetRealKiller()?.PlayerId == pc.PlayerId, out var revived))
+            if (lowLoad || !ReviveTargetsKillerGetsArrow.GetBool() || GameStates.IsMeeting || ExileController.Instance)
             {
-                var revivedPlayer = revived.GetPlayer();
+                return;
+            }
+
+            if (RevivedPlayers.FindFirst(x => x.GetPlayer()?.GetRealKiller()?.PlayerId == pc.PlayerId, out byte revived))
+            {
+                PlayerControl revivedPlayer = revived.GetPlayer();
                 if (revivedPlayer == null || !revivedPlayer.IsAlive())
                 {
                     TargetArrow.Remove(pc.PlayerId, revived);
@@ -151,8 +169,16 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != AlturistId || meeting || hud) return string.Empty;
-            if (ReviveStartTS != 0) return string.Format(Translator.GetString("AltruistSuffixRevive"), ReviveTime.GetInt() - (Utils.TimeStamp - ReviveStartTS));
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != AlturistId || meeting || hud)
+            {
+                return string.Empty;
+            }
+
+            if (ReviveStartTS != 0)
+            {
+                return string.Format(Translator.GetString("AltruistSuffixRevive"), ReviveTime.GetInt() - (Utils.TimeStamp - ReviveStartTS));
+            }
+
             return string.Format(Translator.GetString("AltruistSuffix"), Translator.GetString(RevivingMode ? "AltruistReviveMode" : "AltruistReportMode"));
         }
     }

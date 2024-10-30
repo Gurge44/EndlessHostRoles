@@ -52,16 +52,19 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!pc.IsAlive()) return;
+            if (!pc.IsAlive())
+            {
+                return;
+            }
 
             long now = Utils.TimeStamp;
             if (LastInfoTime + InfoFrequency.GetInt() <= now)
             {
-                var imps = HnSManager.PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Where(x => x != null && x.GetPlainShipRoom() != null).ToArray();
+                PlayerControl[] imps = HnSManager.PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Where(x => x != null && x.GetPlainShipRoom() != null).ToArray();
                 if (imps.Length > 0)
                 {
-                    var imp = imps.RandomElement();
-                    var room = Translator.GetString($"{imp.GetPlainShipRoom().RoomId}");
+                    PlayerControl imp = imps.RandomElement();
+                    string room = Translator.GetString($"{imp.GetPlainShipRoom().RoomId}");
                     pc.Notify(string.Format(Translator.GetString("DetectorNotify"), room));
                     LastInfoTime = now;
                 }

@@ -50,9 +50,13 @@ namespace EHR.Crewmate
             RicochetId = playerId;
         }
 
-        void SendRPCSyncTarget(byte targetId)
+        private void SendRPCSyncTarget(byte targetId)
         {
-            if (!IsEnable || !Utils.DoRPC) return;
+            if (!IsEnable || !Utils.DoRPC)
+            {
+                return;
+            }
+
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRicochetTarget, SendOption.Reliable);
             writer.Write(RicochetId);
             writer.Write(targetId);
@@ -62,19 +66,29 @@ namespace EHR.Crewmate
         public static void ReceiveRPCSyncTarget(MessageReader reader)
         {
             byte id = reader.ReadByte();
-            if (Main.PlayerStates[id].Role is not Ricochet rc) return;
+            if (Main.PlayerStates[id].Role is not Ricochet rc)
+            {
+                return;
+            }
 
             rc.ProtectAgainst = reader.ReadByte();
         }
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null) return false;
-            if (target == null) return false;
+            if (killer == null)
+            {
+                return false;
+            }
+
+            if (target == null)
+            {
+                return false;
+            }
 
             if (ProtectAgainst == killer.PlayerId)
             {
-                killer.SetKillCooldown(time: 5f);
+                killer.SetKillCooldown(5f);
                 return false;
             }
 
@@ -83,7 +97,10 @@ namespace EHR.Crewmate
 
         public override bool OnVote(PlayerControl pc, PlayerControl target)
         {
-            if (target == null || pc == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
+            if (target == null || pc == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId))
+            {
+                return false;
+            }
 
             if (pc.GetAbilityUseLimit() >= 1)
             {
@@ -103,6 +120,9 @@ namespace EHR.Crewmate
             SendRPCSyncTarget(ProtectAgainst);
         }
 
-        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false) => ProtectAgainst != byte.MaxValue && seer.PlayerId == target.PlayerId && seer.PlayerId == RicochetId ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(ProtectAgainst).GetRealName()}</color>" : string.Empty;
+        public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
+        {
+            return ProtectAgainst != byte.MaxValue && seer.PlayerId == target.PlayerId && seer.PlayerId == RicochetId ? $"<color=#00ffa5>Target:</color> <color=#ffffff>{Utils.GetPlayerById(ProtectAgainst).GetRealName()}</color>" : string.Empty;
+        }
     }
 }

@@ -71,19 +71,32 @@ namespace EHR.Neutral
             ProtectTimeStamp = 0;
         }
 
-        public override void SetKillCooldown(byte id) => Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        public override void SetKillCooldown(byte id)
+        {
+            Main.AllPlayerKillCooldown[id] = KillCooldown.GetFloat();
+        }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             opt.SetVision(ImpostorVision.GetBool());
         }
 
-        public override bool CanUseImpostorVentButton(PlayerControl pc) => CanVent.GetBool();
-        public static bool InProtect(PlayerControl player) => player.Is(CustomRoles.Spiritcaller) && ProtectTimeStamp > Utils.TimeStamp;
+        public override bool CanUseImpostorVentButton(PlayerControl pc)
+        {
+            return CanVent.GetBool();
+        }
+
+        public static bool InProtect(PlayerControl player)
+        {
+            return player.Is(CustomRoles.Spiritcaller) && ProtectTimeStamp > Utils.TimeStamp;
+        }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer.GetAbilityUseLimit() < 1) return true;
+            if (killer.GetAbilityUseLimit() < 1)
+            {
+                return true;
+            }
 
             if (!target.GetCustomRole().IsAbleToBeSidekicked() && !target.GetCustomRole().IsImpostor())
             {
@@ -91,7 +104,7 @@ namespace EHR.Neutral
 
                 target.RpcSetCustomRole(CustomRoles.EvilSpirit);
 
-                var writer = CustomRpcSender.Create("SpiritCallerSendMessage");
+                CustomRpcSender writer = CustomRpcSender.Create("SpiritCallerSendMessage");
                 writer.StartMessage(target.GetClientId());
                 writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
                     .Write(target.Data.NetId)
@@ -113,7 +126,10 @@ namespace EHR.Neutral
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask) return;
+            if (!GameStates.IsInTask)
+            {
+                return;
+            }
 
             if (pc.Is(CustomRoles.Spiritcaller))
             {
@@ -144,7 +160,7 @@ namespace EHR.Neutral
 
             if (SpiritFreezeTime.GetFloat() > 0)
             {
-                var tmpSpeed = Main.AllPlayerSpeed[target.PlayerId];
+                float tmpSpeed = Main.AllPlayerSpeed[target.PlayerId];
                 Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
                 ReportDeadBodyPatch.CanReport[target.PlayerId] = false;
                 target.MarkDirtySettings();

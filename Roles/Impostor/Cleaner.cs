@@ -86,12 +86,18 @@ namespace EHR.Impostor
                 hud.KillButton?.OverrideText(Translator.GetString("KillButtonText"));
                 hud.ReportButton?.OverrideText(Translator.GetString("MedusaReportButtonText"));
             }
-            else hud.ReportButton?.OverrideText(Translator.GetString("CleanerReportButtonText"));
+            else
+            {
+                hud.ReportButton?.OverrideText(Translator.GetString("CleanerReportButtonText"));
+            }
         }
 
         public override bool CheckReportDeadBody(PlayerControl cleaner, NetworkedPlayerInfo target, PlayerControl killer)
         {
-            if (WaitForKCDUp && Main.KillTimers[cleaner.PlayerId] > 0f) return true;
+            if (WaitForKCDUp && Main.KillTimers[cleaner.PlayerId] > 0f)
+            {
+                return true;
+            }
 
             CleanerBodies.Remove(target.PlayerId);
             CleanerBodies.Add(target.PlayerId);

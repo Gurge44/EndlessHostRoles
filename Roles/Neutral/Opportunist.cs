@@ -24,7 +24,10 @@ namespace EHR.Neutral
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (!CanVent.GetBool()) return;
+            if (!CanVent.GetBool())
+            {
+                return;
+            }
 
             AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = MaxInVentTime.GetFloat();

@@ -33,7 +33,11 @@ namespace EHR.Neutral
         {
             get
             {
-                if (CanWinWhenKillingMore.GetBool()) return ImpKillCount.Killed >= ImpKillCount.Limit && NeutralKillCount.Killed >= NeutralKillCount.Limit && CrewKillCount.Killed >= CrewKillCount.Limit;
+                if (CanWinWhenKillingMore.GetBool())
+                {
+                    return ImpKillCount.Killed >= ImpKillCount.Limit && NeutralKillCount.Killed >= NeutralKillCount.Limit && CrewKillCount.Killed >= CrewKillCount.Limit;
+                }
+
                 return ImpKillCount.Killed == ImpKillCount.Limit && NeutralKillCount.Killed == NeutralKillCount.Limit && CrewKillCount.Killed == CrewKillCount.Limit;
             }
         }
@@ -60,9 +64,9 @@ namespace EHR.Neutral
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);
         }
 
-        static OptionItem CreateSetting(int id, bool min, string roleType)
+        private static OptionItem CreateSetting(int id, bool min, string roleType)
         {
-            var opt = new IntegerOptionItem(id, $"Impartial{roleType}{(min ? "min" : "max")}", new(0, 14, 1), 1, TabGroup.NeutralRoles)
+            OptionItem opt = new IntegerOptionItem(id, $"Impartial{roleType}{(min ? "min" : "max")}", new(0, 14, 1), 1, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Impartial]);
             opt.ReplacementDictionary = ReplacementDictionary;
             return opt;
@@ -71,7 +75,7 @@ namespace EHR.Neutral
         public override void Add(byte playerId)
         {
             On = true;
-            var r = IRandom.Instance;
+            IRandom r = IRandom.Instance;
             ImpKillCount = (0, r.Next(ImpMinOpt.GetInt(), ImpMaxOpt.GetInt() + 1));
             NeutralKillCount = (0, r.Next(NeutralMinOpt.GetInt(), NeutralMaxOpt.GetInt() + 1));
             CrewKillCount = (0, r.Next(CrewMinOpt.GetInt(), CrewMaxOpt.GetInt() + 1));
@@ -141,8 +145,12 @@ namespace EHR.Neutral
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            if (IsWon) return " \u2713";
-            var sb = new StringBuilder();
+            if (IsWon)
+            {
+                return " \u2713";
+            }
+
+            StringBuilder sb = new StringBuilder();
             sb.Append($" <{Main.ImpostorColor}>{ImpKillCount.Killed}/{ImpKillCount.Limit}</color>");
             sb.Append($" <{Main.NeutralColor}>{NeutralKillCount.Killed}/{NeutralKillCount.Limit}</color>");
             sb.Append($" <{Main.CrewmateColor}>{CrewKillCount.Killed}/{CrewKillCount.Limit}</color>");

@@ -1,10 +1,26 @@
 #pragma warning disable CA1822
-namespace EHR;
-
-public class HashRandomWrapper : IRandom
+namespace EHR
 {
-    public int Next(int minValue, int maxValue) => HashRandom.Next(minValue, maxValue);
-    public int Next(int maxValue) => HashRandom.Next(maxValue);
-    public uint Next() => HashRandom.Next();
-    public int FastNext(int maxValue) => HashRandom.FastNext(maxValue);
+    public class HashRandomWrapper : IRandom
+    {
+        public int Next(int minValue, int maxValue)
+        {
+            return HashRandom.Next(minValue, maxValue);
+        }
+
+        public int Next(int maxValue)
+        {
+            return HashRandom.Next(maxValue);
+        }
+
+        public uint Next()
+        {
+            return HashRandom.Next();
+        }
+
+        public int FastNext(int maxValue)
+        {
+            return HashRandom.FastNext(maxValue);
+        }
+    }
 }

@@ -27,10 +27,21 @@
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
-            var killerRole = killer.GetCustomRole();
-            if (killerRole.IsImpostor() || killerRole.IsMadmate()) killerRole = CustomRoles.Refugee;
-            if (killerRole == CustomRoles.Jackal) killerRole = CustomRoles.Sidekick;
-            if (Options.SingleRoles.Contains(killerRole)) killerRole = CustomRoles.Amnesiac;
+            CustomRoles killerRole = killer.GetCustomRole();
+            if (killerRole.IsImpostor() || killerRole.IsMadmate())
+            {
+                killerRole = CustomRoles.Refugee;
+            }
+
+            if (killerRole == CustomRoles.Jackal)
+            {
+                killerRole = CustomRoles.Sidekick;
+            }
+
+            if (Options.SingleRoles.Contains(killerRole))
+            {
+                killerRole = CustomRoles.Amnesiac;
+            }
 
             target.RpcSetCustomRole(killerRole);
             target.RpcChangeRoleBasis(killerRole);
