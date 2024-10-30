@@ -176,32 +176,29 @@ static class ExileControllerWrapUpPatch
         Logger.Msg($"Ejection Text: {CheckForEndVotingPatch.EjectionText}", "ExilePatch");
         if ((showRemainingKillers || appendEjectionNotify) && Options.CurrentGameMode == CustomGameMode.Standard)
         {
-            LateTask.New(() =>
+            var text = showRemainingKillers ? Utils.GetRemainingKillers(notify: true) : string.Empty;
+            text = $"<#ffffff>{text}</color>";
+            var r = IRandom.Instance;
+            foreach (var pc in Main.AllAlivePlayerControls)
             {
-                var text = showRemainingKillers ? Utils.GetRemainingKillers(notify: true) : string.Empty;
-                text = $"<#ffffff>{text}</color>";
-                var r = IRandom.Instance;
-                foreach (var pc in Main.AllAlivePlayerControls)
+                string finalText = text;
+
+                if (appendEjectionNotify && !finalText.Contains(CheckForEndVotingPatch.EjectionText, StringComparison.OrdinalIgnoreCase))
                 {
-                    string finalText = text;
-
-                    if (appendEjectionNotify && !finalText.Contains(CheckForEndVotingPatch.EjectionText, StringComparison.OrdinalIgnoreCase))
-                    {
-                        finalText = $"\n<#ffffff>{CheckForEndVotingPatch.EjectionText}</color>\n{finalText}";
-                    }
-
-                    if (!showRemainingKillers) finalText = finalText.TrimStart();
-
-                    pc.Notify(finalText, r.Next(7, 13));
+                    finalText = $"\n<#ffffff>{CheckForEndVotingPatch.EjectionText}</color>\n{finalText}";
                 }
-            }, 0.5f, log: false);
+
+                if (!showRemainingKillers) finalText = finalText.TrimStart();
+
+                pc.Notify(finalText, r.Next(7, 13));
+            }
         }
 
         LateTask.New(() => ChatManager.SendPreviousMessagesToAll(clear: true), 3f, log: false);
     }
 
     [HarmonyPatch(typeof(ExileController), nameof(ExileController.WrapUp))]
-    class BaseExileControllerPatch
+    static class BaseExileControllerPatch
     {
         public static void Postfix(ExileController __instance)
         {
@@ -217,7 +214,7 @@ static class ExileControllerWrapUpPatch
     }
 
     [HarmonyPatch(typeof(AirshipExileController), nameof(AirshipExileController.WrapUpAndSpawn))]
-    class AirshipExileControllerPatch
+    static class AirshipExileControllerPatch
     {
         public static void Postfix(AirshipExileController __instance)
         {

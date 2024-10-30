@@ -129,6 +129,7 @@ internal static class FFAManager
         PlayerTeams = [];
 
         var allPlayers = Main.AllAlivePlayerControls;
+        if (Main.GM.Value && AmongUsClient.Instance.AmHost) allPlayers = allPlayers.Without(PlayerControl.LocalPlayer).ToArray();
 
         foreach (PlayerControl pc in allPlayers)
         {
