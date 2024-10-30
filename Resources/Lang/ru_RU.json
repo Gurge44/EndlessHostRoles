@@ -1386,7 +1386,7 @@
   "TrapperBlockMoveTime": "Время заморозки",
   "RogueKnowEachOtherRoles": "<color=#696969>Rogue</color> игроки знают роли друг друга",
   "RogueKnowEachOther": "<color=#696969>Rogue</color> игроки знают друг друга",
-  "RoleChangedNotify": "<size=120%><#ffff00>⚠</color> Your role was changed to {0} <#ffff00>⚠</color></size>",
+  "RoleChangedNotify": "<size=120%><#ffff00>⚠</color> Ваша роль была изменена на {0} <#ffff00>⚠</color></size>",
   "TimeThiefDecreaseMeetingTime": "Уменьшить время собрания на",
   "TimeThiefLowerLimitVotingTime": "Мин. длительность собрания",
   "TimeThiefReturnStolenTimeUponDeath": "Вернуть украденное время после смерти <color=#ff1919>Вора Времени</color>",
