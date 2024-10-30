@@ -135,7 +135,7 @@ public class Lawyer : RoleBase
         lawyer.RpcSetCustomRole(newRole);
         Target.Remove(Lawyer);
         SendRPC(Lawyer);
-        NotifyChangeRole(lawyer, newRole);
+        lawyer.Notify(Translator.GetString("LawyerChangeRole"));
         Utils.NotifyRoles(SpecifySeer: lawyer, SpecifyTarget: target);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: lawyer);
     }
@@ -166,14 +166,7 @@ public class Lawyer : RoleBase
         lawyer.RpcSetCustomRole(newRole);
         Target.Remove(lawyer.PlayerId);
         SendRPC(lawyer.PlayerId);
-        NotifyChangeRole(lawyer, newRole);
-    }
-
-    private static void NotifyChangeRole(PlayerControl lawyer, CustomRoles newRole)
-    {
-        var text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), Translator.GetString("LawyerChangeRole"));
-        text = string.Format(text, newRole.ToColoredString());
-        lawyer.Notify(text);
+        lawyer.Notify(Translator.GetString("LawyerChangeRole"));
     }
 
     public static bool CheckExileTarget(NetworkedPlayerInfo exiled /*, bool DecidedWinner, bool Check = false*/)

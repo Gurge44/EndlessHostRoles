@@ -129,7 +129,7 @@ public class Executioner : RoleBase
         ExePC.RpcSetCustomRole(newRole);
         Target.Remove(Executioner);
         SendRPC(Executioner);
-        NotifyRoleChange(ExePC, newRole);
+        ExePC.Notify(Translator.GetString("ExecutionerRoleChanged"));
         Utils.NotifyRoles(SpecifySeer: ExePC, SpecifyTarget: target);
         Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: ExePC);
     }
@@ -141,14 +141,7 @@ public class Executioner : RoleBase
         executioner.RpcSetCustomRole(newRole);
         Target.Remove(executioner.PlayerId);
         SendRPC(executioner.PlayerId);
-        NotifyRoleChange(executioner, newRole);
-    }
-
-    private static void NotifyRoleChange(PlayerControl executioner, CustomRoles newRole)
-    {
-        var text = Utils.ColorString(Utils.GetRoleColor(CustomRoles.Executioner), Translator.GetString("ExecutionerChangeRole"));
-        text = string.Format(text, newRole.ToColoredString());
-        executioner.Notify(text);
+        executioner.Notify(Translator.GetString("ExecutionerRoleChanged"));
     }
 
     public override bool KnowRole(PlayerControl player, PlayerControl target)

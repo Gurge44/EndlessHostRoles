@@ -85,7 +85,7 @@ public class BallLightning : RoleBase
 
     public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
     {
-        return CheckBallLightningMurder(killer, target);
+        return !CheckBallLightningMurder(killer, target);
     }
 
     public static bool CheckBallLightningMurder(PlayerControl killer, PlayerControl target, bool force = false)
