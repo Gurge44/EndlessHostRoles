@@ -618,7 +618,7 @@ namespace EHR.Patches
                         ? $"<size=60%>{roleInfo}</size>\r\n"
                         : $"<size=60%>{string.Join(' ', splitted[..3])}\r\n{string.Join(' ', splitted[3..])}</size>\r\n";
                 }
-                else if (RoleWithInfo.RemoveHtmlTags().Length > 35)
+                else if (roleInfo.RemoveHtmlTags().Length > 35)
                 {
                     string[] split = roleInfo.Split(' ');
                     int half = split.Length / 2;

@@ -2067,7 +2067,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                         continue;
                     }
 
-                    if (seer.Is(CustomRoles.Car))
+                    if (seer.Is(CustomRoles.Car) && !isForMeeting)
                     {
                         seer.RpcSetNamePrivate(Car.Name, force: NoCache);
                         continue;
@@ -2289,7 +2289,7 @@ other:  ∟ ⌠ ⌡ ╬ ╨ ▓ ▒ ░ « » █ ▄ ▌▀▐│ ┤ ╡ ╢ �
                         {
                             if (target.PlayerId == seer.PlayerId) continue;
 
-                            if (target.Is(CustomRoles.Car))
+                            if (target.Is(CustomRoles.Car) && !isForMeeting)
                             {
                                 target.RpcSetNamePrivate(Car.Name, seer, NoCache);
                                 continue;

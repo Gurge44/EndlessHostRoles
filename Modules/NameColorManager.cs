@@ -63,7 +63,7 @@ namespace EHR
                     color = Main.ImpostorColor;
                     return true;
                 case CustomGameMode.CaptureTheFlag:
-                    return CTFManager.KnowTargetRoleColor(seer, target, ref color);
+                    return CTFManager.KnowTargetRoleColor(target, ref color);
             }
 
             RoleBase seerRoleClass = Main.PlayerStates[seer.PlayerId].Role;
