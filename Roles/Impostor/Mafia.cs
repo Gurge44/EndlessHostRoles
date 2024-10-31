@@ -22,14 +22,18 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(3100, TabGroup.ImpostorRoles, CustomRoles.Mafia);
+
             MafiaCanKillNum = new IntegerOptionItem(3200, "MafiaCanKillNum", new(0, 15, 1), 1, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafia])
                 .SetValueFormat(OptionFormat.Players);
+
             LegacyMafia = new BooleanOptionItem(3210, "LegacyMafia", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mafia]);
+
             MafiaShapeshiftCD = new FloatOptionItem(3211, "ShapeshiftCooldown", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(LegacyMafia)
                 .SetValueFormat(OptionFormat.Seconds);
+
             MafiaShapeshiftDur = new FloatOptionItem(3212, "ShapeshiftDuration", new(1f, 180f, 1f), 15f, TabGroup.ImpostorRoles)
                 .SetParent(LegacyMafia)
                 .SetValueFormat(OptionFormat.Seconds);
@@ -58,37 +62,21 @@ namespace EHR.Impostor
 
         public static bool MafiaMsgCheck(PlayerControl pc, string msg, bool isUI = false)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return false;
-            }
+            if (!AmongUsClient.Instance.AmHost) return false;
 
-            if (!GameStates.IsInGame || pc == null)
-            {
-                return false;
-            }
+            if (!GameStates.IsInGame || pc == null) return false;
 
-            if (!pc.Is(CustomRoles.Mafia))
-            {
-                return false;
-            }
+            if (!pc.Is(CustomRoles.Mafia)) return false;
 
             msg = msg.Trim().ToLower().Replace(" ", string.Empty);
-            if (msg.Length < 3 || !msg.StartsWith("/rv"))
-            {
-                return false;
-            }
+            if (msg.Length < 3 || !msg.StartsWith("/rv")) return false;
 
             if (MafiaCanKillNum.GetInt() < 1)
             {
                 if (!isUI)
-                {
                     Utils.SendMessage(GetString("MafiaKillDisable"), pc.PlayerId);
-                }
                 else
-                {
                     pc.ShowPopUp(GetString("MafiaKillDisable"));
-                }
 
                 return true;
             }
@@ -113,19 +101,16 @@ namespace EHR.Impostor
                 if (MafiaRevenged[pc.PlayerId] >= MafiaCanKillNum.GetInt())
                 {
                     if (!isUI)
-                    {
                         Utils.SendMessage(GetString("MafiaKillMax"), pc.PlayerId);
-                    }
                     else
-                    {
                         pc.ShowPopUp(GetString("MafiaKillMax"));
-                    }
 
                     return true;
                 }
             }
 
             PlayerControl target;
+
             try
             {
                 int targetId = int.Parse(msg.Replace("/rv", string.Empty));
@@ -134,13 +119,9 @@ namespace EHR.Impostor
             catch
             {
                 if (!isUI)
-                {
                     Utils.SendMessage(GetString("MafiaKillDead"), pc.PlayerId);
-                }
                 else
-                {
                     pc.ShowPopUp(GetString("MafiaKillDead"));
-                }
 
                 return true;
             }
@@ -148,13 +129,9 @@ namespace EHR.Impostor
             if (target == null || target.Data.IsDead)
             {
                 if (!isUI)
-                {
                     Utils.SendMessage(GetString("MafiaKillDead"), pc.PlayerId);
-                }
                 else
-                {
                     pc.ShowPopUp(GetString("MafiaKillDead"));
-                }
 
                 return true;
             }
@@ -162,13 +139,9 @@ namespace EHR.Impostor
             if (target.Is(CustomRoles.Pestilence))
             {
                 if (!isUI)
-                {
                     Utils.SendMessage(GetString("PestilenceImmune"), pc.PlayerId);
-                }
                 else
-                {
                     pc.ShowPopUp(GetString("PestilenceImmune"));
-                }
 
                 return true;
             }
@@ -203,6 +176,7 @@ namespace EHR.Impostor
 
                 LateTask.New(() => { Utils.SendMessage(string.Format(GetString("MafiaKillSucceed"), Name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Mafia), GetString("MafiaRevengeTitle"))); }, 0.6f, "Mafia Kill");
             }, 0.2f, "Mafia Kill");
+
             return true;
         }
 
@@ -223,19 +197,12 @@ namespace EHR.Impostor
         {
             Logger.Msg($"Click: ID {playerId}", "Mafia UI");
             PlayerControl pc = Utils.GetPlayerById(playerId);
-            if (pc == null || !pc.IsAlive() || !GameStates.IsVoting)
-            {
-                return;
-            }
+            if (pc == null || !pc.IsAlive() || !GameStates.IsVoting) return;
 
             if (AmongUsClient.Instance.AmHost)
-            {
                 MafiaMsgCheck(PlayerControl.LocalPlayer, $"/rv {playerId}", true);
-            }
             else
-            {
                 SendRPC(playerId);
-            }
         }
 
         public static void CreateJudgeButton(MeetingHud __instance)
@@ -243,18 +210,15 @@ namespace EHR.Impostor
             foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
             {
                 PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
-                if (pc == null || !pc.IsAlive())
-                {
-                    continue;
-                }
+                if (pc == null || !pc.IsAlive()) continue;
 
                 GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
                 GameObject targetBox = Object.Instantiate(template, pva.transform);
                 targetBox.name = "ShootButton";
                 targetBox.transform.localPosition = new(-0.95f, 0.03f, -1.31f);
-                SpriteRenderer renderer = targetBox.GetComponent<SpriteRenderer>();
+                var renderer = targetBox.GetComponent<SpriteRenderer>();
                 renderer.sprite = CustomButton.Get("MeetingKillButton");
-                PassiveButton button = targetBox.GetComponent<PassiveButton>();
+                var button = targetBox.GetComponent<PassiveButton>();
                 button.OnClick.RemoveAllListeners();
                 button.OnClick.AddListener((Action)(() => MafiaOnClick(pva.TargetPlayerId)));
             }
@@ -265,10 +229,7 @@ namespace EHR.Impostor
         {
             public static void Postfix(MeetingHud __instance)
             {
-                if (PlayerControl.LocalPlayer.Is(CustomRoles.Mafia) && !PlayerControl.LocalPlayer.IsAlive())
-                {
-                    CreateJudgeButton(__instance);
-                }
+                if (PlayerControl.LocalPlayer.Is(CustomRoles.Mafia) && !PlayerControl.LocalPlayer.IsAlive()) CreateJudgeButton(__instance);
             }
         }
     }

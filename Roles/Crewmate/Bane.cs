@@ -22,10 +22,7 @@
 
         public static void OnKilled(PlayerControl killer)
         {
-            if (killer == null || killer.Is(CustomRoles.Bloodlust))
-            {
-                return;
-            }
+            if (killer == null || killer.Is(CustomRoles.Bloodlust)) return;
 
             CustomRoles erasedRole = killer.IsImpostor() ? CustomRoles.ImpostorEHR : killer.IsCrewmate() ? CustomRoles.CrewmateEHR : CustomRoles.Amnesiac;
             killer.RpcSetCustomRole(erasedRole);

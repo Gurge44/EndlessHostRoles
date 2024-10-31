@@ -179,22 +179,17 @@ namespace EHR
             get
             {
                 int count = PlayerControl.AllPlayerControls.Count;
-                PlayerControl[] result = new PlayerControl[count];
-                int i = 0;
+                var result = new PlayerControl[count];
+                var i = 0;
+
                 foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
                 {
-                    if (pc == null || pc.PlayerId == 255)
-                    {
-                        continue;
-                    }
+                    if (pc == null || pc.PlayerId == 255) continue;
 
                     result[i++] = pc;
                 }
 
-                if (i == 0)
-                {
-                    return [];
-                }
+                if (i == 0) return [];
 
                 Array.Resize(ref result, i);
                 return result;
@@ -206,22 +201,17 @@ namespace EHR
             get
             {
                 int count = PlayerControl.AllPlayerControls.Count;
-                PlayerControl[] result = new PlayerControl[count];
-                int i = 0;
+                var result = new PlayerControl[count];
+                var i = 0;
+
                 foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
                 {
-                    if (pc == null || pc.PlayerId == 255 || !pc.IsAlive() || pc.Data.Disconnected || Pelican.IsEaten(pc.PlayerId))
-                    {
-                        continue;
-                    }
+                    if (pc == null || pc.PlayerId == 255 || !pc.IsAlive() || pc.Data.Disconnected || Pelican.IsEaten(pc.PlayerId)) continue;
 
                     result[i++] = pc;
                 }
 
-                if (i == 0)
-                {
-                    return [];
-                }
+                if (i == 0) return [];
 
                 Array.Resize(ref result, i);
                 return result;
@@ -267,6 +257,7 @@ namespace EHR
             EHR.Logger.Disable("SwitchSystem");
             EHR.Logger.Disable("ModNews");
             EHR.Logger.Disable("CustomRpcSender");
+
             if (!DebugModeManager.AmDebugger)
             {
                 EHR.Logger.Disable("2018k");
@@ -311,6 +302,7 @@ namespace EHR
             LastShapeshifterCooldown = Config.Bind("Other", "LastShapeshifterCooldown", (float)30);
 
             HasArgumentException = false;
+
             try
             {
                 RoleColors = new()
@@ -675,6 +667,7 @@ namespace EHR
                     { CustomRoles.Agent, "#ff8f8f" },
                     { CustomRoles.Taskinator, "#561dd1" }
                 };
+
                 Enum.GetValues<CustomRoles>().Where(x => x.GetCustomRoleTypes() == CustomRoleTypes.Impostor).Do(x => RoleColors.TryAdd(x, "#ff1919"));
             }
             catch (ArgumentException ex)
@@ -713,13 +706,9 @@ namespace EHR
             Harmony.PatchAll();
 
             if (!DebugModeManager.AmDebugger)
-            {
                 ConsoleManager.DetachConsole();
-            }
             else
-            {
                 ConsoleManager.CreateConsole();
-            }
 
             EHR.Logger.Msg("========= EHR loaded! =========", "Plugin Load");
         }
@@ -727,12 +716,14 @@ namespace EHR
         public static void LoadRoleClasses()
         {
             AllRoleClasses = [];
+
             try
             {
                 AllRoleClasses.AddRange(Assembly.GetAssembly(typeof(RoleBase))!
                     .GetTypes()
                     .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(RoleBase)))
                     .Select(t => (RoleBase)Activator.CreateInstance(t, null)));
+
                 AllRoleClasses.Sort();
             }
             catch (Exception e)
@@ -743,20 +734,14 @@ namespace EHR
 
         public void StartCoroutine(IEnumerator coroutine)
         {
-            if (coroutine == null)
-            {
-                return;
-            }
+            if (coroutine == null) return;
 
             coroutines.StartCoroutine(coroutine.WrapToIl2Cpp());
         }
 
         public void StopCoroutine(IEnumerator coroutine)
         {
-            if (coroutine == null)
-            {
-                return;
-            }
+            if (coroutine == null) return;
 
             coroutines.StopCoroutine(coroutine.WrapToIl2Cpp());
         }
@@ -946,7 +931,5 @@ namespace EHR
         Random
     }
 
-    public class Coroutines : MonoBehaviour
-    {
-    }
+    public class Coroutines : MonoBehaviour { }
 }

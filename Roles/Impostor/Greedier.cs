@@ -31,12 +31,15 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Greedier);
+
             OddKillCooldown = new FloatOptionItem(Id + 10, "OddKillCooldown", new(0f, 60f, 2.5f), 27.5f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Greedier])
                 .SetValueFormat(OptionFormat.Seconds);
+
             EvenKillCooldown = new FloatOptionItem(Id + 11, "EvenKillCooldown", new(0f, 30f, 2.5f), 15f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Greedier])
                 .SetValueFormat(OptionFormat.Seconds);
+
             AfterMeetingKillCooldown = new FloatOptionItem(Id + 12, "AfterMeetingKillCooldown", new(0f, 30f, 2.5f), 25f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Greedier])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -53,6 +56,7 @@ namespace EHR.Impostor
             IsOdd = true;
 
             IsImitator = Main.PlayerStates[playerId].MainRole == CustomRoles.Imitator;
+
             if (IsImitator)
             {
                 OddKCD = Imitator.OddKillCooldown.GetFloat();
@@ -81,10 +85,7 @@ namespace EHR.Impostor
 
         private void SendRPC(byte playerId)
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGreedierOe, SendOption.Reliable);
             writer.Write(playerId);

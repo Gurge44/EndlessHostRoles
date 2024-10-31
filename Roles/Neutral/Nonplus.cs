@@ -17,15 +17,19 @@
             const CustomRoles role = CustomRoles.Nonplus;
 
             Options.SetupRoleOptions(id, tab, role);
+
             BlindCooldown = new IntegerOptionItem(id + 2, "Nonplus.BlindCooldown", new(0, 60, 1), 30, tab)
                 .SetParent(Options.CustomRoleSpawnChances[role])
                 .SetValueFormat(OptionFormat.Seconds);
+
             BlindDuration = new IntegerOptionItem(id + 3, "Nonplus.BlindDuration", new(0, 60, 1), 10, tab)
                 .SetParent(Options.CustomRoleSpawnChances[role])
                 .SetValueFormat(OptionFormat.Seconds);
+
             UseLimit = new IntegerOptionItem(id + 4, "AbilityUseLimit", new(0, 5, 1), 0, tab)
                 .SetParent(Options.CustomRoleSpawnChances[role])
                 .SetValueFormat(OptionFormat.Times);
+
             NonplusAbilityUseGainWithEachKill = new FloatOptionItem(id + 5, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 1f, tab)
                 .SetParent(Options.CustomRoleSpawnChances[role])
                 .SetValueFormat(OptionFormat.Times);
@@ -54,20 +58,14 @@
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
-            if (Options.UsePets.GetBool())
-            {
-                return;
-            }
+            if (Options.UsePets.GetBool()) return;
 
             Blind(pc);
         }
 
         private static void Blind(PlayerControl pc)
         {
-            if (pc.GetAbilityUseLimit() < 1)
-            {
-                return;
-            }
+            if (pc.GetAbilityUseLimit() < 1) return;
 
             pc.RpcRemoveAbilityUse();
 

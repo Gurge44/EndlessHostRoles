@@ -85,12 +85,14 @@ namespace EHR.Crewmate
             On = true;
             Instances.Add(this);
             WizardId = playerId;
+
             BuffValues = new()
             {
                 [Buff.Speed] = 1.5f,
                 [Buff.Vision] = 0.9f,
                 [Buff.KCD] = 15f
             };
+
             PlayerBuffs = [];
             SelectedBuff = default;
             TaskMode = false;
@@ -124,10 +126,7 @@ namespace EHR.Crewmate
         {
             foreach (Wizard instance in Instances)
             {
-                if (!instance.PlayerBuffs.TryGetValue(id, out Dictionary<Buff, float> buffs))
-                {
-                    continue;
-                }
+                if (!instance.PlayerBuffs.TryGetValue(id, out Dictionary<Buff, float> buffs)) continue;
 
                 foreach ((Buff buff, float value) in buffs)
                 {
@@ -157,13 +156,9 @@ namespace EHR.Crewmate
         public override void OnPet(PlayerControl pc)
         {
             if (SelectedBuff == Buff.KCD)
-            {
                 SelectedBuff = default;
-            }
             else
-            {
                 SelectedBuff++;
-            }
 
             Utils.SendRPC(CustomRPC.SyncRoleData, WizardId, 1, (int)SelectedBuff);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -171,10 +166,7 @@ namespace EHR.Crewmate
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (shapeshifting)
-            {
-                return false;
-            }
+            if (shapeshifting) return false;
 
             BuffValues[SelectedBuff] += SelectedBuff switch
             {
@@ -185,13 +177,9 @@ namespace EHR.Crewmate
             };
 
             if (BuffValues[SelectedBuff] > MaxBuffValues[SelectedBuff])
-            {
                 BuffValues[SelectedBuff] = MinBuffValues[SelectedBuff];
-            }
             else
-            {
                 BuffValues[SelectedBuff] = (float)Math.Round(BuffValues[SelectedBuff], 1);
-            }
 
             Utils.SendRPC(CustomRPC.SyncRoleData, WizardId, 2, BuffValues[SelectedBuff]);
             Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter);
@@ -200,25 +188,15 @@ namespace EHR.Crewmate
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!base.OnCheckMurder(killer, target) || killer.GetAbilityUseLimit() < 1f)
-            {
-                return false;
-            }
+            if (!base.OnCheckMurder(killer, target) || killer.GetAbilityUseLimit() < 1f) return false;
 
             float value = BuffValues[SelectedBuff];
-            if (SelectedBuff == Buff.Speed)
-            {
-                value = Math.Max(value, Main.MinSpeed);
-            }
+            if (SelectedBuff == Buff.Speed) value = Math.Max(value, Main.MinSpeed);
 
             if (!PlayerBuffs.TryGetValue(target.PlayerId, out Dictionary<Buff, float> buffs))
-            {
                 PlayerBuffs[target.PlayerId] = new() { { SelectedBuff, value } };
-            }
             else
-            {
                 buffs[SelectedBuff] = value;
-            }
 
             target.SyncSettings();
             killer.SetKillCooldown();
@@ -233,15 +211,9 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || ExileController.Instance)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask || ExileController.Instance) return;
 
-            if (Count++ < 40)
-            {
-                return;
-            }
+            if (Count++ < 40) return;
 
             Count = 0;
 
@@ -276,19 +248,12 @@ namespace EHR.Crewmate
                 case 3:
                     byte id = reader.ReadByte();
                     float value = BuffValues[SelectedBuff];
-                    if (SelectedBuff == Buff.Speed)
-                    {
-                        value = Math.Max(value, Main.MinSpeed);
-                    }
+                    if (SelectedBuff == Buff.Speed) value = Math.Max(value, Main.MinSpeed);
 
                     if (!PlayerBuffs.TryGetValue(id, out Dictionary<Buff, float> buffs))
-                    {
                         PlayerBuffs[id] = new() { { SelectedBuff, value } };
-                    }
                     else
-                    {
                         buffs[SelectedBuff] = value;
-                    }
 
                     break;
             }
@@ -296,20 +261,11 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != WizardId || meeting)
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != WizardId || meeting) return string.Empty;
 
-            if (PlayerBuffs.TryGetValue(target.PlayerId, out Dictionary<Buff, float> buffs))
-            {
-                return string.Join('\n', buffs.Select(x => $"{Translator.GetString($"Wizard.Buff.{x.Key}")}: {Math.Round(x.Value, 1):N1}{GetBuffFormat(x.Key)}"));
-            }
+            if (PlayerBuffs.TryGetValue(target.PlayerId, out Dictionary<Buff, float> buffs)) return string.Join('\n', buffs.Select(x => $"{Translator.GetString($"Wizard.Buff.{x.Key}")}: {Math.Round(x.Value, 1):N1}{GetBuffFormat(x.Key)}"));
 
-            if (seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud))
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud)) return string.Empty;
 
             return string.Format(Translator.GetString("Wizard.SelectedBuff"), SelectedBuff, BuffValues[SelectedBuff], GetBuffFormat(SelectedBuff));
 

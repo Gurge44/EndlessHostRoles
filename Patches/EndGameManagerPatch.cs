@@ -13,10 +13,7 @@ namespace EHR.Patches
 
         public static void Postfix(EndGameManager __instance)
         {
-            if (!AmongUsClient.Instance.AmHost || !Options.AutoPlayAgain.GetBool())
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost || !Options.AutoPlayAgain.GetBool()) return;
 
             IsRestarting = false;
 
@@ -35,34 +32,25 @@ namespace EHR.Patches
 
         private static void BeginAutoPlayAgainCountdown(EndGameManager endGameManager, int seconds)
         {
-            if (!IsRestarting)
-            {
-                return;
-            }
+            if (!IsRestarting) return;
 
-            if (endGameManager == null)
-            {
-                return;
-            }
+            if (endGameManager == null) return;
 
             EndGameNavigation navigation = endGameManager.Navigation;
-            if (navigation == null)
-            {
-                return;
-            }
+            if (navigation == null) return;
 
             if (seconds == Options.AutoPlayAgainCountdown.GetInt())
             {
                 CountdownText = new("CountdownText");
                 CountdownText.transform.position = new(0f, 2.5f, 10f);
-                TextMeshPro CountdownTextText = CountdownText.AddComponent<TextMeshPro>();
+                var CountdownTextText = CountdownText.AddComponent<TextMeshPro>();
                 CountdownTextText.text = string.Format(GetString("CountdownText"), seconds);
                 CountdownTextText.alignment = TextAlignmentOptions.Center;
                 CountdownTextText.fontSize = 3f;
             }
             else
             {
-                TextMeshPro CountdownTextText = CountdownText.GetComponent<TextMeshPro>();
+                var CountdownTextText = CountdownText.GetComponent<TextMeshPro>();
                 CountdownTextText.text = string.Format(GetString("CountdownText"), seconds);
             }
 
@@ -72,9 +60,7 @@ namespace EHR.Patches
                 CountdownText.transform.DestroyChildren();
             }
             else
-            {
                 LateTask.New(() => { BeginAutoPlayAgainCountdown(endGameManager, seconds - 1); }, 1f, log: false);
-            }
         }
     }
 }

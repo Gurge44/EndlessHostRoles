@@ -9,10 +9,7 @@ namespace EHR
         [HarmonyPrefix]
         private static bool FastNext([HarmonyArgument(0)] int maxInt, ref int __result)
         {
-            if (IRandom.Instance is HashRandomWrapper)
-            {
-                return true;
-            }
+            if (IRandom.Instance is HashRandomWrapper) return true;
 
             __result = IRandom.Instance.Next(maxInt);
 
@@ -23,10 +20,7 @@ namespace EHR
         [HarmonyPrefix]
         private static bool MaxNext([HarmonyArgument(0)] int maxInt, ref int __result)
         {
-            if (IRandom.Instance is HashRandomWrapper)
-            {
-                return true;
-            }
+            if (IRandom.Instance is HashRandomWrapper) return true;
 
             __result = IRandom.Instance.Next(maxInt);
 
@@ -37,10 +31,7 @@ namespace EHR
         [HarmonyPrefix]
         private static bool MinMaxNext([HarmonyArgument(0)] int minInt, [HarmonyArgument(1)] int maxInt, ref int __result)
         {
-            if (IRandom.Instance is HashRandomWrapper)
-            {
-                return true;
-            }
+            if (IRandom.Instance is HashRandomWrapper) return true;
 
             __result = IRandom.Instance.Next(minInt, maxInt);
 

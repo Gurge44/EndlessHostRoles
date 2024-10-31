@@ -45,10 +45,7 @@ namespace EHR
             {
                 try
                 {
-                    if (__instance == null)
-                    {
-                        return;
-                    }
+                    if (__instance == null) return;
 
                     TextMeshPro temp = __instance.PlayerCounter;
                     GameCountdown = Object.Instantiate(temp, AmongUsClient.Instance.AmHost ? __instance.StartButton.transform : __instance.HostInfoPanel.transform);
@@ -72,24 +69,19 @@ namespace EHR
                         __instance.HostViewButton.inactiveSprites.transform.Find("Shine").GetComponent<SpriteRenderer>().color = new(0f, 1f, 1f, 0.5f);
                     }
 
-                    if (AmongUsClient.Instance == null || AmongUsClient.Instance.IsGameStarted || GameStates.IsInGame || __instance.startState == GameStartManager.StartingStates.Starting)
-                    {
-                        return;
-                    }
+                    if (AmongUsClient.Instance == null || AmongUsClient.Instance.IsGameStarted || GameStates.IsInGame || __instance.startState == GameStartManager.StartingStates.Starting) return;
 
                     __instance.GameRoomNameCode.text = GameCode.IntToGameName(AmongUsClient.Instance.GameId);
                     // Reset lobby countdown timer
                     Timer = 600f;
 
                     HideName = Object.Instantiate(__instance.GameRoomNameCode, __instance.GameRoomNameCode.transform);
+
                     HideName.text = ColorUtility.TryParseHtmlString(Main.HideColor.Value, out _)
                         ? $"<color={Main.HideColor.Value}>{Main.HideName.Value}</color>"
                         : $"<color={Main.ModColor}>{Main.HideName.Value}</color>";
 
-                    if (!AmongUsClient.Instance.AmHost)
-                    {
-                        return;
-                    }
+                    if (!AmongUsClient.Instance.AmHost) return;
 
                     if (ModUpdater.IsBroken || (ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || !Main.AllowPublicRoom)
                     {
@@ -97,16 +89,10 @@ namespace EHR
                         // __instance.privatePublicText.color = Palette.DisabledClear;
                     }
 
-                    if (Main.NormalOptions.KillCooldown == 0f)
-                    {
-                        Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
-                    }
+                    if (Main.NormalOptions.KillCooldown == 0f) Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
 
                     AURoleOptions.SetOpt(Main.NormalOptions.Cast<IGameOptions>());
-                    if (AURoleOptions.ShapeshifterCooldown == 0f)
-                    {
-                        AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
-                    }
+                    if (AURoleOptions.ShapeshifterCooldown == 0f) AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
 
                     AURoleOptions.GuardianAngelCooldown = Spiritcaller.SpiritAbilityCooldown.GetFloat();
                     AURoleOptions.ProtectionDurationSeconds = 0f;
@@ -129,66 +115,45 @@ namespace EHR
             {
                 try
                 {
-                    if (AmongUsClient.Instance == null)
-                    {
-                        return false;
-                    }
+                    if (AmongUsClient.Instance == null) return false;
 
-                    if (AmongUsClient.Instance.AmHost)
-                    {
-                        VanillaUpdate(__instance);
-                    }
+                    if (AmongUsClient.Instance.AmHost) VanillaUpdate(__instance);
 
-                    if (AmongUsClient.Instance.IsGameStarted || GameStates.IsInGame || __instance == null || __instance.startState == GameStartManager.StartingStates.Starting)
-                    {
-                        return false;
-                    }
+                    if (AmongUsClient.Instance.IsGameStarted || GameStates.IsInGame || __instance == null || __instance.startState == GameStartManager.StartingStates.Starting) return false;
 
                     MinWait = Options.MinWaitAutoStart.GetFloat();
                     MaxWait = Options.MaxWaitAutoStart.GetFloat();
                     MinPlayer = Options.PlayerAutoStart.GetInt();
                     MinWait = 600f - (MinWait * 60f);
                     MaxWait *= 60f;
+
                     // Lobby code
                     if (DataManager.Settings != null && DataManager.Settings.Gameplay != null)
                     {
                         if (DataManager.Settings.Gameplay.StreamerMode)
                         {
-                            if (__instance != null && __instance.GameRoomNameCode != null)
-                            {
-                                __instance.GameRoomNameCode.color = new(255, 255, 255, 0);
-                            }
+                            if (__instance != null && __instance.GameRoomNameCode != null) __instance.GameRoomNameCode.color = new(255, 255, 255, 0);
 
-                            if (GameStartManagerStartPatch.HideName != null)
-                            {
-                                GameStartManagerStartPatch.HideName.enabled = true;
-                            }
+                            if (GameStartManagerStartPatch.HideName != null) GameStartManagerStartPatch.HideName.enabled = true;
                         }
                         else
                         {
-                            if (__instance != null && __instance.GameRoomNameCode != null)
-                            {
-                                __instance.GameRoomNameCode.color = new(255, 255, 255, 255);
-                            }
+                            if (__instance != null && __instance.GameRoomNameCode != null) __instance.GameRoomNameCode.color = new(255, 255, 255, 255);
 
-                            if (GameStartManagerStartPatch.HideName != null)
-                            {
-                                GameStartManagerStartPatch.HideName.enabled = false;
-                            }
+                            if (GameStartManagerStartPatch.HideName != null) GameStartManagerStartPatch.HideName.enabled = false;
                         }
                     }
 
-                    if (AmongUsClient.Instance == null || GameData.Instance == null || !AmongUsClient.Instance.AmHost || !GameData.Instance)
-                    {
-                        return true;
-                    }
+                    if (AmongUsClient.Instance == null || GameData.Instance == null || !AmongUsClient.Instance.AmHost || !GameData.Instance) return true;
 
                     if (Main.AutoStart != null && Main.AutoStart.Value)
                     {
                         Main.UpdateTime++;
+
                         if (Main.UpdateTime >= 50)
                         {
                             Main.UpdateTime = 0;
+
                             if (((GameData.Instance?.PlayerCount >= MinPlayer && Timer <= MinWait) || Timer <= MaxWait) && !GameStates.IsCountDown)
                             {
                                 PlayerControl[] invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).ToArray();
@@ -210,14 +175,11 @@ namespace EHR
                                     Main.NormalOptions.MapId = GameStartRandomMap.SelectRandomMap();
                                     CreateOptionsPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
                                 }
-                                else if (CreateOptionsPickerPatch.SetDleks)
-                                {
-                                    Main.NormalOptions.MapId = 3;
-                                }
+                                else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
 
                                 if (Main.CurrentMap == MapNames.Dleks)
                                 {
-                                    IGameOptions opt = Main.NormalOptions.Cast<IGameOptions>();
+                                    var opt = Main.NormalOptions.Cast<IGameOptions>();
 
                                     Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
                                     Main.LastKillCooldown.Value = Main.NormalOptions.KillCooldown;
@@ -239,9 +201,7 @@ namespace EHR
                         }
                     }
                 }
-                catch (NullReferenceException)
-                {
-                }
+                catch (NullReferenceException) { }
                 catch (Exception ex)
                 {
                     Logger.Error(ex.ToString(), "GameStartManagerUpdatePatch.Prefix (2)");
@@ -252,10 +212,7 @@ namespace EHR
 
             private static void VanillaUpdate(GameStartManager instance)
             {
-                if (!GameData.Instance || !GameManager.Instance || !AmongUsClient.Instance.AmHost)
-                {
-                    return;
-                }
+                if (!GameData.Instance || !GameManager.Instance || !AmongUsClient.Instance.AmHost) return;
 
                 try
                 {
@@ -270,54 +227,37 @@ namespace EHR
                 instance.CheckSettingsDiffs();
                 instance.StartButton.gameObject.SetActive(true);
                 instance.RulesPresetText.text = DestroyableSingleton<TranslationController>.Instance.GetString(GameOptionsManager.Instance.CurrentGameOptions.GetRulesPresetTitle());
+
                 if (GameCode.IntToGameName(AmongUsClient.Instance.GameId) == null)
-                {
                     instance.privatePublicPanelText.text = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.LocalButton);
-                }
                 else if (AmongUsClient.Instance.IsGamePublic)
-                {
                     instance.privatePublicPanelText.text = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.PublicHeader);
-                }
                 else
-                {
                     instance.privatePublicPanelText.text = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.PrivateHeader);
-                }
 
                 instance.HostPrivateButton.gameObject.SetActive(!AmongUsClient.Instance.IsGamePublic);
                 instance.HostPublicButton.gameObject.SetActive(AmongUsClient.Instance.IsGamePublic);
-                if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.C))
-                {
-                    ClipboardHelper.PutClipboardString(GameCode.IntToGameName(AmongUsClient.Instance.GameId));
-                }
+                if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.C)) ClipboardHelper.PutClipboardString(GameCode.IntToGameName(AmongUsClient.Instance.GameId));
 
                 if (GameData.Instance.PlayerCount != instance.LastPlayerCount)
                 {
                     instance.LastPlayerCount = GameData.Instance.PlayerCount;
-                    string text = "<color=#FF0000FF>";
-                    if (instance.LastPlayerCount > instance.MinPlayers)
-                    {
-                        text = "<color=#00FF00FF>";
-                    }
+                    var text = "<color=#FF0000FF>";
+                    if (instance.LastPlayerCount > instance.MinPlayers) text = "<color=#00FF00FF>";
 
-                    if (instance.LastPlayerCount == instance.MinPlayers)
-                    {
-                        text = "<color=#FFFF00FF>";
-                    }
+                    if (instance.LastPlayerCount == instance.MinPlayers) text = "<color=#FFFF00FF>";
 
                     instance.PlayerCounter.text = $"{text}{instance.LastPlayerCount}/{(AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame ? 15 : GameManager.Instance.LogicOptions.MaxPlayers)}";
                     instance.StartButton.SetButtonEnableState(instance.LastPlayerCount >= instance.MinPlayers);
                     ActionMapGlyphDisplay startButtonGlyph = instance.StartButtonGlyph;
                     startButtonGlyph?.SetColor(instance.LastPlayerCount >= instance.MinPlayers ? Palette.EnabledColor : Palette.DisabledClear);
+
                     if (DestroyableSingleton<DiscordManager>.InstanceExists)
                     {
                         if (AmongUsClient.Instance.AmHost && AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame)
-                        {
                             DestroyableSingleton<DiscordManager>.Instance.SetInLobbyHost(instance.LastPlayerCount, GameManager.Instance.LogicOptions.MaxPlayers, AmongUsClient.Instance.GameId);
-                        }
                         else
-                        {
                             DestroyableSingleton<DiscordManager>.Instance.SetInLobbyClient(instance.LastPlayerCount, GameManager.Instance.LogicOptions.MaxPlayers, AmongUsClient.Instance.GameId);
-                        }
                     }
                 }
 
@@ -334,22 +274,13 @@ namespace EHR
                         int num = Mathf.CeilToInt(instance.countDownTimer);
                         instance.countDownTimer -= Time.deltaTime;
                         int num2 = Mathf.CeilToInt(instance.countDownTimer);
-                        if (!instance.GameStartTextParent.activeSelf)
-                        {
-                            SoundManager.Instance.PlaySound(instance.gameStartSound, false);
-                        }
+                        if (!instance.GameStartTextParent.activeSelf) SoundManager.Instance.PlaySound(instance.gameStartSound, false);
 
                         instance.GameStartTextParent.SetActive(true);
                         instance.GameStartText.text = DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.GameStarting, num2);
-                        if (num != num2)
-                        {
-                            PlayerControl.LocalPlayer.RpcSetStartCounter(num2);
-                        }
+                        if (num != num2) PlayerControl.LocalPlayer.RpcSetStartCounter(num2);
 
-                        if (num2 <= 0)
-                        {
-                            instance.FinallyBegin();
-                        }
+                        if (num2 <= 0) instance.FinallyBegin();
                     }
                     else
                     {
@@ -363,10 +294,7 @@ namespace EHR
                     }
                 }
 
-                if (instance.LobbyInfoPane.gameObject.activeSelf && DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening)
-                {
-                    instance.LobbyInfoPane.DeactivatePane();
-                }
+                if (instance.LobbyInfoPane.gameObject.activeSelf && DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening) instance.LobbyInfoPane.DeactivatePane();
 
                 instance.LobbyInfoPane.gameObject.SetActive(!DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening);
             }
@@ -375,47 +303,32 @@ namespace EHR
             {
                 try
                 {
-                    if (AmongUsClient.Instance == null || AmongUsClient.Instance.IsGameStarted || GameStates.IsInGame || __instance == null || __instance.startState == GameStartManager.StartingStates.Starting)
-                    {
-                        return;
-                    }
+                    if (AmongUsClient.Instance == null || AmongUsClient.Instance.IsGameStarted || GameStates.IsInGame || __instance == null || __instance.startState == GameStartManager.StartingStates.Starting) return;
 
                     if (AmongUsClient.Instance.AmHost)
                     {
-                        bool canStartGame = true;
+                        var canStartGame = true;
+
                         foreach (ClientData client in AmongUsClient.Instance.allClients)
                         {
-                            if (client.Character == null)
-                            {
-                                continue;
-                            }
+                            if (client.Character == null) continue;
 
-                            DummyBehaviour dummyComponent = client.Character.GetComponent<DummyBehaviour>();
-                            if (dummyComponent != null && dummyComponent.enabled)
-                            {
-                                continue;
-                            }
+                            var dummyComponent = client.Character.GetComponent<DummyBehaviour>();
+                            if (dummyComponent != null && dummyComponent.enabled) continue;
 
-                            if (!MatchVersions(client.Character.PlayerId, true))
-                            {
-                                canStartGame = false;
-                            }
+                            if (!MatchVersions(client.Character.PlayerId, true)) canStartGame = false;
                         }
 
-                        if (!canStartGame)
-                        {
-                            __instance.StartButton.gameObject.SetActive(false);
-                        }
+                        if (!canStartGame) __instance.StartButton.gameObject.SetActive(false);
                     }
                     else
                     {
                         if (MatchVersions(0, true))
-                        {
                             ExitTimer = 0;
-                        }
                         else
                         {
                             ExitTimer += Time.deltaTime;
+
                             if (ExitTimer >= 5)
                             {
                                 ExitTimer = 0;
@@ -428,19 +341,13 @@ namespace EHR
                     __instance.RulesPresetText.text = GetString($"Preset_{OptionItem.CurrentPreset + 1}");
 
                     // Lobby timer
-                    if (!GameData.Instance || AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame)
-                    {
-                        return;
-                    }
+                    if (!GameData.Instance || AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame) return;
 
                     Timer = Mathf.Max(0f, Timer -= Time.deltaTime);
                     int minutes = (int)Timer / 60;
                     int seconds = (int)Timer % 60;
-                    string suffix = $"{minutes:00}:{seconds:00}";
-                    if (Timer <= 60)
-                    {
-                        suffix = Utils.ColorString((int)Timer % 2 == 0 ? Color.yellow : Color.red, suffix);
-                    }
+                    var suffix = $"{minutes:00}:{seconds:00}";
+                    if (Timer <= 60) suffix = Utils.ColorString((int)Timer % 2 == 0 ? Color.yellow : Color.red, suffix);
 
                     TextMeshPro tmp = GameStartManagerStartPatch.GameCountdown;
 
@@ -459,9 +366,7 @@ namespace EHR
 
                     tmp.text = suffix;
                 }
-                catch (NullReferenceException)
-                {
-                }
+                catch (NullReferenceException) { }
                 catch (Exception e)
                 {
                     Logger.Error(e.ToString(), "GameStartManagerUpdatePatch.Postfix (3)");
@@ -470,10 +375,7 @@ namespace EHR
 
             private static bool MatchVersions(byte playerId, bool acceptVanilla = false)
             {
-                if (!Main.PlayerVersion.TryGetValue(playerId, out PlayerVersion version))
-                {
-                    return acceptVanilla;
-                }
+                if (!Main.PlayerVersion.TryGetValue(playerId, out PlayerVersion version)) return acceptVanilla;
 
                 return Main.ForkId == version.forkId
                        && Main.Version.CompareTo(version.version) == 0
@@ -486,10 +388,7 @@ namespace EHR
         {
             private static void Postfix(TextBoxTMP __instance)
             {
-                if (__instance.name == "GameIdText")
-                {
-                    __instance.outputText.text = new('*', __instance.text.Length);
-                }
+                if (__instance.name == "GameIdText") __instance.outputText.text = new('*', __instance.text.Length);
             }
         }
     }
@@ -500,6 +399,7 @@ namespace EHR
         public static bool Prefix(GameStartManager __instance)
         {
             PlayerControl[] invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).ToArray();
+
             if (invalidColor.Length > 0)
             {
                 Logger.SendInGame(GetString("Error.InvalidColorPreventStart"));
@@ -510,9 +410,7 @@ namespace EHR
             }
 
             if (__instance.startState == GameStartManager.StartingStates.Countdown)
-            {
                 Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
-            }
             else
             {
                 Options.DefaultKillCooldown = Main.NormalOptions.KillCooldown;
@@ -520,13 +418,11 @@ namespace EHR
                 Main.NormalOptions.KillCooldown = 0f;
             }
 
-            IGameOptions opt = Main.NormalOptions.Cast<IGameOptions>();
+            var opt = Main.NormalOptions.Cast<IGameOptions>();
             AURoleOptions.SetOpt(opt);
 
             if (__instance.startState == GameStartManager.StartingStates.Countdown)
-            {
                 AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
-            }
             else
             {
                 Main.LastShapeshifterCooldown.Value = AURoleOptions.ShapeshifterCooldown;
@@ -546,48 +442,27 @@ namespace EHR
                 Main.NormalOptions.MapId = SelectRandomMap();
                 CreateOptionsPickerPatch.SetDleks = Main.CurrentMap == MapNames.Dleks;
             }
-            else if (CreateOptionsPickerPatch.SetDleks)
-            {
-                Main.NormalOptions.MapId = 3;
-            }
+            else if (CreateOptionsPickerPatch.SetDleks) Main.NormalOptions.MapId = 3;
         }
 
         public static byte SelectRandomMap()
         {
-            IRandom rand = IRandom.Instance;
+            var rand = IRandom.Instance;
             List<byte> randomMaps = [];
 
             int tempRand = rand.Next(1, 100);
 
-            if (tempRand <= Options.SkeldChance.GetInt())
-            {
-                randomMaps.Add(0);
-            }
+            if (tempRand <= Options.SkeldChance.GetInt()) randomMaps.Add(0);
 
-            if (tempRand <= Options.MiraChance.GetInt())
-            {
-                randomMaps.Add(1);
-            }
+            if (tempRand <= Options.MiraChance.GetInt()) randomMaps.Add(1);
 
-            if (tempRand <= Options.PolusChance.GetInt())
-            {
-                randomMaps.Add(2);
-            }
+            if (tempRand <= Options.PolusChance.GetInt()) randomMaps.Add(2);
 
-            if (tempRand <= Options.DleksChance.GetInt())
-            {
-                randomMaps.Add(3);
-            }
+            if (tempRand <= Options.DleksChance.GetInt()) randomMaps.Add(3);
 
-            if (tempRand <= Options.AirshipChance.GetInt())
-            {
-                randomMaps.Add(4);
-            }
+            if (tempRand <= Options.AirshipChance.GetInt()) randomMaps.Add(4);
 
-            if (tempRand <= Options.FungleChance.GetInt())
-            {
-                randomMaps.Add(5);
-            }
+            if (tempRand <= Options.FungleChance.GetInt()) randomMaps.Add(5);
 
             if (randomMaps.Count > 0)
             {
@@ -598,35 +473,17 @@ namespace EHR
             }
             else
             {
-                if (Options.SkeldChance.GetInt() > 0)
-                {
-                    randomMaps.Add(0);
-                }
+                if (Options.SkeldChance.GetInt() > 0) randomMaps.Add(0);
 
-                if (Options.MiraChance.GetInt() > 0)
-                {
-                    randomMaps.Add(1);
-                }
+                if (Options.MiraChance.GetInt() > 0) randomMaps.Add(1);
 
-                if (Options.PolusChance.GetInt() > 0)
-                {
-                    randomMaps.Add(2);
-                }
+                if (Options.PolusChance.GetInt() > 0) randomMaps.Add(2);
 
-                if (Options.DleksChance.GetInt() > 0)
-                {
-                    randomMaps.Add(3);
-                }
+                if (Options.DleksChance.GetInt() > 0) randomMaps.Add(3);
 
-                if (Options.AirshipChance.GetInt() > 0)
-                {
-                    randomMaps.Add(4);
-                }
+                if (Options.AirshipChance.GetInt() > 0) randomMaps.Add(4);
 
-                if (Options.FungleChance.GetInt() > 0)
-                {
-                    randomMaps.Add(5);
-                }
+                if (Options.FungleChance.GetInt() > 0) randomMaps.Add(5);
 
                 byte mapsId = randomMaps.RandomElement();
 
@@ -668,10 +525,7 @@ namespace EHR
         {
             public static bool Prefix(GameStartManager __instance)
             {
-                if (!AmongUsClient.Instance.AmHost)
-                {
-                    return true;
-                }
+                if (!AmongUsClient.Instance.AmHost) return true;
 
                 if (__instance.startState == GameStartManager.StartingStates.Countdown)
                 {

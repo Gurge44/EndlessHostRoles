@@ -20,9 +20,11 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Beacon);
+
             VisionIncrease = new FloatOptionItem(Id + 2, "BeaconVisionIncrease", new(0.05f, 1.25f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Beacon])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             Radius = new FloatOptionItem(Id + 3, "PerceiverRadius", new(0.1f, 5f, 0.1f), 1.5f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Beacon])
                 .SetValueFormat(OptionFormat.Multiplier);
@@ -49,16 +51,10 @@ namespace EHR.Crewmate
 
         public override void OnCheckPlayerPosition(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || pc == null)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask || pc == null) return;
 
             long now = Utils.TimeStamp;
-            if (LastChange.TryGetValue(pc.PlayerId, out long ts) && ts == now)
-            {
-                return;
-            }
+            if (LastChange.TryGetValue(pc.PlayerId, out long ts) && ts == now) return;
 
             Vector2 pos = pc.Pos();
             float radius = Radius.GetFloat();
@@ -70,10 +66,7 @@ namespace EHR.Crewmate
                 case true when !beaconNearby:
                 {
                     AffectedPlayers.Remove(pc.PlayerId);
-                    if (Utils.IsActive(SystemTypes.Electrical))
-                    {
-                        pc.MarkDirtySettings();
-                    }
+                    if (Utils.IsActive(SystemTypes.Electrical)) pc.MarkDirtySettings();
 
                     LastChange[pc.PlayerId] = now;
                     break;
@@ -81,10 +74,7 @@ namespace EHR.Crewmate
                 case false when beaconNearby:
                 {
                     AffectedPlayers.Add(pc.PlayerId);
-                    if (Utils.IsActive(SystemTypes.Electrical))
-                    {
-                        pc.MarkDirtySettings();
-                    }
+                    if (Utils.IsActive(SystemTypes.Electrical)) pc.MarkDirtySettings();
 
                     LastChange[pc.PlayerId] = now;
                     break;

@@ -23,20 +23,26 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Oracle);
+
             CheckLimitOpt = new IntegerOptionItem(Id + 10, "OracleSkillLimit", new(0, 10, 1), 0, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Oracle])
                 .SetValueFormat(OptionFormat.Times);
+
             HideVote = new BooleanOptionItem(Id + 12, "OracleHideVote", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Oracle]);
+
             FailChance = new IntegerOptionItem(Id + 13, "FailChance", new(0, 100, 5), 20, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Oracle])
                 .SetValueFormat(OptionFormat.Percent);
+
             OracleAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 14, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Oracle])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 15, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Oracle])
                 .SetValueFormat(OptionFormat.Times);
+
             CancelVote = CreateVoteCancellingUseSetting(Id + 11, CustomRoles.Oracle, TabGroup.CrewmateRoles);
         }
 
@@ -53,15 +59,9 @@ namespace EHR.Crewmate
 
         public override bool OnVote(PlayerControl player, PlayerControl target)
         {
-            if (player == null || target == null)
-            {
-                return false;
-            }
+            if (player == null || target == null) return false;
 
-            if (DidVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId))
-            {
-                return false;
-            }
+            if (DidVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
 
             DidVote.Add(player.PlayerId);
 
@@ -82,24 +82,20 @@ namespace EHR.Crewmate
             string text;
 
             if (target.GetCustomRole().IsImpostor())
-            {
                 text = "Imp";
-            }
             else if (target.GetCustomRole().IsNeutral())
-            {
                 text = "Neut";
-            }
             else
-            {
                 text = "Crew";
-            }
 
             if (FailChance.GetInt() > 0)
             {
                 int random_number_1 = IRandom.Instance.Next(1, 101);
+
                 if (random_number_1 <= FailChance.GetInt())
                 {
                     int random_number_2 = IRandom.Instance.Next(1, 3);
+
                     text = text switch
                     {
                         "Crew" => random_number_2 switch

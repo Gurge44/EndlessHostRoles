@@ -24,10 +24,7 @@ namespace EHR.Neutral
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (!CanVent.GetBool())
-            {
-                return;
-            }
+            if (!CanVent.GetBool()) return;
 
             AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = MaxInVentTime.GetFloat();
@@ -41,16 +38,21 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(10100, TabGroup.NeutralRoles, CustomRoles.Opportunist);
+
             OppoImmuneToAttacksWhenTasksDone = new BooleanOptionItem(10110, "ImmuneToAttacksWhenTasksDone", false, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Opportunist]);
+
             CanVent = new BooleanOptionItem(10111, "CanVent", false, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Opportunist]);
+
             VentCooldown = new FloatOptionItem(10112, "VentCooldown", new(0f, 120f, 0.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(CanVent)
                 .SetValueFormat(OptionFormat.Seconds);
+
             MaxInVentTime = new FloatOptionItem(10113, "MaxInVentTime", new(0f, 120f, 0.5f), 15f, TabGroup.NeutralRoles)
                 .SetParent(CanVent)
                 .SetValueFormat(OptionFormat.Seconds);
+
             Options.OverrideTasksData.Create(10114, TabGroup.NeutralRoles, CustomRoles.Opportunist);
         }
     }

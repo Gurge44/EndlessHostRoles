@@ -34,11 +34,15 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Werewolf);
+
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf])
                 .SetValueFormat(OptionFormat.Seconds);
+
             HasImpostorVision = new BooleanOptionItem(Id + 11, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf]);
+
             RampageCD = new FloatOptionItem(Id + 12, "WWRampageCD", new(0f, 180f, 0.5f), 35f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf])
                 .SetValueFormat(OptionFormat.Seconds);
+
             RampageDur = new FloatOptionItem(Id + 13, "WWRampageDur", new(0f, 180f, 1f), 12f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Werewolf])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -63,10 +67,7 @@ namespace EHR.Neutral
 
             LateTask.New(() =>
             {
-                if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
-                {
-                    Utils.GetPlayerById(playerId).RpcResetAbilityCooldown();
-                }
+                if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool()) Utils.GetPlayerById(playerId).RpcResetAbilityCooldown();
             }, 9f, log: false);
         }
 
@@ -88,15 +89,9 @@ namespace EHR.Neutral
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             opt.SetVision(HasImpostorVision.GetBool());
-            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
-            {
-                AURoleOptions.PhantomCooldown = 1f;
-            }
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = 1f;
 
-            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
-            {
-                AURoleOptions.ShapeshifterCooldown = RampageDur.GetFloat() + 0.5f;
-            }
+            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool()) AURoleOptions.ShapeshifterCooldown = RampageDur.GetFloat() + 0.5f;
 
             AURoleOptions.EngineerCooldown = 0f;
             AURoleOptions.EngineerInVentMaxTime = 0f;
@@ -104,10 +99,7 @@ namespace EHR.Neutral
 
         private void SendRPC()
         {
-            if (!IsEnable || !Utils.DoRPC)
-            {
-                return;
-            }
+            if (!IsEnable || !Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWwTimer, SendOption.Reliable);
             writer.Write(WWId);
@@ -131,10 +123,7 @@ namespace EHR.Neutral
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!GameStates.IsInTask || !IsEnable || Main.HasJustStarted || player == null)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask || !IsEnable || Main.HasJustStarted || player == null) return;
 
             long now = Utils.TimeStamp;
 
@@ -143,10 +132,7 @@ namespace EHR.Neutral
                 if (!player.IsModClient())
                 {
                     long cooldown = lastTime + (long)RampageCD.GetFloat() - now;
-                    if ((int)cooldown != CD)
-                    {
-                        player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f, true);
-                    }
+                    if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f, true);
 
                     CD = (int)cooldown;
                 }
@@ -155,10 +141,7 @@ namespace EHR.Neutral
                 {
                     lastTime = -10;
                     bool unshift = UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool();
-                    if (!player.IsModClient())
-                    {
-                        player.Notify(GetString(unshift ? "WWCanRampageUnshift" : "WWCanRampage"));
-                    }
+                    if (!player.IsModClient()) player.Notify(GetString(unshift ? "WWCanRampageUnshift" : "WWCanRampage"));
 
                     player.RpcChangeRoleBasis(unshift ? CustomRoles.Werewolf : CustomRoles.EngineerEHR);
                     SendRPC();
@@ -169,8 +152,9 @@ namespace EHR.Neutral
             if (LastFixedTime != now && RampageTime != -10)
             {
                 LastFixedTime = now;
-                bool refresh = false;
+                var refresh = false;
                 long remainTime = RampageTime + (long)RampageDur.GetFloat() - now;
+
                 switch (remainTime)
                 {
                     case < 0:
@@ -186,19 +170,13 @@ namespace EHR.Neutral
                         break;
                 }
 
-                if (refresh)
-                {
-                    SendRPC();
-                }
+                if (refresh) SendRPC();
             }
         }
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
-            if (pc == null)
-            {
-                return;
-            }
+            if (pc == null) return;
 
             Rampage(pc);
         }
@@ -216,10 +194,7 @@ namespace EHR.Neutral
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting && !UseUnshiftTrigger.GetBool())
-            {
-                return true;
-            }
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
 
             Rampage(shapeshifter);
             return false;
@@ -227,10 +202,7 @@ namespace EHR.Neutral
 
         private void Rampage(PlayerControl pc)
         {
-            if (!AmongUsClient.Instance.AmHost || IsRampaging)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost || IsRampaging) return;
 
             LateTask.New(() =>
             {
@@ -246,12 +218,10 @@ namespace EHR.Neutral
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!hud || seer == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || Main.PlayerStates[seer.PlayerId].Role is not Werewolf { IsEnable: true } ww)
-            {
-                return string.Empty;
-            }
+            if (!hud || seer == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive() || Main.PlayerStates[seer.PlayerId].Role is not Werewolf { IsEnable: true } ww) return string.Empty;
 
-            StringBuilder str = new StringBuilder();
+            var str = new StringBuilder();
+
             if (ww.IsRampaging)
             {
                 long remainTime = ww.RampageTime + (long)RampageDur.GetFloat() - Utils.TimeStamp;
@@ -263,9 +233,7 @@ namespace EHR.Neutral
                 str.Append(string.Format(GetString("WWCD"), cooldown + 1));
             }
             else
-            {
                 str.Append(GetString(UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool() ? "WWCanRampageUnshift" : "WWCanRampage"));
-            }
 
             return str.ToString();
         }

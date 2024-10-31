@@ -32,23 +32,31 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Succubus);
+
             CharmCooldown = new FloatOptionItem(Id + 10, "SuccubusCharmCooldown", new(0f, 60f, 0.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CharmCooldownIncrese = new FloatOptionItem(Id + 11, "SuccubusCharmCooldownIncrese", new(0f, 180f, 0.5f), 10f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CharmMax = new IntegerOptionItem(Id + 12, "SuccubusCharmMax", new(1, 15, 1), 15, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus])
                 .SetValueFormat(OptionFormat.Times);
+
             KnowTargetRole = new BooleanOptionItem(Id + 13, "SuccubusKnowTargetRole", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus]);
+
             TargetKnowOtherTarget = new BooleanOptionItem(Id + 14, "SuccubusTargetKnowOtherTarget", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus]);
+
             CharmedCountMode = new StringOptionItem(Id + 15, "CharmedCountMode", CharmedCountModeStrings, 0, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus]);
+
             CanCharmNeutral = new BooleanOptionItem(Id + 16, "SuccubusCanCharmNeutral", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus]);
+
             CharmedDiesOnSuccubusDeath = new BooleanOptionItem(Id + 17, "CharmedDiesOnSuccubusDeath", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Succubus]);
         }
@@ -86,10 +94,7 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer.GetAbilityUseLimit() < 1)
-            {
-                return false;
-            }
+            if (killer.GetAbilityUseLimit() < 1) return false;
 
             if (CanBeCharmed(target))
             {
@@ -119,20 +124,11 @@ namespace EHR.Neutral
 
         public override bool KnowRole(PlayerControl player, PlayerControl target)
         {
-            if (base.KnowRole(player, target))
-            {
-                return true;
-            }
+            if (base.KnowRole(player, target)) return true;
 
-            if (player.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Succubus))
-            {
-                return true;
-            }
+            if (player.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Succubus)) return true;
 
-            if (KnowTargetRole.GetBool() && player.Is(CustomRoles.Succubus) && target.Is(CustomRoles.Charmed))
-            {
-                return true;
-            }
+            if (KnowTargetRole.GetBool() && player.Is(CustomRoles.Succubus) && target.Is(CustomRoles.Charmed)) return true;
 
             return TargetKnowOtherTarget.GetBool() && player.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Charmed);
         }
@@ -145,20 +141,11 @@ namespace EHR.Neutral
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!CharmedDiesOnSuccubusDeath.GetBool() || !GameStates.IsInTask || !IsEnable)
-            {
-                return;
-            }
+            if (!CharmedDiesOnSuccubusDeath.GetBool() || !GameStates.IsInTask || !IsEnable) return;
 
-            if (pc == null || pc.IsAlive())
-            {
-                return;
-            }
+            if (pc == null || pc.IsAlive()) return;
 
-            foreach (PlayerControl charmed in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Charmed)))
-            {
-                charmed.Suicide(realKiller: pc);
-            }
+            foreach (PlayerControl charmed in Main.AllAlivePlayerControls.Where(x => x.Is(CustomRoles.Charmed))) charmed.Suicide(realKiller: pc);
         }
 
         public override void SetButtonTexts(HudManager hud, byte id)

@@ -22,21 +22,21 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Shifter);
+
             KillCooldown = new FloatOptionItem(Id + 2, "AbilityCooldown", new(0f, 180f, 0.5f), 15f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
+
             HasImpostorVision = new BooleanOptionItem(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Shifter]);
         }
 
         public override void Init()
         {
-            if (GameStates.InGame && !Main.HasJustStarted)
-            {
-                return;
-            }
+            if (GameStates.InGame && !Main.HasJustStarted) return;
 
             On = false;
 
@@ -48,10 +48,7 @@ namespace EHR.Neutral
             On = true;
 
             PlayerControl pc = playerId.GetPlayer();
-            if (pc == null)
-            {
-                return;
-            }
+            if (pc == null) return;
 
             pc.AddAbilityCD();
             pc.ResetKillCooldown();
@@ -81,12 +78,10 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!base.OnCheckMurder(killer, target))
-            {
-                return false;
-            }
+            if (!base.OnCheckMurder(killer, target)) return false;
 
             CustomRoles targetRole = target.GetCustomRole();
+
             switch (targetRole)
             {
                 case CustomRoles.Enigma:
@@ -112,10 +107,7 @@ namespace EHR.Neutral
             killer.SetAbilityUseLimit(target.GetAbilityUseLimit());
 
             TaskState taskState = target.GetTaskState();
-            if (taskState.HasTasks)
-            {
-                Main.PlayerStates[killer.PlayerId].TaskState = taskState;
-            }
+            if (taskState.HasTasks) Main.PlayerStates[killer.PlayerId].TaskState = taskState;
 
             killer.RemoveAbilityCD();
             killer.SyncSettings();

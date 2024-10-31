@@ -47,7 +47,7 @@ namespace EHR
             // When creating new news, you can not delete old news
             {
                 // EHR v2.4.3
-                ModNews news = new ModNews
+                var news = new ModNews
                 {
                     Number = 100001,
                     Title = "TownOfHostEdited v2.5.0",
@@ -62,12 +62,13 @@ namespace EHR
 
                     Date = "2023-7-14T00:00:00Z"
                 };
+
                 AllModNews.Add(news);
             }
 
             {
                 // EHR v2.4.2
-                ModNews news = new ModNews
+                var news = new ModNews
                 {
                     Number = 100000,
                     Title = "TownOfHostEdited v2.4.2",
@@ -86,6 +87,7 @@ namespace EHR
 
                     Date = "2023-7-5T00:00:00Z"
                 };
+
                 AllModNews.Add(news);
             }
         }
@@ -102,21 +104,15 @@ namespace EHR
 
             List<Announcement> FinalAllNews = [];
             AllModNews.Do(n => FinalAllNews.Add(n.ToAnnouncement()));
+
             foreach (Announcement news in aRange.ToArray())
-            {
                 if (!AllModNews.Any(x => x.Number == news.Number))
-                {
                     FinalAllNews.Add(news);
-                }
-            }
 
             FinalAllNews.Sort((a1, a2) => { return DateTime.Compare(DateTime.Parse(a2.Date), DateTime.Parse(a1.Date)); });
 
             aRange = new(FinalAllNews.Count);
-            for (int i = 0; i < FinalAllNews.Count; i++)
-            {
-                aRange[i] = FinalAllNews[i];
-            }
+            for (var i = 0; i < FinalAllNews.Count; i++) aRange[i] = FinalAllNews[i];
 
             return true;
         }

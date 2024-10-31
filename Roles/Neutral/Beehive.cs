@@ -26,23 +26,30 @@ namespace EHR.Neutral
 
         public override void SetupCustomOption()
         {
-            int id = 647350;
+            var id = 647350;
             Options.SetupRoleOptions(id++, TabGroup.NeutralRoles, CustomRoles.Beehive);
+
             Distance = new FloatOptionItem(++id, "Beehive.Distance", new(0f, 20f, 0.5f), 15f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Beehive]);
+
             Time = new FloatOptionItem(++id, "Beehive.Time", new(0f, 30f, 0.5f), 10f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Beehive])
                 .SetValueFormat(OptionFormat.Seconds);
+
             StingCooldown = new FloatOptionItem(++id, "Beehive.StingCooldown", new(0f, 180f, 0.5f), 5f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Beehive])
                 .SetValueFormat(OptionFormat.Seconds);
+
             StungPlayersDieOnMeeting = new BooleanOptionItem(++id, "Beehive.StungPlayersDieOnMeeting", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Beehive]);
+
             KillCooldown = new FloatOptionItem(++id, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Beehive])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(++id, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Beehive]);
+
             HasImpostorVision = new BooleanOptionItem(++id, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Beehive]);
         }
@@ -76,10 +83,7 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!base.OnCheckMurder(killer, target))
-            {
-                return false;
-            }
+            if (!base.OnCheckMurder(killer, target)) return false;
 
             return killer.CheckDoubleTrigger(target, () =>
             {
@@ -94,10 +98,7 @@ namespace EHR.Neutral
 
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
         {
-            if (lowLoad || !pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance)
-            {
-                return;
-            }
+            if (lowLoad || !pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance) return;
 
             if (StungPlayers.TryGetValue(pc.PlayerId, out (long TimeStamp, Vector2 InitialPosition) sp))
             {
@@ -105,10 +106,7 @@ namespace EHR.Neutral
                 {
                     StungPlayers.Remove(pc.PlayerId);
                     Utils.SendRPC(CustomRPC.SyncRoleData, BeehiveId, 2, pc.PlayerId);
-                    if (Vector2.Distance(pc.Pos(), sp.InitialPosition) < Distance.GetFloat())
-                    {
-                        pc.Suicide(realKiller: Utils.GetPlayerById(BeehiveId));
-                    }
+                    if (Vector2.Distance(pc.Pos(), sp.InitialPosition) < Distance.GetFloat()) pc.Suicide(realKiller: Utils.GetPlayerById(BeehiveId));
                 }
 
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -142,10 +140,7 @@ namespace EHR.Neutral
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || meeting || hud || !StungPlayers.TryGetValue(seer.PlayerId, out (long TimeStamp, Vector2 InitialPosition) sp))
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != target.PlayerId || meeting || hud || !StungPlayers.TryGetValue(seer.PlayerId, out (long TimeStamp, Vector2 InitialPosition) sp)) return string.Empty;
 
             double walked = Math.Round(Vector2.Distance(seer.Pos(), sp.InitialPosition), 1);
             double distance = Math.Round(Distance.GetFloat(), 1);

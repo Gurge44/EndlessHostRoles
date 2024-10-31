@@ -26,17 +26,22 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.CameraMan);
+
             VentCooldown = new FloatOptionItem(Id + 10, "VentCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan])
                 .SetValueFormat(OptionFormat.Seconds);
+
             UseLimitOpt = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan])
                 .SetValueFormat(OptionFormat.Times);
+
             TPBackWhenMoveAway = new BooleanOptionItem(Id + 14, "TPBackWhenMoveAway", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan]);
+
             CameraManAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.CameraMan])
                 .SetValueFormat(OptionFormat.Times);
@@ -45,6 +50,7 @@ namespace EHR.Crewmate
         public override void Init()
         {
             PlayerIdList = [];
+
             CameraPosition = Main.CurrentMap switch
             {
                 MapNames.Skeld => new(-13.5f, -5.5f),
@@ -72,10 +78,7 @@ namespace EHR.Crewmate
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
-            if (pc == null)
-            {
-                return;
-            }
+            if (pc == null) return;
 
             if (pc.GetAbilityUseLimit() >= 1)
             {
@@ -84,47 +87,31 @@ namespace EHR.Crewmate
                 LateTask.New(() =>
                 {
                     BasePos = pc.Pos();
-                    if (pc.TP(CameraPosition))
-                    {
-                        IsTeleported = true;
-                    }
+                    if (pc.TP(CameraPosition)) IsTeleported = true;
                 }, 2f, "CameraMan Teleport");
             }
             else
-            {
                 pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
-            }
         }
 
         public override void OnPet(PlayerControl pc)
         {
-            if (pc == null)
-            {
-                return;
-            }
+            if (pc == null) return;
 
             if (pc.GetAbilityUseLimit() >= 1)
             {
                 pc.RpcRemoveAbilityUse();
 
                 BasePos = pc.Pos();
-                if (pc.TP(CameraPosition))
-                {
-                    IsTeleported = true;
-                }
+                if (pc.TP(CameraPosition)) IsTeleported = true;
             }
             else
-            {
                 pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
-            }
         }
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!IsTeleported || !TPBackWhenMoveAway.GetBool() || !pc.IsAlive() || !GameStates.IsInTask || Vector2.Distance(pc.Pos(), CameraPosition) <= DisableDevice.UsableDistance)
-            {
-                return;
-            }
+            if (!IsTeleported || !TPBackWhenMoveAway.GetBool() || !pc.IsAlive() || !GameStates.IsInTask || Vector2.Distance(pc.Pos(), CameraPosition) <= DisableDevice.UsableDistance) return;
 
             IsTeleported = false;
             LateTask.New(() => pc.TP(BasePos), 2f, "CameraMan Teleport Back");

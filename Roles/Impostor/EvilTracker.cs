@@ -45,10 +45,13 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.EvilTracker);
+
             OptionCanSeeKillFlash = new BooleanOptionItem(Id + 10, "EvilTrackerCanSeeKillFlash", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.EvilTracker]);
+
             OptionTargetMode = new StringOptionItem(Id + 11, "EvilTrackerTargetMode", TargetModeText, 2, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.EvilTracker]);
+
             OptionCanSeeLastRoomInMeeting = new BooleanOptionItem(Id + 12, "EvilTrackerCanSeeLastRoomInMeeting", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.EvilTracker]);
         }
@@ -75,19 +78,13 @@ namespace EHR.Impostor
 
             LateTask.New(() =>
             {
-                foreach (byte id in ImpostorsId)
-                {
-                    TargetArrow.Add(playerId, id);
-                }
+                foreach (byte id in ImpostorsId) TargetArrow.Add(playerId, id);
             }, 3f, "Add Evil Tracker Arrows");
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (RoleTypes != RoleTypes.Shapeshifter)
-            {
-                return;
-            }
+            if (RoleTypes != RoleTypes.Shapeshifter) return;
 
             AURoleOptions.ShapeshifterCooldown = CanTarget(playerId) ? 1f : 255f;
             AURoleOptions.ShapeshifterDuration = 1f;
@@ -114,10 +111,7 @@ namespace EHR.Impostor
 
         public static bool KillFlashCheck(PlayerControl killer, PlayerControl target)
         {
-            if (!CanSeeKillFlash)
-            {
-                return false;
-            }
+            if (!CanSeeKillFlash) return false;
 
             PlayerControl realKiller = target.GetRealKiller() ?? killer;
             return realKiller.Is(CustomRoleTypes.Impostor) && realKiller != target;
@@ -125,15 +119,9 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!CanTarget(shapeshifter.PlayerId) || !shapeshifting)
-            {
-                return false;
-            }
+            if (!CanTarget(shapeshifter.PlayerId) || !shapeshifting) return false;
 
-            if (target == null || target.Is(CustomRoleTypes.Impostor))
-            {
-                return false;
-            }
+            if (target == null || target.Is(CustomRoleTypes.Impostor)) return false;
 
             SetTarget(shapeshifter.PlayerId, target.PlayerId);
             Logger.Info($"{shapeshifter.GetNameWithRole().RemoveHtmlTags()}'s target is now {target.GetNameWithRole().RemoveHtmlTags()}", "EvilTrackerTarget");
@@ -148,25 +136,18 @@ namespace EHR.Impostor
         {
             try
             {
-                if (CurrentTargetMode == TargetMode.EveryMeeting)
-                {
-                    SetTarget();
-                }
+                if (CurrentTargetMode == TargetMode.EveryMeeting) SetTarget();
 
                 foreach (byte playerId in PlayerIdList)
                 {
                     PlayerControl pc = Utils.GetPlayerById(playerId);
                     PlayerControl target = Utils.GetPlayerById(Target);
+
                     try
                     {
-                        if (!pc.IsAlive() || !target.IsAlive())
-                        {
-                            SetTarget(playerId);
-                        }
+                        if (!pc.IsAlive() || !target.IsAlive()) SetTarget(playerId);
                     }
-                    catch (NullReferenceException)
-                    {
-                    }
+                    catch (NullReferenceException) { }
 
                     pc?.SyncSettings();
                     pc?.RpcResetAbilityCooldown();
@@ -182,33 +163,20 @@ namespace EHR.Impostor
         public void SetTarget(byte trackerId = byte.MaxValue, byte targetId = byte.MaxValue)
         {
             if (trackerId == byte.MaxValue)
-            {
                 CanSetTarget = true;
-            }
             else if (targetId == byte.MaxValue)
-            {
                 Target = byte.MaxValue;
-            }
             else
             {
                 Target = targetId;
-                if (CurrentTargetMode != TargetMode.Always)
-                {
-                    CanSetTarget = false;
-                }
+                if (CurrentTargetMode != TargetMode.Always) CanSetTarget = false;
 
                 TargetArrow.Add(trackerId, targetId);
             }
 
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetEvilTrackerTarget, SendOption.Reliable);
             writer.Write(trackerId);
@@ -235,40 +203,26 @@ namespace EHR.Impostor
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!GameStates.IsInTask)
-            {
-                return string.Empty;
-            }
+            if (!GameStates.IsInTask) return string.Empty;
 
             byte trackerId = target.PlayerId;
-            if (seer.PlayerId != trackerId)
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != trackerId) return string.Empty;
 
-            if (Main.PlayerStates[seer.PlayerId].Role is not EvilTracker et)
-            {
-                return string.Empty;
-            }
+            if (Main.PlayerStates[seer.PlayerId].Role is not EvilTracker et) return string.Empty;
 
             byte[] imps = et.ImpostorsId;
-            StringBuilder sb = new StringBuilder(80);
+            var sb = new StringBuilder(80);
+
             if (imps.Length > 0)
             {
                 sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Impostor)}>");
-                foreach (byte impostorId in imps)
-                {
-                    sb.Append(TargetArrow.GetArrows(target, impostorId));
-                }
+                foreach (byte impostorId in imps) sb.Append(TargetArrow.GetArrows(target, impostorId));
 
                 sb.Append("</color>");
             }
 
             byte targetId = et.Target;
-            if (targetId != byte.MaxValue)
-            {
-                sb.Append(Utils.ColorString(Color.white, TargetArrow.GetArrows(target, targetId)));
-            }
+            if (targetId != byte.MaxValue) sb.Append(Utils.ColorString(Color.white, TargetArrow.GetArrows(target, targetId)));
 
             return sb.ToString();
         }
@@ -277,14 +231,11 @@ namespace EHR.Impostor
         {
             string text = Utils.ColorString(Palette.ImpostorRed, TargetArrow.GetArrows(seer, target.PlayerId));
             PlainShipRoom room = Main.PlayerStates[target.PlayerId].LastRoom;
+
             if (room == null)
-            {
                 text += Utils.ColorString(Color.gray, "@" + GetString("FailToTrack"));
-            }
             else
-            {
                 text += Utils.ColorString(Palette.ImpostorRed, "@" + GetString(room.RoomId.ToString()));
-            }
 
             return text;
         }

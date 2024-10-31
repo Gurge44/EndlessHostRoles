@@ -23,15 +23,19 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Tracefinder);
+
             VitalsCooldown = new FloatOptionItem(Id + 10, "VitalsCooldown", new(1f, 60f, 1f), 25f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Tracefinder])
                 .SetValueFormat(OptionFormat.Seconds);
+
             VitalsDuration = new FloatOptionItem(Id + 11, "VitalsDuration", new(1f, 30f, 1f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Tracefinder])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ArrowDelayMin = new FloatOptionItem(Id + 12, "ArrowDelayMin", new(1f, 30f, 1f), 2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Tracefinder])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ArrowDelayMax = new FloatOptionItem(Id + 13, "ArrowDelayMax", new(1f, 30f, 1f), 7f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Tracefinder])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -58,28 +62,19 @@ namespace EHR.Crewmate
 
         public override void OnReportDeadBody()
         {
-            foreach (byte apc in PlayerIdList)
-            {
-                LocateArrow.RemoveAllTarget(apc);
-            }
+            foreach (byte apc in PlayerIdList) LocateArrow.RemoveAllTarget(apc);
         }
 
         public static void OnPlayerDead(PlayerControl target)
         {
-            if (!On || !GameStates.IsInTask || target == null || target.Data.Disconnected)
-            {
-                return;
-            }
+            if (!On || !GameStates.IsInTask || target == null || target.Data.Disconnected) return;
 
             float delay;
+
             if (ArrowDelayMax.GetFloat() < ArrowDelayMin.GetFloat())
-            {
                 delay = 0f;
-            }
             else
-            {
                 delay = IRandom.Instance.Next((int)ArrowDelayMin.GetFloat(), (int)ArrowDelayMax.GetFloat() + 1);
-            }
 
             delay = Math.Max(delay, 0.15f);
 
@@ -90,10 +85,7 @@ namespace EHR.Crewmate
                     foreach (byte id in PlayerIdList)
                     {
                         PlayerControl pc = Utils.GetPlayerById(id);
-                        if (pc == null || !pc.IsAlive())
-                        {
-                            continue;
-                        }
+                        if (pc == null || !pc.IsAlive()) continue;
 
                         LocateArrow.Add(id, target.transform.position);
                         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
@@ -104,15 +96,9 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != TracefinderId)
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != TracefinderId) return string.Empty;
 
-            if (target != null && seer.PlayerId != target.PlayerId)
-            {
-                return string.Empty;
-            }
+            if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
 
             return Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
         }

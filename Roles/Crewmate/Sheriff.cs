@@ -140,12 +140,10 @@ namespace EHR.Crewmate
         {
             CustomRoles cRole = player.GetCustomRole();
             List<CustomRoles> subRole = player.GetCustomSubRoles();
-            if (subRole.Contains(CustomRoles.Rascal))
-            {
-                return true;
-            }
+            if (subRole.Contains(CustomRoles.Rascal)) return true;
 
-            bool CanKill = false;
+            var CanKill = false;
+
             foreach (CustomRoles SubRoleTarget in subRole)
             {
                 CanKill = SubRoleTarget switch

@@ -19,13 +19,17 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Escort);
+
             CD = new FloatOptionItem(Id + 10, "RoleBlockCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escort])
                 .SetValueFormat(OptionFormat.Seconds);
+
             UseLimit = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(1, 20, 1), 3, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escort])
                 .SetValueFormat(OptionFormat.Times);
+
             UsePet = Options.CreatePetUseSetting(Id + 12, CustomRoles.Escort);
+
             Duration = new FloatOptionItem(Id + 13, "RoleBlockDuration", new(1f, 60f, 1f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Escort])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -59,10 +63,7 @@ namespace EHR.Crewmate
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0)
-            {
-                return false;
-            }
+            if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0) return false;
 
             killer.RpcRemoveAbilityUse();
             killer.SetKillCooldown();

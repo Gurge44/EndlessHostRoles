@@ -30,10 +30,7 @@ namespace EHR.Modules
         /// <summary>Reset door status according to settings</summary>
         public static void ResetDoors()
         {
-            if (!IsEnabled || DoorsSystem == null)
-            {
-                return;
-            }
+            if (!IsEnabled || DoorsSystem == null) return;
 
             Logger.Info("Reset Completed", "DoorsReset");
 
@@ -59,10 +56,7 @@ namespace EHR.Modules
         {
             foreach (OpenableDoor door in ShipStatus.Instance.AllDoors)
             {
-                if (door == null)
-                {
-                    continue;
-                }
+                if (door == null) continue;
 
                 SetDoorOpenState(door, true);
             }
@@ -75,10 +69,7 @@ namespace EHR.Modules
         {
             foreach (OpenableDoor door in ShipStatus.Instance.AllDoors)
             {
-                if (door == null)
-                {
-                    continue;
-                }
+                if (door == null) continue;
 
                 SetDoorOpenState(door, false);
             }
@@ -103,10 +94,7 @@ namespace EHR.Modules
         /// <param name="isOpen">true for open, false for close</param>
         private static void SetDoorOpenState(OpenableDoor door, bool isOpen)
         {
-            if (IsValidDoor(door))
-            {
-                door.SetDoorway(isOpen);
-            }
+            if (IsValidDoor(door)) door.SetDoorway(isOpen);
         }
 
         /// <summary>Determine if the door is subject to reset</summary>

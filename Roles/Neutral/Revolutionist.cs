@@ -22,18 +22,23 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(18400, TabGroup.NeutralRoles, CustomRoles.Revolutionist);
+
             RevolutionistDrawTime = new FloatOptionItem(18410, "RevolutionistDrawTime", new(0f, 90f, 1f), 3f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Revolutionist])
                 .SetValueFormat(OptionFormat.Seconds);
+
             RevolutionistCooldown = new FloatOptionItem(18411, "RevolutionistCooldown", new(0f, 100f, 1f), 10f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Revolutionist])
                 .SetValueFormat(OptionFormat.Seconds);
+
             RevolutionistDrawCount = new IntegerOptionItem(18412, "RevolutionistDrawCount", new(0, 14, 1), 6, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Revolutionist])
                 .SetValueFormat(OptionFormat.Players);
+
             RevolutionistKillProbability = new IntegerOptionItem(18413, "RevolutionistKillProbability", new(0, 100, 5), 15, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Revolutionist])
                 .SetValueFormat(OptionFormat.Percent);
+
             RevolutionistVentCountDown = new FloatOptionItem(18414, "RevolutionistVentCountDown", new(0f, 180f, 1f), 15f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Revolutionist])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -43,10 +48,7 @@ namespace EHR.Neutral
         public override void Add(byte playerId)
         {
             On = true;
-            foreach (PlayerControl ar in Main.AllPlayerControls)
-            {
-                IsDraw.Add((playerId, ar.PlayerId), false);
-            }
+            foreach (PlayerControl ar in Main.AllPlayerControls) IsDraw.Add((playerId, ar.PlayerId), false);
         }
 
         public override void Init()
@@ -98,6 +100,7 @@ namespace EHR.Neutral
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             killer.SetKillCooldown(RevolutionistDrawTime.GetFloat());
+
             if (!IsDraw[(killer.PlayerId, target.PlayerId)] && !RevolutionistTimer.ContainsKey(killer.PlayerId))
             {
                 RevolutionistTimer.TryAdd(killer.PlayerId, (target, 0f));
@@ -113,10 +116,7 @@ namespace EHR.Neutral
             foreach (KeyValuePair<byte, long> x in RevolutionistStart)
             {
                 PlayerControl tar = Utils.GetPlayerById(x.Key);
-                if (tar == null)
-                {
-                    continue;
-                }
+                if (tar == null) continue;
 
                 tar.Data.IsDead = true;
                 Main.PlayerStates[tar.PlayerId].deathReason = PlayerState.DeathReason.Sacrifice;
@@ -136,6 +136,7 @@ namespace EHR.Neutral
             if (GameStates.IsInTask && RevolutionistTimer.ContainsKey(playerId))
             {
                 PlayerControl rvTarget = RevolutionistTimer[playerId].PLAYER;
+
                 if (!player.IsAlive() || Pelican.IsEaten(playerId))
                 {
                     RevolutionistTimer.Remove(playerId);
@@ -146,10 +147,9 @@ namespace EHR.Neutral
                 {
                     PlayerControl rv_target = RevolutionistTimer[playerId].PLAYER;
                     float rv_time = RevolutionistTimer[playerId].TIMER;
+
                     if (!rv_target.IsAlive())
-                    {
                         RevolutionistTimer.Remove(playerId);
-                    }
                     else if (rv_time >= RevolutionistDrawTime.GetFloat())
                     {
                         player.SetKillCooldown();
@@ -158,6 +158,7 @@ namespace EHR.Neutral
                         player.RpcSetDrawPlayer(rv_target, true);
                         Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: rv_target, ForceLoop: true);
                         RPC.ResetCurrentDrawTarget(playerId);
+
                         if (IRandom.Instance.Next(1, 100) <= RevolutionistKillProbability.GetInt())
                         {
                             rv_target.SetRealKiller(player);
@@ -171,10 +172,9 @@ namespace EHR.Neutral
                     {
                         float range = NormalGameOptionsV08.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
                         float dis = Vector2.Distance(player.transform.position, rv_target.transform.position);
+
                         if (dis <= range)
-                        {
                             RevolutionistTimer[playerId] = (rv_target, rv_time + Time.fixedDeltaTime);
-                        }
                         else
                         {
                             RevolutionistTimer.Remove(playerId);
@@ -195,12 +195,14 @@ namespace EHR.Neutral
                     {
                         long nowtime = Utils.TimeStamp;
                         RevolutionistLastTime[playerId] = nowtime;
-                        int time = (int)(RevolutionistLastTime[playerId] - RevolutionistStart[playerId]);
+                        var time = (int)(RevolutionistLastTime[playerId] - RevolutionistStart[playerId]);
                         int countdown = RevolutionistVentCountDown.GetInt() - time;
                         RevolutionistCountdown.Clear();
+
                         if (countdown <= 0)
                         {
                             Utils.GetDrawPlayerCount(playerId, out List<PlayerControl> y);
+
                             foreach (PlayerControl pc in y.Where(x => x != null && x.IsAlive()))
                             {
                                 pc.Suicide(PlayerState.DeathReason.Sacrifice);
@@ -210,19 +212,13 @@ namespace EHR.Neutral
                             player.Suicide(PlayerState.DeathReason.Sacrifice);
                         }
                         else
-                        {
                             RevolutionistCountdown.Add(playerId, countdown);
-                        }
                     }
                     else
-                    {
                         RevolutionistLastTime.TryAdd(playerId, RevolutionistStart[playerId]);
-                    }
                 }
                 else
-                {
                     RevolutionistStart.TryAdd(playerId, Utils.TimeStamp);
-                }
             }
         }
 
@@ -233,10 +229,7 @@ namespace EHR.Neutral
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Revolutionist);
                 Utils.GetDrawPlayerCount(physics.myPlayer.PlayerId, out List<PlayerControl> x);
                 CustomWinnerHolder.WinnerIds.Add(physics.myPlayer.PlayerId);
-                foreach (PlayerControl apc in x)
-                {
-                    CustomWinnerHolder.WinnerIds.Add(apc.PlayerId);
-                }
+                foreach (PlayerControl apc in x) CustomWinnerHolder.WinnerIds.Add(apc.PlayerId);
             }
         }
     }

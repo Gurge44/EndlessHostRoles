@@ -42,17 +42,23 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Doppelganger);
+
             MaxSteals = new IntegerOptionItem(Id + 10, "DoppelMaxSteals", new(1, 14, 1), 9, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
+
             KillCooldown = new FloatOptionItem(Id + 11, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(Id + 14, "CanVent", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
+
             ImpostorVision = new BooleanOptionItem(Id + 15, "ImpostorVision", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
+
             ResetMode = new StringOptionItem(Id + 12, "DGResetMode", ResetModes, 0, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger]);
+
             ResetTimer = new FloatOptionItem(Id + 13, "DGResetTimer", new(0f, 60f, 1f), 30f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Doppelganger])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -75,14 +81,11 @@ namespace EHR.Neutral
             DGId = playerId;
             TotalSteals.Add(playerId, 0);
             PlayerControl pc = Utils.GetPlayerById(playerId);
+
             if (playerId == PlayerControl.LocalPlayer.PlayerId && Main.NickName.Length != 0)
-            {
                 DoppelVictim[playerId] = Main.NickName;
-            }
             else
-            {
                 DoppelVictim[playerId] = pc.Data.PlayerName;
-            }
 
             DoppelDefaultSkin[playerId] = pc.CurrentOutfit;
             StealTimeStamp = 0;
@@ -90,10 +93,7 @@ namespace EHR.Neutral
 
         private void SendRPC(byte playerId)
         {
-            if (!IsEnable || !Utils.DoRPC)
-            {
-                return;
-            }
+            if (!IsEnable || !Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDoppelgangerStealLimit, SendOption.Reliable);
             writer.Write(playerId);
@@ -105,10 +105,7 @@ namespace EHR.Neutral
         {
             byte PlayerId = reader.ReadByte();
             int Limit = reader.ReadInt32();
-            if (!TotalSteals.TryAdd(PlayerId, 0))
-            {
-                TotalSteals[PlayerId] = Limit;
-            }
+            if (!TotalSteals.TryAdd(PlayerId, 0)) TotalSteals[PlayerId] = Limit;
         }
 
         public override void SetKillCooldown(byte id)
@@ -140,9 +137,10 @@ namespace EHR.Neutral
 
         private static void RpcChangeSkin(PlayerControl pc, NetworkedPlayerInfo.PlayerOutfit newOutfit)
         {
-            CustomRpcSender sender = CustomRpcSender.Create($"Doppelganger.RpcChangeSkin({pc.Data.PlayerName})");
+            var sender = CustomRpcSender.Create($"Doppelganger.RpcChangeSkin({pc.Data.PlayerName})");
 
             pc.SetName(newOutfit.PlayerName);
+
             sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetName)
                 .Write(pc.Data.NetId)
                 .Write(newOutfit.PlayerName)
@@ -151,6 +149,7 @@ namespace EHR.Neutral
             Main.AllPlayerNames[pc.PlayerId] = newOutfit.PlayerName;
 
             pc.SetColor(newOutfit.ColorId);
+
             sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetColor)
                 .Write(pc.Data.NetId)
                 .Write((byte)newOutfit.ColorId)
@@ -158,6 +157,7 @@ namespace EHR.Neutral
 
             pc.SetHat(newOutfit.HatId, newOutfit.ColorId);
             pc.Data.DefaultOutfit.HatSequenceId += 10;
+
             sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetHatStr)
                 .Write(newOutfit.HatId)
                 .Write(pc.GetNextRpcSequenceId(RpcCalls.SetHatStr))
@@ -165,6 +165,7 @@ namespace EHR.Neutral
 
             pc.SetSkin(newOutfit.SkinId, newOutfit.ColorId);
             pc.Data.DefaultOutfit.SkinSequenceId += 10;
+
             sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetSkinStr)
                 .Write(newOutfit.SkinId)
                 .Write(pc.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
@@ -172,6 +173,7 @@ namespace EHR.Neutral
 
             pc.SetVisor(newOutfit.VisorId, newOutfit.ColorId);
             pc.Data.DefaultOutfit.VisorSequenceId += 10;
+
             sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetVisorStr)
                 .Write(newOutfit.VisorId)
                 .Write(pc.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
@@ -179,6 +181,7 @@ namespace EHR.Neutral
 
             pc.SetPet(newOutfit.PetId);
             pc.Data.DefaultOutfit.PetSequenceId += 10;
+
             sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetPetStr)
                 .Write(newOutfit.PetId)
                 .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
@@ -186,6 +189,7 @@ namespace EHR.Neutral
 
             pc.SetNamePlate(newOutfit.NamePlateId);
             pc.Data.DefaultOutfit.NamePlateSequenceId += 10;
+
             sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetNamePlateStr)
                 .Write(newOutfit.NamePlateId)
                 .Write(pc.GetNextRpcSequenceId(RpcCalls.SetNamePlateStr))
@@ -197,10 +201,7 @@ namespace EHR.Neutral
 
         public static void OnCheckMurderEnd(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null || Camouflage.IsCamouflage || Camouflager.IsActive || Main.PlayerStates[killer.PlayerId].Role is not Doppelganger { IsEnable: true } dg)
-            {
-                return;
-            }
+            if (killer == null || target == null || Camouflage.IsCamouflage || Camouflager.IsActive || Main.PlayerStates[killer.PlayerId].Role is not Doppelganger { IsEnable: true } dg) return;
 
             if (target.IsShifted())
             {
@@ -219,24 +220,18 @@ namespace EHR.Neutral
             dg.StealTimeStamp = Utils.TimeStamp;
 
             string kname;
+
             if (killer.PlayerId == PlayerControl.LocalPlayer.PlayerId && Main.NickName.Length != 0)
-            {
                 kname = Main.NickName;
-            }
             else
-            {
                 kname = killer.Data.PlayerName;
-            }
 
             string tname;
+
             if (target.PlayerId == PlayerControl.LocalPlayer.PlayerId && Main.NickName.Length != 0)
-            {
                 tname = Main.NickName;
-            }
             else
-            {
                 tname = target.Data.PlayerName;
-            }
 
             NetworkedPlayerInfo.PlayerOutfit killerSkin = Set(new(), kname, killer.CurrentOutfit.ColorId, killer.CurrentOutfit.HatId, killer.CurrentOutfit.SkinId, killer.CurrentOutfit.VisorId, killer.CurrentOutfit.PetId, killer.CurrentOutfit.NamePlateId);
 
@@ -265,12 +260,10 @@ namespace EHR.Neutral
                 if (ResetMode.GetValue() == 1 && TotalSteals[DGId] > 0)
                 {
                     PlayerControl pc = Utils.GetPlayerById(DGId);
-                    if (pc == null)
-                    {
-                        return;
-                    }
+                    if (pc == null) return;
 
                     PlayerControl currentTarget = Main.AllPlayerControls.FirstOrDefault(x => x?.GetRealName() == DoppelVictim[pc.PlayerId]);
+
                     if (currentTarget != null)
                     {
                         RpcChangeSkin(currentTarget, DoppelPresentSkin[currentTarget.PlayerId]);
@@ -290,16 +283,14 @@ namespace EHR.Neutral
             if (ResetMode.GetValue() == 2 && TotalSteals[pc.PlayerId] > 0 && Utils.TimeStamp - StealTimeStamp > ResetTimer.GetInt())
             {
                 PlayerControl currentTarget = Main.AllPlayerControls.FirstOrDefault(x => x.GetRealName() == DoppelVictim[pc.PlayerId]);
+
                 if (currentTarget != null)
                 {
                     RpcChangeSkin(currentTarget, DoppelPresentSkin[currentTarget.PlayerId]);
                     RpcChangeSkin(pc, DoppelDefaultSkin[pc.PlayerId]);
                     DoppelVictim[pc.PlayerId] = string.Empty;
 
-                    if (GameStates.IsInTask)
-                    {
-                        Utils.NotifyRoles();
-                    }
+                    if (GameStates.IsInTask) Utils.NotifyRoles();
                 }
             }
         }

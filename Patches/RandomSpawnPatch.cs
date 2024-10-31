@@ -28,28 +28,26 @@ namespace EHR
 
             public static bool Prefix(CustomNetworkTransform __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
             {
-                if (!AmongUsClient.Instance.AmHost)
-                {
-                    return true;
-                }
+                if (!AmongUsClient.Instance.AmHost) return true;
 
-                if (!__instance.isActiveAndEnabled)
-                {
-                    return false;
-                }
+                if (!__instance.isActiveAndEnabled) return false;
 
                 if ((RpcCalls)callId == RpcCalls.SnapTo && (MapNames)Main.NormalOptions.MapId == MapNames.Airship)
                 {
                     PlayerControl player = __instance.myPlayer;
+
                     if (!HasSpawned.Contains(player.PlayerId))
                     {
                         Vector2 position;
+
                         {
                             MessageReader newReader = MessageReader.Get(reader);
                             position = NetHelpers.ReadVector2(newReader);
                             newReader.Recycle();
                         }
+
                         Logger.Info($"SnapTo: {player.GetRealName()}, ({position.x}, {position.y})", "RandomSpawn");
+
                         if (IsAirshipVanillaSpawnPosition(position))
                         {
                             AirshipSpawn(player);
@@ -67,16 +65,10 @@ namespace EHR
                 float decupleYFloat = position.y * 10f;
                 int decupleXInt = Mathf.RoundToInt(decupleXFloat);
 
-                if (Mathf.Abs(decupleXInt - decupleXFloat) >= 0.09f)
-                {
-                    return false;
-                }
+                if (Mathf.Abs(decupleXInt - decupleXFloat) >= 0.09f) return false;
 
                 int decupleYInt = Mathf.RoundToInt(decupleYFloat);
-                if (Mathf.Abs(decupleYInt - decupleYFloat) >= 0.09f)
-                {
-                    return false;
-                }
+                if (Mathf.Abs(decupleYInt - decupleYFloat) >= 0.09f) return false;
 
                 (int decupleXInt, int decupleYInt) decuplePosition = (decupleXInt, decupleYInt);
                 return DecupleVanillaSpawnPositions.Contains(decuplePosition);
@@ -85,23 +77,15 @@ namespace EHR
             private static void AirshipSpawn(PlayerControl player)
             {
                 Logger.Info($"Spawn: {player.GetRealName()}", "RandomSpawn");
+
                 if (AmongUsClient.Instance.AmHost)
                 {
-                    if (player.Is(CustomRoles.Penguin))
-                    {
-                        Penguin.OnSpawnAirship();
-                    }
+                    if (player.Is(CustomRoles.Penguin)) Penguin.OnSpawnAirship();
 
                     player.RpcResetAbilityCooldown();
-                    if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled)
-                    {
-                        player.SetKillCooldown(Main.AllPlayerKillCooldown[player.PlayerId]);
-                    }
+                    if (Options.FixFirstKillCooldown.GetBool() && !MeetingStates.MeetingCalled) player.SetKillCooldown(Main.AllPlayerKillCooldown[player.PlayerId]);
 
-                    if (Options.RandomSpawn.GetBool() || player.Is(CustomRoles.GM))
-                    {
-                        new AirshipSpawnMap().RandomTeleport(player);
-                    }
+                    if (Options.RandomSpawn.GetBool() || player.Is(CustomRoles.GM)) new AirshipSpawnMap().RandomTeleport(player);
                 }
 
                 HasSpawned.Add(player.PlayerId);

@@ -24,12 +24,8 @@ namespace EHR
         public static TKey GetKeyByValue<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TValue value)
         {
             foreach (KeyValuePair<TKey, TValue> pair in dictionary)
-            {
                 if (pair.Value.Equals(value))
-                {
                     return pair.Key;
-                }
-            }
 
             return default;
         }
@@ -43,10 +39,7 @@ namespace EHR
         /// <typeparam name="TValue"></typeparam>
         public static void SetAllValues<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TValue value)
         {
-            foreach (TKey key in dictionary.Keys.ToArray())
-            {
-                dictionary[key] = value;
-            }
+            foreach (TKey key in dictionary.Keys.ToArray()) dictionary[key] = value;
         }
 
         /// <summary>
@@ -58,10 +51,7 @@ namespace EHR
         /// <typeparam name="TValue"></typeparam>
         public static void AdjustAllValues<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Func<TValue, TValue> adjust)
         {
-            foreach (TKey key in dictionary.Keys.ToArray())
-            {
-                dictionary[key] = adjust(dictionary[key]);
-            }
+            foreach (TKey key in dictionary.Keys.ToArray()) dictionary[key] = adjust(dictionary[key]);
         }
 
         /// <summary>
@@ -75,10 +65,7 @@ namespace EHR
         /// </returns>
         public static T RandomElement<T>(this IList<T> collection)
         {
-            if (collection.Count == 0)
-            {
-                return default;
-            }
+            if (collection.Count == 0) return default;
 
             return collection[IRandom.Instance.Next(collection.Count)];
         }
@@ -94,10 +81,7 @@ namespace EHR
         /// </returns>
         public static T RandomElement<T>(this IEnumerable<T> collection)
         {
-            if (collection is IList<T> list)
-            {
-                return list.RandomElement();
-            }
+            if (collection is IList<T> list) return list.RandomElement();
 
             return collection.ToList().RandomElement();
         }
@@ -127,18 +111,12 @@ namespace EHR
         {
             if (collection is List<T> list)
             {
-                for (int i = 0; i < list.Count; i++)
-                {
-                    action(list[i]);
-                }
+                for (var i = 0; i < list.Count; i++) action(list[i]);
 
                 return;
             }
 
-            foreach (T element in collection)
-            {
-                action(element);
-            }
+            foreach (T element in collection) action(element);
         }
 
         /// <summary>
@@ -155,25 +133,18 @@ namespace EHR
             {
                 if (collection is List<T> list)
                 {
-                    for (int i = 0; i < list.Count; i++)
+                    for (var i = 0; i < list.Count; i++)
                     {
                         T element = list[i];
-                        if (predicate(element))
-                        {
-                            action(element);
-                        }
+                        if (predicate(element)) action(element);
                     }
 
                     return;
                 }
 
                 foreach (T element in collection)
-                {
                     if (predicate(element))
-                    {
                         action(element);
-                    }
-                }
 
                 return;
             }
@@ -193,18 +164,15 @@ namespace EHR
         /// </returns>
         public static (List<T> TrueList, List<T> FalseList) Split<T>(this IEnumerable<T> collection, Func<T, bool> predicate)
         {
-            List<T> list1 = new List<T>();
-            List<T> list2 = new List<T>();
+            var list1 = new List<T>();
+            var list2 = new List<T>();
+
             foreach (T element in collection)
             {
                 if (predicate(element))
-                {
                     list1.Add(element);
-                }
                 else
-                {
                     list2.Add(element);
-                }
             }
 
             return (list1, list2);
@@ -228,12 +196,8 @@ namespace EHR
         public static Dictionary<TKey, TValue> AddRange<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Dictionary<TKey, TValue> other, bool overrideExistingKeys = true)
         {
             foreach ((TKey key, TValue value) in other)
-            {
                 if (overrideExistingKeys || !dictionary.ContainsKey(key))
-                {
                     dictionary[key] = value;
-                }
-            }
 
             return dictionary;
         }
@@ -265,9 +229,10 @@ namespace EHR
         {
             if (collection is List<T> list)
             {
-                for (int i = 0; i < list.Count; i++)
+                for (var i = 0; i < list.Count; i++)
                 {
                     T item = list[i];
+
                     if (predicate(item))
                     {
                         element = item;
@@ -353,7 +318,8 @@ namespace EHR
         {
             List<T> list = collection.ToList();
             int n = list.Count;
-            IRandom r = IRandom.Instance;
+            var r = IRandom.Instance;
+
             while (n > 1)
             {
                 n--;
@@ -373,7 +339,8 @@ namespace EHR
         public static List<T> Shuffle<T>(this List<T> collection)
         {
             int n = collection.Count;
-            IRandom r = IRandom.Instance;
+            var r = IRandom.Instance;
+
             while (n > 1)
             {
                 n--;
@@ -393,7 +360,8 @@ namespace EHR
         public static T[] Shuffle<T>(this T[] collection)
         {
             int n = collection.Length;
-            IRandom r = IRandom.Instance;
+            var r = IRandom.Instance;
+
             while (n > 1)
             {
                 n--;
@@ -419,20 +387,15 @@ namespace EHR
         {
             List<T> list = collection.ToList();
             int length = list.Count;
-            if (parts <= 0 || length == 0)
-            {
-                yield break;
-            }
+            if (parts <= 0 || length == 0) yield break;
 
-            if (parts > length)
-            {
-                parts = length;
-            }
+            if (parts > length) parts = length;
 
             int size = length / parts;
             int remainder = length % parts;
-            int index = 0;
-            for (int i = 0; i < parts; i++)
+            var index = 0;
+
+            for (var i = 0; i < parts; i++)
             {
                 int partSize = size + (i < remainder ? 1 : 0);
                 yield return list.Skip(index).Take(partSize);
@@ -450,20 +413,15 @@ namespace EHR
         public static IEnumerable<IEnumerable<T>> Partition<T>(this IList<T> collection, int parts)
         {
             int length = collection.Count;
-            if (parts <= 0 || length == 0)
-            {
-                yield break;
-            }
+            if (parts <= 0 || length == 0) yield break;
 
-            if (parts > length)
-            {
-                parts = length;
-            }
+            if (parts > length) parts = length;
 
             int size = length / parts;
             int remainder = length % parts;
-            int index = 0;
-            for (int i = 0; i < parts; i++)
+            var index = 0;
+
+            for (var i = 0; i < parts; i++)
             {
                 int partSize = size + (i < remainder ? 1 : 0);
                 yield return collection.Skip(index).Take(partSize);
@@ -478,10 +436,7 @@ namespace EHR
     {
         public static void Times(int count, Action<int> action)
         {
-            for (int i = 0; i < count; i++)
-            {
-                action(i);
-            }
+            for (var i = 0; i < count; i++) action(i);
         }
     }
 }

@@ -25,31 +25,37 @@ namespace EHR.GameMode.HideAndSeekRoles
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(69_211_801, TabGroup.ImpostorRoles, CustomRoles.Dasher, CustomGameMode.HideAndSeek);
+
             Vision = new FloatOptionItem(69_211_803, "DasherVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(245, 66, 176, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dasher]);
+
             Speed = new FloatOptionItem(69_213_804, "DasherSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(245, 66, 176, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dasher]);
+
             DashCooldown = new FloatOptionItem(69_213_805, "DasherCooldown", new(0f, 60f, 0.5f), 20f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(245, 66, 176, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dasher]);
+
             DashDuration = new FloatOptionItem(69_213_806, "DasherDuration", new(1f, 30f, 1f), 5f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(245, 66, 176, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dasher]);
+
             DashSpeed = new FloatOptionItem(69_213_807, "DasherSpeedIncreased", new(0.05f, 5f, 0.05f), 1.5f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(245, 66, 176, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Dasher]);
+
             UseLimit = new IntegerOptionItem(69_213_808, "AbilityUseLimit", new(0, 60, 1), 3, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(new(245, 66, 176, byte.MaxValue))
@@ -60,6 +66,7 @@ namespace EHR.GameMode.HideAndSeekRoles
         {
             On = true;
             playerId.SetAbilityUseLimit(UseLimit.GetFloat());
+
             DashStatus = new()
             {
                 Cooldown = DashCooldown.GetInt(),
@@ -84,12 +91,10 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!DashStatus.IsDashing)
-            {
-                return;
-            }
+            if (!DashStatus.IsDashing) return;
 
             long now = Utils.TimeStamp;
+
             if (DashStatus.DashEndTime <= now)
             {
                 DashStatus.IsDashing = false;
@@ -99,10 +104,7 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public override void OnPet(PlayerControl pc)
         {
-            if (pc.HasAbilityCD() || DashStatus.IsDashing || pc.GetAbilityUseLimit() < 1f)
-            {
-                return;
-            }
+            if (pc.HasAbilityCD() || DashStatus.IsDashing || pc.GetAbilityUseLimit() < 1f) return;
 
             DashStatus.IsDashing = true;
             DashStatus.DashEndTime = Utils.TimeStamp + DashStatus.Duration;

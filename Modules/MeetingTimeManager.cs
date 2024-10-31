@@ -46,10 +46,10 @@ namespace EHR.Modules
             }
 
             ResetMeetingTime();
-            int BonusMeetingTime = 0;
-            int MeetingTimeMinTimeThief = 0;
-            int MeetingTimeMinTimeManager = 0;
-            int MeetingTimeMax = 300;
+            var BonusMeetingTime = 0;
+            var MeetingTimeMinTimeThief = 0;
+            var MeetingTimeMinTimeManager = 0;
+            var MeetingTimeMax = 300;
 
             if (TimeThief.PlayerIdList.Count > 0)
             {
@@ -66,28 +66,18 @@ namespace EHR.Modules
 
             int TotalMeetingTime = DiscussionTime + VotingTime;
 
-            if (TimeManager.PlayerIdList.Count > 0)
-            {
-                BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeManager, MeetingTimeMax) - TotalMeetingTime;
-            }
+            if (TimeManager.PlayerIdList.Count > 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeManager, MeetingTimeMax) - TotalMeetingTime;
 
-            if (TimeThief.PlayerIdList.Count > 0)
-            {
-                BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
-            }
+            if (TimeThief.PlayerIdList.Count > 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
 
-            if (TimeManager.PlayerIdList.Count == 0 && TimeThief.PlayerIdList.Count == 0)
-            {
-                BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
-            }
+            if (TimeManager.PlayerIdList.Count == 0 && TimeThief.PlayerIdList.Count == 0) BonusMeetingTime = Math.Clamp(TotalMeetingTime + BonusMeetingTime, MeetingTimeMinTimeThief, MeetingTimeMax) - TotalMeetingTime;
 
             if (BonusMeetingTime >= 0)
-            {
                 VotingTime += BonusMeetingTime;
-            }
             else
             {
                 DiscussionTime += BonusMeetingTime;
+
                 if (DiscussionTime < 0)
                 {
                     VotingTime += DiscussionTime;

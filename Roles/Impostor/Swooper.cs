@@ -46,17 +46,22 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Swooper);
+
             SwooperCooldown = new FloatOptionItem(Id + 2, "SwooperCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
                 .SetValueFormat(OptionFormat.Seconds);
+
             SwooperDuration = new FloatOptionItem(Id + 3, "SwooperDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
                 .SetValueFormat(OptionFormat.Seconds);
+
             SwooperVentNormallyOnCooldown = new BooleanOptionItem(Id + 4, "SwooperVentNormallyOnCooldown", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper]);
+
             SwooperLimitOpt = new IntegerOptionItem(Id + 5, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
                 .SetValueFormat(OptionFormat.Times);
+
             SwooperAbilityUseGainWithEachKill = new FloatOptionItem(Id + 6, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.5f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Swooper])
                 .SetValueFormat(OptionFormat.Times);
@@ -129,10 +134,7 @@ namespace EHR.Impostor
 
         private void SendRPC()
         {
-            if (!IsEnable || !Utils.DoRPC)
-            {
-                return;
-            }
+            if (!IsEnable || !Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSwooperTimer, SendOption.Reliable);
             writer.Write(SwooperId);
@@ -156,15 +158,9 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!GameStates.IsInTask || !IsEnable || player == null)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask || !IsEnable || player == null) return;
 
-            if (Count++ < 10)
-            {
-                return;
-            }
+            if (Count++ < 10) return;
 
             Count = 0;
 
@@ -175,10 +171,7 @@ namespace EHR.Impostor
                 if (!player.IsModClient())
                 {
                     long cooldown = lastTime + (long)Cooldown - now;
-                    if ((int)cooldown != CD)
-                    {
-                        player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f, true);
-                    }
+                    if ((int)cooldown != CD) player.Notify(string.Format(GetString("CDPT"), cooldown + 1), 1.1f, true);
 
                     CD = (int)cooldown;
                 }
@@ -186,10 +179,7 @@ namespace EHR.Impostor
                 if (lastTime + (long)Cooldown < now)
                 {
                     lastTime = -10;
-                    if (!player.IsModClient())
-                    {
-                        player.Notify(GetString("SwooperCanVent"), 300f);
-                    }
+                    if (!player.IsModClient()) player.Notify(GetString("SwooperCanVent"), 300f);
 
                     SendRPC();
                     CD = 0;
@@ -199,8 +189,9 @@ namespace EHR.Impostor
             if (lastFixedTime != now && InvisTime != -10)
             {
                 lastFixedTime = now;
-                bool refresh = false;
+                var refresh = false;
                 long remainTime = InvisTime + (long)Duration - now;
+
                 switch (remainTime)
                 {
                     case < 0:
@@ -218,25 +209,21 @@ namespace EHR.Impostor
                         break;
                 }
 
-                if (refresh)
-                {
-                    SendRPC();
-                }
+                if (refresh) SendRPC();
             }
         }
 
         public override void OnCoEnterVent(PlayerPhysics __instance, int ventId)
         {
-            if (!AmongUsClient.Instance.AmHost || IsInvis)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost || IsInvis) return;
 
             PlayerControl pc = __instance.myPlayer;
+
             LateTask.New(() =>
             {
                 float limit = pc.GetAbilityUseLimit();
                 bool wraith = UsedRole == CustomRoles.Wraith;
+
                 if (CanGoInvis && (wraith || limit >= 1))
                 {
                     ventedId = ventId;
@@ -246,10 +233,7 @@ namespace EHR.Impostor
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
 
                     InvisTime = Utils.TimeStamp;
-                    if (!wraith)
-                    {
-                        pc.RpcRemoveAbilityUse();
-                    }
+                    if (!wraith) pc.RpcRemoveAbilityUse();
 
                     SendRPC();
                     pc.Notify(GetString("SwooperInvisState"), Duration);
@@ -264,10 +248,7 @@ namespace EHR.Impostor
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
-            if (!IsInvis || InvisTime == Utils.TimeStamp)
-            {
-                return;
-            }
+            if (!IsInvis || InvisTime == Utils.TimeStamp) return;
 
             InvisTime = -10;
             lastTime = Utils.TimeStamp;
@@ -279,17 +260,12 @@ namespace EHR.Impostor
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!hud || seer == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive())
-            {
-                return string.Empty;
-            }
+            if (!hud || seer == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
 
-            if (Main.PlayerStates[seer.PlayerId].Role is not Swooper sw)
-            {
-                return string.Empty;
-            }
+            if (Main.PlayerStates[seer.PlayerId].Role is not Swooper sw) return string.Empty;
 
-            StringBuilder str = new StringBuilder();
+            var str = new StringBuilder();
+
             if (sw.IsInvis)
             {
                 long remainTime = sw.InvisTime + (long)sw.Duration - Utils.TimeStamp;
@@ -301,29 +277,18 @@ namespace EHR.Impostor
                 str.Append(string.Format(GetString("SwooperInvisCooldownRemain"), cooldown + 1));
             }
             else
-            {
                 str.Append(GetString("SwooperCanVent"));
-            }
 
             return str.ToString();
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (Medic.ProtectList.Contains(target.PlayerId))
-            {
-                return false;
-            }
+            if (Medic.ProtectList.Contains(target.PlayerId)) return false;
 
-            if (target.Is(CustomRoles.Bait))
-            {
-                return true;
-            }
+            if (target.Is(CustomRoles.Bait)) return true;
 
-            if (!IsInvis)
-            {
-                return true;
-            }
+            if (!IsInvis) return true;
 
             killer.SetKillCooldown();
             target.SetRealKiller(killer);

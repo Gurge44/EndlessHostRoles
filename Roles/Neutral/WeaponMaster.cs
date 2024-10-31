@@ -35,16 +35,21 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.WeaponMaster);
+
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster]);
+
             HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster]);
+
             Radius = new FloatOptionItem(Id + 12, "WMRadius", new(0f, 10f, 0.1f), 2f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             HighKCD = new FloatOptionItem(Id + 14, "GamblerHighKCD", new(0f, 180f, 2.5f), 35f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.WeaponMaster])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -69,10 +74,7 @@ namespace EHR.Neutral
 
         private void SendRPC()
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetWeaponMasterMode, SendOption.Reliable);
             writer.Write(WMId);
@@ -84,10 +86,7 @@ namespace EHR.Neutral
         public static void ReceiveRPC(MessageReader reader)
         {
             byte id = reader.ReadByte();
-            if (Main.PlayerStates[id].Role is not WeaponMaster { IsEnable: true } wm)
-            {
-                return;
-            }
+            if (Main.PlayerStates[id].Role is not WeaponMaster { IsEnable: true } wm) return;
 
             wm.Mode = reader.ReadByte();
             wm.shieldUsed = reader.ReadBoolean();
@@ -112,15 +111,9 @@ namespace EHR.Neutral
         {
             opt.SetInt(Int32OptionNames.KillDistance, Mode == 2 ? 2 : 0);
             opt.SetVision(HasImpostorVision.GetBool());
-            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
-            {
-                AURoleOptions.PhantomCooldown = 1f;
-            }
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = 1f;
 
-            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
-            {
-                AURoleOptions.ShapeshifterCooldown = 1f;
-            }
+            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool()) AURoleOptions.ShapeshifterCooldown = 1f;
         }
 
         public override bool CanUseKillButton(PlayerControl pc)
@@ -147,10 +140,7 @@ namespace EHR.Neutral
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting && !UseUnshiftTrigger.GetBool())
-            {
-                return true;
-            }
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
 
             SwitchMode();
             return false;
@@ -161,19 +151,12 @@ namespace EHR.Neutral
             byte id = PlayerIdList[0];
             PlayerControl WM = Utils.GetPlayerById(id);
 
-            if (WM == null || !WM.IsAlive())
-            {
-                return;
-            }
+            if (WM == null || !WM.IsAlive()) return;
 
             if (Mode == 3)
-            {
                 Mode = 0;
-            }
             else
-            {
                 Mode++;
-            }
 
             switch (Mode)
             {
@@ -194,15 +177,9 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null)
-            {
-                return false;
-            }
+            if (killer == null) return false;
 
-            if (target == null)
-            {
-                return false;
-            }
+            if (target == null) return false;
 
             switch (Mode)
             {
@@ -213,19 +190,14 @@ namespace EHR.Neutral
                     {
                         foreach (PlayerControl player in Main.AllAlivePlayerControls)
                         {
-                            if (Pelican.IsEaten(player.PlayerId) || player == killer || player.Is(CustomRoles.Pestilence) || Veteran.VeteranInProtect.ContainsKey(target.PlayerId))
-                            {
-                                continue;
-                            }
+                            if (Pelican.IsEaten(player.PlayerId) || player == killer || player.Is(CustomRoles.Pestilence) || Veteran.VeteranInProtect.ContainsKey(target.PlayerId)) continue;
 
-                            if (Vector2.Distance(killer.transform.position, player.transform.position) <= Radius.GetFloat())
-                            {
-                                player.Suicide(PlayerState.DeathReason.Kill, killer);
-                            }
+                            if (Vector2.Distance(killer.transform.position, player.transform.position) <= Radius.GetFloat()) player.Suicide(PlayerState.DeathReason.Kill, killer);
                         }
 
                         killer.SetKillCooldown(HighKCD.GetFloat());
                     }, 0.1f, "Weapon Master Axe Kill");
+
                     return true;
                 case 2:
                     if (killer.RpcCheckAndMurder(target, true))
@@ -257,10 +229,7 @@ namespace EHR.Neutral
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
-            if (Mode == 2)
-            {
-                pc?.MyPhysics?.RpcBootFromVent(vent.Id);
-            }
+            if (Mode == 2) pc?.MyPhysics?.RpcBootFromVent(vent.Id);
         }
 
         public override string GetProgressText(byte playerId, bool comms)

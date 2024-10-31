@@ -32,15 +32,19 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.BountyHunter);
+
             OptionTargetChangeTime = new FloatOptionItem(Id + 10, "BountyTargetChangeTime", new(10f, 180f, 2.5f), 50f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.BountyHunter])
                 .SetValueFormat(OptionFormat.Seconds);
+
             OptionSuccessKillCooldown = new FloatOptionItem(Id + 11, "BountySuccessKillCooldown", new(0f, 180f, 0.5f), 3f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.BountyHunter])
                 .SetValueFormat(OptionFormat.Seconds);
+
             OptionFailureKillCooldown = new FloatOptionItem(Id + 12, "BountyFailureKillCooldown", new(0f, 180f, 2.5f), 35f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.BountyHunter])
                 .SetValueFormat(OptionFormat.Seconds);
+
             OptionShowTargetArrow = new BooleanOptionItem(Id + 13, "BountyShowTargetArrow", true, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.BountyHunter]);
         }
@@ -70,18 +74,12 @@ namespace EHR.Impostor
             Target = byte.MaxValue;
             ChangeTimer = TargetChangeTime;
 
-            if (AmongUsClient.Instance.AmHost)
-            {
-                ResetTarget(Utils.GetPlayerById(playerId));
-            }
+            if (AmongUsClient.Instance.AmHost) ResetTarget(Utils.GetPlayerById(playerId));
         }
 
         private void SendRPC()
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBountyTarget, SendOption.Reliable);
             writer.Write(BountyId);
@@ -96,10 +94,7 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null)
-            {
-                return false;
-            }
+            if (killer == null || target == null) return false;
 
             if (GetTarget(killer) == target.PlayerId)
             {
@@ -125,18 +120,14 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!GameStates.IsInTask || float.IsNaN(ChangeTimer))
-            {
-                return;
-            }
+            if (!GameStates.IsInTask || float.IsNaN(ChangeTimer)) return;
 
             if (!player.IsAlive())
-            {
                 ChangeTimer = float.NaN;
-            }
             else
             {
                 byte targetId = GetTarget(player);
+
                 if (ChangeTimer >= TargetChangeTime)
                 {
                     byte newTargetId = ResetTarget(player);
@@ -148,10 +139,7 @@ namespace EHR.Impostor
                     ChangeTimer += Time.fixedDeltaTime;
                     int tempTimer = Timer;
                     Timer = (int)(TargetChangeTime - ChangeTimer);
-                    if (tempTimer != Timer && Timer <= 15 && !player.IsModClient())
-                    {
-                        Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-                    }
+                    if (tempTimer != Timer && Timer <= 15 && !player.IsModClient()) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
                 }
 
                 if (Utils.GetPlayerById(targetId)?.IsAlive() == false)
@@ -165,10 +153,7 @@ namespace EHR.Impostor
 
         public byte GetTarget(PlayerControl player)
         {
-            if (player == null)
-            {
-                return 0xff;
-            }
+            if (player == null) return 0xff;
 
             byte targetId = Target == byte.MaxValue ? ResetTarget(player) : Target;
             return targetId;
@@ -176,10 +161,7 @@ namespace EHR.Impostor
 
         private byte ResetTarget(PlayerControl player)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return 0xff;
-            }
+            if (!AmongUsClient.Instance.AmHost) return 0xff;
 
             byte playerId = player.PlayerId;
 
@@ -190,10 +172,7 @@ namespace EHR.Impostor
 
             List<PlayerControl> cTargets = new(Main.AllAlivePlayerControls.Where(pc => !pc.Is(CustomRoleTypes.Impostor)));
 
-            if (cTargets.Count >= 2 && Target != byte.MaxValue)
-            {
-                cTargets.RemoveAll(x => x.PlayerId == Target);
-            }
+            if (cTargets.Count >= 2 && Target != byte.MaxValue) cTargets.RemoveAll(x => x.PlayerId == Target);
 
             if (cTargets.Count == 0)
             {
@@ -204,10 +183,7 @@ namespace EHR.Impostor
             PlayerControl target = cTargets.RandomElement();
             byte targetId = target.PlayerId;
             Target = targetId;
-            if (ShowTargetArrow)
-            {
-                TargetArrow.Add(playerId, targetId);
-            }
+            if (ShowTargetArrow) TargetArrow.Add(playerId, targetId);
 
             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}'s New Target Is {target.GetNameWithRole().RemoveHtmlTags()}", "BountyHunter");
 
@@ -223,6 +199,7 @@ namespace EHR.Impostor
                 {
                     ChangeTimer = 0f;
                     Timer = (int)TargetChangeTime;
+
                     if (Utils.GetPlayerById(id).GetCustomRole() == CustomRoles.BountyHunter)
                     {
                         Main.AllPlayerKillCooldown[id] = Options.DefaultKillCooldown;
@@ -239,15 +216,9 @@ namespace EHR.Impostor
 
         private static string GetTargetText(PlayerControl bounty, PlayerControl tar, bool hud)
         {
-            if (GameStates.IsMeeting || bounty.PlayerId != tar.PlayerId)
-            {
-                return string.Empty;
-            }
+            if (GameStates.IsMeeting || bounty.PlayerId != tar.PlayerId) return string.Empty;
 
-            if (Main.PlayerStates[bounty.PlayerId].Role is not BountyHunter bh)
-            {
-                return string.Empty;
-            }
+            if (Main.PlayerStates[bounty.PlayerId].Role is not BountyHunter bh) return string.Empty;
 
             byte targetId = bh.GetTarget(bounty);
             return targetId != 0xff ? $"<color=#00ffa5>{(hud ? GetString("BountyCurrentTarget") : GetString("Target"))}:</color> <b>{Main.AllPlayerNames[targetId].RemoveHtmlTags().Replace("\r\n", string.Empty)}</b>" : string.Empty;
@@ -255,20 +226,11 @@ namespace EHR.Impostor
 
         private static string GetTargetArrow(PlayerControl seer, PlayerControl target = null)
         {
-            if (target != null && seer.PlayerId != target.PlayerId)
-            {
-                return string.Empty;
-            }
+            if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
 
-            if (!ShowTargetArrow || GameStates.IsMeeting)
-            {
-                return string.Empty;
-            }
+            if (!ShowTargetArrow || GameStates.IsMeeting) return string.Empty;
 
-            if (Main.PlayerStates[seer.PlayerId].Role is not BountyHunter bh)
-            {
-                return string.Empty;
-            }
+            if (Main.PlayerStates[seer.PlayerId].Role is not BountyHunter bh) return string.Empty;
 
             byte targetId = bh.GetTarget(seer);
             return $"<color=#ffffff> {TargetArrow.GetArrows(seer, targetId)}</color>";

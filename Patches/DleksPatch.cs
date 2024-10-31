@@ -14,10 +14,7 @@ namespace EHR
         {
             try
             {
-                if (__instance == null)
-                {
-                    return;
-                }
+                if (__instance == null) return;
 
                 LateTask.New(() =>
                 {
@@ -26,10 +23,7 @@ namespace EHR
                         Main.NormalOptions.MapId = 0;
                         __instance.UpdateMapImage(MapNames.Skeld);
 
-                        if (!Options.RandomMapsMode.GetBool())
-                        {
-                            CreateOptionsPickerPatch.SetDleks = true;
-                        }
+                        if (!Options.RandomMapsMode.GetBool()) CreateOptionsPickerPatch.SetDleks = true;
                     }
                 }, AmongUsClient.Instance.AmHost ? 1f : 4f, "Set Skeld Icon For Dleks Map");
 
@@ -51,16 +45,10 @@ namespace EHR
     {
         public static bool Prefix(AmongUsClient._CoStartGameHost_d__32 __instance, ref bool __result)
         {
-            if (__instance.__1__state != 0)
-            {
-                return true;
-            }
+            if (__instance.__1__state != 0) return true;
 
             __instance.__1__state = -1;
-            if (LobbyBehaviour.Instance)
-            {
-                LobbyBehaviour.Instance.Despawn();
-            }
+            if (LobbyBehaviour.Instance) LobbyBehaviour.Instance.Despawn();
 
             if (ShipStatus.Instance)
             {
@@ -91,10 +79,7 @@ namespace EHR
             if (Main.CurrentMap == MapNames.Dleks && Main.IntroDestroyed)
             {
                 enabled = false;
-                if (GameStates.IsMeeting)
-                {
-                    ShowButtons = false;
-                }
+                if (GameStates.IsMeeting) ShowButtons = false;
             }
 
             return true;
@@ -102,17 +87,12 @@ namespace EHR
 
         public static void Postfix(Vent __instance, [HarmonyArgument(0)] bool enabled)
         {
-            if (Main.CurrentMap != MapNames.Dleks)
-            {
-                return;
-            }
+            if (Main.CurrentMap != MapNames.Dleks) return;
 
-            if (enabled || !Main.IntroDestroyed)
-            {
-                return;
-            }
+            if (enabled || !Main.IntroDestroyed) return;
 
             bool setActive = ShowButtons || (!PlayerControl.LocalPlayer.inVent && !GameStates.IsMeeting);
+
             switch (__instance.Id)
             {
                 case 0:
@@ -146,10 +126,7 @@ namespace EHR
         // Update arrows buttons when player move to vents
         private static void Postfix(Vent __instance, [HarmonyArgument(0)] Vent otherVent)
         {
-            if (__instance == null || otherVent == null || Main.CurrentMap != MapNames.Dleks)
-            {
-                return;
-            }
+            if (__instance == null || otherVent == null || Main.CurrentMap != MapNames.Dleks) return;
 
             VentSetButtonsPatch.ShowButtons = true;
             VentSetButtonsPatch.Postfix(otherVent, false);

@@ -32,12 +32,16 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Sans);
+
             DefaultKillCooldown = new FloatOptionItem(Id + 10, "SansDefaultKillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Sans])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ReduceKillCooldown = new FloatOptionItem(Id + 11, "SansReduceKillCooldown", new(0f, 30f, 0.5f), 3.5f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Sans])
                 .SetValueFormat(OptionFormat.Seconds);
+
             MinKillCooldown = new FloatOptionItem(Id + 12, "SansMinKillCooldown", new(0f, 30f, 2.5f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Sans])
                 .SetValueFormat(OptionFormat.Seconds);
+
             BardChance = new IntegerOptionItem(Id + 13, "BardChance", new(0, 100, 5), 0, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sans])
                 .SetValueFormat(OptionFormat.Percent);
@@ -110,10 +114,7 @@ namespace EHR.Impostor
 
         public override void OnReportDeadBody()
         {
-            if (!ResetKCDOnMeeting)
-            {
-                return;
-            }
+            if (!ResetKCDOnMeeting) return;
 
             NowCooldown = DefaultKCD;
         }

@@ -63,21 +63,13 @@ namespace EHR
                                 break;
                             case DisconnectReasons.Error:
                                 //if (StringReason.Contains("Couldn't find self")) __instance.SetText(GetString("DCNotify.DCFromServer"));
-                                if (StringReason.Contains("Failed to send message"))
-                                {
-                                    __instance.SetText(GetString("DCNotify.DCFromServer"));
-                                }
+                                if (StringReason.Contains("Failed to send message")) __instance.SetText(GetString("DCNotify.DCFromServer"));
 
                                 break;
                             case DisconnectReasons.Custom:
                                 if (StringReason.Contains("Reliable packet"))
-                                {
                                     __instance.SetText(GetString("DCNotify.DCFromServer"));
-                                }
-                                else if (StringReason.Contains("remote has not responded to"))
-                                {
-                                    __instance.SetText(GetString("DCNotify.DCFromServer"));
-                                }
+                                else if (StringReason.Contains("remote has not responded to")) __instance.SetText(GetString("DCNotify.DCFromServer"));
 
                                 break;
                             case DisconnectReasons.ExitGame:
@@ -144,9 +136,7 @@ namespace EHR
                                 break;
                         }
                     }
-                    catch
-                    {
-                    }
+                    catch { }
                 }
             }, 0.01f, "Override Disconnect Text");
         }

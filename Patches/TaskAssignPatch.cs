@@ -18,10 +18,7 @@ namespace EHR
         public static void Prefix( /*ShipStatus __instance,*/
             [HarmonyArgument(4)] Il2CppSystem.Collections.Generic.List<NormalPlayerTask> unusedTasks)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             if (DisableTasksSettings.Count == 0)
             {
@@ -103,19 +100,13 @@ namespace EHR
                 };
             }
 
-            if (!Options.DisableShortTasks.GetBool() && !Options.DisableCommonTasks.GetBool() && !Options.DisableLongTasks.GetBool() && !Options.DisableOtherTasks.GetBool())
-            {
-                return;
-            }
+            if (!Options.DisableShortTasks.GetBool() && !Options.DisableCommonTasks.GetBool() && !Options.DisableLongTasks.GetBool() && !Options.DisableOtherTasks.GetBool()) return;
 
             List<NormalPlayerTask> disabledTasks = [];
+
             foreach (NormalPlayerTask task in unusedTasks)
-            {
                 if (DisableTasksSettings.TryGetValue(task.TaskType, out OptionItem setting) && setting.GetBool())
-                {
                     disabledTasks.Add(task);
-                }
-            }
 
             foreach (NormalPlayerTask task in disabledTasks)
             {
@@ -140,15 +131,12 @@ namespace EHR
             }
 
             PlayerControl pc = __instance.Object;
-            if (pc == null)
-            {
-                return;
-            }
+            if (pc == null) return;
 
             CustomRoles role = GhostRolesManager.AssignedGhostRoles.TryGetValue(pc.PlayerId, out (CustomRoles Role, IGhostRole Instance) gr) && gr.Instance is Specter or Haunter ? gr.Role : pc.GetCustomRole();
 
             // Default number of tasks
-            bool hasCommonTasks = true;
+            var hasCommonTasks = true;
             int NumLongTasks = Main.NormalOptions.NumLongTasks;
             int NumShortTasks = Main.NormalOptions.NumShortTasks;
 
@@ -159,10 +147,7 @@ namespace EHR
                 NumLongTasks = data.NumLongTasks.GetInt(); // Number of long tasks to allocate
                 NumShortTasks = data.NumShortTasks.GetInt(); // Number of short tasks to allocate
                 // Longs and shorts are constantly reallocated.
-                if (role is CustomRoles.Specter or CustomRoles.Haunter)
-                {
-                    Main.PlayerStates[pc.PlayerId].TaskState.AllTasksCount = NumLongTasks + NumShortTasks;
-                }
+                if (role is CustomRoles.Specter or CustomRoles.Haunter) Main.PlayerStates[pc.PlayerId].TaskState.AllTasksCount = NumLongTasks + NumShortTasks;
             }
 
             if (pc.Is(CustomRoles.Busy))
@@ -188,10 +173,7 @@ namespace EHR
             }
 
             // Workhorse task assignment
-            if (pc.Is(CustomRoles.Workhorse))
-            {
-                (hasCommonTasks, NumLongTasks, NumShortTasks) = Workhorse.TaskData;
-            }
+            if (pc.Is(CustomRoles.Workhorse)) (hasCommonTasks, NumLongTasks, NumShortTasks) = Workhorse.TaskData;
 
             // Capitalism is going to harm people~
             if (Capitalism.CapitalismAssignTask.ContainsKey(pc.PlayerId))
@@ -200,10 +182,7 @@ namespace EHR
                 Capitalism.CapitalismAssignTask.Remove(pc.PlayerId);
             }
 
-            if (taskTypeIds.Length == 0)
-            {
-                hasCommonTasks = false; // Set common to 0 when redistributing tasks
-            }
+            if (taskTypeIds.Length == 0) hasCommonTasks = false; // Set common to 0 when redistributing tasks
 
             switch (hasCommonTasks)
             {
@@ -217,46 +196,34 @@ namespace EHR
             // List containing IDs of assignable tasks
             // Clone of the second argument of the original RpcSetTasks
             Il2CppSystem.Collections.Generic.List<byte> TasksList = new();
-            foreach (byte num in taskTypeIds)
-            {
-                TasksList.Add(num);
-            }
+            foreach (byte num in taskTypeIds) TasksList.Add(num);
 
             // Reference: ShipStatus.Begin
             // Processing to delete unnecessary assigned tasks
             // If the setting is to assign common tasks, delete all other than common tasks
             // Empty the list if no common tasks are assigned
             int defaultCommonTasksNum = Main.RealOptionsData.GetInt(Int32OptionNames.NumCommonTasks);
+
             if (hasCommonTasks)
-            {
                 TasksList.RemoveRange(defaultCommonTasksNum, TasksList.Count - defaultCommonTasksNum);
-            }
             else
-            {
                 TasksList.Clear();
-            }
 
             // HashSet where assigned tasks will be placed
             // Prevent multiple assignments of the same task
             Il2CppSystem.Collections.Generic.HashSet<TaskTypes> usedTaskTypes = new();
-            int start2 = 0;
-            int start3 = 0;
+            var start2 = 0;
+            var start3 = 0;
 
             // List of assignable long tasks
             Il2CppSystem.Collections.Generic.List<NormalPlayerTask> LongTasks = new();
-            foreach (NormalPlayerTask task in ShipStatus.Instance.LongTasks)
-            {
-                LongTasks.Add(task);
-            }
+            foreach (NormalPlayerTask task in ShipStatus.Instance.LongTasks) LongTasks.Add(task);
 
             Shuffle(LongTasks);
 
             // List of assignable short tasks
             Il2CppSystem.Collections.Generic.List<NormalPlayerTask> ShortTasks = new();
-            foreach (NormalPlayerTask task in ShipStatus.Instance.ShortTasks)
-            {
-                ShortTasks.Add(task);
-            }
+            foreach (NormalPlayerTask task in ShipStatus.Instance.ShortTasks) ShortTasks.Add(task);
 
             Shuffle(ShortTasks);
 
@@ -268,6 +235,7 @@ namespace EHR
                 usedTaskTypes,
                 LongTasks
             );
+
             ShipStatus.Instance.AddTasksFromList(
                 ref start3,
                 NumShortTasks,
@@ -278,15 +246,12 @@ namespace EHR
 
             // Convert list of tasks to array (Il2CppStructArray)
             taskTypeIds = new(TasksList.Count);
-            for (int i = 0; i < TasksList.Count; i++)
-            {
-                taskTypeIds[i] = TasksList[i];
-            }
+            for (var i = 0; i < TasksList.Count; i++) taskTypeIds[i] = TasksList[i];
         }
 
         private static void Shuffle<T>(Il2CppSystem.Collections.Generic.List<T> list)
         {
-            for (int i = 0; i < list.Count - 1; i++)
+            for (var i = 0; i < list.Count - 1; i++)
             {
                 T obj = list[i];
                 int rand = Random.Range(i, list.Count);

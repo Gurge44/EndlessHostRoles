@@ -17,15 +17,19 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.TimeThief);
+
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.TimeThief])
                 .SetValueFormat(OptionFormat.Seconds);
+
             DecreaseMeetingTime = new IntegerOptionItem(Id + 11, "TimeThiefDecreaseMeetingTime", new(0, 100, 1), 10, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.TimeThief])
                 .SetValueFormat(OptionFormat.Seconds);
+
             LowerLimitVotingTime = new IntegerOptionItem(Id + 12, "TimeThiefLowerLimitVotingTime", new(0, 300, 5), 50, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.TimeThief])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ReturnStolenTimeUponDeath = new BooleanOptionItem(Id + 13, "TimeThiefReturnStolenTimeUponDeath", true, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.TimeThief]);
         }

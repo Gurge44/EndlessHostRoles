@@ -20,17 +20,11 @@ namespace EHR
         {
             string thisName = GetType().Name;
             string translatedName = Translator.GetString(thisName);
-            if (translatedName != string.Empty && !translatedName.StartsWith("*") && !translatedName.StartsWith("<INVALID"))
-            {
-                thisName = translatedName;
-            }
+            if (translatedName != string.Empty && !translatedName.StartsWith("*") && !translatedName.StartsWith("<INVALID")) thisName = translatedName;
 
             string otherName = other.GetType().Name;
             string translatedOtherName = Translator.GetString(otherName);
-            if (translatedOtherName != string.Empty && !translatedOtherName.StartsWith("*") && !translatedOtherName.StartsWith("<INVALID"))
-            {
-                otherName = translatedOtherName;
-            }
+            if (translatedOtherName != string.Empty && !translatedOtherName.StartsWith("*") && !translatedOtherName.StartsWith("<INVALID")) otherName = translatedOtherName;
 
             return string.Compare(thisName, otherName, StringComparison.Ordinal);
         }
@@ -66,51 +60,34 @@ namespace EHR
             return pc.Is(CustomRoleTypes.Impostor) || pc.Is(CustomRoles.Trickster) || pc.Is(CustomRoles.Mischievous) || (pc.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool() && pc.IsAlive());
         }
 
-        public virtual void ApplyGameOptions(IGameOptions opt, byte playerId)
-        {
-        }
+        public virtual void ApplyGameOptions(IGameOptions opt, byte playerId) { }
 
-        public virtual void OnFixedUpdate(PlayerControl pc)
-        {
-        }
+        public virtual void OnFixedUpdate(PlayerControl pc) { }
 
-        public virtual void OnCheckPlayerPosition(PlayerControl pc)
-        {
-        }
+        public virtual void OnCheckPlayerPosition(PlayerControl pc) { }
 
-        public virtual void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
-        {
-        }
+        public virtual void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad) { }
 
-        public virtual void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
-        {
-        }
+        public virtual void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount) { }
 
-        public virtual void OnCoEnterVent(PlayerPhysics physics, int ventId)
-        {
-        }
+        public virtual void OnCoEnterVent(PlayerPhysics physics, int ventId) { }
 
-        public virtual void OnEnterVent(PlayerControl pc, Vent vent)
-        {
-        }
+        public virtual void OnEnterVent(PlayerControl pc, Vent vent) { }
 
-        public virtual void OnExitVent(PlayerControl pc, Vent vent)
-        {
-        }
+        public virtual void OnExitVent(PlayerControl pc, Vent vent) { }
 
         public virtual void OnPet(PlayerControl pc)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             int x = IRandom.Instance.Next(1, 16);
             string suffix;
+
             if (x >= 14)
             {
                 x -= 13;
                 TaskState ts = pc.GetTaskState();
+
                 suffix = pc.GetCustomRoleTypes() switch
                 {
                     CustomRoleTypes.Impostor => $"Imp{x}",
@@ -120,9 +97,7 @@ namespace EHR
                 };
             }
             else
-            {
                 suffix = x.ToString();
-            }
 
             pc.Notify(Translator.GetString($"NoPetActionMsg{suffix}"));
         }
@@ -142,9 +117,7 @@ namespace EHR
             return target != null && killer != null;
         }
 
-        public virtual void OnMurder(PlayerControl killer, PlayerControl target)
-        {
-        }
+        public virtual void OnMurder(PlayerControl killer, PlayerControl target) { }
 
         public virtual bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
@@ -161,18 +134,14 @@ namespace EHR
             return false;
         }
 
-        public virtual void OnReportDeadBody()
-        {
-        }
+        public virtual void OnReportDeadBody() { }
 
         public virtual bool CheckReportDeadBody(PlayerControl reporter, NetworkedPlayerInfo target, PlayerControl killer)
         {
             return true;
         }
 
-        public virtual void AfterMeetingTasks()
-        {
-        }
+        public virtual void AfterMeetingTasks() { }
 
         public virtual string GetProgressText(byte playerId, bool comms)
         {
@@ -182,9 +151,7 @@ namespace EHR
             return sb.ToString();
         }
 
-        public virtual void SetButtonTexts(HudManager hud, byte id)
-        {
-        }
+        public virtual void SetButtonTexts(HudManager hud, byte id) { }
 
         public virtual string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
@@ -193,10 +160,7 @@ namespace EHR
 
         public virtual bool KnowRole(PlayerControl seer, PlayerControl target)
         {
-            if (Options.NeutralsKnowEachOther.GetBool() && seer.Is(Team.Neutral) && target.Is(Team.Neutral))
-            {
-                return true;
-            }
+            if (Options.NeutralsKnowEachOther.GetBool() && seer.Is(Team.Neutral) && target.Is(Team.Neutral)) return true;
 
             CustomRoles seerRole = seer.GetCustomRole();
             return seerRole.IsNK() && seerRole == target.GetCustomRole() && seer.GetTeam() == target.GetTeam();
@@ -205,20 +169,14 @@ namespace EHR
         // Option setup simplifier
         protected OptionSetupHandler StartSetup(int id)
         {
-            CustomRoles role = Enum.Parse<CustomRoles>(GetType().Name, true);
-            TabGroup tab = TabGroup.OtherRoles;
+            var role = Enum.Parse<CustomRoles>(GetType().Name, true);
+            var tab = TabGroup.OtherRoles;
+
             if (role.IsImpostor())
-            {
                 tab = TabGroup.ImpostorRoles;
-            }
             else if (role.IsNeutral(true))
-            {
                 tab = TabGroup.NeutralRoles;
-            }
-            else if (role.IsCrewmate())
-            {
-                tab = TabGroup.CrewmateRoles;
-            }
+            else if (role.IsCrewmate()) tab = TabGroup.CrewmateRoles;
 
             Options.SetupRoleOptions(id++, tab, role);
             return new(++id, tab, role);
@@ -236,6 +194,7 @@ namespace EHR
             {
                 bool generalOption = !Translator.GetString(fieldName).Contains("INVALID");
                 string name = overrideName == "" ? generalOption ? fieldName : $"{role}.{fieldName}" : overrideName;
+
                 field = (valueRule, defaultValue) switch
                 {
                     (null, bool bdv) => new BooleanOptionItem(++_id, name, bdv, tab),
@@ -247,10 +206,7 @@ namespace EHR
 
                 field.SetParent(overrideParent ?? Parent);
 
-                if (format != OptionFormat.None)
-                {
-                    field?.SetValueFormat(format);
-                }
+                if (format != OptionFormat.None) field?.SetValueFormat(format);
             }
             catch (Exception e)
             {

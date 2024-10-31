@@ -27,18 +27,16 @@ namespace EHR.Patches
                     GameObject dlekS_ehT = Object.Instantiate(AllMapButton[0].gameObject, __instance.transform);
                     dlekS_ehT.transform.position = AllMapButton[dleksPos].transform.position;
                     dlekS_ehT.transform.SetSiblingIndex(dleksPos + 2);
-                    MapSelectButton dlekS_ehT_MapButton = dlekS_ehT.GetComponent<MapSelectButton>();
+                    var dlekS_ehT_MapButton = dlekS_ehT.GetComponent<MapSelectButton>();
                     DleksButton = dlekS_ehT_MapButton;
                     dlekS_ehT_MapButton.MapIcon.transform.localScale = new(-1f, 1f, 1f);
                     dlekS_ehT_MapButton.Button.OnClick.RemoveAllListeners();
+
                     dlekS_ehT_MapButton.Button.OnClick.AddListener((Action)(() =>
                     {
                         __instance.SelectMap(__instance.AllMapIcons[0]);
 
-                        if (__instance.selectedButton)
-                        {
-                            __instance.selectedButton.Button.SelectButton(false);
-                        }
+                        if (__instance.selectedButton) __instance.selectedButton.Button.SelectButton(false);
 
                         __instance.selectedButton = dlekS_ehT_MapButton;
                         __instance.selectedButton.Button.SelectButton(true);
@@ -50,19 +48,13 @@ namespace EHR.Patches
                         __instance.MapName.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 100f);
                     }));
 
-                    for (int i = dleksPos; i < AllMapButton.Length; i++)
-                    {
-                        AllMapButton[i].transform.localPosition += new Vector3(0.625f, 0f, 0f);
-                    }
+                    for (int i = dleksPos; i < AllMapButton.Length; i++) AllMapButton[i].transform.localPosition += new Vector3(0.625f, 0f, 0f);
 
                     if (DleksButton != null)
                     {
                         if (SetDleks)
                         {
-                            if (__instance.selectedButton)
-                            {
-                                __instance.selectedButton.Button.SelectButton(false);
-                            }
+                            if (__instance.selectedButton) __instance.selectedButton.Button.SelectButton(false);
 
                             DleksButton.Button.SelectButton(true);
                             __instance.selectedButton = DleksButton;
@@ -72,9 +64,7 @@ namespace EHR.Patches
                             __instance.MapName.sprite = Utils.LoadSprite("EHR.Resources.Images.DleksBanner-Wordart.png", 100f);
                         }
                         else
-                        {
                             DleksButton.Button.SelectButton(false);
-                        }
                     }
                 }
             }
@@ -83,10 +73,7 @@ namespace EHR.Patches
             [HarmonyPrefix]
             public static bool Prefix_FixedUpdate(GameOptionsMapPicker __instance)
             {
-                if (DleksButton != null)
-                {
-                    SetDleks = __instance.selectedMapId == 3;
-                }
+                if (DleksButton != null) SetDleks = __instance.selectedMapId == 3;
 
                 return __instance.selectedMapId != 3;
             }
@@ -98,7 +85,7 @@ namespace EHR.Patches
             public static void Postfix(CreateOptionsPicker __instance)
             {
                 Transform mapPickerTransform = __instance.transform.Find("MapPicker");
-                MapPickerMenu mapPickerMenu = mapPickerTransform.Find("Map Picker Menu").GetComponent<MapPickerMenu>();
+                var mapPickerMenu = mapPickerTransform.Find("Map Picker Menu").GetComponent<MapPickerMenu>();
 
                 MapFilterButton airhipIconInMenu = __instance.MapMenu.MapButtons[3];
                 MapFilterButton fungleIconInMenu = __instance.MapMenu.MapButtons[4];
@@ -112,10 +99,10 @@ namespace EHR.Patches
                 Transform dleksMenuButtonCopy = Object.Instantiate(airshipMenuButton, airshipMenuButton.parent);
 
                 // Set mapid for Dleks button
-                PassiveButton dleksButton = dleksMenuButtonCopy.GetComponent<PassiveButton>();
+                var dleksButton = dleksMenuButtonCopy.GetComponent<PassiveButton>();
                 dleksButton.OnClick.m_PersistentCalls.m_Calls._items[0].arguments.intArgument = (int)MapNames.Dleks;
 
-                SpriteRenderer dleksImage = dleksMenuButtonCopy.Find("Image").GetComponent<SpriteRenderer>();
+                var dleksImage = dleksMenuButtonCopy.Find("Image").GetComponent<SpriteRenderer>();
                 dleksImage.sprite = skeldMenuButton.Find("Image").GetComponent<SpriteRenderer>().sprite;
 
                 dleksIconInMenuCopy.name = "Dleks";
@@ -134,7 +121,8 @@ namespace EHR.Patches
                 __instance.MapMenu.MapButtons = __instance.MapMenu.MapButtons.AddItem(dleksIconInMenuCopy).ToArray();
 
                 float xPos = -1f;
-                for (int index = 0; index < 6; ++index)
+
+                for (var index = 0; index < 6; ++index)
                 {
                     __instance.MapMenu.MapButtons[index].transform.SetLocalX(xPos);
                     xPos += 0.34f;

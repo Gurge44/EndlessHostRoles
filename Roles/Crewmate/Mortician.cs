@@ -21,6 +21,7 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mortician);
+
             ShowArrows = new BooleanOptionItem(Id + 2, "ShowArrows", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mortician]);
         }
@@ -41,16 +42,15 @@ namespace EHR.Crewmate
         public static void OnPlayerDead(PlayerControl target)
         {
             Vector2 pos = target.Pos();
-            float minDis = float.MaxValue;
-            string minName = string.Empty;
+            var minDis = float.MaxValue;
+            var minName = string.Empty;
+
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (pc.PlayerId == target.PlayerId)
-                {
-                    continue;
-                }
+                if (pc.PlayerId == target.PlayerId) continue;
 
                 float dis = Vector2.Distance(pc.Pos(), pos);
+
                 if (dis < minDis && dis < 1.5f)
                 {
                     minDis = dis;
@@ -59,13 +59,11 @@ namespace EHR.Crewmate
             }
 
             LastPlayerName.TryAdd(target.PlayerId, minName);
+
             foreach (byte pc in PlayerIdList)
             {
                 PlayerControl player = Utils.GetPlayerById(pc);
-                if (player == null || !player.IsAlive())
-                {
-                    continue;
-                }
+                if (player == null || !player.IsAlive()) continue;
 
                 LocateArrow.Add(pc, target.transform.position);
             }
@@ -73,15 +71,9 @@ namespace EHR.Crewmate
 
         public static void OnReportDeadBody(PlayerControl pc, NetworkedPlayerInfo target)
         {
-            foreach (byte apc in PlayerIdList)
-            {
-                LocateArrow.RemoveAllTarget(apc);
-            }
+            foreach (byte apc in PlayerIdList) LocateArrow.RemoveAllTarget(apc);
 
-            if (!pc.Is(CustomRoles.Mortician) || target == null || pc.PlayerId == target.PlayerId)
-            {
-                return;
-            }
+            if (!pc.Is(CustomRoles.Mortician) || target == null || pc.PlayerId == target.PlayerId) return;
 
             LastPlayerName.TryGetValue(target.PlayerId, out string name);
             MsgToSend.Add(pc.PlayerId, name == "" ? string.Format(Translator.GetString("MorticianGetNoInfo"), target.PlayerName) : string.Format(Translator.GetString("MorticianGetInfo"), target.PlayerName, name));
@@ -91,15 +83,9 @@ namespace EHR.Crewmate
         {
             if (ShowArrows.GetBool())
             {
-                if (target != null && seer.PlayerId != target.PlayerId)
-                {
-                    return string.Empty;
-                }
+                if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
 
-                if (seer.PlayerId != MorticianId)
-                {
-                    return string.Empty;
-                }
+                if (seer.PlayerId != MorticianId) return string.Empty;
 
                 return GameStates.IsMeeting ? string.Empty : Utils.ColorString(Color.white, LocateArrow.GetArrows(seer));
             }

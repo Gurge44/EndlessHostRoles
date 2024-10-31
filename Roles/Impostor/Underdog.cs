@@ -10,12 +10,15 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(10025, TabGroup.ImpostorRoles, CustomRoles.Underdog);
+
             UnderdogMaximumPlayersNeededToKill = new IntegerOptionItem(10030, "UnderdogMaximumPlayersNeededToKill", new(1, 15, 1), 5, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Underdog])
                 .SetValueFormat(OptionFormat.Players);
+
             UnderdogKillCooldown = new FloatOptionItem(10031, "KillCooldown", new(0f, 180f, 2.5f), 15f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Underdog])
                 .SetValueFormat(OptionFormat.Seconds);
+
             UnderdogKillCooldownWithMorePlayersAlive = new FloatOptionItem(10032, "UnderdogKillCooldownWithMorePlayersAlive", new(0f, 180f, 2.5f), 35f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Underdog])
                 .SetValueFormat(OptionFormat.Seconds);

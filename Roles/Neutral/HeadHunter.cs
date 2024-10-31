@@ -31,19 +31,26 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.HeadHunter);
+
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 27.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
                 .SetValueFormat(OptionFormat.Seconds);
+
             SuccessKillCooldown = new FloatOptionItem(Id + 11, "HHSuccessKCDDecrease", new(0f, 180f, 0.5f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
                 .SetValueFormat(OptionFormat.Seconds);
+
             FailureKillCooldown = new FloatOptionItem(Id + 12, "HHFailureKCDIncrease", new(0f, 180f, 0.5f), 10f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(Id + 13, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter]);
             HasImpostorVision = new BooleanOptionItem(Id + 14, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter]);
+
             NumOfTargets = new IntegerOptionItem(Id + 15, "HHNumOfTargets", new(0, 10, 1), 3, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
                 .SetValueFormat(OptionFormat.Times);
+
             MaxKCD = new FloatOptionItem(Id + 16, "HHMaxKCD", new(0f, 180f, 0.5f), 40f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
                 .SetValueFormat(OptionFormat.Seconds);
+
             MinKCD = new FloatOptionItem(Id + 17, "HHMinKCD", new(0f, 180f, 0.5f), 10f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.HeadHunter])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -69,10 +76,7 @@ namespace EHR.Neutral
             MessageWriter writer = Utils.CreateRPC(CustomRPC.SyncHeadHunter);
             writer.Write(HeadHunterId);
             writer.Write(Targets.Count);
-            foreach (byte target in Targets.ToArray())
-            {
-                writer.Write(target);
-            }
+            foreach (byte target in Targets.ToArray()) writer.Write(target);
 
             Utils.EndRPC(writer);
         }
@@ -80,17 +84,11 @@ namespace EHR.Neutral
         public static void ReceiveRPC(MessageReader reader)
         {
             byte playerId = reader.ReadByte();
-            if (Main.PlayerStates[playerId].Role is not HeadHunter hh)
-            {
-                return;
-            }
+            if (Main.PlayerStates[playerId].Role is not HeadHunter hh) return;
 
             hh.Targets.Clear();
             int count = reader.ReadInt32();
-            for (int i = 0; i < count; i++)
-            {
-                hh.Targets.Add(reader.ReadByte());
-            }
+            for (var i = 0; i < count; i++) hh.Targets.Add(reader.ReadByte());
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte id)
@@ -116,14 +114,11 @@ namespace EHR.Neutral
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             float tempkcd = KCD;
+
             if (Targets.Contains(target.PlayerId))
-            {
                 Math.Clamp(KCD -= SuccessKillCooldown.GetFloat(), MinKCD.GetFloat(), MaxKCD.GetFloat());
-            }
             else
-            {
                 Math.Clamp(KCD += FailureKillCooldown.GetFloat(), MinKCD.GetFloat(), MaxKCD.GetFloat());
-            }
 
             if (Math.Abs(KCD - tempkcd) > 0.1f)
             {
@@ -141,25 +136,16 @@ namespace EHR.Neutral
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!hud)
-            {
-                return string.Empty;
-            }
+            if (!hud) return string.Empty;
 
             byte targetId = seer.PlayerId;
-            string output = string.Empty;
-            if (Main.PlayerStates[targetId].Role is not HeadHunter hh)
-            {
-                return output;
-            }
+            var output = string.Empty;
+            if (Main.PlayerStates[targetId].Role is not HeadHunter hh) return output;
 
-            for (int i = 0; i < hh.Targets.Count; i++)
+            for (var i = 0; i < hh.Targets.Count; i++)
             {
                 byte playerId = hh.Targets[i];
-                if (i != 0)
-                {
-                    output += ", ";
-                }
+                if (i != 0) output += ", ";
 
                 output += playerId.ColoredPlayerName();
             }
@@ -169,21 +155,16 @@ namespace EHR.Neutral
 
         private void ResetTargets()
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             Targets.Clear();
-            for (int i = 0; i < NumOfTargets.GetInt(); i++)
+
+            for (var i = 0; i < NumOfTargets.GetInt(); i++)
             {
                 try
                 {
-                    List<PlayerControl> cTargets = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(pc => !Targets.Contains(pc.PlayerId) && pc.GetCustomRole() != CustomRoles.HeadHunter));
-                    if (cTargets.Count == 0)
-                    {
-                        break;
-                    }
+                    var cTargets = new List<PlayerControl>(Main.AllAlivePlayerControls.Where(pc => !Targets.Contains(pc.PlayerId) && pc.GetCustomRole() != CustomRoles.HeadHunter));
+                    if (cTargets.Count == 0) break;
 
                     PlayerControl target = cTargets.RandomElement();
                     Targets.Add(target.PlayerId);

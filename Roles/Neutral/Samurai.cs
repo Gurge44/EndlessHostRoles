@@ -26,19 +26,25 @@ namespace EHR.Neutral
         {
             const int id = 16880;
             SetupRoleOptions(id, TabGroup.NeutralRoles, CustomRoles.Samurai);
+
             KillCooldown = new FloatOptionItem(id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(id + 3, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai]);
+
             HasImpostorVision = new BooleanOptionItem(id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai]);
+
             NearbyDuration = new FloatOptionItem(id + 5, "Samurai.NearbyDuration", new(0f, 30f, 0.5f), 3f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai])
                 .SetValueFormat(OptionFormat.Seconds);
+
             SuccessKCD = new FloatOptionItem(id + 6, "Samurai.SuccessKCD", new(0f, 180f, 0.5f), 17.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai])
                 .SetValueFormat(OptionFormat.Seconds);
+
             KillDelay = new FloatOptionItem(id + 7, "Samurai.KillDelay", new(0f, 60f, 0.5f), 5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Samurai])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -79,10 +85,7 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (Target.Id != byte.MaxValue)
-            {
-                return false;
-            }
+            if (Target.Id != byte.MaxValue) return false;
 
             Target = (target.PlayerId, Utils.TimeStamp);
             return false;
@@ -90,40 +93,24 @@ namespace EHR.Neutral
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || ExileController.Instance != null)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask || ExileController.Instance != null) return;
 
             long now = Utils.TimeStamp;
 
             foreach (KeyValuePair<byte, long> kvp in Delays)
             {
                 PlayerControl player = Utils.GetPlayerById(kvp.Key);
-                if (player == null || !player.IsAlive())
-                {
-                    continue;
-                }
+                if (player == null || !player.IsAlive()) continue;
 
                 if (kvp.Value + KillDelay.GetInt() <= now)
-                {
                     if (pc.RpcCheckAndMurder(player, true))
-                    {
                         player.Suicide(realKiller: pc);
-                    }
-                }
             }
 
-            if (Target.Id == byte.MaxValue || !pc.IsAlive())
-            {
-                return;
-            }
+            if (Target.Id == byte.MaxValue || !pc.IsAlive()) return;
 
             PlayerControl target = Utils.GetPlayerById(Target.Id);
-            if (target == null)
-            {
-                return;
-            }
+            if (target == null) return;
 
             if (Vector2.Distance(target.Pos(), pc.Pos()) > NormalGameOptionsV08.KillDistances[Mathf.Clamp(pc.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f)
             {
@@ -145,15 +132,9 @@ namespace EHR.Neutral
             foreach (byte id in Delays.Keys)
             {
                 PlayerControl player = Utils.GetPlayerById(id);
-                if (player == null || !player.IsAlive())
-                {
-                    continue;
-                }
+                if (player == null || !player.IsAlive()) continue;
 
-                if (SamuraiPC.RpcCheckAndMurder(player, true))
-                {
-                    player.Suicide(realKiller: SamuraiPC);
-                }
+                if (SamuraiPC.RpcCheckAndMurder(player, true)) player.Suicide(realKiller: SamuraiPC);
             }
 
             Delays.Clear();

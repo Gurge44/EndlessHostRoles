@@ -26,15 +26,20 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.DarkHide);
+
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.DarkHide])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(Id + 14, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.DarkHide]);
+
             HasImpostorVision = new BooleanOptionItem(Id + 11, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.DarkHide]);
+
             CanCountNeutralKiller = new BooleanOptionItem(Id + 12, "CanCountNeutralKiller", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.DarkHide]);
+
             SnatchesWin = new BooleanOptionItem(Id + 13, "SnatchesWin", false, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.DarkHide]);
         }
@@ -58,10 +63,7 @@ namespace EHR.Neutral
         public static void ReceiveRPC(MessageReader msg)
         {
             byte DarkHiderId = msg.ReadByte();
-            if (Main.PlayerStates[DarkHiderId].Role is not DarkHide { IsEnable: true } dh)
-            {
-                return;
-            }
+            if (Main.PlayerStates[DarkHiderId].Role is not DarkHide { IsEnable: true } dh) return;
 
             bool IsKillerKill = msg.ReadBoolean();
             dh.IsWinKill = IsKillerKill;
@@ -69,10 +71,7 @@ namespace EHR.Neutral
 
         private void DRpcSetKillCount(PlayerControl player)
         {
-            if (!IsEnable || !Utils.DoRPC || !AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!IsEnable || !Utils.DoRPC || !AmongUsClient.Instance.AmHost) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDarkHiderKillCount, SendOption.Reliable);
             writer.Write(player.PlayerId);
@@ -104,15 +103,9 @@ namespace EHR.Neutral
         {
             CustomRoles targetRole = Ktarget.GetCustomRole();
             bool succeeded = targetRole.IsImpostor();
-            if (CanCountNeutralKiller.GetBool() && !Ktarget.Is(CustomRoles.Arsonist) && !Ktarget.Is(CustomRoles.Revolutionist))
-            {
-                succeeded = succeeded || Ktarget.IsNeutralKiller();
-            }
+            if (CanCountNeutralKiller.GetBool() && !Ktarget.Is(CustomRoles.Arsonist) && !Ktarget.Is(CustomRoles.Revolutionist)) succeeded = succeeded || Ktarget.IsNeutralKiller();
 
-            if (succeeded && SnatchesWin.GetBool())
-            {
-                IsWinKill = true;
-            }
+            if (succeeded && SnatchesWin.GetBool()) IsWinKill = true;
 
             DRpcSetKillCount(killer);
             MessageWriter SabotageFixWriter = AmongUsClient.Instance.StartRpcImmediately(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, SendOption.Reliable, killer.GetClientId());
@@ -122,10 +115,7 @@ namespace EHR.Neutral
 
             foreach (PlayerControl target in Main.AllPlayerControls)
             {
-                if (target.PlayerId == killer.PlayerId || target.Data.Disconnected)
-                {
-                    continue;
-                }
+                if (target.PlayerId == killer.PlayerId || target.Data.Disconnected) continue;
 
                 SabotageFixWriter = AmongUsClient.Instance.StartRpcImmediately(ShipStatus.Instance.NetId, (byte)RpcCalls.UpdateSystem, SendOption.Reliable, target.GetClientId());
                 SabotageFixWriter.Write((byte)SystemTypes.Electrical);

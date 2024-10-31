@@ -30,14 +30,18 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Necromancer);
+
             CD = new FloatOptionItem(Id + 2, "NecromancerCD", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer])
                 .SetValueFormat(OptionFormat.Seconds);
+
             Dkcd = new FloatOptionItem(Id + 10, "DKCD", new(0f, 180f, 2.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer])
                 .SetValueFormat(OptionFormat.Seconds);
+
             KnowTargetRole = new BooleanOptionItem(Id + 13, "NecromancerKnowTargetRole", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer]);
+
             UndeadCountMode = new StringOptionItem(Id + 15, "UndeadCountMode", UndeadCountModeStrings, 0, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Necromancer]);
         }
@@ -127,10 +131,7 @@ namespace EHR.Neutral
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || !IsEnable || NecromancerPC.IsAlive() || !Deathknight.DeathknightPC.IsAlive())
-            {
-                return;
-            }
+            if (!GameStates.IsInTask || !IsEnable || NecromancerPC.IsAlive() || !Deathknight.DeathknightPC.IsAlive()) return;
 
             Deathknight.DeathknightPC.RpcSetCustomRole(CustomRoles.Necromancer);
             Add(Deathknight.DeathknightId);
@@ -141,25 +142,13 @@ namespace EHR.Neutral
 
         public override bool KnowRole(PlayerControl player, PlayerControl target)
         {
-            if (base.KnowRole(player, target))
-            {
-                return true;
-            }
+            if (base.KnowRole(player, target)) return true;
 
-            if (player.Is(CustomRoles.Undead) && (target.Is(CustomRoles.Necromancer) || target.Is(CustomRoles.Deathknight)))
-            {
-                return true;
-            }
+            if (player.Is(CustomRoles.Undead) && (target.Is(CustomRoles.Necromancer) || target.Is(CustomRoles.Deathknight))) return true;
 
-            if (KnowTargetRole.GetBool() && (player.Is(CustomRoles.Necromancer) || player.Is(CustomRoles.Deathknight)) && target.Is(CustomRoles.Undead))
-            {
-                return true;
-            }
+            if (KnowTargetRole.GetBool() && (player.Is(CustomRoles.Necromancer) || player.Is(CustomRoles.Deathknight)) && target.Is(CustomRoles.Undead)) return true;
 
-            if (player.Is(CustomRoles.Deathknight) && target.Is(CustomRoles.Necromancer))
-            {
-                return true;
-            }
+            if (player.Is(CustomRoles.Deathknight) && target.Is(CustomRoles.Necromancer)) return true;
 
             return player.Is(CustomRoles.Necromancer) && target.Is(CustomRoles.Deathknight);
         }
@@ -177,9 +166,7 @@ namespace EHR.Neutral
 
         public override bool IsEnable => DeathknightId != byte.MaxValue;
 
-        public override void SetupCustomOption()
-        {
-        }
+        public override void SetupCustomOption() { }
 
         public override void Init()
         {

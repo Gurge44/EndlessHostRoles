@@ -14,12 +14,9 @@ namespace EHR.Patches
 
         public static void Prefix([HarmonyArgument(0)] Activity activity)
         {
-            if (activity == null)
-            {
-                return;
-            }
+            if (activity == null) return;
 
-            string details = $"EHR v{Main.PluginDisplayVersion}";
+            var details = $"EHR v{Main.PluginDisplayVersion}";
             activity.Details = details;
 
             try
@@ -34,15 +31,10 @@ namespace EHR.Patches
                             Region = Utils.GetRegionName();
                         }
 
-                        if (Lobbycode != "" && Region != "")
-                        {
-                            details = $"EHR - {Lobbycode} ({Region})";
-                        }
+                        if (Lobbycode != "" && Region != "") details = $"EHR - {Lobbycode} ({Region})";
                     }
                     else
-                    {
                         details = $"EHR v{Main.PluginDisplayVersion}";
-                    }
 
                     activity.Details = details;
                 }

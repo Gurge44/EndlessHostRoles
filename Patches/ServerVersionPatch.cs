@@ -7,10 +7,7 @@ namespace EHR.Patches
     {
         public static void Postfix(ref int __result)
         {
-            if (GameStates.IsLocalGame)
-            {
-                Logger.Info($"IsLocalGame: {__result}", "VersionServer");
-            }
+            if (GameStates.IsLocalGame) Logger.Info($"IsLocalGame: {__result}", "VersionServer");
 
             if (GameStates.IsOnlineGame)
             {

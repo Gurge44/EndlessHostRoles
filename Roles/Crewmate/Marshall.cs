@@ -17,13 +17,16 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Marshall);
+
             Enum.GetValues<SeeingTeam>().Do(x =>
             {
                 SeeingTeamOptions[x] = new BooleanOptionItem(Id + 2 + (int)x, $"{x}CanFindMarshall", false, TabGroup.CrewmateRoles)
                     .SetParent(CustomRoleSpawnChances[CustomRoles.Marshall]);
             });
+
             CanBeGuessedOnTaskCompletion = new BooleanOptionItem(Id + 10, "MarshallCanBeGuessedOnTaskCompletion", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Marshall]);
+
             OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.Marshall);
         }
 
@@ -46,6 +49,7 @@ namespace EHR.Crewmate
         {
             Team team = seer.GetTeam();
             bool madmate = seer.IsMadmate();
+
             return team switch
             {
                 Team.Crewmate when !madmate => true,

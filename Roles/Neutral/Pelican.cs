@@ -25,11 +25,14 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Pelican);
+
             KillCooldown = new FloatOptionItem(Id + 10, "PelicanKillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican]);
+
             ImpostorVision = new BooleanOptionItem(Id + 12, "ImpostorVision", false, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pelican]);
         }
@@ -63,28 +66,20 @@ namespace EHR.Neutral
         private static void SyncEatenList( /*byte playerId*/)
         {
             SendRPC(byte.MaxValue);
-            foreach (KeyValuePair<byte, List<byte>> el in EatenList)
-            {
-                SendRPC(el.Key);
-            }
+            foreach (KeyValuePair<byte, List<byte>> el in EatenList) SendRPC(el.Key);
         }
 
         private static void SendRPC(byte playerId)
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetPelicanEtenNum, SendOption.Reliable);
             writer.Write(playerId);
+
             if (playerId != byte.MaxValue)
             {
                 writer.Write(EatenList[playerId].Count);
-                foreach (byte el in EatenList[playerId].ToArray())
-                {
-                    writer.Write(el);
-                }
+                foreach (byte el in EatenList[playerId].ToArray()) writer.Write(el);
             }
 
             AmongUsClient.Instance.FinishRpcImmediately(writer);
@@ -93,19 +88,15 @@ namespace EHR.Neutral
         public static void ReceiveRPC(MessageReader reader)
         {
             byte playerId = reader.ReadByte();
+
             if (playerId == byte.MaxValue)
-            {
                 EatenList.Clear();
-            }
             else
             {
                 int eatenNum = reader.ReadInt32();
                 EatenList.Remove(playerId);
                 List<byte> list = [];
-                for (int i = 0; i < eatenNum; i++)
-                {
-                    list.Add(reader.ReadByte());
-                }
+                for (var i = 0; i < eatenNum; i++) list.Add(reader.ReadByte());
 
                 EatenList.Add(playerId, list);
             }
@@ -119,22 +110,15 @@ namespace EHR.Neutral
         public static bool IsEaten(byte id)
         {
             foreach (KeyValuePair<byte, List<byte>> el in EatenList)
-            {
                 if (el.Value.Contains(id))
-                {
                     return true;
-                }
-            }
 
             return false;
         }
 
         public static bool CanEat(PlayerControl pc, byte id)
         {
-            if (!pc.Is(CustomRoles.Pelican) || GameStates.IsMeeting)
-            {
-                return false;
-            }
+            if (!pc.Is(CustomRoles.Pelican) || GameStates.IsMeeting) return false;
 
             PlayerControl target = Utils.GetPlayerById(id);
             return target != null && target.IsAlive() && !target.inVent && !Medic.ProtectList.Contains(target.PlayerId) && !target.Is(CustomRoles.GM) && !IsEaten(pc, id) && !IsEaten(id);
@@ -157,31 +141,19 @@ namespace EHR.Neutral
         public override string GetProgressText(byte playerId, bool comms)
         {
             PlayerControl player = Utils.GetPlayerById(playerId);
-            if (player == null)
-            {
-                return "Invalid";
-            }
+            if (player == null) return "Invalid";
 
-            int eatenNum = 0;
-            if (EatenList.TryGetValue(playerId, out List<byte> value))
-            {
-                eatenNum = value.Count;
-            }
+            var eatenNum = 0;
+            if (EatenList.TryGetValue(playerId, out List<byte> value)) eatenNum = value.Count;
 
             return Utils.ColorString(eatenNum < 1 ? Color.gray : Utils.GetRoleColor(CustomRoles.Pelican), $"({eatenNum})");
         }
 
         public static void EatPlayer(PlayerControl pc, PlayerControl target)
         {
-            if (pc == null || target == null || !CanEat(pc, target.PlayerId))
-            {
-                return;
-            }
+            if (pc == null || target == null || !CanEat(pc, target.PlayerId)) return;
 
-            if (!EatenList.ContainsKey(pc.PlayerId))
-            {
-                EatenList.Add(pc.PlayerId, []);
-            }
+            if (!EatenList.ContainsKey(pc.PlayerId)) EatenList.Add(pc.PlayerId, []);
 
             EatenList[pc.PlayerId].Add(target.PlayerId);
 
@@ -208,10 +180,7 @@ namespace EHR.Neutral
                 {
                     PlayerControl target = Utils.GetPlayerById(tar);
                     PlayerControl killer = Utils.GetPlayerById(pc.Key);
-                    if (killer == null || target == null)
-                    {
-                        continue;
-                    }
+                    if (killer == null || target == null) continue;
 
                     Main.AllPlayerSpeed[tar] = Main.AllPlayerSpeed[tar] - 0.5f + OriginalSpeed[tar];
                     ReportDeadBodyPatch.CanReport[tar] = true;
@@ -230,19 +199,13 @@ namespace EHR.Neutral
 
         public static void OnPelicanDied(byte pc)
         {
-            if (!EatenList.TryGetValue(pc, out List<byte> value))
-            {
-                return;
-            }
+            if (!EatenList.TryGetValue(pc, out List<byte> value)) return;
 
             foreach (byte tar in value)
             {
                 PlayerControl target = Utils.GetPlayerById(tar);
                 PlayerControl player = Utils.GetPlayerById(pc);
-                if (player == null || target == null)
-                {
-                    continue;
-                }
+                if (player == null || target == null) continue;
 
                 target.TP(player);
                 Main.AllPlayerSpeed[tar] = Main.AllPlayerSpeed[tar] - 0.5f + OriginalSpeed[tar];
@@ -270,38 +233,23 @@ namespace EHR.Neutral
                 return;
             }
 
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
             Count--;
-            if (Count > 0)
-            {
-                return;
-            }
+            if (Count > 0) return;
 
             Count = 20;
 
-            if (!EatenList.TryGetValue(pc.PlayerId, out List<byte> list))
-            {
-                return;
-            }
+            if (!EatenList.TryGetValue(pc.PlayerId, out List<byte> list)) return;
 
             foreach (byte tar in list)
             {
                 PlayerControl target = Utils.GetPlayerById(tar);
-                if (target == null)
-                {
-                    continue;
-                }
+                if (target == null) continue;
 
                 Vector2 pos = GetBlackRoomPS();
                 float dis = Vector2.Distance(pos, target.Pos());
-                if (dis < 2f)
-                {
-                    continue;
-                }
+                if (dis < 2f) continue;
 
                 target.TP(pos, log: false);
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: pc);

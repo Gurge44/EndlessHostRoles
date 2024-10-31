@@ -34,19 +34,26 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Bandit);
+
             MaxSteals = new IntegerOptionItem(Id + 10, "BanditMaxSteals", new(1, 20, 1), 3, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
+
             KillCooldown = new FloatOptionItem(Id + 11, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bandit])
                 .SetValueFormat(OptionFormat.Seconds);
+
             StealMode = new StringOptionItem(Id + 12, "BanditStealMode", BanditStealModeOpt, 0, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
+
             CanStealBetrayalAddon = new BooleanOptionItem(Id + 13, "BanditCanStealBetrayalAddon", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
+
             CanStealImpOnlyAddon = new BooleanOptionItem(Id + 14, "BanditCanStealImpOnlyAddon", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
+
             CanVent = new BooleanOptionItem(Id + 16, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
+
             HasImpostorVision = new BooleanOptionItem(Id + 17, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bandit]);
         }
@@ -77,10 +84,7 @@ namespace EHR.Neutral
 
         private static void SendRPC(byte playerId /*, bool isTargetList = false*/)
         {
-            if (!On || !Utils.DoRPC)
-            {
-                return;
-            }
+            if (!On || !Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBanditStealLimit, SendOption.Reliable);
             writer.Write(playerId);
@@ -92,10 +96,7 @@ namespace EHR.Neutral
         {
             byte PlayerId = reader.ReadByte();
             int Limit = reader.ReadInt32();
-            if (!TotalSteals.TryAdd(PlayerId, 0))
-            {
-                TotalSteals[PlayerId] = Limit;
-            }
+            if (!TotalSteals.TryAdd(PlayerId, 0)) TotalSteals[PlayerId] = Limit;
         }
 
         public override void SetKillCooldown(byte id)
@@ -105,15 +106,14 @@ namespace EHR.Neutral
 
         private static CustomRoles? SelectRandomAddon(PlayerControl Target)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return null;
-            }
+            if (!AmongUsClient.Instance.AmHost) return null;
 
             List<CustomRoles> AllSubRoles = Main.PlayerStates[Target.PlayerId].SubRoles;
-            for (int i = 0; i < AllSubRoles.Count; i++)
+
+            for (var i = 0; i < AllSubRoles.Count; i++)
             {
                 CustomRoles role = AllSubRoles[i];
+
                 if (IsBlacklistedAddon(role))
                 {
                     Logger.Info($"Removed {role} from stealable addons", "Bandit");
@@ -138,15 +138,9 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!On)
-            {
-                return true;
-            }
+            if (!On) return true;
 
-            if (!target.HasSubRole())
-            {
-                return true;
-            }
+            if (!target.HasSubRole()) return true;
 
             if (TotalSteals[killer.PlayerId] >= MaxSteals.GetInt())
             {
@@ -156,10 +150,7 @@ namespace EHR.Neutral
             }
 
             CustomRoles? SelectedAddOn = SelectRandomAddon(target);
-            if (SelectedAddOn == null)
-            {
-                return true; // no stealable addons found on the target.
-            }
+            if (SelectedAddOn == null) return true; // no stealable addons found on the target.
 
             killer.ResetKillCooldown();
 
@@ -182,10 +173,7 @@ namespace EHR.Neutral
                 SendRPC(killer.PlayerId);
                 Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target, ForceLoop: true);
                 Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer, ForceLoop: true);
-                if (!DisableShieldAnimations.GetBool())
-                {
-                    killer.RpcGuardAndKill(target);
-                }
+                if (!DisableShieldAnimations.GetBool()) killer.RpcGuardAndKill(target);
 
                 killer.ResetKillCooldown();
                 killer.SetKillCooldown();
@@ -194,35 +182,24 @@ namespace EHR.Neutral
 
         public override void OnReportDeadBody()
         {
-            if (!On)
-            {
-                return;
-            }
+            if (!On) return;
 
-            if (StealMode.GetValue() == 1)
-            {
-                return;
-            }
+            if (StealMode.GetValue() == 1) return;
 
             foreach (KeyValuePair<byte, Dictionary<byte, CustomRoles>> kvp1 in Targets)
             {
                 byte banditId = kvp1.Key;
                 PlayerControl banditpc = Utils.GetPlayerById(banditId);
-                if (banditpc == null || !banditpc.IsAlive())
-                {
-                    continue;
-                }
+                if (banditpc == null || !banditpc.IsAlive()) continue;
 
                 Dictionary<byte, CustomRoles> innerDictionary = kvp1.Value;
                 Utils.NotifyRoles(SpecifySeer: banditpc);
+
                 foreach (KeyValuePair<byte, CustomRoles> kvp2 in innerDictionary)
                 {
                     byte targetId = kvp2.Key;
                     PlayerControl target = Utils.GetPlayerById(banditId);
-                    if (target == null)
-                    {
-                        continue;
-                    }
+                    if (target == null) continue;
 
                     CustomRoles role = kvp2.Value;
                     Main.PlayerStates[targetId].RemoveSubRole(role);

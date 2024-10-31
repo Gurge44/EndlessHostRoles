@@ -17,14 +17,12 @@ namespace EHR.Patches
 
         private static void WrapUpPostfix(NetworkedPlayerInfo exiled)
         {
-            bool DecidedWinner = false;
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            var DecidedWinner = false;
+            if (!AmongUsClient.Instance.AmHost) return;
 
             AntiBlackout.RestoreIsDead(false);
             AntiBlackoutLastExiled = exiled;
+
             if (!Collector.CollectorWin(false) && exiled != null)
             {
                 exiled.IsDead = true;
@@ -34,32 +32,26 @@ namespace EHR.Patches
                 if (Main.AllPlayerControls.Any(x => x.Is(CustomRoles.Innocent) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == exiled.PlayerId))
                 {
                     if (!Options.InnocentCanWinByImp.GetBool() && role.IsImpostor())
-                    {
                         Logger.Info("The exiled player is an impostor, but the Innocent cannot win due to the settings", "Exeiled Winner Check");
-                    }
                     else
                     {
                         CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Innocent);
+
                         Main.AllPlayerControls
                             .Where(x => x.Is(CustomRoles.Innocent) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == exiled.PlayerId)
                             .Do(x => CustomWinnerHolder.WinnerIds.Add(x.PlayerId));
+
                         DecidedWinner = true;
                     }
                 }
 
                 if (role.Is(Team.Impostor) || role.Is(Team.Neutral))
-                {
                     Stressed.OnNonCrewmateEjected();
-                }
                 else
-                {
                     Stressed.OnCrewmateEjected();
-                }
 
                 if (role.Is(Team.Impostor))
-                {
                     Damocles.OnImpostorEjected();
-                }
                 else
                 {
                     Cantankerous.OnCrewmateEjected();
@@ -71,13 +63,9 @@ namespace EHR.Patches
                 {
                     case CustomRoles.Jester:
                         if (DecidedWinner)
-                        {
                             CustomWinnerHolder.ShiftWinnerAndSetWinner(CustomWinner.Jester);
-                        }
                         else
-                        {
                             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Jester);
-                        }
 
                         CustomWinnerHolder.WinnerIds.Add(exiled.PlayerId);
                         DecidedWinner = true;
@@ -93,26 +81,14 @@ namespace EHR.Patches
                         break;
                 }
 
-                if (Executioner.CheckExileTarget(exiled))
-                {
-                    DecidedWinner = true;
-                }
+                if (Executioner.CheckExileTarget(exiled)) DecidedWinner = true;
 
-                if (Lawyer.CheckExileTarget(exiled /*, DecidedWinner*/))
-                {
-                    DecidedWinner = false;
-                }
+                if (Lawyer.CheckExileTarget(exiled /*, DecidedWinner*/)) DecidedWinner = false;
 
-                if (CustomWinnerHolder.WinnerTeam != CustomWinner.Terrorist)
-                {
-                    Main.PlayerStates[exiled.PlayerId].SetDead();
-                }
+                if (CustomWinnerHolder.WinnerTeam != CustomWinner.Terrorist) Main.PlayerStates[exiled.PlayerId].SetDead();
             }
 
-            if (AmongUsClient.Instance.AmHost && Main.IsFixedCooldown)
-            {
-                Main.RefixCooldownDelay = Options.DefaultKillCooldown - 3f;
-            }
+            if (AmongUsClient.Instance.AmHost && Main.IsFixedCooldown) Main.RefixCooldownDelay = Options.DefaultKillCooldown - 3f;
 
             Witch.RemoveSpelledPlayer();
 
@@ -142,10 +118,8 @@ namespace EHR.Patches
                     5 => new RandomSpawn.FungleSpawnMap(),
                     _ => null
                 };
-                if (map != null)
-                {
-                    Main.AllAlivePlayerControls.Do(map.RandomTeleport);
-                }
+
+                if (map != null) Main.AllAlivePlayerControls.Do(map.RandomTeleport);
             }
 
             FallFromLadder.Reset();
@@ -162,6 +136,7 @@ namespace EHR.Patches
                     AntiBlackout.SendGameData();
                     AntiBlackout.SetRealPlayerRoles();
                 }, 0.7f, "Restore IsDead Task");
+
                 LateTask.New(() =>
                 {
                     Main.AfterMeetingDeathPlayers.Do(x =>
@@ -172,13 +147,11 @@ namespace EHR.Patches
                         state.deathReason = x.Value;
                         state.SetDead();
                         player?.RpcExileV2();
-                        if (x.Value == PlayerState.DeathReason.Suicide)
-                        {
-                            player?.SetRealKiller(player, true);
-                        }
+                        if (x.Value == PlayerState.DeathReason.Suicide) player?.SetRealKiller(player, true);
 
                         Utils.AfterPlayerDeathTasks(player);
                     });
+
                     Main.AfterMeetingDeathPlayers.Clear();
                     Utils.AfterMeetingTasks();
                     Utils.SyncAllSettings();
@@ -189,10 +162,7 @@ namespace EHR.Patches
 
             LateTask.New(() =>
             {
-                if (GameStates.IsEnded)
-                {
-                    return;
-                }
+                if (GameStates.IsEnded) return;
 
                 AntiBlackout.ResetAfterMeeting();
             }, 2f, "Reset Cooldown After Meeting");
@@ -202,32 +172,25 @@ namespace EHR.Patches
             SoundManager.Instance.ChangeAmbienceVolume(DataManager.Settings.Audio.AmbienceVolume);
             Logger.Info("Start task phase", "Phase");
 
-            if (Lovers.IsChatActivated && Lovers.PrivateChat.GetBool())
-            {
-                return;
-            }
+            if (Lovers.IsChatActivated && Lovers.PrivateChat.GetBool()) return;
 
             bool showRemainingKillers = Options.EnableKillerLeftCommand.GetBool() && Options.ShowImpRemainOnEject.GetBool();
             bool appendEjectionNotify = CheckForEndVotingPatch.EjectionText != string.Empty;
             Logger.Msg($"Ejection Text: {CheckForEndVotingPatch.EjectionText}", "ExilePatch");
+
             if ((showRemainingKillers || appendEjectionNotify) && Options.CurrentGameMode == CustomGameMode.Standard)
             {
                 string text = showRemainingKillers ? Utils.GetRemainingKillers(true) : string.Empty;
                 text = $"<#ffffff>{text}</color>";
-                IRandom r = IRandom.Instance;
+                var r = IRandom.Instance;
+
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
                     string finalText = text;
 
-                    if (appendEjectionNotify && !finalText.Contains(CheckForEndVotingPatch.EjectionText, StringComparison.OrdinalIgnoreCase))
-                    {
-                        finalText = $"\n<#ffffff>{CheckForEndVotingPatch.EjectionText}</color>\n{finalText}";
-                    }
+                    if (appendEjectionNotify && !finalText.Contains(CheckForEndVotingPatch.EjectionText, StringComparison.OrdinalIgnoreCase)) finalText = $"\n<#ffffff>{CheckForEndVotingPatch.EjectionText}</color>\n{finalText}";
 
-                    if (!showRemainingKillers)
-                    {
-                        finalText = finalText.TrimStart();
-                    }
+                    if (!showRemainingKillers) finalText = finalText.TrimStart();
 
                     pc.Notify(finalText, r.Next(7, 13));
                 }

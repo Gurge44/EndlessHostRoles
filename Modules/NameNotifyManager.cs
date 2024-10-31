@@ -17,42 +17,24 @@ namespace EHR
 
         public static void Notify(this PlayerControl pc, string text, float time = 6f, bool overrideAll = false, bool log = true)
         {
-            if (!AmongUsClient.Instance.AmHost || pc == null)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost || pc == null) return;
 
-            if (!GameStates.IsInTask)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask) return;
 
-            if (!text.Contains("<color=") && !text.Contains("</color>"))
-            {
-                text = Utils.ColorString(Color.white, text);
-            }
+            if (!text.Contains("<color=") && !text.Contains("</color>")) text = Utils.ColorString(Color.white, text);
 
-            if (!text.Contains("<size="))
-            {
-                text = $"<size=1.9>{text}</size>";
-            }
+            if (!text.Contains("<size=")) text = $"<size=1.9>{text}</size>";
 
             long expireTS = Utils.TimeStamp + (long)time;
+
             if (overrideAll || !Notifies.TryGetValue(pc.PlayerId, out Dictionary<string, long> notifies))
-            {
                 Notifies[pc.PlayerId] = new() { { text, expireTS } };
-            }
             else
-            {
                 notifies[text] = expireTS;
-            }
 
             SendRPC(pc.PlayerId, text, expireTS, overrideAll);
             Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            if (log)
-            {
-                Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
-            }
+            if (log) Logger.Info($"New name notify for {pc.GetNameWithRole().RemoveHtmlTags()}: {text} ({time}s)", "Name Notify");
         }
 
         public static void OnFixedUpdate(PlayerControl player)
@@ -63,7 +45,7 @@ namespace EHR
                 return;
             }
 
-            bool removed = false;
+            var removed = false;
 
             if (Notifies.TryGetValue(player.PlayerId, out Dictionary<string, long> notifies))
             {
@@ -77,19 +59,13 @@ namespace EHR
                 }
             }
 
-            if (removed)
-            {
-                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-            }
+            if (removed) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
         }
 
         public static bool GetNameNotify(PlayerControl player, out string name)
         {
             name = string.Empty;
-            if (!Notifies.TryGetValue(player.PlayerId, out Dictionary<string, long> notifies))
-            {
-                return false;
-            }
+            if (!Notifies.TryGetValue(player.PlayerId, out Dictionary<string, long> notifies)) return false;
 
             name = string.Join('\n', notifies.OrderBy(x => x.Value).Select(x => x.Key));
             return true;
@@ -97,10 +73,7 @@ namespace EHR
 
         private static void SendRPC(byte playerId, string text, long expireTS, bool overrideAll) // Only sent when adding a new notification
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncNameNotify, SendOption.Reliable);
             writer.Write(playerId);
@@ -112,23 +85,17 @@ namespace EHR
 
         public static void ReceiveRPC(MessageReader reader)
         {
-            if (AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (AmongUsClient.Instance.AmHost) return;
 
             byte playerId = reader.ReadByte();
             string text = reader.ReadString();
             long expireTS = long.Parse(reader.ReadString());
             bool overrideAll = reader.ReadBoolean();
+
             if (overrideAll || !Notifies.TryGetValue(playerId, out Dictionary<string, long> notifies))
-            {
                 Notifies[playerId] = new() { { text, expireTS } };
-            }
             else
-            {
                 notifies[text] = expireTS;
-            }
 
             Logger.Info($"New name notify for {Main.AllPlayerNames[playerId]}: {text} ({expireTS - Utils.TimeStamp}s)", "Name Notify");
         }

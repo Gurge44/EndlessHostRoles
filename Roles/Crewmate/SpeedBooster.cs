@@ -26,9 +26,11 @@
             {
                 PlayerControl target = Main.AllAlivePlayerControls.RandomElement();
                 Main.AllPlayerSpeed[target.PlayerId] += 0.5f;
+
                 target.Notify(Main.AllPlayerSpeed[target.PlayerId] > 3
                     ? Translator.GetString("SpeedBoosterSpeedLimit")
                     : string.Format(Translator.GetString("SpeedBoosterTaskDone"), Main.AllPlayerSpeed[player.PlayerId].ToString("0.0#####")));
+
                 target.MarkDirtySettings();
             }
         }

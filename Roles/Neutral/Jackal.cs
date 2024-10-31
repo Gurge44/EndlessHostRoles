@@ -37,45 +37,64 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Jackal);
+
             KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
+
             CanSabotage = new BooleanOptionItem(Id + 4, "CanSabotage", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
+
             HasImpostorVision = new BooleanOptionItem(Id + 6, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
+
             ResetKillCooldownWhenSbGetKilled = new BooleanOptionItem(Id + 7, "ResetKillCooldownWhenPlayerGetKilled", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
+
             ResetKillCooldownOn = new FloatOptionItem(Id + 8, "ResetKillCooldownOn", new(0f, 180f, 2.5f), 15f, TabGroup.NeutralRoles)
                 .SetParent(ResetKillCooldownWhenSbGetKilled)
                 .SetValueFormat(OptionFormat.Seconds);
+
             OptionItem SKOpts = new BooleanOptionItem(Id + 9, "SidekickSettings", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Jackal]);
+
             CanRecruitImpostors = new BooleanOptionItem(Id + 10, "JackalCanRecruitImpostors", true, TabGroup.NeutralRoles)
                 .SetParent(SKOpts);
+
             CanRecruitMadmates = new BooleanOptionItem(Id + 11, "JackalCanRecruitMadmates", true, TabGroup.NeutralRoles)
                 .SetParent(CanRecruitImpostors);
+
             JackalCanKillSidekick = new BooleanOptionItem(Id + 12, "JackalCanKillSidekick", false, TabGroup.NeutralRoles)
                 .SetParent(SKOpts);
+
             SKCanKill = new BooleanOptionItem(Id + 13, "SKCanKill", true, TabGroup.NeutralRoles)
                 .SetParent(SKOpts);
+
             KillCooldownSK = new FloatOptionItem(Id + 14, "KillCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.NeutralRoles)
                 .SetParent(SKCanKill)
                 .SetValueFormat(OptionFormat.Seconds);
+
             SidekickCanKillJackal = new BooleanOptionItem(Id + 15, "SidekickCanKillJackal", false, TabGroup.NeutralRoles)
                 .SetParent(SKCanKill);
+
             SidekickCanKillSidekick = new BooleanOptionItem(Id + 16, "SidekickCanKillSidekick", false, TabGroup.NeutralRoles)
                 .SetParent(SKCanKill);
+
             CanVentSK = new BooleanOptionItem(Id + 17, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(SKOpts);
+
             CanSabotageSK = new BooleanOptionItem(Id + 18, "CanSabotage", true, TabGroup.NeutralRoles)
                 .SetParent(SKOpts);
+
             SKPromotesToJackal = new BooleanOptionItem(Id + 19, "SKPromotesToJackal", true, TabGroup.NeutralRoles)
                 .SetParent(SKOpts);
+
             PromotedSKCanRecruit = new BooleanOptionItem(Id + 20, "PromotedSKCanRecruit", true, TabGroup.NeutralRoles)
                 .SetParent(SKPromotesToJackal);
+
             SidekickCountMode = new StringOptionItem(Id + 21, "SidekickCountMode", Options.SidekickCountMode, 0, TabGroup.NeutralRoles)
                 .SetParent(SKOpts);
         }
@@ -122,10 +141,7 @@ namespace EHR.Neutral
 
         public static void AfterPlayerDiedTask(PlayerControl target)
         {
-            if (target.Is(CustomRoles.Jackal))
-            {
-                return;
-            }
+            if (target.Is(CustomRoles.Jackal)) return;
 
             Main.AllAlivePlayerControls
                 .Where(x => x.Is(CustomRoles.Jackal))
@@ -134,10 +150,7 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer.GetAbilityUseLimit() < 1 || !CanBeSidekick(target))
-            {
-                return true;
-            }
+            if (killer.GetAbilityUseLimit() < 1 || !CanBeSidekick(target)) return true;
 
             killer.RpcRemoveAbilityUse();
             target.RpcSetCustomRole(CustomRoles.Sidekick);
@@ -162,25 +175,16 @@ namespace EHR.Neutral
 
         private static bool CanBeSidekick(PlayerControl pc)
         {
-            if (!CanRecruitImpostors.GetBool() && pc.Is(CustomRoleTypes.Impostor))
-            {
-                return false;
-            }
+            if (!CanRecruitImpostors.GetBool() && pc.Is(CustomRoleTypes.Impostor)) return false;
 
-            if (!CanRecruitMadmates.GetBool() && pc.IsMadmate())
-            {
-                return false;
-            }
+            if (!CanRecruitMadmates.GetBool() && pc.IsMadmate()) return false;
 
             return pc != null && !pc.Is(CustomRoles.Sidekick) && !pc.Is(CustomRoles.Loyal) && !pc.IsConverted() && pc.GetCustomRole().IsAbleToBeSidekicked();
         }
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (pc.IsAlive())
-            {
-                return;
-            }
+            if (pc.IsAlive()) return;
 
             PromoteSidekick();
         }
@@ -189,22 +193,13 @@ namespace EHR.Neutral
         {
             try
             {
-                if (!SKPromotesToJackal.GetBool())
-                {
-                    return;
-                }
+                if (!SKPromotesToJackal.GetBool()) return;
 
                 PlayerControl sk = SidekickId.GetPlayer();
-                if (sk == null || !sk.Is(CustomRoles.Sidekick))
-                {
-                    return;
-                }
+                if (sk == null || !sk.Is(CustomRoles.Sidekick)) return;
 
                 sk.RpcSetCustomRole(CustomRoles.Jackal);
-                if (!PromotedSKCanRecruit.GetBool())
-                {
-                    sk.SetAbilityUseLimit(0);
-                }
+                if (!PromotedSKCanRecruit.GetBool()) sk.SetAbilityUseLimit(0);
             }
             catch (Exception e)
             {
@@ -219,9 +214,7 @@ namespace EHR.Neutral
 
         public override bool IsEnable => PlayerIdList.Count > 0;
 
-        public override void SetupCustomOption()
-        {
-        }
+        public override void SetupCustomOption() { }
 
         public override void Init()
         {

@@ -113,6 +113,7 @@ namespace EHR
                     default:
                     {
                         CustomRoles role = lp.GetCustomRole();
+
                         if (!role.IsVanilla())
                         {
                             __instance.YouAreText.color = Utils.GetRoleColor(role);
@@ -124,10 +125,7 @@ namespace EHR
 
                         foreach (CustomRoles subRole in Main.PlayerStates[lp.PlayerId].SubRoles)
                         {
-                            if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && subRole == CustomRoles.Lovers)
-                            {
-                                continue;
-                            }
+                            if (role is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && subRole == CustomRoles.Lovers) continue;
 
                             __instance.RoleBlurbText.text += "\n<size=30%>" + Utils.ColorString(Utils.GetRoleColor(subRole), GetString($"{subRole}Info"));
                         }
@@ -142,10 +140,7 @@ namespace EHR
             {
                 LateTask.New(() =>
                 {
-                    if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || lp == null)
-                    {
-                        return;
-                    }
+                    if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || lp == null) return;
 
                     lp.SetName(Main.AllPlayerNames[lp.PlayerId]);
                 }, 1f, "Reset Name For Modded Client");
@@ -160,6 +155,7 @@ namespace EHR
         {
             StringBuilder sb = new();
             sb.Append("------------Display Names------------\n");
+
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
                 sb.Append($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc.name.PadRightV2(20)}:{pc.cosmetics.nameText.text} ({Palette.ColorNames[pc.Data.DefaultOutfit.ColorId].ToString().Replace("Color", string.Empty)})\n");
@@ -167,26 +163,21 @@ namespace EHR
             }
 
             sb.Append("------------Roles------------\n");
-            foreach (PlayerControl pc in Main.AllPlayerControls)
-            {
-                sb.Append($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc.Data?.PlayerName?.PadRightV2(20)}:{pc.GetAllRoleName().RemoveHtmlTags().Replace("\n", " + ")}\n");
-            }
+            foreach (PlayerControl pc in Main.AllPlayerControls) sb.Append($"{(pc.AmOwner ? "[*]" : string.Empty),-3}{pc.PlayerId,-2}:{pc.Data?.PlayerName?.PadRightV2(20)}:{pc.GetAllRoleName().RemoveHtmlTags().Replace("\n", " + ")}\n");
 
             sb.Append("------------Platforms------------\n");
+
             foreach (PlayerControl pc in Main.AllPlayerControls)
             {
                 try
                 {
                     string text = pc.AmOwner ? "[*]" : "   ";
                     text += $"{pc.PlayerId,-2}:{pc.Data?.PlayerName?.PadRightV2(20)}:{pc.GetClient()?.PlatformData?.Platform.ToString().Replace("Standalone", string.Empty),-11}";
+
                     if (Main.PlayerVersion.TryGetValue(pc.PlayerId, out PlayerVersion pv))
-                    {
                         text += $":Mod({pv.forkId}/{pv.version}:{pv.tag})";
-                    }
                     else
-                    {
                         text += ":Vanilla";
-                    }
 
                     sb.Append(text + "\n");
                 }
@@ -198,19 +189,13 @@ namespace EHR
 
             sb.Append("------------Vanilla Settings------------\n");
             System.Collections.Generic.IEnumerable<string> tmp = GameOptionsManager.Instance.CurrentGameOptions.ToHudString(GameData.Instance ? GameData.Instance.PlayerCount : 10).Split("\r\n").Skip(1);
-            foreach (string t in tmp)
-            {
-                sb.Append(t + "\n");
-            }
+            foreach (string t in tmp) sb.Append(t + "\n");
 
             sb.Append("------------Modded Settings------------\n");
+
             foreach (OptionItem o in OptionItem.AllOptions)
-            {
                 if (!o.IsHiddenOn(Options.CurrentGameMode) && (o.Parent?.GetBool() ?? !o.GetString().Equals("0%")))
-                {
                     sb.Append($"{(o.Parent == null ? o.GetName(true, true).RemoveHtmlTags().PadRightV2(40) : $"┗ {o.GetName(true, true).RemoveHtmlTags()}".PadRightV2(41))}:{o.GetString().RemoveHtmlTags()}\n");
-                }
-            }
 
             sb.Append("-------------Other Information-------------\n");
             sb.Append($"Number of players: {Main.AllPlayerControls.Length}\n");
@@ -235,16 +220,15 @@ namespace EHR
                 Utils.LongRoleDescriptions.Clear();
 
                 int charsInOneLine = GetUserTrueLang() is SupportedLangs.Russian or SupportedLangs.SChinese or SupportedLangs.TChinese or SupportedLangs.Japanese or SupportedLangs.Korean ? 35 : 50;
+
                 foreach (PlayerControl seer in Main.AllPlayerControls)
                 {
                     string longInfo = seer.GetRoleInfo(true).Split("\n\n")[0];
-                    if (longInfo.Contains("):\n"))
-                    {
-                        longInfo = longInfo.Split("):\n")[1];
-                    }
+                    if (longInfo.Contains("):\n")) longInfo = longInfo.Split("):\n")[1];
 
-                    bool tooLong = false;
+                    var tooLong = false;
                     bool showLongInfo = Options.ShowLongInfo.GetBool();
+
                     if (showLongInfo)
                     {
                         if (longInfo.Length > 296)
@@ -256,16 +240,10 @@ namespace EHR
 
                         for (int i = charsInOneLine; i < longInfo.Length; i += charsInOneLine)
                         {
-                            if (tooLong && i > 296)
-                            {
-                                break;
-                            }
+                            if (tooLong && i > 296) break;
 
                             int index = longInfo.LastIndexOf(' ', i);
-                            if (index != -1)
-                            {
-                                longInfo = longInfo.Insert(index + 1, "\n");
-                            }
+                            if (index != -1) longInfo = longInfo.Insert(index + 1, "\n");
                         }
                     }
 
@@ -290,12 +268,14 @@ namespace EHR
         public static bool Prefix(IntroCutscene __instance, ref List<PlayerControl> teamToDisplay)
         {
             CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
+
             if (PlayerControl.LocalPlayer.Is(CustomRoleTypes.Neutral) && !role.IsMadmate())
             {
                 teamToDisplay = new();
                 teamToDisplay.Add(PlayerControl.LocalPlayer);
 
                 byte id = PlayerControl.LocalPlayer.PlayerId;
+
                 switch (Main.PlayerStates[id].Role)
                 {
                     case Lawyer:
@@ -321,37 +301,29 @@ namespace EHR
                 teamToDisplay.Add(PlayerControl.LocalPlayer);
                 teamToDisplay.Add(Main.LoversPlayers.FirstOrDefault(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId));
             }
-            else if (role == CustomRoles.LovingImpostor)
-            {
-                teamToDisplay.Add(Main.LoversPlayers.FirstOrDefault(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId));
-            }
+            else if (role == CustomRoles.LovingImpostor) teamToDisplay.Add(Main.LoversPlayers.FirstOrDefault(x => x.PlayerId != PlayerControl.LocalPlayer.PlayerId));
 
             if (CustomTeamManager.EnabledCustomTeams.Count > 0)
             {
                 CustomTeamManager.CustomTeam team = CustomTeamManager.GetCustomTeam(PlayerControl.LocalPlayer.PlayerId);
+
                 if (team != null)
                 {
                     teamToDisplay = new();
+
                     foreach (PlayerControl pc in Main.AllPlayerControls)
-                    {
                         if (CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId))
-                        {
                             teamToDisplay.Add(pc);
-                        }
-                    }
                 }
             }
 
             if (Options.CurrentGameMode == CustomGameMode.FFA && FFAManager.FFATeamMode.GetBool() && FFAManager.PlayerTeams.TryGetValue(PlayerControl.LocalPlayer.PlayerId, out int ffaTeam))
             {
                 teamToDisplay = new();
+
                 foreach (PlayerControl pc in Main.AllPlayerControls)
-                {
                     if (FFAManager.PlayerTeams.TryGetValue(pc.PlayerId, out int team) && team == ffaTeam)
-                    {
                         teamToDisplay.Add(pc);
-                    }
-                }
             }
 
             return true;
@@ -594,28 +566,19 @@ namespace EHR
             if (CustomTeamManager.EnabledCustomTeams.Count > 0)
             {
                 CustomTeamManager.CustomTeam team = CustomTeamManager.GetCustomTeam(PlayerControl.LocalPlayer.PlayerId);
+
                 if (team != null)
                 {
-                    if (team.RoleRevealScreenTitle != "*")
-                    {
-                        __instance.TeamTitle.text = team.RoleRevealScreenTitle;
-                    }
+                    if (team.RoleRevealScreenTitle != "*") __instance.TeamTitle.text = team.RoleRevealScreenTitle;
 
-                    if (team.RoleRevealScreenBackgroundColor != "*" && ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out Color bgColor))
-                    {
-                        __instance.TeamTitle.color = __instance.BackgroundBar.material.color = bgColor;
-                    }
+                    if (team.RoleRevealScreenBackgroundColor != "*" && ColorUtility.TryParseHtmlString(team.RoleRevealScreenBackgroundColor, out Color bgColor)) __instance.TeamTitle.color = __instance.BackgroundBar.material.color = bgColor;
 
                     __instance.ImpostorText.gameObject.SetActive(team.RoleRevealScreenSubtitle != "*");
                     __instance.ImpostorText.text = team.RoleRevealScreenSubtitle;
 
                     foreach (PlayerControl pc in Main.AllPlayerControls)
-                    {
                         if (CustomTeamManager.AreInSameCustomTeam(pc.PlayerId, PlayerControl.LocalPlayer.PlayerId))
-                        {
                             teamToDisplay.Add(pc);
-                        }
-                    }
                 }
             }
 
@@ -773,6 +736,7 @@ namespace EHR
         public static bool Prefix(IntroCutscene __instance, ref List<PlayerControl> yourTeam)
         {
             CustomRoles role = PlayerControl.LocalPlayer.GetCustomRole();
+
             if (PlayerControl.LocalPlayer.Is(CustomRoles.Madmate) || role.IsMadmate())
             {
                 yourTeam = new();
@@ -785,10 +749,7 @@ namespace EHR
             {
                 yourTeam = new();
                 yourTeam.Add(PlayerControl.LocalPlayer);
-                foreach (PlayerControl pc in Main.AllPlayerControls.Where(x => !x.AmOwner))
-                {
-                    yourTeam.Add(pc);
-                }
+                foreach (PlayerControl pc in Main.AllPlayerControls.Where(x => !x.AmOwner)) yourTeam.Add(pc);
 
                 __instance.BeginCrewmate(yourTeam);
                 __instance.overlayHandle.color = Palette.CrewmateBlue;
@@ -799,10 +760,7 @@ namespace EHR
             {
                 yourTeam = new();
                 yourTeam.Add(PlayerControl.LocalPlayer);
-                foreach (PlayerControl pc in Main.AllPlayerControls.Where(x => !x.AmOwner))
-                {
-                    yourTeam.Add(pc);
-                }
+                foreach (PlayerControl pc in Main.AllPlayerControls.Where(x => !x.AmOwner)) yourTeam.Add(pc);
 
                 __instance.BeginCrewmate(yourTeam);
                 __instance.overlayHandle.color = new Color32(255, 171, 27, byte.MaxValue);
@@ -824,10 +782,7 @@ namespace EHR
     {
         public static void Postfix( /*IntroCutscene __instance*/)
         {
-            if (!GameStates.IsInGame)
-            {
-                return;
-            }
+            if (!GameStates.IsInGame) return;
 
             Main.IntroDestroyed = true;
 
@@ -845,19 +800,17 @@ namespace EHR
                     {
                         pc.SyncSettings();
                         pc.RpcResetAbilityCooldown();
+
                         if (pc.GetCustomRole().UsesPetInsteadOfKill())
-                        {
                             pc.AddAbilityCD(10);
-                        }
                         else
-                        {
                             pc.AddAbilityCD(false);
-                        }
 
                         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc, NoCache: true);
                     }
 
                     int kcd = Options.StartingKillCooldown.GetInt();
+
                     if (kcd is not 10 and > 0 && Options.CurrentGameMode != CustomGameMode.FFA)
                     {
                         LateTask.New(() =>
@@ -890,10 +843,7 @@ namespace EHR
 
                 PlayerControl lp = PlayerControl.LocalPlayer;
 
-                if (lp.GetRoleTypes() == RoleTypes.Shapeshifter)
-                {
-                    lp.RpcChangeRoleBasis(lp.GetCustomRole());
-                }
+                if (lp.GetRoleTypes() == RoleTypes.Shapeshifter) lp.RpcChangeRoleBasis(lp.GetCustomRole());
 
                 if (Options.UsePets.GetBool())
                 {
@@ -902,16 +852,13 @@ namespace EHR
                     string[] pets = Options.PetToAssign;
                     string pet = pets[Options.PetToAssignToEveryone.GetValue()];
 
-                    IRandom r = IRandom.Instance;
+                    var r = IRandom.Instance;
 
                     LateTask.New(() =>
                     {
                         foreach (PlayerControl pc in aapc)
                         {
-                            if (pc.Is(CustomRoles.GM))
-                            {
-                                continue;
-                            }
+                            if (pc.Is(CustomRoles.GM)) continue;
 
                             string petId = pet == "pet_RANDOM_FOR_EVERYONE" ? pets[r.Next(0, pets.Length - 1)] : pet;
                             pc.RpcSetPetDesync(petId, pc);
@@ -920,6 +867,7 @@ namespace EHR
 
                         AntiBlackout.SendGameData();
                     }, 0.3f, "Grant Pet For Everyone");
+
                     try
                     {
                         LateTask.New(() =>
@@ -927,12 +875,10 @@ namespace EHR
                             try
                             {
                                 lp.Notify(GetString("GLHF"), 2f);
+
                                 foreach (PlayerControl pc in aapc)
                                 {
-                                    if (pc.IsHost())
-                                    {
-                                        continue; // Skip the host
-                                    }
+                                    if (pc.IsHost()) continue; // Skip the host
 
                                     try
                                     {
@@ -951,17 +897,12 @@ namespace EHR
                             }
                         }, 0.4f, "Show Pet For Everyone");
                     }
-                    catch
-                    {
-                    }
+                    catch { }
 
                     LateTask.New(() => Main.ProcessShapeshifts = true, 1f, "Enable SS Processing");
                 }
 
-                if (Options.UseUnshiftTrigger.GetBool() || Main.PlayerStates.Values.Any(x => x.MainRole.AlwaysUsesUnshift()))
-                {
-                    LateTask.New(() => aapc.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
-                }
+                if (Options.UseUnshiftTrigger.GetBool() || Main.PlayerStates.Values.Any(x => x.MainRole.AlwaysUsesUnshift())) LateTask.New(() => aapc.Do(x => x.CheckAndSetUnshiftState()), 2f, "UnshiftTrigger SS");
 
                 if (Main.GM.Value && lp.Is(CustomRoles.GM))
                 {
@@ -983,15 +924,14 @@ namespace EHR
                         5 => new RandomSpawn.FungleSpawnMap(),
                         _ => null
                     };
-                    if (map != null && AmongUsClient.Instance.AmHost)
-                    {
-                        aapc.Do(map.RandomTeleport);
-                    }
+
+                    if (map != null && AmongUsClient.Instance.AmHost) aapc.Do(map.RandomTeleport);
                 }
 
                 if (lp.HasDesyncRole())
                 {
                     lp.Data.Role.AffectedByLightAffectors = false;
+
                     foreach (PlayerControl target in Main.AllPlayerControls)
                     {
                         // Set all players as killable players
@@ -1005,20 +945,13 @@ namespace EHR
 
                 Utils.CheckAndSetVentInteractions();
 
-                if (AFKDetector.ActivateOnStart.GetBool())
-                {
-                    LateTask.New(() => aapc.Do(AFKDetector.RecordPosition), 1f, log: false);
-                }
+                if (AFKDetector.ActivateOnStart.GetBool()) LateTask.New(() => aapc.Do(AFKDetector.RecordPosition), 1f, log: false);
 
                 LateTask.New(() => Main.Instance.StartCoroutine(Utils.NotifyEveryoneAsync()), 3f, log: false);
             }
             else
-            {
                 foreach (PlayerControl player in Main.AllPlayerControls)
-                {
                     Main.PlayerStates[player.PlayerId].InitTask(player);
-                }
-            }
 
             Logger.Info("OnDestroy", "IntroCutscene");
         }

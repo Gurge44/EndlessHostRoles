@@ -13,9 +13,11 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(6200, TabGroup.CrewmateRoles, CustomRoles.Transporter);
+
             Options.TransporterTeleportMax = new IntegerOptionItem(6210, "TransporterTeleportMax", new(0, 90, 1), 5, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Transporter])
                 .SetValueFormat(OptionFormat.Times);
+
             Options.OverrideTasksData.Create(6211, TabGroup.CrewmateRoles, CustomRoles.Transporter);
         }
 
@@ -34,6 +36,7 @@ namespace EHR.Crewmate
             if (player.IsAlive() && completedTaskCount + 1 <= Options.TransporterTeleportMax.GetInt())
             {
                 List<PlayerControl> AllAlivePlayer = Main.AllAlivePlayerControls.Where(x => !Pelican.IsEaten(x.PlayerId) && !x.inVent && !x.onLadder).ToList();
+
                 if (AllAlivePlayer.Count >= 2)
                 {
                     PlayerControl tar1 = AllAlivePlayer.RandomElement();
@@ -48,9 +51,7 @@ namespace EHR.Crewmate
                     tar2.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Transporter), string.Format(Translator.GetString("TeleportedByTransporter"), tar1.GetRealName())));
                 }
                 else
-                {
                     player.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Impostor), string.Format(Translator.GetString("ErrorTeleport"), player.GetRealName())));
-                }
             }
         }
     }

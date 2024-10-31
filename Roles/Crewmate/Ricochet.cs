@@ -24,14 +24,18 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Ricochet);
+
             UseLimitOpt = new IntegerOptionItem(Id + 10, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Ricochet])
                 .SetValueFormat(OptionFormat.Times);
+
             RicochetAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 11, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ricochet])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Ricochet])
                 .SetValueFormat(OptionFormat.Times);
+
             CancelVote = CreateVoteCancellingUseSetting(Id + 12, CustomRoles.Ricochet, TabGroup.CrewmateRoles);
         }
 
@@ -52,10 +56,7 @@ namespace EHR.Crewmate
 
         private void SendRPCSyncTarget(byte targetId)
         {
-            if (!IsEnable || !Utils.DoRPC)
-            {
-                return;
-            }
+            if (!IsEnable || !Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRicochetTarget, SendOption.Reliable);
             writer.Write(RicochetId);
@@ -66,25 +67,16 @@ namespace EHR.Crewmate
         public static void ReceiveRPCSyncTarget(MessageReader reader)
         {
             byte id = reader.ReadByte();
-            if (Main.PlayerStates[id].Role is not Ricochet rc)
-            {
-                return;
-            }
+            if (Main.PlayerStates[id].Role is not Ricochet rc) return;
 
             rc.ProtectAgainst = reader.ReadByte();
         }
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null)
-            {
-                return false;
-            }
+            if (killer == null) return false;
 
-            if (target == null)
-            {
-                return false;
-            }
+            if (target == null) return false;
 
             if (ProtectAgainst == killer.PlayerId)
             {
@@ -97,10 +89,7 @@ namespace EHR.Crewmate
 
         public override bool OnVote(PlayerControl pc, PlayerControl target)
         {
-            if (target == null || pc == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId))
-            {
-                return false;
-            }
+            if (target == null || pc == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
 
             if (pc.GetAbilityUseLimit() >= 1)
             {

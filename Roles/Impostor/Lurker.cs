@@ -16,9 +16,11 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Lurker);
+
             DefaultKillCooldown = new FloatOptionItem(Id + 10, "SansDefaultKillCooldown", new(1f, 180f, 1f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lurker])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ReduceKillCooldown = new FloatOptionItem(Id + 11, "SansReduceKillCooldown", new(0f, 10f, 1f), 1f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Lurker])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -41,16 +43,10 @@ namespace EHR.Impostor
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
-            if (!pc.Is(CustomRoles.Lurker))
-            {
-                return;
-            }
+            if (!pc.Is(CustomRoles.Lurker)) return;
 
             float newCd = Main.AllPlayerKillCooldown[pc.PlayerId] - ReduceKillCooldown.GetFloat();
-            if (newCd <= 0)
-            {
-                return;
-            }
+            if (newCd <= 0) return;
 
             Main.AllPlayerKillCooldown[pc.PlayerId] = newCd;
             pc.SyncSettings();

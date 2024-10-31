@@ -27,16 +27,21 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Tether);
+
             VentCooldown = new FloatOptionItem(Id + 10, "VentCooldown", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Tether])
                 .SetValueFormat(OptionFormat.Seconds);
+
             UseLimitOpt = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Tether])
                 .SetValueFormat(OptionFormat.Times);
+
             TetherAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.4f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Tether])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 14, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Tether])
                 .SetValueFormat(OptionFormat.Times);
+
             CancelVote = CreateVoteCancellingUseSetting(Id + 13, CustomRoles.Tether, TabGroup.CrewmateRoles);
         }
 
@@ -57,10 +62,7 @@ namespace EHR.Crewmate
 
         private void SendRPCSyncTarget()
         {
-            if (!IsEnable || !Utils.DoRPC)
-            {
-                return;
-            }
+            if (!IsEnable || !Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTetherTarget, SendOption.Reliable);
             writer.Write(TetherId);
@@ -71,10 +73,7 @@ namespace EHR.Crewmate
         public static void ReceiveRPCSyncTarget(MessageReader reader)
         {
             byte id = reader.ReadByte();
-            if (Main.PlayerStates[id].Role is not Tether th)
-            {
-                return;
-            }
+            if (Main.PlayerStates[id].Role is not Tether th) return;
 
             th.Target = reader.ReadByte();
         }
@@ -91,33 +90,21 @@ namespace EHR.Crewmate
 
         private void Teleport(PlayerControl pc, int ventId, bool isPet = false)
         {
-            if (pc == null)
-            {
-                return;
-            }
+            if (pc == null) return;
 
             if (Target != byte.MaxValue)
             {
                 LateTask.New(() =>
                 {
-                    if (GameStates.IsInTask)
-                    {
-                        pc.TP(Utils.GetPlayerById(Target).Pos());
-                    }
+                    if (GameStates.IsInTask) pc.TP(Utils.GetPlayerById(Target).Pos());
                 }, isPet ? 0.1f : 2f, "Tether TP");
             }
-            else if (!isPet)
-            {
-                LateTask.New(() => { pc.MyPhysics?.RpcBootFromVent(ventId); }, 0.5f, "Tether No Target Boot From Vent");
-            }
+            else if (!isPet) LateTask.New(() => { pc.MyPhysics?.RpcBootFromVent(ventId); }, 0.5f, "Tether No Target Boot From Vent");
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool())
-            {
-                return;
-            }
+            if (UsePets.GetBool()) return;
 
             AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1f;
@@ -125,10 +112,7 @@ namespace EHR.Crewmate
 
         public override bool OnVote(PlayerControl pc, PlayerControl target)
         {
-            if (pc == null || target == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId))
-            {
-                return false;
-            }
+            if (pc == null || target == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
 
             if (pc.GetAbilityUseLimit() >= 1)
             {
@@ -150,7 +134,7 @@ namespace EHR.Crewmate
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
             sb.Append(Utils.GetAbilityUseLimitDisplay(playerId, Target != byte.MaxValue));
             sb.Append(Utils.GetTaskCount(playerId, comms));

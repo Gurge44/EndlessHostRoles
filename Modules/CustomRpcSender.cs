@@ -31,9 +31,7 @@ namespace EHR
 
         private State currentState = State.BeforeInit;
 
-        private CustomRpcSender()
-        {
-        }
+        private CustomRpcSender() { }
 
         public CustomRpcSender(string name, SendOption sendOption, bool isUnsafe)
         {
@@ -54,13 +52,9 @@ namespace EHR
             set
             {
                 if (isUnsafe)
-                {
                     currentState = value;
-                }
                 else
-                {
                     Logger.Warn("CurrentState can only be overwritten when isUnsafe is true", "CustomRpcSender");
-                }
             }
         }
 
@@ -74,31 +68,22 @@ namespace EHR
             byte callId,
             int targetClientId = -1)
         {
-            if (targetClientId == -2)
-            {
-                targetClientId = -1;
-            }
+            if (targetClientId == -2) targetClientId = -1;
 
             if (currentState is not State.Ready and not State.InRootMessage)
             {
-                string errorMsg = $"Tried to start RPC automatically, but State is not Ready or InRootMessage (in: \"{name}\")";
+                var errorMsg = $"Tried to start RPC automatically, but State is not Ready or InRootMessage (in: \"{name}\")";
+
                 if (isUnsafe)
-                {
                     Logger.Warn(errorMsg, "CustomRpcSender.Warn");
-                }
                 else
-                {
                     throw new InvalidOperationException(errorMsg);
-                }
             }
 
             if (currentRpcTarget != targetClientId)
             {
                 // StartMessage processing
-                if (currentState == State.InRootMessage)
-                {
-                    EndMessage();
-                }
+                if (currentState == State.InRootMessage) EndMessage();
 
                 StartMessage(targetClientId);
             }
@@ -110,22 +95,16 @@ namespace EHR
 
         public void SendMessage()
         {
-            if (currentState == State.InRootMessage)
-            {
-                EndMessage();
-            }
+            if (currentState == State.InRootMessage) EndMessage();
 
             if (currentState != State.Ready)
             {
-                string errorMsg = $"Tried to send RPC but State is not Ready (in: \"{name}\")";
+                var errorMsg = $"Tried to send RPC but State is not Ready (in: \"{name}\")";
+
                 if (isUnsafe)
-                {
                     Logger.Warn(errorMsg, "CustomRpcSender.Warn");
-                }
                 else
-                {
                     throw new InvalidOperationException(errorMsg);
-                }
             }
 
             AmongUsClient.Instance.SendOrDisconnect(stream);
@@ -139,15 +118,12 @@ namespace EHR
         {
             if (currentState != State.InRpc)
             {
-                string errorMsg = $"Tried to write RPC, but State is not Write (in: \"{name}\")";
+                var errorMsg = $"Tried to write RPC, but State is not Write (in: \"{name}\")";
+
                 if (isUnsafe)
-                {
                     Logger.Warn(errorMsg, "CustomRpcSender.Warn");
-                }
                 else
-                {
                     throw new InvalidOperationException(errorMsg);
-                }
             }
 
             action(stream);
@@ -163,15 +139,12 @@ namespace EHR
         {
             if (currentState != State.Ready)
             {
-                string errorMsg = $"Tried to start Message but State is not Ready (in: \"{name}\")";
+                var errorMsg = $"Tried to start Message but State is not Ready (in: \"{name}\")";
+
                 if (isUnsafe)
-                {
                     Logger.Warn(errorMsg, "CustomRpcSender.Warn");
-                }
                 else
-                {
                     throw new InvalidOperationException(errorMsg);
-                }
             }
 
             if (targetClientId < 0)
@@ -198,15 +171,12 @@ namespace EHR
         {
             if (currentState != State.InRootMessage)
             {
-                string errorMsg = $"Tried to exit Message but State is not InRootMessage (in: \"{name}\")";
+                var errorMsg = $"Tried to exit Message but State is not InRootMessage (in: \"{name}\")";
+
                 if (isUnsafe)
-                {
                     Logger.Warn(errorMsg, "CustomRpcSender.Warn");
-                }
                 else
-                {
                     throw new InvalidOperationException(errorMsg);
-                }
             }
 
             stream.EndMessage();
@@ -231,15 +201,12 @@ namespace EHR
         {
             if (currentState != State.InRootMessage)
             {
-                string errorMsg = $"Tried to start RPC but State is not InRootMessage (in: \"{name}\")";
+                var errorMsg = $"Tried to start RPC but State is not InRootMessage (in: \"{name}\")";
+
                 if (isUnsafe)
-                {
                     Logger.Warn(errorMsg, "CustomRpcSender.Warn");
-                }
                 else
-                {
                     throw new InvalidOperationException(errorMsg);
-                }
             }
 
             stream.StartMessage(2);
@@ -254,15 +221,12 @@ namespace EHR
         {
             if (currentState != State.InRpc)
             {
-                string errorMsg = $"Tried to terminate RPC but State is not InRpc (in: \"{name}\")";
+                var errorMsg = $"Tried to terminate RPC but State is not InRpc (in: \"{name}\")";
+
                 if (isUnsafe)
-                {
                     Logger.Warn(errorMsg, "CustomRpcSender.Warn");
-                }
                 else
-                {
                     throw new InvalidOperationException(errorMsg);
-                }
             }
 
             stream.EndMessage();

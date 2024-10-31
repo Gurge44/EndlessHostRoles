@@ -24,11 +24,14 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Jailor);
+
             JailCooldown = new FloatOptionItem(Id + 10, "JailorJailCooldown", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Jailor])
                 .SetValueFormat(OptionFormat.Seconds);
+
             NotifyJailedOnMeeting = new BooleanOptionItem(Id + 18, "notifyJailedOnMeeting", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Jailor]);
+
             UsePet = CreatePetUseSetting(Id + 11, CustomRoles.Jailor);
         }
 
@@ -63,12 +66,10 @@ namespace EHR.Crewmate
 
         private void SendRPC(byte jailerId, byte targetId = byte.MaxValue, bool setTarget = true)
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer;
+
             if (!setTarget)
             {
                 writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetJailorExeLimit, SendOption.Reliable);
@@ -87,10 +88,7 @@ namespace EHR.Crewmate
         public static void ReceiveRPC(MessageReader reader, bool setTarget = true)
         {
             byte jailerId = reader.ReadByte();
-            if (Main.PlayerStates[jailerId].Role is not Jailor jl)
-            {
-                return;
-            }
+            if (Main.PlayerStates[jailerId].Role is not Jailor jl) return;
 
             if (!setTarget)
             {
@@ -104,10 +102,7 @@ namespace EHR.Crewmate
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null)
-            {
-                return false;
-            }
+            if (killer == null || target == null) return false;
 
             if (JailorTarget != byte.MaxValue)
             {
@@ -125,26 +120,14 @@ namespace EHR.Crewmate
 
         public override void OnReportDeadBody()
         {
-            if (!NotifyJailedOnMeeting.GetBool())
-            {
-                return;
-            }
+            if (!NotifyJailedOnMeeting.GetBool()) return;
 
-            if (JailorTarget == byte.MaxValue)
-            {
-                return;
-            }
+            if (JailorTarget == byte.MaxValue) return;
 
             PlayerControl tpc = Utils.GetPlayerById(JailorTarget);
-            if (tpc == null)
-            {
-                return;
-            }
+            if (tpc == null) return;
 
-            if (tpc.IsAlive())
-            {
-                LateTask.New(() => { Utils.SendMessage(GetString("JailedNotifyMsg"), JailorTarget, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle"))); }, 0.3f, "JailorNotifyJailed");
-            }
+            if (tpc.IsAlive()) LateTask.New(() => { Utils.SendMessage(GetString("JailedNotifyMsg"), JailorTarget, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle"))); }, 0.3f, "JailorNotifyJailed");
         }
     }
 }

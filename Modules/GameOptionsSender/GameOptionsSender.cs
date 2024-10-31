@@ -23,14 +23,11 @@ namespace EHR.Modules
             writer.Write(opt.Version);
             writer.StartMessage(0);
             writer.Write((byte)opt.GameMode);
-            if (opt.TryCast<NormalGameOptionsV08>(out NormalGameOptionsV08 normalOpt))
-            {
+
+            if (opt.TryCast(out NormalGameOptionsV08 normalOpt))
                 NormalGameOptionsV08.Serialize(writer, normalOpt);
-            }
-            else if (opt.TryCast<HideNSeekGameOptionsV08>(out HideNSeekGameOptionsV08 hnsOpt))
-            {
+            else if (opt.TryCast(out HideNSeekGameOptionsV08 hnsOpt))
                 HideNSeekGameOptionsV08.Serialize(writer, hnsOpt);
-            }
             else
             {
                 writer.Recycle();
@@ -40,7 +37,7 @@ namespace EHR.Modules
             writer.EndMessage();
 
             // Array & Send
-            Il2CppStructArray<byte> byteArray = new Il2CppStructArray<byte>(writer.Length - 1);
+            var byteArray = new Il2CppStructArray<byte>(writer.Length - 1);
             // MessageWriter.ToByteArray
             Buffer.BlockCopy(writer.Buffer.Cast<Array>(), 1, byteArray.Cast<Array>(), 0, writer.Length - 1);
 
@@ -53,10 +50,7 @@ namespace EHR.Modules
             for (byte i = 0; i < GameManager.Instance.LogicComponents.Count; i++)
             {
                 Il2CppSystem.Object logicComponent = GameManager.Instance.LogicComponents[(Index)i];
-                if (logicComponent.TryCast<LogicOptions>(out _))
-                {
-                    SendOptionsArray(optionArray, i, -1);
-                }
+                if (logicComponent.TryCast<LogicOptions>(out _)) SendOptionsArray(optionArray, i, -1);
             }
         }
 
@@ -67,24 +61,27 @@ namespace EHR.Modules
                 MessageWriter writer = MessageWriter.Get(SendOption.Reliable);
 
                 writer.StartMessage(targetClientId == -1 ? Tags.GameData : Tags.GameDataTo);
+
                 {
                     writer.Write(AmongUsClient.Instance.GameId);
-                    if (targetClientId != -1)
-                    {
-                        writer.WritePacked(targetClientId);
-                    }
+                    if (targetClientId != -1) writer.WritePacked(targetClientId);
 
                     writer.StartMessage(1);
+
                     {
                         writer.WritePacked(GameManager.Instance.NetId);
                         writer.StartMessage(LogicOptionsIndex);
+
                         {
                             writer.WriteBytesAndSize(optionArray);
                         }
+
                         writer.EndMessage();
                     }
+
                     writer.EndMessage();
                 }
+
                 writer.EndMessage();
 
                 AmongUsClient.Instance.SendOrDisconnect(writer);
@@ -110,6 +107,7 @@ namespace EHR.Modules
         public static IEnumerator SendAllGameOptionsAsync()
         {
             AllSenders.RemoveAll(s => s == null || !s.AmValid());
+
             foreach (GameOptionsSender sender in AllSenders.ToArray())
             {
                 if (sender.IsDirty)
@@ -125,14 +123,12 @@ namespace EHR.Modules
         public static void SendAllGameOptions()
         {
             AllSenders.RemoveAll(s => s == null || !s.AmValid());
+
             // ReSharper disable once ForCanBeConvertedToForeach
-            for (int index = 0; index < AllSenders.Count; index++)
+            for (var index = 0; index < AllSenders.Count; index++)
             {
                 GameOptionsSender sender = AllSenders[index];
-                if (sender.IsDirty)
-                {
-                    sender.SendGameOptions();
-                }
+                if (sender.IsDirty) sender.SendGameOptions();
 
                 sender.IsDirty = false;
             }

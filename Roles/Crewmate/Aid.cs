@@ -25,17 +25,22 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Aid);
+
             AidCD = new FloatOptionItem(Id + 10, "AidCD", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Aid])
                 .SetValueFormat(OptionFormat.Seconds);
+
             AidDur = new FloatOptionItem(Id + 11, "AidDur", new(0f, 60f, 1f), 10f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Aid])
                 .SetValueFormat(OptionFormat.Seconds);
+
             TargetKnowsShield = new BooleanOptionItem(Id + 14, "AidTargetKnowsAboutShield", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Aid]);
+
             UseLimitOpt = new IntegerOptionItem(Id + 12, "AbilityUseLimit", new(1, 20, 1), 5, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Aid])
                 .SetValueFormat(OptionFormat.Times);
+
             UsePet = Options.CreatePetUseSetting(Id + 13, CustomRoles.Aid);
         }
 
@@ -75,15 +80,9 @@ namespace EHR.Crewmate
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null)
-            {
-                return false;
-            }
+            if (killer == null) return false;
 
-            if (target == null)
-            {
-                return false;
-            }
+            if (target == null) return false;
 
             TargetId = target.PlayerId;
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
@@ -92,12 +91,9 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (pc == null || !pc.Is(CustomRoles.Aid) || ShieldedPlayers.Count == 0)
-            {
-                return;
-            }
+            if (pc == null || !pc.Is(CustomRoles.Aid) || ShieldedPlayers.Count == 0) return;
 
-            bool change = false;
+            var change = false;
 
             foreach (KeyValuePair<byte, long> x in ShieldedPlayers.ToArray())
             {
@@ -109,15 +105,13 @@ namespace EHR.Crewmate
                 }
             }
 
-            if (change && GameStates.IsInTask)
-            {
-                Utils.NotifyRoles(SpecifySeer: pc);
-            }
+            if (change && GameStates.IsInTask) Utils.NotifyRoles(SpecifySeer: pc);
         }
 
         public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
         {
             PlayerControl pc = physics.myPlayer;
+
             if (pc.GetAbilityUseLimit() >= 1 && TargetId != byte.MaxValue)
             {
                 pc.RpcRemoveAbilityUse();
@@ -152,10 +146,7 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud))
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud)) return string.Empty;
 
             if (TargetKnowsShield.GetBool() && ShieldedPlayers.TryGetValue(seer.PlayerId, out long ts))
             {

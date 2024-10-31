@@ -25,15 +25,20 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Predator);
+
             NumOfRolesToKill = new IntegerOptionItem(Id + 2, "NumOfRolesToKill", new(1, 10, 1), 3, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator]);
+
             MaxImpRolePicks = new IntegerOptionItem(Id + 3, "MaxImpRolePicks", new(1, 10, 1), 1, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator]);
+
             KillCooldown = new FloatOptionItem(Id + 4, "KillCooldown", new(0f, 180f, 0.5f), 15f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(Id + 5, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator]);
+
             HasImpVision = new BooleanOptionItem(Id + 6, "ImpostorVision", false, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Predator]);
         }
@@ -50,10 +55,10 @@ namespace EHR.Neutral
                 List<CustomRoles> allRoles = Enum.GetValues<CustomRoles>().ToList();
                 allRoles.RemoveAll(x => x == CustomRoles.Predator || x >= CustomRoles.NotAssigned || !x.RoleExist(true));
 
-                IRandom r = IRandom.Instance;
-                int impRoles = 0;
+                var r = IRandom.Instance;
+                var impRoles = 0;
 
-                for (int i = 0; i < NumOfRolesToKill.GetInt(); i++)
+                for (var i = 0; i < NumOfRolesToKill.GetInt(); i++)
                 {
                     int index = r.Next(allRoles.Count);
                     CustomRoles role = allRoles[index];
@@ -78,10 +83,7 @@ namespace EHR.Neutral
                 MessageWriter w = Utils.CreateRPC(CustomRPC.SyncRoleData);
                 w.WritePacked(1);
                 w.WritePacked(RolesToKill.Count);
-                foreach (CustomRoles role in RolesToKill)
-                {
-                    w.WritePacked((int)role);
-                }
+                foreach (CustomRoles role in RolesToKill) w.WritePacked((int)role);
 
                 Utils.EndRPC(w);
                 Utils.SendRPC(CustomRPC.SyncRoleData, playerId, 2, IsWon);
@@ -95,10 +97,7 @@ namespace EHR.Neutral
                 case 1:
                     RolesToKill = [];
                     int count = reader.ReadPackedInt32();
-                    for (int i = 0; i < count; i++)
-                    {
-                        RolesToKill.Add((CustomRoles)reader.ReadPackedInt32());
-                    }
+                    for (var i = 0; i < count; i++) RolesToKill.Add((CustomRoles)reader.ReadPackedInt32());
 
                     break;
                 case 2:
@@ -134,19 +133,14 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (IsWon)
-            {
-                return false;
-            }
+            if (IsWon) return false;
 
             CustomRoles targetRole = target.GetCustomRole();
+
             if (RolesToKill.Contains(targetRole))
             {
                 IsWon = true;
-                if (!killer.IsModClient())
-                {
-                    killer.Notify(string.Format(Translator.GetString("PredatorCorrectKill"), Translator.GetString($"{targetRole}")));
-                }
+                if (!killer.IsModClient()) killer.Notify(string.Format(Translator.GetString("PredatorCorrectKill"), Translator.GetString($"{targetRole}")));
 
                 return true;
             }
@@ -157,25 +151,13 @@ namespace EHR.Neutral
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId)
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != target.PlayerId) return string.Empty;
 
-            if (seer.IsModClient() && !hud)
-            {
-                return string.Empty;
-            }
+            if (seer.IsModClient() && !hud) return string.Empty;
 
-            if (Main.PlayerStates[seer.PlayerId].Role is not Predator { IsEnable: true } pt)
-            {
-                return string.Empty;
-            }
+            if (Main.PlayerStates[seer.PlayerId].Role is not Predator { IsEnable: true } pt) return string.Empty;
 
-            if (pt.IsWon)
-            {
-                return !hud ? "<#00ff00>\u2713</color>" : Translator.GetString("PredatorDone");
-            }
+            if (pt.IsWon) return !hud ? "<#00ff00>\u2713</color>" : Translator.GetString("PredatorDone");
 
             string text = pt.RolesToKill.Join(x => x.ToColoredString());
             return hud ? text : $"<size=1.7>{text}</size>";

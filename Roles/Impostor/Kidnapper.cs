@@ -14,6 +14,7 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Kidnapper);
+
             SSCD = new FloatOptionItem(Id + 2, "ShapeshiftCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Kidnapper])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -27,15 +28,9 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl kidnapper, PlayerControl target, bool shapeshifting)
         {
-            if (kidnapper == null || target == null || !shapeshifting)
-            {
-                return true;
-            }
+            if (kidnapper == null || target == null || !shapeshifting) return true;
 
-            if (!target.TP(kidnapper))
-            {
-                kidnapper.Notify(Utils.ColorString(Color.yellow, Translator.GetString("TargetCannotBeTeleported")));
-            }
+            if (!target.TP(kidnapper)) kidnapper.Notify(Utils.ColorString(Color.yellow, Translator.GetString("TargetCannotBeTeleported")));
 
             return false;
         }

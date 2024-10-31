@@ -107,24 +107,15 @@ namespace EHR
                 };
             }
 
-            if (CustomTeamManager.GetCustomTeam(PlayerId) != null && !CustomTeamManager.IsSettingEnabledForPlayerTeam(PlayerId, CTAOption.WinWithOriginalTeam))
-            {
-                countTypes = CountTypes.CustomTeam;
-            }
+            if (CustomTeamManager.GetCustomTeam(PlayerId) != null && !CustomTeamManager.IsSettingEnabledForPlayerTeam(PlayerId, CTAOption.WinWithOriginalTeam)) countTypes = CountTypes.CustomTeam;
 
             SubRoles.ForEach(SetAddonCountTypes);
 
-            if (!Player.HasKillButton() && role == CustomRoles.Refugee)
-            {
-                Player.RpcChangeRoleBasis(CustomRoles.Refugee);
-            }
+            if (!Player.HasKillButton() && role == CustomRoles.Refugee) Player.RpcChangeRoleBasis(CustomRoles.Refugee);
 
             Role = role.GetRoleClass();
 
-            if (!role.RoleExist(true))
-            {
-                Role.Init();
-            }
+            if (!role.RoleExist(true)) Role.Init();
 
             MainRole = role;
 
@@ -132,10 +123,7 @@ namespace EHR
 
             Logger.Info($"ID {PlayerId} ({Player?.GetRealName()}) => {role}, CountTypes => {countTypes}", "SetMainRole");
 
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             if (!Main.HasJustStarted)
             {
@@ -143,34 +131,23 @@ namespace EHR
                 Player.SyncSettings();
                 Utils.NotifyRoles(SpecifySeer: Player);
                 Utils.NotifyRoles(SpecifyTarget: Player);
+
                 if (PlayerId == PlayerControl.LocalPlayer.PlayerId && GameStates.IsInTask)
                 {
                     HudManager.Instance.SetHudActive(true);
                     RemoveDisableDevicesPatch.UpdateDisableDevices();
                 }
 
-                if (Lyncher.On)
-                {
-                    Lyncher.Instances.ForEach(x => x.OnRoleChange(PlayerId));
-                }
+                if (Lyncher.On) Lyncher.Instances.ForEach(x => x.OnRoleChange(PlayerId));
 
-                if (!role.Is(Team.Impostor))
-                {
-                    SubRoles.ToArray().DoIf(x => x.IsImpOnlyAddon(), RemoveSubRole);
-                }
+                if (!role.Is(Team.Impostor)) SubRoles.ToArray().DoIf(x => x.IsImpOnlyAddon(), RemoveSubRole);
 
-                if (role is CustomRoles.Sidekick or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee)
-                {
-                    SubRoles.ToArray().DoIf(StartGameHostPatch.BasisChangingAddons.ContainsKey, RemoveSubRole);
-                }
+                if (role is CustomRoles.Sidekick or CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee) SubRoles.ToArray().DoIf(StartGameHostPatch.BasisChangingAddons.ContainsKey, RemoveSubRole);
 
-                if (role == CustomRoles.Sidekick && Jackal.Instances.FindFirst(x => x.SidekickId == byte.MaxValue || x.SidekickId.GetPlayer() == null, out Jackal jackal))
-                {
-                    jackal.SidekickId = PlayerId;
-                }
+                if (role == CustomRoles.Sidekick && Jackal.Instances.FindFirst(x => x.SidekickId == byte.MaxValue || x.SidekickId.GetPlayer() == null, out Jackal jackal)) jackal.SidekickId = PlayerId;
 
                 LateTask.New(() => Player.CheckAndSetUnshiftState(), 1f, log: false);
-            
+
                 if (Options.CurrentGameMode == CustomGameMode.Standard && !GameStates.IsMeeting && !AntiBlackout.SkipTasks)
                     Player.Notify(string.Format(Translator.GetString("RoleChangedNotify"), role.ToColoredString()), 10f);
             }
@@ -180,10 +157,7 @@ namespace EHR
 
         public void SetSubRole(CustomRoles role, bool AllReplace = false)
         {
-            if (role == CustomRoles.Cleansed)
-            {
-                AllReplace = true;
-            }
+            if (role == CustomRoles.Cleansed) AllReplace = true;
 
             if (AllReplace)
             {
@@ -191,10 +165,7 @@ namespace EHR
                 Utils.SendRPC(CustomRPC.RemoveSubRole, PlayerId, 2);
             }
 
-            if (!SubRoles.Contains(role))
-            {
-                SubRoles.Add(role);
-            }
+            if (!SubRoles.Contains(role)) SubRoles.Add(role);
 
             SetAddonCountTypes(role);
 
@@ -212,6 +183,7 @@ namespace EHR
                 case CustomRoles.Madmate:
                     TaskState.HasTasks = false;
                     TaskState.AllTasksCount = 0;
+
                     countTypes = Options.MadmateCountMode.GetInt() switch
                     {
                         0 => CountTypes.OutOfGame,
@@ -219,6 +191,7 @@ namespace EHR
                         2 => CountTypes.Crew,
                         _ => throw new NotImplementedException()
                     };
+
                     SubRoles.Remove(CustomRoles.Charmed);
                     SubRoles.Remove(CustomRoles.Recruit);
                     SubRoles.Remove(CustomRoles.Contagious);
@@ -232,6 +205,7 @@ namespace EHR
                 case CustomRoles.Charmed:
                     TaskState.HasTasks = false;
                     TaskState.AllTasksCount = 0;
+
                     countTypes = Succubus.CharmedCountMode.GetInt() switch
                     {
                         0 => CountTypes.OutOfGame,
@@ -239,6 +213,7 @@ namespace EHR
                         2 => countTypes,
                         _ => throw new NotImplementedException()
                     };
+
                     SubRoles.Remove(CustomRoles.Madmate);
                     SubRoles.Remove(CustomRoles.Recruit);
                     SubRoles.Remove(CustomRoles.Contagious);
@@ -252,6 +227,7 @@ namespace EHR
                 case CustomRoles.Undead:
                     TaskState.HasTasks = false;
                     TaskState.AllTasksCount = 0;
+
                     countTypes = Necromancer.UndeadCountMode.GetInt() switch
                     {
                         0 => CountTypes.OutOfGame,
@@ -259,6 +235,7 @@ namespace EHR
                         2 => countTypes,
                         _ => throw new NotImplementedException()
                     };
+
                     SubRoles.Remove(CustomRoles.Madmate);
                     SubRoles.Remove(CustomRoles.Recruit);
                     SubRoles.Remove(CustomRoles.Contagious);
@@ -275,6 +252,7 @@ namespace EHR
                 case CustomRoles.Recruit:
                     TaskState.HasTasks = false;
                     TaskState.AllTasksCount = 0;
+
                     countTypes = Jackal.SidekickCountMode.GetInt() switch
                     {
                         0 => CountTypes.Jackal,
@@ -282,6 +260,7 @@ namespace EHR
                         2 => countTypes,
                         _ => throw new NotImplementedException()
                     };
+
                     SubRoles.Remove(CustomRoles.Madmate);
                     SubRoles.Remove(CustomRoles.Charmed);
                     SubRoles.Remove(CustomRoles.Contagious);
@@ -295,6 +274,7 @@ namespace EHR
                 case CustomRoles.Contagious:
                     TaskState.HasTasks = false;
                     TaskState.AllTasksCount = 0;
+
                     countTypes = Virus.ContagiousCountMode.GetInt() switch
                     {
                         0 => CountTypes.OutOfGame,
@@ -302,6 +282,7 @@ namespace EHR
                         2 => countTypes,
                         _ => throw new NotImplementedException()
                     };
+
                     SubRoles.Remove(CustomRoles.Madmate);
                     SubRoles.Remove(CustomRoles.Recruit);
                     SubRoles.Remove(CustomRoles.Charmed);
@@ -331,6 +312,7 @@ namespace EHR
         public void SetDead()
         {
             IsDead = true;
+
             if (AmongUsClient.Instance.AmHost)
             {
                 RPC.SendDeathReason(PlayerId, deathReason);
@@ -371,10 +353,7 @@ namespace EHR
         public void Init(PlayerControl player)
         {
             Logger.Info($"{player.GetNameWithRole().RemoveHtmlTags()}: InitTask", "TaskState.Init");
-            if (player == null || player.Data?.Tasks == null)
-            {
-                return;
-            }
+            if (player == null || player.Data?.Tasks == null) return;
 
             if (!Utils.HasTasks(player.Data, false))
             {
@@ -393,15 +372,9 @@ namespace EHR
             GameData.Instance.RecomputeTaskCounts();
             Logger.Info($"TotalTaskCounts = {GameData.Instance.CompletedTasks}/{GameData.Instance.TotalTasks}", "TaskState.Update");
 
-            if (AllTasksCount == -1)
-            {
-                Init(player);
-            }
+            if (AllTasksCount == -1) Init(player);
 
-            if (!HasTasks)
-            {
-                return;
-            }
+            if (!HasTasks) return;
 
             if (AmongUsClient.Instance.AmHost)
             {
@@ -409,10 +382,7 @@ namespace EHR
 
                 if (alive && Options.CurrentGameMode == CustomGameMode.Speedrun)
                 {
-                    if (CompletedTasksCount + 1 >= AllTasksCount)
-                    {
-                        SpeedrunManager.OnTaskFinish(player);
-                    }
+                    if (CompletedTasksCount + 1 >= AllTasksCount) SpeedrunManager.OnTaskFinish(player);
 
                     SpeedrunManager.ResetTimer(player);
                 }
@@ -423,37 +393,23 @@ namespace EHR
                     switch (player.GetCustomRole())
                     {
                         case CustomRoles.SabotageMaster:
-                            if (Main.PlayerStates[player.PlayerId].Role is not SabotageMaster sm)
-                            {
-                                break;
-                            }
+                            if (Main.PlayerStates[player.PlayerId].Role is not SabotageMaster sm) break;
 
                             sm.UsedSkillCount -= SabotageMaster.SmAbilityUseGainWithEachTaskCompleted.GetFloat();
                             sm.SendRPC();
                             break;
                         case CustomRoles.NiceHacker:
                             if (!player.IsModClient() && NiceHacker.UseLimit.ContainsKey(player.PlayerId))
-                            {
                                 NiceHacker.UseLimit[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetFloat();
-                            }
-                            else if (NiceHacker.UseLimitSeconds.ContainsKey(player.PlayerId))
-                            {
-                                NiceHacker.UseLimitSeconds[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetInt() * NiceHacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
-                            }
+                            else if (NiceHacker.UseLimitSeconds.ContainsKey(player.PlayerId)) NiceHacker.UseLimitSeconds[player.PlayerId] += NiceHacker.NiceHackerAbilityUseGainWithEachTaskCompleted.GetInt() * NiceHacker.ModdedClientAbilityUseSecondsMultiplier.GetInt();
 
-                            if (NiceHacker.UseLimitSeconds.ContainsKey(player.PlayerId))
-                            {
-                                NiceHacker.SendRPC(player.PlayerId, NiceHacker.UseLimitSeconds[player.PlayerId]);
-                            }
+                            if (NiceHacker.UseLimitSeconds.ContainsKey(player.PlayerId)) NiceHacker.SendRPC(player.PlayerId, NiceHacker.UseLimitSeconds[player.PlayerId]);
 
                             break;
                     }
 
                     float add = Utils.GetSettingNameAndValueForRole(player.GetCustomRole(), "AbilityUseGainWithEachTaskCompleted");
-                    if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0)
-                    {
-                        player.RpcIncreaseAbilityUseLimitBy(add);
-                    }
+                    if (Math.Abs(add - float.MaxValue) > 0.5f && add > 0) player.RpcIncreaseAbilityUseLimitBy(add);
                 }
 
                 try
@@ -467,38 +423,21 @@ namespace EHR
 
                 List<CustomRoles> addons = Main.PlayerStates[player.PlayerId].SubRoles;
 
-                if (addons.Contains(CustomRoles.Deadlined))
-                {
-                    Deadlined.SetDone(player);
-                }
+                if (addons.Contains(CustomRoles.Deadlined)) Deadlined.SetDone(player);
 
-                if (addons.Contains(CustomRoles.Stressed))
-                {
-                    Stressed.OnTaskComplete(player);
-                }
+                if (addons.Contains(CustomRoles.Stressed)) Stressed.OnTaskComplete(player);
 
-                if (addons.Contains(CustomRoles.Unlucky) && alive && IRandom.Instance.Next(0, 100) < Options.UnluckyTaskSuicideChance.GetInt())
-                {
-                    player.Suicide();
-                }
+                if (addons.Contains(CustomRoles.Unlucky) && alive && IRandom.Instance.Next(0, 100) < Options.UnluckyTaskSuicideChance.GetInt()) player.Suicide();
 
                 if (GhostRolesManager.AssignedGhostRoles.TryGetValue(player.PlayerId, out (CustomRoles Role, IGhostRole Instance) ghostRole))
                 {
-                    if (ghostRole is { Role: CustomRoles.Specter, Instance: Specter specter } && CompletedTasksCount + 1 >= AllTasksCount)
-                    {
-                        specter.OnFinishedTasks(player);
-                    }
+                    if (ghostRole is { Role: CustomRoles.Specter, Instance: Specter specter } && CompletedTasksCount + 1 >= AllTasksCount) specter.OnFinishedTasks(player);
 
                     if (ghostRole is { Role: CustomRoles.Haunter, Instance: Haunter haunter })
                     {
                         if (CompletedTasksCount + 1 >= AllTasksCount)
-                        {
                             haunter.OnFinishedTasks(player);
-                        }
-                        else if (CompletedTasksCount + 1 >= Haunter.TasksBeforeBeingKnown.GetInt())
-                        {
-                            haunter.OnOneTaskLeft(player);
-                        }
+                        else if (CompletedTasksCount + 1 >= Haunter.TasksBeforeBeingKnown.GetInt()) haunter.OnOneTaskLeft(player);
                     }
                 }
 
@@ -506,18 +445,11 @@ namespace EHR
 
                 // Update the player's task count for Task Managers
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                {
                     if (pc.Is(CustomRoles.TaskManager) && pc.PlayerId != player.PlayerId)
-                    {
                         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: player);
-                    }
-                }
             }
 
-            if (CompletedTasksCount >= AllTasksCount)
-            {
-                return;
-            }
+            if (CompletedTasksCount >= AllTasksCount) return;
 
             CompletedTasksCount++;
 
@@ -532,21 +464,13 @@ namespace EHR
         public readonly string tag = tagStr;
         public readonly Version version = ver;
 
-        public PlayerVersion(string ver, string tagStr, string forkId) : this(Version.Parse(ver), tagStr, forkId)
-        {
-        }
+        public PlayerVersion(string ver, string tagStr, string forkId) : this(Version.Parse(ver), tagStr, forkId) { }
 
         public override bool Equals(object obj)
         {
-            if (obj is null)
-            {
-                return false;
-            }
+            if (obj is null) return false;
 
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
+            if (ReferenceEquals(this, obj)) return true;
 
             return obj.GetType() == GetType() && Equals((PlayerVersion)obj);
         }
@@ -584,10 +508,7 @@ namespace EHR
         {
             get
             {
-                if (!IsOnlineGame)
-                {
-                    return false;
-                }
+                if (!IsOnlineGame) return false;
 
                 const string domain = "among.us";
 

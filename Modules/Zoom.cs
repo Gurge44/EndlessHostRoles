@@ -16,26 +16,17 @@ namespace EHR
         {
             try
             {
-                if (Camera.main == null)
-                {
-                    return;
-                }
+                if (Camera.main == null) return;
 
                 if (((GameStates.IsShip && !GameStates.IsMeeting && GameStates.IsCanMove && PlayerControl.LocalPlayer.Data != null && PlayerControl.LocalPlayer.Data.IsDead) || (GameStates.IsLobby && GameStates.IsCanMove)) && !InGameRoleInfoMenu.Showing)
                 {
-                    if (Camera.main.orthographicSize > 3.0f)
-                    {
-                        ResetButtons = true;
-                    }
+                    if (Camera.main.orthographicSize > 3.0f) ResetButtons = true;
 
                     switch (Input.mouseScrollDelta.y)
                     {
                         case > 0:
                         {
-                            if (Camera.main.orthographicSize > 3.0f)
-                            {
-                                SetZoomSize();
-                            }
+                            if (Camera.main.orthographicSize > 3.0f) SetZoomSize();
 
                             break;
                         }
@@ -43,12 +34,8 @@ namespace EHR
                         {
                             if (GameStates.IsDead || GameStates.IsFreePlay || DebugModeManager.AmDebugger || GameStates.IsLobby ||
                                 PlayerControl.LocalPlayer.FriendCode.GetDevUser().DeBug)
-                            {
                                 if (Camera.main.orthographicSize < 18.0f)
-                                {
                                     SetZoomSize(true);
-                                }
-                            }
 
                             break;
                         }
@@ -57,37 +44,24 @@ namespace EHR
                     Flag.NewFlag("Zoom");
                 }
                 else
-                {
                     Flag.Run(() => { SetZoomSize(reset: true); }, "Zoom");
-                }
             }
-            catch
-            {
-            }
+            catch { }
         }
 
         public static void SetZoomSize(bool times = false, bool reset = false)
         {
-            if (Camera.main == null)
-            {
-                return;
-            }
+            if (Camera.main == null) return;
 
-            float size = 1.5f;
-            if (!times)
-            {
-                size = 1 / size;
-            }
+            var size = 1.5f;
+            if (!times) size = 1 / size;
 
             if (reset)
             {
                 Camera.main.orthographicSize = 3.0f;
                 HudManager.Instance.UICamera.orthographicSize = 3.0f;
                 HudManager.Instance.Chat.transform.localScale = Vector3.one;
-                if (GameStates.IsMeeting)
-                {
-                    MeetingHud.Instance.transform.localScale = Vector3.one;
-                }
+                if (GameStates.IsMeeting) MeetingHud.Instance.transform.localScale = Vector3.one;
             }
             else
             {
@@ -106,10 +80,7 @@ namespace EHR
 
         public static void OnFixedUpdate()
         {
-            if (Camera.main == null)
-            {
-                return;
-            }
+            if (Camera.main == null) return;
 
             DestroyableSingleton<HudManager>.Instance?.ShadowQuad?.gameObject.SetActive(Mathf.Approximately(Camera.main.orthographicSize, 3.0f) && PlayerControl.LocalPlayer.IsAlive());
         }
@@ -124,10 +95,7 @@ namespace EHR
         {
             if (OneTimeList.Contains(type) || (firstrun && !FirstRunList.Contains(type)))
             {
-                if (!FirstRunList.Contains(type))
-                {
-                    FirstRunList.Add(type);
-                }
+                if (!FirstRunList.Contains(type)) FirstRunList.Add(type);
 
                 OneTimeList.Remove(type);
                 action();
@@ -136,10 +104,7 @@ namespace EHR
 
         public static void NewFlag(string type)
         {
-            if (!OneTimeList.Contains(type))
-            {
-                OneTimeList.Add(type);
-            }
+            if (!OneTimeList.Contains(type)) OneTimeList.Add(type);
         }
 
 /*

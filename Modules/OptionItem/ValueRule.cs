@@ -5,9 +5,7 @@ namespace EHR
     public abstract class ValueRule<T>(T minValue, T maxValue, T step)
     {
         public ValueRule((T, T, T) tuple)
-            : this(tuple.Item1, tuple.Item2, tuple.Item3)
-        {
-        }
+            : this(tuple.Item1, tuple.Item2, tuple.Item3) { }
 
         public T MinValue { get; protected set; } = minValue;
         public T MaxValue { get; protected set; } = maxValue;
@@ -21,14 +19,10 @@ namespace EHR
     public class IntegerValueRule : ValueRule<int>
     {
         public IntegerValueRule(int minValue, int maxValue, int step)
-            : base(minValue, maxValue, step)
-        {
-        }
+            : base(minValue, maxValue, step) { }
 
         public IntegerValueRule((int, int, int) tuple)
-            : base(tuple)
-        {
-        }
+            : base(tuple) { }
 
         public static implicit operator IntegerValueRule((int, int, int) tuple)
         {
@@ -39,10 +33,7 @@ namespace EHR
         {
             int MaxIndex = (MaxValue - MinValue) / Step;
             value %= MaxIndex + 1;
-            if (value < 0)
-            {
-                value = MaxIndex;
-            }
+            if (value < 0) value = MaxIndex;
 
             return value;
         }
@@ -61,14 +52,10 @@ namespace EHR
     public class FloatValueRule : ValueRule<float>
     {
         public FloatValueRule(float minValue, float maxValue, float step)
-            : base(minValue, maxValue, step)
-        {
-        }
+            : base(minValue, maxValue, step) { }
 
         public FloatValueRule((float, float, float) tuple)
-            : base(tuple)
-        {
-        }
+            : base(tuple) { }
 
         public static implicit operator FloatValueRule((float, float, float) tuple)
         {
@@ -77,12 +64,9 @@ namespace EHR
 
         public override int RepeatIndex(int value)
         {
-            int MaxIndex = (int)((MaxValue - MinValue) / Step);
+            var MaxIndex = (int)((MaxValue - MinValue) / Step);
             value %= MaxIndex + 1;
-            if (value < 0)
-            {
-                value = MaxIndex;
-            }
+            if (value < 0) value = MaxIndex;
 
             return value;
         }

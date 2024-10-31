@@ -23,17 +23,22 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Eclipse);
+
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Eclipse])
                 .SetValueFormat(OptionFormat.Seconds);
+
             StartVision = new FloatOptionItem(Id + 11, "EclipseStartVision", new(0.1f, 5f, 0.1f), 0.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Eclipse])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             VisionIncrease = new FloatOptionItem(Id + 12, "EclipseVisionIncrease", new(0.05f, 5f, 0.05f), 0.1f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Eclipse])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             MaxVision = new FloatOptionItem(Id + 13, "EclipseMaxVision", new(0.25f, 5f, 0.25f), 1.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Eclipse])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             CanVent = new BooleanOptionItem(Id + 14, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Eclipse]);
         }
 
@@ -67,22 +72,13 @@ namespace EHR.Neutral
 
         public override void OnMurder(PlayerControl pc, PlayerControl target)
         {
-            if (pc == null)
-            {
-                return;
-            }
+            if (pc == null) return;
 
             float currentVision = Vision;
             Vision += VisionIncrease.GetFloat();
-            if (Vision > MaxVision.GetFloat())
-            {
-                Vision = MaxVision.GetFloat();
-            }
+            if (Vision > MaxVision.GetFloat()) Vision = MaxVision.GetFloat();
 
-            if (Math.Abs(Vision - currentVision) > 0.1f)
-            {
-                pc.MarkDirtySettings();
-            }
+            if (Math.Abs(Vision - currentVision) > 0.1f) pc.MarkDirtySettings();
         }
     }
 }

@@ -38,19 +38,17 @@ namespace EHR
                     closeButton.name = "Back";
                     closeButton.Text.text = Translator.GetString("Back");
                     closeButton.Background.color = Palette.DisabledGrey;
-                    PassiveButton closePassiveButton = closeButton.GetComponent<PassiveButton>();
+                    var closePassiveButton = closeButton.GetComponent<PassiveButton>();
                     closePassiveButton.OnClick = new();
                     closePassiveButton.OnClick.AddListener(new Action(() => { CustomBackground.gameObject.SetActive(false); }));
 
                     UiElement[] selectableButtons = optionsMenuBehaviour.ControllerSelectable.ToArray();
                     PassiveButton leaveButton = null;
                     PassiveButton returnButton = null;
+
                     foreach (UiElement button in selectableButtons)
                     {
-                        if (button == null)
-                        {
-                            continue;
-                        }
+                        if (button == null) continue;
 
                         switch (button.name)
                         {
@@ -70,41 +68,36 @@ namespace EHR
                     modOptionsButton.name = "EHROptions";
                     modOptionsButton.Text.text = Translator.GetString("EHROptions");
                     modOptionsButton.Background.color = new Color32(0, 165, 255, byte.MaxValue);
-                    PassiveButton modOptionsPassiveButton = modOptionsButton.GetComponent<PassiveButton>();
+                    var modOptionsPassiveButton = modOptionsButton.GetComponent<PassiveButton>();
                     modOptionsPassiveButton.OnClick = new();
                     modOptionsPassiveButton.OnClick.AddListener(new Action(() => CustomBackground.gameObject.SetActive(true)));
 
-                    if (leaveButton != null && leaveButton.transform != null)
-                    {
-                        leaveButton.transform.localPosition = new(-1.35f, -2.411f, -1f);
-                    }
+                    if (leaveButton != null && leaveButton.transform != null) leaveButton.transform.localPosition = new(-1.35f, -2.411f, -1f);
 
-                    if (returnButton != null)
-                    {
-                        returnButton.transform.localPosition = new(1.35f, -2.411f, -1f);
-                    }
+                    if (returnButton != null) returnButton.transform.localPosition = new(1.35f, -2.411f, -1f);
                 }
 
                 ToggleButton = Object.Instantiate(mouseMoveToggle, CustomBackground.transform);
+
                 ToggleButton.transform.localPosition = new(
                     NumOptions % 2 == 0 ? -1.3f : 1.3f,
                     // ReSharper disable once PossibleLossOfFraction
                     2.2f - (0.5f * (NumOptions / 2)),
                     -6f);
+
                 ToggleButton.name = name;
                 ToggleButton.Text.text = Translator.GetString(name);
-                PassiveButton passiveButton = ToggleButton.GetComponent<PassiveButton>();
+                var passiveButton = ToggleButton.GetComponent<PassiveButton>();
                 passiveButton.OnClick = new();
+
                 passiveButton.OnClick.AddListener(new Action(() =>
                 {
-                    if (config != null)
-                    {
-                        config.Value = !config.Value;
-                    }
+                    if (config != null) config.Value = !config.Value;
 
                     UpdateToggle();
                     additionalOnClickAction?.Invoke();
                 }));
+
                 UpdateToggle();
             }
             finally
@@ -124,10 +117,7 @@ namespace EHR
 
         public void UpdateToggle()
         {
-            if (ToggleButton == null)
-            {
-                return;
-            }
+            if (ToggleButton == null) return;
 
             Color32 color = Config is { Value: true } ? new(0, 165, 255, byte.MaxValue) : new Color32(77, 77, 77, byte.MaxValue);
             ToggleButton.Background.color = color;

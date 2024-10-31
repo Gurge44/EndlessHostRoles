@@ -39,25 +39,15 @@ namespace EHR
                 CurrentPreset = SingleValue;
             }
             else if (IsSingleValue)
-            {
                 SingleValue = DefaultValue;
-            }
             else
-            {
-                for (int i = 0; i < NumPresets; i++)
-                {
+                for (var i = 0; i < NumPresets; i++)
                     AllValues[i] = DefaultValue;
-                }
-            }
 
             if (FastOpts.TryAdd(id, this))
-            {
                 Options.Add(this);
-            }
             else
-            {
                 Logger.Error($"Duplicate ID: {id} ({name})", "OptionItem");
-            }
         }
 
         public int Id { get; }
@@ -79,13 +69,9 @@ namespace EHR
             set
             {
                 if (value == null)
-                {
                     _replacementDictionary?.Clear();
-                }
                 else
-                {
                     _replacementDictionary = value;
-                }
             }
         }
 
@@ -187,10 +173,7 @@ namespace EHR
         // Getter
         public virtual string GetName(bool disableColor = false, bool console = false)
         {
-            if (Name.Contains("CTA.FLAG"))
-            {
-                return Utils.ColorString(NameColor, Translator.GetString("CTA.TeamEnabled.Prefix") + Name[8..] + Translator.GetString("CTA.TeamEnabled.Suffix"));
-            }
+            if (Name.Contains("CTA.FLAG")) return Utils.ColorString(NameColor, Translator.GetString("CTA.TeamEnabled.Prefix") + Name[8..] + Translator.GetString("CTA.TeamEnabled.Suffix"));
 
             return disableColor ? Translator.GetString(Name, ReplacementDictionary, console) : Utils.ColorString(NameColor, Translator.GetString(Name, ReplacementDictionary));
         }
@@ -235,12 +218,9 @@ namespace EHR
         {
             int LastParent = Id;
 
-            for (int i = 0; i < 5; i++)
+            for (var i = 0; i < 5; i++)
             {
-                if (AllOptions.First(x => x.Id == LastParent).Parent == null)
-                {
-                    break;
-                }
+                if (AllOptions.First(x => x.Id == LastParent).Parent == null) break;
 
                 LastParent = AllOptions.First(x => x.Id == LastParent).Parent.Id;
             }
@@ -250,10 +230,7 @@ namespace EHR
 
         protected string ApplyFormat(string value)
         {
-            if (ValueFormat == OptionFormat.None)
-            {
-                return value;
-            }
+            if (ValueFormat == OptionFormat.None) return value;
 
             return string.Format(Translator.GetString("Format." + ValueFormat), value);
         }
@@ -271,26 +248,17 @@ namespace EHR
         public void SetValue(int afterValue, bool doSave, bool doSync = true)
         {
             int beforeValue = CurrentValue;
+
             if (IsSingleValue)
-            {
                 SingleValue = afterValue;
-            }
             else
-            {
                 AllValues[CurrentPreset] = afterValue;
-            }
 
             CallUpdateValueEvent(beforeValue, afterValue);
             Refresh();
-            if (doSync)
-            {
-                SyncAllOptions();
-            }
+            if (doSync) SyncAllOptions();
 
-            if (doSave)
-            {
-                OptionSaver.Save();
-            }
+            if (doSave) OptionSaver.Save();
         }
 
         public virtual void SetValue(int afterValue, bool doSync = true)
@@ -301,16 +269,10 @@ namespace EHR
         public void SetAllValues(int[] values)
         {
             if (values.Length == AllValues.Length)
-            {
                 AllValues = values;
-            }
             else
-            {
-                for (int i = 0; i < values.Length; i++)
-                {
+                for (var i = 0; i < values.Length; i++)
                     AllValues[i] = values[i];
-                }
-            }
         }
 
         public static OptionItem operator ++(OptionItem item)
@@ -327,10 +289,7 @@ namespace EHR
         {
             CurrentPreset = Math.Clamp(newPreset, 0, NumPresets - 1);
 
-            foreach (OptionItem op in AllOptions)
-            {
-                op.Refresh();
-            }
+            foreach (OptionItem op in AllOptions) op.Refresh();
 
             SyncAllOptions();
         }
@@ -342,9 +301,7 @@ namespace EHR
                 || AmongUsClient.Instance.AmHost == false
                 || PlayerControl.LocalPlayer == null
             )
-            {
                 return;
-            }
 
             RPC.SyncCustomSettingsRPC(targetId);
         }
@@ -353,10 +310,7 @@ namespace EHR
         // EventArgs
         private void CallUpdateValueEvent(int beforeValue, int currentValue)
         {
-            if (UpdateValueEvent == null)
-            {
-                return;
-            }
+            if (UpdateValueEvent == null) return;
 
             try
             {

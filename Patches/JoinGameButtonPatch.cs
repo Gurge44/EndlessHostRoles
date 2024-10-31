@@ -9,10 +9,7 @@ namespace EHR
     {
         public static void Prefix(JoinGameButton __instance)
         {
-            if (__instance.GameIdText == null)
-            {
-                return;
-            }
+            if (__instance.GameIdText == null) return;
 
             if (__instance.GameIdText.text == "" && Regex.IsMatch(GUIUtility.systemCopyBuffer.Trim('\r', '\n'), @"^[A-Z]{6}$"))
             {

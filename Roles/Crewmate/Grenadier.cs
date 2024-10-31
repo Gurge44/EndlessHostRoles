@@ -18,23 +18,30 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(6800, TabGroup.CrewmateRoles, CustomRoles.Grenadier);
+
             GrenadierSkillCooldown = new FloatOptionItem(6810, "GrenadierSkillCooldown", new(0f, 180f, 1f), 25f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
                 .SetValueFormat(OptionFormat.Seconds);
+
             GrenadierSkillDuration = new FloatOptionItem(6811, "GrenadierSkillDuration", new(0f, 180f, 1f), 10f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
                 .SetValueFormat(OptionFormat.Seconds);
+
             GrenadierCauseVision = new FloatOptionItem(6812, "GrenadierCauseVision", new(0f, 5f, 0.05f), 0.3f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             GrenadierCanAffectNeutral = new BooleanOptionItem(6813, "GrenadierCanAffectNeutral", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier]);
+
             GrenadierSkillMaxOfUseage = new IntegerOptionItem(6814, "GrenadierSkillMaxOfUseage", new(0, 180, 1), 2, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
                 .SetValueFormat(OptionFormat.Times);
+
             GrenadierAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(6815, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
                 .SetValueFormat(OptionFormat.Times);
+
             GrenadierAbilityChargesWhenFinishedTasks = new FloatOptionItem(6816, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Grenadier])
                 .SetValueFormat(OptionFormat.Times);
@@ -53,10 +60,7 @@ namespace EHR.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool())
-            {
-                return;
-            }
+            if (UsePets.GetBool()) return;
 
             AURoleOptions.EngineerCooldown = GrenadierSkillCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1;
@@ -64,7 +68,7 @@ namespace EHR.Crewmate
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            StringBuilder ProgressText = new StringBuilder();
+            var ProgressText = new StringBuilder();
 
             ProgressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, GrenadierBlinding.ContainsKey(playerId)));
             ProgressText.Append(Utils.GetTaskCount(playerId, comms));
@@ -75,13 +79,9 @@ namespace EHR.Crewmate
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             if (UsePets.GetBool())
-            {
                 hud.PetButton.buttonLabelText.text = Translator.GetString("GrenadierVentButtonText");
-            }
             else
-            {
                 hud.AbilityButton.buttonLabelText.text = Translator.GetString("GrenadierVentButtonText");
-            }
         }
 
         public override void OnPet(PlayerControl pc)
@@ -96,10 +96,7 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!GameStates.IsInTask)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask) return;
 
             byte playerId = player.PlayerId;
             long now = Utils.TimeStamp;
@@ -123,10 +120,7 @@ namespace EHR.Crewmate
 
         private static void BlindPlayers(PlayerControl pc)
         {
-            if (GrenadierBlinding.ContainsKey(pc.PlayerId) || MadGrenadierBlinding.ContainsKey(pc.PlayerId))
-            {
-                return;
-            }
+            if (GrenadierBlinding.ContainsKey(pc.PlayerId) || MadGrenadierBlinding.ContainsKey(pc.PlayerId)) return;
 
             if (pc.GetAbilityUseLimit() >= 1)
             {
@@ -149,9 +143,7 @@ namespace EHR.Crewmate
                 Utils.MarkEveryoneDirtySettingsV3();
             }
             else
-            {
                 pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
-            }
         }
     }
 }

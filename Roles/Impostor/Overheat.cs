@@ -25,18 +25,23 @@ namespace EHR.Impostor
         {
             const int id = 12332;
             Options.SetupRoleOptions(id, TabGroup.ImpostorRoles, CustomRoles.Overheat);
+
             OverheatChanceIncrease = new FloatOptionItem(id + 2, "Overheat.ChanceIncrease", new(1f, 10f, 1f), 1f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
                 .SetValueFormat(OptionFormat.Percent);
+
             OverheatChanceIncreaseFrequency = new FloatOptionItem(id + 3, "Overheat.ChanceIncreaseFrequency", new(0.5f, 30f, 0.5f), 5f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
                 .SetValueFormat(OptionFormat.Seconds);
+
             OverheatRollChanceFrequency = new FloatOptionItem(id + 4, "Overheat.RollChanceFrequency", new(0.5f, 60f, 0.5f), 3f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CoolDownTime = new FloatOptionItem(id + 5, "Overheat.CoolDownTime", new(0.5f, 30f, 0.5f), 4f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
                 .SetValueFormat(OptionFormat.Seconds);
+
             KCDDecreasePerIncreasedTemperature = new FloatOptionItem(id + 6, "Overheat.KCDDecreasePerIncreasedTemperature", new(0.5f, 15f, 0.5f), 3f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Overheat])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -71,10 +76,7 @@ namespace EHR.Impostor
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (Options.UsePets.GetBool())
-            {
-                return;
-            }
+            if (Options.UsePets.GetBool()) return;
 
             AURoleOptions.ShapeshifterCooldown = 1f;
             AURoleOptions.ShapeshifterDuration = 1f;
@@ -94,10 +96,7 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || !pc.IsAlive() || ExileController.Instance != null)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask || !pc.IsAlive() || ExileController.Instance != null) return;
 
             ChanceIncreaseTimer += Time.fixedDeltaTime;
             RollChanceTimer += Time.fixedDeltaTime;
@@ -115,10 +114,7 @@ namespace EHR.Impostor
             if (RollChanceTimer >= OverheatRollChanceFrequency.GetFloat())
             {
                 RollChanceTimer = 0f;
-                if (IRandom.Instance.Next(100) < Temperature - StartingTemperature)
-                {
-                    pc.Suicide();
-                }
+                if (IRandom.Instance.Next(100) < Temperature - StartingTemperature) pc.Suicide();
             }
         }
 
@@ -152,15 +148,9 @@ namespace EHR.Impostor
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (Main.PlayerStates[seer.PlayerId].Role is not Overheat oh)
-            {
-                return string.Empty;
-            }
+            if (Main.PlayerStates[seer.PlayerId].Role is not Overheat oh) return string.Empty;
 
-            if (seer.PlayerId != target.PlayerId)
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != target.PlayerId) return string.Empty;
 
             Color color = GetTemperatureColor(oh.Temperature);
             string str = Translator.GetString("Overheat.Suffix");

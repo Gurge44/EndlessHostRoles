@@ -25,26 +25,31 @@ namespace EHR.GameMode.HideAndSeekRoles
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(69_211_901, TabGroup.ImpostorRoles, CustomRoles.Locator, CustomGameMode.HideAndSeek);
+
             Vision = new FloatOptionItem(69_211_903, "LocatorVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(245, 158, 66, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Locator]);
+
             Speed = new FloatOptionItem(69_213_904, "LocatorSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(245, 158, 66, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Locator]);
+
             ArrowFrequency = new IntegerOptionItem(69_213_905, "LocatorFrequency", new(0, 60, 1), 20, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(245, 158, 66, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Locator]);
+
             ArrowDuration = new FloatOptionItem(69_213_906, "LocatorDuration", new(1f, 30f, 1f), 5f, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetColor(new(245, 158, 66, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Locator]);
+
             HidersKnowTheyAreLocated = new BooleanOptionItem(69_213_907, "LocatorTargetKnows", true, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(new(245, 158, 66, byte.MaxValue))
@@ -65,26 +70,21 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!pc.IsAlive())
-            {
-                return;
-            }
+            if (!pc.IsAlive()) return;
 
             if (Status.TargetId == byte.MaxValue)
             {
                 if (Status.LastArrowEndTime + ArrowFrequency.GetInt() < Utils.TimeStamp)
                 {
                     PlayerControl target = HnSManager.PlayerRoles.Where(x => x.Value.Interface.Team != Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Where(x => x != null && x.IsAlive()).Shuffle().FirstOrDefault();
+
                     if (target != null)
                     {
                         Status.TargetId = target.PlayerId;
                         Status.LastArrowEndTime = Utils.TimeStamp + ArrowDuration.GetInt();
                         TargetArrow.Add(pc.PlayerId, target.PlayerId);
                         Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                        if (HidersKnowTheyAreLocated.GetBool())
-                        {
-                            target.Notify(Translator.GetString("LocatorNotify"));
-                        }
+                        if (HidersKnowTheyAreLocated.GetBool()) target.Notify(Translator.GetString("LocatorNotify"));
                     }
                 }
             }
@@ -98,10 +98,7 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || hud || seer.PlayerId != LocatorId)
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != target.PlayerId || hud || seer.PlayerId != LocatorId) return string.Empty;
 
             return Status.TargetId == byte.MaxValue ? string.Empty : TargetArrow.GetArrows(seer, Status.TargetId);
         }

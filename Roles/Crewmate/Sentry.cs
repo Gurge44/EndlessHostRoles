@@ -23,11 +23,11 @@ namespace EHR.Crewmate
 
         private static Vector2[] AvailableDevices = [];
 
+        private readonly Dictionary<byte, long> LastInfoSend = [];
+
         private readonly HashSet<byte> LastNotified = [];
 
         private HashSet<byte> DeadBodiesInRoom;
-
-        private readonly Dictionary<byte, long> LastInfoSend = [];
         public PlainShipRoom MonitoredRoom;
 
         private PlayerControl SentryPC;
@@ -37,31 +37,41 @@ namespace EHR.Crewmate
 
         public override void SetupCustomOption()
         {
-            int id = 11370;
+            var id = 11370;
             Options.SetupRoleOptions(id++, TabGroup.CrewmateRoles, CustomRoles.Sentry);
+
             ShowInfoCooldown = new IntegerOptionItem(++id, "AbilityCooldown", new(1, 60, 1), 15, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ShowInfoDuration = new IntegerOptionItem(++id, "Sentry.ShowInfoDuration", new(1, 60, 1), 5, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry])
                 .SetValueFormat(OptionFormat.Seconds);
+
             PlayersKnowAboutCamera = new BooleanOptionItem(++id, "Sentry.PlayersKnowAboutCamera", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
+
             CannotSeeInfoDuringComms = new BooleanOptionItem(++id, "Sentry.CannotSeeInfoDuringComms", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
+
             UsableDevicesForInfoView = new StringOptionItem(++id, "Sentry.UsableDevicesForInfoView", Enum.GetNames<UsableDevicesStrings>(), 0, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
+
             AdditionalDevicesForInfoView = new StringOptionItem(++id, "Sentry.AdditionalDevicesForInfoView", Enum.GetNames<AdditionalDevicesStrings>(), 0, TabGroup.CrewmateRoles)
                 .SetParent(UsableDevicesForInfoView);
+
             Enum.GetValues<SimpleTeam>().Do(x =>
             {
                 TeamsCanSeeInfo[x] = new BooleanOptionItem(++id, "Sentry.TeamsCanSeeInfo." + x, true, TabGroup.CrewmateRoles)
                     .SetParent(UsableDevicesForInfoView);
             });
+
             AbilityUseLimit = new IntegerOptionItem(++id, "AbilityUseLimit", new(0, 20, 1), 0, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
+
             AbilityUseGainWithEachTaskCompleted = new FloatOptionItem(++id, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(++id, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sentry]);
         }
@@ -79,10 +89,12 @@ namespace EHR.Crewmate
         public override void Init()
         {
             On = false;
+
             AvailableDevices = DisableDevice.DevicePos.Where(x =>
             {
                 bool correctMap = x.Key.Contains(Main.CurrentMap.ToString(), StringComparison.OrdinalIgnoreCase);
-                UsableDevicesStrings devicesOpt = (UsableDevicesStrings)UsableDevicesForInfoView.GetValue();
+                var devicesOpt = (UsableDevicesStrings)UsableDevicesForInfoView.GetValue();
+
                 bool enabled = devicesOpt switch
                 {
                     UsableDevicesStrings.None => false,
@@ -91,6 +103,7 @@ namespace EHR.Crewmate
                     UsableDevicesStrings.CamerasAndAdmin => x.Key.Contains("Camera") || x.Key.Contains("Admin"),
                     _ => false
                 };
+
                 if (!enabled && devicesOpt != UsableDevicesStrings.None)
                 {
                     enabled |= (AdditionalDevicesStrings)AdditionalDevicesForInfoView.GetValue() switch
@@ -125,24 +138,16 @@ namespace EHR.Crewmate
                 Utils.SendRPC(CustomRPC.SyncSentry, pc.PlayerId);
             }
             else
-            {
                 DisplayRoomInfo(pc, false);
-            }
         }
 
         private void DisplayRoomInfo(PlayerControl pc, bool fromDevice)
         {
-            if (CannotSeeInfoDuringComms.GetBool() && Utils.IsActive(SystemTypes.Comms))
-            {
-                return;
-            }
+            if (CannotSeeInfoDuringComms.GetBool() && Utils.IsActive(SystemTypes.Comms)) return;
 
             if (!fromDevice)
             {
-                if (pc.GetAbilityUseLimit() < 1)
-                {
-                    return;
-                }
+                if (pc.GetAbilityUseLimit() < 1) return;
 
                 pc.RpcRemoveAbilityUse();
             }
@@ -152,15 +157,9 @@ namespace EHR.Crewmate
             string bodies = GetColoredNames(DeadBodiesInRoom);
 
             string noDataString = Translator.GetString("Sentry.Notify.Info.NoData");
-            if (players.Length == 0)
-            {
-                players = noDataString;
-            }
+            if (players.Length == 0) players = noDataString;
 
-            if (bodies.Length == 0)
-            {
-                bodies = noDataString;
-            }
+            if (bodies.Length == 0) bodies = noDataString;
 
             pc.Notify(string.Format(Translator.GetString("Sentry.Notify.Info"), roomName, players, bodies), ShowInfoDuration.GetInt());
             return;
@@ -183,6 +182,7 @@ namespace EHR.Crewmate
                 bool shapeshifting = shapeshifter.PlayerId != target.PlayerId;
                 PlayerControl ssTarget = shapeshifting ? target : shapeshifter;
                 PlayerControl ss = shapeshifting ? shapeshifter : Utils.GetPlayerById(shapeshifter.shapeshiftTargetPlayerId);
+
                 string text = "\n" + string.Format(
                     Translator.GetString("Sentry.Notify.Shapeshifted"),
                     Utils.ColorString(Main.PlayerColors[ss.PlayerId], ss.GetRealName()),
@@ -204,20 +204,13 @@ namespace EHR.Crewmate
         public static void OnAnyoneMurder(PlayerControl target)
         {
             foreach (PlayerState state in Main.PlayerStates.Values)
-            {
                 if (state.Role is Sentry st && st.IsInMonitoredRoom(target))
-                {
                     st.DeadBodiesInRoom.Add(target.PlayerId);
-                }
-            }
         }
 
         public static void OnAnyoneEnterVent(PlayerControl pc)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             foreach (PlayerState state in Main.PlayerStates.Values)
             {
@@ -243,38 +236,22 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId)
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != target.PlayerId) return string.Empty;
 
-            if (Main.PlayerStates[seer.PlayerId].Role is Sentry s && s.MonitoredRoom != null)
-            {
-                return string.Format(Translator.GetString("Sentry.Suffix.Self"), Translator.GetString($"{s.MonitoredRoom.RoomId}"));
-            }
+            if (Main.PlayerStates[seer.PlayerId].Role is Sentry s && s.MonitoredRoom != null) return string.Format(Translator.GetString("Sentry.Suffix.Self"), Translator.GetString($"{s.MonitoredRoom.RoomId}"));
 
-            if (!PlayersKnowAboutCamera.GetBool())
-            {
-                return string.Empty;
-            }
+            if (!PlayersKnowAboutCamera.GetBool()) return string.Empty;
 
             foreach (PlayerState state in Main.PlayerStates.Values)
-            {
                 if (state.Role is Sentry st && st.IsInMonitoredRoom(seer))
-                {
                     return string.Format(Translator.GetString("Sentry.Suffix.MonitoredRoom"), CustomRoles.Sentry.ToColoredString());
-                }
-            }
 
             return string.Empty;
         }
 
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
         {
-            if (!GameStates.IsInTask || lowLoad)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask || lowLoad) return;
 
             bool nowInMonitoredRoom = IsInMonitoredRoom(pc);
             bool wasInMonitoredRoom = LastNotified.Contains(pc.PlayerId);
@@ -294,25 +271,17 @@ namespace EHR.Crewmate
 
         public override void OnCheckPlayerPosition(PlayerControl pc)
         {
-            if (MonitoredRoom == null || MonitoredRoom == default || MonitoredRoom == default(PlainShipRoom))
-            {
-                return;
-            }
+            if (MonitoredRoom == null || MonitoredRoom == default || MonitoredRoom == default(PlainShipRoom)) return;
 
-            if (LastInfoSend.TryGetValue(pc.PlayerId, out long ts) && ts == Utils.TimeStamp)
-            {
-                return;
-            }
+            if (LastInfoSend.TryGetValue(pc.PlayerId, out long ts) && ts == Utils.TimeStamp) return;
 
             LastInfoSend[pc.PlayerId] = Utils.TimeStamp;
 
-            if (!CheckTeam(pc))
-            {
-                return;
-            }
+            if (!CheckTeam(pc)) return;
 
             Vector2 pos = pc.Pos();
             float range = DisableDevice.UsableDistance - 1f;
+
             if (!AvailableDevices.Any(x => Vector2.Distance(pos, x) <= range))
             {
                 if (UsingDevice.Contains(pc.PlayerId))
@@ -338,6 +307,7 @@ namespace EHR.Crewmate
                 Team.Neutral => pc.IsNeutralKiller() ? SimpleTeam.NK : SimpleTeam.NNK,
                 _ => SimpleTeam.Crewmate
             };
+
             return TeamsCanSeeInfo[team].GetBool();
         }
 

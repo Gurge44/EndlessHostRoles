@@ -15,18 +15,23 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(6860, TabGroup.CrewmateRoles, CustomRoles.SecurityGuard);
+
             SecurityGuardSkillCooldown = new FloatOptionItem(6862, "SecurityGuardSkillCooldown", new(0f, 180f, 1f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
                 .SetValueFormat(OptionFormat.Seconds);
+
             SecurityGuardSkillDuration = new FloatOptionItem(6863, "SecurityGuardSkillDuration", new(0f, 180f, 1f), 10f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
                 .SetValueFormat(OptionFormat.Seconds);
+
             SecurityGuardSkillMaxOfUseage = new IntegerOptionItem(6866, "AbilityUseLimit", new(0, 180, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
                 .SetValueFormat(OptionFormat.Times);
+
             SecurityGuardAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(6867, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.4f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
                 .SetValueFormat(OptionFormat.Times);
+
             SecurityGuardAbilityChargesWhenFinishedTasks = new FloatOptionItem(6868, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.SecurityGuard])
                 .SetValueFormat(OptionFormat.Times);
@@ -45,10 +50,7 @@ namespace EHR.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool())
-            {
-                return;
-            }
+            if (UsePets.GetBool()) return;
 
             AURoleOptions.EngineerInVentMaxTime = 1;
             AURoleOptions.EngineerCooldown = SecurityGuardSkillCooldown.GetFloat();
@@ -56,7 +58,7 @@ namespace EHR.Crewmate
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            StringBuilder ProgressText = new StringBuilder();
+            var ProgressText = new StringBuilder();
 
             ProgressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, BlockSabo.ContainsKey(playerId)));
             ProgressText.Append(Utils.GetTaskCount(playerId, comms));
@@ -67,13 +69,9 @@ namespace EHR.Crewmate
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             if (UsePets.GetBool())
-            {
                 hud.PetButton.buttonLabelText.text = Translator.GetString("SecurityGuardVentButtonText");
-            }
             else
-            {
                 hud.AbilityButton.buttonLabelText.text = Translator.GetString("SecurityGuardVentButtonText");
-            }
         }
 
         public override void OnPet(PlayerControl pc)
@@ -88,10 +86,7 @@ namespace EHR.Crewmate
 
         private static void Guard(PlayerControl pc)
         {
-            if (BlockSabo.ContainsKey(pc.PlayerId))
-            {
-                return;
-            }
+            if (BlockSabo.ContainsKey(pc.PlayerId)) return;
 
             if (pc.GetAbilityUseLimit() >= 1)
             {
@@ -101,14 +96,13 @@ namespace EHR.Crewmate
                 pc.RpcRemoveAbilityUse();
             }
             else
-            {
                 pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
-            }
         }
 
         public override void OnFixedUpdate(PlayerControl player)
         {
             byte playerId = player.PlayerId;
+
             if (BlockSabo.TryGetValue(playerId, out long stime) && stime + SecurityGuardSkillDuration.GetInt() < Utils.TimeStamp)
             {
                 BlockSabo.Remove(playerId);

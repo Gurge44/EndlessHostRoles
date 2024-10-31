@@ -21,14 +21,18 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mediumshiper);
+
             ContactLimitOpt = new IntegerOptionItem(Id + 10, "MediumshiperContactLimit", new(0, 15, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Mediumshiper])
                 .SetValueFormat(OptionFormat.Times);
+
             OnlyReceiveMsgFromCrew = new BooleanOptionItem(Id + 11, "MediumshiperOnlyReceiveMsgFromCrew", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Mediumshiper]);
+
             MediumAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Mediumshiper])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Mediumshiper])
                 .SetValueFormat(OptionFormat.Times);
@@ -49,17 +53,11 @@ namespace EHR.Crewmate
         public static void OnReportDeadBody(NetworkedPlayerInfo target)
         {
             ContactPlayer = [];
-            if (target == null || target.Object == null)
-            {
-                return;
-            }
+            if (target == null || target.Object == null) return;
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls.Where(x => PlayerIdList.Contains(x.PlayerId) && x.PlayerId != target.PlayerId).ToArray())
             {
-                if (pc.GetAbilityUseLimit() < 1)
-                {
-                    continue;
-                }
+                if (pc.GetAbilityUseLimit() < 1) continue;
 
                 pc.RpcRemoveAbilityUse();
                 ContactPlayer.TryAdd(target.PlayerId, pc.PlayerId);
@@ -69,46 +67,25 @@ namespace EHR.Crewmate
 
         public static bool MsMsg(PlayerControl pc, string msg)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return false;
-            }
+            if (!AmongUsClient.Instance.AmHost) return false;
 
-            if (!GameStates.IsMeeting || pc == null)
-            {
-                return false;
-            }
+            if (!GameStates.IsMeeting || pc == null) return false;
 
-            if (!ContactPlayer.ContainsKey(pc.PlayerId))
-            {
-                return false;
-            }
+            if (!ContactPlayer.ContainsKey(pc.PlayerId)) return false;
 
-            if (OnlyReceiveMsgFromCrew.GetBool() && !pc.IsCrewmate())
-            {
-                return false;
-            }
+            if (OnlyReceiveMsgFromCrew.GetBool() && !pc.IsCrewmate()) return false;
 
-            if (pc.IsAlive())
-            {
-                return false;
-            }
+            if (pc.IsAlive()) return false;
 
             msg = msg.ToLower().Trim();
-            if (!CheckCommand(ref msg, "通灵|ms|mediumship|medium", false))
-            {
-                return false;
-            }
+            if (!CheckCommand(ref msg, "通灵|ms|mediumship|medium", false)) return false;
 
             bool ans;
+
             if (msg.Contains('n') || msg.Contains(GetString("No")) || msg.Contains('错') || msg.Contains("不是"))
-            {
                 ans = false;
-            }
             else if (msg.Contains('y') || msg.Contains(GetString("Yes")) || msg.Contains('对'))
-            {
                 ans = true;
-            }
             else
             {
                 Utils.SendMessage(GetString("MediumshipHelp"), pc.PlayerId);
@@ -126,12 +103,10 @@ namespace EHR.Crewmate
         private static bool CheckCommand(ref string msg, string command, bool exact = true)
         {
             string[] comList = command.Split('|');
+
             foreach (string str in comList)
             {
-                if (exact && msg == "/" + str)
-                {
-                    return true;
-                }
+                if (exact && msg == "/" + str) return true;
 
                 if (msg.StartsWith("/" + str))
                 {

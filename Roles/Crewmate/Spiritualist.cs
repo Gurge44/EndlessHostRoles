@@ -41,9 +41,11 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Spiritualist);
+
             ShowGhostArrowEverySeconds = new FloatOptionItem(Id + 10, "SpiritualistShowGhostArrowEverySeconds", new(1f, 60f, 1f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritualist])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ShowGhostArrowForSeconds = new FloatOptionItem(Id + 11, "SpiritualistShowGhostArrowForSeconds", new(1f, 60f, 1f), 2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritualist])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -68,15 +70,9 @@ namespace EHR.Crewmate
 
         public static void OnReportDeadBody(NetworkedPlayerInfo target)
         {
-            if (target == null)
-            {
-                return;
-            }
+            if (target == null) return;
 
-            if (SpiritualistTarget != byte.MaxValue)
-            {
-                RemoveTarget();
-            }
+            if (SpiritualistTarget != byte.MaxValue) RemoveTarget();
 
             SpiritualistTarget = target.PlayerId;
         }
@@ -86,37 +82,35 @@ namespace EHR.Crewmate
             foreach (byte spiritualist in PlayerIdList)
             {
                 PlayerControl player = Main.AllPlayerControls.FirstOrDefault(a => a.PlayerId == spiritualist);
-                if (!player.IsAlive())
-                {
-                    continue;
-                }
+                if (!player.IsAlive()) continue;
 
                 LastGhostArrowShowTime = 0;
                 ShowGhostArrowUntil = 0;
 
                 PlayerControl target = Main.AllPlayerControls.FirstOrDefault(a => a.PlayerId == SpiritualistTarget);
-                if (target == null)
-                {
-                    continue;
-                }
+                if (target == null) continue;
 
                 target.Notify(GetString("SpiritualistTargetMessage"));
 
                 TargetArrow.Add(spiritualist, target.PlayerId);
 
-                CustomRpcSender writer = CustomRpcSender.Create("SpiritualistSendMessage");
+                var writer = CustomRpcSender.Create("SpiritualistSendMessage");
                 writer.StartMessage(target.GetClientId());
+
                 writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
                     .Write(target.Data.NetId)
                     .Write(GetString("SpiritualistNoticeTitle"))
                     .EndRpc();
+
                 writer.StartRpc(target.NetId, (byte)RpcCalls.SendChat)
                     .Write(GetString("SpiritualistNoticeMessage"))
                     .EndRpc();
+
                 writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
                     .Write(target.Data.NetId)
                     .Write(target.Data.PlayerName)
                     .EndRpc();
+
                 writer.EndMessage();
                 writer.SendMessage();
             }
@@ -124,30 +118,18 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!seer.IsAlive() || seer.PlayerId != SpiritualistId)
-            {
-                return string.Empty;
-            }
+            if (!seer.IsAlive() || seer.PlayerId != SpiritualistId) return string.Empty;
 
-            if (target != null && seer.PlayerId != target.PlayerId)
-            {
-                return string.Empty;
-            }
+            if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
 
-            if (GameStates.IsMeeting)
-            {
-                return string.Empty;
-            }
+            if (GameStates.IsMeeting) return string.Empty;
 
             return SpiritualistTarget != byte.MaxValue && ShowArrow ? Utils.ColorString(seer.GetRoleColor(), TargetArrow.GetArrows(seer, SpiritualistTarget)) : string.Empty;
         }
 
         public static void RemoveTarget()
         {
-            foreach (byte spiritualist in PlayerIdList)
-            {
-                TargetArrow.Remove(spiritualist, SpiritualistTarget);
-            }
+            foreach (byte spiritualist in PlayerIdList) TargetArrow.Remove(spiritualist, SpiritualistTarget);
 
             SpiritualistTarget = byte.MaxValue;
         }

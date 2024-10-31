@@ -20,12 +20,15 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.SerialKiller);
+
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SerialKiller])
                 .SetValueFormat(OptionFormat.Seconds);
+
             TimeLimit = new FloatOptionItem(Id + 11, "SerialKillerLimit", new(5f, 180f, 5f), 40f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SerialKiller])
                 .SetValueFormat(OptionFormat.Seconds);
+
             WaitFor1Kill = new BooleanOptionItem(Id + 12, "WaitFor1Kill", true, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SerialKiller]);
         }
@@ -56,10 +59,7 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!killer.Is(CustomRoles.SerialKiller))
-            {
-                return true;
-            }
+            if (!killer.Is(CustomRoles.SerialKiller)) return true;
 
             SuicideTimer = float.NaN;
             Timer = TimeLimit.GetInt();
@@ -75,10 +75,7 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!GameStates.IsInTask)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask) return;
 
             if (!HasKilled(player))
             {
@@ -87,10 +84,7 @@ namespace EHR.Impostor
                 return;
             }
 
-            if (float.IsNaN(SuicideTimer))
-            {
-                return;
-            }
+            if (float.IsNaN(SuicideTimer)) return;
 
             if (SuicideTimer >= TimeLimit.GetFloat())
             {
@@ -103,10 +97,7 @@ namespace EHR.Impostor
                 SuicideTimer += Time.fixedDeltaTime;
                 int tempTimer = Timer;
                 Timer = TimeLimit.GetInt() - (int)SuicideTimer;
-                if (Timer != tempTimer && Timer <= 20 && !player.IsModClient())
-                {
-                    Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-                }
+                if (Timer != tempTimer && Timer <= 20 && !player.IsModClient()) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
             }
         }
 

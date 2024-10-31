@@ -52,19 +52,15 @@ namespace EHR
             {
                 try
                 {
-                    if (!Directory.Exists("EHR_DATA"))
-                    {
-                        Directory.CreateDirectory("EHR_DATA");
-                    }
+                    if (!Directory.Exists("EHR_DATA")) Directory.CreateDirectory("EHR_DATA");
 
                     if (File.Exists("./template.txt"))
-                    {
                         File.Move("./template.txt", TemplateFilePath);
-                    }
                     else
                     {
                         string fileName;
                         string[] name = CultureInfo.CurrentCulture.Name.Split("-");
+
                         if (name.Length >= 2)
                         {
                             fileName = name[0] switch
@@ -75,9 +71,7 @@ namespace EHR
                             };
                         }
                         else
-                        {
                             fileName = "English";
-                        }
 
                         Logger.Warn($"创建新的 Template 文件：{fileName}", "TemplateManager");
                         File.WriteAllText(TemplateFilePath, GetResourcesTxt($"EHR.Resources.Config.template.{fileName}.txt"));
@@ -98,10 +92,7 @@ namespace EHR
         private static string GetResourcesTxt(string path)
         {
             Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(path);
-            if (stream == null)
-            {
-                return string.Empty;
-            }
+            if (stream == null) return string.Empty;
 
             stream.Position = 0;
             using StreamReader reader = new(stream, Encoding.UTF8);
@@ -114,45 +105,33 @@ namespace EHR
             using StreamReader sr = new(TemplateFilePath, Encoding.GetEncoding("UTF-8"));
             List<string> sendList = [];
             HashSet<string> tags = [];
+
             while (sr.ReadLine() is { } text)
             {
                 string[] tmp = text.Split(":");
+
                 if (tmp.Length > 1 && tmp[1] != "")
                 {
                     tags.Add(tmp[0]);
-                    if (string.Equals(tmp[0], str, StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        sendList.Add(tmp.Skip(1).Join(delimiter: ":").Replace("\\n", "\n"));
-                    }
+                    if (string.Equals(tmp[0], str, StringComparison.CurrentCultureIgnoreCase)) sendList.Add(tmp.Skip(1).Join(delimiter: ":").Replace("\\n", "\n"));
                 }
             }
 
             if (sendList.Count == 0 && !noErr)
             {
                 if (playerId == 0xff)
-                {
                     HudManager.Instance.Chat.AddChat(PlayerControl.LocalPlayer, string.Format(GetString("Message.TemplateNotFoundHost"), str, tags.Join(delimiter: ", ")));
-                }
                 else
-                {
                     Utils.SendMessage(string.Format(GetString("Message.TemplateNotFoundClient"), str), playerId);
-                }
             }
             else
-            {
                 foreach (string x in sendList)
-                {
                     Utils.SendMessage(ApplyReplaceDictionary(x), playerId);
-                }
-            }
         }
 
         private static string ApplyReplaceDictionary(string text)
         {
-            foreach (KeyValuePair<string, Func<string>> kvp in ReplaceDictionary)
-            {
-                text = Regex.Replace(text, "{{" + kvp.Key + "}}", kvp.Value.Invoke() ?? "", RegexOptions.IgnoreCase);
-            }
+            foreach (KeyValuePair<string, Func<string>> kvp in ReplaceDictionary) text = Regex.Replace(text, "{{" + kvp.Key + "}}", kvp.Value.Invoke() ?? "", RegexOptions.IgnoreCase);
 
             return text;
         }

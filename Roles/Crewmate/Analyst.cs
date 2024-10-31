@@ -29,23 +29,32 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Analyst);
+
             UseLimitOpt = new IntegerOptionItem(Id + 10, "AbilityUseLimit", new(0, 30, 1), 3, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyst])
                 .SetValueFormat(OptionFormat.Times);
+
             CD = new FloatOptionItem(Id + 11, "AnalyzeCD", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyst])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CD.ReplacementDictionary = ReplacementDict;
+
             Duration = new IntegerOptionItem(Id + 12, "AnalyzeDur", new(1, 30, 1), 5, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyst])
                 .SetValueFormat(OptionFormat.Seconds);
+
             Duration.ReplacementDictionary = ReplacementDict;
+
             SeeKillCount = new BooleanOptionItem(Id + 13, "AnalyzerSeeKillCount", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyst]);
+
             SeeVentCount = new BooleanOptionItem(Id + 14, "AnalyzerSeeVentCount", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyst]);
+
             SeeRoleBasis = new BooleanOptionItem(Id + 15, "AnalyzerSeeRoleBasis", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Analyst]);
+
             UsePet = CreatePetUseSetting(Id + 16, CustomRoles.Analyst);
         }
 
@@ -110,38 +119,20 @@ namespace EHR.Crewmate
 
         public static void OnAnyoneEnterVent(PlayerControl pc)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
-            if (!VentCount.TryAdd(pc.PlayerId, 1))
-            {
-                VentCount[pc.PlayerId]++;
-            }
+            if (!VentCount.TryAdd(pc.PlayerId, 1)) VentCount[pc.PlayerId]++;
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable)
-            {
-                return false;
-            }
+            if (!IsEnable) return false;
 
-            if (killer == null || target == null)
-            {
-                return false;
-            }
+            if (killer == null || target == null) return false;
 
-            if (killer.GetAbilityUseLimit() <= 0)
-            {
-                return false;
-            }
+            if (killer.GetAbilityUseLimit() <= 0) return false;
 
-            if (CurrentTarget.ID != byte.MaxValue)
-            {
-                return false;
-            }
+            if (CurrentTarget.ID != byte.MaxValue) return false;
 
             CurrentTarget = (target.PlayerId, Utils.TimeStamp);
             killer.SetKillCooldown(Duration.GetFloat());
@@ -152,26 +143,14 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
-            if (pc == null)
-            {
-                return;
-            }
+            if (pc == null) return;
 
-            if (CurrentTarget.ID == byte.MaxValue)
-            {
-                return;
-            }
+            if (CurrentTarget.ID == byte.MaxValue) return;
 
             PlayerControl target = Utils.GetPlayerById(CurrentTarget.ID);
-            if (target == null)
-            {
-                return;
-            }
+            if (target == null) return;
 
             if (Vector2.Distance(target.Pos(), pc.Pos()) > (pc.Is(CustomRoles.Reach) ? 2.5f : 1.5f))
             {
@@ -191,10 +170,7 @@ namespace EHR.Crewmate
 
         public override void OnReportDeadBody()
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
             CurrentTarget.ID = byte.MaxValue;
         }

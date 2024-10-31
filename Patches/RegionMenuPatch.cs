@@ -15,7 +15,7 @@ namespace EHR.Patches
         public static void AdjustButtonPositions_Postfix(RegionMenu __instance)
         {
             const int maxColumns = 4;
-            int buttonsPerColumn = 6;
+            var buttonsPerColumn = 6;
             const float buttonSpacing = 0.6f;
             const float buttonSpacingSide = 2.25f;
 
@@ -34,7 +34,7 @@ namespace EHR.Patches
 
             Vector3 startPosition = new(-totalWidth / 2, totalHeight / 2, 0f);
 
-            for (int i = 0; i < buttons.Count; i++)
+            for (var i = 0; i < buttons.Count; i++)
             {
                 int col = i / buttonsPerColumn;
                 int row = i % buttonsPerColumn;

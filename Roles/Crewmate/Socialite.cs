@@ -21,11 +21,13 @@ namespace EHR.Crewmate
 
         public override void SetupCustomOption()
         {
-            int id = 647300;
+            var id = 647300;
             Options.SetupRoleOptions(id++, TabGroup.CrewmateRoles, CustomRoles.Socialite);
+
             Cooldown = new FloatOptionItem(++id, "AbilityCooldown", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Socialite])
                 .SetValueFormat(OptionFormat.Seconds);
+
             UsePet = Options.CreatePetUseSetting(++id, CustomRoles.Socialite);
             CancelVote = Options.CreateVoteCancellingUseSetting(++id, CustomRoles.Socialite, TabGroup.CrewmateRoles);
         }
@@ -62,10 +64,7 @@ namespace EHR.Crewmate
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!base.OnCheckMurder(killer, target) || MarkedPlayerId != byte.MaxValue)
-            {
-                return false;
-            }
+            if (!base.OnCheckMurder(killer, target) || MarkedPlayerId != byte.MaxValue) return false;
 
             MarkedPlayerId = target.PlayerId;
             Utils.SendRPC(CustomRPC.SyncRoleData, SocialiteId, 1, MarkedPlayerId);
@@ -96,10 +95,7 @@ namespace EHR.Crewmate
 
         public override bool OnVote(PlayerControl pc, PlayerControl target)
         {
-            if (pc == null || target == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId))
-            {
-                return false;
-            }
+            if (pc == null || target == null || pc.PlayerId == target.PlayerId || Main.DontCancelVoteList.Contains(pc.PlayerId)) return false;
 
             if (GuestList.Add(target.PlayerId))
             {
@@ -126,10 +122,7 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != SocialiteId || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud))
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != SocialiteId || seer.PlayerId != target.PlayerId || (seer.IsModClient() && !hud)) return string.Empty;
 
             return string.Format(Translator.GetString("Socialite.Suffix"), MarkedPlayerId.ColoredPlayerName());
         }

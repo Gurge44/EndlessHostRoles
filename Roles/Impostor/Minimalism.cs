@@ -13,9 +13,11 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(16300, TabGroup.ImpostorRoles, CustomRoles.Minimalism);
+
             MnKillCooldown = new FloatOptionItem(16310, "KillCooldown", new(2.5f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minimalism])
                 .SetValueFormat(OptionFormat.Seconds);
+
             BypassShields = new BooleanOptionItem(16311, "BypassShields", true, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Minimalism]);
         }
@@ -54,10 +56,7 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!base.OnCheckMurder(killer, target))
-            {
-                return false;
-            }
+            if (!base.OnCheckMurder(killer, target)) return false;
 
             if (BypassShields.GetBool())
             {

@@ -13,12 +13,10 @@ namespace EHR.AddOns.Common
 
         public static void CheckGlowNearby(PlayerControl pc)
         {
-            if (!pc.IsAlive() || !GameStates.IsInTask)
-            {
-                return;
-            }
+            if (!pc.IsAlive() || !GameStates.IsInTask) return;
 
             Vector2 pos = pc.Pos();
+
             if (Main.AllAlivePlayerControls.Any(x => x.Is(CustomRoles.Glow) && Vector2.Distance(x.Pos(), pos) <= 1.5f))
             {
                 Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Sleep);

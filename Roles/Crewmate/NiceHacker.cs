@@ -34,20 +34,27 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.NiceHacker);
+
             AbilityCD = new FloatOptionItem(Id + 10, "AbilityCD", new(0f, 70f, 1f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.NiceHacker])
                 .SetValueFormat(OptionFormat.Seconds);
+
             UseLimitOpt = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(1, 20, 1), 2, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.NiceHacker])
                 .SetValueFormat(OptionFormat.Times);
+
             NiceHackerAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.NiceHacker])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.NiceHacker])
                 .SetValueFormat(OptionFormat.Times);
+
             ModdedClientAbilityUseSecondsMultiplier = new FloatOptionItem(Id + 14, "NiceHackerModdedClientAbilityUseSecondsMultiplier", new(0f, 70f, 1f), 3f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.NiceHacker])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ModdedClientCanMoveWhileViewingMap = new BooleanOptionItem(Id + 15, "NiceHackerModdedClientCanMoveWhileViewingMap", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.NiceHacker]);
+
             VanillaClientSeesInfoFor = new FloatOptionItem(Id + 16, "NiceHackerVanillaClientSeesInfoFor", new(0f, 70f, 1f), 4f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.NiceHacker])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -63,22 +70,16 @@ namespace EHR.Crewmate
         public override void Add(byte playerId)
         {
             PlayerIdList.TryAdd(playerId, GetPlayerById(playerId).IsModClient());
+
             if (!GetPlayerById(playerId).IsModClient())
-            {
                 UseLimit.Add(playerId, UseLimitOpt.GetInt());
-            }
             else
-            {
                 UseLimitSeconds.Add(playerId, UseLimitOpt.GetInt() * ModdedClientAbilityUseSecondsMultiplier.GetInt());
-            }
         }
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool())
-            {
-                return;
-            }
+            if (UsePets.GetBool()) return;
 
             AURoleOptions.EngineerCooldown = AbilityCD.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1f;
@@ -86,10 +87,7 @@ namespace EHR.Crewmate
 
         public static void SendRPC(byte playerId, float secondsLeft)
         {
-            if (!DoRPC)
-            {
-                return;
-            }
+            if (!DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetNiceHackerLimit, SendOption.Reliable);
             writer.Write(playerId);
@@ -99,10 +97,7 @@ namespace EHR.Crewmate
 
         public static void ReceiveRPC(MessageReader reader)
         {
-            if (AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (AmongUsClient.Instance.AmHost) return;
 
             byte playerId = reader.ReadByte();
             float secondsLeft = reader.ReadSingle();
@@ -122,59 +117,39 @@ namespace EHR.Crewmate
 
         private static void UseAbility(PlayerControl pc)
         {
-            if (pc == null)
-            {
-                return;
-            }
+            if (pc == null) return;
 
-            if (pc.IsModClient() || !UseLimit.ContainsKey(pc.PlayerId))
-            {
-                return;
-            }
+            if (pc.IsModClient() || !UseLimit.ContainsKey(pc.PlayerId)) return;
 
             if (UseLimit[pc.PlayerId] >= 1)
             {
                 UseLimit[pc.PlayerId] -= 1;
                 Dictionary<string, int> list = GetAllPlayerLocationsCount();
-                StringBuilder sb = new StringBuilder();
-                foreach (KeyValuePair<string, int> location in list)
-                {
-                    sb.Append($"\n<color=#00ffa5>{location.Key}:</color> {location.Value}");
-                }
+                var sb = new StringBuilder();
+                foreach (KeyValuePair<string, int> location in list) sb.Append($"\n<color=#00ffa5>{location.Key}:</color> {location.Value}");
 
                 pc.Notify(sb.ToString(), VanillaClientSeesInfoFor.GetFloat());
             }
             else
-            {
                 pc.Notify(GetString("OutOfAbilityUsesDoMoreTasks"));
-            }
         }
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (pc == null)
-            {
-                return;
-            }
+            if (pc == null) return;
 
-            if (GameStates.IsMeeting)
-            {
-                return;
-            }
+            if (GameStates.IsMeeting) return;
 
             if (Main.PlayerStates[pc.PlayerId].TaskState.IsTaskFinished)
             {
                 LastUpdate.TryAdd(pc.PlayerId, TimeStamp);
+
                 if (LastUpdate[pc.PlayerId] + 5 < TimeStamp)
                 {
                     if (pc.IsModClient())
-                    {
                         UseLimitSeconds[pc.PlayerId] += AbilityChargesWhenFinishedTasks.GetFloat() * ModdedClientAbilityUseSecondsMultiplier.GetInt();
-                    }
                     else
-                    {
                         UseLimit[pc.PlayerId] += AbilityChargesWhenFinishedTasks.GetFloat();
-                    }
 
                     LastUpdate[pc.PlayerId] = TimeStamp;
                 }
@@ -201,10 +176,7 @@ namespace EHR.Crewmate
 
         private static void MapCountdown(PlayerControl pc, MapBehaviour map, MapOptions opts, int seconds)
         {
-            if (!map.IsOpen)
-            {
-                return;
-            }
+            if (!map.IsOpen) return;
 
             if (seconds <= 0)
             {
@@ -221,22 +193,16 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!hud || seer == null)
-            {
-                return string.Empty;
-            }
+            if (!hud || seer == null) return string.Empty;
 
             return !seer.Is(CustomRoles.NiceHacker) ? string.Empty : $"<color=#00ffa5>{GetString("NiceHackerAbilitySecondsLeft")}:</color> <b>{(int)UseLimitSeconds[seer.PlayerId]}</b>s";
         }
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            if (playerId.IsPlayerModClient() || !UseLimit.ContainsKey(playerId))
-            {
-                return string.Empty;
-            }
+            if (playerId.IsPlayerModClient() || !UseLimit.ContainsKey(playerId)) return string.Empty;
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
             sb.Append(GetTaskCount(playerId, comms));
             sb.Append(ColorString(UseLimit[playerId] < 1 ? Color.red : Color.white, $" <color=#777777>-</color> {Math.Round(UseLimit[playerId], 1)}"));

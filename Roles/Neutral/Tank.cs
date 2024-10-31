@@ -32,10 +32,7 @@ namespace EHR.Neutral
         public override void Init()
         {
             On = false;
-            if (ShipStatus.Instance == null)
-            {
-                return;
-            }
+            if (ShipStatus.Instance == null) return;
 
             AllVents = ShipStatus.Instance.AllVents.Select(x => x.Id).ToHashSet();
         }
@@ -67,21 +64,15 @@ namespace EHR.Neutral
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            string progress = $"{Utils.ColorString(Utils.GetRoleColor(CustomRoles.Tank), $"{EnteredVents.Count}")}/{AllVents.Count}";
-            if (IsWon)
-            {
-                progress = $"<#00ff00>{progress}</color>";
-            }
+            var progress = $"{Utils.ColorString(Utils.GetRoleColor(CustomRoles.Tank), $"{EnteredVents.Count}")}/{AllVents.Count}";
+            if (IsWon) progress = $"<#00ff00>{progress}</color>";
 
             return base.GetProgressText(playerId, comms) + progress;
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != TankId || meeting || (seer.IsModClient() && !hud) || IsWon)
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != TankId || meeting || (seer.IsModClient() && !hud) || IsWon) return string.Empty;
 
             string randomVentName = ShipStatus.Instance?.AllVents?.FirstOrDefault(x => x.Id == AllVents.Except(EnteredVents).FirstOrDefault())?.name ?? string.Empty;
             return randomVentName == string.Empty ? string.Empty : string.Format(Translator.GetString("Tank.Suffix"), randomVentName);

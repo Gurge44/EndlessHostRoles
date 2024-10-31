@@ -22,12 +22,15 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.QuickShooter);
+
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.QuickShooter])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ShapeshiftCooldown = new FloatOptionItem(Id + 12, "QuickShooterShapeshiftCooldown", new(0f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.QuickShooter])
                 .SetValueFormat(OptionFormat.Seconds);
+
             MeetingReserved = new IntegerOptionItem(Id + 14, "MeetingReserved", new(0, 15, 1), 1, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.QuickShooter])
                 .SetValueFormat(OptionFormat.Pieces);
@@ -47,10 +50,7 @@ namespace EHR.Impostor
 
         private static void SendRPC(byte playerId)
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetQuickShooterShotLimit, SendOption.Reliable);
             writer.Write(playerId);
@@ -69,15 +69,10 @@ namespace EHR.Impostor
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             if (Options.UsePhantomBasis.GetBool())
-            {
                 AURoleOptions.PhantomCooldown = ShapeshiftCooldown.GetFloat();
-            }
             else
             {
-                if (Options.UsePets.GetBool())
-                {
-                    return;
-                }
+                if (Options.UsePets.GetBool()) return;
 
                 AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
                 AURoleOptions.ShapeshifterDuration = 1f;
@@ -86,30 +81,21 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
         {
-            if (Main.KillTimers[pc.PlayerId] <= 0 && (shapeshifting || Options.UseUnshiftTrigger.GetBool()))
-            {
-                Store(pc);
-            }
+            if (Main.KillTimers[pc.PlayerId] <= 0 && (shapeshifting || Options.UseUnshiftTrigger.GetBool())) Store(pc);
 
             return false;
         }
 
         public override bool OnVanish(PlayerControl pc)
         {
-            if (Main.KillTimers[pc.PlayerId] <= 0)
-            {
-                Store(pc);
-            }
+            if (Main.KillTimers[pc.PlayerId] <= 0) Store(pc);
 
             return false;
         }
 
         public override void OnPet(PlayerControl pc)
         {
-            if (Main.KillTimers[pc.PlayerId] <= 0)
-            {
-                Store(pc);
-            }
+            if (Main.KillTimers[pc.PlayerId] <= 0) Store(pc);
         }
 
         private static void Store(PlayerControl pc)
@@ -130,10 +116,7 @@ namespace EHR.Impostor
         public override void OnReportDeadBody()
         {
             Dictionary<byte, int> NewSL = [];
-            foreach (KeyValuePair<byte, int> sl in ShotLimit)
-            {
-                NewSL.Add(sl.Key, Math.Clamp(sl.Value, 0, MeetingReserved.GetInt()));
-            }
+            foreach (KeyValuePair<byte, int> sl in ShotLimit) NewSL.Add(sl.Key, Math.Clamp(sl.Value, 0, MeetingReserved.GetInt()));
 
             foreach (KeyValuePair<byte, int> sl in NewSL)
             {
@@ -145,10 +128,7 @@ namespace EHR.Impostor
         public override void OnMurder(PlayerControl killer, PlayerControl target)
         {
             ShotLimit.TryAdd(killer.PlayerId, 0);
-            if (ShotLimit[killer.PlayerId] > 0)
-            {
-                LateTask.New(() => killer.SetKillCooldown(0.01f), 0.01f, "QuickShooterKill: Set KCD to 0s");
-            }
+            if (ShotLimit[killer.PlayerId] > 0) LateTask.New(() => killer.SetKillCooldown(0.01f), 0.01f, "QuickShooterKill: Set KCD to 0s");
 
             ShotLimit[killer.PlayerId]--;
             ShotLimit[killer.PlayerId] = Math.Max(ShotLimit[killer.PlayerId], 0);
@@ -163,9 +143,7 @@ namespace EHR.Impostor
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             if (Options.UsePets.GetBool())
-            {
                 hud.PetButton?.OverrideText(Translator.GetString("QuickShooterShapeshiftText"));
-            }
             else
             {
                 hud.AbilityButton?.OverrideText(Translator.GetString("QuickShooterShapeshiftText"));

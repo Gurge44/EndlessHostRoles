@@ -26,10 +26,13 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Vengeance);
+
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Vengeance])
                 .SetValueFormat(OptionFormat.Seconds);
+
             RevengeTime = new IntegerOptionItem(Id + 11, "VengeanceRevengeTime", new(0, 30, 1), 15, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Vengeance])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(Id + 12, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Vengeance]);
             HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Vengeance]);
         }
@@ -72,15 +75,9 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
-            if (killer.PlayerId == target.PlayerId)
-            {
-                return true;
-            }
+            if (killer.PlayerId == target.PlayerId) return true;
 
-            if (IsRevenge)
-            {
-                return true;
-            }
+            if (IsRevenge) return true;
 
             LateTask.New(() => { target.TPToRandomVent(); }, 0.01f, log: false);
 
@@ -97,10 +94,7 @@ namespace EHR.Neutral
 
         private void Countdown(int seconds, PlayerControl player)
         {
-            if (!player.IsAlive())
-            {
-                return;
-            }
+            if (!player.IsAlive()) return;
 
             if (Success)
             {
@@ -123,20 +117,11 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null)
-            {
-                return false;
-            }
+            if (killer == null) return false;
 
-            if (target == null)
-            {
-                return false;
-            }
+            if (target == null) return false;
 
-            if (!IsRevenge)
-            {
-                return true;
-            }
+            if (!IsRevenge) return true;
 
             if (target.PlayerId == Killer)
             {

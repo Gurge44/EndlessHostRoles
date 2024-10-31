@@ -98,10 +98,7 @@ namespace EHR.Crewmate
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Adventurer])
                 .SetValueFormat(OptionFormat.Seconds);
 
-            foreach (Weapon weapon in Enum.GetValues<Weapon>())
-            {
-                WeaponEnabledSettings[weapon] = CreateWeaponEnabledSetting(11333 + (int)weapon, weapon);
-            }
+            foreach (Weapon weapon in Enum.GetValues<Weapon>()) WeaponEnabledSettings[weapon] = CreateWeaponEnabledSetting(11333 + (int)weapon, weapon);
         }
 
         public override void Add(byte playerId)
@@ -121,10 +118,7 @@ namespace EHR.Crewmate
             LastGroupingResourceTimeStamp = Utils.TimeStamp + 20;
             ResourceLocations = [];
 
-            foreach (Resource resource in Enum.GetValues<Resource>())
-            {
-                ResourceCounts[resource] = 0;
-            }
+            foreach (Resource resource in Enum.GetValues<Resource>()) ResourceCounts[resource] = 0;
         }
 
         public override void Init()
@@ -159,6 +153,7 @@ namespace EHR.Crewmate
                     Weapon weapon = SelectedWeaponToCraft == Weapon.RNG ? EnabledWeapons.RandomElement() : SelectedWeaponToCraft;
                     ActiveWeapons.Add(weapon);
                     pc.Notify(string.Format(Translator.GetString("AdventurerWeaponCrafted"), Translator.GetString($"AdventurerGun.{weapon}")));
+
                     foreach ((Resource resource, int count) in Ingredients[weapon])
                     {
                         ResourceCounts[resource] -= count;
@@ -182,6 +177,7 @@ namespace EHR.Crewmate
                     break;
                 case false when ActiveWeapons.Count > 0:
                     PlayerControl target = ExternalRpcPetPatch.SelectKillButtonTarget(pc);
+
                     switch (ActiveWeapons[0])
                     {
                         case Weapon.Gun when target != null:
@@ -195,10 +191,7 @@ namespace EHR.Crewmate
                         case Weapon.Portal:
                             IEnumerable<PlayerControl> e = Main.AllAlivePlayerControls.Where(x => x.PlayerId != pc.PlayerId && !x.inVent && !x.inMovingPlat && !x.onLadder);
                             PlayerControl[] filtered = e as PlayerControl[] ?? e.ToArray();
-                            if (filtered.Length == 0)
-                            {
-                                return;
-                            }
+                            if (filtered.Length == 0) return;
 
                             PlayerControl other = filtered.RandomElement();
                             Vector2 pos = other.Pos();
@@ -213,7 +206,8 @@ namespace EHR.Crewmate
                         case Weapon.Wrench:
                             if (Utils.IsActive(SystemTypes.Electrical))
                             {
-                                SwitchSystem SwitchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.TryCast<SwitchSystem>();
+                                var SwitchSystem = ShipStatus.Instance?.Systems?[SystemTypes.Electrical]?.TryCast<SwitchSystem>();
+
                                 if (SwitchSystem != null)
                                 {
                                     SwitchSystem.ActualSwitches = 0;
@@ -268,10 +262,7 @@ namespace EHR.Crewmate
 
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
         {
-            if (lowLoad)
-            {
-                return;
-            }
+            if (lowLoad) return;
 
             long now = Utils.TimeStamp;
 
@@ -317,10 +308,7 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (Count++ < 10)
-            {
-                return;
-            }
+            if (Count++ < 10) return;
 
             Count = 0;
 
@@ -376,7 +364,8 @@ namespace EHR.Crewmate
 
         public static bool OnAnyoneCheckMurder(PlayerControl target)
         {
-            bool any = false;
+            var any = false;
+
             foreach (PlayerState s in Main.PlayerStates.Values)
             {
                 if (s.Role is Adventurer { IsEnable: true } av && av.ShieldedPlayers.Contains(target.PlayerId))
@@ -392,10 +381,7 @@ namespace EHR.Crewmate
 
         public override bool KnowRole(PlayerControl seer, PlayerControl target)
         {
-            if (base.KnowRole(seer, target))
-            {
-                return true;
-            }
+            if (base.KnowRole(seer, target)) return true;
 
             return RevealedPlayers.Contains(target.PlayerId);
         }
@@ -421,15 +407,9 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.IsModClient() && !hud)
-            {
-                return string.Empty;
-            }
+            if (seer.IsModClient() && !hud) return string.Empty;
 
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != AdventurerPC.PlayerId)
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != AdventurerPC.PlayerId) return string.Empty;
 
             IEnumerable<string> resources =
                 from resource in Enum.GetValues<Resource>()
@@ -437,14 +417,12 @@ namespace EHR.Crewmate
                 select $"{Utils.ColorString(displayData.Color, $"{displayData.Icon}")}{ResourceCounts[resource]}";
 
             string finalText = string.Join(' ', resources);
-            if (meeting)
-            {
-                return finalText;
-            }
+            if (meeting) return finalText;
 
             finalText += $"\n{LocateArrow.GetArrows(seer)}\n";
 
             finalText += "<size=80%>";
+
             finalText += InCraftingMode
                 ? string.Format(
                     Translator.GetString("AdventurerIngredientsDisplay"),
@@ -453,6 +431,7 @@ namespace EHR.Crewmate
                         .Select(x => $"{Utils.ColorString(ResourceDisplayData[x.Resource].Color, $"{ResourceDisplayData[x.Resource].Icon}")}" +
                                      $"{Utils.ColorString(x.Count > ResourceCounts[x.Resource] ? Color.red : Color.white, $"{x.Count}")}")))
                 : Translator.GetString("AdventurerVentToEnterCrafting");
+
             finalText += "</size>";
 
             return finalText;

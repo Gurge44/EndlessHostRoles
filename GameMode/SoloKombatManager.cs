@@ -38,34 +38,42 @@ namespace EHR
                 .SetColor(new Color32(245, 82, 82, byte.MaxValue))
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetHeader(true);
+
             KB_ATKCooldown = new FloatOptionItem(66_223_008, "KB_ATKCooldown", new(1f, 10f, 0.1f), 1f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.SoloKombat)
                 .SetColor(new Color32(245, 82, 82, byte.MaxValue))
                 .SetValueFormat(OptionFormat.Seconds);
+
             KB_HPMax = new FloatOptionItem(66_233_002, "KB_HPMax", new(10f, 990f, 5f), 100f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.SoloKombat)
                 .SetColor(new Color32(245, 82, 82, byte.MaxValue))
                 .SetValueFormat(OptionFormat.Health);
+
             KB_ATK = new FloatOptionItem(66_233_003, "KB_ATK", new(1f, 100f, 1f), 8f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.SoloKombat)
                 .SetColor(new Color32(245, 82, 82, byte.MaxValue))
                 .SetValueFormat(OptionFormat.Health);
+
             KB_RecoverPerSecond = new FloatOptionItem(66_233_005, "KB_RecoverPerSecond", new(1f, 180f, 1f), 2f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.SoloKombat)
                 .SetColor(new Color32(245, 82, 82, byte.MaxValue))
                 .SetValueFormat(OptionFormat.Health);
+
             KB_RecoverAfterSecond = new IntegerOptionItem(66_233_004, "KB_RecoverAfterSecond", new(0, 60, 1), 8, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.SoloKombat)
                 .SetColor(new Color32(245, 82, 82, byte.MaxValue))
                 .SetValueFormat(OptionFormat.Seconds);
+
             KB_ResurrectionWaitingTime = new IntegerOptionItem(66_233_006, "KB_ResurrectionWaitingTime", new(3, 990, 1), 15, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.SoloKombat)
                 .SetColor(new Color32(245, 82, 82, byte.MaxValue))
                 .SetValueFormat(OptionFormat.Seconds);
+
             KB_KillBonusMultiplier = new FloatOptionItem(66_233_007, "KB_KillBonusMultiplier", new(0.25f, 5f, 0.25f), 1.25f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.SoloKombat)
                 .SetColor(new Color32(245, 82, 82, byte.MaxValue))
                 .SetValueFormat(OptionFormat.Multiplier);
+
             KB_BootVentWhenDead = new BooleanOptionItem(66_233_009, "KB_BootVentWhenDead", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.SoloKombat)
                 .SetColor(new Color32(245, 82, 82, byte.MaxValue));
@@ -73,10 +81,7 @@ namespace EHR
 
         public static void Init()
         {
-            if (Options.CurrentGameMode != CustomGameMode.SoloKombat)
-            {
-                return;
-            }
+            if (Options.CurrentGameMode != CustomGameMode.SoloKombat) return;
 
             PlayerHPMax = [];
             PlayerHP = [];
@@ -111,28 +116,22 @@ namespace EHR
 
         private static Color32 GetHealthColor(PlayerControl pc)
         {
-            int x = (int)(PlayerHP[pc.PlayerId] / PlayerHPMax[pc.PlayerId] * 10 * 50);
-            int R = 255;
-            int G = 255;
-            int B = 0;
+            var x = (int)(PlayerHP[pc.PlayerId] / PlayerHPMax[pc.PlayerId] * 10 * 50);
+            var R = 255;
+            var G = 255;
+            var B = 0;
+
             if (x > 255)
-            {
                 R -= x - 255;
-            }
             else
-            {
                 G = x;
-            }
 
             return new((byte)R, (byte)G, (byte)B, byte.MaxValue);
         }
 
         public static void GetNameNotify(PlayerControl player, ref string name)
         {
-            if (Options.CurrentGameMode != CustomGameMode.SoloKombat || player == null)
-            {
-                return;
-            }
+            if (Options.CurrentGameMode != CustomGameMode.SoloKombat || player == null) return;
 
             if (BackCountdown.TryGetValue(player.PlayerId, out int value))
             {
@@ -141,10 +140,7 @@ namespace EHR
                 return;
             }
 
-            if (NameNotify.TryGetValue(player.PlayerId, out (string Text, long TimeStamp) value1))
-            {
-                name = value1.Text;
-            }
+            if (NameNotify.TryGetValue(player.PlayerId, out (string Text, long TimeStamp) value1)) name = value1.Text;
         }
 
         public static int GetRankOfScore(byte playerId)
@@ -169,15 +165,9 @@ namespace EHR
 
         public static void OnPlayerAttack(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null || Options.CurrentGameMode != CustomGameMode.SoloKombat)
-            {
-                return;
-            }
+            if (killer == null || target == null || Options.CurrentGameMode != CustomGameMode.SoloKombat) return;
 
-            if (!killer.SoloAlive() || !target.SoloAlive() || target.inVent)
-            {
-                return;
-            }
+            if (!killer.SoloAlive() || !target.SoloAlive() || target.inVent) return;
 
             float dmg = PlayerATK[killer.PlayerId] - PlayerDF[target.PlayerId];
             PlayerHP[target.PlayerId] = Math.Max(0f, PlayerHP[target.PlayerId] - dmg);
@@ -191,18 +181,12 @@ namespace EHR
             LastHurt[target.PlayerId] = Utils.TimeStamp;
 
             float kcd = KB_ATKCooldown.GetFloat();
-            if (killer.IsHost())
-            {
-                kcd += AmongUsClient.Instance.Ping / 1000f * 4f;
-            }
+            if (killer.IsHost()) kcd += AmongUsClient.Instance.Ping / 1000f * 4f;
 
             killer.SetKillCooldown(kcd, target);
             RPC.PlaySoundRPC(killer.PlayerId, Sounds.KillSound);
             RPC.PlaySoundRPC(target.PlayerId, Sounds.KillSound);
-            if (!target.IsModClient() && !target.AmOwner)
-            {
-                target.RpcGuardAndKill();
-            }
+            if (!target.IsModClient() && !target.AmOwner) target.RpcGuardAndKill();
 
             Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
             Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
@@ -254,21 +238,16 @@ namespace EHR
         private static void OnPlayerKill(PlayerControl killer)
         {
             killer.KillFlash();
-            if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
-            {
-                PlayerControl.LocalPlayer.KillFlash();
-            }
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.GM)) PlayerControl.LocalPlayer.KillFlash();
 
             KBScore[killer.PlayerId]++;
 
             float addRate = IRandom.Instance.Next(3, 5 + GetRankOfScore(killer.PlayerId)) / 100f;
             addRate *= KB_KillBonusMultiplier.GetFloat();
-            if (killer.IsHost())
-            {
-                addRate /= 2f;
-            }
+            if (killer.IsHost()) addRate /= 2f;
 
             float addin;
+
             switch (IRandom.Instance.Next(0, 4))
             {
                 case 0:
@@ -308,33 +287,21 @@ namespace EHR
 
             public static void Postfix( /*PlayerControl __instance*/)
             {
-                if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.SoloKombat || !AmongUsClient.Instance.AmHost)
-                {
-                    return;
-                }
+                if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.SoloKombat || !AmongUsClient.Instance.AmHost) return;
 
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
                     if (!pc.SoloAlive())
                     {
-                        if (pc.inVent && KB_BootVentWhenDead.GetBool())
-                        {
-                            pc.MyPhysics.RpcExitVent(2);
-                        }
+                        if (pc.inVent && KB_BootVentWhenDead.GetBool()) pc.MyPhysics.RpcExitVent(2);
 
                         Vector2 pos = Pelican.GetBlackRoomPS();
                         float dis = Vector2.Distance(pos, pc.Pos());
-                        if (dis > 1f)
-                        {
-                            pc.TP(pos);
-                        }
+                        if (dis > 1f) pc.TP(pos);
                     }
                 }
 
-                if (LastFixedUpdate == Utils.TimeStamp)
-                {
-                    return;
-                }
+                if (LastFixedUpdate == Utils.TimeStamp) return;
 
                 LastFixedUpdate = Utils.TimeStamp;
 
@@ -342,7 +309,8 @@ namespace EHR
 
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
-                    bool notifyRoles = false;
+                    var notifyRoles = false;
+
                     if (LastHurt[pc.PlayerId] + KB_RecoverAfterSecond.GetInt() < Utils.TimeStamp && PlayerHP[pc.PlayerId] < PlayerHPMax[pc.PlayerId] && pc.SoloAlive() && !pc.inVent)
                     {
                         PlayerHP[pc.PlayerId] += PlayerHPReco[pc.PlayerId];
@@ -354,19 +322,13 @@ namespace EHR
                     {
                         Vector2 pos = Pelican.GetBlackRoomPS();
                         float dis = Vector2.Distance(pos, pc.Pos());
-                        if (dis < 1.1f)
-                        {
-                            PlayerRandomSpwan(pc);
-                        }
+                        if (dis < 1.1f) PlayerRandomSpwan(pc);
                     }
 
                     if (BackCountdown.ContainsKey(pc.PlayerId))
                     {
                         BackCountdown[pc.PlayerId]--;
-                        if (BackCountdown[pc.PlayerId] <= 0)
-                        {
-                            OnPlayerBack(pc);
-                        }
+                        if (BackCountdown[pc.PlayerId] <= 0) OnPlayerBack(pc);
 
                         notifyRoles = true;
                     }
@@ -377,10 +339,7 @@ namespace EHR
                         notifyRoles = true;
                     }
 
-                    if (notifyRoles)
-                    {
-                        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                    }
+                    if (notifyRoles) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 }
             }
         }

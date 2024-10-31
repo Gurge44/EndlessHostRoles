@@ -16,9 +16,11 @@ namespace EHR.AddOns.Common
         public void SetupCustomOption()
         {
             Options.SetupAdtRoleOptions(645741, CustomRoles.Introvert, canSetNum: true, teamSpawnOptions: true);
+
             Radius = new FloatOptionItem(645748, "Introvert.Radius", new(0.1f, 10f, 0.1f), 2f, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Introvert])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             Time = new IntegerOptionItem(645749, "Introvert.Time", new(0, 30, 1), 8, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Introvert])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -26,10 +28,7 @@ namespace EHR.AddOns.Common
 
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (Main.HasJustStarted || ExileController.Instance)
-            {
-                return;
-            }
+            if (Main.HasJustStarted || ExileController.Instance) return;
 
             Vector2 pos = pc.Pos();
             float radius = Radius.GetFloat();
@@ -49,6 +48,7 @@ namespace EHR.AddOns.Common
             if (!TeleportAwayDelays.TryGetValue(pc.PlayerId, out long endTS))
             {
                 int time = Time.GetInt();
+
                 if (time == 0)
                 {
                     pc.TPToRandomVent();
@@ -93,10 +93,7 @@ namespace EHR.AddOns.Common
 
         public static string GetSelfSuffix(PlayerControl seer)
         {
-            if (!seer.IsAlive() || !TeleportAwayDelays.TryGetValue(seer.PlayerId, out long endTS))
-            {
-                return string.Empty;
-            }
+            if (!seer.IsAlive() || !TeleportAwayDelays.TryGetValue(seer.PlayerId, out long endTS)) return string.Empty;
 
             return string.Format(Translator.GetString("Introvert.Suffix"), endTS - Utils.TimeStamp);
         }

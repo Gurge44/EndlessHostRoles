@@ -55,32 +55,24 @@ namespace EHR.Patches
         [HarmonyPrefix]
         private static void CheckVanish_Prefix(PlayerControl __instance)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             PlayerControl phantom = __instance;
             Logger.Info($"Player: {phantom.GetRealName()}", "CheckVanish");
 
             foreach (PlayerControl target in Main.AllPlayerControls)
             {
-                if (!target.IsAlive() || phantom == target || target.AmOwner || !target.HasDesyncRole())
-                {
-                    continue;
-                }
+                if (!target.IsAlive() || phantom == target || target.AmOwner || !target.HasDesyncRole()) continue;
 
                 phantom.RpcSetRoleDesync(RoleTypes.Phantom, target.GetClientId());
                 phantom.RpcCheckVanishDesync(target);
 
                 LateTask.New(() =>
                     {
-                        if (GameStates.IsMeeting || phantom == null)
-                        {
-                            return;
-                        }
+                        if (GameStates.IsMeeting || phantom == null) return;
 
                         string petId = phantom.Data.DefaultOutfit.PetId;
+
                         if (petId != "")
                         {
                             PetsList[phantom.PlayerId] = petId;
@@ -98,25 +90,16 @@ namespace EHR.Patches
         [HarmonyPrefix]
         private static void CheckAppear_Prefix(PlayerControl __instance, bool shouldAnimate)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             PlayerControl phantom = __instance;
             Logger.Info($"Player: {phantom.GetRealName()} => shouldAnimate {shouldAnimate}", "CheckAppear");
 
-            if (phantom.inVent)
-            {
-                phantom.MyPhysics.RpcBootFromVent(Main.LastEnteredVent[phantom.PlayerId].Id);
-            }
+            if (phantom.inVent) phantom.MyPhysics.RpcBootFromVent(Main.LastEnteredVent[phantom.PlayerId].Id);
 
             foreach (PlayerControl target in Main.AllPlayerControls)
             {
-                if (!target.IsAlive() || phantom == target || target.AmOwner || !target.HasDesyncRole())
-                {
-                    continue;
-                }
+                if (!target.IsAlive() || phantom == target || target.AmOwner || !target.HasDesyncRole()) continue;
 
                 int clientId = target.GetClientId();
 
@@ -124,26 +107,17 @@ namespace EHR.Patches
 
                 LateTask.New(() =>
                     {
-                        if (target != null)
-                        {
-                            phantom.RpcCheckAppearDesync(shouldAnimate, target);
-                        }
+                        if (target != null) phantom.RpcCheckAppearDesync(shouldAnimate, target);
                     }, 0.5f, $"Check Appear when vanish is over {target.PlayerId}");
 
                 LateTask.New(() =>
                     {
-                        if (GameStates.IsMeeting || phantom == null)
-                        {
-                            return;
-                        }
+                        if (GameStates.IsMeeting || phantom == null) return;
 
                         InvisibilityList.Remove(phantom);
                         phantom.RpcSetRoleDesync(RoleTypes.Scientist, clientId);
 
-                        if (PetsList.TryGetValue(phantom.PlayerId, out string petId))
-                        {
-                            phantom.RpcSetPetDesync(petId, target);
-                        }
+                        if (PetsList.TryGetValue(phantom.PlayerId, out string petId)) phantom.RpcSetPetDesync(petId, target);
                     }, 1.8f, $"Set Scientist when vanish is over {target.PlayerId}");
             }
         }
@@ -152,10 +126,7 @@ namespace EHR.Patches
         [HarmonyPrefix]
         private static void SetRoleInvisibility_Prefix(PlayerControl __instance, bool isActive, bool shouldAnimate, bool playFullAnimation)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             Logger.Info($"Player: {__instance.GetRealName()} => Is Active {isActive}, Animate:{shouldAnimate}, Full Animation:{playFullAnimation}", "SetRoleInvisibility");
         }
@@ -164,10 +135,7 @@ namespace EHR.Patches
         {
             try
             {
-                if (InvisibilityList.Count == 0 || !seer.IsAlive() || seer.Data.Role.Role is RoleTypes.Phantom || seer.AmOwner || !seer.HasDesyncRole())
-                {
-                    return;
-                }
+                if (InvisibilityList.Count == 0 || !seer.IsAlive() || seer.Data.Role.Role is RoleTypes.Phantom || seer.AmOwner || !seer.HasDesyncRole()) return;
 
                 foreach (PlayerControl phantom in InvisibilityList)
                 {
@@ -194,52 +162,39 @@ namespace EHR.Patches
         private static IEnumerator CoRevertInvisible(PlayerControl phantom, PlayerControl seer, bool force)
         {
             // Set Scientist for meeting
-            if (!force)
-            {
-                yield return new WaitForSeconds(0.0001f);
-            }
+            if (!force) yield return new WaitForSeconds(0.0001f);
 
-            if (InValid(phantom, seer))
-            {
-                yield break;
-            }
+            if (InValid(phantom, seer)) yield break;
 
             phantom?.RpcSetRoleDesync(RoleTypes.Scientist, seer.GetClientId());
 
             // Return Phantom in meeting
             yield return new WaitForSeconds(1f);
+
             {
-                if (InValid(phantom, seer))
-                {
-                    yield break;
-                }
+                if (InValid(phantom, seer)) yield break;
 
                 phantom?.RpcSetRoleDesync(RoleTypes.Phantom, seer.GetClientId());
             }
+
             // Revert invis for phantom
             yield return new WaitForSeconds(1f);
+
             {
-                if (InValid(phantom, seer))
-                {
-                    yield break;
-                }
+                if (InValid(phantom, seer)) yield break;
 
                 phantom?.RpcStartAppearDesync(false, seer);
             }
+
             // Set Scientist back
             yield return new WaitForSeconds(4f);
+
             {
-                if (InValid(phantom, seer))
-                {
-                    yield break;
-                }
+                if (InValid(phantom, seer)) yield break;
 
                 phantom?.RpcSetRoleDesync(RoleTypes.Scientist, seer.GetClientId());
 
-                if (phantom != null && PetsList.TryGetValue(phantom.PlayerId, out string petId))
-                {
-                    phantom.RpcSetPetDesync(petId, seer);
-                }
+                if (phantom != null && PetsList.TryGetValue(phantom.PlayerId, out string petId)) phantom.RpcSetPetDesync(petId, seer);
             }
         }
 
@@ -256,10 +211,7 @@ namespace EHR.Patches
     {
         public static bool Prefix(PhantomRole __instance)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return true;
-            }
+            if (!AmongUsClient.Instance.AmHost) return true;
 
             if (__instance.Player.AmOwner && !__instance.Player.Data.IsDead && __instance.Player.moveable && !Minigame.Instance && !__instance.IsCoolingDown && !__instance.fading)
             {

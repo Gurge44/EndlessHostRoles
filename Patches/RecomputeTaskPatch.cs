@@ -12,21 +12,16 @@ namespace EHR
 
             foreach (NetworkedPlayerInfo p in __instance.AllPlayers)
             {
-                if (p == null)
-                {
-                    continue;
-                }
+                if (p == null) continue;
 
                 bool hasTasks = Utils.HasTasks(p) && Main.PlayerStates[p.PlayerId].TaskState.AllTasksCount > 0;
+
                 if (hasTasks)
                 {
                     foreach (NetworkedPlayerInfo.TaskInfo task in p.Tasks)
                     {
                         __instance.TotalTasks++;
-                        if (task.Complete)
-                        {
-                            __instance.CompletedTasks++;
-                        }
+                        if (task.Complete) __instance.CompletedTasks++;
                     }
                 }
             }

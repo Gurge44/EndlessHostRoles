@@ -36,15 +36,20 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Eraser);
+
             EraseMethod = new StringOptionItem(Id + 10, "EraseMethod", EraseMode, 0, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
+
             WhenTargetIsNeutral = new StringOptionItem(Id + 11, "WhenTargetIsNeutral", WhenTargetIsNeutralAction, 0, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
+
             EraseLimitOpt = new IntegerOptionItem(Id + 12, "EraseLimit", new(1, 15, 1), 1, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser])
                 .SetValueFormat(OptionFormat.Times);
+
             HideVote = new BooleanOptionItem(Id + 13, "EraserHideVote", false, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Eraser]);
+
             CancelVote = Options.CreateVoteCancellingUseSetting(Id + 14, CustomRoles.Eraser, TabGroup.ImpostorRoles);
         }
 
@@ -62,23 +67,14 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer.GetAbilityUseLimit() < 1)
-            {
-                return true;
-            }
+            if (killer.GetAbilityUseLimit() < 1) return true;
 
-            if (target.PlayerId == killer.PlayerId)
-            {
-                return true;
-            }
+            if (target.PlayerId == killer.PlayerId) return true;
 
             if (target.GetCustomRole().IsNeutral() && EraseMethod.GetInt() == 0)
             {
                 killer.Notify(GetString("EraserEraseNeutralNotice"));
-                if (WhenTargetIsNeutral.GetInt() == 1)
-                {
-                    return true;
-                }
+                if (WhenTargetIsNeutral.GetInt() == 1) return true;
 
                 killer.SetKillCooldown(5f);
                 return false;
@@ -91,10 +87,7 @@ namespace EHR.Impostor
                     killer.RpcRemoveAbilityUse();
                     killer.SetKillCooldown();
                     killer.Notify(GetString("TargetErasedInRound"));
-                    if (!PlayerToErase.Contains(target.PlayerId))
-                    {
-                        PlayerToErase.Add(target.PlayerId);
-                    }
+                    if (!PlayerToErase.Contains(target.PlayerId)) PlayerToErase.Add(target.PlayerId);
                 });
             }
 
@@ -103,22 +96,13 @@ namespace EHR.Impostor
 
         public override bool OnVote(PlayerControl player, PlayerControl target)
         {
-            if (player == null || target == null || EraseMethod.GetInt() == 0)
-            {
-                return false;
-            }
+            if (player == null || target == null || EraseMethod.GetInt() == 0) return false;
 
-            if (DidVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId))
-            {
-                return false;
-            }
+            if (DidVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
 
             DidVote.Add(player.PlayerId);
 
-            if (player.GetAbilityUseLimit() < 1)
-            {
-                return false;
-            }
+            if (player.GetAbilityUseLimit() < 1) return false;
 
             if (target.PlayerId == player.PlayerId)
             {
@@ -134,17 +118,11 @@ namespace EHR.Impostor
 
             player.RpcRemoveAbilityUse();
 
-            if (!PlayerToErase.Contains(target.PlayerId))
-            {
-                PlayerToErase.Add(target.PlayerId);
-            }
+            if (!PlayerToErase.Contains(target.PlayerId)) PlayerToErase.Add(target.PlayerId);
 
             Utils.SendMessage(string.Format(GetString("EraserEraseNotice"), target.GetRealName()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Eraser), GetString("EraserEraseMsgTitle")));
 
-            if (GameStates.IsInTask)
-            {
-                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: target);
-            }
+            if (GameStates.IsInTask) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: target);
 
             Main.DontCancelVoteList.Add(player.PlayerId);
             return true;
@@ -160,10 +138,7 @@ namespace EHR.Impostor
             foreach (byte id in PlayerToErase)
             {
                 PlayerControl pc = Utils.GetPlayerById(id);
-                if (pc == null || !pc.IsAlive() || pc.Is(CustomRoles.Bloodlust))
-                {
-                    continue;
-                }
+                if (pc == null || !pc.IsAlive() || pc.Is(CustomRoles.Bloodlust)) continue;
 
                 CustomRoles erasedRole = pc.GetRoleTypes() is RoleTypes.Crewmate or RoleTypes.Engineer or RoleTypes.Noisemaker or RoleTypes.Scientist or RoleTypes.Tracker ? CustomRoles.CrewmateEHR : CustomRoles.ImpostorEHR;
                 pc.RpcSetCustomRole(erasedRole);

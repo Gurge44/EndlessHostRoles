@@ -22,15 +22,19 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Drainer);
+
             VentCD = new IntegerOptionItem(Id + 10, "VentCooldown", new(1, 60, 1), 30, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Drainer])
                 .SetValueFormat(OptionFormat.Seconds);
+
             UseLimit = new IntegerOptionItem(Id + 11, "AbilityUseLimit", new(1, 20, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Drainer])
                 .SetValueFormat(OptionFormat.Times);
+
             DrainerAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Drainer])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 13, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Drainer])
                 .SetValueFormat(OptionFormat.Times);
@@ -55,68 +59,45 @@ namespace EHR.Crewmate
 
         public static void OnAnyoneExitVent(PlayerControl pc)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
-            if (pc != null)
-            {
-                PlayersInVents.Remove(pc.PlayerId);
-            }
+            if (pc != null) PlayersInVents.Remove(pc.PlayerId);
         }
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
-            if (pc.GetAbilityUseLimit() <= 0)
-            {
-                return;
-            }
+            if (pc.GetAbilityUseLimit() <= 0) return;
 
             pc.RpcRemoveAbilityUse();
 
             Vent[] vents = vent.NearbyVents.Where(v => v != null).Append(vent).ToArray();
-            foreach (Vent ventToDrain in vents)
-            {
-                KillPlayersInVent(pc, ventToDrain);
-            }
+            foreach (Vent ventToDrain in vents) KillPlayersInVent(pc, ventToDrain);
         }
 
         public static void OnAnyoneEnterVent(PlayerControl pc, Vent vent)
         {
-            if (!AmongUsClient.Instance.AmHost || pc == null || vent == null || pc.Is(CustomRoles.Drainer))
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost || pc == null || vent == null || pc.Is(CustomRoles.Drainer)) return;
 
             PlayersInVents[pc.PlayerId] = vent.Id;
         }
 
         private void KillPlayersInVent(PlayerControl pc, Vent vent)
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
             int ventId = vent.Id;
 
-            if (!PlayersInVents.ContainsValue(ventId))
-            {
-                return;
-            }
+            if (!PlayersInVents.ContainsValue(ventId)) return;
 
             foreach (KeyValuePair<byte, int> venterId in PlayersInVents.Where(x => x.Value == ventId).ToArray())
             {
                 PlayerControl venter = Utils.GetPlayerById(venterId.Key);
-                if (venter == null)
-                {
-                    continue;
-                }
+                if (venter == null) continue;
 
                 if (pc != null && pc.RpcCheckAndMurder(venter, true))
                 {
                     venter.MyPhysics.RpcBootFromVent(ventId);
+
                     LateTask.New(() =>
                     {
                         venter.Suicide(PlayerState.DeathReason.Demolished, pc);
@@ -128,10 +109,7 @@ namespace EHR.Crewmate
 
         public override void OnReportDeadBody()
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
             PlayersInVents.Clear();
         }

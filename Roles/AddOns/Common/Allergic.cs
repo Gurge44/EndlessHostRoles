@@ -17,9 +17,11 @@ namespace EHR.AddOns.Common
         public void SetupCustomOption()
         {
             Options.SetupAdtRoleOptions(645941, CustomRoles.Allergic, canSetNum: true, teamSpawnOptions: true);
+
             Time = new IntegerOptionItem(645948, "Allergic.Time", new(0, 60, 1), 15, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Allergic])
                 .SetValueFormat(OptionFormat.Seconds);
+
             Range = new FloatOptionItem(645949, "Allergic.Range", new(0.1f, 10f, 0.1f), 1.5f, TabGroup.Addons)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Allergic])
                 .SetValueFormat(OptionFormat.Multiplier);
@@ -33,6 +35,7 @@ namespace EHR.AddOns.Common
             LateTask.New(() =>
             {
                 PlayerControl[] aapc = Main.AllAlivePlayerControls;
+
                 foreach (PlayerControl pc in aapc)
                 {
                     if (pc.Is(CustomRoles.Allergic))
@@ -46,17 +49,12 @@ namespace EHR.AddOns.Common
 
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (Main.HasJustStarted || ExileController.Instance)
-            {
-                return;
-            }
+            if (Main.HasJustStarted || ExileController.Instance) return;
 
-            if (!AllergicPlayers.TryGetValue(pc.PlayerId, out byte targetId))
-            {
-                return;
-            }
+            if (!AllergicPlayers.TryGetValue(pc.PlayerId, out byte targetId)) return;
 
             PlayerControl target = targetId.GetPlayer();
+
             if (target == null || !target.IsAlive() || Vector2.Distance(pc.Pos(), target.Pos()) > Range.GetFloat())
             {
                 if (AllergyMaxTS.Remove(pc.PlayerId))
@@ -83,9 +81,7 @@ namespace EHR.AddOns.Common
                 pc.Suicide(PlayerState.DeathReason.Allergy);
             }
             else
-            {
                 Utils.NotifyRoles(SpecifyTarget: pc, SpecifySeer: pc);
-            }
         }
 
         public static void ReceiveRPC(MessageReader reader)
@@ -103,10 +99,7 @@ namespace EHR.AddOns.Common
 
         public static string GetSelfSuffix(PlayerControl seer)
         {
-            if (!seer.IsAlive() || !AllergyMaxTS.TryGetValue(seer.PlayerId, out long endTS))
-            {
-                return string.Empty;
-            }
+            if (!seer.IsAlive() || !AllergyMaxTS.TryGetValue(seer.PlayerId, out long endTS)) return string.Empty;
 
             return string.Format(Translator.GetString("Allergic.Suffix"), Math.Ceiling(endTS / (float)Utils.TimeStamp * 100));
         }

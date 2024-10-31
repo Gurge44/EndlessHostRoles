@@ -12,9 +12,11 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(1500, TabGroup.ImpostorRoles, CustomRoles.Inhibitor);
+
             InhibitorCD = new FloatOptionItem(1510, "KillCooldown", new(0f, 180f, 2.5f), 20f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Inhibitor])
                 .SetValueFormat(OptionFormat.Seconds);
+
             InhibitorCDAfterMeetings = new FloatOptionItem(1511, "AfterMeetingKillCooldown", new(0f, 180f, 2.5f), 22.5f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Inhibitor])
                 .SetValueFormat(OptionFormat.Seconds);

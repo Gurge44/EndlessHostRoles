@@ -29,9 +29,9 @@ namespace EHR
             try
             {
                 // Get the directory containing the JSON files (e.g., EHR.Resources.Lang)
-                string jsonDirectory = "EHR.Resources.Lang";
+                var jsonDirectory = "EHR.Resources.Lang";
                 // Get the assembly containing the resources
-                Assembly assembly = Assembly.GetExecutingAssembly();
+                var assembly = Assembly.GetExecutingAssembly();
                 string[] jsonFileNames = GetJsonFileNames(assembly, jsonDirectory);
 
                 translateMaps = [];
@@ -46,13 +46,15 @@ namespace EHR
                 {
                     // Read the JSON file content
                     using Stream resourceStream = assembly.GetManifestResourceStream(jsonFileName);
+
                     if (resourceStream != null)
                     {
                         using StreamReader reader = new(resourceStream);
                         string jsonContent = reader.ReadToEnd();
 
                         // Deserialize the JSON into a dictionary
-                        Dictionary<string, string> jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent);
+                        var jsonDictionary = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonContent);
+
                         if (jsonDictionary.TryGetValue("LanguageID", out string languageIdObj) && int.TryParse(languageIdObj, out int languageId))
                         {
                             // Remove the "LanguageID" entry
@@ -81,13 +83,11 @@ namespace EHR
             }
 
             // Loading custom translation files
-            if (!Directory.Exists(LANGUAGE_FOLDER_NAME))
-            {
-                Directory.CreateDirectory(LANGUAGE_FOLDER_NAME);
-            }
+            if (!Directory.Exists(LANGUAGE_FOLDER_NAME)) Directory.CreateDirectory(LANGUAGE_FOLDER_NAME);
 
             // Creating a translation template
             CreateTemplateFile();
+
             foreach (SupportedLangs lang in Enum.GetValues<SupportedLangs>())
             {
                 if (File.Exists(@$"./{LANGUAGE_FOLDER_NAME}/{lang}.dat"))
@@ -103,13 +103,11 @@ namespace EHR
             foreach (KeyValuePair<string, string> kvp in jsonDictionary)
             {
                 string textString = kvp.Key;
+
                 if (kvp.Value is string translation)
                 {
                     // If the textString is not already in the translation map, add it
-                    if (!translationMaps.ContainsKey(textString))
-                    {
-                        translationMaps[textString] = [];
-                    }
+                    if (!translationMaps.ContainsKey(textString)) translationMaps[textString] = [];
 
                     // Add or update the translation for the current id and textString
                     translationMaps[textString][languageId] = translation.Replace("\\n", "\n").Replace("\\r", "\r");
@@ -127,45 +125,32 @@ namespace EHR
         public static string GetString(string s, Dictionary<string, string> replacementDic = null, bool console = false)
         {
             SupportedLangs langId = TranslationController.InstanceExists ? TranslationController.Instance.currentLanguage.languageID : SupportedLangs.English;
-            if (console)
-            {
-                langId = SupportedLangs.English;
-            }
+            if (console) langId = SupportedLangs.English;
 
-            if (Main.ForceOwnLanguage.Value)
-            {
-                langId = GetUserTrueLang();
-            }
+            if (Main.ForceOwnLanguage.Value) langId = GetUserTrueLang();
 
             string str = GetString(s, langId);
+
             if (replacementDic != null)
-            {
                 foreach (KeyValuePair<string, string> rd in replacementDic)
-                {
                     str = str.Replace(rd.Key, rd.Value);
-                }
-            }
 
             return str;
         }
 
         public static string GetString(string str, SupportedLangs langId)
         {
-            string res = $"<INVALID:{str}>";
+            var res = $"<INVALID:{str}>";
+
             try
             {
                 if (translateMaps.TryGetValue(str, out Dictionary<int, string> dic) && (!dic.TryGetValue((int)langId, out res) || res == "" || (langId is not SupportedLangs.SChinese and not SupportedLangs.TChinese && Regex.IsMatch(res, @"[\u4e00-\u9fa5]") && res == GetString(str, SupportedLangs.SChinese)))) //strに該当する&無効なlangIdかresが空
-                {
                     res = langId == SupportedLangs.English ? $"*{str}" : GetString(str, SupportedLangs.English);
-                }
 
                 if (!translateMaps.ContainsKey(str)) //translateMapsにない場合、StringNamesにあれば取得する
                 {
                     StringNames[] stringNames = Enum.GetValues<StringNames>().Where(x => x.ToString() == str).ToArray();
-                    if (stringNames.Length > 0)
-                    {
-                        res = GetString(stringNames.FirstOrDefault());
-                    }
+                    if (stringNames.Length > 0) res = GetString(stringNames.FirstOrDefault());
                 }
             }
             catch (Exception Ex)
@@ -186,10 +171,7 @@ namespace EHR
         {
             SupportedLangs CurrentLanguage = TranslationController.Instance.currentLanguage.languageID;
             SupportedLangs lang = forUser ? CurrentLanguage : SupportedLangs.English;
-            if (Main.ForceOwnLanguageRoleName.Value)
-            {
-                lang = GetUserTrueLang();
-            }
+            if (Main.ForceOwnLanguageRoleName.Value) lang = GetUserTrueLang();
 
             return GetString(str, lang);
         }
@@ -199,25 +181,13 @@ namespace EHR
             try
             {
                 string name = CultureInfo.CurrentUICulture.Name;
-                if (name.StartsWith("en"))
-                {
-                    return SupportedLangs.English;
-                }
+                if (name.StartsWith("en")) return SupportedLangs.English;
 
-                if (name.StartsWith("zh_CHT"))
-                {
-                    return SupportedLangs.TChinese;
-                }
+                if (name.StartsWith("zh_CHT")) return SupportedLangs.TChinese;
 
-                if (name.StartsWith("zh"))
-                {
-                    return SupportedLangs.SChinese;
-                }
+                if (name.StartsWith("zh")) return SupportedLangs.SChinese;
 
-                if (name.StartsWith("ru"))
-                {
-                    return SupportedLangs.Russian;
-                }
+                if (name.StartsWith("ru")) return SupportedLangs.Russian;
 
                 return TranslationController.Instance.currentLanguage.languageID;
             }
@@ -229,16 +199,20 @@ namespace EHR
 
         private static void UpdateCustomTranslation(string filename /*, SupportedLangs lang*/)
         {
-            string path = @$"./{LANGUAGE_FOLDER_NAME}/{filename}";
+            var path = @$"./{LANGUAGE_FOLDER_NAME}/{filename}";
+
             if (File.Exists(path))
             {
                 Logger.Info("Updating Custom Translations", "UpdateCustomTranslation");
+
                 try
                 {
                     List<string> textStrings = [];
+
                     using (StreamReader reader = new(path, Encoding.GetEncoding("UTF-8")))
                     {
                         string line;
+
                         while ((line = reader.ReadLine()) != null)
                         {
                             // Split the line by ':' to get the first part
@@ -254,14 +228,11 @@ namespace EHR
                         }
                     }
 
-                    StringBuilder sb = new StringBuilder();
+                    var sb = new StringBuilder();
+
                     foreach (string templateString in translateMaps.Keys)
-                    {
                         if (!textStrings.Contains(templateString))
-                        {
                             sb.Append($"{templateString}:\n");
-                        }
-                    }
 
                     using FileStream fileStream = new(path, FileMode.Append, FileAccess.Write);
                     using StreamWriter writer = new(fileStream);
@@ -276,18 +247,22 @@ namespace EHR
 
         public static void LoadCustomTranslation(string filename, SupportedLangs lang)
         {
-            string path = @$"./{LANGUAGE_FOLDER_NAME}/{filename}";
+            var path = @$"./{LANGUAGE_FOLDER_NAME}/{filename}";
+
             if (File.Exists(path))
             {
                 Logger.Info($"Loading Custom Translation File：{filename}", "LoadCustomTranslation");
+
                 try
                 {
                     using StreamReader sr = new(path, Encoding.GetEncoding("UTF-8"));
                     string text;
                     string[] tmp = [];
+
                     while ((text = sr.ReadLine()) != null)
                     {
                         tmp = text.Split(":");
+
                         if (tmp.Length > 1 && tmp[1] != "")
                         {
                             try
@@ -301,27 +276,20 @@ namespace EHR
                         }
                     }
                 }
-                catch (ObjectDisposedException)
-                {
-                }
+                catch (ObjectDisposedException) { }
                 catch (Exception e)
                 {
                     Logger.Error(e.ToString(), "Translator.LoadCustomTranslation");
                 }
             }
             else
-            {
                 Logger.Error($"Custom Translation File Not Found：{filename}", "LoadCustomTranslation");
-            }
         }
 
         private static void CreateTemplateFile()
         {
-            StringBuilder sb = new StringBuilder();
-            foreach (KeyValuePair<string, Dictionary<int, string>> title in translateMaps)
-            {
-                sb.Append($"{title.Key}:\n");
-            }
+            var sb = new StringBuilder();
+            foreach (KeyValuePair<string, Dictionary<int, string>> title in translateMaps) sb.Append($"{title.Key}:\n");
 
             File.WriteAllText(@$"./{LANGUAGE_FOLDER_NAME}/template.dat", sb.ToString());
         }
@@ -329,8 +297,9 @@ namespace EHR
         public static void ExportCustomTranslation()
         {
             LoadLangs();
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             SupportedLangs lang = TranslationController.Instance.currentLanguage.languageID;
+
             foreach (KeyValuePair<string, Dictionary<int, string>> title in translateMaps)
             {
                 string text = title.Value.GetValueOrDefault((int)lang, "");

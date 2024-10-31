@@ -21,10 +21,7 @@ namespace EHR
 
         public static void Prefix()
         {
-            if (AmongUsClient.Instance.AmHost && DataManager.Settings.Multiplayer.ChatMode == QuickChatModes.QuickChatOnly)
-            {
-                DataManager.Settings.Multiplayer.ChatMode = QuickChatModes.FreeChatOrQuickChat;
-            }
+            if (AmongUsClient.Instance.AmHost && DataManager.Settings.Multiplayer.ChatMode == QuickChatModes.QuickChatOnly) DataManager.Settings.Multiplayer.ChatMode = QuickChatModes.FreeChatOrQuickChat;
         }
 
         public static void Postfix(ChatController __instance)
@@ -32,6 +29,7 @@ namespace EHR
             if (Main.DarkTheme.Value)
             {
                 __instance.freeChatField.background.color = new Color32(40, 40, 40, byte.MaxValue);
+
                 if (!TextBoxTMPSetTextPatch.IsInvalidCommand)
                 {
                     __instance.freeChatField.textArea.compoText.Color(Color.white);
@@ -42,58 +40,32 @@ namespace EHR
                 __instance.quickChatField.text.color = Color.white;
 
                 if (QuickChatIcon == null)
-                {
                     QuickChatIcon = GameObject.Find("QuickChatIcon")?.transform.GetComponent<SpriteRenderer>();
-                }
                 else
-                {
                     QuickChatIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkQuickChat.png", 100f);
-                }
 
                 if (OpenBanMenuIcon == null)
-                {
                     OpenBanMenuIcon = GameObject.Find("OpenBanMenuIcon")?.transform.GetComponent<SpriteRenderer>();
-                }
                 else
-                {
                     OpenBanMenuIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkReport.png", 100f);
-                }
 
                 if (OpenKeyboardIcon == null)
-                {
                     OpenKeyboardIcon = GameObject.Find("OpenKeyboardIcon")?.transform.GetComponent<SpriteRenderer>();
-                }
                 else
-                {
                     OpenKeyboardIcon.sprite = Utils.LoadSprite("EHR.Resources.Images.DarkKeyboard.png", 100f);
-                }
             }
             else
-            {
                 __instance.freeChatField.textArea.outputText.color = Color.black;
-            }
 
-            if (!__instance.freeChatField.textArea.hasFocus)
-            {
-                return;
-            }
+            if (!__instance.freeChatField.textArea.hasFocus) return;
 
             __instance.freeChatField.textArea.characterLimit = AmongUsClient.Instance.AmHost ? 2000 : 300;
 
-            if (Input.GetKeyDown(KeyCode.Tab))
-            {
-                TextBoxTMPSetTextPatch.OnTabPress(__instance);
-            }
+            if (Input.GetKeyDown(KeyCode.Tab)) TextBoxTMPSetTextPatch.OnTabPress(__instance);
 
-            if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.C))
-            {
-                ClipboardHelper.PutClipboardString(__instance.freeChatField.textArea.text);
-            }
+            if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.C)) ClipboardHelper.PutClipboardString(__instance.freeChatField.textArea.text);
 
-            if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.V))
-            {
-                __instance.freeChatField.textArea.SetText(__instance.freeChatField.textArea.text + GUIUtility.systemCopyBuffer);
-            }
+            if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.V)) __instance.freeChatField.textArea.SetText(__instance.freeChatField.textArea.text + GUIUtility.systemCopyBuffer);
 
             if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.X))
             {
@@ -138,14 +110,12 @@ namespace EHR
         private static bool CheckCommand(ref string msg, string command, bool exact = true)
         {
             string[] comList = command.Split('|');
+
             foreach (string str in comList)
             {
                 if (exact)
                 {
-                    if (msg == "/" + str)
-                    {
-                        return true;
-                    }
+                    if (msg == "/" + str) return true;
                 }
                 else
                 {
@@ -163,18 +133,17 @@ namespace EHR
         private static bool CheckName(ref string msg, string command, bool exact = true)
         {
             string[] comList = command.Split('|');
+
             foreach (string com in comList)
             {
                 if (exact)
                 {
-                    if (msg.Contains(com))
-                    {
-                        return true;
-                    }
+                    if (msg.Contains(com)) return true;
                 }
                 else
                 {
                     int index = msg.IndexOf(com, StringComparison.Ordinal);
+
                     if (index != -1)
                     {
                         msg = msg.Remove(index, com.Length);
@@ -191,10 +160,7 @@ namespace EHR
             string playername = player.GetNameWithRole();
             message = message.ToLower().TrimStart().TrimEnd();
 
-            if (!player.IsAlive() || !AmongUsClient.Instance.AmHost || (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive()))
-            {
-                return;
-            }
+            if (!player.IsAlive() || !AmongUsClient.Instance.AmHost || (Silencer.ForSilencer.Contains(player.PlayerId) && player.IsAlive())) return;
 
             int operate = message switch
             {
@@ -208,10 +174,7 @@ namespace EHR
             {
                 case 1 when player.IsAlive(): // Guessing Command & Such
                     Logger.Info("Special Command", "ChatManager");
-                    if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
-                    {
-                        break;
-                    }
+                    if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId) break;
 
                     LateTask.New(() =>
                     {
@@ -221,21 +184,17 @@ namespace EHR
                             Logger.Info("Delayed Guess", "ChatManager");
                         }
                         else
-                        {
                             Logger.Info("Delayed Guess was not necessary", "ChatManager");
-                        }
                     }, 0.3f, "Trying Delayed Guess");
+
                     break;
                 case 2: // /up and role ability commands
                     Logger.Info($"Command: {message}", "ChatManager");
                     break;
                 case 3: // In Lobby & Evertything Else
-                    string chatEntry = $"{player.PlayerId}: {message}";
+                    var chatEntry = $"{player.PlayerId}: {message}";
                     ChatHistory.Add(chatEntry);
-                    if (ChatHistory.Count > MaxHistorySize)
-                    {
-                        ChatHistory.RemoveAt(0);
-                    }
+                    if (ChatHistory.Count > MaxHistorySize) ChatHistory.RemoveAt(0);
 
                     break;
                 case 4: // /r, /n, /m
@@ -244,32 +203,24 @@ namespace EHR
                     break;
             }
 
-            if (Options.CurrentGameMode == CustomGameMode.FFA && !message.StartsWith('/'))
-            {
-                FFAManager.UpdateLastChatMessage(player.GetRealName(), message);
-            }
+            if (Options.CurrentGameMode == CustomGameMode.FFA && !message.StartsWith('/')) FFAManager.UpdateLastChatMessage(player.GetRealName(), message);
         }
 
         public static void SendPreviousMessagesToAll(bool clear = false)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             ChatUpdatePatch.DoBlockChat = true;
             Logger.Info($" clear: {clear}", "ChatManager.SendPreviousMessagesToAll");
+
             try
             {
                 string msg = Utils.EmptyMessage;
                 int totalAlive = Main.AllAlivePlayerControls.Length;
-                if (totalAlive == 0)
-                {
-                    return;
-                }
+                if (totalAlive == 0) return;
 
                 PlayerControl[] x = Main.AllAlivePlayerControls;
-                IRandom r = IRandom.Instance;
+                var r = IRandom.Instance;
 
                 string[] filtered = ChatHistory.SkipLast(1).Where(a => Utils.GetPlayerById(Convert.ToByte(a.Split(':')[0].Trim())).IsAlive()).ToArray();
 
@@ -287,16 +238,10 @@ namespace EHR
                         string[] entryParts = str.Split(':');
                         string senderId = entryParts[0].Trim();
                         string senderMessage = entryParts[1].Trim();
-                        for (int j = 2; j < entryParts.Length; j++)
-                        {
-                            senderMessage += ':' + entryParts[j].Trim();
-                        }
+                        for (var j = 2; j < entryParts.Length; j++) senderMessage += ':' + entryParts[j].Trim();
 
                         PlayerControl senderPlayer = Utils.GetPlayerById(Convert.ToByte(senderId));
-                        if (senderPlayer == null)
-                        {
-                            continue;
-                        }
+                        if (senderPlayer == null) continue;
 
                         DestroyableSingleton<HudManager>.Instance.Chat.AddChat(senderPlayer, senderMessage);
                         SendRPC(senderPlayer, senderMessage);
@@ -313,11 +258,13 @@ namespace EHR
 
         private static void SendRPC(InnerNetObject senderPlayer, string senderMessage)
         {
-            CustomRpcSender writer = CustomRpcSender.Create("MessagesToSend");
+            var writer = CustomRpcSender.Create("MessagesToSend");
             writer.StartMessage();
+
             writer.StartRpc(senderPlayer.NetId, (byte)RpcCalls.SendChat)
                 .Write(senderMessage)
                 .EndRpc();
+
             writer.EndMessage();
             writer.SendMessage();
         }

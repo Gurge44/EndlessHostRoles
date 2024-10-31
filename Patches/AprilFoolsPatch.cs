@@ -89,9 +89,7 @@ namespace EHR.Patches
                     __result = PlayerBodyTypes.Normal;
                 }
             }
-            catch
-            {
-            }
+            catch { }
         }
     }
 
@@ -109,9 +107,7 @@ namespace EHR.Patches
                 __instance.cosmeticLayer.OnCosmeticSet += (Action<string, int, CosmeticKind>)__instance.OnCosmeticSet;
                 __instance.gameObject.layer = 8;
             }
-            catch
-            {
-            }
+            catch { }
 
             return false;
         }
@@ -123,25 +119,17 @@ namespace EHR.Patches
             try
             {
                 __instance.ShouldLongAround = true;
-                if (__instance.hideCosmeticsQC)
-                {
-                    __instance.cosmeticLayer.SetHatVisorVisible(false);
-                }
+                if (__instance.hideCosmeticsQC) __instance.cosmeticLayer.SetHatVisorVisible(false);
 
                 __instance.SetupNeckGrowth();
+
                 if (__instance.isExiledPlayer)
                 {
-                    ShipStatus instance = ShipStatus.Instance;
-                    if (instance == null || instance.Type != ShipStatus.MapType.Fungle)
-                    {
-                        __instance.cosmeticLayer.AdjustCosmeticRotations(-17.75f);
-                    }
+                    var instance = ShipStatus.Instance;
+                    if (instance == null || instance.Type != ShipStatus.MapType.Fungle) __instance.cosmeticLayer.AdjustCosmeticRotations(-17.75f);
                 }
 
-                if (!__instance.isPoolablePlayer)
-                {
-                    __instance.cosmeticLayer.ValidateCosmetics();
-                }
+                if (!__instance.isPoolablePlayer) __instance.cosmeticLayer.ValidateCosmetics();
 
                 if (__instance.myPlayerControl)
                 {
@@ -149,9 +137,7 @@ namespace EHR.Patches
                     __instance.SetHeightFromColor(__instance.myPlayerControl.Data.DefaultOutfit.ColorId);
                 }
             }
-            catch
-            {
-            }
+            catch { }
 
             return false;
         }
@@ -165,9 +151,7 @@ namespace EHR.Patches
                 __instance.targetHeight = (distance / 10f) + 0.5f;
                 __instance.SetupNeckGrowth(true);
             }
-            catch
-            {
-            }
+            catch { }
 
             return false;
         }

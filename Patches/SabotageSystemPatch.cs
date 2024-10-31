@@ -16,23 +16,14 @@ namespace EHR
 
         public static void Prefix(ReactorSystemType __instance)
         {
-            if (!Options.SabotageTimeControl.GetBool())
-            {
-                return;
-            }
+            if (!Options.SabotageTimeControl.GetBool()) return;
 
-            if ((MapNames)Main.NormalOptions.MapId is MapNames.Airship)
-            {
-                return;
-            }
+            if ((MapNames)Main.NormalOptions.MapId is MapNames.Airship) return;
 
             // When the sabotage ends
             if (!__instance.IsActive || !SetDurationForReactorSabotage)
             {
-                if (!SetDurationForReactorSabotage && !__instance.IsActive)
-                {
-                    SetDurationForReactorSabotage = true;
-                }
+                if (!SetDurationForReactorSabotage && !__instance.IsActive) SetDurationForReactorSabotage = true;
 
                 return;
             }
@@ -68,23 +59,14 @@ namespace EHR
 
         public static void Prefix(HeliSabotageSystem __instance)
         {
-            if (!Options.SabotageTimeControl.GetBool())
-            {
-                return;
-            }
+            if (!Options.SabotageTimeControl.GetBool()) return;
 
-            if ((MapNames)Main.NormalOptions.MapId is not MapNames.Airship)
-            {
-                return;
-            }
+            if ((MapNames)Main.NormalOptions.MapId is not MapNames.Airship) return;
 
             // When the sabotage ends
             if (!__instance.IsActive || ShipStatus.Instance == null || !SetDurationForReactorSabotage)
             {
-                if (!SetDurationForReactorSabotage && !__instance.IsActive)
-                {
-                    SetDurationForReactorSabotage = true;
-                }
+                if (!SetDurationForReactorSabotage && !__instance.IsActive) SetDurationForReactorSabotage = true;
 
                 return;
             }
@@ -104,23 +86,14 @@ namespace EHR
 
         public static void Prefix(LifeSuppSystemType __instance)
         {
-            if (!Options.SabotageTimeControl.GetBool())
-            {
-                return;
-            }
+            if (!Options.SabotageTimeControl.GetBool()) return;
 
-            if ((MapNames)Main.NormalOptions.MapId is MapNames.Polus or MapNames.Airship or MapNames.Fungle)
-            {
-                return;
-            }
+            if ((MapNames)Main.NormalOptions.MapId is MapNames.Polus or MapNames.Airship or MapNames.Fungle) return;
 
             // When the sabotage ends
             if (!__instance.IsActive || !SetDurationForO2Sabotage)
             {
-                if (!SetDurationForO2Sabotage && !__instance.IsActive)
-                {
-                    SetDurationForO2Sabotage = true;
-                }
+                if (!SetDurationForO2Sabotage && !__instance.IsActive) SetDurationForO2Sabotage = true;
 
                 return;
             }
@@ -154,6 +127,7 @@ namespace EHR
             {
                 // Need for hiding player names if player is desync Impostor
                 Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
+
                 if (!pc.Is(Team.Impostor) && pc.HasDesyncRole())
                 {
                     // Need for hiding player names if player is desync Impostor
@@ -172,28 +146,16 @@ namespace EHR
         {
             __state = __instance.IsActive;
 
-            if (Options.UsePets.GetBool())
-            {
-                __instance.petEmptyChance = 0;
-            }
+            if (Options.UsePets.GetBool()) __instance.petEmptyChance = 0;
 
-            if (!Options.SabotageTimeControl.GetBool())
-            {
-                return;
-            }
+            if (!Options.SabotageTimeControl.GetBool()) return;
 
-            if ((MapNames)Main.NormalOptions.MapId is not MapNames.Fungle)
-            {
-                return;
-            }
+            if ((MapNames)Main.NormalOptions.MapId is not MapNames.Fungle) return;
 
             // When the sabotage ends
             if (!__instance.IsActive || !SetDurationMushroomMixupSabotage)
             {
-                if (!SetDurationMushroomMixupSabotage && !__instance.IsActive)
-                {
-                    SetDurationMushroomMixupSabotage = true;
-                }
+                if (!SetDurationMushroomMixupSabotage && !__instance.IsActive) SetDurationMushroomMixupSabotage = true;
 
                 return;
             }
@@ -224,12 +186,8 @@ namespace EHR
                 }, 1.2f, "Reset Ability Cooldown Arter Mushroom Mixup");
 
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                {
                     if (!pc.Is(CustomRoleTypes.Impostor) && pc.HasDesyncRole())
-                    {
                         Utils.NotifyRoles(SpecifySeer: pc, ForceLoop: true, MushroomMixup: true);
-                    }
-                }
             }
         }
     }
@@ -241,47 +199,30 @@ namespace EHR
         private static bool Prefix(SwitchSystem __instance, [HarmonyArgument(0)] PlayerControl player, [HarmonyArgument(1)] MessageReader msgReader)
         {
             byte amount;
+
             {
                 MessageReader newReader = MessageReader.Get(msgReader);
                 amount = newReader.ReadByte();
                 newReader.Recycle();
             }
 
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return true;
-            }
+            if (!AmongUsClient.Instance.AmHost) return true;
 
             // No matter if the blackout sabotage is sounded (beware of misdirection as it flies under the host's name)
-            if (amount.HasBit(SwitchSystem.DamageSystem))
-            {
-                return true;
-            }
+            if (amount.HasBit(SwitchSystem.DamageSystem)) return true;
 
             // Cancel if player can't fix a specific outage on Airship
             if (Main.CurrentMap == MapNames.Airship)
             {
                 Vector2 pos = player.Pos();
-                if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && Vector2.Distance(pos, new(-12.93f, -11.28f)) <= 2f)
-                {
-                    return false;
-                }
+                if (Options.DisableAirshipViewingDeckLightsPanel.GetBool() && Vector2.Distance(pos, new(-12.93f, -11.28f)) <= 2f) return false;
 
-                if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && Vector2.Distance(pos, new(13.92f, 6.43f)) <= 2f)
-                {
-                    return false;
-                }
+                if (Options.DisableAirshipGapRoomLightsPanel.GetBool() && Vector2.Distance(pos, new(13.92f, 6.43f)) <= 2f) return false;
 
-                if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(pos, new(30.56f, 2.12f)) <= 2f)
-                {
-                    return false;
-                }
+                if (Options.DisableAirshipCargoLightsPanel.GetBool() && Vector2.Distance(pos, new(30.56f, 2.12f)) <= 2f) return false;
             }
 
-            if (player.Is(CustomRoles.Fool))
-            {
-                return false;
-            }
+            if (player.Is(CustomRoles.Fool)) return false;
 
             if (Options.BlockDisturbancesToSwitches.GetBool())
             {
@@ -290,15 +231,12 @@ namespace EHR
                 // Far left switch - (amount: 0) 00001
                 // Far right switch - (amount: 4) 10000
                 // ref: SwitchSystem.RepairDamage, SwitchMinigame.FixedUpdate
-                byte switchedKnob = (byte)(0b_00001 << amount);
+                var switchedKnob = (byte)(0b_00001 << amount);
 
                 // ExpectedSwitches: Up and down state of switches when all are on
                 // ActualSwitches: Actual up/down state of switch
                 // if Expected and Actual are the same for the operated knob, the knob is already fixed
-                if ((__instance.ActualSwitches & switchedKnob) == (__instance.ExpectedSwitches & switchedKnob))
-                {
-                    return false;
-                }
+                if ((__instance.ActualSwitches & switchedKnob) == (__instance.ExpectedSwitches & switchedKnob)) return false;
             }
 
             return true;
@@ -313,10 +251,7 @@ namespace EHR
         public static void Postfix()
         {
             long now = Utils.TimeStamp;
-            if (LastUpdate >= now)
-            {
-                return;
-            }
+            if (LastUpdate >= now) return;
 
             LastUpdate = now;
 
@@ -325,12 +260,8 @@ namespace EHR
             if (GameStates.IsInTask)
             {
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                {
                     if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare) || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
-                    {
                         Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
-                    }
-                }
             }
 
             Logger.Info("Lights sabotage called", "ElectricTask");
@@ -345,10 +276,7 @@ namespace EHR
         public static void Postfix()
         {
             long now = Utils.TimeStamp;
-            if (LastUpdate >= now)
-            {
-                return;
-            }
+            if (LastUpdate >= now) return;
 
             LastUpdate = now;
 
@@ -357,12 +285,8 @@ namespace EHR
             if (GameStates.IsInTask)
             {
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                {
                     if (pc.GetCustomRole().NeedUpdateOnLights() || pc.Is(CustomRoles.Mare) || pc.Is(CustomRoles.Torch) || pc.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(pc.PlayerId))
-                    {
                         Utils.NotifyRoles(SpecifyTarget: pc, ForceLoop: true);
-                    }
-                }
             }
 
             Logger.Info("Lights sabotage fixed", "ElectricTask");
@@ -385,15 +309,9 @@ namespace EHR
 
         public static bool Prefix([HarmonyArgument(0)] PlayerControl player)
         {
-            if (Options.DisableSabotage.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard)
-            {
-                return false;
-            }
+            if (Options.DisableSabotage.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard) return false;
 
-            if (SecurityGuard.BlockSabo.Count > 0)
-            {
-                return false;
-            }
+            if (SecurityGuard.BlockSabo.Count > 0) return false;
 
             if (player.IsRoleBlocked())
             {
@@ -401,15 +319,9 @@ namespace EHR
                 return false;
             }
 
-            if (player.Is(Team.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool())
-            {
-                return false;
-            }
+            if (player.Is(Team.Impostor) && !player.IsAlive() && Options.DeadImpCantSabotage.GetBool()) return false;
 
-            if (!player.Is(Team.Impostor) && !player.IsAlive())
-            {
-                return false;
-            }
+            if (!player.Is(Team.Impostor) && !player.IsAlive()) return false;
 
             bool allow = player.GetCustomRole() switch
             {
@@ -420,10 +332,8 @@ namespace EHR
                 CustomRoles.Refugee when player.IsAlive() => true,
                 _ => Main.PlayerStates[player.PlayerId].Role.CanUseSabotage(player) && Main.PlayerStates[player.PlayerId].Role.OnSabotage(player)
             };
-            if (allow && QuizMaster.On)
-            {
-                QuizMaster.Data.NumSabotages++;
-            }
+
+            if (allow && QuizMaster.On) QuizMaster.Data.NumSabotages++;
 
             return allow;
         }
@@ -431,10 +341,7 @@ namespace EHR
 
         public static void Postfix(SabotageSystemType __instance)
         {
-            if (!IsCooldownModificationEnabled || !AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!IsCooldownModificationEnabled || !AmongUsClient.Instance.AmHost) return;
 
             __instance.Timer = ModifiedCooldownSec;
             __instance.IsDirty = true;
@@ -447,6 +354,7 @@ namespace EHR
         public static bool Prefix([HarmonyArgument(1)] MessageReader msgReader)
         {
             byte amount;
+
             {
                 MessageReader newReader = MessageReader.Get(msgReader);
                 amount = newReader.ReadByte();

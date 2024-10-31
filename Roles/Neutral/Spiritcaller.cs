@@ -30,28 +30,37 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Spiritcaller);
+
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 60f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller]);
+
             ImpostorVision = new BooleanOptionItem(Id + 12, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller]);
+
             SpiritMax = new IntegerOptionItem(Id + 13, "SpiritcallerSpiritMax", new(1, 15, 1), 2, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
                 .SetValueFormat(OptionFormat.Times);
+
             SpiritAbilityCooldown = new FloatOptionItem(Id + 14, "SpiritcallerSpiritAbilityCooldown", new(5f, 90f, 1f), 30f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
                 .SetValueFormat(OptionFormat.Seconds);
+
             SpiritFreezeTime = new FloatOptionItem(Id + 15, "SpiritcallerFreezeTime", new(0f, 30f, 1f), 3f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
                 .SetValueFormat(OptionFormat.Seconds);
+
             SpiritProtectTime = new FloatOptionItem(Id + 16, "SpiritcallerProtectTime", new(0f, 30f, 1f), 5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
                 .SetValueFormat(OptionFormat.Seconds);
+
             SpiritCauseVision = new FloatOptionItem(Id + 17, "SpiritcallerCauseVision", new(0f, 5f, 0.05f), 0.4f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             SpiritCauseVisionTime = new FloatOptionItem(Id + 18, "SpiritcallerCauseVisionTime", new(0f, 45f, 1f), 10f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spiritcaller])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -93,10 +102,7 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer.GetAbilityUseLimit() < 1)
-            {
-                return true;
-            }
+            if (killer.GetAbilityUseLimit() < 1) return true;
 
             if (!target.GetCustomRole().IsAbleToBeSidekicked() && !target.GetCustomRole().IsImpostor())
             {
@@ -104,19 +110,23 @@ namespace EHR.Neutral
 
                 target.RpcSetCustomRole(CustomRoles.EvilSpirit);
 
-                CustomRpcSender writer = CustomRpcSender.Create("SpiritCallerSendMessage");
+                var writer = CustomRpcSender.Create("SpiritCallerSendMessage");
                 writer.StartMessage(target.GetClientId());
+
                 writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
                     .Write(target.Data.NetId)
                     .Write(GetString("SpiritcallerNoticeTitle"))
                     .EndRpc();
+
                 writer.StartRpc(target.NetId, (byte)RpcCalls.SendChat)
                     .Write(GetString("SpiritcallerNoticeMessage"))
                     .EndRpc();
+
                 writer.StartRpc(target.NetId, (byte)RpcCalls.SetName)
                     .Write(target.Data.NetId)
                     .Write(target.Data.PlayerName)
                     .EndRpc();
+
                 writer.EndMessage();
                 writer.SendMessage();
             }
@@ -126,17 +136,11 @@ namespace EHR.Neutral
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask) return;
 
             if (pc.Is(CustomRoles.Spiritcaller))
             {
-                if (ProtectTimeStamp < Utils.TimeStamp && ProtectTimeStamp != 0)
-                {
-                    ProtectTimeStamp = 0;
-                }
+                if (ProtectTimeStamp < Utils.TimeStamp && ProtectTimeStamp != 0) ProtectTimeStamp = 0;
             }
             else if (PlayersHaunted.ContainsKey(pc.PlayerId) && PlayersHaunted[pc.PlayerId] < Utils.TimeStamp)
             {
@@ -147,10 +151,7 @@ namespace EHR.Neutral
 
         public static void HauntPlayer(PlayerControl target)
         {
-            if (SpiritCauseVisionTime.GetFloat() > 0 || SpiritFreezeTime.GetFloat() > 0)
-            {
-                target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Spiritcaller), GetString("HauntedByEvilSpirit")));
-            }
+            if (SpiritCauseVisionTime.GetFloat() > 0 || SpiritFreezeTime.GetFloat() > 0) target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Spiritcaller), GetString("HauntedByEvilSpirit")));
 
             if (SpiritCauseVisionTime.GetFloat() > 0 && !PlayersHaunted.ContainsKey(target.PlayerId))
             {
@@ -164,6 +165,7 @@ namespace EHR.Neutral
                 Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
                 ReportDeadBodyPatch.CanReport[target.PlayerId] = false;
                 target.MarkDirtySettings();
+
                 LateTask.New(() =>
                 {
                     Main.AllPlayerSpeed[target.PlayerId] = Main.AllPlayerSpeed[target.PlayerId] - Main.MinSpeed + tmpSpeed;

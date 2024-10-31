@@ -33,26 +33,35 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Doomsayer);
+
             DoomsayerAmountOfGuessesToWin = new IntegerOptionItem(Id + 10, "DoomsayerAmountOfGuessesToWin", new(1, 10, 1), 3, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer])
                 .SetValueFormat(OptionFormat.Times);
+
             DCanGuessImpostors = new BooleanOptionItem(Id + 12, "DCanGuessImpostors", true, TabGroup.NeutralRoles, true)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
+
             DCanGuessCrewmates = new BooleanOptionItem(Id + 13, "DCanGuessCrewmates", true, TabGroup.NeutralRoles, true)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
+
             DCanGuessNeutrals = new BooleanOptionItem(Id + 14, "DCanGuessNeutrals", true, TabGroup.NeutralRoles, true)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
+
             DCanGuessAdt = new BooleanOptionItem(Id + 15, "DCanGuessAdt", false, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
 
             AdvancedSettings = new BooleanOptionItem(Id + 16, "DoomsayerAdvancedSettings", true, TabGroup.NeutralRoles, true)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Doomsayer]);
+
             MaxNumberOfGuessesPerMeeting = new IntegerOptionItem(Id + 17, "DoomsayerMaxNumberOfGuessesPerMeeting", new(1, 10, 1), 2, TabGroup.NeutralRoles)
                 .SetParent(AdvancedSettings);
+
             KillCorrectlyGuessedPlayers = new BooleanOptionItem(Id + 18, "DoomsayerKillCorrectlyGuessedPlayers", true, TabGroup.NeutralRoles, true)
                 .SetParent(AdvancedSettings);
+
             DoesNotSuicideWhenMisguessing = new BooleanOptionItem(Id + 19, "DoomsayerDoesNotSuicideWhenMisguessing", true, TabGroup.NeutralRoles)
                 .SetParent(AdvancedSettings);
+
             MisguessRolePrevGuessRoleUntilNextMeeting = new BooleanOptionItem(Id + 20, "DoomsayerMisguessRolePrevGuessRoleUntilNextMeeting", true, TabGroup.NeutralRoles, true)
                 .SetParent(DoesNotSuicideWhenMisguessing);
 
@@ -83,10 +92,7 @@ namespace EHR.Neutral
 
         public static void SendRPC(PlayerControl player)
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetDoomsayerProgress, SendOption.Reliable);
             writer.Write(player.PlayerId);
@@ -101,10 +107,7 @@ namespace EHR.Neutral
 
         public static void CheckCountGuess(PlayerControl doomsayer)
         {
-            if (!(GuessingToWin[doomsayer.PlayerId] >= DoomsayerAmountOfGuessesToWin.GetInt()))
-            {
-                return;
-            }
+            if (!(GuessingToWin[doomsayer.PlayerId] >= DoomsayerAmountOfGuessesToWin.GetInt())) return;
 
             GuessingToWin[doomsayer.PlayerId] = DoomsayerAmountOfGuessesToWin.GetInt();
             GuessesCount = DoomsayerAmountOfGuessesToWin.GetInt();
@@ -114,10 +117,7 @@ namespace EHR.Neutral
 
         public override void OnReportDeadBody()
         {
-            if (!(IsEnable && AdvancedSettings.GetBool()))
-            {
-                return;
-            }
+            if (!(IsEnable && AdvancedSettings.GetBool())) return;
 
             CantGuess = false;
             GuessesCountPerMeeting = 0;

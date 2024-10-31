@@ -28,9 +28,10 @@ namespace EHR.Modules
 
         public static void SetDirty(byte playerId)
         {
-            for (int index = 0; index < AllSenders.Count; index++)
+            for (var index = 0; index < AllSenders.Count; index++)
             {
                 GameOptionsSender allSender = AllSenders[index];
+
                 if (allSender is PlayerGameOptionsSender sender && sender.player.PlayerId == playerId)
                 {
                     sender.SetDirty();
@@ -41,52 +42,40 @@ namespace EHR.Modules
 
         public static void SetDirtyToAll()
         {
-            for (int index = 0; index < AllSenders.Count; index++)
+            for (var index = 0; index < AllSenders.Count; index++)
             {
                 GameOptionsSender allSender = AllSenders[index];
-                if (allSender is PlayerGameOptionsSender sender)
-                {
-                    sender.SetDirty();
-                }
+                if (allSender is PlayerGameOptionsSender sender) sender.SetDirty();
             }
         }
 
         // For lights call/fix
         public static void SetDirtyToAllV2()
         {
-            for (int index = 0; index < AllSenders.Count; index++)
+            for (var index = 0; index < AllSenders.Count; index++)
             {
                 GameOptionsSender allSender = AllSenders[index];
-                if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && (sender.player.GetCustomRole().NeedUpdateOnLights() || sender.player.Is(CustomRoles.Torch) || sender.player.Is(CustomRoles.Mare) || sender.player.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(sender.player.PlayerId)))
-                {
-                    sender.SetDirty();
-                }
+                if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && (sender.player.GetCustomRole().NeedUpdateOnLights() || sender.player.Is(CustomRoles.Torch) || sender.player.Is(CustomRoles.Mare) || sender.player.Is(CustomRoles.Sleep) || Beacon.IsAffectedPlayer(sender.player.PlayerId))) sender.SetDirty();
             }
         }
 
         // For Grenadier blidning/restoring
         public static void SetDirtyToAllV3()
         {
-            for (int index = 0; index < AllSenders.Count; index++)
+            for (var index = 0; index < AllSenders.Count; index++)
             {
                 GameOptionsSender allSender = AllSenders[index];
-                if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && ((Grenadier.GrenadierBlinding.Count > 0 && (sender.player.IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Grenadier.MadGrenadierBlinding.Count > 0 && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate))))
-                {
-                    sender.SetDirty();
-                }
+                if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && ((Grenadier.GrenadierBlinding.Count > 0 && (sender.player.IsImpostor() || (sender.player.GetCustomRole().IsNeutral() && Options.GrenadierCanAffectNeutral.GetBool()))) || (Grenadier.MadGrenadierBlinding.Count > 0 && !sender.player.GetCustomRole().IsImpostorTeam() && !sender.player.Is(CustomRoles.Madmate)))) sender.SetDirty();
             }
         }
 
         // For players with kill buttons
         public static void SetDirtyToAllV4()
         {
-            for (int index = 0; index < AllSenders.Count; index++)
+            for (var index = 0; index < AllSenders.Count; index++)
             {
                 GameOptionsSender allSender = AllSenders[index];
-                if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && sender.player.CanUseKillButton())
-                {
-                    sender.SetDirty();
-                }
+                if (allSender is PlayerGameOptionsSender { IsDirty: false } sender && sender.player.IsAlive() && sender.player.CanUseKillButton()) sender.SetDirty();
             }
         }
 
@@ -100,23 +89,18 @@ namespace EHR.Modules
             if (player.AmOwner)
             {
                 IGameOptions opt = BuildGameOptions();
+
                 if (GameManager.Instance?.LogicComponents != null)
                 {
                     foreach (GameLogicComponent com in GameManager.Instance.LogicComponents)
-                    {
-                        if (com.TryCast<LogicOptions>(out LogicOptions lo))
-                        {
+                        if (com.TryCast(out LogicOptions lo))
                             lo.SetGameOptions(opt);
-                        }
-                    }
                 }
 
                 GameOptionsManager.Instance.CurrentGameOptions = opt;
             }
             else
-            {
                 base.SendGameOptions();
-            }
         }
 
         protected override void SendOptionsArray(Il2CppStructArray<byte> optionArray)
@@ -126,10 +110,7 @@ namespace EHR.Modules
                 for (byte i = 0; i < GameManager.Instance.LogicComponents.Count; i++)
                 {
                     Il2CppSystem.Object logicComponent = GameManager.Instance.LogicComponents[(Index)i];
-                    if (logicComponent.TryCast<LogicOptions>(out _))
-                    {
-                        SendOptionsArray(optionArray, i, player.GetClientId());
-                    }
+                    if (logicComponent.TryCast<LogicOptions>(out _)) SendOptionsArray(optionArray, i, player.GetClientId());
                 }
             }
             catch (Exception ex)
@@ -142,10 +123,8 @@ namespace EHR.Modules
         {
             PlayerGameOptionsSender sender = AllSenders.OfType<PlayerGameOptionsSender>()
                 .FirstOrDefault(sender => sender.player.PlayerId == player.PlayerId);
-            if (sender == null)
-            {
-                return;
-            }
+
+            if (sender == null) return;
 
             sender.player = null;
             AllSenders.Remove(sender);
@@ -174,9 +153,7 @@ namespace EHR.Modules
                             opt.SetFloat(FloatOptionNames.ImpostorLightMod, FFAManager.FFALowerVision.GetFloat());
                         }
                         else
-                        {
                             SetMaxVision();
-                        }
 
                         break;
                     case CustomGameMode.CaptureTheFlag:
@@ -245,25 +222,15 @@ namespace EHR.Modules
 
                 // When impostor alert is off, and the player is a desync crewmate, set impostor alert as true
                 if (role.IsDesyncRole() && role.IsCrewmate() && !CrewmateVanillaRoles.NoiseMakerImpostorAlert.GetBool())
-                {
                     AURoleOptions.NoisemakerImpostorAlert = true;
-                }
                 else
-                {
                     AURoleOptions.NoisemakerImpostorAlert = CrewmateVanillaRoles.NoiseMakerImpostorAlert.GetBool();
-                }
 
-                if (Shifter.WasShifter.Contains(player.PlayerId) && role.IsImpostor())
-                {
-                    opt.SetVision(true);
-                }
+                if (Shifter.WasShifter.Contains(player.PlayerId) && role.IsImpostor()) opt.SetVision(true);
 
                 Main.PlayerStates[player.PlayerId].Role.ApplyGameOptions(opt, player.PlayerId);
 
-                if (player.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool())
-                {
-                    opt.SetVision(true);
-                }
+                if (player.Is(CustomRoles.Bloodlust) && Bloodlust.HasImpVision.GetBool()) opt.SetVision(true);
 
                 if (Main.AllPlayerControls.Any(x => x.Is(CustomRoles.Bewilder) && !x.IsAlive() && x.GetRealKiller()?.PlayerId == player.PlayerId && !x.Is(CustomRoles.Hangman)))
                 {
@@ -286,14 +253,11 @@ namespace EHR.Modules
                 {
                     case CustomRoles.Alchemist when ((Alchemist)Main.PlayerStates[player.PlayerId].Role).VisionPotionActive:
                         opt.SetVisionV2();
+
                         if (Utils.IsActive(SystemTypes.Electrical))
-                        {
                             opt.SetFloat(FloatOptionNames.CrewLightMod, Alchemist.VisionOnLightsOut.GetFloat() * 5);
-                        }
                         else
-                        {
                             opt.SetFloat(FloatOptionNames.CrewLightMod, Alchemist.Vision.GetFloat());
-                        }
 
                         break;
                     case CustomRoles.Mayor when Mayor.MayorSeesVoteColorsWhenDoneTasks.GetBool() && player.GetTaskState().IsTaskFinished:
@@ -313,10 +277,7 @@ namespace EHR.Modules
                     opt.SetFloat(FloatOptionNames.ImpostorLightMod, Sprayer.LoweredVision.GetFloat());
                 }
 
-                if (Minion.BlindPlayers.Contains(player.PlayerId))
-                {
-                    SetBlind();
-                }
+                if (Minion.BlindPlayers.Contains(player.PlayerId)) SetBlind();
 
                 if (Sentinel.IsPatrolling(player.PlayerId))
                 {
@@ -337,15 +298,11 @@ namespace EHR.Modules
                 Spiritcaller.ReduceVision(opt, player);
 
                 if (Randomizer.HasSuperVision(player))
-                {
                     SetMaxVision();
-                }
-                else if (Randomizer.IsBlind(player))
-                {
-                    SetBlind();
-                }
+                else if (Randomizer.IsBlind(player)) SetBlind();
 
                 List<CustomRoles> array = Main.PlayerStates[player.PlayerId].SubRoles;
+
                 foreach (CustomRoles subRole in array)
                 {
                     if (subRole.IsGhostRole() && subRole != CustomRoles.EvilSpirit)
@@ -427,20 +384,11 @@ namespace EHR.Modules
                     }
                 }
 
-                if (Magician.BlindPpl.ContainsKey(player.PlayerId))
-                {
-                    SetBlind();
-                }
+                if (Magician.BlindPpl.ContainsKey(player.PlayerId)) SetBlind();
 
-                if (player.IsCrewmate() && Main.PlayerStates.Values.Any(s => s.Role is Adventurer { IsEnable: true } av && av.ActiveWeapons.Contains(Adventurer.Weapon.Lantern)))
-                {
-                    SetMaxVision();
-                }
+                if (player.IsCrewmate() && Main.PlayerStates.Values.Any(s => s.Role is Adventurer { IsEnable: true } av && av.ActiveWeapons.Contains(Adventurer.Weapon.Lantern))) SetMaxVision();
 
-                if (Chemist.Instances.Any(x => x.IsBlinding && player.PlayerId != x.ChemistPC.PlayerId))
-                {
-                    SetBlind();
-                }
+                if (Chemist.Instances.Any(x => x.IsBlinding && player.PlayerId != x.ChemistPC.PlayerId)) SetBlind();
 
                 if (Changeling.ChangedRole.TryGetValue(player.PlayerId, out bool changed) && changed && player.GetRoleTypes() != RoleTypes.Shapeshifter)
                 {
@@ -448,35 +396,20 @@ namespace EHR.Modules
                     AURoleOptions.ShapeshifterDuration = 1f;
                 }
 
-                if (Options.UsePhantomBasis.GetBool() && role.SimpleAbilityTrigger())
-                {
-                    AURoleOptions.PhantomDuration = 1f;
-                }
+                if (Options.UsePhantomBasis.GetBool() && role.SimpleAbilityTrigger()) AURoleOptions.PhantomDuration = 1f;
 
-                if ((Options.UseUnshiftTrigger.GetBool() || role.AlwaysUsesUnshift()) && role.SimpleAbilityTrigger())
-                {
-                    AURoleOptions.ShapeshifterDuration = 0f;
-                }
+                if ((Options.UseUnshiftTrigger.GetBool() || role.AlwaysUsesUnshift()) && role.SimpleAbilityTrigger()) AURoleOptions.ShapeshifterDuration = 0f;
 
                 // ===================================================================================================================
 
                 AURoleOptions.EngineerCooldown = Mathf.Max(0.01f, AURoleOptions.EngineerCooldown);
 
-                if (Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out float killCooldown))
-                {
-                    AURoleOptions.KillCooldown = Mathf.Max(0.01f, killCooldown);
-                }
+                if (Main.AllPlayerKillCooldown.TryGetValue(player.PlayerId, out float killCooldown)) AURoleOptions.KillCooldown = Mathf.Max(0.01f, killCooldown);
 
-                if (Main.AllPlayerSpeed.TryGetValue(player.PlayerId, out float speed))
-                {
-                    AURoleOptions.PlayerSpeedMod = Mathf.Clamp(speed, Main.MinSpeed, 3f);
-                }
+                if (Main.AllPlayerSpeed.TryGetValue(player.PlayerId, out float speed)) AURoleOptions.PlayerSpeedMod = Mathf.Clamp(speed, Main.MinSpeed, 3f);
 
                 state.TaskState.HasTasks = Utils.HasTasks(player.Data, false);
-                if (Options.GhostCanSeeOtherVotes.GetBool() && player.Data.IsDead)
-                {
-                    opt.SetBool(BoolOptionNames.AnonymousVotes, false);
-                }
+                if (Options.GhostCanSeeOtherVotes.GetBool() && player.Data.IsDead) opt.SetBool(BoolOptionNames.AnonymousVotes, false);
 
                 if (Options.AdditionalEmergencyCooldown.GetBool() &&
                     Options.AdditionalEmergencyCooldownThreshold.GetInt() <= Utils.AllAlivePlayersCount)
@@ -486,10 +419,7 @@ namespace EHR.Modules
                         Options.AdditionalEmergencyCooldownTime.GetInt());
                 }
 
-                if (Options.SyncButtonMode.GetBool() && Options.SyncedButtonCount.GetValue() <= Options.UsedButtonCount)
-                {
-                    opt.SetInt(Int32OptionNames.EmergencyCooldown, 3600);
-                }
+                if (Options.SyncButtonMode.GetBool() && Options.SyncedButtonCount.GetValue() <= Options.UsedButtonCount) opt.SetInt(Int32OptionNames.EmergencyCooldown, 3600);
 
                 MeetingTimeManager.ApplyGameOptions(opt);
 

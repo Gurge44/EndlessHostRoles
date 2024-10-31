@@ -30,12 +30,15 @@ namespace EHR.AddOns.Impostor
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(Id, CustomRoles.Damocles, canSetNum: true);
+
             DamoclesExtraTimeAfterKill = new IntegerOptionItem(Id + 6, "DamoclesExtraTimeAfterKill", new(0, 60, 1), 30, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Damocles])
                 .SetValueFormat(OptionFormat.Seconds);
+
             DamoclesExtraTimeAfterMeeting = new IntegerOptionItem(Id + 4, "DamoclesExtraTimeAfterMeeting", new(0, 60, 1), 30, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Damocles])
                 .SetValueFormat(OptionFormat.Seconds);
+
             DamoclesStartingTime = new IntegerOptionItem(Id + 5, "DamoclesStartingTime", new(0, 60, 1), 30, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Damocles])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -57,10 +60,7 @@ namespace EHR.AddOns.Impostor
         {
             byte id = pc.PlayerId;
             long now = Utils.TimeStamp;
-            if ((LastUpdate.TryGetValue(id, out long ts) && ts >= now) || !GameStates.IsInTask || pc == null)
-            {
-                return;
-            }
+            if ((LastUpdate.TryGetValue(id, out long ts) && ts >= now) || !GameStates.IsInTask || pc == null) return;
 
             if (!pc.IsAlive())
             {
@@ -69,10 +69,7 @@ namespace EHR.AddOns.Impostor
             }
 
             LastUpdate[id] = now;
-            if (!Timer.ContainsKey(id))
-            {
-                Timer[id] = StartingTime + 8;
-            }
+            if (!Timer.ContainsKey(id)) Timer[id] = StartingTime + 8;
 
             Timer[id]--;
 
@@ -82,36 +79,24 @@ namespace EHR.AddOns.Impostor
                 pc.Suicide();
             }
 
-            if (pc.IsNonHostModClient())
-            {
-                SendRPC(id);
-            }
+            if (pc.IsNonHostModClient()) SendRPC(id);
 
-            if (!pc.IsModClient())
-            {
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            }
+            if (!pc.IsModClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
         public static void SendRPC(byte playerId)
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncDamoclesTimer, SendOption.Reliable);
             writer.Write(playerId);
             writer.Write(Timer[playerId]);
             writer.Write(LastUpdate[playerId].ToString());
             writer.Write(PreviouslyEnteredVents[playerId].Count);
+
             if (PreviouslyEnteredVents[playerId].Count > 0)
-            {
                 foreach (int vent in PreviouslyEnteredVents[playerId].ToArray())
-                {
                     writer.Write(vent);
-                }
-            }
 
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
@@ -122,13 +107,10 @@ namespace EHR.AddOns.Impostor
             Timer[playerId] = reader.ReadInt32();
             LastUpdate[playerId] = long.Parse(reader.ReadString());
             int elements = reader.ReadInt32();
+
             if (elements > 0)
-            {
-                for (int i = 0; i < elements; i++)
-                {
+                for (var i = 0; i < elements; i++)
                     PreviouslyEnteredVents[playerId].Add(reader.ReadInt32());
-                }
-            }
         }
 
         public static void OnMurder(byte id)
@@ -143,15 +125,9 @@ namespace EHR.AddOns.Impostor
 
         public static void OnEnterVent(byte id, int ventId)
         {
-            if (!PreviouslyEnteredVents.ContainsKey(id))
-            {
-                PreviouslyEnteredVents[id] = [];
-            }
+            if (!PreviouslyEnteredVents.ContainsKey(id)) PreviouslyEnteredVents[id] = [];
 
-            if (PreviouslyEnteredVents[id].Contains(ventId))
-            {
-                return;
-            }
+            if (PreviouslyEnteredVents[id].Contains(ventId)) return;
 
             PreviouslyEnteredVents[id].Add(ventId);
             Timer[id] += 10;

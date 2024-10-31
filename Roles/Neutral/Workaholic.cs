@@ -24,18 +24,25 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(11700, TabGroup.NeutralRoles, CustomRoles.Workaholic);
+
             WorkaholicCannotWinAtDeath = new BooleanOptionItem(11710, "WorkaholicCannotWinAtDeath", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic]);
+
             WorkaholicVentCooldown = new FloatOptionItem(11711, "VentCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic])
                 .SetValueFormat(OptionFormat.Seconds);
+
             WorkaholicVisibleToEveryone = new BooleanOptionItem(11712, "WorkaholicVisibleToEveryone", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic]);
+
             WorkaholicGiveAdviceAlive = new BooleanOptionItem(11713, "WorkaholicGiveAdviceAlive", false, TabGroup.NeutralRoles)
                 .SetParent(WorkaholicVisibleToEveryone);
+
             OverrideTasksData.Create(11714, TabGroup.NeutralRoles, CustomRoles.Workaholic);
+
             WorkaholicCanGuess = new BooleanOptionItem(11725, "CanGuess", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic]);
+
             WorkaholicSpeed = new FloatOptionItem(11726, "WorkaholicSpeed", new(0.1f, 3f, 0.1f), 1.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Workaholic])
                 .SetValueFormat(OptionFormat.Multiplier);
@@ -64,10 +71,7 @@ namespace EHR.Neutral
             {
                 Logger.Info("Workaholic Tasks Finished", "Workaholic");
                 RPC.PlaySoundRPC(player.PlayerId, Sounds.KillSound);
-                foreach (PlayerControl pc in Main.AllAlivePlayerControls.Where(pc => pc.PlayerId != player.PlayerId).ToArray())
-                {
-                    pc.Suicide(pc.PlayerId == player.PlayerId ? PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed, player);
-                }
+                foreach (PlayerControl pc in Main.AllAlivePlayerControls.Where(pc => pc.PlayerId != player.PlayerId).ToArray()) pc.Suicide(pc.PlayerId == player.PlayerId ? PlayerState.DeathReason.Overtired : PlayerState.DeathReason.Ashamed, player);
 
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Workaholic);
                 CustomWinnerHolder.WinnerIds.Add(player.PlayerId);

@@ -9,10 +9,7 @@ namespace EHR.Patches
     {
         public static void Postfix(ChatBubble __instance)
         {
-            if (Main.IsChatCommand)
-            {
-                __instance.SetLeft();
-            }
+            if (Main.IsChatCommand) __instance.SetLeft();
         }
     }
 
@@ -24,24 +21,15 @@ namespace EHR.Patches
             PlayerControl seer = PlayerControl.LocalPlayer;
             PlayerControl target = __instance.playerInfo.Object;
 
-            if (GameStates.IsInGame && !voted && seer.PlayerId == target.PlayerId)
-            {
-                __instance.NameText.color = seer.GetRoleColor();
-            }
+            if (GameStates.IsInGame && !voted && seer.PlayerId == target.PlayerId) __instance.NameText.color = seer.GetRoleColor();
 
-            if (seer.GetCustomRole().GetDYRole() is RoleTypes.Shapeshifter or RoleTypes.Phantom)
-            {
-                __instance.NameText.color = Color.white;
-            }
+            if (seer.GetCustomRole().GetDYRole() is RoleTypes.Shapeshifter or RoleTypes.Phantom) __instance.NameText.color = Color.white;
 
             if (Main.DarkTheme.Value)
             {
                 __instance.Background.color = new(0.1f, 0.1f, 0.1f, 1f);
                 __instance.TextArea.color = Color.white;
-                if (!__instance.playerInfo.Object.IsAlive() && GameStates.InGame)
-                {
-                    __instance.Background.color = new(0.1f, 0.1f, 0.1f, 0.7f);
-                }
+                if (!__instance.playerInfo.Object.IsAlive() && GameStates.InGame) __instance.Background.color = new(0.1f, 0.1f, 0.1f, 0.7f);
             }
         }
     }

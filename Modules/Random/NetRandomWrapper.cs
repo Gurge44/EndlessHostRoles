@@ -6,13 +6,9 @@ namespace EHR
     {
         public Random wrapping = instance;
 
-        public NetRandomWrapper() : this(new Random())
-        {
-        }
+        public NetRandomWrapper() : this(new Random()) { }
 
-        public NetRandomWrapper(int seed) : this(new Random(seed))
-        {
-        }
+        public NetRandomWrapper(int seed) : this(new Random(seed)) { }
 
         public int Next(int minValue, int maxValue)
         {

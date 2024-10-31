@@ -19,9 +19,11 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Pursuer);
+
             PursuerSkillCooldown = new FloatOptionItem(Id + 10, "PursuerSkillCooldown", new(0.5f, 60f, 0.5f), 15f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pursuer])
                 .SetValueFormat(OptionFormat.Seconds);
+
             PursuerSkillLimitTimes = new IntegerOptionItem(Id + 11, "PursuerSkillLimitTimes", new(1, 99, 1), 2, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Pursuer])
                 .SetValueFormat(OptionFormat.Times);
@@ -64,20 +66,14 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (CanBeClient(target) && CanSeel(killer.PlayerId))
-            {
-                SeelToClient(killer, target);
-            }
+            if (CanBeClient(target) && CanSeel(killer.PlayerId)) SeelToClient(killer, target);
 
             return false;
         }
 
         private void SeelToClient(PlayerControl pc, PlayerControl target)
         {
-            if (pc == null || target == null || !pc.Is(CustomRoles.Pursuer))
-            {
-                return;
-            }
+            if (pc == null || target == null || !pc.Is(CustomRoles.Pursuer)) return;
 
             pc.RpcRemoveAbilityUse();
             clientList.Add(target.PlayerId);
@@ -91,20 +87,11 @@ namespace EHR.Neutral
         {
             foreach (byte id in PlayerIdList)
             {
-                if (!Main.PlayerStates.TryGetValue(id, out PlayerState state))
-                {
-                    continue;
-                }
+                if (!Main.PlayerStates.TryGetValue(id, out PlayerState state)) continue;
 
-                if (state.Role is not Pursuer { IsEnable: true } ps)
-                {
-                    continue;
-                }
+                if (state.Role is not Pursuer { IsEnable: true } ps) continue;
 
-                if (!ps.clientList.Contains(pc.PlayerId) || NotActiveList.Contains(pc.PlayerId))
-                {
-                    continue;
-                }
+                if (!ps.clientList.Contains(pc.PlayerId) || NotActiveList.Contains(pc.PlayerId)) continue;
 
                 // Get rid of this nonsense of killing the player for no reason
                 // Just reset their KCD instead

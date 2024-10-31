@@ -32,22 +32,17 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!base.OnCheckMurder(killer, target))
-            {
-                return true;
-            }
+            if (!base.OnCheckMurder(killer, target)) return true;
 
             IEnumerable<PlayerControl> playersToDarken = FindPlayersInSameRoom(target);
+
             if (playersToDarken == null)
             {
                 Logger.Info("No players to darken");
                 return true;
             }
 
-            if (excludeImpostors)
-            {
-                playersToDarken = playersToDarken.Where(player => !player.Is(CustomRoles.Impostor));
-            }
+            if (excludeImpostors) playersToDarken = playersToDarken.Where(player => !player.Is(CustomRoles.Impostor));
 
             DarkenPlayers(playersToDarken);
             return true;
@@ -56,10 +51,7 @@ namespace EHR.Impostor
         private IEnumerable<PlayerControl> FindPlayersInSameRoom(PlayerControl killedPlayer)
         {
             PlainShipRoom room = killedPlayer.GetPlainShipRoom();
-            if (room == null)
-            {
-                return null;
-            }
+            if (room == null) return null;
 
             Collider2D roomArea = room.roomArea;
             SystemTypes roomName = room.RoomId;
@@ -70,6 +62,7 @@ namespace EHR.Impostor
         private void DarkenPlayers(IEnumerable<PlayerControl> playersToDarken)
         {
             darkenedPlayers = playersToDarken.ToArray();
+
             foreach (PlayerControl player in darkenedPlayers)
             {
                 Main.PlayerStates[player.PlayerId].IsBlackOut = true;
@@ -92,27 +85,18 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             if (darkenedPlayers != null)
             {
                 darkenTimer -= Time.fixedDeltaTime;
-                if (darkenTimer <= 0)
-                {
-                    ResetDarkenState();
-                }
+                if (darkenTimer <= 0) ResetDarkenState();
             }
         }
 
         public override void OnReportDeadBody()
         {
-            if (AmongUsClient.Instance.AmHost)
-            {
-                ResetDarkenState();
-            }
+            if (AmongUsClient.Instance.AmHost) ResetDarkenState();
         }
 
         private void RpcDarken(SystemTypes? roomType)
@@ -149,10 +133,7 @@ namespace EHR.Impostor
         public override string GetSuffix(PlayerControl seer, PlayerControl seen, bool isForMeeting = false, bool isForHud = false)
         {
             seen ??= seer;
-            if (isForMeeting || seer != StealthPC || seen != StealthPC || !darkenedRoom.HasValue)
-            {
-                return base.GetSuffix(seer, seen, isForMeeting, isForHud);
-            }
+            if (isForMeeting || seer != StealthPC || seen != StealthPC || !darkenedRoom.HasValue) return base.GetSuffix(seer, seen, isForMeeting, isForHud);
 
             return string.Format(Translator.GetString("StealthDarkened"), DestroyableSingleton<TranslationController>.Instance.GetString(darkenedRoom.Value));
         }

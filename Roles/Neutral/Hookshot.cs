@@ -25,11 +25,14 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Hookshot);
+
             KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Hookshot])
                 .SetValueFormat(OptionFormat.Seconds);
+
             HasImpostorVision = new BooleanOptionItem(Id + 3, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Hookshot]);
+
             CanVent = new BooleanOptionItem(Id + 4, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Hookshot]);
         }
@@ -65,23 +68,14 @@ namespace EHR.Neutral
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             opt.SetVision(HasImpostorVision.GetBool());
-            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
-            {
-                AURoleOptions.PhantomCooldown = 1f;
-            }
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = 1f;
 
-            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
-            {
-                AURoleOptions.ShapeshifterCooldown = 1f;
-            }
+            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool()) AURoleOptions.ShapeshifterCooldown = 1f;
         }
 
         private void SendRPC()
         {
-            if (!IsEnable || !DoRPC)
-            {
-                return;
-            }
+            if (!IsEnable || !DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncHookshot, SendOption.Reliable);
             writer.Write(HookshotId);
@@ -93,10 +87,7 @@ namespace EHR.Neutral
         public static void ReceiveRPC(MessageReader reader)
         {
             byte playerId = reader.ReadByte();
-            if (Main.PlayerStates[playerId].Role is not Hookshot hs)
-            {
-                return;
-            }
+            if (Main.PlayerStates[playerId].Role is not Hookshot hs) return;
 
             hs.ToTargetTP = reader.ReadBoolean();
             hs.MarkedPlayerId = reader.ReadByte();
@@ -121,10 +112,7 @@ namespace EHR.Neutral
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting && !UseUnshiftTrigger.GetBool())
-            {
-                return true;
-            }
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
 
             ExecuteAction();
             return false;
@@ -132,12 +120,10 @@ namespace EHR.Neutral
 
         private void ExecuteAction()
         {
-            if (MarkedPlayerId == byte.MaxValue)
-            {
-                return;
-            }
+            if (MarkedPlayerId == byte.MaxValue) return;
 
             PlayerControl markedPlayer = GetPlayerById(MarkedPlayerId);
+
             if (markedPlayer == null)
             {
                 MarkedPlayerId = byte.MaxValue;
@@ -163,10 +149,7 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (target == null)
-            {
-                return false;
-            }
+            if (target == null) return false;
 
             return HookshotPC.CheckDoubleTrigger(target, () =>
             {

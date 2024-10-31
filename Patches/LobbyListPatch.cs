@@ -15,21 +15,12 @@ namespace EHR
 
         public static void Postfix(FindAGameManager __instance)
         {
-            if ((RefreshButton = GameObject.Find("RefreshButton")) != null)
-            {
-                RefreshButton.transform.localPosition = new(100f, 100f, 100f);
-            }
+            if ((RefreshButton = GameObject.Find("RefreshButton")) != null) RefreshButton.transform.localPosition = new(100f, 100f, 100f);
 
-            if ((InputDisplayGlyph = GameObject.Find("InputDisplayGlyph")) != null)
-            {
-                InputDisplayGlyph.transform.localPosition = new(100f, 100f, 100f);
-            }
+            if ((InputDisplayGlyph = GameObject.Find("InputDisplayGlyph")) != null) InputDisplayGlyph.transform.localPosition = new(100f, 100f, 100f);
 
             buffer--;
-            if (buffer > 0)
-            {
-                return;
-            }
+            if (buffer > 0) return;
 
             buffer = 80;
             __instance.RefreshList();
@@ -47,10 +38,7 @@ namespace EHR
 
             foreach (GameListing game in games)
             {
-                if (game.Language.ToString().Length > 9)
-                {
-                    continue;
-                }
+                if (game.Language.ToString().Length > 9) continue;
 
                 string color = game.Platform switch
                 {
@@ -70,7 +58,7 @@ namespace EHR
                         _ => "#ffffff"
                 };
 
-                string str = Math.Abs(game.GameId).ToString();
+                var str = Math.Abs(game.GameId).ToString();
                 int id = Math.Min(Math.Max(int.Parse(str.Substring(str.Length - 2, 2)), 1) * nameList.Count / 100, nameList.Count);
 
                 game.HostName = $"<size=80%><color={color}>{nameList[id]}</color></size>";

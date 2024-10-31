@@ -25,10 +25,7 @@
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting)
-            {
-                return true;
-            }
+            if (!shapeshifting) return true;
 
             Target = target.PlayerId;
             return false;
@@ -37,6 +34,7 @@
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             PlayerControl newTarget = Utils.GetPlayerById(Target);
+
             if (newTarget == null || !newTarget.IsAlive() || !killer.RpcCheckAndMurder(newTarget, true))
             {
                 killer.Notify(string.Format(Translator.GetString("AugmenterFail"), Target.ColoredPlayerName()));

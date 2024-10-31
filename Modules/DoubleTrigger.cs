@@ -43,10 +43,7 @@ namespace EHR
                 Logger.Info($"{killer.name} - Do Double Action", "DoubleTrigger");
                 FirstTriggerTimer.Remove(killer.PlayerId);
                 FirstTriggerTarget.Remove(killer.PlayerId);
-                if (doAction)
-                {
-                    FirstTriggerAction.Remove(killer.PlayerId);
-                }
+                if (doAction) FirstTriggerAction.Remove(killer.PlayerId);
 
                 return true;
             }
@@ -55,10 +52,7 @@ namespace EHR
             CheckMurderPatch.TimeSinceLastKill.Remove(killer.PlayerId);
             FirstTriggerTimer.Add(killer.PlayerId, 1f);
             FirstTriggerTarget.Add(killer.PlayerId, target.PlayerId);
-            if (doAction)
-            {
-                FirstTriggerAction.Add(killer.PlayerId, firstAction);
-            }
+            if (doAction) FirstTriggerAction.Add(killer.PlayerId, firstAction);
 
             return false;
         }
@@ -74,19 +68,14 @@ namespace EHR
             }
 
             byte playerId = player.PlayerId;
-            if (!FirstTriggerTimer.ContainsKey(playerId))
-            {
-                return;
-            }
+            if (!FirstTriggerTimer.ContainsKey(playerId)) return;
 
             FirstTriggerTimer[playerId] -= Time.fixedDeltaTime;
+
             if (FirstTriggerTimer[playerId] <= 0)
             {
                 Logger.Info($"{player.name} - Do Single Action", "DoubleTrigger");
-                if (FirstTriggerAction.ContainsKey(playerId))
-                {
-                    FirstTriggerAction[playerId]();
-                }
+                if (FirstTriggerAction.ContainsKey(playerId)) FirstTriggerAction[playerId]();
 
                 FirstTriggerTimer.Remove(playerId);
                 FirstTriggerTarget.Remove(playerId);

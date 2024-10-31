@@ -32,11 +32,13 @@ namespace EHR.Neutral
                 .AutoSetupOption(ref VentCooldown, 30f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds, overrideParent: CanVent)
                 .AutoSetupOption(ref MaxInVentTime, 5f, new FloatValueRule(0f, 120f, 0.5f), OptionFormat.Seconds, overrideParent: CanVent);
 
-            int i = 0;
+            var i = 0;
+
             foreach (SystemTypes system in new[] { SystemTypes.Electrical, SystemTypes.Comms, SystemTypes.LifeSupp, SystemTypes.Reactor })
             {
                 PointGains[system] = new IntegerOptionItem(646960 + i, $"Technician.PointGain.{system}", new(0, 10, 1), 1, TabGroup.NeutralRoles)
                     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Technician]);
+
                 i++;
             }
         }
@@ -94,6 +96,7 @@ namespace EHR.Neutral
         {
             SystemTypes actualSystemType = GetActualSystemType(systemType);
             TechnicianPC.RpcIncreaseAbilityUseLimitBy(PointGains[actualSystemType].GetInt());
+
             if (TechnicianPC.GetAbilityUseLimit() >= RequiredPoints.GetInt())
             {
                 if (WinsAlone.GetBool())
@@ -102,28 +105,17 @@ namespace EHR.Neutral
                     CustomWinnerHolder.WinnerIds.Add(TechnicianPC.PlayerId);
                 }
                 else
-                {
                     IsWon = true;
-                }
             }
         }
 
         public static void RepairSystem(byte playerId, SystemTypes systemType, byte amount)
         {
-            if (Main.PlayerStates[playerId].IsDead)
-            {
-                return;
-            }
+            if (Main.PlayerStates[playerId].IsDead) return;
 
-            if (Main.PlayerStates[playerId].Role is not Technician technician)
-            {
-                return;
-            }
+            if (Main.PlayerStates[playerId].Role is not Technician technician) return;
 
-            if (!GetsAnyPoint(systemType) || technician.IsWon || technician.Ignore)
-            {
-                return;
-            }
+            if (!GetsAnyPoint(systemType) || technician.IsWon || technician.Ignore) return;
 
             switch (systemType)
             {
@@ -140,11 +132,8 @@ namespace EHR.Neutral
                 }
                 case SystemTypes.HeliSabotage:
                 {
-                    HeliSabotageSystem.Tags tags = (HeliSabotageSystem.Tags)(amount & HeliSabotageSystem.TagMask);
-                    if (tags == HeliSabotageSystem.Tags.ActiveBit)
-                    {
-                        technician.FixedSabotage = false;
-                    }
+                    var tags = (HeliSabotageSystem.Tags)(amount & HeliSabotageSystem.TagMask);
+                    if (tags == HeliSabotageSystem.Tags.ActiveBit) technician.FixedSabotage = false;
 
                     if (!technician.FixedSabotage && tags == HeliSabotageSystem.Tags.FixBit)
                     {
@@ -171,11 +160,8 @@ namespace EHR.Neutral
                 {
                     if (Main.CurrentMap is MapNames.Mira or MapNames.Fungle)
                     {
-                        HqHudSystemType.Tags tags = (HqHudSystemType.Tags)(amount & HqHudSystemType.TagMask);
-                        if (tags == HqHudSystemType.Tags.ActiveBit)
-                        {
-                            technician.FixedSabotage = false;
-                        }
+                        var tags = (HqHudSystemType.Tags)(amount & HqHudSystemType.TagMask);
+                        if (tags == HqHudSystemType.Tags.ActiveBit) technician.FixedSabotage = false;
 
                         if (!technician.FixedSabotage && tags == HqHudSystemType.Tags.FixBit)
                         {
@@ -186,10 +172,7 @@ namespace EHR.Neutral
                             technician.IncreasePoints(systemType);
                         }
                     }
-                    else if (amount == 0)
-                    {
-                        technician.IncreasePoints(systemType);
-                    }
+                    else if (amount == 0) technician.IncreasePoints(systemType);
 
                     break;
                 }
@@ -198,20 +181,11 @@ namespace EHR.Neutral
 
         public static void SwitchSystemRepair(byte playerId, SwitchSystem switchSystem, byte amount)
         {
-            if (Main.PlayerStates[playerId].IsDead)
-            {
-                return;
-            }
+            if (Main.PlayerStates[playerId].IsDead) return;
 
-            if (!GetsAnyPoint(SystemTypes.Electrical) || Main.PlayerStates[playerId].Role is not Technician technician)
-            {
-                return;
-            }
+            if (!GetsAnyPoint(SystemTypes.Electrical) || Main.PlayerStates[playerId].Role is not Technician technician) return;
 
-            if (amount.HasBit(SwitchSystem.DamageSystem))
-            {
-                return;
-            }
+            if (amount.HasBit(SwitchSystem.DamageSystem)) return;
 
             int fixbit = 1 << amount;
             switchSystem.ActualSwitches = (byte)(switchSystem.ExpectedSwitches ^ fixbit);
@@ -221,7 +195,7 @@ namespace EHR.Neutral
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            int points = (int)Math.Round(playerId.GetAbilityUseLimit());
+            var points = (int)Math.Round(playerId.GetAbilityUseLimit());
             int needed = RequiredPoints.GetInt();
             Color color = points >= needed ? Color.green : Color.white;
             return Utils.ColorString(color, $"{points}/{needed}");

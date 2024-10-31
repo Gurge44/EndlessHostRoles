@@ -31,11 +31,14 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Mastermind);
+
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Mastermind])
                 .SetValueFormat(OptionFormat.Seconds);
+
             // Manipulation Cooldown = Kill Cooldown + Delay + Time Limit
             TimeLimit = new IntegerOptionItem(Id + 12, "MastermindTimeLimit", new(1, 60, 1), 20, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Mastermind])
                 .SetValueFormat(OptionFormat.Seconds);
+
             Delay = new IntegerOptionItem(Id + 13, "MastermindDelay", new(0, 30, 1), 7, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Mastermind])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -63,20 +66,11 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable)
-            {
-                return false;
-            }
+            if (!IsEnable) return false;
 
-            if (killer == null)
-            {
-                return false;
-            }
+            if (killer == null) return false;
 
-            if (target == null)
-            {
-                return false;
-            }
+            if (target == null) return false;
 
             return killer.CheckDoubleTrigger(target, () =>
             {
@@ -88,10 +82,7 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl _)
         {
-            if (!IsEnable || GameStates.IsMeeting || (ManipulatedPlayers.Count == 0 && ManipulateDelays.Count == 0))
-            {
-                return;
-            }
+            if (!IsEnable || GameStates.IsMeeting || (ManipulatedPlayers.Count == 0 && ManipulateDelays.Count == 0)) return;
 
             foreach (KeyValuePair<byte, long> x in ManipulateDelays)
             {
@@ -114,9 +105,7 @@ namespace EHR.Impostor
                         pc.SetKillCooldown(1f);
                     }
                     else
-                    {
                         pc.RpcChangeRoleBasis(CustomRoles.NSerialKiller);
-                    }
 
                     NotifyRoles(SpecifySeer: MastermindPC, SpecifyTarget: pc);
                 }
@@ -150,18 +139,12 @@ namespace EHR.Impostor
 
         public override void OnReportDeadBody()
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
             foreach (KeyValuePair<byte, long> x in ManipulatedPlayers)
             {
                 PlayerControl pc = GetPlayerById(x.Key);
-                if (pc.IsAlive())
-                {
-                    pc.Suicide(realKiller: MastermindPC);
-                }
+                if (pc.IsAlive()) pc.Suicide(realKiller: MastermindPC);
             }
 
             ManipulateDelays.Clear();
@@ -171,22 +154,13 @@ namespace EHR.Impostor
 
         public static bool ForceKillForManipulatedPlayer(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null)
-            {
-                return false;
-            }
+            if (killer == null) return false;
 
-            if (target == null)
-            {
-                return false;
-            }
+            if (target == null) return false;
 
             ManipulatedPlayers.Remove(killer.PlayerId);
 
-            foreach (byte id in PlayerIdList)
-            {
-                (Main.PlayerStates[id].Role as Mastermind)?.NotifyMastermindTargetSurvived();
-            }
+            foreach (byte id in PlayerIdList) (Main.PlayerStates[id].Role as Mastermind)?.NotifyMastermindTargetSurvived();
 
             if (target.Is(CustomRoles.Pestilence) || Veteran.VeteranInProtect.ContainsKey(target.PlayerId) || target.Is(CustomRoles.Mastermind))
             {
@@ -214,16 +188,10 @@ namespace EHR.Impostor
 
         private void NotifyMastermindTargetSurvived()
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
             MastermindPC.Notify(GetString("ManipulatedKilled"));
-            if (Main.KillTimers[MastermindId] > KillCooldown.GetFloat())
-            {
-                MastermindPC.SetKillCooldown(KillCooldown.GetFloat());
-            }
+            if (Main.KillTimers[MastermindId] > KillCooldown.GetFloat()) MastermindPC.SetKillCooldown(KillCooldown.GetFloat());
         }
     }
 }

@@ -25,12 +25,15 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(2600, TabGroup.ImpostorRoles, CustomRoles.Cleaner);
+
             CleanerKillCooldown = new FloatOptionItem(2610, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Cleaner])
                 .SetValueFormat(OptionFormat.Seconds);
+
             KillCooldownAfterCleaning = new FloatOptionItem(2611, "KillCooldownAfterCleaning", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Cleaner])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CannotCleanWhenKCDIsntUp = new BooleanOptionItem(2612, "CannotCleanWhenKCDIsntUp", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Cleaner]);
         }
@@ -87,17 +90,12 @@ namespace EHR.Impostor
                 hud.ReportButton?.OverrideText(Translator.GetString("MedusaReportButtonText"));
             }
             else
-            {
                 hud.ReportButton?.OverrideText(Translator.GetString("CleanerReportButtonText"));
-            }
         }
 
         public override bool CheckReportDeadBody(PlayerControl cleaner, NetworkedPlayerInfo target, PlayerControl killer)
         {
-            if (WaitForKCDUp && Main.KillTimers[cleaner.PlayerId] > 0f)
-            {
-                return true;
-            }
+            if (WaitForKCDUp && Main.KillTimers[cleaner.PlayerId] > 0f) return true;
 
             CleanerBodies.Remove(target.PlayerId);
             CleanerBodies.Add(target.PlayerId);

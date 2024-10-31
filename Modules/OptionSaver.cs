@@ -20,10 +20,7 @@ namespace EHR.Modules
             if (DefaultPresetFileInfo.Exists)
             {
                 string presetNmber = File.ReadAllText(DefaultPresetFileInfo.FullName);
-                if (int.TryParse(presetNmber, out int number) && number is >= 0 and <= OptionItem.NumPresets - 1)
-                {
-                    return number;
-                }
+                if (int.TryParse(presetNmber, out int number) && number is >= 0 and <= OptionItem.NumPresets - 1) return number;
             }
 
             return 0;
@@ -37,37 +34,27 @@ namespace EHR.Modules
                 SaveDataDirectoryInfo.Attributes |= FileAttributes.Hidden;
             }
 
-            if (!OptionSaverFileInfo.Exists)
-            {
-                OptionSaverFileInfo.Create().Dispose();
-            }
+            if (!OptionSaverFileInfo.Exists) OptionSaverFileInfo.Create().Dispose();
 
-            if (!DefaultPresetFileInfo.Exists)
-            {
-                DefaultPresetFileInfo.Create().Dispose();
-            }
+            if (!DefaultPresetFileInfo.Exists) DefaultPresetFileInfo.Create().Dispose();
         }
 
         private static SerializableOptionsData GenerateOptionsData()
         {
             Dictionary<int, int> singleOptions = [];
             Dictionary<int, int[]> presetOptions = [];
+
             foreach (OptionItem option in OptionItem.AllOptions)
             {
                 if (option.IsSingleValue)
                 {
-                    if (!singleOptions.TryAdd(option.Id, option.SingleValue))
-                    {
-                        EHR.Logger.Warn($"Duplicate SingleOption ID: {option.Id}", "Options Load");
-                    }
+                    if (!singleOptions.TryAdd(option.Id, option.SingleValue)) EHR.Logger.Warn($"Duplicate SingleOption ID: {option.Id}", "Options Load");
                 }
-                else if (!presetOptions.TryAdd(option.Id, option.AllValues))
-                {
-                    EHR.Logger.Warn($"Duplicate preset option ID: {option.Id}", "Options Load");
-                }
+                else if (!presetOptions.TryAdd(option.Id, option.AllValues)) EHR.Logger.Warn($"Duplicate preset option ID: {option.Id}", "Options Load");
             }
 
             DefaultPresetNumber = singleOptions[0];
+
             return new()
             {
                 Version = Version,
@@ -87,29 +74,19 @@ namespace EHR.Modules
 
             Dictionary<int, int> singleOptions = serializableOptionsData.SingleOptions;
             Dictionary<int, int[]> presetOptions = serializableOptionsData.PresetOptions;
+
             foreach ((int id, int value) in singleOptions)
-            {
                 if (OptionItem.FastOptions.TryGetValue(id, out OptionItem optionItem))
-                {
                     optionItem.SetValue(value, doSave: false);
-                }
-            }
 
             foreach ((int id, int[] values) in presetOptions)
-            {
                 if (OptionItem.FastOptions.TryGetValue(id, out OptionItem optionItem))
-                {
                     optionItem.SetAllValues(values);
-                }
-            }
         }
 
         public static void Save()
         {
-            if (AmongUsClient.Instance != null && !AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (AmongUsClient.Instance != null && !AmongUsClient.Instance.AmHost) return;
 
             string jsonString = JsonSerializer.Serialize(GenerateOptionsData(), new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(OptionSaverFileInfo.FullName, jsonString);

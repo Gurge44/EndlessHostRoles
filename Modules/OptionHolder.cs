@@ -902,10 +902,7 @@ namespace EHR
         {
             roleCounts[role] = count;
 
-            if (CustomRoleCounts.TryGetValue(role, out OptionItem option))
-            {
-                option.SetValue(count - 1);
-            }
+            if (CustomRoleCounts.TryGetValue(role, out OptionItem option)) option.SetValue(count - 1);
         }
 
         public static int GetRoleSpawnMode(CustomRoles role)
@@ -929,16 +926,14 @@ namespace EHR
             LoadingPercentage = 0;
             MainLoadingText = "Building system settings";
 
-            if (IsLoaded)
-            {
-                yield break;
-            }
+            if (IsLoaded) yield break;
 
             OptionSaver.Initialize();
 
             yield return null;
 
             int defaultPresetNumber = OptionSaver.GetDefaultPresetNumber();
+
             _ = new PresetOptionItem(defaultPresetNumber, TabGroup.SystemSettings)
                 .SetColor(new Color32(255, 235, 4, byte.MaxValue))
                 .SetHidden(true);
@@ -958,18 +953,23 @@ namespace EHR
             ImpKnowAlliesRole = new BooleanOptionItem(150, "ImpKnowAlliesRole", true, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true);
+
             ImpKnowWhosMadmate = new BooleanOptionItem(151, "ImpKnowWhosMadmate", false, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.Standard);
+
             ImpCanKillMadmate = new BooleanOptionItem(152, "ImpCanKillMadmate", true, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.Standard);
 
             MadmateKnowWhosMadmate = new BooleanOptionItem(153, "MadmateKnowWhosMadmate", false, TabGroup.ImpostorRoles)
                 .SetHeader(true)
                 .SetGameMode(CustomGameMode.Standard);
+
             MadmateKnowWhosImp = new BooleanOptionItem(154, "MadmateKnowWhosImp", true, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.Standard);
+
             MadmateCanKillImp = new BooleanOptionItem(155, "MadmateCanKillImp", true, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.Standard);
+
             MadmateHasImpostorVision = new BooleanOptionItem(156, "MadmateHasImpostorVision", true, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.Standard);
 
@@ -981,6 +981,7 @@ namespace EHR
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true)
                 .SetValueFormat(OptionFormat.Seconds);
+
             DeadImpCantSabotage = new BooleanOptionItem(201, "DeadImpCantSabotage", false, TabGroup.ImpostorRoles)
                 .SetGameMode(CustomGameMode.Standard);
 
@@ -988,6 +989,7 @@ namespace EHR
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true)
                 .SetValueFormat(OptionFormat.Players);
+
             NonNeutralKillingRolesMaxPlayer = new IntegerOptionItem(203, "NonNeutralKillingRolesMaxPlayer", new(0, 15, 1), 0, TabGroup.NeutralRoles)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetValueFormat(OptionFormat.Players);
@@ -996,6 +998,7 @@ namespace EHR
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true)
                 .SetValueFormat(OptionFormat.Players);
+
             NeutralKillingRolesMaxPlayer = new IntegerOptionItem(205, "NeutralKillingRolesMaxPlayer", new(0, 15, 1), 0, TabGroup.NeutralRoles)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetValueFormat(OptionFormat.Players);
@@ -1003,15 +1006,18 @@ namespace EHR
             NeutralRoleWinTogether = new BooleanOptionItem(208, "NeutralRoleWinTogether", false, TabGroup.NeutralRoles)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true);
+
             NeutralWinTogether = new BooleanOptionItem(209, "NeutralWinTogether", false, TabGroup.NeutralRoles)
                 .SetParent(NeutralRoleWinTogether)
                 .SetGameMode(CustomGameMode.Standard);
+
             NeutralsKnowEachOther = new BooleanOptionItem(212, "NeutralsKnowEachOther", false, TabGroup.NeutralRoles)
                 .SetGameMode(CustomGameMode.Standard);
 
             NameDisplayAddons = new BooleanOptionItem(210, "NameDisplayAddons", true, TabGroup.Addons)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true);
+
             NoLimitAddonsNumMax = new IntegerOptionItem(211, "NoLimitAddonsNumMax", new(1, 90, 1), 1, TabGroup.Addons)
                 .SetGameMode(CustomGameMode.Standard);
 
@@ -1019,15 +1025,19 @@ namespace EHR
                 .SetHeader(true)
                 .SetGameMode(CustomGameMode.Standard)
                 .AddReplacement(("{role}", CustomRoles.Charmed.ToColoredString()));
+
             RecruitCanBeGuessed = new StringOptionItem(214, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)
                 .SetGameMode(CustomGameMode.Standard)
                 .AddReplacement(("{role}", CustomRoles.Recruit.ToColoredString()));
+
             ContagiousCanBeGuessed = new StringOptionItem(215, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)
                 .SetGameMode(CustomGameMode.Standard)
                 .AddReplacement(("{role}", CustomRoles.Contagious.ToColoredString()));
+
             UndeadCanBeGuessed = new StringOptionItem(216, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)
                 .SetGameMode(CustomGameMode.Standard)
                 .AddReplacement(("{role}", CustomRoles.Undead.ToColoredString()));
+
             EgoistCanBeGuessed = new StringOptionItem(217, "ConvertedAddonCanBeGuessed", AddonGuessOptions, 2, TabGroup.Addons)
                 .SetGameMode(CustomGameMode.Standard)
                 .AddReplacement(("{role}", CustomRoles.Egoist.ToColoredString()));
@@ -1044,12 +1054,13 @@ namespace EHR
 
             #region Roles/AddOns_Settings
 
-            int titleId = 100100;
+            var titleId = 100100;
 
             LoadingPercentage = 5;
             MainLoadingText = "Building Add-on Settings";
 
             Type IAddonType = typeof(IAddon);
+
             Dictionary<AddonTypes, IAddon[]> addonTypes = Assembly
                 .GetExecutingAssembly()
                 .GetTypes()
@@ -1063,12 +1074,13 @@ namespace EHR
             foreach (KeyValuePair<AddonTypes, IAddon[]> addonType in addonTypes)
             {
                 MainLoadingText = $"Building Add-on Settings ({addonType.Key})";
-                int index = 0;
+                var index = 0;
 
                 new TextOptionItem(titleId, $"ROT.AddonType.{addonType.Key}", TabGroup.Addons)
                     .SetGameMode(CustomGameMode.Standard)
                     .SetColor(addonType.Key.GetAddonTypeColor())
                     .SetHeader(true);
+
                 titleId += 10;
 
                 foreach (IAddon addon in addonType.Value)
@@ -1087,6 +1099,7 @@ namespace EHR
             MainLoadingText = "Building Role Settings";
 
             Type IVanillaType = typeof(IVanillaSettingHolder);
+
             Assembly
                 .GetExecutingAssembly()
                 .GetTypes()
@@ -1099,6 +1112,7 @@ namespace EHR
                         .SetGameMode(CustomGameMode.Standard)
                         .SetColor(Color.white)
                         .SetHeader(true);
+
                     titleId += 10;
 
                     RoleLoadingText = x.GetType().Name;
@@ -1108,6 +1122,7 @@ namespace EHR
                 });
 
             Type IType = typeof(IGhostRole);
+
             Assembly
                 .GetExecutingAssembly()
                 .GetTypes()
@@ -1126,7 +1141,7 @@ namespace EHR
             {
                 MainLoadingText = $"Building Role Settings: {roleClasses.Key} Roles";
                 int allRoles = roleClasses.Value.Length;
-                int index = 0;
+                var index = 0;
 
                 TabGroup tab = roleClasses.Key.GetTabFromOptionType();
 
@@ -1134,6 +1149,7 @@ namespace EHR
                     .SetHeader(true)
                     .SetGameMode(CustomGameMode.Standard)
                     .SetColor(roleClasses.Key.GetRoleOptionTypeColor());
+
                 titleId += 10;
 
                 foreach (RoleBase roleClass in roleClasses.Value)
@@ -1141,6 +1157,7 @@ namespace EHR
                     index++;
                     RoleLoadingText = $"{index}/{allRoles} ({roleClass.GetType().Name})";
                     Log();
+
                     try
                     {
                         roleClass.SetupCustomOption();
@@ -1159,6 +1176,7 @@ namespace EHR
                         .SetHeader(true)
                         .SetGameMode(CustomGameMode.Standard)
                         .SetColor(Palette.ImpostorRed);
+
                     titleId += 10;
                 }
 
@@ -1186,6 +1204,7 @@ namespace EHR
             KickLowLevelPlayer = new IntegerOptionItem(19300, "KickLowLevelPlayer", new(0, 100, 1), 0, TabGroup.SystemSettings)
                 .SetValueFormat(OptionFormat.Level)
                 .SetHeader(true);
+
             KickAndroidPlayer = new BooleanOptionItem(19301, "KickAndroidPlayer", false, TabGroup.SystemSettings);
             KickPlayerFriendCodeNotExist = new BooleanOptionItem(19302, "KickPlayerFriendCodeNotExist", false, TabGroup.SystemSettings, true);
             ApplyDenyNameList = new BooleanOptionItem(19303, "ApplyDenyNameList", true, TabGroup.SystemSettings, true);
@@ -1196,15 +1215,20 @@ namespace EHR
             LoadingPercentage = 61;
 
             AutoKickStart = new BooleanOptionItem(19310, "AutoKickStart", false, TabGroup.SystemSettings);
+
             AutoKickStartTimes = new IntegerOptionItem(19311, "AutoKickStartTimes", new(0, 90, 1), 1, TabGroup.SystemSettings)
                 .SetParent(AutoKickStart)
                 .SetValueFormat(OptionFormat.Times);
+
             AutoKickStartAsBan = new BooleanOptionItem(19312, "AutoKickStartAsBan", false, TabGroup.SystemSettings)
                 .SetParent(AutoKickStart);
+
             AutoKickStopWords = new BooleanOptionItem(19313, "AutoKickStopWords", false, TabGroup.SystemSettings);
+
             AutoKickStopWordsTimes = new IntegerOptionItem(19314, "AutoKickStopWordsTimes", new(0, 90, 1), 3, TabGroup.SystemSettings)
                 .SetParent(AutoKickStopWords)
                 .SetValueFormat(OptionFormat.Times);
+
             AutoKickStopWordsAsBan = new BooleanOptionItem(19315, "AutoKickStopWordsAsBan", false, TabGroup.SystemSettings)
                 .SetParent(AutoKickStopWords);
 
@@ -1214,9 +1238,12 @@ namespace EHR
             MinWaitAutoStart = new FloatOptionItem(44420, "MinWaitAutoStart", new(0f, 10f, 0.5f), 1.5f, TabGroup.SystemSettings);
             MaxWaitAutoStart = new FloatOptionItem(44421, "MaxWaitAutoStart", new(0f, 10f, 0.5f), 1.5f, TabGroup.SystemSettings);
             PlayerAutoStart = new IntegerOptionItem(44422, "PlayerAutoStart", new(1, 15, 1), 14, TabGroup.SystemSettings);
+
             AutoStartTimer = new IntegerOptionItem(44423, "AutoStartTimer", new(10, 600, 1), 20, TabGroup.SystemSettings)
                 .SetValueFormat(OptionFormat.Seconds);
+
             AutoPlayAgain = new BooleanOptionItem(44424, "AutoPlayAgain", false, TabGroup.SystemSettings);
+
             AutoPlayAgainCountdown = new IntegerOptionItem(44425, "AutoPlayAgainCountdown", new(1, 90, 1), 10, TabGroup.SystemSettings)
                 .SetParent(AutoPlayAgain);
 
@@ -1258,12 +1285,14 @@ namespace EHR
 
             AutoDisplayKillLog = new BooleanOptionItem(19321, "AutoDisplayKillLog", true, TabGroup.SystemSettings)
                 .SetHeader(true);
+
             AutoDisplayLastRoles = new BooleanOptionItem(19322, "AutoDisplayLastRoles", true, TabGroup.SystemSettings);
             AutoDisplayLastAddOns = new BooleanOptionItem(19328, "AutoDisplayLastAddOns", true, TabGroup.SystemSettings);
             AutoDisplayLastResult = new BooleanOptionItem(19323, "AutoDisplayLastResult", true, TabGroup.SystemSettings);
 
             SuffixMode = new StringOptionItem(19324, "SuffixMode", SuffixModes, 0, TabGroup.SystemSettings, true)
                 .SetHeader(true);
+
             HideGameSettings = new BooleanOptionItem(19400, "HideGameSettings", false, TabGroup.SystemSettings);
             DIYGameSettings = new BooleanOptionItem(19401, "DIYGameSettings", false, TabGroup.SystemSettings);
             PlayerCanSetColor = new BooleanOptionItem(19402, "PlayerCanSetColor", false, TabGroup.SystemSettings);
@@ -1272,16 +1301,23 @@ namespace EHR
             FormatNameMode = new StringOptionItem(19403, "FormatNameMode", FormatNameModes, 0, TabGroup.SystemSettings);
             DisableEmojiName = new BooleanOptionItem(19404, "DisableEmojiName", true, TabGroup.SystemSettings);
             ChangeNameToRoleInfo = new BooleanOptionItem(19405, "ChangeNameToRoleInfo", true, TabGroup.SystemSettings);
+
             ShowLongInfo = new BooleanOptionItem(19420, "ShowLongInfo", true, TabGroup.SystemSettings)
                 .SetParent(ChangeNameToRoleInfo);
+
             SendRoleDescriptionFirstMeeting = new BooleanOptionItem(19406, "SendRoleDescriptionFirstMeeting", true, TabGroup.SystemSettings);
+
             NoGameEnd = new BooleanOptionItem(19407, "NoGameEnd", false, TabGroup.SystemSettings)
                 .SetColor(Color.red);
+
             AllowConsole = new BooleanOptionItem(19408, "AllowConsole", false, TabGroup.SystemSettings)
                 .SetColor(Color.red);
+
             ShowAntiBlackoutWarning = new BooleanOptionItem(19421, "ShowAntiBlackoutWarning", true, TabGroup.SystemSettings);
+
             RoleAssigningAlgorithm = new StringOptionItem(19409, "RoleAssigningAlgorithm", RoleAssigningAlgorithms, 4, TabGroup.SystemSettings, true)
                 .RegisterUpdateValueEvent((_, args) => IRandom.SetInstanceById(args.CurrentValue));
+
             KPDCamouflageMode = new StringOptionItem(19500, "KPDCamouflageMode", CamouflageMode, 0, TabGroup.SystemSettings)
                 .SetHeader(true)
                 .SetColor(new Color32(255, 192, 203, byte.MaxValue));
@@ -1329,9 +1365,11 @@ namespace EHR
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true)
                 .SetColor(new Color32(255, 238, 232, byte.MaxValue));
+
             ShowImpRemainOnEject = new BooleanOptionItem(19810, "ShowImpRemainOnEject", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(255, 238, 232, byte.MaxValue));
+
             ShowNKRemainOnEject = new BooleanOptionItem(19811, "ShowNKRemainOnEject", true, TabGroup.GameSettings)
                 .SetParent(ShowImpRemainOnEject)
                 .SetGameMode(CustomGameMode.Standard)
@@ -1342,10 +1380,12 @@ namespace EHR
             ShowTeamNextToRoleNameOnEject = new BooleanOptionItem(19812, "ShowTeamNextToRoleNameOnEject", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(255, 238, 232, byte.MaxValue));
+
             ConfirmEgoistOnEject = new BooleanOptionItem(19813, "ConfirmEgoistOnEject", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(255, 238, 232, byte.MaxValue))
                 .SetHeader(true);
+
             ConfirmLoversOnEject = new BooleanOptionItem(19815, "ConfirmLoversOnEject", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(255, 238, 232, byte.MaxValue));
@@ -1368,18 +1408,23 @@ namespace EHR
             SkeldChance = new IntegerOptionItem(19910, "SkeldChance", new(0, 100, 5), 0, TabGroup.GameSettings)
                 .SetParent(RandomMapsMode)
                 .SetValueFormat(OptionFormat.Percent);
+
             MiraChance = new IntegerOptionItem(19911, "MiraChance", new(0, 100, 5), 0, TabGroup.GameSettings)
                 .SetParent(RandomMapsMode)
                 .SetValueFormat(OptionFormat.Percent);
+
             PolusChance = new IntegerOptionItem(19912, "PolusChance", new(0, 100, 5), 0, TabGroup.GameSettings)
                 .SetParent(RandomMapsMode)
                 .SetValueFormat(OptionFormat.Percent);
+
             DleksChance = new IntegerOptionItem(19914, "DleksChance", new(0, 100, 5), 0, TabGroup.GameSettings)
                 .SetParent(RandomMapsMode)
                 .SetValueFormat(OptionFormat.Percent);
+
             AirshipChance = new IntegerOptionItem(19913, "AirshipChance", new(0, 100, 5), 0, TabGroup.GameSettings)
                 .SetParent(RandomMapsMode)
                 .SetValueFormat(OptionFormat.Percent);
+
             FungleChance = new IntegerOptionItem(19922, "FungleChance", new(0, 100, 5), 0, TabGroup.GameSettings)
                 .SetParent(RandomMapsMode)
                 .SetValueFormat(OptionFormat.Percent);
@@ -1390,6 +1435,7 @@ namespace EHR
             // Random Spawn
             RandomSpawn = new BooleanOptionItem(22000, "RandomSpawn", false, TabGroup.GameSettings)
                 .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
             AirshipAdditionalSpawn = new BooleanOptionItem(22010, "AirshipAdditionalSpawn", false, TabGroup.GameSettings)
                 .SetParent(RandomSpawn);
 
@@ -1397,6 +1443,7 @@ namespace EHR
             AirshipVariableElectrical = new BooleanOptionItem(22100, "AirshipVariableElectrical", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
             // Disable Airship Moving Platform
             DisableAirshipMovingPlatform = new BooleanOptionItem(22110, "DisableAirshipMovingPlatform", false, TabGroup.GameSettings)
                 .SetColor(new Color32(19, 188, 233, byte.MaxValue));
@@ -1408,10 +1455,12 @@ namespace EHR
             // Disable Zipline On Fungle
             DisableZiplineOnFungle = new BooleanOptionItem(22305, "DisableZiplineOnFungle", false, TabGroup.GameSettings)
                 .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
             // Disable Zipline From Top
             DisableZiplineFromTop = new BooleanOptionItem(22308, "DisableZiplineFromTop", false, TabGroup.GameSettings)
                 .SetParent(DisableZiplineOnFungle)
                 .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
             // Disable Zipline From Under
             DisableZiplineFromUnder = new BooleanOptionItem(22310, "DisableZiplineFromUnder", false, TabGroup.GameSettings)
                 .SetParent(DisableZiplineOnFungle)
@@ -1420,15 +1469,18 @@ namespace EHR
             DisableZiplineForCrew = new BooleanOptionItem(22316, "DisableZiplineForCrew", false, TabGroup.GameSettings)
                 .SetParent(DisableZiplineOnFungle)
                 .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
             DisableZiplineForImps = new BooleanOptionItem(22318, "DisableZiplineForImps", false, TabGroup.GameSettings)
                 .SetParent(DisableZiplineOnFungle)
                 .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
             DisableZiplineForNeutrals = new BooleanOptionItem(22320, "DisableZiplineForNeutrals", false, TabGroup.GameSettings)
                 .SetParent(DisableZiplineOnFungle)
                 .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
             ZiplineTravelTimeFromBottom = new FloatOptionItem(22312, "ZiplineTravelTimeFromBottom", new(0.5f, 10f, 0.5f), 4f, TabGroup.GameSettings)
                 .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
             ZiplineTravelTimeFromTop = new FloatOptionItem(22314, "ZiplineTravelTimeFromTop", new(0.5f, 10f, 0.5f), 2f, TabGroup.GameSettings)
                 .SetColor(new Color32(19, 188, 233, byte.MaxValue));
 
@@ -1436,6 +1488,7 @@ namespace EHR
             ResetDoorsEveryTurns = new BooleanOptionItem(22120, "ResetDoorsEveryTurns", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
             // Reset Doors Mode
             DoorsResetMode = new StringOptionItem(22122, "DoorsResetMode", Enum.GetNames<DoorsReset.ResetMode>(), 2, TabGroup.GameSettings)
                 .SetColor(new Color32(19, 188, 233, byte.MaxValue))
@@ -1445,11 +1498,13 @@ namespace EHR
             // Change decontamination time on MiraHQ/Polus
             ChangeDecontaminationTime = new BooleanOptionItem(60503, "ChangeDecontaminationTime", false, TabGroup.GameSettings)
                 .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
             // Decontamination time on MiraHQ
             DecontaminationTimeOnMiraHQ = new FloatOptionItem(60504, "DecontaminationTimeOnMiraHQ", new(0.5f, 10f, 0.25f), 3f, TabGroup.GameSettings)
                 .SetParent(ChangeDecontaminationTime)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new Color32(19, 188, 233, byte.MaxValue));
+
             // Decontamination time on Polus
             DecontaminationTimeOnPolus = new FloatOptionItem(60505, "DecontaminationTimeOnPolus", new(0.5f, 10f, 0.25f), 3f, TabGroup.GameSettings)
                 .SetParent(ChangeDecontaminationTime)
@@ -1472,10 +1527,12 @@ namespace EHR
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true)
                 .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+
             CommsCamouflageDisableOnFungle = new BooleanOptionItem(22202, "CommsCamouflageDisableOnFungle", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetParent(CommsCamouflage)
                 .SetColor(new Color32(243, 96, 96, byte.MaxValue));
+
             DisableReportWhenCC = new BooleanOptionItem(22300, "DisableReportWhenCC", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(243, 96, 96, byte.MaxValue));
@@ -1487,6 +1544,7 @@ namespace EHR
             SabotageCooldownControl = new BooleanOptionItem(22400, "SabotageCooldownControl", false, TabGroup.GameSettings)
                 .SetColor(new Color32(243, 96, 96, byte.MaxValue))
                 .SetGameMode(CustomGameMode.Standard);
+
             SabotageCooldown = new FloatOptionItem(22405, "SabotageCooldown", new(1f, 60f, 1f), 30f, TabGroup.GameSettings)
                 .SetParent(SabotageCooldownControl)
                 .SetValueFormat(OptionFormat.Seconds)
@@ -1502,34 +1560,41 @@ namespace EHR
                 .SetParent(SabotageTimeControl)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetGameMode(CustomGameMode.Standard);
+
             SkeldO2TimeLimit = new FloatOptionItem(22419, "SkeldO2TimeLimit", new(5f, 90f, 1f), 30f, TabGroup.GameSettings)
                 .SetParent(SabotageTimeControl)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetGameMode(CustomGameMode.Standard);
+
             // Mira HQ
             MiraReactorTimeLimit = new FloatOptionItem(22422, "MiraReactorTimeLimit", new(5f, 90f, 1f), 45f, TabGroup.GameSettings)
                 .SetParent(SabotageTimeControl)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetGameMode(CustomGameMode.Standard);
+
             MiraO2TimeLimit = new FloatOptionItem(22423, "MiraO2TimeLimit", new(5f, 90f, 1f), 45f, TabGroup.GameSettings)
                 .SetParent(SabotageTimeControl)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetGameMode(CustomGameMode.Standard);
+
             // Polus
             PolusReactorTimeLimit = new FloatOptionItem(22424, "PolusReactorTimeLimit", new(5f, 90f, 1f), 60f, TabGroup.GameSettings)
                 .SetParent(SabotageTimeControl)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetGameMode(CustomGameMode.Standard);
+
             // The Airship
             AirshipReactorTimeLimit = new FloatOptionItem(22425, "AirshipReactorTimeLimit", new(5f, 90f, 1f), 90f, TabGroup.GameSettings)
                 .SetParent(SabotageTimeControl)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetGameMode(CustomGameMode.Standard);
+
             // The Fungle
             FungleReactorTimeLimit = new FloatOptionItem(22426, "FungleReactorTimeLimit", new(5f, 90f, 1f), 60f, TabGroup.GameSettings)
                 .SetParent(SabotageTimeControl)
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetGameMode(CustomGameMode.Standard);
+
             FungleMushroomMixupDuration = new FloatOptionItem(22427, "FungleMushroomMixupDuration", new(5f, 90f, 1f), 10f, TabGroup.GameSettings)
                 .SetParent(SabotageTimeControl)
                 .SetValueFormat(OptionFormat.Seconds)
@@ -1540,15 +1605,19 @@ namespace EHR
             LightsOutSpecialSettings = new BooleanOptionItem(22500, "LightsOutSpecialSettings", false, TabGroup.GameSettings)
                 .SetColor(new Color32(243, 96, 96, byte.MaxValue))
                 .SetGameMode(CustomGameMode.Standard);
+
             BlockDisturbancesToSwitches = new BooleanOptionItem(60551, "BlockDisturbancesToSwitches", false, TabGroup.GameSettings)
                 .SetParent(LightsOutSpecialSettings)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableAirshipViewingDeckLightsPanel = new BooleanOptionItem(22510, "DisableAirshipViewingDeckLightsPanel", false, TabGroup.GameSettings)
                 .SetParent(LightsOutSpecialSettings)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableAirshipGapRoomLightsPanel = new BooleanOptionItem(22511, "DisableAirshipGapRoomLightsPanel", false, TabGroup.GameSettings)
                 .SetParent(LightsOutSpecialSettings)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableAirshipCargoLightsPanel = new BooleanOptionItem(22512, "DisableAirshipCargoLightsPanel", false, TabGroup.GameSettings)
                 .SetParent(LightsOutSpecialSettings)
                 .SetGameMode(CustomGameMode.Standard);
@@ -1568,25 +1637,32 @@ namespace EHR
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true)
                 .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
             DisableKillAnimationOnGuess = new BooleanOptionItem(22602, "DisableKillAnimationOnGuess", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
             DisableShapeshiftAnimations = new BooleanOptionItem(22604, "DisableShapeshiftAnimations", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
             DisableAllShapeshiftAnimations = new BooleanOptionItem(22605, "DisableAllShapeshiftAnimations", false, TabGroup.GameSettings)
                 .SetParent(DisableShapeshiftAnimations)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
             DisableVanillaRoles = new BooleanOptionItem(22600, "DisableVanillaRoles", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
             DisableTaskWin = new BooleanOptionItem(22650, "DisableTaskWin", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
             DisableTaskWinIfAllCrewsAreDead = new BooleanOptionItem(22651, "DisableTaskWinIfAllCrewsAreDead", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
             DisableTaskWinIfAllCrewsAreConverted = new BooleanOptionItem(22652, "DisableTaskWinIfAllCrewsAreConverted", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(255, 153, 153, byte.MaxValue));
@@ -1597,8 +1673,10 @@ namespace EHR
             DisableMeeting = new BooleanOptionItem(22700, "DisableMeeting", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
             DisableSabotage = new BooleanOptionItem(22800, "DisableSabotage", false, TabGroup.GameSettings)
                 .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
             DisableCloseDoor = new BooleanOptionItem(22810, "DisableCloseDoor", false, TabGroup.GameSettings)
                 .SetParent(DisableSabotage)
                 .SetColor(new Color32(255, 153, 153, byte.MaxValue));
@@ -1607,10 +1685,13 @@ namespace EHR
 
             DisableDevices = new BooleanOptionItem(22900, "DisableDevices", false, TabGroup.GameSettings)
                 .SetColor(new Color32(255, 153, 153, byte.MaxValue));
+
             DisableSkeldDevices = new BooleanOptionItem(22905, "DisableSkeldDevices", false, TabGroup.GameSettings)
                 .SetParent(DisableDevices);
+
             DisableSkeldAdmin = new BooleanOptionItem(22906, "DisableSkeldAdmin", false, TabGroup.GameSettings)
                 .SetParent(DisableSkeldDevices);
+
             DisableSkeldCamera = new BooleanOptionItem(22907, "DisableSkeldCamera", false, TabGroup.GameSettings)
                 .SetParent(DisableSkeldDevices);
 
@@ -1618,20 +1699,28 @@ namespace EHR
 
             DisableMiraHQDevices = new BooleanOptionItem(22908, "DisableMiraHQDevices", false, TabGroup.GameSettings)
                 .SetParent(DisableDevices);
+
             DisableMiraHQAdmin = new BooleanOptionItem(22909, "DisableMiraHQAdmin", false, TabGroup.GameSettings)
                 .SetParent(DisableMiraHQDevices);
+
             DisableMiraHQDoorLog = new BooleanOptionItem(22910, "DisableMiraHQDoorLog", false, TabGroup.GameSettings)
                 .SetParent(DisableMiraHQDevices);
+
             DisablePolusDevices = new BooleanOptionItem(22911, "DisablePolusDevices", false, TabGroup.GameSettings)
                 .SetParent(DisableDevices);
+
             DisablePolusAdmin = new BooleanOptionItem(22912, "DisablePolusAdmin", false, TabGroup.GameSettings)
                 .SetParent(DisablePolusDevices);
+
             DisablePolusCamera = new BooleanOptionItem(22913, "DisablePolusCamera", false, TabGroup.GameSettings)
                 .SetParent(DisablePolusDevices);
+
             DisablePolusVital = new BooleanOptionItem(22914, "DisablePolusVital", false, TabGroup.GameSettings)
                 .SetParent(DisablePolusDevices);
+
             DisableAirshipDevices = new BooleanOptionItem(22915, "DisableAirshipDevices", false, TabGroup.GameSettings)
                 .SetParent(DisableDevices);
+
             DisableAirshipCockpitAdmin = new BooleanOptionItem(22916, "DisableAirshipCockpitAdmin", false, TabGroup.GameSettings)
                 .SetParent(DisableAirshipDevices);
 
@@ -1639,27 +1728,37 @@ namespace EHR
 
             DisableAirshipRecordsAdmin = new BooleanOptionItem(22917, "DisableAirshipRecordsAdmin", false, TabGroup.GameSettings)
                 .SetParent(DisableAirshipDevices);
+
             DisableAirshipCamera = new BooleanOptionItem(22918, "DisableAirshipCamera", false, TabGroup.GameSettings)
                 .SetParent(DisableAirshipDevices);
+
             DisableAirshipVital = new BooleanOptionItem(22919, "DisableAirshipVital", false, TabGroup.GameSettings)
                 .SetParent(DisableAirshipDevices);
+
             DisableFungleDevices = new BooleanOptionItem(22925, "DisableFungleDevices", false, TabGroup.GameSettings)
                 .SetParent(DisableDevices)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableFungleCamera = new BooleanOptionItem(22926, "DisableFungleCamera", false, TabGroup.GameSettings)
                 .SetParent(DisableFungleDevices)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableFungleVital = new BooleanOptionItem(22927, "DisableFungleVital", false, TabGroup.GameSettings)
                 .SetParent(DisableFungleDevices)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableDevicesIgnoreConditions = new BooleanOptionItem(22920, "IgnoreConditions", false, TabGroup.GameSettings)
                 .SetParent(DisableDevices);
+
             DisableDevicesIgnoreImpostors = new BooleanOptionItem(22921, "IgnoreImpostors", false, TabGroup.GameSettings)
                 .SetParent(DisableDevicesIgnoreConditions);
+
             DisableDevicesIgnoreNeutrals = new BooleanOptionItem(22922, "IgnoreNeutrals", false, TabGroup.GameSettings)
                 .SetParent(DisableDevicesIgnoreConditions);
+
             DisableDevicesIgnoreCrewmates = new BooleanOptionItem(22923, "IgnoreCrewmates", false, TabGroup.GameSettings)
                 .SetParent(DisableDevicesIgnoreConditions);
+
             DisableDevicesIgnoreAfterAnyoneDied = new BooleanOptionItem(22924, "IgnoreAfterAnyoneDied", false, TabGroup.GameSettings)
                 .SetParent(DisableDevicesIgnoreConditions)
                 .SetGameMode(CustomGameMode.Standard);
@@ -1670,6 +1769,7 @@ namespace EHR
             UsePets = new BooleanOptionItem(23850, "UsePets", false, TabGroup.TaskSettings)
                 .SetHeader(true)
                 .SetColor(new Color32(60, 0, 255, byte.MaxValue));
+
             PetToAssignToEveryone = new StringOptionItem(23854, "PetToAssign", PetToAssign, 24, TabGroup.TaskSettings)
                 .SetParent(UsePets)
                 .SetColor(new Color32(60, 0, 255, byte.MaxValue));
@@ -1678,6 +1778,7 @@ namespace EHR
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true)
                 .SetColor(new Color32(255, 44, 44, byte.MaxValue));
+
             UseUnshiftTriggerForNKs = new BooleanOptionItem(23872, "UseUnshiftTriggerForNKs", false, TabGroup.TaskSettings)
                 .SetParent(UseUnshiftTrigger)
                 .SetGameMode(CustomGameMode.Standard)
@@ -1687,6 +1788,7 @@ namespace EHR
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true)
                 .SetColor(new Color32(255, 255, 44, byte.MaxValue));
+
             UsePhantomBasisForNKs = new BooleanOptionItem(23864, "UsePhantomBasisForNKs", false, TabGroup.TaskSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetParent(UsePhantomBasis)
@@ -1701,9 +1803,11 @@ namespace EHR
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true)
                 .SetColor(Color.green);
+
             OverrideScientistBasedRoles = new BooleanOptionItem(23855, "OverrideScientistBasedRoles", false, TabGroup.TaskSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetParent(EveryoneCanVent);
+
             WhackAMole = new BooleanOptionItem(23856, "WhackAMole", false, TabGroup.TaskSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetParent(EveryoneCanVent);
@@ -1712,10 +1816,12 @@ namespace EHR
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(Color.magenta)
                 .SetHeader(true);
+
             SpawnAdditionalRefugeeWhenNKAlive = new BooleanOptionItem(23858, "SpawnAdditionalRefugeeWhenNKAlive", false, TabGroup.TaskSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(Color.magenta)
                 .SetParent(SpawnAdditionalRefugeeOnImpsDead);
+
             SpawnAdditionalRefugeeMinAlivePlayers = new IntegerOptionItem(23859, "SpawnAdditionalRefugeeMinAlivePlayers", new(1, 14, 1), 7, TabGroup.TaskSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(Color.magenta)
@@ -1732,12 +1838,15 @@ namespace EHR
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true)
                 .SetColor(new Color32(239, 89, 175, byte.MaxValue));
+
             DisableCleanVent = new BooleanOptionItem(23001, "DisableCleanVent", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableCalibrateDistributor = new BooleanOptionItem(23002, "DisableCalibrateDistributor", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableChartCourse = new BooleanOptionItem(23003, "DisableChartCourse", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
@@ -1747,15 +1856,19 @@ namespace EHR
             DisableStabilizeSteering = new BooleanOptionItem(23004, "DisableStabilizeSteering", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableCleanO2Filter = new BooleanOptionItem(23005, "DisableCleanO2Filter", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableUnlockManifolds = new BooleanOptionItem(23006, "DisableUnlockManifolds", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisablePrimeShields = new BooleanOptionItem(23007, "DisablePrimeShields", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableMeasureWeather = new BooleanOptionItem(23008, "DisableMeasureWeather", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
@@ -1765,15 +1878,19 @@ namespace EHR
             DisableBuyBeverage = new BooleanOptionItem(23009, "DisableBuyBeverage", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableAssembleArtifact = new BooleanOptionItem(23010, "DisableAssembleArtifact", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableSortSamples = new BooleanOptionItem(23011, "DisableSortSamples", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableProcessData = new BooleanOptionItem(23012, "DisableProcessData", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableRunDiagnostics = new BooleanOptionItem(23013, "DisableRunDiagnostics", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
@@ -1783,12 +1900,15 @@ namespace EHR
             DisableRepairDrill = new BooleanOptionItem(23014, "DisableRepairDrill", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableAlignTelescope = new BooleanOptionItem(23015, "DisableAlignTelescope", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableRecordTemperature = new BooleanOptionItem(23016, "DisableRecordTemperature", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableFillCanisters = new BooleanOptionItem(23017, "DisableFillCanisters", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
@@ -1798,15 +1918,19 @@ namespace EHR
             DisableMonitorTree = new BooleanOptionItem(23018, "DisableMonitorTree", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableStoreArtifacts = new BooleanOptionItem(23019, "DisableStoreArtifacts", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisablePutAwayPistols = new BooleanOptionItem(23020, "DisablePutAwayPistols", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisablePutAwayRifles = new BooleanOptionItem(23021, "DisablePutAwayRifles", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableMakeBurger = new BooleanOptionItem(23022, "DisableMakeBurger", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
@@ -1816,30 +1940,39 @@ namespace EHR
             DisableCleanToilet = new BooleanOptionItem(23023, "DisableCleanToilet", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableDecontaminate = new BooleanOptionItem(23024, "DisableDecontaminate", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableSortRecords = new BooleanOptionItem(23025, "DisableSortRecords", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableFixShower = new BooleanOptionItem(23026, "DisableFixShower", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisablePickUpTowels = new BooleanOptionItem(23027, "DisablePickUpTowels", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisablePolishRuby = new BooleanOptionItem(23028, "DisablePolishRuby", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableDressMannequin = new BooleanOptionItem(23029, "DisableDressMannequin", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableRoastMarshmallow = new BooleanOptionItem(23030, "DisableRoastMarshmallow", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableCollectSamples = new BooleanOptionItem(23031, "DisableCollectSamples", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableReplaceParts = new BooleanOptionItem(23032, "DisableReplaceParts", false, TabGroup.TaskSettings)
                 .SetParent(DisableShortTasks)
                 .SetGameMode(CustomGameMode.Standard);
@@ -1851,39 +1984,51 @@ namespace EHR
             DisableCommonTasks = new BooleanOptionItem(23100, "DisableCommonTasks", false, TabGroup.TaskSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(239, 89, 175, byte.MaxValue));
+
             DisableSwipeCard = new BooleanOptionItem(23101, "DisableSwipeCardTask", false, TabGroup.TaskSettings)
                 .SetParent(DisableCommonTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableFixWiring = new BooleanOptionItem(23102, "DisableFixWiring", false, TabGroup.TaskSettings)
                 .SetParent(DisableCommonTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableEnterIdCode = new BooleanOptionItem(23103, "DisableEnterIdCode", false, TabGroup.TaskSettings)
                 .SetParent(DisableCommonTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableInsertKeys = new BooleanOptionItem(23104, "DisableInsertKeys", false, TabGroup.TaskSettings)
                 .SetParent(DisableCommonTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableScanBoardingPass = new BooleanOptionItem(23105, "DisableScanBoardingPass", false, TabGroup.TaskSettings)
                 .SetParent(DisableCommonTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableCollectVegetables = new BooleanOptionItem(23106, "DisableCollectVegetables", false, TabGroup.TaskSettings)
                 .SetParent(DisableCommonTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableMineOres = new BooleanOptionItem(23107, "DisableMineOres", false, TabGroup.TaskSettings)
                 .SetParent(DisableCommonTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableExtractFuel = new BooleanOptionItem(23108, "DisableExtractFuel", false, TabGroup.TaskSettings)
                 .SetParent(DisableCommonTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableCatchFish = new BooleanOptionItem(23109, "DisableCatchFish", false, TabGroup.TaskSettings)
                 .SetParent(DisableCommonTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisablePolishGem = new BooleanOptionItem(23110, "DisablePolishGem", false, TabGroup.TaskSettings)
                 .SetParent(DisableCommonTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableHelpCritter = new BooleanOptionItem(23111, "DisableHelpCritter", false, TabGroup.TaskSettings)
                 .SetParent(DisableCommonTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableHoistSupplies = new BooleanOptionItem(23112, "DisableHoistSupplies", false, TabGroup.TaskSettings)
                 .SetParent(DisableCommonTasks)
                 .SetGameMode(CustomGameMode.Standard);
@@ -1894,15 +2039,19 @@ namespace EHR
             DisableLongTasks = new BooleanOptionItem(23150, "DisableLongTasks", false, TabGroup.TaskSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(239, 89, 175, byte.MaxValue));
+
             DisableSubmitScan = new BooleanOptionItem(23151, "DisableSubmitScanTask", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableUnlockSafe = new BooleanOptionItem(23152, "DisableUnlockSafeTask", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableStartReactor = new BooleanOptionItem(23153, "DisableStartReactorTask", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableResetBreaker = new BooleanOptionItem(23154, "DisableResetBreakerTask", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
@@ -1912,18 +2061,23 @@ namespace EHR
             DisableAlignEngineOutput = new BooleanOptionItem(23155, "DisableAlignEngineOutput", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableInspectSample = new BooleanOptionItem(23156, "DisableInspectSample", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableEmptyChute = new BooleanOptionItem(23157, "DisableEmptyChute", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableClearAsteroids = new BooleanOptionItem(23158, "DisableClearAsteroids", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableWaterPlants = new BooleanOptionItem(23159, "DisableWaterPlants", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableOpenWaterways = new BooleanOptionItem(23160, "DisableOpenWaterways", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
@@ -1933,21 +2087,27 @@ namespace EHR
             DisableReplaceWaterJug = new BooleanOptionItem(23161, "DisableReplaceWaterJug", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableRebootWifi = new BooleanOptionItem(23162, "DisableRebootWifi", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableDevelopPhotos = new BooleanOptionItem(23163, "DisableDevelopPhotos", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableRewindTapes = new BooleanOptionItem(23164, "DisableRewindTapes", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableStartFans = new BooleanOptionItem(23165, "DisableStartFans", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableFixAntenna = new BooleanOptionItem(23166, "DisableFixAntenna", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableBuildSandcastle = new BooleanOptionItem(23167, "DisableBuildSandcastle", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
@@ -1957,21 +2117,27 @@ namespace EHR
             DisableCrankGenerator = new BooleanOptionItem(23168, "DisableCrankGenerator", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableMonitorMushroom = new BooleanOptionItem(23169, "DisableMonitorMushroom", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisablePlayVideoGame = new BooleanOptionItem(23170, "DisablePlayVideoGame", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableFindSignal = new BooleanOptionItem(23171, "DisableFindSignal", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableThrowFisbee = new BooleanOptionItem(23172, "DisableThrowFisbee", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableLiftWeights = new BooleanOptionItem(23173, "DisableLiftWeights", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableCollectShells = new BooleanOptionItem(23174, "DisableCollectShells", false, TabGroup.TaskSettings)
                 .SetParent(DisableLongTasks)
                 .SetGameMode(CustomGameMode.Standard);
@@ -1983,18 +2149,23 @@ namespace EHR
             DisableOtherTasks = new BooleanOptionItem(23200, "DisableOtherTasks", false, TabGroup.TaskSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(239, 89, 175, byte.MaxValue));
+
             DisableUploadData = new BooleanOptionItem(23205, "DisableUploadDataTask", false, TabGroup.TaskSettings)
                 .SetParent(DisableOtherTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableEmptyGarbage = new BooleanOptionItem(23206, "DisableEmptyGarbage", false, TabGroup.TaskSettings)
                 .SetParent(DisableOtherTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableFuelEngines = new BooleanOptionItem(23207, "DisableFuelEngines", false, TabGroup.TaskSettings)
                 .SetParent(DisableOtherTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableDivertPower = new BooleanOptionItem(23208, "DisableDivertPower", false, TabGroup.TaskSettings)
                 .SetParent(DisableOtherTasks)
                 .SetGameMode(CustomGameMode.Standard);
+
             DisableActivateWeatherNodes = new BooleanOptionItem(23209, "DisableActivateWeatherNodes", false, TabGroup.TaskSettings)
                 .SetParent(DisableOtherTasks)
                 .SetGameMode(CustomGameMode.Standard);
@@ -2008,12 +2179,15 @@ namespace EHR
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(Color.yellow)
                 .SetHeader(true);
+
             GuesserMode = new BooleanOptionItem(19700, "GuesserMode", false, TabGroup.TaskSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(Color.yellow)
                 .SetHeader(true);
+
             CrewmatesCanGuess = new BooleanOptionItem(19710, "CrewmatesCanGuess", false, TabGroup.TaskSettings)
                 .SetParent(GuesserMode);
+
             ImpostorsCanGuess = new BooleanOptionItem(19711, "ImpostorsCanGuess", false, TabGroup.TaskSettings)
                 .SetParent(GuesserMode);
 
@@ -2021,16 +2195,22 @@ namespace EHR
 
             NeutralKillersCanGuess = new BooleanOptionItem(19712, "NeutralKillersCanGuess", false, TabGroup.TaskSettings)
                 .SetParent(GuesserMode);
+
             PassiveNeutralsCanGuess = new BooleanOptionItem(19713, "PassiveNeutralsCanGuess", false, TabGroup.TaskSettings)
                 .SetParent(GuesserMode);
+
             BetrayalAddonsCanGuess = new BooleanOptionItem(19719, "BetrayalAddonsCanGuess", false, TabGroup.TaskSettings)
                 .SetParent(GuesserMode);
+
             CanGuessAddons = new BooleanOptionItem(19714, "CanGuessAddons", true, TabGroup.TaskSettings)
                 .SetParent(GuesserMode);
+
             CrewCanGuessCrew = new BooleanOptionItem(19715, "CrewCanGuessCrew", true, TabGroup.TaskSettings)
                 .SetParent(GuesserMode);
+
             ImpCanGuessImp = new BooleanOptionItem(19716, "ImpCanGuessImp", true, TabGroup.TaskSettings)
                 .SetParent(GuesserMode);
+
             HideGuesserCommands = new BooleanOptionItem(19717, "GuesserTryHideMsg", true, TabGroup.TaskSettings)
                 .SetParent(GuesserMode)
                 .SetColor(Color.green);
@@ -2050,6 +2230,7 @@ namespace EHR
                 .SetColor(new Color32(147, 241, 240, byte.MaxValue))
                 .SetHeader(true)
                 .SetGameMode(CustomGameMode.Standard);
+
             SyncedButtonCount = new IntegerOptionItem(23310, "SyncedButtonCount", new(0, 100, 1), 10, TabGroup.GameSettings)
                 .SetParent(SyncButtonMode)
                 .SetValueFormat(OptionFormat.Times)
@@ -2060,6 +2241,7 @@ namespace EHR
             AllAliveMeeting = new BooleanOptionItem(23400, "AllAliveMeeting", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(147, 241, 240, byte.MaxValue));
+
             AllAliveMeetingTime = new FloatOptionItem(23410, "AllAliveMeetingTime", new(1f, 300f, 1f), 10f, TabGroup.GameSettings)
                 .SetParent(AllAliveMeeting)
                 .SetValueFormat(OptionFormat.Seconds);
@@ -2067,13 +2249,15 @@ namespace EHR
             EnableKillerLeftCommand = new BooleanOptionItem(44428, "EnableKillerLeftCommand", true, TabGroup.GameSettings)
                 .SetColor(new Color32(147, 241, 240, byte.MaxValue));
 
-            int i = 0;
+            var i = 0;
+
             foreach (GameStateInfo s in Enum.GetValues<GameStateInfo>())
             {
                 GameStateSettings[s] = new BooleanOptionItem(44429 + i, $"GameStateCommand.Show{s}", true, TabGroup.GameSettings)
                     .SetGameMode(CustomGameMode.Standard)
                     .SetParent(EnableKillerLeftCommand)
                     .SetColor(new Color32(147, 241, 240, byte.MaxValue));
+
                 i++;
             }
 
@@ -2095,10 +2279,12 @@ namespace EHR
             AdditionalEmergencyCooldown = new BooleanOptionItem(23500, "AdditionalEmergencyCooldown", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(147, 241, 240, byte.MaxValue));
+
             AdditionalEmergencyCooldownThreshold = new IntegerOptionItem(23510, "AdditionalEmergencyCooldownThreshold", new(1, 15, 1), 1, TabGroup.GameSettings)
                 .SetParent(AdditionalEmergencyCooldown)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetValueFormat(OptionFormat.Players);
+
             AdditionalEmergencyCooldownTime = new FloatOptionItem(23511, "AdditionalEmergencyCooldownTime", new(1f, 60f, 1f), 1f, TabGroup.GameSettings)
                 .SetParent(AdditionalEmergencyCooldown)
                 .SetGameMode(CustomGameMode.Standard)
@@ -2109,21 +2295,27 @@ namespace EHR
             VoteMode = new BooleanOptionItem(23600, "VoteMode", false, TabGroup.GameSettings)
                 .SetColor(new Color32(147, 241, 240, byte.MaxValue))
                 .SetGameMode(CustomGameMode.Standard);
+
             WhenSkipVote = new StringOptionItem(23610, "WhenSkipVote", VoteModes[..3], 0, TabGroup.GameSettings)
                 .SetParent(VoteMode)
                 .SetGameMode(CustomGameMode.Standard);
+
             WhenSkipVoteIgnoreFirstMeeting = new BooleanOptionItem(23611, "WhenSkipVoteIgnoreFirstMeeting", false, TabGroup.GameSettings)
                 .SetParent(WhenSkipVote)
                 .SetGameMode(CustomGameMode.Standard);
+
             WhenSkipVoteIgnoreNoDeadBody = new BooleanOptionItem(23612, "WhenSkipVoteIgnoreNoDeadBody", false, TabGroup.GameSettings)
                 .SetParent(WhenSkipVote)
                 .SetGameMode(CustomGameMode.Standard);
+
             WhenSkipVoteIgnoreEmergency = new BooleanOptionItem(23613, "WhenSkipVoteIgnoreEmergency", false, TabGroup.GameSettings)
                 .SetParent(WhenSkipVote)
                 .SetGameMode(CustomGameMode.Standard);
+
             WhenNonVote = new StringOptionItem(23700, "WhenNonVote", VoteModes, 0, TabGroup.GameSettings)
                 .SetParent(VoteMode)
                 .SetGameMode(CustomGameMode.Standard);
+
             WhenTie = new StringOptionItem(23750, "WhenTie", TieModes, 0, TabGroup.GameSettings)
                 .SetParent(VoteMode)
                 .SetGameMode(CustomGameMode.Standard);
@@ -2139,6 +2331,7 @@ namespace EHR
             LadderDeath = new BooleanOptionItem(23800, "LadderDeath", false, TabGroup.GameSettings)
                 .SetHeader(true)
                 .SetColor(new Color32(193, 255, 209, byte.MaxValue));
+
             LadderDeathChance = new StringOptionItem(23810, "LadderDeathChance", Rates[1..], 0, TabGroup.GameSettings)
                 .SetParent(LadderDeath);
 
@@ -2181,9 +2374,11 @@ namespace EHR
                 .SetGameMode(CustomGameMode.Standard)
                 .SetHeader(true)
                 .SetColor(new Color32(217, 218, 255, byte.MaxValue));
+
             GhostCanSeeOtherVotes = new BooleanOptionItem(24400, "GhostCanSeeOtherVotes", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(217, 218, 255, byte.MaxValue));
+
             GhostCanSeeDeathReason = new BooleanOptionItem(24500, "GhostCanSeeDeathReason", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.Standard)
                 .SetColor(new Color32(217, 218, 255, byte.MaxValue));
@@ -2216,7 +2411,7 @@ namespace EHR
 
         public static void SetupRoleOptions(int id, TabGroup tab, CustomRoles role, CustomGameMode customGameMode = CustomGameMode.Standard, bool zeroOne = false)
         {
-            StringOptionItem spawnOption = new StringOptionItem(id, role.ToString(), zeroOne ? RatesZeroOne : Rates, 0, tab).SetColor(Utils.GetRoleColor(role))
+            var spawnOption = new StringOptionItem(id, role.ToString(), zeroOne ? RatesZeroOne : Rates, 0, tab).SetColor(Utils.GetRoleColor(role))
                 .SetHeader(true)
                 .SetGameMode(customGameMode) as StringOptionItem;
 
@@ -2232,7 +2427,7 @@ namespace EHR
 
         public static void SetupAdtRoleOptions(int id, CustomRoles role, CustomGameMode customGameMode = CustomGameMode.Standard, bool canSetNum = false, TabGroup tab = TabGroup.Addons, bool canSetChance = true, bool teamSpawnOptions = false, bool allowZeroCount = false)
         {
-            StringOptionItem spawnOption = new StringOptionItem(id, role.ToString(), RatesZeroOne, 0, tab).SetColor(Utils.GetRoleColor(role))
+            var spawnOption = new StringOptionItem(id, role.ToString(), RatesZeroOne, 0, tab).SetColor(Utils.GetRoleColor(role))
                 .SetHeader(true)
                 .SetGameMode(customGameMode) as StringOptionItem;
 
@@ -2242,7 +2437,7 @@ namespace EHR
                 .SetHidden(!canSetNum)
                 .SetGameMode(customGameMode);
 
-            IntegerOptionItem spawnRateOption = new IntegerOptionItem(id + 2, "AdditionRolesSpawnRate", new(0, 100, 5), canSetChance ? 65 : 100, tab)
+            var spawnRateOption = new IntegerOptionItem(id + 2, "AdditionRolesSpawnRate", new(0, 100, 5), canSetChance ? 65 : 100, tab)
                 .SetParent(spawnOption)
                 .SetValueFormat(OptionFormat.Percent)
                 .SetHidden(!canSetChance)
@@ -2281,7 +2476,7 @@ namespace EHR
 
         public static void SetupSingleRoleOptions(int id, TabGroup tab, CustomRoles role, int count = 1, CustomGameMode customGameMode = CustomGameMode.Standard, bool zeroOne = false, bool hideMaxSetting = true)
         {
-            StringOptionItem spawnOption = new StringOptionItem(id, role.ToString(), zeroOne ? RatesZeroOne : Rates, 0, tab).SetColor(Utils.GetRoleColor(role))
+            var spawnOption = new StringOptionItem(id, role.ToString(), zeroOne ? RatesZeroOne : Rates, 0, tab).SetColor(Utils.GetRoleColor(role))
                 .SetHeader(true)
                 .SetGameMode(customGameMode) as StringOptionItem;
 
@@ -2327,31 +2522,35 @@ namespace EHR
             private OverrideTasksData(int idStart, TabGroup tab, CustomRoles role)
             {
                 Dictionary<string, string> replacementDic = new() { { "%role%", role.ToColoredString() } };
+
                 DoOverride = new BooleanOptionItem(idStart++, "doOverride", false, tab)
                     .SetParent(CustomRoleSpawnChances[role])
                     .SetValueFormat(OptionFormat.None);
+
                 DoOverride.ReplacementDictionary = replacementDic;
+
                 AssignCommonTasks = new BooleanOptionItem(idStart++, "assignCommonTasks", true, tab)
                     .SetParent(DoOverride)
                     .SetValueFormat(OptionFormat.None);
+
                 AssignCommonTasks.ReplacementDictionary = replacementDic;
+
                 NumLongTasks = new IntegerOptionItem(idStart++, "roleLongTasksNum", new(0, 90, 1), 3, tab)
                     .SetParent(DoOverride)
                     .SetValueFormat(OptionFormat.Pieces);
+
                 NumLongTasks.ReplacementDictionary = replacementDic;
+
                 NumShortTasks = new IntegerOptionItem(idStart, "roleShortTasksNum", new(0, 90, 1), 3, tab)
                     .SetParent(DoOverride)
                     .SetValueFormat(OptionFormat.Pieces);
+
                 NumShortTasks.ReplacementDictionary = replacementDic;
 
                 if (!AllData.ContainsKey(role))
-                {
                     AllData.Add(role, this);
-                }
                 else
-                {
                     Logger.Warn("OverrideTasksData created for duplicate CustomRoles", "OverrideTasksData");
-                }
             }
 
             public static OverrideTasksData Create(int idStart, TabGroup tab, CustomRoles role)

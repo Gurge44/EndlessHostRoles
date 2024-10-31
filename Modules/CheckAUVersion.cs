@@ -19,10 +19,7 @@ namespace EHR.Modules
             IsSupported = AmongUsVersion >= SupportedVersion;
             Logger.Info($" {IsSupported}", "Version Is Supported?");
 
-            if (!IsSupported)
-            {
-                ErrorText.Instance.AddError(ErrorCode.UnsupportedVersion);
-            }
+            if (!IsSupported) ErrorText.Instance.AddError(ErrorCode.UnsupportedVersion);
         }
     }
 }

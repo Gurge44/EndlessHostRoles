@@ -28,12 +28,15 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.EvilDiviner);
+
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.EvilDiviner])
                 .SetValueFormat(OptionFormat.Seconds);
+
             DivinationMaxCount = new IntegerOptionItem(Id + 11, "DivinationMaxCount", new(0, 15, 1), 1, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.EvilDiviner])
                 .SetValueFormat(OptionFormat.Times);
+
             EdAbilityUseGainWithEachKill = new FloatOptionItem(Id + 12, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.EvilDiviner])
                 .SetValueFormat(OptionFormat.Times);
@@ -52,6 +55,7 @@ namespace EHR.Impostor
 
             IsRitualist = Main.PlayerStates[playerId].MainRole == CustomRoles.Ritualist;
             playerId.SetAbilityUseLimit(IsRitualist ? Ritualist.RitualMaxCount.GetInt() : DivinationMaxCount.GetInt());
+
             if (IsRitualist)
             {
                 KCD = Ritualist.KillCooldown.GetFloat();
@@ -78,10 +82,7 @@ namespace EHR.Impostor
 
         private static void SendRPC(byte playerId, byte targetId)
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetEvilDiviner, SendOption.Reliable);
             writer.Write(playerId);
@@ -125,10 +126,7 @@ namespace EHR.Impostor
 
         public override bool KnowRole(PlayerControl seer, PlayerControl target)
         {
-            if (base.KnowRole(seer, target))
-            {
-                return true;
-            }
+            if (base.KnowRole(seer, target)) return true;
 
             return Main.PlayerStates[seer.PlayerId].Role is EvilDiviner ed && ed.DivinationTarget.Contains(target.PlayerId);
         }

@@ -27,39 +27,28 @@ namespace EHR
         {
             AllErrors.ForEach(err => err.IncreaseTimer());
             ErrorData[] ToRemove = AllErrors.Where(err => err.ErrorLevel <= 1 && 30f < err.Timer).ToArray();
+
             if (ToRemove.Length > 0)
             {
                 AllErrors.RemoveAll(err => ToRemove.Contains(err));
                 UpdateText();
-                if (HnSFlag)
-                {
-                    Destroy(gameObject);
-                }
+                if (HnSFlag) Destroy(gameObject);
             }
         }
 
         public void LateUpdate()
         {
-            if (!Text.enabled)
-            {
-                return;
-            }
+            if (!Text.enabled) return;
 
-            if (!Camera)
-            {
-                Camera = !HudManager.InstanceExists ? _camera : _camera1;
-            }
+            if (!Camera) Camera = !HudManager.InstanceExists ? _camera : _camera1;
 
-            if (Camera)
-            {
-                transform.position = AspectPosition.ComputeWorldPosition(Camera, AspectPosition.EdgeAlignments.Top, TextOffset);
-            }
+            if (Camera) transform.position = AspectPosition.ComputeWorldPosition(Camera, AspectPosition.EdgeAlignments.Top, TextOffset);
         }
 
         public static void Create(TextMeshPro baseText)
         {
             TextMeshPro Text = Instantiate(baseText);
-            ErrorText instance = Text.gameObject.AddComponent<ErrorText>();
+            var instance = Text.gameObject.AddComponent<ErrorText>();
             instance.Text = Text;
             instance.name = "ErrorText";
 
@@ -78,16 +67,10 @@ namespace EHR
 
         public void AddError(ErrorCode code)
         {
-            ErrorData error = new ErrorData(code);
-            if (0 < error.ErrorLevel && code != ErrorCode.LoadingHint)
-            {
-                Logger.Error($"Error: {error}: {error.Message}", "ErrorText");
-            }
+            var error = new ErrorData(code);
+            if (0 < error.ErrorLevel && code != ErrorCode.LoadingHint) Logger.Error($"Error: {error}: {error.Message}", "ErrorText");
 
-            if (AllErrors.All(e => e.Code != code))
-            {
-                AllErrors.Add(error);
-            }
+            if (AllErrors.All(e => e.Code != code)) AllErrors.Add(error);
 
             UpdateText();
         }
@@ -96,52 +79,34 @@ namespace EHR
         {
             try
             {
-                string text = string.Empty;
-                int maxLevel = 0;
-                bool hint = false;
+                var text = string.Empty;
+                var maxLevel = 0;
+                var hint = false;
+
                 foreach (ErrorData err in AllErrors)
                 {
-                    if (err.Code == ErrorCode.LoadingHint)
-                    {
-                        hint = true;
-                    }
+                    if (err.Code == ErrorCode.LoadingHint) hint = true;
 
                     text += hint ? LoadingScreen.Hint : $"{err}: {err.Message}\n";
-                    if (maxLevel < err.ErrorLevel)
-                    {
-                        maxLevel = err.ErrorLevel;
-                    }
+                    if (maxLevel < err.ErrorLevel) maxLevel = err.ErrorLevel;
                 }
 
                 if (maxLevel == 0)
-                {
                     Text.enabled = false;
-                }
                 else
                 {
-                    if (!HnSFlag && !hint)
-                    {
-                        text += $"{GetString($"ErrorLevel{maxLevel}")}";
-                    }
+                    if (!HnSFlag && !hint) text += $"{GetString($"ErrorLevel{maxLevel}")}";
 
-                    if (CheatDetected)
-                    {
-                        text = SBDetected ? GetString("EAC.CheatDetected.HighLevel") : GetString("EAC.CheatDetected.LowLevel");
-                    }
+                    if (CheatDetected) text = SBDetected ? GetString("EAC.CheatDetected.HighLevel") : GetString("EAC.CheatDetected.LowLevel");
 
                     Text.enabled = true;
                 }
 
-                if (GameStates.IsInGame && maxLevel != 3 && !CheatDetected)
-                {
-                    text += $"\n{GetString("TerminateCommand")}: Shift+L+Enter";
-                }
+                if (GameStates.IsInGame && maxLevel != 3 && !CheatDetected) text += $"\n{GetString("TerminateCommand")}: Shift+L+Enter";
 
                 Text.text = text;
             }
-            catch (NullReferenceException)
-            {
-            }
+            catch (NullReferenceException) { }
             catch (Exception e)
             {
                 Logger.Error(e.ToString(), "ErrorText.UpdateText");
@@ -192,9 +157,7 @@ namespace EHR
         private void Awake()
         {
             if (Instance)
-            {
                 Destroy(gameObject);
-            }
             else
             {
                 Instance = this;
@@ -206,26 +169,18 @@ namespace EHR
 
         private void FixedUpdate()
         {
-            if (Frame++ < 40)
-            {
-                return;
-            }
+            if (Frame++ < 40) return;
 
             Frame = 0;
 
-            if (_camera != null && _camera1 != null)
-            {
-                return;
-            }
+            if (_camera != null && _camera1 != null) return;
 
             try
             {
                 _camera1 = HudManager.Instance.PlayerCam.GetComponent<Camera>();
                 _camera = Camera.main;
             }
-            catch
-            {
-            }
+            catch { }
         }
 
         #endregion

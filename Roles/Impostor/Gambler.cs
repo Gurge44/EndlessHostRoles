@@ -47,35 +47,49 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Gambler);
+
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 60f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
+
             KillDelay = new IntegerOptionItem(Id + 11, "GamblerKillDelay", new(0, 10, 1), 3, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ShieldDur = new IntegerOptionItem(Id + 12, "GamblerShieldDur", new(1, 30, 1), 15, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
+
             FreezeDur = new IntegerOptionItem(Id + 13, "GamblerFreezeDur", new(1, 10, 1), 3, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
+
             LowVision = new FloatOptionItem(Id + 14, "GamblerLowVision", new(0f, 1f, 0.05f), 0.7f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             LowVisionDur = new IntegerOptionItem(Id + 15, "GamblerLowVisionDur", new(1, 30, 1), 10, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
+
             Speed = new FloatOptionItem(Id + 16, "GamblerSpeedup", new(0.1f, 3f, 0.05f), 1.5f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             SpeedDur = new IntegerOptionItem(Id + 17, "GamblerSpeedupDur", new(1, 20, 1), 5, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
+
             BsrDelay = new IntegerOptionItem(Id + 18, "GamblerBSRDelay", new(0, 10, 1), 2, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
+
             HighKCD = new FloatOptionItem(Id + 19, "GamblerHighKCD", new(10f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
+
             LowKCD = new FloatOptionItem(Id + 20, "GamblerLowKCD", new(10f, 60f, 2.5f), 17.5f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
+
             TPDelay = new IntegerOptionItem(Id + 21, "GamblerTPDelay", new(0, 10, 1), 2, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Seconds);
+
             WhatToIgnore = new BooleanOptionItem(Id + 22, "GamblerWhatToIgnore", true, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Gambler]);
             IgnoreMedicShield = new BooleanOptionItem(Id + 23, "GamblerIgnoreMedicShield", true, TabGroup.ImpostorRoles).SetParent(WhatToIgnore);
             IgnoreCursedWolfAndJinx = new BooleanOptionItem(Id + 24, "GamblerIgnoreCursedWolfAndJinx", true, TabGroup.ImpostorRoles).SetParent(WhatToIgnore);
             IgnoreVeteranAlert = new BooleanOptionItem(Id + 25, "GamblerIgnoreVeteranAlert", false, TabGroup.ImpostorRoles).SetParent(WhatToIgnore);
             IgnorePestilence = new BooleanOptionItem(Id + 26, "GamblerIgnorePestilence", false, TabGroup.ImpostorRoles).SetParent(WhatToIgnore);
+
             PositiveEffectChance = new IntegerOptionItem(Id + 27, "GamblerPositiveEffectChance", new(0, 100, 5), 70, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Gambler])
                 .SetValueFormat(OptionFormat.Percent);
@@ -114,27 +128,19 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null)
-            {
-                return false;
-            }
+            if (killer == null) return false;
 
-            if (target == null)
-            {
-                return false;
-            }
+            if (target == null) return false;
 
-            if (EffectID != byte.MaxValue)
-            {
-                return true;
-            }
+            if (EffectID != byte.MaxValue) return true;
 
-            IRandom rd = IRandom.Instance;
+            var rd = IRandom.Instance;
             isPositiveEffect = rd.Next(1, 101) <= PositiveEffectChance.GetInt();
 
             if (isPositiveEffect)
             {
                 EffectID = (byte)rd.Next(1, 8);
+
                 switch (EffectID)
                 {
                     case 1: // Delayed kill
@@ -147,14 +153,12 @@ namespace EHR.Impostor
                         break;
                     case 3: // No lunge (Swift kill)
                         killer.Notify(GetString("GamblerGet.NoLunge"));
-                        if (killer.RpcCheckAndMurder(target, true))
-                        {
-                            target.Kill(target);
-                        }
+                        if (killer.RpcCheckAndMurder(target, true)) target.Kill(target);
 
                         return false;
                     case 4: // Swap with random player
                         killer.Notify(GetString("GamblerGet.Swap"));
+
                         LateTask.New(() =>
                         {
                             if (GameStates.IsInTask && killer.IsAlive())
@@ -163,9 +167,11 @@ namespace EHR.Impostor
                                 TP(killer.NetTransform, list.RandomElement().Pos());
                             }
                         }, TPDelay.GetInt(), "Gambler Swap");
+
                         break;
                     case 5: // Ignore defense
                         killer.Notify(GetString("GamblerGet.IgnoreDefense"));
+
                         if ((target.Is(CustomRoles.Pestilence) && IgnorePestilence.GetBool())
                             || (Veteran.VeteranInProtect.ContainsKey(target.PlayerId) && IgnoreVeteranAlert.GetBool())
                             || (Medic.InProtect(target.PlayerId) && IgnoreMedicShield.GetBool())
@@ -179,9 +185,7 @@ namespace EHR.Impostor
                             || (Veteran.VeteranInProtect.ContainsKey(target.PlayerId) && !IgnoreVeteranAlert.GetBool())
                             || (Medic.InProtect(target.PlayerId) && !IgnoreMedicShield.GetBool())
                             || ((target.Is(CustomRoles.Jinx) || target.Is(CustomRoles.CursedWolf)) && !IgnoreCursedWolfAndJinx.GetBool()))
-                        {
                             break;
-                        }
 
                         killer.RpcCheckAndMurder(target);
                         return false;
@@ -203,22 +207,18 @@ namespace EHR.Impostor
             else
             {
                 EffectID = (byte)rd.Next(1, 5);
+
                 switch (EffectID)
                 {
                     case 1: // BSR
                         float delay = Math.Max(0.15f, BsrDelay.GetFloat());
-                        if (delay >= 1f)
-                        {
-                            killer.Notify(string.Format(GetString("GamblerGet.BSR"), BsrDelay.GetInt()));
-                        }
+                        if (delay >= 1f) killer.Notify(string.Format(GetString("GamblerGet.BSR"), BsrDelay.GetInt()));
 
                         LateTask.New(() =>
                         {
-                            if (GameStates.IsInTask)
-                            {
-                                killer.CmdReportDeadBody(target.Data);
-                            }
+                            if (GameStates.IsInTask) killer.CmdReportDeadBody(target.Data);
                         }, delay, "Gambler Self Report");
+
                         break;
                     case 2: // Freeze
                         killer.Notify(string.Format(GetString("GamblerGet.Freeze"), FreezeDur.GetInt()));
@@ -248,16 +248,14 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!GameStates.IsInTask || player == null || !player.Is(CustomRoles.Gambler) || (WaitingDelayedKills.Count == 0 && IsSpeedChange.Count == 0 && IsVisionChange.Count == 0 && IsShielded.Count == 0))
-            {
-                return;
-            }
+            if (!GameStates.IsInTask || player == null || !player.Is(CustomRoles.Gambler) || (WaitingDelayedKills.Count == 0 && IsSpeedChange.Count == 0 && IsVisionChange.Count == 0 && IsShielded.Count == 0)) return;
 
-            bool sync = false;
+            var sync = false;
 
             foreach (KeyValuePair<byte, long> x in WaitingDelayedKills)
             {
                 PlayerControl pc = GetPlayerById(x.Key);
+
                 if (!pc.IsAlive())
                 {
                     WaitingDelayedKills.Remove(x.Key);
@@ -284,15 +282,9 @@ namespace EHR.Impostor
                 sync = true;
             }
 
-            if (IsShielded.TryGetValue(player.PlayerId, out long shielded) && shielded + ShieldDur.GetInt() < TimeStamp)
-            {
-                IsShielded.Remove(player.PlayerId);
-            }
+            if (IsShielded.TryGetValue(player.PlayerId, out long shielded) && shielded + ShieldDur.GetInt() < TimeStamp) IsShielded.Remove(player.PlayerId);
 
-            if (sync)
-            {
-                player.MarkDirtySettings();
-            }
+            if (sync) player.MarkDirtySettings();
         }
 
         public override void OnReportDeadBody()
@@ -303,10 +295,7 @@ namespace EHR.Impostor
             foreach (byte playerId in WaitingDelayedKills.Keys.ToArray())
             {
                 PlayerControl pc = GetPlayerById(playerId);
-                if (pc.IsAlive())
-                {
-                    pc.Kill(pc);
-                }
+                if (pc.IsAlive()) pc.Kill(pc);
             }
 
             WaitingDelayedKills.Clear();

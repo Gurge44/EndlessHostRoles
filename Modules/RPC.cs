@@ -167,20 +167,15 @@ namespace EHR.Modules
 
         public static bool Prefix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
         {
-            RpcCalls rpcType = (RpcCalls)callId;
+            var rpcType = (RpcCalls)callId;
             MessageReader subReader = MessageReader.Get(reader);
-            if (EAC.ReceiveRpc(__instance, callId, reader))
-            {
-                return false;
-            }
+            if (EAC.ReceiveRpc(__instance, callId, reader)) return false;
 
             Logger.Info($"From ID: {__instance?.Data?.PlayerId} ({(__instance?.Data?.PlayerId == 0 ? "Host" : __instance?.Data?.PlayerName)}) : {callId} ({RPC.GetRpcName(callId)})", "ReceiveRPC");
+
             if (callId == 11 && __instance != null)
             {
-                if (!ReportDeadBodyRPCs.ContainsKey(__instance.PlayerId))
-                {
-                    ReportDeadBodyRPCs.TryAdd(__instance.PlayerId, 0);
-                }
+                if (!ReportDeadBodyRPCs.ContainsKey(__instance.PlayerId)) ReportDeadBodyRPCs.TryAdd(__instance.PlayerId, 0);
 
                 ReportDeadBodyRPCs[__instance.PlayerId]++;
                 Logger.Info($"ReportDeadBody RPC count: {ReportDeadBodyRPCs[__instance.PlayerId]}, from {__instance.Data?.PlayerName}", "EAC");
@@ -191,15 +186,12 @@ namespace EHR.Modules
                 case RpcCalls.SetName:
                     subReader.ReadUInt32();
                     string name = subReader.ReadString();
-                    if (subReader.BytesRemaining > 0 && subReader.ReadBoolean())
-                    {
-                        return false;
-                    }
+                    if (subReader.BytesRemaining > 0 && subReader.ReadBoolean()) return false;
 
                     Logger.Info($"RPC Set Name For Player: {__instance.GetNameWithRole().RemoveHtmlTags()} => {name}", "SetName");
                     break;
                 case RpcCalls.SetRole:
-                    RoleTypes role = (RoleTypes)subReader.ReadUInt16();
+                    var role = (RoleTypes)subReader.ReadUInt16();
                     bool canOverriddenRole = subReader.ReadBoolean();
                     Logger.Info($"RPC Set Role For Player: {__instance.GetRealName()} => {role} CanOverrideRole: {canOverriddenRole}", "SetRole");
                     break;
@@ -207,10 +199,7 @@ namespace EHR.Modules
                     string text = subReader.ReadString();
                     Logger.Info($"{__instance.GetNameWithRole().RemoveHtmlTags()}:{text}", "ReceiveChat");
                     ChatCommands.OnReceiveChat(__instance, text, out bool canceled);
-                    if (canceled)
-                    {
-                        return false;
-                    }
+                    if (canceled) return false;
 
                     break;
                 case RpcCalls.StartMeeting:
@@ -229,15 +218,9 @@ namespace EHR.Modules
             if (__instance != null && !__instance.IsHost() && Enum.IsDefined(typeof(CustomRPC), (int)callId) && !TrustedRpc(callId))
             {
                 Logger.Warn($"{__instance.Data?.PlayerName}:{callId}({RPC.GetRpcName(callId)}) canceled because it was sent by someone other than the host.", "CustomRPC");
-                if (!AmongUsClient.Instance.AmHost)
-                {
-                    return false;
-                }
+                if (!AmongUsClient.Instance.AmHost) return false;
 
-                if (!EAC.ReceiveInvalidRpc(__instance, callId))
-                {
-                    return false;
-                }
+                if (!EAC.ReceiveInvalidRpc(__instance, callId)) return false;
 
                 AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), false);
                 Logger.Warn($"The RPC received from {__instance.Data?.PlayerName} is not trusted, so they were kicked.", "Kick");
@@ -245,10 +228,7 @@ namespace EHR.Modules
                 return false;
             }
 
-            if (__instance != null && (!ReportDeadBodyRPCs.TryGetValue(__instance.PlayerId, out int times) || times <= 4))
-            {
-                return true;
-            }
+            if (__instance != null && (!ReportDeadBodyRPCs.TryGetValue(__instance.PlayerId, out int times) || times <= 4)) return true;
 
             AmongUsClient.Instance.KickPlayer(__instance.GetClientId(), true);
             Logger.Warn($"{__instance?.Data?.PlayerName} has sent 5 or more ReportDeadBody RPCs in the last 1 second, they were banned for hacking.", "EAC");
@@ -258,11 +238,8 @@ namespace EHR.Modules
 
         public static void Postfix(PlayerControl __instance, [HarmonyArgument(0)] byte callId, [HarmonyArgument(1)] MessageReader reader)
         {
-            CustomRPC rpcType = (CustomRPC)callId;
-            if (AmongUsClient.Instance.AmHost && !TrustedRpc(callId))
-            {
-                return;
-            }
+            var rpcType = (CustomRPC)callId;
+            if (AmongUsClient.Instance.AmHost && !TrustedRpc(callId)) return;
 
             switch (rpcType)
             {
@@ -274,12 +251,14 @@ namespace EHR.Modules
                         ChatUpdatePatch.DoBlockChat = true;
                         Main.OverrideWelcomeMsg = string.Format(GetString("RpcAntiBlackOutNotifyInLobby"), __instance?.Data?.PlayerName, GetString("EndWhenPlayerBug"));
                         LateTask.New(() => { Logger.SendInGame(string.Format(GetString("RpcAntiBlackOutEndGame"), __instance?.Data?.PlayerName) /*, true*/); }, 3f, "Anti-Black Msg SendInGame");
+
                         LateTask.New(() =>
                         {
                             CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Error);
                             GameManager.Instance.LogicFlow.CheckEndCriteria();
                             RPC.ForceEndGame(CustomWinner.Error);
                         }, 5.5f, "Anti-Black End Game");
+
                         LateTask.New(() => ChatUpdatePatch.DoBlockChat = false, 6f, log: false);
                     }
                     else if (GameStates.IsOnlineGame)
@@ -300,14 +279,9 @@ namespace EHR.Modules
 
                         try
                         {
-                            if (!Main.PlayerVersion.ContainsKey(__instance.PlayerId))
-                            {
-                                RPC.RpcVersionCheck();
-                            }
+                            if (!Main.PlayerVersion.ContainsKey(__instance.PlayerId)) RPC.RpcVersionCheck();
                         }
-                        catch
-                        {
-                        }
+                        catch { }
 
                         Main.PlayerVersion[__instance.PlayerId] = new(version, tag, forkId);
 
@@ -331,10 +305,7 @@ namespace EHR.Modules
                     {
                         Logger.Warn($"{__instance?.Data?.PlayerName}({__instance?.PlayerId}): error during version check", "RpcVersionCheck");
                         Utils.ThrowException(e);
-                        if (GameStates.InGame || AmongUsClient.Instance.IsGameStarted)
-                        {
-                            break;
-                        }
+                        if (GameStates.InGame || AmongUsClient.Instance.IsGameStarted) break;
 
                         LateTask.New(() =>
                         {
@@ -352,10 +323,7 @@ namespace EHR.Modules
                 }
                 case CustomRPC.SyncCustomSettings:
                 {
-                    if (AmongUsClient.Instance.AmHost)
-                    {
-                        break;
-                    }
+                    if (AmongUsClient.Instance.AmHost) break;
 
                     List<OptionItem> listOptions = [];
                     int startAmount = reader.ReadInt32();
@@ -364,10 +332,7 @@ namespace EHR.Modules
                     int countAllOptions = OptionItem.AllOptions.Count;
 
                     // Add Options
-                    for (int option = startAmount; option < countAllOptions && option <= lastAmount; option++)
-                    {
-                        listOptions.Add(OptionItem.AllOptions[option]);
-                    }
+                    for (int option = startAmount; option < countAllOptions && option <= lastAmount; option++) listOptions.Add(OptionItem.AllOptions[option]);
 
                     int countOptions = listOptions.Count;
                     Logger.Msg($"StartAmount: {startAmount} - LastAmount: {lastAmount} ({startAmount}/{lastAmount}) :--: ListOptionsCount: {countOptions} - AllOptions: {countAllOptions} ({countOptions}/{countAllOptions})", "SyncCustomSettings");
@@ -379,9 +344,7 @@ namespace EHR.Modules
                         {
                             option.SetValue(reader.ReadPackedInt32());
                         }
-                        catch
-                        {
-                        }
+                        catch { }
                     }
 
                     OptionShower.GetText();
@@ -400,7 +363,7 @@ namespace EHR.Modules
                 case CustomRPC.PlaySound:
                 {
                     byte playerID = reader.ReadByte();
-                    Sounds sound = (Sounds)reader.ReadByte();
+                    var sound = (Sounds)reader.ReadByte();
                     RPC.PlaySound(playerID, sound);
                     break;
                 }
@@ -414,17 +377,14 @@ namespace EHR.Modules
                 {
                     Main.AllClientRealNames.Clear();
                     int num2 = reader.ReadPackedInt32();
-                    for (int i = 0; i < num2; i++)
-                    {
-                        Main.AllClientRealNames.TryAdd(reader.ReadInt32(), reader.ReadString());
-                    }
+                    for (var i = 0; i < num2; i++) Main.AllClientRealNames.TryAdd(reader.ReadInt32(), reader.ReadString());
 
                     break;
                 }
                 case CustomRPC.SetCustomRole:
                 {
                     byte CustomRoleTargetId = reader.ReadByte();
-                    CustomRoles role = (CustomRoles)reader.ReadPackedInt32();
+                    var role = (CustomRoles)reader.ReadPackedInt32();
                     bool replaceAllAddons = reader.ReadBoolean();
                     RPC.SetCustomRole(CustomRoleTargetId, role, replaceAllAddons);
                     break;
@@ -443,27 +403,20 @@ namespace EHR.Modules
                 case CustomRPC.RemoveSubRole:
                 {
                     byte id = reader.ReadByte();
+
                     if (reader.ReadPackedInt32() == 2)
-                    {
                         Main.PlayerStates[id].SubRoles.Clear();
-                    }
                     else
-                    {
                         Main.PlayerStates[id].RemoveSubRole((CustomRoles)reader.ReadPackedInt32());
-                    }
 
                     break;
                 }
                 case CustomRPC.Arrow:
                 {
                     if (reader.ReadBoolean())
-                    {
                         TargetArrow.ReceiveRPC(reader);
-                    }
                     else
-                    {
                         LocateArrow.ReceiveRPC(reader);
-                    }
 
                     break;
                 }
@@ -503,7 +456,7 @@ namespace EHR.Modules
                 }
                 case CustomRPC.FixModdedClientCNO:
                 {
-                    PlayerControl CNO = reader.ReadNetObject<PlayerControl>();
+                    var CNO = reader.ReadNetObject<PlayerControl>();
                     bool active = reader.ReadBoolean();
                     CNO.transform.FindChild("Names").FindChild("NameText_TMP").gameObject.SetActive(active);
                     break;
@@ -511,9 +464,10 @@ namespace EHR.Modules
                 case CustomRPC.SyncGeneralOptions:
                 {
                     byte id = reader.ReadByte();
-                    CustomRoles role = (CustomRoles)reader.ReadPackedInt32();
+                    var role = (CustomRoles)reader.ReadPackedInt32();
                     bool dead = reader.ReadBoolean();
-                    PlayerState.DeathReason dr = (PlayerState.DeathReason)reader.ReadPackedInt32();
+                    var dr = (PlayerState.DeathReason)reader.ReadPackedInt32();
+
                     if (Main.PlayerStates.TryGetValue(id, out PlayerState state))
                     {
                         state.MainRole = role;
@@ -529,10 +483,7 @@ namespace EHR.Modules
                 }
                 case CustomRPC.RequestSendMessage:
                 {
-                    if (!AmongUsClient.Instance.AmHost)
-                    {
-                        break;
-                    }
+                    if (!AmongUsClient.Instance.AmHost) break;
 
                     string text = reader.ReadString();
                     byte sendTo = reader.ReadByte();
@@ -548,6 +499,7 @@ namespace EHR.Modules
                     int customRole = reader.ReadPackedInt32();
                     bool playSound = reader.ReadBoolean();
                     OptionItem key = OptionItem.AllOptions[item];
+
                     switch (typeId)
                     {
                         case 0:
@@ -565,10 +517,7 @@ namespace EHR.Modules
                     byte id = reader.ReadByte();
                     byte target = reader.ReadByte();
                     bool isFinished = reader.ReadBoolean();
-                    if (Main.PlayerStates[id].Role is not Postman pm)
-                    {
-                        break;
-                    }
+                    if (Main.PlayerStates[id].Role is not Postman pm) break;
 
                     pm.Target = target;
                     pm.IsFinished = isFinished;
@@ -576,20 +525,14 @@ namespace EHR.Modules
                 }
                 case CustomRPC.SyncChangeling:
                 {
-                    if (Main.PlayerStates[reader.ReadByte()].Role is not Changeling changeling)
-                    {
-                        break;
-                    }
+                    if (Main.PlayerStates[reader.ReadByte()].Role is not Changeling changeling) break;
 
                     changeling.CurrentRole = (CustomRoles)reader.ReadPackedInt32();
                     break;
                 }
                 case CustomRPC.SyncTiger:
                 {
-                    if (Main.PlayerStates[reader.ReadByte()].Role is not Tiger tiger)
-                    {
-                        break;
-                    }
+                    if (Main.PlayerStates[reader.ReadByte()].Role is not Tiger tiger) break;
 
                     tiger.EnrageTimer = reader.ReadSingle();
                     break;
@@ -597,10 +540,7 @@ namespace EHR.Modules
                 case CustomRPC.SyncSentry:
                 {
                     byte id = reader.ReadByte();
-                    if (Main.PlayerStates[id].Role is not Crewmate.Sentry sentry)
-                    {
-                        break;
-                    }
+                    if (Main.PlayerStates[id].Role is not Crewmate.Sentry sentry) break;
 
                     sentry.MonitoredRoom = Utils.GetPlayerById(id).GetPlainShipRoom();
                     break;
@@ -716,6 +656,7 @@ namespace EHR.Modules
                     byte id = reader.ReadByte();
                     (Main.PlayerStates[id].Role as Sniper)?.ReceiveRPC(reader);
                 }
+
                     break;
                 case CustomRPC.SyncSpy:
                 {
@@ -753,6 +694,7 @@ namespace EHR.Modules
                     byte targetId = reader.ReadByte();
                     (Main.PlayerStates[hitmanId].Role as Hitman)?.ReceiveRPC(targetId);
                 }
+
                     break;
                 case CustomRPC.SetWeaponMasterMode:
                 {
@@ -783,11 +725,9 @@ namespace EHR.Modules
                 {
                     Main.LoversPlayers.Clear();
                     int count = reader.ReadInt32();
-                    for (int i = 0; i < count; i++)
-                    {
-                        Main.LoversPlayers.Add(Utils.GetPlayerById(reader.ReadByte()));
-                    }
+                    for (var i = 0; i < count; i++) Main.LoversPlayers.Add(Utils.GetPlayerById(reader.ReadByte()));
                 }
+
                     break;
                 case CustomRPC.SetExecutionerTarget:
                 {
@@ -814,9 +754,10 @@ namespace EHR.Modules
                     byte id = reader.ReadByte();
                     int count = reader.ReadInt32();
                     int state = reader.ReadInt32();
-                    FireWorks.FireWorksState newState = (FireWorks.FireWorksState)state;
+                    var newState = (FireWorks.FireWorksState)state;
                     (Main.PlayerStates[id].Role as FireWorks)?.ReceiveRPC(count, newState);
                 }
+
                     break;
                 case CustomRPC.SyncMycologist:
                 {
@@ -832,10 +773,7 @@ namespace EHR.Modules
                 {
                     byte arsonistId = reader.ReadByte();
                     byte dousingTargetId = reader.ReadByte();
-                    if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
-                    {
-                        Arsonist.CurrentDousingTarget = dousingTargetId;
-                    }
+                    if (PlayerControl.LocalPlayer.PlayerId == arsonistId) Arsonist.CurrentDousingTarget = dousingTargetId;
 
                     break;
                 }
@@ -843,10 +781,7 @@ namespace EHR.Modules
                 {
                     byte arsonistId1 = reader.ReadByte();
                     byte doTargetId = reader.ReadByte();
-                    if (PlayerControl.LocalPlayer.PlayerId == arsonistId1)
-                    {
-                        Revolutionist.CurrentDrawTarget = doTargetId;
-                    }
+                    if (PlayerControl.LocalPlayer.PlayerId == arsonistId1) Revolutionist.CurrentDrawTarget = doTargetId;
 
                     break;
                 }
@@ -864,6 +799,7 @@ namespace EHR.Modules
                 {
                     byte id = reader.ReadByte();
                     int operate = reader.ReadInt32();
+
                     if (operate == 1)
                     {
                         byte victim = reader.ReadByte();
@@ -888,10 +824,7 @@ namespace EHR.Modules
                 {
                     uint clientId = reader.ReadPackedUInt32();
                     bool show = reader.ReadBoolean();
-                    if (AmongUsClient.Instance.ClientId == clientId)
-                    {
-                        HudManager.Instance.Chat.SetVisible(show);
-                    }
+                    if (AmongUsClient.Instance.ClientId == clientId) HudManager.Instance.Chat.SetVisible(show);
 
                     break;
                 }
@@ -941,6 +874,7 @@ namespace EHR.Modules
                     bool isOdd = reader.ReadBoolean();
                     (Main.PlayerStates[id].Role as Greedier)?.ReceiveRPC(isOdd);
                 }
+
                     break;
                 case CustomRPC.SetCollectorVotes:
                 {
@@ -970,6 +904,7 @@ namespace EHR.Modules
                     long lastUpdate = long.Parse(reader.ReadString());
                     (Main.PlayerStates[id].Role as Chronomancer)?.ReceiveRPC(isRampaging, chargePercent, lastUpdate);
                 }
+
                     break;
                 case CustomRPC.SetMedicalerProtectList:
                 {
@@ -991,10 +926,7 @@ namespace EHR.Modules
                 {
                     Main.AllPlayerNames = [];
                     int num = reader.ReadInt32();
-                    for (int i = 0; i < num; i++)
-                    {
-                        Main.AllPlayerNames.TryAdd(reader.ReadByte(), reader.ReadString());
-                    }
+                    for (var i = 0; i < num; i++) Main.AllPlayerNames.TryAdd(reader.ReadByte(), reader.ReadString());
 
                     break;
                 }
@@ -1003,12 +935,14 @@ namespace EHR.Modules
                     byte id = reader.ReadByte();
                     (Main.PlayerStates[id].Role as Mafioso)?.ReceiveRPC(reader);
                 }
+
                     break;
                 case CustomRPC.SyncMafiosoPistolCD:
                 {
                     byte id = reader.ReadByte();
                     (Main.PlayerStates[id].Role as Mafioso)?.ReceiveRPCSyncPistolCD(reader);
                 }
+
                     break;
                 case CustomRPC.SyncNameNotify:
                 {
@@ -1040,6 +974,7 @@ namespace EHR.Modules
                     byte id = reader.ReadByte();
                     (Main.PlayerStates[id].Role as Swooper)?.ReceiveRPC(reader);
                 }
+
                     break;
                 case CustomRPC.SetAlchemistTimer:
                 {
@@ -1075,6 +1010,7 @@ namespace EHR.Modules
                     byte targetId = reader.ReadByte();
                     (Main.PlayerStates[id].Role as EvilDiviner)?.ReceiveRPC(targetId);
                 }
+
                     break;
                 case CustomRPC.SyncHookshot:
                 {
@@ -1104,10 +1040,7 @@ namespace EHR.Modules
                 case CustomRPC.KillFlash:
                 {
                     Utils.FlashColor(new(1f, 0f, 0f, 0.3f));
-                    if (Constants.ShouldPlaySfx())
-                    {
-                        RPC.PlaySound(PlayerControl.LocalPlayer.PlayerId, Sounds.KillSound);
-                    }
+                    if (Constants.ShouldPlaySfx()) RPC.PlaySound(PlayerControl.LocalPlayer.PlayerId, Sounds.KillSound);
 
                     break;
                 }
@@ -1123,7 +1056,7 @@ namespace EHR.Modules
                 }
                 case CustomRPC.SetJailorTarget:
                 {
-                    Jailor.ReceiveRPC(reader, true);
+                    Jailor.ReceiveRPC(reader);
                     break;
                 }
                 case CustomRPC.SetWwTimer:
@@ -1131,6 +1064,7 @@ namespace EHR.Modules
                     byte id = reader.ReadByte();
                     (Main.PlayerStates[id].Role as Werewolf)?.ReceiveRPC(reader);
                 }
+
                     break;
                 case CustomRPC.SetNiceSwapperVotes:
                 {
@@ -1156,13 +1090,10 @@ namespace EHR.Modules
                         break;
                     }
 
-                    PlayerControl killer = reader.ReadNetObject<PlayerControl>();
-                    PlayerControl target = reader.ReadNetObject<PlayerControl>();
+                    var killer = reader.ReadNetObject<PlayerControl>();
+                    var target = reader.ReadNetObject<PlayerControl>();
 
-                    if (!killer.IsAlive() || !target.IsAlive() || AntiBlackout.SkipTasks || target.inMovingPlat || target.onLadder || target.inVent || MeetingHud.Instance)
-                    {
-                        break;
-                    }
+                    if (!killer.IsAlive() || !target.IsAlive() || AntiBlackout.SkipTasks || target.inMovingPlat || target.onLadder || target.inVent || MeetingHud.Instance) break;
 
                     FFAManager.OnPlayerAttack(killer, target);
                     break;
@@ -1179,23 +1110,14 @@ namespace EHR.Modules
             if (targetId != -1)
             {
                 ClientData client = Utils.GetClientById(targetId);
-                if (client == null || client.Character == null || !Main.PlayerVersion.ContainsKey(client.Character.PlayerId))
-                {
-                    return;
-                }
+                if (client == null || client.Character == null || !Main.PlayerVersion.ContainsKey(client.Character.PlayerId)) return;
             }
 
-            if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1 || (AmongUsClient.Instance.AmHost == false && PlayerControl.LocalPlayer == null))
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1 || (AmongUsClient.Instance.AmHost == false && PlayerControl.LocalPlayer == null)) return;
 
             int amount = OptionItem.AllOptions.Count;
             int divideBy = amount / 10;
-            for (int i = 0; i <= 10; i++)
-            {
-                SyncOptionsBetween(i * divideBy, (i + 1) * divideBy, targetId);
-            }
+            for (var i = 0; i <= 10; i++) SyncOptionsBetween(i * divideBy, (i + 1) * divideBy, targetId);
         }
 
         private static void SyncOptionsBetween(int startAmount, int lastAmount, int targetId = -1)
@@ -1203,16 +1125,10 @@ namespace EHR.Modules
             if (targetId != -1)
             {
                 ClientData client = Utils.GetClientById(targetId);
-                if (client == null || client.Character == null || !Main.PlayerVersion.ContainsKey(client.Character.PlayerId))
-                {
-                    return;
-                }
+                if (client == null || client.Character == null || !Main.PlayerVersion.ContainsKey(client.Character.PlayerId)) return;
             }
 
-            if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1 || (AmongUsClient.Instance.AmHost == false && PlayerControl.LocalPlayer == null))
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost || PlayerControl.AllPlayerControls.Count <= 1 || (AmongUsClient.Instance.AmHost == false && PlayerControl.LocalPlayer == null)) return;
 
             int amountAllOptions = OptionItem.AllOptions.Count;
 
@@ -1223,29 +1139,20 @@ namespace EHR.Modules
             List<OptionItem> listOptions = [];
 
             // Add Options
-            for (int option = startAmount; option < amountAllOptions && option <= lastAmount; option++)
-            {
-                listOptions.Add(OptionItem.AllOptions[option]);
-            }
+            for (int option = startAmount; option < amountAllOptions && option <= lastAmount; option++) listOptions.Add(OptionItem.AllOptions[option]);
 
             int countListOptions = listOptions.Count;
             Logger.Msg($"StartAmount: {startAmount} - LastAmount: {lastAmount} ({startAmount}/{lastAmount}) :--: ListOptionsCount: {countListOptions} - AllOptions: {amountAllOptions} ({countListOptions}/{amountAllOptions})", "SyncCustomSettings");
 
             // Sync Settings
-            foreach (OptionItem option in listOptions)
-            {
-                writer.WritePacked(option.GetValue());
-            }
+            foreach (OptionItem option in listOptions) writer.WritePacked(option.GetValue());
 
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
         public static void PlaySoundRPC(byte PlayerID, Sounds sound)
         {
-            if (AmongUsClient.Instance.AmHost)
-            {
-                PlaySound(PlayerID, sound);
-            }
+            if (AmongUsClient.Instance.AmHost) PlaySound(PlayerID, sound);
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlaySound, SendOption.Reliable);
             writer.Write(PlayerID);
@@ -1255,13 +1162,11 @@ namespace EHR.Modules
 
         public static void SyncAllPlayerNames()
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAllPlayerNames, SendOption.Reliable);
             writer.Write(Main.AllPlayerNames.Count);
+
             foreach (KeyValuePair<byte, string> name in Main.AllPlayerNames)
             {
                 writer.Write(name.Key);
@@ -1273,20 +1178,14 @@ namespace EHR.Modules
 
         public static void SendGameData(int clientId = -1)
         {
-            foreach (NetworkedPlayerInfo innerNetObject in GameData.Instance.AllPlayers)
-            {
-                innerNetObject.SetDirtyBit(uint.MaxValue);
-            }
+            foreach (NetworkedPlayerInfo innerNetObject in GameData.Instance.AllPlayers) innerNetObject.SetDirtyBit(uint.MaxValue);
 
             AmongUsClient.Instance.SendAllStreamedObjects();
         }
 
         public static void ShowPopUp(this PlayerControl pc, string msg)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.ShowPopUp, SendOption.Reliable, pc.GetClientId());
             writer.Write(msg);
@@ -1295,13 +1194,11 @@ namespace EHR.Modules
 
         public static void SyncAllClientRealNames()
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncAllClientRealNames, SendOption.Reliable);
             writer.WritePacked(Main.AllClientRealNames.Count);
+
             foreach (KeyValuePair<int, string> name in Main.AllClientRealNames)
             {
                 writer.Write(name.Key);
@@ -1325,15 +1222,10 @@ namespace EHR.Modules
 
             static IEnumerator VersionCheck()
             {
-                while (PlayerControl.LocalPlayer == null)
-                {
-                    yield return null;
-                }
+                while (PlayerControl.LocalPlayer == null) yield return null;
 
                 if (AmongUsClient.Instance.AmHost)
-                {
                     Utils.SendRPC(CustomRPC.VersionCheck, Main.PluginVersion, $"{ThisAssembly.Git.Commit}({ThisAssembly.Git.Branch})", Main.ForkId);
-                }
                 else
                 {
                     MessageWriter writer = AmongUsClient.Instance.StartRpc(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.VersionCheck);
@@ -1358,44 +1250,36 @@ namespace EHR.Modules
         public static void GetDeathReason(MessageReader reader)
         {
             byte playerId = reader.ReadByte();
-            PlayerState.DeathReason deathReason = (PlayerState.DeathReason)reader.ReadInt32();
+            var deathReason = (PlayerState.DeathReason)reader.ReadInt32();
             Main.PlayerStates[playerId].deathReason = deathReason;
             Main.PlayerStates[playerId].IsDead = true;
         }
 
         public static void ForceEndGame(CustomWinner win)
         {
-            if (ShipStatus.Instance == null)
-            {
-                return;
-            }
+            if (ShipStatus.Instance == null) return;
 
             try
             {
                 CustomWinnerHolder.ResetAndSetWinner(win);
             }
-            catch
-            {
-            }
+            catch { }
 
             if (AmongUsClient.Instance.AmHost)
             {
                 ShipStatus.Instance.enabled = false;
+
                 try
                 {
                     GameManager.Instance.LogicFlow.CheckEndCriteria();
                 }
-                catch
-                {
-                }
+                catch { }
 
                 try
                 {
                     GameManager.Instance.RpcEndGame(GameOverReason.ImpostorDisconnect, false);
                 }
-                catch
-                {
-                }
+                catch { }
             }
         }
 
@@ -1436,56 +1320,39 @@ namespace EHR.Modules
         public static void SetCustomRole(byte targetId, CustomRoles role, bool replaceAllAddons = false)
         {
             if (role < CustomRoles.NotAssigned)
-            {
                 Main.PlayerStates[targetId].SetMainRole(role);
-            }
             else
-            {
                 Main.PlayerStates[targetId].SetSubRole(role, replaceAllAddons);
-            }
 
             HudManager.Instance.SetHudActive(true);
-            if (PlayerControl.LocalPlayer.PlayerId == targetId)
-            {
-                RemoveDisableDevicesPatch.UpdateDisableDevices();
-            }
+            if (PlayerControl.LocalPlayer.PlayerId == targetId) RemoveDisableDevicesPatch.UpdateDisableDevices();
         }
 
         public static void SyncLoversPlayers()
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetLoversPlayers, SendOption.Reliable);
             writer.Write(Main.LoversPlayers.Count);
-            foreach (PlayerControl lp in Main.LoversPlayers)
-            {
-                writer.Write(lp.PlayerId);
-            }
+            foreach (PlayerControl lp in Main.LoversPlayers) writer.Write(lp.PlayerId);
 
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
 
         public static void SendRpcLogger(uint targetNetId, byte callId, int targetClientId = -1)
         {
-            if (!DebugModeManager.AmDebugger)
-            {
-                return;
-            }
+            if (!DebugModeManager.AmDebugger) return;
 
             string rpcName = GetRpcName(callId);
-            string from = targetNetId.ToString();
-            string target = targetClientId.ToString();
+            var from = targetNetId.ToString();
+            var target = targetClientId.ToString();
+
             try
             {
                 target = targetClientId < 0 ? "All" : AmongUsClient.Instance.GetClient(targetClientId).PlayerName;
                 from = Main.AllPlayerControls.FirstOrDefault(c => c.NetId == targetNetId)?.Data?.PlayerName;
             }
-            catch
-            {
-            }
+            catch { }
 
             Logger.Info($"FromNetID: {targetNetId} ({from}) / TargetClientID: {targetClientId} ({target}) / CallID: {callId} ({rpcName})", "SendRPC");
         }
@@ -1493,16 +1360,11 @@ namespace EHR.Modules
         public static string GetRpcName(byte callId)
         {
             string rpcName;
-            if ((rpcName = Enum.GetName(typeof(RpcCalls), callId)) != null)
-            {
-            }
-            else if ((rpcName = Enum.GetName(typeof(CustomRPC), callId)) != null)
-            {
-            }
+
+            if ((rpcName = Enum.GetName(typeof(RpcCalls), callId)) != null) { }
+            else if ((rpcName = Enum.GetName(typeof(CustomRPC), callId)) != null) { }
             else
-            {
                 rpcName = callId.ToString();
-            }
 
             return rpcName;
         }
@@ -1510,9 +1372,7 @@ namespace EHR.Modules
         public static void SetCurrentDousingTarget(byte arsonistId, byte targetId)
         {
             if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
-            {
                 Arsonist.CurrentDousingTarget = targetId;
-            }
             else
             {
                 MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCurrentDousingTarget, SendOption.Reliable);
@@ -1525,9 +1385,7 @@ namespace EHR.Modules
         public static void SetCurrentDrawTarget(byte arsonistId, byte targetId)
         {
             if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
-            {
                 Revolutionist.CurrentDrawTarget = targetId;
-            }
             else
             {
                 MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCurrentDrawTarget, SendOption.Reliable);
@@ -1540,9 +1398,7 @@ namespace EHR.Modules
         public static void SetCurrentRevealTarget(byte arsonistId, byte targetId)
         {
             if (PlayerControl.LocalPlayer.PlayerId == arsonistId)
-            {
                 Revolutionist.CurrentDrawTarget = targetId;
-            }
             else
             {
                 MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCurrentRevealTarget, SendOption.Reliable);
@@ -1573,10 +1429,7 @@ namespace EHR.Modules
             state.RealKiller.TimeStamp = DateTime.Now;
             state.RealKiller.ID = killerId;
 
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetRealKiller, SendOption.Reliable);
             writer.Write(targetId);
@@ -1591,12 +1444,10 @@ namespace EHR.Modules
         public static bool Prefix(PlayerPhysics __instance, byte callId, MessageReader reader)
         {
             bool host = __instance.IsHost();
-            if (!host && EAC.PlayerPhysicsRpcCheck(__instance, callId, reader))
-            {
-                return false;
-            }
+            if (!host && EAC.PlayerPhysicsRpcCheck(__instance, callId, reader)) return false;
 
             PlayerControl player = __instance.myPlayer;
+
             if (!player)
             {
                 Logger.Warn("Received Physics RPC without a player", "PlayerPhysics_ReceiveRPC");

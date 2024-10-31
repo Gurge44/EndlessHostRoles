@@ -14,36 +14,20 @@ namespace EHR
             AllValues = new(32);
 
             foreach (ByteOptionNames name in Enum.GetValues<ByteOptionNames>())
-            {
                 if (option.TryGetByte(name, out byte value))
-                {
                     AllValues.Add(new ByteOptionBackupValue(name, value));
-                }
-            }
 
             foreach (BoolOptionNames name in Enum.GetValues<BoolOptionNames>())
-            {
                 if (option.TryGetBool(name, out bool value) && name != BoolOptionNames.GhostsDoTasks)
-                {
                     AllValues.Add(new BoolOptionBackupValue(name, value));
-                }
-            }
 
             foreach (FloatOptionNames name in Enum.GetValues<FloatOptionNames>())
-            {
                 if (option.TryGetFloat(name, out float value))
-                {
                     AllValues.Add(new FloatOptionBackupValue(name, value));
-                }
-            }
 
             foreach (Int32OptionNames name in Enum.GetValues<Int32OptionNames>())
-            {
                 if (option.TryGetInt(name, out int value))
-                {
                     AllValues.Add(new IntOptionBackupValue(name, value));
-                }
-            }
 
             // [Vanilla bug] Get the number of people in the room separately, since GetInt cannot get the number of people in the room
             AllValues.Add(new IntOptionBackupValue(Int32OptionNames.MaxPlayers, option.MaxPlayers));
@@ -51,10 +35,7 @@ namespace EHR
             AllValues.Add(new UIntOptionBackupValue(UInt32OptionNames.Keywords, (uint)option.Keywords));
 
             RoleTypes[] array = [RoleTypes.Scientist, RoleTypes.Engineer, RoleTypes.GuardianAngel, RoleTypes.Shapeshifter, RoleTypes.Noisemaker, RoleTypes.Phantom, RoleTypes.Tracker];
-            foreach (RoleTypes role in array)
-            {
-                AllValues.Add(new RoleRateBackupValue(role, option.RoleOptions.GetNumPerGame(role), option.RoleOptions.GetChancePerGame(role)));
-            }
+            foreach (RoleTypes role in array) AllValues.Add(new RoleRateBackupValue(role, option.RoleOptions.GetNumPerGame(role), option.RoleOptions.GetChancePerGame(role)));
         }
 
         public IGameOptions Restore(IGameOptions option)

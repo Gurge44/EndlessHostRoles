@@ -11,10 +11,7 @@ namespace EHR.Modules.Extensions
 
         public static void Set(this BoolOptionNames name, bool value, NormalGameOptionsV08 opt)
         {
-            if (name != BoolOptionNames.GhostsDoTasks)
-            {
-                opt.SetBool(name, value);
-            }
+            if (name != BoolOptionNames.GhostsDoTasks) opt.SetBool(name, value);
         }
 
         public static void Set(this BoolOptionNames name, bool value, HideNSeekGameOptionsV08 opt)

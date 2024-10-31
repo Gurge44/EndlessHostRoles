@@ -11,10 +11,7 @@ namespace EHR.Patches
 
         public static bool Prefix(GameModes gameMode)
         {
-            if ((!AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer != null) || gameMode != GameModes.HideNSeek || Warned)
-            {
-                return true;
-            }
+            if ((!AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer != null) || gameMode != GameModes.HideNSeek || Warned) return true;
 
             HudManager.Instance.ShowPopUp(Translator.GetString("HnSUnloadWarning"));
             return false;
@@ -22,10 +19,7 @@ namespace EHR.Patches
 
         public static void Postfix(GameModes gameMode)
         {
-            if ((!AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer != null) || gameMode != GameModes.HideNSeek)
-            {
-                return;
-            }
+            if ((!AmongUsClient.Instance.AmHost && PlayerControl.LocalPlayer != null) || gameMode != GameModes.HideNSeek) return;
 
             if (!Warned)
             {

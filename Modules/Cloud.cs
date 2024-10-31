@@ -80,12 +80,10 @@ namespace EHR
 
         public static void StartConnect()
         {
-            if (connecting || (EacClientSocket != null && EacClientSocket.Connected))
-            {
-                return;
-            }
+            if (connecting || (EacClientSocket != null && EacClientSocket.Connected)) return;
 
             connecting = true;
+
             LateTask.New(() =>
             {
                 if (!AmongUsClient.Instance.AmHost || !GameData.Instance || AmongUsClient.Instance.NetworkMode == NetworkModes.LocalGame)
@@ -96,10 +94,7 @@ namespace EHR
 
                 try
                 {
-                    if (IP == null || EAC_PORT == 0)
-                    {
-                        throw new("Has no ip or port");
-                    }
+                    if (IP == null || EAC_PORT == 0) throw new("Has no ip or port");
 
                     LastRepotTimeStamp = Utils.TimeStamp;
                     EacClientSocket = new(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -119,15 +114,13 @@ namespace EHR
 
         public static void StopConnect()
         {
-            if (EacClientSocket != null && EacClientSocket.Connected)
-            {
-                EacClientSocket.Close();
-            }
+            if (EacClientSocket != null && EacClientSocket.Connected) EacClientSocket.Close();
         }
 
         public static void SendData(string msg)
         {
             StartConnect();
+
             if (EacClientSocket == null || !EacClientSocket.Connected)
             {
                 Logger.Warn("未连接至EHR服务器，报告被取消", "EAC Cloud");

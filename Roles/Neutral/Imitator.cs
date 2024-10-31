@@ -16,22 +16,22 @@
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Imitator);
+
             OddKillCooldown = new FloatOptionItem(Id + 10, "OddKillCooldown", new(0f, 60f, 0.5f), 27.5f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Imitator])
                 .SetValueFormat(OptionFormat.Seconds);
+
             EvenKillCooldown = new FloatOptionItem(Id + 11, "EvenKillCooldown", new(0f, 30f, 0.5f), 15f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Imitator])
                 .SetValueFormat(OptionFormat.Seconds);
+
             AfterMeetingKillCooldown = new FloatOptionItem(Id + 12, "AfterMeetingKillCooldown", new(0f, 30f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Imitator])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(Id + 13, "CanVent", true, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Imitator]);
             HasImpostorVision = new BooleanOptionItem(Id + 14, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.Imitator]);
         }
 
-        public override void Init()
-        {
-        }
+        public override void Init() { }
 
-        public override void Add(byte playerId)
-        {
-        }
+        public override void Add(byte playerId) { }
     }
 }

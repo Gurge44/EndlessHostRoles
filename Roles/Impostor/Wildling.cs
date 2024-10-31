@@ -40,16 +40,21 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Wildling);
+
             ProtectDurationOpt = new FloatOptionItem(Id + 14, "BKProtectDuration", new(1f, 30f, 1f), 15f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Wildling])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVentOpt = new BooleanOptionItem(Id + 15, "CanVent", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Wildling]);
+
             CanShapeshiftOpt = new BooleanOptionItem(Id + 16, "CanShapeshift", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Wildling]);
+
             ShapeshiftCDOpt = new FloatOptionItem(Id + 17, "ShapeshiftCooldown", new(1f, 60f, 1f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CanShapeshiftOpt)
                 .SetValueFormat(OptionFormat.Seconds);
+
             ShapeshiftDurOpt = new FloatOptionItem(Id + 18, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles)
                 .SetParent(CanShapeshiftOpt)
                 .SetValueFormat(OptionFormat.Seconds);
@@ -99,6 +104,7 @@ namespace EHR.Impostor
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             opt.SetVision(HasImpostorVision);
+
             if (CanShapeshift)
             {
                 AURoleOptions.ShapeshifterCooldown = ShapeshiftCD;
@@ -113,10 +119,7 @@ namespace EHR.Impostor
 
         private void SendRPC(byte playerId)
         {
-            if (!IsEnable || !Utils.DoRPC)
-            {
-                return;
-            }
+            if (!IsEnable || !Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetBkTimer, SendOption.Reliable);
             writer.Write(playerId);
@@ -129,20 +132,14 @@ namespace EHR.Impostor
             byte PlayerId = reader.ReadByte();
             string Time = reader.ReadString();
 
-            if (Main.PlayerStates[PlayerId].Role is not Wildling wl)
-            {
-                return;
-            }
+            if (Main.PlayerStates[PlayerId].Role is not Wildling wl) return;
 
             wl.TimeStamp = long.Parse(Time);
         }
 
         public override void OnMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer.PlayerId == target.PlayerId)
-            {
-                return;
-            }
+            if (killer.PlayerId == target.PlayerId) return;
 
             TimeStamp = Utils.TimeStamp + (long)ProtectionDuration;
             SendRPC(killer.PlayerId);
@@ -163,10 +160,7 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask) return;
 
             if (TimeStamp < Utils.TimeStamp && TimeStamp != 0)
             {
@@ -177,26 +171,19 @@ namespace EHR.Impostor
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!hud || seer == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive())
-            {
-                return string.Empty;
-            }
+            if (!hud || seer == null || !GameStates.IsInTask || !PlayerControl.LocalPlayer.IsAlive()) return string.Empty;
 
-            if (Main.PlayerStates[seer.PlayerId].Role is not Wildling wl)
-            {
-                return string.Empty;
-            }
+            if (Main.PlayerStates[seer.PlayerId].Role is not Wildling wl) return string.Empty;
 
-            StringBuilder str = new StringBuilder();
+            var str = new StringBuilder();
+
             if (wl.InProtect)
             {
                 long remainTime = wl.TimeStamp - Utils.GetTimeStamp(DateTime.Now);
                 str.Append(string.Format(Translator.GetString("BKSkillTimeRemain"), remainTime));
             }
             else
-            {
                 str.Append(Translator.GetString("BKSkillNotice"));
-            }
 
             return str.ToString();
         }

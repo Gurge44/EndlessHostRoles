@@ -30,14 +30,19 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Addict);
+
             VentCooldown = new FloatOptionItem(Id + 11, "VentCooldown", new(5f, 70f, 1f), 40f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Addict])
                 .SetValueFormat(OptionFormat.Seconds);
+
             TimeLimit = new FloatOptionItem(Id + 12, "SerialKillerLimit", new(5f, 75f, 1f), 45f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Addict])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ImmortalTimeAfterVent = new FloatOptionItem(Id + 13, "AddictInvulnerbilityTimeAfterVent", new(0f, 30f, 1f), 10f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Addict])
                 .SetValueFormat(OptionFormat.Seconds);
+
             SpeedWhileImmortal = new FloatOptionItem(Id + 14, "AddictSpeedWhileInvulnerble", new(0.25f, 5f, 0.25f), 1.75f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Addict])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             FreezeTimeAfterImmortal = new FloatOptionItem(Id + 15, "AddictFreezeTimeAfterInvulnerbility", new(0f, 10f, 1f), 3f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Addict])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -80,10 +85,7 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!GameStates.IsInTask || !IsEnable || Math.Abs(SuicideTimer - -10f) < 0.5f || !player.IsAlive())
-            {
-                return;
-            }
+            if (!GameStates.IsInTask || !IsEnable || Math.Abs(SuicideTimer - -10f) < 0.5f || !player.IsAlive()) return;
 
             if (SuicideTimer >= TimeLimit.GetFloat())
             {
@@ -91,17 +93,13 @@ namespace EHR.Crewmate
                 SuicideTimer = -10f;
             }
             else if (Mathf.Approximately(SuicideTimer + 8, TimeLimit.GetFloat()))
-            {
                 player.Notify(Translator.GetString("AddictWarning"), 8f);
-            }
             else
             {
                 SuicideTimer += Time.fixedDeltaTime;
 
                 if (IsImmortal(player))
-                {
                     ImmortalTimer += Time.fixedDeltaTime;
-                }
                 else if (Math.Abs(ImmortalTimer - 420f) > 0.5f && FreezeTimeAfterImmortal.GetFloat() > 0)
                 {
                     AddictGetDown(player);
@@ -118,10 +116,7 @@ namespace EHR.Crewmate
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
-            if (!pc.Is(CustomRoles.Addict))
-            {
-                return;
-            }
+            if (!pc.Is(CustomRoles.Addict)) return;
 
             SuicideTimer = 0f;
             ImmortalTimer = 0f;
@@ -135,6 +130,7 @@ namespace EHR.Crewmate
             Main.AllPlayerSpeed[addict.PlayerId] = Main.MinSpeed;
             ReportDeadBodyPatch.CanReport[addict.PlayerId] = false;
             addict.MarkDirtySettings();
+
             LateTask.New(() =>
             {
                 Main.AllPlayerSpeed[addict.PlayerId] = DefaultSpeed;

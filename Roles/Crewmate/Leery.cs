@@ -46,10 +46,7 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!GameStates.IsInTask || ExileController.Instance || !pc.IsAlive() || Count++ < 5)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask || ExileController.Instance || !pc.IsAlive() || Count++ < 5) return;
 
             Count = 0;
 
@@ -67,10 +64,7 @@ namespace EHR.Crewmate
 
             PlayerControl nearestPlayer = nearbyPlayers.MinBy(p => Vector2.Distance(pos, p.Pos()));
 
-            if (nearestPlayer.PlayerId == CurrentTarget && InvestigationEndTS == 0)
-            {
-                return;
-            }
+            if (nearestPlayer.PlayerId == CurrentTarget && InvestigationEndTS == 0) return;
 
             if (nearestPlayer.PlayerId != CurrentTarget)
             {
@@ -80,17 +74,11 @@ namespace EHR.Crewmate
                 return;
             }
 
-            if (Utils.TimeStamp < InvestigationEndTS)
-            {
-                return;
-            }
+            if (Utils.TimeStamp < InvestigationEndTS) return;
 
             InvestigationEndTS = 0;
             SendRPC();
-            if (!nearestPlayer.IsCrewmate())
-            {
-                pc.Notify(Translator.GetString("LeeryNotify"));
-            }
+            if (!nearestPlayer.IsCrewmate()) pc.Notify(Translator.GetString("LeeryNotify"));
         }
 
         private void SendRPC()
@@ -106,16 +94,10 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != LeeryId || seer.PlayerId != target.PlayerId || meeting || hud || !ShowNearestPlayerName.GetBool() || InvestigationEndTS == 0)
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != LeeryId || seer.PlayerId != target.PlayerId || meeting || hud || !ShowNearestPlayerName.GetBool() || InvestigationEndTS == 0) return string.Empty;
 
             string text = string.Format(Translator.GetString("LeerySuffix"), CurrentTarget.ColoredPlayerName());
-            if (ShowProgress.GetBool())
-            {
-                text += $" {Math.Ceiling(InvestigationEndTS / (float)Utils.TimeStamp * 100)}%";
-            }
+            if (ShowProgress.GetBool()) text += $" {Math.Ceiling(InvestigationEndTS / (float)Utils.TimeStamp * 100)}%";
 
             return text;
         }

@@ -23,8 +23,10 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Monitor);
+
             CanCheckCamera = new BooleanOptionItem(Id + 10, "CanCheckCamera", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Monitor]);
+
             CanVent = new BooleanOptionItem(Id + 14, "CanVent", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Monitor]);
         }

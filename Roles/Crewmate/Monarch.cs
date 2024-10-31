@@ -19,12 +19,15 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Monarch);
+
             KnightCooldown = new FloatOptionItem(Id + 10, "MonarchKnightCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Monarch])
                 .SetValueFormat(OptionFormat.Seconds);
+
             KnightMax = new IntegerOptionItem(Id + 12, "MonarchKnightMax", new(1, 15, 1), 2, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Monarch])
                 .SetValueFormat(OptionFormat.Times);
+
             UsePet = CreatePetUseSetting(Id + 11, CustomRoles.Monarch);
         }
 
@@ -61,10 +64,7 @@ namespace EHR.Crewmate
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer.GetAbilityUseLimit() < 1)
-            {
-                return false;
-            }
+            if (killer.GetAbilityUseLimit() < 1) return false;
 
             if (target != null && !target.GetCustomRole().IsNotKnightable() && !target.Is(CustomRoles.Knighted) && !target.Is(CustomRoles.TicketsStealer))
             {

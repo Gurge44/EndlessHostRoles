@@ -76,10 +76,7 @@ namespace EHR.Crewmate
 
         private static bool GetExpose(PlayerControl pc)
         {
-            if (!IsThisRole(pc.PlayerId) || !pc.IsAlive() || pc.Is(CustomRoles.Madmate))
-            {
-                return false;
-            }
+            if (!IsThisRole(pc.PlayerId) || !pc.IsAlive() || pc.Is(CustomRoles.Madmate)) return false;
 
             byte snitchId = pc.PlayerId;
             return IsExposed[snitchId];
@@ -92,10 +89,7 @@ namespace EHR.Crewmate
 
         public static void CheckTask(PlayerControl snitch)
         {
-            if (!snitch.IsAlive() || snitch.Is(CustomRoles.Madmate))
-            {
-                return;
-            }
+            if (!snitch.IsAlive() || snitch.Is(CustomRoles.Madmate)) return;
 
             byte snitchId = snitch.PlayerId;
             TaskState snitchTask = snitch.GetTaskState();
@@ -104,10 +98,7 @@ namespace EHR.Crewmate
             {
                 foreach (PlayerControl target in Main.AllAlivePlayerControls)
                 {
-                    if (!IsSnitchTarget(target))
-                    {
-                        continue;
-                    }
+                    if (!IsSnitchTarget(target)) continue;
 
                     TargetArrow.Add(target.PlayerId, snitchId);
                 }
@@ -115,35 +106,22 @@ namespace EHR.Crewmate
                 IsExposed[snitchId] = true;
             }
 
-            if (IsComplete[snitchId] || !snitchTask.IsTaskFinished)
-            {
-                return;
-            }
+            if (IsComplete[snitchId] || !snitchTask.IsTaskFinished) return;
 
             foreach (PlayerControl target in Main.AllAlivePlayerControls)
             {
-                if (!IsSnitchTarget(target))
-                {
-                    continue;
-                }
+                if (!IsSnitchTarget(target)) continue;
 
                 byte targetId = target.PlayerId;
                 NameColorManager.Add(snitchId, targetId);
 
-                if (!EnableTargetArrow)
-                {
-                    continue;
-                }
+                if (!EnableTargetArrow) continue;
 
                 TargetArrow.Add(snitchId, targetId);
 
                 if (TargetList.Add(targetId))
-                {
                     if (CanGetColoredArrow)
-                    {
                         TargetColorlist.Add(targetId, target.GetRoleColor());
-                    }
-                }
             }
 
             snitch.Notify(Translator.GetString("SnitchDoneTasks"));
@@ -158,54 +136,34 @@ namespace EHR.Crewmate
 
         public static string GetWarningArrow(PlayerControl seer, PlayerControl target = null)
         {
-            if (GameStates.IsMeeting || !IsSnitchTarget(seer))
-            {
-                return string.Empty;
-            }
+            if (GameStates.IsMeeting || !IsSnitchTarget(seer)) return string.Empty;
 
-            if (target != null && seer.PlayerId != target.PlayerId)
-            {
-                return string.Empty;
-            }
+            if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
 
             IEnumerable<byte> exposedSnitch = PlayerIdList.Where(s => !Main.PlayerStates[s].IsDead && IsExposed[s]);
             byte[] snitch = exposedSnitch as byte[] ?? exposedSnitch.ToArray();
-            if (snitch.Length == 0)
-            {
-                return string.Empty;
-            }
+            if (snitch.Length == 0) return string.Empty;
 
-            string warning = $"\n{Translator.GetString("Snitch")} ";
+            var warning = $"\n{Translator.GetString("Snitch")} ";
+
             if (EnableTargetArrow)
-            {
                 warning += TargetArrow.GetArrows(seer, snitch);
-            }
             else
-            {
                 warning += "⚠";
-            }
 
             return Utils.ColorString(RoleColor, warning);
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.Is(CustomRoles.Madmate))
-            {
-                return string.Empty;
-            }
+            if (seer.Is(CustomRoles.Madmate)) return string.Empty;
 
-            if (!EnableTargetArrow || GameStates.IsMeeting || seer.PlayerId != SnitchId)
-            {
-                return string.Empty;
-            }
+            if (!EnableTargetArrow || GameStates.IsMeeting || seer.PlayerId != SnitchId) return string.Empty;
 
-            if (target != null && seer.PlayerId != target.PlayerId)
-            {
-                return string.Empty;
-            }
+            if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
 
-            string arrows = string.Empty;
+            var arrows = string.Empty;
+
             foreach (byte targetId in TargetList)
             {
                 string arrow = TargetArrow.GetArrows(seer, targetId);
@@ -217,10 +175,7 @@ namespace EHR.Crewmate
 
         public static void OnCompleteTask(PlayerControl player)
         {
-            if (!IsThisRole(player.PlayerId) || player.Is(CustomRoles.Madmate))
-            {
-                return;
-            }
+            if (!IsThisRole(player.PlayerId) || player.Is(CustomRoles.Madmate)) return;
 
             CheckTask(player);
         }

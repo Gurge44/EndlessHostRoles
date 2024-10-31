@@ -21,18 +21,23 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Hangman);
+
             ShapeshiftCooldown = new FloatOptionItem(Id + 2, "ShapeshiftCooldown", new(1f, 60f, 1f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Hangman])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ShapeshiftDuration = new FloatOptionItem(Id + 3, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Hangman])
                 .SetValueFormat(OptionFormat.Seconds);
+
             KCD = new FloatOptionItem(Id + 4, "KillCooldownOnStrangle", new(1f, 90f, 1f), 40f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Hangman])
                 .SetValueFormat(OptionFormat.Seconds);
+
             HangmanLimitOpt = new IntegerOptionItem(Id + 5, "AbilityUseLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Hangman])
                 .SetValueFormat(OptionFormat.Times);
+
             HangmanAbilityUseGainWithEachKill = new FloatOptionItem(Id + 6, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Hangman])
                 .SetValueFormat(OptionFormat.Times);
@@ -57,32 +62,17 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (Medic.ProtectList.Contains(target.PlayerId))
-            {
-                return false;
-            }
+            if (Medic.ProtectList.Contains(target.PlayerId)) return false;
 
-            if (target.Is(CustomRoles.Madmate) && !ImpCanKillMadmate.GetBool())
-            {
-                return false;
-            }
+            if (target.Is(CustomRoles.Madmate) && !ImpCanKillMadmate.GetBool()) return false;
 
-            if (killer.GetAbilityUseLimit() < 1 && killer.IsShifted())
-            {
-                return false;
-            }
+            if (killer.GetAbilityUseLimit() < 1 && killer.IsShifted()) return false;
 
             if (killer.IsShifted())
             {
-                if (target.Is(CustomRoles.Pestilence))
-                {
-                    return false;
-                }
+                if (target.Is(CustomRoles.Pestilence)) return false;
 
-                if (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.ContainsKey(target.PlayerId))
-                {
-                    return false;
-                }
+                if (target.Is(CustomRoles.Veteran) && Veteran.VeteranInProtect.ContainsKey(target.PlayerId)) return false;
 
                 killer.RpcRemoveAbilityUse();
                 target.Data.IsDead = true;
@@ -100,10 +90,7 @@ namespace EHR.Impostor
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
-            if (id.IsPlayerShifted())
-            {
-                hud.KillButton?.OverrideText(Translator.GetString("HangmanKillButtonTextDuringSS"));
-            }
+            if (id.IsPlayerShifted()) hud.KillButton?.OverrideText(Translator.GetString("HangmanKillButtonTextDuringSS"));
 
             hud.AbilityButton?.SetUsesRemaining((int)id.GetAbilityUseLimit());
         }

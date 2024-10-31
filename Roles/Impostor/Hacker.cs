@@ -21,12 +21,15 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Hacker);
+
             KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
                 .SetValueFormat(OptionFormat.Seconds);
+
             HackLimitOpt = new IntegerOptionItem(Id + 3, "HackLimit", new(0, 5, 1), 0, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
                 .SetValueFormat(OptionFormat.Times);
+
             HackerAbilityUseGainWithEachKill = new FloatOptionItem(Id + 4, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.2f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Hacker])
                 .SetValueFormat(OptionFormat.Times);
@@ -71,50 +74,31 @@ namespace EHR.Impostor
 
         public static void AddDeadBody(PlayerControl target)
         {
-            if (target != null && !DeadBodyList.Contains(target.PlayerId))
-            {
-                DeadBodyList.Add(target.PlayerId);
-            }
+            if (target != null && !DeadBodyList.Contains(target.PlayerId)) DeadBodyList.Add(target.PlayerId);
         }
 
         public override bool OnShapeshift(PlayerControl pc, PlayerControl ssTarget, bool shapeshifting)
         {
-            if (!shapeshifting || pc.GetAbilityUseLimit() < 1 || ssTarget == null || ssTarget.Is(CustomRoles.Needy) || ssTarget.Is(CustomRoles.Lazy))
-            {
-                return false;
-            }
+            if (!shapeshifting || pc.GetAbilityUseLimit() < 1 || ssTarget == null || ssTarget.Is(CustomRoles.Needy) || ssTarget.Is(CustomRoles.Lazy)) return false;
 
             pc.RpcRemoveAbilityUse();
 
-            byte targetId = byte.MaxValue;
+            var targetId = byte.MaxValue;
 
             foreach (byte db in DeadBodyList.ToArray())
             {
                 PlayerControl dp = Utils.GetPlayerById(db);
-                if (dp == null || dp.GetRealKiller() == null)
-                {
-                    continue;
-                }
+                if (dp == null || dp.GetRealKiller() == null) continue;
 
-                if (dp.GetRealKiller().PlayerId == pc.PlayerId)
-                {
-                    targetId = db;
-                }
+                if (dp.GetRealKiller().PlayerId == pc.PlayerId) targetId = db;
             }
 
-            if (targetId == byte.MaxValue && DeadBodyList.Count > 0)
-            {
-                targetId = DeadBodyList.RandomElement();
-            }
+            if (targetId == byte.MaxValue && DeadBodyList.Count > 0) targetId = DeadBodyList.RandomElement();
 
             if (targetId == byte.MaxValue)
-            {
                 LateTask.New(() => ssTarget.NoCheckStartMeeting(ssTarget.Data), 0.15f, "Hacker Hacking Report Self");
-            }
             else
-            {
                 LateTask.New(() => ssTarget.NoCheckStartMeeting(Utils.GetPlayerById(targetId)?.Data), 0.15f, "Hacker Hacking Report");
-            }
 
             return false;
         }

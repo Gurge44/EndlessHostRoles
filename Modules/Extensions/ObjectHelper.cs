@@ -7,10 +7,7 @@ namespace EHR
     {
         public static void DestroyTranslator(this GameObject obj)
         {
-            if (obj == null)
-            {
-                return;
-            }
+            if (obj == null) return;
 
             obj.ForEachChild((Action<GameObject>)DestroyTranslator); // False error
             TextTranslatorTMP[] translator = obj.GetComponentsInChildren<TextTranslatorTMP>(true);

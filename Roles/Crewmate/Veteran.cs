@@ -17,18 +17,23 @@ namespace EHR.Crewmate
         {
             const int id = 8990;
             SetupRoleOptions(id, TabGroup.CrewmateRoles, CustomRoles.Veteran);
+
             VeteranSkillCooldown = new FloatOptionItem(id + 2, "VeteranSkillCooldown", new(0f, 180f, 1f), 20f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
                 .SetValueFormat(OptionFormat.Seconds);
+
             VeteranSkillDuration = new FloatOptionItem(id + 3, "VeteranSkillDuration", new(0f, 180f, 1f), 10f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
                 .SetValueFormat(OptionFormat.Seconds);
+
             VeteranSkillMaxOfUseage = new IntegerOptionItem(id + 4, "VeteranSkillMaxOfUseage", new(0, 180, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
                 .SetValueFormat(OptionFormat.Times);
+
             VeteranAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(id + 5, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 0.3f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
                 .SetValueFormat(OptionFormat.Times);
+
             VeteranAbilityChargesWhenFinishedTasks = new FloatOptionItem(id + 6, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Veteran])
                 .SetValueFormat(OptionFormat.Times);
@@ -47,10 +52,7 @@ namespace EHR.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool())
-            {
-                return;
-            }
+            if (UsePets.GetBool()) return;
 
             AURoleOptions.EngineerCooldown = VeteranSkillCooldown.GetFloat();
             AURoleOptions.EngineerInVentMaxTime = 1;
@@ -58,7 +60,7 @@ namespace EHR.Crewmate
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            StringBuilder ProgressText = new StringBuilder();
+            var ProgressText = new StringBuilder();
 
             ProgressText.Append(Utils.GetAbilityUseLimitDisplay(playerId, VeteranInProtect.ContainsKey(playerId)));
             ProgressText.Append(Utils.GetTaskCount(playerId, comms));
@@ -69,13 +71,9 @@ namespace EHR.Crewmate
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             if (UsePets.GetBool())
-            {
                 hud.PetButton.buttonLabelText.text = Translator.GetString("VeteranVentButtonText");
-            }
             else
-            {
                 hud.AbilityButton.buttonLabelText.text = Translator.GetString("VeteranVentButtonText");
-            }
         }
 
         public override void OnPet(PlayerControl pc)
@@ -90,10 +88,7 @@ namespace EHR.Crewmate
 
         private static void Alert(PlayerControl pc)
         {
-            if (VeteranInProtect.ContainsKey(pc.PlayerId))
-            {
-                return;
-            }
+            if (VeteranInProtect.ContainsKey(pc.PlayerId)) return;
 
             if (pc.GetAbilityUseLimit() >= 1)
             {
@@ -104,9 +99,7 @@ namespace EHR.Crewmate
                 pc.MarkDirtySettings();
             }
             else
-            {
                 pc.Notify(Translator.GetString("OutOfAbilityUsesDoMoreTasks"));
-            }
         }
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
@@ -135,6 +128,7 @@ namespace EHR.Crewmate
         public override void OnFixedUpdate(PlayerControl player)
         {
             byte playerId = player.PlayerId;
+
             if (VeteranInProtect.TryGetValue(playerId, out long vtime) && vtime + VeteranSkillDuration.GetInt() < Utils.TimeStamp)
             {
                 VeteranInProtect.Remove(playerId);

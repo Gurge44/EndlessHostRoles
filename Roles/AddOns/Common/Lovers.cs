@@ -61,15 +61,16 @@ namespace EHR.AddOns.Common
             const int id = 16200;
             const CustomGameMode customGameMode = CustomGameMode.Standard;
 
-            StringOptionItem spawnOption = new StringOptionItem(id, role.ToString(), RatesZeroOne, 0, TabGroup.Addons)
+            var spawnOption = new StringOptionItem(id, role.ToString(), RatesZeroOne, 0, TabGroup.Addons)
                 .SetColor(Utils.GetRoleColor(role))
                 .SetHeader(true)
                 .SetGameMode(customGameMode) as StringOptionItem;
 
-            IntegerOptionItem rateOption = new IntegerOptionItem(id + 2, "LoverSpawnChances", new(0, 100, 5), 50, TabGroup.Addons)
+            var rateOption = new IntegerOptionItem(id + 2, "LoverSpawnChances", new(0, 100, 5), 50, TabGroup.Addons)
                 .SetParent(spawnOption)
                 .SetValueFormat(OptionFormat.Percent)
                 .SetGameMode(customGameMode) as IntegerOptionItem;
+
             LoverSpawnChances = rateOption;
 
             LoverDieConsequence = new StringOptionItem(id + 3, "LoverDieConsequence", Consequences, 0, TabGroup.Addons)

@@ -35,25 +35,33 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Deathpact);
+
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ShapeshiftCooldown = new FloatOptionItem(Id + 11, "DeathPactCooldown", new(0f, 180f, 2.5f), 5f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
                 .SetValueFormat(OptionFormat.Seconds);
+
             DeathpactDuration = new FloatOptionItem(Id + 13, "DeathpactDuration", new(0f, 180f, 2.5f), 17.5f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
                 .SetValueFormat(OptionFormat.Seconds);
+
             NumberOfPlayersInPact = new IntegerOptionItem(Id + 14, "DeathpactNumberOfPlayersInPact", new(2, 5, 1), 2, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact])
                 .SetValueFormat(OptionFormat.Times);
+
             ShowArrowsToOtherPlayersInPact = new BooleanOptionItem(Id + 15, "DeathpactShowArrowsToOtherPlayersInPact", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact]);
+
             ReduceVisionWhileInPact = new BooleanOptionItem(Id + 16, "DeathpactReduceVisionWhileInPact", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact]);
+
             VisionWhileInPact = new FloatOptionItem(Id + 17, "DeathpactVisionWhileInPact", new(0f, 5f, 0.05f), 0.4f, TabGroup.ImpostorRoles)
                 .SetParent(ReduceVisionWhileInPact)
                 .SetValueFormat(OptionFormat.Multiplier);
+
             KillDeathpactPlayersOnMeeting = new BooleanOptionItem(Id + 18, "DeathpactKillPlayersInDeathpactOnMeeting", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Deathpact]);
         }
@@ -88,10 +96,7 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl pc, PlayerControl target, bool shapeshifting)
         {
-            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId) || !shapeshifting)
-            {
-                return false;
-            }
+            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId) || !shapeshifting) return false;
 
             if (!target.IsAlive() || Pelican.IsEaten(target.PlayerId))
             {
@@ -99,15 +104,9 @@ namespace EHR.Impostor
                 return false;
             }
 
-            if (PlayersInDeathpact.All(b => b.PlayerId != target.PlayerId))
-            {
-                PlayersInDeathpact.Add(target);
-            }
+            if (PlayersInDeathpact.All(b => b.PlayerId != target.PlayerId)) PlayersInDeathpact.Add(target);
 
-            if (PlayersInDeathpact.Count < NumberOfPlayersInPact.GetInt())
-            {
-                return false;
-            }
+            if (PlayersInDeathpact.Count < NumberOfPlayersInPact.GetInt()) return false;
 
             if (ReduceVisionWhileInPact.GetBool())
             {
@@ -142,15 +141,9 @@ namespace EHR.Impostor
 
         public static void SetDeathpactVision(PlayerControl player, IGameOptions opt)
         {
-            if (!ReduceVisionWhileInPact.GetBool())
-            {
-                return;
-            }
+            if (!ReduceVisionWhileInPact.GetBool()) return;
 
-            if (Main.PlayerStates[player.PlayerId].Role is not Deathpact { IsEnable: true } dp)
-            {
-                return;
-            }
+            if (Main.PlayerStates[player.PlayerId].Role is not Deathpact { IsEnable: true } dp) return;
 
             if (dp.PlayersInDeathpact.Any(b => b.PlayerId == player.PlayerId) && dp.PlayersInDeathpact.Count == NumberOfPlayersInPact.GetInt())
             {
@@ -162,27 +155,15 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!IsEnable || !GameStates.IsInTask || player.GetCustomRole() is not CustomRoles.Deathpact and not CustomRoles.Randomizer)
-            {
-                return;
-            }
+            if (!IsEnable || !GameStates.IsInTask || player.GetCustomRole() is not CustomRoles.Deathpact and not CustomRoles.Randomizer) return;
 
-            if (!ActiveDeathpacts.Contains(player.PlayerId))
-            {
-                return;
-            }
+            if (!ActiveDeathpacts.Contains(player.PlayerId)) return;
 
-            if (CheckCancelDeathpact(player))
-            {
-                return;
-            }
+            if (CheckCancelDeathpact(player)) return;
 
             if (DeathpactTime < TimeStamp && DeathpactTime != 0)
             {
-                foreach (PlayerControl playerInDeathpact in PlayersInDeathpact)
-                {
-                    KillPlayerInDeathpact(player, playerInDeathpact);
-                }
+                foreach (PlayerControl playerInDeathpact in PlayersInDeathpact) KillPlayerInDeathpact(player, playerInDeathpact);
 
                 ClearDeathpact(player.PlayerId);
                 player.Notify(GetString("DeathpactExecuted"));
@@ -191,10 +172,7 @@ namespace EHR.Impostor
 
         public static bool CheckCancelDeathpact(PlayerControl deathpact)
         {
-            if (Main.PlayerStates[deathpact.PlayerId].Role is not Deathpact { IsEnable: true } dp)
-            {
-                return true;
-            }
+            if (Main.PlayerStates[deathpact.PlayerId].Role is not Deathpact { IsEnable: true } dp) return true;
 
             if (dp.PlayersInDeathpact.Any(a => a.Data.Disconnected || a.Data.IsDead))
             {
@@ -203,7 +181,7 @@ namespace EHR.Impostor
                 return true;
             }
 
-            bool cancelDeathpact = true;
+            var cancelDeathpact = true;
 
             foreach (PlayerControl player in dp.PlayersInDeathpact)
             {
@@ -222,78 +200,48 @@ namespace EHR.Impostor
 
         public static void KillPlayerInDeathpact(PlayerControl deathpact, PlayerControl target)
         {
-            if (deathpact == null || target == null || target.Data.Disconnected)
-            {
-                return;
-            }
+            if (deathpact == null || target == null || target.Data.Disconnected) return;
 
-            if (!target.IsAlive())
-            {
-                return;
-            }
+            if (!target.IsAlive()) return;
 
             target.Suicide(realKiller: deathpact);
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (GameStates.IsMeeting)
-            {
-                return string.Empty;
-            }
+            if (GameStates.IsMeeting) return string.Empty;
 
-            if (!ShowArrowsToOtherPlayersInPact.GetBool())
-            {
-                return string.Empty;
-            }
+            if (!ShowArrowsToOtherPlayersInPact.GetBool()) return string.Empty;
 
-            if (target != null && seer.PlayerId != target.PlayerId)
-            {
-                return string.Empty;
-            }
+            if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
 
-            if (!IsInActiveDeathpact(seer))
-            {
-                return string.Empty;
-            }
+            if (!IsInActiveDeathpact(seer)) return string.Empty;
 
-            string arrows = string.Empty;
+            var arrows = string.Empty;
+
             foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
-            {
                 if (state.Value.Role is Deathpact { IsEnable: true } dp)
-                {
                     arrows = dp.PlayersInDeathpact.Where(a => a.PlayerId != seer.PlayerId).Select(otherPlayerInPact => TargetArrow.GetArrows(seer, otherPlayerInPact.PlayerId)).Aggregate(arrows, (current, arrow) => current + ColorString(GetRoleColor(CustomRoles.Crewmate), arrow));
-                }
-            }
 
             return arrows;
         }
 
         public static string GetDeathpactMark(PlayerControl seer, PlayerControl target)
         {
-            if (!seer.Is(CustomRoles.Deathpact) || !IsInDeathpact(seer.PlayerId, target))
-            {
-                return string.Empty;
-            }
+            if (!seer.Is(CustomRoles.Deathpact) || !IsInDeathpact(seer.PlayerId, target)) return string.Empty;
 
             return ColorString(Palette.ImpostorRed, "◀");
         }
 
         public static bool IsInActiveDeathpact(PlayerControl player)
         {
-            if (ActiveDeathpacts.Count == 0)
-            {
-                return false;
-            }
+            if (ActiveDeathpacts.Count == 0) return false;
 
             foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
             {
                 if (state.Value.Role is Deathpact { IsEnable: true } dp)
                 {
-                    if (!ActiveDeathpacts.Contains(dp.DeathPactId) || dp.PlayersInDeathpact.All(b => b.PlayerId != player.PlayerId))
-                    {
-                        continue;
-                    }
+                    if (!ActiveDeathpacts.Contains(dp.DeathPactId) || dp.PlayersInDeathpact.All(b => b.PlayerId != player.PlayerId)) continue;
 
                     return true;
                 }
@@ -309,21 +257,18 @@ namespace EHR.Impostor
 
         public static string GetDeathpactString(PlayerControl player)
         {
-            string result = string.Empty;
+            var result = string.Empty;
 
             foreach (KeyValuePair<byte, PlayerState> state in Main.PlayerStates)
             {
                 if (state.Value.Role is Deathpact { IsEnable: true } dp)
                 {
-                    if (!ActiveDeathpacts.Contains(dp.DeathPactId) || dp.PlayersInDeathpact.All(b => b.PlayerId != player.PlayerId))
-                    {
-                        continue;
-                    }
+                    if (!ActiveDeathpacts.Contains(dp.DeathPactId) || dp.PlayersInDeathpact.All(b => b.PlayerId != player.PlayerId)) continue;
 
                     string otherPlayerNames = dp.PlayersInDeathpact.Where(a => a.PlayerId != player.PlayerId).Aggregate(string.Empty, (current, otherPlayerInPact) => current + otherPlayerInPact.name.ToUpper() + ",");
                     otherPlayerNames = otherPlayerNames.Remove(otherPlayerNames.Length - 1);
 
-                    int countdown = (int)(dp.DeathpactTime - TimeStamp);
+                    var countdown = (int)(dp.DeathpactTime - TimeStamp);
 
                     result += $"{ColorString(GetRoleColor(CustomRoles.Impostor), string.Format(GetString("DeathpactActiveDeathpact"), otherPlayerNames, countdown))}";
                 }
@@ -334,10 +279,7 @@ namespace EHR.Impostor
 
         public static void ClearDeathpact(byte deathpact)
         {
-            if (Main.PlayerStates[deathpact].Role is not Deathpact { IsEnable: true } dp)
-            {
-                return;
-            }
+            if (Main.PlayerStates[deathpact].Role is not Deathpact { IsEnable: true } dp) return;
 
             dp.DeathpactTime = 0;
             ActiveDeathpacts.Remove(deathpact);
@@ -349,10 +291,7 @@ namespace EHR.Impostor
                 {
                     foreach (PlayerControl otherPlayerInPact in dp.PlayersInDeathpact.Where(a => a.PlayerId != player.PlayerId))
                     {
-                        if (ShowArrowsToOtherPlayersInPact.GetBool())
-                        {
-                            TargetArrow.Remove(player.PlayerId, otherPlayerInPact.PlayerId);
-                        }
+                        if (ShowArrowsToOtherPlayersInPact.GetBool()) TargetArrow.Remove(player.PlayerId, otherPlayerInPact.PlayerId);
 
                         otherPlayerInPact.MarkDirtySettings();
                         player.MarkDirtySettings();
@@ -368,15 +307,9 @@ namespace EHR.Impostor
                 if (KillDeathpactPlayersOnMeeting.GetBool())
                 {
                     PlayerControl deathpactPlayer = Main.AllPlayerControls.FirstOrDefault(a => a.PlayerId == deathpact);
-                    if (deathpactPlayer == null || deathpactPlayer.Data.IsDead)
-                    {
-                        continue;
-                    }
+                    if (deathpactPlayer == null || deathpactPlayer.Data.IsDead) continue;
 
-                    foreach (PlayerControl player in PlayersInDeathpact)
-                    {
-                        KillPlayerInDeathpact(deathpactPlayer, player);
-                    }
+                    foreach (PlayerControl player in PlayersInDeathpact) KillPlayerInDeathpact(deathpactPlayer, player);
                 }
 
                 ClearDeathpact(deathpact);

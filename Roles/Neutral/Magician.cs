@@ -49,27 +49,39 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Magician);
+
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
                 .SetValueFormat(OptionFormat.Seconds);
+
             SlownessValue = new FloatOptionItem(Id + 11, "MagicianSlownessValue", new(0f, 1f, 0.05f), 1f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             SlownessRadius = new FloatOptionItem(Id + 12, "MagicianSlownessRadius", new(0f, 10f, 0.25f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             SlownessDur = new IntegerOptionItem(Id + 13, "MagicianSlownessDur", new(1, 30, 1), 10, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
                 .SetValueFormat(OptionFormat.Seconds);
+
             Speed = new FloatOptionItem(Id + 14, "MagicianSpeedup", new(0.1f, 3f, 0.05f), 1.5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             SpeedDur = new IntegerOptionItem(Id + 15, "MagicianSpeedupDur", new(1, 20, 1), 10, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
                 .SetValueFormat(OptionFormat.Seconds);
+
             LowKCD = new FloatOptionItem(Id + 16, "MagicianLowKCD", new(1f, 20f, 1f), 5f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
                 .SetValueFormat(OptionFormat.Seconds);
+
             BlindDur = new IntegerOptionItem(Id + 17, "MagicianBlindDur", new(1, 20, 1), 5, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
                 .SetValueFormat(OptionFormat.Seconds);
+
             BlindRadius = new FloatOptionItem(Id + 18, "MagicianBlindRadius", new(0f, 10f, 0.25f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             ClearPortalAfterMeeting = new BooleanOptionItem(Id + 19, "MagicianClearPortalAfterMeeting", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician]);
+
             BombRadius = new FloatOptionItem(Id + 20, "MagicianBombRadius", new(0f, 10f, 0.25f), 3f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             BombDelay = new IntegerOptionItem(Id + 21, "MagicianBombDelay", new(0, 10, 1), 3, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Magician])
                 .SetValueFormat(OptionFormat.Seconds);
 
@@ -118,27 +130,18 @@ namespace EHR.Neutral
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             opt.SetVision(HasImpostorVision.GetBool());
-            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
-            {
-                AURoleOptions.PhantomCooldown = 1f;
-            }
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = 1f;
 
-            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
-            {
-                AURoleOptions.ShapeshifterCooldown = 1f;
-            }
+            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool()) AURoleOptions.ShapeshifterCooldown = 1f;
         }
 
         public override void OnMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null)
-            {
-                return;
-            }
+            if (killer == null) return;
 
             CardId = (byte)IRandom.Instance.Next(1, 11);
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
             sb.Append("\n\n");
             sb.AppendLine(ColorString(GetRoleColor(CustomRoles.Magician), $"Card name: <color=#ffffff>{GetString($"Magician-GetIdToName-{CardId}")}</color>"));
@@ -167,15 +170,9 @@ namespace EHR.Neutral
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (shapeshifter == null)
-            {
-                return false;
-            }
+            if (shapeshifter == null) return false;
 
-            if (!shapeshifting && !UseUnshiftTrigger.GetBool())
-            {
-                return false;
-            }
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return false;
 
             UseCard(shapeshifter);
             return false;
@@ -183,33 +180,22 @@ namespace EHR.Neutral
 
         public static void UseCard(PlayerControl pc)
         {
-            if (pc == null)
-            {
-                return;
-            }
+            if (pc == null) return;
 
-            if (CardId == byte.MaxValue)
-            {
-                return;
-            }
+            if (CardId == byte.MaxValue) return;
 
-            bool sync = false;
+            var sync = false;
 
             switch (CardId)
             {
                 case 1: // Slowness for everyone nearby
-                    if (TempSpeeds.Count > 0)
-                    {
-                        RevertSpeedChanges(true);
-                    }
+                    if (TempSpeeds.Count > 0) RevertSpeedChanges(true);
 
                     IEnumerable<PlayerControl> list = GetPlayersInRadius(SlownessRadius.GetFloat(), pc.Pos());
+
                     foreach (PlayerControl x in list)
                     {
-                        if (x.PlayerId == pc.PlayerId)
-                        {
-                            continue;
-                        }
+                        if (x.PlayerId == pc.PlayerId) continue;
 
                         TempSpeeds.TryAdd(x.PlayerId, Main.AllPlayerSpeed[x.PlayerId]);
                         SlowPpl.TryAdd(x.PlayerId, TimeStamp);
@@ -229,16 +215,10 @@ namespace EHR.Neutral
                     CardId = byte.MaxValue;
                     break;
                 case 4: // Create Rift Maker portal
-                    if (PortalMarks.Count == 2)
-                    {
-                        PortalMarks.Clear();
-                    }
+                    if (PortalMarks.Count == 2) PortalMarks.Clear();
 
                     PortalMarks.Add(pc.Pos());
-                    if (PortalMarks.Count == 2)
-                    {
-                        CardId = byte.MaxValue;
-                    }
+                    if (PortalMarks.Count == 2) CardId = byte.MaxValue;
 
                     break;
                 case 5: // Snipe
@@ -254,10 +234,7 @@ namespace EHR.Neutral
                     CardId = byte.MaxValue;
                     pc.Notify(GetString("MagicianCardUsed"));
 
-                    if (!AmongUsClient.Instance.AmHost || Pelican.IsEaten(pc.PlayerId) || Medic.ProtectList.Contains(pc.PlayerId))
-                    {
-                        return;
-                    }
+                    if (!AmongUsClient.Instance.AmHost || Pelican.IsEaten(pc.PlayerId) || Medic.ProtectList.Contains(pc.PlayerId)) return;
 
                     pc.RPCPlayCustomSound("AWP");
 
@@ -272,29 +249,21 @@ namespace EHR.Neutral
 
                         targets.Remove(snipedTarget);
                         PlayerControl[] list1 = [.. targets.Keys];
-                        foreach (PlayerControl x in list1)
-                        {
-                            NotifyRoles(SpecifySeer: x);
-                        }
+                        foreach (PlayerControl x in list1) NotifyRoles(SpecifySeer: x);
 
                         LateTask.New(() =>
                         {
-                            foreach (PlayerControl x in list1)
-                            {
-                                NotifyRoles(SpecifySeer: x);
-                            }
+                            foreach (PlayerControl x in list1) NotifyRoles(SpecifySeer: x);
                         }, 0.5f, "Sniper shot Notify");
                     }
 
                     break;
                 case 6: // Blind everyone nearby
                     IEnumerable<PlayerControl> players = GetPlayersInRadius(BlindRadius.GetFloat(), pc.Pos());
+
                     foreach (PlayerControl x in players)
                     {
-                        if (x.PlayerId == pc.PlayerId)
-                        {
-                            continue;
-                        }
+                        if (x.PlayerId == pc.PlayerId) continue;
 
                         BlindPpl.TryAdd(x.PlayerId, TimeStamp);
                         x.MarkDirtySettings();
@@ -312,12 +281,14 @@ namespace EHR.Neutral
                     Main.AllPlayerSpeed[pc.PlayerId] = Speed.GetFloat();
                     IsSpeedup = true;
                     sync = true;
+
                     LateTask.New(() =>
                     {
                         Main.AllPlayerSpeed[pc.PlayerId] = OriginalSpeed;
                         pc.MarkDirtySettings();
                         IsSpeedup = false;
                     }, SpeedDur.GetInt(), "Revert Magician Speed");
+
                     CardId = byte.MaxValue;
                     break;
                 case 9: // Call meeting
@@ -326,11 +297,8 @@ namespace EHR.Neutral
                     break;
                 case 10: // Admin map
                     Dictionary<string, int> rooms = GetAllPlayerLocationsCount();
-                    StringBuilder sb = new StringBuilder();
-                    foreach (KeyValuePair<string, int> location in rooms)
-                    {
-                        sb.Append($"\n<color=#00ffa5>{location.Key}:</color> {location.Value}");
-                    }
+                    var sb = new StringBuilder();
+                    foreach (KeyValuePair<string, int> location in rooms) sb.Append($"\n<color=#00ffa5>{location.Key}:</color> {location.Value}");
 
                     pc.Notify(sb.ToString(), 10f);
                     break;
@@ -339,33 +307,18 @@ namespace EHR.Neutral
                     break;
             }
 
-            if (sync)
-            {
-                pc.MarkDirtySettings();
-            }
+            if (sync) pc.MarkDirtySettings();
         }
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (pc == null)
-            {
-                return;
-            }
+            if (pc == null) return;
 
-            if (!GameStates.IsInTask)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask) return;
 
-            if (Pelican.IsEaten(pc.PlayerId) || pc.Data.IsDead)
-            {
-                return;
-            }
+            if (Pelican.IsEaten(pc.PlayerId) || pc.Data.IsDead) return;
 
-            if (TempSpeeds.Count > 0)
-            {
-                RevertSpeedChanges(false);
-            }
+            if (TempSpeeds.Count > 0) RevertSpeedChanges(false);
 
             if (PortalMarks.Count == 2 && LastTP + 5 < TimeStamp)
             {
@@ -378,16 +331,13 @@ namespace EHR.Neutral
                 {
                     Vector2 position = pc.Pos();
 
-                    bool isTP = false;
+                    var isTP = false;
                     Vector2 from = PortalMarks[0];
 
                     foreach (Vector2 mark in PortalMarks.ToArray())
                     {
                         float dis = Vector2.Distance(mark, position);
-                        if (dis > 2f)
-                        {
-                            continue;
-                        }
+                        if (dis > 2f) continue;
 
                         isTP = true;
                         from = mark;
@@ -396,18 +346,13 @@ namespace EHR.Neutral
                     if (isTP)
                     {
                         LastTP = TimeStamp;
+
                         if (from == PortalMarks[0])
-                        {
                             pc.TP(PortalMarks[1]);
-                        }
                         else if (from == PortalMarks[1])
-                        {
                             pc.TP(PortalMarks[0]);
-                        }
                         else
-                        {
                             Logger.Error($"Teleport failed - from: {from}", "MagicianTP");
-                        }
                     }
                 }
             }
@@ -425,8 +370,9 @@ namespace EHR.Neutral
             {
                 foreach (KeyValuePair<Vector2, long> bomb in Bombs.Where(bomb => bomb.Value + BombDelay.GetInt() < TimeStamp))
                 {
-                    bool b = false;
+                    var b = false;
                     IEnumerable<PlayerControl> players = GetPlayersInRadius(BombRadius.GetFloat(), bomb.Key);
+
                     foreach (PlayerControl tg in players)
                     {
                         if (tg.PlayerId == pc.PlayerId)
@@ -440,24 +386,19 @@ namespace EHR.Neutral
 
                     Bombs.Remove(bomb.Key);
                     pc.Notify(GetString("MagicianBombExploded"));
+
                     if (b)
                     {
                         LateTask.New(() =>
                         {
-                            if (!GameStates.IsEnded)
-                            {
-                                pc.Suicide(PlayerState.DeathReason.Bombed);
-                            }
+                            if (!GameStates.IsEnded) pc.Suicide(PlayerState.DeathReason.Bombed);
                         }, 0.5f, "Magician Bomb Suicide");
                     }
                 }
 
-                StringBuilder sb = new StringBuilder();
+                var sb = new StringBuilder();
                 long[] list = [.. Bombs.Values];
-                foreach (long x in list)
-                {
-                    sb.Append(string.Format(GetString("MagicianBombExlodesIn"), BombDelay.GetInt() - (TimeStamp - x) + 1));
-                }
+                foreach (long x in list) sb.Append(string.Format(GetString("MagicianBombExlodesIn"), BombDelay.GetInt() - (TimeStamp - x) + 1));
 
                 pc.Notify(sb.ToString());
             }
@@ -469,10 +410,7 @@ namespace EHR.Neutral
             BlindPpl.Clear();
             Bombs.Clear();
             IsSniping = false;
-            if (ClearPortalAfterMeeting.GetBool())
-            {
-                PortalMarks.Clear();
-            }
+            if (ClearPortalAfterMeeting.GetBool()) PortalMarks.Clear();
 
             if (IsSpeedup)
             {
@@ -494,7 +432,7 @@ namespace EHR.Neutral
 
         private static Dictionary<PlayerControl, float> GetSnipeTargets(PlayerControl sniper)
         {
-            Dictionary<PlayerControl, float> targets = new Dictionary<PlayerControl, float>();
+            var targets = new Dictionary<PlayerControl, float>();
             Vector3 snipeBasePos = SnipeBasePosition;
             Vector3 snipePos = sniper.transform.position;
             Vector3 dir = (snipePos - snipeBasePos).normalized;
@@ -503,24 +441,15 @@ namespace EHR.Neutral
 
             foreach (PlayerControl target in Main.AllAlivePlayerControls)
             {
-                if (target.PlayerId == sniper.PlayerId)
-                {
-                    continue;
-                }
+                if (target.PlayerId == sniper.PlayerId) continue;
 
                 Vector3 target_pos = target.transform.position - snipePos;
-                if (target_pos.magnitude < 1)
-                {
-                    continue;
-                }
+                if (target_pos.magnitude < 1) continue;
 
                 Vector3 target_dir = target_pos.normalized;
                 float target_dot = Vector3.Dot(dir, target_dir);
 
-                if (target_dot < 0.995)
-                {
-                    continue;
-                }
+                if (target_dot < 0.995) continue;
 
                 float err = target_pos.magnitude;
                 targets.Add(target, err);

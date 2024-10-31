@@ -9,12 +9,8 @@
             Options.SetupRoleOptions(7500, TabGroup.CrewmateRoles, CustomRoles.Observer);
         }
 
-        public override void Init()
-        {
-        }
+        public override void Init() { }
 
-        public override void Add(byte playerId)
-        {
-        }
+        public override void Add(byte playerId) { }
     }
 }

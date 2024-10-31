@@ -21,15 +21,19 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Gaulois);
+
             CD = new FloatOptionItem(Id + 5, "AbilityCooldown", new(0f, 60f, 2.5f), 30f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Gaulois])
                 .SetValueFormat(OptionFormat.Seconds);
+
             AdditionalSpeed = new FloatOptionItem(Id + 6, "GauloisSpeedBoost", new(0f, 2f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Gaulois])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             UseLimitOpt = new IntegerOptionItem(Id + 7, "AbilityUseLimit", new(1, 14, 1), 3, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Gaulois])
                 .SetValueFormat(OptionFormat.Times);
+
             UsePet = CreatePetUseSetting(Id + 8, CustomRoles.Gaulois);
         }
 
@@ -47,10 +51,7 @@ namespace EHR.Crewmate
 
         public override void SetKillCooldown(byte playerId)
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
             Main.AllPlayerKillCooldown[playerId] = playerId.GetAbilityUseLimit() > 0 ? CD.GetFloat() : 300f;
         }
@@ -67,10 +68,7 @@ namespace EHR.Crewmate
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0)
-            {
-                return false;
-            }
+            if (!IsEnable || killer == null || target == null || killer.GetAbilityUseLimit() <= 0) return false;
 
             Main.AllPlayerSpeed[target.PlayerId] += AdditionalSpeed.GetFloat();
             IncreasedSpeedPlayerList.Add(target.PlayerId);

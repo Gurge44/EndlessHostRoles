@@ -18,6 +18,7 @@ namespace EHR
                     __instance.RootFolderPrefab,
                     __instance.transform
                 );
+
                 rolesFolder.gameObject.SetActive(false);
                 rolesFolder.FolderName = Main.ModName;
                 CustomRolesFolder = rolesFolder;
@@ -28,21 +29,25 @@ namespace EHR
         public static void Postfix(TaskAdderGame __instance, [HarmonyArgument(0)] TaskFolder taskFolder)
         {
             Logger.Info("Opened " + taskFolder.FolderName, "TaskFolder");
-            float xCursor = 0f;
-            float yCursor = 0f;
-            float maxHeight = 0f;
+            var xCursor = 0f;
+            var yCursor = 0f;
+            var maxHeight = 0f;
+
             if (CustomRolesFolder != null && CustomRolesFolder.FolderName == taskFolder.FolderName)
             {
                 CustomRoles[] list = Enum.GetValues<CustomRoles>();
+
                 foreach (CustomRoles cRoleID in list)
                 {
                     TaskAddButton button = Object.Instantiate(__instance.RoleButton);
                     button.Text.text = Utils.GetRoleName(cRoleID);
                     __instance.AddFileAsChild(CustomRolesFolder, button, ref xCursor, ref yCursor, ref maxHeight);
-                    RoleBehaviour roleBehaviour = new RoleBehaviour
+
+                    var roleBehaviour = new RoleBehaviour
                     {
                         Role = (RoleTypes)cRoleID + 1000
                     };
+
                     button.Role = roleBehaviour;
 
                     Color roleColor = Utils.GetRoleColor(cRoleID);
@@ -69,9 +74,7 @@ namespace EHR
                     __instance.Overlay.enabled = PlayerCustomRole == FileCustomRole;
                 }
             }
-            catch
-            {
-            }
+            catch { }
 
             return true;
         }
@@ -92,9 +95,7 @@ namespace EHR
                     return false;
                 }
             }
-            catch
-            {
-            }
+            catch { }
 
             return true;
         }

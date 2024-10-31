@@ -22,16 +22,19 @@ namespace EHR.GameMode.HideAndSeekRoles
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(69_211_601, TabGroup.CrewmateRoles, CustomRoles.Detector, CustomGameMode.HideAndSeek);
+
             Vision = new FloatOptionItem(69_211_603, "DetectorVision", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(66, 221, 245, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Detector]);
+
             Speed = new FloatOptionItem(69_213_604, "DetectorSpeed", new(0.05f, 5f, 0.05f), 1.25f, TabGroup.CrewmateRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetColor(new(66, 221, 245, byte.MaxValue))
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Detector]);
+
             InfoFrequency = new IntegerOptionItem(69_213_605, "DetectorFrequency", new(0, 60, 1), 20, TabGroup.CrewmateRoles)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetValueFormat(OptionFormat.Seconds)
@@ -52,15 +55,14 @@ namespace EHR.GameMode.HideAndSeekRoles
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!pc.IsAlive())
-            {
-                return;
-            }
+            if (!pc.IsAlive()) return;
 
             long now = Utils.TimeStamp;
+
             if (LastInfoTime + InfoFrequency.GetInt() <= now)
             {
                 PlayerControl[] imps = HnSManager.PlayerRoles.Where(x => x.Value.Interface.Team == Team.Impostor).Select(x => Utils.GetPlayerById(x.Key)).Where(x => x != null && x.GetPlainShipRoom() != null).ToArray();
+
                 if (imps.Length > 0)
                 {
                     PlayerControl imp = imps.RandomElement();

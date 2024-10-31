@@ -35,12 +35,16 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.AntiAdminer);
+
             CanCheckCamera = new BooleanOptionItem(Id + 10, "CanCheckCamera", true, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.AntiAdminer]);
+
             EnableExtraAbility = new BooleanOptionItem(Id + 11, "EnableExtraAbility", true, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.AntiAdminer]);
+
             CanOnlyUseWhileAnyWatch = new BooleanOptionItem(Id + 12, "CanOnlyUseWhileAnyWatch", true, TabGroup.ImpostorRoles)
                 .SetParent(EnableExtraAbility);
+
             Delay = new FloatOptionItem(Id + 13, "AADelay", new(0f, 20f, 0.5f), 5f, TabGroup.ImpostorRoles)
                 .SetParent(EnableExtraAbility)
                 .SetValueFormat(OptionFormat.Seconds);
@@ -66,24 +70,15 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting)
-            {
-                return true;
-            }
+            if (!shapeshifting) return true;
 
-            if (IsMonitor || !EnableExtraAbility.GetBool() || ExtraAbilityStartTimeStamp > 0 || (CanOnlyUseWhileAnyWatch.GetBool() && !IsAdminWatch && !IsVitalWatch && !IsDoorLogWatch && !IsCameraWatch))
-            {
-                return false;
-            }
+            if (IsMonitor || !EnableExtraAbility.GetBool() || ExtraAbilityStartTimeStamp > 0 || (CanOnlyUseWhileAnyWatch.GetBool() && !IsAdminWatch && !IsVitalWatch && !IsDoorLogWatch && !IsCameraWatch)) return false;
 
             ExtraAbilityStartTimeStamp = Utils.TimeStamp;
             shapeshifter.RpcResetAbilityCooldown();
             Utils.NotifyRoles(SpecifySeer: shapeshifter, SpecifyTarget: shapeshifter);
 
-            foreach (PlayerControl pc in PlayersNearDevices.Select(x => Utils.GetPlayerById(x)).Where(x => x != null && x.IsAlive()))
-            {
-                pc.Notify(Translator.GetString("AAWarning"), Delay.GetFloat());
-            }
+            foreach (PlayerControl pc in PlayersNearDevices.Select(x => Utils.GetPlayerById(x)).Where(x => x != null && x.IsAlive())) pc.Notify(Translator.GetString("AAWarning"), Delay.GetFloat());
 
             return false;
         }
@@ -107,12 +102,9 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
-            bool notify = false;
+            var notify = false;
 
             if (!IsMonitor && ExtraAbilityStartTimeStamp > 0 && EnableExtraAbility.GetBool())
             {
@@ -122,43 +114,32 @@ namespace EHR.Impostor
                     player.RpcResetAbilityCooldown();
                     player.Notify(Translator.GetString("AADone"));
 
-                    foreach (PlayerControl pc in PlayersNearDevices.Select(x => Utils.GetPlayerById(x)).Where(x => x != null && x.IsAlive() && player.RpcCheckAndMurder(x, true)))
-                    {
-                        pc.Suicide(realKiller: player);
-                    }
+                    foreach (PlayerControl pc in PlayersNearDevices.Select(x => Utils.GetPlayerById(x)).Where(x => x != null && x.IsAlive() && player.RpcCheckAndMurder(x, true))) pc.Suicide(realKiller: player);
                 }
                 else
                 {
                     notify = true;
-                    foreach (PlayerControl pc in PlayersNearDevices.Select(x => Utils.GetPlayerById(x)).Where(x => x != null && x.IsAlive()))
-                    {
-                        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                    }
+                    foreach (PlayerControl pc in PlayersNearDevices.Select(x => Utils.GetPlayerById(x)).Where(x => x != null && x.IsAlive())) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
                 }
             }
 
             Count--;
-            if (Count > 0)
-            {
-                return;
-            }
+            if (Count > 0) return;
 
             Count = notify || ExtraAbilityStartTimeStamp > 0 ? 1 : 5;
 
             PlayersNearDevices = [];
             bool Admin = false, Camera = false, DoorLog = false, Vital = false;
             float usableDistance = DisableDevice.UsableDistance;
+
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (pc.inVent || (pc.IsImpostor() && !IsMonitor))
-                {
-                    continue;
-                }
+                if (pc.inVent || (pc.IsImpostor() && !IsMonitor)) continue;
 
                 try
                 {
                     Vector2 PlayerPos = pc.Pos();
-                    bool nearDevice = false;
+                    var nearDevice = false;
 
                     switch (Main.NormalOptions.MapId)
                     {
@@ -284,10 +265,7 @@ namespace EHR.Impostor
                             break;
                     }
 
-                    if (nearDevice)
-                    {
-                        PlayersNearDevices.Add(pc.PlayerId);
-                    }
+                    if (nearDevice) PlayersNearDevices.Add(pc.PlayerId);
                 }
                 catch (Exception ex)
                 {
@@ -295,7 +273,7 @@ namespace EHR.Impostor
                 }
             }
 
-            bool change = false;
+            var change = false;
 
             change |= IsAdminWatch != Admin;
             IsAdminWatch = Admin;
@@ -303,16 +281,14 @@ namespace EHR.Impostor
             IsVitalWatch = Vital;
             change |= IsDoorLogWatch != DoorLog;
             IsDoorLogWatch = DoorLog;
+
             if (IsMonitor ? Monitor.CanCheckCamera.GetBool() : CanCheckCamera.GetBool())
             {
                 change |= IsCameraWatch != Camera;
                 IsCameraWatch = Camera;
             }
 
-            if (notify || change)
-            {
-                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
-            }
+            if (notify || change) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
@@ -324,23 +300,15 @@ namespace EHR.Impostor
                     : string.Empty;
             }
 
-            if (!PlayersNearDevices.Contains(seer.PlayerId))
-            {
-                return string.Empty;
-            }
+            if (!PlayersNearDevices.Contains(seer.PlayerId)) return string.Empty;
 
             AntiAdminer aa = null;
+
             foreach (byte id in PlayerIdList)
             {
-                if (Main.PlayerStates[id].Role is not AntiAdminer { IsEnable: true, IsMonitor: false } x || x.ExtraAbilityStartTimeStamp == 0)
-                {
-                    continue;
-                }
+                if (Main.PlayerStates[id].Role is not AntiAdminer { IsEnable: true, IsMonitor: false } x || x.ExtraAbilityStartTimeStamp == 0) continue;
 
-                if (aa != null && x.ExtraAbilityStartTimeStamp >= aa.ExtraAbilityStartTimeStamp)
-                {
-                    continue;
-                }
+                if (aa != null && x.ExtraAbilityStartTimeStamp >= aa.ExtraAbilityStartTimeStamp) continue;
 
                 aa = x;
             }

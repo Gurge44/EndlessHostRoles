@@ -22,6 +22,7 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Duellist);
+
             SSCD = new FloatOptionItem(Id + 5, "ShapeshiftCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Duellist])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -45,47 +46,30 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl duellist, PlayerControl target, bool shapeshifting)
         {
-            if (!IsEnable)
-            {
-                return false;
-            }
+            if (!IsEnable) return false;
 
-            if (duellist == null || target == null)
-            {
-                return false;
-            }
+            if (duellist == null || target == null) return false;
 
             Vector2 pos = Pelican.GetBlackRoomPS();
 
             if (target.TP(pos))
             {
-                if (Main.KillTimers[duellist.PlayerId] < 1f)
-                {
-                    duellist.SetKillCooldown(1f); // Give the other player a chance to kill
-                }
+                if (Main.KillTimers[duellist.PlayerId] < 1f) duellist.SetKillCooldown(1f); // Give the other player a chance to kill
 
                 duellist.TP(pos);
                 DuelPair[duellist.PlayerId] = target.PlayerId;
             }
             else
-            {
                 duellist.Notify(GetString("TargetCannotBeTeleported"));
-            }
 
             return false;
         }
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (DuelPair.Count == 0)
-            {
-                return;
-            }
+            if (DuelPair.Count == 0) return;
 
-            if (Count++ < 40)
-            {
-                return;
-            }
+            if (Count++ < 40) return;
 
             Count = 0;
 

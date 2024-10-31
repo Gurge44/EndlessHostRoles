@@ -67,45 +67,28 @@ namespace EHR.Crewmate
         public override void OnReportDeadBody()
         {
             byte[] list = [.. PlayerIdList];
-            foreach (byte pid in list)
-            {
-                pid.SetAbilityUseLimit(TrialLimitPerMeeting.GetInt());
-            }
+            foreach (byte pid in list) pid.SetAbilityUseLimit(TrialLimitPerMeeting.GetInt());
         }
 
         public static bool TrialMsg(PlayerControl pc, string msg, bool isUI = false)
         {
             string originMsg = msg;
 
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return false;
-            }
+            if (!AmongUsClient.Instance.AmHost) return false;
 
-            if (!GameStates.IsInGame || pc == null)
-            {
-                return false;
-            }
+            if (!GameStates.IsInGame || pc == null) return false;
 
-            if (!pc.Is(CustomRoles.Judge))
-            {
-                return false;
-            }
+            if (!pc.Is(CustomRoles.Judge)) return false;
 
             int operate; // 1:ID 2:Trial
             msg = msg.ToLower().TrimStart().TrimEnd();
+
             if (CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id"))
-            {
                 operate = 1;
-            }
             else if (CheckCommand(ref msg, "shoot|guess|bet|st|gs|bt|猜|赌|sp|jj|tl|trial|审判|判|审", false))
-            {
                 operate = 2;
-            }
             else
-            {
                 return false;
-            }
 
             if (!pc.IsAlive())
             {
@@ -121,13 +104,8 @@ namespace EHR.Crewmate
                 case 2:
                 {
                     if (TryHideMsg.GetBool()) /*GuessManager.TryHideMsg();*/
-                    {
                         ChatManager.SendPreviousMessagesToAll();
-                    }
-                    else if (pc.AmOwner)
-                    {
-                        Utils.SendMessage(originMsg, 255, pc.GetRealName());
-                    }
+                    else if (pc.AmOwner) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
                     if (!MsgToPlayerAndRole(msg, out byte targetId, out string error))
                     {
@@ -136,20 +114,18 @@ namespace EHR.Crewmate
                     }
 
                     PlayerControl target = Utils.GetPlayerById(targetId);
+
                     if (target != null)
                     {
                         Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} trialed {target.GetNameWithRole().RemoveHtmlTags()}", "Judge");
                         bool judgeSuicide;
+
                         if (pc.GetAbilityUseLimit() < 1 || GlobalUseLimit[pc.PlayerId] < 1)
                         {
                             if (!isUI)
-                            {
                                 Utils.SendMessage(GetString("JudgeTrialMax"), pc.PlayerId);
-                            }
                             else
-                            {
                                 pc.ShowPopUp(GetString("JudgeTrialMax"));
-                            }
 
                             return true;
                         }
@@ -157,13 +133,9 @@ namespace EHR.Crewmate
                         if (Jailor.PlayerIdList.Any(x => Main.PlayerStates[x].Role is Jailor { IsEnable: true } jl && jl.JailorTarget == target.PlayerId))
                         {
                             if (!isUI)
-                            {
                                 Utils.SendMessage(GetString("CanNotTrialJailed"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")));
-                            }
                             else
-                            {
                                 pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Jailor), GetString("JailorTitle")) + "\n" + GetString("CanNotTrialJailed"));
-                            }
 
                             return true;
                         }
@@ -171,13 +143,9 @@ namespace EHR.Crewmate
                         if (Medic.InProtect(target.PlayerId) && !Medic.JudgingIgnoreShield.GetBool())
                         {
                             if (!isUI)
-                            {
                                 Utils.SendMessage(GetString("CanNotTrialProtected"), pc.PlayerId, CustomRoles.Medic.ToColoredString());
-                            }
                             else
-                            {
                                 pc.ShowPopUp($"{CustomRoles.Medic.ToColoredString()}\n{GetString("CanNotTrialProtected")}");
-                            }
 
                             return true;
                         }
@@ -185,97 +153,55 @@ namespace EHR.Crewmate
                         if (pc.PlayerId == target.PlayerId)
                         {
                             if (!isUI)
-                            {
                                 Utils.SendMessage(GetString("LaughToWhoTrialSelf"), pc.PlayerId, Utils.ColorString(Color.cyan, GetString("MessageFromKPD")));
-                            }
                             else
-                            {
                                 pc.ShowPopUp(Utils.ColorString(Color.cyan, GetString("MessageFromKPD")) + "\n" + GetString("LaughToWhoTrialSelf"));
-                            }
 
                             judgeSuicide = true;
                         }
                         else if (pc.Is(CustomRoles.Madmate))
-                        {
                             judgeSuicide = false;
-                        }
                         else if (pc.Is(CustomRoles.Charmed))
-                        {
                             judgeSuicide = false;
-                        }
                         else if (pc.Is(CustomRoles.Recruit))
-                        {
                             judgeSuicide = false;
-                        }
                         else if (pc.Is(CustomRoles.Contagious))
-                        {
                             judgeSuicide = false;
-                        }
                         else if (target.Is(CustomRoles.Rascal))
-                        {
                             judgeSuicide = false;
-                        }
                         else if (target.Is(CustomRoles.Pestilence))
-                        {
                             judgeSuicide = true;
-                        }
                         else if (target.Is(CustomRoles.Trickster))
-                        {
                             judgeSuicide = true;
-                        }
                         else if (target.Is(CustomRoles.Madmate) && CanTrialMadmate.GetBool())
-                        {
                             judgeSuicide = false;
-                        }
                         else if (target.IsConverted() && CanTrialConverted.GetBool())
-                        {
                             judgeSuicide = false;
-                        }
                         else if (target.IsNeutralKiller() && CanTrialNeutralK.GetBool())
-                        {
                             judgeSuicide = false;
-                        }
                         else
                         {
                             CustomRoles targetRole = target.GetCustomRole();
+
                             if (targetRole.GetCrewmateRoleCategory() == RoleOptionType.Crewmate_Killing && CanTrialCrewKilling.GetBool())
-                            {
                                 judgeSuicide = false;
-                            }
                             else if (targetRole.GetNeutralRoleCategory() == RoleOptionType.Neutral_Benign && CanTrialNeutralB.GetBool())
-                            {
                                 judgeSuicide = false;
-                            }
                             else if (targetRole.GetNeutralRoleCategory() == RoleOptionType.Neutral_Evil && CanTrialNeutralE.GetBool())
-                            {
                                 judgeSuicide = false;
-                            }
                             else if (targetRole.IsNonNK() && !CanTrialNeutralB.GetBool() && !CanTrialNeutralE.GetBool() && targetRole.GetNeutralRoleCategory() is not RoleOptionType.Neutral_Benign and not RoleOptionType.Neutral_Evil && CanTrialNeutralK.GetBool())
-                            {
                                 judgeSuicide = false;
-                            }
                             else if (targetRole.IsImpostor())
-                            {
                                 judgeSuicide = false;
-                            }
                             else if (targetRole.IsMadmate() && CanTrialMadmate.GetBool())
-                            {
                                 judgeSuicide = false;
-                            }
                             else if (targetRole is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Sidekick && CanTrialNeutralK.GetBool())
-                            {
                                 judgeSuicide = false;
-                            }
                             else
-                            {
                                 judgeSuicide = true;
-                            }
                         }
 
-                        if (pc.GetCustomSubRoles().Any(x => x.IsConverted() || x == CustomRoles.Bloodlust) && !target.Is(CustomRoles.Pestilence))
-                        {
-                            judgeSuicide = false;
-                        }
+                        if (pc.GetCustomSubRoles().Any(x => x.IsConverted() || x == CustomRoles.Bloodlust) && !target.Is(CustomRoles.Pestilence)) judgeSuicide = false;
 
                         PlayerControl dp = judgeSuicide ? pc : target;
 
@@ -292,7 +218,7 @@ namespace EHR.Crewmate
 
                             Utils.AfterPlayerDeathTasks(dp, true);
 
-                            Utils.NotifyRoles(false, NoCache: true);
+                            Utils.NotifyRoles(NoCache: true);
 
                             LateTask.New(() => { Utils.SendMessage(string.Format(GetString("TrialKill"), Name), 255, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceGuesser), GetString("TrialKillTitle"))); }, 0.6f, "Guess Msg");
                         }, 0.2f, "Trial Kill");
@@ -307,23 +233,15 @@ namespace EHR.Crewmate
 
         private static bool MsgToPlayerAndRole(string msg, out byte id, out string error)
         {
-            if (msg.StartsWith("/"))
-            {
-                msg = msg.Replace("/", string.Empty);
-            }
+            if (msg.StartsWith("/")) msg = msg.Replace("/", string.Empty);
 
             Regex r = new("\\d+");
             MatchCollection mc = r.Matches(msg);
-            string result = string.Empty;
-            for (int i = 0; i < mc.Count; i++)
-            {
-                result += mc[i];
-            }
+            var result = string.Empty;
+            for (var i = 0; i < mc.Count; i++) result += mc[i];
 
             if (int.TryParse(result, out int num))
-            {
                 id = Convert.ToByte(num);
-            }
             else
             {
                 id = byte.MaxValue;
@@ -332,6 +250,7 @@ namespace EHR.Crewmate
             }
 
             PlayerControl target = Utils.GetPlayerById(id);
+
             if (target == null || target.Data.IsDead)
             {
                 error = GetString("TrialNull");
@@ -345,14 +264,12 @@ namespace EHR.Crewmate
         public static bool CheckCommand(ref string msg, string command, bool exact = true)
         {
             string[] comList = command.Split('|');
+
             foreach (string str in comList)
             {
                 if (exact)
                 {
-                    if (msg == "/" + str)
-                    {
-                        return true;
-                    }
+                    if (msg == "/" + str) return true;
                 }
                 else
                 {
@@ -369,10 +286,7 @@ namespace EHR.Crewmate
 
         private static void SendRPC(byte playerId)
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.Judge, SendOption.Reliable);
             writer.Write(playerId);
@@ -389,19 +303,12 @@ namespace EHR.Crewmate
         {
             Logger.Msg($"Click: ID {playerId}", "Judge UI");
             PlayerControl pc = Utils.GetPlayerById(playerId);
-            if (pc == null || !pc.IsAlive() || !GameStates.IsVoting)
-            {
-                return;
-            }
+            if (pc == null || !pc.IsAlive() || !GameStates.IsVoting) return;
 
             if (AmongUsClient.Instance.AmHost)
-            {
                 TrialMsg(PlayerControl.LocalPlayer, $"/tl {playerId}", true);
-            }
             else
-            {
                 SendRPC(playerId);
-            }
         }
 
         public static void CreateJudgeButton(MeetingHud __instance)
@@ -409,18 +316,15 @@ namespace EHR.Crewmate
             foreach (PlayerVoteArea pva in __instance.playerStates)
             {
                 PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
-                if (pc == null || !pc.IsAlive())
-                {
-                    continue;
-                }
+                if (pc == null || !pc.IsAlive()) continue;
 
                 GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
                 GameObject targetBox = Object.Instantiate(template, pva.transform);
                 targetBox.name = "ShootButton";
                 targetBox.transform.localPosition = new(-0.35f, 0.03f, -1.31f);
-                SpriteRenderer renderer = targetBox.GetComponent<SpriteRenderer>();
+                var renderer = targetBox.GetComponent<SpriteRenderer>();
                 renderer.sprite = CustomButton.Get("JudgeIcon");
-                PassiveButton button = targetBox.GetComponent<PassiveButton>();
+                var button = targetBox.GetComponent<PassiveButton>();
                 button.OnClick.RemoveAllListeners();
                 button.OnClick.AddListener((Action)(() => JudgeOnClick(pva.TargetPlayerId /*, __instance*/)));
             }
@@ -431,10 +335,7 @@ namespace EHR.Crewmate
         {
             public static void Postfix(MeetingHud __instance)
             {
-                if (PlayerControl.LocalPlayer.Is(CustomRoles.Judge) && PlayerControl.LocalPlayer.IsAlive())
-                {
-                    CreateJudgeButton(__instance);
-                }
+                if (PlayerControl.LocalPlayer.Is(CustomRoles.Judge) && PlayerControl.LocalPlayer.IsAlive()) CreateJudgeButton(__instance);
             }
         }
     }

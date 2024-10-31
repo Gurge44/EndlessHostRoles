@@ -26,29 +26,39 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(2400, TabGroup.ImpostorRoles, CustomRoles.Bomber);
+
             BomberRadius = new FloatOptionItem(2018, "BomberRadius", new(0.5f, 5f, 0.5f), 3f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             BomberCanKill = new BooleanOptionItem(2015, "CanKill", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber]);
+
             BomberKillCD = new FloatOptionItem(2020, "KillCooldown", new(0f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles)
                 .SetParent(BomberCanKill)
                 .SetValueFormat(OptionFormat.Seconds);
+
             CooldownsResetEachOther = new BooleanOptionItem(2021, "BomberCooldownsResetEachOther", false, TabGroup.ImpostorRoles)
                 .SetParent(BomberCanKill);
+
             BombCooldown = new FloatOptionItem(2030, "BombCooldown", new(5f, 180f, 2.5f), 40f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ImpostorsSurviveBombs = new BooleanOptionItem(2031, "ImpostorsSurviveBombs", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber]);
+
             BomberDiesInExplosion = new BooleanOptionItem(2032, "BomberDiesInExplosion", false, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber]);
+
             NukerChance = new IntegerOptionItem(2033, "NukerChance", new(0, 100, 5), 5, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bomber])
                 .SetValueFormat(OptionFormat.Percent);
+
             NukeCooldown = new FloatOptionItem(2035, "NukeCooldown", new(5f, 180f, 2.5f), 60f, TabGroup.ImpostorRoles)
                 .SetParent(NukerChance)
                 .SetValueFormat(OptionFormat.Seconds);
+
             NukeRadius = new FloatOptionItem(2034, "NukeRadius", new(5f, 100f, 1f), 10f, TabGroup.ImpostorRoles)
                 .SetParent(NukerChance)
                 .SetValueFormat(OptionFormat.Multiplier);
@@ -81,43 +91,29 @@ namespace EHR.Impostor
             try
             {
                 if (UsePhantomBasis.GetBool())
-                {
                     AURoleOptions.PhantomCooldown = IsNuker ? NukeCooldown.GetFloat() : BombCooldown.GetFloat();
-                }
                 else
                 {
-                    if (UsePets.GetBool())
-                    {
-                        return;
-                    }
+                    if (UsePets.GetBool()) return;
 
                     AURoleOptions.ShapeshifterCooldown = IsNuker ? NukeCooldown.GetFloat() : BombCooldown.GetFloat();
                     AURoleOptions.ShapeshifterDuration = 2f;
                 }
             }
-            catch
-            {
-            }
+            catch { }
         }
 
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             if (UsePets.GetBool())
-            {
                 hud.PetButton?.OverrideText(Translator.GetString("BomberShapeshiftText"));
-            }
             else
-            {
                 hud.AbilityButton?.OverrideText(Translator.GetString("BomberShapeshiftText"));
-            }
         }
 
         public override void OnMurder(PlayerControl killer, PlayerControl target)
         {
-            if (CooldownsResetEachOther.GetBool())
-            {
-                killer.RpcResetAbilityCooldown();
-            }
+            if (CooldownsResetEachOther.GetBool()) killer.RpcResetAbilityCooldown();
         }
 
         public override void OnPet(PlayerControl pc)
@@ -127,10 +123,7 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting && !UseUnshiftTrigger.GetBool())
-            {
-                return true;
-            }
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
 
             Bomb(shapeshifter);
 
@@ -149,30 +142,19 @@ namespace EHR.Impostor
             CustomSoundsManager.RPCPlayCustomSoundAll("Boom");
 
             float radius = IsNuker ? NukeRadius.GetFloat() : BomberRadius.GetFloat();
+
             foreach (PlayerControl tg in Main.AllPlayerControls)
             {
-                if (!tg.IsModClient())
-                {
-                    tg.KillFlash();
-                }
+                if (!tg.IsModClient()) tg.KillFlash();
 
                 Vector2 pos = pc.Pos();
                 float dis = Vector2.Distance(pos, tg.Pos());
 
-                if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence))
-                {
-                    continue;
-                }
+                if (!tg.IsAlive() || Pelican.IsEaten(tg.PlayerId) || Medic.ProtectList.Contains(tg.PlayerId) || (tg.Is(CustomRoleTypes.Impostor) && ImpostorsSurviveBombs.GetBool()) || tg.inVent || tg.Is(CustomRoles.Pestilence)) continue;
 
-                if (dis > radius)
-                {
-                    continue;
-                }
+                if (dis > radius) continue;
 
-                if (tg.PlayerId == pc.PlayerId)
-                {
-                    continue;
-                }
+                if (tg.PlayerId == pc.PlayerId) continue;
 
                 tg.Suicide(PlayerState.DeathReason.Bombed, pc);
             }
@@ -180,18 +162,12 @@ namespace EHR.Impostor
             LateTask.New(() =>
             {
                 int totalAlive = Main.AllAlivePlayerControls.Length;
-                if (BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded)
-                {
-                    pc.Suicide(PlayerState.DeathReason.Bombed);
-                }
+                if (BomberDiesInExplosion.GetBool() && totalAlive > 1 && !GameStates.IsEnded) pc.Suicide(PlayerState.DeathReason.Bombed);
 
                 Utils.NotifyRoles(ForceLoop: true);
             }, 1.5f, "Bomber Suiscide");
 
-            if (CooldownsResetEachOther.GetBool() && BomberCanKill.GetBool())
-            {
-                pc.SetKillCooldown();
-            }
+            if (CooldownsResetEachOther.GetBool() && BomberCanKill.GetBool()) pc.SetKillCooldown();
         }
     }
 }

@@ -26,23 +26,18 @@ namespace EHR
             Instance.text.text = Sb.ToString();
 
             long now = Utils.TimeStamp;
-            if (now + Delay <= LastUpdate)
-            {
-                return; // Only update every 2 seconds
-            }
+            if (now + Delay <= LastUpdate) return; // Only update every 2 seconds
 
             LastUpdate = now;
 
             Sb.Clear();
 
-            if (GameStates.IsLobby)
-            {
-                Sb.Append("\r\n");
-            }
+            if (GameStates.IsLobby) Sb.Append("\r\n");
 
             Sb.Append(Main.CredentialsText);
 
             int ping = AmongUsClient.Instance.Ping;
+
             string color = ping switch
             {
                 < 30 => "#44dfcc",
@@ -51,14 +46,12 @@ namespace EHR
                 < 400 => "#ff146e",
                 _ => "#ff4500"
             };
+
             Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
             Sb.Append($"<color={color}>{GetString("PingText")}: {ping} ms</color>");
             Sb.Append(GameStates.InGame ? "    -    " : "\r\n");
             Sb.Append(string.Format(GetString("Server"), Utils.GetRegionName()));
-            if (GameStates.InGame)
-            {
-                Sb.Append("\r\n.");
-            }
+            if (GameStates.InGame) Sb.Append("\r\n.");
 
             // if (Options.NoGameEnd.GetBool()) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.red, GetString("NoGameEnd"))).Append("</size>");
             // if (!GameStates.IsModHost) Sb.Append("\r\n<size=1.2>").Append(Utils.ColorString(Color.red, GetString("Warning.NoModHost"))).Append("</size>");
@@ -79,12 +72,9 @@ namespace EHR
 #pragma warning restore CS0162 // Unreachable code detected
 
             Main.CredentialsText = $"<size=1.5><color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}{testBuildIndicator} <color=#a54aff>by</color> <color=#ffff00>Gurge44</color>";
-            string menuText = $"<color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}{testBuildIndicator}\r\n<color=#a54aff>By</color> <color=#ffff00>Gurge44</color>";
+            var menuText = $"<color={Main.ModColor}>Endless Host Roles</color> v{Main.PluginDisplayVersion}{testBuildIndicator}\r\n<color=#a54aff>By</color> <color=#ffff00>Gurge44</color>";
 
-            if (Main.IsAprilFools)
-            {
-                Main.CredentialsText = "<color=#00bfff>Endless Madness</color> v11.45.14 <color=#a54aff>by</color> <color=#ffff00>No one</color>";
-            }
+            if (Main.IsAprilFools) Main.CredentialsText = "<color=#00bfff>Endless Madness</color> v11.45.14 <color=#a54aff>by</color> <color=#ffff00>No one</color>";
 
             TextMeshPro credentials = Object.Instantiate(__instance.text);
             credentials.text = menuText;
@@ -93,10 +83,7 @@ namespace EHR
             credentials.fontSize = credentials.fontSizeMax = credentials.fontSizeMin = 2f;
 
             ErrorText.Create(__instance.text);
-            if (Main.HasArgumentException && ErrorText.Instance != null)
-            {
-                ErrorText.Instance.AddError(ErrorCode.Main_DictionaryError);
-            }
+            if (Main.HasArgumentException && ErrorText.Instance != null) ErrorText.Instance.AddError(ErrorCode.Main_DictionaryError);
 
             VersionChecker.Check();
         }
@@ -123,14 +110,12 @@ namespace EHR
         {
             GameObject.Find("BackgroundTexture")?.SetActive(!MainMenuManagerPatch.ShowedBak);
 
-            if (!(ModStamp = GameObject.Find("ModStamp")))
-            {
-                return;
-            }
+            if (!(ModStamp = GameObject.Find("ModStamp"))) return;
 
             ModStamp.transform.localScale = new(0.3f, 0.3f, 0.3f);
 
             Ambience = GameObject.Find("Ambience");
+
             if (Ambience != null)
             {
                 try
@@ -143,10 +128,7 @@ namespace EHR
                 }
             }
 
-            if (!(LeftPanel = GameObject.Find("LeftPanel")))
-            {
-                return;
-            }
+            if (!(LeftPanel = GameObject.Find("LeftPanel"))) return;
 
             LeftPanel.transform.localScale = new(0.7f, 0.7f, 0.7f);
             LeftPanel.ForEachChild((Il2CppSystem.Action<GameObject>)ResetParent);
@@ -163,31 +145,20 @@ namespace EHR
                 { [__instance.creditsButton, __instance.quitButton], (minorActiveSprite, new(0.526f, 1f, 0.792f, 0.8f), shade, Color.white, Color.white) }
             };
 
-            foreach (KeyValuePair<List<PassiveButton>, (Sprite, Color, Color, Color, Color)> kvp in mainButtons)
-            {
-                kvp.Key.Do(button => FormatButtonColor(button, kvp.Value.Item2, kvp.Value.Item3, kvp.Value.Item4, kvp.Value.Item5));
-            }
+            foreach (KeyValuePair<List<PassiveButton>, (Sprite, Color, Color, Color, Color)> kvp in mainButtons) kvp.Key.Do(button => FormatButtonColor(button, kvp.Value.Item2, kvp.Value.Item3, kvp.Value.Item4, kvp.Value.Item5));
 
             try
             {
                 mainButtons.Keys.Flatten().DoIf(x => x != null, x => x.buttonText.color = Color.white);
             }
-            catch
-            {
-            }
+            catch { }
 
             GameObject.Find("Divider")?.SetActive(false);
 
-            if (!(RightPanel = GameObject.Find("RightPanel")))
-            {
-                return;
-            }
+            if (!(RightPanel = GameObject.Find("RightPanel"))) return;
 
-            AspectPosition rpap = RightPanel.GetComponent<AspectPosition>();
-            if (rpap)
-            {
-                Object.Destroy(rpap);
-            }
+            var rpap = RightPanel.GetComponent<AspectPosition>();
+            if (rpap) Object.Destroy(rpap);
 
             RightPanelOp = RightPanel.transform.localPosition;
             RightPanel.transform.localPosition = RightPanelOp + new Vector3(10f, 0f, 0f);
@@ -198,10 +169,10 @@ namespace EHR
             CloseRightButton.transform.localPosition = new(-4.78f, 1.3f, 1f);
             CloseRightButton.transform.localScale = new(1f, 1f, 1f);
             CloseRightButton.AddComponent<BoxCollider2D>().size = new(0.6f, 1.5f);
-            SpriteRenderer closeRightSpriteRenderer = CloseRightButton.AddComponent<SpriteRenderer>();
+            var closeRightSpriteRenderer = CloseRightButton.AddComponent<SpriteRenderer>();
             closeRightSpriteRenderer.sprite = Utils.LoadSprite("EHR.Resources.Images.RightPanelCloseButton.png", 100f);
             closeRightSpriteRenderer.color = new(1f, 0.78f, 0.9f, 1f);
-            PassiveButton closeRightPassiveButton = CloseRightButton.AddComponent<PassiveButton>();
+            var closeRightPassiveButton = CloseRightButton.AddComponent<PassiveButton>();
             closeRightPassiveButton.OnClick = new();
             closeRightPassiveButton.OnClick.AddListener((Action)MainMenuManagerPatch.HideRightPanel);
             closeRightPassiveButton.OnMouseOut = new();
@@ -210,11 +181,8 @@ namespace EHR
             closeRightPassiveButton.OnMouseOver.AddListener((Action)(() => closeRightSpriteRenderer.color = new(1f, 0.68f, 0.99f, 1f)));
 
             Tint = __instance.screenTint.gameObject;
-            AspectPosition ttap = Tint.GetComponent<AspectPosition>();
-            if (ttap)
-            {
-                Object.Destroy(ttap);
-            }
+            var ttap = Tint.GetComponent<AspectPosition>();
+            if (ttap) Object.Destroy(ttap);
 
             Tint.transform.SetParent(RightPanel.transform);
             Tint.transform.localPosition = new(-0.0824f, 0.0513f, Tint.transform.localPosition.z);
@@ -222,10 +190,7 @@ namespace EHR
             __instance.howToPlayButton.gameObject.SetActive(false);
             __instance.howToPlayButton.transform.parent.Find("FreePlayButton").gameObject.SetActive(false);
 
-            if (!(BottomButtonBounds = GameObject.Find("BottomButtonBounds")))
-            {
-                return;
-            }
+            if (!(BottomButtonBounds = GameObject.Find("BottomButtonBounds"))) return;
 
             BottomButtonBounds.transform.localPosition -= new Vector3(0f, 0.1f, 0f);
 
@@ -240,8 +205,8 @@ namespace EHR
             {
                 button.activeSprites.transform.FindChild("Shine")?.gameObject.SetActive(false);
                 button.inactiveSprites.transform.FindChild("Shine")?.gameObject.SetActive(false);
-                SpriteRenderer activeRenderer = button.activeSprites.GetComponent<SpriteRenderer>();
-                SpriteRenderer inActiveRenderer = button.inactiveSprites.GetComponent<SpriteRenderer>();
+                var activeRenderer = button.activeSprites.GetComponent<SpriteRenderer>();
+                var inActiveRenderer = button.inactiveSprites.GetComponent<SpriteRenderer>();
                 activeRenderer.sprite = minorActiveSprite;
                 inActiveRenderer.sprite = minorActiveSprite;
                 activeRenderer.color = activeColor.a == 0f ? new(inActiveColor.r, inActiveColor.g, inActiveColor.b, 1f) : activeColor;
@@ -268,9 +233,11 @@ namespace EHR
         public static void Postfix(ModManager __instance)
         {
             __instance.localCamera = !DestroyableSingleton<HudManager>.InstanceExists ? Camera.main : DestroyableSingleton<HudManager>.Instance.GetComponentInChildren<Camera>();
+
             if (__instance.localCamera != null)
             {
                 float offsetY = HudManager.InstanceExists ? 1.1f : 0.9f;
+
                 __instance.ModStamp.transform.position = AspectPosition.ComputeWorldPosition(
                     __instance.localCamera, AspectPosition.EdgeAlignments.RightTop,
                     new(0.4f, offsetY, __instance.localCamera.nearClipPlane + 0.1f));
@@ -285,40 +252,27 @@ namespace EHR
         {
             try
             {
-                if (DestroyableSingleton<HudManager>.InstanceExists && !DestroyableSingleton<HudManager>.Instance.SettingsButton.activeSelf)
-                {
-                    return false;
-                }
+                if (DestroyableSingleton<HudManager>.InstanceExists && !DestroyableSingleton<HudManager>.Instance.SettingsButton.activeSelf) return false;
             }
-            catch
-            {
-            }
+            catch { }
 
             __instance.ResetText();
+
             if (__instance.gameObject.activeSelf)
             {
-                if (!__instance.Toggle)
-                {
-                    return false;
-                }
+                if (!__instance.Toggle) return false;
 
                 __instance.GetComponent<TransitionOpen>().Close();
             }
             else
             {
-                if (Minigame.Instance != null)
-                {
-                    Minigame.Instance.Close();
-                }
+                if (Minigame.Instance != null) Minigame.Instance.Close();
 
                 __instance.OpenTabGroup(0);
                 __instance.UpdateButtons();
                 __instance.gameObject.SetActive(true);
                 __instance.MenuButton?.SelectButton(true);
-                if (DestroyableSingleton<HudManager>.InstanceExists)
-                {
-                    ConsoleJoystick.SetMode_MenuAdditive();
-                }
+                if (DestroyableSingleton<HudManager>.InstanceExists) ConsoleJoystick.SetMode_MenuAdditive();
 
                 if (!__instance.grabbedControllerButtons)
                 {
@@ -334,9 +288,7 @@ namespace EHR
 
         public static void Postfix()
         {
-            if (GameStates.InGame && GameStates.IsMeeting)
-            {
-            }
+            if (GameStates.InGame && GameStates.IsMeeting) { }
         }
     }
 }

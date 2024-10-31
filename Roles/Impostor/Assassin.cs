@@ -29,12 +29,15 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Assassin);
+
             MarkCooldownOpt = new FloatOptionItem(Id + 10, "AssassinMarkCooldown", new(0f, 180f, 0.5f), 1f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Assassin])
                 .SetValueFormat(OptionFormat.Seconds);
+
             AssassinateCooldownOpt = new FloatOptionItem(Id + 11, "AssassinAssassinateCooldown", new(0f, 180f, 0.5f), 18.5f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Assassin])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanKillAfterAssassinateOpt = new BooleanOptionItem(Id + 12, "AssassinCanKillAfterAssassinate", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Assassin]);
         }
@@ -68,10 +71,7 @@ namespace EHR.Impostor
 
         private void SendRPC(byte playerId)
         {
-            if (!IsEnable || !Utils.DoRPC)
-            {
-                return;
-            }
+            if (!IsEnable || !Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMarkedPlayer, SendOption.Reliable);
             writer.Write(playerId);
@@ -84,10 +84,7 @@ namespace EHR.Impostor
             byte playerId = reader.ReadByte();
             byte targetId = reader.ReadByte();
 
-            if (Main.PlayerStates[playerId].Role is not Assassin assassin)
-            {
-                return;
-            }
+            if (Main.PlayerStates[playerId].Role is not Assassin assassin) return;
 
             assassin.MarkedPlayer = targetId;
         }
@@ -100,15 +97,10 @@ namespace EHR.Impostor
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             if (UsePhantomBasis.GetBool())
-            {
                 AURoleOptions.PhantomCooldown = AssassinateCooldown;
-            }
             else
             {
-                if (UsePets.GetBool())
-                {
-                    return;
-                }
+                if (UsePets.GetBool()) return;
 
                 AURoleOptions.ShapeshifterCooldown = AssassinateCooldown;
             }
@@ -116,10 +108,7 @@ namespace EHR.Impostor
 
         public override bool CanUseKillButton(PlayerControl pc)
         {
-            if (pc == null || !pc.IsAlive())
-            {
-                return false;
-            }
+            if (pc == null || !pc.IsAlive()) return false;
 
             return CanKillAfterAssassinate || !pc.IsShifted();
         }
@@ -137,10 +126,7 @@ namespace EHR.Impostor
             SendRPC(killer.PlayerId);
             killer.ResetKillCooldown();
             killer.SetKillCooldown();
-            if (killer.IsModClient())
-            {
-                killer.RpcResetAbilityCooldown();
-            }
+            if (killer.IsModClient()) killer.RpcResetAbilityCooldown();
 
             killer.SyncSettings();
             killer.RPCPlayCustomSound("Clothe");
@@ -154,15 +140,9 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl pc, PlayerControl t, bool shapeshifting)
         {
-            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId))
-            {
-                return false;
-            }
+            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
 
-            if (!shapeshifting && !UseUnshiftTrigger.GetBool())
-            {
-                return true;
-            }
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
 
             Take(pc);
 
@@ -171,10 +151,7 @@ namespace EHR.Impostor
 
         public override bool OnVanish(PlayerControl pc)
         {
-            if (pc == null || !pc.IsAlive() || Pelican.IsEaten(pc.PlayerId))
-            {
-                return false;
-            }
+            if (pc == null || !pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
 
             if (!IsUndertaker)
             {
@@ -201,10 +178,7 @@ namespace EHR.Impostor
                     pc.SyncSettings();
                     pc.SetKillCooldown(DefaultKillCooldown);
                 }
-                else if (!tpSuccess)
-                {
-                    pc.Notify(GetString("TargetCannotBeTeleported"));
-                }
+                else if (!tpSuccess) pc.Notify(GetString("TargetCannotBeTeleported"));
             }
         }
 
@@ -212,16 +186,13 @@ namespace EHR.Impostor
         {
             bool shifted = playerId.IsPlayerShifted();
             __instance.KillButton.OverrideText(!shifted ? GetString("AssassinMarkButtonText") : GetString("KillButtonText"));
+
             if (MarkedPlayer != byte.MaxValue && !shifted)
             {
                 if (!UsePets.GetBool())
-                {
                     __instance.AbilityButton.OverrideText(GetString("AssassinShapeshiftText"));
-                }
                 else
-                {
                     __instance.PetButton.OverrideText(GetString("AssassinShapeshiftText"));
-                }
             }
         }
     }

@@ -26,40 +26,25 @@ namespace EHR.Crewmate
         public override void OnPet(PlayerControl pc)
         {
             PlayerControl[] aapc = Main.AllAlivePlayerControls;
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < aapc.Length; i++)
-            {
-                if (i % 3 == 0)
-                {
-                    sb.AppendLine();
-                }
-            }
+            var sb = new StringBuilder();
 
-            for (int i = 0; i < aapc.Length; i++)
+            for (var i = 0; i < aapc.Length; i++)
+                if (i % 3 == 0)
+                    sb.AppendLine();
+
+            for (var i = 0; i < aapc.Length; i++)
             {
                 PlayerControl player = aapc[i];
-                if (player == null)
-                {
-                    continue;
-                }
+                if (player == null) continue;
 
-                if (i != 0)
-                {
-                    sb.Append("; ");
-                }
+                if (i != 0) sb.Append("; ");
 
                 string name = player.GetRealName();
                 byte id = player.PlayerId;
-                if (Main.PlayerColors.TryGetValue(id, out Color32 color))
-                {
-                    name = Utils.ColorString(color, name);
-                }
+                if (Main.PlayerColors.TryGetValue(id, out Color32 color)) name = Utils.ColorString(color, name);
 
                 sb.Append($"{name} {id}");
-                if (i % 3 == 0 && i != aapc.Length - 1)
-                {
-                    sb.AppendLine();
-                }
+                if (i % 3 == 0 && i != aapc.Length - 1) sb.AppendLine();
             }
 
             pc.Notify(sb.ToString());

@@ -13,9 +13,11 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(5585, TabGroup.CrewmateRoles, CustomRoles.Express);
+
             Options.ExpressSpeed = new FloatOptionItem(5587, "ExpressSpeed", new(0.25f, 5f, 0.25f), 1.5f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Express])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             Options.ExpressSpeedDur = new IntegerOptionItem(5588, "ExpressSpeedDur", new(0, 90, 1), 5, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Express])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -33,10 +35,7 @@ namespace EHR.Crewmate
 
         public override void OnTaskComplete(PlayerControl player, int completedTaskCount, int totalTaskCount)
         {
-            if (!SpeedUp.ContainsKey(player.PlayerId))
-            {
-                SpeedNormal[player.PlayerId] = Main.AllPlayerSpeed[player.PlayerId];
-            }
+            if (!SpeedUp.ContainsKey(player.PlayerId)) SpeedNormal[player.PlayerId] = Main.AllPlayerSpeed[player.PlayerId];
 
             Main.AllPlayerSpeed[player.PlayerId] = Options.ExpressSpeed.GetFloat();
             SpeedUp[player.PlayerId] = Utils.TimeStamp;
@@ -45,13 +44,11 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!GameStates.IsInTask)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask) return;
 
             byte playerId = player.PlayerId;
             long now = Utils.TimeStamp;
+
             if (SpeedUp.TryGetValue(playerId, out long etime) && etime + Options.ExpressSpeedDur.GetInt() < now)
             {
                 SpeedUp.Remove(playerId);

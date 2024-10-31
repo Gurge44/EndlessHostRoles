@@ -57,10 +57,7 @@ namespace EHR.Impostor
                     _ => allRoles
                 };
 
-                if (!CanPickPartnerRole.GetBool() && !check)
-                {
-                    result = result.Where(x => !CustomRoleSelector.RoleResult.ContainsValue(x));
-                }
+                if (!CanPickPartnerRole.GetBool() && !check) result = result.Where(x => !CustomRoleSelector.RoleResult.ContainsValue(x));
 
                 List<CustomRoles> rolesList = result.ToList();
                 rolesList.Remove(CustomRoles.Changeling);
@@ -78,6 +75,7 @@ namespace EHR.Impostor
             On = true;
             ChangelingId = playerId;
             ChangedRole[playerId] = false;
+
             try
             {
                 CurrentRole = Roles.First();
@@ -127,11 +125,9 @@ namespace EHR.Impostor
                 shapeshifter.RpcSetCustomRole(CurrentRole);
                 ChangedRole[shapeshifter.PlayerId] = true;
                 shapeshifter.RpcResetAbilityCooldown();
-                if (!DisableShapeshiftAnimations.GetBool())
-                {
-                    LateTask.New(() => { shapeshifter.RpcShapeshift(shapeshifter, false); }, 1f, log: false);
-                }
+                if (!DisableShapeshiftAnimations.GetBool()) LateTask.New(() => { shapeshifter.RpcShapeshift(shapeshifter, false); }, 1f, log: false);
             }, 0.3f, log: false);
+
             return false;
         }
 

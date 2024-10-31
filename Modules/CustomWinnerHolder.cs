@@ -45,13 +45,9 @@ namespace EHR
         public static void SetWinnerOrAdditonalWinner(CustomWinner winner)
         {
             if (WinnerTeam == CustomWinner.Default)
-            {
                 WinnerTeam = winner;
-            }
             else
-            {
                 AdditionalWinnerTeams.Add((AdditionalWinners)winner);
-            }
 
             Logger.Info($"WinnerTeam: {WinnerTeam}, AdditionalWinnerTeams: {string.Join(", ", AdditionalWinnerTeams)}", "CustomWinnerHolder.SetWinnerOrAdditonalWinner");
         }
@@ -62,10 +58,7 @@ namespace EHR
         /// </summary>
         public static void ShiftWinnerAndSetWinner(CustomWinner winner)
         {
-            if (WinnerTeam != CustomWinner.Default)
-            {
-                AdditionalWinnerTeams.Add((AdditionalWinners)WinnerTeam);
-            }
+            if (WinnerTeam != CustomWinner.Default) AdditionalWinnerTeams.Add((AdditionalWinners)WinnerTeam);
 
             WinnerTeam = winner;
             Logger.Info($"WinnerTeam: {WinnerTeam}, AdditionalWinnerTeams: {string.Join(", ", AdditionalWinnerTeams)}", "CustomWinnerHolder.ShiftWinnerAndSetWinner");
@@ -86,22 +79,13 @@ namespace EHR
             writer.WritePacked((int)WinnerTeam);
 
             writer.WritePacked(AdditionalWinnerTeams.Count);
-            foreach (AdditionalWinners wt in AdditionalWinnerTeams)
-            {
-                writer.WritePacked((int)wt);
-            }
+            foreach (AdditionalWinners wt in AdditionalWinnerTeams) writer.WritePacked((int)wt);
 
             writer.WritePacked(WinnerRoles.Count);
-            foreach (CustomRoles wr in WinnerRoles)
-            {
-                writer.WritePacked((int)wr);
-            }
+            foreach (CustomRoles wr in WinnerRoles) writer.WritePacked((int)wr);
 
             writer.WritePacked(WinnerIds.Count);
-            foreach (byte id in WinnerIds)
-            {
-                writer.Write(id);
-            }
+            foreach (byte id in WinnerIds) writer.Write(id);
 
             return writer;
         }
@@ -112,24 +96,15 @@ namespace EHR
 
             AdditionalWinnerTeams = [];
             int AdditionalWinnerTeamsCount = reader.ReadPackedInt32();
-            for (int i = 0; i < AdditionalWinnerTeamsCount; i++)
-            {
-                AdditionalWinnerTeams.Add((AdditionalWinners)reader.ReadPackedInt32());
-            }
+            for (var i = 0; i < AdditionalWinnerTeamsCount; i++) AdditionalWinnerTeams.Add((AdditionalWinners)reader.ReadPackedInt32());
 
             WinnerRoles = [];
             int WinnerRolesCount = reader.ReadPackedInt32();
-            for (int i = 0; i < WinnerRolesCount; i++)
-            {
-                WinnerRoles.Add((CustomRoles)reader.ReadPackedInt32());
-            }
+            for (var i = 0; i < WinnerRolesCount; i++) WinnerRoles.Add((CustomRoles)reader.ReadPackedInt32());
 
             WinnerIds = [];
             int WinnerIdsCount = reader.ReadPackedInt32();
-            for (int i = 0; i < WinnerIdsCount; i++)
-            {
-                WinnerIds.Add(reader.ReadByte());
-            }
+            for (var i = 0; i < WinnerIdsCount; i++) WinnerIds.Add(reader.ReadByte());
         }
     }
 }

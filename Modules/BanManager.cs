@@ -59,12 +59,10 @@ namespace EHR
                 stream.Position = 0;
                 using StreamReader sr = new(stream, Encoding.UTF8);
                 string line;
+
                 while ((line = sr.ReadLine()) != null)
                 {
-                    if (line == "" || line.StartsWith("#"))
-                    {
-                        continue;
-                    }
+                    if (line == "" || line.StartsWith("#")) continue;
 
                     EACList.Add(line);
                 }
@@ -85,13 +83,10 @@ namespace EHR
 
         public static string GetHashedPuid(this ClientData player)
         {
-            if (player == null)
-            {
-                return string.Empty;
-            }
+            if (player == null) return string.Empty;
 
             string puid = player.ProductUserId;
-            using SHA256 sha256 = SHA256.Create();
+            using var sha256 = SHA256.Create();
             // get sha-256 hash
             byte[] sha256Bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(puid));
             string sha256Hash = BitConverter.ToString(sha256Bytes).Replace("-", "").ToLower();
@@ -102,10 +97,7 @@ namespace EHR
 
         public static void AddBanPlayer(ClientData player)
         {
-            if (!AmongUsClient.Instance.AmHost || player == null)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost || player == null) return;
 
             if (!CheckBanList(player.FriendCode, player.GetHashedPuid()) && !TempBanWhiteList.Contains(player.GetHashedPuid()))
             {
@@ -115,34 +107,24 @@ namespace EHR
                     Logger.SendInGame(string.Format(GetString("Message.AddedPlayerToBanList"), player.PlayerName));
                 }
                 else
-                {
                     Logger.Info($"Failed to add player {player.PlayerName.RemoveHtmlTags()}/{player.FriendCode}/{player.GetHashedPuid()} to ban list!", "AddBanPlayer");
-                }
             }
         }
 
         public static bool CheckDenyNamePlayer(PlayerControl player, string name)
         {
-            if (!AmongUsClient.Instance.AmHost || !Options.ApplyDenyNameList.GetBool())
-            {
-                return false;
-            }
+            if (!AmongUsClient.Instance.AmHost || !Options.ApplyDenyNameList.GetBool()) return false;
 
             try
             {
                 Directory.CreateDirectory("EHR_DATA");
-                if (!File.Exists(DenyNameListPath))
-                {
-                    File.Create(DenyNameListPath).Close();
-                }
+                if (!File.Exists(DenyNameListPath)) File.Create(DenyNameListPath).Close();
 
                 using StreamReader sr = new(DenyNameListPath);
+
                 while (sr.ReadLine() is { } line)
                 {
-                    if (line == "")
-                    {
-                        continue;
-                    }
+                    if (line == "") continue;
 
                     if (line.Contains("Amogus") || line.Contains("Amogus V") || Regex.IsMatch(name, line))
                     {
@@ -164,12 +146,10 @@ namespace EHR
 
         public static void CheckBanPlayer(ClientData player)
         {
-            if (!AmongUsClient.Instance.AmHost || !Options.ApplyBanList.GetBool())
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost || !Options.ApplyBanList.GetBool()) return;
 
             string friendcode = player?.FriendCode;
+
             if (friendcode?.Length < 7) // #1234 is 5 chars, and it's impossible for a friend code to only have 3
             {
                 AmongUsClient.Instance.KickPlayer(player.Id, true);
@@ -189,6 +169,7 @@ namespace EHR
 
             // Contains any non-word character or digits
             const string pattern = @"[\W\d]";
+
             if (Regex.IsMatch(friendcode[..friendcode.IndexOf("#", StringComparison.Ordinal)], pattern))
             {
                 AmongUsClient.Instance.KickPlayer(player.Id, true);
@@ -222,45 +203,29 @@ namespace EHR
 
         public static bool CheckBanList(string code, string hashedpuid = "")
         {
-            bool OnlyCheckPuid = false;
+            var OnlyCheckPuid = false;
+
             if (code == "" && hashedpuid != "")
-            {
                 OnlyCheckPuid = true;
-            }
-            else if (code == "")
-            {
-                return false;
-            }
+            else if (code == "") return false;
 
             try
             {
                 Directory.CreateDirectory("EHR_DATA");
-                if (!File.Exists(BanListPath))
-                {
-                    File.Create(BanListPath).Close();
-                }
+                if (!File.Exists(BanListPath)) File.Create(BanListPath).Close();
 
                 using StreamReader sr = new(BanListPath);
                 string line;
+
                 while ((line = sr.ReadLine()) != null)
                 {
-                    if (line == "")
-                    {
-                        continue;
-                    }
+                    if (line == "") continue;
 
                     if (!OnlyCheckPuid)
-                    {
                         if (line.Contains(code))
-                        {
                             return true;
-                        }
-                    }
 
-                    if (line.Contains(hashedpuid))
-                    {
-                        return true;
-                    }
+                    if (line.Contains(hashedpuid)) return true;
                 }
             }
             catch (Exception ex)
@@ -273,7 +238,8 @@ namespace EHR
 
         public static bool CheckEACList(string code, string hashedPuid)
         {
-            bool OnlyCheckPuid = false;
+            var OnlyCheckPuid = false;
+
             switch (code)
             {
                 case "" when hashedPuid == "":
@@ -293,15 +259,9 @@ namespace EHR
         public static void Postfix(BanMenu __instance, int clientId)
         {
             ClientData recentClient = AmongUsClient.Instance.GetRecentClient(clientId);
-            if (recentClient == null)
-            {
-                return;
-            }
+            if (recentClient == null) return;
 
-            if (!BanManager.CheckBanList(recentClient.FriendCode, recentClient.GetHashedPuid()))
-            {
-                __instance.BanButton.GetComponent<ButtonRolloverHandler>().SetEnabledColors();
-            }
+            if (!BanManager.CheckBanList(recentClient.FriendCode, recentClient.GetHashedPuid())) __instance.BanButton.GetComponent<ButtonRolloverHandler>().SetEnabledColors();
         }
     }
 }

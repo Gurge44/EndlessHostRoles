@@ -42,17 +42,23 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Sniper);
+
             SniperBulletCount = new IntegerOptionItem(Id + 10, "SniperBulletCount", new(1, 10, 1), 2, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper])
                 .SetValueFormat(OptionFormat.Pieces);
+
             SniperPrecisionShooting = new BooleanOptionItem(Id + 11, "SniperPrecisionShooting", false, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
+
             SniperAimAssist = new BooleanOptionItem(Id + 12, "SniperAimAssist", true, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
+
             SniperAimAssistOnshot = new BooleanOptionItem(Id + 13, "SniperAimAssistOneshot", false, TabGroup.ImpostorRoles)
                 .SetParent(SniperAimAssist);
+
             CanKillWithBullets = new BooleanOptionItem(Id + 14, "SniperCanKill", true, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper]);
+
             ShapeshiftDuration = new FloatOptionItem(Id + 15, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Sniper])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -102,18 +108,12 @@ namespace EHR.Impostor
 
         private void SendRPC(byte sniperId)
         {
-            if (!On || !Utils.DoRPC)
-            {
-                return;
-            }
+            if (!On || !Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SniperSync, SendOption.Reliable);
             writer.Write(sniperId);
             writer.Write(shotNotify.Count);
-            foreach (byte sn in shotNotify)
-            {
-                writer.Write(sn);
-            }
+            foreach (byte sn in shotNotify) writer.Write(sn);
 
             AmongUsClient.Instance.FinishRpcImmediately(writer);
         }
@@ -122,6 +122,7 @@ namespace EHR.Impostor
         {
             shotNotify.Clear();
             int count = msg.ReadInt32();
+
             while (count > 0)
             {
                 shotNotify.Add(msg.ReadByte());
@@ -131,33 +132,21 @@ namespace EHR.Impostor
 
         public override bool CanUseKillButton(PlayerControl pc)
         {
-            if (!pc.IsAlive())
-            {
-                return false;
-            }
+            if (!pc.IsAlive()) return false;
 
-            bool canUse = false;
-            if (pc.IsShifted())
-            {
-                return false;
-            }
+            var canUse = false;
+            if (pc.IsShifted()) return false;
 
-            if (bulletCount <= 0)
-            {
-                canUse = true;
-            }
+            if (bulletCount <= 0) canUse = true;
 
-            if (CanKillWithBullets.GetBool())
-            {
-                canUse = true;
-            }
+            if (CanKillWithBullets.GetBool()) canUse = true;
 
             return canUse;
         }
 
         private Dictionary<PlayerControl, float> GetSnipeTargets(PlayerControl sniper)
         {
-            Dictionary<PlayerControl, float> targets = new Dictionary<PlayerControl, float>();
+            var targets = new Dictionary<PlayerControl, float>();
             Vector3 snipeBasePos = snipeBasePosition;
             Vector3 snipePos = sniper.transform.position;
             Vector3 dir = (snipePos - snipeBasePos).normalized;
@@ -166,31 +155,19 @@ namespace EHR.Impostor
 
             foreach (PlayerControl target in Main.AllAlivePlayerControls)
             {
-                if (target.PlayerId == sniper.PlayerId)
-                {
-                    continue;
-                }
+                if (target.PlayerId == sniper.PlayerId) continue;
 
                 Vector3 target_pos = target.transform.position - snipePos;
-                if (target_pos.magnitude < 1)
-                {
-                    continue;
-                }
+                if (target_pos.magnitude < 1) continue;
 
                 Vector3 target_dir = target_pos.normalized;
                 float target_dot = Vector3.Dot(dir, target_dir);
-                if (target_dot < 0.995)
-                {
-                    continue;
-                }
+                if (target_dot < 0.995) continue;
 
                 if (PrecisionShooting)
                 {
                     float err = Vector3.Cross(dir, target_pos).magnitude;
-                    if (err < 0.5)
-                    {
-                        targets.Add(target, err);
-                    }
+                    if (err < 0.5) targets.Add(target, err);
                 }
                 else
                 {
@@ -220,20 +197,14 @@ namespace EHR.Impostor
 
         private bool Snipe(PlayerControl sniper, bool shapeshifting, bool isPet = false)
         {
-            if (!IsThisRole(sniper.PlayerId) || !sniper.IsAlive())
-            {
-                return true;
-            }
+            if (!IsThisRole(sniper.PlayerId) || !sniper.IsAlive()) return true;
 
             byte sniperId = sniper.PlayerId;
 
             if (bulletCount <= 0)
             {
                 float CD = ShapeshiftDuration.GetFloat() + 1f;
-                if (Main.KillTimers[sniper.PlayerId] < CD && !isPet)
-                {
-                    sniper.SetKillCooldown(CD);
-                }
+                if (Main.KillTimers[sniper.PlayerId] < CD && !isPet) sniper.SetKillCooldown(CD);
 
                 return false;
             }
@@ -262,10 +233,7 @@ namespace EHR.Impostor
 
             bulletCount--;
 
-            if (!AmongUsClient.Instance.AmHost || Pelican.IsEaten(sniperId) || Medic.ProtectList.Contains(sniperId))
-            {
-                return false;
-            }
+            if (!AmongUsClient.Instance.AmHost || Pelican.IsEaten(sniperId) || Medic.ProtectList.Contains(sniperId)) return false;
 
             sniper.RPCPlayCustomSound("AWP");
 
@@ -282,6 +250,7 @@ namespace EHR.Impostor
                 targets.Remove(snipedTarget);
                 List<byte> snList = shotNotify;
                 snList.Clear();
+
                 foreach (PlayerControl otherPc in targets.Keys)
                 {
                     snList.Add(otherPc.PlayerId);
@@ -289,13 +258,11 @@ namespace EHR.Impostor
                 }
 
                 SendRPC(sniperId);
+
                 LateTask.New(() =>
                 {
                     snList.Clear();
-                    foreach (PlayerControl otherPc in targets.Keys)
-                    {
-                        Utils.NotifyRoles(SpecifySeer: otherPc);
-                    }
+                    foreach (PlayerControl otherPc in targets.Keys) Utils.NotifyRoles(SpecifySeer: otherPc);
 
                     SendRPC(sniperId);
                 }, 0.5f, "Sniper shot Notify");
@@ -307,50 +274,32 @@ namespace EHR.Impostor
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             if (Options.UsePhantomBasis.GetBool())
-            {
                 AURoleOptions.PhantomCooldown = bulletCount > 0 ? Options.DefaultKillCooldown : 255f;
-            }
             else
             {
-                if (Options.UsePets.GetBool())
-                {
-                    return;
-                }
+                if (Options.UsePets.GetBool()) return;
 
                 try
                 {
                     if (bulletCount > 0)
-                    {
                         AURoleOptions.ShapeshifterDuration = ShapeshiftDuration.GetFloat();
-                    }
                     else
                     {
                         AURoleOptions.ShapeshifterDuration = 1f;
                         AURoleOptions.ShapeshifterCooldown = 255f;
                     }
                 }
-                catch
-                {
-                }
+                catch { }
             }
         }
 
         public override void OnFixedUpdate(PlayerControl sniper)
         {
-            if (!IsThisRole(sniper.PlayerId) || !sniper.IsAlive())
-            {
-                return;
-            }
+            if (!IsThisRole(sniper.PlayerId) || !sniper.IsAlive()) return;
 
-            if (!AimAssist)
-            {
-                return;
-            }
+            if (!AimAssist) return;
 
-            if (!IsAim)
-            {
-                return;
-            }
+            if (!IsAim) return;
 
             if (!GameStates.IsInTask)
             {
@@ -360,6 +309,7 @@ namespace EHR.Impostor
             }
 
             Vector3 pos = sniper.transform.position;
+
             if (pos != LastPosition)
             {
                 AimTime = 0f;
@@ -398,33 +348,20 @@ namespace EHR.Impostor
         {
             if (AimAssist && IsThisRole(seerId))
             {
-                if (Main.PlayerStates[seerId].Role is not Sniper sp)
-                {
-                    return string.Empty;
-                }
+                if (Main.PlayerStates[seerId].Role is not Sniper sp) return string.Empty;
 
                 if (0.5f < sp.AimTime && (!AimAssistOneshot || sp.AimTime < 1.0f))
-                {
                     if (sp.GetSnipeTargets(Utils.GetPlayerById(seerId)).Count > 0)
-                    {
                         return $"<size=200%>{Utils.ColorString(Palette.ImpostorRed, "◎")}</size>";
-                    }
-                }
             }
             else
             {
                 foreach (byte sniperId in PlayerIdList)
                 {
-                    if (Main.PlayerStates[sniperId].Role is not Sniper sp)
-                    {
-                        continue;
-                    }
+                    if (Main.PlayerStates[sniperId].Role is not Sniper sp) continue;
 
                     List<byte> snList = sp.shotNotify;
-                    if (snList.Count > 0 && snList.Contains(seerId))
-                    {
-                        return $"<size=200%>{Utils.ColorString(Palette.ImpostorRed, "!")}</size>";
-                    }
+                    if (snList.Count > 0 && snList.Contains(seerId)) return $"<size=200%>{Utils.ColorString(Palette.ImpostorRed, "!")}</size>";
                 }
             }
 
@@ -434,15 +371,10 @@ namespace EHR.Impostor
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             if (Options.UsePets.GetBool())
-            {
                 hud.PetButton.OverrideText(GetString(bulletCount <= 0 ? "DefaultShapeshiftText" : "SniperSnipeButtonText"));
-            }
             else
             {
-                if (IsThisRole(id))
-                {
-                    hud.AbilityButton.SetUsesRemaining(bulletCount);
-                }
+                if (IsThisRole(id)) hud.AbilityButton.SetUsesRemaining(bulletCount);
 
                 hud.AbilityButton.OverrideText(GetString(bulletCount <= 0 ? "DefaultShapeshiftText" : "SniperSnipeButtonText"));
             }

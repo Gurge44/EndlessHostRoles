@@ -31,10 +31,7 @@ namespace EHR.Crewmate
         {
             try
             {
-                if (pc == null || !pc.IsAlive() || !GameStates.IsMeeting || State.AskedQuestion || !int.TryParse(num1Str, out int num1) || !int.TryParse(num2Str, out int num2))
-                {
-                    return;
-                }
+                if (pc == null || !pc.IsAlive() || !GameStates.IsMeeting || State.AskedQuestion || !int.TryParse(num1Str, out int num1) || !int.TryParse(num2Str, out int num2)) return;
 
                 State.AskedQuestion = true;
                 State.Answer = num1 + num2;
@@ -54,10 +51,7 @@ namespace EHR.Crewmate
         {
             try
             {
-                if (pc == null || !pc.IsAlive() || !GameStates.IsMeeting || !State.AskedQuestion || State.MathematicianPlayerId == pc.PlayerId || !int.TryParse(answerStr, out int answer))
-                {
-                    return;
-                }
+                if (pc == null || !pc.IsAlive() || !GameStates.IsMeeting || !State.AskedQuestion || State.MathematicianPlayerId == pc.PlayerId || !int.TryParse(answerStr, out int answer)) return;
 
                 if (answer == State.Answer)
                 {

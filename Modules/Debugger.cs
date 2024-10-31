@@ -14,20 +14,20 @@ namespace EHR
     {
         public static void Send(string text)
         {
-            if (Main.WebhookUrl.Value == "none")
-            {
-                return;
-            }
+            if (Main.WebhookUrl.Value == "none") return;
 
             HttpClient httpClient = new();
+
             Dictionary<string, string> strs = new()
             {
                 { "content", text },
                 { "username", "EHR-Debugger" },
                 { "avatar_url", "https://npm.elemecdn.com/hexo-static@1.0.1/img/avatar.webp" }
             };
+
             TaskAwaiter<HttpResponseMessage> awaiter = httpClient.PostAsync(
                 Main.WebhookUrl.Value, new FormUrlEncodedContent(strs)).GetAwaiter();
+
             awaiter.GetResult();
         }
     }
@@ -54,30 +54,21 @@ namespace EHR
         public static void Enable(string tag, bool toGame = false)
         {
             DisableList.Remove(tag);
+
             if (toGame && !SendToGameList.Contains(tag))
-            {
                 SendToGameList.Add(tag);
-            }
             else
-            {
                 SendToGameList.Remove(tag);
-            }
         }
 
         public static void Disable(string tag)
         {
-            if (!DisableList.Contains(tag))
-            {
-                DisableList.Add(tag);
-            }
+            if (!DisableList.Contains(tag)) DisableList.Add(tag);
         }
 
         public static void SendInGame(string text /*, bool isAlways = false*/)
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
             if (DestroyableSingleton<HudManager>._instance)
             {
@@ -88,22 +79,17 @@ namespace EHR
 
         private static void SendToFile(string text, LogLevel level = LogLevel.Info, string tag = "", bool escapeCRLF = true, int lineNumber = 0, string fileName = "", bool multiLine = false)
         {
-            if (!IsEnable || DisableList.Contains(tag) || (level == LogLevel.Debug && !DebugModeManager.AmDebugger))
-            {
-                return;
-            }
+            if (!IsEnable || DisableList.Contains(tag) || (level == LogLevel.Debug && !DebugModeManager.AmDebugger)) return;
 
             ManualLogSource logger = Main.Logger;
 
-            if (SendToGameList.Contains(tag) || IsAlsoInGame)
-            {
-                SendInGame($"[{tag}]{text}");
-            }
+            if (SendToGameList.Contains(tag) || IsAlsoInGame) SendInGame($"[{tag}]{text}");
 
             string log_text;
+
             if (level is LogLevel.Error or LogLevel.Fatal && !multiLine && !NowDetailedErrorLog.Contains(tag))
             {
-                string t = DateTime.Now.ToString("HH:mm:ss");
+                var t = DateTime.Now.ToString("HH:mm:ss");
                 StackFrame stack = new(2);
                 string className = stack.GetMethod()?.ReflectedType?.Name;
                 string memberName = stack.GetMethod()?.Name;
@@ -113,12 +99,9 @@ namespace EHR
             }
             else
             {
-                if (escapeCRLF)
-                {
-                    text = text.Replace("\r", "\\r").Replace("\n", "\\n");
-                }
+                if (escapeCRLF) text = text.Replace("\r", "\\r").Replace("\n", "\\n");
 
-                string t = DateTime.Now.ToString("HH:mm:ss");
+                var t = DateTime.Now.ToString("HH:mm:ss");
                 log_text = $"[{t}][{tag}]{text}";
             }
 

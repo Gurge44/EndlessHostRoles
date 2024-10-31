@@ -27,22 +27,28 @@ namespace EHR.Impostor
 
         public override void SetupCustomOption()
         {
-            int id = 649800;
+            var id = 649800;
             const TabGroup tab = TabGroup.ImpostorRoles;
             const CustomRoles role = CustomRoles.Abyssbringer;
             Options.SetupRoleOptions(id++, tab, role);
+
             BlackHolePlaceCooldown = new IntegerOptionItem(++id, "BlackHolePlaceCooldown", new(1, 180, 1), 30, tab)
                 .SetParent(Options.CustomRoleSpawnChances[role])
                 .SetValueFormat(OptionFormat.Seconds);
+
             BlackHoleDespawnMode = new StringOptionItem(++id, "BlackHoleDespawnMode", Enum.GetNames<DespawnMode>(), 0, tab)
                 .SetParent(Options.CustomRoleSpawnChances[role]);
+
             BlackHoleDespawnTime = new IntegerOptionItem(++id, "BlackHoleDespawnTime", new(1, 60, 1), 15, tab)
                 .SetParent(BlackHoleDespawnMode)
                 .SetValueFormat(OptionFormat.Seconds);
+
             BlackHoleMovesTowardsNearestPlayer = new BooleanOptionItem(++id, "BlackHoleMovesTowardsNearestPlayer", true, tab)
                 .SetParent(Options.CustomRoleSpawnChances[role]);
+
             BlackHoleMoveSpeed = new FloatOptionItem(++id, "BlackHoleMoveSpeed", new(0.25f, 10f, 0.25f), 1f, tab)
                 .SetParent(BlackHoleMovesTowardsNearestPlayer);
+
             BlackHoleRadius = new FloatOptionItem(++id, "BlackHoleRadius", new(0.1f, 5f, 0.1f), 1.2f, tab)
                 .SetParent(Options.CustomRoleSpawnChances[role])
                 .SetValueFormat(OptionFormat.Multiplier);
@@ -63,9 +69,7 @@ namespace EHR.Impostor
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             if (Options.UsePhantomBasis.GetBool())
-            {
                 AURoleOptions.PhantomCooldown = BlackHolePlaceCooldown.GetInt();
-            }
             else
             {
                 AURoleOptions.ShapeshifterCooldown = BlackHolePlaceCooldown.GetInt();
@@ -75,10 +79,7 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool())
-            {
-                return true;
-            }
+            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
 
             CreateBlackHole(shapeshifter);
             return false;
@@ -108,7 +109,7 @@ namespace EHR.Impostor
         {
             if ((DespawnMode)BlackHoleDespawnMode.GetValue() == DespawnMode.AfterMeeting)
             {
-                for (int i = 0; i < BlackHoles.Count; i++)
+                for (var i = 0; i < BlackHoles.Count; i++)
                 {
                     BlackHoles[i].NetObject.Despawn();
                     BlackHoles.RemoveAt(i);
@@ -119,20 +120,19 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (Count++ < 3)
-            {
-                return;
-            }
+            if (Count++ < 3) return;
 
             Count = 0;
 
             PlayerControl abyssbringer = AbyssbringerId.GetPlayer();
             int count = BlackHoles.Count;
-            for (int i = 0; i < count; i++)
+
+            for (var i = 0; i < count; i++)
             {
                 BlackHoleData blackHole = BlackHoles[i];
 
-                DespawnMode despawnMode = (DespawnMode)BlackHoleDespawnMode.GetValue();
+                var despawnMode = (DespawnMode)BlackHoleDespawnMode.GetValue();
+
                 switch (despawnMode)
                 {
                     case DespawnMode.AfterTime when Utils.TimeStamp - blackHole.PlaceTimeStamp > BlackHoleDespawnTime.GetInt():
@@ -144,6 +144,7 @@ namespace EHR.Impostor
                 }
 
                 PlayerControl nearestPlayer = Main.AllAlivePlayerControls.Without(pc).MinBy(x => Vector2.Distance(x.Pos(), blackHole.Position));
+
                 if (nearestPlayer != null)
                 {
                     Vector2 pos = nearestPlayer.Pos();
@@ -168,10 +169,7 @@ namespace EHR.Impostor
                         state.RealKiller = (DateTime.Now, AbyssbringerId);
                         state.SetDead();
 
-                        if (despawnMode == DespawnMode.After1PlayerEaten)
-                        {
-                            RemoveBlackHole();
-                        }
+                        if (despawnMode == DespawnMode.After1PlayerEaten) RemoveBlackHole();
                     }
                 }
 
@@ -213,10 +211,7 @@ namespace EHR.Impostor
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != AbyssbringerId || meeting || (seer.IsModClient() && !hud) || BlackHoles.Count == 0)
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != AbyssbringerId || meeting || (seer.IsModClient() && !hud) || BlackHoles.Count == 0) return string.Empty;
 
             return string.Format(Translator.GetString("Abyssbringer.Suffix"), BlackHoles.Count, string.Join('\n', BlackHoles.Select(x => GetBlackHoleFormatText(x.RoomName, x.PlayersConsumed))));
 

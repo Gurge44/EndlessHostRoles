@@ -25,14 +25,18 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.PlagueBearer);
+
             PlagueBearerCDOpt = new FloatOptionItem(Id + 10, "PlagueBearerCD", new(0f, 180f, 0.5f), 17.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer])
                 .SetValueFormat(OptionFormat.Seconds);
+
             PestilenceCDOpt = new FloatOptionItem(Id + 11, "PestilenceCD", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer])
                 .SetValueFormat(OptionFormat.Seconds);
+
             PestilenceCanVent = new BooleanOptionItem(Id + 12, "PestilenceCanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer]);
+
             PestilenceHasImpostorVision = new BooleanOptionItem(Id + 13, "PestilenceHasImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.PlagueBearer]);
         }
@@ -69,10 +73,7 @@ namespace EHR.Neutral
 
         public static void SendRPC(PlayerControl player, PlayerControl target)
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetPlaguedPlayer, SendOption.Reliable); //RPCによる同期
             writer.Write(player.PlayerId);
@@ -90,18 +91,13 @@ namespace EHR.Neutral
         public static (int Plagued, int All) PlaguedPlayerCount(byte playerId)
         {
             int plagued = 0, all = 0;
+
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (pc.PlayerId == playerId)
-                {
-                    continue;
-                }
+                if (pc.PlayerId == playerId) continue;
 
                 all++;
-                if (IsPlagued(playerId, pc.PlayerId))
-                {
-                    plagued++;
-                }
+                if (IsPlagued(playerId, pc.PlayerId)) plagued++;
             }
 
             return (plagued, all);
@@ -109,10 +105,7 @@ namespace EHR.Neutral
 
         public static bool IsPlaguedAll(PlayerControl player)
         {
-            if (!player.Is(CustomRoles.PlagueBearer))
-            {
-                return false;
-            }
+            if (!player.Is(CustomRoles.PlagueBearer)) return false;
 
             (int plagued, int all) = PlaguedPlayerCount(player.PlayerId);
             return plagued >= all;
@@ -145,9 +138,7 @@ namespace EHR.Neutral
         public static bool On;
         public override bool IsEnable => On;
 
-        public override void SetupCustomOption()
-        {
-        }
+        public override void SetupCustomOption() { }
 
         public override void Add(byte playerId)
         {
@@ -176,20 +167,14 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (base.OnCheckMurder(killer, target))
-            {
-                killer.Kill(target);
-            }
+            if (base.OnCheckMurder(killer, target)) killer.Kill(target);
 
             return false;
         }
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null)
-            {
-                return false;
-            }
+            if (killer == null || target == null) return false;
 
             killer.SetRealKiller(target);
             target.Kill(killer);

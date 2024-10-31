@@ -51,37 +51,51 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupSingleRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Romantic);
+
             BetCooldown = new FloatOptionItem(Id + 10, "RomanticBetCooldown", new(0f, 60f, 1f), 7f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ProtectCooldown = new FloatOptionItem(Id + 11, "RomanticProtectCooldown", new(0f, 60f, 2.5f), 25f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ProtectDuration = new FloatOptionItem(Id + 12, "RomanticProtectDuration", new(0f, 60f, 2.5f), 10f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
                 .SetValueFormat(OptionFormat.Seconds);
+
             KnowTargetRole = new BooleanOptionItem(Id + 13, "RomanticKnowTargetRole", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+
             BetTargetKnowRomantic = new BooleanOptionItem(Id + 14, "RomanticBetTargetKnowRomantic", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+
             RomanticGetsPartnerConvertedAddons = new BooleanOptionItem(Id + 15, "RomanticGetsPartnerConvertedAddons", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+
             Arrows = new BooleanOptionItem(Id + 16, "RomanticArrows", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+
             PartnerHasArrows = new BooleanOptionItem(Id + 17, "RomanticPartnerHasArrows", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+
             VengefulKCD = new FloatOptionItem(Id + 18, "VengefulKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
                 .SetValueFormat(OptionFormat.Seconds);
+
             VengefulCanVent = new BooleanOptionItem(Id + 19, "VengefulCanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+
             VengefulHasImpVision = new BooleanOptionItem(Id + 20, "VengefulHasImpVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+
             RuthlessKCD = new FloatOptionItem(Id + 21, "RuthlessKCD", new(0f, 60f, 2.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic])
                 .SetValueFormat(OptionFormat.Seconds);
+
             RuthlessCanVent = new BooleanOptionItem(Id + 22, "RuthlessCanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
+
             RuthlessHasImpVision = new BooleanOptionItem(Id + 23, "RuthlessHasImpVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Romantic]);
         }
@@ -106,10 +120,7 @@ namespace EHR.Neutral
 
         private static void SendRPC()
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncRomanticTarget, SendOption.Reliable);
             writer.Write(PartnerId);
@@ -127,41 +138,25 @@ namespace EHR.Neutral
             float beforeCD = Main.AllPlayerKillCooldown.GetValueOrDefault(RomanticId, 0f);
 
             if (HasPickedPartner)
-            {
                 Main.AllPlayerKillCooldown[RomanticId] = ProtectCooldown.GetFloat();
-            }
             else
-            {
                 Main.AllPlayerKillCooldown[RomanticId] = BetCooldown.GetFloat();
-            }
 
-            if (Math.Abs(beforeCD - Main.AllPlayerKillCooldown[RomanticId]) > 0.5f)
-            {
-                RomanticPC?.SyncSettings();
-            }
+            if (Math.Abs(beforeCD - Main.AllPlayerKillCooldown[RomanticId]) > 0.5f) RomanticPC?.SyncSettings();
         }
 
         public override bool KnowRole(PlayerControl player, PlayerControl target)
         {
-            if (base.KnowRole(player, target))
-            {
-                return true;
-            }
+            if (base.KnowRole(player, target)) return true;
 
-            if (!KnowTargetRole.GetBool())
-            {
-                return false;
-            }
+            if (!KnowTargetRole.GetBool()) return false;
 
             return (player.Is(CustomRoles.Romantic) && PartnerId == target.PlayerId) || (BetTargetKnowRomantic.GetBool() && target.Is(CustomRoles.Romantic) && player.PlayerId == PartnerId);
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null || killer.PlayerId == target.PlayerId || killer.PlayerId != RomanticId)
-            {
-                return true;
-            }
+            if (killer == null || target == null || killer.PlayerId == target.PlayerId || killer.PlayerId != RomanticId) return true;
 
             if (!HasPickedPartner)
             {
@@ -175,23 +170,14 @@ namespace EHR.Neutral
                 RomanticPC.RPCPlayCustomSound("Bet");
 
                 RomanticPC.Notify(GetString("RomanticBetPlayer"));
-                if (BetTargetKnowRomantic.GetBool())
-                {
-                    target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), GetString("RomanticBetOnYou")));
-                }
+                if (BetTargetKnowRomantic.GetBool()) target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), GetString("RomanticBetOnYou")));
 
-                if (RomanticGetsPartnerConvertedAddons.GetBool() && Partner.IsConverted())
-                {
-                    Partner.GetCustomSubRoles().DoIf(x => x.IsConverted() && !RomanticPC.Is(x), x => RomanticPC.RpcSetCustomRole(x));
-                }
+                if (RomanticGetsPartnerConvertedAddons.GetBool() && Partner.IsConverted()) Partner.GetCustomSubRoles().DoIf(x => x.IsConverted() && !RomanticPC.Is(x), x => RomanticPC.RpcSetCustomRole(x));
 
                 if (Arrows.GetBool())
                 {
                     TargetArrow.Add(RomanticId, PartnerId);
-                    if (PartnerHasArrows.GetBool() && BetTargetKnowRomantic.GetBool())
-                    {
-                        TargetArrow.Add(PartnerId, RomanticId);
-                    }
+                    if (PartnerHasArrows.GetBool() && BetTargetKnowRomantic.GetBool()) TargetArrow.Add(PartnerId, RomanticId);
                 }
 
                 Logger.Info($"Partner picked: {RomanticPC.GetNameWithRole().RemoveHtmlTags()} => {target.GetNameWithRole().RemoveHtmlTags()}", "Romantic");
@@ -209,17 +195,11 @@ namespace EHR.Neutral
 
                 LateTask.New(() =>
                 {
-                    if (!Partner.IsAlive())
-                    {
-                        return;
-                    }
+                    if (!Partner.IsAlive()) return;
 
                     IsPartnerProtected = false;
 
-                    if (!GameStates.IsInTask)
-                    {
-                        return;
-                    }
+                    if (!GameStates.IsInTask) return;
 
                     RomanticPC.Notify(GetString("ProtectingOver"));
                     Partner.Notify(GetString("ProtectingOver"));
@@ -233,20 +213,14 @@ namespace EHR.Neutral
 
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
         {
-            if (!lowLoad && (Partner == null || Partner.Data == null || Partner.Data.Disconnected || !Partner.IsAlive()) && RomanticPC.IsAlive() && RomanticPC.Is(CustomRoles.Romantic))
-            {
-                ChangeRole();
-            }
+            if (!lowLoad && (Partner == null || Partner.Data == null || Partner.Data.Disconnected || !Partner.IsAlive()) && RomanticPC.IsAlive() && RomanticPC.Is(CustomRoles.Romantic)) ChangeRole();
         }
 
         public static string TargetMark(PlayerControl seer, PlayerControl target)
         {
             if (!seer.Is(CustomRoles.Romantic))
             {
-                if (!BetTargetKnowRomantic.GetBool())
-                {
-                    return string.Empty;
-                }
+                if (!BetTargetKnowRomantic.GetBool()) return string.Empty;
 
                 return target.Is(CustomRoles.Romantic) && RomanticId == target.PlayerId && PartnerId == seer.PlayerId
                     ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Romantic), "♥")
@@ -260,27 +234,15 @@ namespace EHR.Neutral
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId)
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != target.PlayerId) return string.Empty;
 
-            if (seer.PlayerId == PartnerId && HasPickedPartner)
-            {
-                return TargetArrow.GetArrows(seer, RomanticId);
-            }
+            if (seer.PlayerId == PartnerId && HasPickedPartner) return TargetArrow.GetArrows(seer, RomanticId);
 
-            if (seer.PlayerId != RomanticId || !seer.Is(CustomRoles.Romantic))
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != RomanticId || !seer.Is(CustomRoles.Romantic)) return string.Empty;
 
             Color color = !HasPickedPartner ? Color.white : Utils.GetRoleColor(CustomRoles.Romantic);
             string text = !HasPickedPartner ? "PICK PARTNER" : "♥";
-            if (Arrows.GetBool())
-            {
-                text += TargetArrow.GetArrows(seer, PartnerId);
-            }
+            if (Arrows.GetBool()) text += TargetArrow.GetArrows(seer, PartnerId);
 
             return Utils.ColorString(color, text);
         }
@@ -302,20 +264,14 @@ namespace EHR.Neutral
 
         private static void ChangeRole()
         {
-            if (Partner == null || RomanticPC == null || !RomanticPC.Is(CustomRoles.Romantic))
-            {
-                return;
-            }
+            if (Partner == null || RomanticPC == null || !RomanticPC.Is(CustomRoles.Romantic)) return;
 
             CustomRoles partnerRole = Partner.GetCustomRole();
             PlayerControl killer = Partner.GetRealKiller();
 
             if (killer?.PlayerId == RomanticId) // If the Romantic killed their Partner, they also die
             {
-                if (!RomanticPC.IsAlive())
-                {
-                    return;
-                }
+                if (!RomanticPC.IsAlive()) return;
 
                 Logger.Info("Romantic killed their own Partner, Romantic suicides", "Romantic");
                 RomanticPC.Suicide(PlayerState.DeathReason.FollowingSuicide, Partner);
@@ -330,10 +286,7 @@ namespace EHR.Neutral
             else if (ConvertingRolesAndAddons.TryGetValue(partnerRole, out CustomRoles convertedRole))
             {
                 RomanticPC.RpcSetCustomRole(convertedRole);
-                if (convertedRole.IsAdditionRole())
-                {
-                    RomanticPC.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
-                }
+                if (convertedRole.IsAdditionRole()) RomanticPC.RpcSetCustomRole(CustomRoles.RuthlessRomantic);
 
                 Logger.Info($"Converting Romantic Partner Died ({Partner.GetNameWithRole()}) => Romantic becomes their ally ({RomanticPC.GetNameWithRole()})", "Romantic");
             }
@@ -365,10 +318,7 @@ namespace EHR.Neutral
                 VengefulRomantic.SendRPC();
             }
 
-            if (RomanticGetsPartnerConvertedAddons.GetBool() && Partner.IsConverted())
-            {
-                Partner.GetCustomSubRoles().DoIf(x => x.IsConverted() && !RomanticPC.Is(x), x => RomanticPC.RpcSetCustomRole(x));
-            }
+            if (RomanticGetsPartnerConvertedAddons.GetBool() && Partner.IsConverted()) Partner.GetCustomSubRoles().DoIf(x => x.IsConverted() && !RomanticPC.Is(x), x => RomanticPC.RpcSetCustomRole(x));
 
             RomanticPC.SetKillCooldown();
         }
@@ -388,9 +338,7 @@ namespace EHR.Neutral
 
         public override bool IsEnable => VengefulRomanticId != byte.MaxValue;
 
-        public override void SetupCustomOption()
-        {
-        }
+        public override void SetupCustomOption() { }
 
         public override void Init()
         {
@@ -422,10 +370,7 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer.PlayerId == target.PlayerId || killer.PlayerId != VengefulRomanticId || target.PlayerId == Target)
-            {
-                return true;
-            }
+            if (killer.PlayerId == target.PlayerId || killer.PlayerId != VengefulRomanticId || target.PlayerId == Target) return true;
 
             killer.Suicide(PlayerState.DeathReason.Misfire);
             return false;
@@ -433,28 +378,19 @@ namespace EHR.Neutral
 
         public override void OnMurder(PlayerControl killer, PlayerControl target)
         {
-            if (target.PlayerId == Target)
-            {
-                HasKilledKiller = true;
-            }
+            if (target.PlayerId == Target) HasKilledKiller = true;
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != VengefulRomanticId)
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != VengefulRomanticId) return string.Empty;
 
             return seer == null ? string.Empty : Utils.ColorString(HasKilledKiller ? Color.green : Utils.GetRoleColor(CustomRoles.VengefulRomantic), $"{(HasKilledKiller ? "✓" : "☹")}");
         }
 
         public static void SendRPC()
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncVengefulRomanticTarget, SendOption.Reliable);
             writer.Write(Target);
@@ -484,9 +420,7 @@ namespace EHR.Neutral
 
         public override bool IsEnable => PlayerIdList.Count > 0;
 
-        public override void SetupCustomOption()
-        {
-        }
+        public override void SetupCustomOption() { }
 
         public override void Init()
         {

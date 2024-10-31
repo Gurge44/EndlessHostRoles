@@ -47,9 +47,7 @@ namespace EHR
         private readonly UInt32[] _mt = new UInt32[N];
         private Int16 _mtItems;
 
-        public MersenneTwister() : this((Int32)DateTime.UtcNow.Ticks)
-        {
-        }
+        public MersenneTwister() : this((Int32)DateTime.UtcNow.Ticks) { }
 
         public MersenneTwister(Int32 seed)
         {
@@ -58,20 +56,11 @@ namespace EHR
 
         public int Next(int minValue, int maxValue)
         {
-            if (minValue < 0 || maxValue < 0)
-            {
-                throw new ArgumentOutOfRangeException("minValue and maxValue must be bigger than 0.");
-            }
+            if (minValue < 0 || maxValue < 0) throw new ArgumentOutOfRangeException("minValue and maxValue must be bigger than 0.");
 
-            if (minValue > maxValue)
-            {
-                throw new ArgumentException("maxValue must be bigger than minValue.");
-            }
+            if (minValue > maxValue) throw new ArgumentException("maxValue must be bigger than minValue.");
 
-            if (minValue == maxValue)
-            {
-                return minValue;
-            }
+            if (minValue == maxValue) return minValue;
 
             return (int)(minValue + (Next() % (maxValue - minValue)));
         }

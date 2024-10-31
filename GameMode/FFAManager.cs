@@ -60,53 +60,68 @@ namespace EHR
                 .SetColor(new Color32(0, 255, 165, byte.MaxValue))
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetHeader(true);
+
             FFAKcd = new FloatOptionItem(67_223_002, "FFA_KCD", new(1f, 60f, 1f), 10f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.FFA)
                 .SetColor(new Color32(0, 255, 165, byte.MaxValue))
                 .SetValueFormat(OptionFormat.Seconds);
+
             FFADisableVentingWhenTwoPlayersAlive = new BooleanOptionItem(67_223_003, "FFA_DisableVentingWhenTwoPlayersAlive", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.FFA)
                 .SetColor(new Color32(0, 255, 165, byte.MaxValue));
+
             FFADisableVentingWhenKcdIsUp = new BooleanOptionItem(67_223_004, "FFA_DisableVentingWhenKCDIsUp", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.FFA)
                 .SetColor(new Color32(0, 255, 165, byte.MaxValue));
+
             FFAEnableRandomAbilities = new BooleanOptionItem(67_223_005, "FFA_EnableRandomAbilities", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.FFA)
                 .SetColor(new Color32(0, 255, 165, byte.MaxValue));
+
             FFAShieldDuration = new FloatOptionItem(67_223_006, "FFA_ShieldDuration", new(1f, 70f, 1f), 7f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.FFA)
                 .SetColor(new Color32(0, 255, 165, byte.MaxValue))
                 .SetValueFormat(OptionFormat.Seconds);
+
             FFAIncreasedSpeed = new FloatOptionItem(67_223_007, "FFA_IncreasedSpeed", new(0.1f, 5f, 0.1f), 1.5f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.FFA)
                 .SetColor(new Color32(0, 255, 165, byte.MaxValue))
                 .SetValueFormat(OptionFormat.Multiplier);
+
             FFADecreasedSpeed = new FloatOptionItem(67_223_008, "FFA_DecreasedSpeed", new(0.1f, 5f, 0.1f), 1f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.FFA)
                 .SetColor(new Color32(0, 255, 165, byte.MaxValue))
                 .SetValueFormat(OptionFormat.Multiplier);
+
             FFAModifiedSpeedDuration = new FloatOptionItem(67_223_009, "FFA_ModifiedSpeedDuration", new(1f, 60f, 1f), 10f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.FFA).SetColor(new Color32(0, 255, 165, byte.MaxValue))
                 .SetValueFormat(OptionFormat.Seconds);
+
             FFALowerVision = new FloatOptionItem(67_223_010, "FFA_LowerVision", new(0f, 1f, 0.05f), 0.5f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.FFA).SetColor(new Color32(0, 255, 165, byte.MaxValue))
                 .SetValueFormat(OptionFormat.Multiplier);
+
             FFAModifiedVisionDuration = new FloatOptionItem(67_223_011, "FFA_ModifiedVisionDuration", new(1f, 70f, 1f), 5f, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.FFA).SetColor(new Color32(0, 255, 165, byte.MaxValue))
                 .SetValueFormat(OptionFormat.Seconds);
+
             FFAEnableRandomTwists = new BooleanOptionItem(67_223_012, "FFA_EnableRandomTwists", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.FFA)
                 .SetColor(new Color32(0, 255, 165, byte.MaxValue));
+
             FFAShieldIsOneTimeUse = new BooleanOptionItem(67_223_013, "FFA_ShieldIsOneTimeUse", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.FFA)
                 .SetColor(new Color32(0, 255, 165, byte.MaxValue));
+
             FFAChatDuringGame = new BooleanOptionItem(67_223_014, "FFA_ChatDuringGame", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.FFA)
                 .SetColor(new Color32(0, 255, 165, byte.MaxValue));
+
             FFATeamMode = new BooleanOptionItem(67_223_015, "FFA_TeamMode", false, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.FFA)
                 .SetHeader(true)
                 .SetColor(new Color32(0, 255, 165, byte.MaxValue));
+
             FFATeamNumber = new IntegerOptionItem(67_223_016, "FFA_TeamNumber", new(2, 8, 1), 2, TabGroup.GameSettings)
                 .SetParent(FFATeamMode)
                 .SetGameMode(CustomGameMode.FFA)
@@ -115,10 +130,7 @@ namespace EHR
 
         public static void Init()
         {
-            if (Options.CurrentGameMode != CustomGameMode.FFA)
-            {
-                return;
-            }
+            if (Options.CurrentGameMode != CustomGameMode.FFA) return;
 
             FFADecreasedSpeedList = [];
             FFAIncreasedSpeedList = [];
@@ -132,15 +144,9 @@ namespace EHR
             PlayerTeams = [];
 
             PlayerControl[] allPlayers = Main.AllAlivePlayerControls;
-            if (Main.GM.Value && AmongUsClient.Instance.AmHost)
-            {
-                allPlayers = allPlayers.Without(PlayerControl.LocalPlayer).ToArray();
-            }
+            if (Main.GM.Value && AmongUsClient.Instance.AmHost) allPlayers = allPlayers.Without(PlayerControl.LocalPlayer).ToArray();
 
-            foreach (PlayerControl pc in allPlayers)
-            {
-                KillCount[pc.PlayerId] = 0;
-            }
+            foreach (PlayerControl pc in allPlayers) KillCount[pc.PlayerId] = 0;
 
             if (FFATeamMode.GetBool())
             {
@@ -149,13 +155,9 @@ namespace EHR
                 int memberNum = (teamNum > 5 && playerNum >= 15) || playerNum % teamNum == 0 ? playerNum / teamNum : (playerNum / teamNum) + 1;
                 List<byte[]> teamMembers = allPlayers.Select(x => x.PlayerId).Shuffle().Chunk(memberNum).ToList();
 
-                for (int i = 0; i < teamMembers.Count; i++)
-                {
+                for (var i = 0; i < teamMembers.Count; i++)
                     foreach (byte id in teamMembers[i])
-                    {
                         PlayerTeams.Add(id, i);
-                    }
-                }
 
                 LateTask.New(() => Utils.NotifyRoles(NoCache: true, ForceLoop: true), 10f, log: false);
             }
@@ -183,10 +185,7 @@ namespace EHR
 
         public static void OnPlayerAttack(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null || Options.CurrentGameMode != CustomGameMode.FFA)
-            {
-                return;
-            }
+            if (killer == null || target == null || Options.CurrentGameMode != CustomGameMode.FFA) return;
 
             if (target.inVent)
             {
@@ -201,10 +200,12 @@ namespace EHR
             }
 
             int totalalive = Main.AllAlivePlayerControls.Length;
+
             if (FFAShieldedList.TryGetValue(target.PlayerId, out long dur))
             {
                 killer.Notify(GetString("FFA_TargetIsShielded"));
                 Logger.Info($"{killer.GetRealName().RemoveHtmlTags()} attacked shielded player {target.GetRealName().RemoveHtmlTags()}, their shield expires in {FFAShieldDuration.GetInt() - (Utils.TimeStamp - dur)}s", "FFA");
+
                 if (FFAShieldIsOneTimeUse.GetBool())
                 {
                     FFAShieldedList.Remove(target.PlayerId);
@@ -220,6 +221,7 @@ namespace EHR
             if (totalalive == 3)
             {
                 PlayerControl otherPC = null;
+
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls.Where(a => a.PlayerId != killer.PlayerId && a.PlayerId != target.PlayerId && a.IsAlive()))
                 {
                     TargetArrow.Add(killer.PlayerId, pc.PlayerId);
@@ -232,29 +234,23 @@ namespace EHR
 
             if (FFAEnableRandomAbilities.GetBool())
             {
-                bool sync = false;
-                bool mark = false;
+                var sync = false;
+                var mark = false;
                 float nowKCD = Main.AllPlayerKillCooldown[killer.PlayerId];
                 byte EffectType;
+
                 if (Main.NormalOptions.MapId != 4)
-                {
                     EffectType = (byte)IRandom.Instance.Next(0, 10);
-                }
                 else
-                {
                     EffectType = (byte)IRandom.Instance.Next(4, 10);
-                }
 
                 switch (EffectType)
                 {
                     // Buff
                     case <= 7:
                     {
-                        byte EffectID = (byte)IRandom.Instance.Next(0, 3);
-                        if (Main.NormalOptions.MapId == 4)
-                        {
-                            EffectID = 2;
-                        }
+                        var EffectID = (byte)IRandom.Instance.Next(0, 3);
+                        if (Main.NormalOptions.MapId == 4) EffectID = 2;
 
                         switch (EffectID)
                         {
@@ -295,11 +291,8 @@ namespace EHR
                     // De-Buff
                     case 8:
                     {
-                        byte EffectID = (byte)IRandom.Instance.Next(0, 3);
-                        if (Main.NormalOptions.MapId == 4)
-                        {
-                            EffectID = 1;
-                        }
+                        var EffectID = (byte)IRandom.Instance.Next(0, 3);
+                        if (Main.NormalOptions.MapId == 4) EffectID = 1;
 
                         switch (EffectID)
                         {
@@ -352,10 +345,7 @@ namespace EHR
                     killer.SyncSettings();
                 }
 
-                if (mark)
-                {
-                    killer.MarkDirtySettings();
-                }
+                if (mark) killer.MarkDirtySettings();
             }
 
             killer.Kill(target);
@@ -363,38 +353,23 @@ namespace EHR
 
         private static void OnPlayerKill(PlayerControl killer)
         {
-            if (PlayerControl.LocalPlayer.Is(CustomRoles.GM))
-            {
-                PlayerControl.LocalPlayer.KillFlash();
-            }
+            if (PlayerControl.LocalPlayer.Is(CustomRoles.GM)) PlayerControl.LocalPlayer.KillFlash();
 
             KillCount[killer.PlayerId]++;
         }
 
         public static string GetPlayerArrow(PlayerControl seer, PlayerControl target = null)
         {
-            if (GameStates.IsMeeting)
-            {
-                return string.Empty;
-            }
+            if (GameStates.IsMeeting) return string.Empty;
 
-            if (target != null && seer.PlayerId != target.PlayerId)
-            {
-                return string.Empty;
-            }
+            if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
 
-            if (Main.AllAlivePlayerControls.Length != 2)
-            {
-                return string.Empty;
-            }
+            if (Main.AllAlivePlayerControls.Length != 2) return string.Empty;
 
-            string arrows = string.Empty;
+            var arrows = string.Empty;
             PlayerControl otherPlayer = Main.AllAlivePlayerControls.FirstOrDefault(pc => pc.IsAlive() && pc.PlayerId != seer.PlayerId);
 
-            if (otherPlayer == null)
-            {
-                return string.Empty;
-            }
+            if (otherPlayer == null) return string.Empty;
 
             string arrow = TargetArrow.GetArrows(seer, otherPlayer.PlayerId);
             arrows += Utils.ColorString(Utils.GetRoleColor(CustomRoles.Killer), arrow);
@@ -405,10 +380,7 @@ namespace EHR
         public static void UpdateLastChatMessage(string playerName, string message)
         {
             LatestChatMessage = string.Format(GetString("FFAChatMessageNotify"), playerName, message);
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-            {
-                pc.Notify(LatestChatMessage);
-            }
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls) pc.Notify(LatestChatMessage);
         }
 
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
@@ -419,24 +391,18 @@ namespace EHR
             [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void Postfix()
             {
-                if (!GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.FFA || !AmongUsClient.Instance.AmHost)
-                {
-                    return;
-                }
+                if (!GameStates.IsInTask || ExileController.Instance || Options.CurrentGameMode != CustomGameMode.FFA || !AmongUsClient.Instance.AmHost) return;
 
                 long now = Utils.TimeStamp;
 
-                if (LastFixedUpdate == now)
-                {
-                    return;
-                }
+                if (LastFixedUpdate == now) return;
 
                 LastFixedUpdate = now;
 
                 RoundTime--;
 
-                IRandom rd = IRandom.Instance;
-                byte FFAdoTPdecider = (byte)rd.Next(0, 100);
+                var rd = IRandom.Instance;
+                var FFAdoTPdecider = (byte)rd.Next(0, 100);
                 bool FFAdoTP = FFAdoTPdecider == 0;
 
                 if (FFAEnableRandomTwists.GetBool() && FFAdoTP)
@@ -447,24 +413,16 @@ namespace EHR
 
                     foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                     {
-                        if (changePositionPlayers.Contains(pc.PlayerId) || !pc.IsAlive() || pc.onLadder || pc.inVent || pc.inMovingPlat)
-                        {
-                            continue;
-                        }
+                        if (changePositionPlayers.Contains(pc.PlayerId) || !pc.IsAlive() || pc.onLadder || pc.inVent || pc.inMovingPlat) continue;
 
                         PlayerControl[] filtered = Main.AllAlivePlayerControls.Where(a =>
                             pc.IsAlive() && !pc.inVent && a.PlayerId != pc.PlayerId && !changePositionPlayers.Contains(a.PlayerId)).ToArray();
-                        if (filtered.Length == 0)
-                        {
-                            break;
-                        }
+
+                        if (filtered.Length == 0) break;
 
                         PlayerControl target = filtered.RandomElement();
 
-                        if (pc.inVent || target.inVent)
-                        {
-                            continue;
-                        }
+                        if (pc.inVent || target.inVent) continue;
 
                         changePositionPlayers.Add(target.PlayerId);
                         changePositionPlayers.Add(pc.PlayerId);
@@ -482,19 +440,13 @@ namespace EHR
                     changePositionPlayers.Clear();
                 }
 
-                if (Main.NormalOptions.MapId == 4)
-                {
-                    return;
-                }
+                if (Main.NormalOptions.MapId == 4) return;
 
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
-                    if (pc == null)
-                    {
-                        return;
-                    }
+                    if (pc == null) return;
 
-                    bool sync = false;
+                    var sync = false;
 
                     if (FFADecreasedSpeedList.TryGetValue(pc.PlayerId, out long dstime) && dstime + FFAModifiedSpeedDuration.GetInt() < now)
                     {
@@ -527,10 +479,7 @@ namespace EHR
                         FFAShieldedList.Remove(pc.PlayerId);
                     }
 
-                    if (sync)
-                    {
-                        pc.MarkDirtySettings();
-                    }
+                    if (sync) pc.MarkDirtySettings();
                 }
             }
         }

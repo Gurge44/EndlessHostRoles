@@ -30,15 +30,19 @@ namespace EHR.Crewmate
             const CustomRoles role = CustomRoles.Telekinetic;
 
             Options.SetupRoleOptions(id, tab, role);
+
             FreezeDuration = new IntegerOptionItem(id + 2, "Telekinetic.FreezeDuration", new(0, 60, 1), 10, tab)
                 .SetParent(Options.CustomRoleSpawnChances[role])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ShieldDuration = new IntegerOptionItem(id + 3, "Telekinetic.ShieldDuration", new(0, 60, 1), 20, tab)
                 .SetParent(Options.CustomRoleSpawnChances[role])
                 .SetValueFormat(OptionFormat.Seconds);
+
             SpeedDuration = new IntegerOptionItem(id + 4, "Telekinetic.SpeedDuration", new(0, 60, 1), 15, tab)
                 .SetParent(Options.CustomRoleSpawnChances[role])
                 .SetValueFormat(OptionFormat.Seconds);
+
             IncreasedSpeed = new FloatOptionItem(id + 5, "Telekinetic.IncreasedSpeed", new(0.05f, 5f, 0.05f), 2f, tab)
                 .SetParent(Options.CustomRoleSpawnChances[role])
                 .SetValueFormat(OptionFormat.Multiplier);
@@ -65,16 +69,10 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance || Main.HasJustStarted)
-            {
-                return;
-            }
+            if (!pc.IsAlive() || !GameStates.IsInTask || ExileController.Instance || Main.HasJustStarted) return;
 
             long now = Utils.TimeStamp;
-            if (now == LastUpdate)
-            {
-                return;
-            }
+            if (now == LastUpdate) return;
 
             LastUpdate = now;
 
@@ -118,11 +116,13 @@ namespace EHR.Crewmate
                     float speed = Main.AllPlayerSpeed[target.PlayerId];
                     Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
                     target.MarkDirtySettings();
+
                     LateTask.New(() =>
                     {
                         Main.AllPlayerSpeed[target.PlayerId] = speed;
                         target.MarkDirtySettings();
                     }, FreezeDuration.GetFloat(), "Telekinetic.Freeze");
+
                     Timer += 35;
                     break;
                 case Mode.Kill when hasTarget:
@@ -140,11 +140,13 @@ namespace EHR.Crewmate
                     float selfSpeed = Main.AllPlayerSpeed[pc.PlayerId];
                     Main.AllPlayerSpeed[pc.PlayerId] = IncreasedSpeed.GetFloat();
                     pc.MarkDirtySettings();
+
                     LateTask.New(() =>
                     {
                         Main.AllPlayerSpeed[pc.PlayerId] = selfSpeed;
                         pc.MarkDirtySettings();
                     }, SpeedDuration.GetFloat(), "Telekinetic.Speed");
+
                     Timer += 30;
                     break;
                 case Mode.Doors:
@@ -162,6 +164,7 @@ namespace EHR.Crewmate
                 float speed = Main.AllPlayerSpeed[pc.PlayerId];
                 Main.AllPlayerSpeed[pc.PlayerId] = Main.MinSpeed;
                 pc.MarkDirtySettings();
+
                 LateTask.New(() =>
                 {
                     Main.AllPlayerSpeed[pc.PlayerId] = speed;
@@ -194,10 +197,7 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != TelekineticPC.PlayerId || (seer.IsModClient() && !hud) || meeting)
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != TelekineticPC.PlayerId || (seer.IsModClient() && !hud) || meeting) return string.Empty;
 
             return string.Format(Translator.GetString("Telekinetic.Suffix"), Translator.GetString($"Telekinetic.Mode.{CurrentMode}"));
         }

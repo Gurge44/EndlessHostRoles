@@ -8,23 +8,22 @@ namespace EHR
     {
         public static bool Prefix(GameManager __instance, [HarmonyArgument(0)] MessageWriter writer, [HarmonyArgument(1)] bool initialState, ref bool __result)
         {
-            bool flag = false;
-            for (int index = 0; index < __instance.LogicComponents.Count; ++index)
+            var flag = false;
+
+            for (var index = 0; index < __instance.LogicComponents.Count; ++index)
             {
                 GameLogicComponent logicComponent = __instance.LogicComponents[index];
+
                 if (initialState || logicComponent.IsDirty)
                 {
                     flag = true;
                     writer.StartMessage((byte)index);
                     bool hasBody = logicComponent.Serialize(writer, initialState);
+
                     if (hasBody)
-                    {
                         writer.EndMessage();
-                    }
                     else
-                    {
                         writer.CancelMessage();
-                    }
 
                     logicComponent.ClearDirtyFlag();
                 }

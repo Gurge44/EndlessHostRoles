@@ -29,11 +29,14 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.RouleteGrandeur);
+
             KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.RouleteGrandeur])
                 .SetValueFormat(OptionFormat.Seconds);
+
             HasImpostorVision = new BooleanOptionItem(Id + 3, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.RouleteGrandeur]);
+
             KCDReduction = new FloatOptionItem(Id + 4, "KCDReduction", new(0f, 100f, 0.5f), 3.5f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.RouleteGrandeur])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -71,15 +74,9 @@ namespace EHR.Neutral
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             opt.SetVision(HasImpostorVision.GetBool());
-            if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool())
-            {
-                AURoleOptions.PhantomCooldown = 1f;
-            }
+            if (Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = 1f;
 
-            if (Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool())
-            {
-                AURoleOptions.ShapeshifterCooldown = 1f;
-            }
+            if (Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool()) AURoleOptions.ShapeshifterCooldown = 1f;
         }
 
         public override void OnExitVent(PlayerControl pc, Vent vent)
@@ -108,10 +105,7 @@ namespace EHR.Neutral
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool())
-            {
-                return true;
-            }
+            if (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) return true;
 
             Roll(shapeshifter);
             return false;
@@ -120,10 +114,7 @@ namespace EHR.Neutral
         private void Roll(PlayerControl pc)
         {
             long now = Utils.TimeStamp;
-            if (now - LastRoll < 5)
-            {
-                return;
-            }
+            if (now - LastRoll < 5) return;
 
             LastRoll = now;
             Utils.SendRPC(CustomRPC.SyncRoleData, pc.PlayerId, 1, LastRoll);
@@ -131,13 +122,14 @@ namespace EHR.Neutral
             string result = new(NoHitIcon, BulletCount);
             result = $"<#ffffff>{result}</color>";
             HashSet<int> takenSlots = [];
-            for (int i = 0; i < Bullets; i++)
+
+            for (var i = 0; i < Bullets; i++)
             {
                 int slot;
+
                 do
-                {
                     slot = IRandom.Instance.Next(BulletCount);
-                } while (!takenSlots.Add(slot));
+                while (!takenSlots.Add(slot));
 
                 result = result.Remove(slot, 1).Insert(slot, HitIcon.ToString());
             }
@@ -149,6 +141,7 @@ namespace EHR.Neutral
             bool hit = icon == HitIcon;
 
             string str;
+
             if (hit)
             {
                 pc.Suicide(PlayerState.DeathReason.BadLuck);
@@ -156,7 +149,7 @@ namespace EHR.Neutral
             }
             else
             {
-                float reduction = (float)Math.Round(Bullets * KCDReduction.GetFloat(), 1);
+                var reduction = (float)Math.Round(Bullets * KCDReduction.GetFloat(), 1);
                 str = string.Format(Translator.GetString("RG.NoHit"), Bullets, reduction);
                 KCD -= reduction;
                 pc.ResetKillCooldown();
@@ -181,10 +174,7 @@ namespace EHR.Neutral
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != RouleteGrandeurId || meeting || (seer.IsModClient() && !hud) || (!hud && Utils.TimeStamp - LastRoll < 15))
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != RouleteGrandeurId || meeting || (seer.IsModClient() && !hud) || (!hud && Utils.TimeStamp - LastRoll < 15)) return string.Empty;
 
             return string.Format(Translator.GetString("RG.Suffix"), Bullets);
         }

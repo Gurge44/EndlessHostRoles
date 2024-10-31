@@ -24,16 +24,21 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.CopyCat);
+
             KillCooldown = new FloatOptionItem(Id + 10, "CopyCatCopyCooldown", new(0f, 60f, 1f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanKill = new BooleanOptionItem(Id + 11, "CopyCatCanKill", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat]);
+
             CopyCrewVar = new BooleanOptionItem(Id + 13, "CopyCrewVar", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.CopyCat]);
+
             MiscopyLimitOpt = new IntegerOptionItem(Id + 12, "CopyCatMiscopyLimit", new(0, 14, 1), 2, TabGroup.CrewmateRoles)
                 .SetParent(CanKill)
                 .SetValueFormat(OptionFormat.Times);
+
             UsePet = CreatePetUseSetting(Id + 14, CustomRoles.CopyCat);
         }
 
@@ -66,6 +71,7 @@ namespace EHR.Crewmate
         private void ResetRole()
         {
             CustomRoles role = CopyCatPC.GetCustomRole();
+
             // Remove settings for current role
             switch (role)
             {

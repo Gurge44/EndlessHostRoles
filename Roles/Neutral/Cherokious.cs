@@ -14,9 +14,11 @@ namespace EHR.Neutral
         {
             const int id = 13860;
             Options.SetupRoleOptions(id, TabGroup.NeutralRoles, CustomRoles.Cherokious);
+
             KillCooldown = new IntegerOptionItem(id + 2, "KillCooldown", new(0, 60, 1), 15, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Cherokious])
                 .SetValueFormat(OptionFormat.Seconds);
+
             Tasks = Options.OverrideTasksData.Create(id + 3, TabGroup.NeutralRoles, CustomRoles.Cherokious);
         }
 
@@ -38,16 +40,10 @@ namespace EHR.Neutral
 
         public override void OnPet(PlayerControl pc)
         {
-            if (pc.GetAbilityUseLimit() < 1)
-            {
-                return;
-            }
+            if (pc.GetAbilityUseLimit() < 1) return;
 
             PlayerControl target = ExternalRpcPetPatch.SelectKillButtonTarget(pc);
-            if (target != null && pc.RpcCheckAndMurder(target))
-            {
-                pc.RpcRemoveAbilityUse();
-            }
+            if (target != null && pc.RpcCheckAndMurder(target)) pc.RpcRemoveAbilityUse();
         }
 
         public override bool CanUseKillButton(PlayerControl pc)

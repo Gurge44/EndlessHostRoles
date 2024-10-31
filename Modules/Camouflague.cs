@@ -77,10 +77,7 @@ namespace EHR
 
         public static bool CheckCamouflage()
         {
-            if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On))
-            {
-                return false;
-            }
+            if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On)) return false;
 
             bool oldIsCamouflage = IsCamouflage;
 
@@ -102,10 +99,7 @@ namespace EHR
 
                     RpcSetSkin(pc);
 
-                    if (!IsCamouflage && !pc.IsAlive())
-                    {
-                        PetsPatch.RpcRemovePet(pc);
-                    }
+                    if (!IsCamouflage && !pc.IsAlive()) PetsPatch.RpcRemovePet(pc);
                 }
 
                 Utils.NotifyRoles(NoCache: true);
@@ -117,33 +111,22 @@ namespace EHR
 
         public static void RpcSetSkin(PlayerControl target, bool ForceRevert = false, bool RevertToDefault = false, bool GameEnd = false)
         {
-            if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On) || target == null || (BlockCamouflage && !ForceRevert && !RevertToDefault && !GameEnd))
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost || (!Options.CommsCamouflage.GetBool() && !Camouflager.On) || target == null || (BlockCamouflage && !ForceRevert && !RevertToDefault && !GameEnd)) return;
 
             Logger.Info($"New outfit for {target.GetNameWithRole()}", "Camouflage.RpcSetSkin");
 
             byte id = target.PlayerId;
 
-            if (IsCamouflage && Main.PlayerStates[id].IsDead)
-            {
-                return;
-            }
+            if (IsCamouflage && Main.PlayerStates[id].IsDead) return;
 
             NetworkedPlayerInfo.PlayerOutfit newOutfit = CamouflageOutfit;
 
             if (!IsCamouflage || ForceRevert)
             {
-                if (id.IsPlayerShifted() && !RevertToDefault)
-                {
-                    id = Main.ShapeshiftTarget[id];
-                }
+                if (id.IsPlayerShifted() && !RevertToDefault) id = Main.ShapeshiftTarget[id];
 
                 if (!GameEnd && Doppelganger.DoppelPresentSkin.TryGetValue(id, out NetworkedPlayerInfo.PlayerOutfit value))
-                {
                     newOutfit = value;
-                }
                 else
                 {
                     if (GameEnd && Doppelganger.DoppelVictim.TryGetValue(id, out string value1))
@@ -167,9 +150,10 @@ namespace EHR
 
             Logger.Info($"Setting new outfit: {newOutfit.GetString()}", "Camouflage.RpcSetSkin");
 
-            CustomRpcSender sender = CustomRpcSender.Create($"Camouflage.RpcSetSkin({target.Data.PlayerName})");
+            var sender = CustomRpcSender.Create($"Camouflage.RpcSetSkin({target.Data.PlayerName})");
 
             target.SetColor(newOutfit.ColorId);
+
             sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetColor)
                 .Write(target.Data.NetId)
                 .Write((byte)newOutfit.ColorId)
@@ -177,6 +161,7 @@ namespace EHR
 
             target.SetHat(newOutfit.HatId, newOutfit.ColorId);
             target.Data.DefaultOutfit.HatSequenceId += 10;
+
             sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetHatStr)
                 .Write(newOutfit.HatId)
                 .Write(target.GetNextRpcSequenceId(RpcCalls.SetHatStr))
@@ -184,6 +169,7 @@ namespace EHR
 
             target.SetSkin(newOutfit.SkinId, newOutfit.ColorId);
             target.Data.DefaultOutfit.SkinSequenceId += 10;
+
             sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetSkinStr)
                 .Write(newOutfit.SkinId)
                 .Write(target.GetNextRpcSequenceId(RpcCalls.SetSkinStr))
@@ -191,6 +177,7 @@ namespace EHR
 
             target.SetVisor(newOutfit.VisorId, newOutfit.ColorId);
             target.Data.DefaultOutfit.VisorSequenceId += 10;
+
             sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetVisorStr)
                 .Write(newOutfit.VisorId)
                 .Write(target.GetNextRpcSequenceId(RpcCalls.SetVisorStr))
@@ -198,6 +185,7 @@ namespace EHR
 
             target.SetPet(newOutfit.PetId);
             target.Data.DefaultOutfit.PetSequenceId += 10;
+
             sender.AutoStartRpc(target.NetId, (byte)RpcCalls.SetPetStr)
                 .Write(newOutfit.PetId)
                 .Write(target.GetNextRpcSequenceId(RpcCalls.SetPetStr))
@@ -208,18 +196,12 @@ namespace EHR
 
         public static void OnFixedUpdate(PlayerControl pc)
         {
-            if (!WaitingForSkinChange.Contains(pc.PlayerId) || pc.inVent || pc.walkingToVent || pc.onLadder || pc.inMovingPlat)
-            {
-                return;
-            }
+            if (!WaitingForSkinChange.Contains(pc.PlayerId) || pc.inVent || pc.walkingToVent || pc.onLadder || pc.inMovingPlat) return;
 
             RpcSetSkin(pc);
             WaitingForSkinChange.Remove(pc.PlayerId);
 
-            if (!IsCamouflage && !pc.IsAlive())
-            {
-                PetsPatch.RpcRemovePet(pc);
-            }
+            if (!IsCamouflage && !pc.IsAlive()) PetsPatch.RpcRemovePet(pc);
 
             Utils.NotifyRoles(SpecifySeer: pc, NoCache: true);
             Utils.NotifyRoles(SpecifyTarget: pc, NoCache: true);

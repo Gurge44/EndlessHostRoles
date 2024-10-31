@@ -9,12 +9,8 @@
             Options.SetupRoleOptions(4300, TabGroup.ImpostorRoles, CustomRoles.Trickster);
         }
 
-        public override void Init()
-        {
-        }
+        public override void Init() { }
 
-        public override void Add(byte playerId)
-        {
-        }
+        public override void Add(byte playerId) { }
     }
 }

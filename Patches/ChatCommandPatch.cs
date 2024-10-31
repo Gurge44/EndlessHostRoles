@@ -53,10 +53,7 @@ namespace EHR
 
         public bool IsThisCommand(string text)
         {
-            if (!text.StartsWith('/'))
-            {
-                return false;
-            }
+            if (!text.StartsWith('/')) return false;
 
             text = text.ToLower().Trim().TrimStart('/');
             return CommandForms.Any(text.Split(' ')[0].Equals);
@@ -64,15 +61,9 @@ namespace EHR
 
         public bool CanUseCommand(PlayerControl pc, bool checkTime = true)
         {
-            if (UsageLevel == UsageLevels.Everyone && UsageTime == UsageTimes.Always && !Lovers.PrivateChat.GetBool())
-            {
-                return true;
-            }
+            if (UsageLevel == UsageLevels.Everyone && UsageTime == UsageTimes.Always && !Lovers.PrivateChat.GetBool()) return true;
 
-            if (Lovers.PrivateChat.GetBool() && GameStates.IsInTask && pc.IsAlive())
-            {
-                return false;
-            }
+            if (Lovers.PrivateChat.GetBool() && GameStates.IsInTask && pc.IsAlive()) return false;
 
             switch (UsageLevel)
             {
@@ -82,10 +73,7 @@ namespace EHR
                     return false;
             }
 
-            if (!checkTime)
-            {
-                return true;
-            }
+            if (!checkTime) return true;
 
             switch (UsageTime)
             {
@@ -204,12 +192,10 @@ namespace EHR
         // Function to check if a player is a moderator
         public static bool IsPlayerModerator(string friendCode)
         {
-            if (friendCode == "" || friendCode == string.Empty || !Options.ApplyModeratorList.GetBool())
-            {
-                return false;
-            }
+            if (friendCode == "" || friendCode == string.Empty || !Options.ApplyModeratorList.GetBool()) return false;
 
             const string friendCodesFilePath = "./EHR_DATA/Moderators.txt";
+
             if (!File.Exists(friendCodesFilePath))
             {
                 File.WriteAllText(friendCodesFilePath, string.Empty);
@@ -223,12 +209,10 @@ namespace EHR
         // Function to check if a player is a VIP
         public static bool IsPlayerVIP(string friendCode)
         {
-            if (friendCode == "" || friendCode == string.Empty || !Options.ApplyVIPList.GetBool())
-            {
-                return false;
-            }
+            if (friendCode == "" || friendCode == string.Empty || !Options.ApplyVIPList.GetBool()) return false;
 
             const string friendCodesFilePath = "./EHR_DATA/VIPs.txt";
+
             if (!File.Exists(friendCodesFilePath))
             {
                 File.WriteAllText(friendCodesFilePath, string.Empty);
@@ -241,70 +225,40 @@ namespace EHR
 
         public static bool Prefix(ChatController __instance)
         {
-            if (__instance.quickChatField.visible)
-            {
-                return true;
-            }
+            if (__instance.quickChatField.visible) return true;
 
-            if (__instance.freeChatField.textArea.text == string.Empty)
-            {
-                return false;
-            }
+            if (__instance.freeChatField.textArea.text == string.Empty) return false;
 
             __instance.timeSinceLastMessage = 3f;
 
             string text = __instance.freeChatField.textArea.text;
 
-            if (ChatHistory.Count == 0 || ChatHistory[^1] != text)
-            {
-                ChatHistory.Add(text);
-            }
+            if (ChatHistory.Count == 0 || ChatHistory[^1] != text) ChatHistory.Add(text);
 
             ChatControllerUpdatePatch.CurrentHistorySelection = ChatHistory.Count;
 
             string[] args = text.Split(' ');
-            bool canceled = false;
-            string cancelVal = string.Empty;
+            var canceled = false;
+            var cancelVal = string.Empty;
             Main.IsChatCommand = true;
 
             Logger.Info(text, "SendChat");
 
             ChatManager.SendMessage(PlayerControl.LocalPlayer, text);
 
-            if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text))
-            {
-                goto Canceled;
-            }
+            if (GuessManager.GuesserMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
 
-            if (Judge.TrialMsg(PlayerControl.LocalPlayer, text))
-            {
-                goto Canceled;
-            }
+            if (Judge.TrialMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
 
-            if (NiceSwapper.SwapMsg(PlayerControl.LocalPlayer, text))
-            {
-                goto Canceled;
-            }
+            if (NiceSwapper.SwapMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
 
-            if (ParityCop.ParityCheckMsg(PlayerControl.LocalPlayer, text))
-            {
-                goto Canceled;
-            }
+            if (ParityCop.ParityCheckMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
 
-            if (Councillor.MurderMsg(PlayerControl.LocalPlayer, text))
-            {
-                goto Canceled;
-            }
+            if (Councillor.MurderMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
 
-            if (Mediumshiper.MsMsg(PlayerControl.LocalPlayer, text))
-            {
-                goto Canceled;
-            }
+            if (Mediumshiper.MsMsg(PlayerControl.LocalPlayer, text)) goto Canceled;
 
-            if (Mafia.MafiaMsgCheck(PlayerControl.LocalPlayer, text))
-            {
-                goto Canceled;
-            }
+            if (Mafia.MafiaMsgCheck(PlayerControl.LocalPlayer, text)) goto Canceled;
 
             Main.IsChatCommand = false;
 
@@ -312,13 +266,11 @@ namespace EHR
             {
                 foreach (Command command in AllCommands)
                 {
-                    if (!command.IsThisCommand(text))
-                    {
-                        continue;
-                    }
+                    if (!command.IsThisCommand(text)) continue;
 
                     Logger.Info($" Recognized command: {text}", "ChatCommand");
                     Main.IsChatCommand = true;
+
                     if (!command.CanUseCommand(PlayerControl.LocalPlayer))
                     {
                         Utils.SendMessage(GetString("Commands.NoAccess"), PlayerControl.LocalPlayer.PlayerId);
@@ -326,24 +278,15 @@ namespace EHR
                     }
 
                     command.Action(__instance, PlayerControl.LocalPlayer, text, args);
-                    if (command.IsCanceled)
-                    {
-                        goto Canceled;
-                    }
+                    if (command.IsCanceled) goto Canceled;
 
                     break;
                 }
             }
 
-            if (CheckMute(PlayerControl.LocalPlayer.PlayerId))
-            {
-                goto Canceled;
-            }
+            if (CheckMute(PlayerControl.LocalPlayer.PlayerId)) goto Canceled;
 
-            if (GameStates.InGame && (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) || (Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk))) && PlayerControl.LocalPlayer.IsAlive())
-            {
-                goto Canceled;
-            }
+            if (GameStates.InGame && (Silencer.ForSilencer.Contains(PlayerControl.LocalPlayer.PlayerId) || (Main.PlayerStates[PlayerControl.LocalPlayer.PlayerId].Role is Dad { IsEnable: true } dad && dad.UsingAbilities.Contains(Dad.Ability.GoForMilk))) && PlayerControl.LocalPlayer.IsAlive()) goto Canceled;
 
             if (GameStates.IsInGame && (PlayerControl.LocalPlayer.IsAlive() || ExileController.Instance) && Lovers.PrivateChat.GetBool() && (ExileController.Instance || !GameStates.IsMeeting))
             {
@@ -365,6 +308,7 @@ namespace EHR
             Main.IsChatCommand = false;
             canceled = true;
             Skip:
+
             if (canceled)
             {
                 Logger.Info("Command Canceled", "ChatCommand");
@@ -391,32 +335,24 @@ namespace EHR
 
             IEnumerator Countdown()
             {
-                float timer = 30f;
+                var timer = 30f;
+
                 while (timer > 0f)
                 {
-                    if (!GameStates.IsLobby)
-                    {
-                        yield break;
-                    }
+                    if (!GameStates.IsLobby) yield break;
 
-                    if (Main.AllPlayerControls.Select(x => x.PlayerId).All(ReadyPlayers.Contains))
-                    {
-                        break;
-                    }
+                    if (Main.AllPlayerControls.Select(x => x.PlayerId).All(ReadyPlayers.Contains)) break;
 
                     timer -= Time.deltaTime;
                     yield return null;
                 }
 
                 byte[] notReadyPlayers = Main.AllPlayerControls.Select(x => x.PlayerId).Except(ReadyPlayers).ToArray();
+
                 if (notReadyPlayers.Length == 0)
-                {
                     Utils.SendMessage("\n", player.PlayerId, GetString("EveryoneReadyTitle"));
-                }
                 else
-                {
                     Utils.SendMessage(string.Join(", ", notReadyPlayers.Select(x => x.ColoredPlayerName())), player.PlayerId, string.Format(GetString("PlayersNotReadyTitle"), notReadyPlayers.Length));
-                }
             }
         }
 
@@ -458,10 +394,7 @@ namespace EHR
 
         private static void DraftCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (DraftRoles.Count == 0 || !DraftRoles.TryGetValue(player.PlayerId, out List<CustomRoles> roles) || args.Length < 2 || !int.TryParse(args[1], out int chosenIndex) || roles.Count < chosenIndex)
-            {
-                return;
-            }
+            if (DraftRoles.Count == 0 || !DraftRoles.TryGetValue(player.PlayerId, out List<CustomRoles> roles) || args.Length < 2 || !int.TryParse(args[1], out int chosenIndex) || roles.Count < chosenIndex) return;
 
             CustomRoles role = roles[chosenIndex - 1];
             DraftResult[player.PlayerId] = role;
@@ -470,32 +403,20 @@ namespace EHR
 
         private static void MuteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (!player.IsHost() && (GameStates.InGame || MutedPlayers.ContainsKey(player.PlayerId)))
-            {
-                return;
-            }
+            if (!player.IsHost() && (GameStates.InGame || MutedPlayers.ContainsKey(player.PlayerId))) return;
 
-            if (args.Length < 3 || !byte.TryParse(args[1], out byte id) || id.IsHost())
-            {
-                return;
-            }
+            if (args.Length < 3 || !byte.TryParse(args[1], out byte id) || id.IsHost()) return;
 
             int duration = !int.TryParse(args[2], out int dur) ? 60 : dur;
             MutedPlayers[id] = (Utils.TimeStamp, duration);
             Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PlayerMuted"), id.ColoredPlayerName(), duration));
             Utils.SendMessage("\n", id, string.Format(GetString("YouMuted"), player.PlayerId.ColoredPlayerName(), duration));
-            if (!player.IsHost())
-            {
-                Utils.SendMessage("\n", 0, string.Format(GetString("ModeratorMuted"), player.PlayerId.ColoredPlayerName(), id.ColoredPlayerName(), duration));
-            }
+            if (!player.IsHost()) Utils.SendMessage("\n", 0, string.Format(GetString("ModeratorMuted"), player.PlayerId.ColoredPlayerName(), id.ColoredPlayerName(), duration));
         }
 
         private static void UnmuteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (args.Length < 2 || !byte.TryParse(args[1], out byte id))
-            {
-                return;
-            }
+            if (args.Length < 2 || !byte.TryParse(args[1], out byte id)) return;
 
             MutedPlayers.Remove(id);
             Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PlayerUnmuted"), id.ColoredPlayerName()));
@@ -504,45 +425,31 @@ namespace EHR
 
         private static void NegotiationCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (!Negotiator.On || !player.IsAlive() || args.Length < 2 || !int.TryParse(args[1], out int index))
-            {
-                return;
-            }
+            if (!Negotiator.On || !player.IsAlive() || args.Length < 2 || !int.TryParse(args[1], out int index)) return;
 
             Negotiator.ReceiveCommand(player, index);
         }
 
         private static void OSCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (!GameStates.IsLobby || args.Length < 3 || !byte.TryParse(args[1], out byte chance) || chance > 100 || chance % 5 != 0 || !GetRoleByName(string.Join(' ', args[2..]), out CustomRoles role) || !Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem option))
-            {
-                return;
-            }
+            if (!GameStates.IsLobby || args.Length < 3 || !byte.TryParse(args[1], out byte chance) || chance > 100 || chance % 5 != 0 || !GetRoleByName(string.Join(' ', args[2..]), out CustomRoles role) || !Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem option)) return;
 
             if (role.IsAdditionRole())
             {
                 option.SetValue(chance == 0 ? 0 : 1);
-                if (!Options.CustomAdtRoleSpawnRate.TryGetValue(role, out IntegerOptionItem adtOption))
-                {
-                    return;
-                }
+                if (!Options.CustomAdtRoleSpawnRate.TryGetValue(role, out IntegerOptionItem adtOption)) return;
 
                 adtOption.SetValue(chance / 5);
             }
             else
-            {
                 option.SetValue(chance / 5);
-            }
         }
 
         private static void NoteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
             if (player.Is(CustomRoles.Journalist) && player.IsAlive())
             {
-                if (PlayerControl.LocalPlayer.PlayerId != player.PlayerId)
-                {
-                    ChatManager.SendPreviousMessagesToAll();
-                }
+                if (PlayerControl.LocalPlayer.PlayerId != player.PlayerId) ChatManager.SendPreviousMessagesToAll();
 
                 Journalist.OnReceiveCommand(player, args);
             }
@@ -550,37 +457,22 @@ namespace EHR
 
         private static void AssumeCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (args.Length < 3 || !byte.TryParse(args[1], out byte id) || !int.TryParse(args[2], out int num) || !player.Is(CustomRoles.Assumer) || !player.IsAlive())
-            {
-                return;
-            }
+            if (args.Length < 3 || !byte.TryParse(args[1], out byte id) || !int.TryParse(args[2], out int num) || !player.Is(CustomRoles.Assumer) || !player.IsAlive()) return;
 
-            if (PlayerControl.LocalPlayer.PlayerId != player.PlayerId)
-            {
-                ChatManager.SendPreviousMessagesToAll();
-            }
+            if (PlayerControl.LocalPlayer.PlayerId != player.PlayerId) ChatManager.SendPreviousMessagesToAll();
 
             Assumer.Assume(player.PlayerId, id, num);
         }
 
         private static void DeleteVIPCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (args.Length < 2 || !byte.TryParse(args[1], out byte VIPId))
-            {
-                return;
-            }
+            if (args.Length < 2 || !byte.TryParse(args[1], out byte VIPId)) return;
 
             PlayerControl VIPPc = Utils.GetPlayerById(VIPId);
-            if (VIPPc == null)
-            {
-                return;
-            }
+            if (VIPPc == null) return;
 
             string fc = VIPPc.FriendCode;
-            if (!IsPlayerVIP(fc))
-            {
-                Utils.SendMessage(GetString("PlayerNotVIP"), player.PlayerId);
-            }
+            if (!IsPlayerVIP(fc)) Utils.SendMessage(GetString("PlayerNotVIP"), player.PlayerId);
 
             string[] lines = File.ReadAllLines("./EHR_DATA/VIPs.txt").Where(line => !line.Contains(fc)).ToArray();
             File.WriteAllLines("./EHR_DATA/VIPs.txt", lines);
@@ -589,22 +481,13 @@ namespace EHR
 
         private static void AddVIPCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (args.Length < 2 || !byte.TryParse(args[1], out byte newVIPId))
-            {
-                return;
-            }
+            if (args.Length < 2 || !byte.TryParse(args[1], out byte newVIPId)) return;
 
             PlayerControl newVIPPc = Utils.GetPlayerById(newVIPId);
-            if (newVIPPc == null)
-            {
-                return;
-            }
+            if (newVIPPc == null) return;
 
             string fc = newVIPPc.FriendCode;
-            if (IsPlayerVIP(fc))
-            {
-                Utils.SendMessage(GetString("PlayerAlreadyVIP"), player.PlayerId);
-            }
+            if (IsPlayerVIP(fc)) Utils.SendMessage(GetString("PlayerAlreadyVIP"), player.PlayerId);
 
             File.AppendAllText("./EHR_DATA/VIPs.txt", $"\n{fc}");
             Utils.SendMessage(GetString("PlayerAddedToVIPList"), player.PlayerId);
@@ -612,15 +495,9 @@ namespace EHR
 
         private static void DecreeCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (!player.Is(CustomRoles.President))
-            {
-                return;
-            }
+            if (!player.Is(CustomRoles.President)) return;
 
-            if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId)
-            {
-                ChatManager.SendPreviousMessagesToAll();
-            }
+            if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
 
             LateTask.New(() =>
             {
@@ -636,10 +513,7 @@ namespace EHR
 
         private static void HMCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (Messenger.Sent.Contains(player.PlayerId) || args.Length < 2 || !int.TryParse(args[1], out int id) || id is > 3 or < 1)
-            {
-                return;
-            }
+            if (Messenger.Sent.Contains(player.PlayerId) || args.Length < 2 || !int.TryParse(args[1], out int id) || id is > 3 or < 1) return;
 
             Main.Instance.StartCoroutine(SendOnMeeting());
             return;
@@ -647,23 +521,15 @@ namespace EHR
             IEnumerator SendOnMeeting()
             {
                 bool meeting = GameStates.IsMeeting;
-                while (!GameStates.IsMeeting)
-                {
-                    yield return null;
-                }
+                while (!GameStates.IsMeeting) yield return null;
 
-                if (!meeting)
-                {
-                    yield return new WaitForSeconds(7f);
-                }
+                if (!meeting) yield return new WaitForSeconds(7f);
 
                 PlayerControl killer = player.GetRealKiller();
-                if (killer == null && id != 3)
-                {
-                    yield break;
-                }
+                if (killer == null && id != 3) yield break;
 
                 Team team = player.GetTeam();
+
                 string message = id switch
                 {
                     1 => string.Format(GetString("MessengerMessage.1"), GetString(Main.PlayerStates[killer.PlayerId].LastRoom.RoomId.ToString())),
@@ -695,9 +561,10 @@ namespace EHR
             string[] answers = args.Skip(splitIndex).ToArray();
 
             string msg = string.Join(" ", args.Take(splitIndex).Skip(1)) + "\n";
-            for (int i = 0; i < Math.Clamp(answers.Length, 2, 5); i++)
+
+            for (var i = 0; i < Math.Clamp(answers.Length, 2, 5); i++)
             {
-                char choiceLetter = (char)(i + 65);
+                var choiceLetter = (char)(i + 65);
                 msg += Utils.ColorString(RandomColor(), $"{char.ToUpper(choiceLetter)}) {answers[i]}\n");
                 PollVotes[choiceLetter] = 0;
                 PollAnswers[choiceLetter] = $"<size=45%>〖 {answers[i]} 〗</size>";
@@ -712,19 +579,18 @@ namespace EHR
 
             IEnumerator StartPollCountdown()
             {
-                if (PollVotes.Count == 0)
-                {
-                    yield break;
-                }
+                if (PollVotes.Count == 0) yield break;
 
                 bool playervoted = Main.AllPlayerControls.Length - 1 > PollVotes.Values.Sum();
 
-                float resendTimer = 0f;
+                var resendTimer = 0f;
+
                 while (playervoted && PollTimer > 0f)
                 {
                     playervoted = Main.AllPlayerControls.Length - 1 > PollVotes.Values.Sum();
                     PollTimer -= Time.deltaTime;
                     resendTimer += Time.deltaTime;
+
                     if (resendTimer >= 15f)
                     {
                         resendTimer = 0f;
@@ -741,6 +607,7 @@ namespace EHR
             {
                 int maxVotes = PollVotes.Values.Max();
                 KeyValuePair<char, int>[] winners = PollVotes.Where(x => x.Value == maxVotes).ToArray();
+
                 string msg = winners.Length == 1
                     ? string.Format(GetString("Poll.Winner"), winners[0].Key, PollAnswers[winners[0].Key], winners[0].Value) +
                       PollVotes.Where(x => x.Key != winners[0].Key).Aggregate("", (s, t) => s + $"{t.Key} / {t.Value} {PollAnswers[t.Key]}\n")
@@ -806,6 +673,7 @@ namespace EHR
             }
 
             string subArgs = args.Length != 2 ? "" : args[1];
+
             if (subArgs == "" || !int.TryParse(subArgs, out int guessedNo))
             {
                 Utils.SendMessage(GetString("GNoCommandInfo"), player.PlayerId);
@@ -819,14 +687,16 @@ namespace EHR
             }
 
             int targetNumber = Main.GuessNumber[player.PlayerId][0];
+
             if (Main.GuessNumber[player.PlayerId][0] == -1)
             {
-                IRandom rand = IRandom.Instance;
+                var rand = IRandom.Instance;
                 Main.GuessNumber[player.PlayerId][0] = rand.Next(0, 100);
                 targetNumber = Main.GuessNumber[player.PlayerId][0];
             }
 
             Main.GuessNumber[player.PlayerId][1]--;
+
             if (Main.GuessNumber[player.PlayerId][1] == 0 && guessedNo != targetNumber)
             {
                 Main.GuessNumber[player.PlayerId][0] = -1;
@@ -854,10 +724,7 @@ namespace EHR
 
         private static void SDCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (args.Length < 1 || !int.TryParse(args[1], out int sound1))
-            {
-                return;
-            }
+            if (args.Length < 1 || !int.TryParse(args[1], out int sound1)) return;
 
             RPC.PlaySoundRPC(player.PlayerId, (Sounds)sound1);
         }
@@ -871,13 +738,9 @@ namespace EHR
         private static void MTHYCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
             if (GameStates.IsMeeting)
-            {
                 MeetingHud.Instance.RpcClose();
-            }
             else
-            {
                 player.NoCheckStartMeeting(null, true);
-            }
         }
 
         private static void CosIDCommand(ChatController __instance, PlayerControl player, string text, string[] args)
@@ -899,34 +762,24 @@ namespace EHR
 
         private static void ChangeRoleCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (GameStates.IsLobby || !player.FriendCode.GetDevUser().IsUp)
-            {
-                return;
-            }
+            if (GameStates.IsLobby || !player.FriendCode.GetDevUser().IsUp) return;
 
             string subArgs = text.Remove(0, 8);
             string setRole = FixRoleNameInput(subArgs.Trim());
+
             foreach (CustomRoles rl in Enum.GetValues<CustomRoles>())
             {
-                if (rl.IsVanilla())
-                {
-                    continue;
-                }
+                if (rl.IsVanilla()) continue;
 
                 string roleName = GetString(rl.ToString()).ToLower().Trim();
+
                 if (setRole.Contains(roleName))
                 {
-                    if (!rl.IsAdditionRole())
-                    {
-                        player.SetRole(rl.GetRoleTypes());
-                    }
+                    if (!rl.IsAdditionRole()) player.SetRole(rl.GetRoleTypes());
 
                     player.RpcSetCustomRole(rl);
 
-                    if (rl.IsGhostRole())
-                    {
-                        GhostRolesManager.SpecificAssignGhostRole(player.PlayerId, rl, true);
-                    }
+                    if (rl.IsGhostRole()) GhostRolesManager.SpecificAssignGhostRole(player.PlayerId, rl, true);
 
                     Main.PlayerStates[player.PlayerId].RemoveSubRole(CustomRoles.NotAssigned);
                     Main.ChangedRole = true;
@@ -951,10 +804,7 @@ namespace EHR
                 return;
             }
 
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-            {
-                pc.RpcSetNameEx(pc.GetRealName(true));
-            }
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls) pc.RpcSetNameEx(pc.GetRealName(true));
 
             ChatUpdatePatch.DoBlockChat = false;
             Utils.NotifyRoles(GameStates.IsMeeting, NoCache: true);
@@ -977,6 +827,7 @@ namespace EHR
 
             string subArgs = args.Length < 2 ? string.Empty : args[1];
             byte color = Utils.MsgToColor(subArgs, true);
+
             if (color == byte.MaxValue)
             {
                 Utils.SendMessage(GetString("IllegalColor"), player.PlayerId);
@@ -995,23 +846,18 @@ namespace EHR
                 return;
             }
 
-            if (args.Length < 2 || !int.TryParse(args[1], out int id2))
-            {
-                return;
-            }
+            if (args.Length < 2 || !int.TryParse(args[1], out int id2)) return;
 
             PlayerControl target = Utils.GetPlayerById(id2);
+
             if (target != null)
             {
                 target.Kill(target);
+
                 if (target.AmOwner)
-                {
                     Utils.SendMessage(GetString("HostKillSelfByCommand"), title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>");
-                }
                 else
-                {
                     Utils.SendMessage(string.Format(GetString("Message.Executed"), target.Data.PlayerName));
-                }
             }
         }
 
@@ -1023,26 +869,21 @@ namespace EHR
                 return;
             }
 
-            if (args.Length < 2 || !int.TryParse(args[1], out int id))
-            {
-                return;
-            }
+            if (args.Length < 2 || !int.TryParse(args[1], out int id)) return;
 
             PlayerControl pc = Utils.GetPlayerById(id);
+
             if (pc != null)
             {
                 pc.Data.IsDead = true;
                 Main.PlayerStates[pc.PlayerId].deathReason = PlayerState.DeathReason.etc;
                 pc.RpcExileV2();
                 Main.PlayerStates[pc.PlayerId].SetDead();
+
                 if (pc.AmOwner)
-                {
                     Utils.SendMessage(GetString("HostKillSelfByCommand"), title: $"<color=#ff0000>{GetString("DefaultSystemMessageTitle")}</color>");
-                }
                 else
-                {
                     Utils.SendMessage(string.Format(GetString("Message.Executed"), pc.Data.PlayerName));
-                }
             }
         }
 
@@ -1063,6 +904,7 @@ namespace EHR
             }
 
             string subArgs = args.Length < 2 ? string.Empty : args[1];
+
             if (string.IsNullOrEmpty(subArgs) || !byte.TryParse(subArgs, out byte kickPlayerId))
             {
                 Utils.SendMessage(GetString("KickCommandInvalidID"), player.PlayerId);
@@ -1076,6 +918,7 @@ namespace EHR
             }
 
             PlayerControl kickedPlayer = Utils.GetPlayerById(kickPlayerId);
+
             if (kickedPlayer == null)
             {
                 Utils.SendMessage(GetString("KickCommandInvalidID"), player.PlayerId);
@@ -1092,37 +935,22 @@ namespace EHR
             // Kick the specified player
             AmongUsClient.Instance.KickPlayer(kickedPlayer.GetClientId(), args[0] == "/ban");
             string kickedPlayerName = kickedPlayer.GetRealName();
-            string textToSend = $"{kickedPlayerName} {GetString("KickCommandKicked")}";
-            if (GameStates.IsInGame)
-            {
-                textToSend += $"{GetString("KickCommandKickedRole")} {kickedPlayer.GetCustomRole().ToColoredString()}";
-            }
+            var textToSend = $"{kickedPlayerName} {GetString("KickCommandKicked")}";
+            if (GameStates.IsInGame) textToSend += $"{GetString("KickCommandKickedRole")} {kickedPlayer.GetCustomRole().ToColoredString()}";
 
             Utils.SendMessage(textToSend);
         }
 
         private static void CheckCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (!player.IsAlive() || !player.Is(CustomRoles.Inquirer) || player.GetAbilityUseLimit() < 1)
-            {
-                return;
-            }
+            if (!player.IsAlive() || !player.Is(CustomRoles.Inquirer) || player.GetAbilityUseLimit() < 1) return;
 
-            if (args.Length < 3 || !GuessManager.MsgToPlayerAndRole(text[6..], out byte checkId, out CustomRoles checkRole, out _))
-            {
-                return;
-            }
+            if (args.Length < 3 || !GuessManager.MsgToPlayerAndRole(text[6..], out byte checkId, out CustomRoles checkRole, out _)) return;
 
             bool hasRole = Utils.GetPlayerById(checkId).Is(checkRole);
-            if (IRandom.Instance.Next(100) < Inquirer.FailChance.GetInt())
-            {
-                hasRole = !hasRole;
-            }
+            if (IRandom.Instance.Next(100) < Inquirer.FailChance.GetInt()) hasRole = !hasRole;
 
-            if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId)
-            {
-                ChatManager.SendPreviousMessagesToAll();
-            }
+            if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
 
             LateTask.New(() => Utils.SendMessage(GetString(hasRole ? "Inquirer.MessageTrue" : "Inquirer.MessageFalse"), player.PlayerId), 0.2f, log: false);
             player.RpcRemoveAbilityUse();
@@ -1130,21 +958,12 @@ namespace EHR
 
         private static void ChatCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (!Ventriloquist.On || !player.IsAlive() || !player.Is(CustomRoles.Ventriloquist) || player.PlayerId.GetAbilityUseLimit() < 1)
-            {
-                return;
-            }
+            if (!Ventriloquist.On || !player.IsAlive() || !player.Is(CustomRoles.Ventriloquist) || player.PlayerId.GetAbilityUseLimit() < 1) return;
 
-            Ventriloquist vl2 = (Ventriloquist)Main.PlayerStates[player.PlayerId].Role;
-            if (vl2.Target == byte.MaxValue)
-            {
-                return;
-            }
+            var vl2 = (Ventriloquist)Main.PlayerStates[player.PlayerId].Role;
+            if (vl2.Target == byte.MaxValue) return;
 
-            if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId)
-            {
-                ChatManager.SendPreviousMessagesToAll();
-            }
+            if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
 
             LateTask.New(() => Utils.GetPlayerById(vl2.Target)?.RpcSendChat(text[6..]), 0.2f, log: false);
             player.RpcRemoveAbilityUse();
@@ -1152,125 +971,77 @@ namespace EHR
 
         private static void TargetCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (!Ventriloquist.On || !player.IsAlive() || !player.Is(CustomRoles.Ventriloquist) || player.PlayerId.GetAbilityUseLimit() < 1)
-            {
-                return;
-            }
+            if (!Ventriloquist.On || !player.IsAlive() || !player.Is(CustomRoles.Ventriloquist) || player.PlayerId.GetAbilityUseLimit() < 1) return;
 
-            Ventriloquist vl = (Ventriloquist)Main.PlayerStates[player.PlayerId].Role;
+            var vl = (Ventriloquist)Main.PlayerStates[player.PlayerId].Role;
             vl.Target = args.Length < 2 ? byte.MaxValue : byte.TryParse(args[1], out byte targetId) ? targetId : byte.MaxValue;
-            if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId)
-            {
-                ChatManager.SendPreviousMessagesToAll();
-            }
+            if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
         }
 
         private static void QSCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (!QuizMaster.On || !player.IsAlive())
-            {
-                return;
-            }
+            if (!QuizMaster.On || !player.IsAlive()) return;
 
-            QuizMaster qm2 = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
-            if (qm2.Target != player.PlayerId || !QuizMaster.MessagesToSend.TryGetValue(player.PlayerId, out string msg))
-            {
-                return;
-            }
+            var qm2 = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
+            if (qm2.Target != player.PlayerId || !QuizMaster.MessagesToSend.TryGetValue(player.PlayerId, out string msg)) return;
 
             Utils.SendMessage(msg, player.PlayerId, GetString("QuizMaster.QuestionSample.Title"));
         }
 
         private static void QACommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (args.Length < 2 || !QuizMaster.On || !player.IsAlive())
-            {
-                return;
-            }
+            if (args.Length < 2 || !QuizMaster.On || !player.IsAlive()) return;
 
-            QuizMaster qm = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
-            if (qm.Target != player.PlayerId)
-            {
-                return;
-            }
+            var qm = (QuizMaster)Main.PlayerStates.Values.First(x => x.Role is QuizMaster).Role;
+            if (qm.Target != player.PlayerId) return;
 
             qm.Answer(args[1].ToUpper());
         }
 
         private static void AnswerCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (args.Length < 2)
-            {
-                return;
-            }
+            if (args.Length < 2) return;
 
             Mathematician.Reply(player, args[1]);
         }
 
         private static void AskCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (args.Length < 3 || !player.Is(CustomRoles.Mathematician))
-            {
-                return;
-            }
+            if (args.Length < 3 || !player.Is(CustomRoles.Mathematician)) return;
 
-            if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId)
-            {
-                ChatManager.SendPreviousMessagesToAll();
-            }
+            if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
 
             Mathematician.Ask(player, args[1], args[2]);
         }
 
         private static void VoteCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (text.Length < 6 || !GameStates.IsMeeting)
-            {
-                return;
-            }
+            if (text.Length < 6 || !GameStates.IsMeeting) return;
 
             string toVote = text[6..].Replace(" ", string.Empty);
-            if (!byte.TryParse(toVote, out byte voteId) || MeetingHud.Instance?.playerStates?.FirstOrDefault(x => x.TargetPlayerId == player.PlayerId)?.DidVote == true)
-            {
-                return;
-            }
+            if (!byte.TryParse(toVote, out byte voteId) || MeetingHud.Instance?.playerStates?.FirstOrDefault(x => x.TargetPlayerId == player.PlayerId)?.DidVote == true) return;
 
-            if (voteId > Main.AllPlayerControls.Length)
-            {
-                return;
-            }
+            if (voteId > Main.AllPlayerControls.Length) return;
 
-            if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId)
-            {
-                ChatManager.SendPreviousMessagesToAll();
-            }
+            if (player.PlayerId != PlayerControl.LocalPlayer.PlayerId) ChatManager.SendPreviousMessagesToAll();
 
             if (!player.IsHost())
-            {
                 MeetingHud.Instance?.CastVote(player.PlayerId, voteId);
-            }
             else
-            {
                 MeetingHud.Instance?.CmdCastVote(player.PlayerId, voteId);
-            }
         }
 
         private static void SayCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (args.Length > 1)
-            {
-                Utils.SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString(player.IsHost() ? "MessageFromTheHost" : "SayTitle")}</color>");
-            }
+            if (args.Length > 1) Utils.SendMessage(args.Skip(1).Join(delimiter: " "), title: $"<color=#ff0000>{GetString(player.IsHost() ? "MessageFromTheHost" : "SayTitle")}</color>");
         }
 
         private static void DeathCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (!GameStates.IsInGame)
-            {
-                return;
-            }
+            if (!GameStates.IsInGame) return;
 
             PlayerControl killer = player.GetRealKiller();
+
             if (killer == null)
             {
                 Utils.SendMessage("\n", player.PlayerId, GetString("DeathCommandFail"));
@@ -1288,9 +1059,7 @@ namespace EHR
                 Utils.SendMessage(string.Format(GetString("Message.SetToSeconds"), sec), 0);
             }
             else
-            {
                 Utils.SendMessage($"{GetString("Message.MessageWaitHelp")}\n{GetString("ForExample")}:\n{args[0]} 3", 0);
-            }
         }
 
         private static void TemplateCommand(ChatController __instance, PlayerControl player, string text, string[] args)
@@ -1298,43 +1067,29 @@ namespace EHR
             if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
             {
                 if (args.Length > 1)
-                {
                     TemplateManager.SendTemplate(args[1]);
-                }
                 else
-                {
                     HudManager.Instance.Chat.AddChat(player, (player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + $"{GetString("ForExample")}:\n{args[0]} test");
-                }
             }
             else
             {
                 if (args.Length > 1)
-                {
                     TemplateManager.SendTemplate(args[1], player.PlayerId);
-                }
                 else
-                {
                     Utils.SendMessage($"{GetString("ForExample")}:\n{args[0]} test", player.PlayerId);
-                }
             }
         }
 
         private static void TPInCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (!GameStates.IsLobby || !Options.PlayerCanTPInAndOut.GetBool())
-            {
-                return;
-            }
+            if (!GameStates.IsLobby || !Options.PlayerCanTPInAndOut.GetBool()) return;
 
             player.TP(new Vector2(-0.2f, 1.3f));
         }
 
         private static void TPOutCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (!GameStates.IsLobby || !Options.PlayerCanTPInAndOut.GetBool())
-            {
-                return;
-            }
+            if (!GameStates.IsLobby || !Options.PlayerCanTPInAndOut.GetBool()) return;
 
             player.TP(new Vector2(0.1f, 3.8f));
         }
@@ -1342,6 +1097,7 @@ namespace EHR
         private static void MyRoleCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
             CustomRoles role = player.GetCustomRole();
+
             if (GameStates.IsInGame)
             {
                 StringBuilder sb = new();
@@ -1351,21 +1107,16 @@ namespace EHR
                 titleSb.Append($"{role.ToColoredString()} {Utils.GetRoleMode(role)}");
                 sb.Append("<size=90%>");
                 sb.Append(player.GetRoleInfo(true).TrimStart());
-                if (Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem opt))
-                {
-                    Utils.ShowChildrenSettings(opt, ref settings, disableColor: false);
-                }
+                if (Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem opt)) Utils.ShowChildrenSettings(opt, ref settings, disableColor: false);
 
                 settings.Append("</size>");
-                if (role.PetActivatedAbility())
-                {
-                    sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
-                }
+                if (role.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
 
                 string searchStr = GetString(role.ToString());
                 sb.Replace(searchStr, role.ToColoredString());
                 sb.Replace(searchStr.ToLower(), role.ToColoredString());
                 sb.Append("<size=70%>");
+
                 foreach (CustomRoles subRole in Main.PlayerStates[player.PlayerId].SubRoles)
                 {
                     sb.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong")}");
@@ -1374,29 +1125,18 @@ namespace EHR
                     sb.Replace(searchSubStr.ToLower(), subRole.ToColoredString());
                 }
 
-                if (settings.Length > 0)
-                {
-                    Utils.SendMessage("\n", player.PlayerId, settings.ToString());
-                }
+                if (settings.Length > 0) Utils.SendMessage("\n", player.PlayerId, settings.ToString());
 
                 Utils.SendMessage(sb.Append("</size>").ToString(), player.PlayerId, titleSb.ToString());
-                if (role.UsesPetInsteadOfKill())
-                {
-                    Utils.SendMessage("\n", player.PlayerId, GetString("UsesPetInsteadOfKillNotice"));
-                }
+                if (role.UsesPetInsteadOfKill()) Utils.SendMessage("\n", player.PlayerId, GetString("UsesPetInsteadOfKillNotice"));
             }
             else
-            {
                 Utils.SendMessage((player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + GetString("Message.CanNotUseInLobby"), player.PlayerId);
-            }
         }
 
         private static void AFKExemptCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (args.Length < 2 || !byte.TryParse(args[1], out byte afkId))
-            {
-                return;
-            }
+            if (args.Length < 2 || !byte.TryParse(args[1], out byte afkId)) return;
 
             AFKDetector.ExemptedPlayers.Add(afkId);
             Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("PlayerExemptedFromAFK"), afkId.ColoredPlayerName()));
@@ -1404,28 +1144,20 @@ namespace EHR
 
         private static void EffectCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (args.Length < 2 || !GameStates.IsInTask || !Randomizer.Exists)
-            {
-                return;
-            }
+            if (args.Length < 2 || !GameStates.IsInTask || !Randomizer.Exists) return;
 
-            if (Enum.TryParse(args[1], true, out Randomizer.Effect effect))
-            {
-                effect.Apply(player);
-            }
+            if (Enum.TryParse(args[1], true, out Randomizer.Effect effect)) effect.Apply(player);
         }
 
         private static void ComboCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
             if (args.Length < 4)
             {
-                if (Main.AlwaysSpawnTogetherCombos.Count == 0 && Main.NeverSpawnTogetherCombos.Count == 0)
-                {
-                    return;
-                }
+                if (Main.AlwaysSpawnTogetherCombos.Count == 0 && Main.NeverSpawnTogetherCombos.Count == 0) return;
 
                 StringBuilder sb = new();
                 sb.Append("<size=70%>");
+
                 if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> alwaysList) && alwaysList.Count > 0)
                 {
                     sb.AppendLine(GetString("AlwaysComboListTitle"));
@@ -1452,90 +1184,49 @@ namespace EHR
                 case "ban":
                     if (GetRoleByName(args[2], out CustomRoles mainRole) && GetRoleByName(args[3], out CustomRoles addOn))
                     {
-                        if (mainRole.IsAdditionRole() || !addOn.IsAdditionRole() || (addOn == CustomRoles.Lovers && args[1] == "add"))
-                        {
-                            break;
-                        }
+                        if (mainRole.IsAdditionRole() || !addOn.IsAdditionRole() || (addOn == CustomRoles.Lovers && args[1] == "add")) break;
 
                         if (args[1] == "add")
                         {
-                            if (!Main.AlwaysSpawnTogetherCombos.ContainsKey(OptionItem.CurrentPreset))
-                            {
-                                Main.AlwaysSpawnTogetherCombos[OptionItem.CurrentPreset] = [];
-                            }
+                            if (!Main.AlwaysSpawnTogetherCombos.ContainsKey(OptionItem.CurrentPreset)) Main.AlwaysSpawnTogetherCombos[OptionItem.CurrentPreset] = [];
 
                             if (!Main.AlwaysSpawnTogetherCombos[OptionItem.CurrentPreset].TryGetValue(mainRole, out List<CustomRoles> list1))
-                            {
                                 Main.AlwaysSpawnTogetherCombos[OptionItem.CurrentPreset][mainRole] = [addOn];
-                            }
-                            else if (!list1.Contains(addOn))
-                            {
-                                list1.Add(addOn);
-                            }
+                            else if (!list1.Contains(addOn)) list1.Add(addOn);
 
                             if (text.EndsWith(" all"))
                             {
-                                for (int preset = 0; preset < OptionItem.NumPresets; preset++)
+                                for (var preset = 0; preset < OptionItem.NumPresets; preset++)
                                 {
-                                    if (preset == OptionItem.CurrentPreset)
-                                    {
-                                        continue;
-                                    }
+                                    if (preset == OptionItem.CurrentPreset) continue;
 
-                                    if (!Main.AlwaysSpawnTogetherCombos.ContainsKey(preset))
-                                    {
-                                        Main.AlwaysSpawnTogetherCombos[preset] = [];
-                                    }
+                                    if (!Main.AlwaysSpawnTogetherCombos.ContainsKey(preset)) Main.AlwaysSpawnTogetherCombos[preset] = [];
 
                                     if (!Main.AlwaysSpawnTogetherCombos[preset].TryGetValue(mainRole, out List<CustomRoles> list2))
-                                    {
                                         Main.AlwaysSpawnTogetherCombos[preset][mainRole] = [addOn];
-                                    }
-                                    else if (!list2.Contains(addOn))
-                                    {
-                                        list2.Add(addOn);
-                                    }
+                                    else if (!list2.Contains(addOn)) list2.Add(addOn);
                                 }
                             }
                         }
                         else
                         {
-                            if (!Main.NeverSpawnTogetherCombos.ContainsKey(OptionItem.CurrentPreset))
-                            {
-                                Main.NeverSpawnTogetherCombos[OptionItem.CurrentPreset] = [];
-                            }
+                            if (!Main.NeverSpawnTogetherCombos.ContainsKey(OptionItem.CurrentPreset)) Main.NeverSpawnTogetherCombos[OptionItem.CurrentPreset] = [];
 
                             if (!Main.NeverSpawnTogetherCombos[OptionItem.CurrentPreset].TryGetValue(mainRole, out List<CustomRoles> list2))
-                            {
                                 Main.NeverSpawnTogetherCombos[OptionItem.CurrentPreset][mainRole] = [addOn];
-                            }
-                            else if (!list2.Contains(addOn))
-                            {
-                                list2.Add(addOn);
-                            }
+                            else if (!list2.Contains(addOn)) list2.Add(addOn);
 
                             if (text.EndsWith(" all"))
                             {
-                                for (int preset = 0; preset < OptionItem.NumPresets; preset++)
+                                for (var preset = 0; preset < OptionItem.NumPresets; preset++)
                                 {
-                                    if (preset == OptionItem.CurrentPreset)
-                                    {
-                                        continue;
-                                    }
+                                    if (preset == OptionItem.CurrentPreset) continue;
 
-                                    if (!Main.NeverSpawnTogetherCombos.ContainsKey(preset))
-                                    {
-                                        Main.NeverSpawnTogetherCombos[preset] = [];
-                                    }
+                                    if (!Main.NeverSpawnTogetherCombos.ContainsKey(preset)) Main.NeverSpawnTogetherCombos[preset] = [];
 
                                     if (!Main.NeverSpawnTogetherCombos[preset].TryGetValue(mainRole, out List<CustomRoles> list3))
-                                    {
                                         Main.NeverSpawnTogetherCombos[preset][mainRole] = [addOn];
-                                    }
-                                    else if (!list3.Contains(addOn))
-                                    {
-                                        list3.Add(addOn);
-                                    }
+                                    else if (!list3.Contains(addOn)) list3.Add(addOn);
                                 }
                             }
                         }
@@ -1549,29 +1240,20 @@ namespace EHR
                 case "allow":
                     if (GetRoleByName(args[2], out CustomRoles mainRole2) && GetRoleByName(args[3], out CustomRoles addOn2))
                     {
-                        if (mainRole2.IsAdditionRole() || !addOn2.IsAdditionRole())
-                        {
-                            break;
-                        }
+                        if (mainRole2.IsAdditionRole() || !addOn2.IsAdditionRole()) break;
 
                         if (text.EndsWith(" all"))
                         {
-                            for (int preset = 0; preset < OptionItem.NumPresets; preset++)
+                            for (var preset = 0; preset < OptionItem.NumPresets; preset++)
                             {
                                 if (Main.AlwaysSpawnTogetherCombos.TryGetValue(preset, out Dictionary<CustomRoles, List<CustomRoles>> list1))
                                 {
                                     if (list1.TryGetValue(mainRole2, out List<CustomRoles> list2))
                                     {
                                         list2.Remove(addOn2);
-                                        if (list2.Count == 0)
-                                        {
-                                            list1.Remove(mainRole2);
-                                        }
+                                        if (list2.Count == 0) list1.Remove(mainRole2);
 
-                                        if (list1.Count == 0)
-                                        {
-                                            Main.AlwaysSpawnTogetherCombos.Remove(preset);
-                                        }
+                                        if (list1.Count == 0) Main.AlwaysSpawnTogetherCombos.Remove(preset);
                                     }
                                 }
 
@@ -1580,15 +1262,9 @@ namespace EHR
                                     if (list3.TryGetValue(mainRole2, out List<CustomRoles> list4))
                                     {
                                         list4.Remove(addOn2);
-                                        if (list4.Count == 0)
-                                        {
-                                            list3.Remove(mainRole2);
-                                        }
+                                        if (list4.Count == 0) list3.Remove(mainRole2);
 
-                                        if (list3.Count == 0)
-                                        {
-                                            Main.NeverSpawnTogetherCombos.Remove(preset);
-                                        }
+                                        if (list3.Count == 0) Main.NeverSpawnTogetherCombos.Remove(preset);
                                     }
                                 }
                             }
@@ -1601,10 +1277,7 @@ namespace EHR
                             if (args[1] == "remove" && Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> alwaysList) && alwaysList.TryGetValue(mainRole2, out List<CustomRoles> list3))
                             {
                                 list3.Remove(addOn2);
-                                if (list3.Count == 0)
-                                {
-                                    alwaysList.Remove(mainRole2);
-                                }
+                                if (list3.Count == 0) alwaysList.Remove(mainRole2);
 
                                 Utils.SendMessage(string.Format(GetString("ComboRemove"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), player.PlayerId);
                                 Utils.SaveComboInfo();
@@ -1612,10 +1285,7 @@ namespace EHR
                             else if (Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) && neverList.TryGetValue(mainRole2, out List<CustomRoles> list4))
                             {
                                 list4.Remove(addOn2);
-                                if (list4.Count == 0)
-                                {
-                                    neverList.Remove(mainRole2);
-                                }
+                                if (list4.Count == 0) neverList.Remove(mainRole2);
 
                                 Utils.SendMessage(string.Format(GetString("ComboAllow"), GetString(mainRole2.ToString()), GetString(addOn2.ToString())), player.PlayerId);
                                 Utils.SaveComboInfo();
@@ -1629,22 +1299,13 @@ namespace EHR
 
         private static void DeleteModCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (args.Length < 2 || !byte.TryParse(args[1], out byte remModId))
-            {
-                return;
-            }
+            if (args.Length < 2 || !byte.TryParse(args[1], out byte remModId)) return;
 
             PlayerControl remModPc = Utils.GetPlayerById(remModId);
-            if (remModPc == null)
-            {
-                return;
-            }
+            if (remModPc == null) return;
 
             string remFc = remModPc.FriendCode;
-            if (!IsPlayerModerator(remFc))
-            {
-                Utils.SendMessage(GetString("PlayerNotMod"), player.PlayerId);
-            }
+            if (!IsPlayerModerator(remFc)) Utils.SendMessage(GetString("PlayerNotMod"), player.PlayerId);
 
             File.WriteAllLines("./EHR_DATA/Moderators.txt", File.ReadAllLines("./EHR_DATA/Moderators.txt").Where(x => !x.Contains(remFc)));
             Utils.SendMessage(GetString("PlayerRemovedFromModList"), player.PlayerId);
@@ -1652,22 +1313,13 @@ namespace EHR
 
         private static void AddModCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (args.Length < 2 || !byte.TryParse(args[1], out byte newModId))
-            {
-                return;
-            }
+            if (args.Length < 2 || !byte.TryParse(args[1], out byte newModId)) return;
 
             PlayerControl newModPc = Utils.GetPlayerById(newModId);
-            if (newModPc == null)
-            {
-                return;
-            }
+            if (newModPc == null) return;
 
             string fc = newModPc.FriendCode;
-            if (IsPlayerModerator(fc))
-            {
-                Utils.SendMessage(GetString("PlayerAlreadyMod"), player.PlayerId);
-            }
+            if (IsPlayerModerator(fc)) Utils.SendMessage(GetString("PlayerAlreadyMod"), player.PlayerId);
 
             File.AppendAllText("./EHR_DATA/Moderators.txt", $"\n{fc}");
             Utils.SendMessage(GetString("PlayerAddedToModList"), player.PlayerId);
@@ -1675,10 +1327,7 @@ namespace EHR
 
         private static void KCountCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool() || Main.AllAlivePlayerControls.Length < Options.MinPlayersForGameStateCommand.GetInt())
-            {
-                return;
-            }
+            if (GameStates.IsLobby || !Options.EnableKillerLeftCommand.GetBool() || Main.AllAlivePlayerControls.Length < Options.MinPlayersForGameStateCommand.GetInt()) return;
 
             Utils.SendMessage("\n", player.PlayerId, Utils.GetGameStateData());
         }
@@ -1706,34 +1355,22 @@ namespace EHR
             }
 
             PlayerControl targetPc = Utils.GetPlayerById(resultId);
-            if (targetPc == null)
-            {
-                return;
-            }
+            if (targetPc == null) return;
 
             if (roleToSet.IsAdditionRole())
             {
-                if (!Main.SetAddOns.ContainsKey(resultId))
-                {
-                    Main.SetAddOns[resultId] = [];
-                }
+                if (!Main.SetAddOns.ContainsKey(resultId)) Main.SetAddOns[resultId] = [];
 
                 if (Main.SetAddOns[resultId].Contains(roleToSet))
-                {
                     Main.SetAddOns[resultId].Remove(roleToSet);
-                }
                 else
-                {
                     Main.SetAddOns[resultId].Add(roleToSet);
-                }
             }
             else
-            {
                 Main.SetRoles[targetPc.PlayerId] = roleToSet;
-            }
 
-            string playername = $"<b>{Utils.ColorString(Main.PlayerColors.TryGetValue(resultId, out Color32 textColor) ? textColor : Color.white, targetPc.GetRealName())}</b>";
-            string rolename = $"<color={Main.RoleColors[roleToSet]}> {GetString(roleToSet.ToString())} </color>";
+            var playername = $"<b>{Utils.ColorString(Main.PlayerColors.TryGetValue(resultId, out Color32 textColor) ? textColor : Color.white, targetPc.GetRealName())}</b>";
+            var rolename = $"<color={Main.RoleColors[roleToSet]}> {GetString(roleToSet.ToString())} </color>";
             Utils.SendMessage("\n", player.PlayerId, string.Format(GetString("RoleSelected"), playername, rolename));
         }
 
@@ -1751,6 +1388,7 @@ namespace EHR
         private static void DisconnectCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
             string subArgs = args.Length < 2 ? string.Empty : args[1];
+
             switch (subArgs)
             {
                 case "crew":
@@ -1774,6 +1412,7 @@ namespace EHR
         private static void NowCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
             string subArgs = args.Length < 2 ? string.Empty : args[1];
+
             switch (subArgs)
             {
                 case "r":
@@ -1795,19 +1434,21 @@ namespace EHR
             string subArgs = args.Length < 2 ? string.Empty : args[1];
             Utils.SendMessage(string.Format(GetString("Message.SetLevel"), subArgs), player.PlayerId);
             _ = int.TryParse(subArgs, out int input);
+
             if (input is < 1 or > 999)
             {
                 Utils.SendMessage(GetString("Message.AllowLevelRange"), player.PlayerId);
                 return;
             }
 
-            uint number = Convert.ToUInt32(input);
+            var number = Convert.ToUInt32(input);
             player.RpcSetLevel(number - 1);
         }
 
         private static void HideNameCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
             Main.HideName.Value = args.Length > 1 ? args.Skip(1).Join(delimiter: " ") : Main.HideName.DefaultValue.ToString();
+
             GameStartManagerPatch.GameStartManagerStartPatch.HideName.text =
                 ColorUtility.TryParseHtmlString(Main.HideColor.Value, out _)
                     ? $"<color={Main.HideColor.Value}>{Main.HideName.Value}</color>"
@@ -1816,27 +1457,17 @@ namespace EHR
 
         private static void RenameCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (args.Length < 2)
-            {
-                return;
-            }
+            if (args.Length < 2) return;
 
             if (args[1].Length is > 50 or < 1)
-            {
                 Utils.SendMessage(GetString("Message.AllowNameLength"), player.PlayerId);
-            }
             else
             {
                 if (player.PlayerId == PlayerControl.LocalPlayer.PlayerId)
-                {
                     Main.NickName = args[1];
-                }
                 else
                 {
-                    if (!Options.PlayerCanSetName.GetBool() && !IsPlayerVIP(player.FriendCode))
-                    {
-                        return;
-                    }
+                    if (!Options.PlayerCanSetName.GetBool() && !IsPlayerVIP(player.FriendCode)) return;
 
                     if (GameStates.IsInGame)
                     {
@@ -1845,6 +1476,7 @@ namespace EHR
                     }
 
                     string name = args.Skip(1).Join(delimiter: " ");
+
                     if (name.Length is > 50 or < 1)
                     {
                         Utils.SendMessage(GetString("Message.AllowNameLength"), player.PlayerId);
@@ -1868,22 +1500,20 @@ namespace EHR
         private static void WinnerCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
             if (Main.WinnerNameList.Count == 0)
-            {
                 Utils.SendMessage(GetString("NoInfoExists"));
-            }
             else
-            {
                 Utils.SendMessage("<b><u>Winners:</b></u>\n" + string.Join(", ", Main.WinnerNameList));
-            }
         }
 
         private static void ChangeSettingCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
             string subArgs = args.Length < 2 ? "" : args[1];
+
             switch (subArgs)
             {
                 case "map":
                     subArgs = args.Length < 3 ? "" : args[2];
+
                     switch (subArgs)
                     {
                         case "theskeld":
@@ -1923,6 +1553,7 @@ namespace EHR
                     break;
                 case "recommended":
                     subArgs = args.Length < 3 ? "" : args[2];
+
                     switch (subArgs)
                     {
                         case "on":
@@ -1936,6 +1567,7 @@ namespace EHR
                     break;
                 case "confirmejects":
                     subArgs = args.Length < 3 ? "" : args[2];
+
                     switch (subArgs)
                     {
                         case "on":
@@ -1953,6 +1585,7 @@ namespace EHR
                     break;
                 case "anonymousvotes":
                     subArgs = args.Length < 3 ? "" : args[2];
+
                     switch (subArgs)
                     {
                         case "on":
@@ -1994,6 +1627,7 @@ namespace EHR
                     break;
                 case "killdistance":
                     subArgs = args.Length < 3 ? "" : args[2];
+
                     switch (subArgs)
                     {
                         case "short":
@@ -2014,6 +1648,7 @@ namespace EHR
                     break;
                 case "taskbarupdates":
                     subArgs = args.Length < 3 ? "" : args[2];
+
                     GameOptionsManager.Instance.currentNormalGameOptions.TaskBarMode = subArgs switch
                     {
                         "always" => AmongUs.GameOptions.TaskBarMode.Normal,
@@ -2025,6 +1660,7 @@ namespace EHR
                     break;
                 case "visualtasks":
                     subArgs = args.Length < 3 ? "" : args[2];
+
                     switch (subArgs)
                     {
                         case "on":
@@ -2098,6 +1734,7 @@ namespace EHR
                     break;
                 case "protectvisibletoimpostors":
                     subArgs = args.Length < 3 ? "" : args[2];
+
                     switch (subArgs)
                     {
                         case "on":
@@ -2127,6 +1764,7 @@ namespace EHR
                     break;
                 case "leaveshapeshiftevidence":
                     subArgs = args.Length < 3 ? "" : args[2];
+
                     switch (subArgs)
                     {
                         case "on":
@@ -2164,6 +1802,7 @@ namespace EHR
                     break;
                 case "noisemakerimpostoralert":
                     subArgs = args.Length < 3 ? "" : args[2];
+
                     switch (subArgs)
                     {
                         case "on":
@@ -2201,6 +1840,7 @@ namespace EHR
                     break;
                 case "ghostdotasks":
                     subArgs = args.Length < 3 ? "" : args[2];
+
                     switch (subArgs)
                     {
                         case "on":
@@ -2224,27 +1864,18 @@ namespace EHR
         private static void VersionCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
             string version_text = Main.PlayerVersion.OrderBy(pair => pair.Key).Aggregate(string.Empty, (current, kvp) => current + $"{kvp.Key}: ({Main.AllPlayerNames[kvp.Key]}) {kvp.Value.forkId}/{kvp.Value.version}({kvp.Value.tag})\n");
-            if (version_text != string.Empty)
-            {
-                HudManager.Instance.Chat.AddChat(player, (player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + version_text);
-            }
+            if (version_text != string.Empty) HudManager.Instance.Chat.AddChat(player, (player.FriendCode.GetDevUser().HasTag() ? "\n" : string.Empty) + version_text);
         }
 
         private static void LTCommand(ChatController __instance, PlayerControl player, string text, string[] args)
         {
-            if (!GameStates.IsLobby)
-            {
-                return;
-            }
+            if (!GameStates.IsLobby) return;
 
             float timer = GameStartManagerPatch.Timer;
             int minutes = (int)timer / 60;
             int seconds = (int)timer % 60;
             string lt = string.Format(GetString("LobbyCloseTimer"), $"{minutes:00}:{seconds:00}");
-            if (timer <= 60)
-            {
-                lt = Utils.ColorString(Color.red, lt);
-            }
+            if (timer <= 60) lt = Utils.ColorString(Color.red, lt);
 
             Utils.SendMessage(lt, player.PlayerId);
         }
@@ -2253,12 +1884,10 @@ namespace EHR
 
         private static bool CheckMute(byte id)
         {
-            if (!MutedPlayers.TryGetValue(id, out (long MuteTimeStamp, int Duration) mute))
-            {
-                return false;
-            }
+            if (!MutedPlayers.TryGetValue(id, out (long MuteTimeStamp, int Duration) mute)) return false;
 
             long timeLeft = mute.Duration - (Utils.TimeStamp - mute.MuteTimeStamp);
+
             if (timeLeft <= 0)
             {
                 MutedPlayers.Remove(id);
@@ -2272,6 +1901,7 @@ namespace EHR
         public static string FixRoleNameInput(string text)
         {
             text = text.Replace("着", "者").Trim().ToLower();
+
             return text switch
             {
                 "管理員" or "管理" or "gm" => GetString("GM"),
@@ -2400,22 +2030,17 @@ namespace EHR
         public static bool GetRoleByName(string name, out CustomRoles role)
         {
             role = new();
-            if (name == "")
-            {
-                return false;
-            }
+            if (name == "") return false;
 
             if ((TranslationController.InstanceExists ? TranslationController.Instance.currentLanguage.languageID : SupportedLangs.SChinese) == SupportedLangs.SChinese)
             {
                 Regex r = new("[\u4e00-\u9fa5]+$");
                 MatchCollection mc = r.Matches(name);
-                string result = string.Empty;
-                for (int i = 0; i < mc.Count; i++)
+                var result = string.Empty;
+
+                for (var i = 0; i < mc.Count; i++)
                 {
-                    if (mc[i].ToString() == "是")
-                    {
-                        continue;
-                    }
+                    if (mc[i].ToString() == "是") continue;
 
                     result += mc[i]; //匹配结果是完整的数字，此处可以不做拼接的
                 }
@@ -2423,19 +2048,15 @@ namespace EHR
                 name = FixRoleNameInput(result.Replace("是", string.Empty).Trim());
             }
             else
-            {
                 name = name.Trim().ToLower();
-            }
 
             foreach (CustomRoles rl in Enum.GetValues<CustomRoles>())
             {
-                if (rl.IsVanilla())
-                {
-                    continue;
-                }
+                if (rl.IsVanilla()) continue;
 
                 string roleName = GetString(rl.ToString()).ToLower().Trim().Replace(" ", string.Empty);
                 string nameWithoutId = Regex.Replace(name.Replace(" ", string.Empty), @"^\d+", string.Empty);
+
                 if (nameWithoutId == roleName)
                 {
                     role = rl;
@@ -2451,32 +2072,17 @@ namespace EHR
             if (Options.CurrentGameMode != CustomGameMode.Standard)
             {
                 Utils.SendMessage(GetString($"ModeDescribe.{Options.CurrentGameMode}"), playerId);
-                if (Options.CurrentGameMode != CustomGameMode.HideAndSeek)
-                {
-                    return;
-                }
+                if (Options.CurrentGameMode != CustomGameMode.HideAndSeek) return;
             }
 
             role = role.Trim().ToLower();
-            if (role.StartsWith("/r"))
-            {
-                _ = role.Replace("/r", string.Empty);
-            }
+            if (role.StartsWith("/r")) _ = role.Replace("/r", string.Empty);
 
-            if (role.StartsWith("/up"))
-            {
-                _ = role.Replace("/up", string.Empty);
-            }
+            if (role.StartsWith("/up")) _ = role.Replace("/up", string.Empty);
 
-            if (role.EndsWith("\r\n"))
-            {
-                _ = role.Replace("\r\n", string.Empty);
-            }
+            if (role.EndsWith("\r\n")) _ = role.Replace("\r\n", string.Empty);
 
-            if (role.EndsWith("\n"))
-            {
-                _ = role.Replace("\n", string.Empty);
-            }
+            if (role.EndsWith("\n")) _ = role.Replace("\n", string.Empty);
 
             if (role == "")
             {
@@ -2488,31 +2094,20 @@ namespace EHR
 
             foreach (CustomRoles rl in Enum.GetValues<CustomRoles>())
             {
-                if (rl.IsVanilla())
-                {
-                    continue;
-                }
+                if (rl.IsVanilla()) continue;
 
                 string roleName = GetString(rl.ToString());
+
                 if (role == roleName.ToLower().Trim().TrimStart('*').Replace(" ", string.Empty))
                 {
                     if ((isDev || isUp) && GameStates.IsLobby)
                     {
-                        string devMark = "▲";
-                        if (rl.IsAdditionRole() || rl is CustomRoles.GM)
-                        {
-                            devMark = string.Empty;
-                        }
+                        var devMark = "▲";
+                        if (rl.IsAdditionRole() || rl is CustomRoles.GM) devMark = string.Empty;
 
-                        if (rl.GetCount() < 1 || rl.GetMode() == 0)
-                        {
-                            devMark = string.Empty;
-                        }
+                        if (rl.GetCount() < 1 || rl.GetMode() == 0) devMark = string.Empty;
 
-                        if (isUp)
-                        {
-                            Utils.SendMessage(devMark == "▲" ? string.Format(GetString("Message.YTPlanSelected"), roleName) : string.Format(GetString("Message.YTPlanSelectFailed"), roleName), playerId);
-                        }
+                        if (isUp) Utils.SendMessage(devMark == "▲" ? string.Format(GetString("Message.YTPlanSelected"), roleName) : string.Format(GetString("Message.YTPlanSelectFailed"), roleName), playerId);
 
                         //if (devMark == "▲")
                         //{
@@ -2521,38 +2116,23 @@ namespace EHR
                         //    Main.DevRole.Add(pid, rl);
                         //}
 
-                        if (isUp)
-                        {
-                            return;
-                        }
+                        if (isUp) return;
                     }
 
                     StringBuilder sb = new();
-                    string title = $"<{Main.RoleColors[rl]}>{roleName}</color> {Utils.GetRoleMode(rl)}";
+                    var title = $"<{Main.RoleColors[rl]}>{roleName}</color> {Utils.GetRoleMode(rl)}";
                     StringBuilder settings = new();
                     sb.Append(GetString($"{rl}InfoLong").TrimStart());
-                    if (Options.CustomRoleSpawnChances.TryGetValue(rl, out StringOptionItem chance))
-                    {
-                        AddSettings(chance);
-                    }
+                    if (Options.CustomRoleSpawnChances.TryGetValue(rl, out StringOptionItem chance)) AddSettings(chance);
 
-                    if (rl is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && Options.CustomRoleSpawnChances.TryGetValue(CustomRoles.Lovers, out chance))
-                    {
-                        AddSettings(chance);
-                    }
+                    if (rl is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor && Options.CustomRoleSpawnChances.TryGetValue(CustomRoles.Lovers, out chance)) AddSettings(chance);
 
                     string txt = $"<size=90%>{sb}</size>".Replace(roleName, rl.ToColoredString()).Replace(roleName.ToLower(), rl.ToColoredString());
                     sb.Clear().Append(txt);
 
-                    if (rl.PetActivatedAbility())
-                    {
-                        sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
-                    }
+                    if (rl.PetActivatedAbility()) sb.Append($"<size=50%>{GetString("SupportsPetMessage")}</size>");
 
-                    if (settings.Length > 0)
-                    {
-                        Utils.SendMessage("\n", playerId, settings.ToString());
-                    }
+                    if (settings.Length > 0) Utils.SendMessage("\n", playerId, settings.ToString());
 
                     Utils.SendMessage(sb.ToString(), playerId, title);
                     return;
@@ -2570,6 +2150,7 @@ namespace EHR
             {
                 string gmString = GetString(gameMode.ToString());
                 string match = gmString.ToLower().Trim().TrimStart('*').Replace(" ", string.Empty);
+
                 if (role.Equals(match, StringComparison.OrdinalIgnoreCase))
                 {
                     Utils.SendMessage(GetString($"ModeDescribe.{gameMode}"), playerId, gmString);
@@ -2585,27 +2166,19 @@ namespace EHR
         public static void OnReceiveChat(PlayerControl player, string text, out bool canceled)
         {
             canceled = false;
-            if (!AmongUsClient.Instance.AmHost || player.IsHost())
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost || player.IsHost()) return;
 
             long now = Utils.TimeStamp;
+
             if (LastSentCommand.TryGetValue(player.PlayerId, out long ts) && ts + 2 >= now)
             {
                 Logger.Warn("Chat message ignored, it was sent too soon after their last message", "ReceiveChat");
                 return;
             }
 
-            if (!CheckMute(player.PlayerId))
-            {
-                ChatManager.SendMessage(player, text);
-            }
+            if (!CheckMute(player.PlayerId)) ChatManager.SendMessage(player, text);
 
-            if (text.StartsWith("\n"))
-            {
-                text = text[1..];
-            }
+            if (text.StartsWith("\n")) text = text[1..];
 
             string[] args = text.Split(' ');
 
@@ -2626,19 +2199,17 @@ namespace EHR
                 return;
             }
 
-            bool isCommand = false;
+            var isCommand = false;
 
             if (text.StartsWith('/'))
             {
                 foreach (Command command in AllCommands)
                 {
-                    if (!command.IsThisCommand(text))
-                    {
-                        continue;
-                    }
+                    if (!command.IsThisCommand(text)) continue;
 
                     Logger.Info($" Recognized command: {text}", "ReceiveChat");
                     isCommand = true;
+
                     if (!command.CanUseCommand(player))
                     {
                         Utils.SendMessage(GetString("Commands.NoAccess"), player.PlayerId);
@@ -2647,10 +2218,7 @@ namespace EHR
                     }
 
                     command.Action(null, player, text, args);
-                    if (command.IsCanceled)
-                    {
-                        canceled = true;
-                    }
+                    if (command.IsCanceled) canceled = true;
 
                     break;
                 }
@@ -2675,9 +2243,11 @@ namespace EHR
             {
                 ChatManager.SendPreviousMessagesToAll(true);
                 canceled = true;
+
                 if (player.Is(CustomRoles.Lovers) || player.GetCustomRole() is CustomRoles.LovingCrewmate or CustomRoles.LovingImpostor)
                 {
                     PlayerControl otherLover = Main.LoversPlayers.First(x => x.PlayerId != player.PlayerId);
+
                     LateTask.New(() =>
                     {
                         string title = player.GetRealName();
@@ -2688,15 +2258,10 @@ namespace EHR
                     }, 0.2f, log: false);
                 }
                 else
-                {
                     LateTask.New(() => Utils.SendMessage(GetString("LoversChatCannotTalkMsg"), player.PlayerId, GetString("LoversChatCannotTalkTitle")), 0.5f, log: false);
-                }
             }
 
-            if (isCommand)
-            {
-                LastSentCommand[player.PlayerId] = now;
-            }
+            if (isCommand) LastSentCommand[player.PlayerId] = now;
 
             SpamManager.CheckSpam(player, text);
         }
@@ -2712,8 +2277,9 @@ namespace EHR
 
         public static void Postfix(ChatController __instance)
         {
-            ChatBubble chatBubble = __instance.chatBubblePool.Prefab.Cast<ChatBubble>();
+            var chatBubble = __instance.chatBubblePool.Prefab.Cast<ChatBubble>();
             chatBubble.TextArea.overrideColorTags = false;
+
             if (Main.DarkTheme.Value)
             {
                 chatBubble.TextArea.color = Color.white;
@@ -2722,16 +2288,10 @@ namespace EHR
 
             LastMessages.RemoveAll(x => Utils.TimeStamp - x.SendTimeStamp > 10);
 
-            if (!AmongUsClient.Instance.AmHost || Main.MessagesToSend.Count == 0 || (Main.MessagesToSend[0].ReceiverID == byte.MaxValue && Main.MessageWait.Value > __instance.timeSinceLastMessage) || DoBlockChat)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost || Main.MessagesToSend.Count == 0 || (Main.MessagesToSend[0].ReceiverID == byte.MaxValue && Main.MessageWait.Value > __instance.timeSinceLastMessage) || DoBlockChat) return;
 
             PlayerControl player = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
-            if (player == null)
-            {
-                return;
-            }
+            if (player == null) return;
 
             (string msg, byte sendTo, string title) = Main.MessagesToSend[0];
             Main.MessagesToSend.RemoveAt(0);
@@ -2746,15 +2306,9 @@ namespace EHR
         internal static void SendLastMessages()
         {
             PlayerControl player = Main.AllAlivePlayerControls.MinBy(x => x.PlayerId) ?? Main.AllPlayerControls.MinBy(x => x.PlayerId) ?? PlayerControl.LocalPlayer;
-            if (player == null)
-            {
-                return;
-            }
+            if (player == null) return;
 
-            foreach ((string msg, byte sendTo, string title, _) in LastMessages)
-            {
-                SendMessage(player, msg, sendTo, title);
-            }
+            foreach ((string msg, byte sendTo, string title, _) in LastMessages) SendMessage(player, msg, sendTo, title);
         }
 
         internal static void SendMessage(PlayerControl player, string msg, byte sendTo, string title)
@@ -2770,19 +2324,23 @@ namespace EHR
                 player.SetName(name);
             }
 
-            CustomRpcSender writer = CustomRpcSender.Create("MessagesToSend");
+            var writer = CustomRpcSender.Create("MessagesToSend");
             writer.StartMessage(clientId);
+
             writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
                 .Write(player.Data.NetId)
                 .Write(title)
                 .EndRpc();
+
             writer.StartRpc(player.NetId, (byte)RpcCalls.SendChat)
                 .Write(msg)
                 .EndRpc();
+
             writer.StartRpc(player.NetId, (byte)RpcCalls.SetName)
                 .Write(player.Data.NetId)
                 .Write(player.Data.PlayerName)
                 .EndRpc();
+
             writer.EndMessage();
             writer.SendMessage();
         }
@@ -2796,18 +2354,13 @@ namespace EHR
             int length = __instance.textArea.text.Length;
             __instance.charCountText.SetText(length <= 0 ? GetString("ThankYouForUsingEHR") : $"{length}/{__instance.textArea.characterLimit}");
             __instance.charCountText.enableWordWrapping = false;
+
             if (length < (AmongUsClient.Instance.AmHost ? 1700 : 250))
-            {
                 __instance.charCountText.color = Color.black;
-            }
             else if (length < (AmongUsClient.Instance.AmHost ? 2000 : 500))
-            {
                 __instance.charCountText.color = new(1f, 1f, 0f, 1f);
-            }
             else
-            {
                 __instance.charCountText.color = Color.red;
-            }
         }
     }
 
@@ -2824,15 +2377,9 @@ namespace EHR
 
             int return_count = PlayerControl.LocalPlayer.name.Count(x => x == '\n');
             chatText = new StringBuilder(chatText).Insert(0, "\n", return_count).ToString();
-            if (AmongUsClient.Instance.AmClient && DestroyableSingleton<HudManager>.Instance)
-            {
-                DestroyableSingleton<HudManager>.Instance.Chat.AddChat(__instance, chatText);
-            }
+            if (AmongUsClient.Instance.AmClient && DestroyableSingleton<HudManager>.Instance) DestroyableSingleton<HudManager>.Instance.Chat.AddChat(__instance, chatText);
 
-            if (chatText.Contains("who", StringComparison.OrdinalIgnoreCase))
-            {
-                DestroyableSingleton<UnityTelemetry>.Instance.SendWho();
-            }
+            if (chatText.Contains("who", StringComparison.OrdinalIgnoreCase)) DestroyableSingleton<UnityTelemetry>.Instance.SendWho();
 
             MessageWriter messageWriter = AmongUsClient.Instance.StartRpc(__instance.NetId, (byte)RpcCalls.SendChat, SendOption.None);
             messageWriter.Write(chatText);

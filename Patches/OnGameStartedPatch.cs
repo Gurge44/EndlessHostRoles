@@ -32,10 +32,7 @@ namespace EHR
     {
         public static bool Prefix(AmongUsClient __instance)
         {
-            if (!GameStates.IsLocalGame)
-            {
-                return true;
-            }
+            if (!GameStates.IsLocalGame) return true;
 
             __instance.StartCoroutine(CoStartGame().WrapToIl2Cpp());
             return false;
@@ -43,37 +40,22 @@ namespace EHR
             IEnumerator<object> CoStartGame()
             {
                 AmongUsClient amongUsClient = __instance;
-                if (DestroyableSingleton<HudManager>.Instance.GameMenu.IsOpen)
-                {
-                    DestroyableSingleton<HudManager>.Instance.GameMenu.Close();
-                }
+                if (DestroyableSingleton<HudManager>.Instance.GameMenu.IsOpen) DestroyableSingleton<HudManager>.Instance.GameMenu.Close();
 
                 DestroyableSingleton<UnityTelemetry>.Instance.Init();
                 amongUsClient.logger.Info($"Received game start: {amongUsClient.AmHost}");
                 yield return null;
-                while (!DestroyableSingleton<HudManager>.InstanceExists)
-                {
-                    yield return null;
-                }
+                while (!DestroyableSingleton<HudManager>.InstanceExists) yield return null;
 
-                while (PlayerControl.LocalPlayer == null)
-                {
-                    yield return null;
-                }
+                while (PlayerControl.LocalPlayer == null) yield return null;
 
                 PlayerControl.LocalPlayer.moveable = false;
                 PlayerControl.LocalPlayer.MyPhysics.inputHandler.enabled = true;
-                PlayerCustomizationMenu objectOfType1 = Object.FindObjectOfType<PlayerCustomizationMenu>();
-                if (objectOfType1 != null)
-                {
-                    objectOfType1.Close(false);
-                }
+                var objectOfType1 = Object.FindObjectOfType<PlayerCustomizationMenu>();
+                if (objectOfType1 != null) objectOfType1.Close(false);
 
-                GameSettingMenu objectOfType2 = Object.FindObjectOfType<GameSettingMenu>();
-                if (objectOfType2 != null)
-                {
-                    objectOfType2.Close();
-                }
+                var objectOfType2 = Object.FindObjectOfType<GameSettingMenu>();
+                if (objectOfType2 != null) objectOfType2.Close();
 
                 if (DestroyableSingleton<GameStartManager>.InstanceExists)
                 {
@@ -81,20 +63,12 @@ namespace EHR
                     Object.Destroy(DestroyableSingleton<GameStartManager>.Instance.gameObject);
                 }
 
-                if (DestroyableSingleton<LobbyInfoPane>.InstanceExists)
-                {
-                    Object.Destroy(DestroyableSingleton<LobbyInfoPane>.Instance.gameObject);
-                }
+                if (DestroyableSingleton<LobbyInfoPane>.InstanceExists) Object.Destroy(DestroyableSingleton<LobbyInfoPane>.Instance.gameObject);
 
-                if (DestroyableSingleton<DiscordManager>.InstanceExists)
-                {
-                    DestroyableSingleton<DiscordManager>.Instance.SetPlayingGame();
-                }
+                if (DestroyableSingleton<DiscordManager>.InstanceExists) DestroyableSingleton<DiscordManager>.Instance.SetPlayingGame();
 
                 if (!string.IsNullOrEmpty(DataManager.Player.Store.ActiveCosmicube))
-                {
                     AmongUsClient.Instance.SetActivePodType(DestroyableSingleton<CosmicubeManager>.Instance.GetCubeDataByID(DataManager.Player.Store.ActiveCosmicube).podId);
-                }
                 else
                 {
                     PlayerStorageManager.CloudPlayerPrefs playerPrefs = DestroyableSingleton<PlayerStorageManager>.Instance.PlayerPrefs;
@@ -108,22 +82,19 @@ namespace EHR
                 yield return DestroyableSingleton<HudManager>.Instance.CoFadeFullScreen(Color.clear, Color.black, showLoader: true);
                 ++StatsManager.Instance.BanPoints;
                 StatsManager.Instance.LastGameStarted = DateTime.UtcNow;
+
                 if (amongUsClient.AmHost)
-                {
                     yield return amongUsClient.CoStartGameHost();
-                }
                 else
                 {
                     yield return amongUsClient.CoStartGameClient();
-                    if (amongUsClient.AmHost)
-                    {
-                        yield return amongUsClient.CoStartGameHost();
-                    }
+                    if (amongUsClient.AmHost) yield return amongUsClient.CoStartGameHost();
                 }
 
-                for (int index = 0; index < GameData.Instance.PlayerCount; ++index)
+                for (var index = 0; index < GameData.Instance.PlayerCount; ++index)
                 {
                     PlayerControl player = GameData.Instance.AllPlayers.ToArray()[index].Object;
+
                     if (player != null)
                     {
                         player.moveable = true;
@@ -141,15 +112,14 @@ namespace EHR
                 int map = Mathf.Clamp(GameOptionsManager.Instance.CurrentGameOptions.MapId, 0, Constants.MapNames.Length - 1);
                 string gameName = GameCode.IntToGameName(AmongUsClient.Instance.GameId);
                 DestroyableSingleton<DebugAnalytics>.Instance.Analytics.StartGame(PlayerControl.LocalPlayer.Data, GameData.Instance.PlayerCount, GameOptionsManager.Instance.CurrentGameOptions.NumImpostors, AmongUsClient.Instance.NetworkMode, (MapNames)map, GameOptionsManager.Instance.CurrentGameOptions.GameMode, gameName, DestroyableSingleton<ServerManager>.Instance.CurrentRegion.Name, GameOptionsManager.Instance.CurrentGameOptions, GameData.Instance.AllPlayers);
+
                 try
                 {
                     DestroyableSingleton<UnityTelemetry>.Instance.StartGame(AmongUsClient.Instance.AmHost, GameData.Instance.PlayerCount, GameOptionsManager.Instance.CurrentGameOptions.NumImpostors, AmongUsClient.Instance.NetworkMode, StatsManager.Instance.GetStat(StringNames.StatsGamesImpostor), StatsManager.Instance.GetStat(StringNames.StatsGamesStarted), StatsManager.Instance.GetStat(StringNames.StatsCrewmateStreak));
                     NetworkedPlayerInfo.PlayerOutfit defaultOutfit = PlayerControl.LocalPlayer.Data.DefaultOutfit;
                     DestroyableSingleton<UnityTelemetry>.Instance.StartGameCosmetics(defaultOutfit.ColorId, defaultOutfit.HatId, defaultOutfit.SkinId, defaultOutfit.PetId, defaultOutfit.VisorId, defaultOutfit.NamePlateId);
                 }
-                catch
-                {
-                }
+                catch { }
 
                 GameDebugCommands.AddCommands();
             }
@@ -160,9 +130,11 @@ namespace EHR
             SetUpRoleTextPatch.IsInIntro = true;
 
             Main.OverrideWelcomeMsg = string.Empty;
+
             try
             {
                 Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.GuardianAngel, 0, 0);
+
                 if (Options.DisableVanillaRoles.GetBool())
                 {
                     Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Scientist, 0, 0);
@@ -173,10 +145,7 @@ namespace EHR
                     Main.NormalOptions.roleOptions.SetRoleRate(RoleTypes.Tracker, 0, 0);
                 }
 
-                if (Main.NormalOptions.MapId > 5)
-                {
-                    Logger.SendInGame(GetString("UnsupportedMap"));
-                }
+                if (Main.NormalOptions.MapId > 5) Logger.SendInGame(GetString("UnsupportedMap"));
 
                 Utils.GameStartTimeStamp = Utils.TimeStamp;
 
@@ -295,6 +264,7 @@ namespace EHR
                 if (AmongUsClient.Instance.AmHost)
                 {
                     string[] invalidColor = Main.AllPlayerControls.Where(p => p.Data.DefaultOutfit.ColorId < 0 || Palette.PlayerColors.Length <= p.Data.DefaultOutfit.ColorId).Select(p => $"{p.name}").ToArray();
+
                     if (invalidColor.Length > 0)
                     {
                         string msg = GetString("Error.InvalidColor");
@@ -319,10 +289,7 @@ namespace EHR
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
                     int colorId = pc.Data.DefaultOutfit.ColorId;
-                    if (AmongUsClient.Instance.AmHost && Options.FormatNameMode.GetInt() == 1)
-                    {
-                        pc.RpcSetName(Palette.GetColorName(colorId));
-                    }
+                    if (AmongUsClient.Instance.AmHost && Options.FormatNameMode.GetInt() == 1) pc.RpcSetName(Palette.GetColorName(colorId));
 
                     Main.PlayerStates[pc.PlayerId] = new(pc.PlayerId);
                     Main.PlayerColors[pc.PlayerId] = Palette.PlayerColors[colorId];
@@ -340,6 +307,7 @@ namespace EHR
                 }
 
                 Main.VisibleTasksCount = true;
+
                 if (__instance.AmHost)
                 {
                     RPC.SyncCustomSettingsRPC();
@@ -442,10 +410,7 @@ namespace EHR
 
         private static System.Collections.IEnumerator StartGameHost()
         {
-            if (LobbyBehaviour.Instance)
-            {
-                LobbyBehaviour.Instance.Despawn();
-            }
+            if (LobbyBehaviour.Instance) LobbyBehaviour.Instance.Despawn();
 
             if (!ShipStatus.Instance)
             {
@@ -457,24 +422,25 @@ namespace EHR
                 AUClient.Spawn(ShipStatus.Instance);
             }
 
-            float timer = 0f;
+            var timer = 0f;
+
             while (true)
             {
-                bool stopWaiting = true;
+                var stopWaiting = true;
                 int maxTimer = GameOptionsManager.Instance.CurrentGameOptions.MapId is 5 or 4 ? 17 : 12;
+
                 lock (AUClient.allClients)
                 {
                     // For loop is necessary, or else when a client times out, a foreach loop will throw:
                     // System.InvalidOperationException: Collection was modified; enumeration operation may not execute.
-                    for (int i = 0; i < AUClient.allClients.Count; i++)
+                    for (var i = 0; i < AUClient.allClients.Count; i++)
                     {
                         ClientData clientData = AUClient.allClients[i]; // False error
+
                         if (clientData.Id != AUClient.ClientId && !clientData.IsReady)
                         {
                             if (timer < maxTimer)
-                            {
                                 stopWaiting = false;
-                            }
                             else
                             {
                                 AUClient.SendLateRejection(clientData.Id, DisconnectReasons.ClientTimeout);
@@ -486,10 +452,7 @@ namespace EHR
                 }
 
                 yield return null;
-                if (stopWaiting)
-                {
-                    break;
-                }
+                if (stopWaiting) break;
 
                 timer += Time.deltaTime;
             }
@@ -501,10 +464,7 @@ namespace EHR
 
         private static System.Collections.IEnumerator AssignRoles()
         {
-            if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended)
-            {
-                yield break;
-            }
+            if (AmongUsClient.Instance.IsGameOver || GameStates.IsLobby || GameEndChecker.Ended) yield break;
 
             RpcSetRoleReplacer.Initialize();
 
@@ -513,6 +473,7 @@ namespace EHR
             CalculateVanillaRoleCount();
 
             UpdateRoleTypeNums();
+
             foreach (KeyValuePair<RoleTypes, int> roleType in RoleTypeNums)
             {
                 int roleNum = Options.DisableVanillaRoles.GetBool() ? 0 : RoleOpt.GetNumPerGame(roleType.Key);
@@ -526,7 +487,7 @@ namespace EHR
 
                 BasisChangingAddons.Clear();
 
-                IRandom random = IRandom.Instance;
+                var random = IRandom.Instance;
 
                 if (Options.CurrentGameMode == CustomGameMode.Standard)
                 {
@@ -546,14 +507,12 @@ namespace EHR
 
                     HashSet<byte> bloodlustList = [], nimbleList = [], physicistList = [], finderList = [], noisyList = [];
                     bool hasBanned = Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> banned);
+
                     if (nimbleSpawn || physicistSpawn || finderSpawn || noisySpawn)
                     {
                         foreach (PlayerControl player in Main.AllPlayerControls)
                         {
-                            if (IsBasisChangingPlayer(player.PlayerId, CustomRoles.Bloodlust))
-                            {
-                                continue;
-                            }
+                            if (IsBasisChangingPlayer(player.PlayerId, CustomRoles.Bloodlust)) continue;
 
                             KeyValuePair<byte, CustomRoles> kp = RoleResult.FirstOrDefault(x => x.Key == player.PlayerId);
 
@@ -565,32 +524,17 @@ namespace EHR
 
                             if (kp.Value.IsCrewmate())
                             {
-                                if (!bloodlustBanned && !kp.Value.IsTaskBasedCrewmate())
-                                {
-                                    bloodlustList.Add(player.PlayerId);
-                                }
+                                if (!bloodlustBanned && !kp.Value.IsTaskBasedCrewmate()) bloodlustList.Add(player.PlayerId);
 
-                                if (!nimbleBanned)
-                                {
-                                    nimbleList.Add(player.PlayerId);
-                                }
+                                if (!nimbleBanned) nimbleList.Add(player.PlayerId);
 
                                 if (kp.Value.GetRoleTypes() == RoleTypes.Crewmate)
                                 {
-                                    if (!physicistBanned)
-                                    {
-                                        physicistList.Add(player.PlayerId);
-                                    }
+                                    if (!physicistBanned) physicistList.Add(player.PlayerId);
 
-                                    if (!finderBanned)
-                                    {
-                                        finderList.Add(player.PlayerId);
-                                    }
+                                    if (!finderBanned) finderList.Add(player.PlayerId);
 
-                                    if (!noisyBanned)
-                                    {
-                                        noisyList.Add(player.PlayerId);
-                                    }
+                                    if (!noisyBanned) noisyList.Add(player.PlayerId);
                                 }
                             }
                         }
@@ -605,23 +549,18 @@ namespace EHR
                         { CustomRoles.Noisy, (noisySpawn, noisyList) }
                     };
 
-                    for (int i = 0; i < roleSpawnMapping.Count; i++)
+                    for (var i = 0; i < roleSpawnMapping.Count; i++)
                     {
                         (CustomRoles addon, (bool SpawnFlag, HashSet<byte> RoleList) value) = roleSpawnMapping.ElementAt(i);
-                        if (value.RoleList.Count == 0)
-                        {
-                            value.SpawnFlag = false;
-                        }
+                        if (value.RoleList.Count == 0) value.SpawnFlag = false;
 
-                        if (Main.GM.Value)
-                        {
-                            value.RoleList.Remove(0);
-                        }
+                        if (Main.GM.Value) value.RoleList.Remove(0);
 
                         if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> combos) && combos.Values.Any(l => l.Contains(addon)))
                         {
                             HashSet<CustomRoles> roles = combos.Where(x => x.Value.Contains(addon)).Select(x => x.Key).ToHashSet();
                             HashSet<byte> players = RoleResult.Where(x => roles.Contains(x.Value) && x.Value.IsCrewmate() && (addon != CustomRoles.Bloodlust || x.Value.IsTasklessCrewmate()) && (addon == CustomRoles.Nimble || x.Value.GetRoleTypes() == RoleTypes.Crewmate) && !IsBasisChangingPlayer(x.Key, CustomRoles.Bloodlust)).Select(x => x.Key).ToHashSet();
+
                             if (players.Count > 0)
                             {
                                 value.RoleList = players;
@@ -634,10 +573,7 @@ namespace EHR
                         {
                             value.SpawnFlag = true;
                             HashSet<byte> newRoleList = Main.SetAddOns.Where(x => x.Value.Contains(addon)).Select(x => x.Key).ToHashSet();
-                            if (value.RoleList.Count != 1 || value.RoleList.First() != newRoleList.First())
-                            {
-                                value.RoleList = newRoleList;
-                            }
+                            if (value.RoleList.Count != 1 || value.RoleList.First() != newRoleList.First()) value.RoleList = newRoleList;
 
                             roleSpawnMapping[addon] = value;
                         }
@@ -648,12 +584,8 @@ namespace EHR
                         if (spawnFlag)
                         {
                             foreach ((CustomRoles otherAddon, (bool otherSpawnFlag, _)) in roleSpawnMapping)
-                            {
                                 if (otherAddon != addon && otherSpawnFlag && BasisChangingAddons.TryGetValue(otherAddon, out List<byte> otherList))
-                                {
                                     roleList.ExceptWith(otherList);
-                                }
-                            }
 
                             BasisChangingAddons[addon] = roleList.Shuffle().Take(addon.GetCount()).ToList();
                         }
@@ -678,43 +610,32 @@ namespace EHR
 
                 foreach (PlayerControl pc in Main.AllPlayerControls)
                 {
-                    if (Main.PlayerStates[pc.PlayerId].MainRole != CustomRoles.NotAssigned)
-                    {
-                        continue;
-                    }
+                    if (Main.PlayerStates[pc.PlayerId].MainRole != CustomRoles.NotAssigned) continue;
 
                     CustomRoles role = Enum.TryParse($"{pc.Data.Role.Role}EHR", out CustomRoles parsedRole) ? parsedRole : CustomRoles.NotAssigned;
-                    if (role == CustomRoles.NotAssigned)
-                    {
-                        Logger.SendInGame(string.Format(GetString("Error.InvalidRoleAssignment"), pc?.Data?.PlayerName));
-                    }
+                    if (role == CustomRoles.NotAssigned) Logger.SendInGame(string.Format(GetString("Error.InvalidRoleAssignment"), pc?.Data?.PlayerName));
 
                     Main.PlayerStates[pc.PlayerId].SetMainRole(role);
                 }
 
                 foreach (KeyValuePair<byte, CustomRoles> kv in RoleResult)
                 {
-                    if (kv.Value.IsDesyncRole() || IsBasisChangingPlayer(kv.Key, CustomRoles.Bloodlust))
-                    {
-                        continue;
-                    }
+                    if (kv.Value.IsDesyncRole() || IsBasisChangingPlayer(kv.Key, CustomRoles.Bloodlust)) continue;
 
                     Main.PlayerStates[kv.Key].SetMainRole(kv.Value);
                 }
 
                 if (Options.CurrentGameMode != CustomGameMode.Standard)
                 {
-                    foreach (KeyValuePair<byte, PlayerState> pair in Main.PlayerStates)
-                    {
-                        ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
-                    }
+                    foreach (KeyValuePair<byte, PlayerState> pair in Main.PlayerStates) ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
 
                     goto EndOfSelectRolePatch;
                 }
 
                 BasisChangingAddons.Do(x => x.Value.Do(y => Main.PlayerStates[y].SetSubRole(x.Key)));
 
-                bool overrideLovers = false;
+                var overrideLovers = false;
+
                 if (Main.SetAddOns.Count(x => x.Value.Contains(CustomRoles.Lovers)) == 2)
                 {
                     Main.LoversPlayers.Clear();
@@ -729,38 +650,24 @@ namespace EHR
                     {
                         foreach (CustomRoles role in item.Value)
                         {
-                            if (role is CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust or CustomRoles.Finder or CustomRoles.Noisy)
-                            {
-                                continue;
-                            }
+                            if (role is CustomRoles.Nimble or CustomRoles.Physicist or CustomRoles.Bloodlust or CustomRoles.Finder or CustomRoles.Noisy) continue;
 
                             state.SetSubRole(role);
-                            if (overrideLovers && role == CustomRoles.Lovers)
-                            {
-                                Main.LoversPlayers.Add(Utils.GetPlayerById(item.Key));
-                            }
+                            if (overrideLovers && role == CustomRoles.Lovers) Main.LoversPlayers.Add(Utils.GetPlayerById(item.Key));
 
-                            if (role.IsGhostRole())
-                            {
-                                GhostRolesManager.SpecificAssignGhostRole(item.Key, role, true);
-                            }
+                            if (role.IsGhostRole()) GhostRolesManager.SpecificAssignGhostRole(item.Key, role, true);
                         }
                     }
                 }
 
-                if (!overrideLovers && CustomRoles.Lovers.IsEnable() && (CustomRoles.FFF.IsEnable() ? -1 : random.Next(1, 100)) <= Lovers.LoverSpawnChances.GetInt())
-                {
-                    AssignLoversRolesFromList();
-                }
+                if (!overrideLovers && CustomRoles.Lovers.IsEnable() && (CustomRoles.FFF.IsEnable() ? -1 : random.Next(1, 100)) <= Lovers.LoverSpawnChances.GetInt()) AssignLoversRolesFromList();
 
                 // Add-on assignment
                 PlayerControl[] aapc = Main.AllAlivePlayerControls.Shuffle();
-                if (Main.GM.Value)
-                {
-                    aapc = aapc.Without(PlayerControl.LocalPlayer).ToArray();
-                }
+                if (Main.GM.Value) aapc = aapc.Without(PlayerControl.LocalPlayer).ToArray();
 
                 Dictionary<PlayerControl, int> addonNum = aapc.ToDictionary(x => x, _ => 0);
+
                 AddonRolesList
                     .Except(BasisChangingAddons.Keys)
                     .Where(x => x.IsEnable() && aapc.Any(p => CustomRolesHelper.CheckAddonConflict(x, p)))
@@ -772,10 +679,8 @@ namespace EHR
                         PlayerControl suitablePlayer = aapc
                             .OrderBy(p => addonNum[p])
                             .FirstOrDefault(p => CustomRolesHelper.CheckAddonConflict(x, p));
-                        if (suitablePlayer != null)
-                        {
-                            addonNum[suitablePlayer]++;
-                        }
+
+                        if (suitablePlayer != null) addonNum[suitablePlayer]++;
 
                         return (Role: x, SuitablePlayer: suitablePlayer);
                     })
@@ -784,20 +689,11 @@ namespace EHR
 
                 foreach (PlayerState state in Main.PlayerStates.Values)
                 {
-                    if (Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) && neverList.TryGetValue(state.MainRole, out List<CustomRoles> bannedAddonList))
-                    {
-                        bannedAddonList.ForEach(x => state.RemoveSubRole(x));
-                    }
+                    if (Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> neverList) && neverList.TryGetValue(state.MainRole, out List<CustomRoles> bannedAddonList)) bannedAddonList.ForEach(x => state.RemoveSubRole(x));
 
-                    if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> alwaysList) && alwaysList.TryGetValue(state.MainRole, out List<CustomRoles> addonList))
-                    {
-                        addonList.ForEach(x => state.SetSubRole(x));
-                    }
+                    if (Main.AlwaysSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> alwaysList) && alwaysList.TryGetValue(state.MainRole, out List<CustomRoles> addonList)) addonList.ForEach(x => state.SetSubRole(x));
 
-                    if (!state.MainRole.IsImpostor())
-                    {
-                        state.SubRoles.RemoveAll(x => x.IsImpOnlyAddon());
-                    }
+                    if (!state.MainRole.IsImpostor()) state.SubRoles.RemoveAll(x => x.IsImpOnlyAddon());
                 }
 
                 foreach (KeyValuePair<byte, PlayerState> pair in Main.PlayerStates)
@@ -805,6 +701,7 @@ namespace EHR
                     ExtendedPlayerControl.RpcSetCustomRole(pair.Key, pair.Value.MainRole);
 
                     StringBuilder sb = new();
+
                     foreach (CustomRoles subRole in pair.Value.SubRoles)
                     {
                         ExtendedPlayerControl.RpcSetCustomRole(pair.Key, subRole);
@@ -822,10 +719,7 @@ namespace EHR
                 {
                     try
                     {
-                        if (pc.Data.Role.Role == RoleTypes.Shapeshifter)
-                        {
-                            Main.CheckShapeshift.Add(pc.PlayerId, false);
-                        }
+                        if (pc.Data.Role.Role == RoleTypes.Shapeshifter) Main.CheckShapeshift.Add(pc.PlayerId, false);
 
                         if (pc.AmOwner && pc.GetCustomRole().GetDYRole() is RoleTypes.Shapeshifter or RoleTypes.Phantom)
                         {
@@ -861,10 +755,7 @@ namespace EHR
 
                 LateTask.New(CustomTeamManager.InitializeCustomTeamPlayers, 7f, log: false);
 
-                if (overrideLovers)
-                {
-                    Logger.Msg(Main.LoversPlayers.Join(x => x?.GetRealName()), "Lovers");
-                }
+                if (overrideLovers) Logger.Msg(Main.LoversPlayers.Join(x => x?.GetRealName()), "Lovers");
 
                 EndOfSelectRolePatch:
 
@@ -889,10 +780,7 @@ namespace EHR
 
                 HudManager.Instance.SetHudActive(true);
 
-                foreach (PlayerControl pc in Main.AllPlayerControls)
-                {
-                    pc.ResetKillCooldown();
-                }
+                foreach (PlayerControl pc in Main.AllPlayerControls) pc.ResetKillCooldown();
 
 
                 foreach (KeyValuePair<RoleTypes, int> roleType in RoleTypeNums)
@@ -950,10 +838,7 @@ namespace EHR
                     ChatCommands.DraftRoles = [];
                 }, 7f, log: false);
 
-                if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && Main.GM.Value)
-                {
-                    LateTask.New(() => PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)), 15f, "GM Auto-TP Failsafe"); // TP to Main Hall
-                }
+                if ((MapNames)Main.NormalOptions.MapId == MapNames.Airship && AmongUsClient.Instance.AmHost && Main.GM.Value) LateTask.New(() => PlayerControl.LocalPlayer.NetTransform.SnapTo(new(15.5f, 0.0f), (ushort)(PlayerControl.LocalPlayer.NetTransform.lastSequenceId + 8)), 15f, "GM Auto-TP Failsafe"); // TP to Main Hall
 
                 LateTask.New(() => Main.HasJustStarted = false, 12f, "HasJustStarted to false");
             }
@@ -986,10 +871,7 @@ namespace EHR
 
         private static void AssignDesyncRole(CustomRoles role, PlayerControl player, Dictionary<byte, CustomRpcSender> senders, Dictionary<(byte, byte), (RoleTypes, CustomRoles)> rolesMap, RoleTypes BaseRole, RoleTypes hostBaseRole = RoleTypes.Crewmate)
         {
-            if (player == null)
-            {
-                return;
-            }
+            if (player == null) return;
 
             byte hostId = PlayerControl.LocalPlayer.PlayerId;
             bool isHost = player.PlayerId == hostId;
@@ -1005,29 +887,20 @@ namespace EHR
                 RoleTypes targetRoleType = othersRole;
                 CustomRoles targetCustomRole = RoleResult.GetValueOrDefault(target.PlayerId, CustomRoles.CrewmateEHR);
 
-                if (targetCustomRole.GetVNRole() is CustomRoles.Noisemaker)
-                {
-                    targetRoleType = RoleTypes.Noisemaker;
-                }
+                if (targetCustomRole.GetVNRole() is CustomRoles.Noisemaker) targetRoleType = RoleTypes.Noisemaker;
 
                 rolesMap[(player.PlayerId, target.PlayerId)] = player.PlayerId != target.PlayerId ? (targetRoleType, targetCustomRole) : (selfRole, role);
             }
 
             // Set Desync role for others
-            foreach (PlayerControl seer in Main.AllPlayerControls.Where(x => player.PlayerId != x.PlayerId).ToArray())
-            {
-                rolesMap[(seer.PlayerId, player.PlayerId)] = (othersRole, role);
-            }
+            foreach (PlayerControl seer in Main.AllPlayerControls.Where(x => player.PlayerId != x.PlayerId).ToArray()) rolesMap[(seer.PlayerId, player.PlayerId)] = (othersRole, role);
 
 
             RpcSetRoleReplacer.OverriddenSenderList.Add(senders[player.PlayerId]);
 
             // Set role for host, but not self
             // canOverride should be false for the host during assign
-            if (!isHost)
-            {
-                player.SetRole(othersRole, false);
-            }
+            if (!isHost) player.SetRole(othersRole, false);
 
             Logger.Info($"Registered Role: {player.Data?.PlayerName} => {role} : RoleType for self => {selfRole}, for others => {othersRole}", "AssignDesyncRoles");
         }
@@ -1038,28 +911,20 @@ namespace EHR
             {
                 foreach (PlayerControl target in Main.AllPlayerControls)
                 {
-                    if (seer.PlayerId == target.PlayerId || target.PlayerId == PlayerControl.LocalPlayer.PlayerId)
-                    {
-                        continue;
-                    }
+                    if (seer.PlayerId == target.PlayerId || target.PlayerId == PlayerControl.LocalPlayer.PlayerId) continue;
 
                     if (rolesMap.TryGetValue((seer.PlayerId, target.PlayerId), out (RoleTypes, CustomRoles) roleMap))
                     {
                         try
                         {
                             int targetClientId = target.GetClientId();
-                            if (targetClientId == -1)
-                            {
-                                continue;
-                            }
+                            if (targetClientId == -1) continue;
 
                             RoleTypes roleType = roleMap.Item1;
                             CustomRpcSender sender = senders[seer.PlayerId];
                             sender.RpcSetRole(seer, roleType, targetClientId);
                         }
-                        catch
-                        {
-                        }
+                        catch { }
                     }
                 }
             }
@@ -1073,24 +938,16 @@ namespace EHR
                 {
                     SetRoleSelf(pc);
                 }
-                catch
-                {
-                }
+                catch { }
             }
         }
 
         private static void SetRoleSelf(PlayerControl target)
         {
-            if (target == null)
-            {
-                return;
-            }
+            if (target == null) return;
 
             int targetClientId = target.GetClientId();
-            if (targetClientId == -1)
-            {
-                return;
-            }
+            if (targetClientId == -1) return;
 
             RoleTypes roleType = RpcSetRoleReplacer.RoleMap.TryGetValue((target.PlayerId, target.PlayerId), out (RoleTypes RoleType, CustomRoles CustomRole) roleMap)
                 ? roleMap.RoleType
@@ -1121,12 +978,14 @@ namespace EHR
                 MessageWriter stream = MessageWriter.Get(SendOption.Reliable);
                 stream.StartMessage(5);
                 stream.Write(AmongUsClient.Instance.GameId);
+
                 {
                     stream.StartMessage(1);
                     stream.WritePacked(playerInfo.NetId);
                     playerInfo.Serialize(stream, false);
                     stream.EndMessage();
                 }
+
                 stream.EndMessage();
                 AmongUsClient.Instance.SendOrDisconnect(stream);
                 stream.Recycle();
@@ -1154,17 +1013,11 @@ namespace EHR
             List<PlayerControl> allPlayers = Main.AllPlayerControls.Where(pc => (!Main.NeverSpawnTogetherCombos.TryGetValue(OptionItem.CurrentPreset, out Dictionary<CustomRoles, List<CustomRoles>> bannedCombos) || bannedCombos.All(x => !pc.Is(x.Key) || !x.Value.Contains(CustomRoles.Lovers))) && !pc.Is(CustomRoles.GM) && (!pc.HasSubRole() || pc.GetCustomSubRoles().Count < Options.NoLimitAddonsNumMax.GetInt()) && !pc.Is(CustomRoles.Dictator) && !pc.Is(CustomRoles.God) && !pc.Is(CustomRoles.FFF) && !pc.Is(CustomRoles.Bomber) && !pc.Is(CustomRoles.Nuker) && !pc.Is(CustomRoles.Provocateur) && !pc.Is(CustomRoles.Altruist) && (!pc.IsCrewmate() || Lovers.CrewCanBeInLove.GetBool()) && (!pc.GetCustomRole().IsNeutral() || Lovers.NeutralCanBeInLove.GetBool()) && (!pc.IsImpostor() || Lovers.ImpCanBeInLove.GetBool())).ToList();
             const CustomRoles role = CustomRoles.Lovers;
             int count = Math.Clamp(RawCount, 0, allPlayers.Count);
-            if (RawCount == -1)
-            {
-                count = Math.Clamp(role.GetCount(), 0, allPlayers.Count);
-            }
+            if (RawCount == -1) count = Math.Clamp(role.GetCount(), 0, allPlayers.Count);
 
-            if (count <= 0)
-            {
-                return;
-            }
+            if (count <= 0) return;
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 PlayerControl player = allPlayers.RandomElement();
                 Main.LoversPlayers.Add(player);
@@ -1215,10 +1068,7 @@ namespace EHR
             public static void AssignDesyncRoles()
             {
                 // Assign desync roles
-                foreach ((byte playerId, CustomRoles role) in RoleResult.Where(x => x.Value.IsDesyncRole() || IsBasisChangingPlayer(x.Key, CustomRoles.Bloodlust)).ToArray())
-                {
-                    AssignDesyncRole(role, Utils.GetPlayerById(playerId), Senders, RoleMap, ForceImp(playerId) ? RoleTypes.Impostor : role.GetDYRole());
-                }
+                foreach ((byte playerId, CustomRoles role) in RoleResult.Where(x => x.Value.IsDesyncRole() || IsBasisChangingPlayer(x.Key, CustomRoles.Bloodlust)).ToArray()) AssignDesyncRole(role, Utils.GetPlayerById(playerId), Senders, RoleMap, ForceImp(playerId) ? RoleTypes.Impostor : role.GetDYRole());
 
                 return;
 
@@ -1238,24 +1088,15 @@ namespace EHR
                 foreach ((byte playerId, CustomRoles role) in RoleResult)
                 {
                     PlayerControl player = Utils.GetPlayerById(playerId);
-                    if (player == null || role.IsDesyncRole())
-                    {
-                        continue;
-                    }
+                    if (player == null || role.IsDesyncRole()) continue;
 
-                    if (Options.CurrentGameMode == CustomGameMode.Speedrun && SpeedrunManager.CanKill.Contains(playerId))
-                    {
-                        continue;
-                    }
+                    if (Options.CurrentGameMode == CustomGameMode.Speedrun && SpeedrunManager.CanKill.Contains(playerId)) continue;
 
                     RoleTypes roleType = role.GetRoleTypes();
 
                     if (BasisChangingAddons.FindFirst(x => x.Value.Contains(playerId), out KeyValuePair<CustomRoles, List<byte>> kvp))
                     {
-                        if (kvp.Key == CustomRoles.Bloodlust)
-                        {
-                            continue;
-                        }
+                        if (kvp.Key == CustomRoles.Bloodlust) continue;
 
                         roleType = kvp.Key switch
                         {
@@ -1271,10 +1112,7 @@ namespace EHR
 
                     foreach (PlayerControl target in Main.AllPlayerControls)
                     {
-                        if (RoleResult.TryGetValue(target.PlayerId, out CustomRoles targetRole) && targetRole.IsDesyncRole() && !target.IsHost())
-                        {
-                            continue;
-                        }
+                        if (RoleResult.TryGetValue(target.PlayerId, out CustomRoles targetRole) && targetRole.IsDesyncRole() && !target.IsHost()) continue;
 
                         RoleMap[(target.PlayerId, playerId)] = (roleType, role);
                     }
@@ -1294,36 +1132,21 @@ namespace EHR
                 foreach ((byte targetId, CustomRpcSender sender) in Senders)
                 {
                     PlayerControl target = Utils.GetPlayerById(targetId);
-                    if (OverriddenSenderList.Contains(sender))
-                    {
-                        continue;
-                    }
+                    if (OverriddenSenderList.Contains(sender)) continue;
 
-                    if (sender.CurrentState != CustomRpcSender.State.InRootMessage)
-                    {
-                        throw new InvalidOperationException("A CustomRpcSender had Invalid State.");
-                    }
+                    if (sender.CurrentState != CustomRpcSender.State.InRootMessage) throw new InvalidOperationException("A CustomRpcSender had Invalid State.");
 
                     foreach ((byte seerId, RoleTypes roleType) in StoragedData)
                     {
-                        if (targetId == seerId || targetId == PlayerControl.LocalPlayer.PlayerId)
-                        {
-                            continue;
-                        }
+                        if (targetId == seerId || targetId == PlayerControl.LocalPlayer.PlayerId) continue;
 
                         PlayerControl seer = Utils.GetPlayerById(seerId);
-                        if (seer == null || target == null)
-                        {
-                            continue;
-                        }
+                        if (seer == null || target == null) continue;
 
                         try
                         {
                             int targetClientId = target.GetClientId();
-                            if (targetClientId == -1)
-                            {
-                                continue;
-                            }
+                            if (targetClientId == -1) continue;
 
                             // send rpc set role for other clients
                             sender.AutoStartRpc(seer.NetId, (byte)RpcCalls.SetRole, targetClientId)
@@ -1331,9 +1154,7 @@ namespace EHR
                                 .Write(true) // canOverride
                                 .EndRpc();
                         }
-                        catch
-                        {
-                        }
+                        catch { }
                     }
 
                     sender.EndMessage();
@@ -1362,10 +1183,7 @@ namespace EHR
         {
             LateTask.New(() =>
             {
-                if (CoShowIntroPatch.IntroStarted)
-                {
-                    return;
-                }
+                if (CoShowIntroPatch.IntroStarted) return;
 
                 Logger.Warn("Starting intro manually", "StartGameHostPatch");
                 PlayerControl.AllPlayerControls.ForEach((Action<PlayerControl>)PlayerNameColor.Set);

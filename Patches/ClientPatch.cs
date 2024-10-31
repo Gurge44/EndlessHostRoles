@@ -19,21 +19,12 @@ namespace EHR
         {
             if (ModUpdater.IsBroken || (ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || !VersionChecker.IsSupported)
             {
-                string message = string.Empty;
-                if (!VersionChecker.IsSupported)
-                {
-                    message = GetString("UnsupportedVersion");
-                }
+                var message = string.Empty;
+                if (!VersionChecker.IsSupported) message = GetString("UnsupportedVersion");
 
-                if (ModUpdater.IsBroken)
-                {
-                    message = GetString("ModBrokenMessage");
-                }
+                if (ModUpdater.IsBroken) message = GetString("ModBrokenMessage");
 
-                if (ModUpdater.HasUpdate)
-                {
-                    message = GetString("CanNotJoinPublicRoomNoLatest");
-                }
+                if (ModUpdater.HasUpdate) message = GetString("CanNotJoinPublicRoomNoLatest");
 
                 Logger.Info(message, "MakePublicPatch");
                 Logger.SendInGame(message);
@@ -50,21 +41,21 @@ namespace EHR
     {
         public static void Postfix()
         {
-            if (!((ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || ModUpdater.IsBroken))
-            {
-                return;
-            }
+            if (!((ModUpdater.HasUpdate && ModUpdater.ForceUpdate) || ModUpdater.IsBroken)) return;
 
             GameObject obj = GameObject.Find("FindGameButton");
+
             if (obj)
             {
                 obj.SetActive(false);
                 TextMeshPro textObj = Object.Instantiate(obj.transform.FindChild("Text_TMP").GetComponent<TextMeshPro>());
                 textObj.transform.position = new(1f, -0.3f, 0);
                 textObj.name = "CanNotJoinPublic";
+
                 string message = ModUpdater.IsBroken
                     ? $"<size=2>{Utils.ColorString(Color.red, GetString("ModBrokenMessage"))}</size>"
                     : $"<size=2>{Utils.ColorString(Color.red, GetString("CanNotJoinPublicRoomNoLatest"))}</size>";
+
                 LateTask.New(() => { textObj.text = message; }, 0.01f, "CanNotJoinPublic");
             }
         }
@@ -87,10 +78,7 @@ namespace EHR
 
         public static void Prefix(ref bool canOnline)
         {
-            if (DebugModeManager.AmDebugger)
-            {
-                canOnline = true;
-            }
+            if (DebugModeManager.AmDebugger) canOnline = true;
         }
     }
 
@@ -99,10 +87,7 @@ namespace EHR
     {
         public static bool Prefix(BanMenu __instance, bool show)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return true;
-            }
+            if (!AmongUsClient.Instance.AmHost) return true;
 
             show &= PlayerControl.LocalPlayer && PlayerControl.LocalPlayer.Data != null;
             __instance.BanButton.gameObject.SetActive(AmongUsClient.Instance.CanBan());
@@ -127,10 +112,7 @@ namespace EHR
     {
         public static bool Prefix( /*InnerNetClient __instance,*/ int clientId, bool ban)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return true;
-            }
+            if (!AmongUsClient.Instance.AmHost) return true;
 
             if (AmongUsClient.Instance.ClientId == clientId)
             {
@@ -139,10 +121,7 @@ namespace EHR
                 return false;
             }
 
-            if (ban)
-            {
-                BanManager.AddBanPlayer(AmongUsClient.Instance.GetRecentClient(clientId));
-            }
+            if (ban) BanManager.AddBanPlayer(AmongUsClient.Instance.GetRecentClient(clientId));
 
             return true;
         }
@@ -153,10 +132,7 @@ namespace EHR
     {
         public static void Postfix()
         {
-            if (MainMenuManagerPatch.UpdateButton != null)
-            {
-                MainMenuManagerPatch.UpdateButton.transform.localPosition = MainMenuManagerPatch.Template.transform.localPosition + new Vector3(0.25f, 0.75f);
-            }
+            if (MainMenuManagerPatch.UpdateButton != null) MainMenuManagerPatch.UpdateButton.transform.localPosition = MainMenuManagerPatch.Template.transform.localPosition + new Vector3(0.25f, 0.75f);
         }
     }
 
@@ -165,10 +141,7 @@ namespace EHR
     {
         public static void Prefix()
         {
-            if (AmongUsClient.Instance.AmHost)
-            {
-                Main.Instance.StartCoroutine(GameOptionsSender.SendAllGameOptionsAsync());
-            }
+            if (AmongUsClient.Instance.AmHost) Main.Instance.StartCoroutine(GameOptionsSender.SendAllGameOptionsAsync());
         }
     }
 
@@ -180,10 +153,7 @@ namespace EHR
         [HarmonyPrefix]
         public static bool SendInitialDataPrefix(InnerNetClient __instance, int clientId)
         {
-            if (!Constants.IsVersionModded() || GameStates.IsInGame || __instance.NetworkMode != NetworkModes.OnlineGame)
-            {
-                return true;
-            }
+            if (!Constants.IsVersionModded() || GameStates.IsInGame || __instance.NetworkMode != NetworkModes.OnlineGame) return true;
 
             // We make sure other stuff like PlayerControl and LobbyBehavior is spawned properly
             // Then we spawn the networked data for new clients
@@ -192,25 +162,24 @@ namespace EHR
             messageWriter.Write(__instance.GameId);
             messageWriter.WritePacked(clientId);
             List<InnerNetObject> obj = __instance.allObjects;
+
             lock (obj)
             {
                 System.Collections.Generic.HashSet<GameObject> hashSet = [];
-                for (int i = 0; i < __instance.allObjects.Count; i++)
+
+                for (var i = 0; i < __instance.allObjects.Count; i++)
                 {
                     InnerNetObject innerNetObject = __instance.allObjects[i]; // False error
+
                     if (innerNetObject && (innerNetObject.OwnerId != -4 || __instance.AmModdedHost) && hashSet.Add(innerNetObject.gameObject))
                     {
-                        GameManager gameManager = innerNetObject as GameManager;
+                        var gameManager = innerNetObject as GameManager;
+
                         if (gameManager != null)
-                        {
                             __instance.SendGameManager(clientId, gameManager);
-                        }
                         else
                         {
-                            if (innerNetObject is not NetworkedPlayerInfo)
-                            {
-                                __instance.WriteSpawnMessage(innerNetObject, innerNetObject.OwnerId, innerNetObject.SpawnFlags, messageWriter);
-                            }
+                            if (innerNetObject is not NetworkedPlayerInfo) __instance.WriteSpawnMessage(innerNetObject, innerNetObject.OwnerId, innerNetObject.SpawnFlags, messageWriter);
                         }
                     }
                 }
@@ -248,39 +217,32 @@ namespace EHR
         [HarmonyPrefix]
         public static bool SendAllStreamedObjectsPrefix(InnerNetClient __instance, ref bool __result)
         {
-            if (!Constants.IsVersionModded() || __instance.NetworkMode != NetworkModes.OnlineGame)
-            {
-                return true;
-            }
+            if (!Constants.IsVersionModded() || __instance.NetworkMode != NetworkModes.OnlineGame) return true;
 
             // Bypass all NetworkedData here.
             __result = false;
             List<InnerNetObject> obj = __instance.allObjects;
+
             lock (obj)
             {
-                for (int i = 0; i < __instance.allObjects.Count; i++)
+                for (var i = 0; i < __instance.allObjects.Count; i++)
                 {
                     InnerNetObject innerNetObject = __instance.allObjects[i]; // False error
+
                     if (innerNetObject && innerNetObject is not NetworkedPlayerInfo && innerNetObject.IsDirty && (innerNetObject.AmOwner || (innerNetObject.OwnerId == -2 && __instance.AmHost)))
                     {
                         MessageWriter messageWriter = __instance.Streams[(int)innerNetObject.sendMode];
                         messageWriter.StartMessage(1);
                         messageWriter.WritePacked(innerNetObject.NetId);
+
                         try
                         {
                             if (innerNetObject.Serialize(messageWriter, false))
-                            {
                                 messageWriter.EndMessage();
-                            }
                             else
-                            {
                                 messageWriter.CancelMessage();
-                            }
 
-                            if (innerNetObject.Chunked && innerNetObject.IsDirty)
-                            {
-                                __result = true;
-                            }
+                            if (innerNetObject.Chunked && innerNetObject.IsDirty) __result = true;
                         }
                         catch (Exception ex)
                         {
@@ -291,9 +253,10 @@ namespace EHR
                 }
             }
 
-            for (int j = 0; j < __instance.Streams.Length; j++)
+            for (var j = 0; j < __instance.Streams.Length; j++)
             {
                 MessageWriter messageWriter2 = __instance.Streams[j];
+
                 if (messageWriter2.HasBytes(7))
                 {
                     messageWriter2.EndMessage();
@@ -311,10 +274,7 @@ namespace EHR
         [HarmonyPostfix]
         public static void FixedUpdatePostfix(InnerNetClient __instance)
         {
-            if (!Constants.IsVersionModded() || GameStates.IsInGame || !__instance.AmHost || __instance.Streams == null || __instance.NetworkMode != NetworkModes.OnlineGame)
-            {
-                return;
-            }
+            if (!Constants.IsVersionModded() || GameStates.IsInGame || !__instance.AmHost || __instance.Streams == null || __instance.NetworkMode != NetworkModes.OnlineGame) return;
 
             if (Timer == 0)
             {
@@ -323,6 +283,7 @@ namespace EHR
             }
 
             NetworkedPlayerInfo player = GameData.Instance.AllPlayers.ToArray().FirstOrDefault(x => x.IsDirty);
+
             if (player != null)
             {
                 Timer = 0;
@@ -331,12 +292,11 @@ namespace EHR
                 messageWriter.Write(__instance.GameId);
                 messageWriter.StartMessage(1);
                 messageWriter.WritePacked(player.NetId);
+
                 try
                 {
                     if (player.Serialize(messageWriter, false))
-                    {
                         messageWriter.EndMessage();
-                    }
                     else
                     {
                         messageWriter.CancelMessage();
@@ -368,10 +328,7 @@ namespace EHR
         // https://github.com/NuclearPowered/Reactor/blob/master/Reactor/Patches/Miscellaneous/CustomServersPatch.cs
         public static bool CoWaitforNoncePrefix(ref bool __result)
         {
-            if (GameStates.IsVanillaServer)
-            {
-                return true;
-            }
+            if (GameStates.IsVanillaServer) return true;
 
             __result = false;
             return false;
@@ -387,6 +344,7 @@ namespace EHR
             if (__instance.__1__state == 0 && !ServerManager.Instance.IsHttp)
             {
                 __instance.__1__state = 1;
+
                 __instance.__8__1 = new()
                 {
                     matchmakerToken = string.Empty

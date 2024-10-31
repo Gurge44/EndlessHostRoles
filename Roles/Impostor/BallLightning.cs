@@ -26,12 +26,15 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.BallLightning);
+
             KillCooldown = new FloatOptionItem(Id + 10, "BallLightningKillCooldown", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ConvertTime = new FloatOptionItem(Id + 12, "BallLightningConvertTime", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning])
                 .SetValueFormat(OptionFormat.Seconds);
+
             KillerConvertGhost = new BooleanOptionItem(Id + 14, "BallLightningKillerConvertGhost", true, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.BallLightning]);
         }
@@ -50,10 +53,7 @@ namespace EHR.Impostor
 
         private static void SendRPC(byte playerId)
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGhostPlayer, SendOption.Reliable);
             writer.Write(playerId);
@@ -65,6 +65,7 @@ namespace EHR.Impostor
         {
             byte GhostId = reader.ReadByte();
             bool isGhost = reader.ReadBoolean();
+
             if (GhostId == byte.MaxValue)
             {
                 GhostPlayer = [];
@@ -73,17 +74,11 @@ namespace EHR.Impostor
 
             if (isGhost)
             {
-                if (!GhostPlayer.Contains(GhostId))
-                {
-                    GhostPlayer.Add(GhostId);
-                }
+                if (!GhostPlayer.Contains(GhostId)) GhostPlayer.Add(GhostId);
             }
             else
             {
-                if (GhostPlayer.Contains(GhostId))
-                {
-                    GhostPlayer.Remove(GhostId);
-                }
+                if (GhostPlayer.Contains(GhostId)) GhostPlayer.Remove(GhostId);
             }
         }
 
@@ -109,15 +104,9 @@ namespace EHR.Impostor
 
         public static bool CheckBallLightningMurder(PlayerControl killer, PlayerControl target, bool force = false)
         {
-            if (killer == null || target == null || (!killer.Is(CustomRoles.BallLightning) && !force))
-            {
-                return false;
-            }
+            if (killer == null || target == null || (!killer.Is(CustomRoles.BallLightning) && !force)) return false;
 
-            if (IsGhost(target))
-            {
-                return false;
-            }
+            if (IsGhost(target)) return false;
 
             if (!force)
             {
@@ -138,10 +127,7 @@ namespace EHR.Impostor
                     GhostPlayer.Add(target.PlayerId);
                     SendRPC(target.PlayerId);
                     RealKiller.TryAdd(target.PlayerId, killer);
-                    if (!killer.inVent)
-                    {
-                        killer.SetKillCooldown();
-                    }
+                    if (!killer.inVent) killer.SetKillCooldown();
 
                     Utils.NotifyRoles(SpecifySeer: killer, SpecifyTarget: target);
                     Utils.NotifyRoles(SpecifySeer: target, SpecifyTarget: killer);
@@ -152,15 +138,9 @@ namespace EHR.Impostor
 
         public static void MurderPlayer(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null || !target.Is(CustomRoles.BallLightning))
-            {
-                return;
-            }
+            if (killer == null || target == null || !target.Is(CustomRoles.BallLightning)) return;
 
-            if (!KillerConvertGhost.GetBool() || IsGhost(killer))
-            {
-                return;
-            }
+            if (!KillerConvertGhost.GetBool() || IsGhost(killer)) return;
 
             RealKiller.TryAdd(killer.PlayerId, target);
             StartConvertCountDown(target, killer);
@@ -168,15 +148,14 @@ namespace EHR.Impostor
 
         public override void OnCheckPlayerPosition(PlayerControl pc)
         {
-            if (!GameStates.IsInTask)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask) return;
 
             List<byte> deList = [];
+
             foreach (byte ghost in GhostPlayer.ToArray())
             {
                 PlayerControl gs = Utils.GetPlayerById(ghost);
+
                 if (gs == null || !gs.IsAlive() || gs.Data.Disconnected)
                 {
                     //deList.Add(gs.PlayerId); // This will always result in a null reference exception
@@ -187,10 +166,7 @@ namespace EHR.Impostor
                 {
                     Vector3 pos = gs.transform.position;
                     float dis = Vector2.Distance(pos, pc.Pos());
-                    if (dis > 0.3f)
-                    {
-                        continue;
-                    }
+                    if (dis > 0.3f) continue;
 
                     deList.Add(gs.PlayerId);
                     gs.Suicide(PlayerState.DeathReason.Quantization, RealKiller[gs.PlayerId]);
@@ -202,6 +178,7 @@ namespace EHR.Impostor
             if (deList.Count > 0)
             {
                 GhostPlayer.RemoveAll(deList.Contains);
+
                 foreach (byte gs in deList.ToArray())
                 {
                     SendRPC(gs);
@@ -212,18 +189,12 @@ namespace EHR.Impostor
 
         public override void OnReportDeadBody()
         {
-            if (!(IsEnable || CustomRoles.BallLightning.IsEnable()))
-            {
-                return;
-            }
+            if (!(IsEnable || CustomRoles.BallLightning.IsEnable())) return;
 
             foreach (byte ghost in GhostPlayer.ToArray())
             {
                 PlayerControl gs = Utils.GetPlayerById(ghost);
-                if (gs == null)
-                {
-                    continue;
-                }
+                if (gs == null) continue;
 
                 CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Quantization, gs.PlayerId);
                 gs.SetRealKiller(RealKiller[gs.PlayerId]);

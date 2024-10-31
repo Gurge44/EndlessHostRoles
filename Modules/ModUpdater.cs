@@ -37,6 +37,7 @@ namespace EHR
             InfoPopup = Object.Instantiate(TwitchManager.Instance.TwitchPopup);
             InfoPopup.name = "InfoPopup";
             InfoPopup.TextAreaTMP.GetComponent<RectTransform>().sizeDelta = new(2.5f, 2f);
+
             if (!IsChecked)
             {
                 bool done = CheckReleaseFromGithub(Main.BetaBuildUrl.Value != "").GetAwaiter().GetResult();
@@ -54,6 +55,7 @@ namespace EHR
             HttpClient req = new();
             HttpResponseMessage res = req.GetAsync(url).Result;
             Stream stream = res.Content.ReadAsStreamAsync().Result;
+
             try
             {
                 using StreamReader reader = new(stream);
@@ -71,13 +73,16 @@ namespace EHR
         {
             Logger.Warn("Checking GitHub Release", "CheckRelease");
             const string url = URLGithub + "/releases/latest";
+
             try
             {
                 string result;
+
                 using (HttpClient client = new())
                 {
                     client.DefaultRequestHeaders.Add("User-Agent", "EHR Updater");
                     using HttpResponseMessage response = await client.GetAsync(new Uri(url), HttpCompletionOption.ResponseContentRead);
+
                     if (!response.IsSuccessStatusCode)
                     {
                         Logger.Error($"Response Status Code: {response.StatusCode}", "CheckRelease");
@@ -88,6 +93,7 @@ namespace EHR
                 }
 
                 JObject data = JObject.Parse(result);
+
                 if (beta)
                 {
                     LatestTitle = data["name"].ToString();
@@ -98,8 +104,9 @@ namespace EHR
                 {
                     LatestVersion = new(data["tag_name"]?.ToString().TrimStart('v') ?? string.Empty);
                     LatestTitle = $"Ver. {LatestVersion}";
-                    JArray assets = data["assets"].Cast<JArray>();
-                    for (int i = 0; i < assets.Count; i++)
+                    var assets = data["assets"].Cast<JArray>();
+
+                    for (var i = 0; i < assets.Count; i++)
                     {
                         if (assets[i]["name"].ToString() == $"EHR.v{LatestVersion}.zip")
                         {
@@ -168,9 +175,11 @@ namespace EHR
         {
             string path = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             const string searchPattern = "EHR.dll*";
+
             if (path != null)
             {
                 string[] files = Directory.GetFiles(path, searchPattern);
+
                 try
                 {
                     foreach (string filePath in files)
@@ -196,33 +205,21 @@ namespace EHR
                 const string savePath = "BepInEx/plugins/EHR.dll.temp";
 
                 // Delete the temporary file if it exists
-                if (File.Exists(savePath))
-                {
-                    File.Delete(savePath);
-                }
+                if (File.Exists(savePath)) File.Delete(savePath);
 
                 HttpResponseMessage response;
 
-                using (HttpClient client = new())
-                {
-                    response = await client.GetAsync(url);
-                }
+                using (HttpClient client = new()) response = await client.GetAsync(url);
 
-                if (response is not { IsSuccessStatusCode: true })
-                {
-                    throw new($"File retrieval failed with status code: {response.StatusCode}");
-                }
+                if (response is not { IsSuccessStatusCode: true }) throw new($"File retrieval failed with status code: {response.StatusCode}");
 
                 await using (Stream stream = await response.Content.ReadAsStreamAsync())
-                await using (FileStream fileStream = new FileStream(savePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
+                await using (var fileStream = new FileStream(savePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
                 {
-                    byte[] buffer = new byte[1024];
+                    var buffer = new byte[1024];
                     int length;
 
-                    while ((length = await stream.ReadAsync(buffer)) != 0)
-                    {
-                        await fileStream.WriteAsync(buffer.AsMemory(0, length));
-                    }
+                    while ((length = await stream.ReadAsync(buffer)) != 0) await fileStream.WriteAsync(buffer.AsMemory(0, length));
                 }
 
                 string fileName = Assembly.GetExecutingAssembly().Location;
@@ -247,25 +244,16 @@ namespace EHR
                 const string savePath = "BepInEx/plugins/EHR.dll.temp";
 
                 // Delete the temporary file if it exists
-                if (File.Exists(savePath))
-                {
-                    File.Delete(savePath);
-                }
+                if (File.Exists(savePath)) File.Delete(savePath);
 
                 HttpResponseMessage response;
 
-                using (HttpClient client = new())
-                {
-                    response = await client.GetAsync(url);
-                }
+                using (HttpClient client = new()) response = await client.GetAsync(url);
 
-                if (response is not { IsSuccessStatusCode: true })
-                {
-                    throw new($"File retrieval failed with status code: {response.StatusCode}");
-                }
+                if (response is not { IsSuccessStatusCode: true }) throw new($"File retrieval failed with status code: {response.StatusCode}");
 
                 await using (Stream stream = await response.Content.ReadAsStreamAsync())
-                using (ZipArchive archive = new ZipArchive(stream, ZipArchiveMode.Read))
+                using (var archive = new ZipArchive(stream, ZipArchiveMode.Read))
                 {
                     // Specify the relative path within the ZIP archive where "EHR.dll" is located
                     const string entryPath = "BepInEx/plugins/EHR.dll";
@@ -273,7 +261,7 @@ namespace EHR
 
                     // Extract "EHR.dll" to the temporary file
                     await using Stream entryStream = entry.Open();
-                    await using FileStream fileStream = new FileStream(savePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true);
+                    await using var fileStream = new FileStream(savePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true);
                     await entryStream.CopyToAsync(fileStream);
                 }
 
@@ -294,27 +282,22 @@ namespace EHR
 
         public static void ShowPopup(string message, StringNames buttonText, bool showButton = false, bool buttonIsExit = true)
         {
-            if (InfoPopup == null)
-            {
-                return;
-            }
+            if (InfoPopup == null) return;
 
             InfoPopup.Show(message);
             Transform button = InfoPopup.transform.FindChild("ExitGame");
+
             if (button != null)
             {
                 button.gameObject.SetActive(showButton);
                 button.GetChild(0).GetComponent<TextTranslatorTMP>().TargetText = buttonText;
                 button.GetChild(0).GetComponent<TextTranslatorTMP>().ResetText();
                 button.GetComponent<PassiveButton>().OnClick = new();
+
                 if (buttonIsExit)
-                {
                     button.GetComponent<PassiveButton>().OnClick.AddListener((Action)Application.Quit);
-                }
                 else
-                {
                     button.GetComponent<PassiveButton>().OnClick.AddListener((Action)(() => InfoPopup.Close()));
-                }
             }
         }
     }

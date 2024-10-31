@@ -52,20 +52,27 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.QuizMaster);
+
             MarkCooldown = new FloatOptionItem(Id + 2, "QuizMaster.MarkCooldown", new(0f, 180f, 1f), 1f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster]);
+
             HasImpostorVision = new BooleanOptionItem(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster]);
+
             CanKillWithDoubleClick = new BooleanOptionItem(Id + 5, "CanKillWithDoubleClick", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster]);
+
             KillCooldown = new FloatOptionItem(Id + 6, "KillCooldown", new(0f, 60f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CanKillWithDoubleClick)
                 .SetValueFormat(OptionFormat.Seconds);
+
             EnableCustomQuestionsOpt = new BooleanOptionItem(Id + 7, "QuizMaster.EnableCustomQuestions", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.QuizMaster]);
+
             CustomQuestionChance = new FloatOptionItem(Id + 8, "QuizMaster.CustomQuestionChance", new(0f, 100f, 5f), 50f, TabGroup.NeutralRoles)
                 .SetParent(EnableCustomQuestionsOpt)
                 .SetValueFormat(OptionFormat.Percent);
@@ -82,6 +89,7 @@ namespace EHR.Neutral
             Data = ((string.Empty, null), string.Empty, default, string.Empty, 0, string.Empty, 0, 0, 0, 0, 0);
 
             AllColors = [];
+
             LateTask.New(() =>
             {
                 foreach (PlayerControl pc in Main.AllPlayerControls)
@@ -97,6 +105,7 @@ namespace EHR.Neutral
             if (EnableCustomQuestions)
             {
                 string[] lines = File.ReadAllLines("./EHR_DATA/QuizMasterQuestions.txt");
+
                 IEnumerable<Question> questions = lines.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x =>
                 {
                     try
@@ -155,10 +164,7 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!base.OnCheckMurder(killer, target))
-            {
-                return false;
-            }
+            if (!base.OnCheckMurder(killer, target)) return false;
 
             if (!CanKillWithDoubleClick.GetBool())
             {
@@ -178,7 +184,7 @@ namespace EHR.Neutral
             List<int> allowedIndexes = [];
             List<int> allowedABCIndexes = [];
 
-            for (int i = 1; i <= 14; i++)
+            for (var i = 1; i <= 14; i++)
             {
                 switch (i)
                 {
@@ -196,7 +202,7 @@ namespace EHR.Neutral
                 }
             }
 
-            for (int i = 1; i <= 6; i++)
+            for (var i = 1; i <= 6; i++)
             {
                 switch (i)
                 {
@@ -207,12 +213,9 @@ namespace EHR.Neutral
                 }
             }
 
-            IRandom random = IRandom.Instance;
+            var random = IRandom.Instance;
 
-            if (EnableCustomQuestions && random.Next(100) < CustomQuestionChance.GetInt())
-            {
-                return CustomQuestions.RandomElement();
-            }
+            if (EnableCustomQuestions && random.Next(100) < CustomQuestionChance.GetInt()) return CustomQuestions.RandomElement();
 
             bool abc = random.Next(4) == 0;
             List<int> indexes = abc ? allowedABCIndexes : allowedIndexes;
@@ -272,10 +275,7 @@ namespace EHR.Neutral
 
         public override void OnReportDeadBody()
         {
-            if (Target == byte.MaxValue)
-            {
-                return;
-            }
+            if (Target == byte.MaxValue) return;
 
             CurrentQuestion = GetQuestion();
 
@@ -297,10 +297,7 @@ namespace EHR.Neutral
                 index = answer[0] - 'A';
 
                 string name = Utils.GetPlayerById(Target)?.GetNameWithRole();
-                if (index != -1)
-                {
-                    Logger.Info($"Player {name} answered {CurrentQuestion.Answers[index]}", "QuizMaster");
-                }
+                if (index != -1) Logger.Info($"Player {name} answered {CurrentQuestion.Answers[index]}", "QuizMaster");
 
                 if (CurrentQuestion.CorrectAnswerIndex == index)
                 {
@@ -321,18 +318,13 @@ namespace EHR.Neutral
                     Logger.Info($"Player {name} was killed for answering incorrectly", "QuizMaster");
                 }
             }
-            catch (IndexOutOfRangeException)
-            {
-            }
+            catch (IndexOutOfRangeException) { }
             catch (Exception e)
             {
                 Utils.ThrowException(e);
             }
 
-            if (index == -1)
-            {
-                return;
-            }
+            if (index == -1) return;
 
             CurrentQuestion = default;
             Target = byte.MaxValue;

@@ -32,15 +32,19 @@ namespace EHR.Crewmate
 
         public override void SetupCustomOption()
         {
-            int id = 648550;
+            var id = 648550;
             Options.SetupRoleOptions(id++, TabGroup.CrewmateRoles, CustomRoles.Lyncher);
+
             TaskNum = new IntegerOptionItem(++id, "Lyncher.TaskNum", new(1, 10, 1), 3, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Lyncher]);
+
             GuessMode = new StringOptionItem(++id, "Lyncher.GuessMode", GuessModes, 1, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Lyncher]);
+
             Vision = new FloatOptionItem(++id, "Vision", new(0f, 1.5f, 0.05f), 0.5f, TabGroup.CrewmateRoles)
                 .SetValueFormat(OptionFormat.Multiplier)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Lyncher]);
+
             Options.OverrideTasksData.Create(++id, TabGroup.CrewmateRoles, CustomRoles.Lyncher);
         }
 
@@ -62,13 +66,9 @@ namespace EHR.Crewmate
             Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 1, TasksCompleted);
 
             if (Main.HasJustStarted)
-            {
                 LateTask.New(Action, 12f, log: false);
-            }
             else
-            {
                 Action();
-            }
 
             return;
 
@@ -87,12 +87,10 @@ namespace EHR.Crewmate
 
         public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
-            if (!pc.IsAlive())
-            {
-                return;
-            }
+            if (!pc.IsAlive()) return;
 
             TasksCompleted++;
+
             if (TasksCompleted >= TaskNum.GetInt())
             {
                 RevealLetter();
@@ -100,9 +98,7 @@ namespace EHR.Crewmate
                 Utils.NotifyRoles(SpecifySeer: pc);
             }
             else
-            {
                 Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            }
 
             Utils.SendRPC(CustomRPC.SyncRoleData, LyncherId, 1, TasksCompleted);
         }
@@ -110,6 +106,7 @@ namespace EHR.Crewmate
         private void RevealLetter()
         {
             Dictionary<byte, char> nextLetters = AllRoleNames.ToDictionary(x => x.Key, x => x.Value.Except(KnownCharacters[x.Key]).RandomElement());
+
             KnownCharacters.Do(x =>
             {
                 x.Value.Add(nextLetters[x.Key]);
@@ -145,10 +142,7 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != LyncherId)
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != LyncherId) return string.Empty;
 
             return (seer.PlayerId == target.PlayerId) switch
             {

@@ -44,6 +44,7 @@ namespace EHR
             MinNeutrals = new IntegerOptionItem(id + 1, "HNS.MinNeutrals", new(0, 13, 1), 0, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(color);
+
             MaxNeutrals = new IntegerOptionItem(id + 2, "HNS.MaxNeutrals", new(0, 13, 1), 2, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.HideAndSeek)
                 .SetColor(color);
@@ -84,6 +85,7 @@ namespace EHR
             Main.AllPlayerKillCooldown.SetAllValues(Seeker.KillCooldown.GetFloat());
             IsBlindTime = true;
             Utils.MarkEveryoneDirtySettingsV4();
+
             LateTask.New(() =>
             {
                 IsBlindTime = false;
@@ -134,6 +136,7 @@ namespace EHR
                 [Team.Neutral] = IRandom.Instance.Next(MinNeutrals.GetInt(), MaxNeutrals.GetInt() + 1),
                 [Team.Impostor] = SeekerNum
             };
+
             memberNum[Team.Crewmate] = allPlayers.Count - memberNum.Values.Sum();
 
             Logger.Warn($"Number of impostors: {memberNum[Team.Impostor]}", "HnsRoleAssigner");
@@ -143,10 +146,7 @@ namespace EHR
                 try
                 {
                     PlayerControl pc = allPlayers.FirstOrDefault(x => x.PlayerId == item.Key);
-                    if (pc == null)
-                    {
-                        continue;
-                    }
+                    if (pc == null) continue;
 
                     result[pc] = item.Value;
                     allPlayers.Remove(pc);
@@ -171,19 +171,13 @@ namespace EHR
                 .GroupBy(x => x.First, x => x.Second)
                 .ToDictionary(x => x.Key, x => x.ToArray());
 
-            if (memberNum[Team.Neutral] > 0 && HideAndSeekRoles.TryGetValue(Team.Neutral, out Dictionary<CustomRoles, int> neutrals))
-            {
-                HideAndSeekRoles[Team.Neutral] = neutrals.Shuffle().ToDictionary(x => x.Key, x => x.Value);
-            }
+            if (memberNum[Team.Neutral] > 0 && HideAndSeekRoles.TryGetValue(Team.Neutral, out Dictionary<CustomRoles, int> neutrals)) HideAndSeekRoles[Team.Neutral] = neutrals.Shuffle().ToDictionary(x => x.Key, x => x.Value);
 
             foreach ((Team team, Dictionary<CustomRoles, int> roleCounts) in HideAndSeekRoles)
             {
                 try
                 {
-                    if (playerTeams[team].Length == 0 || memberNum[team] <= 0)
-                    {
-                        continue;
-                    }
+                    if (playerTeams[team].Length == 0 || memberNum[team] <= 0) continue;
                 }
                 catch (KeyNotFoundException)
                 {
@@ -192,41 +186,29 @@ namespace EHR
 
                 foreach ((CustomRoles role, int count) in roleCounts)
                 {
-                    for (int i = 0; i < count; i++)
+                    for (var i = 0; i < count; i++)
                     {
                         try
                         {
                             PlayerControl pc = playerTeams[team][0];
-                            if (pc == null)
-                            {
-                                continue;
-                            }
+                            if (pc == null) continue;
 
                             result[pc] = role;
                             allPlayers.Remove(pc);
                             playerTeams[team] = playerTeams[team][1..];
                             memberNum[team]--;
 
-                            if (memberNum[team] <= 0)
-                            {
-                                break;
-                            }
+                            if (memberNum[team] <= 0) break;
                         }
                         catch (Exception e)
                         {
-                            if (e is IndexOutOfRangeException)
-                            {
-                                break;
-                            }
+                            if (e is IndexOutOfRangeException) break;
 
                             Utils.ThrowException(e);
                         }
                     }
 
-                    if (playerTeams[team].Length == 0 || memberNum[team] <= 0)
-                    {
-                        break;
-                    }
+                    if (playerTeams[team].Length == 0 || memberNum[team] <= 0) break;
                 }
             }
 
@@ -238,10 +220,7 @@ namespace EHR
                 allPlayers.Remove(pc);
             }
 
-            if (allPlayers.Count > 0)
-            {
-                Logger.Error($"Some players were not assigned a role: {allPlayers.Join(x => x.GetRealName())}", "HnsRoleAssigner");
-            }
+            if (allPlayers.Count > 0) Logger.Error($"Some players were not assigned a role: {allPlayers.Join(x => x.GetRealName())}", "HnsRoleAssigner");
 
             Logger.Msg($"Roles: {result.Join(x => $"{x.Key.GetRealName()} => {x.Value}")}", "HnsRoleAssigner");
 
@@ -250,6 +229,7 @@ namespace EHR
                 .Select(x => (IHideAndSeekRole)Activator.CreateInstance(x))
                 .Where(x => x != null)
                 .ToDictionary(x => x.GetType().Name, x => x);
+
             PlayerRoles = result.ToDictionary(x => x.Key.PlayerId, x => (roleInterfaces[x.Value.ToString()], x.Value));
 
             LateTask.New(() => result.IntersectBy(Main.PlayerStates.Keys, x => x.Key.PlayerId).Do(x => x.Key.RpcSetCustomRole(x.Value)), 5f, log: false);
@@ -275,28 +255,16 @@ namespace EHR
 
         public static bool KnowTargetRoleColor(PlayerControl seer, PlayerControl target, ref string color)
         {
-            if (seer.PlayerId == target.PlayerId)
-            {
-                return true;
-            }
+            if (seer.PlayerId == target.PlayerId) return true;
 
-            if (!PlayerRoles.TryGetValue(target.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) targetRole))
-            {
-                return false;
-            }
+            if (!PlayerRoles.TryGetValue(target.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) targetRole)) return false;
 
-            if (!PlayerRoles.TryGetValue(seer.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) seerRole))
-            {
-                return false;
-            }
+            if (!PlayerRoles.TryGetValue(seer.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) seerRole)) return false;
 
             if (PlayersSeeRoles.GetBool())
             {
                 color = Main.RoleColors[targetRole.Role];
-                if (targetRole.Role == CustomRoles.Agent)
-                {
-                    color = Main.RoleColors[CustomRoles.Hider];
-                }
+                if (targetRole.Role == CustomRoles.Agent) color = Main.RoleColors[CustomRoles.Hider];
 
                 return true;
             }
@@ -312,50 +280,29 @@ namespace EHR
 
         public static bool HasTasks(NetworkedPlayerInfo playerInfo)
         {
-            if (!AmongUsClient.Instance.AmHost && playerInfo.PlayerId == PlayerControl.LocalPlayer.PlayerId)
-            {
-                return PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.Taskinator or CustomRoles.Hider or CustomRoles.Jet or CustomRoles.Detector or CustomRoles.Jumper;
-            }
+            if (!AmongUsClient.Instance.AmHost && playerInfo.PlayerId == PlayerControl.LocalPlayer.PlayerId) return PlayerControl.LocalPlayer.GetCustomRole() is CustomRoles.Taskinator or CustomRoles.Hider or CustomRoles.Jet or CustomRoles.Detector or CustomRoles.Jumper;
 
-            if (!PlayerRoles.TryGetValue(playerInfo.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) role))
-            {
-                return false;
-            }
+            if (!PlayerRoles.TryGetValue(playerInfo.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) role)) return false;
 
             return role.Interface.Team == Team.Crewmate || role.Role == CustomRoles.Taskinator;
         }
 
         public static bool IsRoleTextEnabled(PlayerControl seer, PlayerControl target)
         {
-            if (seer.PlayerId == target.PlayerId || PlayersSeeRoles.GetBool())
-            {
-                return true;
-            }
+            if (seer.PlayerId == target.PlayerId || PlayersSeeRoles.GetBool()) return true;
 
-            if (!PlayerRoles.TryGetValue(target.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) targetRole))
-            {
-                return false;
-            }
+            if (!PlayerRoles.TryGetValue(target.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) targetRole)) return false;
 
-            if (!PlayerRoles.TryGetValue(seer.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) seerRole))
-            {
-                return false;
-            }
+            if (!PlayerRoles.TryGetValue(seer.PlayerId, out (IHideAndSeekRole Interface, CustomRoles Role) seerRole)) return false;
 
             return targetRole.Interface.Team == Team.Impostor && (targetRole.Role != CustomRoles.Agent || seerRole.Interface.Team == Team.Impostor);
         }
 
         public static string GetSuffixText(PlayerControl seer, PlayerControl target, bool hud = false)
         {
-            if (GameStates.IsLobby || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted)
-            {
-                return string.Empty;
-            }
+            if (GameStates.IsLobby || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted) return string.Empty;
 
-            if (seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud) || TimeLeft < 0)
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != target.PlayerId || (seer.IsHost() && !hud) || TimeLeft < 0) return string.Empty;
 
             string dangerMeter = GetDangerMeter(seer);
 
@@ -365,10 +312,7 @@ namespace EHR
                 dangerMeter += TargetArrow.GetArrows(seer, agent);
             }
 
-            if (TimeLeft <= 60)
-            {
-                return $"{dangerMeter}\n<color={Main.RoleColors[CustomRoles.Hider]}>{Translator.GetString("TimeLeft")}:</color> {TimeLeft}s";
-            }
+            if (TimeLeft <= 60) return $"{dangerMeter}\n<color={Main.RoleColors[CustomRoles.Hider]}>{Translator.GetString("TimeLeft")}:</color> {TimeLeft}s";
 
             int minutes = TimeLeft / 60;
             int seconds = TimeLeft % 60;
@@ -446,15 +390,14 @@ namespace EHR
         public static void AddFoxesToWinners()
         {
             List<byte> foxes = Main.PlayerStates.Where(x => x.Value.MainRole == CustomRoles.Fox).Select(x => x.Key).ToList();
+
             foxes.RemoveAll(x =>
             {
                 PlayerControl pc = Utils.GetPlayerById(x);
                 return pc == null || !pc.IsAlive();
             });
-            if (foxes.Count == 0)
-            {
-                return;
-            }
+
+            if (foxes.Count == 0) return;
 
             CustomWinnerHolder.AdditionalWinnerTeams.Add(AdditionalWinners.Fox);
             CustomWinnerHolder.WinnerIds.UnionWith(foxes);
@@ -474,20 +417,13 @@ namespace EHR
                 bool alive = !state.Value.IsDead;
 
                 TaskState ts = state.Value.TaskState;
-                string stateText = string.Empty;
-                if (PlayersSeeRoles.GetBool())
-                {
-                    stateText = $" ({GetRole().ToColoredString()}){GetTaskCount()}";
-                }
-                else if (isSeeker)
-                {
-                    stateText = $" ({CustomRoles.Seeker.ToColoredString()})";
-                }
+                var stateText = string.Empty;
 
-                if (!alive)
-                {
-                    stateText += $"  <color=#ff0000>{Translator.GetString("Dead")}</color>";
-                }
+                if (PlayersSeeRoles.GetBool())
+                    stateText = $" ({GetRole().ToColoredString()}){GetTaskCount()}";
+                else if (isSeeker) stateText = $" ({CustomRoles.Seeker.ToColoredString()})";
+
+                if (!alive) stateText += $"  <color=#ff0000>{Translator.GetString("Dead")}</color>";
 
                 stateText = $"{name}{stateText}";
                 return stateText;
@@ -507,6 +443,7 @@ namespace EHR
             {
                 StringBuilder sb = new();
                 bool flag = PlayerControl.LocalPlayer.Data.Role != null && PlayerControl.LocalPlayer.Data.Role.IsImpostor;
+
                 foreach (PlayerTask task in PlayerControl.LocalPlayer.myTasks)
                 {
                     if (task != null)
@@ -528,10 +465,7 @@ namespace EHR
 
         public static void OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null || PlayerRoles[killer.PlayerId].Interface.Team != Team.Impostor || PlayerRoles[target.PlayerId].Interface.Team == Team.Impostor)
-            {
-                return;
-            }
+            if (killer == null || target == null || PlayerRoles[killer.PlayerId].Interface.Team != Team.Impostor || PlayerRoles[target.PlayerId].Interface.Team == Team.Impostor) return;
 
             killer.Kill(target);
 
@@ -544,25 +478,17 @@ namespace EHR
             }
         }
 
-        public static void OnCoEnterVent(PlayerPhysics physics, int ventId)
-        {
-        }
+        public static void OnCoEnterVent(PlayerPhysics physics, int ventId) { }
 
         [HarmonyPatch(typeof(PlayerControl), nameof(PlayerControl.FixedUpdate))]
         private class FixedUpdatePatch
         {
             public static void Postfix()
             {
-                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted)
-                {
-                    return;
-                }
+                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.HideAndSeek || Main.HasJustStarted) return;
 
                 long now = Utils.TimeStamp;
-                if (LastUpdate == now)
-                {
-                    return;
-                }
+                if (LastUpdate == now) return;
 
                 LastUpdate = now;
 
@@ -578,14 +504,9 @@ namespace EHR
                     ClosestImpostor = nonImps.ToDictionary(x => x.Key, x => imps.MinBy(y => Vector2.Distance(y.Value, idPosPairs[x.Key])).Key);
                     Danger = nonImps.ToDictionary(x => x.Key, x => Math.Clamp(((1 + (int)Math.Ceiling(Vector2.Distance(idPosPairs[x.Key], idPosPairs[ClosestImpostor[x.Key]]))) / 3) - 1, 0, 5));
                 }
-                catch
-                {
-                }
+                catch { }
 
-                if (DangerMeter.GetBool() || (TimeLeft + 1) % 60 == 0 || TimeLeft <= 60)
-                {
-                    Utils.NotifyRoles();
-                }
+                if (DangerMeter.GetBool() || (TimeLeft + 1) % 60 == 0 || TimeLeft <= 60) Utils.NotifyRoles();
             }
         }
     }

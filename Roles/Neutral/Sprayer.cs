@@ -34,28 +34,37 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Sprayer);
+
             KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Seconds);
+
             HasImpostorVision = new BooleanOptionItem(Id + 3, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer]);
+
             CanVent = new BooleanOptionItem(Id + 4, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer]);
+
             CD = new IntegerOptionItem(Id + 5, "AbilityCooldown", new(0, 90, 1), 15, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Seconds);
+
             UseLimitOpt = new IntegerOptionItem(Id + 6, "AbilityUseLimit", new(1, 90, 1), 5, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Times);
+
             LoweredVision = new FloatOptionItem(Id + 7, "FFA_LowerVision", new(0.05f, 1.5f, 0.05f), 0.25f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             LoweredSpeed = new FloatOptionItem(Id + 8, "FFA_DecreasedSpeed", new(0.05f, 3f, 0.05f), 0.8f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             EffectDuration = new IntegerOptionItem(Id + 10, "NegativeEffectDuration", new(1, 90, 1), 10, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Seconds);
+
             MaxTrappedTimes = new IntegerOptionItem(Id + 9, "SprayerMaxTrappedTimes", new(1, 90, 1), 3, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sprayer])
                 .SetValueFormat(OptionFormat.Times);
@@ -75,10 +84,7 @@ namespace EHR.Neutral
             SprayerId = playerId;
             playerId.SetAbilityUseLimit(UseLimitOpt.GetInt());
 
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-            {
-                TrappedCount[pc.PlayerId] = 0;
-            }
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls) TrappedCount[pc.PlayerId] = 0;
         }
 
         public override void SetKillCooldown(byte id)
@@ -99,15 +105,9 @@ namespace EHR.Neutral
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             opt.SetVision(HasImpostorVision.GetBool());
-            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
-            {
-                AURoleOptions.PhantomCooldown = CD.GetInt();
-            }
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = CD.GetInt();
 
-            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
-            {
-                AURoleOptions.ShapeshifterCooldown = CD.GetInt();
-            }
+            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool()) AURoleOptions.ShapeshifterCooldown = CD.GetInt();
         }
 
         public override bool OnSabotage(PlayerControl pc)
@@ -129,10 +129,7 @@ namespace EHR.Neutral
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting && !UseUnshiftTrigger.GetBool())
-            {
-                return true;
-            }
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
 
             PlaceTrap();
             return false;
@@ -140,42 +137,27 @@ namespace EHR.Neutral
 
         private void PlaceTrap()
         {
-            if (!IsEnable || SprayerId.GetAbilityUseLimit() <= 0 || SprayerPC.HasAbilityCD())
-            {
-                return;
-            }
+            if (!IsEnable || SprayerId.GetAbilityUseLimit() <= 0 || SprayerPC.HasAbilityCD()) return;
 
             Vector2 pos = SprayerPC.Pos();
             Traps[pos] = new(pos, [SprayerId]);
             SprayerPC.RpcRemoveAbilityUse();
 
-            if (SprayerId.GetAbilityUseLimit() > 0)
-            {
-                SprayerPC.AddAbilityCD(CD.GetInt());
-            }
+            if (SprayerId.GetAbilityUseLimit() > 0) SprayerPC.AddAbilityCD(CD.GetInt());
 
             SprayerPC.Notify(GetString("SprayerNotify"));
         }
 
         public override void OnCheckPlayerPosition(PlayerControl pc)
         {
-            if (!IsEnable || !GameStates.IsInTask || Traps.Count == 0)
-            {
-                return;
-            }
+            if (!IsEnable || !GameStates.IsInTask || Traps.Count == 0) return;
 
             long now = TimeStamp;
 
-            if (pc.PlayerId == SprayerId)
-            {
-                return;
-            }
+            if (pc.PlayerId == SprayerId) return;
 
             LastUpdate.TryAdd(pc.PlayerId, now);
-            if (LastUpdate[pc.PlayerId] + 3 > now)
-            {
-                return;
-            }
+            if (LastUpdate[pc.PlayerId] + 3 > now) return;
 
             LastUpdate[pc.PlayerId] = now;
 
@@ -188,6 +170,7 @@ namespace EHR.Neutral
                     Main.AllPlayerSpeed[playerId] = LoweredSpeed.GetFloat();
                     LowerVisionList.Add(playerId);
                     TrappedCount[playerId]++;
+
                     if (TrappedCount[playerId] > MaxTrappedTimes.GetInt())
                     {
                         pc.Suicide(realKiller: SprayerPC);
@@ -196,14 +179,12 @@ namespace EHR.Neutral
                     else
                     {
                         pc.MarkDirtySettings();
+
                         LateTask.New(() =>
                         {
                             Main.AllPlayerSpeed[playerId] = tempSpeed;
                             LowerVisionList.Remove(playerId);
-                            if (GameStates.IsInTask)
-                            {
-                                pc.MarkDirtySettings();
-                            }
+                            if (GameStates.IsInTask) pc.MarkDirtySettings();
                         }, EffectDuration.GetFloat(), "Sprayer Revert Effects");
                     }
                 }
@@ -218,10 +199,7 @@ namespace EHR.Neutral
 
         public override void AfterMeetingTasks()
         {
-            if (SprayerId.GetAbilityUseLimit() > 0)
-            {
-                SprayerPC.AddAbilityCD(Math.Max(15, CD.GetInt()));
-            }
+            if (SprayerId.GetAbilityUseLimit() > 0) SprayerPC.AddAbilityCD(Math.Max(15, CD.GetInt()));
         }
     }
 }

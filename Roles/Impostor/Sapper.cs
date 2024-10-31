@@ -25,10 +25,13 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Sapper);
+
             ShapeshiftCooldown = new FloatOptionItem(Id + 11, "SapperCD", new(0f, 180f, 2.5f), 30f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
                 .SetValueFormat(OptionFormat.Seconds);
+
             Delay = new IntegerOptionItem(Id + 12, "SapperDelay", new(1, 15, 1), 5, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
                 .SetValueFormat(OptionFormat.Times);
+
             Radius = new FloatOptionItem(Id + 13, "SapperRadius", new(0f, 10f, 0.25f), 3f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Sapper])
                 .SetValueFormat(OptionFormat.Multiplier);
         }
@@ -47,9 +50,7 @@ namespace EHR.Impostor
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             if (UsePhantomBasis.GetBool())
-            {
                 AURoleOptions.PhantomCooldown = ShapeshiftCooldown.GetFloat();
-            }
             else
             {
                 AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
@@ -64,10 +65,7 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting && !UseUnshiftTrigger.GetBool())
-            {
-                return true;
-            }
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
 
             return PlaceBomb(shapeshifter);
         }
@@ -94,15 +92,9 @@ namespace EHR.Impostor
 
         private static bool PlaceBomb(PlayerControl pc)
         {
-            if (pc == null)
-            {
-                return false;
-            }
+            if (pc == null) return false;
 
-            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId))
-            {
-                return false;
-            }
+            if (!pc.IsAlive() || Pelican.IsEaten(pc.PlayerId)) return false;
 
             Bombs.TryAdd(pc.Pos(), TimeStamp);
 
@@ -111,15 +103,13 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (pc == null || Bombs.Count == 0 || !GameStates.IsInTask || !pc.IsAlive())
-            {
-                return;
-            }
+            if (pc == null || Bombs.Count == 0 || !GameStates.IsInTask || !pc.IsAlive()) return;
 
             foreach (KeyValuePair<Vector2, long> bomb in Bombs.Where(bomb => bomb.Value + Delay.GetInt() < TimeStamp))
             {
-                bool b = false;
+                var b = false;
                 IEnumerable<PlayerControl> players = GetPlayersInRadius(Radius.GetFloat(), bomb.Key);
+
                 foreach (PlayerControl tg in players.ToArray())
                 {
                     if (tg.PlayerId == pc.PlayerId)
@@ -133,23 +123,18 @@ namespace EHR.Impostor
 
                 Bombs.Remove(bomb.Key);
                 pc.Notify(GetString("MagicianBombExploded"));
+
                 if (b)
                 {
                     LateTask.New(() =>
                     {
-                        if (!GameStates.IsEnded)
-                        {
-                            pc.Suicide(PlayerState.DeathReason.Bombed);
-                        }
+                        if (!GameStates.IsEnded) pc.Suicide(PlayerState.DeathReason.Bombed);
                     }, 0.5f, "Sapper Bomb Suicide");
                 }
             }
 
-            StringBuilder sb = new StringBuilder();
-            foreach (long x in Bombs.Values)
-            {
-                sb.Append(string.Format(GetString("MagicianBombExlodesIn"), Delay.GetInt() - (TimeStamp - x) + 1));
-            }
+            var sb = new StringBuilder();
+            foreach (long x in Bombs.Values) sb.Append(string.Format(GetString("MagicianBombExlodesIn"), Delay.GetInt() - (TimeStamp - x) + 1));
 
             pc.Notify(sb.ToString(), overrideAll: true);
         }
@@ -162,13 +147,9 @@ namespace EHR.Impostor
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             if (UsePets.GetBool())
-            {
                 hud.PetButton?.OverrideText(GetString("BomberShapeshiftText"));
-            }
             else
-            {
                 hud.AbilityButton?.OverrideText(GetString("BomberShapeshiftText"));
-            }
         }
     }
 }

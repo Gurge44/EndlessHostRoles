@@ -21,12 +21,15 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Crusader);
+
             SkillCooldown = new FloatOptionItem(Id + 10, "CrusaderSkillCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Crusader])
                 .SetValueFormat(OptionFormat.Seconds);
+
             SkillLimitOpt = new IntegerOptionItem(Id + 11, "CrusaderSkillLimit", new(1, 10, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Crusader])
                 .SetValueFormat(OptionFormat.Times);
+
             UsePet = Options.CreatePetUseSetting(Id + 12, CustomRoles.Crusader);
         }
 
@@ -66,10 +69,7 @@ namespace EHR.Crewmate
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer.GetAbilityUseLimit() <= 0)
-            {
-                return false;
-            }
+            if (killer.GetAbilityUseLimit() <= 0) return false;
 
             ForCrusade.Remove(target.PlayerId);
             ForCrusade.Add(target.PlayerId);

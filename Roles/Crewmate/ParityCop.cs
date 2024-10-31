@@ -40,31 +40,42 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.ParityCop);
+
             TryHideMsg = new BooleanOptionItem(Id + 10, "ParityCopTryHideMsg", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
                 .SetColor(Color.green);
+
             ParityCheckLimitMax = new IntegerOptionItem(Id + 11, "MaxParityCheckLimit", new(0, 20, 1), 2, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
                 .SetValueFormat(OptionFormat.Times);
+
             ParityCheckLimitPerMeeting = new IntegerOptionItem(Id + 12, "ParityCheckLimitPerMeeting", new(1, 20, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
                 .SetValueFormat(OptionFormat.Times);
+
             ParityCheckEgoistCountType = new StringOptionItem(Id + 13, "ParityCheckEgoistickCountMode", PcEgoistCountMode, 0, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
+
             ParityCheckBaitCountType = new BooleanOptionItem(Id + 14, "ParityCheckBaitCountMode", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
+
             ParityCheckTargetKnow = new BooleanOptionItem(Id + 15, "ParityCheckTargetKnow", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop]);
+
             ParityCheckOtherTargetKnow = new BooleanOptionItem(Id + 16, "ParityCheckOtherTargetKnow", true, TabGroup.CrewmateRoles)
                 .SetParent(ParityCheckTargetKnow);
+
             ParityCheckRevealTargetTeam = new BooleanOptionItem(Id + 17, "ParityCheckRevealTarget", false, TabGroup.CrewmateRoles)
                 .SetParent(ParityCheckOtherTargetKnow);
+
             ParityAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 18, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1.5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 19, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.ParityCop])
                 .SetValueFormat(OptionFormat.Times);
+
             OverrideTasksData.Create(Id + 20, TabGroup.CrewmateRoles, CustomRoles.ParityCop);
         }
 
@@ -90,45 +101,28 @@ namespace EHR.Crewmate
         public override void OnReportDeadBody()
         {
             RoundCheckLimit.Clear();
-            foreach (byte pc in PlayerIdList)
-            {
-                RoundCheckLimit.Add(pc, ParityCheckLimitPerMeeting.GetInt());
-            }
+            foreach (byte pc in PlayerIdList) RoundCheckLimit.Add(pc, ParityCheckLimitPerMeeting.GetInt());
         }
 
         public static bool ParityCheckMsg(PlayerControl pc, string msg, bool isUI = false)
         {
             string originMsg = msg;
 
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return false;
-            }
+            if (!AmongUsClient.Instance.AmHost) return false;
 
-            if (!GameStates.IsInGame || pc == null)
-            {
-                return false;
-            }
+            if (!GameStates.IsInGame || pc == null) return false;
 
-            if (!pc.Is(CustomRoles.ParityCop))
-            {
-                return false;
-            }
+            if (!pc.Is(CustomRoles.ParityCop)) return false;
 
             int operate; // 1:ID 2:Check
             msg = msg.ToLower().TrimStart().TrimEnd();
+
             if (CheckCommand(ref msg, "id|guesslist|gl编号|玩家编号|玩家id|id列表|玩家列表|列表|所有id|全部id"))
-            {
                 operate = 1;
-            }
             else if (CheckCommand(ref msg, "compare|cp|cmp|比较", false))
-            {
                 operate = 2;
-            }
             else
-            {
                 return false;
-            }
 
             if (!pc.IsAlive())
             {
@@ -144,13 +138,8 @@ namespace EHR.Crewmate
                 case 2:
                 {
                     if (TryHideMsg.GetBool()) /*TryHideMsgForCompare();*/
-                    {
                         ChatManager.SendPreviousMessagesToAll();
-                    }
-                    else if (pc.AmOwner)
-                    {
-                        Utils.SendMessage(originMsg, 255, pc.GetRealName());
-                    }
+                    else if (pc.AmOwner) Utils.SendMessage(originMsg, 255, pc.GetRealName());
 
                     if (!MsgToPlayerAndRole(msg, out byte targetId1, out byte targetId2, out string error))
                     {
@@ -160,11 +149,13 @@ namespace EHR.Crewmate
 
                     PlayerControl target1 = Utils.GetPlayerById(targetId1);
                     PlayerControl target2 = Utils.GetPlayerById(targetId2);
+
                     if (target1 != null && target2 != null)
                     {
                         Logger.Info($"{pc.GetNameWithRole().RemoveHtmlTags()} checked {target1.GetNameWithRole().RemoveHtmlTags()} and {target2.GetNameWithRole().RemoveHtmlTags()}", "ParityCop");
 
                         bool outOfUses = pc.GetAbilityUseLimit() < 1;
+
                         if (outOfUses || RoundCheckLimit[pc.PlayerId] < 1)
                         {
                             if (outOfUses)
@@ -172,13 +163,9 @@ namespace EHR.Crewmate
                                 LateTask.New(() =>
                                 {
                                     if (!isUI)
-                                    {
                                         Utils.SendMessage(GetString("ParityCheckMax"), pc.PlayerId);
-                                    }
                                     else
-                                    {
                                         pc.ShowPopUp(GetString("ParityCheckMax"));
-                                    }
 
                                     Logger.Msg("Check attempted at max checks per game", "Parity Cop");
                                 }, 0.2f, "ParityCop 0");
@@ -188,13 +175,9 @@ namespace EHR.Crewmate
                                 LateTask.New(() =>
                                 {
                                     if (!isUI)
-                                    {
                                         Utils.SendMessage(GetString("ParityCheckRound"), pc.PlayerId);
-                                    }
                                     else
-                                    {
                                         pc.ShowPopUp(GetString("ParityCheckRound"));
-                                    }
 
                                     Logger.Msg("Check attempted at max checks per meeting", "Parity Cop");
                                 }, 0.2f, "ParityCop 1");
@@ -208,16 +191,13 @@ namespace EHR.Crewmate
                             LateTask.New(() =>
                             {
                                 if (!isUI)
-                                {
                                     Utils.SendMessage(GetString("ParityCheckSelf"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
-                                }
                                 else
-                                {
                                     pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckSelf")) + "\n" + GetString("ParityCheckTitle"));
-                                }
 
                                 Logger.Msg("Check attempted on self", "Parity Cop");
                             }, 0.2f, "ParityCop 2");
+
                             return true;
                         }
 
@@ -226,16 +206,13 @@ namespace EHR.Crewmate
                             LateTask.New(() =>
                             {
                                 if (!isUI)
-                                {
                                     Utils.SendMessage(GetString("ParityCheckReveal"), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
-                                }
                                 else
-                                {
                                     pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckReveal")) + "\n" + GetString("ParityCheckTitle"));
-                                }
 
                                 Logger.Msg("Check attempted on revealed role", "Parity Cop");
                             }, 0.2f, "ParityCop 3");
+
                             return true;
                         }
 
@@ -244,13 +221,9 @@ namespace EHR.Crewmate
                             LateTask.New(() =>
                             {
                                 if (!isUI)
-                                {
                                     Utils.SendMessage(string.Format(GetString("ParityCheckTrue"), target1.GetRealName(), target2.GetRealName()), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
-                                }
                                 else
-                                {
                                     pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTrue")) + "\n" + GetString("ParityCheckTitle"));
-                                }
 
                                 Logger.Msg("Check attempt, result TRUE", "Parity Cop");
                             }, 0.2f, "ParityCop 4");
@@ -260,13 +233,9 @@ namespace EHR.Crewmate
                             LateTask.New(() =>
                             {
                                 if (!isUI)
-                                {
                                     Utils.SendMessage(string.Format(GetString("ParityCheckFalse"), target1.GetRealName(), target2.GetRealName()), pc.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
-                                }
                                 else
-                                {
                                     pc.ShowPopUp(Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckFalse")) + "\n" + GetString("ParityCheckTitle"));
-                                }
 
                                 Logger.Msg("Check attempt, result FALSE", "Parity Cop");
                             }, 0.2f, "ParityCop 5");
@@ -274,21 +243,16 @@ namespace EHR.Crewmate
 
                         if (ParityCheckTargetKnow.GetBool())
                         {
-                            string textToSend = $"{target1.GetRealName()}";
-                            if (ParityCheckOtherTargetKnow.GetBool())
-                            {
-                                textToSend += $" and {target2.GetRealName()}";
-                            }
+                            var textToSend = $"{target1.GetRealName()}";
+                            if (ParityCheckOtherTargetKnow.GetBool()) textToSend += $" and {target2.GetRealName()}";
 
                             textToSend += GetString("ParityCheckTargetMsg");
 
-                            string textToSend1 = $"{target2.GetRealName()}";
-                            if (ParityCheckOtherTargetKnow.GetBool())
-                            {
-                                textToSend1 += $" and {target1.GetRealName()}";
-                            }
+                            var textToSend1 = $"{target2.GetRealName()}";
+                            if (ParityCheckOtherTargetKnow.GetBool()) textToSend1 += $" and {target1.GetRealName()}";
 
                             textToSend1 += GetString("ParityCheckTargetMsg");
+
                             LateTask.New(() =>
                             {
                                 Utils.SendMessage(textToSend, target1.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.ParityCop), GetString("ParityCheckTitle")));
@@ -300,29 +264,19 @@ namespace EHR.Crewmate
                             if (ParityCheckRevealTargetTeam.GetBool() && pc.AllTasksCompleted())
                             {
                                 string roleT1 = string.Empty, roleT2 = string.Empty;
+
                                 if (target1.Is(Team.Impostor) || target1.GetCustomSubRoles().Any(role => role.IsImpostorTeamV2()))
-                                {
                                     roleT1 = "Impostor";
-                                }
                                 else if (target1.Is(Team.Neutral) || target1.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2()))
-                                {
                                     roleT1 = "Neutral";
-                                }
                                 else if (target1.Is(Team.Crewmate) && (target1.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || target1.GetCustomSubRoles().Count == 0))
 
                                 {
                                     if (target2.Is(Team.Impostor) || target2.GetCustomSubRoles().Any(role => role.IsImpostorTeamV2()))
-                                    {
                                         roleT2 = "Impostor";
-                                    }
                                     else if (target2.Is(Team.Neutral) || target2.GetCustomSubRoles().Any(role => role.IsNeutralTeamV2()))
-                                    {
                                         roleT2 = "Neutral";
-                                    }
-                                    else if (target2.Is(Team.Crewmate) && (target2.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || target2.GetCustomSubRoles().Count == 0))
-                                    {
-                                        roleT2 = "Crewmate";
-                                    }
+                                    else if (target2.Is(Team.Crewmate) && (target2.GetCustomSubRoles().Any(role => role.IsCrewmateTeamV2()) || target2.GetCustomSubRoles().Count == 0)) roleT2 = "Crewmate";
                                 }
 
                                 LateTask.New(() =>
@@ -375,35 +329,24 @@ namespace EHR.Crewmate
                 case Necromancer when firstRoleClass is Deathknight: return true;
             }
 
-            if (CustomTeamManager.AreInSameCustomTeam(first.PlayerId, second.PlayerId))
-            {
-                return true;
-            }
+            if (CustomTeamManager.AreInSameCustomTeam(first.PlayerId, second.PlayerId)) return true;
 
-            if (firstSubRoles.Contains(CustomRoles.Bloodlust) || secondSubRoles.Contains(CustomRoles.Bloodlust))
-            {
-                return false;
-            }
+            if (firstSubRoles.Contains(CustomRoles.Bloodlust) || secondSubRoles.Contains(CustomRoles.Bloodlust)) return false;
 
-            if (firstRole.IsNeutral() && secondRole.IsNeutral())
-            {
-                return false;
-            }
+            if (firstRole.IsNeutral() && secondRole.IsNeutral()) return false;
 
             return firstTeam == secondTeam || firstRole == secondRole;
         }
 
         private static bool MsgToPlayerAndRole(string msg, out byte id1, out byte id2, out string error)
         {
-            if (msg.StartsWith("/"))
-            {
-                msg = msg.Replace("/", string.Empty);
-            }
+            if (msg.StartsWith("/")) msg = msg.Replace("/", string.Empty);
 
             msg = msg.TrimStart().TrimEnd();
             Logger.Msg(msg, "ParityCop");
 
             string[] nums = msg.Split(" ");
+
             if (nums.Length != 2 || !int.TryParse(nums[0], out int num1) || !int.TryParse(nums[1], out int num2))
             {
                 Logger.Msg($"nums.Length {nums.Length}, nums0 {nums[0]}, nums1 {nums[1]}", "ParityCop");
@@ -418,6 +361,7 @@ namespace EHR.Crewmate
 
             PlayerControl target1 = Utils.GetPlayerById(id1);
             PlayerControl target2 = Utils.GetPlayerById(id2);
+
             if (target1 == null || target1.Data.IsDead || target2 == null || target2.Data.IsDead)
             {
                 error = GetString("ParityCheckNull");
@@ -431,14 +375,12 @@ namespace EHR.Crewmate
         public static bool CheckCommand(ref string msg, string command, bool exact = true)
         {
             string[] comList = command.Split('|');
+
             foreach (string str in comList)
             {
                 if (exact)
                 {
-                    if (msg == "/" + str)
-                    {
-                        return true;
-                    }
+                    if (msg == "/" + str) return true;
                 }
                 else
                 {
@@ -458,10 +400,7 @@ namespace EHR.Crewmate
             Logger.Msg($"Click: ID {playerId}", "Inspector UI");
             PlayerControl pc = Utils.GetPlayerById(playerId);
             byte lpcId = PlayerControl.LocalPlayer.PlayerId;
-            if (pc == null || !pc.IsAlive() || !GameStates.IsVoting || !AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (pc == null || !pc.IsAlive() || !GameStates.IsVoting || !AmongUsClient.Instance.AmHost) return;
 
             if (FirstPick.TryGetValue(lpcId, out byte firstPick))
             {
@@ -469,9 +408,7 @@ namespace EHR.Crewmate
                 FirstPick.Remove(lpcId);
             }
             else
-            {
                 FirstPick.Add(lpcId, playerId);
-            }
         }
 
         public static void CreateParityCopButton(MeetingHud __instance)
@@ -479,18 +416,15 @@ namespace EHR.Crewmate
             foreach (PlayerVoteArea pva in __instance.playerStates)
             {
                 PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
-                if (pc == null || !pc.IsAlive())
-                {
-                    continue;
-                }
+                if (pc == null || !pc.IsAlive()) continue;
 
                 GameObject template = pva.Buttons.transform.Find("CancelButton").gameObject;
                 GameObject targetBox = Object.Instantiate(template, pva.transform);
                 targetBox.name = "ShootButton";
                 targetBox.transform.localPosition = new(-0.35f, 0.03f, -1.31f);
-                SpriteRenderer renderer = targetBox.GetComponent<SpriteRenderer>();
+                var renderer = targetBox.GetComponent<SpriteRenderer>();
                 renderer.sprite = CustomButton.Get("ParityCopIcon");
-                PassiveButton button = targetBox.GetComponent<PassiveButton>();
+                var button = targetBox.GetComponent<PassiveButton>();
                 button.OnClick.RemoveAllListeners();
                 button.OnClick.AddListener((Action)(() => ParityCopOnClick(pva.TargetPlayerId /*, __instance*/)));
             }
@@ -501,10 +435,7 @@ namespace EHR.Crewmate
         {
             public static void Postfix(MeetingHud __instance)
             {
-                if (PlayerControl.LocalPlayer.Is(CustomRoles.ParityCop) && PlayerControl.LocalPlayer.IsAlive() && AmongUsClient.Instance.AmHost)
-                {
-                    CreateParityCopButton(__instance);
-                }
+                if (PlayerControl.LocalPlayer.Is(CustomRoles.ParityCop) && PlayerControl.LocalPlayer.IsAlive() && AmongUsClient.Instance.AmHost) CreateParityCopButton(__instance);
             }
         }
     }

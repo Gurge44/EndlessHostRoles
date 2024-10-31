@@ -11,25 +11,16 @@ namespace EHR
         {
             canUse = couldUse = false;
             // Even if you return this with false, usable items other than tasks will remain usable (buttons, etc.)
-            if (Main.GM.Value && AmongUsClient.Instance.AmHost && GameStates.InGame)
-            {
-                return false;
-            }
+            if (Main.GM.Value && AmongUsClient.Instance.AmHost && GameStates.InGame) return false;
 
             PlayerControl lp = PlayerControl.LocalPlayer;
             return __instance.AllowImpostor || (Utils.HasTasks(lp.Data, false) && (!lp.Is(CustomRoles.Wizard) || HasTasksAsWizard()));
 
             bool HasTasksAsWizard()
             {
-                if (lp.GetTaskState().IsTaskFinished)
-                {
-                    return false;
-                }
+                if (lp.GetTaskState().IsTaskFinished) return false;
 
-                if (!lp.IsAlive())
-                {
-                    return true;
-                }
+                if (!lp.IsAlive()) return true;
 
                 return lp.GetAbilityUseLimit() < 1f;
             }
@@ -41,10 +32,7 @@ namespace EHR
     {
         public static void Postfix(EmergencyMinigame __instance)
         {
-            if (Options.DisableMeeting.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard)
-            {
-                __instance.Close();
-            }
+            if (Options.DisableMeeting.GetBool() || Options.CurrentGameMode != CustomGameMode.Standard) __instance.Close();
         }
     }
 
@@ -67,17 +55,14 @@ namespace EHR
 
             canUse = couldUse;
             // Not available if custom roles are not available
-            if (!canUse)
-            {
-                return false;
-            }
+            if (!canUse) return false;
 
             // Mod's own processing up to this point
             // Replace vanilla processing from here
 
-            IUsable usableVent = __instance.Cast<IUsable>();
+            var usableVent = __instance.Cast<IUsable>();
             // Distance between vent and player
-            float actualDistance = float.MaxValue;
+            var actualDistance = float.MaxValue;
 
             couldUse =
                 // true for classic and for vanilla HnS
@@ -91,15 +76,13 @@ namespace EHR
             // Check vent cleaning
             if (ShipStatus.Instance.Systems.TryGetValue(SystemTypes.Ventilation, out ISystemType systemType))
             {
-                VentilationSystem ventilationSystem = systemType.TryCast<VentilationSystem>();
+                var ventilationSystem = systemType.TryCast<VentilationSystem>();
                 // If someone is cleaning a vent, you can't get into that vent
-                if (ventilationSystem != null && ventilationSystem.IsVentCurrentlyBeingCleaned(__instance.Id))
-                {
-                    couldUse = false;
-                }
+                if (ventilationSystem != null && ventilationSystem.IsVentCurrentlyBeingCleaned(__instance.Id)) couldUse = false;
             }
 
             canUse = couldUse;
+
             if (canUse)
             {
                 Vector3 center = playerControl.Collider.bounds.center;
@@ -118,10 +101,7 @@ namespace EHR
     {
         public static bool Prefix(ref bool __result)
         {
-            if (RunLoginPatch.ClickCount < 20)
-            {
-                return true;
-            }
+            if (RunLoginPatch.ClickCount < 20) return true;
             // __result = true;
             // return false;
         }

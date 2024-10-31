@@ -35,15 +35,19 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Farseer);
+
             FarseerCooldown = new FloatOptionItem(Id + 10, "FarseerRevealCooldown", new(0f, 60f, 2.5f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
                 .SetValueFormat(OptionFormat.Seconds);
+
             FarseerRevealTime = new FloatOptionItem(Id + 11, "FarseerRevealTime", new(0f, 30f, 1f), 10f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
                 .SetValueFormat(OptionFormat.Seconds);
+
             Vision = new FloatOptionItem(Id + 12, "FarseerVision", new(0f, 1f, 0.05f), 0.25f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Farseer])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             UsePet = CreatePetUseSetting(Id + 13, CustomRoles.Farseer);
         }
 
@@ -56,10 +60,7 @@ namespace EHR.Crewmate
         {
             On = true;
 
-            foreach (PlayerControl ar in Main.AllPlayerControls)
-            {
-                IsRevealed[(playerId, ar.PlayerId)] = false;
-            }
+            foreach (PlayerControl ar in Main.AllPlayerControls) IsRevealed[(playerId, ar.PlayerId)] = false;
 
             RandomRole[playerId] = GetRandomCrewRoleString();
         }
@@ -84,6 +85,7 @@ namespace EHR.Crewmate
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
             killer.SetKillCooldown(FarseerRevealTime.GetFloat());
+
             if (!IsRevealed[(killer.PlayerId, target.PlayerId)] && !FarseerTimer.ContainsKey(killer.PlayerId))
             {
                 FarseerTimer.TryAdd(killer.PlayerId, (target, 0f));
@@ -108,20 +110,15 @@ namespace EHR.Crewmate
                 {
                     PlayerControl arTarget = FarseerTimer[player.PlayerId].PLAYER;
                     float arTime = FarseerTimer[player.PlayerId].TIMER;
+
                     if (!arTarget.IsAlive())
-                    {
                         FarseerTimer.Remove(player.PlayerId);
-                    }
                     else if (arTime >= FarseerRevealTime.GetFloat())
                     {
                         if (UsePets.GetBool() && UsePet.GetBool())
-                        {
                             player.AddKCDAsAbilityCD();
-                        }
                         else
-                        {
                             player.SetKillCooldown();
-                        }
 
                         FarseerTimer.Remove(player.PlayerId);
                         IsRevealed[(player.PlayerId, arTarget.PlayerId)] = true;
@@ -133,10 +130,9 @@ namespace EHR.Crewmate
                     {
                         float range = NormalGameOptionsV08.KillDistances[Mathf.Clamp(player.Is(CustomRoles.Reach) ? 2 : Main.NormalOptions.KillDistance, 0, 2)] + 0.5f;
                         float dis = Vector2.Distance(player.transform.position, arTarget.transform.position);
+
                         if (dis <= range)
-                        {
                             FarseerTimer[player.PlayerId] = (arTarget, arTime + Time.fixedDeltaTime);
-                        }
                         else
                         {
                             FarseerTimer.Remove(player.PlayerId);
@@ -160,10 +156,7 @@ namespace EHR.Crewmate
         public static string GetTaskState()
         {
             KeyValuePair<byte, PlayerState>[] playersWithTasks = Main.PlayerStates.Where(a => a.Value.TaskState.HasTasks).ToArray();
-            if (playersWithTasks.Length == 0)
-            {
-                return "\r\n";
-            }
+            if (playersWithTasks.Length == 0) return "\r\n";
 
             KeyValuePair<byte, PlayerState> randomPlayer = playersWithTasks.RandomElement();
             TaskState taskState = randomPlayer.Value.TaskState;

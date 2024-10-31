@@ -10,6 +10,7 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(10800, TabGroup.NeutralRoles, CustomRoles.Innocent);
+
             Options.InnocentCanWinByImp = new BooleanOptionItem(10810, "InnocentCanWinByImp", false, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Innocent]);
         }

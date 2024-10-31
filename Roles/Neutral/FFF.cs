@@ -84,25 +84,16 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null)
-            {
-                return false;
-            }
+            if (killer == null || target == null) return false;
 
-            if (killer.PlayerId == target.PlayerId)
-            {
-                return true;
-            }
+            if (killer.PlayerId == target.PlayerId) return true;
 
             if (target.GetCustomSubRoles().Any(x => x.IsConverted() || x == CustomRoles.Madmate)
                 || IsConvertedMainRole(target.GetCustomRole()))
             {
                 if (!ChooseConverted.GetBool())
                 {
-                    if (killer.RpcCheckAndMurder(target))
-                    {
-                        IsWon = true;
-                    }
+                    if (killer.RpcCheckAndMurder(target)) IsWon = true;
 
                     Logger.Info($"{killer.GetRealName()} killed right target case 1", "FFF");
                     return false;
@@ -120,10 +111,7 @@ namespace EHR.Neutral
                     || ((target.Is(CustomRoles.Contagious) || target.Is(CustomRoles.Virus)) && CanKillContagious.GetBool())
                 )
                 {
-                    if (killer.RpcCheckAndMurder(target))
-                    {
-                        IsWon = true;
-                    }
+                    if (killer.RpcCheckAndMurder(target)) IsWon = true;
 
                     Logger.Info($"{killer.GetRealName()} killed right target case 2", "FFF");
                     return false;
@@ -161,10 +149,7 @@ namespace EHR.Neutral
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!pc.IsAlive())
-            {
-                return;
-            }
+            if (!pc.IsAlive()) return;
 
             if (ChangeRoleWhenCantWin.GetBool() && !IsWon && Main.AllAlivePlayerControls.All(x => Main.LoversPlayers.TrueForAll(l => l.PlayerId != x.PlayerId) && !x.GetCustomRole().IsRecruitingRole() && !x.GetCustomSubRoles().Any(p => p.IsConverted())))
             {

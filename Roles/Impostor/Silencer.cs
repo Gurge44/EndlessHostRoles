@@ -25,9 +25,11 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Silencer);
+
             SkillCooldown = new FloatOptionItem(Id + 5, "SilencerSkillCooldown", new(2.5f, 60f, 2.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Silencer])
                 .SetValueFormat(OptionFormat.Seconds);
+
             SilenceMode = new StringOptionItem(Id + 4, "SilenceMode", SilenceModes, 1, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Silencer]);
         }
@@ -51,10 +53,7 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (SilenceMode.GetValue() == 1 || ForSilencer.Count >= 1)
-            {
-                return true;
-            }
+            if (SilenceMode.GetValue() == 1 || ForSilencer.Count >= 1) return true;
 
             return killer.CheckDoubleTrigger(target, () =>
             {
@@ -65,10 +64,7 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (SilenceMode.GetValue() == 1 && ForSilencer.Count == 0)
-            {
-                ForSilencer.Add(target.PlayerId);
-            }
+            if (SilenceMode.GetValue() == 1 && ForSilencer.Count == 0) ForSilencer.Add(target.PlayerId);
 
             return false;
         }

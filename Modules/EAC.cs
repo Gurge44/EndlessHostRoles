@@ -16,38 +16,31 @@ namespace EHR
         public static void WarnHost(int denum = 1)
         {
             DeNum += denum;
+
             if (ErrorText.Instance)
             {
                 ErrorText.Instance.CheatDetected = DeNum > 3;
                 ErrorText.Instance.SBDetected = DeNum > 10;
+
                 if (ErrorText.Instance.CheatDetected)
-                {
                     ErrorText.Instance.AddError(ErrorText.Instance.SBDetected ? ErrorCode.SBDetected : ErrorCode.CheatDetected);
-                }
                 else
-                {
                     ErrorText.Instance.Clear();
-                }
             }
         }
 
         public static bool ReceiveRpc(PlayerControl pc, byte callId, MessageReader reader)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return false;
-            }
+            if (!AmongUsClient.Instance.AmHost) return false;
 
             // if (RoleBasisChanger.IsChangeInProgress) return false;
-            if (pc == null || reader == null)
-            {
-                return false;
-            }
+            if (pc == null || reader == null) return false;
 
             try
             {
                 MessageReader sr = MessageReader.Get(reader);
-                RpcCalls rpc = (RpcCalls)callId;
+                var rpc = (RpcCalls)callId;
+
                 switch (rpc)
                 {
                     case RpcCalls.CheckName:
@@ -63,6 +56,7 @@ namespace EHR
                         break;
                     case RpcCalls.SendChat when !pc.IsHost():
                         string text = sr.ReadString();
+
                         if (text.Contains('░') ||
                             text.Contains('▄') ||
                             text.Contains('█') ||
@@ -127,6 +121,7 @@ namespace EHR
                         break;
                     case RpcCalls.MurderPlayer:
                         sr.ReadNetObject<PlayerControl>();
+
                         if (GameStates.IsLobby)
                         {
                             Report(pc, "Directly Murder Player In Lobby");
@@ -203,9 +198,7 @@ namespace EHR
                                 return true;
                             }
                         }
-                        catch
-                        {
-                        }
+                        catch { }
 
                         break;
                     case unchecked((byte)42069): // 85 AUM
@@ -221,9 +214,7 @@ namespace EHR
                                 return true;
                             }
                         }
-                        catch
-                        {
-                        }
+                        catch { }
 
                         break;
                     case unchecked((byte)420): // 164 Sicko
@@ -249,6 +240,7 @@ namespace EHR
                         break;
                     case 5 when !pc.IsHost():
                         sr.ReadString();
+
                         if (GameStates.IsInGame)
                         {
                             WarnHost();
@@ -305,12 +297,9 @@ namespace EHR
 
         public static bool PlayerPhysicsRpcCheck(PlayerPhysics __instance, byte callId, MessageReader reader) // Credit: NikoCat233
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return false;
-            }
+            if (!AmongUsClient.Instance.AmHost) return false;
 
-            RpcCalls rpcType = (RpcCalls)callId;
+            var rpcType = (RpcCalls)callId;
             MessageReader subReader = MessageReader.Get(reader);
 
             PlayerControl player = __instance.myPlayer;
@@ -335,6 +324,7 @@ namespace EHR
                 case RpcCalls.EnterVent:
                 case RpcCalls.ExitVent:
                     int ventid = subReader.ReadPackedInt32();
+
                     if (!HasVent(ventid))
                     {
                         if (AmongUsClient.Instance.AmHost)
@@ -348,6 +338,7 @@ namespace EHR
                         {
                             // Not sure whether host will send null vent to a player huh
                             Logger.Warn($"【{player.GetClientId()}:{player.GetRealName()}】 attempted to enter an unexisting vent. {ventid}", "EAC_physics");
+
                             if (rpcType is RpcCalls.ExitVent)
                             {
                                 player.Visible = true;
@@ -372,6 +363,7 @@ namespace EHR
 
                 case RpcCalls.ClimbLadder:
                     int ladderId = subReader.ReadPackedInt32();
+
                     if (!HasLadder(ladderId))
                     {
                         if (AmongUsClient.Instance.AmHost)
@@ -418,13 +410,10 @@ namespace EHR
 
         internal static void Report(PlayerControl pc, string reason)
         {
-            string msg = $"{pc.GetClientId()}|{pc.FriendCode}|{pc.Data.PlayerName}|{pc.GetClient().GetHashedPuid()}|{reason}";
+            var msg = $"{pc.GetClientId()}|{pc.FriendCode}|{pc.Data.PlayerName}|{pc.GetClient().GetHashedPuid()}|{reason}";
             //Cloud.SendData(msg);
             Logger.Fatal($"EAC report: {msg}", "EAC Cloud");
-            if (Options.CheatResponses.GetInt() != 5)
-            {
-                Logger.SendInGame(string.Format(GetString("Message.NoticeByEAC"), $"{pc.Data?.PlayerName} | {pc.GetClient().GetHashedPuid()}", reason));
-            }
+            if (Options.CheatResponses.GetInt() != 5) Logger.SendInGame(string.Format(GetString("Message.NoticeByEAC"), $"{pc.Data?.PlayerName} | {pc.GetClient().GetHashedPuid()}", reason));
         }
 
         public static bool ReceiveInvalidRpc(PlayerControl pc, byte callId)
@@ -473,10 +462,7 @@ namespace EHR
                     break;
                 case 4:
                     string hashedPuid = pc.GetClient().GetHashedPuid();
-                    if (!BanManager.TempBanWhiteList.Contains(hashedPuid))
-                    {
-                        BanManager.TempBanWhiteList.Add(hashedPuid);
-                    }
+                    if (!BanManager.TempBanWhiteList.Contains(hashedPuid)) BanManager.TempBanWhiteList.Add(hashedPuid);
 
                     AmongUsClient.Instance.KickPlayer(pc.GetClientId(), true);
                     string msg2 = string.Format(GetString("Message.TempBannedByEAC"), pc?.Data?.PlayerName, text);
@@ -488,10 +474,7 @@ namespace EHR
 
         internal static bool CheckInvalidSabotage(SystemTypes systemType, PlayerControl player, byte amount)
         {
-            if (player.IsHost())
-            {
-                return false;
-            }
+            if (player.IsHost()) return false;
 
             if ((GameStates.IsMeeting && MeetingHud.Instance.state != MeetingHud.VoteStates.Animating) || ExileController.Instance)
             {
@@ -503,28 +486,20 @@ namespace EHR
             }
 
             byte Mapid = Main.NormalOptions.MapId;
+
             switch (systemType)
             {
                 case SystemTypes.LifeSupp:
-                    if (Mapid != 0 && Mapid != 1 && Mapid != 3)
-                    {
-                        goto Cheat;
-                    }
+                    if (Mapid != 0 && Mapid != 1 && Mapid != 3) goto Cheat;
 
-                    if (amount != 64 && amount != 65)
-                    {
-                        goto Cheat;
-                    }
+                    if (amount != 64 && amount != 65) goto Cheat;
 
                     break;
                 case SystemTypes.Comms:
                     switch (amount)
                     {
                         case 0:
-                            if (Mapid is 1 or 5)
-                            {
-                                goto Cheat;
-                            }
+                            if (Mapid is 1 or 5) goto Cheat;
 
                             break;
                         case 64:
@@ -533,10 +508,7 @@ namespace EHR
                         case 33:
                         case 16:
                         case 17:
-                            if (Mapid is not (1 or 5))
-                            {
-                                goto Cheat;
-                            }
+                            if (Mapid is not (1 or 5)) goto Cheat;
 
                             break;
                         default:
@@ -545,51 +517,27 @@ namespace EHR
 
                     break;
                 case SystemTypes.Electrical:
-                    if (Mapid == 5)
-                    {
-                        goto Cheat;
-                    }
+                    if (Mapid == 5) goto Cheat;
 
-                    if (amount >= 5)
-                    {
-                        goto Cheat;
-                    }
+                    if (amount >= 5) goto Cheat;
 
                     break;
                 case SystemTypes.Laboratory:
-                    if (Mapid != 2)
-                    {
-                        goto Cheat;
-                    }
+                    if (Mapid != 2) goto Cheat;
 
-                    if (amount is not (64 or 65 or 32 or 33))
-                    {
-                        goto Cheat;
-                    }
+                    if (amount is not (64 or 65 or 32 or 33)) goto Cheat;
 
                     break;
                 case SystemTypes.Reactor:
-                    if (Mapid is 2 or 4)
-                    {
-                        goto Cheat;
-                    }
+                    if (Mapid is 2 or 4) goto Cheat;
 
-                    if (amount is not (64 or 65 or 32 or 33))
-                    {
-                        goto Cheat;
-                    }
+                    if (amount is not (64 or 65 or 32 or 33)) goto Cheat;
 
                     break;
                 case SystemTypes.HeliSabotage:
-                    if (Mapid != 4)
-                    {
-                        goto Cheat;
-                    }
+                    if (Mapid != 4) goto Cheat;
 
-                    if (amount is not (64 or 65 or 16 or 17 or 32 or 33))
-                    {
-                        goto Cheat;
-                    }
+                    if (amount is not (64 or 65 or 16 or 17 or 32 or 33)) goto Cheat;
 
                     break;
                 case SystemTypes.MushroomMixupSabotage:
@@ -599,6 +547,7 @@ namespace EHR
             return false;
 
             Cheat:
+
             {
                 WarnHost();
                 Report(player, "Bad Sabotage C : Hack send RPC");
@@ -629,13 +578,14 @@ namespace EHR
     {
         public static bool Prefix(InnerNetClient __instance, MessageReader reader, int msgNum)
         {
-            GameDataTag tag = (GameDataTag)reader.Tag;
+            var tag = (GameDataTag)reader.Tag;
 
             switch (tag)
             {
                 case GameDataTag.DataFlag:
                 {
                     uint netId = reader.ReadPackedUInt32();
+
                     if (__instance.allObjectsFast.TryGetValue(netId, out InnerNetObject obj))
                     {
                         if (obj.AmOwner)
@@ -708,10 +658,7 @@ namespace EHR
                         Logger.Warn($"Client {client.PlayerName} ({client.Id}) tried to send SceneChangeFlag to Tutorial.", "GameDataHandlerPatch");
                         EAC.WarnHost(100);
 
-                        if (GameStates.IsOnlineGame && AmongUsClient.Instance.AmHost)
-                        {
-                            Utils.ErrorEnd("SceneChange Tutorial Hack");
-                        }
+                        if (GameStates.IsOnlineGame && AmongUsClient.Instance.AmHost) Utils.ErrorEnd("SceneChange Tutorial Hack");
 
                         return false;
                     }
@@ -765,18 +712,12 @@ namespace EHR
 
         public static void Prefix()
         {
-            if (LobbyBehaviour.Instance != null)
-            {
-                IsStartingAsHost = true;
-            }
+            if (LobbyBehaviour.Instance != null) IsStartingAsHost = true;
         }
 
         public static void Postfix()
         {
-            if (ShipStatus.Instance != null)
-            {
-                IsStartingAsHost = false;
-            }
+            if (ShipStatus.Instance != null) IsStartingAsHost = false;
         }
     }
 
@@ -789,10 +730,7 @@ namespace EHR
 
         public static void Postfix(PlayerControl __instance)
         {
-            if (!GameStates.IsInTask || ExileController.Instance || !Options.EnableMovementChecking.GetBool() || Main.HasJustStarted || MeetingStates.FirstMeeting || Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) >= 1.9f || AmongUsClient.Instance.Ping >= 300 || Options.CurrentGameMode == CustomGameMode.NaturalDisasters || Utils.GetRegionName() is not ("EU" or "NA" or "AS") || __instance == null || __instance.PlayerId == 255 || !__instance.IsAlive() || __instance.inVent)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask || ExileController.Instance || !Options.EnableMovementChecking.GetBool() || Main.HasJustStarted || MeetingStates.FirstMeeting || Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod) >= 1.9f || AmongUsClient.Instance.Ping >= 300 || Options.CurrentGameMode == CustomGameMode.NaturalDisasters || Utils.GetRegionName() is not ("EU" or "NA" or "AS") || __instance == null || __instance.PlayerId == 255 || !__instance.IsAlive() || __instance.inVent) return;
 
             Vector2 pos = __instance.Pos();
             long now = Utils.TimeStamp;
@@ -803,19 +741,13 @@ namespace EHR
                 return;
             }
 
-            if (LastCheck.TryGetValue(__instance.PlayerId, out long lastCheck) && lastCheck == now)
-            {
-                return;
-            }
+            if (LastCheck.TryGetValue(__instance.PlayerId, out long lastCheck) && lastCheck == now) return;
 
             SetCurrentData();
 
             if (Vector2.Distance(lastPosition, pos) > 10f && PhysicsHelpers.AnythingBetween(__instance.Collider, lastPosition, pos, Constants.ShipOnlyMask, false))
             {
-                if (ExemptedPlayers.Remove(__instance.PlayerId))
-                {
-                    return;
-                }
+                if (ExemptedPlayers.Remove(__instance.PlayerId)) return;
 
                 EAC.WarnHost();
                 EAC.Report(__instance, "This player is moving too fast, possibly using a speed hack.");

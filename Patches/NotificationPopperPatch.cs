@@ -24,9 +24,11 @@ namespace EHR.Patches
         public static void AddSettingsChangeMessage(int index, OptionItem key, bool playSound = false)
         {
             SendRpc(0, index, playSound: playSound);
+
             string str = key.Parent != null
                 ? DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.LobbyChangeSettingNotification, "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + key.Parent.GetName() + "</font>: <font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + key.GetName() + "</font>", "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + key.GetString() + "</font>")
                 : DestroyableSingleton<TranslationController>.Instance.GetString(StringNames.LobbyChangeSettingNotification, "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + key.GetName() + "</font>", "<font=\"Barlow-Black SDF\" material=\"Barlow-Black Outline\">" + key.GetString() + "</font>");
+
             SettingsChangeMessageLogic(key, str, playSound);
         }
 
@@ -40,9 +42,7 @@ namespace EHR.Patches
         private static void SettingsChangeMessageLogic(OptionItem key, string item, bool playSound)
         {
             if (Instance.lastMessageKey == key.Id && Instance.activeMessages.Count > 0)
-            {
                 Instance.activeMessages[^1].UpdateMessage(item); // False error
-            }
             else
             {
                 Instance.lastMessageKey = key.Id;
@@ -53,18 +53,12 @@ namespace EHR.Patches
                 Instance.AddMessageToQueue(newMessage);
             }
 
-            if (playSound)
-            {
-                SoundManager.Instance.PlaySoundImmediate(Instance.settingsChangeSound, false);
-            }
+            if (playSound) SoundManager.Instance.PlaySoundImmediate(Instance.settingsChangeSound, false);
         }
 
         private static void SendRpc(byte typeId, int index, CustomRoles customRole = CustomRoles.NotAssigned, bool playSound = true)
         {
-            if (Options.HideGameSettings.GetBool())
-            {
-                return;
-            }
+            if (Options.HideGameSettings.GetBool()) return;
 
             Utils.SendRPC(CustomRPC.NotificationPopper, typeId, index, (int)customRole, playSound);
         }

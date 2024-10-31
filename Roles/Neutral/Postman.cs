@@ -27,8 +27,10 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Postman);
+
             KillCooldown = new FloatOptionItem(Id + 10, "DeliverCooldown", new(0f, 180f, 0.5f), 10f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Postman])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(Id + 11, "CanVent", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Postman]);
             HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Postman]);
             DieWhenTargetDies = new BooleanOptionItem(Id + 12, "PostmanDiesWhenTargetDies", false, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Postman]);
@@ -78,24 +80,16 @@ namespace EHR.Neutral
             foreach (byte id in PlayerIdList)
             {
                 PlayerControl pc = Utils.GetPlayerById(id);
-                if (pc == null || !pc.IsAlive())
-                {
-                    continue;
-                }
+                if (pc == null || !pc.IsAlive()) continue;
 
                 if (Main.PlayerStates[id].Role is Postman { IsEnable: true } pm && pm.Target == deadPc.PlayerId)
                 {
                     if (isDeath && DieWhenTargetDies.GetBool())
-                    {
                         pc.Suicide();
-                    }
                     else
                     {
                         pm.SetNewTarget();
-                        if (!isDeath)
-                        {
-                            continue;
-                        }
+                        if (!isDeath) continue;
 
                         pm.NotifyPostman(Utils.GetPlayerById(id), GetString("PostmanTargetDied"));
                     }
@@ -105,19 +99,13 @@ namespace EHR.Neutral
 
         private void SetNewTarget()
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
-            byte tempTarget = byte.MaxValue;
+            var tempTarget = byte.MaxValue;
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (wereTargets.Contains(pc.PlayerId) || pc.Is(CustomRoles.Postman))
-                {
-                    continue;
-                }
+                if (wereTargets.Contains(pc.PlayerId) || pc.Is(CustomRoles.Postman)) continue;
 
                 tempTarget = pc.PlayerId;
                 break;
@@ -143,25 +131,13 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable)
-            {
-                return false;
-            }
+            if (!IsEnable) return false;
 
-            if (killer == null)
-            {
-                return false;
-            }
+            if (killer == null) return false;
 
-            if (target == null)
-            {
-                return false;
-            }
+            if (target == null) return false;
 
-            if (IsFinished)
-            {
-                return false;
-            }
+            if (IsFinished) return false;
 
             if (Target == byte.MaxValue)
             {
@@ -176,21 +152,16 @@ namespace EHR.Neutral
                 NotifyPostman(killer, GetString("PostmanCorrectDeliver"));
             }
             else
-            {
                 killer.Suicide();
-            }
 
             return false;
         }
 
         private void NotifyPostman(PlayerControl pc, string baseText)
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
             sb.Append("\r\n\r\n");
             sb.AppendLine(baseText);
@@ -201,25 +172,16 @@ namespace EHR.Neutral
 
         private static string GetHudText(PlayerControl pc)
         {
-            if (Main.PlayerStates[pc.PlayerId].Role is not Postman { IsEnable: true } pm)
-            {
-                return string.Empty;
-            }
+            if (Main.PlayerStates[pc.PlayerId].Role is not Postman { IsEnable: true } pm) return string.Empty;
 
             return !pm.IsFinished ? string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(pm.Target).GetRealName()) : GetString("PostmanDone");
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (hud)
-            {
-                return GetHudText(seer);
-            }
+            if (hud) return GetHudText(seer);
 
-            if (seer.IsModClient() || seer.PlayerId != target.PlayerId || Main.PlayerStates[seer.PlayerId].Role is not Postman { IsEnable: true } pm)
-            {
-                return string.Empty;
-            }
+            if (seer.IsModClient() || seer.PlayerId != target.PlayerId || Main.PlayerStates[seer.PlayerId].Role is not Postman { IsEnable: true } pm) return string.Empty;
 
             return !pm.IsFinished ? string.Format(GetString("PostmanTarget"), Utils.GetPlayerById(pm.Target).GetRealName()) : "<color=#00ff00>✓</color>";
         }

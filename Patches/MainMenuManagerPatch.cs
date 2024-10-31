@@ -61,15 +61,9 @@ namespace EHR
         [HarmonyPrefix]
         public static void Start_Prefix(MainMenuManager __instance)
         {
-            if (Template == null)
-            {
-                Template = __instance.quitButton;
-            }
+            if (Template == null) Template = __instance.quitButton;
 
-            if (Template == null)
-            {
-                return;
-            }
+            if (Template == null) return;
 
             if (UpdateButton == null)
             {
@@ -80,6 +74,7 @@ namespace EHR
                     new(255, 200, 0, byte.MaxValue),
                     () => ModUpdater.StartUpdate(ModUpdater.DownloadUrl, true),
                     Translator.GetString("updateButton"));
+
                 UpdateButton.transform.localScale = Vector3.one;
             }
 
@@ -92,42 +87,29 @@ namespace EHR
         [HarmonyPostfix]
         public static void MainMenuManager_LateUpdate(MainMenuManager __instance)
         {
-            if (GameObject.Find("MainUI") == null)
-            {
-                ShowingPanel = false;
-            }
+            if (GameObject.Find("MainUI") == null) ShowingPanel = false;
 
             if (TitleLogoPatch.RightPanel != null)
             {
                 Vector3 pos1 = TitleLogoPatch.RightPanel.transform.localPosition;
                 Vector3 lerp1 = Vector3.Lerp(pos1, TitleLogoPatch.RightPanelOp + new Vector3(ShowingPanel ? 0f : 10f, 0f, 0f), Time.deltaTime * (ShowingPanel ? 3f : 2f));
+
                 if (ShowingPanel
                         ? TitleLogoPatch.RightPanel.transform.localPosition.x > TitleLogoPatch.RightPanelOp.x + 0.03f
                         : TitleLogoPatch.RightPanel.transform.localPosition.x < TitleLogoPatch.RightPanelOp.x + 9f
                    )
-                {
                     TitleLogoPatch.RightPanel.transform.localPosition = lerp1;
-                }
             }
 
-            if (ShowedBak || !IsOnline)
-            {
-                return;
-            }
+            if (ShowedBak || !IsOnline) return;
 
             GameObject bak = GameObject.Find("BackgroundTexture");
-            if (bak == null || !bak.active)
-            {
-                return;
-            }
+            if (bak == null || !bak.active) return;
 
             Vector3 pos2 = bak.transform.position;
             Vector3 lerp2 = Vector3.Lerp(pos2, new(pos2.x, 7.1f, pos2.z), Time.deltaTime * 1.4f);
             bak.transform.position = lerp2;
-            if (pos2.y > 7f)
-            {
-                ShowedBak = true;
-            }
+            if (pos2.y > 7f) ShowedBak = true;
         }
 
         [HarmonyPatch(typeof(MainMenuManager), nameof(MainMenuManager.Start))]
@@ -138,7 +120,7 @@ namespace EHR
             Instance = __instance;
 
             SimpleButton.SetBase(__instance.quitButton);
-            GameObject logoObject = new GameObject("titleLogo_MG");
+            var logoObject = new GameObject("titleLogo_MG");
             Transform logoTransform = logoObject.transform;
             MgLogo = logoObject.AddComponent<SpriteRenderer>();
             logoTransform.localPosition = new(2f, -0.5f, 1f);
@@ -191,7 +173,7 @@ namespace EHR
 
             foreach (string buttonName in new[] { "SettingsButton", "Inventory Button", "CreditsButton", "ExitGameButton" })
             {
-                TMP_Text buttonText = GameObject.Find(buttonName).transform.Find("FontPlacer/Text_TMP").GetComponent<TMP_Text>();
+                var buttonText = GameObject.Find(buttonName).transform.Find("FontPlacer/Text_TMP").GetComponent<TMP_Text>();
                 buttonText.DestroyTranslator();
                 buttonText.text = Translator.GetString($"MainMenu.{buttonName.Replace(" ", "")}");
             }
@@ -209,13 +191,13 @@ namespace EHR
             button.OnClick = new();
             button.OnClick.AddListener(action);
 
-            TMP_Text buttonText = button.transform.Find("FontPlacer/Text_TMP").GetComponent<TMP_Text>();
+            var buttonText = button.transform.Find("FontPlacer/Text_TMP").GetComponent<TMP_Text>();
             buttonText.DestroyTranslator();
             buttonText.fontSize = buttonText.fontSizeMax = buttonText.fontSizeMin = 3.5f;
             buttonText.enableWordWrapping = false;
             buttonText.text = label;
-            SpriteRenderer normalSprite = button.inactiveSprites.GetComponent<SpriteRenderer>();
-            SpriteRenderer hoverSprite = button.activeSprites.GetComponent<SpriteRenderer>();
+            var normalSprite = button.inactiveSprites.GetComponent<SpriteRenderer>();
+            var hoverSprite = button.activeSprites.GetComponent<SpriteRenderer>();
             normalSprite.color = normalColor;
             hoverSprite.color = hoverColor;
 
@@ -226,11 +208,8 @@ namespace EHR
             buttonText.transform.SetLocalX(0f);
             buttonText.horizontalAlignment = HorizontalAlignmentOptions.Center;
 
-            BoxCollider2D buttonCollider = button.GetComponent<BoxCollider2D>();
-            if (scale.HasValue)
-            {
-                normalSprite.size = hoverSprite.size = buttonCollider.size = scale.Value;
-            }
+            var buttonCollider = button.GetComponent<BoxCollider2D>();
+            if (scale.HasValue) normalSprite.size = hoverSprite.size = buttonCollider.size = scale.Value;
 
             buttonCollider.offset = new(0f, 0f);
 

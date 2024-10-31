@@ -15,15 +15,19 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.TimeManager);
+
             IncreaseMeetingTime = new IntegerOptionItem(Id + 10, "TimeManagerIncreaseMeetingTime", new(1, 30, 1), 5, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.TimeManager])
                 .SetValueFormat(OptionFormat.Seconds);
+
             MeetingTimeLimit = new IntegerOptionItem(Id + 11, "TimeManagerLimitMeetingTime", new(100, 500, 10), 150, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.TimeManager])
                 .SetValueFormat(OptionFormat.Seconds);
+
             MadMinMeetingTimeLimit = new IntegerOptionItem(Id + 12, "MadTimeManagerLimitMeetingTime", new(5, 150, 5), 50, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.TimeManager])
                 .SetValueFormat(OptionFormat.Seconds);
+
             Options.OverrideTasksData.Create(Id + 13, TabGroup.CrewmateRoles, CustomRoles.TimeManager);
         }
 
@@ -45,17 +49,14 @@ namespace EHR.Crewmate
 
         public static int TotalIncreasedMeetingTime()
         {
-            int sec = 0;
+            var sec = 0;
+
             foreach (byte playerId in PlayerIdList.ToArray())
             {
                 if (Utils.GetPlayerById(playerId).Is(CustomRoles.Madmate))
-                {
                     sec -= AdditionalTime(playerId);
-                }
                 else
-                {
                     sec += AdditionalTime(playerId);
-                }
             }
 
             Logger.Info($"{sec}second", "TimeManager.TotalIncreasedMeetingTime");

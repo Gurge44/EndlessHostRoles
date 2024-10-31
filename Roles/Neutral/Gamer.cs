@@ -28,22 +28,29 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Gamer);
+
             KillCooldown = new FloatOptionItem(Id + 10, "GamerKillCooldown", new(1f, 180f, 1f), 2f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Gamer]);
+
             HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Gamer]);
+
             HealthMax = new IntegerOptionItem(Id + 15, "GamerHealthMax", new(5, 300, 5), 100, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
                 .SetValueFormat(OptionFormat.Health);
+
             Damage = new IntegerOptionItem(Id + 16, "GamerDamage", new(1, 100, 1), 15, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
                 .SetValueFormat(OptionFormat.Health);
+
             SelfHealthMax = new IntegerOptionItem(Id + 17, "GamerSelfHealthMax", new(100, 100, 5), 100, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
                 .SetValueFormat(OptionFormat.Health);
+
             SelfDamage = new IntegerOptionItem(Id + 18, "GamerSelfDamage", new(1, 100, 1), 35, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Gamer])
                 .SetValueFormat(OptionFormat.Health);
@@ -60,10 +67,7 @@ namespace EHR.Neutral
         {
             PlayerIdList.Add(playerId);
             GamerHealth[playerId] = SelfHealthMax.GetInt();
-            foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-            {
-                PlayerHealth[pc.PlayerId] = HealthMax.GetInt();
-            }
+            foreach (PlayerControl pc in Main.AllAlivePlayerControls) PlayerHealth[pc.PlayerId] = HealthMax.GetInt();
         }
 
         public override void SetKillCooldown(byte id)
@@ -83,10 +87,7 @@ namespace EHR.Neutral
 
         private void SendRPC(byte playerId)
         {
-            if (!IsEnable || !Utils.DoRPC)
-            {
-                return;
-            }
+            if (!IsEnable || !Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetGamerHealth, SendOption.Reliable);
             writer.Write(playerId);
@@ -98,22 +99,16 @@ namespace EHR.Neutral
         {
             byte PlayerId = reader.ReadByte();
             int Health = reader.ReadInt32();
+
             if (GamerHealth.ContainsKey(PlayerId))
-            {
                 GamerHealth[PlayerId] = Health;
-            }
             else
-            {
                 PlayerHealth[PlayerId] = Health;
-            }
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null || target.Is(CustomRoles.Gamer) || !PlayerHealth.ContainsKey(target.PlayerId))
-            {
-                return false;
-            }
+            if (killer == null || target == null || target.Is(CustomRoles.Gamer) || !PlayerHealth.ContainsKey(target.PlayerId)) return false;
 
             killer.SetKillCooldown();
 
@@ -142,10 +137,7 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null || killer.Is(CustomRoles.Gamer))
-            {
-                return true;
-            }
+            if (killer == null || target == null || killer.Is(CustomRoles.Gamer)) return true;
 
             if (GamerHealth[target.PlayerId] - SelfDamage.GetInt() < 1)
             {
@@ -167,10 +159,7 @@ namespace EHR.Neutral
 
         public static string TargetMark(PlayerControl seer, PlayerControl target)
         {
-            if (!seer.IsAlive() || !PlayerIdList.Contains(seer.PlayerId))
-            {
-                return string.Empty;
-            }
+            if (!seer.IsAlive() || !PlayerIdList.Contains(seer.PlayerId)) return string.Empty;
 
             if (seer.PlayerId == target.PlayerId)
             {
@@ -186,18 +175,15 @@ namespace EHR.Neutral
 
         private static Color32 GetColor(float Health, bool self = false)
         {
-            int x = (int)(Health / (self ? SelfHealthMax.GetInt() : HealthMax.GetInt()) * 10 * 50);
-            int R = 255;
-            int G = 255;
-            int B = 0;
+            var x = (int)(Health / (self ? SelfHealthMax.GetInt() : HealthMax.GetInt()) * 10 * 50);
+            var R = 255;
+            var G = 255;
+            var B = 0;
+
             if (x > 255)
-            {
                 R -= x - 255;
-            }
             else
-            {
                 G = x;
-            }
 
             return new((byte)R, (byte)G, (byte)B, byte.MaxValue);
         }

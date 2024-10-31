@@ -45,25 +45,13 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer.GetAbilityUseLimit() < 1)
-            {
-                return true;
-            }
+            if (killer.GetAbilityUseLimit() < 1) return true;
 
-            if (NumBlackmailedThisRound >= MaxBlackmailedPlayersPerMeeting.GetInt())
-            {
-                return true;
-            }
+            if (NumBlackmailedThisRound >= MaxBlackmailedPlayersPerMeeting.GetInt()) return true;
 
-            if (BlackmailedPlayerIds.Count >= MaxBlackmailedPlayersAtOnce.GetInt())
-            {
-                return true;
-            }
+            if (BlackmailedPlayerIds.Count >= MaxBlackmailedPlayersAtOnce.GetInt()) return true;
 
-            if (BlackmailedPlayerIds.Contains(target.PlayerId))
-            {
-                return true;
-            }
+            if (BlackmailedPlayerIds.Contains(target.PlayerId)) return true;
 
             return killer.CheckDoubleTrigger(target, () =>
             {
@@ -77,36 +65,24 @@ namespace EHR.Impostor
 
         public override void AfterMeetingTasks()
         {
-            if (AbilityExpires.GetValue() == 0)
-            {
-                BlackmailedPlayerIds.Clear();
-            }
+            if (AbilityExpires.GetValue() == 0) BlackmailedPlayerIds.Clear();
         }
 
         public static void OnCheckForEndVoting()
         {
-            if (!On)
-            {
-                return;
-            }
+            if (!On) return;
 
             CheckForEndVotingPatch.RunRoleCode = false;
 
             try
             {
                 KeyValuePair<byte, PlayerState> bmState = Main.PlayerStates.FirstOrDefault(x => x.Value.MainRole == CustomRoles.Blackmailer);
-                if (bmState.Value.Role is not Blackmailer { IsEnable: true } bm || bm.BlackmailedPlayerIds.Count == 0)
-                {
-                    return;
-                }
+                if (bmState.Value.Role is not Blackmailer { IsEnable: true } bm || bm.BlackmailedPlayerIds.Count == 0) return;
 
                 byte? bmVotedForTemp = MeetingHud.Instance.playerStates.FirstOrDefault(x => x.TargetPlayerId == bmState.Key)?.VotedFor;
-                if (bmVotedForTemp == null)
-                {
-                    return;
-                }
+                if (bmVotedForTemp == null) return;
 
-                byte bmVotedFor = (byte)bmVotedForTemp;
+                var bmVotedFor = (byte)bmVotedForTemp;
 
                 MeetingHud.Instance.playerStates.DoIf(x => bm.BlackmailedPlayerIds.Contains(x.TargetPlayerId), x =>
                 {
@@ -117,13 +93,9 @@ namespace EHR.Impostor
                     }
 
                     if (x.TargetPlayerId.IsHost())
-                    {
                         MeetingHud.Instance.CmdCastVote(x.TargetPlayerId, bmVotedFor);
-                    }
                     else
-                    {
                         MeetingHud.Instance.CastVote(x.TargetPlayerId, bmVotedFor);
-                    }
 
                     x.VotedFor = bmVotedFor;
                 });
@@ -136,10 +108,7 @@ namespace EHR.Impostor
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!On || !meeting || !BlackmailedPlayerIds.Contains(target.PlayerId))
-            {
-                return string.Empty;
-            }
+            if (!On || !meeting || !BlackmailedPlayerIds.Contains(target.PlayerId)) return string.Empty;
 
             switch (WhoSeesBlackmailedPlayers.GetValue())
             {

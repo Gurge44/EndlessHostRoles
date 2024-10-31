@@ -19,18 +19,17 @@ namespace EHR.Patches
         {
             try
             {
-                bool flag = false;
-                char ch = ' ';
+                var flag = false;
+                var ch = ' ';
                 __instance.AdjustCaretPosition(input.Length - __instance.text.Length);
                 __instance.tempTxt.Clear();
 
                 foreach (char c in input)
                 {
                     char upperInvariant = c;
+
                     if (ch == ' ' && upperInvariant == ' ')
-                    {
                         __instance.AdjustCaretPosition(-1);
-                    }
                     else
                     {
                         switch (upperInvariant)
@@ -45,10 +44,7 @@ namespace EHR.Patches
                                 break;
                         }
 
-                        if (__instance.ForceUppercase)
-                        {
-                            upperInvariant = char.ToUpperInvariant(upperInvariant);
-                        }
+                        if (__instance.ForceUppercase) upperInvariant = char.ToUpperInvariant(upperInvariant);
 
                         if (upperInvariant is not '\r' and not '\n' and not '\b')
                         {
@@ -66,6 +62,7 @@ namespace EHR.Patches
                 }
 
                 input = __instance.tempTxt.ToString();
+
                 if (!input.Equals(__instance.text) || !inputCompo.Equals(__instance.compoText))
                 {
                     __instance.text = input;
@@ -76,26 +73,17 @@ namespace EHR.Patches
                     if (__instance.Hidden)
                     {
                         str = "";
-                        for (int index = 0; index < __instance.text.Length; ++index)
-                        {
-                            str += "*";
-                        }
+                        for (var index = 0; index < __instance.text.Length; ++index) str += "*";
                     }
 
                     __instance.outputText.text = str + compoText;
                     __instance.outputText.ForceMeshUpdate(true, true);
-                    if (__instance.keyboard != null)
-                    {
-                        __instance.keyboard.text = __instance.text;
-                    }
+                    if (__instance.keyboard != null) __instance.keyboard.text = __instance.text;
 
                     __instance.OnChange.Invoke();
                 }
 
-                if (flag)
-                {
-                    __instance.OnEnter.Invoke();
-                }
+                if (flag) __instance.OnEnter.Invoke();
 
                 __instance.SetPipePosition();
             }
@@ -118,6 +106,7 @@ namespace EHR.Patches
                 }
 
                 string input = __instance.outputText.text.Trim().Replace("\b", "");
+
                 if (!input.StartsWith('/') || input.Length < 2)
                 {
                     Destroy();
@@ -128,22 +117,17 @@ namespace EHR.Patches
                 Command command = null;
                 double highestMatchRate = 0;
                 string inputCheck = input.Split(' ')[0];
-                bool exactMatch = false;
+                var exactMatch = false;
                 bool english = TranslationController.Instance.currentLanguage.languageID == SupportedLangs.English;
+
                 foreach (Command cmd in ChatCommands.AllCommands)
                 {
                     foreach (string form in cmd.CommandForms)
                     {
-                        if (english && !form.All(char.IsAscii))
-                        {
-                            continue;
-                        }
+                        if (english && !form.All(char.IsAscii)) continue;
 
                         string check = "/" + form;
-                        if (check.Length < inputCheck.Length)
-                        {
-                            continue;
-                        }
+                        if (check.Length < inputCheck.Length) continue;
 
                         if (check == inputCheck)
                         {
@@ -153,25 +137,20 @@ namespace EHR.Patches
                             break;
                         }
 
-                        int matchNum = 0;
-                        for (int i = 0; i < inputCheck.Length; i++)
+                        var matchNum = 0;
+
+                        for (var i = 0; i < inputCheck.Length; i++)
                         {
-                            if (i >= check.Length)
-                            {
-                                break;
-                            }
+                            if (i >= check.Length) break;
 
                             if (inputCheck[i].Equals(check[i]))
-                            {
                                 matchNum++;
-                            }
                             else
-                            {
                                 break;
-                            }
                         }
 
                         double matchRate = (double)matchNum / inputCheck.Length;
+
                         if (matchRate > highestMatchRate)
                         {
                             highestMatchRate = matchRate;
@@ -179,10 +158,7 @@ namespace EHR.Patches
                         }
                     }
 
-                    if (exactMatch)
-                    {
-                        break;
-                    }
+                    if (exactMatch) break;
                 }
 
                 if (command == null || highestMatchRate < 1)
@@ -222,35 +198,28 @@ namespace EHR.Patches
 
                 string inputForm = input.TrimStart('/');
                 string text = "/" + (exactMatch ? inputForm : command.CommandForms.Where(x => x.All(char.IsAscii) && x.StartsWith(inputForm)).MaxBy(x => x.Length));
-                string info = $"<b>{command.Description}</b>";
+                var info = $"<b>{command.Description}</b>";
 
                 if (exactMatch && command.Arguments.Length > 0)
                 {
                     bool poll = command.CommandForms.Contains("poll");
                     bool say = command.CommandForms.Contains("say");
                     int spaces = poll ? input.SkipWhile(x => x != '?').Count(x => x == ' ') + 1 : input.Count(x => x == ' ');
-                    if (say)
-                    {
-                        spaces = Math.Min(spaces, 1);
-                    }
+                    if (say) spaces = Math.Min(spaces, 1);
 
-                    string preText = $"{text} {command.Arguments}";
-                    if (!poll)
-                    {
-                        text += " " + command.Arguments.Split(' ').Skip(spaces).Join(delimiter: " ");
-                    }
+                    var preText = $"{text} {command.Arguments}";
+                    if (!poll) text += " " + command.Arguments.Split(' ').Skip(spaces).Join(delimiter: " ");
 
                     string[] args = preText.Split(' ')[1..];
-                    for (int i = 0; i < args.Length; i++)
+
+                    for (var i = 0; i < args.Length; i++)
                     {
-                        if (command.ArgsDescriptions.Length <= i)
-                        {
-                            break;
-                        }
+                        if (command.ArgsDescriptions.Length <= i) break;
 
                         int skip = poll ? input.TakeWhile(x => x != '?').Count(x => x == ' ') - 1 : 0;
                         string arg = poll ? i == 0 ? args[..++skip].Join(delimiter: " ") : args[spaces - 1 < i ? skip + i + spaces : skip + i] : args[spaces > i ? i : i + spaces];
                         bool current = spaces - 1 == i, invalid = IsInvalidArg(), valid = IsValidArg();
+
                         info += "\n" + (invalid, current, valid) switch
                         {
                             (true, true, false) => "<#ffa500>\u27a1    ",
@@ -260,11 +229,9 @@ namespace EHR.Patches
                             (false, true, false) => "<#ffff44>\u27a1    ",
                             _ => "        "
                         };
+
                         info += $"   - <b>{arg}</b>{GetExtraArgInfo()}: {command.ArgsDescriptions[i]}";
-                        if (current || invalid || valid)
-                        {
-                            info += "</color>";
-                        }
+                        if (current || invalid || valid) info += "</color>";
 
                         continue;
 
@@ -325,24 +292,15 @@ namespace EHR.Patches
 
             void Destroy()
             {
-                if (PlaceHolderText != null)
-                {
-                    PlaceHolderText.enabled = false;
-                }
+                if (PlaceHolderText != null) PlaceHolderText.enabled = false;
 
-                if (CommandInfoText != null)
-                {
-                    CommandInfoText.enabled = false;
-                }
+                if (CommandInfoText != null) CommandInfoText.enabled = false;
             }
         }
 
         public static void OnTabPress(ChatController __instance)
         {
-            if (PlaceHolderText == null || PlaceHolderText.text == "")
-            {
-                return;
-            }
+            if (PlaceHolderText == null || PlaceHolderText.text == "") return;
 
             __instance.freeChatField.textArea.SetText(PlaceHolderText.text);
             __instance.freeChatField.textArea.compoText = "";
@@ -356,9 +314,7 @@ namespace EHR.Patches
                 PlaceHolderText?.gameObject.SetActive(open);
                 CommandInfoText?.gameObject.SetActive(open);
             }
-            catch
-            {
-            }
+            catch { }
         }
     }
 

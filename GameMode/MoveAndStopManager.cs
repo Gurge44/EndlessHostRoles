@@ -62,15 +62,9 @@ namespace EHR
             {
                 string result = IsYellow || (Timer == TotalGreenTime && !IsRed && !IsYellow) || (Timer == TotalRedTime && IsRed) ? Utils.ColorString(Color.clear, "00") : Utils.ColorString(IsRed ? Color.red : Color.green, Timer < 10 ? $" {Timer}" : Timer.ToString());
 
-                if (Timer is <= 19 and >= 10 && !IsYellow)
-                {
-                    result = $" {result}";
-                }
+                if (Timer is <= 19 and >= 10 && !IsYellow) result = $" {result}";
 
-                if (Timer % 10 == 1 && !IsYellow)
-                {
-                    result = result.Insert(result.Length - 9, " ");
-                }
+                if (Timer % 10 == 1 && !IsYellow) result = result.Insert(result.Length - 9, " ");
 
                 return $"<font=\"DIGITAL-7 SDF\" material=\"DIGITAL-7 Black Outline\"><size=130%>{result}</size></font>";
             }
@@ -147,8 +141,8 @@ namespace EHR
             string middleTimer = MiddleCounter.ColoredTimerString;
             string rightTimer = RightCounter.ColoredTimerString;
 
-            string arrowRow = $"{LeftCounter.ColoredArrow}   {MiddleCounter.ColoredArrow}   {RightCounter.ColoredArrow}";
-            string counterRow = $"{leftTimer}  {middleTimer}  {rightTimer}";
+            var arrowRow = $"{LeftCounter.ColoredArrow}   {MiddleCounter.ColoredArrow}   {RightCounter.ColoredArrow}";
+            var counterRow = $"{leftTimer}  {middleTimer}  {rightTimer}";
 
             return $"{counterRow}\n{arrowRow}";
         }
@@ -269,6 +263,7 @@ namespace EHR
                 .SetColor(new Color32(0, 255, 255, byte.MaxValue))
                 .SetValueFormat(OptionFormat.Seconds)
                 .SetHeader(true);
+
             MoveAndStop_RightCounterGreenMin = CreateSetting(68_213_002, "Right", false, true);
             MoveAndStop_RightCounterRedMin = CreateSetting(68_213_003, "Right", true, true);
             MoveAndStop_RightCounterGreenMax = CreateSetting(68_213_004, "Right", false, false);
@@ -283,6 +278,7 @@ namespace EHR
             MoveAndStop_MiddleCounterRedMax = CreateSetting(68_213_013, "Middle", true, false);
             MoveAndStop_ExtraGreenTimeOnAirhip = CreateExtraTimeSetting(68_213_014, "Airship", 20);
             MoveAndStop_ExtraGreenTimeOnFungle = CreateExtraTimeSetting(68_213_015, "Fungle", 10);
+
             MoveAndStop_EnableTutorial = new BooleanOptionItem(68_213_016, "MoveAndStop_EnableTutorial", true, TabGroup.GameSettings)
                 .SetGameMode(CustomGameMode.MoveAndStop)
                 .SetHeader(true)
@@ -291,10 +287,7 @@ namespace EHR
 
         public static void Init()
         {
-            if (Options.CurrentGameMode != CustomGameMode.MoveAndStop)
-            {
-                return;
-            }
+            if (Options.CurrentGameMode != CustomGameMode.MoveAndStop) return;
 
             FixedUpdatePatch.LastSuffix = [];
             FixedUpdatePatch.Limit = [];
@@ -315,6 +308,7 @@ namespace EHR
                     pc.Pos().x, pc.Pos().y));
 
                 float limit;
+
                 try
                 {
                     limit = pc.GetClient().PlatformData.Platform is Platforms.Unknown or Platforms.IPhone or Platforms.Android or Platforms.Switch or Platforms.Xbox or Platforms.Playstation
@@ -347,17 +341,11 @@ namespace EHR
 
         public static string GetSuffixText(PlayerControl pc)
         {
-            if (!pc.IsAlive() || !AllPlayerTimers.TryGetValue(pc.PlayerId, out MoveAndStopPlayerData timers))
-            {
-                return string.Empty;
-            }
+            if (!pc.IsAlive() || !AllPlayerTimers.TryGetValue(pc.PlayerId, out MoveAndStopPlayerData timers)) return string.Empty;
 
-            string text = timers.ToString();
+            var text = timers.ToString();
 
-            if (HasJustStarted && Tutorial && !HasPlayed.Contains(pc.FriendCode))
-            {
-                text += $"\n\n{GetString("MoveAndStop_Tutorial")}";
-            }
+            if (HasJustStarted && Tutorial && !HasPlayed.Contains(pc.FriendCode)) text += $"\n\n{GetString("MoveAndStop_Tutorial")}";
 
             return text;
         }
@@ -372,10 +360,7 @@ namespace EHR
 
             public static void Postfix(PlayerControl __instance)
             {
-                if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.MoveAndStop || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost || !DoChecks)
-                {
-                    return;
-                }
+                if (!GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.MoveAndStop || !__instance.IsAlive() || !AmongUsClient.Instance.AmHost || !DoChecks) return;
 
                 PlayerControl pc = __instance;
 
@@ -456,17 +441,11 @@ namespace EHR
 
                     data.UpdateCounters();
 
-                    if (!pc.IsAlive())
-                    {
-                        goto NoSuffix; // If the player is dead, there's no need to get them a suffix and notify them
-                    }
+                    if (!pc.IsAlive()) goto NoSuffix; // If the player is dead, there's no need to get them a suffix and notify them
 
                     string suffix = GetSuffixText(pc);
 
-                    if (!LastSuffix.TryGetValue(pc.PlayerId, out string beforeSuffix) || beforeSuffix != suffix)
-                    {
-                        Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-                    }
+                    if (!LastSuffix.TryGetValue(pc.PlayerId, out string beforeSuffix) || beforeSuffix != suffix) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
 
                     LastSuffix[pc.PlayerId] = suffix;
                 }
@@ -474,10 +453,7 @@ namespace EHR
                 NoSuffix:
 
                 long now = Utils.TimeStamp;
-                if (LastFixedUpdate == now)
-                {
-                    return;
-                }
+                if (LastFixedUpdate == now) return;
 
                 LastFixedUpdate = now;
 

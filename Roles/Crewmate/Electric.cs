@@ -25,6 +25,7 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Electric);
+
             FreezeDuration = new FloatOptionItem(Id + 2, "GamblerFreezeDur", new(0.5f, 90f, 0.5f), 3f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Electric])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -32,22 +33,17 @@ namespace EHR.Crewmate
 
         public override void OnTaskComplete(PlayerControl pc, int completedTaskCount, int totalTaskCount)
         {
-            if (pc == null)
-            {
-                return;
-            }
+            if (pc == null) return;
 
             List<PlayerControl> targetList = Main.AllAlivePlayerControls.Where(x => !x.Is(Team.Crewmate)).ToList();
-            if (targetList.Count == 0)
-            {
-                return;
-            }
+            if (targetList.Count == 0) return;
 
             PlayerControl target = targetList.RandomElement();
 
             float beforeSpeed = Main.AllPlayerSpeed[target.PlayerId];
             Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
             target.MarkDirtySettings();
+
             LateTask.New(() =>
             {
                 Main.AllPlayerSpeed[target.PlayerId] = beforeSpeed;

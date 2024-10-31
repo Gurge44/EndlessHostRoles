@@ -83,32 +83,18 @@ namespace EHR
 
         public static CustomRoles GetVNRole(this CustomRoles role, bool checkDesyncRole = false)
         {
-            if (role.IsGhostRole())
-            {
-                return CustomRoles.GuardianAngel;
-            }
+            if (role.IsGhostRole()) return CustomRoles.GuardianAngel;
 
-            if (role.IsVanilla())
-            {
-                return role;
-            }
+            if (role.IsVanilla()) return role;
 
-            if (checkDesyncRole && role.IsDesyncRole())
-            {
-                return Enum.Parse<CustomRoles>(role.GetDYRole() + "EHR");
-            }
+            if (checkDesyncRole && role.IsDesyncRole()) return Enum.Parse<CustomRoles>(role.GetDYRole() + "EHR");
 
-            if (Options.UsePhantomBasis.GetBool() && role.SimpleAbilityTrigger())
-            {
-                return CustomRoles.Phantom;
-            }
+            if (Options.UsePhantomBasis.GetBool() && role.SimpleAbilityTrigger()) return CustomRoles.Phantom;
 
-            if ((Options.UseUnshiftTrigger.GetBool() || role.AlwaysUsesUnshift()) && role.SimpleAbilityTrigger())
-            {
-                return CustomRoles.Shapeshifter;
-            }
+            if ((Options.UseUnshiftTrigger.GetBool() || role.AlwaysUsesUnshift()) && role.SimpleAbilityTrigger()) return CustomRoles.Shapeshifter;
 
             bool UsePets = Options.UsePets.GetBool();
+
             return role switch
             {
                 CustomRoles.Sniper => UsePets ? CustomRoles.Impostor : CustomRoles.Shapeshifter,
@@ -366,12 +352,10 @@ namespace EHR
 
         public static CustomRoles GetErasedRole(this CustomRoles role)
         {
-            if (role.IsVanilla())
-            {
-                return role;
-            }
+            if (role.IsVanilla()) return role;
 
             CustomRoles vnRole = role.GetVNRole(true);
+
             return vnRole switch
             {
                 CustomRoles.Crewmate => CustomRoles.CrewmateEHR,
@@ -389,17 +373,12 @@ namespace EHR
 
         public static RoleTypes GetDYRole(this CustomRoles role, bool load = false)
         {
-            if (!load && Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool() && !role.IsImpostor() && role.SimpleAbilityTrigger())
-            {
-                return RoleTypes.Phantom;
-            }
+            if (!load && Options.UsePhantomBasis.GetBool() && Options.UsePhantomBasisForNKs.GetBool() && !role.IsImpostor() && role.SimpleAbilityTrigger()) return RoleTypes.Phantom;
 
-            if (!load && Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool() && !role.IsImpostor() && role.SimpleAbilityTrigger())
-            {
-                return RoleTypes.Shapeshifter;
-            }
+            if (!load && Options.UseUnshiftTrigger.GetBool() && Options.UseUnshiftTriggerForNKs.GetBool() && !role.IsImpostor() && role.SimpleAbilityTrigger()) return RoleTypes.Shapeshifter;
 
             bool UsePets = !load && Options.UsePets.GetBool();
+
             return role switch
             {
                 // SoloKombat
@@ -753,20 +732,11 @@ namespace EHR
 
         public static bool PetActivatedAbility(this CustomRoles role)
         {
-            if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag)
-            {
-                return true;
-            }
+            if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag) return true;
 
-            if (!Options.UsePets.GetBool())
-            {
-                return false;
-            }
+            if (!Options.UsePets.GetBool()) return false;
 
-            if (role.UsesPetInsteadOfKill())
-            {
-                return true;
-            }
+            if (role.UsesPetInsteadOfKill()) return true;
 
             Type type = role.GetRoleClass().GetType();
             return type.GetMethod("OnPet")?.DeclaringType == type;
@@ -1093,15 +1063,9 @@ namespace EHR
 
         public static Team GetTeam(this CustomRoles role)
         {
-            if (role.IsImpostorTeamV2())
-            {
-                return Team.Impostor;
-            }
+            if (role.IsImpostorTeamV2()) return Team.Impostor;
 
-            if (role.IsNeutralTeamV2())
-            {
-                return Team.Neutral;
-            }
+            if (role.IsNeutralTeamV2()) return Team.Neutral;
 
             return role.IsCrewmateTeamV2() ? Team.Crewmate : Team.None;
         }
@@ -1120,10 +1084,7 @@ namespace EHR
 
         public static RoleTypes GetRoleTypes(this CustomRoles role)
         {
-            if (Enum.TryParse(role.GetVNRole(true).ToString().Replace("EHR", ""), true, out RoleTypes type))
-            {
-                return type;
-            }
+            if (Enum.TryParse(role.GetVNRole(true).ToString().Replace("EHR", ""), true, out RoleTypes type)) return type;
 
             return role.IsImpostor() ? RoleTypes.Impostor : RoleTypes.Crewmate;
         }
@@ -1194,21 +1155,12 @@ namespace EHR
 
         public static CustomRoleTypes GetCustomRoleTypes(this CustomRoles role)
         {
-            CustomRoleTypes type = CustomRoleTypes.Crewmate;
-            if (role.IsImpostor() || role.IsMadmate())
-            {
-                type = CustomRoleTypes.Impostor;
-            }
+            var type = CustomRoleTypes.Crewmate;
+            if (role.IsImpostor() || role.IsMadmate()) type = CustomRoleTypes.Impostor;
 
-            if (role.IsNeutral())
-            {
-                type = CustomRoleTypes.Neutral;
-            }
+            if (role.IsNeutral()) type = CustomRoleTypes.Neutral;
 
-            if (role.IsAdditionRole())
-            {
-                type = CustomRoleTypes.Addon;
-            }
+            if (role.IsAdditionRole()) type = CustomRoleTypes.Addon;
 
             return type;
         }
@@ -1222,12 +1174,10 @@ namespace EHR
         {
             if (role.IsVanilla())
             {
-                if (Options.DisableVanillaRoles.GetBool())
-                {
-                    return 0;
-                }
+                if (Options.DisableVanillaRoles.GetBool()) return 0;
 
                 IRoleOptionsCollection roleOpt = Main.NormalOptions.RoleOptions;
+
                 return role switch
                 {
                     CustomRoles.Engineer => roleOpt.GetNumPerGame(RoleTypes.Engineer),
@@ -1256,6 +1206,7 @@ namespace EHR
             if (role.IsVanilla())
             {
                 IRoleOptionsCollection roleOpt = Main.NormalOptions.RoleOptions;
+
                 return role switch
                 {
                     CustomRoles.Engineer => roleOpt.GetChancePerGame(RoleTypes.Engineer),
@@ -1329,20 +1280,11 @@ namespace EHR
 
         public static RoleOptionType GetRoleOptionType(this CustomRoles role)
         {
-            if (role.IsImpostor())
-            {
-                return role.GetImpostorRoleCategory();
-            }
+            if (role.IsImpostor()) return role.GetImpostorRoleCategory();
 
-            if (role.IsCrewmate())
-            {
-                return role.GetCrewmateRoleCategory();
-            }
+            if (role.IsCrewmate()) return role.GetCrewmateRoleCategory();
 
-            if (role.IsNeutral(true))
-            {
-                return role.GetNeutralRoleCategory();
-            }
+            if (role.IsNeutral(true)) return role.GetNeutralRoleCategory();
 
             return RoleOptionType.Crewmate_Miscellaneous;
         }

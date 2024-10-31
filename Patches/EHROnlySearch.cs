@@ -28,23 +28,18 @@ namespace EHR
                     {
                         __instance.targetOpts.FilterTags = new();
                         __instance.targetOpts.FilterTags.Add(FilterText);
-                        foreach (UiElement btn in __instance.controllerSelectable)
-                        {
-                            btn.GetComponent<ChatLanguageButton>().SetSelected(false);
-                        }
+                        foreach (UiElement btn in __instance.controllerSelectable) btn.GetComponent<ChatLanguageButton>().SetSelected(false);
 
                         button.SetSelected(true);
                     }
                     else
                     {
                         __instance.targetOpts.FilterTags.Remove(FilterText);
+
                         foreach (UiElement btn in __instance.controllerSelectable)
                         {
-                            ChatLanguageButton LangBtn = btn.GetComponent<ChatLanguageButton>();
-                            if (LangBtn.Text.text == FilterText)
-                            {
-                                LangBtn.SetSelected(false);
-                            }
+                            var LangBtn = btn.GetComponent<ChatLanguageButton>();
+                            if (LangBtn.Text.text == FilterText) LangBtn.SetSelected(false);
                         }
                     }
 

@@ -16,12 +16,13 @@ namespace EHR
             if (Paint == null)
             {
                 GameObject LeftBox = GameObject.Find("Leftbox");
+
                 if (LeftBox != null)
                 {
                     Paint = Object.Instantiate(LeftBox, LeftBox.transform.parent.transform);
                     Paint.name = "Lobby Paint";
                     Paint.transform.localPosition = new(0.042f, -2.59f, -10.5f);
-                    SpriteRenderer renderer = Paint.GetComponent<SpriteRenderer>();
+                    var renderer = Paint.GetComponent<SpriteRenderer>();
                     renderer.sprite = Utils.LoadSprite("EHR.Resources.Images.LobbyPaint.png", 290f);
                 }
             }
@@ -35,21 +36,16 @@ namespace EHR
 
         public static void Postfix(HostInfoPanel __instance)
         {
-            if (HostText == null)
-            {
-                HostText = __instance.content.transform.FindChild("Name").GetComponent<TextMeshPro>();
-            }
+            if (HostText == null) HostText = __instance.content.transform.FindChild("Name").GetComponent<TextMeshPro>();
 
             string icon = Translator.GetString("Icon");
             string name = GameData.Instance?.GetHost()?.PlayerName?.RemoveHtmlTags()?.Split('\n').FirstOrDefault(x => x.Contains(icon))?.Split(icon)[^1] ?? string.Empty;
-            if (name == string.Empty)
-            {
-                return;
-            }
+            if (name == string.Empty) return;
 
             string text = AmongUsClient.Instance.AmHost
                 ? Translator.GetString("YouAreHostSuffix")
                 : name;
+
             HostText.text = Utils.ColorString(Palette.PlayerColors[__instance.player.ColorId], text);
         }
     }

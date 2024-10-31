@@ -10,10 +10,7 @@ namespace EHR
 
         public static void Initialize()
         {
-            if (Main.NormalOptions.MapId != 4)
-            {
-                return;
-            }
+            if (Main.NormalOptions.MapId != 4) return;
 
             Instance.Initialize();
         }
@@ -21,18 +18,12 @@ namespace EHR
         public static byte[] GetClosedDoors()
         {
             List<byte> DoorsArray = [];
-            if (Instance.Doors == null || Instance.Doors.Length == 0)
-            {
-                return [.. DoorsArray];
-            }
+            if (Instance.Doors == null || Instance.Doors.Length == 0) return [.. DoorsArray];
 
             for (byte i = 0; i < Instance.Doors.Count; i++)
             {
                 StaticDoor door = Instance.Doors[i];
-                if (door != null && !door.IsOpen)
-                {
-                    DoorsArray.Add(i);
-                }
+                if (door != null && !door.IsOpen) DoorsArray.Add(i);
             }
 
             return DoorsArray?.ToArray();
@@ -56,14 +47,12 @@ namespace EHR
     {
         public static void Postfix( /*ElectricalDoors __instance*/)
         {
-            if (!GameStates.IsInGame)
-            {
-                return;
-            }
+            if (!GameStates.IsInGame) return;
 
-            string closedoors = string.Empty;
-            bool isFirst = true;
+            var closedoors = string.Empty;
+            var isFirst = true;
             byte[] array = AirshipElectricalDoors.GetClosedDoors();
+
             foreach (byte num in array)
             {
                 if (isFirst)
@@ -72,9 +61,7 @@ namespace EHR
                     closedoors += num.ToString();
                 }
                 else
-                {
                     closedoors += $", {num}";
-                }
             }
 
             Logger.Info($"Closed Doors: {closedoors}", "ElectricalDoors Initialize");

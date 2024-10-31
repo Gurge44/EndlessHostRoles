@@ -9,12 +9,8 @@
             Options.SetupRoleOptions(9100, TabGroup.CrewmateRoles, CustomRoles.Dictator);
         }
 
-        public override void Init()
-        {
-        }
+        public override void Init() { }
 
-        public override void Add(byte playerId)
-        {
-        }
+        public override void Add(byte playerId) { }
     }
 }

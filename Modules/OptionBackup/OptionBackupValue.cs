@@ -27,10 +27,7 @@ namespace EHR
     {
         public override void Restore(IGameOptions option)
         {
-            if (OptionName != BoolOptionNames.GhostsDoTasks)
-            {
-                option.SetBool(OptionName, Value);
-            }
+            if (OptionName != BoolOptionNames.GhostsDoTasks) option.SetBool(OptionName, Value);
         }
     }
 

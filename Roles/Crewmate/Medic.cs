@@ -47,28 +47,40 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Medic);
+
             WhoCanSeeProtect = new StringOptionItem(Id + 2, "MedicWhoCanSeeProtect", MedicWhoCanSeeProtectName, 0, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
+
             KnowShieldBroken = new StringOptionItem(Id + 3, "MedicKnowShieldBroken", MedicWhoCanSeeProtectName, 1, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
+
             ShieldDeactivatesWhenMedicDies = new BooleanOptionItem(Id + 4, "MedicShieldDeactivatesWhenMedicDies", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
+
             ShieldDeactivationIsVisible = new StringOptionItem(Id + 5, "MedicShielDeactivationIsVisible", ShieldDeactivationIsVisibleOption, 0, TabGroup.CrewmateRoles)
                 .SetParent(ShieldDeactivatesWhenMedicDies);
+
             ShieldBreaksOnKillAttempt = new BooleanOptionItem(Id + 6, "MedicShieldBreaksOnKillAttempt", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
+
             ShieldBreakIsVisible = new StringOptionItem(Id + 7, "MedicShieldBreakIsVisible", ShieldDeactivationIsVisibleOption, 0, TabGroup.CrewmateRoles)
                 .SetParent(ShieldBreaksOnKillAttempt);
+
             ResetCooldown = new FloatOptionItem(Id + 8, "MedicResetCooldown", new(0f, 120f, 1f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic])
                 .SetValueFormat(OptionFormat.Seconds);
+
             GuesserIgnoreShield = new BooleanOptionItem(Id + 9, "MedicShieldedCanBeGuessed", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
+
             JudgingIgnoreShield = new BooleanOptionItem(Id + 10, "MedicShieldedCanBeJudged", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
+
             AmountOfShields = new IntegerOptionItem(Id + 11, "MedicAmountOfShields", new(1, 14, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic]);
+
             UsePet = Options.CreatePetUseSetting(Id + 12, CustomRoles.Medic);
+
             CD = new FloatOptionItem(Id + 13, "AbilityCooldown", new(0f, 180f, 2.5f), 7.5f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Medic])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -90,10 +102,7 @@ namespace EHR.Crewmate
 
         private static void SendRPCForProtectList()
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetMedicalerProtectList, SendOption.Reliable);
             writer.Write(ProtectList.Count);
@@ -105,10 +114,7 @@ namespace EHR.Crewmate
         {
             int count = reader.ReadInt32();
             ProtectList = [];
-            for (int i = 0; i < count; i++)
-            {
-                ProtectList.Add(reader.ReadByte());
-            }
+            for (var i = 0; i < count; i++) ProtectList.Add(reader.ReadByte());
         }
 
         public override bool CanUseKillButton(PlayerControl pc)
@@ -139,20 +145,11 @@ namespace EHR.Crewmate
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null)
-            {
-                return false;
-            }
+            if (killer == null || target == null) return false;
 
-            if (!CanUseKillButton(killer))
-            {
-                return false;
-            }
+            if (!CanUseKillButton(killer)) return false;
 
-            if (ProtectList.Contains(target.PlayerId))
-            {
-                return false;
-            }
+            if (ProtectList.Contains(target.PlayerId)) return false;
 
             killer.RpcRemoveAbilityUse();
 
@@ -184,15 +181,9 @@ namespace EHR.Crewmate
 
         public static bool OnAnyoneCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null)
-            {
-                return false;
-            }
+            if (killer == null || target == null) return false;
 
-            if (!ProtectList.Contains(target.PlayerId))
-            {
-                return false;
-            }
+            if (!ProtectList.Contains(target.PlayerId)) return false;
 
             killer.SetKillCooldown(ResetCooldown.GetFloat());
 
@@ -231,28 +222,21 @@ namespace EHR.Crewmate
 
         public static void OnCheckMark()
         {
-            bool notify = false;
+            var notify = false;
             notify |= CheckMedicDeath();
             notify |= CheckShieldBreak();
 
             if (notify)
             {
                 foreach (byte id in PlayerIdList)
-                {
-                    foreach (byte id2 in ProtectList)
-                    {
-                        Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(id), SpecifyTarget: Utils.GetPlayerById(id2));
-                    }
-                }
+                foreach (byte id2 in ProtectList)
+                    Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(id), SpecifyTarget: Utils.GetPlayerById(id2));
             }
         }
 
         private static bool CheckMedicDeath()
         {
-            if (!ShieldDeactivatesWhenMedicDies.GetBool())
-            {
-                return false;
-            }
+            if (!ShieldDeactivatesWhenMedicDies.GetBool()) return false;
 
             if ((Visible)ShieldDeactivationIsVisible.GetInt() == Visible.AfterMeeting)
             {
@@ -265,10 +249,7 @@ namespace EHR.Crewmate
 
         private static bool CheckShieldBreak()
         {
-            if (!ShieldBreaksOnKillAttempt.GetBool())
-            {
-                return false;
-            }
+            if (!ShieldBreaksOnKillAttempt.GetBool()) return false;
 
             if ((Visible)ShieldBreakIsVisible.GetInt() == Visible.AfterMeeting)
             {
@@ -281,15 +262,9 @@ namespace EHR.Crewmate
 
         public static void IsDead(PlayerControl target)
         {
-            if (!target.Is(CustomRoles.Medic))
-            {
-                return;
-            }
+            if (!target.Is(CustomRoles.Medic)) return;
 
-            if (!ShieldDeactivatesWhenMedicDies.GetBool())
-            {
-                return;
-            }
+            if (!ShieldDeactivatesWhenMedicDies.GetBool()) return;
 
             Utils.NotifyRoles(SpecifySeer: target);
 
@@ -301,10 +276,7 @@ namespace EHR.Crewmate
             {
                 TempMarkProtectedList = [];
 
-                foreach (byte pc in ProtectList)
-                {
-                    Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc), SpecifyTarget: target);
-                }
+                foreach (byte pc in ProtectList) Utils.NotifyRoles(SpecifySeer: Utils.GetPlayerById(pc), SpecifyTarget: target);
             }
         }
 
@@ -312,7 +284,7 @@ namespace EHR.Crewmate
         {
             if (ProtectList.Count > 0)
             {
-                string shieldMark = $"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>";
+                var shieldMark = $"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>";
 
                 bool self = seer.PlayerId == target.PlayerId;
                 bool seerIsMedic = seer.Is(CustomRoles.Medic);
@@ -323,20 +295,11 @@ namespace EHR.Crewmate
                 bool seerHasMark = TempMarkProtectedList.Contains(seer.PlayerId);
                 bool targetHasMark = TempMarkProtectedList.Contains(target.PlayerId);
 
-                if (self && (seerProtected || seerHasMark) && targetSeesProtection)
-                {
-                    return shieldMark;
-                }
+                if (self && (seerProtected || seerHasMark) && targetSeesProtection) return shieldMark;
 
-                if (seerIsMedic && (targetProtected || targetHasMark) && medicSeesProtection)
-                {
-                    return shieldMark;
-                }
+                if (seerIsMedic && (targetProtected || targetHasMark) && medicSeesProtection) return shieldMark;
 
-                if (seer.Data.IsDead && targetProtected && !seerIsMedic)
-                {
-                    return shieldMark;
-                }
+                if (seer.Data.IsDead && targetProtected && !seerIsMedic) return shieldMark;
             }
 
             return string.Empty;

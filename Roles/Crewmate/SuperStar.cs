@@ -10,6 +10,7 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(6000, TabGroup.CrewmateRoles, CustomRoles.SuperStar);
+
             Options.EveryOneKnowSuperStar = new BooleanOptionItem(6010, "EveryOneKnowSuperStar", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SuperStar]);
         }

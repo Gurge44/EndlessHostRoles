@@ -41,17 +41,22 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.FireWorks);
+
             FireWorksCountOpt = new IntegerOptionItem(Id + 10, "FireWorksMaxCount", new(1, 10, 1), 3, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks])
                 .SetValueFormat(OptionFormat.Pieces);
+
             FireWorksRadiusOpt = new FloatOptionItem(Id + 11, "FireWorksRadius", new(0.5f, 5f, 0.5f), 2f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             CanKill = new BooleanOptionItem(Id + 12, "CanKill", true, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks]);
+
             KillCooldown = new FloatOptionItem(Id + 13, "KillCooldown", new(0f, 180f, 0.5f), 30f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanIgniteBeforePlacingAllFireworks = new BooleanOptionItem(Id + 14, "CanIgniteBeforePlacingAllFireworks", false, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.FireWorks]);
         }
@@ -81,10 +86,7 @@ namespace EHR.Impostor
 
         private void SendRPC(byte playerId)
         {
-            if (!On || !Utils.DoRPC)
-            {
-                return;
-            }
+            if (!On || !Utils.DoRPC) return;
 
             Logger.Info($"Player{playerId}:SendRPC", "FireWorks");
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SendFireWorksState, SendOption.Reliable);
@@ -102,10 +104,7 @@ namespace EHR.Impostor
 
         public override bool CanUseKillButton(PlayerControl pc)
         {
-            if (pc == null || pc.Data.IsDead)
-            {
-                return false;
-            }
+            if (pc == null || pc.Data.IsDead) return false;
 
             try
             {
@@ -120,17 +119,11 @@ namespace EHR.Impostor
         public override void OnPet(PlayerControl pc)
         {
             FireWorksState beforeState = state;
-            if (CanIgniteBeforePlacingAllFireworks.GetBool())
-            {
-                state = FireWorksState.ReadyFire;
-            }
+            if (CanIgniteBeforePlacingAllFireworks.GetBool()) state = FireWorksState.ReadyFire;
 
             OnShapeshift(pc, null, true);
 
-            if (beforeState == FireWorksState.ReadyFire)
-            {
-                return;
-            }
+            if (beforeState == FireWorksState.ReadyFire) return;
 
             state = beforeState;
         }
@@ -138,10 +131,7 @@ namespace EHR.Impostor
         public override bool OnShapeshift(PlayerControl pc, PlayerControl _, bool shapeshifting)
         {
             Logger.Info("FireWorks ShapeShift", "FireWorks");
-            if (pc == null || pc.Data.IsDead || (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) || Pelican.IsEaten(pc.PlayerId))
-            {
-                return false;
-            }
+            if (pc == null || pc.Data.IsDead || (!shapeshifting && !Options.UseUnshiftTrigger.GetBool()) || Pelican.IsEaten(pc.PlayerId)) return false;
 
             UseAbility(pc);
 
@@ -151,10 +141,7 @@ namespace EHR.Impostor
         public override bool OnVanish(PlayerControl pc)
         {
             Logger.Info("FireWorks Vanish", "FireWorks");
-            if (pc == null || pc.Data.IsDead || Pelican.IsEaten(pc.PlayerId))
-            {
-                return false;
-            }
+            if (pc == null || pc.Data.IsDead || Pelican.IsEaten(pc.PlayerId)) return false;
 
             UseAbility(pc);
 
@@ -170,41 +157,34 @@ namespace EHR.Impostor
                     Logger.Info("Install Firework", "FireWorks");
                     fireWorksPosition.Add(pc.Pos());
                     nowFireWorksCount--;
+
                     state = nowFireWorksCount == 0
                         ? Main.AliveImpostorCount <= 1 ? FireWorksState.ReadyFire : FireWorksState.WaitTime
                         : FireWorksState.SettingFireWorks;
+
                     break;
                 case FireWorksState.ReadyFire:
                     Logger.Info("Explode fireworks", "FireWorks");
-                    bool suicide = false;
+                    var suicide = false;
+
                     foreach (PlayerControl target in Main.AllAlivePlayerControls)
                     {
                         foreach (Vector3 pos in fireWorksPosition)
                         {
                             float dis = Vector2.Distance(pos, target.transform.position);
-                            if (dis > FireWorksRadius)
-                            {
-                                continue;
-                            }
+                            if (dis > FireWorksRadius) continue;
 
                             if (target == pc)
-                            {
                                 suicide = true;
-                            }
                             else
-                            {
                                 target.Suicide(PlayerState.DeathReason.Bombed, pc);
-                            }
                         }
                     }
 
                     if (suicide)
                     {
                         int totalAlive = Main.AllAlivePlayerControls.Length;
-                        if (totalAlive != 1)
-                        {
-                            pc.Suicide();
-                        }
+                        if (totalAlive != 1) pc.Suicide();
                     }
 
                     state = FireWorksState.FireEnd;
@@ -217,16 +197,10 @@ namespace EHR.Impostor
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            string retText = string.Empty;
-            if (seer == null || seer.Data.IsDead || seer.PlayerId != target.PlayerId)
-            {
-                return retText;
-            }
+            var retText = string.Empty;
+            if (seer == null || seer.Data.IsDead || seer.PlayerId != target.PlayerId) return retText;
 
-            if (Main.PlayerStates[seer.PlayerId].Role is not FireWorks fw)
-            {
-                return retText;
-            }
+            if (Main.PlayerStates[seer.PlayerId].Role is not FireWorks fw) return retText;
 
             if (fw.state == FireWorksState.WaitTime && Main.AliveImpostorCount <= 1)
             {

@@ -32,10 +32,7 @@ namespace EHR
         private static bool InitializePrefix(GameOptionsMenu __instance)
         {
             Instance ??= __instance;
-            if (ModGameOptionsMenu.TabIndex < 3)
-            {
-                return true;
-            }
+            if (ModGameOptionsMenu.TabIndex < 3) return true;
 
             if (__instance.Children == null || __instance.Children.Count == 0)
             {
@@ -60,10 +57,7 @@ namespace EHR
             LateTask.New(() =>
             {
                 Transform menuDescription = optionMenu?.transform.FindChild("What Is This?");
-                if (menuDescription == null)
-                {
-                    return;
-                }
+                if (menuDescription == null) return;
 
                 Transform infoImage = menuDescription.transform.FindChild("InfoImage");
                 infoImage.transform.localPosition = new(-4.65f, 0.16f, -1f);
@@ -83,10 +77,7 @@ namespace EHR
         [HarmonyPrefix]
         private static bool CreateSettingsPrefix(GameOptionsMenu __instance)
         {
-            if (ModGameOptionsMenu.TabIndex < 3)
-            {
-                return true;
-            }
+            if (ModGameOptionsMenu.TabIndex < 3) return true;
 
             __instance.scrollBar.SetYBoundsMax(CalculateScrollBarYBoundsMax());
             __instance.StartCoroutine(CoRoutine().WrapToIl2Cpp());
@@ -94,18 +85,16 @@ namespace EHR
 
             IEnumerator CoRoutine()
             {
-                TabGroup modTab = (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
+                var modTab = (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
 
-                float num = 2.0f;
+                var num = 2.0f;
                 const float posX = 0.952f;
                 const float posZ = -2.0f;
-                for (int index = 0; index < OptionItem.AllOptions.Count; index++)
+
+                for (var index = 0; index < OptionItem.AllOptions.Count; index++)
                 {
                     OptionItem option = OptionItem.AllOptions[index];
-                    if (option.Tab != modTab)
-                    {
-                        continue;
-                    }
+                    if (option.Tab != modTab) continue;
 
                     bool enabled = !option.IsHiddenOn(Options.CurrentGameMode) && (option.Parent == null || (!option.Parent.IsHiddenOn(Options.CurrentGameMode) && option.Parent.GetBool())) && (option.Parent?.Parent == null || (!option.Parent.Parent.IsHiddenOn(Options.CurrentGameMode) && option.Parent.Parent.GetBool())) && (option.Parent?.Parent?.Parent == null || (!option.Parent.Parent.Parent.IsHiddenOn(Options.CurrentGameMode) && option.Parent.Parent.Parent.GetBool()));
 
@@ -116,32 +105,20 @@ namespace EHR
                         categoryHeaderMasked.Title.text = option.GetName();
                         categoryHeaderMasked.transform.localScale = Vector3.one * 0.63f;
                         categoryHeaderMasked.transform.localPosition = new(-0.903f, num, posZ);
-                        TextMeshPro chmText = categoryHeaderMasked.transform.FindChild("HeaderText").GetComponent<TextMeshPro>();
+                        var chmText = categoryHeaderMasked.transform.FindChild("HeaderText").GetComponent<TextMeshPro>();
                         chmText.fontStyle = FontStyles.Bold;
                         chmText.outlineWidth = 0.17f;
                         categoryHeaderMasked.gameObject.SetActive(enabled);
                         ModGameOptionsMenu.CategoryHeaderList.TryAdd(index, categoryHeaderMasked);
 
-                        if (enabled)
-                        {
-                            num -= 0.63f;
-                        }
+                        if (enabled) num -= 0.63f;
                     }
-                    else if (option.IsHeader && enabled)
-                    {
-                        num -= 0.25f;
-                    }
+                    else if (option.IsHeader && enabled) num -= 0.25f;
 
-                    if (option is TextOptionItem)
-                    {
-                        continue;
-                    }
+                    if (option is TextOptionItem) continue;
 
                     BaseGameSetting baseGameSetting = GetSetting(option);
-                    if (baseGameSetting == null)
-                    {
-                        continue;
-                    }
+                    if (baseGameSetting == null) continue;
 
 
                     OptionBehaviour optionBehaviour;
@@ -167,10 +144,7 @@ namespace EHR
 
                             OptionBehaviourSetSizeAndPosition(optionBehaviour, option, baseGameSetting.Type);
 
-                            if (option.Name == "GameMode" && !ModGameOptionsMenu.OptionList.ContainsValue(index))
-                            {
-                                GameSettingMenuPatch.GameModeBehaviour = (StringOption)optionBehaviour;
-                            }
+                            if (option.Name == "GameMode" && !ModGameOptionsMenu.OptionList.ContainsValue(index)) GameSettingMenuPatch.GameModeBehaviour = (StringOption)optionBehaviour;
 
                             optionBehaviour.SetClickMask(__instance.ButtonClickMask);
                             optionBehaviour.SetUpFromData(baseGameSetting, 20);
@@ -185,10 +159,7 @@ namespace EHR
 
                             OptionBehaviourSetSizeAndPosition(optionBehaviour, option, baseGameSetting.Type);
 
-                            if (option.Name == "Preset" && !ModGameOptionsMenu.OptionList.ContainsValue(index))
-                            {
-                                GameSettingMenuPatch.PresetBehaviour = (NumberOption)optionBehaviour;
-                            }
+                            if (option.Name == "Preset" && !ModGameOptionsMenu.OptionList.ContainsValue(index)) GameSettingMenuPatch.PresetBehaviour = (NumberOption)optionBehaviour;
 
                             optionBehaviour.SetClickMask(__instance.ButtonClickMask);
                             optionBehaviour.SetUpFromData(baseGameSetting, 20);
@@ -210,48 +181,32 @@ namespace EHR
 
                     option.OptionBehaviour = optionBehaviour;
 
-                    if (enabled)
-                    {
-                        num -= 0.45f;
-                    }
+                    if (enabled) num -= 0.45f;
 
-                    if (index % 50 == 0)
-                    {
-                        yield return null;
-                    }
+                    if (index % 50 == 0) yield return null;
                 }
 
                 yield return null;
 
                 __instance.ControllerSelectable.Clear();
-                foreach (UiElement x in __instance.scrollBar.GetComponentsInChildren<UiElement>())
-                {
-                    __instance.ControllerSelectable.Add(x);
-                }
+                foreach (UiElement x in __instance.scrollBar.GetComponentsInChildren<UiElement>()) __instance.ControllerSelectable.Add(x);
             }
 
             float CalculateScrollBarYBoundsMax()
             {
-                float num = 2.0f;
+                var num = 2.0f;
+
                 foreach (OptionItem option in OptionItem.AllOptions)
                 {
-                    if (option.Tab != (TabGroup)(ModGameOptionsMenu.TabIndex - 3))
-                    {
-                        continue;
-                    }
+                    if (option.Tab != (TabGroup)(ModGameOptionsMenu.TabIndex - 3)) continue;
 
                     bool enabled = !option.IsHiddenOn(Options.CurrentGameMode) && (option.Parent == null || (!option.Parent.IsHiddenOn(Options.CurrentGameMode) && option.Parent.GetBool()));
 
                     if (option is TextOptionItem)
-                    {
                         num -= 0.63f;
-                    }
                     else if (enabled)
                     {
-                        if (option.IsHeader)
-                        {
-                            num -= 0.25f;
-                        }
+                        if (option.IsHeader) num -= 0.25f;
 
                         num -= 0.45f;
                     }
@@ -266,7 +221,7 @@ namespace EHR
             Vector3 positionOffset = new(0f, 0f, 0f);
             Vector3 scaleOffset = new(0f, 0f, 0f);
             Color color = new(0.35f, 0.35f, 0.35f);
-            float sizeDelta_x = 5.7f;
+            var sizeDelta_x = 5.7f;
 
             if (option.Parent?.Parent?.Parent != null)
             {
@@ -298,7 +253,7 @@ namespace EHR
             Transform titleText = optionBehaviour.transform.FindChild("Title Text");
             titleText.localPosition += new Vector3(-0.4f, 0f, 0f) + positionOffset;
             titleText.GetComponent<RectTransform>().sizeDelta = new(sizeDelta_x, 0.37f);
-            TextMeshPro textMeshPro = titleText.GetComponent<TextMeshPro>();
+            var textMeshPro = titleText.GetComponent<TextMeshPro>();
             textMeshPro.alignment = TextAlignmentOptions.MidlineLeft;
             textMeshPro.fontStyle = FontStyles.Bold;
             textMeshPro.outlineWidth = 0.17f;
@@ -338,18 +293,12 @@ namespace EHR
         [HarmonyPrefix]
         private static bool ValueChangedPrefix(GameOptionsMenu __instance, OptionBehaviour option)
         {
-            if (ModGameOptionsMenu.TabIndex < 3)
-            {
-                return true;
-            }
+            if (ModGameOptionsMenu.TabIndex < 3) return true;
 
             if (ModGameOptionsMenu.OptionList.TryGetValue(option, out int index))
             {
                 OptionItem item = OptionItem.AllOptions[index];
-                if (item != null && item.Children.Count > 0)
-                {
-                    ReCreateSettings(__instance);
-                }
+                if (item != null && item.Children.Count > 0) ReCreateSettings(__instance);
             }
 
             return false;
@@ -357,21 +306,16 @@ namespace EHR
 
         public static void ReCreateSettings(GameOptionsMenu __instance)
         {
-            if (ModGameOptionsMenu.TabIndex < 3)
-            {
-                return;
-            }
+            if (ModGameOptionsMenu.TabIndex < 3) return;
 
-            TabGroup modTab = (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
+            var modTab = (TabGroup)(ModGameOptionsMenu.TabIndex - 3);
 
-            float num = 2.0f;
-            for (int index = 0; index < OptionItem.AllOptions.Count; index++)
+            var num = 2.0f;
+
+            for (var index = 0; index < OptionItem.AllOptions.Count; index++)
             {
                 OptionItem option = OptionItem.AllOptions[index];
-                if (option.Tab != modTab)
-                {
-                    continue;
-                }
+                if (option.Tab != modTab) continue;
 
                 bool enabled = !option.IsHiddenOn(Options.CurrentGameMode) && (option.Parent == null || (!option.Parent.IsHiddenOn(Options.CurrentGameMode) && option.Parent.GetBool()));
 
@@ -379,32 +323,20 @@ namespace EHR
                 {
                     categoryHeaderMasked.transform.localPosition = new(-0.903f, num, -2f);
                     categoryHeaderMasked.gameObject.SetActive(enabled);
-                    if (enabled)
-                    {
-                        num -= 0.63f;
-                    }
+                    if (enabled) num -= 0.63f;
                 }
-                else if (option.IsHeader && enabled)
-                {
-                    num -= 0.25f;
-                }
+                else if (option.IsHeader && enabled) num -= 0.25f;
 
                 if (ModGameOptionsMenu.BehaviourList.TryGetValue(index, out OptionBehaviour optionBehaviour))
                 {
                     optionBehaviour.transform.localPosition = new(0.952f, num, -2f);
                     optionBehaviour.gameObject.SetActive(enabled);
-                    if (enabled)
-                    {
-                        num -= 0.45f;
-                    }
+                    if (enabled) num -= 0.45f;
                 }
             }
 
             __instance.ControllerSelectable.Clear();
-            foreach (UiElement x in __instance.scrollBar.GetComponentsInChildren<UiElement>())
-            {
-                __instance.ControllerSelectable.Add(x);
-            }
+            foreach (UiElement x in __instance.scrollBar.GetComponentsInChildren<UiElement>()) __instance.ControllerSelectable.Add(x);
 
             __instance.scrollBar.SetYBoundsMax(-num - 1.65f);
         }
@@ -412,15 +344,16 @@ namespace EHR
         private static BaseGameSetting GetSetting(OptionItem item)
         {
             BaseGameSetting baseGameSetting;
+
             switch (item)
             {
                 case BooleanOptionItem:
-                    CheckboxGameSetting checkboxGameSetting = ScriptableObject.CreateInstance<CheckboxGameSetting>();
+                    var checkboxGameSetting = ScriptableObject.CreateInstance<CheckboxGameSetting>();
                     checkboxGameSetting.Type = OptionTypes.Checkbox;
                     baseGameSetting = checkboxGameSetting;
                     break;
                 case IntegerOptionItem integerOptionItem:
-                    IntGameSetting intGameSetting = ScriptableObject.CreateInstance<IntGameSetting>();
+                    var intGameSetting = ScriptableObject.CreateInstance<IntGameSetting>();
                     intGameSetting.Type = OptionTypes.Int;
                     intGameSetting.Value = integerOptionItem.GetInt();
                     intGameSetting.Increment = integerOptionItem.Rule.Step;
@@ -431,7 +364,7 @@ namespace EHR
                     baseGameSetting = intGameSetting;
                     break;
                 case FloatOptionItem floatOptionItem:
-                    FloatGameSetting floatGameSetting = ScriptableObject.CreateInstance<FloatGameSetting>();
+                    var floatGameSetting = ScriptableObject.CreateInstance<FloatGameSetting>();
                     floatGameSetting.Type = OptionTypes.Float;
                     floatGameSetting.Value = floatOptionItem.GetFloat();
                     floatGameSetting.Increment = floatOptionItem.Rule.Step;
@@ -442,14 +375,14 @@ namespace EHR
                     baseGameSetting = floatGameSetting;
                     break;
                 case StringOptionItem stringOptionItem:
-                    StringGameSetting stringGameSetting = ScriptableObject.CreateInstance<StringGameSetting>();
+                    var stringGameSetting = ScriptableObject.CreateInstance<StringGameSetting>();
                     stringGameSetting.Type = OptionTypes.String;
                     stringGameSetting.Values = new StringNames[stringOptionItem.Selections.Count];
                     stringGameSetting.Index = stringOptionItem.GetInt();
                     baseGameSetting = stringGameSetting;
                     break;
                 case PresetOptionItem presetOptionItem:
-                    IntGameSetting presetIntGameSetting = ScriptableObject.CreateInstance<IntGameSetting>();
+                    var presetIntGameSetting = ScriptableObject.CreateInstance<IntGameSetting>();
                     presetIntGameSetting.Type = OptionTypes.Int;
                     presetIntGameSetting.Value = presetOptionItem.GetInt();
                     presetIntGameSetting.Increment = presetOptionItem.Rule.Step;
@@ -464,10 +397,7 @@ namespace EHR
                     break;
             }
 
-            if (baseGameSetting != null)
-            {
-                baseGameSetting.Title = StringNames.Accept;
-            }
+            if (baseGameSetting != null) baseGameSetting.Title = StringNames.Accept;
 
             return baseGameSetting;
         }
@@ -475,13 +405,12 @@ namespace EHR
         public static void ReloadUI(int index)
         {
             GameSettingMenu.Instance?.Close();
+
             LateTask.New(() =>
             {
-                if (GameStates.IsLobby)
-                {
-                    GameObject.Find("Host Buttons")?.transform.FindChild("Edit")?.GetComponent<PassiveButton>()?.ReceiveClickDown();
-                }
+                if (GameStates.IsLobby) GameObject.Find("Host Buttons")?.transform.FindChild("Edit")?.GetComponent<PassiveButton>()?.ReceiveClickDown();
             }, 0.1f, log: false);
+
             LateTask.New(() =>
             {
                 if (GameStates.IsLobby)
@@ -535,15 +464,9 @@ namespace EHR
         {
             get
             {
-                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-                {
-                    return 5;
-                }
+                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) return 5;
 
-                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-                {
-                    return 10;
-                }
+                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) return 10;
 
                 return 1;
             }
@@ -579,10 +502,7 @@ namespace EHR
                 case StringNames.GameNumImpostors:
                     __instance.ValidRange = new(1, Crowded.MaxImpostors);
                     __instance.Value = (float)Math.Round(__instance.Value, 2);
-                    if (DebugModeManager.AmDebugger)
-                    {
-                        __instance.ValidRange.min = 0;
-                    }
+                    if (DebugModeManager.AmDebugger) __instance.ValidRange.min = 0;
 
                     break;
             }
@@ -650,10 +570,7 @@ namespace EHR
 
         private static string GetValueString(NumberOption __instance, float value, OptionItem item)
         {
-            if (__instance.ZeroIsInfinity && Mathf.Abs(value) < 0.0001f)
-            {
-                return "<b>∞</b>";
-            }
+            if (__instance.ZeroIsInfinity && Mathf.Abs(value) < 0.0001f) return "<b>∞</b>";
 
             return item == null ? value.ToString(__instance.FormatString) : item.GetString();
         }
@@ -671,6 +588,7 @@ namespace EHR
             }
 
             float increment = IncrementMultiplier * __instance.Increment;
+
             if (__instance.Value + increment < __instance.ValidRange.max)
             {
                 __instance.Value += increment;
@@ -695,6 +613,7 @@ namespace EHR
             }
 
             float increment = IncrementMultiplier * __instance.Increment;
+
             if (__instance.Value - increment > __instance.ValidRange.min)
             {
                 __instance.Value -= increment;
@@ -720,28 +639,17 @@ namespace EHR
                 string name = item.GetName();
                 item.OptionBehaviour = __instance;
                 string name1 = name;
+
                 if (Enum.GetValues<CustomRoles>().FindFirst(x => Translator.GetString($"{x}") == name1.RemoveHtmlTags(), out CustomRoles role))
                 {
-                    if (role.ToString().Contains("GuardianAngel"))
-                    {
-                        role = CustomRoles.GA;
-                    }
+                    if (role.ToString().Contains("GuardianAngel")) role = CustomRoles.GA;
 
                     name = name.RemoveHtmlTags();
-                    if (Options.UsePets.GetBool() && role.PetActivatedAbility())
-                    {
-                        name += Translator.GetString("SupportsPetIndicator");
-                    }
+                    if (Options.UsePets.GetBool() && role.PetActivatedAbility()) name += Translator.GetString("SupportsPetIndicator");
 
-                    if (!Options.UsePets.GetBool() && role.OnlySpawnsWithPets())
-                    {
-                        name += Translator.GetString("RequiresPetIndicator");
-                    }
+                    if (!Options.UsePets.GetBool() && role.OnlySpawnsWithPets()) name += Translator.GetString("RequiresPetIndicator");
 
-                    if (role.IsGhostRole())
-                    {
-                        name += GetGhostRoleTeam(role);
-                    }
+                    if (role.IsGhostRole()) name += GetGhostRoleTeam(role);
 
                     __instance.TitleText.fontWeight = FontWeight.Black;
                     __instance.TitleText.outlineColor = new(255, 255, 255, 255);
@@ -764,23 +672,26 @@ namespace EHR
             Transform template = option.transform.FindChild("MinusButton");
             Transform icon = Object.Instantiate(template, template.parent, true);
             icon.name = $"{role}HelpIcon";
-            TextMeshPro text = icon.GetComponentInChildren<TextMeshPro>();
+            var text = icon.GetComponentInChildren<TextMeshPro>();
             text.text = "?";
             text.color = Color.white;
             icon.FindChild("ButtonSprite").GetComponent<SpriteRenderer>().color = Color.black;
-            GameOptionButton gameOptionButton = icon.GetComponent<GameOptionButton>();
+            var gameOptionButton = icon.GetComponent<GameOptionButton>();
             gameOptionButton.OnClick = new();
+
             gameOptionButton.OnClick.AddListener((Action)(() =>
             {
                 if (ModGameOptionsMenu.OptionList.TryGetValue(option, out int index))
                 {
                     OptionItem item = OptionItem.AllOptions[index];
                     string name = item.GetName();
+
                     if (Enum.GetValues<CustomRoles>().FindFirst(x => Translator.GetString($"{x}") == name.RemoveHtmlTags(), out CustomRoles value))
                     {
                         string roleName = value.IsVanilla() ? value + "EHR" : value.ToString();
                         string str = Translator.GetString($"{roleName}InfoLong");
                         string infoLong;
+
                         try
                         {
                             infoLong = HnSManager.AllHnSRoles.Contains(value) ? str : str[(str.IndexOf('\n') + 1)..str.Split("\n\n")[0].Length];
@@ -790,11 +701,12 @@ namespace EHR
                             infoLong = str;
                         }
 
-                        string info = $"{value.ToColoredString()}: {infoLong}";
+                        var info = $"{value.ToColoredString()}: {infoLong}";
                         GameSettingMenu.Instance.MenuDescriptionText.text = info;
                     }
                 }
             }));
+
             gameOptionButton.interactableColor = Color.black;
             gameOptionButton.interactableHoveredColor = Color.blue;
             icon.localPosition += new Vector3(-0.8f, 0f, 0f);
@@ -804,16 +716,10 @@ namespace EHR
         private static string GetGhostRoleTeam(CustomRoles role)
         {
             IGhostRole instance = GhostRolesManager.CreateGhostRoleInstance(role);
-            if (instance == null)
-            {
-                return string.Empty;
-            }
+            if (instance == null) return string.Empty;
 
             Team team = instance.Team;
-            if ((int)team is 1 or 2 or 4)
-            {
-                return $"    <size=2>{GetColoredShortTeamName(team)}</size>";
-            }
+            if ((int)team is 1 or 2 or 4) return $"    <size=2>{GetColoredShortTeamName(team)}</size>";
 
             Team[] teams = (int)team switch
             {
@@ -823,6 +729,7 @@ namespace EHR
                 7 => [Team.Impostor, Team.Neutral, Team.Crewmate],
                 _ => []
             };
+
             return $"    <size=2>{string.Join('/', teams.Select(GetColoredShortTeamName))}</size>";
 
             string GetColoredShortTeamName(Team t)
@@ -840,34 +747,20 @@ namespace EHR
                 OptionItem item = OptionItem.AllOptions[index];
                 item.SetValue(__instance.GetInt());
                 string name = item.GetName();
-                if (item.Name == "GameMode")
-                {
-                    GameOptionsMenuPatch.ReloadUI(ModGameOptionsMenu.TabIndex);
-                }
+                if (item.Name == "GameMode") GameOptionsMenuPatch.ReloadUI(ModGameOptionsMenu.TabIndex);
 
                 string name1 = name;
+
                 if (Enum.GetValues<CustomRoles>().FindFirst(x => Translator.GetString($"{x}") == name1.RemoveHtmlTags(), out CustomRoles role))
                 {
-                    if (role.ToString().Contains("GuardianAngel"))
-                    {
-                        role = CustomRoles.GA;
-                    }
+                    if (role.ToString().Contains("GuardianAngel")) role = CustomRoles.GA;
 
                     name = name.RemoveHtmlTags();
-                    if (Options.UsePets.GetBool() && role.PetActivatedAbility())
-                    {
-                        name += Translator.GetString("SupportsPetIndicator");
-                    }
+                    if (Options.UsePets.GetBool() && role.PetActivatedAbility()) name += Translator.GetString("SupportsPetIndicator");
 
-                    if (!Options.UsePets.GetBool() && role.OnlySpawnsWithPets())
-                    {
-                        name += Translator.GetString("RequiresPetIndicator");
-                    }
+                    if (!Options.UsePets.GetBool() && role.OnlySpawnsWithPets()) name += Translator.GetString("RequiresPetIndicator");
 
-                    if (role.IsGhostRole())
-                    {
-                        name += GetGhostRoleTeam(role);
-                    }
+                    if (role.IsGhostRole()) name += GetGhostRoleTeam(role);
 
                     __instance.TitleText.fontWeight = FontWeight.Black;
                     __instance.TitleText.outlineColor = new(255, 255, 255, 255);
@@ -878,9 +771,7 @@ namespace EHR
                     NotificationPopperPatch.AddRoleSettingsChangeMessage(index, item, role, true);
                 }
                 else
-                {
                     NotificationPopperPatch.AddSettingsChangeMessage(index, item, true);
-                }
 
                 __instance.TitleText.text = name;
                 return false;
@@ -903,6 +794,7 @@ namespace EHR
                     if (__instance.oldValue != __instance.Value)
                     {
                         __instance.oldValue = __instance.Value;
+
                         __instance.ValueText.text = stringOptionItem.noTranslation
                             ? stringOptionItem.Selections[stringOptionItem.Rule.GetValueByIndex(__instance.Value)]
                             : Translator.GetString(stringOptionItem.Selections[stringOptionItem.Rule.GetValueByIndex(__instance.Value)]);
@@ -974,12 +866,13 @@ namespace EHR
         public static void StartPostfix(GameSettingMenu __instance)
         {
             ModSettingsButtons = [];
+
             foreach (TabGroup tab in Enum.GetValues<TabGroup>())
             {
                 PassiveButton button = Object.Instantiate(TemplateGameSettingsButton, __instance.GameSettingsButton.transform.parent);
                 button.gameObject.SetActive(true);
                 button.name = "Button_" + tab;
-                TextMeshPro label = button.GetComponentInChildren<TextMeshPro>();
+                var label = button.GetComponentInChildren<TextMeshPro>();
                 label.DestroyTranslator();
                 label.text = Translator.GetString($"TabGroup.{tab}");
                 label.color = Color.white;
@@ -1002,6 +895,7 @@ namespace EHR
                     TabGroup.OtherRoles => new(0.4f, 0.4f, 0.4f),
                     _ => new(0.3f, 0.3f, 0.3f)
                 };
+
                 button.inactiveSprites.GetComponent<SpriteRenderer>().color = color;
                 button.activeSprites.GetComponent<SpriteRenderer>().color = color;
                 button.selectedSprites.GetComponent<SpriteRenderer>().color = color;
@@ -1011,7 +905,7 @@ namespace EHR
                 button.transform.localPosition = (((int)tab + 1) % 2 == 0 ? ButtonPositionLeft : ButtonPositionRight) - offset;
                 button.transform.localScale = ButtonSize;
 
-                PassiveButton buttonComponent = button.GetComponent<PassiveButton>();
+                var buttonComponent = button.GetComponent<PassiveButton>();
                 buttonComponent.OnClick = new();
                 buttonComponent.OnClick.AddListener((Action)(() => __instance.ChangeTab((int)tab + 3, false)));
 
@@ -1019,6 +913,7 @@ namespace EHR
             }
 
             ModSettingsTabs = [];
+
             foreach (TabGroup tab in Enum.GetValues<TabGroup>())
             {
                 GameOptionsMenu setTab = Object.Instantiate(TemplateGameOptionsMenu, __instance.GameSettingsTab.transform.parent);
@@ -1029,12 +924,8 @@ namespace EHR
             }
 
             foreach (TabGroup tab in Enum.GetValues<TabGroup>())
-            {
                 if (ModSettingsButtons.TryGetValue(tab, out PassiveButton button))
-                {
                     __instance.ControllerSelectable.Add(button);
-                }
-            }
 
             HiddenBySearch.Do(x => x.SetHidden(false));
             HiddenBySearch.Clear();
@@ -1050,11 +941,11 @@ namespace EHR
 
             preset.transform.localPosition = new(-1.83f, 0.1f, -2f);
             preset.transform.localScale = new(0.65f, 0.63f, 1f);
-            SpriteRenderer renderer = preset.GetComponentInChildren<SpriteRenderer>();
+            var renderer = preset.GetComponentInChildren<SpriteRenderer>();
             renderer.color = Color.white;
             renderer.sprite = null;
 
-            TextMeshPro presetTmp = preset.GetComponentInChildren<TextMeshPro>();
+            var presetTmp = preset.GetComponentInChildren<TextMeshPro>();
             presetTmp.DestroyTranslator();
             presetTmp.text = Translator.GetString($"Preset_{OptionItem.CurrentPreset + 1}");
 
@@ -1068,7 +959,7 @@ namespace EHR
             gMinus.gameObject.SetActive(true);
             gMinus.transform.localScale = new(0.08f, 0.4f, 1f);
 
-            TextMeshPro mLabel = gMinus.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
+            var mLabel = gMinus.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
             mLabel.alignment = TextAlignmentOptions.Center;
             mLabel.DestroyTranslator();
             mLabel.text = "-";
@@ -1077,17 +968,16 @@ namespace EHR
             mLabel.SetFaceColor(new Color(255f, 255f, 255f));
             mLabel.transform.localScale = new(12f, 4f, 1f);
 
-            PassiveButton minus = gMinus.GetComponent<PassiveButton>();
+            var minus = gMinus.GetComponent<PassiveButton>();
             minus.OnClick.RemoveAllListeners();
+
             minus.OnClick.AddListener((Action)(() =>
             {
-                if (PresetBehaviour == null)
-                {
-                    __instance.ChangeTab(3, false);
-                }
+                if (PresetBehaviour == null) __instance.ChangeTab(3, false);
 
                 PresetBehaviour.Decrease();
             }));
+
             minus.activeTextColor = minus.inactiveTextColor = minus.disabledTextColor = minus.selectedTextColor = Color.white;
 
             minus.transform.localPosition = new(-2f, -3.37f, -4f);
@@ -1101,7 +991,7 @@ namespace EHR
 
 
             GameObject plusFab = Object.Instantiate(gMinus, preset.transform);
-            TextMeshPro plusLabel = plusFab.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
+            var plusLabel = plusFab.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
             plusLabel.alignment = TextAlignmentOptions.Center;
             plusLabel.DestroyTranslator();
             plusLabel.text = "+";
@@ -1109,30 +999,27 @@ namespace EHR
             plusLabel.transform.localPosition = new(plusLabel.transform.localPosition.x, plusLabel.transform.localPosition.y + 0.26f, plusLabel.transform.localPosition.z);
             plusLabel.transform.localScale = new(18f, 4f, 1f);
 
-            PassiveButton plus = plusFab.GetComponent<PassiveButton>();
+            var plus = plusFab.GetComponent<PassiveButton>();
             plus.OnClick.RemoveAllListeners();
+
             plus.OnClick.AddListener((Action)(() =>
             {
-                if (PresetBehaviour == null)
-                {
-                    __instance.ChangeTab(3, false);
-                }
+                if (PresetBehaviour == null) __instance.ChangeTab(3, false);
 
                 PresetBehaviour.Increase();
             }));
+
             plus.activeTextColor = plus.inactiveTextColor = plus.disabledTextColor = plus.selectedTextColor = Color.white;
             plus.transform.localPosition = new(-0.4f, -3.37f, -4f);
 
 
-            TextMeshPro gameSettingsLabel = __instance.GameSettingsButton.transform.parent.parent.FindChild("GameSettingsLabel").GetComponent<TextMeshPro>();
+            var gameSettingsLabel = __instance.GameSettingsButton.transform.parent.parent.FindChild("GameSettingsLabel").GetComponent<TextMeshPro>();
             gameSettingsLabel.DestroyTranslator();
             string gameModeText = Translator.GetString($"Mode{Options.CurrentGameMode}").Split(':').Last().TrimStart(' ');
-            if (gameModeText.Length >= 15)
-            {
-                gameModeText = $"<size=70%>{gameModeText}</size>";
-            }
+            if (gameModeText.Length >= 15) gameModeText = $"<size=70%>{gameModeText}</size>";
 
             gameSettingsLabel.text = gameModeText;
+
             if (russian)
             {
                 gameSettingsLabel.transform.localScale = new(0.7f, 0.7f, 1f);
@@ -1145,7 +1032,7 @@ namespace EHR
 
             gmCycler.transform.localScale = new(0.25f, 0.7f, 1f);
             gmCycler.transform.localPosition = new(gameSettingsLabelPos.x + 0.8f, gameSettingsLabelPos.y - 2.9f, gameSettingsLabelPos.z);
-            TextMeshPro gmTmp = gmCycler.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
+            var gmTmp = gmCycler.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
             gmTmp.alignment = TextAlignmentOptions.Center;
             gmTmp.DestroyTranslator();
             gmTmp.text = "\u21c4";
@@ -1154,17 +1041,16 @@ namespace EHR
             gmTmp.transform.localPosition = new(gameSettingsLabelPos.x + Offset2, gameSettingsLabelPos.y - 1.52f, gameSettingsLabelPos.z);
             gmTmp.transform.localScale = new(4f, 1.5f, 1f);
 
-            PassiveButton cycle = gmCycler.GetComponent<PassiveButton>();
+            var cycle = gmCycler.GetComponent<PassiveButton>();
             cycle.OnClick.RemoveAllListeners();
+
             cycle.OnClick.AddListener((Action)(() =>
             {
-                if (GameModeBehaviour == null)
-                {
-                    __instance.ChangeTab(4, false);
-                }
+                if (GameModeBehaviour == null) __instance.ChangeTab(4, false);
 
                 GameModeBehaviour.Increase();
             }));
+
             float Offset = !russian ? 1.15f : 2.25f;
             cycle.activeTextColor = cycle.inactiveTextColor = cycle.disabledTextColor = cycle.selectedTextColor = Color.white;
             cycle.transform.localPosition = new(Offset, 0.08f, 1f);
@@ -1199,27 +1085,21 @@ namespace EHR
             }
 
 
-            PassiveButton passiveButton = button.GetComponent<PassiveButton>();
+            var passiveButton = button.GetComponent<PassiveButton>();
 
             passiveButton.OnClick = new();
             passiveButton.OnClick.AddListener((Action)(() => SearchForOptions(field)));
 
             SearchForOptionsAction = () =>
             {
-                if (field.textArea.text != string.Empty)
-                {
-                    SearchForOptions(field);
-                }
+                if (field.textArea.text != string.Empty) SearchForOptions(field);
             };
 
             return;
 
             static void SearchForOptions(FreeChatInputField textField)
             {
-                if (ModGameOptionsMenu.TabIndex < 3)
-                {
-                    return;
-                }
+                if (ModGameOptionsMenu.TabIndex < 3) return;
 
                 HiddenBySearch.Do(x => x.SetHidden(false));
                 string text = textField.textArea.text.Trim().ToLower();
@@ -1248,7 +1128,7 @@ namespace EHR
             PassiveButton gameSettingButton = __instance.GameSettingsButton;
             gameSettingButton.transform.localPosition = new(-3f, -0.4f, 0f);
 
-            TextMeshPro textLabel = gameSettingButton.GetComponentInChildren<TextMeshPro>();
+            var textLabel = gameSettingButton.GetComponentInChildren<TextMeshPro>();
             textLabel.DestroyTranslator();
             textLabel.text = Translator.GetString("TabGroup.VanillaSettings");
 
@@ -1276,18 +1156,12 @@ namespace EHR
             if (HiddenBySearch.Any())
             {
                 HiddenBySearch.Do(x => x.SetHidden(false));
-                if (ModSettingsTabs.TryGetValue((TabGroup)(ModGameOptionsMenu.TabIndex - 3), out GameOptionsMenu GameSettings) && GameSettings != null)
-                {
-                    GameOptionsMenuPatch.ReCreateSettings(GameSettings);
-                }
+                if (ModSettingsTabs.TryGetValue((TabGroup)(ModGameOptionsMenu.TabIndex - 3), out GameOptionsMenu GameSettings) && GameSettings != null) GameOptionsMenuPatch.ReCreateSettings(GameSettings);
 
                 HiddenBySearch.Clear();
             }
 
-            if (!previewOnly || tabNum != 1)
-            {
-                ModGameOptionsMenu.TabIndex = tabNum;
-            }
+            if (!previewOnly || tabNum != 1) ModGameOptionsMenu.TabIndex = tabNum;
 
             GameOptionsMenu settingsTab;
             PassiveButton button;
@@ -1295,28 +1169,18 @@ namespace EHR
             if ((previewOnly && Controller.currentTouchType == Controller.TouchType.Joystick) || !previewOnly)
             {
                 foreach (TabGroup tab in Enum.GetValues<TabGroup>())
-                {
                     if (ModSettingsTabs.TryGetValue(tab, out settingsTab) && settingsTab != null)
-                    {
                         settingsTab.gameObject.SetActive(false);
-                    }
-                }
 
                 foreach (TabGroup tab in Enum.GetValues<TabGroup>())
-                {
                     if (ModSettingsButtons.TryGetValue(tab, out button) && button != null)
-                    {
                         button.SelectButton(false);
-                    }
-                }
             }
 
-            if (tabNum < 3)
-            {
-                return true;
-            }
+            if (tabNum < 3) return true;
 
-            TabGroup tabGroup = (TabGroup)(tabNum - 3);
+            var tabGroup = (TabGroup)(tabNum - 3);
+
             if ((previewOnly && Controller.currentTouchType == Controller.TouchType.Joystick) || !previewOnly)
             {
                 __instance.PresetsTab.gameObject.SetActive(false);
@@ -1344,10 +1208,7 @@ namespace EHR
             __instance.ToggleLeftSideDarkener(true);
             __instance.ToggleRightSideDarkener(false);
 
-            if (ModSettingsButtons.TryGetValue(tabGroup, out button) && button != null)
-            {
-                button.SelectButton(true);
-            }
+            if (ModSettingsButtons.TryGetValue(tabGroup, out button) && button != null) button.SelectButton(true);
 
             return false;
         }
@@ -1376,10 +1237,7 @@ namespace EHR
 
             ControllerManager.Instance.OpenOverlayMenu(__instance.name, __instance.BackButton, __instance.DefaultButtonSelected, __instance.ControllerSelectable);
             DestroyableSingleton<HudManager>.Instance.menuNavigationPrompts.SetActive(false);
-            if (Controller.currentTouchType != Controller.TouchType.Joystick)
-            {
-                __instance.ChangeTab(1, false);
-            }
+            if (Controller.currentTouchType != Controller.TouchType.Joystick) __instance.ChangeTab(1, false);
 
             __instance.StartCoroutine(__instance.CoSelectDefault());
 
@@ -1390,15 +1248,9 @@ namespace EHR
         [HarmonyPostfix]
         public static void ClosePostfix()
         {
-            foreach (PassiveButton button in ModSettingsButtons.Values)
-            {
-                Object.Destroy(button);
-            }
+            foreach (PassiveButton button in ModSettingsButtons.Values) Object.Destroy(button);
 
-            foreach (GameOptionsMenu tab in ModSettingsTabs.Values)
-            {
-                Object.Destroy(tab);
-            }
+            foreach (GameOptionsMenu tab in ModSettingsTabs.Values) Object.Destroy(tab);
 
             ModSettingsButtons = [];
             ModSettingsTabs = [];
@@ -1427,12 +1279,10 @@ namespace EHR
     {
         public static void Postfix()
         {
-            if (!GameSettingMenu.Instance)
-            {
-                return;
-            }
+            if (!GameSettingMenu.Instance) return;
 
             FreeChatInputField field = GameSettingMenuPatch.InputField;
+
             if (field != null)
             {
                 field.background.color = new Color32(40, 40, 40, byte.MaxValue);

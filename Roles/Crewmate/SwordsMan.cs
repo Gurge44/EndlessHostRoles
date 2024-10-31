@@ -20,11 +20,14 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.SwordsMan);
+
             CanVent = new BooleanOptionItem(Id + 11, "CanVent", false, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SwordsMan]);
+
             KCD = new FloatOptionItem(Id + 9, "KillCooldown", new(0f, 120f, 0.5f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SwordsMan])
                 .SetValueFormat(OptionFormat.Seconds);
+
             UsePet = Options.CreatePetUseSetting(Id + 10, CustomRoles.SwordsMan);
         }
 
@@ -72,10 +75,7 @@ namespace EHR.Crewmate
 
         public static void SendRPC(byte playerId)
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SwordsManKill, SendOption.Reliable);
             writer.Write(playerId);
@@ -85,10 +85,7 @@ namespace EHR.Crewmate
         public static void ReceiveRPC(MessageReader reader)
         {
             byte SwordsManId = reader.ReadByte();
-            if (!Killed.Contains(SwordsManId))
-            {
-                Killed.Add(SwordsManId);
-            }
+            if (!Killed.Contains(SwordsManId)) Killed.Add(SwordsManId);
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)

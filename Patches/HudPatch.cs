@@ -27,16 +27,10 @@ namespace EHR.Patches
 
         public static bool Prefix(HudManager __instance)
         {
-            if (PlayerControl.LocalPlayer != null)
-            {
-                return true;
-            }
+            if (PlayerControl.LocalPlayer != null) return true;
 
             __instance.taskDirtyTimer += Time.deltaTime;
-            if (__instance.taskDirtyTimer <= 0.25)
-            {
-                return false;
-            }
+            if (__instance.taskDirtyTimer <= 0.25) return false;
 
             __instance.taskDirtyTimer = 0.0f;
             __instance.TaskPanel?.SetTaskText(string.Empty);
@@ -50,40 +44,23 @@ namespace EHR.Patches
                 LoadingScreen.Update();
 
                 PlayerControl player = PlayerControl.LocalPlayer;
-                if (player == null)
-                {
-                    return;
-                }
+                if (player == null) return;
 
                 if (Input.GetKeyDown(KeyCode.LeftControl))
-                {
                     if ((!AmongUsClient.Instance.IsGameStarted || !GameStates.IsOnlineGame) && player.CanMove)
-                    {
                         player.Collider.offset = new(0f, 127f);
-                    }
-                }
 
                 if (Math.Abs(player.Collider.offset.y - 127f) < 0.1f)
-                {
                     if (!Input.GetKey(KeyCode.LeftControl) || (AmongUsClient.Instance.IsGameStarted && GameStates.IsOnlineGame))
-                    {
                         player.Collider.offset = new(0f, -0.3636f);
-                    }
-                }
 
-                if (__instance == null)
-                {
-                    return;
-                }
+                if (__instance == null) return;
 
                 if (GameStates.IsLobby)
                 {
                     if (PingTrackerUpdatePatch.Instance != null)
                     {
-                        if (SettingsText != null)
-                        {
-                            Object.Destroy(SettingsText.gameObject);
-                        }
+                        if (SettingsText != null) Object.Destroy(SettingsText.gameObject);
 
                         SettingsText = Object.Instantiate(PingTrackerUpdatePatch.Instance.text, __instance.transform, true);
                         SettingsText.alignment = TextAlignmentOptions.TopLeft;
@@ -98,10 +75,7 @@ namespace EHR.Patches
                         SettingsText.enabled = SettingsText.text != string.Empty;
                     }
                 }
-                else if (SettingsText != null)
-                {
-                    Object.Destroy(SettingsText.gameObject);
-                }
+                else if (SettingsText != null) Object.Destroy(SettingsText.gameObject);
 
                 if (AmongUsClient.Instance.AmHost)
                 {
@@ -120,35 +94,34 @@ namespace EHR.Patches
                     if (Main.SetRoles.Count > 0 || Main.SetAddOns.Count > 0)
                     {
                         Dictionary<byte, string> resultText = [];
-                        bool first = true;
+                        var first = true;
+
                         foreach (KeyValuePair<byte, CustomRoles> item in Main.SetRoles)
                         {
                             PlayerControl pc = Utils.GetPlayerById(item.Key);
                             string prefix = first ? string.Empty : "\n";
-                            string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <color={Main.RoleColors.GetValueOrDefault(item.Value, "#ffffff")}>{GetString(item.Value.ToString())}</color>";
+                            var text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <color={Main.RoleColors.GetValueOrDefault(item.Value, "#ffffff")}>{GetString(item.Value.ToString())}</color>";
                             resultText[item.Key] = text;
                             first = false;
                         }
 
-                        if (Main.SetRoles.Count == 0)
-                        {
-                            first = true;
-                        }
+                        if (Main.SetRoles.Count == 0) first = true;
 
                         foreach (KeyValuePair<byte, List<CustomRoles>> item in Main.SetAddOns)
                         {
                             foreach (CustomRoles role in item.Value)
                             {
                                 PlayerControl pc = Utils.GetPlayerById(item.Key);
+
                                 if (resultText.ContainsKey(item.Key))
                                 {
-                                    string text = $" <#ffffff>(</color><color={Main.RoleColors.GetValueOrDefault(role, "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>";
+                                    var text = $" <#ffffff>(</color><color={Main.RoleColors.GetValueOrDefault(role, "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>";
                                     resultText[item.Key] += text;
                                 }
                                 else
                                 {
                                     string prefix = first ? string.Empty : "\n";
-                                    string text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <#ffffff>(</color><color={Main.RoleColors.GetValueOrDefault(role, "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>";
+                                    var text = $"{prefix}{(item.Key == 0 ? "Host" : $"{(pc == null ? $"ID {item.Key}" : $"{pc.GetRealName()}")}")} - <#ffffff>(</color><color={Main.RoleColors.GetValueOrDefault(role, "#ffffff")}>{GetString(role.ToString())}</color><#ffffff>)</color>";
                                     resultText[item.Key] = text;
                                     first = false;
                                 }
@@ -158,9 +131,7 @@ namespace EHR.Patches
                         OverriddenRolesText.text = string.Join(string.Empty, resultText.Values);
                     }
                     else
-                    {
                         OverriddenRolesText.text = string.Empty;
-                    }
 
                     OverriddenRolesText.enabled = OverriddenRolesText.text != string.Empty;
                 }
@@ -175,16 +146,10 @@ namespace EHR.Patches
                         __instance.SabotageButton
                     }.Do(x => x?.Hide());
                 }
-                else if (Options.CurrentGameMode != CustomGameMode.Standard)
-                {
-                    __instance.ReportButton?.Hide();
-                }
+                else if (Options.CurrentGameMode != CustomGameMode.Standard) __instance.ReportButton?.Hide();
 
                 // The following will not be executed unless the game is in progress
-                if (!AmongUsClient.Instance.IsGameStarted)
-                {
-                    return;
-                }
+                if (!AmongUsClient.Instance.IsGameStarted) return;
 
                 Utils.CountAlivePlayers();
 
@@ -198,6 +163,7 @@ namespace EHR.Patches
                         {
                             float timer = shapeshifting ? ssrole.durationSecondsRemaining : ssrole.cooldownSecondsRemaining;
                             AbilityButton button = __instance.AbilityButton;
+
                             if (timer > 0f)
                             {
                                 Color color = shapeshifting ? Color.green : Color.white;
@@ -209,16 +175,10 @@ namespace EHR.Patches
                         CustomRoles role = player.GetCustomRole();
 
                         bool usesPetInsteadOfKill = role.UsesPetInsteadOfKill();
-                        if (usesPetInsteadOfKill)
-                        {
-                            __instance.PetButton?.OverrideText(GetString("KillButtonText"));
-                        }
+                        if (usesPetInsteadOfKill) __instance.PetButton?.OverrideText(GetString("KillButtonText"));
 
                         ActionButton usedButton = __instance.KillButton;
-                        if (usesPetInsteadOfKill)
-                        {
-                            usedButton = __instance.PetButton;
-                        }
+                        if (usesPetInsteadOfKill) usedButton = __instance.PetButton;
 
                         __instance.KillButton?.OverrideText(GetString("KillButtonText"));
                         __instance.ReportButton?.OverrideText(GetString("ReportButtonText"));
@@ -262,10 +222,7 @@ namespace EHR.Patches
                                 break;
                         }
 
-                        if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey))
-                        {
-                            __instance.AbilityButton?.Hide();
-                        }
+                        if (role.PetActivatedAbility() && Options.CurrentGameMode == CustomGameMode.Standard && !player.GetCustomSubRoles().Any(StartGameHostPatch.BasisChangingAddons.ContainsKey)) __instance.AbilityButton?.Hide();
 
                         if (LowerInfoText == null)
                         {
@@ -300,6 +257,7 @@ namespace EHR.Patches
                                 CustomRoles.Introvert => Introvert.GetSelfSuffix(player),
                                 _ => string.Empty
                             });
+
                             return string.Join(string.Empty, suffixes);
                         }
 
@@ -308,24 +266,20 @@ namespace EHR.Patches
                             : string.Format(GetString("CDPT"), CD.TotalCooldown - (Utils.TimeStamp - CD.StartTimeStamp) + 1);
 
                         bool hasCD = CD_HUDText != string.Empty;
+
                         if (hasCD)
                         {
-                            if (CooldownTimerFlashColor.HasValue)
-                            {
-                                CD_HUDText = $"<b>{Utils.ColorString(CooldownTimerFlashColor.Value, CD_HUDText.RemoveHtmlTags())}</b>";
-                            }
+                            if (CooldownTimerFlashColor.HasValue) CD_HUDText = $"<b>{Utils.ColorString(CooldownTimerFlashColor.Value, CD_HUDText.RemoveHtmlTags())}</b>";
 
                             LowerInfoText.text = $"{CD_HUDText}\n{LowerInfoText.text}";
                         }
 
                         LowerInfoText.enabled = hasCD || LowerInfoText.text != string.Empty;
 
-                        if ((!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay) || GameStates.IsMeeting)
-                        {
-                            LowerInfoText.enabled = false;
-                        }
+                        if ((!AmongUsClient.Instance.IsGameStarted && AmongUsClient.Instance.NetworkMode != NetworkModes.FreePlay) || GameStates.IsMeeting) LowerInfoText.enabled = false;
 
                         bool allowedRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee or CustomRoles.Sidekick;
+
                         if (player.CanUseKillButton() && (allowedRole || !role.UsesPetInsteadOfKill()))
                         {
                             __instance.KillButton?.ToggleVisible(player.IsAlive() && GameStates.IsInTask);
@@ -340,10 +294,7 @@ namespace EHR.Patches
                         __instance.ImpostorVentButton?.ToggleVisible((player.CanUseImpostorVentButton() || (player.inVent && player.GetRoleTypes() != RoleTypes.Engineer)) && GameStates.IsInTask);
                         player.Data.Role.CanVent = player.CanUseVent();
 
-                        if ((usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer) || player.Is(CustomRoles.GM))
-                        {
-                            __instance.AbilityButton.SetEnabled();
-                        }
+                        if ((usesPetInsteadOfKill && player.Is(CustomRoles.Nimble) && player.GetRoleTypes() == RoleTypes.Engineer) || player.Is(CustomRoles.GM)) __instance.AbilityButton.SetEnabled();
                     }
                     else
                     {
@@ -363,6 +314,7 @@ namespace EHR.Patches
                         Mode = MapOptions.Modes.Sabotage,
                         AllowMovementWhileMapOpen = true
                     });
+
                     if (player.AmOwner)
                     {
                         player.MyPhysics.inputHandler.enabled = true;
@@ -370,10 +322,7 @@ namespace EHR.Patches
                     }
                 }
 
-                if (AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame)
-                {
-                    RepairSender.Enabled = false;
-                }
+                if (AmongUsClient.Instance.NetworkMode == NetworkModes.OnlineGame) RepairSender.Enabled = false;
 
                 if (Input.GetKeyDown(KeyCode.RightShift) && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
                 {
@@ -383,68 +332,32 @@ namespace EHR.Patches
 
                 if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
                 {
-                    if (Input.GetKeyDown(KeyCode.Alpha0))
-                    {
-                        RepairSender.Input(0);
-                    }
+                    if (Input.GetKeyDown(KeyCode.Alpha0)) RepairSender.Input(0);
 
-                    if (Input.GetKeyDown(KeyCode.Alpha1))
-                    {
-                        RepairSender.Input(1);
-                    }
+                    if (Input.GetKeyDown(KeyCode.Alpha1)) RepairSender.Input(1);
 
-                    if (Input.GetKeyDown(KeyCode.Alpha2))
-                    {
-                        RepairSender.Input(2);
-                    }
+                    if (Input.GetKeyDown(KeyCode.Alpha2)) RepairSender.Input(2);
 
-                    if (Input.GetKeyDown(KeyCode.Alpha3))
-                    {
-                        RepairSender.Input(3);
-                    }
+                    if (Input.GetKeyDown(KeyCode.Alpha3)) RepairSender.Input(3);
 
-                    if (Input.GetKeyDown(KeyCode.Alpha4))
-                    {
-                        RepairSender.Input(4);
-                    }
+                    if (Input.GetKeyDown(KeyCode.Alpha4)) RepairSender.Input(4);
 
-                    if (Input.GetKeyDown(KeyCode.Alpha5))
-                    {
-                        RepairSender.Input(5);
-                    }
+                    if (Input.GetKeyDown(KeyCode.Alpha5)) RepairSender.Input(5);
 
-                    if (Input.GetKeyDown(KeyCode.Alpha6))
-                    {
-                        RepairSender.Input(6);
-                    }
+                    if (Input.GetKeyDown(KeyCode.Alpha6)) RepairSender.Input(6);
 
-                    if (Input.GetKeyDown(KeyCode.Alpha7))
-                    {
-                        RepairSender.Input(7);
-                    }
+                    if (Input.GetKeyDown(KeyCode.Alpha7)) RepairSender.Input(7);
 
-                    if (Input.GetKeyDown(KeyCode.Alpha8))
-                    {
-                        RepairSender.Input(8);
-                    }
+                    if (Input.GetKeyDown(KeyCode.Alpha8)) RepairSender.Input(8);
 
-                    if (Input.GetKeyDown(KeyCode.Alpha9))
-                    {
-                        RepairSender.Input(9);
-                    }
+                    if (Input.GetKeyDown(KeyCode.Alpha9)) RepairSender.Input(9);
 
-                    if (Input.GetKeyDown(KeyCode.Return))
-                    {
-                        RepairSender.InputEnter();
-                    }
+                    if (Input.GetKeyDown(KeyCode.Return)) RepairSender.InputEnter();
                 }
             }
             catch (NullReferenceException e)
             {
-                if (LastNullError >= Utils.TimeStamp)
-                {
-                    return;
-                }
+                if (LastNullError >= Utils.TimeStamp) return;
 
                 LastNullError = Utils.TimeStamp + 2;
                 Utils.ThrowException(e);
@@ -464,12 +377,14 @@ namespace EHR.Patches
             if (__instance.isCoolingDown && timer is <= 90f and > 0f)
             {
                 RoleTypes roleType = PlayerControl.LocalPlayer.GetRoleTypes();
+
                 bool usingAbility = roleType switch
                 {
                     RoleTypes.Engineer => PlayerControl.LocalPlayer.inVent || VentButtonDoClickPatch.Animating,
                     RoleTypes.Shapeshifter => PlayerControl.LocalPlayer.IsShifted(),
                     _ => false
                 };
+
                 Color color = usingAbility ? Color.green : Color.white;
                 __instance.cooldownTimerText.text = Utils.ColorString(color, Mathf.CeilToInt(timer).ToString());
                 __instance.cooldownTimerText.gameObject.SetActive(true);
@@ -484,17 +399,11 @@ namespace EHR.Patches
 
         public static void Postfix(PlayerControl __instance /*[HarmonyArgument(0)] bool active,*/ /*[HarmonyArgument(1)] RoleTeamTypes team*/)
         {
-            if (!GameStates.IsInTask)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask) return;
 
             PlayerControl player = PlayerControl.LocalPlayer;
 
-            if (player.CanUseKillButton())
-            {
-                __instance.cosmetics.currentBodySprite.BodySprite.material.SetColor(OutlineColor, Utils.GetRoleColor(player.GetCustomRole()));
-            }
+            if (player.CanUseKillButton()) __instance.cosmetics.currentBodySprite.BodySprite.material.SetColor(OutlineColor, Utils.GetRoleColor(player.GetCustomRole()));
         }
     }
 
@@ -525,6 +434,7 @@ namespace EHR.Patches
         public static void Postfix(HudManager __instance, [HarmonyArgument(2)] bool isActive)
         {
             __instance?.ReportButton?.ToggleVisible(!GameStates.IsLobby && isActive);
+
             if (__instance == null)
             {
                 Logger.Fatal("HudManager __instance ended up being null", "SetHudActivePatch.Postfix");
@@ -532,10 +442,7 @@ namespace EHR.Patches
             }
 
             IsActive = isActive;
-            if (!isActive)
-            {
-                return;
-            }
+            if (!isActive) return;
 
             switch (Options.CurrentGameMode)
             {
@@ -563,10 +470,7 @@ namespace EHR.Patches
             }
 
             PlayerControl player = PlayerControl.LocalPlayer;
-            if (player == null)
-            {
-                return;
-            }
+            if (player == null) return;
 
             switch (player.GetCustomRole())
             {
@@ -600,10 +504,7 @@ namespace EHR.Patches
                     break;
             }
 
-            if (Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState ps) && ps.SubRoles.Contains(CustomRoles.Oblivious))
-            {
-                __instance.ReportButton?.ToggleVisible(false);
-            }
+            if (Main.PlayerStates.TryGetValue(player.PlayerId, out PlayerState ps) && ps.SubRoles.Contains(CustomRoles.Oblivious)) __instance.ReportButton?.ToggleVisible(false);
 
             __instance.KillButton?.ToggleVisible(player.CanUseKillButton());
             __instance.ImpostorVentButton?.ToggleVisible(player.CanUseImpostorVentButton());
@@ -628,10 +529,7 @@ namespace EHR.Patches
     {
         public static bool Prefix(MapBehaviour __instance, ref MapOptions opts)
         {
-            if (GameStates.IsMeeting)
-            {
-                return true;
-            }
+            if (GameStates.IsMeeting) return true;
 
             PlayerControl player = PlayerControl.LocalPlayer;
 
@@ -643,19 +541,12 @@ namespace EHR.Patches
             else if (opts.Mode is MapOptions.Modes.Normal or MapOptions.Modes.Sabotage)
             {
                 if (player.Is(CustomRoleTypes.Impostor) || player.CanUseSabotage() || player.Is(CustomRoles.Glitch) || player.Is(CustomRoles.WeaponMaster) || player.Is(CustomRoles.Magician) || player.Is(CustomRoles.Parasite) || player.Is(CustomRoles.Refugee) || (player.Is(CustomRoles.Jackal) && Jackal.CanSabotage.GetBool()) || (player.Is(CustomRoles.Traitor) && Traitor.CanSabotage.GetBool()))
-                {
                     opts.Mode = MapOptions.Modes.Sabotage;
-                }
                 else
-                {
                     opts.Mode = MapOptions.Modes.Normal;
-                }
             }
 
-            if (Main.GodMode.Value)
-            {
-                opts.ShowLivePlayerPosition = true;
-            }
+            if (Main.GodMode.Value) opts.ShowLivePlayerPosition = true;
 
             return true;
         }
@@ -670,21 +561,16 @@ namespace EHR.Patches
         {
             float perc = __instance.sabSystem.PercentCool;
             int total = __instance.sabSystem.initialCooldown ? 10 : 30;
-            if (SabotageSystemTypeRepairDamagePatch.IsCooldownModificationEnabled)
-            {
-                total = (int)SabotageSystemTypeRepairDamagePatch.ModifiedCooldownSec;
-            }
+            if (SabotageSystemTypeRepairDamagePatch.IsCooldownModificationEnabled) total = (int)SabotageSystemTypeRepairDamagePatch.ModifiedCooldownSec;
 
             int remaining = Math.Clamp(total - (int)Math.Ceiling((1f - perc) * total) + 1, 0, total);
 
             foreach (MapRoom mr in __instance.rooms)
             {
-                if (mr.special == null || mr.special.transform == null)
-                {
-                    continue;
-                }
+                if (mr.special == null || mr.special.transform == null) continue;
 
                 SystemTypes room = mr.room;
+
                 if (!TimerTexts.ContainsKey(room))
                 {
                     TimerTexts[room] = Object.Instantiate(HudManager.Instance.KillButton.cooldownTimerText, mr.special.transform, true);
@@ -715,19 +601,19 @@ namespace EHR.Patches
             PlayerControl player = PlayerControl.LocalPlayer;
 
             string taskText = __instance.taskText.text;
-            if (taskText == "None" || GameStates.IsLobby || player == null)
-            {
-                return;
-            }
+            if (taskText == "None" || GameStates.IsLobby || player == null) return;
 
             CustomRoles role = player.GetCustomRole();
+
             if (!role.IsVanilla())
             {
                 string roleInfo = player.GetRoleInfo();
-                string RoleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{roleInfo}</size>";
+                var RoleWithInfo = $"<size=80%>{role.ToColoredString()}:\r\n{roleInfo}</size>";
+
                 if (Options.CurrentGameMode != CustomGameMode.Standard)
                 {
                     string[] splitted = roleInfo.Split(' ');
+
                     RoleWithInfo = splitted.Length <= 3
                         ? $"<size=60%>{roleInfo}</size>\r\n"
                         : $"<size=60%>{string.Join(' ', splitted[..3])}\r\n{string.Join(' ', splitted[3..])}</size>\r\n";
@@ -746,27 +632,23 @@ namespace EHR.Patches
                     case CustomGameMode.Standard:
 
                         List<CustomRoles> subRoles = player.GetCustomSubRoles();
+
                         if (subRoles.Count > 0)
                         {
                             const int max = 3;
                             IEnumerable<string> s = subRoles.Take(max).Select(x => Utils.ColorString(Utils.GetRoleColor(x), $"\r\n\r\n{x.ToColoredString()}:\r\n{GetString($"{x}Info")}"));
                             finalText += s.Aggregate("<size=70%>", (current, next) => current + next) + "</size>";
                             int chunk = subRoles.Any(x => GetString(x.ToString()).Contains(' ')) ? 3 : 4;
-                            if (subRoles.Count > max)
-                            {
-                                finalText += $"\r\n<size=70%>....\r\n({subRoles.Skip(max).Chunk(chunk).Select(x => x.Join(r => r.ToColoredString())).Join(delimiter: ",\r\n")})</size>";
-                            }
+                            if (subRoles.Count > max) finalText += $"\r\n<size=70%>....\r\n({subRoles.Skip(max).Chunk(chunk).Select(x => x.Join(r => r.ToColoredString())).Join(delimiter: ",\r\n")})</size>";
                         }
 
                         string[] lines = taskText.Split("\r\n</color>\n")[0].Split("\r\n\n")[0].Split("\r\n");
                         StringBuilder sb = new();
+
                         foreach (string eachLine in lines)
                         {
                             string line = eachLine.Trim();
-                            if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb.Length < 1 && !line.Contains('(') && !line.Contains(DestroyableSingleton<TranslationController>.Instance.GetString(TaskTypes.FixComms)))
-                            {
-                                continue;
-                            }
+                            if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb.Length < 1 && !line.Contains('(') && !line.Contains(DestroyableSingleton<TranslationController>.Instance.GetString(TaskTypes.FixComms))) continue;
 
                             sb.Append(line + "\r\n");
                         }
@@ -774,23 +656,16 @@ namespace EHR.Patches
                         if (sb.Length > 1)
                         {
                             string text = sb.ToString().TrimEnd('\n').TrimEnd('\r');
+
                             if (!Utils.HasTasks(player.Data, false) && sb.ToString().Count(s => s == '\n') >= 2)
-                            {
                                 text = $"<size=55%>{Utils.ColorString(Utils.GetRoleColor(role).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}</size>";
-                            }
-                            else if (player.myTasks.ToArray().Any(x => x.TaskType == TaskTypes.FixComms))
-                            {
-                                goto Skip;
-                            }
+                            else if (player.myTasks.ToArray().Any(x => x.TaskType == TaskTypes.FixComms)) goto Skip;
 
                             finalText += $"\r\n\r\n<size=65%>{text}</size>";
                         }
 
                         Skip:
-                        if (MeetingStates.FirstMeeting)
-                        {
-                            finalText += $"\r\n\r\n</color><size=60%>{GetString("PressF1ShowMainRoleDes")}";
-                        }
+                        if (MeetingStates.FirstMeeting) finalText += $"\r\n\r\n</color><size=60%>{GetString("PressF1ShowMainRoleDes")}";
 
                         break;
 
@@ -819,27 +694,23 @@ namespace EHR.Patches
                     case CustomGameMode.MoveAndStop:
 
                         Dictionary<byte, string> SummaryText3 = [];
+
                         foreach (byte id in Main.PlayerStates.Keys.ToArray())
                         {
                             string name = Main.AllPlayerNames[id].RemoveHtmlTags().Replace("\r\n", string.Empty);
-                            string summary = $"{Utils.GetProgressText(id)}  {Utils.ColorString(Main.PlayerColors[id], name)}";
-                            if (Utils.GetProgressText(id).Trim() == string.Empty)
-                            {
-                                continue;
-                            }
+                            var summary = $"{Utils.GetProgressText(id)}  {Utils.ColorString(Main.PlayerColors[id], name)}";
+                            if (Utils.GetProgressText(id).Trim() == string.Empty) continue;
 
                             SummaryText3[id] = summary;
                         }
 
                         string[] lines1 = taskText.Split("\r\n</color>\n")[0].Split("\r\n\n")[0].Split("\r\n");
                         StringBuilder sb1 = new();
+
                         foreach (string eachLine in lines1)
                         {
                             string line = eachLine.Trim();
-                            if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb1.Length < 1 && !line.Contains('('))
-                            {
-                                continue;
-                            }
+                            if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb1.Length < 1 && !line.Contains('(')) continue;
 
                             sb1.Append(line + "\r\n");
                         }
@@ -847,22 +718,17 @@ namespace EHR.Patches
                         if (sb1.Length > 1)
                         {
                             string text = sb1.ToString().TrimEnd('\n').TrimEnd('\r');
-                            if (!Utils.HasTasks(player.Data, false) && sb1.ToString().Count(s => s == '\n') >= 2)
-                            {
-                                text = $"{Utils.ColorString(Utils.GetRoleColor(role).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}";
-                            }
+                            if (!Utils.HasTasks(player.Data, false) && sb1.ToString().Count(s => s == '\n') >= 2) text = $"{Utils.ColorString(Utils.GetRoleColor(role).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}";
 
                             finalText += $"<size=70%>\r\n{text}\r\n</size>";
                         }
 
                         List<(int, byte)> list3 = [];
-                        foreach (byte id in Main.PlayerStates.Keys)
-                        {
-                            list3.Add((MoveAndStopManager.GetRankOfScore(id), id));
-                        }
+                        foreach (byte id in Main.PlayerStates.Keys) list3.Add((MoveAndStopManager.GetRankOfScore(id), id));
 
                         list3.Sort();
                         list3 = [.. list3.OrderBy(x => !Utils.GetPlayerById(x.Item2).IsAlive())];
+
                         foreach ((int, byte) id in list3.Where(x => SummaryText3.ContainsKey(x.Item2)).ToArray())
                         {
                             bool alive = Utils.GetPlayerById(id.Item2).IsAlive();
@@ -890,13 +756,11 @@ namespace EHR.Patches
 
                         string[] lines2 = taskText.Split("\r\n</color>\n")[0].Split("\r\n\n")[0].Split("\r\n");
                         StringBuilder sb2 = new();
+
                         foreach (string eachLine in lines2)
                         {
                             string line = eachLine.Trim();
-                            if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb2.Length < 1 && !line.Contains('('))
-                            {
-                                continue;
-                            }
+                            if ((line.StartsWith("<color=#FF1919FF>") || line.StartsWith("<color=#FF0000FF>")) && sb2.Length < 1 && !line.Contains('(')) continue;
 
                             sb2.Append(line + "\r\n");
                         }
@@ -904,10 +768,7 @@ namespace EHR.Patches
                         if (sb2.Length > 1)
                         {
                             string text = sb2.ToString().TrimEnd('\n').TrimEnd('\r');
-                            if (!Utils.HasTasks(player.Data, false) && sb2.ToString().Count(s => s == '\n') >= 2)
-                            {
-                                text = $"{Utils.ColorString(Utils.GetRoleColor(role).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}";
-                            }
+                            if (!Utils.HasTasks(player.Data, false) && sb2.ToString().Count(s => s == '\n') >= 2) text = $"{Utils.ColorString(Utils.GetRoleColor(role).ShadeColor(0.2f), GetString("FakeTask"))}\r\n{text}";
 
                             finalText += $"<size=70%>\r\n{text}\r\n</size>";
                         }
@@ -942,10 +803,7 @@ namespace EHR.Patches
                 __instance.taskText.text = finalText;
             }
 
-            if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame)
-            {
-                __instance.taskText.text = RepairSender.GetText();
-            }
+            if (RepairSender.Enabled && AmongUsClient.Instance.NetworkMode != NetworkModes.OnlineGame) __instance.taskText.text = RepairSender.GetText();
         }
     }
 
@@ -955,15 +813,9 @@ namespace EHR.Patches
         public static bool Prefix(DialogueBox __instance, [HarmonyArgument(0)] string dialogue)
         {
             __instance.target.text = dialogue;
-            if (Minigame.Instance != null)
-            {
-                Minigame.Instance.Close();
-            }
+            if (Minigame.Instance != null) Minigame.Instance.Close();
 
-            if (Minigame.Instance != null)
-            {
-                Minigame.Instance.Close();
-            }
+            if (Minigame.Instance != null) Minigame.Instance.Close();
 
             __instance.gameObject.SetActive(true);
             return false;
@@ -977,10 +829,7 @@ namespace EHR.Patches
 
         public static void Prefix()
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsModHost) return;
 
             IntroStarted = true;
 
@@ -990,10 +839,7 @@ namespace EHR.Patches
                 {
                     StartGameHostPatch.RpcSetDisconnected(false);
 
-                    if (!AmongUsClient.Instance.IsGameOver)
-                    {
-                        DestroyableSingleton<HudManager>.Instance.SetHudActive(true);
-                    }
+                    if (!AmongUsClient.Instance.IsGameOver) DestroyableSingleton<HudManager>.Instance.SetHudActive(true);
                 }
             }, 0.6f, "Set Disconnected");
 
@@ -1009,10 +855,7 @@ namespace EHR.Patches
                         ShipStatus.Instance.Begin();
 
                         GameOptionsSender.AllSenders.Clear();
-                        foreach (PlayerControl pc in Main.AllPlayerControls)
-                        {
-                            GameOptionsSender.AllSenders.Add(new PlayerGameOptionsSender(pc));
-                        }
+                        foreach (PlayerControl pc in Main.AllPlayerControls) GameOptionsSender.AllSenders.Add(new PlayerGameOptionsSender(pc));
 
                         Utils.SyncAllSettings();
                     }
@@ -1050,13 +893,9 @@ namespace EHR.Patches
         public static void InputEnter()
         {
             if (!TypingAmount)
-            {
                 TypingAmount = true;
-            }
             else
-            {
                 Send();
-            }
         }
 
         private static void Send()

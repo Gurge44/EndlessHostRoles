@@ -4,34 +4,24 @@
     {
         public static void RpcRemovePet(PlayerControl pc)
         {
-            if (pc == null || !pc.Data.IsDead || pc.IsAlive())
-            {
-                return;
-            }
+            if (pc == null || !pc.Data.IsDead || pc.IsAlive()) return;
 
-            if (!GameStates.IsInGame)
-            {
-                return;
-            }
+            if (!GameStates.IsInGame) return;
 
-            if (!Options.RemovePetsAtDeadPlayers.GetBool())
-            {
-                return;
-            }
+            if (!Options.RemovePetsAtDeadPlayers.GetBool()) return;
 
-            if (pc.CurrentOutfit.PetId == "")
-            {
-                return;
-            }
+            if (pc.CurrentOutfit.PetId == "") return;
 
-            CustomRpcSender sender = CustomRpcSender.Create("Remove Pet From Dead Player");
+            var sender = CustomRpcSender.Create("Remove Pet From Dead Player");
 
             pc.SetPet("");
             pc.Data.DefaultOutfit.PetSequenceId += 10;
+
             sender.AutoStartRpc(pc.NetId, (byte)RpcCalls.SetPetStr)
                 .Write("")
                 .Write(pc.GetNextRpcSequenceId(RpcCalls.SetPetStr))
                 .EndRpc();
+
             sender.SendMessage();
         }
     }

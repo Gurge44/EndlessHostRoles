@@ -90,12 +90,10 @@ namespace EHR.Neutral
 
         public static void SendRPC(byte lawyerId, byte targetId = 0x73, string Progress = "")
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer;
+
             switch (Progress)
             {
                 case "SetTarget":
@@ -105,10 +103,7 @@ namespace EHR.Neutral
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
                     break;
                 case "":
-                    if (!AmongUsClient.Instance.AmHost)
-                    {
-                        return;
-                    }
+                    if (!AmongUsClient.Instance.AmHost) return;
 
                     writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RemoveLawyerTarget, SendOption.Reliable);
                     writer.Write(lawyerId);
@@ -126,21 +121,18 @@ namespace EHR.Neutral
                 Target[LawyerId] = TargetId;
             }
             else
-            {
                 Target.Remove(reader.ReadByte());
-            }
         }
 
         public static void ChangeRoleByTarget(PlayerControl target)
         {
             byte Lawyer = 0x73;
+
             Target.Do(x =>
             {
-                if (x.Value == target.PlayerId)
-                {
-                    Lawyer = x.Key;
-                }
+                if (x.Value == target.PlayerId) Lawyer = x.Key;
             });
+
             PlayerControl lawyer = Utils.GetPlayerById(Lawyer);
             CustomRoles newRole = CRoleChangeRoles[ChangeRolesAfterTargetKilled.GetValue()];
             lawyer.RpcChangeRoleBasis(newRole);
@@ -154,15 +146,9 @@ namespace EHR.Neutral
 
         public override bool KnowRole(PlayerControl player, PlayerControl target)
         {
-            if (base.KnowRole(player, target))
-            {
-                return true;
-            }
+            if (base.KnowRole(player, target)) return true;
 
-            if (!KnowTargetRole.GetBool())
-            {
-                return false;
-            }
+            if (!KnowTargetRole.GetBool()) return false;
 
             return player.Is(CustomRoles.Lawyer) && Target.TryGetValue(player.PlayerId, out byte tar) && tar == target.PlayerId;
         }
@@ -171,10 +157,7 @@ namespace EHR.Neutral
         {
             if (!seer.Is(CustomRoles.Lawyer))
             {
-                if (!TargetKnowsLawyer.GetBool())
-                {
-                    return string.Empty;
-                }
+                if (!TargetKnowsLawyer.GetBool()) return string.Empty;
 
                 return Target.TryGetValue(target.PlayerId, out byte x) && seer.PlayerId == x ? Utils.ColorString(Utils.GetRoleColor(CustomRoles.Lawyer), "§") : string.Empty;
             }
@@ -200,10 +183,7 @@ namespace EHR.Neutral
 
         public override void OnReportDeadBody()
         {
-            if (MeetingStates.FirstMeeting && TargetKnowsLawyer.GetBool() && Target.TryGetValue(LawyerId, out byte target))
-            {
-                LateTask.New(() => Utils.SendMessage("\n", target, string.Format(Translator.GetString("YourLawyerIsNotify"), LawyerId.ColoredPlayerName())), 10f, log: false);
-            }
+            if (MeetingStates.FirstMeeting && TargetKnowsLawyer.GetBool() && Target.TryGetValue(LawyerId, out byte target)) LateTask.New(() => Utils.SendMessage("\n", target, string.Format(Translator.GetString("YourLawyerIsNotify"), LawyerId.ColoredPlayerName())), 10f, log: false);
         }
     }
 }

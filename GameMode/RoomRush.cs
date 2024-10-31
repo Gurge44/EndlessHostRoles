@@ -122,7 +122,7 @@ namespace EHR
 
         public static void SetupCustomOption()
         {
-            int id = 69_217_001;
+            var id = 69_217_001;
             Color color = Utils.GetRoleColor(CustomRoles.RRPlayer);
             const CustomGameMode gameMode = CustomGameMode.RoomRush;
 
@@ -152,15 +152,9 @@ namespace EHR
 
         public static int GetSurvivalTime(byte id)
         {
-            if (!Main.PlayerStates.TryGetValue(id, out PlayerState state))
-            {
-                return -1;
-            }
+            if (!Main.PlayerStates.TryGetValue(id, out PlayerState state)) return -1;
 
-            if (!state.IsDead)
-            {
-                return 0;
-            }
+            if (!state.IsDead) return 0;
 
             DateTime died = state.RealKiller.TimeStamp;
             TimeSpan time = died - GameStartDateTime;
@@ -169,10 +163,7 @@ namespace EHR
 
         public static void OnGameStart()
         {
-            if (Options.CurrentGameMode != CustomGameMode.RoomRush)
-            {
-                return;
-            }
+            if (Options.CurrentGameMode != CustomGameMode.RoomRush) return;
 
             Main.Instance.StartCoroutine(GameStartTasks());
         }
@@ -208,9 +199,11 @@ namespace EHR
             aapc.Do(x => x.RpcSetCustomRole(CustomRoles.RRPlayer));
 
             bool showTutorial = aapc.ExceptBy(HasPlayedFriendCodes, x => x.FriendCode).Count() >= aapc.Length / 3;
+
             if (showTutorial)
             {
                 string[] notifies = [Translator.GetString("RR_Tutorial_1"), Translator.GetString("RR_Tutorial_2"), Translator.GetString("RR_Tutorial_3"), Translator.GetString("RR_Tutorial_4")];
+
                 foreach (string notify in notifies)
                 {
                     aapc.Do(x => x.Notify(notify, 8f));
@@ -225,7 +218,7 @@ namespace EHR
 
             yield return new WaitForSeconds(2f);
 
-            for (int i = 3; i > 0; i--)
+            for (var i = 3; i > 0; i--)
             {
                 int time = i;
                 NameNotifyManager.Reset();
@@ -233,10 +226,7 @@ namespace EHR
                 yield return new WaitForSeconds(1f);
             }
 
-            if (ventLimit > 0)
-            {
-                aapc.Without(PlayerControl.LocalPlayer).DoIf(x => !x.IsNonHostModClient(), x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
-            }
+            if (ventLimit > 0) aapc.Without(PlayerControl.LocalPlayer).DoIf(x => !x.IsNonHostModClient(), x => x.RpcChangeRoleBasis(CustomRoles.EngineerEHR));
 
             Utils.SendRPC(CustomRPC.RoomRushDataSync, 1);
 
@@ -248,10 +238,7 @@ namespace EHR
 
         private static void StartNewRound(bool initial = false)
         {
-            if (GameStates.IsEnded)
-            {
-                return;
-            }
+            if (GameStates.IsEnded) return;
 
             SystemTypes previous = !initial
                 ? RoomGoal
@@ -265,34 +252,31 @@ namespace EHR
                     MapNames.Fungle => SystemTypes.Dropship,
                     _ => throw new ArgumentOutOfRangeException(Main.CurrentMap.ToString(), "Invalid map")
                 };
+
             DonePlayers.Clear();
             RoomGoal = AllRooms.Without(previous).RandomElement();
             Vector2 goalPos = Map.Positions.GetValueOrDefault(RoomGoal, RoomGoal.GetRoomClass().transform.position);
             Vector2 previousPos = Map.Positions.GetValueOrDefault(previous, initial ? Main.AllAlivePlayerControls.RandomElement().Pos() : previous.GetRoomClass().transform.position);
             float distance = initial ? 50 : Vector2.Distance(goalPos, previousPos);
             float speed = Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod);
-            int time = (int)Math.Ceiling(distance / speed);
+            var time = (int)Math.Ceiling(distance / speed);
             MapNames map = Main.CurrentMap;
             Dictionary<(SystemTypes, SystemTypes), int> multipliers = Multipliers[map == MapNames.Dleks ? MapNames.Skeld : map];
             time *= multipliers.GetValueOrDefault((previous, RoomGoal), multipliers.GetValueOrDefault((RoomGoal, previous), 1));
+
             bool involvesDecontamination = Main.CurrentMap switch
             {
                 MapNames.Mira => !(previous is SystemTypes.Laboratory or SystemTypes.Reactor && RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor) && (previous is SystemTypes.Laboratory or SystemTypes.Reactor || RoomGoal is SystemTypes.Laboratory or SystemTypes.Reactor),
                 MapNames.Polus => previous == SystemTypes.Specimens || RoomGoal == SystemTypes.Specimens,
                 _ => false
             };
-            if (involvesDecontamination)
-            {
-                time += 15;
-            }
+
+            if (involvesDecontamination) time += 15;
 
             switch (Main.CurrentMap)
             {
                 case MapNames.Airship:
-                    if (RoomGoal == SystemTypes.Ventilation)
-                    {
-                        time = (int)(time * 0.4f);
-                    }
+                    if (RoomGoal == SystemTypes.Ventilation) time = (int)(time * 0.4f);
 
                     break;
                 case MapNames.Fungle when RoomGoal == SystemTypes.Laboratory || previous == SystemTypes.Laboratory:
@@ -306,15 +290,13 @@ namespace EHR
             TimeLeft = Math.Max((int)Math.Round(time * GlobalTimeMultiplier.GetFloat()), 4);
             Logger.Info($"Starting a new round - Goal = from: {Translator.GetString(previous.ToString())}, to: {Translator.GetString(RoomGoal.ToString())} - Time: {TimeLeft}  ({Main.CurrentMap})", "RoomRush");
             Main.AllPlayerControls.Do(x => LocateArrow.RemoveAllTarget(x.PlayerId));
-            if (DisplayArrowToRoom.GetBool())
-            {
-                Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
-            }
+            if (DisplayArrowToRoom.GetBool()) Main.AllPlayerControls.Do(x => LocateArrow.Add(x.PlayerId, goalPos));
 
             Utils.NotifyRoles();
 
             Main.AllPlayerSpeed[PlayerControl.LocalPlayer.PlayerId] = Main.MinSpeed;
             PlayerControl.LocalPlayer.SyncSettings();
+
             LateTask.New(() =>
             {
                 Main.AllPlayerSpeed[PlayerControl.LocalPlayer.PlayerId] = speed;
@@ -329,32 +311,20 @@ namespace EHR
 
         public static string GetSuffix(PlayerControl seer)
         {
-            if (!GameGoing || Main.HasJustStarted || seer == null)
-            {
-                return string.Empty;
-            }
+            if (!GameGoing || Main.HasJustStarted || seer == null) return string.Empty;
 
             StringBuilder sb = new();
             bool dead = !seer.IsAlive();
             bool done = dead || DonePlayers.Contains(seer.PlayerId);
             Color color = done ? Color.green : Color.yellow;
-            if (DisplayRoomName.GetBool())
-            {
-                sb.AppendLine(Utils.ColorString(color, Translator.GetString(RoomGoal.ToString())));
-            }
+            if (DisplayRoomName.GetBool()) sb.AppendLine(Utils.ColorString(color, Translator.GetString(RoomGoal.ToString())));
 
-            if (DisplayArrowToRoom.GetBool())
-            {
-                sb.AppendLine(Utils.ColorString(color, LocateArrow.GetArrows(seer)));
-            }
+            if (DisplayArrowToRoom.GetBool()) sb.AppendLine(Utils.ColorString(color, LocateArrow.GetArrows(seer)));
 
             color = done ? Color.white : Color.yellow;
             sb.AppendLine(Utils.ColorString(color, TimeLeft.ToString()));
 
-            if (VentTimes.GetInt() == 0 || dead)
-            {
-                return sb.ToString();
-            }
+            if (VentTimes.GetInt() == 0 || dead) return sb.ToString();
 
             sb.AppendLine();
 
@@ -388,10 +358,7 @@ namespace EHR
             [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void Postfix(PlayerControl __instance)
             {
-                if (!GameGoing || Main.HasJustStarted || Options.CurrentGameMode != CustomGameMode.RoomRush || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !__instance.IsHost())
-                {
-                    return;
-                }
+                if (!GameGoing || Main.HasJustStarted || Options.CurrentGameMode != CustomGameMode.RoomRush || !AmongUsClient.Instance.AmHost || !GameStates.IsInTask || !__instance.IsHost()) return;
 
                 long now = Utils.TimeStamp;
                 PlayerControl[] aapc = Main.AllAlivePlayerControls;
@@ -399,11 +366,13 @@ namespace EHR
                 foreach (PlayerControl pc in aapc)
                 {
                     PlainShipRoom room = pc.GetPlainShipRoom();
+
                     if (pc.IsAlive() && !pc.inMovingPlat && room != null && room.RoomId == RoomGoal && DonePlayers.Add(pc.PlayerId))
                     {
                         Logger.Info($"{pc.GetRealName()} entered the correct room", "RoomRush");
 
                         int timeLeft = TimeWhenFirstPlayerEntersRoom.GetInt();
+
                         if (DonePlayers.Count == 2 && timeLeft < TimeLeft)
                         {
                             Logger.Info($"Two players entered the correct room, setting the timer to {timeLeft}", "RoomRush");
@@ -421,16 +390,10 @@ namespace EHR
                             return;
                         }
                     }
-                    else if (room == null || room.RoomId != RoomGoal)
-                    {
-                        DonePlayers.Remove(pc.PlayerId);
-                    }
+                    else if (room == null || room.RoomId != RoomGoal) DonePlayers.Remove(pc.PlayerId);
                 }
 
-                if (LastUpdate == now)
-                {
-                    return;
-                }
+                if (LastUpdate == now) return;
 
                 LastUpdate = now;
 
@@ -442,10 +405,7 @@ namespace EHR
                     Logger.Info("Time is up, killing everyone who didn't enter the correct room", "RoomRush");
                     PlayerControl[] lateAapc = Main.AllAlivePlayerControls;
                     PlayerControl[] playersOutsideRoom = lateAapc.ExceptBy(DonePlayers, x => x.PlayerId).ToArray();
-                    if (playersOutsideRoom.Length == lateAapc.Length)
-                    {
-                        CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
-                    }
+                    if (playersOutsideRoom.Length == lateAapc.Length) CustomWinnerHolder.ResetAndSetWinner(CustomWinner.None);
 
                     playersOutsideRoom.Do(x => x.Suicide());
                     StartNewRound();
@@ -458,26 +418,17 @@ namespace EHR
     {
         public override bool IsEnable => Options.CurrentGameMode == CustomGameMode.RoomRush;
 
-        public override void Init()
-        {
-        }
+        public override void Init() { }
 
-        public override void Add(byte playerId)
-        {
-        }
+        public override void Add(byte playerId) { }
 
-        public override void SetupCustomOption()
-        {
-        }
+        public override void SetupCustomOption() { }
 
         public override void OnExitVent(PlayerControl pc, Vent vent)
         {
             RoomRush.VentLimit[pc.PlayerId]--;
             Utils.SendRPC(CustomRPC.RoomRushDataSync, 2, RoomRush.VentLimit[pc.PlayerId], pc.PlayerId);
-            if (RoomRush.VentLimit[pc.PlayerId] <= 0)
-            {
-                pc.RpcChangeRoleBasis(CustomRoles.RRPlayer);
-            }
+            if (RoomRush.VentLimit[pc.PlayerId] <= 0) pc.RpcChangeRoleBasis(CustomRoles.RRPlayer);
         }
 
         public override bool CanUseImpostorVentButton(PlayerControl pc)

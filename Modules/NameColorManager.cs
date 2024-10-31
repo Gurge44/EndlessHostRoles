@@ -13,26 +13,17 @@ namespace EHR
     {
         public static string ApplyNameColorData(this string name, PlayerControl seer, PlayerControl target, bool isMeeting)
         {
-            if (!AmongUsClient.Instance.IsGameStarted)
-            {
-                return name;
-            }
+            if (!AmongUsClient.Instance.IsGameStarted) return name;
 
             if (!TryGetData(seer, target, out string colorCode))
-            {
                 if (KnowTargetRoleColor(seer, target, isMeeting, out string color))
-                {
                     colorCode = color == "" ? target.GetRoleColorCode() : color;
-                }
-            }
 
             string openTag = "", closeTag = "";
+
             if (colorCode != "")
             {
-                if (!colorCode.StartsWith('#'))
-                {
-                    colorCode = "#" + colorCode;
-                }
+                if (!colorCode.StartsWith('#')) colorCode = "#" + colorCode;
 
                 openTag = $"<{colorCode}>";
                 closeTag = "</color>";
@@ -57,18 +48,13 @@ namespace EHR
                     return true;
                 case CustomGameMode.HotPotato:
                     (byte HolderID, byte LastHolderID) = HotPotatoManager.GetState();
+
                     if (target.PlayerId == HolderID)
-                    {
                         color = "#000000";
-                    }
                     else if (target.PlayerId == LastHolderID)
-                    {
                         color = "#00ffff";
-                    }
                     else
-                    {
                         color = "#ffffff";
-                    }
 
                     return true;
                 case CustomGameMode.HideAndSeek:
@@ -84,81 +70,39 @@ namespace EHR
             RoleBase targetRoleClass = Main.PlayerStates[target.PlayerId].Role;
 
             // Global (low priority)
-            if (Stained.VioletNameList.Contains(target.PlayerId))
-            {
-                color = "#ff00ff";
-            }
+            if (Stained.VioletNameList.Contains(target.PlayerId)) color = "#ff00ff";
 
             // Impostors and Madmates
-            if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor))
-            {
-                color = target.Is(CustomRoles.Egoist) && Options.ImpEgoistVisibalToAllies.GetBool() && seer != target ? Main.RoleColors[CustomRoles.Egoist] : Main.ImpostorColor;
-            }
+            if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoleTypes.Impostor)) color = target.Is(CustomRoles.Egoist) && Options.ImpEgoistVisibalToAllies.GetBool() && seer != target ? Main.RoleColors[CustomRoles.Egoist] : Main.ImpostorColor;
 
-            if (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoleTypes.Impostor) && Options.MadmateKnowWhosImp.GetBool())
-            {
-                color = Main.ImpostorColor;
-            }
+            if (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoleTypes.Impostor) && Options.MadmateKnowWhosImp.GetBool()) color = Main.ImpostorColor;
 
-            if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Madmate) && Options.ImpKnowWhosMadmate.GetBool())
-            {
-                color = Main.RoleColors[CustomRoles.Madmate];
-            }
+            if (seer.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Madmate) && Options.ImpKnowWhosMadmate.GetBool()) color = Main.RoleColors[CustomRoles.Madmate];
 
-            if (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool())
-            {
-                color = Main.RoleColors[CustomRoles.Madmate];
-            }
+            if (seer.Is(CustomRoles.Madmate) && target.Is(CustomRoles.Madmate) && Options.MadmateKnowWhosMadmate.GetBool()) color = Main.RoleColors[CustomRoles.Madmate];
 
-            if (Blackmailer.On && seerRoleClass is Blackmailer { IsEnable: true } bm && bm.BlackmailedPlayerIds.Contains(target.PlayerId))
-            {
-                color = Main.RoleColors[CustomRoles.BloodKnight];
-            }
+            if (Blackmailer.On && seerRoleClass is Blackmailer { IsEnable: true } bm && bm.BlackmailedPlayerIds.Contains(target.PlayerId)) color = Main.RoleColors[CustomRoles.BloodKnight];
 
             if (Commander.On && seer.Is(Team.Impostor))
             {
-                if (Commander.PlayerList.Any(x => x.MarkedPlayer == target.PlayerId))
-                {
-                    color = Main.RoleColors[CustomRoles.Sprayer];
-                }
+                if (Commander.PlayerList.Any(x => x.MarkedPlayer == target.PlayerId)) color = Main.RoleColors[CustomRoles.Sprayer];
 
-                if (Commander.PlayerList.Any(x => x.DontKillMarks.Contains(target.PlayerId)))
-                {
-                    color = "#0daeff";
-                }
+                if (Commander.PlayerList.Any(x => x.DontKillMarks.Contains(target.PlayerId))) color = "#0daeff";
             }
 
             // Custom Teams
-            if (CustomTeamManager.AreInSameCustomTeam(seer.PlayerId, target.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(seer.PlayerId, CTAOption.KnowRoles))
-            {
-                color = Main.RoleColors[target.GetCustomRole()];
-            }
+            if (CustomTeamManager.AreInSameCustomTeam(seer.PlayerId, target.PlayerId) && CustomTeamManager.IsSettingEnabledForPlayerTeam(seer.PlayerId, CTAOption.KnowRoles)) color = Main.RoleColors[target.GetCustomRole()];
 
             // Add-ons
-            if (target.Is(CustomRoles.Glow) && Utils.IsActive(SystemTypes.Electrical))
-            {
-                color = Main.RoleColors[CustomRoles.Glow];
-            }
+            if (target.Is(CustomRoles.Glow) && Utils.IsActive(SystemTypes.Electrical)) color = Main.RoleColors[CustomRoles.Glow];
 
-            if (target.Is(CustomRoles.Mare) && Utils.IsActive(SystemTypes.Electrical) && !isMeeting)
-            {
-                color = Main.RoleColors[CustomRoles.Mare];
-            }
+            if (target.Is(CustomRoles.Mare) && Utils.IsActive(SystemTypes.Electrical) && !isMeeting) color = Main.RoleColors[CustomRoles.Mare];
 
-            if (seer.Is(CustomRoles.Contagious) && target.Is(CustomRoles.Contagious) && Virus.TargetKnowOtherTarget.GetBool())
-            {
-                color = Main.RoleColors[CustomRoles.Virus];
-            }
+            if (seer.Is(CustomRoles.Contagious) && target.Is(CustomRoles.Contagious) && Virus.TargetKnowOtherTarget.GetBool()) color = Main.RoleColors[CustomRoles.Virus];
 
-            if (seer.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Charmed) && Succubus.TargetKnowOtherTarget.GetBool())
-            {
-                color = Main.RoleColors[CustomRoles.Charmed];
-            }
+            if (seer.Is(CustomRoles.Charmed) && target.Is(CustomRoles.Charmed) && Succubus.TargetKnowOtherTarget.GetBool()) color = Main.RoleColors[CustomRoles.Charmed];
 
-            if (seer.Is(CustomRoles.Undead) && target.Is(CustomRoles.Undead))
-            {
-                color = Main.RoleColors[CustomRoles.Undead];
-            }
+            if (seer.Is(CustomRoles.Undead) && target.Is(CustomRoles.Undead)) color = Main.RoleColors[CustomRoles.Undead];
 
             // Ghost roles
             if (GhostRolesManager.AssignedGhostRoles.TryGetValue(target.PlayerId, out (CustomRoles Role, IGhostRole Instance) ghostRole))
@@ -175,19 +119,13 @@ namespace EHR
                 }
             }
 
-            if (isMeeting && Haunter.AllHauntedPlayers.Contains(target.PlayerId))
-            {
-                color = Main.ImpostorColor;
-            }
+            if (isMeeting && Haunter.AllHauntedPlayers.Contains(target.PlayerId)) color = Main.ImpostorColor;
 
             CustomRoles seerRole = seer.GetCustomRole();
             CustomRoles targetRole = target.GetCustomRole();
 
             // If 2 players have the same role and that role is a NK role, they can see each other's name color
-            if (seerRole.IsNK() && seerRole == targetRole)
-            {
-                color = Main.RoleColors[seerRole];
-            }
+            if (seerRole.IsNK() && seerRole == targetRole) color = Main.RoleColors[seerRole];
 
             // Specific seer-target role combinations (excluding NK roles)
             color = (seerRole, targetRole) switch
@@ -272,53 +210,26 @@ namespace EHR
                     _ => color
                 };
 
-                if (target.GetCustomRole() is CustomRoles.Parasite or CustomRoles.Crewpostor or CustomRoles.Convict or CustomRoles.Refugee)
-                {
-                    color = Main.ImpostorColor;
-                }
+                if (target.GetCustomRole() is CustomRoles.Parasite or CustomRoles.Crewpostor or CustomRoles.Convict or CustomRoles.Refugee) color = Main.ImpostorColor;
 
-                if (target.Is(CustomRoles.Madmate))
-                {
-                    color = Main.ImpostorColor;
-                }
+                if (target.Is(CustomRoles.Madmate)) color = Main.ImpostorColor;
 
-                if (target.Is(CustomRoles.Rascal))
-                {
-                    color = Main.ImpostorColor;
-                }
+                if (target.Is(CustomRoles.Rascal)) color = Main.ImpostorColor;
 
-                if (target.Is(CustomRoles.Charmed))
-                {
-                    color = Main.NeutralColor;
-                }
+                if (target.Is(CustomRoles.Charmed)) color = Main.NeutralColor;
 
-                if (target.Is(CustomRoles.Contagious))
-                {
-                    color = Main.NeutralColor;
-                }
+                if (target.Is(CustomRoles.Contagious)) color = Main.NeutralColor;
 
-                if (target.Is(CustomRoles.Egoist))
-                {
-                    color = Main.NeutralColor;
-                }
+                if (target.Is(CustomRoles.Egoist)) color = Main.NeutralColor;
 
-                if (target.Is(CustomRoles.Recruit))
-                {
-                    color = Main.NeutralColor;
-                }
+                if (target.Is(CustomRoles.Recruit)) color = Main.NeutralColor;
             }
 
             // Global (important)
-            if (Bubble.EncasedPlayers.TryGetValue(target.PlayerId, out long ts) && (ts + Bubble.NotifyDelay.GetInt() < Utils.TimeStamp || seer.Is(CustomRoles.Bubble)))
-            {
-                color = Main.RoleColors[CustomRoles.Bubble];
-            }
+            if (Bubble.EncasedPlayers.TryGetValue(target.PlayerId, out long ts) && (ts + Bubble.NotifyDelay.GetInt() < Utils.TimeStamp || seer.Is(CustomRoles.Bubble))) color = Main.RoleColors[CustomRoles.Bubble];
 
             // If the color was determined, return true, else, check if the seer can see the target's role color without knowing the color
-            if (color != "")
-            {
-                return true;
-            }
+            if (color != "") return true;
 
             return seer == target
                    || (Main.GodMode.Value && seer.AmOwner)
@@ -349,10 +260,7 @@ namespace EHR
         {
             colorCode = "";
             PlayerState state = Main.PlayerStates[seer.PlayerId];
-            if (!state.TargetColorData.TryGetValue(target.PlayerId, out string value))
-            {
-                return false;
-            }
+            if (!state.TargetColorData.TryGetValue(target.PlayerId, out string value)) return false;
 
             colorCode = value;
             return true;
@@ -363,19 +271,13 @@ namespace EHR
             if (colorCode == "")
             {
                 PlayerControl target = Utils.GetPlayerById(targetId);
-                if (target == null)
-                {
-                    return;
-                }
+                if (target == null) return;
 
                 colorCode = target.GetRoleColorCode();
             }
 
             PlayerState state = Main.PlayerStates[seerId];
-            if (state.TargetColorData.TryGetValue(targetId, out string value) && colorCode == value)
-            {
-                return;
-            }
+            if (state.TargetColorData.TryGetValue(targetId, out string value) && colorCode == value) return;
 
             state.TargetColorData.Add(targetId, colorCode);
 
@@ -385,10 +287,7 @@ namespace EHR
         private static void Remove(byte seerId, byte targetId)
         {
             PlayerState state = Main.PlayerStates[seerId];
-            if (!state.TargetColorData.ContainsKey(targetId))
-            {
-                return;
-            }
+            if (!state.TargetColorData.ContainsKey(targetId)) return;
 
             state.TargetColorData.Remove(targetId);
 
@@ -404,10 +303,7 @@ namespace EHR
 
         private static void SendRPC(byte seerId, byte targetId = byte.MaxValue, string colorCode = "")
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetNameColorData, SendOption.Reliable);
             writer.Write(seerId);
@@ -423,17 +319,11 @@ namespace EHR
             string colorCode = reader.ReadString();
 
             if (targetId == byte.MaxValue)
-            {
                 RemoveAll(seerId);
-            }
             else if (colorCode == "")
-            {
                 Remove(seerId, targetId);
-            }
             else
-            {
                 Add(seerId, targetId, colorCode);
-            }
         }
     }
 }

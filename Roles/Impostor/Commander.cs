@@ -26,8 +26,10 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Commander);
+
             CannotSpawnAsSoloImp = new BooleanOptionItem(Id + 2, "CannotSpawnAsSoloImp", true, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Commander]);
+
             ShapeshiftCooldown = new FloatOptionItem(Id + 3, "ShapeshiftCooldown", new(0f, 60f, 1f), 1f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Commander]);
         }
@@ -80,10 +82,7 @@ namespace EHR.Impostor
 
         public override void OnCoEnterVent(PlayerPhysics physics, int ventId)
         {
-            if (!Options.UsePets.GetBool())
-            {
-                CycleMode(physics.myPlayer);
-            }
+            if (!Options.UsePets.GetBool()) CycleMode(physics.myPlayer);
         }
 
         public override void OnPet(PlayerControl pc)
@@ -100,10 +99,7 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting)
-            {
-                return true;
-            }
+            if (!shapeshifting) return true;
 
             switch (CurrentMode)
             {
@@ -115,17 +111,12 @@ namespace EHR.Impostor
                     break;
                 case Mode.KillAnyone:
                     if (target.Is(Team.Impostor))
-                    {
                         target.Notify(Translator.GetString("CommanderKillAnyoneNotify"), 7f);
-                    }
                     else
                     {
                         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                         {
-                            if (!pc.Is(Team.Impostor) || pc.PlayerId == shapeshifter.PlayerId)
-                            {
-                                continue;
-                            }
+                            if (!pc.Is(Team.Impostor) || pc.PlayerId == shapeshifter.PlayerId) continue;
 
                             pc.Notify(Translator.GetString("CommanderKillAnyoneNotify"), 7f);
                         }
@@ -134,22 +125,15 @@ namespace EHR.Impostor
                     break;
                 case Mode.DontKillMark:
                     if (target.Is(Team.Impostor))
-                    {
                         target.Notify(Translator.GetString("CommanderDontKillAnyoneNotify"), 7f);
-                    }
                     else
-                    {
                         MarkPlayerAsDontKill(target);
-                    }
 
                     break;
                 case Mode.DontSabotage:
                     foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                     {
-                        if (!pc.Is(Team.Impostor) || pc.PlayerId == shapeshifter.PlayerId)
-                        {
-                            continue;
-                        }
+                        if (!pc.Is(Team.Impostor) || pc.PlayerId == shapeshifter.PlayerId) continue;
 
                         pc.Notify(Translator.GetString("CommanderDontSabotageNotify"), 7f);
                     }
@@ -157,17 +141,12 @@ namespace EHR.Impostor
                     break;
                 case Mode.UseAbility:
                     if (target.Is(Team.Impostor))
-                    {
                         target.Notify(Translator.GetString("CommanderUseAbilityNotify"), 7f);
-                    }
                     else
                     {
                         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                         {
-                            if (!pc.Is(Team.Impostor) || pc.PlayerId == shapeshifter.PlayerId)
-                            {
-                                continue;
-                            }
+                            if (!pc.Is(Team.Impostor) || pc.PlayerId == shapeshifter.PlayerId) continue;
 
                             pc.Notify(Translator.GetString("CommanderUseAbilityNotify"), 7f);
                         }
@@ -181,10 +160,7 @@ namespace EHR.Impostor
 
         private void Whistle(PlayerControl commander, PlayerControl target = null)
         {
-            if (IsWhistling)
-            {
-                return;
-            }
+            if (IsWhistling) return;
 
             IsWhistling = true;
 
@@ -196,10 +172,7 @@ namespace EHR.Impostor
 
             foreach (PlayerControl pc in Main.AllAlivePlayerControls)
             {
-                if (!pc.Is(Team.Impostor) || pc.Is(CustomRoles.Commander))
-                {
-                    continue;
-                }
+                if (!pc.Is(Team.Impostor) || pc.Is(CustomRoles.Commander)) continue;
 
                 AddArrowAndNotify(pc);
             }
@@ -229,10 +202,7 @@ namespace EHR.Impostor
 
         private void MarkPlayerAsDontKill(PlayerControl target)
         {
-            if (target == null)
-            {
-                return;
-            }
+            if (target == null) return;
 
             DontKillMarks.Add(target.PlayerId);
             Utils.SendRPC(CustomRPC.SyncRoleData, CommanderId, 2, target.PlayerId);
@@ -241,10 +211,7 @@ namespace EHR.Impostor
 
         public override void OnGlobalFixedUpdate(PlayerControl pc, bool lowLoad)
         {
-            if (lowLoad || !GameStates.IsInTask || !On || !IsWhistling)
-            {
-                return;
-            }
+            if (lowLoad || !GameStates.IsInTask || !On || !IsWhistling) return;
 
             if (TargetArrow.GetArrows(pc, CommanderId) == "・")
             {
@@ -270,17 +237,11 @@ namespace EHR.Impostor
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer == null || !seer.Is(Team.Impostor))
-            {
-                return string.Empty;
-            }
+            if (seer == null || !seer.Is(Team.Impostor)) return string.Empty;
 
             if (seer.PlayerId == target.PlayerId && Main.PlayerStates[seer.PlayerId].Role is Commander { IsEnable: true } cm)
             {
-                if (seer.IsModClient() && !hud)
-                {
-                    return string.Empty;
-                }
+                if (seer.IsModClient() && !hud) return string.Empty;
 
                 string whistlingText = cm.IsWhistling ? $"\n<size=70%>{Translator.GetString("CommanderWhistling")}</size>" : string.Empty;
                 return $"{string.Format(Translator.GetString("WMMode"), Translator.GetString($"Commander{cm.CurrentMode}Mode"))}{whistlingText}";
@@ -292,19 +253,11 @@ namespace EHR.Impostor
 
             if (seer.PlayerId == target.PlayerId)
             {
-                if (arrowToCommander.Length > 0)
-                {
-                    return $"{Translator.GetString("Commander")} {arrowToCommander}";
-                }
+                if (arrowToCommander.Length > 0) return $"{Translator.GetString("Commander")} {arrowToCommander}";
             }
             else if (isTargetTarget)
-            {
                 return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Sprayer), Translator.GetString("CommanderTarget"));
-            }
-            else if (isTargetDontKill)
-            {
-                return Utils.ColorString(ColorUtility.TryParseHtmlString("#0daeff", out Color color) ? color : Utils.GetRoleColor(CustomRoles.TaskManager), Translator.GetString("CommanderDontKill"));
-            }
+            else if (isTargetDontKill) return Utils.ColorString(ColorUtility.TryParseHtmlString("#0daeff", out Color color) ? color : Utils.GetRoleColor(CustomRoles.TaskManager), Translator.GetString("CommanderDontKill"));
 
             return string.Empty;
         }

@@ -54,10 +54,11 @@ namespace EHR.Crewmate
 
         public override void SetupCustomOption()
         {
-            int id = 647850;
+            var id = 647850;
             const TabGroup tab = TabGroup.CrewmateRoles;
             const CustomRoles role = CustomRoles.President;
             Options.SetupSingleRoleOptions(id++, tab, role, hideMaxSetting: true);
+
             foreach (Decree decree in Enum.GetValues<Decree>())
             {
                 DecreeSettings[decree] =
@@ -76,10 +77,12 @@ namespace EHR.Crewmate
                             new BooleanOptionItem(++id, "President.Reveal.ConvertedPresidentCanReveal", false, tab)
                                 .SetParent(DecreeSettings[decree][0])
                         ]);
+
                         break;
                     case Decree.GovernmentRecruiting:
                         DecreeSettings[decree].Add(new StringOptionItem(++id, "President.GovernmentRecruiting.RecruitedRole", GovernmentRecruitRoles.Select(x => x.ToColoredString()).ToArray(), 0, tab, noTranslation: true)
                             .SetParent(DecreeSettings[decree][0]));
+
                         break;
                 }
             }
@@ -115,10 +118,7 @@ namespace EHR.Crewmate
         public static void OnAnyoneApplyGameOptions(IGameOptions opt)
         {
             bool value = Main.RealOptionsData.GetBool(BoolOptionNames.AnonymousVotes);
-            if (Instances.Any(x => x.IsDeclassification))
-            {
-                value = false;
-            }
+            if (Instances.Any(x => x.IsDeclassification)) value = false;
 
             opt.SetBool(BoolOptionNames.AnonymousVotes, value);
         }
@@ -126,16 +126,14 @@ namespace EHR.Crewmate
         public static void UseDecree(PlayerControl pc, string message)
         {
             President president = Instances.FirstOrDefault(x => x.PresidentId == pc.PlayerId);
+
             if (president == null || president.Used)
             {
                 Utils.SendMessage(Translator.GetString("President.DecreeAlreadyChosenThisMeetingMessage"), pc.PlayerId);
                 return;
             }
 
-            if (!Utils.GetPlayerById(president.PresidentId).IsAlive())
-            {
-                return;
-            }
+            if (!Utils.GetPlayerById(president.PresidentId).IsAlive()) return;
 
             if (!int.TryParse(message, out int num) || num > 5)
             {
@@ -143,7 +141,8 @@ namespace EHR.Crewmate
                 return;
             }
 
-            Decree decree = (Decree)num;
+            var decree = (Decree)num;
+
             if (!decree.IsEnabled() || president.UsedDecrees.Contains(decree))
             {
                 Utils.SendMessage(Translator.GetString("President.DecreeAlreadyUsedMessage"), pc.PlayerId);
@@ -153,15 +152,9 @@ namespace EHR.Crewmate
             switch (decree)
             {
                 case Decree.Reveal:
-                    if (!DecreeSettings[decree][1].GetBool())
-                    {
-                        pc.RpcSetCustomRole(CustomRoles.Loyal);
-                    }
+                    if (!DecreeSettings[decree][1].GetBool()) pc.RpcSetCustomRole(CustomRoles.Loyal);
 
-                    if ((!DecreeSettings[decree][2].GetBool() && pc.IsConverted()) || pc.Is(CustomRoles.Bloodlust))
-                    {
-                        return;
-                    }
+                    if ((!DecreeSettings[decree][2].GetBool() && pc.IsConverted()) || pc.Is(CustomRoles.Bloodlust)) return;
 
                     Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.Everyone"), Translator.GetString($"President.Decree.{decree}")));
                     Utils.SendMessage(string.Format(Translator.GetString("President.UsedDecreeMessage.RevealMessage"), pc.PlayerId.ColoredPlayerName()));
@@ -178,10 +171,7 @@ namespace EHR.Crewmate
                 case Decree.GovernmentSupport:
                     foreach (PlayerControl player in Main.AllPlayerControls)
                     {
-                        if (!player.IsCrewmate())
-                        {
-                            continue;
-                        }
+                        if (!player.IsCrewmate()) continue;
 
                         switch (Main.PlayerStates[player.PlayerId].Role)
                         {
@@ -203,10 +193,7 @@ namespace EHR.Crewmate
                     Utils.SendMessage("\n", pc.PlayerId, Utils.GetRemainingKillers(president: true));
                     break;
                 case Decree.GovernmentRecruiting:
-                    if (MeetingHud.Instance?.playerStates?.FirstOrDefault(x => x.TargetPlayerId == pc.PlayerId)?.DidVote == true)
-                    {
-                        return;
-                    }
+                    if (MeetingHud.Instance?.playerStates?.FirstOrDefault(x => x.TargetPlayerId == pc.PlayerId)?.DidVote == true) return;
 
                     president.IsRecruiting = true;
                     break;
@@ -230,20 +217,14 @@ namespace EHR.Crewmate
 
         public override bool KnowRole(PlayerControl seer, PlayerControl target)
         {
-            if (base.KnowRole(seer, target))
-            {
-                return true;
-            }
+            if (base.KnowRole(seer, target)) return true;
 
             return target.PlayerId == PresidentId && IsRevealed;
         }
 
         public override bool OnVote(PlayerControl voter, PlayerControl target)
         {
-            if (voter.PlayerId != PresidentId || !IsRecruiting || Main.DontCancelVoteList.Contains(voter.PlayerId))
-            {
-                return false;
-            }
+            if (voter.PlayerId != PresidentId || !IsRecruiting || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
 
             if (!target.Is(CustomRoleTypes.Crewmate) || target.IsConverted())
             {
@@ -252,10 +233,7 @@ namespace EHR.Crewmate
             }
 
             CustomRoles role = GovernmentRecruitRoles[DecreeSettings[Decree.GovernmentRecruiting][1].GetValue()];
-            if (role.IsDesyncRole() && target.GetRoleTypes() != role.GetDYRole())
-            {
-                role = CustomRoles.NiceGuesser;
-            }
+            if (role.IsDesyncRole() && target.GetRoleTypes() != role.GetDYRole()) role = CustomRoles.NiceGuesser;
 
             target.RpcSetCustomRole(role);
             Utils.SendMessage("\n", target.PlayerId, Translator.GetString("President.Recruit.TargetNotifyMessage"));

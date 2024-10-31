@@ -14,10 +14,7 @@ namespace EHR.AddOns.Common
 
         public static void OnDeath(PlayerControl pc, PlayerControl killer)
         {
-            if (killer == null || pc == null || pc.PlayerId == killer.PlayerId || !killer.IsAlive() || !GameStates.IsInTask)
-            {
-                return;
-            }
+            if (killer == null || pc == null || pc.PlayerId == killer.PlayerId || !killer.IsAlive() || !GameStates.IsInTask) return;
 
             VioletNameList.Add(killer.PlayerId);
             Utils.NotifyRoles(SpecifyTarget: killer);

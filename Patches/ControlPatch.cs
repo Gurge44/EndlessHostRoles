@@ -23,63 +23,37 @@ namespace EHR
         {
             if (GameStates.IsLobby)
             {
-                if (Input.GetKeyDown(KeyCode.Tab))
-                {
-                    OptionShower.Next();
-                }
+                if (Input.GetKeyDown(KeyCode.Tab)) OptionShower.Next();
 
-                for (int i = 0; i < 9; i++)
-                {
+                for (var i = 0; i < 9; i++)
                     if (OrGetKeysDown(KeyCode.Alpha1 + i, KeyCode.Keypad1 + i) && OptionShower.Pages.Count >= i + 1)
-                    {
                         OptionShower.CurrentPage = i;
-                    }
-                }
 
-                if (KeysDown(KeyCode.Return) && GameSettingMenu.Instance != null && GameSettingMenu.Instance.isActiveAndEnabled)
-                {
-                    GameSettingMenuPatch.SearchForOptionsAction?.Invoke();
-                }
+                if (KeysDown(KeyCode.Return) && GameSettingMenu.Instance != null && GameSettingMenu.Instance.isActiveAndEnabled) GameSettingMenuPatch.SearchForOptionsAction?.Invoke();
             }
 
-            if (KeysDown(KeyCode.LeftShift, KeyCode.LeftControl, KeyCode.X))
-            {
-                ExileController.Instance?.ReEnableGameplay();
-            }
+            if (KeysDown(KeyCode.LeftShift, KeyCode.LeftControl, KeyCode.X)) ExileController.Instance?.ReEnableGameplay();
 
-            if (KeysDown(KeyCode.LeftAlt, KeyCode.Return))
-            {
-                LateTask.New(SetResolutionManager.Postfix, 0.01f, "Fix Button Position");
-            }
+            if (KeysDown(KeyCode.LeftAlt, KeyCode.Return)) LateTask.New(SetResolutionManager.Postfix, 0.01f, "Fix Button Position");
 
             if (GameStates.IsInGame && (GameStates.IsCanMove || GameStates.IsMeeting) && Options.CurrentGameMode == CustomGameMode.Standard)
             {
                 if (Input.GetKey(KeyCode.F1))
                 {
-                    if (!InGameRoleInfoMenu.Showing)
-                    {
-                        InGameRoleInfoMenu.SetRoleInfoRef(PlayerControl.LocalPlayer);
-                    }
+                    if (!InGameRoleInfoMenu.Showing) InGameRoleInfoMenu.SetRoleInfoRef(PlayerControl.LocalPlayer);
 
                     InGameRoleInfoMenu.Show();
                 }
                 else
-                {
                     InGameRoleInfoMenu.Hide();
-                }
             }
             else
-            {
                 InGameRoleInfoMenu.Hide();
-            }
 
             if (Input.GetKeyDown(KeyCode.F11))
             {
                 ResolutionIndex++;
-                if (ResolutionIndex >= Resolutions.Length)
-                {
-                    ResolutionIndex = 0;
-                }
+                if (ResolutionIndex >= Resolutions.Length) ResolutionIndex = 0;
 
                 ResolutionManager.SetResolution(Resolutions[ResolutionIndex].Item1, Resolutions[ResolutionIndex].Item2, false);
                 SetResolutionManager.Postfix();
@@ -105,20 +79,11 @@ namespace EHR
                 Utils.DumpLog();
             }
 
-            if (KeysDown(KeyCode.LeftAlt, KeyCode.C) && !Input.GetKey(KeyCode.LeftShift) && !GameStates.IsNotJoined)
-            {
-                Utils.CopyCurrentSettings();
-            }
+            if (KeysDown(KeyCode.LeftAlt, KeyCode.C) && !Input.GetKey(KeyCode.LeftShift) && !GameStates.IsNotJoined) Utils.CopyCurrentSettings();
 
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
-            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift))
-            {
-                HudManager.Instance.Chat.SetVisible(true);
-            }
+            if (KeysDown(KeyCode.Return, KeyCode.C, KeyCode.LeftShift)) HudManager.Instance.Chat.SetVisible(true);
 
             if (KeysDown(KeyCode.Return, KeyCode.L, KeyCode.LeftShift) && GameStates.IsInGame)
             {
@@ -129,13 +94,9 @@ namespace EHR
             if (KeysDown(KeyCode.Return, KeyCode.M, KeyCode.LeftShift) && GameStates.IsInGame)
             {
                 if (GameStates.IsMeeting)
-                {
                     MeetingHud.Instance.RpcClose();
-                }
                 else
-                {
                     PlayerControl.LocalPlayer.NoCheckStartMeeting(null, true);
-                }
             }
 
             if (Input.GetKeyDown(KeyCode.LeftShift) && GameStates.IsCountDown && !HudManager.Instance.Chat.IsOpenOrOpening)
@@ -169,18 +130,12 @@ namespace EHR
 
                 IEnumerator Reset()
                 {
-                    for (int index = 0; index < OptionItem.AllOptions.Count; index++)
+                    for (var index = 0; index < OptionItem.AllOptions.Count; index++)
                     {
                         OptionItem option = OptionItem.AllOptions[index];
-                        if (option.Id > 0)
-                        {
-                            option.SetValue(option.DefaultValue);
-                        }
+                        if (option.Id > 0) option.SetValue(option.DefaultValue);
 
-                        if (index % 100 == 0)
-                        {
-                            yield return null;
-                        }
+                        if (index % 100 == 0) yield return null;
                     }
 
                     IsResetting = false;
@@ -202,10 +157,7 @@ namespace EHR
                 Logger.SendInGame($"In-game output log：{Logger.IsAlsoInGame}");
             }
 
-            if (!Options.NoGameEnd.GetBool())
-            {
-                return;
-            }
+            if (!Options.NoGameEnd.GetBool()) return;
 
 #if RELEASE
             return;
@@ -214,10 +166,7 @@ namespace EHR
             if (KeysDown(KeyCode.Return, KeyCode.F, KeyCode.LeftShift))
             {
                 Utils.FlashColor(new(1f, 0f, 0f, 0.3f));
-                if (Constants.ShouldPlaySfx())
-                {
-                    RPC.PlaySound(PlayerControl.LocalPlayer.PlayerId, Sounds.KillSound);
-                }
+                if (Constants.ShouldPlaySfx()) RPC.PlaySound(PlayerControl.LocalPlayer.PlayerId, Sounds.KillSound);
             }
 
             if (KeysDown(KeyCode.Return, KeyCode.G, KeyCode.LeftShift) && GameStates.IsInGame)
@@ -226,10 +175,7 @@ namespace EHR
                 HudManager.Instance.StartCoroutine(DestroyableSingleton<HudManager>.Instance.CoShowIntro());
             }
 
-            if (KeysDown(KeyCode.Return, KeyCode.V, KeyCode.LeftShift) && GameStates.IsMeeting)
-            {
-                MeetingHud.Instance.RpcClearVote(AmongUsClient.Instance.ClientId);
-            }
+            if (KeysDown(KeyCode.Return, KeyCode.V, KeyCode.LeftShift) && GameStates.IsMeeting) MeetingHud.Instance.RpcClearVote(AmongUsClient.Instance.ClientId);
 
             if (KeysDown(KeyCode.Return, KeyCode.D, KeyCode.LeftShift) && GameStates.IsInGame)
             {
@@ -246,12 +192,8 @@ namespace EHR
             }
 
             if (KeysDown(KeyCode.Return, KeyCode.T, KeyCode.LeftShift) && GameStates.IsInGame)
-            {
                 foreach (PlayerTask task in PlayerControl.LocalPlayer.myTasks)
-                {
                     PlayerControl.LocalPlayer.RpcCompleteTask(task.Id);
-                }
-            }
 
             if (Input.GetKeyDown(KeyCode.Y) && !GameStates.IsMeeting)
             {
@@ -274,17 +216,14 @@ namespace EHR
             if (Input.GetKeyDown(KeyCode.C) && !GameStates.IsMeeting)
             {
                 foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
-                {
                     if (!pc.AmOwner)
-                    {
                         pc.MyPhysics.RpcEnterVent(2);
-                    }
-                }
             }
 
             if (Input.GetKeyDown(KeyCode.V) && !GameStates.IsMeeting)
             {
                 Vector2 pos = PlayerControl.LocalPlayer.NetTransform.transform.position;
+
                 foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
                 {
                     if (!pc.AmOwner)
@@ -298,18 +237,11 @@ namespace EHR
             if (Input.GetKeyDown(KeyCode.B) && !GameStates.IsMeeting)
             {
                 foreach (PlayerControl pc in PlayerControl.AllPlayerControls)
-                {
                     if (!pc.AmOwner)
-                    {
                         pc.MyPhysics.RpcExitVent(2);
-                    }
-                }
             }
 
-            if (Input.GetKeyDown(KeyCode.N) && !GameStates.IsMeeting)
-            {
-                VentilationSystem.Update(VentilationSystem.Operation.StartCleaning, 0);
-            }
+            if (Input.GetKeyDown(KeyCode.N) && !GameStates.IsMeeting) VentilationSystem.Update(VentilationSystem.Operation.StartCleaning, 0);
         }
 
         private static bool KeysDown(params KeyCode[] keys)
@@ -354,16 +286,12 @@ namespace EHR
             if (player.GetButtonDown(8) && // 8: Kill button actionId
                 PlayerControl.LocalPlayer.Data?.Role?.IsImpostor == false &&
                 PlayerControl.LocalPlayer.CanUseKillButton())
-            {
                 DestroyableSingleton<HudManager>.Instance.KillButton.DoClick();
-            }
 
             if (player.GetButtonDown(50) && // 50: Impostor vent button actionId
                 PlayerControl.LocalPlayer.Data?.Role?.IsImpostor == false &&
                 PlayerControl.LocalPlayer.CanUseImpostorVentButton())
-            {
                 DestroyableSingleton<HudManager>.Instance.ImpostorVentButton.DoClick();
-            }
         }
     }
 
@@ -417,15 +345,9 @@ namespace EHR
 
         public static void SetRoleInfoRef(PlayerControl player)
         {
-            if (player == null)
-            {
-                return;
-            }
+            if (player == null) return;
 
-            if (!Fill || !Menu)
-            {
-                Init();
-            }
+            if (!Fill || !Menu) Init();
 
             CustomRoles role = player.GetCustomRole();
             StringBuilder sb = new();
@@ -436,33 +358,22 @@ namespace EHR
             titleSb.Append($"{role.ToColoredString()} {Utils.GetRoleMode(role)}");
             sb.Append("<size=90%>");
             sb.Append(player.GetRoleInfo(true).TrimStart());
-            if (Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem opt))
-            {
-                Utils.ShowChildrenSettings(opt, ref settings, f1: true, disableColor: false);
-            }
+            if (Options.CustomRoleSpawnChances.TryGetValue(role, out StringOptionItem opt)) Utils.ShowChildrenSettings(opt, ref settings, f1: true, disableColor: false);
 
             settings.Append("</size>");
-            if (settings.Length > 0)
-            {
-                addons.Append($"{settings}\n\n");
-            }
+            if (settings.Length > 0) addons.Append($"{settings}\n\n");
 
-            if (role.PetActivatedAbility())
-            {
-                sb.Append($"<size=80%>{GetString("SupportsPetMessage")}</size>");
-            }
+            if (role.PetActivatedAbility()) sb.Append($"<size=80%>{GetString("SupportsPetMessage")}</size>");
 
             string searchStr = GetString(role.ToString());
             sb.Replace(searchStr, role.ToColoredString());
             sb.Replace(searchStr.ToLower(), role.ToColoredString());
             sb.Append("</size>");
             List<CustomRoles> subRoles = Main.PlayerStates[player.PlayerId].SubRoles;
-            if (subRoles.Count > 0)
-            {
-                addons.Append(GetString("AddonListTitle"));
-            }
+            if (subRoles.Count > 0) addons.Append(GetString("AddonListTitle"));
 
             addons.Append("<size=75%>");
+
             subRoles.ForEach(subRole =>
             {
                 addons.Append($"\n\n{subRole.ToColoredString()} {Utils.GetRoleMode(subRole)} {GetString($"{subRole}InfoLong")}");
@@ -470,11 +381,9 @@ namespace EHR
                 addons.Replace(searchSubStr, subRole.ToColoredString());
                 addons.Replace(searchSubStr.ToLower(), subRole.ToColoredString());
             });
+
             addons.Append("</size>");
-            if (role.UsesPetInsteadOfKill())
-            {
-                sb.Append($"\n\n<size=85%>{GetString("UsesPetInsteadOfKillNotice")}</size>");
-            }
+            if (role.UsesPetInsteadOfKill()) sb.Append($"\n\n<size=85%>{GetString("UsesPetInsteadOfKillNotice")}</size>");
 
             sb.Insert(0, $"{titleSb}\n");
 
@@ -484,19 +393,14 @@ namespace EHR
 
         public static void Show()
         {
-            if (!Fill || !Menu)
-            {
-                Init();
-            }
+            if (!Fill || !Menu) Init();
 
             if (!Showing)
             {
                 Fill?.SetActive(true);
                 Menu?.SetActive(true);
 
-                if (GameStates.IsMeeting)
-                {
-                }
+                if (GameStates.IsMeeting) { }
             }
         }
 
@@ -507,9 +411,7 @@ namespace EHR
                 Fill?.SetActive(false);
                 Menu?.SetActive(false);
 
-                if (GameStates.IsVoting)
-                {
-                }
+                if (GameStates.IsVoting) { }
             }
         }
     }

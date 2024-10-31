@@ -30,10 +30,7 @@ namespace EHR
             string label,
             bool isActive = true)
         {
-            if (baseButton == null)
-            {
-                throw new InvalidOperationException("baseButtonが未設定");
-            }
+            if (baseButton == null) throw new InvalidOperationException("baseButtonが未設定");
 
             Button = Object.Instantiate(baseButton, parent);
             Label = Button.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
@@ -76,14 +73,11 @@ namespace EHR
 
         public static void SetBase(PassiveButton passiveButton)
         {
-            if (baseButton != null || passiveButton == null)
-            {
-                return;
-            }
+            if (baseButton != null || passiveButton == null) return;
 
             // 複製
             baseButton = Object.Instantiate(passiveButton);
-            TextMeshPro label = baseButton.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
+            var label = baseButton.transform.Find("FontPlacer/Text_TMP").GetComponent<TextMeshPro>();
             baseButton.gameObject.SetActive(false);
             // シーン切替時に破棄されないようにする
             Object.DontDestroyOnLoad(baseButton);
@@ -95,7 +89,7 @@ namespace EHR
             label.enableWordWrapping = false;
             label.text = "EHR SIMPLE BUTTON BASE";
             // 当たり判定がズレてるのを直す
-            BoxCollider2D buttonCollider = baseButton.GetComponent<BoxCollider2D>();
+            var buttonCollider = baseButton.GetComponent<BoxCollider2D>();
             buttonCollider.offset = new(0f, 0f);
             baseButton.OnClick = new();
         }

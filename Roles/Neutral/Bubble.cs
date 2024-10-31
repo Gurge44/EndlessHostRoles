@@ -30,22 +30,29 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Bubble);
+
             KillCooldown = new FloatOptionItem(Id + 2, "BubbleCD", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bubble])
                 .SetValueFormat(OptionFormat.Seconds);
+
             HasImpostorVision = new BooleanOptionItem(Id + 6, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bubble]);
+
             NotifyDelay = new IntegerOptionItem(Id + 3, "BubbleTargetNotifyDelay", new(0, 60, 1), 3, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bubble])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ExplodeDelay = new IntegerOptionItem(Id + 4, "BubbleExplosionDelay", new(0, 60, 1), 10, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bubble])
                 .SetValueFormat(OptionFormat.Seconds);
+
             BubbleDiesIfInRange = new BooleanOptionItem(Id + 5, "BubbleDiesIfInRange", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bubble]);
+
             ExplosionRadius = new FloatOptionItem(Id + 7, "BubbleExplosionRadius", new(0.1f, 5f, 0.1f), 3f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bubble])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             CanVent = new BooleanOptionItem(Id + 8, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bubble]);
         }
@@ -79,10 +86,7 @@ namespace EHR.Neutral
 
         private void SendRPC(byte id = byte.MaxValue, bool remove = false, bool clear = false)
         {
-            if (!IsEnable || !DoRPC)
-            {
-                return;
-            }
+            if (!IsEnable || !DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncBubble, SendOption.Reliable);
             writer.Write(remove);
@@ -96,26 +100,18 @@ namespace EHR.Neutral
             bool remove = reader.ReadBoolean();
             bool clear = reader.ReadBoolean();
             byte id = reader.ReadByte();
+
             if (clear)
-            {
                 EncasedPlayers.Clear();
-            }
             else if (remove)
-            {
                 EncasedPlayers.Remove(id);
-            }
             else
-            {
                 EncasedPlayers.Add(id, TimeStamp);
-            }
         }
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!IsEnable || target == null)
-            {
-                return false;
-            }
+            if (!IsEnable || target == null) return false;
 
             EncasedPlayers.Add(target.PlayerId, TimeStamp);
             SendRPC(target.PlayerId);
@@ -125,10 +121,7 @@ namespace EHR.Neutral
 
         public override void OnGlobalFixedUpdate(PlayerControl encasedPc, bool lowLoad)
         {
-            if (lowLoad || !IsEnable || !GameStates.IsInTask || !EncasedPlayers.TryGetValue(encasedPc.PlayerId, out long ts))
-            {
-                return;
-            }
+            if (lowLoad || !IsEnable || !GameStates.IsInTask || !EncasedPlayers.TryGetValue(encasedPc.PlayerId, out long ts)) return;
 
             long now = TimeStamp;
             byte id = encasedPc.PlayerId;
@@ -143,12 +136,10 @@ namespace EHR.Neutral
                 }
 
                 IEnumerable<PlayerControl> players = GetPlayersInRadius(ExplosionRadius.GetFloat(), encasedPc.Pos());
+
                 foreach (PlayerControl pc in players)
                 {
-                    if (pc == null)
-                    {
-                        continue;
-                    }
+                    if (pc == null) continue;
 
                     if (pc.PlayerId == BubbleId)
                     {
@@ -156,10 +147,7 @@ namespace EHR.Neutral
                         {
                             LateTask.New(() =>
                             {
-                                if (GameStates.IsInTask)
-                                {
-                                    pc.Suicide(PlayerState.DeathReason.Bombed);
-                                }
+                                if (GameStates.IsInTask) pc.Suicide(PlayerState.DeathReason.Bombed);
                             }, 0.5f, log: false);
                         }
 
@@ -186,15 +174,9 @@ namespace EHR.Neutral
 
         public override void OnReportDeadBody()
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
-            foreach (PlayerControl pc in EncasedPlayers.Keys.Select(x => GetPlayerById(x)).Where(x => x != null && x.IsAlive()))
-            {
-                pc.Suicide(PlayerState.DeathReason.Bombed, BubblePC);
-            }
+            foreach (PlayerControl pc in EncasedPlayers.Keys.Select(x => GetPlayerById(x)).Where(x => x != null && x.IsAlive())) pc.Suicide(PlayerState.DeathReason.Bombed, BubblePC);
 
             EncasedPlayers.Clear();
             SendRPC(clear: true);
@@ -202,10 +184,7 @@ namespace EHR.Neutral
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (target == null || !EncasedPlayers.TryGetValue(target.PlayerId, out long ts) || (ts + NotifyDelay.GetInt() >= TimeStamp && !seer.Is(CustomRoles.Bubble)))
-            {
-                return string.Empty;
-            }
+            if (target == null || !EncasedPlayers.TryGetValue(target.PlayerId, out long ts) || (ts + NotifyDelay.GetInt() >= TimeStamp && !seer.Is(CustomRoles.Bubble))) return string.Empty;
 
             return ColorString(GetRoleColor(CustomRoles.Bubble), $"⚠ {ExplodeDelay.GetInt() - (TimeStamp - ts) + 1}");
         }

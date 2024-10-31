@@ -75,7 +75,7 @@ namespace EHR.Neutral
         {
             get
             {
-                string mapName = Main.CurrentMap.ToString();
+                var mapName = Main.CurrentMap.ToString();
                 IEnumerable<KeyValuePair<string, Vector2>> devices = DisableDevice.DevicePos.SkipWhile(x => !x.Key.StartsWith(mapName)).TakeWhile(x => x.Key.StartsWith(mapName));
                 return devices.Select(x => x.Value);
             }
@@ -85,7 +85,7 @@ namespace EHR.Neutral
 
         public override void SetupCustomOption()
         {
-            int id = 14870;
+            var id = 14870;
             const TabGroup tab = TabGroup.NeutralRoles;
 
             SetupRoleOptions(id++, tab, CustomRoles.Bargainer);
@@ -93,10 +93,13 @@ namespace EHR.Neutral
             KillCooldown = new FloatOptionItem(++id, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(++id, "CanVent", true, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer]);
+
             HasImpostorVision = new BooleanOptionItem(++id, "ImpostorVision", true, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer]);
+
             StartingMoney = new IntegerOptionItem(++id, "Bargainer.StartingMoney", new(0, 100, 5), 0, tab)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer]);
 
@@ -104,6 +107,7 @@ namespace EHR.Neutral
             {
                 OptionItem boolOpt = new BooleanOptionItem(++id, $"Bargainer.{action}.Enabled", true, tab)
                     .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer]);
+
                 OptionItem intOpt = new IntegerOptionItem(++id, $"Bargainer.{action}.Amount", new(0, 100, 5), GetDefaultValue(), tab)
                     .SetParent(boolOpt);
 
@@ -125,15 +129,14 @@ namespace EHR.Neutral
 
             foreach (Item item in Enum.GetValues<Item>())
             {
-                if (item == Item.None)
-                {
-                    continue;
-                }
+                if (item == Item.None) continue;
 
                 OptionItem boolOpt = new BooleanOptionItem(++id, $"Bargainer.{item}.Enabled", true, tab)
                     .SetParent(CustomRoleSpawnChances[CustomRoles.Bargainer]);
+
                 OptionItem intOpt = new IntegerOptionItem(++id, $"Bargainer.{item}.Cost", new(0, 200, 5), GetDefaultValue(), tab)
                     .SetParent(boolOpt);
+
                 SetupExtraSettings();
 
                 ItemSettings[item] = (boolOpt, intOpt);
@@ -158,21 +161,26 @@ namespace EHR.Neutral
                         case Item.BandAid:
                             ShieldDuration = new StringOptionItem(++id, $"Bargainer.{item}.DurationSwitch", Enum.GetNames<ShieldDurationOptions>(), 0, tab)
                                 .SetParent(boolOpt);
+
                             ShieldTime = new IntegerOptionItem(++id, $"Bargainer.{item}.Duration", new(0, 60, 1), 20, tab)
                                 .SetParent(ShieldDuration)
                                 .SetValueFormat(OptionFormat.Seconds);
+
                             break;
                         case Item.EnergyDrink:
                             ReducedKillCooldown = new FloatOptionItem(++id, $"Bargainer.{item}.ReducedKCD", new(0f, 180f, 0.5f), 17.5f, tab)
                                 .SetParent(boolOpt)
                                 .SetValueFormat(OptionFormat.Seconds);
+
                             break;
                         case Item.LensOfTruth:
                             AlignmentVisible = new StringOptionItem(++id, $"Bargainer.{item}.DurationSwitch", Enum.GetNames<AlignmentVisibleOptions>(), (int)AlignmentVisibleOptions.UntilNextReveal, tab)
                                 .SetParent(boolOpt);
+
                             AlignmentVisibleDuration = new IntegerOptionItem(++id, $"Bargainer.{item}.Duration", new(1, 30, 1), 10, tab)
                                 .SetParent(AlignmentVisible)
                                 .SetValueFormat(OptionFormat.Seconds);
+
                             break;
                     }
                 }
@@ -184,22 +192,16 @@ namespace EHR.Neutral
             On = false;
 
             Gains = [];
+
             foreach (KeyValuePair<MoneyGainingAction, (OptionItem Enabled, OptionItem Amount)> kvp in MoneySettings)
-            {
                 if (kvp.Value.Enabled.GetBool())
-                {
                     Gains[kvp.Key] = kvp.Value.Amount.GetInt();
-                }
-            }
 
             Costs = [];
+
             foreach (KeyValuePair<Item, (OptionItem Enabled, OptionItem Cost)> kvp in ItemSettings)
-            {
                 if (kvp.Value.Enabled.GetBool())
-                {
                     Costs[kvp.Key] = kvp.Value.Cost.GetInt();
-                }
-            }
 
             Costs[Item.None] = 0;
         }
@@ -235,15 +237,9 @@ namespace EHR.Neutral
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             opt.SetVision(HasImpostorVision.GetBool());
-            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool())
-            {
-                AURoleOptions.PhantomCooldown = 1f;
-            }
+            if (UsePhantomBasis.GetBool() && UsePhantomBasisForNKs.GetBool()) AURoleOptions.PhantomCooldown = 1f;
 
-            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool())
-            {
-                AURoleOptions.ShapeshifterCooldown = 1f;
-            }
+            if (UseUnshiftTrigger.GetBool() && UseUnshiftTriggerForNKs.GetBool()) AURoleOptions.ShapeshifterCooldown = 1f;
         }
 
         private void Update()
@@ -297,10 +293,7 @@ namespace EHR.Neutral
 
         public override bool OnShapeshift(PlayerControl shapeshifter, PlayerControl target, bool shapeshifting)
         {
-            if (!shapeshifting && !UseUnshiftTrigger.GetBool())
-            {
-                return true;
-            }
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
 
             CycleItem(shapeshifter);
             return false;
@@ -354,10 +347,7 @@ namespace EHR.Neutral
                         case Item.EnergyDrink:
                             pc.ResetKillCooldown();
                             pc.SyncSettings();
-                            if (Main.KillTimers[pc.PlayerId] > ReducedKillCooldown.GetFloat())
-                            {
-                                pc.SetKillCooldown(ReducedKillCooldown.GetFloat());
-                            }
+                            if (Main.KillTimers[pc.PlayerId] > ReducedKillCooldown.GetFloat()) pc.SetKillCooldown(ReducedKillCooldown.GetFloat());
 
                             break;
                         case Item.LensOfTruth:
@@ -394,13 +384,11 @@ namespace EHR.Neutral
             }
 
             int rc = ActiveItems.RemoveAll(x => x.Item == Item.None);
-            if (rc > 0)
-            {
-                Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 6);
-            }
+            if (rc > 0) Utils.SendRPC(CustomRPC.SyncBargainer, pc.PlayerId, 6);
 
             (Item Item, long ActivateTimeStamp, int Duration, byte Target)[] array = ActiveItems.Where(x => x.Duration != int.MaxValue && x.ActivateTimeStamp + x.Duration < Utils.TimeStamp).ToArray();
-            for (int i = 0; i < array.Length; i++)
+
+            for (var i = 0; i < array.Length; i++)
             {
                 (Item Item, long ActivateTimeStamp, int Duration, byte Target) item = array[i];
                 ActiveItems.Remove(item);
@@ -418,15 +406,12 @@ namespace EHR.Neutral
         {
             List<int> indexesToRemove = [];
 
-            for (int i = 0; i < ActiveItems.Count; i++)
+            for (var i = 0; i < ActiveItems.Count; i++)
             {
                 switch (ActiveItems[i].Item)
                 {
                     case Item.LensOfTruth:
-                        if ((AlignmentVisibleOptions)AlignmentVisible.GetValue() is AlignmentVisibleOptions.ForSpecifiedTime or AlignmentVisibleOptions.UntilNextMeeting)
-                        {
-                            indexesToRemove.Add(i);
-                        }
+                        if ((AlignmentVisibleOptions)AlignmentVisible.GetValue() is AlignmentVisibleOptions.ForSpecifiedTime or AlignmentVisibleOptions.UntilNextMeeting) indexesToRemove.Add(i);
 
                         break;
                     default:
@@ -446,10 +431,7 @@ namespace EHR.Neutral
 
         public override bool KnowRole(PlayerControl seer, PlayerControl target)
         {
-            if (base.KnowRole(seer, target))
-            {
-                return true;
-            }
+            if (base.KnowRole(seer, target)) return true;
 
             return Main.PlayerStates[seer.PlayerId].Role is Bargainer bg && bg.ActiveItems.Any(x => x.Target == target.PlayerId);
         }
@@ -457,10 +439,7 @@ namespace EHR.Neutral
         public static void ReceiveRPC(MessageReader reader)
         {
             byte playerId = reader.ReadByte();
-            if (Main.PlayerStates[playerId].Role is not Bargainer bg)
-            {
-                return;
-            }
+            if (Main.PlayerStates[playerId].Role is not Bargainer bg) return;
 
             switch (reader.ReadPackedInt32())
             {
@@ -487,17 +466,11 @@ namespace EHR.Neutral
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId)
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != target.PlayerId) return string.Empty;
 
-            if (Main.PlayerStates[seer.PlayerId].Role is not Bargainer bg)
-            {
-                return string.Empty;
-            }
+            if (Main.PlayerStates[seer.PlayerId].Role is not Bargainer bg) return string.Empty;
 
-            string result = string.Empty;
+            var result = string.Empty;
 
             if (bg.InShop)
             {
@@ -505,29 +478,22 @@ namespace EHR.Neutral
                     Translator.GetString("Bargainer.Suffix.InShop"),
                     Translator.GetString($"Bargainer.{bg.SelectedItem}"),
                     Utils.ColorString(bg.Money >= Costs[bg.SelectedItem] ? Color.white : Color.red, $"{Costs[bg.SelectedItem]}"));
+
                 result += "\n";
             }
 
-            if (seer.IsModClient())
-            {
-                result += "<size=150%>";
-            }
+            if (seer.IsModClient()) result += "<size=150%>";
 
             result += string.Join(' ', bg.ActiveItems.Select(x =>
             {
                 long timeLeft = x.Duration - (Utils.TimeStamp - x.ActivateTimeStamp) + 1;
                 string icon = Icons[x.Item];
-                if (x.Item == Item.LensOfTruth && x.Target != byte.MaxValue)
-                {
-                    icon = Utils.ColorString(Main.PlayerColors[x.Target], icon);
-                }
+                if (x.Item == Item.LensOfTruth && x.Target != byte.MaxValue) icon = Utils.ColorString(Main.PlayerColors[x.Target], icon);
 
                 return seer.IsModClient() && timeLeft < 10 ? $"{icon} ({timeLeft}s)" : icon;
             }));
-            if (seer.IsModClient())
-            {
-                result += "</size>";
-            }
+
+            if (seer.IsModClient()) result += "</size>";
 
             return result;
         }

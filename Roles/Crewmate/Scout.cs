@@ -31,21 +31,28 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Scout);
+
             TrackLimitOpt = new IntegerOptionItem(Id + 5, "DivinatorSkillLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Scout])
                 .SetValueFormat(OptionFormat.Times);
+
             CanGetColoredArrow = new BooleanOptionItem(Id + 6, "TrackerCanGetArrowColor", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Scout]);
+
             OptionCanSeeLastRoomInMeeting = new BooleanOptionItem(Id + 7, "EvilTrackerCanSeeLastRoomInMeeting", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Scout]);
+
             HideVote = new BooleanOptionItem(Id + 8, "TrackerHideVote", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Scout]);
+
             TrackerAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 9, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Scout])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 3, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Scout])
                 .SetValueFormat(OptionFormat.Times);
+
             CancelVote = CreateVoteCancellingUseSetting(Id + 4, CustomRoles.Scout, TabGroup.CrewmateRoles);
         }
 
@@ -66,10 +73,7 @@ namespace EHR.Crewmate
 
         public static void SendRPC(byte trackerId = byte.MaxValue, byte targetId = byte.MaxValue)
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetTrackerTarget, SendOption.Reliable);
             writer.Write(trackerId);
@@ -94,10 +98,7 @@ namespace EHR.Crewmate
 
         public override bool OnVote(PlayerControl player, PlayerControl target)
         {
-            if (player == null || target == null || player.GetAbilityUseLimit() < 1f || player.PlayerId == target.PlayerId || TrackerTarget[player.PlayerId].Contains(target.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId))
-            {
-                return false;
-            }
+            if (player == null || target == null || player.GetAbilityUseLimit() < 1f || player.PlayerId == target.PlayerId || TrackerTarget[player.PlayerId].Contains(target.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
 
             player.RpcRemoveAbilityUse();
 
@@ -112,25 +113,13 @@ namespace EHR.Crewmate
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer == null || seer.PlayerId != TrackerId)
-            {
-                return string.Empty;
-            }
+            if (seer == null || seer.PlayerId != TrackerId) return string.Empty;
 
-            if (target != null && seer.PlayerId != target.PlayerId)
-            {
-                return string.Empty;
-            }
+            if (target != null && seer.PlayerId != target.PlayerId) return string.Empty;
 
-            if (!TrackerTarget.ContainsKey(seer.PlayerId))
-            {
-                return string.Empty;
-            }
+            if (!TrackerTarget.ContainsKey(seer.PlayerId)) return string.Empty;
 
-            if (GameStates.IsMeeting)
-            {
-                return string.Empty;
-            }
+            if (GameStates.IsMeeting) return string.Empty;
 
             return TrackerTarget[seer.PlayerId].Aggregate(string.Empty, (current, trackTarget) => current + Utils.ColorString(CanGetColoredArrow.GetBool() ? Main.PlayerColors[trackTarget] : Color.white, TargetArrow.GetArrows(seer, trackTarget))) + LocateArrow.GetArrows(seer);
         }
@@ -144,34 +133,25 @@ namespace EHR.Crewmate
 
         public static string GetArrowAndLastRoom(PlayerControl seer, PlayerControl target)
         {
-            if (seer == null || target == null)
-            {
-                return string.Empty;
-            }
+            if (seer == null || target == null) return string.Empty;
 
             Color roleColor = Utils.GetRoleColor(CustomRoles.Scout);
             string text = Utils.ColorString(roleColor, TargetArrow.GetArrows(seer, target.PlayerId));
             text += Utils.ColorString(roleColor, LocateArrow.GetArrows(seer));
 
             PlainShipRoom room = Main.PlayerStates[target.PlayerId].LastRoom;
+
             if (room == null)
-            {
                 text += Utils.ColorString(Color.gray, "@" + GetString("FailToTrack"));
-            }
             else
-            {
                 text += Utils.ColorString(roleColor, "@" + GetString(room.RoomId.ToString()));
-            }
 
             return text;
         }
 
         public static void OnPlayerDeath(PlayerControl player)
         {
-            if (player == null)
-            {
-                return;
-            }
+            if (player == null) return;
 
             foreach (KeyValuePair<byte, List<byte>> kvp in TrackerTarget)
             {
@@ -189,9 +169,11 @@ namespace EHR.Crewmate
             foreach (KeyValuePair<byte, List<byte>> kvp in TrackerTarget)
             {
                 LocateArrow.RemoveAllTarget(kvp.Key);
+
                 foreach (byte id in kvp.Value.ToArray())
                 {
                     PlayerControl pc = Utils.GetPlayerById(id);
+
                     if (pc == null || !pc.IsAlive())
                     {
                         kvp.Value.Remove(id);

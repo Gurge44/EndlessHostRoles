@@ -21,13 +21,17 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Maverick);
+
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 0.5f), 35f, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Maverick])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(Id + 11, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Maverick]);
+
             HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Maverick]);
+
             MinKillsToWin = new IntegerOptionItem(Id + 12, "DQNumOfKillsNeeded", new(0, 14, 1), 2, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Maverick]);
         }
@@ -71,10 +75,7 @@ namespace EHR.Neutral
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            if (Main.PlayerStates[playerId].Role is not Maverick mr)
-            {
-                return string.Empty;
-            }
+            if (Main.PlayerStates[playerId].Role is not Maverick mr) return string.Empty;
 
             int kills = mr.NumOfKills;
             int min = MinKillsToWin.GetInt();

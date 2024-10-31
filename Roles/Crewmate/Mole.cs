@@ -25,6 +25,7 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Mole);
+
             CD = new FloatOptionItem(Id + 2, "AbilityCooldown", new(0f, 120f, 0.5f), 15f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Mole])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -32,10 +33,7 @@ namespace EHR.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (UsePets.GetBool())
-            {
-                return;
-            }
+            if (UsePets.GetBool()) return;
 
             AURoleOptions.EngineerInVentMaxTime = 1f;
             AURoleOptions.EngineerCooldown = CD.GetFloat();
@@ -43,10 +41,7 @@ namespace EHR.Crewmate
 
         public override void OnExitVent(PlayerControl pc, Vent vent)
         {
-            if (UsePets.GetBool())
-            {
-                return;
-            }
+            if (UsePets.GetBool()) return;
 
             LateTask.New(() => { pc.TPToRandomVent(); }, 0.5f, "Mole TP");
         }

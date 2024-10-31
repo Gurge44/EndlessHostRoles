@@ -23,12 +23,15 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Chronomancer);
+
             KCD = new FloatOptionItem(Id + 11, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chronomancer])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ChargeInterval = new IntegerOptionItem(Id + 12, "ChargeInterval", new(1, 20, 1), 5, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chronomancer])
                 .SetValueFormat(OptionFormat.Percent);
+
             ChargeLossInterval = new IntegerOptionItem(Id + 13, "ChargeLossInterval", new(1, 50, 1), 25, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Chronomancer])
                 .SetValueFormat(OptionFormat.Percent);
@@ -36,10 +39,7 @@ namespace EHR.Impostor
 
         private void SendRPC()
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncChronomancer, SendOption.Reliable);
             writer.Write(ChronomancerId);
@@ -81,10 +81,7 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (ChargePercent <= 0)
-            {
-                return base.OnCheckMurder(killer, target);
-            }
+            if (ChargePercent <= 0) return base.OnCheckMurder(killer, target);
 
             if (!IsRampaging)
             {
@@ -99,34 +96,23 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (pc == null)
-            {
-                return;
-            }
+            if (pc == null) return;
 
-            if (!pc.Is(CustomRoles.Chronomancer))
-            {
-                return;
-            }
+            if (!pc.Is(CustomRoles.Chronomancer)) return;
 
-            if (!GameStates.IsInTask)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask) return;
 
-            if (LastUpdate >= Utils.TimeStamp)
-            {
-                return;
-            }
+            if (LastUpdate >= Utils.TimeStamp) return;
 
             LastUpdate = Utils.TimeStamp;
 
-            bool notify = false;
+            var notify = false;
             int beforeCharge = ChargePercent;
 
             if (IsRampaging)
             {
                 ChargePercent -= ChargeLossInterval.GetInt();
+
                 if (ChargePercent <= 0)
                 {
                     ChargePercent = 0;
@@ -141,31 +127,19 @@ namespace EHR.Impostor
             else if (Main.KillTimers[pc.PlayerId] <= 0 && !MeetingStates.FirstMeeting)
             {
                 ChargePercent += ChargeInterval.GetInt();
-                if (ChargePercent > 100)
-                {
-                    ChargePercent = 100;
-                }
+                if (ChargePercent > 100) ChargePercent = 100;
 
                 notify = true;
             }
 
-            if (notify && !pc.IsModClient())
-            {
-                pc.Notify(string.Format(Translator.GetString("ChronomancerPercent"), ChargePercent), 300f);
-            }
+            if (notify && !pc.IsModClient()) pc.Notify(string.Format(Translator.GetString("ChronomancerPercent"), ChargePercent), 300f);
 
-            if (beforeCharge != ChargePercent && pc.IsModClient() && !pc.IsHost())
-            {
-                SendRPC();
-            }
+            if (beforeCharge != ChargePercent && pc.IsModClient() && !pc.IsHost()) SendRPC();
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!hud || seer.PlayerId != ChronomancerId)
-            {
-                return string.Empty;
-            }
+            if (!hud || seer.PlayerId != ChronomancerId) return string.Empty;
 
             return ChargePercent > 0 ? string.Format(Translator.GetString("ChronomancerPercent"), ChargePercent) : string.Empty;
         }

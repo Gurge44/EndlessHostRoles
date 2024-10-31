@@ -21,14 +21,19 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Deputy);
+
             HandcuffCooldown = new FloatOptionItem(Id + 10, "DeputyHandcuffCooldown", new(0f, 60f, 2.5f), 17.5f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Deputy])
                 .SetValueFormat(OptionFormat.Seconds);
+
             DeputyHandcuffCDForTarget = new FloatOptionItem(Id + 14, "DeputyHandcuffCDForTarget", new(0f, 180f, 2.5f), 15f, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Deputy])
                 .SetValueFormat(OptionFormat.Seconds);
+
             HandcuffMax = new IntegerOptionItem(Id + 12, "DeputyHandcuffMax", new(1, 20, 1), 4, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Deputy])
                 .SetValueFormat(OptionFormat.Times);
+
             DeputyHandcuffDelay = new IntegerOptionItem(Id + 11, "DeputyHandcuffDelay", new(0, 20, 1), 5, TabGroup.CrewmateRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Deputy])
                 .SetValueFormat(OptionFormat.Seconds);
+
             UsePet = CreatePetUseSetting(Id + 13, CustomRoles.Deputy);
         }
 
@@ -65,10 +70,7 @@ namespace EHR.Crewmate
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer.GetAbilityUseLimit() < 1)
-            {
-                return false;
-            }
+            if (killer.GetAbilityUseLimit() < 1) return false;
 
             if (target != null && !target.Is(CustomRoles.Deputy))
             {
@@ -82,15 +84,9 @@ namespace EHR.Crewmate
                     {
                         target.SetKillCooldown(DeputyHandcuffCDForTarget.GetFloat());
                         target.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Deputy), GetString("HandcuffedByDeputy")));
-                        if (target.IsModClient())
-                        {
-                            target.RpcResetAbilityCooldown();
-                        }
+                        if (target.IsModClient()) target.RpcResetAbilityCooldown();
 
-                        if (!target.IsModClient())
-                        {
-                            target.RpcGuardAndKill(target);
-                        }
+                        if (!target.IsModClient()) target.RpcGuardAndKill(target);
                     }
                 }, DeputyHandcuffDelay.GetInt(), "DeputyHandcuffDelay");
 

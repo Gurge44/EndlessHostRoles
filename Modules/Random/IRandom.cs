@@ -34,10 +34,7 @@ namespace EHR
         /// <returns>A sequence of random numbers.</returns>
         public static IEnumerable<int> Sequence(int count, int minValue, int maxValue)
         {
-            for (int i = 0; i < count; i++)
-            {
-                yield return Instance.Next(minValue, maxValue);
-            }
+            for (var i = 0; i < count; i++) yield return Instance.Next(minValue, maxValue);
         }
 
         /// <summary>
@@ -49,20 +46,18 @@ namespace EHR
         /// <returns>A sequence of unique random numbers.</returns>
         public static IEnumerable<int> SequenceUnique(int count, int minValue, int maxValue)
         {
-            HashSet<int> set = new HashSet<int>();
-            for (int i = 0; i < count; i++)
+            var set = new HashSet<int>();
+
+            for (var i = 0; i < count; i++)
             {
                 // If all possible values are used, the loop will be infinite. Break the loop if the set is full.
-                if (set.Count == maxValue - minValue)
-                {
-                    break;
-                }
+                if (set.Count == maxValue - minValue) break;
 
                 int value;
+
                 do
-                {
                     value = Instance.Next(minValue, maxValue);
-                } while (!set.Add(value));
+                while (!set.Add(value));
 
                 yield return value;
             }
@@ -70,10 +65,7 @@ namespace EHR
 
         public static void SetInstance(IRandom instance)
         {
-            if (instance != null)
-            {
-                Instance = instance;
-            }
+            if (instance != null) Instance = instance;
         }
 
         public static void SetInstanceById(int id)
@@ -81,15 +73,10 @@ namespace EHR
             if (RandomTypes.TryGetValue(id, out Type type))
             {
                 // The current instance is null or the type of the current instance does not match the specified type.
-                if (Instance == null || Instance.GetType() != type)
-                {
-                    Instance = Activator.CreateInstance(type) as IRandom ?? Instance;
-                }
+                if (Instance == null || Instance.GetType() != type) Instance = Activator.CreateInstance(type) as IRandom ?? Instance;
             }
             else
-            {
                 Logger.Warn($"無効なID: {id}", "IRandom.SetInstanceById");
-            }
         }
     }
 }

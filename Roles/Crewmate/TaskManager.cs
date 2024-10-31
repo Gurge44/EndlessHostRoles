@@ -24,7 +24,7 @@ namespace EHR.Crewmate
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            StringBuilder ProgressText = new StringBuilder();
+            var ProgressText = new StringBuilder();
 
             ProgressText.Append(Utils.GetTaskCount(playerId, comms));
 

@@ -40,27 +40,35 @@ namespace EHR.AddOns.Crewmate
         public void SetupCustomOption()
         {
             SetupAdtRoleOptions(Id, CustomRoles.Stressed, canSetNum: true);
+
             StressedExtraTimeAfterTaskComplete = new IntegerOptionItem(Id + 11, "StressedExtraTimeAfterTask", new(0, 60, 1), 30, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Stressed])
                 .SetValueFormat(OptionFormat.Seconds);
+
             StressedExtraTimeAfterMeeting = new IntegerOptionItem(Id + 4, "DamoclesExtraTimeAfterMeeting", new(0, 60, 1), 15, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Stressed])
                 .SetValueFormat(OptionFormat.Seconds);
+
             StressedExtraTimeAfterImpostorDeath = new IntegerOptionItem(Id + 5, "StressedExtraTimeAfterImpostorDeath", new(0, 60, 1), 10, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Stressed])
                 .SetValueFormat(OptionFormat.Seconds);
+
             StressedExtraTimeAfterImpostorEjected = new IntegerOptionItem(Id + 6, "StressedExtraTimeAfterImpostorEjected", new(0, 60, 1), 25, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Stressed])
                 .SetValueFormat(OptionFormat.Seconds);
+
             StressedExtraTimeAfterFixingSabotage = new IntegerOptionItem(Id + 7, "StressedExtraTimeAfterFixingSabotage", new(0, 60, 1), 20, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Stressed])
                 .SetValueFormat(OptionFormat.Seconds);
+
             StressedExtraTimeAfterReporting = new IntegerOptionItem(Id + 8, "StressedExtraTimeAfterReporting", new(0, 60, 1), 10, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Stressed])
                 .SetValueFormat(OptionFormat.Seconds);
+
             StressedTimePenaltyAfterCrewmateEjected = new IntegerOptionItem(Id + 9, "StressedTimePenaltyAfterCrewmateEjected", new(0, 60, 1), 15, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Stressed])
                 .SetValueFormat(OptionFormat.Seconds);
+
             StressedStartingTime = new IntegerOptionItem(Id + 10, "DamoclesStartingTime", new(0, 60, 1), 30, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Stressed])
                 .SetValueFormat(OptionFormat.Seconds);
@@ -110,14 +118,12 @@ namespace EHR.AddOns.Crewmate
         public static void Update(PlayerControl pc)
         {
             long now = Utils.TimeStamp;
-            if (pc == null || !LastUpdates.TryGetValue(pc.PlayerId, out long x) || x >= now || !Timers.ContainsKey(pc.PlayerId) || !IsEnable || !GameStates.IsInTask || !pc.Is(CustomRoles.Stressed))
-            {
-                return;
-            }
+            if (pc == null || !LastUpdates.TryGetValue(pc.PlayerId, out long x) || x >= now || !Timers.ContainsKey(pc.PlayerId) || !IsEnable || !GameStates.IsInTask || !pc.Is(CustomRoles.Stressed)) return;
 
             LastUpdates[pc.PlayerId] = now;
 
             TaskState ts = pc.GetTaskState();
+
             if (ts.IsTaskFinished || !ts.HasTasks || !pc.IsAlive())
             {
                 Main.PlayerStates[pc.PlayerId].RemoveSubRole(CustomRoles.Stressed);
@@ -134,23 +140,14 @@ namespace EHR.AddOns.Crewmate
                 pc.Suicide();
             }
 
-            if (pc.IsNonHostModClient())
-            {
-                SendRPC(pc.PlayerId, Timers[pc.PlayerId], LastUpdates[pc.PlayerId]);
-            }
+            if (pc.IsNonHostModClient()) SendRPC(pc.PlayerId, Timers[pc.PlayerId], LastUpdates[pc.PlayerId]);
 
-            if (!pc.IsModClient())
-            {
-                Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
-            }
+            if (!pc.IsModClient()) Utils.NotifyRoles(SpecifySeer: pc, SpecifyTarget: pc);
         }
 
         public static void SendRPC(byte id, int time, long lastUpdate)
         {
-            if (!Utils.DoRPC || !IsEnable)
-            {
-                return;
-            }
+            if (!Utils.DoRPC || !IsEnable) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncStressedTimer, SendOption.Reliable);
             writer.Write(id);
@@ -161,10 +158,7 @@ namespace EHR.AddOns.Crewmate
 
         public static void ReceiveRPC(MessageReader reader)
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
             byte id = reader.ReadByte();
             int time = reader.ReadInt32();
@@ -176,21 +170,14 @@ namespace EHR.AddOns.Crewmate
         private static void LogTimer(byte id = byte.MaxValue, [CallerMemberName] string action = "")
         {
             if (Timers.TryGetValue(id, out int time))
-            {
                 Logger.Info($"{action} - Timer: {time} for {id.ColoredPlayerName()}", "Stressed");
-            }
             else
-            {
                 Timers.Do(x => Logger.Info($"{action} - Timer: {x.Value} for {x.Key.ColoredPlayerName()}", "Stressed"));
-            }
         }
 
         public static void OnTaskComplete(PlayerControl pc)
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
             Timers[pc.PlayerId] += TimeAfterTaskComplete;
             LogTimer(pc.PlayerId);
@@ -198,20 +185,14 @@ namespace EHR.AddOns.Crewmate
 
         public static void AfterMeetingTasks()
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
             CountRepairSabotage = true;
         }
 
         public static void OnNonCrewmateDead()
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
             AdjustTime(TimeAfterImpDead);
             LogTimer();
@@ -219,10 +200,7 @@ namespace EHR.AddOns.Crewmate
 
         public static void OnNonCrewmateEjected()
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
             AdjustTime(TimeAfterImpEject);
             LogTimer();
@@ -230,10 +208,7 @@ namespace EHR.AddOns.Crewmate
 
         public static void OnCrewmateEjected()
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
             AdjustTime(TimeMinusAfterCrewEject);
             LogTimer();
@@ -241,10 +216,7 @@ namespace EHR.AddOns.Crewmate
 
         public static void OnRepairSabotage(PlayerControl pc)
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
             Timers[pc.PlayerId] += TimeAfterSaboFix;
             LogTimer(pc.PlayerId);
@@ -252,10 +224,7 @@ namespace EHR.AddOns.Crewmate
 
         public static void OnReport(PlayerControl pc)
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
             Timers[pc.PlayerId] += TimeAfterReport;
             LogTimer(pc.PlayerId);
@@ -263,10 +232,7 @@ namespace EHR.AddOns.Crewmate
 
         public static void OnMeetingStart()
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
             AdjustTime(TimeAfterMeeting + 9);
             LogTimer();
@@ -279,10 +245,7 @@ namespace EHR.AddOns.Crewmate
 
         private static void AdjustTime(int change)
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
             Timers.AdjustAllValues(x => x + change);
         }

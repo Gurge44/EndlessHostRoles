@@ -35,55 +35,34 @@ namespace EHR.Crewmate
 
         public void StartPatrolling()
         {
-            if (IsPatrolling)
-            {
-                return;
-            }
+            if (IsPatrolling) return;
 
             IsPatrolling = true;
             StartingPosition = Sentinel.Pos();
             PatrolStartTimeStamp = TimeStamp;
-            foreach (PlayerControl pc in NearbyKillers)
-            {
-                pc.Notify(string.Format(GetString("KillerNotifyPatrol"), PatrolDuration));
-            }
+            foreach (PlayerControl pc in NearbyKillers) pc.Notify(string.Format(GetString("KillerNotifyPatrol"), PatrolDuration));
 
             Sentinel.MarkDirtySettings();
         }
 
         public void Update()
         {
-            if (!IsPatrolling)
-            {
-                return;
-            }
+            if (!IsPatrolling) return;
 
             long now = TimeStamp;
-            if (LastUpdate >= now)
-            {
-                return;
-            }
+            if (LastUpdate >= now) return;
 
             LastUpdate = now;
 
-            if (PatrolStartTimeStamp + PatrolDuration < now)
-            {
-                FinishPatrolling();
-            }
+            if (PatrolStartTimeStamp + PatrolDuration < now) FinishPatrolling();
         }
 
         public void OnCheckPlayerPosition(PlayerControl pc)
         {
-            if (!IsPatrolling)
-            {
-                return;
-            }
+            if (!IsPatrolling) return;
 
             long now = TimeStamp;
-            if (LastUpdate >= now)
-            {
-                return;
-            }
+            if (LastUpdate >= now) return;
 
             LastUpdate = now;
 
@@ -93,15 +72,9 @@ namespace EHR.Crewmate
             bool wasInRange = LastNearbyKillers.Contains(pc.PlayerId);
 
             long timeLeft = PatrolDuration - (TimeStamp - PatrolStartTimeStamp);
-            if (wasInRange && !nowInRange)
-            {
-                pc.Notify(GetString("KillerEscapedFromSentinel"));
-            }
+            if (wasInRange && !nowInRange) pc.Notify(GetString("KillerEscapedFromSentinel"));
 
-            if (nowInRange && timeLeft >= 0)
-            {
-                pc.Notify(string.Format(GetString("KillerNotifyPatrol"), timeLeft));
-            }
+            if (nowInRange && timeLeft >= 0) pc.Notify(string.Format(GetString("KillerNotifyPatrol"), timeLeft));
 
             LastNearbyKillers = killers.Select(x => x.PlayerId).ToList();
         }
@@ -109,15 +82,9 @@ namespace EHR.Crewmate
         public void FinishPatrolling()
         {
             IsPatrolling = false;
-            if (!GameStates.IsInTask)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask) return;
 
-            foreach (PlayerControl pc in NearbyKillers)
-            {
-                pc.Suicide(realKiller: Sentinel);
-            }
+            foreach (PlayerControl pc in NearbyKillers) pc.Suicide(realKiller: Sentinel);
 
             Sentinel.MarkDirtySettings();
         }
@@ -139,12 +106,15 @@ namespace EHR.Crewmate
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Sentinel);
             PatrolCooldown = CreateCDSetting(Id + 2, TabGroup.CrewmateRoles, CustomRoles.Sentinel);
+
             PatrolDuration = new IntegerOptionItem(Id + 3, "SentinelPatrolDuration", new(1, 90, 1), 5, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sentinel])
                 .SetValueFormat(OptionFormat.Seconds);
+
             LoweredVision = new FloatOptionItem(Id + 4, "FFA_LowerVision", new(0.05f, 3f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sentinel])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             PatrolRadius = new FloatOptionItem(Id + 5, "SentinelPatrolRadius", new(0.1f, 25f, 0.1f), 5f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Sentinel])
                 .SetValueFormat(OptionFormat.Multiplier);
@@ -157,7 +127,7 @@ namespace EHR.Crewmate
 
         public override void Add(byte playerId)
         {
-            PatrollingState newPatrolState = new PatrollingState(playerId, PatrolDuration.GetInt(), PatrolRadius.GetFloat());
+            var newPatrolState = new PatrollingState(playerId, PatrolDuration.GetInt(), PatrolRadius.GetFloat());
             PatrolStates.Add(newPatrolState);
             LateTask.New(newPatrolState.SetPlayer, 8f, log: false);
         }
@@ -184,17 +154,11 @@ namespace EHR.Crewmate
 
         public static bool OnAnyoneCheckMurder(PlayerControl killer)
         {
-            if (killer == null || !PatrolStates.Any(x => x.IsPatrolling))
-            {
-                return true;
-            }
+            if (killer == null || !PatrolStates.Any(x => x.IsPatrolling)) return true;
 
             foreach (PatrollingState state in PatrolStates)
             {
-                if (!state.IsPatrolling)
-                {
-                    continue;
-                }
+                if (!state.IsPatrolling) continue;
 
                 if (state.NearbyKillers.Any(x => x.PlayerId == killer.PlayerId))
                 {
@@ -214,46 +178,27 @@ namespace EHR.Crewmate
 
         public override void OnFixedUpdate(PlayerControl pc)
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
-            foreach (PatrollingState state in PatrolStates)
-            {
-                state.Update();
-            }
+            foreach (PatrollingState state in PatrolStates) state.Update();
         }
 
         public override void OnCheckPlayerPosition(PlayerControl pc)
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
-            foreach (PatrollingState state in PatrolStates)
-            {
-                state.OnCheckPlayerPosition(pc);
-            }
+            foreach (PatrollingState state in PatrolStates) state.OnCheckPlayerPosition(pc);
         }
 
         public override void OnReportDeadBody()
         {
-            if (!IsEnable)
-            {
-                return;
-            }
+            if (!IsEnable) return;
 
             LateTask.New(() =>
             {
                 foreach (PatrollingState state in PatrolStates)
-                {
                     if (state.IsPatrolling)
-                    {
                         state.FinishPatrolling();
-                    }
-                }
             }, 0.1f, "SentinelFinishPatrol");
         }
     }

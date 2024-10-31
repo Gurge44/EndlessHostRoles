@@ -21,8 +21,10 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             Options.SetupSingleRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.NiceEraser);
+
             EraseLimitOpt = new IntegerOptionItem(Id + 2, "EraseLimit", new(1, 15, 1), 1, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceEraser])
                 .SetValueFormat(OptionFormat.Times);
+
             HideVote = new BooleanOptionItem(Id + 3, "NiceEraserHideVote", false, TabGroup.CrewmateRoles).SetParent(Options.CustomRoleSpawnChances[CustomRoles.NiceEraser]);
             CancelVote = Options.CreateVoteCancellingUseSetting(Id + 4, CustomRoles.NiceEraser, TabGroup.CrewmateRoles);
         }
@@ -41,22 +43,13 @@ namespace EHR.Crewmate
 
         public override bool OnVote(PlayerControl player, PlayerControl target)
         {
-            if (player == null || target == null)
-            {
-                return false;
-            }
+            if (player == null || target == null) return false;
 
-            if (DidVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId))
-            {
-                return false;
-            }
+            if (DidVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
 
             DidVote.Add(player.PlayerId);
 
-            if (player.GetAbilityUseLimit() < 1)
-            {
-                return false;
-            }
+            if (player.GetAbilityUseLimit() < 1) return false;
 
             if (target.PlayerId == player.PlayerId)
             {
@@ -72,17 +65,11 @@ namespace EHR.Crewmate
 
             player.RpcRemoveAbilityUse();
 
-            if (!PlayerToErase.Contains(target.PlayerId))
-            {
-                PlayerToErase.Add(target.PlayerId);
-            }
+            if (!PlayerToErase.Contains(target.PlayerId)) PlayerToErase.Add(target.PlayerId);
 
             Utils.SendMessage(string.Format(GetString("EraserEraseNotice"), target.GetRealName()), player.PlayerId, Utils.ColorString(Utils.GetRoleColor(CustomRoles.NiceEraser), GetString("EraserEraseMsgTitle")));
 
-            if (GameStates.IsInTask)
-            {
-                Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: target);
-            }
+            if (GameStates.IsInTask) Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: target);
 
             Main.DontCancelVoteList.Add(player.PlayerId);
             return true;
@@ -99,10 +86,7 @@ namespace EHR.Crewmate
             foreach (byte pc in PlayerToErase.ToArray())
             {
                 PlayerControl player = Utils.GetPlayerById(pc);
-                if (player == null)
-                {
-                    continue;
-                }
+                if (player == null) continue;
 
                 player.RpcSetCustomRole(player.GetCustomRole().GetErasedRole());
                 player.Notify(GetString("LostRoleByNiceEraser"));

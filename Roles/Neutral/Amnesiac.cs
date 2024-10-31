@@ -41,20 +41,27 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Amnesiac);
+
             RememberMode = new StringOptionItem(Id + 9, "RememberMode", RememberModes, 0, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
+
             RememberCooldown = new FloatOptionItem(Id + 10, "RememberCooldown", new(0f, 180f, 0.5f), 5f, TabGroup.NeutralRoles)
                 .SetParent(RememberMode)
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanRememberCrewPower = new BooleanOptionItem(Id + 11, "CanRememberCrewPower", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
+
             IncompatibleNeutralMode = new StringOptionItem(Id + 12, "IncompatibleNeutralMode", AmnesiacIncompatibleNeutralMode.Select(x => x.ToColoredString()).ToArray(), 0, TabGroup.NeutralRoles, noTranslation: true)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
+
             CanVent = new BooleanOptionItem(Id + 13, "CanVent", false, TabGroup.NeutralRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Amnesiac]);
+
             VentCooldown = new FloatOptionItem(Id + 14, "VentCooldown", new(0f, 180f, 0.5f), 5f, TabGroup.NeutralRoles)
                 .SetParent(CanVent)
                 .SetValueFormat(OptionFormat.Seconds);
+
             VentDuration = new FloatOptionItem(Id + 15, "MaxInVentTime", new(0f, 180f, 0.5f), 5f, TabGroup.NeutralRoles)
                 .SetParent(CanVent)
                 .SetValueFormat(OptionFormat.Seconds);
@@ -85,6 +92,7 @@ namespace EHR.Neutral
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             opt.SetVision(false);
+
             if (CanVent.GetBool())
             {
                 AURoleOptions.EngineerCooldown = VentCooldown.GetFloat();
@@ -107,10 +115,7 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (RememberMode.GetValue() == 1)
-            {
-                RememberRole(killer, target);
-            }
+            if (RememberMode.GetValue() == 1) RememberRole(killer, target);
 
             return false;
         }
@@ -130,7 +135,7 @@ namespace EHR.Neutral
         {
             CustomRoles? RememberedRole = null;
 
-            string amneNotifyString = string.Empty;
+            var amneNotifyString = string.Empty;
             CustomRoles targetRole = target.GetCustomRole();
             int loversAlive = Main.LoversPlayers.Count(x => x.IsAlive());
 
@@ -215,15 +220,9 @@ namespace EHR.Neutral
             target.RpcGuardAndKill(amnesiac);
             target.RpcGuardAndKill(target);
 
-            if (role.IsRecruitingRole())
-            {
-                amnesiac.SetAbilityUseLimit(0);
-            }
+            if (role.IsRecruitingRole()) amnesiac.SetAbilityUseLimit(0);
 
-            if (role.GetRoleTypes() == RoleTypes.Engineer)
-            {
-                WasAmnesiac.Add(amnesiac.PlayerId);
-            }
+            if (role.GetRoleTypes() == RoleTypes.Engineer) WasAmnesiac.Add(amnesiac.PlayerId);
         }
 
         public override void OnReportDeadBody()
@@ -233,15 +232,9 @@ namespace EHR.Neutral
 
         public override bool KnowRole(PlayerControl player, PlayerControl target)
         {
-            if (base.KnowRole(player, target))
-            {
-                return true;
-            }
+            if (base.KnowRole(player, target)) return true;
 
-            if (player.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor))
-            {
-                return true;
-            }
+            if (player.Is(CustomRoles.Refugee) && target.Is(CustomRoleTypes.Impostor)) return true;
 
             return player.Is(CustomRoleTypes.Impostor) && target.Is(CustomRoles.Refugee);
         }
@@ -254,10 +247,7 @@ namespace EHR.Neutral
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer.PlayerId != target.PlayerId || seer.PlayerId != AmnesiacId || meeting || hud)
-            {
-                return string.Empty;
-            }
+            if (seer.PlayerId != target.PlayerId || seer.PlayerId != AmnesiacId || meeting || hud) return string.Empty;
 
             return LocateArrow.GetArrows(seer);
         }

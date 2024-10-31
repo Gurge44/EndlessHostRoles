@@ -20,18 +20,23 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupSingleRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Camouflager);
+
             CamouflageCooldown = new FloatOptionItem(Id + 2, "CamouflageCooldown", new(1f, 60f, 1f), 25f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CamouflageDuration = new FloatOptionItem(Id + 3, "CamouflageDuration", new(1f, 30f, 1f), 12f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CamoLimitOpt = new IntegerOptionItem(Id + 4, "AbilityUseLimit", new(0, 5, 1), 1, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityUseGainWithEachKill = new FloatOptionItem(Id + 5, "AbilityUseGainWithEachKill", new(0f, 5f, 0.1f), 0.3f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager])
                 .SetValueFormat(OptionFormat.Times);
+
             DoesntSpawnOnFungle = new BooleanOptionItem(Id + 6, "DoesntSpawnOnFungle", false, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Camouflager]);
         }
@@ -39,9 +44,7 @@ namespace EHR.Impostor
         public override void ApplyGameOptions(IGameOptions opt, byte id)
         {
             if (Options.UsePhantomBasis.GetBool())
-            {
                 AURoleOptions.PhantomCooldown = CamouflageCooldown.GetFloat();
-            }
             else
             {
                 AURoleOptions.ShapeshifterCooldown = CamouflageCooldown.GetFloat();
@@ -72,10 +75,7 @@ namespace EHR.Impostor
                 return true;
             }
 
-            if (pc.GetAbilityUseLimit() < 1 && !Options.DisableShapeshiftAnimations.GetBool() && !unshift)
-            {
-                pc.SetKillCooldown(CamouflageDuration.GetFloat() + 1f);
-            }
+            if (pc.GetAbilityUseLimit() < 1 && !Options.DisableShapeshiftAnimations.GetBool() && !unshift) pc.SetKillCooldown(CamouflageDuration.GetFloat() + 1f);
 
             pc.RpcRemoveAbilityUse();
             IsActive = true;
@@ -85,10 +85,7 @@ namespace EHR.Impostor
             {
                 LateTask.New(() =>
                 {
-                    if (!IsActive)
-                    {
-                        return;
-                    }
+                    if (!IsActive) return;
 
                     IsActive = false;
                     Camouflage.CheckCamouflage();

@@ -49,9 +49,7 @@ namespace EHR.Crewmate
                 GrapplerId.GetPlayer().RpcRemoveAbilityUse();
             }
             else
-            {
                 InUse = false;
-            }
 
             Utils.SendRPC(CustomRPC.SyncRoleData, GrapplerId, InUse);
         }
@@ -68,10 +66,7 @@ namespace EHR.Crewmate
 
         public static bool OnAnyoneCheckMurder(PlayerControl target)
         {
-            if (new[] { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage }.Any(Utils.IsActive))
-            {
-                return true;
-            }
+            if (new[] { SystemTypes.Electrical, SystemTypes.Reactor, SystemTypes.Laboratory, SystemTypes.LifeSupp, SystemTypes.Comms, SystemTypes.HeliSabotage, SystemTypes.MushroomMixupSabotage }.Any(Utils.IsActive)) return true;
 
             foreach (Grappler instance in Instances)
             {

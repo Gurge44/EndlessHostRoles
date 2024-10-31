@@ -17,13 +17,17 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Vortex);
+
             KillCooldown = new FloatOptionItem(Id + 2, "KillCooldown", new(0f, 180f, 0.5f), 22.5f, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Vortex])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(Id + 3, "CanVent", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Vortex]);
+
             HasImpostorVision = new BooleanOptionItem(Id + 4, "ImpostorVision", true, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Vortex]);
+
             IfTargetCannotBeTeleported = new StringOptionItem(Id + 5, "Vortex.IfTargetCannotBeTeleported", ["Vortex.NoTPMode.Block", "Vortex.NoTPMode.DoWithoutTP"], 0, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Vortex]);
         }
@@ -55,10 +59,7 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (!killer.RpcCheckAndMurder(target, true))
-            {
-                return false;
-            }
+            if (!killer.RpcCheckAndMurder(target, true)) return false;
 
             if (!target.TPToRandomVent())
             {

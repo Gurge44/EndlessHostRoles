@@ -34,20 +34,11 @@ namespace EHR
             try
             {
                 PlayerControl player = PlayerControl.LocalPlayer;
-                if (player == null)
-                {
-                    return;
-                }
+                if (player == null) return;
 
-                if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId))
-                {
-                    return;
-                }
+                if (!Main.EnableCustomButton.Value || !Main.ProcessShapeshifts || Mastermind.ManipulatedPlayers.ContainsKey(player.PlayerId)) return;
 
-                if (!SetHudActivePatch.IsActive || !player.IsAlive())
-                {
-                    return;
-                }
+                if (!SetHudActivePatch.IsActive || !player.IsAlive()) return;
 
                 if (!AmongUsClient.Instance.IsGameStarted || !Main.IntroDestroyed)
                 {
@@ -62,35 +53,17 @@ namespace EHR
 
                 bool shapeshifting = player.IsShifted();
 
-                if (!Kill)
-                {
-                    Kill = __instance.KillButton.graphic.sprite;
-                }
+                if (!Kill) Kill = __instance.KillButton.graphic.sprite;
 
-                if (!Ability)
-                {
-                    Ability = __instance.AbilityButton.graphic.sprite;
-                }
+                if (!Ability) Ability = __instance.AbilityButton.graphic.sprite;
 
-                if (!Vent)
-                {
-                    Vent = __instance.ImpostorVentButton.graphic.sprite;
-                }
+                if (!Vent) Vent = __instance.ImpostorVentButton.graphic.sprite;
 
-                if (!Sabotage)
-                {
-                    Sabotage = __instance.SabotageButton.graphic.sprite;
-                }
+                if (!Sabotage) Sabotage = __instance.SabotageButton.graphic.sprite;
 
-                if (!Pet)
-                {
-                    Pet = __instance.PetButton.graphic.sprite;
-                }
+                if (!Pet) Pet = __instance.PetButton.graphic.sprite;
 
-                if (!Report)
-                {
-                    Report = __instance.ReportButton.graphic.sprite;
-                }
+                if (!Report) Report = __instance.ReportButton.graphic.sprite;
 
                 Sprite newKillButton = Kill;
                 Sprite newAbilityButton = Ability;
@@ -103,13 +76,9 @@ namespace EHR
                 {
                     case CustomRoles.Enderman:
                         if (Options.UsePets.GetBool())
-                        {
                             newPetButton = CustomButton.Get("abscond");
-                        }
                         else
-                        {
                             newSabotageButton = CustomButton.Get("abscond");
-                        }
 
                         break;
                     case CustomRoles.Wizard:
@@ -130,14 +99,11 @@ namespace EHR
                         break;
                     case CustomRoles.Changeling:
                         newAbilityButton = CustomButton.Get("GlitchMimic");
+
                         if (Options.UsePets.GetBool())
-                        {
                             newPetButton = CustomButton.Get("Swap");
-                        }
                         else
-                        {
                             newVentButton = CustomButton.Get("Swap");
-                        }
 
                         break;
                     case CustomRoles.Vulture:
@@ -151,39 +117,26 @@ namespace EHR
                         break;
                     case CustomRoles.Amnesiac:
                         if (Amnesiac.RememberMode.GetValue() == 1)
-                        {
                             newKillButton = CustomButton.Get("AmnesiacKill");
-                        }
                         else
-                        {
                             newReportButton = CustomButton.Get("AmnesiacReport");
-                        }
 
                         break;
                     case CustomRoles.Assassin:
                     case CustomRoles.Undertaker:
-                        if (Main.PlayerStates[player.PlayerId].Role is not Assassin assassin)
-                        {
-                            break;
-                        }
+                        if (Main.PlayerStates[player.PlayerId].Role is not Assassin assassin) break;
 
                         if (Options.UsePets.GetBool())
                         {
                             newKillButton = CustomButton.Get("Mark");
-                            if (assassin.MarkedPlayer != byte.MaxValue)
-                            {
-                                newPetButton = CustomButton.Get("Assassinate");
-                            }
+                            if (assassin.MarkedPlayer != byte.MaxValue) newPetButton = CustomButton.Get("Assassinate");
                         }
                         else
                         {
                             if (!shapeshifting)
                             {
                                 newKillButton = CustomButton.Get("Mark");
-                                if (assassin.MarkedPlayer != byte.MaxValue)
-                                {
-                                    newAbilityButton = CustomButton.Get("Assassinate");
-                                }
+                                if (assassin.MarkedPlayer != byte.MaxValue) newAbilityButton = CustomButton.Get("Assassinate");
                             }
                         }
 
@@ -196,15 +149,9 @@ namespace EHR
                         newKillButton = CustomButton.Get("GlitchHack");
                         break;
                     case CustomRoles.Glitch:
-                        if (Main.PlayerStates[player.PlayerId].Role is not Glitch gc)
-                        {
-                            break;
-                        }
+                        if (Main.PlayerStates[player.PlayerId].Role is not Glitch gc) break;
 
-                        if (gc.KCDTimer > 0 && gc.HackCDTimer <= 0)
-                        {
-                            newKillButton = CustomButton.Get("GlitchHack");
-                        }
+                        if (gc.KCDTimer > 0 && gc.HackCDTimer <= 0) newKillButton = CustomButton.Get("GlitchHack");
 
                         newSabotageButton = CustomButton.Get("GlitchMimic");
                         break;
@@ -216,25 +163,15 @@ namespace EHR
                         break;
                     case CustomRoles.Disperser:
                         if (Options.UsePets.GetBool())
-                        {
                             newPetButton = CustomButton.Get("Disperse");
-                        }
-                        else if (!shapeshifting)
-                        {
-                            newAbilityButton = CustomButton.Get("Disperse");
-                        }
+                        else if (!shapeshifting) newAbilityButton = CustomButton.Get("Disperse");
 
                         break;
                     case CustomRoles.ImperiusCurse:
                     case CustomRoles.Twister:
                         if (player.Is(CustomRoles.Twister) && Options.UsePets.GetBool())
-                        {
                             newPetButton = CustomButton.Get("Transport");
-                        }
-                        else if (!shapeshifting)
-                        {
-                            newAbilityButton = CustomButton.Get("Transport");
-                        }
+                        else if (!shapeshifting) newAbilityButton = CustomButton.Get("Transport");
 
                         break;
                     case CustomRoles.Deputy:
@@ -245,13 +182,9 @@ namespace EHR
                         break;
                     case CustomRoles.Alchemist:
                         if (Options.UsePets.GetBool())
-                        {
                             newPetButton = CustomButton.Get("Drink");
-                        }
                         else
-                        {
                             newAbilityButton = CustomButton.Get("Drink");
-                        }
 
                         break;
                     case CustomRoles.Jailor:
@@ -270,13 +203,9 @@ namespace EHR
                     case CustomRoles.Bomber:
                     case CustomRoles.Nuker:
                         if (Options.UsePets.GetBool())
-                        {
                             newPetButton = CustomButton.Get("Bomb");
-                        }
                         else
-                        {
                             newAbilityButton = CustomButton.Get("Bomb");
-                        }
 
                         break;
                     case CustomRoles.Camouflager:
@@ -287,16 +216,13 @@ namespace EHR
                         break;
                     case CustomRoles.Arsonist:
                         newKillButton = CustomButton.Get("Douse");
+
                         if (player.IsDouseDone() || (Options.ArsonistCanIgniteAnytime.GetBool() && Utils.GetDousedPlayerCount(player.PlayerId).Item1 >= Options.ArsonistMinPlayersToIgnite.GetInt()))
                         {
                             if (Options.UsePets.GetBool())
-                            {
                                 newPetButton = CustomButton.Get("Ignite");
-                            }
                             else
-                            {
                                 newVentButton = CustomButton.Get("Ignite");
-                            }
                         }
 
                         break;
@@ -304,10 +230,7 @@ namespace EHR
                         newKillButton = CustomButton.Get("Pyromaniac");
                         break;
                     case CustomRoles.FireWorks:
-                        if (Main.PlayerStates[player.PlayerId].Role is not FireWorks fw)
-                        {
-                            break;
-                        }
+                        if (Main.PlayerStates[player.PlayerId].Role is not FireWorks fw) break;
 
                         newAbilityButton = CustomButton.Get(fw.nowFireWorksCount == 0 ? "FireworkD" : "FireworkP");
                         break;
@@ -315,32 +238,21 @@ namespace EHR
                         newAbilityButton = CustomButton.Get("Hack");
                         break;
                     case CustomRoles.Hangman:
-                        if (shapeshifting)
-                        {
-                            newAbilityButton = CustomButton.Get("Hangman");
-                        }
+                        if (shapeshifting) newAbilityButton = CustomButton.Get("Hangman");
 
                         break;
                     case CustomRoles.Paranoia:
                         if (Options.UsePets.GetBool())
-                        {
                             newPetButton = CustomButton.Get("Paranoid");
-                        }
                         else
-                        {
                             newAbilityButton = CustomButton.Get("Paranoid");
-                        }
 
                         break;
                     case CustomRoles.Mayor when Mayor.MayorHasPortableButton.GetBool():
                         if (Options.UsePets.GetBool())
-                        {
                             newPetButton = CustomButton.Get("Button");
-                        }
                         else
-                        {
                             newAbilityButton = CustomButton.Get("Button");
-                        }
 
                         break;
                     case CustomRoles.Puppeteer:
@@ -351,10 +263,7 @@ namespace EHR
                         newKillButton = CustomButton.Get("Shield");
                         break;
                     case CustomRoles.Gangster:
-                        if (Gangster.CanRecruit(player.PlayerId))
-                        {
-                            newKillButton = CustomButton.Get("Sidekick");
-                        }
+                        if (Gangster.CanRecruit(player.PlayerId)) newKillButton = CustomButton.Get("Sidekick");
 
                         break;
                     case CustomRoles.Succubus:
@@ -371,35 +280,23 @@ namespace EHR
                         break;
                     case CustomRoles.Veteran:
                         if (Options.UsePets.GetBool())
-                        {
                             newPetButton = CustomButton.Get("Veteran");
-                        }
                         else
-                        {
                             newAbilityButton = CustomButton.Get("Veteran");
-                        }
 
                         break;
                     case CustomRoles.Lighter:
                         if (Options.UsePets.GetBool())
-                        {
                             newPetButton = CustomButton.Get("Lighter");
-                        }
                         else
-                        {
                             newAbilityButton = CustomButton.Get("Lighter");
-                        }
 
                         break;
                     case CustomRoles.SecurityGuard:
                         if (Options.UsePets.GetBool())
-                        {
                             newPetButton = CustomButton.Get("BlockSabo");
-                        }
                         else
-                        {
                             newAbilityButton = CustomButton.Get("BlockSabo");
-                        }
 
                         break;
                     case CustomRoles.Ventguard:
@@ -413,13 +310,9 @@ namespace EHR
                         break;
                     case CustomRoles.Miner:
                         if (!Options.UsePets.GetBool())
-                        {
                             newAbilityButton = CustomButton.Get("Mine");
-                        }
                         else
-                        {
                             newPetButton = CustomButton.Get("Mine");
-                        }
 
                         break;
                     case CustomRoles.Analyst:
@@ -434,13 +327,9 @@ namespace EHR
                         break;
                     case CustomRoles.TimeMaster:
                         if (Options.UsePets.GetBool())
-                        {
                             newPetButton = CustomButton.Get("Time Master");
-                        }
                         else
-                        {
                             newAbilityButton = CustomButton.Get("Time Master");
-                        }
 
                         break;
                     case CustomRoles.Sheriff:
@@ -448,13 +337,9 @@ namespace EHR
                         break;
                     case CustomRoles.Swiftclaw:
                         if (Options.UsePets.GetBool() && !Options.UseUnshiftTrigger.GetBool())
-                        {
                             newPetButton = CustomButton.Get("Dash");
-                        }
                         else
-                        {
                             newAbilityButton = CustomButton.Get("Dash");
-                        }
 
                         break;
                     case CustomRoles.Swooper:
@@ -467,13 +352,9 @@ namespace EHR
                         break;
                     case CustomRoles.Escapee:
                         if (Options.UsePets.GetBool())
-                        {
                             newPetButton = CustomButton.Get("abscond");
-                        }
                         else
-                        {
                             newAbilityButton = CustomButton.Get("abscond");
-                        }
 
                         break;
                     case CustomRoles.Tunneler:
@@ -486,27 +367,18 @@ namespace EHR
                         if (Options.UsePets.GetBool())
                         {
                             newKillButton = CustomButton.Get("Curse");
-                            if (Warlock.IsCurseAndKill.TryGetValue(player.PlayerId, out bool curse) && curse)
-                            {
-                                newAbilityButton = CustomButton.Get("CurseKill");
-                            }
+                            if (Warlock.IsCurseAndKill.TryGetValue(player.PlayerId, out bool curse) && curse) newAbilityButton = CustomButton.Get("CurseKill");
                         }
                         else if (!shapeshifting)
                         {
                             newKillButton = CustomButton.Get("Curse");
-                            if (Warlock.IsCurseAndKill.TryGetValue(player.PlayerId, out bool curse) && curse)
-                            {
-                                newAbilityButton = CustomButton.Get("CurseKill");
-                            }
+                            if (Warlock.IsCurseAndKill.TryGetValue(player.PlayerId, out bool curse) && curse) newAbilityButton = CustomButton.Get("CurseKill");
                         }
 
                         break;
                 }
 
-                if (player.GetCustomRole().UsesPetInsteadOfKill())
-                {
-                    newPetButton = newKillButton;
-                }
+                if (player.GetCustomRole().UsesPetInsteadOfKill()) newPetButton = newKillButton;
 
 
                 __instance.KillButton.graphic.sprite = newKillButton;

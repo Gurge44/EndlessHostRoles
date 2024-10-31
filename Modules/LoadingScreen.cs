@@ -19,10 +19,7 @@ namespace EHR.Modules
         {
             try
             {
-                if (!LoadingAnimation.IsNullOrDestroyed())
-                {
-                    Object.Destroy(LoadingAnimation);
-                }
+                if (!LoadingAnimation.IsNullOrDestroyed()) Object.Destroy(LoadingAnimation);
 
                 LoadingAnimation = Object.Instantiate(ModManager.Instance.ModStamp);
                 LoadingAnimation.sprite = Utils.LoadSprite("EHR.Resources.Loading.png", 300f);
@@ -43,21 +40,14 @@ namespace EHR.Modules
         private static void NewHint()
         {
             int index;
-            if (ToldHints.Count == HintCount)
-            {
-                ToldHints.Clear();
-            }
+            if (ToldHints.Count == HintCount) ToldHints.Clear();
 
             do
-            {
                 index = IRandom.Instance.Next(HintCount);
-            } while (!ToldHints.Add(index));
+            while (!ToldHints.Add(index));
 
             bool joke = IRandom.Instance.Next(20) == 0;
-            if (joke)
-            {
-                index = IRandom.Instance.Next(40, 40 + JokeHintCount);
-            }
+            if (joke) index = IRandom.Instance.Next(40, 40 + JokeHintCount);
 
             string text = Translator.GetString($"LoadingHint.{index}");
             text = text.Insert(0, joke ? "<color=#ffff00>" : "<color=#00ffa5>");
@@ -70,16 +60,10 @@ namespace EHR.Modules
         {
             try
             {
-                if (HintHideTimer <= 15f)
-                {
-                    HintHideTimer += Time.deltaTime;
-                }
+                if (HintHideTimer <= 15f) HintHideTimer += Time.deltaTime;
 
                 PlayerControl lp = PlayerControl.LocalPlayer;
-                if (lp == null)
-                {
-                    return;
-                }
+                if (lp == null) return;
 
                 PlayerAnimations anims = lp.MyPhysics.Animations;
 
@@ -103,10 +87,7 @@ namespace EHR.Modules
                     float y = basePos.y - 4.5f;
                     float z = basePos.z;
 
-                    if (LoadingAnimation.transform.position != new Vector3(x, y, z))
-                    {
-                        LoadingAnimation.transform.position = new(x, y, z);
-                    }
+                    if (LoadingAnimation.transform.position != new Vector3(x, y, z)) LoadingAnimation.transform.position = new(x, y, z);
 
                     LoadingAnimation.transform.Rotate(Vector3.forward, 200f * Time.deltaTime);
                 }
@@ -117,10 +98,7 @@ namespace EHR.Modules
                         ErrorText.RemoveHint();
                         return;
                     case true when !ErrorText.HasHint:
-                        if (HintHideTimer > 15f)
-                        {
-                            NewHint();
-                        }
+                        if (HintHideTimer > 15f) NewHint();
 
                         HintHideTimer = 0f;
                         ErrorText.Instance.AddError(ErrorCode.LoadingHint);

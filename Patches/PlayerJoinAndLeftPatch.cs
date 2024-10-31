@@ -20,10 +20,7 @@ namespace EHR
     {
         public static void Postfix(AmongUsClient __instance)
         {
-            while (!Options.IsLoaded)
-            {
-                Task.Delay(1);
-            }
+            while (!Options.IsLoaded) Task.Delay(1);
 
             Logger.Info($"{__instance.GameId} joined lobby", "OnGameJoined");
 
@@ -44,16 +41,10 @@ namespace EHR
                 Main.AllPlayerNames = [];
                 Main.AllClientRealNames = [];
 
-                if (Main.NormalOptions?.KillCooldown == 0f)
-                {
-                    Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
-                }
+                if (Main.NormalOptions?.KillCooldown == 0f) Main.NormalOptions.KillCooldown = Main.LastKillCooldown.Value;
 
                 AURoleOptions.SetOpt(Main.NormalOptions?.Cast<IGameOptions>());
-                if (AURoleOptions.ShapeshifterCooldown == 0f)
-                {
-                    AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
-                }
+                if (AURoleOptions.ShapeshifterCooldown == 0f) AURoleOptions.ShapeshifterCooldown = Main.LastShapeshifterCooldown.Value;
 
                 LateTask.New(() =>
                 {
@@ -94,14 +85,11 @@ namespace EHR
     {
         private static bool IsDisconnected(this ClientData client)
         {
-            AmongUsClient __instance = AmongUsClient.Instance;
+            var __instance = AmongUsClient.Instance;
+
             foreach (ClientData clientData in __instance.allClients)
-            {
                 if (clientData.Id == client.Id)
-                {
                     return true;
-                }
-            }
 
             return false;
         }
@@ -131,17 +119,12 @@ namespace EHR
                         }
                     }
                 }
-                catch
-                {
-                }
+                catch { }
             }, 3f, "green bean kick late task", false);
 
             if (AmongUsClient.Instance.AmHost && client.FriendCode == "" && Options.KickPlayerFriendCodeNotExist.GetBool() && !GameStates.IsLocalGame)
             {
-                if (!BanManager.TempBanWhiteList.Contains(client.GetHashedPuid()))
-                {
-                    BanManager.TempBanWhiteList.Add(client.GetHashedPuid());
-                }
+                if (!BanManager.TempBanWhiteList.Contains(client.GetHashedPuid())) BanManager.TempBanWhiteList.Add(client.GetHashedPuid());
 
                 AmongUsClient.Instance.KickPlayer(client.Id, true);
                 Logger.SendInGame(string.Format(GetString("Message.KickedByNoFriendCode"), client.PlayerName));
@@ -186,17 +169,11 @@ namespace EHR
         {
             try
             {
-                if (data != null && data.Character != null)
-                {
-                    StartGameHostPatch.DataDisconnected[data.Character.PlayerId] = true;
-                }
+                if (data != null && data.Character != null) StartGameHostPatch.DataDisconnected[data.Character.PlayerId] = true;
 
                 if (GameStates.IsInGame)
                 {
-                    if (Options.CurrentGameMode == CustomGameMode.HideAndSeek)
-                    {
-                        HnSManager.PlayerRoles.Remove(data.Character.PlayerId);
-                    }
+                    if (Options.CurrentGameMode == CustomGameMode.HideAndSeek) HnSManager.PlayerRoles.Remove(data.Character.PlayerId);
 
                     if (data.Character.Is(CustomRoles.Lovers) && !data.Character.Data.IsDead)
                     {
@@ -219,34 +196,19 @@ namespace EHR
                             break;
                     }
 
-                    if (Executioner.Target.ContainsValue(data.Character.PlayerId))
-                    {
-                        Executioner.ChangeRoleByTarget(data.Character);
-                    }
+                    if (Executioner.Target.ContainsValue(data.Character.PlayerId)) Executioner.ChangeRoleByTarget(data.Character);
 
-                    if (Lawyer.Target.ContainsValue(data.Character.PlayerId))
-                    {
-                        Lawyer.ChangeRoleByTarget(data.Character);
-                    }
+                    if (Lawyer.Target.ContainsValue(data.Character.PlayerId)) Lawyer.ChangeRoleByTarget(data.Character);
 
-                    if (Spiritualist.SpiritualistTarget == data.Character.PlayerId)
-                    {
-                        Spiritualist.RemoveTarget();
-                    }
+                    if (Spiritualist.SpiritualistTarget == data.Character.PlayerId) Spiritualist.RemoveTarget();
 
                     Postman.CheckAndResetTargets(data.Character);
                     GhostRolesManager.AssignedGhostRoles.Remove(data.Character.PlayerId);
 
                     PlayerState state = Main.PlayerStates[data.Character.PlayerId];
-                    if (state.deathReason == PlayerState.DeathReason.etc)
-                    {
-                        state.deathReason = PlayerState.DeathReason.Disconnected;
-                    }
+                    if (state.deathReason == PlayerState.DeathReason.etc) state.deathReason = PlayerState.DeathReason.Disconnected;
 
-                    if (!state.IsDead)
-                    {
-                        state.SetDead();
-                    }
+                    if (!state.IsDead) state.SetDead();
 
                     Utils.AfterPlayerDeathTasks(data.Character, GameStates.IsMeeting, true);
 
@@ -315,6 +277,7 @@ namespace EHR
                     if (data != null && data.Character != null)
                     {
                         uint netid = data.Character.NetId;
+
                         LateTask.New(() =>
                         {
                             if (GameStates.IsOnlineGame)
@@ -330,9 +293,7 @@ namespace EHR
 
                 Utils.CountAlivePlayers(true);
             }
-            catch (NullReferenceException)
-            {
-            }
+            catch (NullReferenceException) { }
             catch (Exception ex)
             {
                 Logger.Error(ex.ToString(), "OnPlayerLeftPatch.Postfix");
@@ -350,10 +311,7 @@ namespace EHR
     {
         public static void Postfix([HarmonyArgument(1)] int ownerId, [HarmonyArgument(2)] SpawnFlags flags)
         {
-            if (!AmongUsClient.Instance.AmHost || flags != SpawnFlags.IsClientCharacter)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost || flags != SpawnFlags.IsClientCharacter) return;
 
             ClientData client = Utils.GetClientById(ownerId);
 
@@ -361,9 +319,7 @@ namespace EHR
 
             if (client == null || client.Character == null // client is null
                                || client.ColorId < 0 || Palette.PlayerColors.Length <= client.ColorId) // invalid client color
-            {
                 Logger.Warn("client is null or client have invalid color", "TrySyncAndSendMessage");
-            }
             else
             {
                 LateTask.New(() => { OptionItem.SyncAllOptions(client.Id); }, 3f, "Sync All Options For New Player");
@@ -371,21 +327,14 @@ namespace EHR
                 LateTask.New(() =>
                 {
                     if (Main.OverrideWelcomeMsg != "")
-                    {
                         Utils.SendMessage(Main.OverrideWelcomeMsg, client.Character.PlayerId);
-                    }
                     else
-                    {
                         TemplateManager.SendTemplate("welcome", client.Character.PlayerId, true);
-                    }
                 }, 3f, "Welcome Message");
 
                 LateTask.New(() =>
                 {
-                    if (client.Character == null)
-                    {
-                        return;
-                    }
+                    if (client.Character == null) return;
 
                     MessageWriter sender = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RequestRetryVersionCheck, SendOption.Reliable, client.Character.OwnerId);
                     AmongUsClient.Instance.FinishRpcImmediately(sender);
@@ -417,10 +366,7 @@ namespace EHR
                 }
             }
 
-            if (client != null && client.Character != null)
-            {
-                Main.GuessNumber[client.Character.PlayerId] = [-1, 7];
-            }
+            if (client != null && client.Character != null) Main.GuessNumber[client.Character.PlayerId] = [-1, 7];
 
             if (Main.OverrideWelcomeMsg == string.Empty && Main.PlayerStates.Count > 0 && client != null && Main.ClientIdList.Contains(client.Id))
             {
@@ -492,44 +438,24 @@ namespace EHR
     {
         public static void Postfix(PlayerControl __instance, ref string playerName)
         {
-            if (!AmongUsClient.Instance.AmHost || !GameStates.IsLobby)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost || !GameStates.IsLobby) return;
 
-            if (BanManager.CheckDenyNamePlayer(__instance, playerName))
-            {
-                return;
-            }
+            if (BanManager.CheckDenyNamePlayer(__instance, playerName)) return;
 
-            if (Main.AllClientRealNames.TryAdd(__instance.OwnerId, playerName))
-            {
-                RPC.SyncAllClientRealNames();
-            }
+            if (Main.AllClientRealNames.TryAdd(__instance.OwnerId, playerName)) RPC.SyncAllClientRealNames();
 
             string name = playerName;
 
             if (Options.FormatNameMode.GetInt() == 2 && __instance.Data.ClientId != AmongUsClient.Instance.ClientId)
-            {
                 name = Main.Get_TName_Snacks;
-            }
             else
             {
                 name = name.RemoveHtmlTags().Replace(@"\", string.Empty).Replace("/", string.Empty).Replace("\n", string.Empty).Replace("\r", string.Empty).Replace("<", string.Empty).Replace(">", string.Empty);
-                if (name.Length > 10)
-                {
-                    name = name[..10];
-                }
+                if (name.Length > 10) name = name[..10];
 
-                if (Options.DisableEmojiName.GetBool())
-                {
-                    name = Regex.Replace(name, @"\p{Cs}", string.Empty);
-                }
+                if (Options.DisableEmojiName.GetBool()) name = Regex.Replace(name, @"\p{Cs}", string.Empty);
 
-                if (Regex.Replace(Regex.Replace(name, @"\s", string.Empty), @"[\x01-\x1F,\x7F]", string.Empty).Length < 1)
-                {
-                    name = Main.Get_TName_Snacks;
-                }
+                if (Regex.Replace(Regex.Replace(name, @"\s", string.Empty), @"[\x01-\x1F,\x7F]", string.Empty).Length < 1) name = Main.Get_TName_Snacks;
             }
 
             Main.AllPlayerNames[__instance.PlayerId] = name;
@@ -560,16 +486,10 @@ namespace EHR
 
         public static void Postfix()
         {
-            if (GameStates.IsLocalGame || !Options.KickNotJoinedPlayersRegularly.GetBool() || Main.AllPlayerControls.Length < 7)
-            {
-                return;
-            }
+            if (GameStates.IsLocalGame || !Options.KickNotJoinedPlayersRegularly.GetBool() || Main.AllPlayerControls.Length < 7) return;
 
             Timer += Time.fixedDeltaTime;
-            if (Timer < 25f)
-            {
-                return;
-            }
+            if (Timer < 25f) return;
 
             Timer = 0f;
 
@@ -582,16 +502,10 @@ namespace EHR
     {
         public static void Postfix(PlayerControl __instance, byte bodyColor)
         {
-            if (Main.IntroDestroyed || __instance == null)
-            {
-                return;
-            }
+            if (Main.IntroDestroyed || __instance == null) return;
 
             Logger.Info($"{__instance.GetRealName()}'s color is {Palette.GetColorName(bodyColor)}", "RpcSetColor");
-            if (bodyColor == 255)
-            {
-                return;
-            }
+            if (bodyColor == 255) return;
 
             Main.PlayerColors[__instance.PlayerId] = Palette.PlayerColors[bodyColor];
         }

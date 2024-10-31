@@ -30,21 +30,28 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Divinator);
+
             CheckLimitOpt = new IntegerOptionItem(Id + 10, "DivinatorSkillLimit", new(0, 20, 1), 1, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
                 .SetValueFormat(OptionFormat.Times);
+
             AccurateCheckMode = new BooleanOptionItem(Id + 12, "AccurateCheckMode", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
+
             ShowSpecificRole = new BooleanOptionItem(Id + 13, "ShowSpecificRole", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
+
             HideVote = new BooleanOptionItem(Id + 14, "DivinatorHideVote", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Divinator]);
+
             AbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 15, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 16, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Divinator])
                 .SetValueFormat(OptionFormat.Times);
+
             CancelVote = CreateVoteCancellingUseSetting(Id + 11, CustomRoles.Divinator, TabGroup.CrewmateRoles);
             OverrideTasksData.Create(Id + 21, TabGroup.CrewmateRoles, CustomRoles.Divinator);
         }
@@ -64,6 +71,7 @@ namespace EHR.Crewmate
             {
                 PlayerControl[] players = Main.AllPlayerControls;
                 int rolesNeeded = players.Length * (RolesPerCategory - 1);
+
                 (List<CustomRoles> RoleList, PlayerControl Player)[] roleList = Enum.GetValues<CustomRoles>()
                     .Where(x => !x.IsVanilla() && !x.IsAdditionRole() && x is not CustomRoles.GM and not CustomRoles.Convict and not CustomRoles.NotAssigned && !x.IsForOtherGameMode() && !CustomRoleSelector.RoleResult.ContainsValue(x))
                     .OrderBy(x => x.IsEnable() ? IRandom.Instance.Next(10) : IRandom.Instance.Next(10, 100))
@@ -71,6 +79,7 @@ namespace EHR.Crewmate
                     .Chunk(RolesPerCategory - 1)
                     .Zip(players, (Array, Player) => (RoleList: Array.ToList(), Player))
                     .ToArray();
+
                 roleList.Do(x => x.RoleList.Insert(IRandom.Instance.Next(x.RoleList.Count), x.Player.GetCustomRole()));
                 AllPlayerRoleList = roleList.ToDictionary(x => x.Player.PlayerId, x => x.RoleList.ToHashSet());
 
@@ -80,15 +89,9 @@ namespace EHR.Crewmate
 
         public override bool OnVote(PlayerControl player, PlayerControl target)
         {
-            if (player == null || target == null)
-            {
-                return false;
-            }
+            if (player == null || target == null) return false;
 
-            if (DidVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId))
-            {
-                return false;
-            }
+            if (DidVote.Contains(player.PlayerId) || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
 
             DidVote.Add(player.PlayerId);
 
@@ -109,9 +112,7 @@ namespace EHR.Crewmate
             string msg;
 
             if ((player.AllTasksCompleted() || AccurateCheckMode.GetBool()) && ShowSpecificRole.GetBool())
-            {
                 msg = string.Format(GetString("DivinatorCheck.TaskDone"), target.GetRealName(), target.GetCustomRole().ToColoredString());
-            }
             else
             {
                 string roles = string.Join(", ", AllPlayerRoleList[target.PlayerId].Select(x => x.ToColoredString()));

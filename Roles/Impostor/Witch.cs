@@ -37,6 +37,7 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Witch);
+
             ModeSwitchAction = new StringOptionItem(Id + 10, "WitchModeSwitchAction", SwitchTriggerText, 2, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Witch]);
         }
@@ -66,10 +67,7 @@ namespace EHR.Impostor
 
         private static void SendRPC(bool doSpell, byte witchId, byte target = 255, bool spellMode = false)
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             if (doSpell)
             {
@@ -90,35 +88,24 @@ namespace EHR.Impostor
         public static void ReceiveRPC(MessageReader reader, bool doSpell)
         {
             byte witch = reader.ReadByte();
-            if (Main.PlayerStates[witch].Role is not Witch wc)
-            {
-                return;
-            }
+            if (Main.PlayerStates[witch].Role is not Witch wc) return;
 
             if (doSpell)
             {
                 byte spelledId = reader.ReadByte();
+
                 if (spelledId != 255)
-                {
                     wc.SpelledPlayer.Add(spelledId);
-                }
                 else
-                {
                     wc.SpelledPlayer.Clear();
-                }
             }
             else
-            {
                 wc.SpellMode = reader.ReadBoolean();
-            }
         }
 
         public override void OnPet(PlayerControl pc)
         {
-            if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger)
-            {
-                return;
-            }
+            if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger) return;
 
             SwitchMode(pc.PlayerId);
         }
@@ -131,10 +118,8 @@ namespace EHR.Impostor
                 SwitchTrigger.Vent => !kill,
                 _ => false
             };
-            if (needSwitch)
-            {
-                SwitchMode(playerId);
-            }
+
+            if (needSwitch) SwitchMode(playerId);
         }
 
         private void SwitchMode(byte playerId)
@@ -166,10 +151,7 @@ namespace EHR.Impostor
         {
             foreach (byte witch in PlayerIdList)
             {
-                if (Main.PlayerStates[witch].Role is not Witch wc)
-                {
-                    continue;
-                }
+                if (Main.PlayerStates[witch].Role is not Witch wc) continue;
 
                 wc.SpelledPlayer.Clear();
                 SendRPC(true, witch);
@@ -178,15 +160,9 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (Medic.ProtectList.Contains(target.PlayerId))
-            {
-                return false;
-            }
+            if (Medic.ProtectList.Contains(target.PlayerId)) return false;
 
-            if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger)
-            {
-                return killer.CheckDoubleTrigger(target, () => SetSpelled(killer, target));
-            }
+            if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger) return killer.CheckDoubleTrigger(target, () => SetSpelled(killer, target));
 
             if (!SpellMode)
             {
@@ -205,49 +181,37 @@ namespace EHR.Impostor
         {
             try
             {
-                if (deathReason != PlayerState.DeathReason.Vote)
-                {
-                    return;
-                }
+                if (deathReason != PlayerState.DeathReason.Vote) return;
 
                 foreach (byte id in exileIds)
                 {
                     if (PlayerIdList.Contains(id))
                     {
-                        if (Main.PlayerStates[id].Role is not Witch wc)
-                        {
-                            continue;
-                        }
+                        if (Main.PlayerStates[id].Role is not Witch wc) continue;
 
                         wc.SpelledPlayer.Clear();
                     }
                 }
 
-                List<byte> spelledIdList = new List<byte>();
+                var spelledIdList = new List<byte>();
+
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
                     foreach (byte witchId in PlayerIdList)
                     {
-                        if (Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId))
-                        {
-                            continue;
-                        }
+                        if (Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId)) continue;
 
-                        if (Main.PlayerStates[witchId].Role is not Witch wc)
-                        {
-                            continue;
-                        }
+                        if (Main.PlayerStates[witchId].Role is not Witch wc) continue;
 
                         PlayerControl witch = Utils.GetPlayerById(witchId);
+
                         if (wc.SpelledPlayer.Contains(pc.PlayerId) && witch != null && witch.IsAlive())
                         {
                             pc.SetRealKiller(witch);
                             spelledIdList.Add(pc.PlayerId);
                         }
                         else
-                        {
                             Main.AfterMeetingDeathPlayers.Remove(pc.PlayerId);
-                        }
                     }
                 }
 
@@ -262,48 +226,30 @@ namespace EHR.Impostor
 
         public static string GetSpelledMark(byte target, bool isMeeting)
         {
-            if (!isMeeting)
-            {
-                return string.Empty;
-            }
+            if (!isMeeting) return string.Empty;
 
             foreach (byte id in PlayerIdList)
-            {
                 if (Main.PlayerStates[id].Role is Witch { IsEnable: true } wc && wc.IsSpelled(target))
-                {
                     return Utils.ColorString(wc.IsHM ? Utils.GetRoleColor(CustomRoles.HexMaster) : Palette.ImpostorRed, "†");
-                }
-            }
 
             return string.Empty;
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (seer == null || meeting || seer.PlayerId != target.PlayerId || !seer.Is(CustomRoles.Witch) || (seer.IsModClient() && !hud))
-            {
-                return string.Empty;
-            }
+            if (seer == null || meeting || seer.PlayerId != target.PlayerId || !seer.Is(CustomRoles.Witch) || (seer.IsModClient() && !hud)) return string.Empty;
 
-            StringBuilder str = new StringBuilder();
+            var str = new StringBuilder();
 
             if (hud)
-            {
                 str.Append($"<size=90%><color=#00ffa5>{GetString("WitchCurrentMode")}:</color> <b>");
-            }
             else
-            {
                 str.Append($"{GetString("Mode")}: ");
-            }
 
             if (NowSwitchTrigger == SwitchTrigger.DoubleTrigger)
-            {
                 str.Append(GetString("WitchModeDouble"));
-            }
             else
-            {
                 str.Append(SpellMode ? GetString("WitchModeSpell") : GetString("WitchModeKill"));
-            }
 
             return str.ToString();
         }
@@ -311,29 +257,18 @@ namespace EHR.Impostor
         public override void SetButtonTexts(HudManager hud, byte id)
         {
             if (SpellMode && NowSwitchTrigger != SwitchTrigger.DoubleTrigger)
-            {
                 hud.KillButton.OverrideText(GetString("WitchSpellButtonText"));
-            }
             else
-            {
                 hud.KillButton.OverrideText(GetString("KillButtonText"));
-            }
         }
 
         public override void OnEnterVent(PlayerControl pc, Vent vent)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             if (PlayerIdList.Contains(pc.PlayerId))
-            {
                 if (NowSwitchTrigger is SwitchTrigger.Vent)
-                {
                     SwitchSpellMode(pc.PlayerId, false);
-                }
-            }
         }
 
         private enum SwitchTrigger

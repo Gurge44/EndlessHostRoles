@@ -7,10 +7,7 @@ namespace EHR.Patches
     {
         public static void Prefix(DeconSystem __instance)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             if (Options.ChangeDecontaminationTime.GetBool())
             {

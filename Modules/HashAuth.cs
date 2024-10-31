@@ -24,10 +24,7 @@ namespace EHR
             algorithm ??= SHA256.Create();
 
             // 1. Apply salt
-            if (salt != null)
-            {
-                source += salt;
-            }
+            if (salt != null) source += salt;
 
             // 2. Convert source to a byte array
             byte[] sourceBytes = Encoding.UTF8.GetBytes(source);
@@ -36,11 +33,8 @@ namespace EHR
             byte[] hashBytes = algorithm.ComputeHash(sourceBytes);
 
             // 4. Convert hashBytes to a string
-            StringBuilder sb = new StringBuilder();
-            foreach (byte b in hashBytes)
-            {
-                sb.Append(b.ToString("x2")); // Convert each byte to 2-digit hexadecimal notation
-            }
+            var sb = new StringBuilder();
+            foreach (byte b in hashBytes) sb.Append(b.ToString("x2")); // Convert each byte to 2-digit hexadecimal notation
 
             return sb.ToString();
         }
@@ -50,7 +44,7 @@ namespace EHR
         public static HashAuth CreateByUnhashedValue(string value, string salt = null)
         {
             // 1. Calculate hash value
-            SHA256 algorithm = SHA256.Create();
+            var algorithm = SHA256.Create();
             string hashValue = CalculateHash(value, salt, algorithm);
 
             // 2. Log output of hash value

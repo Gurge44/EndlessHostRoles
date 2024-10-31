@@ -81,25 +81,20 @@ namespace EHR.Neutral
                 foreach (Gaslighter instance in Instances)
                 {
                     foreach (byte id in exileIds)
-                    {
                         if (id == instance.GaslighterId)
-                        {
                             instance.CursedPlayers.Clear();
-                        }
-                    }
                 }
 
                 List<byte> curseDeathList = [];
+
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
                     foreach (Gaslighter instance in Instances)
                     {
-                        if (Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId))
-                        {
-                            continue;
-                        }
+                        if (Main.AfterMeetingDeathPlayers.ContainsKey(pc.PlayerId)) continue;
 
                         PlayerControl gaslighter = instance.GaslighterId.GetPlayer();
+
                         if (instance.CursedPlayers.Contains(pc.PlayerId) && gaslighter != null && gaslighter.IsAlive())
                         {
                             pc.SetRealKiller(gaslighter);
@@ -126,10 +121,7 @@ namespace EHR.Neutral
                 CycleFinished = true;
                 CurrentRound = Round.Kill;
             }
-            else if (!CycleFinished || CycleRepeats.GetBool())
-            {
-                CurrentRound++;
-            }
+            else if (!CycleFinished || CycleRepeats.GetBool()) CurrentRound++;
 
             float limit = CurrentRound switch
             {
@@ -137,6 +129,7 @@ namespace EHR.Neutral
                 Round.Shield => Medic.SkillLimit,
                 _ => 0
             };
+
             GaslighterId.SetAbilityUseLimit(limit);
 
             PlayerControl pc = GaslighterId.GetPlayer();
@@ -196,16 +189,10 @@ namespace EHR.Neutral
         public static string GetMark(PlayerControl seer, PlayerControl target, bool meeting = false)
         {
             bool seerIsGaslighter = seer.Is(CustomRoles.Gaslighter);
-            StringBuilder sb = new StringBuilder();
-            if (IsShielded(target) && (seerIsGaslighter || seer.PlayerId == target.PlayerId))
-            {
-                sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>");
-            }
+            var sb = new StringBuilder();
+            if (IsShielded(target) && (seerIsGaslighter || seer.PlayerId == target.PlayerId)) sb.Append($"<color={Utils.GetRoleColorCode(CustomRoles.Medic)}> ●</color>");
 
-            if (IsCursed(target) && (meeting || seerIsGaslighter))
-            {
-                sb.Append(Utils.ColorString(Palette.ImpostorRed, "†"));
-            }
+            if (IsCursed(target) && (meeting || seerIsGaslighter)) sb.Append(Utils.ColorString(Palette.ImpostorRed, "†"));
 
             return sb.ToString();
         }

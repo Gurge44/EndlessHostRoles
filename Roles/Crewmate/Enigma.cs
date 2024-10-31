@@ -54,21 +54,27 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Enigma);
+
             EnigmaClueStage1Tasks = new FloatOptionItem(Id + 11, "EnigmaClueStage1Tasks", new(0f, 10f, 1f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
                 .SetValueFormat(OptionFormat.Times);
+
             EnigmaClueStage2Tasks = new FloatOptionItem(Id + 12, "EnigmaClueStage2Tasks", new(0f, 10f, 1f), 3f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
                 .SetValueFormat(OptionFormat.Times);
+
             EnigmaClueStage3Tasks = new FloatOptionItem(Id + 13, "EnigmaClueStage3Tasks", new(0f, 10f, 1f), 7f, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
                 .SetValueFormat(OptionFormat.Times);
+
             EnigmaClueStage2Probability = new IntegerOptionItem(Id + 14, "EnigmaClueStage2Probability", new(0, 100, 5), 75, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
                 .SetValueFormat(OptionFormat.Percent);
+
             EnigmaClueStage3Probability = new IntegerOptionItem(Id + 15, "EnigmaClueStage3Probability", new(0, 100, 5), 60, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Enigma])
                 .SetValueFormat(OptionFormat.Percent);
+
             EnigmaGetCluesWithoutReporting = new BooleanOptionItem(Id + 16, "EnigmaClueGetCluesWithoutReporting", true, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Enigma]);
 
@@ -91,41 +97,26 @@ namespace EHR.Crewmate
 
         public static void OnReportDeadBody(PlayerControl player, NetworkedPlayerInfo targetInfo)
         {
-            if (targetInfo == null)
-            {
-                return;
-            }
+            if (targetInfo == null) return;
 
             PlayerControl target = Utils.GetPlayerById(targetInfo.PlayerId);
-            if (target == null)
-            {
-                return;
-            }
+            if (target == null) return;
 
             PlayerControl killer = target.GetRealKiller();
-            if (killer == null)
-            {
-                return;
-            }
+            if (killer == null) return;
 
-            IRandom rd = IRandom.Instance;
+            var rd = IRandom.Instance;
 
             foreach (byte playerId in PlayerIdList)
             {
-                if (!EnigmaGetCluesWithoutReporting.GetBool() && playerId != player.PlayerId)
-                {
-                    continue;
-                }
+                if (!EnigmaGetCluesWithoutReporting.GetBool() && playerId != player.PlayerId) continue;
 
                 PlayerControl enigmaPlayer = Utils.GetPlayerById(playerId);
-                if (enigmaPlayer == null)
-                {
-                    continue;
-                }
+                if (enigmaPlayer == null) continue;
 
                 int tasksCompleted = enigmaPlayer.GetTaskState().CompletedTasksCount;
-                int stage = 0;
-                bool showStageClue = false;
+                var stage = 0;
+                var showStageClue = false;
 
                 if (tasksCompleted >= EnigmaClueStage3Tasks.GetInt())
                 {
@@ -137,23 +128,15 @@ namespace EHR.Crewmate
                     stage = 2;
                     showStageClue = rd.Next(0, 100) < EnigmaClueStage2Probability.GetInt();
                 }
-                else if (tasksCompleted >= EnigmaClueStage1Tasks.GetInt())
-                {
-                    stage = 1;
-                }
+                else if (tasksCompleted >= EnigmaClueStage1Tasks.GetInt()) stage = 1;
 
                 List<EnigmaClue> clues = EnigmaClues.Where(a => a.ClueStage <= stage &&
                                                                 !ShownClues[playerId].Any(b => b.EnigmaClueType == a.EnigmaClueType && b.ClueStage == a.ClueStage))
                     .ToList();
-                if (clues.Count == 0)
-                {
-                    continue;
-                }
 
-                if (showStageClue && clues.Any(a => a.ClueStage == stage))
-                {
-                    clues = clues.Where(a => a.ClueStage == stage).ToList();
-                }
+                if (clues.Count == 0) continue;
+
+                if (showStageClue && clues.Any(a => a.ClueStage == stage)) clues = clues.Where(a => a.ClueStage == stage).ToList();
 
                 EnigmaClue clue = clues[rd.Next(0, clues.Count - 1)];
                 string title = clue.Title;
@@ -183,10 +166,7 @@ namespace EHR.Crewmate
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
                 NetworkedPlayerInfo.PlayerOutfit killerOutfit = Camouflage.PlayerSkins[killer.PlayerId];
-                if (killerOutfit.HatId == "hat_EmptyHat")
-                {
-                    return GetString("EnigmaClueHat2");
-                }
+                if (killerOutfit.HatId == "hat_EmptyHat") return GetString("EnigmaClueHat2");
 
                 return ClueStage switch
                 {
@@ -205,10 +185,7 @@ namespace EHR.Crewmate
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
                 NetworkedPlayerInfo.PlayerOutfit killerOutfit = Camouflage.PlayerSkins[killer.PlayerId];
-                if (killerOutfit.VisorId == "visor_EmptyVisor")
-                {
-                    return GetString("EnigmaClueVisor2");
-                }
+                if (killerOutfit.VisorId == "visor_EmptyVisor") return GetString("EnigmaClueVisor2");
 
                 return ClueStage switch
                 {
@@ -227,10 +204,7 @@ namespace EHR.Crewmate
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
                 NetworkedPlayerInfo.PlayerOutfit killerOutfit = Camouflage.PlayerSkins[killer.PlayerId];
-                if (killerOutfit.SkinId == "skin_EmptySkin")
-                {
-                    return GetString("EnigmaClueSkin2");
-                }
+                if (killerOutfit.SkinId == "skin_EmptySkin") return GetString("EnigmaClueSkin2");
 
                 return ClueStage switch
                 {
@@ -249,10 +223,7 @@ namespace EHR.Crewmate
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
                 NetworkedPlayerInfo.PlayerOutfit killerOutfit = Camouflage.PlayerSkins[killer.PlayerId];
-                if (killerOutfit.PetId == "pet_EmptyPet")
-                {
-                    return GetString("EnigmaCluePet2");
-                }
+                if (killerOutfit.PetId == "pet_EmptyPet") return GetString("EnigmaCluePet2");
 
                 return ClueStage switch
                 {
@@ -280,22 +251,13 @@ namespace EHR.Crewmate
                     case 1:
                         return GetStage1Clue(killer, letter);
                     case 2:
-                        if (showStageClue)
-                        {
-                            GetStage2Clue(letter);
-                        }
+                        if (showStageClue) GetStage2Clue(letter);
 
                         return GetStage1Clue(killer, letter);
                     case 3:
-                        if (showStageClue)
-                        {
-                            return GetStage3Clue(killerName, letter);
-                        }
+                        if (showStageClue) return GetStage3Clue(killerName, letter);
 
-                        if (rd.Next(0, 100) < EnigmaClueStage2Probability.GetInt())
-                        {
-                            return GetStage2Clue(letter);
-                        }
+                        if (rd.Next(0, 100) < EnigmaClueStage2Probability.GetInt()) return GetStage2Clue(letter);
 
                         return GetStage1Clue(killer, letter);
                 }
@@ -317,12 +279,9 @@ namespace EHR.Crewmate
 
             private string GetStage3Clue(string killerName, string letter)
             {
-                string letter2 = string.Empty;
+                var letter2 = string.Empty;
                 string tmpName = killerName.Replace(letter, string.Empty);
-                if (!string.IsNullOrEmpty(tmpName))
-                {
-                    letter2 = tmpName[rd.Next(0, tmpName.Length - 1)].ToString().ToLower();
-                }
+                if (!string.IsNullOrEmpty(tmpName)) letter2 = tmpName[rd.Next(0, tmpName.Length - 1)].ToString().ToLower();
 
                 return string.Format(GetString("EnigmaClueName3"), letter, letter2);
             }
@@ -373,10 +332,7 @@ namespace EHR.Crewmate
                 int start = length - rd.Next(0, 2);
                 int end = length + rd.Next(0, 2);
 
-                if (start == end)
-                {
-                    return GetStage3Clue(length);
-                }
+                if (start == end) return GetStage3Clue(length);
 
                 start = start < 0 ? 0 : start;
                 end = end > 10 ? 10 : end;
@@ -424,16 +380,13 @@ namespace EHR.Crewmate
 
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
-                string room = string.Empty;
+                var room = string.Empty;
                 PlainShipRoom targetRoom = Main.PlayerStates[killer.PlayerId].LastRoom;
+
                 if (targetRoom == null)
-                {
                     room += GetString("FailToTrack");
-                }
                 else
-                {
                     room += GetString(targetRoom.RoomId.ToString());
-                }
 
                 return string.Format(GetString("EnigmaClueLocation"), room);
             }
@@ -456,6 +409,7 @@ namespace EHR.Crewmate
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
                 CustomRoles role = killer.GetCustomRole();
+
                 return ClueStage switch
                 {
                     1 => role.IsImpostor() ? GetString("EnigmaClueRole1") : GetString(role.IsNeutral() ? "EnigmaClueRole2" : "EnigmaClueRole3"),
@@ -474,7 +428,7 @@ namespace EHR.Crewmate
 
             public override string GetMessage(PlayerControl killer, bool showStageClue)
             {
-                int level = (int)killer.Data.PlayerLevel;
+                var level = (int)killer.Data.PlayerLevel;
 
                 return ClueStage switch
                 {

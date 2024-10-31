@@ -23,9 +23,11 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Gangster);
+
             KillCooldown = new FloatOptionItem(Id + 10, "GangsterRecruitCooldown", new(0f, 60f, 2.5f), 7.5f, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster])
                 .SetValueFormat(OptionFormat.Seconds);
+
             RecruitLimitOpt = new IntegerOptionItem(Id + 12, "GangsterRecruitLimit", new(1, 5, 1), 1, TabGroup.ImpostorRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Gangster])
                 .SetValueFormat(OptionFormat.Times);
@@ -67,17 +69,11 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer.GetAbilityUseLimit() < 1)
-            {
-                return true;
-            }
+            if (killer.GetAbilityUseLimit() < 1) return true;
 
             if (CanBeMadmate(target))
             {
-                if (!killer.GetCustomSubRoles().FindFirst(x => x.IsConverted(), out CustomRoles convertedAddon))
-                {
-                    convertedAddon = CustomRoles.Madmate;
-                }
+                if (!killer.GetCustomSubRoles().FindFirst(x => x.IsConverted(), out CustomRoles convertedAddon)) convertedAddon = CustomRoles.Madmate;
 
                 killer.RpcRemoveAbilityUse();
                 target.RpcSetCustomRole(convertedAddon);
@@ -94,18 +90,12 @@ namespace EHR.Impostor
                 target.RpcGuardAndKill(target);
 
                 Logger.Info($"SetRole: {target?.Data?.PlayerName} = {target.GetCustomRole()} + {convertedAddon}", $"Assign {convertedAddon}");
-                if (killer.GetAbilityUseLimit() <= 0)
-                {
-                    HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
-                }
+                if (killer.GetAbilityUseLimit() <= 0) HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
 
                 return false;
             }
 
-            if (killer.GetAbilityUseLimit() < 0)
-            {
-                HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
-            }
+            if (killer.GetAbilityUseLimit() < 0) HudManager.Instance.KillButton.OverrideText($"{GetString("KillButtonText")}");
 
             killer.Notify(Utils.ColorString(Utils.GetRoleColor(CustomRoles.Gangster), GetString("GangsterRecruitmentFailure")));
             return true;

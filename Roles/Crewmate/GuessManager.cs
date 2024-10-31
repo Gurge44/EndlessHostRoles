@@ -26,10 +26,7 @@ namespace EHR.Crewmate
 
         public static void OnGuess(PlayerControl dp, PlayerControl pc)
         {
-            foreach (byte guessManager in PlayerIdList)
-            {
-                LateTask.New(() => { Utils.SendMessage(dp == pc ? string.Format(GetString("GuessManagerMessageAboutMisguess"), dp.GetRealName().Replace("\n", " + ")) : string.Format(GetString("GuessManagerMessageAboutGuessedRole"), dp.GetAllRoleName().Replace("\n", " + ")), guessManager); }, 1f, "Guess Manager Messages");
-            }
+            foreach (byte guessManager in PlayerIdList) LateTask.New(() => { Utils.SendMessage(dp == pc ? string.Format(GetString("GuessManagerMessageAboutMisguess"), dp.GetRealName().Replace("\n", " + ")) : string.Format(GetString("GuessManagerMessageAboutGuessedRole"), dp.GetAllRoleName().Replace("\n", " + ")), guessManager); }, 1f, "Guess Manager Messages");
         }
     }
 }

@@ -41,6 +41,7 @@ namespace EHR
                 if (Doppelganger.PlayerIdList.Count > 0 && Doppelganger.DoppelVictim.ContainsKey(id))
                 {
                     PlayerControl dpc = Utils.GetPlayerById(id);
+
                     if (dpc != null)
                     {
                         dpc.RpcSetName(Doppelganger.DoppelVictim[id]);
@@ -49,43 +50,29 @@ namespace EHR
                 }
 
                 SummaryText[id] = Utils.SummaryTexts(id, false);
-                if (state.SubRoles.Count == 0)
-                {
-                    continue;
-                }
+                if (state.SubRoles.Count == 0) continue;
 
                 Main.LastAddOns[id] = $"<size=70%>{id.ColoredPlayerName()}: {state.SubRoles.Join(x => x.ToColoredString())}</size>";
             }
 
-            if (Options.DumpLogAfterGameEnd.GetBool())
-            {
-                Utils.DumpLog(false);
-            }
+            if (Options.DumpLogAfterGameEnd.GetBool()) Utils.DumpLog(false);
 
             StringBuilder sb = new(GetString("KillLog") + ":");
+
             foreach ((byte key, PlayerState value) in Main.PlayerStates.OrderBy(x => x.Value.RealKiller.TimeStamp.Ticks))
             {
                 DateTime date = value.RealKiller.TimeStamp;
-                if (date == DateTime.MinValue)
-                {
-                    continue;
-                }
+                if (date == DateTime.MinValue) continue;
 
                 byte killerId = value.GetRealKiller();
                 bool gmIsFM = Options.CurrentGameMode is CustomGameMode.FFA or CustomGameMode.MoveAndStop;
                 bool gmIsFMHH = gmIsFM || Options.CurrentGameMode is CustomGameMode.HotPotato or CustomGameMode.HideAndSeek or CustomGameMode.Speedrun or CustomGameMode.CaptureTheFlag or CustomGameMode.NaturalDisasters or CustomGameMode.RoomRush;
                 sb.Append($"\n{date:T} {Main.AllPlayerNames[key]} ({(gmIsFMHH ? string.Empty : Utils.GetDisplayRoleName(key, true))}{(gmIsFM ? string.Empty : Utils.GetSubRolesText(key, summary: true))}) [{Utils.GetVitalText(key)}]");
-                if (killerId != byte.MaxValue && killerId != key)
-                {
-                    sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(gmIsFMHH ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(gmIsFM ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
-                }
+                if (killerId != byte.MaxValue && killerId != key) sb.Append($"\n\t⇐ {Main.AllPlayerNames[killerId]} ({(gmIsFMHH ? string.Empty : Utils.GetDisplayRoleName(killerId, true))}{(gmIsFM ? string.Empty : Utils.GetSubRolesText(killerId, summary: true))})");
             }
 
             KillLog = sb.ToString();
-            if (!KillLog.Contains('\n'))
-            {
-                KillLog = string.Empty;
-            }
+            if (!KillLog.Contains('\n')) KillLog = string.Empty;
 
             Main.NormalOptions.KillCooldown = Options.DefaultKillCooldown;
 
@@ -93,19 +80,14 @@ namespace EHR
 
             HashSet<PlayerControl> winner = Main.AllPlayerControls.Where(pc => CustomWinnerHolder.WinnerIds.Contains(pc.PlayerId)).ToHashSet();
 
-            foreach (CustomRoles team in CustomWinnerHolder.WinnerRoles)
-            {
-                winner.UnionWith(Main.AllPlayerControls.Where(p => p.Is(team) && !winner.Contains(p)));
-            }
+            foreach (CustomRoles team in CustomWinnerHolder.WinnerRoles) winner.UnionWith(Main.AllPlayerControls.Where(p => p.Is(team) && !winner.Contains(p)));
 
             Main.WinnerNameList = [];
             Main.WinnerList = [];
+
             foreach (PlayerControl pc in winner)
             {
-                if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw && pc.Is(CustomRoles.GM))
-                {
-                    continue;
-                }
+                if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw && pc.Is(CustomRoles.GM)) continue;
 
                 EndGameResult.CachedWinners.Add(new(pc.Data));
                 Main.WinnerList.Add(pc.PlayerId);
@@ -123,10 +105,7 @@ namespace EHR
             Bloodmoon.OnMeetingStart();
             AFKDetector.ExemptedPlayers.Clear();
 
-            foreach (PlayerState state in Main.PlayerStates.Values)
-            {
-                state.Role.Init();
-            }
+            foreach (PlayerState state in Main.PlayerStates.Values) state.Role.Init();
 
             if (AmongUsClient.Instance.AmHost)
             {
@@ -164,24 +143,19 @@ namespace EHR
                 // ---------- Code from TOR (The Other Roles)! ----------
                 // https://github.com/TheOtherRolesAU/TheOtherRoles/blob/main/TheOtherRoles/Patches/EndGamePatch.cs
 
-                if (Options.CurrentGameMode is not CustomGameMode.Standard)
-                {
-                    goto End;
-                }
+                if (Options.CurrentGameMode is not CustomGameMode.Standard) goto End;
 
                 int num = Mathf.CeilToInt(7.5f);
 
                 Il2CppArrayBase<PoolablePlayer> pbs = __instance?.transform.GetComponentsInChildren<PoolablePlayer>();
+
                 if (pbs != null)
-                {
                     foreach (PoolablePlayer pb in pbs)
-                    {
                         pb.ToggleName(false);
-                    }
-                }
 
                 List<CachedPlayerData> list = EndGameResult.CachedWinners.ToArray().ToList();
-                for (int i = 0; i < list.Count; i++)
+
+                for (var i = 0; i < list.Count; i++)
                 {
                     CachedPlayerData data = list[i];
                     int num2 = i % 2 == 0 ? -1 : 1;
@@ -195,15 +169,14 @@ namespace EHR
                     Vector3 vector = new(num7, num7, 1f);
                     poolablePlayer.transform.localScale = vector;
                     poolablePlayer.UpdateFromPlayerOutfit(data.Outfit, PlayerMaterial.MaskType.ComplexUI, data.IsDead, true);
+
                     if (data.IsDead)
                     {
                         poolablePlayer.cosmetics.currentBodySprite.BodySprite.sprite = poolablePlayer.cosmetics.currentBodySprite.GhostSprite;
                         poolablePlayer.SetDeadFlipX(i % 2 == 0);
                     }
                     else
-                    {
                         poolablePlayer.SetFlipX(i % 2 == 0);
-                    }
 
                     bool lowered = i is 1 or 2 or 5 or 6 or 9 or 10 or 13 or 14;
 
@@ -213,13 +186,10 @@ namespace EHR
 
                     Vector3 defaultPos = poolablePlayer.cosmetics.nameText.transform.localPosition;
 
-                    for (int j = 0; j < Main.WinnerList.Count; j++)
+                    for (var j = 0; j < Main.WinnerList.Count; j++)
                     {
                         byte id = Main.WinnerList[j];
-                        if (Main.WinnerNameList[j].RemoveHtmlTags() != data.PlayerName.RemoveHtmlTags())
-                        {
-                            continue;
-                        }
+                        if (Main.WinnerNameList[j].RemoveHtmlTags() != data.PlayerName.RemoveHtmlTags()) continue;
 
                         CustomRoles role = Main.PlayerStates[id].MainRole;
 
@@ -242,12 +212,12 @@ namespace EHR
             GameObject WinnerTextObject = Object.Instantiate(__instance.WinText.gameObject);
             WinnerTextObject.transform.position = new(__instance.WinText.transform.position.x, __instance.WinText.transform.position.y - 0.5f, __instance.WinText.transform.position.z);
             WinnerTextObject.transform.localScale = new(0.6f, 0.6f, 0.6f);
-            TextMeshPro WinnerText = WinnerTextObject.GetComponent<TextMeshPro>();
+            var WinnerText = WinnerTextObject.GetComponent<TextMeshPro>();
             WinnerText.fontSizeMin = 3f;
             WinnerText.text = string.Empty;
 
-            string CustomWinnerText = string.Empty;
-            string AdditionalWinnerText = string.Empty;
+            var CustomWinnerText = string.Empty;
+            var AdditionalWinnerText = string.Empty;
             string CustomWinnerColor = Utils.GetRoleColorCode(CustomRoles.Crewmate);
 
             switch (Options.CurrentGameMode)
@@ -331,7 +301,8 @@ namespace EHR
                 goto Skip;
             }
 
-            CustomRoles winnerRole = (CustomRoles)CustomWinnerHolder.WinnerTeam;
+            var winnerRole = (CustomRoles)CustomWinnerHolder.WinnerTeam;
+
             if (winnerRole >= 0)
             {
                 CustomWinnerText = GetWinnerRoleName(winnerRole);
@@ -401,22 +372,16 @@ namespace EHR
 
             foreach (AdditionalWinners additionalWinners in CustomWinnerHolder.AdditionalWinnerTeams)
             {
-                CustomRoles addWinnerRole = (CustomRoles)additionalWinners;
+                var addWinnerRole = (CustomRoles)additionalWinners;
                 Logger.Warn(additionalWinners.ToString(), "AdditionalWinner");
-                if (addWinnerRole == CustomRoles.Sidekick)
-                {
-                    continue;
-                }
+                if (addWinnerRole == CustomRoles.Sidekick) continue;
 
                 AdditionalWinnerText += "\n" + Utils.ColorString(Utils.GetRoleColor(addWinnerRole), GetAdditionalWinnerRoleName(addWinnerRole));
             }
 
             Skip:
 
-            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None and not CustomWinner.Error)
-            {
-                WinnerText.text = AdditionalWinnerText == string.Empty ? $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size>" : $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size><size=50%>{AdditionalWinnerText}</size>";
-            }
+            if (CustomWinnerHolder.WinnerTeam is not CustomWinner.Draw and not CustomWinner.None and not CustomWinner.Error) WinnerText.text = AdditionalWinnerText == string.Empty ? $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size>" : $"<size=100%><color={CustomWinnerColor}>{CustomWinnerText}</color></size><size=50%>{AdditionalWinnerText}</size>";
 
             EndOfText:
 
@@ -435,12 +400,10 @@ namespace EHR
 
             StringBuilder sb = new($"<font=\"DIN_Pro_Bold_700 SDF\">{GetString("RoleSummaryText")}\n<b>");
             List<byte> cloneRoles = [.. Main.PlayerStates.Keys];
+
             foreach (byte id in Main.WinnerList)
             {
-                if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>"))
-                {
-                    continue;
-                }
+                if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
 
                 sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
                 cloneRoles.Remove(id);
@@ -456,10 +419,7 @@ namespace EHR
                     list.AddRange(cloneRoles.Select(id => (SoloKombatManager.GetRankOfScore(id), id)));
 
                     list.Sort();
-                    foreach ((int, byte) id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2)))
-                    {
-                        sb.Append('\n').Append(EndGamePatch.SummaryText[id.Item2]);
-                    }
+                    foreach ((int, byte) id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2))) sb.Append('\n').Append(EndGamePatch.SummaryText[id.Item2]);
 
                     break;
                 }
@@ -469,10 +429,7 @@ namespace EHR
                     list.AddRange(cloneRoles.Select(id => (FFAManager.GetRankFromScore(id), id)));
 
                     list.Sort();
-                    foreach ((int, byte) id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2)))
-                    {
-                        sb.Append('\n').Append(EndGamePatch.SummaryText[id.Item2]);
-                    }
+                    foreach ((int, byte) id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2))) sb.Append('\n').Append(EndGamePatch.SummaryText[id.Item2]);
 
                     break;
                 }
@@ -482,60 +439,42 @@ namespace EHR
                     list.AddRange(cloneRoles.Select(id => (MoveAndStopManager.GetRankOfScore(id), id)));
 
                     list.Sort();
-                    foreach ((int, byte) id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2)))
-                    {
-                        sb.Append('\n').Append(EndGamePatch.SummaryText[id.Item2]);
-                    }
+                    foreach ((int, byte) id in list.Where(x => EndGamePatch.SummaryText.ContainsKey(x.Item2))) sb.Append('\n').Append(EndGamePatch.SummaryText[id.Item2]);
 
                     break;
                 }
                 case CustomGameMode.HotPotato:
                 {
                     IOrderedEnumerable<byte> list = cloneRoles.OrderByDescending(HotPotatoManager.GetSurvivalTime);
-                    foreach (byte id in list.Where(EndGamePatch.SummaryText.ContainsKey))
-                    {
-                        sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
-                    }
+                    foreach (byte id in list.Where(EndGamePatch.SummaryText.ContainsKey)) sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
 
                     break;
                 }
                 case CustomGameMode.Speedrun:
                 {
                     IOrderedEnumerable<byte> list = cloneRoles.OrderByDescending(id => Main.PlayerStates[id].TaskState.CompletedTasksCount);
-                    foreach (byte id in list.Where(EndGamePatch.SummaryText.ContainsKey))
-                    {
-                        sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
-                    }
+                    foreach (byte id in list.Where(EndGamePatch.SummaryText.ContainsKey)) sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
 
                     break;
                 }
                 case CustomGameMode.CaptureTheFlag:
                 {
                     IOrderedEnumerable<byte> list = cloneRoles.OrderByDescending(CTFManager.GetFlagTime);
-                    foreach (byte id in list.Where(EndGamePatch.SummaryText.ContainsKey))
-                    {
-                        sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
-                    }
+                    foreach (byte id in list.Where(EndGamePatch.SummaryText.ContainsKey)) sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
 
                     break;
                 }
                 case CustomGameMode.NaturalDisasters:
                 {
                     IOrderedEnumerable<byte> list = cloneRoles.OrderByDescending(NaturalDisasters.SurvivalTime);
-                    foreach (byte id in list.Where(EndGamePatch.SummaryText.ContainsKey))
-                    {
-                        sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
-                    }
+                    foreach (byte id in list.Where(EndGamePatch.SummaryText.ContainsKey)) sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
 
                     break;
                 }
                 case CustomGameMode.RoomRush:
                 {
                     IOrderedEnumerable<byte> list = cloneRoles.OrderByDescending(RoomRush.GetSurvivalTime);
-                    foreach (byte id in list.Where(EndGamePatch.SummaryText.ContainsKey))
-                    {
-                        sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
-                    }
+                    foreach (byte id in list.Where(EndGamePatch.SummaryText.ContainsKey)) sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
 
                     break;
                 }
@@ -543,10 +482,7 @@ namespace EHR
                 {
                     foreach (byte id in cloneRoles)
                     {
-                        if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>"))
-                        {
-                            continue;
-                        }
+                        if (EndGamePatch.SummaryText[id].Contains("<INVALID:NotAssigned>")) continue;
 
                         sb.Append('\n').Append(EndGamePatch.SummaryText[id]);
                     }
@@ -557,13 +493,13 @@ namespace EHR
 
             sb.Append("</font>");
 
-            TextMeshPro RoleSummary = RoleSummaryObject.GetComponent<TextMeshPro>();
+            var RoleSummary = RoleSummaryObject.GetComponent<TextMeshPro>();
             RoleSummary.alignment = TextAlignmentOptions.TopLeft;
             RoleSummary.color = Color.white;
             RoleSummary.outlineWidth *= 1.2f;
             RoleSummary.fontSizeMin = RoleSummary.fontSizeMax = RoleSummary.fontSize = 1.25f;
 
-            RectTransform RoleSummaryRectTransform = RoleSummary.GetComponent<RectTransform>();
+            var RoleSummaryRectTransform = RoleSummary.GetComponent<RectTransform>();
             RoleSummaryRectTransform.anchoredPosition = new(Pos.x + 3.5f, Pos.y - 0.1f);
             RoleSummary.text = sb.ToString();
 
@@ -572,10 +508,7 @@ namespace EHR
             static string GetAdditionalWinnerRoleName(CustomRoles role)
             {
                 string name = GetString($"AdditionalWinnerRoleText.{role}");
-                if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID"))
-                {
-                    name = string.Format(GetString("AdditionalWinnerRoleText.Default"), GetString($"{role}"));
-                }
+                if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = string.Format(GetString("AdditionalWinnerRoleText.Default"), GetString($"{role}"));
 
                 return name;
             }
@@ -583,10 +516,7 @@ namespace EHR
             static string GetWinnerRoleName(CustomRoles role)
             {
                 string name = GetString($"WinnerRoleText.{role}");
-                if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID"))
-                {
-                    name = string.Format(GetString("WinnerRoleText.Default"), GetString($"{role}"));
-                }
+                if (name == string.Empty || name.StartsWith("*") || name.StartsWith("<INVALID")) name = string.Format(GetString("WinnerRoleText.Default"), GetString($"{role}"));
 
                 return name;
             }

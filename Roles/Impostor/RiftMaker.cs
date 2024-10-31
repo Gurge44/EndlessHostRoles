@@ -23,8 +23,10 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.RiftMaker);
+
             KillCooldown = new FloatOptionItem(Id + 10, "KillCooldown", new(0f, 180f, 2.5f), 25f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.RiftMaker])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ShapeshiftCooldown = new FloatOptionItem(Id + 11, "ShapeshiftCooldown", new(0f, 180f, 2.5f), 10f, TabGroup.ImpostorRoles).SetParent(CustomRoleSpawnChances[CustomRoles.RiftMaker])
                 .SetValueFormat(OptionFormat.Seconds);
         }
@@ -50,15 +52,10 @@ namespace EHR.Impostor
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
             if (UsePhantomBasis.GetBool())
-            {
                 AURoleOptions.PhantomCooldown = ShapeshiftCooldown.GetFloat();
-            }
             else
             {
-                if (UsePets.GetBool())
-                {
-                    return;
-                }
+                if (UsePets.GetBool()) return;
 
                 AURoleOptions.ShapeshifterCooldown = ShapeshiftCooldown.GetFloat();
                 AURoleOptions.ShapeshifterDuration = 1f;
@@ -68,25 +65,13 @@ namespace EHR.Impostor
 
         public override void OnFixedUpdate(PlayerControl player)
         {
-            if (!GameStates.IsInTask)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask) return;
 
-            if (Pelican.IsEaten(player.PlayerId) || player.Data.IsDead)
-            {
-                return;
-            }
+            if (Pelican.IsEaten(player.PlayerId) || player.Data.IsDead) return;
 
-            if (!player.Is(CustomRoles.RiftMaker))
-            {
-                return;
-            }
+            if (!player.Is(CustomRoles.RiftMaker)) return;
 
-            if (Marks.Count != 2)
-            {
-                return;
-            }
+            if (Marks.Count != 2) return;
 
             if (Vector2.Distance(Marks[0], Marks[1]) <= 4f)
             {
@@ -95,23 +80,17 @@ namespace EHR.Impostor
                 return;
             }
 
-            if (LastTP + 5 > TimeStamp)
-            {
-                return;
-            }
+            if (LastTP + 5 > TimeStamp) return;
 
             Vector2 position = player.transform.position;
 
-            bool isTP = false;
+            var isTP = false;
             Vector2 from = Marks[0];
 
             foreach (Vector2 mark in Marks.ToArray())
             {
                 float dis = Vector2.Distance(mark, position);
-                if (dis > 2f)
-                {
-                    continue;
-                }
+                if (dis > 2f) continue;
 
                 isTP = true;
                 from = mark;
@@ -120,18 +99,13 @@ namespace EHR.Impostor
             if (isTP)
             {
                 LastTP = TimeStamp;
+
                 if (from == Marks[0])
-                {
                     player.TP(Marks[1]);
-                }
                 else if (from == Marks[1])
-                {
                     player.TP(Marks[0]);
-                }
                 else
-                {
                     Logger.Error($"Teleport failed - from: {from}", "RiftMakerTP");
-                }
             }
         }
 
@@ -150,20 +124,11 @@ namespace EHR.Impostor
 
         public override bool OnShapeshift(PlayerControl player, PlayerControl target, bool shapeshifting)
         {
-            if (player == null)
-            {
-                return false;
-            }
+            if (player == null) return false;
 
-            if (!shapeshifting && !UseUnshiftTrigger.GetBool())
-            {
-                return true;
-            }
+            if (!shapeshifting && !UseUnshiftTrigger.GetBool()) return true;
 
-            if (Marks.Count >= 2)
-            {
-                return false;
-            }
+            if (Marks.Count >= 2) return false;
 
             Mark(player);
 
@@ -172,15 +137,9 @@ namespace EHR.Impostor
 
         public override bool OnVanish(PlayerControl pc)
         {
-            if (pc == null)
-            {
-                return false;
-            }
+            if (pc == null) return false;
 
-            if (Marks.Count >= 2)
-            {
-                return false;
-            }
+            if (Marks.Count >= 2) return false;
 
             Mark(pc);
 
@@ -189,15 +148,9 @@ namespace EHR.Impostor
 
         public override void OnPet(PlayerControl pc)
         {
-            if (pc == null)
-            {
-                return;
-            }
+            if (pc == null) return;
 
-            if (Marks.Count >= 2)
-            {
-                return;
-            }
+            if (Marks.Count >= 2) return;
 
             Mark(pc);
         }
@@ -205,10 +158,7 @@ namespace EHR.Impostor
         private void Mark(PlayerControl player)
         {
             Marks.Add(player.transform.position);
-            if (Marks.Count == 2)
-            {
-                LastTP = TimeStamp;
-            }
+            if (Marks.Count == 2) LastTP = TimeStamp;
 
             player.Notify(GetString("MarkDone"));
         }

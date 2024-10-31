@@ -15,11 +15,13 @@ namespace EHR.Crewmate
         {
             Options.SetupRoleOptions(644970, TabGroup.CrewmateRoles, CustomRoles.Clairvoyant);
 
-            int i = 2;
+            var i = 2;
+
             foreach (Options.GameStateInfo s in Enum.GetValues<Options.GameStateInfo>())
             {
                 Settings[s] = new BooleanOptionItem(644970 + i, $"GameStateCommand.Show{s}", true, TabGroup.CrewmateRoles)
                     .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Clairvoyant]);
+
                 i++;
             }
         }
@@ -36,10 +38,7 @@ namespace EHR.Crewmate
 
         public override void ApplyGameOptions(IGameOptions opt, byte playerId)
         {
-            if (Options.UsePets.GetBool())
-            {
-                return;
-            }
+            if (Options.UsePets.GetBool()) return;
 
             AURoleOptions.EngineerCooldown = 1f;
             AURoleOptions.EngineerInVentMaxTime = 1f;

@@ -35,28 +35,38 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.SabotageMaster);
+
             SkillLimit = new IntegerOptionItem(Id + 10, "SabotageMasterSkillLimit", new(0, 80, 1), 2, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
                 .SetValueFormat(OptionFormat.Times);
+
             FixesDoors = new BooleanOptionItem(Id + 11, "SabotageMasterFixesDoors", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
+
             FixesReactors = new BooleanOptionItem(Id + 12, "SabotageMasterFixesReactors", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
+
             FixesOxygens = new BooleanOptionItem(Id + 13, "SabotageMasterFixesOxygens", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
+
             FixesComms = new BooleanOptionItem(Id + 14, "SabotageMasterFixesCommunications", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
+
             FixesElectrical = new BooleanOptionItem(Id + 15, "SabotageMasterFixesElectrical", true, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster]);
+
             SmAbilityUseGainWithEachTaskCompleted = new FloatOptionItem(Id + 16, "AbilityUseGainWithEachTaskCompleted", new(0f, 5f, 0.05f), 3f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
                 .SetValueFormat(OptionFormat.Times);
+
             AbilityChargesWhenFinishedTasks = new FloatOptionItem(Id + 19, "AbilityChargesWhenFinishedTasks", new(0f, 5f, 0.05f), 0.2f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
                 .SetValueFormat(OptionFormat.Times);
+
             UsesUsedWhenFixingReactorOrO2 = new FloatOptionItem(Id + 17, "SMUsesUsedWhenFixingReactorOrO2", new(0f, 5f, 0.1f), 4f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
                 .SetValueFormat(OptionFormat.Times);
+
             UsesUsedWhenFixingLightsOrComms = new FloatOptionItem(Id + 18, "SMUsesUsedWhenFixingLightsOrComms", new(0f, 5f, 0.1f), 1f, TabGroup.CrewmateRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.SabotageMaster])
                 .SetValueFormat(OptionFormat.Times);
@@ -91,10 +101,7 @@ namespace EHR.Crewmate
 
         public void SendRPC()
         {
-            if (!IsEnable || !Utils.DoRPC)
-            {
-                return;
-            }
+            if (!IsEnable || !Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetSabotageMasterLimit, SendOption.Reliable);
             writer.Write(SMId);
@@ -105,35 +112,23 @@ namespace EHR.Crewmate
         public static void ReceiveRPC(MessageReader reader)
         {
             byte id = reader.ReadByte();
-            if (Main.PlayerStates[id].Role is not SabotageMaster sm)
-            {
-                return;
-            }
+            if (Main.PlayerStates[id].Role is not SabotageMaster sm) return;
 
             sm.UsedSkillCount = reader.ReadSingle();
         }
 
         public static void RepairSystem(byte playerId, SystemTypes systemType, byte amount)
         {
-            if (Main.PlayerStates[playerId].Role is not SabotageMaster sm)
-            {
-                return;
-            }
+            if (Main.PlayerStates[playerId].Role is not SabotageMaster sm) return;
 
             switch (systemType)
             {
                 case SystemTypes.Reactor:
                 case SystemTypes.Laboratory:
                 {
-                    if (!FixesReactors.GetBool())
-                    {
-                        break;
-                    }
+                    if (!FixesReactors.GetBool()) break;
 
-                    if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat())
-                    {
-                        break;
-                    }
+                    if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
 
                     if (amount.HasAnyBit(ReactorSystemType.AddUserOp))
                     {
@@ -146,21 +141,12 @@ namespace EHR.Crewmate
                 }
                 case SystemTypes.HeliSabotage:
                 {
-                    if (!FixesReactors.GetBool())
-                    {
-                        break;
-                    }
+                    if (!FixesReactors.GetBool()) break;
 
-                    if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat())
-                    {
-                        break;
-                    }
+                    if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
 
-                    HeliSabotageSystem.Tags tags = (HeliSabotageSystem.Tags)(amount & HeliSabotageSystem.TagMask);
-                    if (tags == HeliSabotageSystem.Tags.ActiveBit)
-                    {
-                        sm.fixedSabotage = false;
-                    }
+                    var tags = (HeliSabotageSystem.Tags)(amount & HeliSabotageSystem.TagMask);
+                    if (tags == HeliSabotageSystem.Tags.ActiveBit) sm.fixedSabotage = false;
 
                     if (!sm.fixedSabotage && tags == HeliSabotageSystem.Tags.FixBit)
                     {
@@ -176,15 +162,9 @@ namespace EHR.Crewmate
                 }
                 case SystemTypes.LifeSupp:
                 {
-                    if (!FixesOxygens.GetBool())
-                    {
-                        break;
-                    }
+                    if (!FixesOxygens.GetBool()) break;
 
-                    if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat())
-                    {
-                        break;
-                    }
+                    if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingReactorOrO2.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
 
                     if (amount.HasAnyBit(LifeSuppSystemType.AddUserOp))
                     {
@@ -197,21 +177,12 @@ namespace EHR.Crewmate
                 }
                 case SystemTypes.Comms when Main.CurrentMap == MapNames.Mira:
                 {
-                    if (!FixesComms.GetBool())
-                    {
-                        break;
-                    }
+                    if (!FixesComms.GetBool()) break;
 
-                    if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingLightsOrComms.GetFloat() - 1 >= SkillLimit.GetFloat())
-                    {
-                        break;
-                    }
+                    if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingLightsOrComms.GetFloat() - 1 >= SkillLimit.GetFloat()) break;
 
-                    HqHudSystemType.Tags tags = (HqHudSystemType.Tags)(amount & HqHudSystemType.TagMask);
-                    if (tags == HqHudSystemType.Tags.ActiveBit)
-                    {
-                        sm.fixedSabotage = false;
-                    }
+                    var tags = (HqHudSystemType.Tags)(amount & HqHudSystemType.TagMask);
+                    if (tags == HqHudSystemType.Tags.ActiveBit) sm.fixedSabotage = false;
 
                     if (!sm.fixedSabotage && tags == HqHudSystemType.Tags.FixBit)
                     {
@@ -227,25 +198,17 @@ namespace EHR.Crewmate
                 }
                 case SystemTypes.Doors:
                 {
-                    if (!FixesDoors.GetBool())
-                    {
-                        break;
-                    }
+                    if (!FixesDoors.GetBool()) break;
 
-                    if (DoorsProgressing)
-                    {
-                        break;
-                    }
+                    if (DoorsProgressing) break;
 
                     int mapId = Main.NormalOptions.MapId;
-                    if (AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay)
-                    {
-                        mapId = AmongUsClient.Instance.TutorialMapId;
-                    }
+                    if (AmongUsClient.Instance.NetworkMode == NetworkModes.FreePlay) mapId = AmongUsClient.Instance.TutorialMapId;
 
-                    ShipStatus shipStatus = ShipStatus.Instance;
+                    var shipStatus = ShipStatus.Instance;
 
                     DoorsProgressing = true;
+
                     switch (mapId)
                     {
                         case 2: // Polus
@@ -270,20 +233,16 @@ namespace EHR.Crewmate
                         {
                             int openedDoorId = amount & DoorsSystemType.IdMask;
                             OpenableDoor openedDoor = shipStatus.AllDoors.FirstOrDefault(door => door.Id == openedDoorId);
+
                             if (openedDoor == null)
-                            {
                                 Logger.Warn($"An unknown door has been opened: {openedDoorId}", nameof(SabotageMaster));
-                            }
                             else
                             {
                                 SystemTypes room = openedDoor.Room;
+
                                 foreach (OpenableDoor door in shipStatus.AllDoors)
-                                {
                                     if (door.Id != openedDoorId && door.Room == room)
-                                    {
                                         door.SetDoorway(true);
-                                    }
-                                }
                             }
 
                             break;
@@ -298,20 +257,11 @@ namespace EHR.Crewmate
 
         public static void SwitchSystemRepair(byte playerId, SwitchSystem switchSystem, byte amount)
         {
-            if (!FixesElectrical.GetBool() || Main.PlayerStates[playerId].Role is not SabotageMaster sm)
-            {
-                return;
-            }
+            if (!FixesElectrical.GetBool() || Main.PlayerStates[playerId].Role is not SabotageMaster sm) return;
 
-            if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingLightsOrComms.GetFloat() - 1 >= SkillLimit.GetFloat())
-            {
-                return;
-            }
+            if (SkillLimit.GetFloat() > 0 && sm.UsedSkillCount + UsesUsedWhenFixingLightsOrComms.GetFloat() - 1 >= SkillLimit.GetFloat()) return;
 
-            if (amount.HasBit(SwitchSystem.DamageSystem))
-            {
-                return;
-            }
+            if (amount.HasBit(SwitchSystem.DamageSystem)) return;
 
             int fixbit = 1 << amount;
             switchSystem.ActualSwitches = (byte)(switchSystem.ExpectedSwitches ^ fixbit);

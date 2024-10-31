@@ -27,10 +27,7 @@ namespace EHR
 
         public static void Postfix(OptionsMenuBehaviour __instance)
         {
-            if (__instance.DisableMouseMovement == null)
-            {
-                return;
-            }
+            if (__instance.DisableMouseMovement == null) return;
 
             Main.SwitchVanilla.Value = false;
 
@@ -46,10 +43,7 @@ namespace EHR
 
                 static void GMButtonToggle()
                 {
-                    if (Main.GM.Value)
-                    {
-                        HudManager.Instance.ShowPopUp(Translator.GetString("EnabledGMWarning"));
-                    }
+                    if (Main.GM.Value) HudManager.Instance.ShowPopUp(Translator.GetString("EnabledGMWarning"));
                 }
             }
 
@@ -78,25 +72,13 @@ namespace EHR
                 }
             }
 
-            if (ForceOwnLanguage == null || ForceOwnLanguage.ToggleButton == null)
-            {
-                ForceOwnLanguage = ClientOptionItem.Create("ForceOwnLanguage", Main.ForceOwnLanguage, __instance);
-            }
+            if (ForceOwnLanguage == null || ForceOwnLanguage.ToggleButton == null) ForceOwnLanguage = ClientOptionItem.Create("ForceOwnLanguage", Main.ForceOwnLanguage, __instance);
 
-            if (ForceOwnLanguageRoleName == null || ForceOwnLanguageRoleName.ToggleButton == null)
-            {
-                ForceOwnLanguageRoleName = ClientOptionItem.Create("ForceOwnLanguageRoleName", Main.ForceOwnLanguageRoleName, __instance);
-            }
+            if (ForceOwnLanguageRoleName == null || ForceOwnLanguageRoleName.ToggleButton == null) ForceOwnLanguageRoleName = ClientOptionItem.Create("ForceOwnLanguageRoleName", Main.ForceOwnLanguageRoleName, __instance);
 
-            if (EnableCustomButton == null || EnableCustomButton.ToggleButton == null)
-            {
-                EnableCustomButton = ClientOptionItem.Create("EnableCustomButton", Main.EnableCustomButton, __instance);
-            }
+            if (EnableCustomButton == null || EnableCustomButton.ToggleButton == null) EnableCustomButton = ClientOptionItem.Create("EnableCustomButton", Main.EnableCustomButton, __instance);
 
-            if (EnableCustomSoundEffect == null || EnableCustomSoundEffect.ToggleButton == null)
-            {
-                EnableCustomSoundEffect = ClientOptionItem.Create("EnableCustomSoundEffect", Main.EnableCustomSoundEffect, __instance);
-            }
+            if (EnableCustomSoundEffect == null || EnableCustomSoundEffect.ToggleButton == null) EnableCustomSoundEffect = ClientOptionItem.Create("EnableCustomSoundEffect", Main.EnableCustomSoundEffect, __instance);
 
             if (SwitchVanilla == null || SwitchVanilla.ToggleButton == null)
             {
@@ -113,9 +95,7 @@ namespace EHR
                         LateTask.New(Unload, 2f, log: false);
                     }
                     else
-                    {
                         Unload();
-                    }
 
                     return;
 
@@ -129,10 +109,7 @@ namespace EHR
                 }
             }
 
-            if (DarkTheme == null || DarkTheme.ToggleButton == null)
-            {
-                DarkTheme = ClientOptionItem.Create("EnableDarkTheme", Main.DarkTheme, __instance);
-            }
+            if (DarkTheme == null || DarkTheme.ToggleButton == null) DarkTheme = ClientOptionItem.Create("EnableDarkTheme", Main.DarkTheme, __instance);
 
             if (HorseMode == null || HorseMode.ToggleButton == null)
             {
@@ -143,13 +120,11 @@ namespace EHR
                     Main.LongMode.Value = false;
                     HorseMode.UpdateToggle();
                     LongMode.UpdateToggle();
+
                     foreach (PlayerControl pc in Main.AllPlayerControls)
                     {
                         pc.MyPhysics.SetBodyType(pc.BodyType);
-                        if (pc.BodyType == PlayerBodyTypes.Normal)
-                        {
-                            pc.cosmetics.currentBodySprite.BodySprite.transform.localScale = new(0.5f, 0.5f, 1f);
-                        }
+                        if (pc.BodyType == PlayerBodyTypes.Normal) pc.cosmetics.currentBodySprite.BodySprite.transform.localScale = new(0.5f, 0.5f, 1f);
                     }
                 }
             }
@@ -163,21 +138,16 @@ namespace EHR
                     Main.HorseMode.Value = false;
                     HorseMode.UpdateToggle();
                     LongMode.UpdateToggle();
+
                     foreach (PlayerControl pc in Main.AllPlayerControls)
                     {
                         pc.MyPhysics.SetBodyType(pc.BodyType);
-                        if (pc.BodyType == PlayerBodyTypes.Normal)
-                        {
-                            pc.cosmetics.currentBodySprite.BodySprite.transform.localScale = new(0.5f, 0.5f, 1f);
-                        }
+                        if (pc.BodyType == PlayerBodyTypes.Normal) pc.cosmetics.currentBodySprite.BodySprite.transform.localScale = new(0.5f, 0.5f, 1f);
                     }
                 }
             }
 
-            if (ShowPlayerInfoInLobby == null || ShowPlayerInfoInLobby.ToggleButton == null)
-            {
-                ShowPlayerInfoInLobby = ClientOptionItem.Create("ShowPlayerInfoInLobby", Main.ShowPlayerInfoInLobby, __instance);
-            }
+            if (ShowPlayerInfoInLobby == null || ShowPlayerInfoInLobby.ToggleButton == null) ShowPlayerInfoInLobby = ClientOptionItem.Create("ShowPlayerInfoInLobby", Main.ShowPlayerInfoInLobby, __instance);
 
             if (LobbyMusic == null || LobbyMusic.ToggleButton == null)
             {
@@ -188,6 +158,7 @@ namespace EHR
                     if (!Main.LobbyMusic.Value && GameStates.IsLobby)
                     {
                         SoundManager.Instance.StopAllSound();
+
                         LateTask.New(() =>
                         {
                             Main.LobbyMusic.Value = true;
@@ -197,10 +168,7 @@ namespace EHR
                 }
             }
 
-            if (EnableCommandHelper == null || EnableCommandHelper.ToggleButton == null)
-            {
-                EnableCommandHelper = ClientOptionItem.Create("EnableCommandHelper", Main.EnableCommandHelper, __instance);
-            }
+            if (EnableCommandHelper == null || EnableCommandHelper.ToggleButton == null) EnableCommandHelper = ClientOptionItem.Create("EnableCommandHelper", Main.EnableCommandHelper, __instance);
 
 #if DEBUG
         if ((GodMode == null || GodMode.ToggleButton == null) && DebugModeManager.AmDebugger)
@@ -218,9 +186,7 @@ namespace EHR
         {
             ClientOptionItem.CustomBackground?.gameObject.SetActive(false);
 
-            if (GameStates.InGame && GameStates.IsVoting && !DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening)
-            {
-            }
+            if (GameStates.InGame && GameStates.IsVoting && !DestroyableSingleton<HudManager>.Instance.Chat.IsOpenOrOpening) { }
         }
     }
 }

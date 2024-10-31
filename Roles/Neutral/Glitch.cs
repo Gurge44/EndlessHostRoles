@@ -41,16 +41,22 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Glitch);
+
             KillCooldown = new IntegerOptionItem(Id + 10, "KillCooldown", new(0, 180, 1), 25, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Glitch])
                 .SetValueFormat(OptionFormat.Seconds);
+
             HackCooldown = new IntegerOptionItem(Id + 11, "HackCooldown", new(0, 180, 1), 20, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Glitch])
                 .SetValueFormat(OptionFormat.Seconds);
+
             HackDuration = new FloatOptionItem(Id + 14, "HackDuration", new(0f, 60f, 1f), 15f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Glitch])
                 .SetValueFormat(OptionFormat.Seconds);
+
             MimicCooldown = new IntegerOptionItem(Id + 15, "MimicCooldown", new(0, 180, 1), 30, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Glitch])
                 .SetValueFormat(OptionFormat.Seconds);
+
             MimicDuration = new FloatOptionItem(Id + 16, "MimicDuration", new(0f, 60f, 1f), 10f, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Glitch])
                 .SetValueFormat(OptionFormat.Seconds);
+
             CanVent = new BooleanOptionItem(Id + 12, "CanVent", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Glitch]);
             CanVote = new BooleanOptionItem(Id + 17, "CanVote", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Glitch]);
             HasImpostorVision = new BooleanOptionItem(Id + 13, "ImpostorVision", true, TabGroup.NeutralRoles).SetParent(CustomRoleSpawnChances[CustomRoles.Glitch]);
@@ -103,10 +109,7 @@ namespace EHR.Neutral
 
         private void SendRPCSyncTimers()
         {
-            if (!IsEnable || !Utils.DoRPC)
-            {
-                return;
-            }
+            if (!IsEnable || !Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SyncGlitchTimers, SendOption.Reliable);
             writer.Write(GlitchId);
@@ -120,10 +123,7 @@ namespace EHR.Neutral
         public static void ReceiveRPCSyncTimers(MessageReader reader)
         {
             byte id = reader.ReadByte();
-            if (Main.PlayerStates[id].Role is not Glitch gc)
-            {
-                return;
-            }
+            if (Main.PlayerStates[id].Role is not Glitch gc) return;
 
             gc.MimicCDTimer = reader.ReadInt32();
             gc.MimicDurTimer = reader.ReadInt32();
@@ -143,10 +143,7 @@ namespace EHR.Neutral
 
         private void Mimic(PlayerControl pc)
         {
-            if (pc == null || !pc.Is(CustomRoles.Glitch) || !pc.IsAlive() || MimicCDTimer > 0 || IsShifted)
-            {
-                return;
-            }
+            if (pc == null || !pc.Is(CustomRoles.Glitch) || !pc.IsAlive() || MimicCDTimer > 0 || IsShifted) return;
 
             PlayerControl[] playerlist = Main.AllAlivePlayerControls.Where(a => a.PlayerId != pc.PlayerId).ToArray();
 
@@ -180,10 +177,7 @@ namespace EHR.Neutral
 
         public override bool OnCheckMurder(PlayerControl killer, PlayerControl target)
         {
-            if (killer == null || target == null || (KCDTimer > 0 && HackCDTimer > 0))
-            {
-                return false;
-            }
+            if (killer == null || target == null || (KCDTimer > 0 && HackCDTimer > 0)) return false;
 
             if (killer.CheckDoubleTrigger(target, () =>
                 {
@@ -197,10 +191,7 @@ namespace EHR.Neutral
                     }
                 }))
             {
-                if (KCDTimer > 0)
-                {
-                    return false;
-                }
+                if (KCDTimer > 0) return false;
 
                 LastKill = Utils.TimeStamp;
                 KCDTimer = KillCooldown.GetInt();
@@ -214,37 +205,19 @@ namespace EHR.Neutral
         public override void OnFixedUpdate(PlayerControl player)
         {
             long now = Utils.TimeStamp;
-            if (LastUpdate == now)
-            {
-                return;
-            }
+            if (LastUpdate == now) return;
 
             LastUpdate = now;
 
-            if (HackCDTimer is > 180 or < 0)
-            {
-                HackCDTimer = 0;
-            }
+            if (HackCDTimer is > 180 or < 0) HackCDTimer = 0;
 
-            if (KCDTimer is > 180 or < 0)
-            {
-                KCDTimer = 0;
-            }
+            if (KCDTimer is > 180 or < 0) KCDTimer = 0;
 
-            if (MimicCDTimer is > 180 or < 0)
-            {
-                MimicCDTimer = 0;
-            }
+            if (MimicCDTimer is > 180 or < 0) MimicCDTimer = 0;
 
-            if (MimicDurTimer is > 180 or < 0)
-            {
-                MimicDurTimer = 0;
-            }
+            if (MimicDurTimer is > 180 or < 0) MimicDurTimer = 0;
 
-            if (player == null)
-            {
-                return;
-            }
+            if (player == null) return;
 
             if (!player.IsAlive())
             {
@@ -266,10 +239,7 @@ namespace EHR.Neutral
                     MimicDurTimer = 0;
                 }
 
-                if (MimicDurTimer > 180)
-                {
-                    MimicDurTimer = 0;
-                }
+                if (MimicDurTimer > 180) MimicDurTimer = 0;
             }
 
             if ((MimicDurTimer <= 0 || !GameStates.IsInTask) && IsShifted)
@@ -284,16 +254,10 @@ namespace EHR.Neutral
                     Logger.Error(ex.ToString(), "Glitch.Mimic.RpcRevertShapeshift");
                 }
 
-                if (!GameStates.IsInTask)
-                {
-                    MimicDurTimer = 0;
-                }
+                if (!GameStates.IsInTask) MimicDurTimer = 0;
             }
 
-            if (HackCDTimer <= 0 && KCDTimer <= 0 && MimicCDTimer <= 0 && MimicDurTimer <= 0)
-            {
-                return;
-            }
+            if (HackCDTimer <= 0 && KCDTimer <= 0 && MimicCDTimer <= 0 && MimicDurTimer <= 0) return;
 
             try
             {
@@ -304,10 +268,7 @@ namespace EHR.Neutral
                 HackCDTimer = 0;
             }
 
-            if (HackCDTimer is > 180 or < 0)
-            {
-                HackCDTimer = 0;
-            }
+            if (HackCDTimer is > 180 or < 0) HackCDTimer = 0;
 
             try
             {
@@ -318,10 +279,7 @@ namespace EHR.Neutral
                 KCDTimer = 0;
             }
 
-            if (KCDTimer is > 180 or < 0)
-            {
-                KCDTimer = 0;
-            }
+            if (KCDTimer is > 180 or < 0) KCDTimer = 0;
 
             try
             {
@@ -332,82 +290,43 @@ namespace EHR.Neutral
                 MimicCDTimer = 0;
             }
 
-            if (MimicCDTimer is > 180 or < 0)
-            {
-                MimicCDTimer = 0;
-            }
+            if (MimicCDTimer is > 180 or < 0) MimicCDTimer = 0;
 
             if (!player.IsModClient())
             {
-                StringBuilder sb = new StringBuilder();
+                var sb = new StringBuilder();
 
-                if (MimicDurTimer > 0)
-                {
-                    sb.Append($"\n{string.Format(Translator.GetString("MimicDur"), MimicDurTimer)}");
-                }
+                if (MimicDurTimer > 0) sb.Append($"\n{string.Format(Translator.GetString("MimicDur"), MimicDurTimer)}");
 
-                if (MimicCDTimer > 0 && MimicDurTimer <= 0)
-                {
-                    sb.Append($"\n{string.Format(Translator.GetString("MimicCD"), MimicCDTimer)}");
-                }
+                if (MimicCDTimer > 0 && MimicDurTimer <= 0) sb.Append($"\n{string.Format(Translator.GetString("MimicCD"), MimicCDTimer)}");
 
-                if (HackCDTimer > 0)
-                {
-                    sb.Append($"\n{string.Format(Translator.GetString("HackCD"), HackCDTimer)}");
-                }
+                if (HackCDTimer > 0) sb.Append($"\n{string.Format(Translator.GetString("HackCD"), HackCDTimer)}");
 
-                if (KCDTimer > 0)
-                {
-                    sb.Append($"\n{string.Format(Translator.GetString("KCD"), KCDTimer)}");
-                }
+                if (KCDTimer > 0) sb.Append($"\n{string.Format(Translator.GetString("KCD"), KCDTimer)}");
 
-                string ns = sb.ToString();
+                var ns = sb.ToString();
 
-                if ((!NameNotifyManager.GetNameNotify(player, out string a) || a != ns) && ns != string.Empty)
-                {
-                    player.Notify(ns, 1.1f);
-                }
+                if ((!NameNotifyManager.GetNameNotify(player, out string a) || a != ns) && ns != string.Empty) player.Notify(ns, 1.1f);
             }
 
-            if (player.IsNonHostModClient())
-            {
-                SendRPCSyncTimers();
-            }
+            if (player.IsNonHostModClient()) SendRPCSyncTimers();
         }
 
         public override string GetSuffix(PlayerControl seer, PlayerControl target, bool hud = false, bool meeting = false)
         {
-            if (!hud || seer == null || !seer.IsAlive() || meeting)
-            {
-                return string.Empty;
-            }
+            if (!hud || seer == null || !seer.IsAlive() || meeting) return string.Empty;
 
-            if (Main.PlayerStates[seer.PlayerId].Role is not Glitch gc)
-            {
-                return string.Empty;
-            }
+            if (Main.PlayerStates[seer.PlayerId].Role is not Glitch gc) return string.Empty;
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
-            if (gc.MimicDurTimer > 0)
-            {
-                sb.Append($"{string.Format(Translator.GetString("MimicDur"), gc.MimicDurTimer)}\n");
-            }
+            if (gc.MimicDurTimer > 0) sb.Append($"{string.Format(Translator.GetString("MimicDur"), gc.MimicDurTimer)}\n");
 
-            if (gc.MimicCDTimer > 0 && gc.MimicDurTimer <= 0)
-            {
-                sb.Append($"{string.Format(Translator.GetString("MimicCD"), gc.MimicCDTimer)}\n");
-            }
+            if (gc.MimicCDTimer > 0 && gc.MimicDurTimer <= 0) sb.Append($"{string.Format(Translator.GetString("MimicCD"), gc.MimicCDTimer)}\n");
 
-            if (gc.HackCDTimer > 0)
-            {
-                sb.Append($"{string.Format(Translator.GetString("HackCD"), gc.HackCDTimer)}\n");
-            }
+            if (gc.HackCDTimer > 0) sb.Append($"{string.Format(Translator.GetString("HackCD"), gc.HackCDTimer)}\n");
 
-            if (gc.KCDTimer > 0)
-            {
-                sb.Append($"{string.Format(Translator.GetString("KCD"), gc.KCDTimer)}\n");
-            }
+            if (gc.KCDTimer > 0) sb.Append($"{string.Format(Translator.GetString("KCD"), gc.KCDTimer)}\n");
 
             return sb.ToString();
         }

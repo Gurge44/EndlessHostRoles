@@ -27,13 +27,10 @@ namespace EHR.Crewmate
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            StringBuilder ProgressText = new StringBuilder();
+            var ProgressText = new StringBuilder();
 
             ProgressText.Append(base.GetProgressText(playerId, comms));
-            if (TunnelerPositions.ContainsKey(playerId))
-            {
-                ProgressText.Append('●');
-            }
+            if (TunnelerPositions.ContainsKey(playerId)) ProgressText.Append('●');
 
             return ProgressText.ToString();
         }
@@ -46,9 +43,7 @@ namespace EHR.Crewmate
                 TunnelerPositions.Remove(pc.PlayerId);
             }
             else
-            {
                 TunnelerPositions[pc.PlayerId] = pc.Pos();
-            }
         }
     }
 }

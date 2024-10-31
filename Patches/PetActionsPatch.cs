@@ -23,37 +23,19 @@ namespace EHR.Patches
 
         public static bool Prefix(PlayerControl __instance)
         {
-            if (!Options.UsePets.GetBool())
-            {
-                return true;
-            }
+            if (!Options.UsePets.GetBool()) return true;
 
-            if (!(AmongUsClient.Instance.AmHost && AmongUsClient.Instance.AmClient))
-            {
-                return true;
-            }
+            if (!(AmongUsClient.Instance.AmHost && AmongUsClient.Instance.AmClient)) return true;
 
-            if (GameStates.IsLobby || !__instance.IsAlive())
-            {
-                return true;
-            }
+            if (GameStates.IsLobby || !__instance.IsAlive()) return true;
 
-            if (__instance.petting)
-            {
-                return true;
-            }
+            if (__instance.petting) return true;
 
             __instance.petting = true;
 
-            if (!LastProcess.ContainsKey(__instance.PlayerId))
-            {
-                LastProcess.TryAdd(__instance.PlayerId, Utils.TimeStamp - 2);
-            }
+            if (!LastProcess.ContainsKey(__instance.PlayerId)) LastProcess.TryAdd(__instance.PlayerId, Utils.TimeStamp - 2);
 
-            if (LastProcess[__instance.PlayerId] + 1 >= Utils.TimeStamp)
-            {
-                return true;
-            }
+            if (LastProcess[__instance.PlayerId] + 1 >= Utils.TimeStamp) return true;
 
             ExternalRpcPetPatch.Prefix(__instance.MyPhysics, (byte)RpcCalls.Pet);
 
@@ -63,15 +45,9 @@ namespace EHR.Patches
 
         public static void Postfix(PlayerControl __instance)
         {
-            if (!Options.UsePets.GetBool())
-            {
-                return;
-            }
+            if (!Options.UsePets.GetBool()) return;
 
-            if (!(AmongUsClient.Instance.AmHost && AmongUsClient.Instance.AmClient))
-            {
-                return;
-            }
+            if (!(AmongUsClient.Instance.AmHost && AmongUsClient.Instance.AmClient)) return;
 
             __instance.petting = false;
         }
@@ -84,18 +60,12 @@ namespace EHR.Patches
 
         public static void Prefix(PlayerPhysics __instance, [HarmonyArgument(0)] byte callID)
         {
-            if (GameStates.IsLobby || !Options.UsePets.GetBool() || !AmongUsClient.Instance.AmHost || (RpcCalls)callID != RpcCalls.Pet)
-            {
-                return;
-            }
+            if (GameStates.IsLobby || !Options.UsePets.GetBool() || !AmongUsClient.Instance.AmHost || (RpcCalls)callID != RpcCalls.Pet) return;
 
             PlayerControl pc = __instance.myPlayer;
             PlayerPhysics physics = __instance;
 
-            if (pc == null || !pc.IsAlive())
-            {
-                return;
-            }
+            if (pc == null || !pc.IsAlive()) return;
 
             if (!pc.inVent
                 && !pc.inMovingPlat
@@ -119,15 +89,9 @@ namespace EHR.Patches
                 }
             }
 
-            if (!LastProcess.ContainsKey(pc.PlayerId))
-            {
-                LastProcess.TryAdd(pc.PlayerId, Utils.TimeStamp - 2);
-            }
+            if (!LastProcess.ContainsKey(pc.PlayerId)) LastProcess.TryAdd(pc.PlayerId, Utils.TimeStamp - 2);
 
-            if (LastProcess[pc.PlayerId] + 1 >= Utils.TimeStamp)
-            {
-                return;
-            }
+            if (LastProcess[pc.PlayerId] + 1 >= Utils.TimeStamp) return;
 
             LastProcess[pc.PlayerId] = Utils.TimeStamp;
 
@@ -151,9 +115,7 @@ namespace EHR.Patches
                 !AmongUsClient.Instance.AmHost ||
                 GameStates.IsLobby
                )
-            {
                 return;
-            }
 
             if (Options.CurrentGameMode == CustomGameMode.CaptureTheFlag)
             {
@@ -164,10 +126,7 @@ namespace EHR.Patches
             if (Mastermind.ManipulatedPlayers.ContainsKey(pc.PlayerId))
             {
                 PlayerControl killTarget = SelectKillButtonTarget(pc);
-                if (killTarget != null)
-                {
-                    Mastermind.ForceKillForManipulatedPlayer(pc, killTarget);
-                }
+                if (killTarget != null) Mastermind.ForceKillForManipulatedPlayer(pc, killTarget);
 
                 return;
             }
@@ -181,58 +140,34 @@ namespace EHR.Patches
             if (pc.HasAbilityCD())
             {
                 if (!pc.IsHost())
-                {
                     pc.Notify(Translator.GetString("AbilityOnCooldown"));
-                }
                 else
-                {
                     Main.Instance.StartCoroutine(FlashCooldownTimer());
-                }
 
                 return;
             }
 
-            bool hasKillTarget = false;
+            var hasKillTarget = false;
             PlayerControl target = SelectKillButtonTarget(pc);
-            if (target != null)
-            {
-                hasKillTarget = true;
-            }
+            if (target != null) hasKillTarget = true;
 
             CustomRoles role = pc.GetCustomRole();
             bool alwaysPetRole = role is CustomRoles.Necromancer or CustomRoles.Deathknight or CustomRoles.Refugee or CustomRoles.Sidekick;
 
-            if (!pc.CanUseKillButton() && !alwaysPetRole)
-            {
-                hasKillTarget = false;
-            }
+            if (!pc.CanUseKillButton() && !alwaysPetRole) hasKillTarget = false;
 
             if (role.UsesPetInsteadOfKill() && hasKillTarget && (pc.Data.RoleType != RoleTypes.Impostor || alwaysPetRole))
             {
-                if (Options.CurrentGameMode != CustomGameMode.Speedrun)
-                {
-                    pc.AddKCDAsAbilityCD();
-                }
+                if (Options.CurrentGameMode != CustomGameMode.Speedrun) pc.AddKCDAsAbilityCD();
 
-                if (Main.PlayerStates[pc.PlayerId].Role.OnCheckMurder(pc, target))
-                {
-                    pc.RpcCheckAndMurder(target);
-                }
+                if (Main.PlayerStates[pc.PlayerId].Role.OnCheckMurder(pc, target)) pc.RpcCheckAndMurder(target);
 
-                if (alwaysPetRole)
-                {
-                    pc.SetKillCooldown();
-                }
+                if (alwaysPetRole) pc.SetKillCooldown();
             }
             else
-            {
                 Main.PlayerStates[pc.PlayerId].Role.OnPet(pc);
-            }
 
-            if (pc.HasAbilityCD() || Main.PlayerStates[pc.PlayerId].Role is Sniper { IsAim: true })
-            {
-                return;
-            }
+            if (pc.HasAbilityCD() || Main.PlayerStates[pc.PlayerId].Role is Sniper { IsAim: true }) return;
 
             pc.AddAbilityCD();
         }
@@ -255,8 +190,9 @@ namespace EHR.Patches
 
         private static IEnumerator FlashCooldownTimer()
         {
-            bool yellow = false;
-            for (int i = 0; i < 8; i++)
+            var yellow = false;
+
+            for (var i = 0; i < 8; i++)
             {
                 HudManagerPatch.CooldownTimerFlashColor = yellow ? Color.red : Color.yellow;
                 yellow = !yellow;

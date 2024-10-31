@@ -35,10 +35,7 @@ namespace EHR.Crewmate
 
         public override bool OnVote(PlayerControl player, PlayerControl target)
         {
-            if (player == null || target == null || player.PlayerId == target.PlayerId || MarkedId != byte.MaxValue || Main.DontCancelVoteList.Contains(player.PlayerId))
-            {
-                return false;
-            }
+            if (player == null || target == null || player.PlayerId == target.PlayerId || MarkedId != byte.MaxValue || Main.DontCancelVoteList.Contains(player.PlayerId)) return false;
 
             MarkedId = target.PlayerId;
 
@@ -48,10 +45,7 @@ namespace EHR.Crewmate
 
         public static void OnDeath(PlayerControl player)
         {
-            if (Main.PlayerStates[player.PlayerId].Role is not Markseeker { IsEnable: true } ms || ms.MarkedId == byte.MaxValue)
-            {
-                return;
-            }
+            if (Main.PlayerStates[player.PlayerId].Role is not Markseeker { IsEnable: true } ms || ms.MarkedId == byte.MaxValue) return;
 
             ms.TargetRevealed = true;
         }

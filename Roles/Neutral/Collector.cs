@@ -19,6 +19,7 @@ namespace EHR.Neutral
         public override void SetupCustomOption()
         {
             Options.SetupRoleOptions(Id, TabGroup.NeutralRoles, CustomRoles.Collector);
+
             CollectorCollectAmount = new IntegerOptionItem(Id + 13, "CollectorCollectAmount", new(1, 60, 1), 30, TabGroup.NeutralRoles)
                 .SetParent(Options.CustomRoleSpawnChances[CustomRoles.Collector])
                 .SetValueFormat(OptionFormat.Votes);
@@ -39,10 +40,7 @@ namespace EHR.Neutral
 
         private static void SendRPC(byte playerId)
         {
-            if (!Utils.DoRPC)
-            {
-                return;
-            }
+            if (!Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCollectorVotes, SendOption.Reliable);
             writer.Write(playerId);
@@ -60,10 +58,7 @@ namespace EHR.Neutral
 
         public override string GetProgressText(byte playerId, bool comms)
         {
-            if (!CollectVote.TryGetValue(playerId, out int VoteAmount))
-            {
-                return string.Empty;
-            }
+            if (!CollectVote.TryGetValue(playerId, out int VoteAmount)) return string.Empty;
 
             int CollectNum = CollectorCollectAmount.GetInt();
             return Utils.ColorString(Utils.GetRoleColor(CustomRoles.Collector).ShadeColor(0.25f), $"({VoteAmount}/{CollectNum})");
@@ -72,18 +67,13 @@ namespace EHR.Neutral
         public static bool CollectorWin(bool check = true)
         {
             PlayerControl[] pc = Main.AllPlayerControls.Where(x => x.Is(CustomRoles.Collector) && x.IsAlive() && CollectDone(x)).ToArray();
+
             if (pc.Length > 0)
             {
-                if (check)
-                {
-                    return true;
-                }
+                if (check) return true;
 
                 CustomWinnerHolder.ResetAndSetWinner(CustomWinner.Collector);
-                foreach (PlayerControl winner in pc)
-                {
-                    CustomWinnerHolder.WinnerIds.Add(winner.PlayerId);
-                }
+                foreach (PlayerControl winner in pc) CustomWinnerHolder.WinnerIds.Add(winner.PlayerId);
 
                 return true;
             }
@@ -98,10 +88,7 @@ namespace EHR.Neutral
                 byte pcid = player.PlayerId;
                 int VoteAmount = CollectVote[pcid];
                 int CollectNum = CollectorCollectAmount.GetInt();
-                if (VoteAmount >= CollectNum)
-                {
-                    return true;
-                }
+                if (VoteAmount >= CollectNum) return true;
             }
 
             return false;
@@ -109,26 +96,17 @@ namespace EHR.Neutral
 
         public static void CollectorVotes(PlayerControl target, PlayerVoteArea ps) //集票者投票给谁
         {
-            if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Collector))
-            {
-                CollectorVoteFor.TryAdd(target.PlayerId, ps.TargetPlayerId);
-            }
+            if (CheckForEndVotingPatch.CheckRole(ps.TargetPlayerId, CustomRoles.Collector)) CollectorVoteFor.TryAdd(target.PlayerId, ps.TargetPlayerId);
         }
 
         public static void CollectAmount(Dictionary<byte, int> VotingData, MeetingHud __instance) //得到集票者收集到的票
         {
             foreach (PlayerVoteArea pva in __instance.playerStates.ToArray())
             {
-                if (pva == null)
-                {
-                    continue;
-                }
+                if (pva == null) continue;
 
                 PlayerControl pc = Utils.GetPlayerById(pva.TargetPlayerId);
-                if (pc == null)
-                {
-                    continue;
-                }
+                if (pc == null) continue;
 
                 foreach ((byte key, int value) in VotingData)
                 {

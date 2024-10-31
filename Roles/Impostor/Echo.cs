@@ -17,17 +17,20 @@ namespace EHR.Impostor
 
         public override void SetupCustomOption()
         {
-            int id = 647600;
+            var id = 647600;
             const TabGroup tab = TabGroup.ImpostorRoles;
             const CustomRoles role = CustomRoles.Echo;
             Options.SetupRoleOptions(id++, tab, role);
             StringOptionItem parent = Options.CustomRoleSpawnChances[role];
+
             ShapeshiftCooldown = new FloatOptionItem(++id, "ShapeshiftCooldown", new(0f, 180f, 0.5f), 30f, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Seconds);
+
             ShapeshiftDuration = new FloatOptionItem(++id, "ShapeshiftDuration", new(0f, 180f, 0.5f), 10f, tab)
                 .SetParent(parent)
                 .SetValueFormat(OptionFormat.Seconds);
+
             DisableVentingWhileControlling = new BooleanOptionItem(++id, "Echo.DisableVentingWhileControlling", true, tab)
                 .SetParent(parent);
         }
@@ -74,10 +77,7 @@ namespace EHR.Impostor
             if (shapeshifting)
             {
                 Vector2 pos = target.Pos();
-                if (!shapeshifter.RpcCheckAndMurder(target, true) || !target.TP(shapeshifter))
-                {
-                    return false;
-                }
+                if (!shapeshifter.RpcCheckAndMurder(target, true) || !target.TP(shapeshifter)) return false;
 
                 target.RpcShapeshift(shapeshifter, false);
                 Main.AllPlayerSpeed[target.PlayerId] = Main.MinSpeed;
@@ -87,10 +87,7 @@ namespace EHR.Impostor
             else
             {
                 target = Utils.GetPlayerById(shapeshifter.shapeshiftTargetPlayerId);
-                if (target == null)
-                {
-                    return true;
-                }
+                if (target == null) return true;
 
                 RevertSwap(shapeshifter, target);
                 LateTask.New(() => target.Suicide(PlayerState.DeathReason.Kill, shapeshifter), 0.2f, "Echo Unshift Kill");
@@ -109,16 +106,10 @@ namespace EHR.Impostor
 
         public override bool OnCheckMurderAsTarget(PlayerControl killer, PlayerControl target)
         {
-            if (!target.IsShifted())
-            {
-                return true;
-            }
+            if (!target.IsShifted()) return true;
 
             PlayerControl ssTarget = Utils.GetPlayerById(target.shapeshiftTargetPlayerId);
-            if (ssTarget == null || !killer.RpcCheckAndMurder(ssTarget, true))
-            {
-                return true;
-            }
+            if (ssTarget == null || !killer.RpcCheckAndMurder(ssTarget, true)) return true;
 
             RevertSwap(target, ssTarget);
             LateTask.New(() => killer.Kill(ssTarget), 0.2f, log: false);
@@ -128,6 +119,7 @@ namespace EHR.Impostor
         public void OnTargetCheckMurder(PlayerControl killer, PlayerControl target)
         {
             RevertSwap(EchoPC, target);
+
             LateTask.New(() =>
             {
                 killer.RpcCheckAndMurder(EchoPC);
@@ -137,16 +129,10 @@ namespace EHR.Impostor
 
         public override void OnReportDeadBody()
         {
-            if (!EchoPC.IsShifted())
-            {
-                return;
-            }
+            if (!EchoPC.IsShifted()) return;
 
             PlayerControl ssTarget = ((byte)EchoPC.shapeshiftTargetPlayerId).GetPlayer();
-            if (ssTarget == null || !ssTarget.IsAlive())
-            {
-                return;
-            }
+            if (ssTarget == null || !ssTarget.IsAlive()) return;
 
             ssTarget.Suicide(PlayerState.DeathReason.Kill, EchoPC);
         }

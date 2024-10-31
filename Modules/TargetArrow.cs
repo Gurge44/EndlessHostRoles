@@ -52,6 +52,7 @@ namespace EHR
         public static void Add(byte seer, byte target)
         {
             ArrowInfo arrowInfo = new(seer, target);
+
             if (!TargetArrows.Any(a => a.Key.Equals(arrowInfo)))
             {
                 TargetArrows[arrowInfo] = "・";
@@ -69,10 +70,7 @@ namespace EHR
         {
             ArrowInfo arrowInfo = new(seer, target);
             List<ArrowInfo> removeList = new(TargetArrows.Keys.Where(k => k.Equals(arrowInfo)));
-            foreach (ArrowInfo a in removeList.ToArray())
-            {
-                TargetArrows.Remove(a);
-            }
+            foreach (ArrowInfo a in removeList.ToArray()) TargetArrows.Remove(a);
 
             Utils.SendRPC(CustomRPC.Arrow, true, 2, seer, target);
             Logger.Info($"Removed target arrow: {seer} ({seer.GetPlayer()?.GetRealName()}) => {target} ({target.GetPlayer()?.GetRealName()})", "TargetArrow");
@@ -85,10 +83,7 @@ namespace EHR
         public static void RemoveAllTarget(byte seer)
         {
             List<ArrowInfo> removeList = new(TargetArrows.Keys.Where(k => k.From == seer));
-            foreach (ArrowInfo arrowInfo in removeList.ToArray())
-            {
-                TargetArrows.Remove(arrowInfo);
-            }
+            foreach (ArrowInfo arrowInfo in removeList.ToArray()) TargetArrows.Remove(arrowInfo);
 
             Utils.SendRPC(CustomRPC.Arrow, true, 3, seer);
             Logger.Info($"Removed all target arrows for {seer} ({seer.GetPlayer()?.GetRealName()})", "TargetArrow");
@@ -122,24 +117,20 @@ namespace EHR
         /// <param name="seer"></param>
         public static void OnFixedUpdate(PlayerControl seer)
         {
-            if (!GameStates.IsInTask)
-            {
-                return;
-            }
+            if (!GameStates.IsInTask) return;
 
             bool seerIsDead = !seer.IsAlive();
 
             List<ArrowInfo> arrowList = new(TargetArrows.Keys.Where(a => a.From == seer.PlayerId));
-            if (arrowList.Count == 0)
-            {
-                return;
-            }
+            if (arrowList.Count == 0) return;
 
-            bool update = false;
+            var update = false;
+
             foreach (ArrowInfo arrowInfo in arrowList.ToArray())
             {
                 byte targetId = arrowInfo.To;
                 PlayerControl target = Utils.GetPlayerById(targetId);
+
                 if (seerIsDead || (!target.IsAlive() && !seer.Is(CustomRoles.Spiritualist)))
                 {
                     TargetArrows.Remove(arrowInfo);
@@ -150,6 +141,7 @@ namespace EHR
                 // Take the direction vector of the target
                 Vector3 dir = target.transform.position - seer.transform.position;
                 int index;
+
                 if (dir.magnitude < 2)
                 {
                     // Display a dot when close
@@ -166,6 +158,7 @@ namespace EHR
                 }
 
                 string arrow = Arrows[index];
+
                 if (TargetArrows[arrowInfo] != arrow)
                 {
                     TargetArrows[arrowInfo] = arrow;
@@ -173,10 +166,7 @@ namespace EHR
                 }
             }
 
-            if (update)
-            {
-                Utils.NotifyRoles(SpecifySeer: seer, ForceLoop: false, SpecifyTarget: seer);
-            }
+            if (update) Utils.NotifyRoles(SpecifySeer: seer, ForceLoop: false, SpecifyTarget: seer);
         }
 
         private class ArrowInfo(byte from, byte to)

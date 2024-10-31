@@ -41,7 +41,7 @@ namespace EHR
 
         public static void SetupCustomOption()
         {
-            int id = 69_216_001;
+            var id = 69_216_001;
             Color color = Utils.GetRoleColor(CustomRoles.NDPlayer);
             const CustomGameMode gameMode = CustomGameMode.NaturalDisasters;
 
@@ -105,16 +105,10 @@ namespace EHR
             BuildingCollapse.CollapsedRooms.Clear();
             BuildingCollapse.LastPosition.Clear();
 
-            if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters)
-            {
-                return;
-            }
+            if (Options.CurrentGameMode != CustomGameMode.NaturalDisasters) return;
 
             Dictionary<SystemTypes, Vector2>.ValueCollection rooms = RoomLocations()?.Values;
-            if (rooms == null)
-            {
-                return;
-            }
+            if (rooms == null) return;
 
             float[] x = rooms.Select(r => r.x).ToArray();
             float[] y = rooms.Select(r => r.y).ToArray();
@@ -209,14 +203,12 @@ namespace EHR
             [SuppressMessage("ReSharper", "UnusedMember.Local")]
             public static void Postfix(PlayerControl __instance)
             {
-                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.NaturalDisasters || Main.HasJustStarted || GameStartTimeStamp + 5 > Utils.TimeStamp || !__instance.IsHost())
-                {
-                    return;
-                }
+                if (!AmongUsClient.Instance.AmHost || !GameStates.IsInTask || Options.CurrentGameMode != CustomGameMode.NaturalDisasters || Main.HasJustStarted || GameStartTimeStamp + 5 > Utils.TimeStamp || !__instance.IsHost()) return;
 
                 foreach (NaturalDisaster naturalDisaster in PreparingDisasters.ToArray())
                 {
                     naturalDisaster.Update();
+
                     if (float.IsNaN(naturalDisaster.SpawnTimer))
                     {
                         Type type = AllDisasters.Find(d => d.Name == naturalDisaster.DisasterName);
@@ -232,6 +224,7 @@ namespace EHR
                 if (LimitMaximumDisastersAtOnce.GetBool())
                 {
                     int numDisasters = ActiveDisasters.Count + PreparingDisasters.Count;
+
                     if (numDisasters > MaximumDisastersAtOnce.GetInt())
                     {
                         switch (WhenLimitIsReached.GetValue())
@@ -250,10 +243,7 @@ namespace EHR
                                 }
 
                                 Disaster remove = PreferRemovingThunderstorm.GetBool() ? ActiveDisasters.Find(x => x is Thunderstorm) : ActiveDisasters.RandomElement();
-                                if (remove != null)
-                                {
-                                    remove.Duration = 0;
-                                }
+                                if (remove != null) remove.Duration = 0;
 
                                 remove?.RemoveIfExpired();
                                 break;
@@ -270,17 +260,16 @@ namespace EHR
                 }
 
                 long now = Utils.TimeStamp;
+
                 if (now - LastDisaster >= DisasterFrequency.GetInt())
                 {
                     LastDisaster = now;
                     List<Type> disasters = AllDisasters.ToList();
-                    if (ActiveDisasters.Exists(x => x is Thunderstorm))
-                    {
-                        disasters.RemoveAll(x => x.Name == "Thunderstorm");
-                    }
+                    if (ActiveDisasters.Exists(x => x is Thunderstorm)) disasters.RemoveAll(x => x.Name == "Thunderstorm");
 
                     Type disaster = disasters.SelectMany(x => Enumerable.Repeat(x, DisasterSpawnChances[x.Name].GetInt() / 5)).RandomElement();
                     KeyValuePair<SystemTypes, Vector2> roomKvp = RoomLocations().RandomElement();
+
                     Vector2 position = disaster.Name switch
                     {
                         "BuildingCollapse" => roomKvp.Value,
@@ -289,6 +278,7 @@ namespace EHR
                             ? Main.AllAlivePlayerControls.RandomElement().Pos()
                             : new(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Top, MapBounds.Y.Bottom))
                     };
+
                     SystemTypes? room = disaster.Name == "BuildingCollapse" ? roomKvp.Key : null;
                     PreparingDisasters.Add(new(position, DisasterWarningTime.GetFloat(), Sprite(disaster.Name), disaster.Name, room));
                 }
@@ -328,19 +318,13 @@ namespace EHR
 
             public abstract void Update();
 
-            public virtual void ApplyOwnGameOptions(IGameOptions opt, byte id)
-            {
-            }
+            public virtual void ApplyOwnGameOptions(IGameOptions opt, byte id) { }
 
             protected void KillNearbyPlayers(PlayerState.DeathReason deathReason, float range = Range)
             {
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                {
                     if (Vector2.Distance(pc.Pos(), Position) <= range)
-                    {
                         pc.Suicide(deathReason);
-                    }
-                }
             }
         }
 
@@ -379,10 +363,7 @@ namespace EHR
 
             public override void Update()
             {
-                if (RemoveIfExpired())
-                {
-                    return;
-                }
+                if (RemoveIfExpired()) return;
 
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
@@ -392,6 +373,7 @@ namespace EHR
                         false when AffectedPlayers.Remove(pc.PlayerId) => Main.RealOptionsData.GetFloat(FloatOptionNames.PlayerSpeedMod),
                         _ => float.NaN
                     };
+
                     if (!float.IsNaN(speed) && !Mathf.Approximately(Main.AllPlayerSpeed[pc.PlayerId], speed))
                     {
                         Main.AllPlayerSpeed[pc.PlayerId] = speed;
@@ -475,20 +457,15 @@ namespace EHR
 
             public override void Update()
             {
-                if (RemoveIfExpired())
-                {
-                    return;
-                }
+                if (RemoveIfExpired()) return;
 
                 Timer += Time.deltaTime;
+
                 if (Timer >= FlowStepDelay.GetFloat())
                 {
                     Timer = 0f;
                     Phase++;
-                    if (Phase > Phases)
-                    {
-                        return;
-                    }
+                    if (Phase > Phases) return;
 
                     string newSprite = Phase switch
                     {
@@ -549,10 +526,7 @@ namespace EHR
 
             public override void Update()
             {
-                if (RemoveIfExpired())
-                {
-                    return;
-                }
+                if (RemoveIfExpired()) return;
 
                 const float eyeRange = Range / 4f;
                 const float dragRange = Range * 1.25f;
@@ -560,6 +534,7 @@ namespace EHR
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
                     Vector2 pos = pc.Pos();
+
                     switch (Vector2.Distance(pos, Position))
                     {
                         case <= eyeRange:
@@ -573,15 +548,13 @@ namespace EHR
                     }
                 }
 
-                if (Count++ < 3)
-                {
-                    return;
-                }
+                if (Count++ < 3) return;
 
                 Count = 0;
 
                 float angle;
                 long now = Utils.TimeStamp;
+
                 if (LastAngleChange + 7 <= now)
                 {
                     angle = RandomAngle();
@@ -589,9 +562,7 @@ namespace EHR
                     Angle = angle;
                 }
                 else
-                {
                     angle = Angle;
-                }
 
                 Vector2 newPos = Position + (new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * MovingSpeed.GetFloat());
 
@@ -653,30 +624,23 @@ namespace EHR
 
             public override void Update()
             {
-                if (RemoveIfExpired())
-                {
-                    return;
-                }
+                if (RemoveIfExpired()) return;
 
                 long now = Utils.TimeStamp;
+
                 if (now - LastHit >= HitFrequency.GetInt())
                 {
                     LastHit = now;
-                    Vector2 hit = new Vector2(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Bottom, MapBounds.Y.Top));
-                    Lightning cno = new Lightning(hit);
+                    var hit = new Vector2(Random.Range(MapBounds.X.Left, MapBounds.X.Right), Random.Range(MapBounds.Y.Bottom, MapBounds.Y.Top));
+                    var cno = new Lightning(hit);
+
                     if (cno.playerControl.GetPlainShipRoom() != default(PlainShipRoom))
-                    {
                         cno.Despawn();
-                    }
                     else
                     {
                         foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                        {
                             if (Vector2.Distance(pc.Pos(), hit) <= Range / 2f)
-                            {
                                 pc.Suicide(PlayerState.DeathReason.Lightning);
-                            }
-                        }
                     }
                 }
             }
@@ -728,18 +692,12 @@ namespace EHR
 
             public override void Update()
             {
-                if (RemoveIfExpired())
-                {
-                    return;
-                }
+                if (RemoveIfExpired()) return;
 
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
                     bool inRange = Vector2.Distance(pc.Pos(), Position) <= Range;
-                    if ((inRange && AffectedPlayers.Add(pc.PlayerId)) || (!inRange && AffectedPlayers.Remove(pc.PlayerId)))
-                    {
-                        pc.MarkDirtySettings();
-                    }
+                    if ((inRange && AffectedPlayers.Add(pc.PlayerId)) || (!inRange && AffectedPlayers.Remove(pc.PlayerId))) pc.MarkDirtySettings();
                 }
             }
 
@@ -748,12 +706,8 @@ namespace EHR
                 if (base.RemoveIfExpired())
                 {
                     foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                    {
                         if (AffectedPlayers.Remove(pc.PlayerId))
-                        {
                             pc.MarkDirtySettings();
-                        }
-                    }
 
                     return true;
                 }
@@ -814,14 +768,12 @@ namespace EHR
 
             public override void Update()
             {
-                if (RemoveIfExpired())
-                {
-                    return;
-                }
+                if (RemoveIfExpired()) return;
 
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
                     Vector2 pos = pc.Pos();
+
                     bool inWay = Direction switch
                     {
                         MovingDirection.LeftToRight => pos.x >= Position.x,
@@ -831,21 +783,16 @@ namespace EHR
                         _ => false
                     };
 
-                    if (Vector2.Distance(pos, Position) <= Range && inWay)
-                    {
-                        pc.Suicide(PlayerState.DeathReason.Drowned);
-                    }
+                    if (Vector2.Distance(pos, Position) <= Range && inWay) pc.Suicide(PlayerState.DeathReason.Drowned);
                 }
 
-                if (Count++ < 2)
-                {
-                    return;
-                }
+                if (Count++ < 2) return;
 
                 Count = 0;
 
                 float speed = MovingSpeed.GetFloat();
                 Vector2 newPos = Position;
+
                 switch (Direction)
                 {
                     case MovingDirection.LeftToRight:
@@ -905,22 +852,16 @@ namespace EHR
 
             public static void OnFixedUpdate()
             {
-                if (Sinkholes.Count == 0)
-                {
-                    return;
-                }
+                if (Sinkholes.Count == 0) return;
 
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
                     Vector2 pos = pc.Pos();
+
                     // ReSharper disable once ForCanBeConvertedToForeach
-                    for (int i = 0; i < Sinkholes.Count; i++)
-                    {
+                    for (var i = 0; i < Sinkholes.Count; i++)
                         if (Vector2.Distance(pos, Sinkholes[i].Position) <= Range)
-                        {
                             pc.Suicide(PlayerState.DeathReason.Sunken);
-                        }
-                    }
                 }
             }
 
@@ -944,18 +885,11 @@ namespace EHR
                 Update();
 
                 PlainShipRoom room = ShipStatus.Instance.AllRooms.FirstOrDefault(x => x.RoomId == naturalDisaster.Room);
-                if (room == default(PlainShipRoom))
-                {
-                    return;
-                }
+                if (room == default(PlainShipRoom)) return;
 
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
-                {
                     if (pc.GetPlainShipRoom() == room)
-                    {
                         pc.Suicide(PlayerState.DeathReason.Collapsed);
-                    }
-                }
 
                 CollapsedRooms.Add(room);
                 Utils.NotifyRoles();
@@ -973,36 +907,25 @@ namespace EHR
 
             public static void OnFixedUpdate()
             {
-                if (CollapsedRooms.Count == 0)
-                {
-                    return;
-                }
+                if (CollapsedRooms.Count == 0) return;
 
-                if (Count++ < 10)
-                {
-                    return;
-                }
+                if (Count++ < 10) return;
 
                 Count = 0;
 
                 foreach (PlayerControl pc in Main.AllAlivePlayerControls)
                 {
                     PlainShipRoom room = pc.GetPlainShipRoom();
+
                     if (room != default(PlainShipRoom) && CollapsedRooms.Exists(x => x == room))
                     {
                         if (LastPosition.TryGetValue(pc.PlayerId, out Vector2 lastPos))
-                        {
                             pc.TP(lastPos);
-                        }
                         else
-                        {
                             pc.Suicide(PlayerState.DeathReason.Collapsed);
-                        }
                     }
                     else
-                    {
                         LastPosition[pc.PlayerId] = pc.Pos();
-                    }
                 }
             }
         }

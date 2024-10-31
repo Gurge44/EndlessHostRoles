@@ -23,6 +23,7 @@ namespace EHR
                 while (true)
                 {
                     yield return new WaitForSeconds(1f);
+
                     if (__instance != null)
                     {
                         // ViewBoosterPatch(__instance);

@@ -21,15 +21,13 @@ namespace EHR
             this.log = log;
             this.callerData = callerData;
             Tasks.Add(this);
-            if (log && name is not "" and not "No Name Task")
-            {
-                Logger.Info("\"" + name + "\" is created", "LateTask");
-            }
+            if (log && name is not "" and not "No Name Task") Logger.Info("\"" + name + "\" is created", "LateTask");
         }
 
         private bool Run(float deltaTime)
         {
             timer -= deltaTime;
+
             if (timer <= 0)
             {
                 action();
@@ -59,10 +57,7 @@ namespace EHR
                 {
                     if (task.Run(deltaTime))
                     {
-                        if (task.name is not "" and not "No Name Task" && task.log)
-                        {
-                            Logger.Info($"\"{task.name}\" is finished", "LateTask");
-                        }
+                        if (task.name is not "" and not "No Name Task" && task.log) Logger.Info($"\"{task.name}\" is finished", "LateTask");
 
                         Tasks.Remove(task);
                     }

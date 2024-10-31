@@ -60,38 +60,25 @@ namespace EHR.Impostor
 
         public static void OnVotingEnd(Dictionary<byte, int> voteNum)
         {
-            if (!On)
-            {
-                return;
-            }
+            if (!On) return;
 
             foreach (Assumer instance in Instances)
             {
                 if (instance.HasAssumed && voteNum.TryGetValue(instance.Assumption.Id, out int num) && num == instance.Assumption.VoteNum)
                 {
                     foreach (PlayerVoteArea pva in MeetingHud.Instance.playerStates)
-                    {
                         if (pva.VotedFor == instance.Assumption.Id || (VoteReceiverDies.GetBool() && pva.TargetPlayerId == instance.Assumption.Id))
-                        {
                             CheckForEndVotingPatch.TryAddAfterMeetingDeathPlayers(PlayerState.DeathReason.Assumed, pva.TargetPlayerId);
-                        }
-                    }
                 }
             }
         }
 
         public static void Assume(byte assumerId, byte id, int num)
         {
-            if (Main.AllAlivePlayerControls.Length < MinPlayersToAssume.GetInt())
-            {
-                return;
-            }
+            if (Main.AllAlivePlayerControls.Length < MinPlayersToAssume.GetInt()) return;
 
             Assumer assumer = Instances.Find(x => x.AssumerId == assumerId);
-            if (assumer == null || assumer.HasAssumed)
-            {
-                return;
-            }
+            if (assumer == null || assumer.HasAssumed) return;
 
             assumer.Assumption = (id, num);
             Utils.SendMessage("\n", assumerId, string.Format(Translator.GetString("Assumer.AssumedMessage"), id.ColoredPlayerName(), num));

@@ -18,12 +18,15 @@ namespace EHR.Impostor
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.ImpostorRoles, CustomRoles.Morphling);
+
             KillCooldown = new FloatOptionItem(Id + 14, "KillCooldown", new(0f, 60f, 2.5f), 10f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Morphling])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ShapeshiftCD = new FloatOptionItem(Id + 15, "ShapeshiftCooldown", new(1f, 60f, 1f), 20f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Morphling])
                 .SetValueFormat(OptionFormat.Seconds);
+
             ShapeshiftDur = new FloatOptionItem(Id + 16, "ShapeshiftDuration", new(1f, 30f, 1f), 10f, TabGroup.ImpostorRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Morphling])
                 .SetValueFormat(OptionFormat.Seconds);

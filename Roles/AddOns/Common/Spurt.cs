@@ -22,15 +22,19 @@ namespace EHR.AddOns.Common
         {
             const int id = 648950;
             SetupAdtRoleOptions(id, CustomRoles.Spurt, canSetNum: true, teamSpawnOptions: true);
+
             MinSpeed = new FloatOptionItem(id + 10, "SpurtMinSpeed", new(0f, 3f, 0.25f), 0.75f, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spurt])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             MaxSpeed = new FloatOptionItem(id + 7, "SpurtMaxSpeed", new(1.5f, 3f, 0.25f), 3f, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spurt])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             Modulator = new FloatOptionItem(id + 8, "SpurtModule", new(0.25f, 3f, 0.25f), 1.25f, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spurt])
                 .SetValueFormat(OptionFormat.Multiplier);
+
             DisplaysCharge = new BooleanOptionItem(id + 9, "EnableSpurtCharge", false, TabGroup.Addons)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Spurt]);
         }
@@ -60,20 +64,14 @@ namespace EHR.AddOns.Common
             float minSpeed = MinSpeed.GetFloat();
             float maxSpeed = MaxSpeed.GetFloat();
 
-            if (Mathf.Approximately(minSpeed, maxSpeed))
-            {
-                return 100;
-            }
+            if (Mathf.Approximately(minSpeed, maxSpeed)) return 100;
 
             return (int)((Main.AllPlayerSpeed[player.PlayerId] - minSpeed) / (maxSpeed - minSpeed) * 100);
         }
 
         public static string GetSuffix(PlayerControl player, bool isforhud = false)
         {
-            if (!player.Is(CustomRoles.Spurt) || !DisplaysCharge.GetBool() || GameStates.IsMeeting)
-            {
-                return string.Empty;
-            }
+            if (!player.Is(CustomRoles.Spurt) || !DisplaysCharge.GetBool() || GameStates.IsMeeting) return string.Empty;
 
             int fontsize = isforhud ? 100 : 55;
 
@@ -91,10 +89,12 @@ namespace EHR.AddOns.Common
             float Decreaseby = Mathf.Clamp(modulator / 20 * 0.5f, 0.01f, 0.3f);
 
             int charge = DetermineCharge(player);
+
             if (DisplaysCharge.GetBool() && !player.IsModClient() && LastNum[player.PlayerId] != charge)
             {
                 LastNum[player.PlayerId] = charge;
                 long now = Utils.TimeStamp;
+
                 if (now != LastUpdate[player.PlayerId])
                 {
                     Utils.NotifyRoles(SpecifySeer: player, SpecifyTarget: player);

@@ -13,12 +13,8 @@ namespace EHR.Modules
         public static void RPCPlayCustomSound(this PlayerControl pc, string sound, bool force = false)
         {
             if (!force)
-            {
                 if (!AmongUsClient.Instance.AmHost || !pc.IsModClient())
-                {
                     return;
-                }
-            }
 
             if (pc == null || PlayerControl.LocalPlayer.PlayerId == pc.PlayerId)
             {
@@ -33,10 +29,7 @@ namespace EHR.Modules
 
         public static void RPCPlayCustomSoundAll(string sound)
         {
-            if (!AmongUsClient.Instance.AmHost)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.PlayCustomSound, SendOption.Reliable);
             writer.Write(sound);
@@ -51,26 +44,18 @@ namespace EHR.Modules
 
         public static void Play(string sound)
         {
-            if (!Constants.ShouldPlaySfx() || !Main.EnableCustomSoundEffect.Value)
-            {
-                return;
-            }
+            if (!Constants.ShouldPlaySfx() || !Main.EnableCustomSoundEffect.Value) return;
 
             string path = SOUNDS_PATH + sound + ".wav";
-            if (!Directory.Exists(SOUNDS_PATH))
-            {
-                Directory.CreateDirectory(SOUNDS_PATH);
-            }
+            if (!Directory.Exists(SOUNDS_PATH)) Directory.CreateDirectory(SOUNDS_PATH);
 
             DirectoryInfo folder = new(SOUNDS_PATH);
-            if ((folder.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden)
-            {
-                folder.Attributes = FileAttributes.Hidden;
-            }
+            if ((folder.Attributes & FileAttributes.Hidden) != FileAttributes.Hidden) folder.Attributes = FileAttributes.Hidden;
 
             if (!File.Exists(path))
             {
                 Stream stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("EHR.Resources.Sounds." + sound + ".wav");
+
                 if (stream == null)
                 {
                     Logger.Warn($"声音文件缺失：{sound}", "CustomSounds");

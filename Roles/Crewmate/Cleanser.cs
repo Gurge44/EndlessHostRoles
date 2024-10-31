@@ -27,11 +27,14 @@ namespace EHR.Crewmate
         public override void SetupCustomOption()
         {
             SetupRoleOptions(Id, TabGroup.CrewmateRoles, CustomRoles.Cleanser);
+
             CleanserUsesOpt = new IntegerOptionItem(Id + 10, "MaxCleanserUses", new(1, 14, 1), 3, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser])
                 .SetValueFormat(OptionFormat.Times);
+
             CleansedCanGetAddon = new BooleanOptionItem(Id + 11, "CleansedCanGetAddon", false, TabGroup.CrewmateRoles)
                 .SetParent(CustomRoleSpawnChances[CustomRoles.Cleanser]);
+
             CancelVote = CreateVoteCancellingUseSetting(Id + 12, CustomRoles.Cleanser, TabGroup.CrewmateRoles);
         }
 
@@ -63,10 +66,7 @@ namespace EHR.Crewmate
 
         public void SendRPC(byte playerId)
         {
-            if (!IsEnable || !Utils.DoRPC)
-            {
-                return;
-            }
+            if (!IsEnable || !Utils.DoRPC) return;
 
             MessageWriter writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.SetCleanserCleanLimit, SendOption.Reliable);
             writer.Write(playerId);
@@ -77,10 +77,7 @@ namespace EHR.Crewmate
         public static void ReceiveRPC(MessageReader reader)
         {
             byte CleanserId = reader.ReadByte();
-            if (Main.PlayerStates[CleanserId].Role is not Cleanser cs)
-            {
-                return;
-            }
+            if (Main.PlayerStates[CleanserId].Role is not Cleanser cs) return;
 
             int Limit = reader.ReadInt32();
             cs.CleanserUses = Limit;
@@ -88,16 +85,10 @@ namespace EHR.Crewmate
 
         public override bool OnVote(PlayerControl voter, PlayerControl target)
         {
-            if (DidVote[voter.PlayerId] || Main.DontCancelVoteList.Contains(voter.PlayerId))
-            {
-                return false;
-            }
+            if (DidVote[voter.PlayerId] || Main.DontCancelVoteList.Contains(voter.PlayerId)) return false;
 
             DidVote[voter.PlayerId] = true;
-            if (CleanserUses >= CleanserUsesOpt.GetInt())
-            {
-                return false;
-            }
+            if (CleanserUses >= CleanserUsesOpt.GetInt()) return false;
 
             if (target.PlayerId == voter.PlayerId)
             {
@@ -105,10 +96,7 @@ namespace EHR.Crewmate
                 return false;
             }
 
-            if (CleanserTarget != byte.MaxValue)
-            {
-                return false;
-            }
+            if (CleanserTarget != byte.MaxValue) return false;
 
             CleanserUses++;
             CleanserTarget = target.PlayerId;
@@ -123,17 +111,11 @@ namespace EHR.Crewmate
 
         public override void AfterMeetingTasks()
         {
-            if (CleanserTarget == byte.MaxValue || CleanserId == byte.MaxValue)
-            {
-                return;
-            }
+            if (CleanserTarget == byte.MaxValue || CleanserId == byte.MaxValue) return;
 
             DidVote[CleanserId] = false;
             PlayerControl targetPc = Utils.GetPlayerById(CleanserTarget);
-            if (targetPc == null)
-            {
-                return;
-            }
+            if (targetPc == null) return;
 
             targetPc.RpcSetCustomRole(CustomRoles.Cleansed);
             Logger.Info($"Removed all the add ons of {targetPc.GetNameWithRole().RemoveHtmlTags()}", "Cleanser");

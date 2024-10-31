@@ -67,10 +67,7 @@ namespace EHR.Neutral
                     List<PlayerControl> targetList = [];
                     targetList.AddRange(from target in Main.AllPlayerControls where playerId != target.PlayerId where CanTargetImpostor.GetBool() || !target.Is(CustomRoleTypes.Impostor) where CanTargetNeutralKiller.GetBool() || !target.IsNeutralKiller() where CanTargetNeutralBenign.GetBool() || !target.IsNeutralBenign() where CanTargetNeutralEvil.GetBool() || !target.IsNeutralEvil() where target.GetCustomRole() is not (CustomRoles.GM or CustomRoles.SuperStar) where Main.LoversPlayers.TrueForAll(x => x.PlayerId != playerId) select target);
                     targetList.AddRange(Main.AllPlayerControls.Where(x => x.IsCrewmate()));
-                    if (!CanTargetNeutralBenign.GetBool() && !CanTargetNeutralEvil.GetBool() && !CanTargetNeutralKiller.GetBool())
-                    {
-                        targetList.RemoveAll(x => x.GetCustomRole().IsNeutral() || x.Is(CustomRoles.Bloodlust));
-                    }
+                    if (!CanTargetNeutralBenign.GetBool() && !CanTargetNeutralEvil.GetBool() && !CanTargetNeutralKiller.GetBool()) targetList.RemoveAll(x => x.GetCustomRole().IsNeutral() || x.Is(CustomRoles.Bloodlust));
 
                     if (targetList.Count == 0)
                     {
@@ -92,12 +89,10 @@ namespace EHR.Neutral
 
         public static void SendRPC(byte executionerId, byte targetId = 0x73, string Progress = "")
         {
-            if (!AmongUsClient.Instance.AmHost || !Utils.DoRPC)
-            {
-                return;
-            }
+            if (!AmongUsClient.Instance.AmHost || !Utils.DoRPC) return;
 
             MessageWriter writer;
+
             switch (Progress)
             {
                 case "SetTarget":
@@ -107,10 +102,7 @@ namespace EHR.Neutral
                     AmongUsClient.Instance.FinishRpcImmediately(writer);
                     break;
                 case "":
-                    if (!AmongUsClient.Instance.AmHost)
-                    {
-                        return;
-                    }
+                    if (!AmongUsClient.Instance.AmHost) return;
 
                     writer = AmongUsClient.Instance.StartRpcImmediately(PlayerControl.LocalPlayer.NetId, (byte)CustomRPC.RemoveExecutionerTarget, SendOption.Reliable);
                     writer.Write(executionerId);
@@ -128,9 +120,7 @@ namespace EHR.Neutral
                 Target[ExecutionerId] = TargetId;
             }
             else
-            {
                 Target.Remove(reader.ReadByte());
-            }
         }
 
         public static void ChangeRoleByTarget(PlayerControl target)
@@ -159,15 +149,9 @@ namespace EHR.Neutral
 
         public override bool KnowRole(PlayerControl player, PlayerControl target)
         {
-            if (base.KnowRole(player, target))
-            {
-                return true;
-            }
+            if (base.KnowRole(player, target)) return true;
 
-            if (!KnowTargetRole.GetBool())
-            {
-                return false;
-            }
+            if (!KnowTargetRole.GetBool()) return false;
 
             return player.Is(CustomRoles.Executioner) && Target.TryGetValue(player.PlayerId, out byte tar) && tar == target.PlayerId;
         }
@@ -183,15 +167,9 @@ namespace EHR.Neutral
             foreach (KeyValuePair<byte, byte> kvp in Target.Where(x => x.Value == exiled.PlayerId))
             {
                 PlayerControl executioner = Utils.GetPlayerById(kvp.Key);
-                if (executioner == null || !executioner.IsAlive() || executioner.Data.Disconnected)
-                {
-                    continue;
-                }
+                if (executioner == null || !executioner.IsAlive() || executioner.Data.Disconnected) continue;
 
-                if (!Check)
-                {
-                    ExeWin(kvp.Key);
-                }
+                if (!Check) ExeWin(kvp.Key);
 
                 return true;
             }
