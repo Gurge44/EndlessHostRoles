@@ -506,7 +506,7 @@
   "DarkHideInfo": "Ваши убийства вызывают саботаж света",
   "WorkaholicInfo": "Сделайте все таски, чтобы выиграть в одиночку!",
   "CollectorInfo": "Соберите достаточно голосов, чтобы выиграть",
-  "ProvocateurInfo": "Ваша цель должна проиграть!",
+  "ProvocateurInfo": "Win if your target loses",
   "BloodKnightInfo": "Убийства дают вам временный щит",
   "PlagueBearerInfo": "Заразите всех, чтобы превратиться в <color=#343136>Чуму</color>",
   "PestilenceInfo": "Вы непобедимы",
