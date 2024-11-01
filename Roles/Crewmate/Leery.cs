@@ -97,7 +97,13 @@ namespace EHR.Crewmate
             if (seer.PlayerId != LeeryId || seer.PlayerId != target.PlayerId || meeting || hud || !ShowNearestPlayerName.GetBool() || InvestigationEndTS == 0) return string.Empty;
 
             string text = string.Format(Translator.GetString("LeerySuffix"), CurrentTarget.ColoredPlayerName());
-            if (ShowProgress.GetBool()) text += $" {Math.Ceiling(InvestigationEndTS / (float)Utils.TimeStamp * 100)}%";
+            
+            if (ShowProgress.GetBool())
+            {
+                long now = Utils.TimeStamp;
+                float percentage = (float)(InvestigationEndTS - now) / Duration.GetInt();
+                text += $" {100 - (int)Math.Round(percentage * 100f)}%";
+            }
 
             return text;
         }
